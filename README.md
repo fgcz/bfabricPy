@@ -1,6 +1,9 @@
 # B-Fabric Application WSDL Interface 
 this is all about connecting bfabric to the application.
 
+![bfabric.py UML](/images/classes_No_Name.png)
+
+
 ## INSTALL
 requires: python suds linrary and drmaa for connecting to the grid sceduler
 (https://pypi.python.org/pypi/suds)
