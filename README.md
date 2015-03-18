@@ -3,7 +3,7 @@ this is all about connecting bfabric to the application.
 
 ## INSTALL
 requires: python suds linrary and drmaa for connecting to the grid sceduler
-[https://pypi.python.org/pypi/suds]
+(https://pypi.python.org/pypi/suds)
 ### Linux Debian
 ```bash
 apt-get install python-suds
