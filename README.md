@@ -1,5 +1,5 @@
 # B-Fabric Application WSDL Interface 
-this is all about connecting bfabric to the application.
+This is all about lsunching applications out of the B-Fabric system.
 
 ![bfabric.py UML](/images/classes_No_Name.png)
 
