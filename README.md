@@ -19,9 +19,10 @@ endpoints:
 (http://fgcz-bfabric-demo.uzh.ch/bfabric/workunit?wsdl)
 
 ## Testing (on the demo system)
+```bash
 $ ./submit_executable.py -j 13668
 $ ./wrapper_creator.py -j 13668
-
+```
 
 
 ## See Also
