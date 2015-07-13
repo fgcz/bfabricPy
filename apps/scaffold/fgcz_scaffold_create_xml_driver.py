@@ -29,7 +29,7 @@ scaffold_xsd = """
         <xs:element name="Experiment">
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="FastaDatabase">
+              <xs:element name="FastaDatabase" maxOccurs="1" minOccurs="1">
                 <xs:complexType>
                   <xs:simpleContent>
                     <xs:extension base="xs:string">
@@ -42,10 +42,10 @@ scaffold_xsd = """
                   </xs:simpleContent>
                 </xs:complexType>
               </xs:element>
-              <xs:element name="BiologicalSample">
+              <xs:element name="BiologicalSample" maxOccurs="100" minOccurs="1">
                 <xs:complexType>
                   <xs:sequence>
-                    <xs:element type="xs:string" name="InputFile" maxOccurs="1500" minOccurs="0"/>
+                    <xs:element type="xs:string" name="InputFile" maxOccurs="1500" minOccurs="1"/>
                   </xs:sequence>
                   <xs:attribute type="xs:string" name="database"/>
                   <xs:attribute type="xs:boolean" name="analyzeAsMudpit"/>
@@ -151,7 +151,7 @@ def main(argv):
             fastaId = line.split("=")[1].strip()
         if line.startswith("release="): 
             fastaDBName = line.split("=")[1].strip()
-            fastaDBPath = "/imports/share/fgcz/db/"+fastaDBName
+            fastaDBPath = "/imports/share/fgcz/db/{0}".format(fastaDBName)
             if not os.path.isfile(fastaDBPath): 
                 sys.exit("ERROR: {0} does not exist:".format(fastaDBPath))
         if line.startswith("INSTRUMENT="):
