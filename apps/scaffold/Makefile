@@ -1,3 +1,5 @@
+# Christian Panse <cp@fgcz.ethz.ch>
+# 201507
 SCAFFOLDDRIVERPY=$(PWD)/fgcz_scaffold_create_xml_driver.py
 SCAFFOLDDRIVERXML=test_GeLC-MS.xml test_mudpit.xml test_nomudpit.xml
 
