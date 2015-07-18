@@ -90,8 +90,7 @@ scaffold_xsd = """
 </xs:schema>
 """
 
-qModelStringiTRAQ_4-Plex = """
-<QuantitativeModel type="iTRAQ 4-Plex">
+qModelStringiTRAQ_4_Plex = """<QuantitativeModel type="iTRAQ 4-Plex">
                 <QuantitativeSample category="Reference" description=""
                     name="Quant 1" primary="true" reporter="iTRAQ-114"/>
                 <QuantitativeSample category="" description=""
@@ -106,7 +105,8 @@ qModelStringiTRAQ_4-Plex = """
 0.001000,0.0400,0.920,0.0380,0.001000</PurityCorrection>
 </QuantitativeModel>
 """
-qModelStringiTRAQ_8-Plex = """
+
+qModelStringiTRAQ_8_Plex = """
 <QuantitativeModel type="iTRAQ 8-Plex">
                 <QuantitativeSample category="Reference" description=""
                     name="Quant 1" primary="true" reporter="iTRAQ-113"/>
@@ -262,10 +262,10 @@ def main(argv):
 
     map(lambda item: DisplayThresholds.set(*item), displayThresholdsDetails)
     
-    if qModel == "iTRAQ_4-Plex":
+    if qModel == "iTRAQ_4_Plex":
         qModelString = qModelStringiTRAQ_4-Plex
         BiologicalSample.append(etree.fromstring(qModelString))
-    elif qModel == "iTRAQ_8-Plex":
+    elif qModel == "iTRAQ_8_Plex":
         qModelString = qModelStringiTRAQ_8-Plex
         BiologicalSample.append(etree.fromstring(qModelString))
     else:
