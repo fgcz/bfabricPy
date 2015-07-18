@@ -26,7 +26,7 @@ scaffold_xsd = """
         <xs:element name="Experiment">
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="FastaDatabase" maxOccurs="1" minOccurs="1">
+              <xs:element name="FastaDatabase" maxOccurs="1000" minOccurs="1">
                 <xs:complexType>
                   <xs:simpleContent>
                     <xs:extension base="xs:string">
@@ -134,6 +134,52 @@ qModelStringiTRAQ_8_Plex = """
 0.000,0.000,0.000,0.000,0.000</PurityCorrection>
 </QuantitativeModel>
 """
+def getParameterOfMascotDatFile(datFilename):
+    """
+    get descriptions and meta data from the first mascot dat file
+    by parsing the first hundred lines of the mascot result file
+
+    returns a dictionary 'para'
+    """
+
+    para = {'fastaId': None, 'fastaDBName': None, 
+        'fastaDBPath': None, 'instrumentName': None, 'searchTitle': None}
+
+    lineNumber = 0
+    with open(datFilename, 'r') as f:
+        for line in f.readlines():
+            if line.startswith("DB="):
+                para['fastaId'] = line.split("=")[1].strip()
+            if line.startswith("release="): 
+                para['fastaDBName'] = line.split("=")[1].strip()
+                # TODO(cp): why is this fixed?
+                para['fastaDBPath'] = "/imports/share/fgcz/db/{0}".format(para['fastaDBName'])
+                if not os.path.isfile(para['fastaDBPath']): 
+                    sys.exit("ERROR: {0} does not exist:".format(para['fastaDBPath']))
+            if line.startswith("INSTRUMENT="):
+                para['instrumentName'] = line.split("=")[1].strip()
+            if line.startswith("COM="):
+                para['searchTitle'] = line.split("=")[1].strip()    
+            # stop after 1500 lines
+            lineNumber += 1
+            if lineNumber > 1500: 
+                break
+
+    return para
+
+def addFastaDatabase(Experiment, fastaPara, fastaId):
+    """
+    add a fasta configuration to an etree Experiment tag
+    """
+    FastaDatabase = etree.SubElement(Experiment, "FastaDatabase")
+
+    fastaDatabaseDetails = [("id", fastaId), 
+        ("path", fastaPara[fastaId]), 
+        ("databaseAccessionRegEx",   ">([^ ]*)"),
+        ("databaseDescriptionRegEx", ">[^ ]* (.*)"), 
+        ("decoyProteinRegEx", ".*REV_")]
+
+    map(lambda item: FastaDatabase.set(*item), fastaDatabaseDetails)
 
 # MAIN
 
@@ -141,9 +187,10 @@ def main(argv):
     """
     """
 
+    # parse commandline arguments
     tandemOption = 'false'
     mudPitOption = 'false'
-    gelcmsOption = 'false'
+    gelcmsOption = False
     workunitId = None
     qModel = None
     qModelSpace = ['iTRAQ_4-Plex', 'iTRAQ_8-Plex']
@@ -163,7 +210,7 @@ def main(argv):
                 tandemOption='true'
         elif opt in ("-g", "--gelcms"):
             if arg in ['TRUE', 'true', 'True']:
-                gelcmsOption='true'
+                gelcmsOption=True
         elif opt in ("-w", "--workunit"):
                 workunitId=arg
         elif opt in ("-q", "--qmodel"):
@@ -187,29 +234,16 @@ def main(argv):
 
     #PARAMETERS 
 
-    # get descriptions and meta data from the first mascot dat file
-    i = 0
-    for line in fileinput.input(inputFiles[0]):
-        if line.startswith("DB="):
-            fastaId = line.split("=")[1].strip()
-        if line.startswith("release="): 
-            fastaDBName = line.split("=")[1].strip()
-            fastaDBPath = "/imports/share/fgcz/db/{0}".format(fastaDBName)
-            if not os.path.isfile(fastaDBPath): 
-                sys.exit("ERROR: {0} does not exist:".format(fastaDBPath))
-        if line.startswith("INSTRUMENT="):
-            instrumentName = line.split("=")[1].strip()
-        if line.startswith("COM="):
-            searchTitle = line.split("=")[1].strip()    
-        # stop after 1500 lines
-        i+=1
-        if i > 1500: 
-            break
+
+    #para = getParameterOfMascotDatFile(inputFiles[0])
+    para = map(getParameterOfMascotDatFile, inputFiles)
 
     # TODO(cp): should be workuntit ID
-    experimentName = "Experiment: {0}".format(searchTitle)
+    experimentName = "Experiment: {0}".format("/".join(map(lambda x: x['searchTitle'], para)))
+
     if workunitId is not None:
         experimentName = "Experiment: FGCZ B-Fabric workunit id {0}".format(workunitId)
+
 
     # begin creating scaffold xml driver
     root = etree.Element("Scaffold")
@@ -227,31 +261,39 @@ def main(argv):
     for item in experimentDetails:
         Experiment.set(*item)
 
-    FastaDatabase = etree.SubElement(Experiment, "FastaDatabase")
 
-    # ("databaseAccessionRegEx", '>([^ ]*)'),
-    # ("databaseAccessionRegEx", '>([^), ( ]*)'), 
-    # ("databaseAccessionRegEx", ">([^ ]*)")
-    fastaDatabaseDetails = [("id", fastaId), 
-        ("path", fastaDBPath), 
-        ("databaseAccessionRegEx",   ">([^ ]*)"),
-        ("databaseDescriptionRegEx", ">[^ ]* (.*)"), 
-        ("decoyProteinRegEx", ".*REV_")]
+    fastaPara = {}
+    for i in para:
+        fastaPara[i['fastaId']] = i['fastaDBPath']
+    map(lambda x: addFastaDatabase(Experiment, fastaPara, fastaId=x), fastaPara.keys()) 
 
-    map(lambda item: FastaDatabase.set(*item), fastaDatabaseDetails)
 
-    BiologicalSample = etree.SubElement(Experiment, "BiologicalSample")
+    if gelcmsOption:
+        i=0
+        for file in inputFiles:
+            BiologicalSample = etree.SubElement(Experiment, "BiologicalSample")
+            biologicalSampleDetails = [("database", para[0]['fastaId']), 
+                ("analyzeAsMudpit", mudPitOption), 
+                ("name", para[i]['searchTitle']), 
+                ("category", para[i]['searchTitle'])]
 
-    biologicalSampleDetails = [("database", fastaId), 
-        ("analyzeAsMudpit", mudPitOption), 
-        ("name", searchTitle), 
-        ("category", searchTitle)]
+            map(lambda item: BiologicalSample.set(*item), biologicalSampleDetails)
 
-    map(lambda item: BiologicalSample.set(*item), biologicalSampleDetails)
+            InputFile = etree.SubElement(BiologicalSample, "InputFile")
+            InputFile.text = file
+            i += 1
+    else:
+        BiologicalSample = etree.SubElement(Experiment, "BiologicalSample")
+        biologicalSampleDetails = [("database", para[0]['fastaId']), 
+            ("analyzeAsMudpit", mudPitOption), 
+            ("name", para[0]['searchTitle']), 
+            ("category", para[0]['searchTitle'])]
 
-    for file in inputFiles:
-        InputFile = etree.SubElement(BiologicalSample, "InputFile")
-        InputFile.text = file
+        map(lambda item: BiologicalSample.set(*item), biologicalSampleDetails)
+
+        for file in inputFiles:
+            InputFile = etree.SubElement(BiologicalSample, "InputFile")
+            InputFile.text = file
 
     DisplayThresholds = etree.SubElement(Experiment, "DisplayThresholds")
     displayThresholdsDetails = [("name", "DTs"), 
@@ -280,7 +322,7 @@ def main(argv):
     map(lambda item: Export.set(*item), exportDetails)
 
     tree = etree.ElementTree(root)
-    # optional: tree.write("filename.xml")
+    #tree.write("current_scaffold_driver.xml")
 
     rough_string = etree.tostring(root, pretty_print=True)
 
