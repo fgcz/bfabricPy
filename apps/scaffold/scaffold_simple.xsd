@@ -5,7 +5,7 @@
         <xs:element name="Experiment">
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="FastaDatabase">
+              <xs:element name="FastaDatabase" maxOccurs="1500" minOccurs="1">
                 <xs:complexType>
                   <xs:simpleContent>
                     <xs:extension base="xs:string">
@@ -18,7 +18,7 @@
                   </xs:simpleContent>
                 </xs:complexType>
               </xs:element>
-              <xs:element name="BiologicalSample">
+              <xs:element name="BiologicalSample" maxOccurs="1500" minOccurs="1">
                 <xs:complexType>
                   <xs:sequence>
                     <xs:element type="xs:string" name="InputFile" maxOccurs="1500" minOccurs="0"/>
