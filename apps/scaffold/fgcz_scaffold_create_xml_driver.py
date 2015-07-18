@@ -12,11 +12,7 @@ import getopt
 import urllib
 from lxml import etree 
 
-svninfo = """
-$HeadURL: http://fgcz-svn.uzh.ch/repos/fgcz/stable/proteomics/bin/fgcz_scaffold_create_xml_driver.py $
-$Id: fgcz_scaffold_create_xml_driver.py 7552 2015-06-30 11:21:26Z cpanse $
-$Date: 2015-06-30 13:21:26 +0200 (Tue, 30 Jun 2015) $
-"""
+svninfo = """ """
 
 scaffold_xsd = """
 <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
@@ -181,6 +177,33 @@ def addFastaDatabase(Experiment, fastaPara, fastaId):
 
     map(lambda item: FastaDatabase.set(*item), fastaDatabaseDetails)
 
+def xmlPost(root, scaffold_xsd):
+    """
+    does the final xml handling
+    """
+    tree = etree.ElementTree(root)
+    #tree.write("current_scaffold_driver.xml")
+
+    rough_string = etree.tostring(root, pretty_print=True)
+
+    try:
+        schema = etree.XMLSchema(etree.XML(scaffold_xsd))
+    except:
+        print "build xsd schema failed."
+        raise
+
+    # double check if xml string can be parsed
+    parser = etree.XMLParser(remove_blank_text=True, schema=schema)
+    try:
+        xmlScaffoldDriver = etree.fromstring(rough_string, parser)
+    except ValueError, e:
+        print "error: scaffold driver xml can not be parsed"
+        print e
+        sys.exit(1)
+
+    # print results - write to /dev/stdout 
+    print  etree.tostring(xmlScaffoldDriver, pretty_print=True)
+
 # MAIN
 
 def main(argv):
@@ -247,7 +270,7 @@ def main(argv):
 
     # begin creating scaffold xml driver
     root = etree.Element("Scaffold")
-    root.append(etree.Comment("This driver has been created using: {}".format(svninfo)))
+#    root.append(etree.Comment("FGCZ driver has been created using: {}".format(svninfo)))
 
     Experiment = etree.SubElement(root, "Experiment")
     experimentDetails = [("name", experimentName), 
@@ -321,28 +344,8 @@ def main(argv):
 
     map(lambda item: Export.set(*item), exportDetails)
 
-    tree = etree.ElementTree(root)
-    #tree.write("current_scaffold_driver.xml")
-
-    rough_string = etree.tostring(root, pretty_print=True)
-
-    try:
-        schema = etree.XMLSchema(etree.XML(scaffold_xsd))
-    except:
-        print "build xsd schema failed."
-        raise
-
-    # double check if xml string can be parsed
-    parser = etree.XMLParser(remove_blank_text=True, schema=schema)
-    try:
-        xmlScaffoldDriver = etree.fromstring(rough_string, parser)
-    except ValueError, e:
-        print "error: scaffold driver xml can not be parsed"
-        print e
-        sys.exit(1)
-
-    # print results - write to /dev/stdout 
-    print  etree.tostring(xmlScaffoldDriver, pretty_print=True)
+ 
+    xmlPost(root, scaffold_xsd)
    
 if __name__ == "__main__":
     main(sys.argv[1:])
