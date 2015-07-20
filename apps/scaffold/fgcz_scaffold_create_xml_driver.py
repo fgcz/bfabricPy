@@ -213,13 +213,14 @@ def main(argv):
     # parse commandline arguments
     tandemOption = 'false'
     mudPitOption = 'false'
+    sf3FileName='scaffold.sf3'
     gelcmsOption = False
     workunitId = None
     qModel = None
     qModelSpace = ['iTRAQ_4-Plex', 'iTRAQ_8-Plex']
 
     try:
-        opts, args = getopt.getopt(argv, "m:x:q:w:g:", ["mudpit=", "xtandem=", "qmodel=", "workunit=", "gelcms="])
+        opts, args = getopt.getopt(argv, "m:x:q:w:g:s:", ["mudpit=", "xtandem=", "qmodel=", "workunit=", "gelcms=", "sf3="])
     except getopt.GetoptError:
         print "{0} --mudpit=[TRUE|FALSE] --xtandem=[TRUE|FALSE] --gelcms=[TRUE|FALSE]".format(sys.argv[0])
         sys.exit(1)
@@ -242,10 +243,12 @@ def main(argv):
                 else:
                     sys.stderr.write("Warning: QuantitativeModel is not available. possible options are:\n\t{0}.".format(qModelSpace))
                     qModel=None
+        elif opt in ("-s", "--sf3"):
+            sf3FileName = arg
 
     #PARAMETERS for Testing:
     inputFiles=[]
-    scaffoldOutputFilePath = "{0}/scaffold.sf3".format(os.getcwd())
+    scaffoldOutputFilePath = os.path.normpath("{0}/{1}".format(os.getcwd(), sf3FileName))
 
     for line in fileinput.input(files=['-']):
         f = os.path.basename(line.rstrip('\n'))
