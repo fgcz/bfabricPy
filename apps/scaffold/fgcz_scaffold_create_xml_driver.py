@@ -229,9 +229,11 @@ def main(argv):
         if opt in ("-m", "--mudpit"):
             if arg in ['TRUE', 'true', 'True']:
                 mudPitOption='true'
+                sys.stderr.write("Info: set mudpit TRUE\n")
         elif opt in ("-x", "--xtandem"):
             if arg in ['TRUE', 'true', 'True']:
                 tandemOption='true'
+                sys.stderr.write("Info: set tandem TRUE\n")
         elif opt in ("-g", "--gelcms"):
             if arg in ['TRUE', 'true', 'True']:
                 gelcmsOption=True
