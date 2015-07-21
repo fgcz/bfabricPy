@@ -1,4 +1,6 @@
-# exaple script executed by the bfabric submitter
+#examples
+
+exaple script executed by the bfabric submitter
 
 ```bash
 cat externaljobid-45011_executableid-15136.bash
