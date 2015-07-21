@@ -22,6 +22,18 @@ set -o pipefail
 
 SSHOUTPUT=''
 SCRATCH="/scratch/$$"
+SCAFFOLDDRIVERPY=/usr/local/fgcz/proteomics/bin/fgcz_scaffold_create_xml_driver.py
+SCAFFOLDDBATCH4=/srv/FGCZ/SCAFFOLD/scaffold.c71/ScaffoldBatch4
+SCAFFOLDKEYPATH=/srv/FGCZ/SCAFFOLD/scaffold.c71/share/registeredKey.lkeynew
+
+test -x $SCAFFOLDDBATCH4 \
+|| { echo "ERROR: SCAFFOLDDBATCH4='$SCAFFOLDDBATCH4' cound not be found."; exit 1; }
+
+test -x $SCAFFOLDDRIVERPY \
+|| { echo "ERROR: SCAFFOLDDRIVERPY='$SCAFFOLDDRIVERPY'  is not available."; exit 1; }
+
+test -f $SCAFFOLDKEYPATH \
+|| { echo "ERROR: SCAFFOLDKEYPATH='$SCAFFOLDKEYPATH' scaffold key file is not available."; exit 1; }
 
 cleanup(){
             cd $SCRATCH && rm  -fv ./* || { echo "cleanup failed"; exit 1; }
@@ -30,6 +42,7 @@ cleanup(){
 trap "{ echo 'trapped by return code $? (cleaning up) ...'; cleanup ; exit $?; }" EXIT
 
 
+GELCMS="FALSE"
 MUDPID="FALSE"
 XTANDEM="FALSE"
 QMODEL="None"
@@ -49,6 +62,10 @@ do
             MUDPID="$1"
             shift
         ;;
+        --gelcms)
+            GELCMS="$1"
+            shift
+        ;;
         --xtandem)
             XTANDEM="$1"
             shift
@@ -66,7 +83,7 @@ do
        ;;
     esac
 done
-
+echo $GELCMS
 echo $MUDPID
 echo $XTANDEM
 echo $SCRATCH
@@ -79,11 +96,11 @@ cd $SCRATCH || { echo "cd into SCRATCH DIR failed"; exit 1; }
 
 ls \
 | grep dat$ \
-| /usr/local/fgcz/proteomics/bin/fgcz_scaffold_create_xml_driver.py --xtandem=$XTANDEM --mudpit=$MUDPID --workunit $WORKUNIT --qmodel=$QMODEL \
+| $SCAFFOLDDRIVERPY  --xtandem=$XTANDEM --mudpit=$MUDPID --gelcms=$GELCMS --workunit $WORKUNIT --qmodel=$QMODEL \
 | tee driver.xml \
 || { echo "fgcz_scaffold_create_xml_driver.py failed"; exit 1; }
 
-/usr/local/fgcz/scaffold.c71/ScaffoldBatch4 -q -f -keypath /scratch/fgcz/scaffold.c71/share/registeredKey.lkeynew $PWD/driver.xml \
+$SCAFFOLDDBATCH4 -q -f -keypath $SCAFFOLDKEYPATH $PWD/driver.xml \
 || { echo "scaffold application failed"; exit 1; }
 
 scp $SCRATCH/scaffold.sf3 $SSHOUTPUT || { echo "ERROR: copy output failed."; exit 1; }
