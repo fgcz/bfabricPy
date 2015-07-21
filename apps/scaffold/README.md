@@ -20,7 +20,7 @@
     </parameter>
     <parameter>
         <modifiable>true</modifiable>
-        <description>combine multiple mascot result files into a single protein list.</description>
+        <description>combine multiple mascot result files into a single protein list. if not selected, each input resource (mascot result file) is treated as individual BiologicalSample. </description>
         <key>mudpit</key>
         <label>use mudpit</label>
         <required>true</required>
@@ -29,7 +29,7 @@
     </parameter>
     <parameter>
         <modifiable>true</modifiable>
-        <description>Treat every input resource as BiologicalSample.</description>
+        <description>All input resource are handled as a single BiologicalSample. This option is usually used with non-mudpid.</description>
         <key>gelcms</key>
         <label>use GeLC-MS configuration</label>
         <required>true</required>
