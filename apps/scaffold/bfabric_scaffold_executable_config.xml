@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<executable>
+    <name>fgcz_scaffold.bash</name>
+    <context>APPLICATION</context>
+    <description>This is the 2015 generic scaffold application interface between BFabric and ScaffoldBatch4 - non-batch (multiple mascot result files into a single scaffold file).</description>
+    <program>/usr/local/fgcz/proteomics/bin/fgcz_scaffold.bash</program>
+    <valid>true</valid>
+    <parameter>
+        <modifiable>true</modifiable>
+        <description>inidcates if x!tandem should be used for PSM confirmation.</description>
+        <key>xtandem</key>
+        <label>use x!tandem</label>
+        <required>true</required>
+        <type>boolean</type>
+        <value>false</value>
+    </parameter>
+    <parameter>
+        <modifiable>true</modifiable>
+        <description>combine multiple mascot result files into a single protein list. if not selected, each input resource (mascot result file) is treated as individual BiologicalSample. </description>
+        <key>mudpit</key>
+        <label>use mudpit</label>
+        <required>true</required>
+        <type>boolean</type>
+        <value>false</value>
+    </parameter>
+    <parameter>
+        <modifiable>true</modifiable>
+        <description>All input resource are handled as a single BiologicalSample. This option is usually used with non-mudpid.</description>
+        <key>gelcms</key>
+        <label>use GeLC-MS configuration</label>
+        <required>true</required>
+        <type>boolean</type>
+        <value>true</value>
+    </parameter>
+    <parameter>
+        <modifiable>false</modifiable>
+        <description>This command is specific to Scaffold Q+. These commands specify the quantitative model type, name, and purity correction for the labels. Possible values are: 'iTRAQ 4-Plex' and 'iTRAQ 8-Plex</description>
+        <key>qmodel</key>
+        <label>QuantitativeModel</label>
+        <required>false</required>
+        <type>string</type>
+        <value>None</value>
+    </parameter>
+</executable>
