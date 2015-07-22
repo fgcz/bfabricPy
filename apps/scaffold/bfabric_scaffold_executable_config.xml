@@ -20,7 +20,7 @@
     <parameter>
         <modifiable>true</modifiable>
         <description>MudPIT (Multidimensional Protein Identification Technology) combines multiple mascot result files into a single protein list. 
-	If not selected, each input resource (mascot result file) is treated as individual BiologicalSample.</description>
+	If not selected, each input resource (mascot result file) is treated as an individual BiologicalSample.</description>
         <key>mudpit</key>
         <label>use MudPIT</label>
         <required>true</required>
