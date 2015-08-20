@@ -29,6 +29,8 @@ def myExecWorker0(cmdLine):
     rcode = None
 
     print "exec|cmd='{0}'".format(cmdLine)
+
+
     try:
         tStart = time.time()
         p = subprocess.Popen(cmdLine, shell=True)
@@ -49,7 +51,7 @@ def myExecWorker0(cmdLine):
 
 
 def maxquant(config=None):
-    return "HELLO FROM RPC SERVER")
+    return "HELLO FROM RPC SERVER"
 
 
 if __name__ == "__main__":
@@ -57,5 +59,5 @@ if __name__ == "__main__":
     port = 9999
     server = SimpleXMLRPCServer(("130.60.81.74", port))
     print "Listening on port {0} ...".format(port)
-    server.register_function(myExecWorker0(, "worker")
+    server.register_function(myExecWorker0, "worker")
     server.serve_forever()
