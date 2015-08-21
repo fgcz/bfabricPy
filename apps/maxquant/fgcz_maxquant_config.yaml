@@ -1,0 +1,21 @@
+application : maxquant
+fgcz_contact : cp@fgcz.ethz.ch
+date : 2015-08-21
+
+bfabric :
+  external_job : 45328 
+  workunit : 134461
+
+input :
+  raw :
+    - http://fgcz-s-021.uzh.ch/p1946/Proteomics/QEXACTIVE_2/paolo_20150811_course/20150811_01_Fetuin40fmol.raw
+    - http://fgcz-s-021.uzh.ch/p1946/Proteomics/QEXACTIVE_2/paolo_20150811_course/20150811_02_YPG1.raw
+    - http://fgcz-s-021.uzh.ch/p1946/Proteomics/QEXACTIVE_2/paolo_20150811_course/20150811_03_YPG2_GG.raw
+    
+  fasta : http://fgcz-s-021.uzh.ch/FASTA/fgcz_swissprot_20121031.fasta
+    
+output : c:\temp\output.zip
+  
+rpc_application_exec_host : 130.60.81.74:9999
+
+scratch : c:\temp\
