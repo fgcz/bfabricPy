@@ -9,7 +9,7 @@
     <program>/usr/local/fgcz/proteomics/bin/fgcz_scaffold.bash</program>
     <valid>true</valid>
     <parameter>
-        <modifiable>false</modifiable>
+        <modifiable>true</modifiable>
         <description>inidcates if x!tandem should be used for PSM confirmation.</description>
         <key>xtandem</key>
         <label>use x!tandem</label>
@@ -18,7 +18,7 @@
         <value>false</value>
     </parameter>
     <parameter>
-        <modifiable>false</modifiable>
+        <modifiable>true</modifiable>
         <description>MudPIT (Multidimensional Protein Identification Technology) combines multiple mascot result files into a single protein list. 
 	If not selected, each input resource (mascot result file) is treated as an individual BiologicalSample.</description>
         <key>mudpit</key>
@@ -28,7 +28,7 @@
         <value>false</value>
     </parameter>
     <parameter>
-        <modifiable>false</modifiable>
+        <modifiable>true</modifiable>
         <description>Using the GeLC-MS option all input resource are handled as a single BiologicalSample. 
 	This option is usually used when the mudpit option is not selected.</description>
         <key>gelcms</key>
@@ -38,7 +38,7 @@
         <value>true</value>
     </parameter>
     <parameter>
-        <modifiable>false</modifiable>
+        <modifiable>true</modifiable>
         <description>This command is specific to Scaffold Q+. 
 	These commands specify the quantitative model type, name, and purity correction for the labels. 
 	Possible values are: 'iTRAQ 4-Plex' and 'iTRAQ 8-Plex'</description>

@@ -13,8 +13,8 @@ Uploader for B-Fabric
 #
 # Licensed under  GPL version 3
 #
-# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/upload_wrapper_creator_executable.py $
-# $Id: upload_wrapper_creator_executable.py 1289 2014-01-31 06:49:24Z cpanse $ 
+# $HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/upload_wrapper_creator_executable.py $
+# $Id: upload_wrapper_creator_executable.py 1938 2015-09-01 09:33:04Z cpanse $ 
 
 
 import os
@@ -25,45 +25,23 @@ import bfabric
 import getpass
 
 if __name__ == "__main__":
-    if len(sys.argv) == 2 and os.path.isfile(sys.argv[1]):
-        executeableFileName = sys.argv[1]
-    elif os.path.isfile('wrapper_creator2.py'):
-        print "use 'wrapper_creator.py' in this directory."
-        executeableFileName = 'wrapper_creator.py'
-    else:
-        print "usage: " + sys.argv[0] + "<filename>"    
-        sys.exit(1)
-
-
+    executeableFileName="wrapper_creator_yaml.py"
 
     bfapp = bfabric.Bfabric(login='pfeeder')
-    bfapp.set_bfabric_wsdlurl("http://fgcz-bfabric.uzh.ch/bfabric")
+    bfapp.set_bfabric_webbase("http://fgcz-bfabric.uzh.ch/bfabric")
 
 
     with open(executeableFileName, 'r') as f:
         executable = f.read()
 
-    """
-    todo just parse the header and use the paresed attributes
-    """
-    attr = { 'name': 'PRX qsub wrapper_creator version 06', 
-        'context': 'WRAPPERCREATOR', 
-        'parameter': None, 
-        'description': 'this one is working; problems with the resource weburl are not solved.', 
-        'masterexecutableid': 4413,
-        'base64': base64.b64encode(executable) }
-
-    res = bfapp.save_object('executable', attr)
-    print (res)
-
-    bfapp.set_bfabric_wsdlurl("http://fgcz-bfabric.uzh.ch/bfabric")
     pw = getpass.getpass()
     bfapp.set_bfabric_credentials('cpanse', pw)
 
-    attr = { 'name': 'PRX qsub wrapper_creator version 06', 
+    #attr = { 'name': 'PRX qsub wrapper_creator version 17 input resource ids.', 
+    attr = { 'name': 'yaml 003', 
         'context': 'WRAPPERCREATOR', 
         'parameter': None, 
-        'description': 'this one is working; problems with the resource weburl are not solved.', 
+        'description': 'None.', 
         'masterexecutableid': 11851,
         'base64': base64.b64encode(executable) }
 

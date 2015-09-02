@@ -22,7 +22,7 @@ import base64
 import bfabric
 import getpass
 
-SVN="$HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/upload_submitter_executable.py $"
+SVN="$HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/upload_submitter_executable.py $"
 
 def read_bfabricrc():
     try:
@@ -30,7 +30,7 @@ def read_bfabricrc():
             for line in myfile:
                 return(line.strip())
     except:
-        return(-1)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
@@ -42,25 +42,23 @@ if __name__ == "__main__":
 
     bfapp = bfabric.Bfabric()
     bfapp.set_bfabric_credentials('pfeeder', read_bfabricrc())
-    bfapp.set_bfabric_wsdlurl('http://fgcz-bfabric.uzh.ch/bfabric/')
 
     with open(executeableFileName, 'r') as f:
         executable = f.read()
 
-    attr = { 'name': 'submitter_OpenGridSceduler', 'context': 'SUBMITTER', 'parameter': None, 
-        'description': 'this script submitts to the open grid sceduler', 'version': None, 
-        'masterexecutableid': 69, 
-        'base64': base64.b64encode(executable) }
-    res = bfapp.save_object('executable', attr)
-    print (res)
 
-    bfapp.set_bfabric_wsdlurl("http://fgcz-bfabric.uzh.ch/bfabric")
+    bfapp.set_bfabric_webbase("http://fgcz-bfabric.uzh.ch/bfabric")
+
     pw = getpass.getpass()
     bfapp.set_bfabric_credentials('cpanse', pw)
 
-    attr = { 'name': 'submitter_OpenGridSceduler', 'context': 'SUBMITTER', 'parameter': None, 
-        'description': 'this script submitts to the open grid sceduler', 'version': None, 
-        'masterexecutableid': 69, 
+    attr = { 'name': 'yaml /  GE', 
+        'context': 'SUBMITTER', 
+        'parameter': 28924, 
+        'description': 'stages yaml config file to appliaction using GE', 'version': 2.01, 
+        'masterexecutableid': 11871, 
         'base64': base64.b64encode(executable) }
+
     res = bfapp.save_object('executable', attr)
+
     print (res)

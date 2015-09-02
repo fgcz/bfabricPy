@@ -13,16 +13,21 @@ set status of a resource of a given resource id
 #
 # Licensed under  GPL version 3
 #
-# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/fgcz_bfabric_setResourceStatus_available.py $
-# $Id: fgcz_bfabric_report_resource.py 1290 2014-01-31 07:15:01Z cpanse $
+# $HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/fgcz_bfabric_setResourceStatus_available.py $
+# $Id: fgcz_bfabric_setResourceStatus_available.py 1931 2015-08-31 10:52:17Z cpanse $
 
 import sys
+sys.path.insert(0, '/export/bfabric/bfabric/.python')
 import bfabric
+from random import randint
+from time import sleep
+
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         bfapp = bfabric.BfabricFeeder(login='pfeeder')
-        bfapp.set_bfabric_wsdlurl("http://fgcz-bfabric.uzh.ch/bfabric")
+        bfapp.set_bfabric_webbase("http://fgcz-bfabric.uzh.ch/bfabric")
 
         for i in range(1, len(sys.argv)):
+            sleep(randint(2,20))
             print bfapp.report_resource(resourceid=int(sys.argv[i]))

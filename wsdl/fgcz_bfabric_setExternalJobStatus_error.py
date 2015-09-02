@@ -13,8 +13,8 @@ set status of a resource of a given resource id
 #
 # Licensed under  GPL version 3
 #
-# $HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/fgcz_bfabric_setExternalJobStatus_done.py $
-# $Id: fgcz_bfabric_setExternalJobStatus_done.py 1931 2015-08-31 10:52:17Z cpanse $
+# $HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/fgcz_bfabric_setExternalJobStatus_error.py $
+# $Id: fgcz_bfabric_setExternalJobStatus_error.py 1931 2015-08-31 10:52:17Z cpanse $
 
 import sys
 sys.path.insert(0, '/export/bfabric/bfabric/.python')
@@ -26,4 +26,4 @@ if __name__ == "__main__":
         bfapp.set_bfabric_webbase("http://fgcz-bfabric.uzh.ch/bfabric")
 
         for i in range(1, len(sys.argv)):
-            res=bfapp.save_object('externaljob', {'id':int(sys.argv[i]), 'status':'done'})
+            res=bfapp.save_object('externaljob', {'id':int(sys.argv[i]), 'status':'error'})
