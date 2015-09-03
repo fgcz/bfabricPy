@@ -30,6 +30,15 @@ $ ./wrapper_creator.py -j 13668
 
 - [wsdl4BFabric](http://fgcz-intranet.uzh.ch/tiki-index.php?page=wsdl4BFabric)
 
+## most frequently used command lines
+```bash 
+# get useless stuff out of the system
+ ./fgcz_bfabric_list_pending_workunits.py  \
+ | grep cpanse \
+ | grep 2015-09-0 \
+ | awk '{print $1}' \
+ | ./fgcz_bfabric_delete_workunits.py 
+```
 
 # examples
 
