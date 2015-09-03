@@ -20,17 +20,17 @@ Ensure that this file is available on the bfabric exec host.
 #
 # Licensed under  GPL version 3
 
-# $Id: bfabric.py 1954 2015-09-02 14:38:16Z cpanse $
+# $Id: bfabric.py 1963 2015-09-03 11:48:24Z cpanse $
 #
-# $HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/bfabric.py $
+# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric.py $
 #
-# $Date: 2015-09-02 16:38:16 +0200 (Wed, 02 Sep 2015) $
+# $Date: 2015-09-03 13:48:24 +0200 (Thu, 03 Sep 2015) $
 import yaml
-
 import sys
 
 try:
     from suds.client import Client
+    from suds.client import WebFault
 except:
     sys.exit(1)
 
@@ -99,7 +99,7 @@ class Bfabric(object):
         QUERY = dict(login=self.bflogin, password=self.bfpassword, query=obj)
         try:
             client = Client("".join((self.webbase, '/', endpoint, "?wsdl")))
-        except suds.WebFault, e:
+        except WebFault, e:
             print e
 
         # print client.service.read(QUERY)
@@ -114,7 +114,7 @@ class Bfabric(object):
 
         try:
             client = Client("".join((self.webbase, '/', endpoint, "?wsdl")))
-        except suds.WebFault, e:
+        except WebFault, e:
             print e
 
         if debug is not None:
@@ -131,7 +131,7 @@ class Bfabric(object):
 
         try:
             client = Client("".join((self.webbase, '/', endpoint, "?wsdl")))
-        except suds.WebFault, e:
+        except WebFault, e:
             print e
 
         if debug is not None:
@@ -253,24 +253,29 @@ class BfabricSubmitter(BfabricExternalJob, gridengine.GridEngine):
         resQsub = super(BfabricSubmitter, self).qsub(script, arguments)
         self.logger(resQsub)
 
-    def compose_bash_script(self, yaml_content=None):
-        if yaml_content is None:
-            print "no yaml content provided."
-            sys.exit(1)
+    def compose_bash_script(self, configuration=None, configuration_parser=lambda x: yaml.load(x)):
+        """
+        composes the bash script which is executed by the submitter (sun grid engine).
+        as argument it takes a configuration file, e.g., yaml, xml, json, or whatsoever, and a parser function.
 
-        assert isinstance(yaml_content, str)
+        it returns a str object containing the code.
+
+        :rtype : str
+        """
+
+        assert isinstance(configuration, str)
 
         try:
-            config = yaml.load(yaml_content)
+            config = configuration_parser(configuration)
         except:
-            print "error: parsing yaml content failed."
+            print "error: parsing configuration content failed."
             sys.exit(1)
 
 
         _cmd_template = """#!/bin/bash
 #
-# $HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/bfabric.py $
-# $Id: bfabric.py 1954 2015-09-02 14:38:16Z cpanse $
+# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric.py $
+# $Id: bfabric.py 1963 2015-09-03 11:48:24Z cpanse $
 # Christian Panse <cp@fgcz.ethz.ch> 2007-2015
 
 # Grid Engine Parameters
@@ -293,6 +298,8 @@ test $? -eq 0 && _OUTPUTHOST=`echo $_OUTPUT | cut -d":" -f1`
 test $? -eq 0 && _OUTPUTPATH=`echo $_OUTPUT | cut -d":" -f2`
 test $? -eq 0 && _OUTPUTPATH=`dirname $_OUTPUTPATH`
 test $? -eq 0 && ssh $_OUTPUTHOST "mkdir -p $_OUTPUTPATH"
+test $? -eq 0 && touch /tmp/$$
+test $? -eq 0 && scp /tmp/$$ $OUTPUT
 
 if [ $? -eq 1 ];
 then
@@ -300,7 +307,8 @@ then
     exit 1;
 fi
 
-cat > /tmp/yaml_config.$$ <<EOF
+# application parameter/configuration
+cat > /tmp/config.$$.yaml <<EOF
 {8}
 EOF
 
@@ -310,8 +318,13 @@ uptime
 echo $0
 pwd
 
+## interrupt here if you want to do a semi-automatic processing
+mail -s "yaml config externaljobid=$EXTERNALJOBID" cp@fgcz.ethz.ch < /tmp/config.$$.yaml
+# exit 0
+
 # run the application
-test -f /tmp/yaml_config.$$ && {9} /tmp/yaml_config.$$
+#test -f /tmp/config.$$.yaml && {9} /tmp/config.$$.yaml
+echo "YEAH"
 
 if [ $? -eq 0 ];
 then
@@ -322,7 +335,6 @@ else
     /home/bfabric/.python/fgcz_bfabric_setResourceStatus_available.py $RESSOURCEID_STDOUT_STDERR $RESSOURCEID;
     exit 1;
 fi
-
 
 # should be available also as zero byte files
 
@@ -337,8 +349,8 @@ exit 0
                config['job_configuration']['output']['resource_id'],
                config['job_configuration']['stderr']['resource_id'],
                config['job_configuration']['stdout']['resource_id'],
-               ",".join(job_config['application']['output']),
-               yaml_content,
+               ",".join(config['application']['output']),
+               configuration,
                config['job_configuration']['executable'])
 
         return _cmd_template
@@ -347,7 +359,7 @@ exit 0
         """
         implements the default submitter
 
-        the function feches the yaml base64 configuration file linked to the external job id out of the B-Fabric
+        the function fetches the yaml base64 configuration file linked to the external job id out of the B-Fabric
         system. Since the file can not be staged to the LRMS as argument we copy the yaml file into the bash script
         and stage it on execution the the application.
 
@@ -364,17 +376,18 @@ exit 0
 
 
             try:
-                yaml_content = base64.b64decode(executable.base64)
+                content = base64.b64decode(executable.base64)
             except:
                 print "error: decoding executable.base64 failed."
                 sys.exit(1)
 
 
-            _cmd_template = compose_bash_script(yaml_content)
+            _cmd_template = self.compose_bash_script(configuration=content,
+                                                     configuration_parser=lambda x: yaml.load(x))
 
 
-            _bash_script_filename = "/tmp/externaljobid-{0}_executableid-{1}.bash".format(self.externaljobid,
-                                                                                          executable._id)
+            _bash_script_filename = "/tmp/externaljobid-{0}_executableid-{1}.bash"\
+                .format(self.externaljobid, executable._id)
 
             with open(_bash_script_filename, 'w') as f:
                 f.write(_cmd_template)
@@ -397,8 +410,8 @@ class BfabricWrapperCreator(BfabricExternalJob):
         the methode creates and uploads an executebale.  
         """
         _cmd_template = """#!/bin/bash
-# $HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/bfabric.py $
-# $Id: bfabric.py 1954 2015-09-02 14:38:16Z cpanse $
+# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric.py $
+# $Id: bfabric.py 1963 2015-09-03 11:48:24Z cpanse $
 # Christian Panse <cp@fgcz.ethz.ch>
 #$ -q PRX@fgcz-c-071
 #$ -e {1}
@@ -447,8 +460,8 @@ exit 0
         the methode creates and uploads an executebale.  
         """
         _cmd_template0 = """#!/bin/bash
-# $HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/bfabric.py $
-# $Id: bfabric.py 1954 2015-09-02 14:38:16Z cpanse $
+# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric.py $
+# $Id: bfabric.py 1963 2015-09-03 11:48:24Z cpanse $
 # Christian Panse <cp@fgcz.ethz.ch>
 #$ -q PRX@fgcz-c-071
 #$ -e {1}
@@ -518,7 +531,7 @@ exit 0
 
         return (resExecutable)
 
-    def write_yaml(self):
+    def write_yaml(self,  data_serializer=lambda x: yaml.dump(x, default_flow_style=False, encoding=None)):
         """
         This method writes all related parameters into a yaml file which is than upload as base64 encoded
         file into the b-fabric system.
@@ -535,32 +548,31 @@ exit 0
             print "ERROR: no workunit available for the given externaljobid."
             sys.exit(1)
 
-        workunit = self.read_object(endpoint='workunit', obj={'id': workunitid})
+        workunit = self.read_object(endpoint='workunit', obj={'id': workunitid})[0]
         if workunit is None:
             print "ERROR: no workunit available for the given externaljobid."
             sys.exit(1)
 
         # collects all required information out of B-Fabric to create an executable script
-        workunit = workunit[0]
         application = self.read_object('application', obj={'id': workunit.application._id})[0]
-        executable = self.read_object('executable', obj={'id': workunit.applicationexecutable._id})[0]
+        submitter_executable = self.read_object('executable', obj={'id': workunit.applicationexecutable._id})[0]
         project = workunit.project
         today = datetime.date.today()
 
 
         # merge all information into the executable script
-        _outputStorage = self.read_object('storage', obj={'id': application.storage._id})[0]
+        _output_storage = self.read_object('storage', obj={'id': application.storage._id})[0]
 
-        _outputRelativePath = "/p{0}/bfabric/{1}/{2}/{3}/workunit_{4}/".format(
+        _output_relative_path = "/p{0}/bfabric/{1}/{2}/{3}/workunit_{4}/".format(
             project._id,
             application.technology.replace(' ', '_'),
             application.name.replace(' ', '_'),
             today.strftime('%Y/%Y-%m/%Y-%m-%d/'),
             workunitid)
 
-        _logStorage = self.read_object('storage', obj={'id': 7})[0]
+        _log_storage = self.read_object('storage', obj={'id': 7})[0]
 
-        _cmd_applicationList = [executable.program]
+        #_cmd_applicationList = [submitter_executable.program]
 
         application_parameter = {}
 
@@ -574,146 +586,126 @@ exit 0
 
 
 
-        resource = map(lambda x: x._id, workunit.inputresource)
-        resource = map(lambda x: self.read_object(endpoint='resource', obj={'id': x})[0], resource)
-        workunit_id = map(lambda x: x.workunit._id, resource)
+        input_resources = map(lambda x: x._id, workunit.inputresource)
+        input_resources = map(lambda x: self.read_object(endpoint='resource', obj={'id': x})[0], input_resources)
 
 
         # query all urls and ids of the input resources
-        resource_url = dict()
-        resource_id = dict()
+        resource_urls = dict()
+        resource_ids = dict()
 
-        for resource_iterator in resource:
-            _appication_id  = self.read_object(endpoint='workunit',
+        for resource_iterator in input_resources:
+            _appication_id = self.read_object(endpoint='workunit',
                                                obj={'id': resource_iterator.workunit._id})[0].application._id
+
             _application_name = "{0}".format(self.read_object('application', obj={'id': _appication_id})[0].name)
+
             _storage = self.read_object('storage', {'id': resource_iterator.storage._id})[0]
-            _inputUrl = "bfabric@{0}/{1}:/{2}".format(_storage.host, _storage.basepath, resource_iterator.relativepath)
-            #_resource_id = "{0}".format(resource_iterator._id)
-            _resource_id = int(resource_iterator._id)
 
-            if not _application_name in resource_url:
-                resource_url[_application_name] = []
-                resource_id[_application_name] = []
+            _inputUrl = "bfabric@{0}:/{1}/{2}".format(_storage.host, _storage.basepath, resource_iterator.relativepath)
 
-            resource_url[_application_name].append(_inputUrl)
-            resource_id[_application_name].append(_resource_id)
+            if not _application_name in resource_urls:
+                resource_urls[_application_name] = []
+                resource_ids[_application_name] = []
 
-        # create output resource
-        res0 = self.save_object('resource', {
-            'name': "{0} {1} - resource".format(application.name, len(resource)),
+            resource_urls[_application_name].append(_inputUrl)
+            resource_ids[_application_name].append(int(resource_iterator._id))
+
+        # create resources for output, stderr, stdout
+        _ressource_output = self.save_object('resource', {
+            'name': "{0} {1} - input_resources".format(application.name, len(input_resources)),
             'workunitid': workunit._id,
             'storageid': application.storage._id,
-            'relativepath': _outputRelativePath})[0]
+            'relativepath': _output_relative_path})[0]
 
-        try:
-            _outputFilename = "{0}.{1}".format(res0._id, application.outputfileformat)
-            _gridengine_err_file = "/workunitid-{0}_resourceid-{1}.err".format(workunit._id, res0._id)
-            _gridengine_out_file = "/workunitid-{0}_resourceid-{1}.out".format(workunit._id, res0._id)
-        except:
-            _outputFilename = "{0}.{1}".format(None, application.outputfileformat)
-            _gridengine_err_file = "/workunitid-{0}_resourceid-{1}.err".format(workunit._id, None)
-            _gridengine_out_file = "/workunitid-{0}_resourceid-{1}.out".format(workunit._id, None)
 
-        _res_err = self.save_object('resource', {
+        _output_filename = "{0}.{1}".format(_ressource_output._id, application.outputfileformat)
+        # we want to include the resource._id into the filename
+        _ressource_output = self.save_object('resource',
+                                    {'id': _ressource_output._id,
+                                     'relativepath': "{0}/{1}".format(_output_relative_path, _output_filename)})[0]
+
+        print _ressource_output
+        _resource_stderr = self.save_object('resource', {
             'name': 'grid_engine_stderr',
             'workunitid': workunit._id,
-            'storageid': _logStorage._id,
-            'relativepath': _gridengine_err_file})[0]
+            'storageid': _log_storage._id,
+            'relativepath': "/workunitid-{0}_resourceid-{1}.err".format(workunit._id, _ressource_output._id)})[0]
 
-        _res_out = self.save_object('resource', {
+        _resource_stdout = self.save_object('resource', {
             'name': 'grid_engine_stdout',
             'workunitid': workunit._id,
-            'storageid': _logStorage._id,
-            'relativepath': _gridengine_out_file})[0]
-
-        resNewExternaljob0 = \
-            self.save_object('externaljob', {"workunitid": workunit._id, 'status': 'new', 'action': "WORKUNIT"})[0]
-        try:
-            resNewExternaljob0_id = resNewExternaljob0._id
-        except:
-            resNewExternaljob0_id = 0
-
-        try:
-            res1 = self.save_object('resource',
-                                    {'id': res0._id, 'relativepath': _outputRelativePath + '/' + _outputFilename})
-        except:
-            res1 = self.save_object('resource',
-                                    {'id': None, 'relativepath': _outputRelativePath + '/' + _outputFilename})
-
-        try:
-            res0_id = res0._id
-            _res_err_id = _res_err._id
-            _res_out_id = _res_out._id
-        except:
-            res0_id = 0
-            _res_err_id = 0
-            _res_out_id = 0
+            'storageid': _log_storage._id,
+            'relativepath': "/workunitid-{0}_resourceid-{1}.out".format(workunit._id, _ressource_output._id)})[0]
 
 
-        _output_url = "bfabric@{0}:{1}{2}/{3}".format(_outputStorage.host,
-                                                    _outputStorage.basepath,
-                                                    _outputRelativePath,
-                                                    _outputFilename)
+        submitter_externaljob = self.save_object('externaljob',
+                                                    {"workunitid": workunit._id, 'status': 'new', 'action': "WORKUNIT"})[0]
+
+
+        _output_url = "bfabric@{0}:{1}{2}/{3}".format(_output_storage.host,
+                                                    _output_storage.basepath,
+                                                    _output_relative_path,
+                                                    _output_filename)
         # compose configuration structure
         config = {
             'job_configuration': {
-                'executable': "{}".format(executable.program),
-                'input': resource_id,
+                'executable': "{}".format(submitter_executable.program),
+                'input': resource_ids,
                 'output': {
                     'protocol': 'scp',
-                    'resource_id': int(_res_out_id),
+                    'resource_id': int(_ressource_output._id),
                     'ssh_args': "-o StrictHostKeyChecking=no -c arcfour -2 -l bfabric -x"
                 },
                 'stderr': {
                         'protocol': 'file',
-                        'resource_id': int(_res_err_id) ,
-                        'url': "{}{}".format(_logStorage.basepath, _gridengine_err_file)
+                        'resource_id': int(_resource_stderr._id) ,
+                        'url': "{0}/workunitid-{1}_resourceid-{2}.err".format(_log_storage.basepath, workunit._id, _ressource_output._id)
                     },
                 'stdout': {
                         'protocol': 'file',
-                        'resource_id': int(_res_out_id),
-                        'url': "{}{}".format(_logStorage.basepath, _gridengine_out_file)
+                        'resource_id': int(_resource_stdout._id),
+                        'url': "{0}/workunitid-{1}_resourceid-{2}.out".format(_log_storage.basepath, workunit._id, _ressource_output._id)
                     },
                 'workunit_id': int(workunit._id),
-                'external_job_id': int(resNewExternaljob0_id)
+                'workunit_url': "{0}/userlab/show-workunit.html?workunitId={1}".format(self.webbase, int(workunit._id)),
+                'external_job_id': int(submitter_externaljob._id)
             },
             'application' : {
                 'protocol': 'scp',
                 'parameters': application_parameter,
-                'input': resource_url,
+                'input': resource_urls,
                 'output': [_output_url]
             }
         }
 
-        yaml_config = yaml.dump(config, default_flow_style=False, encoding=None)
-        print yaml_config
+        config_serialized = data_serializer(config)
 
-        yaml_executable = self.save_object('executable', {'name': 'yaml',
+        submitter_executable = self.save_object('executable', {'name': 'yaml',
                                                         'context': 'WORKUNIT',
                                                         'parameter': None,
                                                         'description': "This is a yaml job configuration file base64 encoded."
-                                                                       "It should be executed bu the B-Fabric yaml"
+                                                                       "It should be executed by the B-Fabric yaml"
                                                                        "submitter.",
                                                         'workunitid': workunit._id,
-                                                        'base64': base64.b64encode(yaml_config),
-                                                        'version': 0.2})[0]
+                                                        'base64': base64.b64encode(config_serialized),
+                                                        'version': 0.3})[0]
 
 
-        resNewExternaljob1 = self.save_object('externaljob',
-                                              {"id": resNewExternaljob0._id,
-                                               'executableid': yaml_executable._id})
+        submitter_externaljob = self.save_object('externaljob',
+                                              {"id": submitter_externaljob._id,
+                                               'executableid': submitter_executable._id})
 
-        resExternaljob = self.save_object(endpoint='externaljob', obj={'id': self.externaljobid,
-                                                                       'status': 'done'})
+        wrapper_creator_externaljob = self.save_object(endpoint='externaljob',
+                                                       obj={'id': self.externaljobid, 'status': 'done'})
 
 if __name__ == "__main__":
     example_yaml="""
 application:
   input:
     mascot_dat:
-    - bfabric@fgcz-s-018.uzh.ch//usr/local/mascot/:/data/20150807/F221967.dat
-    - bfabric@fgcz-s-018.uzh.ch//usr/local/mascot/:/data/20150807/F221973.dat
+    - bfabric@fgcz-s-018.uzh.ch://usr/local/mascot/data/20150807/F221967.dat
+    - bfabric@fgcz-s-018.uzh.ch://usr/local/mascot/data/20150807/F221973.dat
   output:
   - bfabric@fgczdata.fgcz-net.unizh.ch:/srv/www/htdocs//p1000/bfabric/Proteomics/gerneric_yaml/2015/2015-09/2015-09-02//workunit_134904//203196.zip
   parameters:

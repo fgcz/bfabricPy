@@ -20,16 +20,14 @@ wrapper_creator_yaml.py -j 45631
 #
 # Licensed under  GPL version 3
 #
-# $HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/wrapper_creator_yaml.py $
-# $Id: wrapper_creator_yaml.py 1935 2015-09-01 08:41:47Z cpanse $ 
+# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/wrapper_creator_yaml.py $
+# $Id: wrapper_creator_yaml.py 1960 2015-09-03 11:04:07Z cpanse $ 
 
 import os
 import sys
 
 sys.path.insert(0, "{0}/{1}".format(os.environ['HOME'], '.python'))
-
 import bfabric
-import yaml
 
 if __name__ == "__main__":
 
