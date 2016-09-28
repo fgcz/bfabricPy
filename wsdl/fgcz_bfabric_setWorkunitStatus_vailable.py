@@ -13,8 +13,8 @@ set status of a resource of a given resource id
 #
 # Licensed under  GPL version 3
 #
-# $HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/fgcz_bfabric_setWorkunitStatus_vailable.py $
-# $Id: fgcz_bfabric_report_resource.py 1290 2014-01-31 07:15:01Z cpanse $
+# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/fgcz_bfabric_setWorkunitStatus_vailable.py $
+# $Id: fgcz_bfabric_setWorkunitStatus_vailable.py 2397 2016-09-06 07:04:35Z cpanse $
 
 import sys
 sys.path.insert(0, '/export/bfabric/bfabric/.python')

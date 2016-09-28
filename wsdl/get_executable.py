@@ -14,7 +14,7 @@ Submitter for B-Fabric
 # Licensed under  GPL version 3
 #
 # $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/get_executable.py $
-# $Id: submit_executable.py 1289 2014-01-31 06:49:24Z cpanse $ 
+# $Id: get_executable.py 2397 2016-09-06 07:04:35Z cpanse $ 
 
 # @name: submitter_OpenGridSceduler
 # @description: this script submitts to the open grid sceduler
@@ -28,18 +28,15 @@ import base64
 import bfabric
 
 if __name__ == "__main__":
-
     externaljobid = -1
 
     if len(sys.argv) == 3 and sys.argv[1] == '-id' and int(sys.argv[2]) > 0:
         executable_id = int(sys.argv[2])
     else:
-        print "usage: " + sys.argv[0] + "-id <executable_id>"    
+        print "usage: " + sys.argv[0] + " -id <executable_id>"    
         sys.exit(1)
 
     bfapp = bfabric.BfabricSubmitter(login='pfeeder', externaljobid=externaljobid)
-
-    bfapp.set_bfabric_wsdlurl("http://fgcz-bfabric.uzh.ch/bfabric")
 
     executable = bfapp.read_object(endpoint='executable', obj={'id': executable_id})[0]
 

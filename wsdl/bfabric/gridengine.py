@@ -3,7 +3,16 @@
 """
 Interfaces to the Sun/Oracle/Open Grid Engine batch queueing systems.
 taken from https://vm-mad.googlecode.com/svn/trunk
+
+https://arxiv.org/abs/1302.2529
+DOI: 10.1007/978-3-642-38750-0_34
+
+$Id: gridengine.py 2463 2016-09-23 14:55:50Z cpanse $
+$HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/gridengine.py $
+$Date: 2016-09-23 16:55:50 +0200 (Fri, 23 Sep 2016) $
+$Revision: 2463 $
 """
+
 # Copyright (C) 2011, 2012 ETH Zurich and University of Zurich. All rights reserved.
 # Copyright (C) 2014 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 #
@@ -23,13 +32,15 @@ taken from https://vm-mad.googlecode.com/svn/trunk
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# $Rev: 1269 $
-# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/gridengine.py $
-# $Date: 2016-09-06 09:04:35 +0200 (Tue, 06 Sep 2016) $
+# $Rev: 2463 $
+# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/gridengine.py $
+# $Date: 2016-09-23 16:55:50 +0200 (Fri, 23 Sep 2016) $
 # $Author: cpanse $
 
 __docformat__ = 'reStructuredText'
-__version__ = '$Revision: 1269 $'
+__version__ = '$Revision: 2463 $'
+
+
 
 import os
 import subprocess
@@ -88,9 +99,6 @@ def main():
     print "hello world!"
     pass
 
-def test():
-    print "testing ..."
-    pass
 
 if __name__ == "__main__": 
     main()

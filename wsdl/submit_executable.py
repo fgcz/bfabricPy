@@ -13,8 +13,8 @@ Submitter for B-Fabric
 #
 # Licensed under  GPL version 3
 #
-# $HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/submit_executable.py $
-# $Id: submit_executable.py 1946 2015-09-02 10:57:46Z cpanse $ 
+# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/submit_executable.py $
+# $Id: submit_executable.py 2478 2016-09-26 09:46:53Z cpanse $ 
 
 # @name: submitter_OpenGridSceduler
 # @description: this script submits to the open grid scheduler
@@ -34,14 +34,12 @@ python submit_executable.py -j 45864
 
 #import os
 #import sys
-import bfabric
 from optparse import OptionParser
-
-
+from bfabric import BfabricSubmitter
 
 def main():
 
-    parser = OptionParser(usage="usage: %prog -j <externaljobid> -j <queue>",
+    parser = OptionParser(usage="usage: %prog -j <externaljobid>",
                           version="%prog 1.0")
 
     parser.add_option("-j", "--externaljobid",
@@ -51,23 +49,16 @@ def main():
                       default=None,
                       help="external job id is required.")
 
-    parser.add_option("-q", "--queue",
-                      type='string',
-                      action="store",  # optional because action defaults to "store"
-                      dest="queue",
-                      default="PRX@fgcz-c-071",
-                      help="defines Open Grid Scheduler queue name.")
-
     (options, args) = parser.parse_args()
 
     if not options.externaljobid:
         parser.error("option '-j' is required.")
 
-    bfapp = bfabric.BfabricSubmitter(login='pfeeder',
-                                     externaljobid=options.externaljobid,
-                                     queue=options.queue)
+    bfapp = BfabricSubmitter(login='pfeeder',
+                                     externaljobid=options.externaljobid)
 
     bfapp.submitter_yaml()
+    print bfapp.query_counter
 
 if __name__ == "__main__":
     main()

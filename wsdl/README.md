@@ -1,20 +1,17 @@
-
-# source
-```bash
-# $Revision: 1250 $
-# $HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/README.md $
-# $Author: cpanse $
-# $Date: 2015-09-01 07:47:24 +0200 (Tue, 01 Sep 2015) $
-```
-
-# requires: 
-
-- [python suds](https://pypi.python.org/pypi/suds) library and DRMAA for connecting to the grid scheduler
-- [yaml](http://yaml.org/)
+# bfabric wsdl python package
 
 ## install debian linux:
 ```
-apt-get install python-suds python-yaml
+apt-get install python-pip
+
+svn co http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python bfabric-python
+
+cd bfabric-python
+
+python setup.py sdist
+
+pip install dist/bfabric*.gz
+
 ```
 
 # WSDL Interface to B-Fabric
@@ -49,8 +46,8 @@ externaljobid-45939_executableid-15312.bash listing:
 ```bash
 #!/bin/bash
 #
-# $HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/bfabric.py $
-# $Id: bfabric.py 1956 2015-09-02 14:47:32Z cpanse $
+# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/README.md $
+# $Id: README.md 2479 2016-09-26 09:48:31Z cpanse $
 # Christian Panse <cp@fgcz.ethz.ch> 2007-2015
 
 # Grid Engine Parameters
@@ -140,7 +137,6 @@ fi
 # should be available also as zero byte files
 
 /home/bfabric/.python/fgcz_bfabric_setResourceStatus_available.py $RESSOURCEID_STDOUT_STDERR
-
 
 exit 0
 ```

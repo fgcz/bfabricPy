@@ -21,13 +21,11 @@ wrapper_creator_yaml.py -j 45631
 # Licensed under  GPL version 3
 #
 # $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/wrapper_creator_yaml.py $
-# $Id: wrapper_creator_yaml.py 1960 2015-09-03 11:04:07Z cpanse $ 
+# $Id: wrapper_creator_yaml.py 2478 2016-09-26 09:46:53Z cpanse $ 
 
 import os
 import sys
-
-sys.path.insert(0, "{0}/{1}".format(os.environ['HOME'], '.python'))
-import bfabric
+from bfabric import BfabricWrapperCreator
 
 if __name__ == "__main__":
 
@@ -40,7 +38,6 @@ if __name__ == "__main__":
         print "usage: " + sys.argv[0] + " -j <externaljobid>"    
         sys.exit(1)
 
-    bfapp = bfabric.BfabricWrapperCreator(login='pfeeder', 
-        externaljobid=externaljobid)
+    bfapp = BfabricWrapperCreator(login='pfeeder', externaljobid=externaljobid)
 
     bfapp.write_yaml()
