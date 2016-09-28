@@ -1,3 +1,6 @@
+mirrow of
+http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python
+
 # bfabric wsdl python package
 
 
