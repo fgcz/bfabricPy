@@ -24,7 +24,7 @@ taken from https://vm-mad.googlecode.com/svn/trunk
 # limitations under the License.
 #
 # $Rev: 1269 $
-# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/gridengine.py $
+# $HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/gridengine.py $
 # $Date: 2016-09-06 09:04:35 +0200 (Tue, 06 Sep 2016) $
 # $Author: cpanse $
 

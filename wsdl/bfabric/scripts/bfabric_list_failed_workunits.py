@@ -10,7 +10,7 @@ Author:
 
 Licensed under  GPL version 3
 
-$HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/scripts/bfabric_list_failed_workunits.py $
+$HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/scripts/bfabric_list_failed_workunits.py $
 $Id: bfabric_list_failed_workunits.py 2475 2016-09-26 09:02:07Z cpanse $ 
 
 """

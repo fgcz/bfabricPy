@@ -8,7 +8,7 @@ https://arxiv.org/abs/1302.2529
 DOI: 10.1007/978-3-642-38750-0_34
 
 $Id: gridengine.py 2463 2016-09-23 14:55:50Z cpanse $
-$HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/gridengine.py $
+$HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/gridengine.py $
 $Date: 2016-09-23 16:55:50 +0200 (Fri, 23 Sep 2016) $
 $Revision: 2463 $
 """
@@ -33,7 +33,7 @@ $Revision: 2463 $
 # limitations under the License.
 #
 # $Rev: 2463 $
-# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/gridengine.py $
+# $HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/gridengine.py $
 # $Date: 2016-09-23 16:55:50 +0200 (Fri, 23 Sep 2016) $
 # $Author: cpanse $
 

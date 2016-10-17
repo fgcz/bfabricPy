@@ -2,7 +2,7 @@ from setuptools import setup
 
 
 setup(name='bfabric',
-      version='0.3.7',
+      version='0.3.12',
       description="""
 B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper_creator and submitter.
 """,
@@ -23,6 +23,9 @@ B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper
         'bfabric/scripts/bfabric_flax_wuid_resources.py',
         'bfabric/scripts/bfabric_list_failed_workunits.py',
         'bfabric/scripts/bfabric_create_bfabricrc.py',
-        'bfabric/scripts/bfabric_list_pending_workunits.py'
+        'bfabric/scripts/bfabric_list.py',
+        'bfabric/scripts/bfabric_delete.py',
+        'bfabric/scripts/bfabric_list_pending_workunits.py',
+        'bfabric/scripts/bfabric_save_importresource.py'
         ],
       zip_safe=True)

@@ -21,7 +21,7 @@ import sys
 import base64
 from bfabric import Bfabric
 
-SVN="$HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/scripts/bfabric_upload_submitter_executable.py $"
+SVN="$HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/scripts/bfabric_upload_submitter_executable.py $"
 
 if __name__ == "__main__":
     if len(sys.argv) == 2 and os.path.isfile(sys.argv[1]):

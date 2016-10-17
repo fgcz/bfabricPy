@@ -13,7 +13,7 @@ Submitter for B-Fabric
 #
 # Licensed under  GPL version 3
 #
-# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/get_executable.py $
+# $HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/get_executable.py $
 # $Id: get_executable.py 2397 2016-09-06 07:04:35Z cpanse $ 
 
 # @name: submitter_OpenGridSceduler

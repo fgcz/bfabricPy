@@ -17,10 +17,10 @@ Authors:
 
 Licensed under  GPL version 3
 
-$Id: bfabric.py 2480 2016-09-26 15:10:39Z cpanse $
-$HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/bfabric.py $
-$Date: 2016-09-26 17:10:39 +0200 (Mon, 26 Sep 2016) $
-$Revision: 2480 $
+$Id: bfabric.py 2523 2016-10-17 09:23:32Z cpanse $
+$HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/bfabric.py $
+$Date: 2016-10-17 11:23:32 +0200 (Mon, 17 Oct 2016) $
+$Revision: 2523 $
 
 """
 
@@ -33,6 +33,8 @@ try:
 except:
     raise
 
+
+
 import hashlib
 import os
 import base64
@@ -40,6 +42,11 @@ import datetime
 import re
 import unittest
 import gridengine
+
+# fixes bfabric8 wsdl problems
+import httplib
+httplib.HTTPConnection._http_vsn = 10
+httplib.HTTPConnection._http_vsn_str = 'HTTP/1.0'
 
 
 class Bfabric(object):
@@ -344,8 +351,8 @@ class BfabricSubmitter(BfabricExternalJob, gridengine.GridEngine):
 
         _cmd_template = """#!/bin/bash
 #
-# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/bfabric.py $
-# $Id: bfabric.py 2480 2016-09-26 15:10:39Z cpanse $
+# $HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/bfabric.py $
+# $Id: bfabric.py 2523 2016-10-17 09:23:32Z cpanse $
 # Christian Panse <cp@fgcz.ethz.ch> 2007-2015
 
 # Grid Engine Parameters
@@ -490,8 +497,8 @@ class BfabricWrapperCreator(BfabricExternalJob):
         the methode creates and uploads an executebale.  
         """
         _cmd_template = """#!/bin/bash
-# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/bfabric.py $
-# $Id: bfabric.py 2480 2016-09-26 15:10:39Z cpanse $
+# $HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/bfabric.py $
+# $Id: bfabric.py 2523 2016-10-17 09:23:32Z cpanse $
 # Christian Panse <cp@fgcz.ethz.ch>
 #$ -q PRX@fgcz-c-071
 #$ -e {1}
@@ -540,8 +547,8 @@ exit 0
         the methode creates and uploads an executebale.  
         """
         _cmd_template0 = """#!/bin/bash
-# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/bfabric.py $
-# $Id: bfabric.py 2480 2016-09-26 15:10:39Z cpanse $
+# $HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/bfabric.py $
+# $Id: bfabric.py 2523 2016-10-17 09:23:32Z cpanse $
 # Christian Panse <cp@fgcz.ethz.ch>
 #$ -q PRX@fgcz-c-071
 #$ -e {1}

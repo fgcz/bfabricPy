@@ -20,7 +20,7 @@ wrapper_creator_yaml.py -j 45631
 #
 # Licensed under  GPL version 3
 #
-# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/wrapper_creator_yaml.py $
+# $HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/wrapper_creator_yaml.py $
 # $Id: wrapper_creator_yaml.py 2478 2016-09-26 09:46:53Z cpanse $ 
 
 import os

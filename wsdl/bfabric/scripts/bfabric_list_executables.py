@@ -10,7 +10,7 @@ Author:
 
 Licensed under  GPL version 3
 
-$HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/scripts/bfabric_list_executables.py $
+$HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/scripts/bfabric_list_executables.py $
 $Id: bfabric_list_executables.py 2482 2016-09-26 15:51:55Z cpanse $ 
 
 

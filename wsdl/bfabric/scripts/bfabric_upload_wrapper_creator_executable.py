@@ -13,7 +13,7 @@ Uploader for B-Fabric
 #
 # Licensed under  GPL version 3
 #
-# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/scripts/bfabric_upload_wrapper_creator_executable.py $
+# $HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/scripts/bfabric_upload_wrapper_creator_executable.py $
 # $Id: bfabric_upload_wrapper_creator_executable.py 2478 2016-09-26 09:46:53Z cpanse $ 
 
 

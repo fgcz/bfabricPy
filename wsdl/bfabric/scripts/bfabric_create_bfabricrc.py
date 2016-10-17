@@ -10,7 +10,7 @@ Author:
 
 Licensed under  GPL version 3
 
-$HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/scripts/bfabric_create_bfabricrc.py $
+$HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/scripts/bfabric_create_bfabricrc.py $
 $Id: bfabric_create_bfabricrc.py 2475 2016-09-26 09:02:07Z cpanse $ 
 
 """

@@ -10,7 +10,7 @@ Author:
 
 Licensed under  GPL version 3
 
-$HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/fgcz_bfabric_list_pending_workunits.py $
+$HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/fgcz_bfabric_list_pending_workunits.py $
 $Id: fgcz_bfabric_list_pending_workunits.py 2397 2016-09-06 07:04:35Z cpanse $ 
 
 """

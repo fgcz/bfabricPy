@@ -1,6 +1,5 @@
 # bfabric wsdl python package
 
-
 ## install debian linux:
 ```
 apt-get install python-pip
@@ -14,7 +13,6 @@ python setup.py sdist
 pip install dist/bfabric*.gz
 
 ```
-
 
 # WSDL Interface to B-Fabric
 [endpoints](http://fgcz-bfabric-demo.uzh.ch/bfabric/workunit?wsdl)
@@ -48,8 +46,8 @@ externaljobid-45939_executableid-15312.bash listing:
 ```bash
 #!/bin/bash
 #
-# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/README.md $
-# $Id: README.md 2479 2016-09-26 09:48:31Z cpanse $
+# $HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/README.md $
+# $Id: README.md 2527 2016-10-17 10:46:38Z cpanse $
 # Christian Panse <cp@fgcz.ethz.ch> 2007-2015
 
 # Grid Engine Parameters
@@ -141,4 +139,48 @@ fi
 /home/bfabric/.python/fgcz_bfabric_setResourceStatus_available.py $RESSOURCEID_STDOUT_STDERR
 
 exit 0
+```
+
+# curl example
+
+```
+cat ~/query.xml 
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:end="http://endpoint.webservice.component.bfabric.org/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <end:read>
+         <parameters>
+            <login>cpanse</login>
+<password>$2a$10$UXXXL1lr0wwp0cnByu0SXuxxxhakhjfskjhdgskhnSk7gBIUvy/au</password>
+
+            <query>
+
+               <status>pending</status>
+            </query>
+         </parameters>
+      </end:read>
+   </soapenv:Body>
+</soapenv:Envelope> 
+
+test $? -eq 0 \
+&& curl --header "Content-Type: text/xml;charset=UTF-8" \
+--header "SOAPAction: ACTION_YOU_WANT_TO_CALL" \
+--data @query.xml \
+http://fgcz-bfabric.uzh.ch/bfabric/workunit?wsdl
+```
+
+
+# Example usage
+
+remove accidentally inserted mgf files
+
+```
+bfabric_list.py importresource \
+| grep mgf$ \
+| awk '{print $1}' \
+| tee /tmp/$$.log \
+| while read i; 
+do 
+	bfabric_delete.py importresource $i ; 
+done
 ```
