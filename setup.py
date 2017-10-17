@@ -30,7 +30,7 @@ setup(name='bfabric',
       description="""
 B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper_creator and submitter.
 """,
-      url='http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python',
+      url='git@github.com:cpanse/bfabricPy.git ',
       author='Christian Panse',
       author_email='cp@fgcz.ethz.ch',
       license='GPLv3 / apache 2.0',
