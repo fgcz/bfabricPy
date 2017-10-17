@@ -9,13 +9,13 @@ The code contains classes for wrapper_creator and submitter.
 
 Ensure that this file is available on the bfabric exec host.
 
-Copyright (C) 2014, 2015, 2016 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
+Copyright (C) 2014, 2015, 2016, 2017 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 
 Authors:
   Marco Schmidt <marco.schmidt@fgcz.ethz.ch>
   Christian Panse <cp@fgcz.ethz.ch>
 
-Licensed under  GPL version 3
+Licensed under GPL version 3
 
 $Id: bfabric.py 3000 2017-08-18 14:18:30Z cpanse $
 $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/bfabric.py $
@@ -33,8 +33,6 @@ try:
     from suds.client import WebFault
 except:
     raise
-
-
 
 import hashlib
 import os
@@ -55,8 +53,8 @@ class Bfabric(object):
     Implements read and save object methods for BFabric wsdl interface
     """
 
-    __version__ = "0.8.10"
-    verbose=False
+    __version__ = "0.9.0"
+    verbose = False
     bflogin = None
     bfpassword = None
     webbase = 'https://fgcz-bfabric.uzh.ch/bfabric'
@@ -64,7 +62,6 @@ class Bfabric(object):
     query_counter = 0
     bfabricfilename = os.path.normpath("{0}/{1}"
         .format(os.path.expanduser("~"), ".bfabricrc.py"))
-
 
     def warning(self, msg):
         sys.stderr.write("\033[93m{}\033[0m\n".format(msg))
@@ -189,9 +186,9 @@ class Bfabric(object):
     def set_bfabric_webbase(self, url):
         self.webbase = url
 
-    def get_extractid_sampleid(self, resourceid=None):
+    def get_sampleid(self, resourceid=None):
         """
-        determines a tuple of extract_id and sample_id  of a given resource_id.
+        determines the sample_id  of a given resource_id.
         it performs a recursive dfs.
         TODO(cp): check if the method should be implemented using a stack
 
@@ -204,21 +201,14 @@ class Bfabric(object):
         try:
             resource = self.read_object('resource', obj={'id': resourceid})[0]
         except:
-            return ((None, None))
+            return (None)
 
         try:
-            extract = self.read_object('extract', obj={'id': resource.extract._id})[0]
-            try:
-                return ((resource.extract._id, extract.sample._id))
-            except:
-                return ((resource.extract._id, None))
-
+            workunit = self.read_object(endpoint='workunit', obj={'id': resource.workunit._id})[0]
+            return (self.get_sampleid(resourceid=int(workunit.inputresource[0]._id)))
         except:
-            try:
-                workunit = self.read_object(endpoint='workunit', obj={'id': resource.workunit._id})[0]
-                return (self.get_extractid_sampleid(resourceid=int(workunit.inputresource[0]._id)))
-            except:
-                return ((None, None))
+            self.warning("fetching sampleid of resource.workunitid = {} failed.".format(resource.workunit._id))
+            return (None)
 
 class BfabricFeeder(Bfabric):
     """ 
@@ -357,6 +347,8 @@ class BfabricSubmitter(BfabricExternalJob, gridengine.GridEngine):
 
     def compose_bash_script(self, configuration=None, configuration_parser=lambda x: yaml.load(x)):
         """
+        TODO(cp): this function should be removed asap.
+
         composes the bash script which is executed by the submitter (sun grid engine).
         as argument it takes a configuration file, e.g., yaml, xml, json, or whatsoever, and a parser function.
 
@@ -365,6 +357,7 @@ class BfabricSubmitter(BfabricExternalJob, gridengine.GridEngine):
         :rtype : str
         """
 
+        self.warning("This python method is superfluously and will be removed. Please use the yaml wrapper creator and submitter.")
         assert isinstance(configuration, str)
 
         try:
@@ -476,14 +469,12 @@ exit 0
         system. Since the file can not be staged to the LRMS as argument we copy the yaml file into the bash script
         and stage it on execution the the application.
 
-
         TODO(cp): create the output url before the application is started.
-
 
         return None
         """
 
-        # foreach (executable in externaljob):
+        # foreach (executable in external job):
         for executable in self.get_executable_of_externaljobid():
             self.logger("executable = {0}".format(executable))
 
@@ -720,23 +711,18 @@ exit 0
 
             resource_urls[_application_name].append(_inputUrl)
 
-            (extract_id, sample_id) = self.get_extractid_sampleid(int(resource_iterator._id))
+            sample_id = self.get_sampleid(int(resource_iterator._id))
 
 
-            _resource_extract_sample = {'resource_id': int(resource_iterator._id),
-                                        'resource_url': "{0}/userlab/show-resource.html?resourceId={1}".format(self.webbase,resource_iterator._id) ,
-                                        'extract_id': int(extract_id)}
+            _resource_sample = {'resource_id': int(resource_iterator._id),
+                                        'resource_url': "{0}/userlab/show-resource.html?resourceId={1}".format(self.webbase,resource_iterator._id)}
 
 
             if not sample_id is None:
-                _resource_extract_sample['sample_id'] = int(sample_id)
-                _resource_extract_sample['sample_url'] = "{0}/userlab/show-sample.html?sampleId={1}".format(self.webbase, sample_id)
+                _resource_sample['sample_id'] = int(sample_id)
+                _resource_sample['sample_url'] = "{0}/userlab/show-sample.html?sampleId={1}".format(self.webbase, sample_id)
 
-            if not extract_id is None:
-                _resource_extract_sample['extract_url'] = "{0}/userlab/show-extract.html?extractId={1}".format(self.webbase, extract_id)
-
-
-            resource_ids[_application_name].append(_resource_extract_sample)
+            resource_ids[_application_name].append(_resource_sample)
 
         # create resources for output, stderr, stdout
         _ressource_output = self.save_object('resource', {
@@ -832,9 +818,13 @@ exit 0
 
 
 if __name__ == "__main__":
-    print "This is the Bfabric python module version >={}.".format(Bfabric.__version__)
+
+    print "This is the Bfabric python module version = {}.".format(Bfabric.__version__)
+
     bfapp = Bfabric(verbose=True)
 
-    for ep in ['workunit', 'resource', 'sample']:
-        pprint (bfapp.read_object(endpoint = ep, obj = {'id': 10000}))
+
+    
+    #for ep in ['workunit', 'resource', 'sample']:
+    #    pprint (bfapp.read_object(endpoint = ep, obj = {'id': 10000}))
 
