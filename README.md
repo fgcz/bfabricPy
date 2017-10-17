@@ -4,7 +4,8 @@
 ```
 apt-get install python-pip
 
-svn co http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python bfabric-python bfabricPy
+git@github.com:cpanse/bfabricPy.git 
+# svn co http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python bfabric-python bfabricPy
 
 cd bfabricPy
 
