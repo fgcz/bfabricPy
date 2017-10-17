@@ -39,11 +39,11 @@ bfabric_list.py application
 # Most frequently used command lines
 ```bash 
 # get useless stuff out of the system
- ./fgcz_bfabric_list_pending_workunits.py  \
- | grep cpanse \
- | grep 2015-09-0 \
- | awk '{print $1}' \
- | ./fgcz_bfabric_delete_workunits.py 
+ bfabric_list_pending_workunits.py  \
+   | grep cpanse \
+   | grep 2015-09-0 \
+   | awk '{print $1}' \
+   | fgcz_bfabric_delete_workunits.py 
 ```
 
 ## examples
@@ -185,11 +185,11 @@ remove accidentally inserted mgf files
 
 ```
 bfabric_list.py importresource \
-| grep mgf$ \
-| awk '{print $1}' \
-| tee /tmp/$$.log \
-| while read i; 
-do 
-	bfabric_delete.py importresource $i ; 
-done
+  | grep mgf$ \
+  | awk '{print $1}' \
+  | tee /tmp/$$.log \
+  | while read i; 
+  do 
+    bfabric_delete.py importresource $i ; 
+  done
 ```
