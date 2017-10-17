@@ -1,6 +1,15 @@
+# Intro
+
+This package connects the bfabric system to the python and R world providing a JSON and REST interface.
+The [bfabricShiny](https://github.com/cpanse/bfabricShiny) R package is also a powerful extension in the R world.
+
 # bfabric wsdl python package
 
-## install debian linux:
+## Install 
+
+- debian linux
+
+- install the python package as follow:
 ```
 apt-get install python-pip
 
