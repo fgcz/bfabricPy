@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<executable>
-    <name>fgcz_sge_MaxQuant_Scaffold_LFQ_fast</name>
-    <context>APPLICATION</context>
-    <description>MaxQuant (without modifications) + ScaffoldBatch</description>
-    <program>/home/bfabric/sgeworker/bin/fgcz_sge_MaxQuant_Scaffold_LFQ_fast</program>
-    <valid>true</valid>
-</executable>
