@@ -1,0 +1,44 @@
+application:
+  input:
+    QEXACTIVEHF_2:
+    - bfabric@fgcz-proteomics.uzh.ch://srv/www/htdocs//p2121/Proteomics/QEXACTIVEHF_2/cfeller_20170726_HisPTM/20170726_02_feller_LH10.raw
+  output:
+  - bfabric@fgcz-proteomics.uzh.ch:/srv/www/htdocs//p2121/bfabric/Proteomics/ProteomeDiscovererQC/2017/2017-07/2017-07-27//workunit_157004//401948.html
+  parameters:
+    //WorkflowNode[@FriendlyName='PMI-Preview']//ProcessingNodeParameter[@Name='ArginineModificationMass']: +10.008269
+      (SILAC)
+    //WorkflowNode[@FriendlyName='PMI-Preview']//ProcessingNodeParameter[@Name='CysteineModificationMass']: +57.021464
+      (carbamidomethylation)
+    //WorkflowNode[@FriendlyName='PMI-Preview']//ProcessingNodeParameter[@Name='FastaDatabase']: uniprot-proteome_UP000005640.fasta
+    //WorkflowNode[@FriendlyName='PMI-Preview']//ProcessingNodeParameter[@Name='LysineModificationMass']: +6.020129
+      (SILAC)
+    MudPID: 'False'
+    workflow: QCpreview
+    workflowbaseurl: http://fgcz-ms.uzh.ch/config/PD21/
+  protocol: scp
+job_configuration:
+  executable: /home/bfabric/sgeworker/bin/fgcz_sge_proteome_discoverer21.bash
+  external_job_id: 57103
+  input:
+    QEXACTIVEHF_2:
+    - extract_id: 59534
+      extract_url: http://fgcz-bfabric.uzh.ch/bfabric/userlab/show-extract.html?extractId=59534
+      resource_id: 401902
+      resource_url: http://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=401902
+      sample_id: 51475
+      sample_url: http://fgcz-bfabric.uzh.ch/bfabric/userlab/show-sample.html?sampleId=51475
+  output:
+    protocol: scp
+    resource_id: 401948
+    ssh_args: -o StrictHostKeyChecking=no -2 -l bfabric -x
+  stderr:
+    protocol: file
+    resource_id: 401949
+    url: /home/bfabric/sgeworker/logs/workunitid-157004_resourceid-401948.err
+  stdout:
+    protocol: file
+    resource_id: 401950
+    url: /home/bfabric/sgeworker/logs/workunitid-157004_resourceid-401948.out
+  workunit_id: 157004
+  workunit_url: http://fgcz-bfabric.uzh.ch/bfabric/userlab/show-workunit.html?workunitId=157004
+
