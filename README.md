@@ -7,7 +7,7 @@ The [bfabricShiny](https://github.com/cpanse/bfabricShiny) R package is also a p
 
 ## Install 
 
-- debian linux
+- install current stable debian linux release
 
 - install the python package as follow:
 ```
