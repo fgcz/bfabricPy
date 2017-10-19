@@ -26,7 +26,7 @@ $Revision: 2627 $
 
 
 setup(name='bfabric',
-      version='0.8.11',
+      version='0.9.0',
       description="""
 B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper_creator and submitter.
 """,
@@ -49,13 +49,13 @@ B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper
         'bfabric/scripts/bfabric_upload_wrapper_creator_executable.py',
         'bfabric/scripts/bfabric_upload_submitter_executable.py',
         'bfabric/scripts/bfabric_upload_resource.py',
-        'bfabric/scripts/bfabric_flask_wuid_resources.py',
-        'bfabric/scripts/bfabric_flask_sample.py',
         'bfabric/scripts/bfabric_create_bfabricrc.py',
         'bfabric/scripts/bfabric_delete.py',
         'bfabric/scripts/bfabric_save_importresource.py',
         'bfabric/scripts/bfabric_setExternalJobStatus_done.py',
         'bfabric/scripts/bfabric_setResourceStatus_available.py',
-        'bfabric/scripts/bfabric_setWorkunitStatus_available.py'
+        'bfabric/scripts/bfabric_setWorkunitStatus_available.py',
+        'bfabric/scripts/bfabric_wrapper_creator_yaml.py',
+        'bfabric/scripts/bfabric_submitter_yaml.py'
         ],
       zip_safe=True)

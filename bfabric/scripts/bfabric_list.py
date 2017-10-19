@@ -35,7 +35,7 @@ if __name__ == "__main__":
 
     endpoints = ['access', 'annotation', 'application',
         'attachement', 'comment', 'dataset', 'executable',
-        'externaljob', 'extract', 'importresource', 'mail',
+        'externaljob', 'groupingvar', 'importresource', 'mail',
         'parameter', 'project', 'resource', 'sample',
         'storage', 'user', 'workunit']
     query_obj = {}

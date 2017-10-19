@@ -357,7 +357,7 @@ class BfabricSubmitter(BfabricExternalJob, gridengine.GridEngine):
         :rtype : str
         """
 
-        self.warning("This python method is superfluously and will be removed. Please use the yaml wrapper creator and submitter.")
+
         assert isinstance(configuration, str)
 
         try:
@@ -512,6 +512,10 @@ class BfabricWrapperCreator(BfabricExternalJob):
         """
         the methode creates and uploads an executebale.  
         """
+
+        self.warning(
+            "This python method is superfluously and will be removed. Please use the write_yaml method of the BfabricWrapperCreato class.")
+
         _cmd_template = """#!/bin/bash
 # $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/bfabric.py $
 # $Id: bfabric.py 3000 2017-08-18 14:18:30Z cpanse $
@@ -562,6 +566,10 @@ exit 0
         """
         the methode creates and uploads an executebale.  
         """
+
+        self.warning(
+            "This python method is superfluously and will be removed. Please use the write_yaml method of the BfabricWrapperCreato class.")
+
         _cmd_template0 = """#!/bin/bash
 # $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/bfabric.py $
 # $Id: bfabric.py 3000 2017-08-18 14:18:30Z cpanse $
@@ -653,6 +661,8 @@ exit 0
         workunit = self.read_object(endpoint='workunit', obj={'id': workunitid})[0]
         if workunit is None:
             raise ValueError("ERROR: no workunit available for the given externaljobid.")
+
+        assert isinstance(workunit._id, long)
 
         # collects all required information out of B-Fabric to create an executable script
         application = self.read_object('application', obj={'id': workunit.application._id})[0]
@@ -753,8 +763,11 @@ exit 0
 
 
         submitter_externaljob = self.save_object('externaljob',
-                                                    {"workunitid": workunit._id, 'status': 'new', 'action': "WORKUNIT"})[0]
+                                                    {"workunitid": workunit._id, 
+                                                    'status': 'new', 
+                                                    'action': "WORKUNIT"})[0]
 
+        assert isinstance(submitter_externaljob._id, long)
 
         _output_url = "bfabric@{0}:{1}{2}/{3}".format(_output_storage.host,
                                                     _output_storage.basepath,
@@ -781,8 +794,8 @@ exit 0
                         'url': "{0}/workunitid-{1}_resourceid-{2}.out".format(_log_storage.basepath, workunit._id, _ressource_output._id)
                     },
                 'workunit_id': int(workunit._id),
-                'workunit_url': "{0}/userlab/show-workunit.html?workunitId={1}".format(self.webbase, int(workunit._id)),
-                'external_job_id': int(submitter_externaljob._id)
+                'workunit_url': "{0}/userlab/show-workunit.html?workunitId={1}".format(self.webbase, workunit._id),
+                'external_job_id': submitter_externaljob._id
             },
             'application' : {
                 'protocol': 'scp',
@@ -803,7 +816,7 @@ exit 0
                                                                        "submitter.",
                                                         'workunitid': workunit._id,
                                                         'base64': base64.b64encode(config_serialized),
-                                                        'version': 0.3})[0]
+                                                        'version': "{}".format(Bfabric.__version__)})[0]
 
 
         submitter_externaljob = self.save_object('externaljob',
@@ -822,9 +835,4 @@ if __name__ == "__main__":
     print "This is the Bfabric python module version = {}.".format(Bfabric.__version__)
 
     bfapp = Bfabric(verbose=True)
-
-
-    
-    #for ep in ['workunit', 'resource', 'sample']:
-    #    pprint (bfapp.read_object(endpoint = ep, obj = {'id': 10000}))
 
