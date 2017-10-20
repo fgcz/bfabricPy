@@ -45,8 +45,9 @@ class BfabricTestCase(unittest.TestCase):
 
     def sample_save(self):
         print "SAVE SAMPLE"
-        for sample_type in ['Biological Sample - Proteomics']:
-            res = self.bfapp.save_object(endpoint='sample', obj={'name': "unit test - {}".format(sample_type),
+        sample_type = 'Biological Sample - Proteomics'
+        for name in ['test1', 'test2', 'test3']:
+            res = self.bfapp.save_object(endpoint='sample', obj={'name': "unit test - {} - {}".format(name, sample_type),
                                                                    'projectid': 1000,
                                                                    'type' : sample_type,
                                                                    'samplingdate' : "2017-10-12",

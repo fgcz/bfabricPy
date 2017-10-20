@@ -496,7 +496,7 @@ exit 0
                 f.write(_cmd_template)
 
             self.submit(_bash_script_filename)
-
+        
         res = self.save_object(endpoint='externaljob',
                                 obj={'id': self.externaljobid, 'status': 'done'})
 
