@@ -6,14 +6,9 @@
 # $Date: 2016-10-17 12:25:25 +0200 (Mon, 17 Oct 2016) $
 
 
-""" Gerneral Importresource Feeder for B-Fabric
+""" Gerneral Importresource Feeder for bfabric
 
-replacement for 
-http://fgcz-svn.uzh.ch/viewvc/fgcz/stable/bfabric/admin/\
-bin/NewDesign/prxir_compact.sh
-
-AUTHOR:
-Christian Panse <cp@fgcz.ethz.ch>
+author: Christian Panse <cp@fgcz.ethz.ch>
 
 usage:
 
@@ -29,62 +24,17 @@ $ echo "906acd3541f056e0f6d6073a4e528570;\
 p996/Proteomics/TRIPLETOF_1/jonas_20120820_SILAC_comparison/\
 20120824_01_NiKu_1to5_IDA_rep2.wiff" | ./prg - 
 
-this is what you get when you connect to 
+template
 https://fgcz-bfabric.uzh.ch/bfabric/importresource?wsdl
-
-SAMPLE_QUERY = '''
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
-xmlns:end="http://endpoint.webservice.component.bfabric.org/">
-   <soapenv:Header/>
-   <soapenv:Body>    
-      <end:save>
-         <parameters>
-            <login>?</login>
-            <password>?</password>
-            <!--Zero or more repetitions:-->
-            <importresource>
-               <!--Optional:-->
-               <id>?</id>
-               <!--Optional:-->
-               <name>?</name>
-               <!--Optional:-->
-               <applicationid>?</applicationid>
-               <!--Optional:-->
-               <description>?</description>
-               <!--Optional:-->
-               <expirationdate>?</expirationdate>
-               <!--Optional:-->
-               <filechecksum>?</filechecksum>
-               <!--Optional:-->
-               <filedate>?</filedate>
-               <!--Optional:-->
-               <projectid>?</projectid>
-               <!--Optional:-->
-               <relativepath>?</relativepath>
-               <!--Optional:-->
-               <size>?</size>
-               <!--Optional:-->
-               <storageid>?</storageid>
-               <!--Optional:-->
-               <url>?</url>
-               <!--Optional:-->
-               <weburl>?</weburl>
-            </importresource>
-         </parameters>
-      </end:save>
-   </soapenv:Body>
-</soapenv:Envelope>
-'''
-
-
 """
 
 
 # Wed Oct 24 17:02:04 CEST 2012 Christian Panse <cp@fgcz.ethz.ch>; 
 # refactoring from Marcos bash code
-# Thu Oct 25 09:04:09 CEST 2012 Christian Panse <cp@fgcz.ethz.ch>; testing
-# Thu Nov 13 22:03:01 CET 2014 refactor using pylint
+# Thu Oct 25 09:04:09 CEST 2012 Christian Panse <cp@fgcz.ethz.ch>;  testing
+# Thu Nov 13 22:03:01 CET 2014 refactor using pylint bfabric8 w
 # Mon Mar  2 12:23:54 CET 2015 added syslog handler
+# Wed Oct 25 11:21:41 CEST 2017 refactor and bfabric9 testing
 
 import os
 import re
@@ -96,7 +46,7 @@ from bfabric import Bfabric
 import logging, logging.handlers
 
 logger = logging.getLogger('sync_feeder')
-hdlr_syslog = logging.handlers.SysLogHandler(address=("130.60.81.148", 514))
+hdlr_syslog = logging.handlers.SysLogHandler(address=("130.60.81.21", 514))
 formatter = logging.Formatter('%(name)s %(message)s', datefmt="%Y-%m-%d %H:%M:%S")
 hdlr_syslog.setFormatter(formatter)
 logger.addHandler(hdlr_syslog)
@@ -104,11 +54,11 @@ logger.setLevel(logging.INFO)
 
 
 ################################################################################
-BFABRICSTORAGEID = 2
+bfabric_storageid = 2
 bfapp = Bfabric()
 
 # the hash  maps the 'real world' to the BFabric application._id
-APPIDS = {'Proteomics/TOFTOF_2':91, 
+bfabric_application_ids = {'Proteomics/TOFTOF_2':91,
     'Proteomics/T100_1':18, 
     'Proteomics/TRIPLETOF_1':93,
     'Proteomics/VELOS_1':90, 
@@ -125,35 +75,36 @@ APPIDS = {'Proteomics/TOFTOF_2':91,
     'Proteomics/Analysis/Progenesis':84, 
     'Proteomics/Analysis/ProteinPilot':148,
     'Proteomics/Analysis/MaxQuant':151,
-    'Proteomics/Analysis/GenericZip':185,
-    'Proteomics/QEXACTIVE_1':160,
-    'Proteomics/QEXACTIVE_2':161,
-    'Proteomics/QEXACTIVE_3':163,
-    'Proteomics/FUSION_1':162,
-    'Proteomics/FUSION_2':176,
-    'Proteomics/QEXACTIVEHF_1':177,
-    'Proteomics/QEXACTIVEHF_2':197,
-    'Proteomics/QEXACTIVEHF_3':207,
-    'Proteomics/PROTEONXPR36': 82,
-    'Proteomics/EXTERNAL_0': 188,
-    'Proteomics/EXTERNAL_1': 189,
-    'Proteomics/EXTERNAL_2': 190,
-    'Proteomics/EXTERNAL_3': 191,
-    'Proteomics/EXTERNAL_4': 192,
-    'Proteomics/EXTERNAL_5': 193,
-    'Metabolomics/QEXACTIVE_3':171,
-    'Metabolomics/TRIPLETOF_1':144,
-    'Metabolomics/TOFTOF_2':143, 
-    'Metabolomics/QTOF':14,
-    'Metabolomics/LTQFT_1':9,
-    'Metabolomics/G2HD_1':81, 
-    'Metabolomics/TSQ_1':16,
-    'Metabolomics/TSQ_2':43, 
-    'Metabolomics/GCT_1':44,
-    'Metabolomics/ORBI_1':11, 
-    'Metabolomics/ORBI_2':13,
-    'Metabolomics/IMSTOF_1':203,
-    'Metabolomics/ORBI_3':77}
+                           'Proteomics/Analysis/GenericZip':185,
+                           'Proteomics/QEXACTIVE_1':160,
+                           'Proteomics/QEXACTIVE_2':161,
+                           'Proteomics/QEXACTIVE_3':163,
+                           'Proteomics/FUSION_1':162,
+                           'Proteomics/FUSION_2':176,
+                           'Proteomics/QEXACTIVEHF_1':177,
+                           'Proteomics/QEXACTIVEHF_2':197,
+                           'Proteomics/QEXACTIVEHF_3':207,
+                           'Proteomics/PROTEONXPR36': 82,
+                           'Proteomics/EXTERNAL_0': 188,
+                           'Proteomics/EXTERNAL_1': 189,
+                           'Proteomics/EXTERNAL_2': 190,
+                           'Proteomics/EXTERNAL_3': 191,
+                           'Proteomics/EXTERNAL_4': 192,
+                           'Proteomics/EXTERNAL_5': 193,
+                           'Metabolomics/QEXACTIVE_3':171,
+                           'Metabolomics/TRIPLETOF_1':144,
+                           'Metabolomics/TOFTOF_2':143,
+                           'Metabolomics/QTOF':14,
+                           'Metabolomics/LTQFT_1':9,
+                           'Metabolomics/G2HD_1':81,
+                           'Metabolomics/TSQ_1':16,
+                           'Metabolomics/TSQ_2':43,
+                           'Metabolomics/GCT_1':44,
+                           'Metabolomics/ORBI_1':11,
+                           'Metabolomics/ORBI_2':13,
+                           'Metabolomics/IMSTOF_1':203,
+                           'Metabolomics/QUANTIVA_1':214,
+                           'Metabolomics/ORBI_3':77}
 
 def save_importresource(line):
     """ reads, splits and submit the input line to the bfabric system
@@ -168,50 +119,48 @@ def save_importresource(line):
     Output:
         True on success otherwise an exception raise
     """
-    my_storageid = BFABRICSTORAGEID
 
-    my_applicationid = -1
-    my_projectid = -1,
-    my_size = -1
-    my_filedate = -1
+    _bfabric_applicationid = -1
+    _bfabric_projectid = -1,
+    _file_size = -1
+    _file_date = -1
 
     # empty string / file
-    my_filechecksum = "d41d8cd98f00b204e9800998ecf8427e"
+    _md5 = "d41d8cd98f00b204e9800998ecf8427e"
 
-    input_array = line.split(";")
-
-    my_filechecksum = input_array[0]
+    try:
+        (_md5,  _file_date, _file_size, _file_path) = line.split(";")
+    except:
+        raise
 
     # the timeformat bfabric understands
-    my_filedate = time.strftime("%FT%H:%M:%S-01:00", 
-        time.gmtime(int(input_array[1])))
-
-    my_size = input_array[2]
-    my_relativepath = input_array[3]
+    _file_date = time.strftime("%FT%H:%M:%S-01:00",time.gmtime(int(_file_date)))
 
     # linear search through dictionary. first hit counts!
-    for i in APPIDS.keys():
+    for i in bfabric_application_ids.keys():
         # first match counts!
-        if re.search(i, my_relativepath):
-            my_applicationid = APPIDS[i]
-            re_result = re.search(r"^p([0-9]+)\/.+", my_relativepath)
-            my_projectid = re_result.group(1)
+        if re.search(i, _file_path):
+            _bfabric_applicationid = bfabric_application_ids[i]
+            re_result = re.search(r"^p([0-9]+)\/.+", _file_path)
+            _bfabric_projectid = re_result.group(1)
             break
 
-    if my_applicationid < 0:
-        logger.error("{0}; no APPID.".format(my_relativepath))
-        sys.exit(1)
+    if _bfabric_applicationid < 0:
+        logger.error("{0}; no bfabric application id.".format(_file_path))
+        raise
 
-    obj = { 'applicationid':my_applicationid,
-            'filechecksum':my_filechecksum,
-            'projectid':my_projectid,
-            'filedate':my_filedate,
-            'relativepath':my_relativepath,
-            'name':os.path.basename(my_relativepath),
-            'size':my_size,
-            'storageid':my_storageid
+    obj = { 'applicationid':_bfabric_applicationid,
+            'filechecksum':_md5,
+            'projectid':_bfabric_projectid,
+            'filedate':_file_date,
+            'relativepath':_file_path,
+            'name': os.path.basename(_file_path),
+            'size':_file_size,
+            'storageid': bfabric_storageid
             }
 
+    print obj
+    return
     res = bfapp.save_object(endpoint='importresource', obj=obj)
     print res
 

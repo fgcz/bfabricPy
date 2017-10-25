@@ -11,7 +11,7 @@ from bfabric import Bfabric
 ssh localhost "cat > /tmp/bb.py && /usr/bin/python /tmp/bb.py" < PycharmProjects/untitled/bfabric_wsdl.py 
 """
 class BfabricTestCase(unittest.TestCase):
-    bfapp = Bfabric()
+    bfapp = Bfabric(verbose=True)
 
     workunits = []
     samples = []
@@ -27,6 +27,7 @@ class BfabricTestCase(unittest.TestCase):
                                                                    })
 
             self.workunits.append(res[0]._id)
+            print res
         print self.workunits
 
     def workunit_read(self):

@@ -52,6 +52,7 @@ B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper
         'bfabric/scripts/bfabric_create_bfabricrc.py',
         'bfabric/scripts/bfabric_delete.py',
         'bfabric/scripts/bfabric_save_importresource.py',
+        'bfabric/scripts/bfabric_save_importresource_mascot.py',
         'bfabric/scripts/bfabric_setExternalJobStatus_done.py',
         'bfabric/scripts/bfabric_setResourceStatus_available.py',
         'bfabric/scripts/bfabric_setWorkunitStatus_available.py',
