@@ -159,8 +159,7 @@ def save_importresource(line):
             'storageid': bfabric_storageid
             }
 
-    print obj
-    return
+
     res = bfapp.save_object(endpoint='importresource', obj=obj)
     print res
 
