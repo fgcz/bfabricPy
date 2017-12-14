@@ -665,7 +665,7 @@ exit 0
         assert isinstance(workunit._id, long)
 
         # collects all required information out of B-Fabric to create an executable script
-        application = self.read_object('application', obj={'id': workunit.app lication._id})[0]
+        application = self.read_object('application', obj={'id': workunit.application._id})[0]
         workunit_executable = self.read_object('executable', obj={'id': workunit.applicationexecutable._id})[0]
         project = workunit.project
         today = datetime.date.today()
