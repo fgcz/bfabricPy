@@ -723,11 +723,12 @@ exit 0
 
             sample_id = self.get_sampleid(int(resource_iterator._id))
 
-
+            # TODO(cp): change resouceID
             _resource_sample = {'resource_id': int(resource_iterator._id),
                                         'resource_url': "{0}/userlab/show-resource.html?resourceId={1}".format(self.webbase,resource_iterator._id)}
 
 
+            # TODO(cp): change sampleID
             if not sample_id is None:
                 _resource_sample['sample_id'] = int(sample_id)
                 _resource_sample['sample_url'] = "{0}/userlab/show-sample.html?sampleId={1}".format(self.webbase, sample_id)
