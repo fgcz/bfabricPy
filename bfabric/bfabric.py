@@ -67,6 +67,8 @@ class Bfabric(object):
         sys.stderr.write("\033[93m{}\033[0m\n".format(msg))
 
     def _read_bfabric(self):
+        if self.verbose:
+            print "self.bfabricfilename='{}'".format(self.bfabricfilename)
         if not os.path.isfile(self.bfabricfilename):
             self.warning("could not find '.bfabricrc.py' file in home directory.")
             return
