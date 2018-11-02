@@ -217,7 +217,7 @@ if __name__ == "__main__":
 
 
 import unittest
-
+from io import StringIO, BytesIO
 
 """
 python3 -m unittest fgcz_maxquant_wrapper.py 
@@ -668,7 +668,7 @@ job_configuration:
 '''
 
         job_config = yaml.load(input_WU181492_yaml)
-        mqpartree = etree.fromstring(mqpar_templ_xml)
+        mqpartree = etree.parse(StringIO(mqpar_templ_xml))
 
         MQC = FgczMaxQuantConfig(config=job_config)
         MQC.generate_mqpar("/tmp/output.xml", xml_template=mqpartree)
