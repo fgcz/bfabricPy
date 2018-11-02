@@ -46,7 +46,7 @@ get useless stuff out of the system
    | fgcz_bfabric_delete_workunits.py 
 ```
 
-find empty resources file in bfabric
+find empty resource files in bfabric
 ```{sh}
 bfabric_list.py resource filechecksum `md5sum < /dev/null | cut -c-32` \
   | cat -n \
