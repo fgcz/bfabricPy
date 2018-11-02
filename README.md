@@ -1,7 +1,7 @@
 # Introduction
 
 This package connects the bfabric system to the python and R world providing a JSON and REST interface.
-The [bfabricShiny](https://github.com/cpanse/bfabricShiny) R package is also a powerful extension in the R world.
+The [bfabricShiny](https://github.com/cpanse/bfabricShiny) R package is also a powerful extension interfacing the R world.
 
 # bfabric wsdl python package
 
@@ -10,10 +10,11 @@ The [bfabricShiny](https://github.com/cpanse/bfabricShiny) R package is also a p
 - install current stable debian linux release
 
 - install the python package as follow:
-```
+
+```{sh}
 apt-get install python-pip
 
-git@github.com:cpanse/bfabricPy.git 
+git clone git@github.com:cpanse/bfabricPy.git 
 # svn co http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python bfabric-python bfabricPy
 
 cd bfabricPy
@@ -21,7 +22,6 @@ cd bfabricPy
 python setup.py sdist
 
 sudo pip install dist/bfabric*.gz -e .
-
 ```
 
 ## WSDL Interface to B-Fabric
@@ -37,13 +37,21 @@ bfabric_list.py application
 - [wsdl4BFabric](http://fgcz-intranet.uzh.ch/tiki-index.php?page=wsdl4BFabric)
 
 # Most frequently used command lines
-```bash 
-# get useless stuff out of the system
+
+get useless stuff out of the system
+```{sh} 
  bfabric_list_pending_workunits.py  \
    | grep cpanse \
    | grep 2015-09-0 \
    | awk '{print $1}' \
    | fgcz_bfabric_delete_workunits.py 
+```
+
+find empty resources file in bfabric
+```{sh}
+bfabric_list.py resource filechecksum `md5sum < /dev/null | cut -c-32` \
+  | cat -n \
+  | tail
 ```
 
 ## examples
