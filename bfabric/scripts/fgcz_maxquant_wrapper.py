@@ -218,6 +218,10 @@ if __name__ == "__main__":
 
 import unittest
 
+
+"""
+python3 -m unittest fgcz_maxquant_wrapper.py 
+"""
 class TestFgczMaxQuantConfig(unittest.TestCase):
 
     def test_upper(self):
@@ -235,7 +239,7 @@ class TestFgczMaxQuantConfig(unittest.TestCase):
             s.split(2)
 
     def test_xml(self):
-        input_yaml = """
+        input_WU181492_yaml = """
 application:
   input:
     QEXACTIVEHFX_1:
@@ -321,7 +325,7 @@ job_configuration:
         """
 
 
-        templ_xml ='''<MaxQuantParams xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        mqpar_templ_xml ='''<MaxQuantParams xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
    <fastaFiles>
       <FastaFileInfo>
          <fastaFilePath>test.fasta</fastaFilePath>
@@ -663,8 +667,8 @@ job_configuration:
 </MaxQuantParams>
 '''
 
-        job_config = yaml.load(input_yaml)
-        mqpartree = etree.fromstring(templ_xml)
+        job_config = yaml.load(input_WU181492_yaml)
+        mqpartree = etree.fromstring(mqpar_templ_xml)
 
         MQC = FgczMaxQuantConfig(config=job_config)
         MQC.generate_mqpar("/tmp/output.xml", xml_template=mqpartree)
