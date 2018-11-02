@@ -1,64 +1,93 @@
 #!/usr/bin/python
-# -*- coding: latin1 -*-
 
-# $Id: bfabric_save_resource.py 2965 2017-08-12 14:09:03Z cpanse $
-# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/scripts/bfabric_save_resource.py $
-# $Date: 2017-08-12 16:09:03 +0200 (Sat, 12 Aug 2017) $
-
-
-""" 
-(xmlResource){
-   _id = 406037
-   created = 2017-08-11 14:23:25.000798
-   createdby = "tobiasko"
-   modified = 2017-08-11 14:26:39.000382
-   modifiedby = "tobiasko"
-   status = "available"
-   name = "ProteomeDiscovererQC_2_-_input_resources"
-   filechecksum = "2e75672a5d442a8afd2aaac7a49af95a"
-   relativepath = "/p2122/bfabric/Proteomics/ProteomeDiscovererQC/2017/2017-08/2017-08-11/workunit_157425/406037.html"
-   size = 52671
-   project = 
-      (xmlProject){
-         _id = 2122
-      }
-   storage = 
-      (xmlStorage){
-         _id = 2
-      }
-   uris[] = 
-      "http://fgcz-proteomics.uzh.ch/dm//p2122/bfabric/Proteomics/ProteomeDiscovererQC/2017/2017-08/2017-08-11/workunit_157425/406037.html",
-      "http://fgcz-proteomics.uzh.ch//p2122/bfabric/Proteomics/ProteomeDiscovererQC/2017/2017-08/2017-08-11/workunit_157425/406037.html",
-      "scp://fgcz-proteomics.uzh.ch/srv/www/htdocs//p2122/bfabric/Proteomics/ProteomeDiscovererQC/2017/2017-08/2017-08-11/workunit_157425/406037.html",
-   url = "scp://fgcz-proteomics.uzh.ch/srv/www/htdocs//p2122/bfabric/Proteomics/ProteomeDiscovererQC/2017/2017-08/2017-08-11/workunit_157425/406037.html"
-   junk = False
-   workunit = 
-      (xmlWorkunit){
-         _id = 157425
-      }
- }
+"""
+Christian Panse <cp@fgcz.ethz.ch>
+2018-09-03 FGCZ
 """
 
-import os
-import re
-import time
 import sys
+import os
+import yaml
+import xmlrpclib
+import hashlib
+from optparse import OptionParser
 from bfabric import Bfabric
 
+HTTPROOT=""
+BFABRICSTORAGEID = 2
+
+"""
+ links an resource to an existing import resources in bfabric.
  
-################################################################################
-if __name__ == "__main__":
-    BFABRICSTORAGEID = 2
+ example
+ bfabric_save_resource.py p1000 244 p1000/Proteomics/QEXACTIVEHFX_1/paolo_20180903_autoQC/mgf_rawDiag/20180903_02_autoQC02.mgf
+"""
+def save_resource(projectid=None, resource_file=None, applicationid=None):
+    if projectid is None or resource_file is None or applicationid is None:
+        print "at least one of the arguments is None."
+        sys.exit(1)
+
+    # assert type(projectid) is 'int'
+    resource_file = resource_file.replace("/src/www/htdocs", "/")
     bfapp = Bfabric()
 
-    obj = { 'workunitid': 157425,
-            'filechecksum': 'ed777890d0edae75830af6829909a07c',
-            'relativepath': '/p2122/bfabric/Proteomics/ProteomeDiscovererQC/2017/2017-08/2017-08-11/workunit_157425/R405719_MSMSSpectrumInfo.txt',
-            'name': 'R405719_MSMSSpectrumInfo.txt',
-            'size': 1347345,
-            'status': 'available',
-            'storageid': BFABRICSTORAGEID
-            }
+    try:
+        print "reading stdin"
+        description = sys.stdin.read()
+    except:
+        print "reading from stdin failed."
+        raise
 
-    res = bfapp.save_object(endpoint='resource', obj=obj)
-    print res
+    try:
+        md5 = hashlib.md5(open(resource_file, 'rb').read()).hexdigest()
+    except:
+        print "computing file checksum failed."
+        raise
+
+    resource = bfapp.read_object(endpoint='resource', obj={'filechecksum': md5})
+
+    try:    
+        print "resource(s) already exist.".format(resource[0]._id)
+        resource = bfapp.save_object(endpoint='resource', obj={'id': resource[0]._id, 'description': description,
+                                                               'relativepath': "{}{}".format(HTTPROOT, resource_file),})
+        print resource
+        return
+    except:
+        pass
+
+
+    try:
+        workunit = bfapp.save_object(endpoint='workunit',
+                                 obj={'name': "MGF: {}".format(resource_file),
+                                      'projectid': projectid,
+                                      'applicationid': applicationid})
+        print (workunit)
+    except:
+        raise
+
+
+    obj = {'workunitid': workunit[0]._id,
+           'filechecksum': md5,
+           'relativepath': "{}{}".format(HTTPROOT, resource_file),
+           'name': os.path.basename(resource_file),
+           'size': os.path.getsize(resource_file),
+           'status': 'available',
+           'description': description,
+           'storageid': BFABRICSTORAGEID
+           }
+
+
+    resource = bfapp.save_object(endpoint='resource', obj=obj)
+    print resource
+
+    workunit = bfapp.save_object(endpoint='workunit',
+                                 obj={'id': workunit[0]._id, 'status': 'available'})
+    print (workunit)
+
+if __name__ == "__main__":
+    assert len(sys.argv) == 4
+
+    #save_resource(projectid=1000)
+    save_resource(projectid=sys.argv[1], resource_file=sys.argv[3], applicationid=sys.argv[2])
+    # TODO(cp):
+    #              importresourcefilechecksum=sys.argv[4])
