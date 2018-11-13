@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: latin1 -*-
 
-# Copyright (C) 2017 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
+# Copyright (C) 2017, 2018 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 #
 # Authors:
 #   Christian Panse <cp@fgcz.ethz.ch>
@@ -16,25 +16,16 @@ import logging.handlers
 import os
 import pprint
 import re
-# mport shutil
-# import subprocess
 import sys
 import time
 import urllib
-# from os import listdir
-
 from optparse import OptionParser
-#from typing import TextIO
-
 from lxml import etree
-
 import yaml
-
 from pathlib import Path
-# from bfabric import Bfabric
-
 import hashlib
-import warnings
+from io import StringIO, BytesIO
+# import warnings
 
 """
 requirements
@@ -44,25 +35,8 @@ requirements
 
 import unittest
 
-class TestFgczMaxQuantConfig(unittest.TestCase):
-
-    def test_upper(self):
-        self.assertEqual('foo'.upper(), 'FOO')
-
-    def test_isupper(self):
-        self.assertTrue('FOO'.isupper())
-        self.assertFalse('Foo'.isupper())
-
-    def test_split(self):
-        s = 'hello world'
-        self.assertEqual(s.split(), ['hello', 'world'])
-        # check that s.split fails when the separator is not a string
-        with self.assertRaises(TypeError):
-            s.split(2)
-
 class FgczMaxQuantConfig:
     """
-
   input:
     QEXACTIVE_2:
     - bfabric@fgczdata.fgcz-net.unizh.ch://srv/www/htdocs//p1946/Proteomics/QEXACTIVE_2/paolo_20150811_course/20150811_01_Fetuin40fmol.raw
@@ -169,163 +143,8 @@ class FgczMaxQuantConfig:
     def run(self):
       pass
 
-if __name__ == "__main__":
-    parser = OptionParser(usage="usage: %prog -y <yaml formated config file>",
-                          version="%prog 1.0")
 
-    parser.add_option("-y", "--yaml",
-                      type='string',
-                      action="store",
-                      dest="yaml_filename",
-                      default=None,
-                      help="config file.yaml")
-
-    parser.add_option("-x", "--xml",
-                      type='string',
-                      action="store",
-                      dest="xml_filename",
-                      default=None,
-                      help="MaxQuant mqpar xml parameter filename.")
-
-    parser.add_option("-t", "--xmltemplate",
-                      type='string',
-                      action="store",
-                      dest="xml_template_filename",
-                      default=None,
-                      help="MaxQuant mqpar template xml parameter filename.")
-
-    (options, args) = parser.parse_args()
-
-    if not os.path.isfile(options.yaml_filename):
-        print ("ERROR: no such file '{0}'".format(options.yaml_filename))
-        sys.exit(1)
-    try:
-        with open(options.yaml_filename, 'r') as f:
-            content = f.read()
-        job_config = yaml.load(content)
-
-        with open(options.xml_template_filename, 'r') as f:
-            mqpartree = etree.parse(f)
-
-        MQC = FgczMaxQuantConfig(config = job_config)
-        output = MQC.generate_mqpar(options.xml_filename, xml_template=mqpartree)
-
-    except:
-        print ("ERROR: exit 1")
-        raise
-
-
-
-import unittest
-from io import StringIO, BytesIO
-
-"""
-python3 -m unittest fgcz_maxquant_wrapper.py 
-"""
-class TestFgczMaxQuantConfig(unittest.TestCase):
-
-    def test_upper(self):
-        self.assertEqual('foo'.upper(), 'FOO')
-
-    def test_isupper(self):
-        self.assertTrue('FOO'.isupper())
-        self.assertFalse('Foo'.isupper())
-
-    def test_split(self):
-        s = 'hello world'
-        self.assertEqual(s.split(), ['hello', 'world'])
-        # check that s.split fails when the separator is not a string
-        with self.assertRaises(TypeError):
-            s.split(2)
-
-    def test_xml(self):
-        input_WU181492_yaml = """
-application:
-  input:
-    QEXACTIVEHFX_1:
-    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_018_S185295_178_Control.raw
-    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_010_S185303_151_HF-iDCM.raw
-    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_019_S185297_90_Control.raw
-    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_015_S185304_234_HF-iDCM.raw
-    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_013_S185305_145_HF-iDCM.raw
-    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_005_S185302_204_HF-iDCM.raw
-    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_003_S185299_226_Control_rep.raw
-    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_004_S185301_152_HF-iDCM.raw
-    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_020_S185296_180_Control.raw
-    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_009_S185306_143_HF-mutiDCM.raw
-    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_021_S185308_148_HF-mutiDCM.raw
-    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_008_S185307_218_HF-iDCM.raw
-    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_014_S185300_27_Control.raw
-    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_016_S185298_95_Control.raw
-    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_006_S185293_29_Control.raw
-    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_011_S185294_88_Control.raw
-  output:
-  - bfabric@fgcz-ms.uzh.ch:/srv/www/htdocs//p2621/bfabric/Proteomics/MaxQuant/2018/2018-10/2018-10-26//workunit_181492//927691.zip
-  parameters:
-    /enzymes/string: Trypsin/P
-    /fastaFiles/FastaFileInfo/fastaFilePath: /srv/www/htdocs/FASTA/fgcz_9606_reviewed_cnl_contaminantNoHumanCont_20161209.fasta
-    /numThreads: '48'
-    /parameterGroups/parameterGroup/fixedModifications/string: Carbamidomethyl (C)
-    /parameterGroups/parameterGroup/variableModifications: Acetyl (Protein N-term),Oxidation
-      (M),Deamidation (NQ)
-    Rmd: QCReport.Rmd
-  protocol: scp
-job_configuration:
-  executable: /home/bfabric/sgeworker/bin/fgcz_sge_maxquant_linux.bash
-  external_job_id: !!python/long '64924'
-  input:
-    QEXACTIVEHFX_1:
-    - resource_id: 720998
-      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720998
-    - resource_id: 720997
-      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720997
-    - resource_id: 720996
-      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720996
-    - resource_id: 720995
-      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720995
-    - resource_id: 720994
-      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720994
-    - resource_id: 720993
-      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720993
-    - resource_id: 720992
-      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720992
-    - resource_id: 720991
-      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720991
-    - resource_id: 720990
-      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720990
-    - resource_id: 720989
-      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720989
-    - resource_id: 720988
-      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720988
-    - resource_id: 720987
-      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720987
-    - resource_id: 720986
-      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720986
-    - resource_id: 720985
-      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720985
-    - resource_id: 720984
-      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720984
-    - resource_id: 720983
-      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720983
-  output:
-    protocol: scp
-    resource_id: 927691
-    ssh_args: -o StrictHostKeyChecking=no -2 -l bfabric -x
-  stderr:
-    protocol: file
-    resource_id: 927692
-    url: /home/bfabric/sgeworker/logs/workunitid-181492_resourceid-927691.err
-  stdout:
-    protocol: file
-    resource_id: 927693
-    url: /home/bfabric/sgeworker/logs/workunitid-181492_resourceid-927691.out
-  workunit_id: 181492
-  workunit_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-workunit.html?workunitId=181492
-
-        """
-
-
-        mqpar_templ_xml ='''<MaxQuantParams xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+mqpar_templ_xml ='''<MaxQuantParams xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
    <fastaFiles>
       <FastaFileInfo>
          <fastaFilePath>test.fasta</fastaFilePath>
@@ -667,9 +486,153 @@ job_configuration:
 </MaxQuantParams>
 '''
 
+if __name__ == "__main__":
+    parser = OptionParser(usage="usage: %prog -y <yaml formated config file>",
+                          version="%prog 1.0")
+
+    parser.add_option("-y", "--yaml",
+                      type='string',
+                      action="store",
+                      dest="yaml_filename",
+                      default=None,
+                      help="config file.yaml")
+
+    parser.add_option("-x", "--xml",
+                      type='string',
+                      action="store",
+                      dest="xml_filename",
+                      default=None,
+                      help="MaxQuant mqpar xml parameter filename.")
+
+    parser.add_option("-t", "--xmltemplate",
+                      type='string',
+                      action="store",
+                      dest="xml_template_filename",
+                      default=None,
+                      help="MaxQuant mqpar template xml parameter filename.")
+
+    (options, args) = parser.parse_args()
+
+    if not os.path.isfile(options.yaml_filename):
+        print ("ERROR: no such file '{0}'".format(options.yaml_filename))
+        sys.exit(1)
+    try:
+        with open(options.yaml_filename, 'r') as f:
+            content = f.read()
+        job_config = yaml.load(content)
+
+        if options.xml_template_filename is None:
+            try:
+                mqpartree = etree.parse(StringIO(mqpar_templ_xml))
+            except:
+                raise
+        else:
+            with open(options.xml_template_filename, 'r') as f:
+                mqpartree = etree.parse(f)
+
+        MQC = FgczMaxQuantConfig(config = job_config, scratch="d:/scratch/")
+        output = MQC.generate_mqpar(options.xml_filename, xml_template=mqpartree)
+
+    except:
+        print ("ERROR: exit 1")
+        raise
+
+
+
+import unittest
+
+"""
+python3 -m unittest fgcz_maxquant_wrapper.py 
+"""
+class TestFgczMaxQuantConfig(unittest.TestCase):
+    def test_xml(self):
+        input_WU181492_yaml = """
+application:
+  input:
+    QEXACTIVEHFX_1:
+    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_018_S185295_178_Control.raw
+    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_010_S185303_151_HF-iDCM.raw
+    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_019_S185297_90_Control.raw
+    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_015_S185304_234_HF-iDCM.raw
+    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_013_S185305_145_HF-iDCM.raw
+    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_005_S185302_204_HF-iDCM.raw
+    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_003_S185299_226_Control_rep.raw
+    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_004_S185301_152_HF-iDCM.raw
+    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_020_S185296_180_Control.raw
+    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_009_S185306_143_HF-mutiDCM.raw
+    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_021_S185308_148_HF-mutiDCM.raw
+    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_008_S185307_218_HF-iDCM.raw
+    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_014_S185300_27_Control.raw
+    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_016_S185298_95_Control.raw
+    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_006_S185293_29_Control.raw
+    - bfabric@fgcz-ms.uzh.ch://srv/www/htdocs//p2621/Proteomics/QEXACTIVEHFX_1/lkunz_20181002_OID4854_all/20181002_011_S185294_88_Control.raw
+  output:
+  - bfabric@fgcz-ms.uzh.ch:/srv/www/htdocs//p2621/bfabric/Proteomics/MaxQuant/2018/2018-10/2018-10-26//workunit_181492//927691.zip
+  parameters:
+    /enzymes/string: Trypsin/P
+    /fastaFiles/FastaFileInfo/fastaFilePath: /srv/www/htdocs/FASTA/fgcz_9606_reviewed_cnl_contaminantNoHumanCont_20161209.fasta
+    /numThreads: '48'
+    /parameterGroups/parameterGroup/fixedModifications/string: Carbamidomethyl (C)
+    /parameterGroups/parameterGroup/variableModifications: Acetyl (Protein N-term),Oxidation
+      (M),Deamidation (NQ)
+    Rmd: QCReport.Rmd
+  protocol: scp
+job_configuration:
+  executable: /home/bfabric/sgeworker/bin/fgcz_sge_maxquant_linux.bash
+  external_job_id: !!python/long '64924'
+  input:
+    QEXACTIVEHFX_1:
+    - resource_id: 720998
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720998
+    - resource_id: 720997
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720997
+    - resource_id: 720996
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720996
+    - resource_id: 720995
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720995
+    - resource_id: 720994
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720994
+    - resource_id: 720993
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720993
+    - resource_id: 720992
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720992
+    - resource_id: 720991
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720991
+    - resource_id: 720990
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720990
+    - resource_id: 720989
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720989
+    - resource_id: 720988
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720988
+    - resource_id: 720987
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720987
+    - resource_id: 720986
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720986
+    - resource_id: 720985
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720985
+    - resource_id: 720984
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720984
+    - resource_id: 720983
+      resource_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?resourceId=720983
+  output:
+    protocol: scp
+    resource_id: 927691
+    ssh_args: -o StrictHostKeyChecking=no -2 -l bfabric -x
+  stderr:
+    protocol: file
+    resource_id: 927692
+    url: /home/bfabric/sgeworker/logs/workunitid-181492_resourceid-927691.err
+  stdout:
+    protocol: file
+    resource_id: 927693
+    url: /home/bfabric/sgeworker/logs/workunitid-181492_resourceid-927691.out
+  workunit_id: 181492
+  workunit_url: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-workunit.html?workunitId=181492
+
+        """
+
         job_config = yaml.load(input_WU181492_yaml)
         mqpartree = etree.parse(StringIO(mqpar_templ_xml))
 
         MQC = FgczMaxQuantConfig(config=job_config)
         MQC.generate_mqpar("/tmp/output.xml", xml_template=mqpartree)
-
