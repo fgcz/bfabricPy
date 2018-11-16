@@ -18,7 +18,7 @@ import sys
 import os
 import re
 import time
-# import unittest
+import unittest
 from bfabric import Bfabric
 
 
@@ -272,6 +272,20 @@ listed below.
         except Exception as err:
             print('# Failed to register to bfabric: {}'.format(err))
 
+
+class TestCaseAutoQC(unittest.TestCase):
+    """
+    python -m unittest bfabric_feeder_resource_autoQC
+
+    """
+    BF = autoQC()
+
+    def setUp(self):
+        pass
+
+    def test_feed(self):
+        line = "efdf5e375d6e0e4e4abf9c2b3e1e97d5;1542134408;59129652;p1000/Proteomics/QEXACTIVEHF_2/tobiasko_20181113/20181113_003_autoQC01.raw"
+        self.BF.feed(line)
 
 if __name__ == '__main__':
 
