@@ -1,4 +1,4 @@
-#!/usr/bin/python 
+#!/usr/bin/python
 
 """
 feeds autoQC runs into bfabric
@@ -18,14 +18,14 @@ import sys
 import os
 import re
 import time
-import unittest
+# import unittest
 from bfabric import Bfabric
 
 
-
-
-
 class autoQC():
+    """
+        feeder for autoQC raw files
+    """
     bfabric_storageid = 2
     bfabric_application_ids = {'Proteomics/TOFTOF_2': 91,
                                'Proteomics/T100_1': 18,
@@ -79,45 +79,64 @@ class autoQC():
 
     bfapp = Bfabric(verbose=False)
 
-    def sampleCheck(self, projectid, name):
+    @property
+    def id(self, obj):
         try:
-            res = self.bfapp.read_object(endpoint='sample', obj={'projectid': projectid, 'name': name})
+            return obj[0]._id
+        except:
+            raise
+
+    def __init__(self):
+        pass
+
+    def sample_check(self, projectid, name):
+        """
+        checks wether a S exists or not. if not the S is created.
+        :param projectid:
+        :param name:
+        :return: SID
+        """
+        try:
+            res = self.bfapp.read_object(endpoint='sample',
+                                         obj={'projectid': projectid, 'name': name})
         except:
             raise
 
         sample_type = 'Biological Sample - Proteomics'
         query_autoQC01 = {'name': "{}".format(name),
-                                              'type': sample_type,
-                                              'projectid': projectid,
-                                              'species': "Bos taurus",
-                                              'groupingvar': "A",
-                                              'samplingdate': "2018-11-15",
-                                              'description': 'core4life standard: sample BSA + iRT 1:800'
-                                              }
+                          'type': sample_type,
+                          'projectid': projectid,
+                          'species': "Bos taurus",
+                          'groupingvar': "A",
+                          'samplingdate': "2018-11-15",
+                          'description': 'core4life standard: sample BSA + iRT 1:800'}
 
         query_autoQC4L = {'name': "{}".format(name),
-                                              'type': sample_type,
-                                              'projectid': projectid,
-                                              'species': "n/a",
-                                              'groupingvar': "A",
-                                              'samplingdate': "2018-11-15",
-                                              'description': 'core4life standard: 6 x 5 LC-MS/MS Peptide Reference Mix'
-                                              }
+                          'type': sample_type,
+                          'projectid': projectid,
+                          'species': "n/a",
+                          'groupingvar': "A",
+                          'samplingdate': "2018-11-15",
+                          'description': 'core4life standard: 6 x 5 LC-MS/MS Peptide Reference Mix'}
 
         if res is None:
             if name == 'autoQC4L':
                 res = self.bfapp.save_object(endpoint='sample', obj=query_autoQC4L)
             elif name == 'autoQC01':
                 res = self.bfapp.save_object(endpoint='sample', obj=query_autoQC01)
-            else:
-                raise
 
+        return res[0]._id
 
-            return (res[0]._id)
-        else:
-            return(res[0]._id)
+    def workunit_check(self, projectid, name, applicationid):
+        """
 
-    def workunitCheck(self, projectid, name, applicationid):
+        checks wether a WU exists or not. if not the WU is created.
+
+        :param projectid:
+        :param name:
+        :param applicationid:
+        :return: int WUID
+        """
 
         query = {'projectid': projectid, 'name': name, 'applicationid': applicationid}
         try:
@@ -138,11 +157,10 @@ listed below.
                      'http://qcloud.crg.eu',
                      'https://panoramaweb.org']
         elif name == 'autoQC01':
-            links=['http://fgcz-ms.uzh.ch/~cpanse/autoQC01.html',
-                   'http://fgcz-ms-shiny.uzh.ch:8080/bfabric_rawDiag/',
-                   'http://qcloud.crg.eu',
-                   'https://panoramaweb.org']
-
+            links = ['http://fgcz-ms.uzh.ch/~cpanse/autoQC01.html',
+                     'http://fgcz-ms-shiny.uzh.ch:8080/bfabric_rawDiag/',
+                     'http://qcloud.crg.eu',
+                     'https://panoramaweb.org']
 
         if res is None:
             query = {'projectid': projectid, 'name': name,
@@ -153,23 +171,33 @@ listed below.
             res = self.bfapp.save_object(endpoint='workunit',
                                          obj=query)
 
-
-            return (res[0]._id)
         else:
-            res2 = self.bfapp.save_object(endpoint='workunit', obj={'id': res[0]._id,
+            res2 = self.bfapp.save_object(endpoint='workunit', obj={'id': id(res),
                                                                     'description': description,
                                                                     'link': links})
-            return (res[0]._id)
+        return id(res)
 
-    def resourceCheck(self, projectid, name, applicationid, workunitid, filename, filedate, size, md5, sampleid):
+    def resource_check(self, projectid, name, workunitid, filename, filedate, size, md5, sampleid):
+        """
+        checks wether a R exists or not. if not the R is created.
+        :param projectid:
+        :param name:
+        :param workunitid:
+        :param filename:
+        :param filedate:
+        :param size:
+        :param md5:
+        :param sampleid:
+        :return: RID
+        """
 
         # the time format bfabric understands
         _file_date = time.strftime("%FT%H:%M:%S-01:00", time.gmtime(int(filedate)))
 
         query = {
-                 'filechecksum': md5,
-                 'projectid': projectid,
-                 }
+            'filechecksum': md5,
+            'projectid': projectid,
+        }
         try:
             res = self.bfapp.read_object(endpoint='resource', obj=query)
         except:
@@ -187,57 +215,66 @@ listed below.
                 'storageid': self.bfabric_storageid
             }
 
-
             res = self.bfapp.save_object(endpoint='resource', obj=query)
 
-            query = {'id':  workunitid, 'status': 'available'}
+            query = {'id': workunitid, 'status': 'available'}
             res2 = self.bfapp.save_object(endpoint='workunit', obj=query)
 
-            return (res[0]._id)
+        return res[0]._id
 
-        else:
-            return (res[0]._id)
+
 
     def feed(self, line):
+        """
+        feeds one line example:
+        :param line:
+        :return:
+        """
+
+
         try:
-            (_md5,  _file_date, _file_size, filename) = line.split(";")
-        except:
+            (_md5, _file_date, _file_size, filename) = line.split(";")
+        except Exception as err:
             return
 
         try:
-            m = re.search('p([0-9]+)\/(Proteomics\/[A-Z]+_[1-9])\/.*(autoQC[04][1L]).*raw$', filename)
+            m = re.search(r"p([0-9]+)\/(Proteomics\/[A-Z]+_[1-9])\/.*(autoQC[04][1L]).*raw$",
+                          filename)
 
             projectid = m.group(1)
             applicationid = self.bfabric_application_ids[m.group(2)]
 
             autoQCType = m.group(3)
 
-        except:
+        except Exception as err:
             print ("# no match '{}'.".format(filename))
             return
 
         try:
-            sampleid = self.sampleCheck(projectid, name=autoQCType)
-            workunitid = self.workunitCheck(projectid, name=autoQCType, applicationid=applicationid)
+            sampleid = self.sample_check(projectid, name=autoQCType)
+            workunitid = self.workunit_check(projectid, name=autoQCType, applicationid=applicationid)
 
-            resourcetid = self.resourceCheck(projectid = projectid,
-                                             name = os.path.basename(filename),
-                                             applicationid = applicationid,
-                                             workunitid = workunitid,
-                                             filename = filename,
-                                             filedate =_file_date,
-                                             size = _file_size,
-                                             md5 = _md5,
-                                             sampleid=sampleid)
+            resourcetid = self.resource_check(projectid=projectid, name=os.path.basename(filename),
+                                              workunitid=workunitid,
+                                              filename=filename,
+                                              filedate=_file_date,
+                                              size=_file_size,
+                                              md5=_md5,
+                                              sampleid=sampleid)
 
             # sampleid=0
-            print ("p{p}\tA{A}\t{filename}\tS{S}\tWU{WU}\tR{R}".format(p=projectid, A=applicationid, filename=filename, S=sampleid, WU=workunitid, R=resourcetid))
-        except Exception as e:
-            print('# Failed to register to bfabric: {}'.format(e))
+            print ("p{p}\tA{A}\t{filename}\tS{S}\tWU{WU}\tR{R}".format(p=projectid,
+                                                                       A=applicationid,
+                                                                       filename=filename,
+                                                                       S=sampleid,
+                                                                       WU=workunitid,
+                                                                       R=resourcetid))
+        except Exception as err:
+            print('# Failed to register to bfabric: {}'.format(err))
 
 
 if __name__ == '__main__':
 
-    bf = autoQC()
+    BF = autoQC()
     for input_line in sys.stdin:
-        bf.feed(input_line.rstrip())
+        BF.feed(input_line.rstrip())
