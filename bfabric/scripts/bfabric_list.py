@@ -37,7 +37,7 @@ if __name__ == "__main__":
         'attachement', 'comment', 'dataset', 'executable',
         'externaljob', 'groupingvar', 'importresource', 'mail',
         'parameter', 'project', 'resource', 'sample',
-        'storage', 'user', 'workunit', 'order']
+        'storage', 'user', 'workunit', 'order', 'instrument']
     query_obj = {}
     
     print len(sys.argv)
