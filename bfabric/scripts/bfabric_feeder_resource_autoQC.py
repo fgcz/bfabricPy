@@ -80,9 +80,13 @@ class autoQC():
     bfapp = Bfabric(verbose=False)
 
     @property
-    def id(self, obj):
+    def getId(self, obj):
+        print "=============="
+        print obj
+
         try:
-            return obj[0]._id
+            print "DEBGUG obj: {}".format(obj[0]._id)
+            return int(obj[0]._id)
         except:
             raise
 
@@ -172,10 +176,12 @@ listed below.
                                          obj=query)
 
         else:
-            res2 = self.bfapp.save_object(endpoint='workunit', obj={'id': id(res),
-                                                                    'description': description,
-                                                                    'link': links})
-        return id(res)
+            pass
+            #res2 = self.bfapp.save_object(endpoint='workunit', obj={'id': id(res),
+            #                                                        'description': description,
+            #                                                 'link': links})
+
+        return res[0]._id
 
     def resource_check(self, projectid, name, workunitid, filename, filedate, size, md5, sampleid):
         """
@@ -252,9 +258,11 @@ listed below.
 
         try:
             sampleid = self.sample_check(projectid, name=autoQCType)
+            #print sampleid
             workunitid = self.workunit_check(projectid, name=autoQCType, applicationid=applicationid)
+            #print "WUID={}".format(workunitid)
 
-            resourcetid = self.resource_check(projectid=projectid, name=os.path.basename(filename),
+            resourceid = self.resource_check(projectid=projectid, name=os.path.basename(filename),
                                               workunitid=workunitid,
                                               filename=filename,
                                               filedate=_file_date,
@@ -268,7 +276,7 @@ listed below.
                                                                        filename=filename,
                                                                        S=sampleid,
                                                                        WU=workunitid,
-                                                                       R=resourcetid))
+                                                                       R=resourceid))
         except Exception as err:
             print('# Failed to register to bfabric: {}'.format(err))
 
