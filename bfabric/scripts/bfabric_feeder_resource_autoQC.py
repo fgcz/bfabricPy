@@ -50,6 +50,7 @@ class autoQC():
                                'Proteomics/QEXACTIVE_3': 163,
                                'Proteomics/FUSION_1': 162,
                                'Proteomics/FUSION_2': 176,
+                               'Proteomics/LUMOS_1': 248,
                                'Proteomics/QEXACTIVEHF_1': 177,
                                'Proteomics/QEXACTIVEHF_2': 197,
                                'Proteomics/QEXACTIVEHF_3': 207,
@@ -100,6 +101,7 @@ class autoQC():
         :param name:
         :return: SID
         """
+
         try:
             res = self.bfapp.read_object(endpoint='sample',
                                          obj={'projectid': projectid, 'name': name})
@@ -107,6 +109,7 @@ class autoQC():
             raise
 
         sample_type = 'Biological Sample - Proteomics'
+        
         query_autoQC01 = {'name': "{}".format(name),
                           'type': sample_type,
                           'projectid': projectid,
@@ -123,11 +126,22 @@ class autoQC():
                           'samplingdate': "2018-11-15",
                           'description': 'core4life standard: 6 x 5 LC-MS/MS Peptide Reference Mix'}
 
+        query_lipidQC01 = {'name': "{}".format(name),
+                          'type': 'Biological Sample - Metabolomics',
+                          'projectid': projectid,
+                          'species': "n/a",
+                          'extractionprotocolannotation': "n/a",
+                          'organismpart': "n/a",
+                          'compoundclass': "Lipids",
+                          'description': 'Lipidmix containing 2uM of FFA, BA, LPC. positive mode, C18.'}
+
         if res is None:
             if name == 'autoQC4L':
                 res = self.bfapp.save_object(endpoint='sample', obj=query_autoQC4L)
             elif name == 'autoQC01':
                 res = self.bfapp.save_object(endpoint='sample', obj=query_autoQC01)
+            elif name == 'lipidQC01':
+                res = self.bfapp.save_object(endpoint='sample', obj=query_lipidQC01)
 
         return res[0]._id
 
@@ -165,6 +179,9 @@ listed below.
                      'http://fgcz-ms-shiny.uzh.ch:8080/bfabric_rawDiag/',
                      'http://qcloud.crg.eu',
                      'https://panoramaweb.org']
+        elif name == 'lipidQC01':
+            description = "Contains automatic registered quality control (QC) measurements, positive mode."
+            links = ['http://fgcz-ms.uzh.ch/~cpanse/lipidQC01.html'] 
 
         if res is None:
             query = {'projectid': projectid, 'name': name,
@@ -177,9 +194,6 @@ listed below.
 
         else:
             pass
-            #res2 = self.bfapp.save_object(endpoint='workunit', obj={'id': id(res),
-            #                                                        'description': description,
-            #                                                 'link': links})
 
         return res[0]._id
 
@@ -202,6 +216,7 @@ listed below.
 
         query = {
             'filechecksum': md5,
+            'workunitid': workunitid,
             'projectid': projectid,
         }
         try:
@@ -244,13 +259,12 @@ listed below.
             return
 
         try:
-            m = re.search(r"p([0-9]+)\/(Proteomics\/[A-Z]+_[1-9])\/.*(autoQC[04][1L]).*raw$",
+            m = re.search(r"p([0-9]+)\/((Metabolomics|Proteomics)\/[A-Z]+_[1-9])\/.*(autoQC01|autoQC4L|lipidQC01).+raw$",
                           filename)
 
             projectid = m.group(1)
             applicationid = self.bfabric_application_ids[m.group(2)]
-
-            autoQCType = m.group(3)
+            autoQCType = m.group(4)
 
         except Exception as err:
             print ("# no match '{}'.".format(filename))
@@ -292,7 +306,11 @@ class TestCaseAutoQC(unittest.TestCase):
         pass
 
     def test_feed(self):
+        line = "61cf7e172713344bdf6ebe5b1ed61d99;1549963879;306145606;p2928/Proteomics/QEXACTIVEHF_2/ciuffar_20190211_190211_TNF_PRM_rT_again_AQUA_LHration/20190211_013_autoQC4L.raw"
+        #self.BF.feed(line)
         line = "efdf5e375d6e0e4e4abf9c2b3e1e97d5;1542134408;59129652;p1000/Proteomics/QEXACTIVEHF_2/tobiasko_20181113/20181113_003_autoQC01.raw"
+        #self.BF.feed(line)
+        line = "d0412c1aae029d21bb261c1e4c682ea9;1549441215;207803452;p2947/Metabolomics/QEXACTIVE_3/sstreb_20190206_o5292/p2947_o5292_20190205_FFA_BA_LPC_2um_lipidQC01_1.raw"
         self.BF.feed(line)
 
 if __name__ == '__main__':
