@@ -739,7 +739,7 @@ exit 0
 
         # create resources for output, stderr, stdout
         _ressource_output = self.save_object('resource', {
-            'name': "{0} {1} - input_resources".format(application.name, len(input_resources)),
+            'name': "{0} {1} - resource".format(application.name, len(input_resources)),
             'workunitid': workunit._id,
             'storageid': application.storage._id,
             'relativepath': _output_relative_path})[0]
