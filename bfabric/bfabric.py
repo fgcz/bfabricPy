@@ -53,7 +53,7 @@ class Bfabric(object):
     Implements read and save object methods for BFabric wsdl interface
     """
 
-    __version__ = "0.9.5"
+    __version__ = "0.9.10"
     verbose = False
     bflogin = None
     bfpassword = None

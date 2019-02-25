@@ -22,7 +22,7 @@ $Revision: 2627 $
 
 """
 setup(name='bfabric',
-      version='0.9.9',
+      version='0.9.10',
       description="""
 B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper_creator and submitter.
 """,
