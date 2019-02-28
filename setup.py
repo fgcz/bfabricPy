@@ -54,7 +54,8 @@ B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper
         'bfabric/scripts/bfabric_setResourceStatus_available.py',
         'bfabric/scripts/bfabric_setWorkunitStatus_available.py',
         'bfabric/scripts/bfabric_wrapper_creator_yaml.py',
-        'bfabric/scripts/bfabric_submitter_yaml.py'
+        'bfabric/scripts/bfabric_submitter_yaml.py',
+        'bfabric/scripts/bfabric_feeder_resource_autoQC'
         #'bfabric/scripts/fgcz_maxquant_wrapper.py'
         ],
       zip_safe=True)
