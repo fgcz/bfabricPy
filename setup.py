@@ -8,7 +8,7 @@ The code contains classes for wrapper_creator and submitter.
 
 Ensure that this file is available on the bfabric exec host.
 
-Copyright (C) 2014, 2015, 2016, 2017, 2018 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
+Copyright (C) 2014, 2015, 2016, 2017, 2018, 2019 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 
 Authors:
     Christian Panse <cp@fgcz.ethz.ch>
@@ -22,7 +22,7 @@ $Revision: 2627 $
 
 """
 setup(name='bfabric',
-      version='0.9.10',
+      version='0.9.12',
       description="""
 B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper_creator and submitter.
 """,
@@ -55,6 +55,7 @@ B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper
         'bfabric/scripts/bfabric_setWorkunitStatus_available.py',
         'bfabric/scripts/bfabric_wrapper_creator_yaml.py',
         'bfabric/scripts/bfabric_submitter_yaml.py',
+        'bfabric/scripts/bfabric_save_importresource_sample.py',
         'bfabric/scripts/bfabric_feeder_resource_autoQC'
         #'bfabric/scripts/fgcz_maxquant_wrapper.py'
         ],
