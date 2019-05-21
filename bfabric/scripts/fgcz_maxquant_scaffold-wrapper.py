@@ -9,6 +9,8 @@
 #
 # Licensed under  GPL version 3
 #
+# see also:
+# https://fgcz-svn.uzh.ch/repos/fgcz/stable/bfabric/sgeworker/bin/fgcz_sge_maxquant_scaffold_A255.bash
 
 
 import os
