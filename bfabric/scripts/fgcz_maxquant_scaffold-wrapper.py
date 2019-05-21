@@ -5,46 +5,54 @@
 #
 # Authors:
 #   Christian Panse <cp@fgcz.ethz.ch>
+#   Jonas Grossmann <jg@fgcz.ethz.ch>
 #
 # Licensed under  GPL version 3
 #
 
-import logging
-import logging.handlers
+
 import os
-import pprint
-import re
 import sys
-import time
-import urllib
-from optparse import OptionParser
 from lxml import etree
 import yaml
-from pathlib import Path
-import hashlib
 from io import StringIO, BytesIO
-# import warnings
-
-"""
-requirements
-
-"""
-
+from optparse import OptionParser
 # import unittest
 
 class FgczMaxQuantScaffold:
     """
-  input:
+    input:
 
     """
 
     config = None
     scratchdir = None
     fasta = None
+    samples = None
 
-    def __init__(self, fasta=''):
-        self.fasta=fasta
-        pass
+    def __init__(self, yamlfilename=None, zipfilename=None):
+
+        if not os.path.isfile(zipfilename):
+            print("ERROR: no such file '{0}'".format(zipfilename))
+            sys.exit(1)
+
+
+        self.zipfilename = zipfilename
+        with open(yamlfilename, 'r') as f:
+            content = f.read()
+
+        self.config = yaml.load(content, Loader=yaml.FullLoader)
+
+        try:
+            self.fasta = os.path.basename(self.config['application']['parameters']['/fastaFiles/FastaFileInfo/fastaFilePath'])
+        except:
+            raise
+
+        L = [value for values in self.config['application']['input'].values() for value in values]
+
+        self.samples = list(map(lambda x: os.path.basename(x).replace('.raw', ''), L))
+
+
 
     def getBiologicalSample(selfs, InputFile = None, category = '***BASENAME***'):
 
@@ -68,7 +76,7 @@ class FgczMaxQuantScaffold:
         if eInputFile is None:
             raise TypeError
 
-        eInputFile.text = '*** file {} ***'.format(InputFile)
+        eInputFile.text = '{}'.format(InputFile)
         eInputFile.attrib['maxQuantExperiment'] = "{}".format(category)
 
         eBiologicalSample = eInputFile.getparent()
@@ -85,7 +93,7 @@ class FgczMaxQuantScaffold:
         annotateWithGOA="false" condenseDataWhileLoading="true"
         connectToNCBI="false"
         experimentDisplayType="Total Spectrum Count"
-        name="jonas_XwinLoaded_WU192418_individualCategories"
+        name="fgcz_bfabric_scaffold"
         peakListChargeStatesCalculated="false"
         peakListDeisotoped="false" protectDisplaySettings="false"
         protectExportSpectra="false" protectThresholds="false"
@@ -106,7 +114,9 @@ class FgczMaxQuantScaffold:
 </Scaffold>
 '''
         pxml = etree.parse(StringIO(xml))
+        #pxml = etree.XML(xml)
         return(pxml)
+
 
 
     def run(self):
@@ -114,21 +124,32 @@ class FgczMaxQuantScaffold:
         xml = self.getScaffold()
         eExperiment = xml.find('/Experiment')
         eFastaDatabase = xml.find('/Experiment/FastaDatabase')
-        print(eFastaDatabase)
-        eFastaDatabase.attrib['path'] = "{}".format(self.fasta)
+        eFastaDatabase.attrib['path'] = "{}/{}".format(os.getcwd(), self.fasta)
 
-        eExperiment.append(self.getBiologicalSample(1))
-        eExperiment.append(self.getBiologicalSample(2))
-        eExperiment.append(self.getBiologicalSample(3))
-        eExperiment.append(self.getBiologicalSample(3))
-        eExperiment.append(self.getBiologicalSample(3))
+        for s in self.samples:
+            eExperiment.append(self.getBiologicalSample(category=s, InputFile = self.zipfilename))
 
-
-        #print(etree.tostring(xml, pretty_print=True, xml_declaration=True, method='xml', encoding="UTF-8"))
 
         xml.write('/dev/stdout' ,   pretty_print=True, xml_declaration=True,  method='xml', encoding="UTF-8")
 
 if __name__ == "__main__":
+    parser = OptionParser(usage="usage: %prog -y <yaml formated config file> -z <zip file containing the MaxQuant results>",
+                          version="%prog 1.0")
 
-    driver = FgczMaxQuantScaffold()
+    parser.add_option("-y", "--yaml",
+                      type='string',
+                      action="store",
+                      dest="yaml_filename",
+                      default="/Users/cp/WU199270.yaml ",
+                      help="config file.yaml")
+
+    parser.add_option("-z", "--zip",
+                      type='string',
+                      action="store",
+                      dest="zip_filename",
+                      default="output-WU199270.zip",
+                      help="config file.yaml")
+
+    (options, args) = parser.parse_args()
+    driver = FgczMaxQuantScaffold(yamlfilename=options.yaml_filename, zipfilename=options.zip_filename)
     driver.run()
