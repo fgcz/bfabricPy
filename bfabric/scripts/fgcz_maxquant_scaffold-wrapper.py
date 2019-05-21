@@ -1,6 +1,6 @@
-#!/usr/bin/python3
-# -*- coding: latin1 -*-
-
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
 # Copyright (C) 2019 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 #
 # Authors:
@@ -8,8 +8,6 @@
 #
 # Licensed under  GPL version 3
 #
-# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/scripts/fgcz_pd_wrapper.py $
-# $Id: fgcz_pd_wrapper.py 2992 2017-08-17 13:37:36Z cpanse $
 
 import logging
 import logging.handlers
@@ -32,7 +30,7 @@ requirements
 
 """
 
-import unittest
+# import unittest
 
 class FgczMaxQuantScaffold:
     """
@@ -42,17 +40,46 @@ class FgczMaxQuantScaffold:
 
     config = None
     scratchdir = None
+    fasta = None
 
-    def __init__(self, config=None, scratch = "/scratch/MAXQUANT/"):
+    def __init__(self, fasta=''):
+        self.fasta=fasta
+        pass
+
+    def getBiologicalSample(selfs, InputFile = None, category = '***BASENAME***'):
+
+        scaffold_BiologicalSample = '''
+        <BiologicalSample
+            analyzeAsMudpit="false"
+            category="20191015_002_HeLa_50_PreOmics_LK_3"
+            database="db0"
+            description=""
+            name="20191015_002_HeLa_50_PreOmics_LK_3"
+            quantitativeTechnique="Spectrum Counting">
+            <InputFile 
+                maxQuantExperiment="20191015_002_HeLa_50_PreOmics_LK_3">WU192418/output-WU192418.zip</InputFile>
+        </BiologicalSample>
+        '''
+
+        pBioSample = etree.XML(scaffold_BiologicalSample)
+
+        eInputFile = pBioSample.find("InputFile")
+
+        if eInputFile is None:
+            raise TypeError
+
+        eInputFile.text = '*** file {} ***'.format(InputFile)
+        eInputFile.attrib['maxQuantExperiment'] = "{}".format(category)
+
+        eBiologicalSample = eInputFile.getparent()
+        eBiologicalSample.attrib['category'] = "{}".format(category)
+        eBiologicalSample.attrib['name'] = "{}".format(category)
+
+        return(pBioSample)
 
 
-
-    def run(self):
-      pass
-
-
-scaffold_driver_templ_xml ='''
-<?xml version="1.0" encoding="UTF-8"?>
+    def getScaffold(selfs):
+        xml = '''
 <Scaffold pathsep="/" version="Scaffold_4.8.9">
     <Experiment analyzeWithSubsetDB="false" analyzeWithTandem="false"
         annotateWithGOA="false" condenseDataWhileLoading="true"
@@ -72,32 +99,36 @@ scaffold_driver_templ_xml ='''
             databaseDescriptionRegEx=">[^\s]*[\s](.*)"
             databaseVersion="" id="db0" matchMethod="Regex"
             path="/scratch/FASTA/fgcz_9606_reviewed_cnl_contaminantNoHumanCont_20161209.fasta" useAutoParse="false"/>
-        <BiologicalSample analyzeAsMudpit="false"
-            category="20191015_002_HeLa_50_PreOmics_LK_3" database="db0"
-            description="" name="20191015_002_HeLa_50_PreOmics_LK_3" quantitativeTechnique="Spectrum Counting">
-            <InputFile maxQuantExperiment="20191015_002_HeLa_50_PreOmics_LK_3">WU192418/output-WU192418.zip</InputFile>
-        </BiologicalSample>
-        <BiologicalSample analyzeAsMudpit="false"
-            category="20191015_004_HeLa_50_PreOmics_LK_1" database="db0"
-            description="" name="20191015_004_HeLa_50_PreOmics_LK_1" quantitativeTechnique="Spectrum Counting">
-            <InputFile maxQuantExperiment="20191015_004_HeLa_50_PreOmics_LK_1">WU192418/output-WU192418.zip</InputFile>
-        </BiologicalSample>
-        <BiologicalSample analyzeAsMudpit="false"
-            category="20191015_008_HeLa_50_PreOmics_LK_2" database="db0"
-            description="" name="20191015_008_HeLa_50_PreOmics_LK_2" quantitativeTechnique="Spectrum Counting">
-            <InputFile maxQuantExperiment="20191015_008_HeLa_50_PreOmics_LK_2">WU192418/output-WU192418.zip</InputFile>
-        </BiologicalSample>
-        <BiologicalSample analyzeAsMudpit="false"
-            category="20191015_009_HeLa_50_PreOmics_LK_4" database="db0"
-            description="" name="20191015_009_HeLa_50_PreOmics_LK_4" quantitativeTechnique="Spectrum Counting">
-            <InputFile maxQuantExperiment="20191015_009_HeLa_50_PreOmics_LK_4">WU192418/output-WU192418.zip</InputFile>
-        </BiologicalSample>
         <DisplayThresholds id="thresh" minimumPeptideCount="1"
             peptideProbability="0.99" proteinProbability="0.96"/>
         <Export type="sf3"/>
     </Experiment>
 </Scaffold>
 '''
+        pxml = etree.parse(StringIO(xml))
+        return(pxml)
+
+
+    def run(self):
+
+        xml = self.getScaffold()
+        eExperiment = xml.find('/Experiment')
+        eFastaDatabase = xml.find('/Experiment/FastaDatabase')
+        print(eFastaDatabase)
+        eFastaDatabase.attrib['path'] = "{}".format(self.fasta)
+
+        eExperiment.append(self.getBiologicalSample(1))
+        eExperiment.append(self.getBiologicalSample(2))
+        eExperiment.append(self.getBiologicalSample(3))
+        eExperiment.append(self.getBiologicalSample(3))
+        eExperiment.append(self.getBiologicalSample(3))
+
+
+        #print(etree.tostring(xml, pretty_print=True, xml_declaration=True, method='xml', encoding="UTF-8"))
+
+        xml.write('/dev/stdout' ,   pretty_print=True, xml_declaration=True,  method='xml', encoding="UTF-8")
 
 if __name__ == "__main__":
-  pass
+
+    driver = FgczMaxQuantScaffold()
+    driver.run()
