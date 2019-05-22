@@ -73,11 +73,11 @@ class GridEngine(object):
         qsub_cmd = [self.qsub, "-q", self.queue, script, " ".join(arguments)]
 
         if not os.path.isfile(self.qsub):
-            print "{0} can not be found.".format(self.qsub)
+            print ("{0} can not be found.".format(self.qsub))
             return
 
         if not os.path.isfile(script):
-            print "'{0}' - no such file.".format(script)
+            print ("'{0}' - no such file.".format(script))
             return
 
         try:
@@ -90,13 +90,14 @@ class GridEngine(object):
 
             return stdout
 
-        except subprocess.CalledProcessError, ex:
+        # except subprocess.CalledProcessError, ex:
+        except:
             #logging.error("Error running '%s': '%s'; exit code %d", str.join(' ', qstat_cmd), stderr, ex.returncode)
             raise
 
 
 def main():
-    print "hello world!"
+    print ("hello world!")
     pass
 
 

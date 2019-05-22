@@ -22,7 +22,7 @@ $Revision: 2627 $
 
 """
 setup(name='bfabric',
-      version='0.9.14',
+      version='0.10.0',
       description="""
 B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper_creator and submitter.
 """,
@@ -31,10 +31,11 @@ B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper
       author_email='cp@fgcz.ethz.ch',
       license='GPLv3 / apache 2.0',
       packages=['bfabric'],
+      python_requires=">=3.6",
       install_requires=[
-        'Flask>=0.11.1',
+        'Flask>=1.0.3',
         'PyYAML>=3.11',
-        'suds==0.4'
+        'zeep>=3.3.1'
         ],
       scripts=[
         'bfabric/scripts/bfabric_list_executables.py',

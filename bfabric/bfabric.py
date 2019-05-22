@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: latin1 -*-
 
 """
@@ -29,8 +29,7 @@ import sys
 from pprint import pprint
 
 try:
-    from suds.client import Client
-    from suds.client import WebFault
+    from zeep import Client
 except:
     raise
 
@@ -40,20 +39,14 @@ import base64
 import datetime
 import re
 import unittest
-import gridengine
-
-# fixes bfabric8 wsdl problems
-import httplib
-httplib.HTTPConnection._http_vsn = 10
-httplib.HTTPConnection._http_vsn_str = 'HTTP/1.0'
-
+from bfabric import gridengine
 
 class Bfabric(object):
     """
     Implements read and save object methods for BFabric wsdl interface
     """
 
-    __version__ = "0.9.10"
+    __version__ = "0.10.0"
     verbose = False
     bflogin = None
     bfpassword = None
@@ -68,7 +61,7 @@ class Bfabric(object):
 
     def _read_bfabric(self):
         if self.verbose:
-            print "self.bfabricfilename='{}'".format(self.bfabricfilename)
+            print ("self.bfabricfilename='{}'".format(self.bfabricfilename))
         if not os.path.isfile(self.bfabricfilename):
             self.warning("could not find '.bfabricrc.py' file in home directory.")
             return
@@ -133,9 +126,15 @@ class Bfabric(object):
         self.query_counter = self.query_counter + 1
         QUERY = dict(login=self.bflogin, page='', password=self.bfpassword, query=obj)
         try:
-            client = Client("".join((self.webbase, '/', endpoint, "?wsdl")), cache=None)
-        except WebFault, e:
-            print e
+            client = Client("".join((self.webbase, '/', endpoint, "?wsdl")))
+        # TODO(cp): add meaningfull msg
+        # TODO(cp): add settings
+        # except zeep.exceptions.Fault as fault:
+        #    print (fault.message)
+        #    print (fault.code)
+        #    print (fault.actor)
+        #    print (fault.detail)
+        except:
             raise
 
         QUERYRES = getattr(client.service.read(QUERY), endpoint, None)
@@ -153,8 +152,7 @@ class Bfabric(object):
 
         try:
             client = Client("".join((self.webbase, '/', endpoint, "?wsdl")), cache=None)
-        except WebFault, e:
-            print e
+        except:
             raise
 
         if debug is not None:
@@ -172,8 +170,7 @@ class Bfabric(object):
 
         try:
             client = Client("".join((self.webbase, '/', endpoint, "?wsdl")), cache=None)
-        except WebFault, e:
-            print e
+        except:
             raise
 
         if debug is not None:
@@ -226,7 +223,7 @@ class BfabricFeeder(Bfabric):
 
         """
         res = self.read_object('resource', {'id': resourceid})[0]
-        print res
+        print (res)
 
         if not hasattr(res, 'storage'):
             return -1
@@ -238,19 +235,20 @@ class BfabricFeeder(Bfabric):
         if os.path.isfile(filename):
             try:
                 fmd5 = hashlib.md5(open(filename, 'rb').read()).hexdigest()
-                print "md5sum ({}) = {}".format(filename, fmd5)
+                print ("md5sum ({}) = {}".format(filename, fmd5))
 
                 fsize = int(os.path.getsize(filename)) + 1
-                print "size ({}) = {}".format(filename, fsize)
+                print ("size ({}) = {}".format(filename, fsize))
 
 
                 return self.save_object('resource', {'id': resourceid,
                                                  'size': fsize,
                                                  'status': 'available',
                                                  'filechecksum': fmd5})
-            except Exception, err:
-                print "computing md5 failed"
-                print Exception, err
+            except:
+                print ("computing md5 failed")
+                # print ("{} {}".format(Exception, err))
+                raise
 
         return self.save_object('resource', {'id': resourceid, 'status': 'failed'})
 
@@ -269,7 +267,7 @@ class BfabricExternalJob(Bfabric):
     def __init__(self, login=None, password=None, externaljobid=None):
         super(BfabricExternalJob, self).__init__(login, password)
         if not externaljobid:
-            print "Error: no externaljobid provided."
+            print ("Error: no externaljobid provided.")
             raise
         else:
             self.externaljobid = externaljobid
@@ -278,7 +276,7 @@ class BfabricExternalJob(Bfabric):
         if self.externaljobid:
             super(BfabricExternalJob, self).save_object('externaljob', {'id': self.externaljobid, 'logthis': str(msg)})
         else:
-            print str(msg)
+            print (str(msg))
 
     def save_object(self, endpoint, obj, debug=None):
         res = super(BfabricExternalJob, self).save_object(endpoint, obj, debug)
@@ -329,7 +327,7 @@ class BfabricSubmitter(BfabricExternalJob, gridengine.GridEngine):
             workunitid = self.get_workunitid_of_externaljob()
             self.workunit = self.read_object(endpoint='workunit', obj={'id': workunitid})[0]
         except:
-            print "ERROR: could not fetch workunit."
+            print ("ERROR: could not fetch workunit.")
             raise
 
         try:
@@ -337,9 +335,9 @@ class BfabricSubmitter(BfabricExternalJob, gridengine.GridEngine):
             parameters = filter(lambda x: x.key == "queue" , self.parameters)
             if len(parameters) > 0:
                 self.queue = parameters[0].value
-                print "queue={0}".format(self.queue)
+                print ("queue={0}".format(self.queue))
         except:
-            print "Warning: could not fetch parameter."
+            print ("Warning: could not fetch parameter.")
             raise
 
     def submit(self, script, arguments=""):
@@ -756,7 +754,7 @@ exit 0
                                     {'id': _ressource_output._id,
                                      'relativepath': "{0}/{1}".format(_output_relative_path, _output_filename)})[0]
 
-        print _ressource_output
+        print (_ressource_output)
         _resource_stderr = self.save_object('resource', {
             'name': 'grid_engine_stderr',
             'workunitid': workunit._id,
@@ -834,13 +832,13 @@ exit 0
         wrapper_creator_externaljob = self.save_object(endpoint='externaljob',
                                                        obj={'id': self.externaljobid, 'status': 'done'})
 
-        print "\n\nquery_counter={0}".format(self.query_counter)
+        print ("\n\nquery_counter={0}".format(self.query_counter))
 
 
 
 if __name__ == "__main__":
 
-    print "This is the Bfabric python module version = {}.".format(Bfabric.__version__)
+    print ("This is the Bfabric python module version = {}.".format(Bfabric.__version__))
 
     bfapp = Bfabric(verbose=True)
 

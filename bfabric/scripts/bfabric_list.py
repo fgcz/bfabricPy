@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: latin1 -*-
 
 """
@@ -55,8 +55,8 @@ if __name__ == "__main__":
             for i in res:
                 print (i)
         try:
-            map(lambda x: sys.stdout.write("{}\t{}\t{}\t{}\n"
-               .format(x._id, x.createdby, x.modified, x.name)), res)
+            for x in res:
+                print ("{}\t{}\t{}\t{}".format(x.id, x.createdby, x.modified, x.name))
         except:
             print (res)
     else:
