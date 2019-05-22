@@ -3,7 +3,7 @@
 
 """
 
-Copyright (C) 2014 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
+Copyright (C) 2014,2019 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 
 Author:
  Christian Panse <cp@fgcz.ethz.ch>
@@ -40,7 +40,7 @@ if __name__ == "__main__":
         'storage', 'user', 'workunit', 'order', 'instrument']
     query_obj = {}
     
-    print len(sys.argv)
+    print (len(sys.argv))
 
     endpoint = sys.argv[1]
 
@@ -53,12 +53,12 @@ if __name__ == "__main__":
         res = bfapp.read_object(endpoint=endpoint, obj=query_obj)
         if len(res) == 1:
             for i in res:
-                print i
+                print (i)
         try:
             map(lambda x: sys.stdout.write("{}\t{}\t{}\t{}\n"
                .format(x._id, x.createdby, x.modified, x.name)), res)
         except:
-            print res
+            print (res)
     else:
         raise "1st argument must be a valid endpoint."
 

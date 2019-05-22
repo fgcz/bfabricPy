@@ -708,34 +708,39 @@ exit 0
         resource_ids = dict()
 
         for resource_iterator in input_resources:
-            _appication_id = self.read_object(endpoint='workunit',
+            try:
+                _appication_id = self.read_object(endpoint='workunit',
                                                obj={'id': resource_iterator.workunit._id})[0].application._id
 
-            _application_name = "{0}".format(self.read_object('application', obj={'id': _appication_id})[0].name)
+                _application_name = "{0}".format(self.read_object('application', obj={'id': _appication_id})[0].name)
 
-            _storage = self.read_object('storage', {'id': resource_iterator.storage._id})[0]
+                _storage = self.read_object('storage', {'id': resource_iterator.storage._id})[0]
 
-            _inputUrl = "bfabric@{0}:/{1}/{2}".format(_storage.host, _storage.basepath, resource_iterator.relativepath)
+                _inputUrl = "bfabric@{0}:/{1}/{2}".format(_storage.host, _storage.basepath, resource_iterator.relativepath)
 
-            if not _application_name in resource_urls:
-                resource_urls[_application_name] = []
-                resource_ids[_application_name] = []
+                if not _application_name in resource_urls:
+                    resource_urls[_application_name] = []
+                    resource_ids[_application_name] = []
 
-            resource_urls[_application_name].append(_inputUrl)
+                resource_urls[_application_name].append(_inputUrl)
 
-            sample_id = self.get_sampleid(int(resource_iterator._id))
+                sample_id = self.get_sampleid(int(resource_iterator._id))
 
-            # TODO(cp): change resouceID
-            _resource_sample = {'resource_id': int(resource_iterator._id),
+                # TODO(cp): change resouceID
+                _resource_sample = {'resource_id': int(resource_iterator._id),
                                         'resource_url': "{0}/userlab/show-resource.html?resourceId={1}".format(self.webbase,resource_iterator._id)}
 
 
-            # TODO(cp): change sampleID
-            if not sample_id is None:
-                _resource_sample['sample_id'] = int(sample_id)
-                _resource_sample['sample_url'] = "{0}/userlab/show-sample.html?sampleId={1}".format(self.webbase, sample_id)
+                # TODO(cp): change sampleID
+                if not sample_id is None:
+                    _resource_sample['sample_id'] = int(sample_id)
+                    _resource_sample['sample_url'] = "{0}/userlab/show-sample.html?sampleId={1}".format(self.webbase, sample_id)
 
-            resource_ids[_application_name].append(_resource_sample)
+                resource_ids[_application_name].append(_resource_sample)
+            except:
+                print ("resource_iterator failed. continue ...")
+                pass
+
 
         # create resources for output, stderr, stdout
         _ressource_output = self.save_object('resource', {
