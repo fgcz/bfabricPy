@@ -11,16 +11,20 @@ The [bfabricShiny](https://github.com/cpanse/bfabricShiny) R package is also a p
 - install the python package as follow:
 
 ```{sh}
-apt-get install python-pip
+git clone git@github.com:cpanse/bfabricPy.git  \
+  && cd bfabricPy \
+  && git checkout bfabric10
 
-git clone git@github.com:cpanse/bfabricPy.git 
-# svn co http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python bfabric-python bfabricPy
+# install
+python3.7 setup.py sdist && sudo pip3 install dist/bfabric-0.10.*.tar.gz
 
-cd bfabricPy
+# sample query
+bfabric_list.py storage
+bfabric_list.py project id 3000
+bfabric_list.py workunit id 199387
 
-python setup.py sdist
-
-sudo pip install dist/bfabric*.gz -e .
+# list empty resources
+bfabric_list.py resource filechecksum d41d8cd98f00b204e9800998ecf8427e
 ```
 
 ## WSDL Interface to B-Fabric

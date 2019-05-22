@@ -29,7 +29,7 @@ import sys
 from pprint import pprint
 
 try:
-    from zeep import Client
+    from zeep import Client, Settings
 except:
     raise
 
@@ -126,7 +126,8 @@ class Bfabric(object):
         self.query_counter = self.query_counter + 1
         QUERY = dict(login=self.bflogin, page='', password=self.bfpassword, query=obj)
         try:
-            client = Client("".join((self.webbase, '/', endpoint, "?wsdl")))
+            settings = Settings(strict=False, xml_huge_tree=True)
+            client = Client("".join((self.webbase, '/', endpoint, "?wsdl")), settings=settings)
         # TODO(cp): add meaningfull msg
         # TODO(cp): add settings
         # except zeep.exceptions.Fault as fault:
