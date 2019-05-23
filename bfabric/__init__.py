@@ -1,5 +1,6 @@
-name = "bfabric"
-#from bfabric import gridengine
+name = "bfabricPy"
+alias = "zeep"
+version = "0.10.0"
 from bfabric.bfabric import Bfabric
 #from bfabric import BfabricFeeder
 #from bfabric import BfabricExternalJob

@@ -4,24 +4,36 @@ The [bfabricShiny](https://github.com/cpanse/bfabricShiny) R package is also a p
 
 # bfabric wsdl python3 package
 
-## Install 
+## Requirements
 
 - install current stable debian linux release
 
-- install the python package as follow:
+- install the python3 package as follow:
 
-```{sh}
+```{bash}
 git clone git@github.com:cpanse/bfabricPy.git  \
   && cd bfabricPy \
   && git checkout bfabric10
+```
 
-# install
-python3.7 setup.py sdist && sudo pip3 install dist/bfabric-0.10.*.tar.gz
 
-# sample query
+## Install
+
+```{bash}
+python3 setup.py sdist && sudo pip3 install dist/bfabric-0.10.*.tar.gz
+```
+
+## Most frequently used queries
+
+```{bash}
+bfabric_list.py user login cpanse
 bfabric_list.py storage
 bfabric_list.py project id 3000
 bfabric_list.py workunit id 199387
+bfabric_list.py sample name autoQC4L
+bfabric_list.py workunit status running
+bfabric_list.py workunit status pending
+bfabric_list.py workunit status failed
 
 # list empty resources
 bfabric_list.py resource filechecksum d41d8cd98f00b204e9800998ecf8427e

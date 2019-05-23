@@ -82,6 +82,7 @@ class Bfabric(object):
             raise
 
     def __init__(self, login=None, password=None, webbase=None, externaljobid=None, bfabricrc=None, verbose=False):
+
         if bfabricrc:
             self.bfabricfilename = bfabricrc
 
