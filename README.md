@@ -25,9 +25,16 @@ python3 setup.py sdist && sudo pip3 install dist/bfabric-0.10.*.tar.gz
 
 ## Most frequently used queries
 
+Simple listing
+
+```{bash}
+bfabric_list.py storage
+bfabric_list.py application
+```
+Simple database query examples
+
 ```{bash}
 bfabric_list.py user login cpanse
-bfabric_list.py storage
 bfabric_list.py project id 3000
 bfabric_list.py workunit id 199387
 bfabric_list.py sample name autoQC4L
@@ -39,17 +46,6 @@ bfabric_list.py workunit status failed
 bfabric_list.py resource filechecksum d41d8cd98f00b204e9800998ecf8427e
 ```
 
-## WSDL Interface to B-Fabric
-[endpoints](http://fgcz-bfabric.uzh.ch/bfabric/workunit?wsdl)
-
-## sample query
-```sh
-bfabric_list.py application
-```
-
-## See also
-
-- [wsdl4BFabric](http://fgcz-intranet.uzh.ch/tiki-index.php?page=wsdl4BFabric)
 
 ## Most frequently used command lines
 
@@ -214,3 +210,10 @@ bfabric_list.py importresource \
     bfabric_delete.py importresource $i ; 
   done
 ```
+
+
+## See also
+
+- [wsdl4BFabric](http://fgcz-intranet.uzh.ch/tiki-index.php?page=wsdl4BFabric) wiki page
+- WSDL Interface to B-Fabric [endpoints](http://fgcz-bfabric.uzh.ch/bfabric/workunit?wsdl)
+
