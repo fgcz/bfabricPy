@@ -25,13 +25,13 @@ python3 setup.py sdist && sudo pip3 install dist/bfabric-0.10.*.tar.gz
 
 ## Most frequently used queries
 
-### Simple listing
+Simple listing
 
 ```{bash}
 bfabric_list.py storage
 bfabric_list.py application
 ```
-### Simple database query examples
+Simple database query examples
 
 ```{bash}
 bfabric_list.py user login cpanse
