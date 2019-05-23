@@ -40,8 +40,6 @@ B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper
       scripts=[
         'bfabric/scripts/bfabric_list.py'
         #'bfabric/scripts/bfabric_list_executables.py',
-        #'bfabric/scripts/bfabric_list_failed_workunits.py',
-        #'bfabric/scripts/bfabric_list_pending_workunits.py',
         #'bfabric/scripts/bfabric_list_proteomics_projects.py',
         #'bfabric/scripts/bfabric_upload_wrapper_creator_executable.py',
         #'bfabric/scripts/bfabric_upload_submitter_executable.py',
