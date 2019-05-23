@@ -39,7 +39,8 @@ import base64
 import datetime
 import re
 import unittest
-import gridengine
+#import gridengine
+import bfabric.gridengine as gridengine
 
 class Bfabric(object):
     """
