@@ -31,6 +31,7 @@ Simple listing
 bfabric_list.py storage
 bfabric_list.py application
 ```
+
 Simple database query examples
 
 ```{bash}
@@ -46,6 +47,16 @@ bfabric_list.py workunit status failed
 bfabric_list.py resource filechecksum d41d8cd98f00b204e9800998ecf8427e
 ```
 
+call `python3` shell and enter
+
+```{py}
+import bfabric
+
+B = bfabric.Bfabric()
+
+user = B.read_object(endpoint = 'user', obj={'login': 'cpanse'})
+resource = B.read_object(endpoint = 'resource', obj={'id': 550327 })
+```
 
 ## Most frequently used command lines
 
