@@ -23,9 +23,9 @@ git clone git@github.com:cpanse/bfabricPy.git  \
 python3 setup.py sdist && sudo pip3 install dist/bfabric-0.10.*.tar.gz
 ```
 
-## Most frequently used queries
+## CheatSheet
 
-Simple listing
+### Read
 
 ```{bash}
 bfabric_list.py storage
@@ -58,7 +58,7 @@ user = B.read_object(endpoint = 'user', obj={'login': 'cpanse'})
 resource = B.read_object(endpoint = 'resource', obj={'id': 550327 })
 ```
 
-## Most frequently used command lines
+### Command line code snippets
 
 get useless stuff out of the system
 ```{bash} 
