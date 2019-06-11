@@ -54,6 +54,7 @@ class autoQC():
                                'Proteomics/QEXACTIVEHF_1': 177,
                                'Proteomics/QEXACTIVEHF_2': 197,
                                'Proteomics/QEXACTIVEHF_3': 207,
+                               'Proteomics/QEXACTIVEHF_4': 254,
                                'Proteomics/PROTEONXPR36': 82,
                                'Proteomics/EXTERNAL_0': 188,
                                'Proteomics/EXTERNAL_1': 189,
