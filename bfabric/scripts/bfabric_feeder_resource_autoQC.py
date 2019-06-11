@@ -221,6 +221,8 @@ listed below.
         }
         try:
             res = self.bfapp.read_object(endpoint='resource', obj=query)
+            print "***"
+            print res
         except:
             raise
 
@@ -236,10 +238,15 @@ listed below.
                 'storageid': self.bfabric_storageid
             }
 
-            res = self.bfapp.save_object(endpoint='resource', obj=query)
+            try:
+                res = self.bfapp.save_object(endpoint='resource', obj=query)
+                print res
+            except:
+                raise 
 
             query = {'id': workunitid, 'status': 'available'}
             res2 = self.bfapp.save_object(endpoint='workunit', obj=query)
+            return res2[0]._id
 
         return res[0]._id
 
@@ -272,10 +279,27 @@ listed below.
 
         try:
             sampleid = self.sample_check(projectid, name=autoQCType)
-            #print sampleid
-            workunitid = self.workunit_check(projectid, name=autoQCType, applicationid=applicationid)
-            #print "WUID={}".format(workunitid)
+        except:
+            print('# Failed no sample id')
 
+        try:
+            workunitid = self.workunit_check(projectid, name=autoQCType, applicationid=applicationid)
+            print "WUID={}".format(workunitid)
+        except:
+            print ("workunitid check failed.")
+            pass
+
+        try:
+            print ("p{p}\tA{A}\t{filename}\tS{S}\tWU{WU}\tR{R}".format(p=projectid,
+                                                                       A=applicationid,
+                                                                       filename=filename,
+                                                                       S=sampleid,
+                                                                       WU=workunitid,
+                                                                       R=None))
+        except:
+            pass
+
+        try:
             resourceid = self.resource_check(projectid=projectid, name=os.path.basename(filename),
                                               workunitid=workunitid,
                                               filename=filename,

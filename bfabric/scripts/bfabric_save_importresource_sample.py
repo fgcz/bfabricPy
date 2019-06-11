@@ -67,6 +67,7 @@ bfabric_application_ids = {'Proteomics/TOFTOF_2':91,
     'Proteomics/ORBI_2':12,
     'Proteomics/ORBI_3':87, 
     'Proteomics/G2HD_1':128,
+    'Proteomics/G2HD_2':251,
     'Proteomics/LTQ_1':7, 
     'Proteomics/LTQFT_1':8,
     'Proteomics/QTRAP_1':92, 
@@ -85,6 +86,7 @@ bfabric_application_ids = {'Proteomics/TOFTOF_2':91,
                            'Proteomics/QEXACTIVEHF_1':177,
                            'Proteomics/QEXACTIVEHF_2':197,
                            'Proteomics/QEXACTIVEHF_3':207,
+                           'Proteomics/QEXACTIVEHF_4':254,
                            'Proteomics/PROTEONXPR36': 82,
                            'Proteomics/EXTERNAL_0': 188,
                            'Proteomics/EXTERNAL_1': 189,
@@ -155,7 +157,7 @@ def save_importresource(line):
 
     if _bfabric_applicationid < 0:
         logger.error("{0}; no bfabric application id.".format(_file_path))
-        raise
+        return 
 
     obj = { 'applicationid':_bfabric_applicationid,
             'filechecksum':_md5,
@@ -168,7 +170,7 @@ def save_importresource(line):
             }
 
     try:
-        m = re.search(r"p([0-9]+)\/(Proteomics\/[A-Z]+_[1-9])\/.*_S([0-9]+)_.*raw$", _file_path)
+        m = re.search(r"p([0-9]+)\/(Proteomics\/[A-Z]+_[1-9])\/.*_S([0-9][0-9]+)_.*raw$", _file_path)
         print "found sampleid={} pattern".format(m.group(3))
         obj['sampleid'] = int(m.group(3))
     except:
