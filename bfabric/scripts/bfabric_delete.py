@@ -32,7 +32,7 @@ if __name__ == "__main__":
         'storage', 'user', 'workunit']
     query_obj = {}
     
-    print len(sys.argv)
+    print (len(sys.argv))
 
     endpoint = sys.argv[1]
 
@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
     if endpoint in endpoints:
         res = bfapp.delete_object(endpoint=endpoint, id=id)
-        print res
+        print (res)
     else:
         raise "1st argument must be a valid endpoint."
 

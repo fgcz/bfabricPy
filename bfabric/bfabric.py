@@ -39,8 +39,36 @@ import base64
 import datetime
 import re
 import unittest
+
+import logging.config
+
+logging.config.dictConfig({
+    'version': 1,
+    'formatters': {
+        'verbose': {
+            'format': 'DEBUG %(name)s: %(message)s'
+        }
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'zeep.transports': {
+            'level': 'DEBUG',
+            'propagate': True,
+            'handlers': ['console'],
+        },
+    }
+})
+
 #import gridengine
 import bfabric.gridengine as gridengine
+from zeep.transports import Transport
+
 
 class Bfabric(object):
     """
@@ -127,9 +155,17 @@ class Bfabric(object):
         """
         self.query_counter = self.query_counter + 1
         QUERY = dict(login=self.bflogin, page='', password=self.bfpassword, query=obj)
+        transport = Transport(timeout=10)
+        client = Client(wsdl = "{}/{}?wsdl".format(self.webbase, endpoint), transport=transport)
         try:
-            settings = Settings(strict=False, xml_huge_tree=True)
-            client = Client("".join((self.webbase, '/', endpoint, "?wsdl")), settings=settings)
+            with client.settings(strict=True, raw_response=False, xsd_ignore_sequence_order=True):
+                res = client.service.read(QUERY)
+                print(repr(res))
+        except Exception as ex:
+            print(ex)
+            raise
+            
+        # settings = Settings(strict=False, xml_huge_tree=True)
         # TODO(cp): add meaningfull msg
         # TODO(cp): add settings
         # except zeep.exceptions.Fault as fault:
@@ -137,10 +173,12 @@ class Bfabric(object):
         #    print (fault.code)
         #    print (fault.actor)
         #    print (fault.detail)
-        except:
-            raise
 
-        QUERYRES = getattr(client.service.read(QUERY), endpoint, None)
+        try:
+            QUERYRES = getattr(res, endpoint, None)
+        except Exception as ex:
+            print(ex)
+            raise
         if self.verbose:
             pprint (QUERYRES)
         return QUERYRES

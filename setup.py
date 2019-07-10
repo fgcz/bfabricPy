@@ -35,9 +35,10 @@ B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper
       install_requires=[
         'Flask>=1.0.3',
         'PyYAML>=3.11',
-        'zeep>=3.3.1'
+        'zeep==3.4.0'
         ],
       scripts=[
+        'bfabric/scripts/bfabric_delete.py',
         'bfabric/scripts/bfabric_list.py'
         #'bfabric/scripts/bfabric_list_executables.py',
         #'bfabric/scripts/bfabric_list_proteomics_projects.py',
@@ -45,7 +46,6 @@ B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper
         #'bfabric/scripts/bfabric_upload_submitter_executable.py',
         #'bfabric/scripts/bfabric_upload_resource.py',
         #'bfabric/scripts/bfabric_create_bfabricrc.py',
-        #'bfabric/scripts/bfabric_delete.py',
         #'bfabric/scripts/bfabric_save_importresource.py',
         ##'bfabric/scripts/bfabric_save_importresource_mascot.py',
         #'bfabric/scripts/bfabric_save_fasta.py',
