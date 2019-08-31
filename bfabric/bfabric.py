@@ -9,7 +9,7 @@ The code contains classes for wrapper_creator and submitter.
 
 Ensure that this file is available on the bfabric exec host.
 
-Copyright (C) 2014, 2015, 2016, 2017 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
+Copyright (C) 2014 - 2019 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 
 Authors:
   Marco Schmidt <marco.schmidt@fgcz.ethz.ch>
@@ -29,7 +29,8 @@ import sys
 from pprint import pprint
 
 try:
-    from zeep import Client, Settings
+    from suds.client import Client
+    from suds.client import WebFault
 except:
     raise
 
@@ -65,9 +66,17 @@ logging.config.dictConfig({
     }
 })
 
-#import gridengine
 import bfabric.gridengine as gridengine
-from zeep.transports import Transport
+
+if (sys.version_info > (3, 0)):
+    import http.client
+    http.client.HTTPConnection._http_vsn = 10
+    http.client.HTTPConnection._http_vsn_str = 'HTTP/1.0'
+    pass
+else:
+    import httplib
+    httplib.HTTPConnection._http_vsn = 10
+    httplib.HTTPConnection._http_vsn_str = 'HTTP/1.0'
 
 
 class Bfabric(object):
@@ -148,39 +157,24 @@ class Bfabric(object):
 
     def read_object(self, endpoint, obj):
         """
-        A generic methode which can connect to any endpoint, e.g., workunit, project,
+        A generic method which can connect to any endpoint, e.g., workunit, project,
         externaljob, etc, and returns the object with the requested id.
         obj is a python dictionary which contains all the attributes of the endpoint 
         for the "query".
         """
         self.query_counter = self.query_counter + 1
         QUERY = dict(login=self.bflogin, page='', password=self.bfpassword, query=obj)
-        transport = Transport(timeout=10)
-        client = Client(wsdl = "{}/{}?wsdl".format(self.webbase, endpoint), transport=transport)
-        try:
-            with client.settings(strict=True, raw_response=False, xsd_ignore_sequence_order=True):
-                res = client.service.read(QUERY)
-                print(repr(res))
-        except Exception as ex:
-            print(ex)
-            raise
-            
-        # settings = Settings(strict=False, xml_huge_tree=True)
-        # TODO(cp): add meaningfull msg
-        # TODO(cp): add settings
-        # except zeep.exceptions.Fault as fault:
-        #    print (fault.message)
-        #    print (fault.code)
-        #    print (fault.actor)
-        #    print (fault.detail)
 
         try:
-            QUERYRES = getattr(res, endpoint, None)
-        except Exception as ex:
-            print(ex)
+            client = Client("".join((self.webbase, '/', endpoint, "?wsdl")), cache=None)
+        except Exception as e:
+            print (e)
             raise
+
+        QUERYRES = getattr(client.service.read(QUERY), endpoint, None)
         if self.verbose:
             pprint (QUERYRES)
+
         return QUERYRES
 
     def save_object(self, endpoint, obj, debug=None):

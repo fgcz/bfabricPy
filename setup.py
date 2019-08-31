@@ -22,7 +22,7 @@ $Revision: 2627 $
 
 """
 setup(name='bfabric',
-      version='0.10.0',
+      version='0.10.1',
       description="""
 B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper_creator and submitter.
 """,
@@ -35,7 +35,7 @@ B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper
       install_requires=[
         'Flask>=1.0.3',
         'PyYAML>=3.11',
-        'zeep==3.4.0'
+        'suds-py3==1.3.1'
         ],
       scripts=[
         'bfabric/scripts/bfabric_delete.py',

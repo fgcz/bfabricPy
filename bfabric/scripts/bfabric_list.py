@@ -28,12 +28,6 @@ def signal_handler(signal, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
-endpoints = ['access', 'annotation', 'application',
-        'attachement', 'comment', 'dataset', 'executable',
-        'externaljob', 'groupingvar', 'importresource', 'mail',
-        'parameter', 'project', 'resource', 'sample',
-        'storage', 'user', 'workunit', 'order', 'instrument']
-
 
 def usage():
     print("usage:\n")
@@ -47,11 +41,7 @@ def usage():
 if __name__ == "__main__":
     bfapp = bfabric.Bfabric(verbose=False)
 
-    msg = "\033[93m{} version {} (2019-05-21) -- \"{}\"\
-        \nCopyright (C) 2019 Functional Genomics Center Zurich\033[0m\n\n"\
-        .format(bfabric.name, bfabric.version, bfabric.alias)
-
-    sys.stderr.write(msg)
+    sys.stderr.write(bfabric.msg)
 
     query_obj = {}
     
@@ -66,7 +56,7 @@ if __name__ == "__main__":
         name = sys.argv[3]
         query_obj[attribute] = name
 
-    if endpoint in endpoints:
+    if endpoint in bfabric.endpoints:
         start_time = time.time()
         res = bfapp.read_object(endpoint=endpoint, obj=query_obj)
         end_time = time.time()
@@ -75,8 +65,12 @@ if __name__ == "__main__":
                 print (i)
         try:
             for x in res:
-                print ("{}\t{}\t{}\t{}".format(x.id, x.createdby, x.modified, x.name))
-        except:
+                try:
+                    print ("{}\t{}\t{}\t{}".format(x._id, x.createdby, x.modified, x.name))
+                except:
+                    print ("{}\t{}\t{}".format(x._id, x.createdby, x.modified))
+        except Exception as e:
+            print ("Exception: {}".format(e))
             print (res)
     else:
         print ("The first argument must be a valid endpoint.\n")
@@ -89,6 +83,6 @@ if __name__ == "__main__":
         sys.stderr.write(msg)
     except:
         pass
-    msg = "\033[93m--- query time = {} seconds ---\033[0m\n\n".format(end_time - start_time)
+    msg = "\033[93m--- query time = {} seconds ---\033[0m\n\n".format(round(end_time - start_time, 2))
     sys.stderr.write(msg)
 

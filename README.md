@@ -2,7 +2,7 @@
 This package connects the bfabric system to the python and R world providing a JSON and REST interface.
 The [bfabricShiny](https://github.com/cpanse/bfabricShiny) R package is also a powerful extension interfacing the R world.
 
-# bfabric10 wsdl python3 package -- zeep
+# bfabric10 wsdl python3 package -- suds-py3
 
 ## Requirements
 
@@ -15,7 +15,6 @@ git clone git@github.com:cpanse/bfabricPy.git  \
   && cd bfabricPy \
   && git checkout bfabric10
 ```
-
 
 ## Install
 
