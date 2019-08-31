@@ -1,8 +1,8 @@
 
-This package connects the bfabric system to the python and R world providing a JSON and REST interface.
+This package connects the bfabric system to the python and R world while providing a JSON and REST interface.
 The [bfabricShiny](https://github.com/cpanse/bfabricShiny) R package is also a powerful extension interfacing the R world.
 
-# bfabric10 wsdl python3 package -- suds-py3
+# branch *bfabric10* wsdl python3 package -- suds-py3
 
 ## Requirements
 
