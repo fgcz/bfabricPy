@@ -152,6 +152,10 @@ class Bfabric(object):
         if self.verbose:
             pprint(self.bfabricrc)
 
+        msg = "\033[93m--- webbase {}; login; {} ---\033[0m\n".format(self.webbase, self.bflogin)
+
+        sys.stderr.write(msg)
+
     def get_para(self):
         return {'bflogin': self.bflogin, 'webbase': self.webbase}
 
@@ -715,11 +719,5 @@ exit 0
 
 
 if __name__ == "__main__":
-    msg = "\033[93m{} version {} (2019-05-21)\
-        \nCopyright (C) 2019 Functional Genomics Center Zurich\033[0m\n\n"\
-        .format(sys.argv[0], Bfabric.__version__)
-
-    sys.stderr.write(msg)
-
     bfapp = Bfabric(verbose=True)
 
