@@ -59,7 +59,7 @@ resource = B.read_object(endpoint = 'resource', obj={'id': 550327 })
 
 ### Command line code snippets
 
-get useless stuff out of the system
+remove pending workunits from the past
 ```{bash} 
  bfabric_list.py workunit status pending \
    | awk '$2~/cpanse/&&$3~/2015/{print $1}'
