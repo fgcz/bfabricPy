@@ -1,10 +1,12 @@
+__version__ = "0.10.2"
+
 name = "bfabricPy"
 alias = "suds-py3"
-version = "0.10.1"
+
 
 msg = "\033[93m{} version {} (2019-08-31) -- \"{}\"\
     \nCopyright (C) 2019 Functional Genomics Center Zurich\033[0m\n\n"\
-    .format(name, version, alias)
+    .format(name, __version__, alias)
 
 endpoints = ['access', 'annotation', 'application',
         'attachement', 'comment', 'dataset', 'executable',

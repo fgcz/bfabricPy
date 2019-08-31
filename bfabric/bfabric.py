@@ -24,6 +24,7 @@ $Revision: 3000 $
 
 """
 
+
 import yaml
 import sys
 from pprint import pprint
@@ -84,7 +85,6 @@ class Bfabric(object):
     Implements read and save object methods for BFabric wsdl interface
     """
 
-    __version__ = "0.10.0"
     verbose = False
     bflogin = None
     bfpassword = None

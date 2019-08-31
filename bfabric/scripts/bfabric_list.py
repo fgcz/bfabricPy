@@ -31,11 +31,13 @@ signal.signal(signal.SIGINT, signal_handler)
 
 def usage():
     print("usage:\n")
-    msg = "{} <endpoint> <attribute> <value>\n\n".format(sys.argv[0])
+    msg = "\t{} <endpoint> <attribute> <value>".format(sys.argv[0])
     print(msg)
-    print("endpoint = {}\n\n".format(endpoints))
-    print("example")
-    msg = "{} user login cpanse\n\n".format(sys.argv[0])
+    msg = "\t{} <endpoint>\n\n".format(sys.argv[0])
+    print(msg)
+    print("valid endpoints are: [{}]\n\n".format(",\n\t ".join(bfabric.endpoints)))
+    print("example:")
+    msg = "\t{} user login cpanse\n\n".format(sys.argv[0])
     print(msg)
 
 if __name__ == "__main__":
@@ -60,15 +62,30 @@ if __name__ == "__main__":
         start_time = time.time()
         res = bfapp.read_object(endpoint=endpoint, obj=query_obj)
         end_time = time.time()
-        if len(res) == 1:
-            for i in res:
-                print (i)
+
         try:
+            res = sorted(res, key=lambda x: x._id)
+        except:
+            msg = "\033[93m--- sorting failed. ---\033[0m\n".format(len(res))
+            sys.stderr.write(msg)
+
+        try:
+            if len(res) == 1:
+                for i in res:
+                    print (i)
+        except:
+            print("invalid query.")
+            sys.exit(1)
+
+
+        try:
+
             for x in res:
                 try:
                     print ("{}\t{}\t{}\t{}".format(x._id, x.createdby, x.modified, x.name))
                 except:
                     print ("{}\t{}\t{}".format(x._id, x.createdby, x.modified))
+
         except Exception as e:
             print ("Exception: {}".format(e))
             print (res)

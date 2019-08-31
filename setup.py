@@ -1,4 +1,3 @@
-from setuptools import setup
 
 """
 
@@ -21,8 +20,12 @@ $Date: 2017-08-21 15:04:42 +0200 (Mon, 21 Aug 2017) $
 $Revision: 2627 $
 
 """
-setup(name='bfabric',
-      version='0.10.1',
+
+from setuptools import setup
+import bfabric
+
+setup(name = 'bfabric',
+      version = bfabric.__version__,
       description="""
 B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper_creator and submitter.
 """,
