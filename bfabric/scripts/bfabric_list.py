@@ -28,6 +28,9 @@ def signal_handler(signal, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
+def print_color_msg(msg, color="93"):
+    msg = "\033[{color}m--- {} ---\033[0m\n".format(msg, color=color)
+    sys.stderr.write(msg)
 
 def usage():
     print("usage:\n")
@@ -60,46 +63,48 @@ if __name__ == "__main__":
 
     if endpoint in bfabric.endpoints:
         start_time = time.time()
+        print_color_msg("query = {}".format(query_obj))
         res = bfapp.read_object(endpoint=endpoint, obj=query_obj)
         end_time = time.time()
+
+        if res is None:
+            print_color_msg("Empty result set or invalid query.", color=95)
+            sys.exit(0)
 
         try:
             res = sorted(res, key=lambda x: x._id)
         except:
-            msg = "\033[93m--- sorting failed. ---\033[0m\n".format(len(res))
-            sys.stderr.write(msg)
+            print_color_msg("sorting failed.")
 
         try:
-            if len(res) == 1:
+            if len(res) < 2:
                 for i in res:
                     print (i)
-        except:
-            print("invalid query.")
+        except Exception as e:
+            print_color_msg("invalid query. {}.".format(e), color=95)
             sys.exit(1)
-
 
         try:
 
             for x in res:
                 try:
                     print ("{}\t{}\t{}\t{}".format(x._id, x.createdby, x.modified, x.name))
-                except:
+                except Exception as e:
                     print ("{}\t{}\t{}".format(x._id, x.createdby, x.modified))
 
+
         except Exception as e:
-            print ("Exception: {}".format(e))
+            print_color_msg("Exception: {}".format(e))
             print (res)
     else:
-        print ("The first argument must be a valid endpoint.\n")
+        print ("The first argument must be a valid endpoint.", color=95)
         usage()
         sys.exit(1)
         
 
     try:
-        msg = "\033[93m--- number of query result items = {} ---\033[0m\n".format(len(res))
-        sys.stderr.write(msg)
+        print_color_msg("number of query result items = {}".format(len(res)))
     except:
         pass
-    msg = "\033[93m--- query time = {} seconds ---\033[0m\n\n".format(round(end_time - start_time, 2))
-    sys.stderr.write(msg)
 
+    print_color_msg("query time = {} seconds".format(round(end_time - start_time, 2)))
