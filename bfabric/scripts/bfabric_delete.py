@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: latin1 -*-
 
 """
@@ -20,16 +20,11 @@ http://fgcz-bfabric.uzh.ch/bfabric/executable?wsdl
 """
 
 import sys
-from bfabric import Bfabric
+import bfabric 
 
 if __name__ == "__main__":
-    bfapp = Bfabric()
+    bfapp = bfabric.Bfabric()
 
-    endpoints = ['access', 'annotation', 'application',
-        'attachement', 'comment', 'dataset', 'executable',
-        'externaljob', 'extract', 'importresource', 'mail',
-        'parameter', 'project', 'resource', 'sample',
-        'storage', 'user', 'workunit']
     query_obj = {}
     
     print (len(sys.argv))
@@ -39,9 +34,10 @@ if __name__ == "__main__":
     if len(sys.argv) == 3:
         id = sys.argv[2]
 
-    if endpoint in endpoints:
+    if endpoint in bfabric.endpoints:
         res = bfapp.delete_object(endpoint=endpoint, id=id)
-        print (res)
+        for i in res:
+            print (i)
     else:
         raise "1st argument must be a valid endpoint."
 

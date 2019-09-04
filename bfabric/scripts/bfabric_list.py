@@ -86,6 +86,9 @@ if __name__ == "__main__":
 
         try:
 
+            print_color_msg("possible attributes are: {}.".format((", ".join([at[0] for at in res[0]]))))
+
+            
             for x in res:
                 try:
                     print ("{}\t{}\t{}\t{}".format(x._id, x.createdby, x.modified, x.name))
@@ -97,7 +100,7 @@ if __name__ == "__main__":
             print_color_msg("Exception: {}".format(e))
             print (res)
     else:
-        print ("The first argument must be a valid endpoint.", color=95)
+        print_color_msg ("The first argument must be a valid endpoint.", color=95)
         usage()
         sys.exit(1)
         
