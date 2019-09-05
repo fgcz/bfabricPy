@@ -94,6 +94,9 @@ class Bfabric(object):
     bfabricfilename = os.path.normpath("{0}/{1}"
         .format(os.path.expanduser("~"), ".bfabricrc.py"))
 
+
+    cl = dict()
+
     def warning(self, msg):
         sys.stderr.write("\033[93m{}\033[0m\n".format(msg))
 
@@ -170,12 +173,17 @@ class Bfabric(object):
         QUERY = dict(login=self.bflogin, page='', password=self.bfpassword, query=obj)
 
         try:
-            client = Client("".join((self.webbase, '/', endpoint, "?wsdl")), cache=None)
+            if not endpoint in self.cl:
+                self.cl[endpoint] = Client("".join((self.webbase, '/', endpoint, "?wsdl")), cache=None)
         except Exception as e:
             print (e)
             raise
 
-        QUERYRES = getattr(client.service.read(QUERY), endpoint, None)
+        try:
+            QUERYRES = getattr(self.cl[endpoint].service.read(QUERY), endpoint, None)
+        except Exception as e:
+            print (e)
+            raise
         if self.verbose:
             pprint (QUERYRES)
 
@@ -190,14 +198,19 @@ class Bfabric(object):
         QUERY[endpoint] = obj
 
         try:
-            client = Client("".join((self.webbase, '/', endpoint, "?wsdl")), cache=None)
+            if not endpoint in self.cl:
+                self.cl[endpoint] = Client("".join((self.webbase, '/', endpoint, "?wsdl")), cache=None)
         except:
             raise
 
-        if debug is not None:
-            return client.service.save(QUERY)
 
-        return getattr(client.service.save(QUERY), endpoint, None)
+        try:
+            if debug is not None:
+                return self.cl[endpoint].service.save(QUERY)
+
+            return getattr(self.cl[endpoint].service.save(QUERY), endpoint, None)
+        except:
+            raise
 
     def delete_object(self, endpoint, id=None, debug=None):
         """
@@ -208,14 +221,18 @@ class Bfabric(object):
         QUERY = dict(login=self.bflogin, password=self.bfpassword, id=id)
 
         try:
-            client = Client("".join((self.webbase, '/', endpoint, "?wsdl")), cache=None)
+            if not endpoint in self.cl:
+                self.cl[endpoint] = Client("".join((self.webbase, '/', endpoint, "?wsdl")), cache=None)
         except:
             raise
 
-        if debug is not None:
-            return client.service.delete(QUERY)
+        try:
+            if debug is not None:
+                return self.cl[endpoint].service.delete(QUERY)
 
-        return getattr(client.service.delete(QUERY), endpoint, None)
+            return getattr(self.cl[endpoint].service.delete(QUERY), endpoint, None)
+        except:
+            raise
 
     def set_bfabric_credentials(self, login, password):
         self.bflogin = login
