@@ -84,19 +84,6 @@ class Bfabric(object):
     """
     Implements read and save object methods for BFabric wsdl interface
     """
-
-    verbose = False
-    bflogin = None
-    bfpassword = None
-    webbase = 'https://fgcz-bfabric.uzh.ch/bfabric'
-    bfabricrc = dict()
-    query_counter = 0
-    bfabricfilename = os.path.normpath("{0}/{1}"
-        .format(os.path.expanduser("~"), ".bfabricrc.py"))
-
-
-    cl = dict()
-
     def warning(self, msg):
         sys.stderr.write("\033[93m{}\033[0m\n".format(msg))
 
@@ -124,11 +111,23 @@ class Bfabric(object):
 
     def __init__(self, login=None, password=None, webbase=None, externaljobid=None, bfabricrc=None, verbose=False):
 
-        if bfabricrc:
-            self.bfabricfilename = bfabricrc
 
         self.verbose = verbose
+
+        self.cl = {}
+        self.verbose = False
+        self.bflogin = None
+        self.bfpassword = None
+        self.webbase = 'https://fgcz-bfabric.uzh.ch/bfabric'
+        self.bfabricrc = dict()
+        self.query_counter = 0
+        self.bfabricfilename = os.path.normpath("{0}/{1}"
+            .format(os.path.expanduser("~"), ".bfabricrc.py"))
+
         self._read_bfabric()
+
+        if bfabricrc:
+            self.bfabricfilename = bfabricrc
 
         if '_PASSWD' in self.bfabricrc.keys() and password is None:
             password = self.bfabricrc['_PASSWD']
