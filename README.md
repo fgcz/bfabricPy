@@ -171,7 +171,7 @@ else
 fi
 
 
-# should be available also as zero byte files
+# Should be available also as zero byte files
 
 /home/bfabric/.python/fgcz_bfabric_setResourceStatus_available.py $RESSOURCEID_STDOUT_STDERR
 
@@ -220,6 +220,13 @@ bfabric_list.py importresource \
   do 
     bfabric_delete.py importresource $i ; 
   done
+```
+
+
+## Testing
+
+```{sh}
+cd bfabric/tests/ && python3 -m unittest discover; echo $?; cd -
 ```
 
 
