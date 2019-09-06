@@ -20,7 +20,7 @@ class BfabricTestCase(unittest.TestCase):
         self.samples = []
 
     def workunit_save(self):
-        queue = range(1,10)
+        queue = range(1, 4)
         for j in queue:
             res = self.bfapp.save_object(endpoint='workunit', obj={'name': "unit test - #{}.".format(j),
                                                                    'containerid': bfabric.project,
@@ -96,6 +96,39 @@ class BfabricTestCase(unittest.TestCase):
 
         self.assertEqual(18, len(res1[0]))
 
+    def sample_save(self):
+        print("SAVE SAMPLE")
+        #sample_type = 'Biological Sample - Proteomics'
+        sample_type = 'Proteomics'
+        species = "n/a"
+        for name in [1, 2, 3]:
+            res = self.bfapp.save_object(endpoint='sample',
+                obj={'name': "unit test - #{}; {}".format(name, sample_type),
+                    'containerid': 3000,
+                    'type' : sample_type,
+                    'species' : species,
+                    'samplingdate' : "2017-10-12",
+                    'groupingvar' : "A",
+                    'description': '68b329da9893e34099c7d8ad5cb9c940'
+                    })
+
+            #print(res[0]._id)
+            print("=== BEGIN DEBUG")
+            for i in res:
+                print (i)
+                self.samples.append(res[0]._id)
+            print("=== END DEBUG")
+
+    def sample_delete(self):
+        print (self.samples)
+        res = [self.bfapp.delete_object(endpoint='sample', id=x)[0] for x in self.samples]
+        res = [x for x in res if "removed successfully." in x.deletionreport]
+
+
+    def test_sample(self):
+        # self.sample_save()
+        #self.sample_delete()
+        pass
 
     def test_workunit(self):
         self.workunit_save()
