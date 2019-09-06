@@ -2,7 +2,6 @@
 # -*- coding: latin1 -*-
 
 import sys
-import bfabric
 import pprint
 from bfabric import Bfabric
 

@@ -5,55 +5,104 @@
 unittest by <cp@fgcz.ethz.ch>
 """
 
+import base64
 import unittest
 import bfabric
-
+import os
 
 class BfabricTestCase(unittest.TestCase):
-    workunits = []
-    samples = []
+    def __init__(self, *args, **kwargs):
+        super(BfabricTestCase, self).__init__(*args, **kwargs)
 
-    bfapp = bfabric.Bfabric(verbose=False)
+        self.bfapp = bfabric.Bfabric(verbose=False)
+        self.workunits = []
+        self.resources = []
+        self.samples = []
 
     def workunit_save(self):
-        print("WORKUNIT SAVE")
-        for j in range(1,10):
+        queue = range(1,10)
+        for j in queue:
             res = self.bfapp.save_object(endpoint='workunit', obj={'name': "unit test - #{}.".format(j),
-                                                                   'containerid': 3000,
+                                                                   'containerid': bfabric.project,
                                                                    'description': '68b329da9893e34099c7d8ad5cb9c940',
-                                                                   'applicationid': 217
+                                                                   'applicationid': bfabric.application
                                                                    })
-
             for i in res:
                 try:
-                    print(i._id)
-                    print(i)
                     self.workunits.append(i._id)
-                    print("YEAH")
+                    self.resource_save(os.path.abspath(__file__), i._id)
                 except:
-                    pass
-            
-        #print(self.workunits)
+                    raise
+        self.assertEqual(len(queue), len(self.workunits))
+
+
+    def resource_save(self, filename, workunitid):
+        with open(filename, 'r') as f:
+            content = f.read()
+
+        try:
+            resource_base64 = base64.b64encode(content.encode())
+        except:
+            raise ("error: could not encode content")
+
+        res = self.bfapp.save_object('resource',
+            {'base64': resource_base64,
+            'name': os.path.basename(filename),
+            'description': content,
+            'workunitid': workunitid})
+
+        for i in res:
+            try:
+                self.resources.append(i._id)
+            except:
+                raise
 
 
     def workunit_read(self):
-        print("WORKUNIT READ")
-        print (self.workunits)
         res = [self.bfapp.read_object(endpoint='workunit', obj={'id': x}) for x in self.workunits]
         res = [x for x in res if x[0].description == '68b329da9893e34099c7d8ad5cb9c940']
         self.assertEqual(len(res), len(self.workunits))
 
+    def resource_delete(self):
+        print (self.resources)
+        res = [self.bfapp.delete_object(endpoint='resource', id=x)[0] for x in self.resources]
+        res = [x for x in res if "removed successfully." in x.deletionreport]
+        self.assertEqual(len(res), len(self.resources))
+
     def workunit_delete(self):
-        print("WORKUNIT DELETE")
         res = [self.bfapp.delete_object(endpoint='workunit', id=x)[0] for x in self.workunits]
         res = [x for x in res if "removed successfully." in x.deletionreport]
-        print(res)
         self.assertEqual(len(res), len(self.workunits))
+
+    def test_executable(self, filename=os.path.abspath(__file__)):
+        with open(filename, 'r') as f:
+            executable = f.read()
+
+        attr = { 'name': 'unit test', 
+            'context': 'APPLICATION', 
+            'parameter': {'modifiable': 'true', 
+                'description': 'will be ignored.', 
+                'key': 'argument1', 
+                'label': 'argument1', 
+                'required': 'true', 
+                'type':'string', 
+                'value': 'PRX@fgcz-r-028'}, 
+            'description': 'python3 unit test executable.', 
+            #'masterexecutableid': 11871, 
+            'base64': base64.b64encode(executable.encode()) }
+
+        res0 = self.bfapp.save_object('executable', attr)
+        res1 = self.bfapp.read_object('executable', obj={'id': res0[0]._id})
+
+        self.assertEqual(18, len(res1[0]))
+
 
     def test_workunit(self):
         self.workunit_save()
         self.workunit_read()
+        #self.resource_delete()
         self.workunit_delete()
 
 if __name__ == '__main__':
     unittest.main()
+

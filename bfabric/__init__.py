@@ -13,4 +13,9 @@ endpoints = ['access', 'annotation', 'application',
         'parameter', 'project', 'resource', 'sample',
         'storage', 'user', 'workunit', 'order', 'instrument']
 
+# for unit tests
+project=403
+container=project
+application=217
+
 from bfabric.bfabric import Bfabric
