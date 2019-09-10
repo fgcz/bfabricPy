@@ -694,7 +694,10 @@ exit 0
                 parameter = self.read_object('parameter', obj={'id': parameter._id, 'context': 'APPLICATION'})
                 if parameter:
                     for p in parameter:
-                        application_parameter["{}".format(p.key)] = "{}".format(p.value)
+                        try:
+                            application_parameter["{}".format(p.key)] = "{}".format(p.value)
+                        except:
+                            application_parameter["{}".format(p.key)] = "{}"
 
 
 
