@@ -196,8 +196,8 @@ query(){
      <soapenv:Body>
         <end:read>
            <parameters>
-              <login>cpanse</login>
-              <password>dcf40f74250459c2a7110951e2472749</password>
+              <login>XXX</login>
+              <password>XXX</password>
               <query>
                  <id>482</id>
               </query>
