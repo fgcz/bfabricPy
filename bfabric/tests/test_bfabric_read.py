@@ -10,26 +10,31 @@ import base64
 import unittest
 import bfabric
 import os
+import json
 
 class BfabricTestCase(unittest.TestCase):
+
+    with open('groundtruth.json') as json_file:
+        groundtruth = json.load(json_file)
+
+    bfapp = bfabric.Bfabric(verbose=False)
+
     def __init__(self, *args, **kwargs):
         super(BfabricTestCase, self).__init__(*args, **kwargs)
-        self.bfapp = bfabric.Bfabric(verbose=False)
-
-        self.groundtruth = {'user' : [({'id': 482}, {'login': 'cpanse', 'email':'cp@fgcz.ethz.ch'})],
-            'project' : [({'id': 3000}, {'name': 'FGCZ Internal'})],
-            'application' : [({'id': 224}, {'name': 'MaxQuant'})],
-            'resource' : [({'filechecksum': '090a3f025d3ebbad75213e3d4886e17c'}, {'name': '20190903_07_autoQC4L.raw'}), 
-                ({'workunitid': 200186}, {'name': '20190618_07_autoQC4L.raw'})],
-            'sample' : [({'id': 190249}, {'name': 'autoQC4L'})]
-            }
-
 
     def read(self, endpoint):
         for (query, groundtruth) in self.groundtruth[endpoint]:
             res = self.bfapp.read_object(endpoint=endpoint, obj=query)
             for gtattr, gtvalue in groundtruth.items():
-                #print ("{}:{} = {} \t?\t{}".format(endpoint, gtattr, gtvalue, getattr(res[0], gtattr)))
+                if False:
+                    print ("{}:{} = {} \t?\t{}".format(endpoint, gtattr, gtvalue, getattr(res[0], gtattr)))
+
+                # to make it deterministic!
+                try:
+                    res = sorted(res, key = lambda x: x.id)
+                except:
+                    res = sorted(res, key = lambda x: x._id)
+
                 self.assertEqual(gtvalue, getattr(res[0], gtattr))
 
     def test_user(self):
