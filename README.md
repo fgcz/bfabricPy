@@ -180,30 +180,41 @@ exit 0
 
 ### curl example
 
-```
-cat ~/query.xml 
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:end="http://endpoint.webservice.component.bfabric.org/">
-   <soapenv:Header/>
-   <soapenv:Body>
-      <end:read>
-         <parameters>
-            <login>cpanse</login>
-<password>$2a$10$UXXXL1lr0wwp0cnByu0SXuxxxhakhjfskjhdgskhnSk7gBIUvy/au</password>
+```{bash}
+#!/bin/bash
 
-            <query>
+query(){
+  url=$1 \
+  && curl \
+    ${url} \
+    -v \
+    --header "Content-Type: text/xml;charset=UTF-8" \
+    --header "SOAPAction: read" \
+    -d '
+  <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:end="http://endpoint.webservice.component.bfabric.org/">
+     <soapenv:Header/>
+     <soapenv:Body>
+        <end:read>
+           <parameters>
+              <login>cpanse</login>
+              <password>dcf40f74250459c2a7110951e2472749</password>
+              <query>
+                 <id>482</id>
+              </query>
+           </parameters>
+        </end:read>
+     </soapenv:Body>
+  </soapenv:Envelope>'
+}
 
-               <status>pending</status>
-            </query>
-         </parameters>
-      </end:read>
-   </soapenv:Body>
-</soapenv:Envelope> 
+for url in https://fgcz-bfabric.uzh.ch/bfabric/user?wsdl https://fgcz-bfabric-test.uzh.ch/bfabric/user?wsdl;
+do 
+  echo
+  echo "==== ${url} === "
+  query ${url}
+done
 
-test $? -eq 0 \
-&& curl --header "Content-Type: text/xml;charset=UTF-8" \
---header "SOAPAction: ACTION_YOU_WANT_TO_CALL" \
---data @query.xml \
-http://fgcz-bfabric.uzh.ch/bfabric/workunit?wsdl
+echo $?
 ```
 
 
