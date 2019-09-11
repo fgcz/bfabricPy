@@ -15,7 +15,20 @@
             "id":224
          },
          {
-            "name":"MaxQuant"
+            "name":"MaxQuant",
+            "pageflowname":"resources"
+         }
+      ]
+   ],
+   "workunit":[
+      [
+         {
+            "createdby":"gerritsb",
+            "name":"Lovorka SUZ12 control"
+         },
+         {
+            "_id":162,
+            "status":"archived"
          }
       ]
    ],
@@ -25,7 +38,19 @@
             "id":190249
          },
          {
-            "name":"autoQC4L"
+            "name":"autoQC4L",
+            "type":"Biological Sample - Proteomics"
+         }
+      ]
+   ],
+   "annotation":[
+      [
+         {
+            "id":2710
+         },
+         {
+            "name":"A",
+            "type":"Grouping Var"
          }
       ]
    ],
@@ -35,7 +60,18 @@
             "filechecksum":"090a3f025d3ebbad75213e3d4886e17c"
          },
          {
-            "name":"20190903_07_autoQC4L.raw"
+            "name":"20190903_07_autoQC4L.raw",
+            "size":264773059
+         }
+      ],
+      [
+         {
+            "filechecksum":"090a3f02%"
+         },
+         {
+            "name":"20190903_07_autoQC4L.raw",
+            "size":264773059,
+            "filechecksum":"090a3f025d3ebbad75213e3d4886e17c"
          }
       ],
       [
@@ -54,7 +90,33 @@
          },
          {
             "login":"cpanse",
-            "email":"cp@fgcz.ethz.ch"
+            "email":"cp@fgcz.ethz.ch",
+            "city":"Zürich",
+            "zip":"8057"
+         }
+      ]
+   ],
+   "executable":[
+      [
+         {
+            "id":16375
+         },
+         {
+            "createdby":"cpanse",
+            "name":"yaml /  Grid Engine executable",
+            "size":1593,
+            "context":"SUBMITTER"
+         }
+      ],
+      [
+         {
+            "id":16374
+         },
+         {
+            "createdby":"cpanse",
+            "name":"yaml 004",
+            "size":953,
+            "context":"WRAPPERCREATOR"
          }
       ]
    ]

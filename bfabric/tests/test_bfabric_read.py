@@ -23,11 +23,12 @@ class BfabricTestCase(unittest.TestCase):
         super(BfabricTestCase, self).__init__(*args, **kwargs)
 
     def read(self, endpoint):
+        self.assertIn(endpoint, self.groundtruth)
         for (query, groundtruth) in self.groundtruth[endpoint]:
             res = self.bfapp.read_object(endpoint=endpoint, obj=query)
             for gtattr, gtvalue in groundtruth.items():
-                if False:
-                    print ("{}:{} = {} \t?\t{}".format(endpoint, gtattr, gtvalue, getattr(res[0], gtattr)))
+                #if self.verbosity>2:
+                #    print ("{}:{} = {} \t?\t{}".format(endpoint, gtattr, gtvalue, getattr(res[0], gtattr)))
 
                 # to make it deterministic!
                 try:
@@ -39,15 +40,23 @@ class BfabricTestCase(unittest.TestCase):
 
     def test_user(self):
         self.read('user')
+    def test_container(self):
+        self.read('container')
     def test_project(self):
         self.read('project')
     def test_application(self):
         self.read('application')
     def test_sample(self):
         self.read('sample')
+    def test_workunit(self):
+        self.read('workunit')
     def test_resource(self):
         self.read('resource')
+    def test_executable(self):
+        self.read('executable')
+    def test_annotation(self):
+        self.read('annotation')
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(verbosity=2)
 
