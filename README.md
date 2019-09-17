@@ -5,9 +5,11 @@ This package connects the [bfabric](https://fgcz-bfabric.uzh.ch/bfabric/) system
 For more advanced users the *bfabricPy* package also provides a powerful query interface on the command-line though using the provided scripts.
 
 
+![bfabricPy-read](https://user-images.githubusercontent.com/4901987/65025926-db77c900-d937-11e9-8c92-f2412d6793ee.gif)
+
 ## Requirements
 
-- install current stable debian linux release
+- install current stable Debian Linux release (any current BSD like or Microsoft OS will do)
 
 - install the python3 package as follow:
 
@@ -21,6 +23,16 @@ git clone git@github.com:cpanse/bfabricPy.git  \
 
 ```{bash}
 python3 setup.py sdist && sudo pip3 install dist/bfabric-0.10.*.tar.gz
+```
+
+
+## Configuration
+
+```{bash}
+cat ~/.bfabricrc.py 
+_WEBBASE="https://fgcz-bfabric-test.uzh.ch/bfabric"
+_LOGIN="yourBfabricLogin"
+_PASSWD='yourBfabricWebPassword'
 ```
 
 ## CheatSheet
@@ -47,7 +59,7 @@ bfabric_list.py workunit status failed
 bfabric_list.py resource filechecksum d41d8cd98f00b204e9800998ecf8427e
 ```
 
-call `python3` shell and enter
+call the `python3` interpreter and enter
 
 ```{py}
 import bfabric
