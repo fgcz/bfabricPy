@@ -5,6 +5,8 @@ This package connects the [bfabric](https://fgcz-bfabric.uzh.ch/bfabric/) system
 For more advanced users the *bfabricPy* package also provides a powerful query interface on the command-line though using the provided scripts.
 
 
+![bfabricPy-read](https://user-images.githubusercontent.com/4901987/65025926-db77c900-d937-11e9-8c92-f2412d6793ee.gif)
+
 ## Requirements
 
 - install current stable debian linux release
