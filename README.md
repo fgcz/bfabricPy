@@ -9,7 +9,7 @@ For more advanced users the *bfabricPy* package also provides a powerful query i
 
 ## Requirements
 
-- install current stable debian linux release
+- install current stable Debian Linux release (any current BSD like or Microsoft OS will do)
 
 - install the python3 package as follow:
 
