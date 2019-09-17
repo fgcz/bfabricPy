@@ -23,6 +23,16 @@ git clone git@github.com:cpanse/bfabricPy.git  \
 python3 setup.py sdist && sudo pip3 install dist/bfabric-0.10.*.tar.gz
 ```
 
+
+## Configuration
+
+```{bash}
+cat ~/.bfabricrc.py 
+_WEBBASE="https://fgcz-bfabric-test.uzh.ch/bfabric"
+_LOGIN="yourBfabricLogin"
+_PASSWD='yourBfabricWebPassword'
+```
+
 ## CheatSheet
 
 ### Read
