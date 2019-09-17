@@ -57,7 +57,7 @@ bfabric_list.py workunit status failed
 bfabric_list.py resource filechecksum d41d8cd98f00b204e9800998ecf8427e
 ```
 
-call `python3` shell and enter
+call the `python3` interpreter and enter
 
 ```{py}
 import bfabric
