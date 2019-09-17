@@ -40,23 +40,23 @@ _PASSWD='yourBfabricWebPassword'
 ### Read
 
 ```{bash}
-bfabric_list.py storage
-bfabric_list.py application
+bfabric_read.py storage
+bfabric_read.py application
 ```
 
 Simple database query examples
 
 ```{bash}
-bfabric_list.py user login cpanse
-bfabric_list.py project id 3000
-bfabric_list.py workunit id 199387
-bfabric_list.py sample name autoQC4L
-bfabric_list.py workunit status running
-bfabric_list.py workunit status pending
-bfabric_list.py workunit status failed
+bfabric_read.py user login cpanse
+bfabric_read.py project id 3000
+bfabric_read.py workunit id 199387
+bfabric_read.py sample name autoQC4L
+bfabric_read.py workunit status running
+bfabric_read.py workunit status pending
+bfabric_read.py workunit status failed
 
 # list empty resources
-bfabric_list.py resource filechecksum d41d8cd98f00b204e9800998ecf8427e
+bfabric_read.py resource filechecksum d41d8cd98f00b204e9800998ecf8427e
 ```
 
 call the `python3` interpreter and enter
@@ -74,14 +74,14 @@ resource = B.read_object(endpoint = 'resource', obj={'id': 550327 })
 
 remove pending workunits from the past
 ```{bash} 
- bfabric_list.py workunit status pending \
+ bfabric_read.py workunit status pending \
    | awk '$2~/cpanse/&&$3~/2015/{print $1}'
    | fgcz_bfabric_delete_workunits.py 
 ```
 
 find empty resource files in bfabric
 ```{bash}
-bfabric_list.py resource filechecksum `md5sum < /dev/null | cut -c-32` \
+bfabric_read.py resource filechecksum `md5sum < /dev/null | cut -c-32` \
   | cat -n \
   | tail
 ```
@@ -235,7 +235,7 @@ echo $?
 remove accidentally inserted mgf files
 
 ```
-bfabric_list.py importresource \
+bfabric_read.py importresource \
   | grep mgf$ \
   | awk '{print $1}' \
   | tee /tmp/$$.log \
