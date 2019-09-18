@@ -36,7 +36,8 @@ class BfabricTestCase(unittest.TestCase):
                 except:
                     res = sorted(res, key = lambda x: x._id)
 
-                self.assertEqual(gtvalue, getattr(res[0], gtattr))
+                # cast all values to string
+                self.assertEqual("{}".format(gtvalue), "{}".format(getattr(res[0], gtattr)))
 
     def test_user(self):
         self.read('user')

@@ -9,6 +9,16 @@
          }
       ]
    ],
+   "container":[
+      [
+         {
+            "id":3000
+         },
+         {
+            "name":"FGCZ Internal"
+         }
+      ]
+   ],
    "application":[
       [
          {
@@ -89,7 +99,6 @@
          },
          {
             "login":"cpanse",
-            "email":"cp@fgcz.ethz.ch",
             "city":"Zürich",
             "zip":"8057"
          }
