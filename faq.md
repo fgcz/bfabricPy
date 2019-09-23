@@ -16,29 +16,28 @@ workaround fetch entire orders and filter later
 ```
 import json
 import bfabric
+import datetime
 
 try:
     with open('orders.json') as json_file:
         data = json.load(json_file)
 
-
 except:
     bf = bfabric.Bfabric()
     rv = bf.read_object('order', {})
 
-    rv = list(map(lambda x: (x.customer._id, x.modified.year, x.servicetypename), rv))                                                                                
+    data = list(map(lambda x: (x.customer._id, x.modified.year, x.modified.month, x.modified.day, x.servicetypename), rv))
 
-
+    # cache data
     with open('orders.json', 'w', encoding='utf-8') as f:
-        json.dump(rv, f, sort_keys=True, indent=4)
+        json.dump(data, f, sort_keys=True, indent=4)
 
 
-
-
-
-for customerid, year, servicetypename in data:
-    print ("{}\t{}\t{}".format(year, servicetypename, customerid))
-
+lastyear = datetime.datetime.now() - datetime.timedelta(days=365)
+for customerid, year, month, day, servicetypename in data:
+    dt = datetime.datetime(year=year, month=month, day=day)
+    if dt > lastyear:
+        print ("{}\t{}\t{}".format(year, servicetypename, customerid))                                                                                    
 ```
 
 ## Q: SSL: CERTIFICATE_VERIFY_FAILED on MacOSX
