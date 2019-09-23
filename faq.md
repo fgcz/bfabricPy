@@ -10,6 +10,36 @@ whatsoever time format is as follow
     _file_date = time.strftime("%FT%H:%M:%S-01:00",time.gmtime(int(_file_date)))
 ```
 
+workaround fetch entire orders and filter later
+
+```
+import json
+import bfabric
+
+try:
+    with open('orders.json') as json_file:
+        data = json.load(json_file)
+
+
+except:
+    bf = bfabric.Bfabric()
+    rv = bf.read_object('order', {})
+
+    rv = list(map(lambda x: (x.customer._id, x.modified.year, x.servicetypename), rv))                                                                                
+
+
+    with open('orders.json', 'w', encoding='utf-8') as f:
+        json.dump(rv, f, sort_keys=True, indent=4)
+
+
+
+
+
+for customerid, year, servicetypename in data:
+    print ("{}\t{}\t{}".format(year, servicetypename, customerid))
+
+```
+
 ## Q: SSL: CERTIFICATE_VERIFY_FAILED on MacOSX
 
 ```
