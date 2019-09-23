@@ -44,7 +44,7 @@ B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper
       scripts=[
         'bfabric/scripts/bfabric_delete.py',
         'bfabric/scripts/bfabric_read.py',
-        'bfabric/scripts/bfabric_flask,py'
+        'bfabric/scripts/bfabric_flask.py'
         #'bfabric/scripts/bfabric_list_executables.py',
         #'bfabric/scripts/bfabric_list_proteomics_projects.py',
         #'bfabric/scripts/bfabric_upload_wrapper_creator_executable.py',
