@@ -1,5 +1,14 @@
 # FAQ
 
+## Q: Howto query for time and date - range query
+
+range query are not possible with the current API design
+
+whatsoever time format is as follow
+```{py}
+ # the timeformat bfabric understands
+    _file_date = time.strftime("%FT%H:%M:%S-01:00",time.gmtime(int(_file_date)))
+```
 
 ## Q: SSL: CERTIFICATE_VERIFY_FAILED on MacOSX
 
