@@ -40,6 +40,54 @@ for customerid, year, month, day, servicetypename in data:
         print ("{}\t{}\t{}".format(year, servicetypename, customerid))                                                                                    
 ```
 
+
+KPI frequency table - returning `customerid`s
+```{bash}
+cp@fgcz-148:~ > python3 orders.py |awk '{print $NF}'|sort | uniq -c| awk '{print $1}'|sort |uniq -c|sort -gr | awk '{s+=$1*$2; print s"\t"$0}'                        
+557         557 1
+1091        267 2
+1586        165 3
+1946         90 4
+2226         56 5
+2532         51 6
+2756         32 7
+3026         30 9
+3234         26 8
+3384         15 10
+3514         10 13
+3640          9 14
+3748          9 12
+3836          8 11
+3938          6 17
+4028          6 15
+4104          4 19
+4168          4 16
+4243          3 25
+4306          3 21
+4360          3 18
+4448          2 44
+4524          2 38
+4594          2 35
+4662          2 34
+4724          2 31
+4782          2 29
+4830          2 24
+4870          2 20
+4938          1 68
+5005          1 67
+5067          1 62
+5124          1 57
+5174          1 50
+5223          1 49
+5269          1 46
+5312          1 43
+5348          1 36
+5378          1 30
+5406          1 28
+5433          1 27
+5534          1 101
+```
+
 ## Q: SSL: CERTIFICATE_VERIFY_FAILED on MacOSX
 by @cpanse
 ```
