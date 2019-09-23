@@ -1,6 +1,7 @@
 # FAQ
 
-## Q: Howto query for time and date - range query by @gwhite-fgcz
+## Q: Howto query for time and date - range query 
+by @gwhite-fgcz
 
 range query are not possible with the current API design
 
@@ -41,7 +42,7 @@ for customerid, year, servicetypename in data:
 ```
 
 ## Q: SSL: CERTIFICATE_VERIFY_FAILED on MacOSX
-
+by @cpanse
 ```
 cp@fgcz-113:~ > bfabric_list.py storage
 bfabricPy version 0.10.1 (2019-08-31) -- "suds-py3"    
