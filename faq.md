@@ -1,6 +1,6 @@
 # FAQ
 
-## Q: Howto query for time and date - range query
+## Q: Howto query for time and date - range query by @gwhite-fgcz
 
 range query are not possible with the current API design
 
