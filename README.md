@@ -1,4 +1,4 @@
-# branch *bfabric10* wsdl python3 package -- suds-py3
+# branch *bfabric10* WSDL python3 package -- suds-py3
 
 This package connects the [bfabric](https://fgcz-bfabric.uzh.ch/bfabric/) system to the [python](https://www.python.org/) and [R](https://cran.r-project.org/) world while providing a JSON and REST interface using [Flask](https://www.fullstackpython.com).
  The [bfabricShiny](https://github.com/cpanse/bfabricShiny) R package is an extension and provides code snippets and sample implementation for a seamless R shiny bfabric integration.
