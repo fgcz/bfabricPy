@@ -48,6 +48,7 @@ rv = bf.delete_object('application', applicationid)
 print(rv[0])
 ```
 
+![save_resource](https://user-images.githubusercontent.com/4901987/65670931-9abe3500-e046-11e9-91db-b9a443a95a54.gif)
 
 ## Q: Howto query for time and date - range query 
 by @gwhite-fgcz
