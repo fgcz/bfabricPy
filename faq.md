@@ -1,5 +1,10 @@
 # FAQ
 
+## Q: Howto upload a small file to bfabirc?
+by @gwhite-fgcz
+
+
+
 ## Q: Howto query for time and date - range query 
 by @gwhite-fgcz
 
