@@ -4,6 +4,50 @@
 by @gwhite-fgcz
 
 
+```{py}
+"""
+this script saves a file 'ttt.py' in bfabric.
+"""
+import bfabric
+import base64
+import os
+
+# given
+filename = "ttt.py"
+
+bf = bfabric.Bfabric()
+
+app = bf.save_object('application',
+    {'name': "dummy", "type": 'webapp', 'technologyid': 1, 'weburl': 'nirvana', 'description': 'this is a dummy application' })
+
+print(app[0])
+applicationid = app[0]._id
+
+wu = bf.save_object('workunit', {'containerid':3000, 'name':'TEST', 'applicationid':applicationid})
+
+print(wu[0])
+workunitid = wu[0]._id
+
+with open(filename, 'r') as f:
+    content = f.read()
+
+resource_base64 = base64.b64encode(content.encode())
+
+res = bf.save_object('resource', {'base64': resource_base64, 'name': os.path.basename(filename), 'description': "some bla bla bla ...", 'workunitid': workunitid})
+print(res[0])
+resourceid = res[0]._id
+
+
+# cleanup
+
+rv = bf.delete_object('resource', resourceid)
+print(rv[0])
+rv = bf.delete_object('workunit', workunitid)
+print(rv[0])
+rv = bf.delete_object('application', applicationid)
+print(rv[0])
+```
+
 
 ## Q: Howto query for time and date - range query 
 by @gwhite-fgcz
