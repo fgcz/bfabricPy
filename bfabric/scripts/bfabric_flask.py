@@ -199,6 +199,7 @@ def add_resource():
     try:
         queue_content = json.loads(request.data)
         print (queue_content)
+        print("--")
     except:
         print ("failed: could not get POST content")
         return jsonify({'error': 'could not get POST content.'})
