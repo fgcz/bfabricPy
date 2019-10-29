@@ -1,6 +1,6 @@
 # FAQ
 
-## Q: Howto upload a small file to bfabirc?
+## Q: Howto upload a small file to bfabric?
 by @gwhite-fgcz
 
 
@@ -240,7 +240,7 @@ solution:
 
 
 
-## Q:Howto add a custom attribute to a sample
+## Q:Howto add a custom attribute to a sample?
 
 ```{py}
 #!/usr/bin/env python3
