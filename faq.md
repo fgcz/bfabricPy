@@ -1,6 +1,6 @@
 # FAQ
 
-## Q: Howto upload a small file to bfabirc?
+## Q: Howto upload a small file to bfabric?
 by @gwhite-fgcz
 
 
@@ -138,6 +138,8 @@ cp@fgcz-148:~ > python3 orders.py |awk '{print $NF}'|sort | uniq -c| awk '{print
 5534          1 101
 ```
 
+
+
 ## Q: SSL: CERTIFICATE_VERIFY_FAILED on MacOSX
 by @cpanse
 ```
@@ -235,3 +237,38 @@ cp@fgcz-113:~ >
 
 solution: 
 [Once upon a time I stumbled with this issue. If you're using macOS go to Macintosh HD > Applications > Python3.6 folder (or whatever version of python you're using) > double click on "Install Certificates.command" file. :D](https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org)
+
+
+
+## Q:Howto add a custom attribute to a sample?
+
+```{py}
+#!/usr/bin/env python3
+# -*- coding: latin1 -*-
+
+import sys
+import os
+import bfabric
+
+"""
+    customattribute[] =
+      (xmlCustomAttribute){
+         name = "Age0"
+         value = "49"
+         type = "String"
+      },
+
+"""
+if __name__ == "__main__":
+    print("this code is under construction.")
+    bfapp = bfabric.Bfabric(verbose=False)
+
+    res = bfapp.read_object(endpoint='sample', obj={'id': 206577})
+
+    customattribute = res[0].customattribute
+    customattribute.append({'name': "{}I".format(customattribute[len(customattribute)-1].name), 'value': '0'})
+
+    res = bfapp.save_object(endpoint='sample', obj={'id': 206577, 'customattribute': customattribute})
+    #res = bfapp.save_object(endpoint='sample', obj={'id': 206577, 'customattribute': [{'name': 'Age1', 'value': '0'}]})
+    print(res[0])
+```
