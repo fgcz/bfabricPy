@@ -1,34 +1,23 @@
 #!/usr/bin/python
 
-"""
-Christian Panse <cp@fgcz.ethz.ch>
-2018-09-03 FGCZ
-"""
+# Christian Panse <cp@fgcz.ethz.ch>
+# 20200424-1300
 
 import sys
 import os
 import yaml
-import xmlrpclib
 import hashlib
 from optparse import OptionParser
 from bfabric import Bfabric
+import getopt
 
-HTTPROOT=""
 BFABRICSTORAGEID = 2
 
-"""
- links an resource to an existing import resources in bfabric.
- 
- example
- bfabric_save_resource.py p1000 244 p1000/Proteomics/QEXACTIVEHFX_1/paolo_20180903_autoQC/mgf_rawDiag/20180903_02_autoQC02.mgf
-"""
 def save_resource(projectid=None, resource_file=None, applicationid=None):
     if projectid is None or resource_file is None or applicationid is None:
-        print "at least one of the arguments is None."
+        print("at least one of the arguments is None.")
         sys.exit(1)
 
-    # assert type(projectid) is 'int'
-    resource_file = resource_file.replace("/src/www/htdocs", "/")
     bfapp = Bfabric()
 
     try:
@@ -48,8 +37,7 @@ def save_resource(projectid=None, resource_file=None, applicationid=None):
 
     try:    
         print "resource(s) already exist.".format(resource[0]._id)
-        resource = bfapp.save_object(endpoint='resource', obj={'id': resource[0]._id, 'description': description,
-                                                               'relativepath': "{}{}".format(HTTPROOT, resource_file),})
+        resource = bfapp.save_object(endpoint='resource', obj={'id': resource[0]._id, 'description': description})
         print resource
         return
     except:
@@ -58,7 +46,7 @@ def save_resource(projectid=None, resource_file=None, applicationid=None):
 
     try:
         workunit = bfapp.save_object(endpoint='workunit',
-                                 obj={'name': "MGF: {}".format(resource_file),
+                                 obj={'name': "{}".format(os.path.basename(resource_file)),
                                       'projectid': projectid,
                                       'applicationid': applicationid})
         print (workunit)
@@ -68,7 +56,7 @@ def save_resource(projectid=None, resource_file=None, applicationid=None):
 
     obj = {'workunitid': workunit[0]._id,
            'filechecksum': md5,
-           'relativepath': "{}{}".format(HTTPROOT, resource_file),
+           'relativepath': "{}".format(resource_file),
            'name': os.path.basename(resource_file),
            'size': os.path.getsize(resource_file),
            'status': 'available',
@@ -85,9 +73,12 @@ def save_resource(projectid=None, resource_file=None, applicationid=None):
     print (workunit)
 
 if __name__ == "__main__":
-    assert len(sys.argv) == 4
+    #resource_file = "/srv/www/htdocs/p3061/Proteomics/Analysis/fragpipe/cpanse_20200424/DS32024.zip"
+    #save_resource(projectid=3061, resource_file=resource_file, applicationid=274)
+    try:
+        opts, args = getopt.getopt(sys.argv[1:],"hp:a:r:-", ["help", "projectid=", "applicationid=", "resourcefile="])
+    except getopt.GetoptError:
+        print("{} -p <projectid> -a <applicationid> -r <resourcefile> - < resourcedescription.txt".format(os.path.basename(sys.argv[0])))
+        print("{} -p <projectid> -a <applicationid> -r <resourcefile>".format(os.path.basename(sys.argv[0])))
+        sys.exit(2)
 
-    #save_resource(projectid=1000)
-    save_resource(projectid=sys.argv[1], resource_file=sys.argv[3], applicationid=sys.argv[2])
-    # TODO(cp):
-    #              importresourcefilechecksum=sys.argv[4])
