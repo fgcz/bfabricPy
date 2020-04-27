@@ -15,11 +15,13 @@ assert sys.version_info >= (3, 6)
 
 BFABRICSTORAGEID = 2
 
-def save_resource(projectid=None, resource_file=None, applicationid=None, read_stdin=False):
+def save_resource(projectid=None, resourcefile=None, applicationid=None, read_stdin=False):
 
     bfapp = Bfabric()
+    description = None
 
-    if read_stdin:
+    print ("DEBUG {}".format(read_stdin))
+    if read_stdin is True:
         try:
             print("reading stdin")
             description = sys.stdin.read()
@@ -28,7 +30,7 @@ def save_resource(projectid=None, resource_file=None, applicationid=None, read_s
             raise
 
     try:
-        md5 = hashlib.md5(open(resource_file, 'rb').read()).hexdigest()
+        md5 = hashlib.md5(open(resourcefile, 'rb').read()).hexdigest()
     except:
         print("computing file checksum failed.")
         raise
@@ -38,7 +40,7 @@ def save_resource(projectid=None, resource_file=None, applicationid=None, read_s
     try:    
         print("resource(s) already exist.".format(resource[0]._id))
         resource = bfapp.save_object(endpoint='resource', obj={'id': resource[0]._id, 'description': description})
-        print(resource)
+        print(resource[0])
         return
     except:
         pass
@@ -46,7 +48,7 @@ def save_resource(projectid=None, resource_file=None, applicationid=None, read_s
 
     try:
         workunit = bfapp.save_object(endpoint='workunit',
-                                 obj={'name': "{}".format(os.path.basename(resource_file)),
+                                 obj={'name': "{}".format(os.path.basename(resourcefile)),
                                       'projectid': projectid,
                                       'applicationid': applicationid})
         print(workunit)
@@ -56,16 +58,16 @@ def save_resource(projectid=None, resource_file=None, applicationid=None, read_s
 
     obj = {'workunitid': workunit[0]._id,
            'filechecksum': md5,
-           'relativepath': "{}".format(resource_file),
-           'name': os.path.basename(resource_file),
-           'size': os.path.getsize(resource_file),
+           'relativepath': "{}".format(resourcefile),
+           'name': os.path.basename(resourcefile),
+           'size': os.path.getsize(resourcefile),
            'status': 'available',
            'description': description,
            'storageid': BFABRICSTORAGEID
            }
 
 
-    resource = bfapp.save_object(endpoint='resource', obj=obj)
+    resource = bfapp.save_object(endpoint='resource', obj=obj)[0]
     print(resource)
 
     workunit = bfapp.save_object(endpoint='workunit',
@@ -74,13 +76,24 @@ def save_resource(projectid=None, resource_file=None, applicationid=None, read_s
 
 
 def usage():
+    """
+    resourcefile=/srv/www/htdocs/p3061/Proteomics/Analysis/fragpipe/cpanse_20200424/DS32024.zip 
+
+    [ $? -eq 0 ] \
+        && unzip -l ${resourcefile} \
+        | ./bfabric_save_resource.py -p 3000 -a 273 -r ${resourcefile} --stdin
+    """
+
     print
     print("{} -p <projectid> -a <applicationid> -r <resourcefile>".format(os.path.basename(sys.argv[0])))
-    print("{} -p <projectid> -a <applicationid> -r <resourcefile> - < <stdin>".format(
+    print("{} -p <projectid> -a <applicationid> -r <resourcefile> --stdin  < <stdin>".format(
         os.path.basename(sys.argv[0])))
     print
     print("Example")
     print("{} -p 3000 -a 273 -r /srv/www/htdocs/p3061/Proteomics/Analysis/fragpipe/cpanse_20200424/DS32024.zip ".format(os.path.basename(sys.argv[0])))
+    print
+    print(usage.__doc__)
+
 
 
 if __name__ == "__main__":
@@ -91,7 +104,7 @@ if __name__ == "__main__":
     read_stdin = False
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:],"hp:a:r:-", ["help", "projectid=", "applicationid=", "resourcefile="])
+        opts, args = getopt.getopt(sys.argv[1:],"hp:a:r:", ["help", "projectid=", "applicationid=", "resourcefile=", "stdin"])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -100,7 +113,7 @@ if __name__ == "__main__":
         if o in ("-h", "--help"):
             usage()
             sys.exit(0)
-        if o in ("-"):
+        if o in ("-", "--stdin"):
             read_stdin = True
         elif o in ("-p", "--projectid"):
             projectid = a
@@ -117,7 +130,8 @@ if __name__ == "__main__":
             usage()
             assert False, "unhandled option"
 
-    if projectid is None or resource_file is None or applicationid is None:
+    if projectid is None or resourcefile is None or applicationid is None:
         print("at least one of the arguments is None.")
         usage()
         sys.exit(1)
+    save_resource(projectid, resourcefile, applicationid, read_stdin)
