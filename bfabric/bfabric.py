@@ -702,8 +702,12 @@ exit 0
 
 
 
-        input_resources = map(lambda x: x._id, workunit.inputresource)
-        input_resources = map(lambda x: self.read_object(endpoint='resource', obj={'id': x})[0], input_resources)
+        try:
+            input_resources = map(lambda x: x._id, workunit.inputresource)
+            input_resources = map(lambda x: self.read_object(endpoint='resource', obj={'id': x})[0], input_resources)
+        except:
+            print("no input resources")
+            input_resources = []
 
 
         # query all urls and ids of the input resources
