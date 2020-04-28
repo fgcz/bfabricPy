@@ -1,4 +1,3 @@
-
 """
 
 B-Fabric Appliaction Interface using WSDL
@@ -25,7 +24,8 @@ from setuptools import setup
 import bfabric
 
 setup(name = 'bfabric',
-      version = bfabric.__version__,
+      # version = bfabric.__version__,
+      version = "0.10.11",
       description="""
 B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper_creator and submitter.
 """,
