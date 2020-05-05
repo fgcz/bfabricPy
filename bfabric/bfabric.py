@@ -578,7 +578,7 @@ exit 0
         # merge all information into the executable script
         _output_storage = self.read_object('storage', obj={'id': application.storage._id})[0]
 
-        _output_relative_path = "/p{0}/bfabric/{1}/{2}/{3}/workunit_{4}/".format(
+        _output_relative_path = "p{0}/bfabric/{1}/{2}/{3}/workunit_{4}/".format(
             project._id,
             application.technology.replace(' ', '_'),
             application.name.replace(' ', '_'),
