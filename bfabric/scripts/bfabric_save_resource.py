@@ -1,7 +1,29 @@
 #!/usr/bin/env python3
 
-# Christian Panse <cp@fgcz.ethz.ch>
-# 20200424-1300
+
+'''
+author:
+    Christian Panse <cp@fgcz.ethz.ch>
+    20200424-1300
+
+input:
+
+description:
+    registers a resource in bfabric
+
+
+
+usage:
+
+# on the bash
+resourcefile=/srv/www/htdocs/p3061/Proteomics/Analysis/fragpipe/cpanse_20200424/DS32024.zip
+
+[ $? -eq 0 ] \
+  && unzip -l ${resourcefile} \
+  | ./bfabric_save_resource.py -p 3000 -a 273 -r ${resourcefile} --stdin
+
+'''
+
 
 import sys
 import os
@@ -75,27 +97,6 @@ def save_resource(projectid=None, resourcefile=None, applicationid=None, read_st
     print(workunit)
 
 
-def usage():
-    """
-    resourcefile=/srv/www/htdocs/p3061/Proteomics/Analysis/fragpipe/cpanse_20200424/DS32024.zip 
-
-    [ $? -eq 0 ] \
-        && unzip -l ${resourcefile} \
-        | ./bfabric_save_resource.py -p 3000 -a 273 -r ${resourcefile} --stdin
-    """
-
-    print
-    print("{} -p <projectid> -a <applicationid> -r <resourcefile>".format(os.path.basename(sys.argv[0])))
-    print("{} -p <projectid> -a <applicationid> -r <resourcefile> --stdin  < <stdin>".format(
-        os.path.basename(sys.argv[0])))
-    print
-    print("Example")
-    print("{} -p 3000 -a 273 -r /srv/www/htdocs/p3061/Proteomics/Analysis/fragpipe/cpanse_20200424/DS32024.zip ".format(os.path.basename(sys.argv[0])))
-    print
-    print(usage.__doc__)
-
-
-
 if __name__ == "__main__":
     #resource_file = "/srv/www/htdocs/p3061/Proteomics/Analysis/fragpipe/cpanse_20200424/DS32024.zip"
     #save_resource(projectid=3061, resource_file=resource_file, applicationid=274)
@@ -131,7 +132,8 @@ if __name__ == "__main__":
             assert False, "unhandled option"
 
     if projectid is None or resourcefile is None or applicationid is None:
-        print("at least one of the arguments is None.")
-        usage()
+        msg = "at least one of the arguments is None."
+        sys.stderr.write("\033[93m{}\033[0m\n".format(msg))
+        sys.stdout.write(__doc__)
         sys.exit(1)
     save_resource(projectid, resourcefile, applicationid, read_stdin)
