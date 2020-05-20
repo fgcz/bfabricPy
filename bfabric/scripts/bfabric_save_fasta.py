@@ -12,15 +12,8 @@ FASTAHTTPROOT="/fasta/"
 BFABRICSTORAGEID = 2
 BFABRICAPPLIATIONID = 61
 
-def save_fasta(projectid=1875, fasta_file="p1875_db10_20170817.fasta"):
+def save_fasta(projectid=1875, fasta_file="p1875_db10_20170817.fasta", description = ""):
     bfapp = Bfabric()
-
-    try:
-        print "reading stdin"
-        description = sys.stdin.read()
-    except:
-        print "reading from stdin failed."
-        raise
 
     try:
         md5 = hashlib.md5(open(fasta_file, 'rb').read()).hexdigest()
@@ -68,7 +61,9 @@ def save_fasta(projectid=1875, fasta_file="p1875_db10_20170817.fasta"):
     print (workunit)
 
 if __name__ == "__main__":
-    save_fasta(projectid=sys.argv[1], fasta_file=sys.argv[2])
+    print "reading stdin"
+    description = sys.stdin.read()
 
-
+    save_fasta(projectid=sys.argv[1], fasta_file=sys.argv[2], description)
+    
     #p#rint (workunit)
