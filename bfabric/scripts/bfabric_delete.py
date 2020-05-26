@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
     query_obj = {}
     
-    print (len(sys.argv))
+    print(len(sys.argv))
 
     endpoint = sys.argv[1]
 
@@ -37,7 +37,7 @@ if __name__ == "__main__":
     if endpoint in bfabric.endpoints:
         res = bfapp.delete_object(endpoint=endpoint, id=id)
         for i in res:
-            print (i)
+            print(i)
     else:
-        raise "1st argument must be a valid endpoint."
+        raise("1st argument must be a valid endpoint.")
 

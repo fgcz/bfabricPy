@@ -33,7 +33,7 @@ B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper
       author='Christian Panse',
       author_email='cp@fgcz.ethz.ch',
       license='GPLv3 / apache 2.0',
-      packages=['bfabric'],
+      packages=['bfabric', 'bfabric/utilities'],
       python_requires=">=3.6, <3.8",
       install_requires=[
         'Flask>=1.0.3',
@@ -45,7 +45,7 @@ B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper
         'bfabric/scripts/bfabric_delete.py',
         'bfabric/scripts/bfabric_read.py',
         'bfabric/scripts/bfabric_flask.py',
-        'bfabric/scripts/bfabric_save_resource.py'
+        'bfabric/scripts/bfabric_save_resource.py',
         #'bfabric/scripts/bfabric_list_executables.py',
         #'bfabric/scripts/bfabric_list_proteomics_projects.py',
         #'bfabric/scripts/bfabric_upload_wrapper_creator_executable.py',
@@ -54,7 +54,7 @@ B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper
         #'bfabric/scripts/bfabric_create_bfabricrc.py',
         #'bfabric/scripts/bfabric_save_importresource.py',
         ##'bfabric/scripts/bfabric_save_importresource_mascot.py',
-        #'bfabric/scripts/bfabric_save_fasta.py',
+        'bfabric/scripts/bfabric_save_fasta.py'
         #'bfabric/scripts/bfabric_setExternalJobStatus_done.py',
         #'bfabric/scripts/bfabric_setResourceStatus_available.py',
         #'bfabric/scripts/bfabric_setWorkunitStatus_available.py',

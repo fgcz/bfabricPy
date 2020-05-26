@@ -1,0 +1,4 @@
+.idea/
+bfabric.egg-info/
+bfabric/__pycache__/
+dist/
