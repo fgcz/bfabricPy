@@ -56,5 +56,4 @@ def save_fasta(projectid=1875,
     workunit = bfapp.save_object(endpoint='workunit',
                                  obj={'id': workunit[0]._id,
                                       'status': 'available'})
-    print(workunit)
     return(workunit)
