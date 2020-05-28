@@ -186,7 +186,7 @@ def compose_ms_queue_dataset(jsoncontent, workunitid, containerid):
         obj['item'] = list()
 
         for idx in range(0, len(jsoncontent)):
-            obj['item'].append({'field': map(lambda x: {'attributeposition': x + 1, 'value': jsoncontent[idx][x]}, range(0, len(jsoncontent[idx]))), 'position': idx + 1})
+            obj['item'].append({'field': [{'attributeposition': x + 1, 'value': jsoncontent[idx][x]} for x in range(0, len(jsoncontent[idx]))], 'position': idx + 1})
 
     except:
         pass
@@ -244,7 +244,7 @@ def add_dataset(containerid):
 
         for idx in range(0, len(queue_content)):
             obj['item']\
-            .append({'field': map(lambda x: {'attributeposition': x + 1, 'value': queue_content[idx][x]}, range(0, len(queue_content[idx]))), 'position': idx + 1})
+            .append({'field': [{'attributeposition': x + 1, 'value': queue_content[idx][x]} for x in range(0, len(queue_content[idx]))], 'position': idx + 1})
 
             print (obj)
 
@@ -253,7 +253,7 @@ def add_dataset(containerid):
 
     try:
         res = bfapp.save_object(endpoint='dataset', obj=obj)[0]
-        print ("added dataset {} to bfabric.".format(res._id))
+        print(("added dataset {} to bfabric.".format(res._id)))
         return (jsonify({'id':res._id}))
 
     except:
@@ -281,7 +281,7 @@ def get_all_sample(containerid):
 
     try:
         annotationDict = {}
-        for annotationId in filter(lambda x: x is not None, set(map(lambda x: x.groupingvar._id if "groupingvar" in x else None, samples))):
+        for annotationId in [x for x in set([x.groupingvar._id if "groupingvar" in x else None for x in samples]) if x is not None]:
             print (annotationId)
             annotation = bfapp.read_object(endpoint='annotation', obj={'id': annotationId})
             annotationDict[annotationId] = annotation[0].name
@@ -306,9 +306,9 @@ curl http://localhost:5000/zip_resource_of_workunitid/154547
 """
 @app.route('/zip_resource_of_workunitid/<int:workunitid>', methods=['GET'])
 def get_zip_resources_of_workunit(workunitid):
-    res = map(lambda x: x.relativepath, bfapp.read_object(endpoint='resource', obj={'workunitid': workunitid}))
+    res = [x.relativepath for x in bfapp.read_object(endpoint='resource', obj={'workunitid': workunitid})]
     print (res)
-    res = filter(lambda x: x.endswith(".zip"), res)
+    res = [x for x in res if x.endswith(".zip")]
     return jsonify(res)
 
 
@@ -319,25 +319,25 @@ def query():
     except:
         return jsonify({'error': 'could not get POST content.', 'appid': appid})
 
-    print ("PASSWORD CLEARTEXT", content['webservicepassword'])
+    print(("PASSWORD CLEARTEXT", content['webservicepassword']))
     
     bf = bfabric.Bfabric(login=content['login'], 
       password=content['webservicepassword'], 
       webbase='http://fgcz-bfabric.uzh.ch/bfabric')
 
-    for i in content.keys():
-      print ("{}\t{}".format(i, content[i]))
+    for i in list(content.keys()):
+      print(("{}\t{}".format(i, content[i])))
 
     if 'containerid' in content:
       workunits = bf.read_object(endpoint='workunit', 
         obj={'applicationid': content['applicationid'],
           'containerid': content['containerid']})
       print (workunits)
-      return jsonify({'workunits': map(lambda x: x._id, workunits)})
+      return jsonify({'workunits': [x._id for x in workunits]})
     #elif 'query' in content and "{}".format(content['query']) is 'project':
     else:
       user = bf.read_object(endpoint='user', obj={'login': content['login']})[0]
-      projects = map(lambda x: x._id, user.project)
+      projects = [x._id for x in user.project]
       return jsonify({'projects': projects})
 
     return jsonify({'error': 'could not process query'})

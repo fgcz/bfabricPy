@@ -39,14 +39,14 @@ def main():
             }
 
     res = bfapp.save_object(endpoint='resource', obj=resobj)
-    print res
+    print(res)
 
     # make it available
     wuobj = { 'id': 155568,
             'status': 'available'}
 
     res = bfapp.save_object(endpoint='workunit', obj=wuobj)
-    print res
+    print(res)
 
 
 if __name__ == "__main__":

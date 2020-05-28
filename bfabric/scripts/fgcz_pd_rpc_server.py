@@ -4,7 +4,7 @@
 import sys
 import os
 
-from SimpleXMLRPCServer import SimpleXMLRPCServer
+from xmlrpc.server import SimpleXMLRPCServer
 
 from fgcz_pd_wrapper import FgczPDWrapper
 from optparse import OptionParser
@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     pdw = FgczPDWrapper()
 
-    print "run server on port={}".format(options.port)
+    print("run server on port={}".format(options.port))
     server = SimpleXMLRPCServer((options.hostname, options.port))
 
     server.register_instance(pdw)

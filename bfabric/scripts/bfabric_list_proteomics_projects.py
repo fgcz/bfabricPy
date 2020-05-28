@@ -68,9 +68,9 @@ def bfabric_stat(id):
 if __name__ == "__main__":
 
 
-    print "project.id,nsamples,nextracts,nworkunits,nimportresource,nresource,coach.login,servicemode"
+    print("project.id,nsamples,nextracts,nworkunits,nimportresource,nresource,coach.login,servicemode")
     #for pid in reversed(range(1500, 2310)):
-    for pid in reversed(range(1500, 1510)):
+    for pid in reversed(list(range(1500, 1510))):
         try:
             res_project = bfapp.read_object(endpoint='project', obj={'id':pid})[0]
             # print res_project
@@ -78,6 +78,6 @@ if __name__ == "__main__":
             if 'Proteomics' in res_project.technology:
                 coach = bfapp.read_object(endpoint='user', obj={'id':res_project.coach[0]})[0]
                 res = bfabric_stat(pid) 
-                print "{},{},{},{},{},{},{},{}".format(res[0], res[1], res[2], res[3], res[4], res[5], coach.login, res_project.servicemode)
+                print("{},{},{},{},{},{},{},{}".format(res[0], res[1], res[2], res[3], res[4], res[5], coach.login, res_project.servicemode))
         except:
             pass

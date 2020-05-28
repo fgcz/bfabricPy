@@ -33,13 +33,13 @@ _LOGFILE=/tmp/bfabriclog.log
 
 if __name__ == "__main__":
     home = os.path.expanduser("~")
-    print "home is '{}'.".format(home)
+    print("home is '{}'.".format(home))
 
     bfabricrc_filename = "{}/.bfabricrc.py".format(home)
     if os.path.isfile(bfabricrc_filename):
-        print "found '{}'.".format(bfabricrc_filename)
+        print("found '{}'.".format(bfabricrc_filename))
     else:
-        print "creating '{}' ...".format(bfabricrc_filename)
+        print("creating '{}' ...".format(bfabricrc_filename))
         with open(bfabricrc_filename, 'w') as f:
             f.write(bfabricrc)
-        print "'{}' file greated. please edit and provide login and password.".format(bfabricrc_filename)
+        print("'{}' file greated. please edit and provide login and password.".format(bfabricrc_filename))

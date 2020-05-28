@@ -12,7 +12,7 @@ if __name__ == "__main__":
         {'name':'attr2', 'position':2} ]
 
     obj['item'] = [ {'field':[ {'value': 1, 'attributeposition':1}, {'value': 1,  'attributeposition':2 } ], 'position':1}]
-    print obj
+    print(obj)
     endpoint = 'dataset'
     res = bfapp.save_object(endpoint=endpoint, obj=obj)
-    print res
+    print(res)

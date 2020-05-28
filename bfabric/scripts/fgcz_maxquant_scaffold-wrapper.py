@@ -35,7 +35,7 @@ class FgczMaxQuantScaffold:
     def __init__(self, yamlfilename=None, zipfilename=None):
 
         if not os.path.isfile(zipfilename):
-            print("ERROR: no such file '{0}'".format(zipfilename))
+            print(("ERROR: no such file '{0}'".format(zipfilename)))
             sys.exit(1)
 
 
@@ -50,9 +50,9 @@ class FgczMaxQuantScaffold:
         except:
             raise
 
-        L = [value for values in self.config['application']['input'].values() for value in values]
+        L = [value for values in list(self.config['application']['input'].values()) for value in values]
 
-        self.samples = list(map(lambda x: os.path.basename(x).replace('.raw', ''), L))
+        self.samples = list([os.path.basename(x).replace('.raw', '') for x in L])
 
 
 

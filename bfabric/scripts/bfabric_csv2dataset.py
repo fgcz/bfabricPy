@@ -29,20 +29,20 @@ def add_dataset(projectid):
 
         for idx in range(0, len(queue_content)):
             obj['item']\
-            .append({'field': map(lambda x: {'attributeposition': x + 1, 'value': queue_content[idx][x]}, range(0, len(queue_content[idx]))), 'position': idx + 1})
+            .append({'field': [{'attributeposition': x + 1, 'value': queue_content[idx][x]} for x in range(0, len(queue_content[idx]))], 'position': idx + 1})
 
-            print obj
+            print(obj)
 
     except:
         return jsonify({'error': 'composing bfabric object failed.'})
 
     try:
         res = bfapp.save_object(endpoint='dataset', obj=obj)[0]
-        print "added dataset {} to bfabric.".format(res._id)
+        print("added dataset {} to bfabric.".format(res._id))
         return (jsonify({'id':res._id}))
 
     except:
-        print res
+        print(res)
         return jsonify({'error': 'beaming dataset to bfabric failed.'})
 
 

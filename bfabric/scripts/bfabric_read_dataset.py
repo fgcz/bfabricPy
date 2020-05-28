@@ -34,13 +34,13 @@ def usage():
 
 
 def dataset2csv(ds, sep="\t"):
-    print (type(ds.attribute))
+    print((type(ds.attribute)))
 
     # print header
-    print (sep.join(map(lambda x: x.name, ds.attribute)))
+    print((sep.join([x.name for x in ds.attribute])))
     # print values
     for i in ds.item:
-        print(sep.join(map(lambda x: x.value, i.field)))
+        print((sep.join([x.value for x in i.field])))
 
 if __name__ == "__main__":
     bfapp = bfabric.Bfabric(verbose=False)

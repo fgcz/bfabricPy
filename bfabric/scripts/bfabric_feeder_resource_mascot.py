@@ -17,16 +17,16 @@ import re
 import sys
 import itertools
 import multiprocessing
-import urllib 
+import urllib.request, urllib.parse, urllib.error 
 import hashlib 
 import time
 import getopt
 from suds.client import Client
 import logging, logging.handlers
 
-import httplib
-httplib.HTTPConnection._http_vsn = 10
-httplib.HTTPConnection._http_vsn_str = 'HTTP/1.0'
+import http.client
+http.client.HTTPConnection._http_vsn = 10
+http.client.HTTPConnection._http_vsn_str = 'HTTP/1.0'
  
 #handler = logging.StreamHandler(sys.stderr)
 
@@ -62,7 +62,7 @@ def crawlForFiles(path, pattern, mintimediff):
             jfile=os.path.join(root,f)
             if regex.match(jfile):
                 timediff=time.time() - os.path.getmtime(jfile)
-                print (jfile, timediff, timediff/(24*3600))
+                print((jfile, timediff, timediff/(24*3600)))
                 if (timediff < mintimediff):
                     allPaths.append(jfile)
 
@@ -93,7 +93,7 @@ def feedMascot2BFabric(f):
                     password=BFPASSWORD, 
                     workunit=wu))
                 print (resultClientWorkUnit)
-            except Exception, e:
+            except Exception as e:
                 logger.warning(e)
                 return(wu)
         return
@@ -163,8 +163,8 @@ def parseMascotDatFile(f):
             md5.update(line)
             # check if the first character of the line is a 't' to save regex time
             if line[0] == 't':
-                result=regex0.match(urllib.url2pathname(line.strip()).replace('\\',"/").replace("//","/"))
-                if result and not inputresourceHitHash.has_key(result.group(1)):
+                result=regex0.match(urllib.request.url2pathname(line.strip()).replace('\\',"/").replace("//","/"))
+                if result and result.group(1) not in inputresourceHitHash:
                     inputresourceHitHash[result.group(1)] = result.group(2)
                     inputresourceList.append(dict(storageid=2, relativepath=result.group(1)))
                     project=result.group(2)
@@ -173,7 +173,7 @@ def parseMascotDatFile(f):
                     pass
             elif lineCount < 600:
                 # none of the regex3 pattern is starting with 't'
-                result=regex3.match(urllib.url2pathname(line.strip()))
+                result=regex3.match(urllib.request.url2pathname(line.strip()))
                 if result:
                     desc = desc + result.group(1) + "=" + result.group(2) + "; "
                     metaDataDict[result.group(1)] = result.group(2)
@@ -203,7 +203,7 @@ if __name__ == "__main__":
     try:
         opts, args = getopt.getopt(sys.argv[1:], "td", ["days=", "mintimediff=", "file="])
     except getopt.GetoptError as err:
-        print (str(err))
+        print((str(err)))
         sys.exit(2)
 
     for o, value in opts:
@@ -213,7 +213,7 @@ if __name__ == "__main__":
             else:
                 print ("value not valid")
         elif o == "--file":
-            print ("processesing", value, "...")
+            print(("processesing", value, "..."))
             feedMascot2BFabric(value)
             sys.exit(0)
             
@@ -235,7 +235,7 @@ if __name__ == "__main__":
     L=pool.map(feedMascot2BFabric, L)
 
     logger.info("done {0} ".format(len(L)))
-    print L
+    print(L)
 
     #pool.map_async(extractMetaData, L, callback=extractMetaDataPrint)
     #pool.join()

@@ -38,7 +38,7 @@ def usage():
     print(msg)
     msg = "\t{} <endpoint>\n\n".format(sys.argv[0])
     print(msg)
-    print("valid endpoints are: [{}]\n\n".format(",\n\t ".join(bfabric.endpoints)))
+    print(("valid endpoints are: [{}]\n\n".format(",\n\t ".join(bfabric.endpoints))))
     print("example:")
     msg = "\t{} user login cpanse\n\n".format(sys.argv[0])
     print(msg)
@@ -91,9 +91,9 @@ if __name__ == "__main__":
             
             for x in res:
                 try:
-                    print ("{}\t{}\t{}\t{}".format(x._id, x.createdby, x.modified, x.name))
+                    print(("{}\t{}\t{}\t{}".format(x._id, x.createdby, x.modified, x.name)))
                 except Exception as e:
-                    print ("{}\t{}\t{}".format(x._id, x.createdby, x.modified))
+                    print(("{}\t{}\t{}".format(x._id, x.createdby, x.modified)))
 
 
         except Exception as e:

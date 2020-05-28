@@ -57,7 +57,7 @@ def main():
     bfapp = BfabricSubmitter(externaljobid=options.externaljobid)
 
     bfapp.submitter_yaml()
-    print bfapp.query_counter
+    print(bfapp.query_counter)
 
 if __name__ == "__main__":
     main()

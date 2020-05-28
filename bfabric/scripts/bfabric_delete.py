@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
     query_obj = {}
     
-    print(len(sys.argv))
+    print((len(sys.argv)))
 
     endpoint = sys.argv[1]
 

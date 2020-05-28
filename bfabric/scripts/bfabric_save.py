@@ -3,12 +3,12 @@
 import sys
 import os
 import yaml
-import xmlrpclib
+import xmlrpc.client
 from optparse import OptionParser
 
 if __name__ == "__main__":
-    print "this code is under construction."
-    print "bfabric_save.py executable id valid=false"
+    print("this code is under construction.")
+    print("bfabric_save.py executable id valid=false")
     sys.exit(1)
 
     parser = OptionParser(usage="usage: %prog -h <hostname>",
@@ -33,7 +33,7 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
 
     if options.config_filename is None:
-        print "ERROR: provide a config filename."
+        print("ERROR: provide a config filename.")
         sys.exit(1)
 
     try:
@@ -43,17 +43,17 @@ if __name__ == "__main__":
         job_config = yaml.load(content)
 
     except:
-        print "ERROR: parsing file '{0}' failed.".format(options.config_filename)
+        print("ERROR: parsing file '{0}' failed.".format(options.config_filename))
         raise
 
 
     if options.query == "output":
-        print job_config['application']['output'][0]
+        print(job_config['application']['output'][0])
     elif options.query == "wu":
-        print "wu{0}".format(job_config['job_configuration']['workunit_id'])
+        print("wu{0}".format(job_config['job_configuration']['workunit_id']))
     elif options.query == "external_job_id":
-        print "{0}".format(job_config['job_configuration']['external_job_id'])
+        print("{0}".format(job_config['job_configuration']['external_job_id']))
     elif options.query == "resource_id":
-        print "{0} {1} {2}".format(job_config['job_configuration']['output']['resource_id'], job_config['job_configuration']['stderr']['resource_id'], job_config['job_configuration']['stdout']['resource_id'])
+        print("{0} {1} {2}".format(job_config['job_configuration']['output']['resource_id'], job_config['job_configuration']['stderr']['resource_id'], job_config['job_configuration']['stdout']['resource_id']))
     else:
-        print job_config
+        print(job_config)

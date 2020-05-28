@@ -82,11 +82,11 @@ class autoQC():
 
     @property
     def getId(self, obj):
-        print "=============="
-        print obj
+        print("==============")
+        print(obj)
 
         try:
-            print "DEBGUG obj: {}".format(obj[0]._id)
+            print("DEBGUG obj: {}".format(obj[0]._id))
             return int(obj[0]._id)
         except:
             raise
@@ -267,7 +267,7 @@ listed below.
             autoQCType = m.group(4)
 
         except Exception as err:
-            print ("# no match '{}'.".format(filename))
+            print(("# no match '{}'.".format(filename)))
             return
 
         try:
@@ -285,14 +285,14 @@ listed below.
                                               sampleid=sampleid)
 
             # sampleid=0
-            print ("p{p}\tA{A}\t{filename}\tS{S}\tWU{WU}\tR{R}".format(p=projectid,
+            print(("p{p}\tA{A}\t{filename}\tS{S}\tWU{WU}\tR{R}".format(p=projectid,
                                                                        A=applicationid,
                                                                        filename=filename,
                                                                        S=sampleid,
                                                                        WU=workunitid,
-                                                                       R=resourceid))
+                                                                       R=resourceid)))
         except Exception as err:
-            print('# Failed to register to bfabric: {}'.format(err))
+            print(('# Failed to register to bfabric: {}'.format(err)))
 
 
 class TestCaseAutoQC(unittest.TestCase):

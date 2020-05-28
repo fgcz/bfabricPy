@@ -18,7 +18,7 @@ import pprint
 import re
 import sys
 import time
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from optparse import OptionParser
 from lxml import etree
 import yaml
@@ -54,12 +54,12 @@ class FgczMaxQuantConfig:
             self.scratchdir = Path("{0}/WU{1}".format(scratch, self.config['job_configuration']['workunit_id']))
 
             if not os.path.isdir(self.scratchdir):
-                print ("no scratch dir '{0}'.".format(self.scratchdir))
+                print(("no scratch dir '{0}'.".format(self.scratchdir)))
                 # raise SystemError
 
     def generate_mqpar(self, xml_filename, xml_template):
         """ PARAMETER """
-        for query, value in self.config['application']['parameters'].items():
+        for query, value in list(self.config['application']['parameters'].items()):
             element = xml_template.find(query)
             if element is not None:
                 if value == "None":
@@ -71,12 +71,12 @@ class FgczMaxQuantConfig:
                       element.append(estring)
                     pass
                 else:
-                    print ("replacing xpath expression {} by {}.".format(query, value))
+                    print(("replacing xpath expression {} by {}.".format(query, value)))
                     element.text = value
 
         ecount = 0;
         """ INPUT """
-        for query, value in self.config['application']['input'].items():
+        for query, value in list(self.config['application']['input'].items()):
             for input in self.config['application']['input'][query]:
                 element = xml_template.find("/filePaths")
                 if element is None:
@@ -85,10 +85,10 @@ class FgczMaxQuantConfig:
 
                 host, file = input.split(":")
 
-                print ("{}\t{}".format(os.path.basename(input), file))
+                print(("{}\t{}".format(os.path.basename(input), file)))
 
                 if not os.path.isfile(file):
-                    print("'{}' do not exists.".format(file))
+                    print(("'{}' do not exists.".format(file)))
                     #raise SystemError
 
                 targetRawFile = "{}/{}".format(self.scratchdir, os.path.basename(input))
@@ -97,7 +97,7 @@ class FgczMaxQuantConfig:
                     try:
                         os.symlink(file,  targetRawFile)
                     except:
-                        print("linking '{}' failed.".format(file))
+                        print(("linking '{}' failed.".format(file)))
 
                 estring = etree.Element("string")
                 estring.text = targetRawFile
@@ -514,7 +514,7 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
 
     if not os.path.isfile(options.yaml_filename):
-        print ("ERROR: no such file '{0}'".format(options.yaml_filename))
+        print(("ERROR: no such file '{0}'".format(options.yaml_filename)))
         sys.exit(1)
     try:
         with open(options.yaml_filename, 'r') as f:

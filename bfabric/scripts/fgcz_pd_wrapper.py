@@ -20,7 +20,7 @@ import shutil
 import subprocess
 import sys
 import time
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 from os import listdir
 from optparse import OptionParser
 
@@ -83,7 +83,7 @@ class FgczPDWrapper:
             try:
                 os.mkdir(self.scratchroot)
             except:
-                print "scratch '{0}' does not exists.".format(self.scratchroot)
+                print("scratch '{0}' does not exists.".format(self.scratchroot))
                 raise
         if config:
             self.config = config
@@ -113,16 +113,16 @@ class FgczPDWrapper:
         except OSError as e:
             msg = "exception|pid={0}|OSError={1}".format(pid, e)
             logger.info(msg)
-            print err
-            print out
+            print(err)
+            print(out)
             raise
 
         msg_info = "completed|pid={0}|time={1}|return_code={2}|cmd='{3}'" \
             .format(pid, time.time() - tStart, return_code, cmd)
         logger.info(msg_info)
 
-        print out
-        print err
+        print(out)
+        print(err)
         return (return_code)
 
     def map_url_scp2smb(self, url,
@@ -150,7 +150,7 @@ class FgczPDWrapper:
             return None
 
     def print_config(self):
-        print "------"
+        print("------")
         pp = pprint.PrettyPrinter(width=70)
         pp.pprint(self.config)
 
@@ -225,8 +225,8 @@ class FgczPDWrapper:
 
         try:
             self._fsrc_fdst = []
-            for i in _input.keys():
-                self._fsrc_fdst = self._fsrc_fdst + map(lambda x: (src_url_mapping(x), dst_url_mapping(x)), _input[i])
+            for i in list(_input.keys()):
+                self._fsrc_fdst = self._fsrc_fdst + [(src_url_mapping(x), dst_url_mapping(x)) for x in _input[i]]
 
             for (_fsrc, _fdst) in self._fsrc_fdst:
                 if os.path.isfile(_fdst):
@@ -237,7 +237,7 @@ class FgczPDWrapper:
                         logger.info("copy '{0}' from '{1}' ...".format(_fdst, _fsrc))
                         copy_method(_fsrc, _fdst)
                     except:
-                        print "ERROR: fail copy failed."
+                        print("ERROR: fail copy failed.")
                         raise
 
         except:
@@ -269,26 +269,26 @@ class FgczPDWrapper:
                                                          self.config['application']['parameters']['workflow'])
 
         except:
-            print 'no url available'
+            print('no url available')
             raise
 
         try:
-            print url_processing
-            config_processing = urllib2.urlopen(url_processing).read()
+            print(url_processing)
+            config_processing = urllib.request.urlopen(url_processing).read()
 
-            print url_consensus
-            config_consesus = urllib2.urlopen(url_consensus).read()
+            print(url_consensus)
+            config_consesus = urllib.request.urlopen(url_consensus).read()
         except:
-            print 'url open failed.'
+            print('url open failed.')
             raise
 
         try:
             tree = etree.parse(url_processing)
         except:
-            print "parsing failed"
+            print("parsing failed")
             raise
 
-        for query, value in self.config['application']['parameters'].iteritems():
+        for query, value in self.config['application']['parameters'].items():
             element = tree.find(query)
             if element is not None:
                 if value == "None":
@@ -307,11 +307,10 @@ class FgczPDWrapper:
     def get_filenames(self):
         try:
             _input = self.config['application']['input']
-            filenames = map(lambda i: os.path.splitext(i)[0],
-                        sum(map(lambda i: map(os.path.basename, _input[i]), _input.keys()), []))
+            filenames = [os.path.splitext(i)[0] for i in sum([list(map(os.path.basename, _input[i])) for i in list(_input.keys())], [])]
 
         except:
-            print "can not extract filenames."
+            print("can not extract filenames.")
             raise
 
         return filenames
@@ -319,9 +318,9 @@ class FgczPDWrapper:
     def get_resourceids(self):
         try:
             _input = self.config['job_configuration']['input']
-            resourceids = map(lambda i: i['resource_id'], sum(map(lambda k: _input[k], _input.keys()), []))
+            resourceids = [i['resource_id'] for i in sum([_input[k] for k in list(_input.keys())], [])]
         except:
-            print "can not extract resourceid."
+            print("can not extract resourceid.")
             raise
         return resourceids
 
@@ -396,7 +395,7 @@ class FgczPDWrapper:
             if match:
                 relativepath = os.path.dirname(match.group(1))
         except:
-            print "Heuristic for extracting relpath name failed."
+            print("Heuristic for extracting relpath name failed.")
             raise
 
         workunitid = self.config['job_configuration']['workunit_id']
@@ -407,7 +406,7 @@ class FgczPDWrapper:
 
                 if item.startswith("R{}".format(resourceid)) or item.startswith("W{}".format(workunitid)):
                     src = "{scratchdir}\\{dir}".format(scratchdir=self.scratch, dir=item)
-                    print "###", src
+                    print("###", src)
                     dsturl = os.path.dirname(self.config['application']['output'][0])
 
                     (item_name, item_extension) = os.path.splitext(item)
@@ -416,7 +415,7 @@ class FgczPDWrapper:
                         dst = "{dsturl}/{filename}{ext}".format(dsturl=dsturl,
                                                                 filename = inputfilename,
                                                                 ext = item_extension)
-                        print "### dst =", dst
+                        print("### dst =", dst)
                         if self.scp(src = src, dst = dst,
                                     scp_option=r"-scp -r -i D:\fgcz\id_rsa.ppk"):
 
@@ -431,7 +430,7 @@ class FgczPDWrapper:
                                    }
     
                             res = self.bf.save_object(endpoint='resource', obj=obj)
-                            print res
+                            print(res)
 
                     if os.path.isdir(filename):
                         if self.scp(src = src, dst="{dsturl}/{filename}{ext}".format(dsturl=dsturl,
@@ -452,20 +451,20 @@ class FgczPDWrapper:
                                    }
 
                             res = self.bf.save_object(endpoint = 'resource', obj = obj)
-                            print res
+                            print(res)
 
         try:
-            print "trying to delete old output resouce ..."
+            print("trying to delete old output resouce ...")
             res = self.bf.delete_object(endpoint='resource', id = self.config['job_configuration']['output']['resource_id'][0])
-            print res
+            print(res)
         except:
             pass
 
         try:
-            print "trying to make workunit available ..."
+            print("trying to make workunit available ...")
             res = self.bf.save_object(endpoint='workunit',
                                   obj={'id': workunitid, 'status': 'available'})
-            print res
+            print(res)
         except:
             pass
 
@@ -477,7 +476,7 @@ class FgczPDWrapper:
             this is the main method of the class
         """
 
-        print self.config
+        print(self.config)
 
         self.create_scratch()
         self.stage_input()
@@ -506,7 +505,7 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
 
     if not os.path.isfile(options.yaml_filename):
-        print "ERROR: no such file '{0}'".format(options.yaml_filename)
+        print("ERROR: no such file '{0}'".format(options.yaml_filename))
         sys.exit(1)
     try:
         with open(options.yaml_filename, 'r') as f:
@@ -516,5 +515,5 @@ if __name__ == "__main__":
         PD.run()
 
     except:
-        print "ERROR: exit 1"
+        print("ERROR: exit 1")
         raise

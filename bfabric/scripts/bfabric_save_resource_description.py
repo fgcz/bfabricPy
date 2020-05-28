@@ -26,4 +26,4 @@ if __name__ == "__main__":
     }
 
     res = bfapp.save_object(endpoint='resource', obj=obj)
-    print res
+    print(res)

@@ -30,6 +30,6 @@ if __name__ == "__main__":
 
         try:
             res = bfapp.save_object(endpoint='workunit', obj={'id': int(sys.argv[1]), 'status': 'available'})
-            print res
+            print(res)
         except:
             pass

@@ -25,5 +25,5 @@ from bfabric import Bfabric
 if __name__ == "__main__":
     bfapp = Bfabric()
     res = bfapp.read_object(endpoint='executable', obj={})
-    map(lambda x: sys.stdout.write("{}\t{}\t{}\t{}\t{}\n"
-        .format(x._id, x.createdby, x.modified, x.context, x.name)), res)
+    list(map(lambda x: sys.stdout.write("{}\t{}\t{}\t{}\t{}\n"
+        .format(x._id, x.createdby, x.modified, x.context, x.name)), res))

@@ -35,9 +35,9 @@ if __name__ == "__main__":
     try:
         resource_base64 = base64.b64encode(content)
     except:
-        print "error: could not encode content"
+        print("error: could not encode content")
         raise
 
     bfapp = Bfabric()
     res = bfapp.save_object('resource', {'base64': resource_base64, 'name': os.path.basename(filename), 'workunitid': wuid})
-    print res
+    print(res)

@@ -27,7 +27,7 @@ if __name__ == "__main__":
     if len(sys.argv) == 2 and os.path.isfile(sys.argv[1]):
         executeableFileName = sys.argv[1]
     else:
-        print "usage: " + sys.argv[0] + "<filename>"    
+        print("usage: " + sys.argv[0] + "<filename>")    
         sys.exit(1)
 
     bfapp = Bfabric()

@@ -42,7 +42,7 @@ def save_resource(projectid=None, resourcefile=None, applicationid=None, read_st
     bfapp = Bfabric()
     description = None
 
-    print ("DEBUG {}".format(read_stdin))
+    print(("DEBUG {}".format(read_stdin)))
     if read_stdin is True:
         try:
             print("reading stdin")
@@ -60,9 +60,9 @@ def save_resource(projectid=None, resourcefile=None, applicationid=None, read_st
     resource = bfapp.read_object(endpoint='resource', obj={'filechecksum': md5})
 
     try:    
-        print("resource(s) already exist.".format(resource[0]._id))
+        print(("resource(s) already exist.".format(resource[0]._id)))
         resource = bfapp.save_object(endpoint='resource', obj={'id': resource[0]._id, 'description': description})
-        print(resource[0])
+        print((resource[0]))
         return
     except:
         pass
@@ -125,7 +125,7 @@ if __name__ == "__main__":
             try:
                 os.path.isfile(resourcefile)
             except:
-                print("can not access file '{}'".format(resourcefile))
+                print(("can not access file '{}'".format(resourcefile)))
                 raise
         else:
             usage()

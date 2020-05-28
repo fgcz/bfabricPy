@@ -137,7 +137,7 @@ def save_importresource(line):
     _file_date = time.strftime("%FT%H:%M:%S-01:00",time.gmtime(int(_file_date)))
 
     # linear search through dictionary. first hit counts!
-    for i in bfabric_application_ids.keys():
+    for i in list(bfabric_application_ids.keys()):
         # first match counts!
         if re.search(i, _file_path):
             _bfabric_applicationid = bfabric_application_ids[i]
@@ -161,11 +161,11 @@ def save_importresource(line):
 
 
     res = bfapp.save_object(endpoint='importresource', obj=obj)
-    print res
+    print(res)
 
 if __name__ == "__main__":
     if sys.argv[1] == '-':
-        print "reading from stdin ..."
+        print("reading from stdin ...")
         for input_line in sys.stdin:
             save_importresource(input_line.rstrip())
     else:

@@ -4,7 +4,7 @@
 import sys
 import os
 import yaml
-import xmlrpclib
+import xmlrpc.client
 from optparse import OptionParser
 
 
@@ -48,7 +48,7 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
 
     if options.config_filename is None:
-        print "ERROR: provide a config filename."
+        print("ERROR: provide a config filename.")
         sys.exit(1)
 
     try:
@@ -58,15 +58,15 @@ if __name__ == "__main__":
         job_config = yaml.load(content)
 
     except:
-        print "ERROR: parsing file '{0}' failed.".format(options.config_filename)
+        print(("ERROR: parsing file '{0}' failed.".format(options.config_filename)))
         raise
 
 
     try:
-        print "try to connect to host {} port {}".format(options.hostname, options.port)
-        pd_wrapper = xmlrpclib.ServerProxy("http://{0}:{1}/".format(options.hostname, options.port))
+        print(("try to connect to host {} port {}".format(options.hostname, options.port)))
+        pd_wrapper = xmlrpc.client.ServerProxy("http://{0}:{1}/".format(options.hostname, options.port))
     except:
-        print "ERROR: failed starting rpc proxy client"
+        print("ERROR: failed starting rpc proxy client")
         raise
 
     pd_wrapper.add_config(job_config)
@@ -76,7 +76,7 @@ if __name__ == "__main__":
 
     try:
         rv = pd_wrapper.run()
-        print rv
+        print(rv)
     except:
-        print "return code is not 0"
+        print("return code is not 0")
         pass
