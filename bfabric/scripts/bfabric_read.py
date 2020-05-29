@@ -20,6 +20,7 @@ import signal
 import sys
 import time
 import bfabric
+# import json
 
 
 def signal_handler(signal, frame):
@@ -62,8 +63,8 @@ if __name__ == "__main__":
         query_obj[attribute] = name
 
     if endpoint in bfabric.endpoints:
-        start_time = time.time()
         print_color_msg("query = {}".format(query_obj))
+        start_time = time.time()
         res = bfapp.read_object(endpoint=endpoint, obj=query_obj)
         end_time = time.time()
 
@@ -77,7 +78,9 @@ if __name__ == "__main__":
             print_color_msg("sorting failed.")
 
         try:
+            # print json object
             if len(res) < 2:
+                #  print(json.dumps(i, indent=4, sort_keys=True))
                 for i in res:
                     print (i)
         except Exception as e:
@@ -88,17 +91,16 @@ if __name__ == "__main__":
 
             print_color_msg("possible attributes are: {}.".format((", ".join([at[0] for at in res[0]]))))
 
-            
-            for x in res:
-                try:
-                    print ("{}\t{}\t{}\t{}".format(x._id, x.createdby, x.modified, x.name))
-                except Exception as e:
-                    print ("{}\t{}\t{}".format(x._id, x.createdby, x.modified))
-
-
         except Exception as e:
             print_color_msg("Exception: {}".format(e))
-            print (res)
+            
+        for x in res:
+            try:
+                print ("{}\t{}\t{}\t{}".format(x._id, x.createdby, x.modified, x.name))
+            except Exception as e:
+                print ("{}\t{}\t{}".format(x._id, x.createdby, x.modified))
+
+
     else:
         print_color_msg ("The first argument must be a valid endpoint.", color=95)
         usage()
