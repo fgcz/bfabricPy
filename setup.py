@@ -20,28 +20,30 @@ $Revision: 2627 $
 
 """
 
-from setuptools import setup
-import bfabric
+from setuptools import setup, find_packages
+import os
+
+with open('requirements.txt') as f:
+    INSTALL_REQUIRES = f.read().splitlines()
+ver_file = os.path.join('bfabric', '_version.py')
+with open(ver_file) as f:
+    exec(f.read())
+
+VERSION = __version__
 
 setup(name = 'bfabric',
-      # version = bfabric.__version__,
-      version = "0.10.11",
-      description="""
+      version = VERSION,
+      description = """
 B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper_creator and submitter.
 """,
-      url='git@github.com:cpanse/bfabricPy.git ',
-      author='Christian Panse',
-      author_email='cp@fgcz.ethz.ch',
-      license='GPLv3 / apache 2.0',
-      packages=['bfabric'],
-      python_requires=">=3.6, <3.8",
-      install_requires=[
-        'Flask>=1.0.3',
-        'PyYAML>=3.11',
-        'suds-py3==1.3.1',
-        'slugify'
-        ],
-      scripts=[
+      url = 'git@github.com:cpanse/bfabricPy.git ',
+      author = 'Christian Panse',
+      author_email = 'cp@fgcz.ethz.ch',
+      license = 'GPLv3 / apache 2.0',
+      packages = ['bfabric'],
+      python_requires = ">=3.6, <3.8",
+      install_requires = INSTALL_REQUIRES,
+      scripts = [
         'bfabric/scripts/bfabric_delete.py',
         'bfabric/scripts/bfabric_read.py',
         'bfabric/scripts/bfabric_flask.py',
