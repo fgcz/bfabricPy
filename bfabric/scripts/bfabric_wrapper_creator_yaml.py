@@ -28,13 +28,13 @@ from bfabric import BfabricWrapperCreator
 
 if __name__ == "__main__":
 
-
     externaljobid = -1
 
     if len(sys.argv) == 3 and sys.argv[1] == '-j' and int(sys.argv[2]) > 0:
         externaljobid = int(sys.argv[2])
     else:
-        print("usage: " + sys.argv[0] + " -j <externaljobid>")    
+
+        print ("usage: {} -j <externaljobid>".format(sys.argv[0]))
         sys.exit(1)
 
     bfapp = BfabricWrapperCreator(externaljobid=externaljobid)
