@@ -33,7 +33,7 @@ B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper
       author='Christian Panse',
       author_email='cp@fgcz.ethz.ch',
       license='GPLv3 / apache 2.0',
-      packages=['bfabric', 'bfabric/utilities','bfabric/scripts'],
+      packages=['bfabric', 'bfabric/scripts'],
       python_requires=">=3.6, <3.8",
       install_requires=[
         'Flask>=1.0.3',

@@ -3,11 +3,10 @@
 import sys
 import os
 import hashlib
-
 from bfabric.bfabric import Bfabric
 
-def save_fasta(projectid=1875,
-               fasta_file="p1875_db10_20170817.fasta",
+def save_fasta(projectid,
+               fasta_file,
                description_resource="",
                description_workunit="",
                fasta_http_root="/fasta/",
@@ -61,16 +60,12 @@ def save_fasta(projectid=1875,
                                       'status': 'available'})
     return(workunit)
 
-if __name__ == "__main__":
 
-    try:
-        print()
-        "reading stdin"
-        description = sys.stdin.read()
-    except:
-        print()
-        "reading from stdin failed."
-        raise
-    workunit = save_fasta(sys.args[1], sys.args[2], description_resource=description)
-
+if __name__=="__main__":
+    args = sys.args
+    if len(args) != 4:
+        print("need 3 arguments <project_id>, <filename.fasts>, <description>")
+        exit(1)
+    else:
+        workunit = save_fasta(sys.args[1], sys.args[2], description_resource=sys.argv[3], description_workunit=sys.argv[3])
     exit(0)
