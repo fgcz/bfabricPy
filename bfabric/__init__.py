@@ -1,4 +1,4 @@
-__version__ = "0.10.11a"
+from ._version import __version__
 
 name = "bfabricPy"
 alias = "suds-py3"
