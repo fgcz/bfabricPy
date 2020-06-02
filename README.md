@@ -6,7 +6,7 @@ For more advanced users the *bfabricPy* package also provides a powerful query i
 
 
 ![bfabricPy-read](https://user-images.githubusercontent.com/4901987/65025926-db77c900-d937-11e9-8c92-f2412d6793ee.gif)
-[see also #14](https://github.com/cpanse/bfabricPy/issues/14)
+[see also #14](https://github.com/fgcz/bfabricPy/issues/14)
 
 ## Requirements
 
@@ -15,7 +15,7 @@ For more advanced users the *bfabricPy* package also provides a powerful query i
 - install the python3 package as follow:
 
 ```{bash}
-git clone git@github.com:cpanse/bfabricPy.git  \
+git clone git@github.com:fgcz/bfabricPy.git  \
   && cd bfabricPy \
   && git checkout bfabric10
 ```
