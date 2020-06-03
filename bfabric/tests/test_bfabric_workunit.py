@@ -31,8 +31,9 @@ class BfabricTestCase(unittest.TestCase):
 
         self.bfapp = bfabric.Bfabric(verbose=False)
 
-        for e in ['executable', 'sample', 'workunit', 'resource']:
+        for e in ['executable', 'sample', 'application', 'workunit', 'resource']:
             self.endpoint[e] = []
+
 
 
 
@@ -96,15 +97,29 @@ class BfabricTestCase(unittest.TestCase):
             self.endpoint['sample'].append(res[0])
 
 
+    def test_03_application_save(self):
+        query={'name': "unit test",
+                    'description': '68b329da9893e34099c7d8ad5cb9c940',
+                    'type': "Analysis",
+                    'technologyid' : 2
+                    }
+
+        res = self.bfapp.save_object(endpoint='application', obj=query)
+        print(json.dumps(res, cls=bfabricEncoder, indent=2))
+        self.endpoint['application'].append(res[0])
 
 
     def test_04_workunit_save(self):
         queue = range(1, 4)
+        try:
+            applicationid = self.endpoint['application'][0]._id
+        except:
+            applicationid = 61
         for j in queue:
             res = self.bfapp.save_object(endpoint='workunit', obj={'name': "unit test - #{}.".format(j),
                                                                    'containerid': bfabric.project,
                                                                    'description': '68b329da9893e34099c7d8ad5cb9c940',
-                                                                   'applicationid': 61
+                                                                   'applicationid': applicationid
                                                                    })
             self.endpoint['workunit'].append(res[0])
             print(json.dumps(self.endpoint['workunit'], cls=bfabricEncoder, indent=2))
@@ -112,11 +127,22 @@ class BfabricTestCase(unittest.TestCase):
 
         #self.assertEqual(len(queue), len(self.workunits))
 
+        
+    def test_98_statistics(self):
+        print("\nsummary:")
+        for k, v in self.endpoint.items():
+            try:
+                res = [x._id for x in v]
+                print ("{}\n\t{}".format(k,  [x._id for x in v]))
+            except:
+                pass
+
     def test_99_delete(self):
         #print(json.dumps(self.endpoint['executable'], cls=bfabricEncoder, indent=2))
         self.delete_endpoint_entries(endpoint='executable')
         self.delete_endpoint_entries(endpoint='sample')
         self.delete_endpoint_entries(endpoint='workunit')
+        self.delete_endpoint_entries(endpoint='application')
         # self.delete_endpoint_entries(endpoint='resource')
 
 
