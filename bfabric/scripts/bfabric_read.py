@@ -20,8 +20,17 @@ import signal
 import sys
 import time
 import bfabric
-# import json
+import json
 
+class bfabricEncoder(json.JSONEncoder):
+    def default(self, o):
+        try:
+            return dict(o)
+        except TypeError:
+            pass
+        else:
+            return list(o)
+        return JSONEncoder.default(self, o)
 
 def signal_handler(signal, frame):
     print('You pressed Ctrl+C!')
@@ -80,9 +89,7 @@ if __name__ == "__main__":
         try:
             # print json object
             if len(res) < 2:
-                #  print(json.dumps(i, indent=4, sort_keys=True))
-                for i in res:
-                    print (i)
+                print(json.dumps(res, cls=bfabricEncoder, indent=2, sort_keys=True))
         except Exception as e:
             print_color_msg("invalid query. {}.".format(e), color=95)
             sys.exit(1)
