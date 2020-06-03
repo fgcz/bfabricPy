@@ -9,31 +9,31 @@ import base64
 import unittest
 import bfabric
 import os
+import json
+
+class bfabricEncoder(json.JSONEncoder):
+    def default(self, o):
+        try:
+            return dict(o)
+        except TypeError:
+            pass
+        else:
+            return list(o)
+        return JSONEncoder.default(self, o)
 
 class BfabricTestCase(unittest.TestCase):
+
+    endpoint = {}
+
+
     def __init__(self, *args, **kwargs):
         super(BfabricTestCase, self).__init__(*args, **kwargs)
 
         self.bfapp = bfabric.Bfabric(verbose=False)
-        self.workunits = []
-        self.resources = []
-        self.samples = []
 
-    def workunit_save(self):
-        queue = range(1, 4)
-        for j in queue:
-            res = self.bfapp.save_object(endpoint='workunit', obj={'name': "unit test - #{}.".format(j),
-                                                                   'containerid': bfabric.project,
-                                                                   'description': '68b329da9893e34099c7d8ad5cb9c940',
-                                                                   'applicationid': bfabric.application
-                                                                   })
-            for i in res:
-                try:
-                    self.workunits.append(i._id)
-                    self.resource_save(os.path.abspath(__file__), i._id)
-                except:
-                    raise
-        self.assertEqual(len(queue), len(self.workunits))
+        for e in ['executable', 'sample', 'workunit', 'resource']:
+            self.endpoint[e] = []
+
 
 
     def resource_save(self, filename, workunitid):
@@ -51,55 +51,36 @@ class BfabricTestCase(unittest.TestCase):
             'description': content,
             'workunitid': workunitid})
 
-        for i in res:
-            try:
-                self.resources.append(i._id)
-            except:
-                raise
+        self.endpoint['resource'].append(res[0])
 
 
-    def workunit_read(self):
-        res = [self.bfapp.read_object(endpoint='workunit', obj={'id': x}) for x in self.workunits]
-        res = [x for x in res if x[0].description == '68b329da9893e34099c7d8ad5cb9c940']
-        self.assertEqual(len(res), len(self.workunits))
-
-    def resource_delete(self):
-        print (self.resources)
-        res = [self.bfapp.delete_object(endpoint='resource', id=x)[0] for x in self.resources]
+    def delete_endpoint_entries(self, endpoint=None):
+        res = [self.bfapp.delete_object(endpoint=endpoint, id=x._id)[0] for x in self.endpoint[endpoint]]
+        print(json.dumps(res, cls=bfabricEncoder, indent=2))
         res = [x for x in res if "removed successfully." in x.deletionreport]
-        self.assertEqual(len(res), len(self.resources))
+        self.assertEqual(len(res), len(self.endpoint[endpoint]))
 
-    def workunit_delete(self):
-        res = [self.bfapp.delete_object(endpoint='workunit', id=x)[0] for x in self.workunits]
-        res = [x for x in res if "removed successfully." in x.deletionreport]
-        self.assertEqual(len(res), len(self.workunits))
-
-    def test_executable(self, filename=os.path.abspath(__file__)):
+    def test_01_executable_save(self, filename=os.path.abspath(__file__)):
         with open(filename, 'r') as f:
             executable = f.read()
 
-        attr = { 'name': 'unit test', 
-            'context': 'APPLICATION', 
-            'parameter': {'modifiable': 'true', 
-                'description': 'will be ignored.', 
-                'key': 'argument1', 
-                'label': 'argument1', 
-                'required': 'true', 
-                'type':'string', 
-                'value': 'PRX@fgcz-r-028'}, 
-            'description': 'python3 unit test executable.', 
-            #'masterexecutableid': 11871, 
-            'base64': base64.b64encode(executable.encode()) }
+        query = { 'name': 'unit test',
+                  'context': 'APPLICATION',
+                  'parameter': {'modifiable': 'true',
+                                'description': 'will be ignored.',
+                                'key': 'argument1',
+                                'label': 'argument1',
+                                'required': 'true',
+                                'type':'string',
+                                'value': 'PRX@fgcz-r-028'},
+                  'description': 'python3 unit test executable.',
+                  #'masterexecutableid': 11871,
+                  'base64': base64.b64encode(executable.encode()) }
 
-        res0 = self.bfapp.save_object('executable', attr)
-        res1 = self.bfapp.read_object('executable', obj={'id': res0[0]._id})
+        self.endpoint['executable'].append(self.bfapp.save_object('executable', query)[0])
 
-        self.assertEqual(18, len(res1[0]))
-
-    def sample_save(self):
-        print("SAVE SAMPLE")
-        #sample_type = 'Biological Sample - Proteomics'
-        sample_type = 'Proteomics'
+    def test_02_sample_save(self):
+        sample_type = 'Biological Sample - Proteomics'
         species = "n/a"
         for name in [1, 2, 3]:
             res = self.bfapp.save_object(endpoint='sample',
@@ -112,30 +93,33 @@ class BfabricTestCase(unittest.TestCase):
                     'description': '68b329da9893e34099c7d8ad5cb9c940'
                     })
 
-            #print(res[0]._id)
-            print("=== BEGIN DEBUG")
-            for i in res:
-                print (i)
-                self.samples.append(res[0]._id)
-            print("=== END DEBUG")
-
-    def sample_delete(self):
-        print (self.samples)
-        res = [self.bfapp.delete_object(endpoint='sample', id=x)[0] for x in self.samples]
-        res = [x for x in res if "removed successfully." in x.deletionreport]
+            self.endpoint['sample'].append(res[0])
 
 
-    def test_sample(self):
-        # self.sample_save()
-        #self.sample_delete()
-        pass
 
-    def test_workunit(self):
-        self.workunit_save()
-        self.workunit_read()
-        #self.resource_delete()
-        self.workunit_delete()
+
+    def test_04_workunit_save(self):
+        queue = range(1, 4)
+        for j in queue:
+            res = self.bfapp.save_object(endpoint='workunit', obj={'name': "unit test - #{}.".format(j),
+                                                                   'containerid': bfabric.project,
+                                                                   'description': '68b329da9893e34099c7d8ad5cb9c940',
+                                                                   'applicationid': 61
+                                                                   })
+            self.endpoint['workunit'].append(res[0])
+            print(json.dumps(self.endpoint['workunit'], cls=bfabricEncoder, indent=2))
+            self.resource_save(os.path.abspath(__file__), res[0]._id)
+
+        #self.assertEqual(len(queue), len(self.workunits))
+
+    def test_99_delete(self):
+        #print(json.dumps(self.endpoint['executable'], cls=bfabricEncoder, indent=2))
+        self.delete_endpoint_entries(endpoint='executable')
+        self.delete_endpoint_entries(endpoint='sample')
+        self.delete_endpoint_entries(endpoint='workunit')
+        # self.delete_endpoint_entries(endpoint='resource')
+
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(verbosity=2)
 
