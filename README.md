@@ -255,6 +255,7 @@ cd bfabric/tests/ && python3 -m unittest discover; echo $?; cd -
 
 
 ## See also
+- [bfabric documentation](https://fgcz-bfabric.uzh.ch/wiki/HomePage)
 - [FAQ](faq.md)
 - [wsdl4BFabric](http://fgcz-intranet.uzh.ch/tiki-index.php?page=wsdl4BFabric) wiki page
 - WSDL Interface to B-Fabric [endpoints](http://fgcz-bfabric.uzh.ch/bfabric/workunit?wsdl)
