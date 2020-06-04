@@ -22,15 +22,6 @@ import time
 import bfabric
 import json
 
-class bfabricEncoder(json.JSONEncoder):
-    def default(self, o):
-        try:
-            return dict(o)
-        except TypeError:
-            pass
-        else:
-            return list(o)
-        return JSONEncoder.default(self, o)
 
 def signal_handler(signal, frame):
     print('You pressed Ctrl+C!')
@@ -89,7 +80,7 @@ if __name__ == "__main__":
         try:
             # print json object
             if len(res) < 2:
-                print(json.dumps(res, cls=bfabricEncoder, indent=2, sort_keys=True))
+                bfapp.print_json(res[0])
         except Exception as e:
             print_color_msg("invalid query. {}.".format(e), color=95)
             sys.exit(1)
@@ -111,8 +102,7 @@ if __name__ == "__main__":
     else:
         print_color_msg ("The first argument must be a valid endpoint.", color=95)
         usage()
-        sys.exit(1)
-        
+        sys.exit(1) 
 
     try:
         print_color_msg("number of query result items = {}".format(len(res)))
