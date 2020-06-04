@@ -26,6 +26,7 @@ $Revision: 3000 $
 
 
 import yaml
+import json
 import sys
 from pprint import pprint
 
@@ -79,6 +80,19 @@ else:
     httplib.HTTPConnection._http_vsn = 10
     httplib.HTTPConnection._http_vsn_str = 'HTTP/1.0'
 
+
+class bfabricEncoder(json.JSONEncoder):
+    """
+    Implements json encoder for the Bfabric.print_json method  
+    """
+    def default(self, o):
+        try:
+            return dict(o)
+        except TypeError:
+            pass
+        else:
+            return list(o)
+        return JSONEncoder.default(self, o)
 
 class Bfabric(object):
     """
@@ -238,6 +252,21 @@ class Bfabric(object):
             return getattr(self.cl[endpoint].service.delete(QUERY), endpoint, None)
         except:
             raise
+
+    def print_json(self, queryres=None):
+        """
+        This method prints the query result as returned by ``read_object`` in JSON format.
+
+        Parameter
+        ---------
+
+        queryres : the object returned by ``read_object`` method.  
+        """
+        if queryres is None:
+            raise TypeError("print_json() missing 1 required positional argument: please provide the output from read_object as parameter to print_json")
+
+        res = json.dumps(queryres, cls=bfabricEncoder, sort_keys=True, indent=2)
+        print(res)
 
     def set_bfabric_credentials(self, login, password):
         self.bflogin = login
