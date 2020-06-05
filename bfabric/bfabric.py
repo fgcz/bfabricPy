@@ -375,8 +375,13 @@ class BfabricExternalJob(Bfabric):
 
     def get_workunitid_of_externaljob(self):
         res = self.read_object('externaljob', {'id': self.externaljobid})[0]
-        workunit_list = filter(lambda x: x[0] == 'cliententityid', res)
-        return workunit_list[0][1] if workunit_list else None
+        workunit_id = None
+        try:
+            workunit_id = res.cliententityid
+        except:
+            pass
+        return workunit_id
+
 
     def get_executable_of_externaljobid(self):
         """ 
@@ -595,12 +600,14 @@ exit 0
         if workunit is None:
             raise ValueError("ERROR: no workunit available for the given externaljobid.")
 
-        assert isinstance(workunit._id, long)
+        assert isinstance(workunit._id, int)
 
         # collects all required information out of B-Fabric to create an executable script
         application = self.read_object('application', obj={'id': workunit.application._id})[0]
         workunit_executable = self.read_object('executable', obj={'id': workunit.applicationexecutable._id})[0]
-        project = workunit.project
+
+        # TODO(cp): change to container
+        project = workunit.container
         today = datetime.date.today()
 
 
@@ -713,7 +720,7 @@ exit 0
                                                     'status': 'new', 
                                                     'action': "WORKUNIT"})[0]
 
-        assert isinstance(submitter_externaljob._id, long)
+        assert isinstance(submitter_externaljob._id, int)
 
         _output_url = "bfabric@{0}:{1}{2}/{3}".format(_output_storage.host,
                                                     _output_storage.basepath,
