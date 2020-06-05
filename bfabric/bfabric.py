@@ -374,13 +374,16 @@ class BfabricExternalJob(Bfabric):
         return res
 
     def get_workunitid_of_externaljob(self):
-        res = self.read_object('externaljob', {'id': self.externaljobid})[0]
+        print("DEBUG get_workunitid_of_externaljob self.externaljobid={}".format(self.externaljobid))
+        res = self.read_object(endpoint='externaljob', obj={'id': self.externaljobid})[0]
+        print(res)
+        print("DEBUG END")
         workunit_id = None
         try:
             workunit_id = res.cliententityid
         except:
             pass
-        return workunit_id
+        return int(workunit_id)
 
 
     def get_executable_of_externaljobid(self):
@@ -408,6 +411,7 @@ class BfabricSubmitter(BfabricExternalJob, gridengine.GridEngine):
     """
     the class is used by the submitter which is executed by the bfabric system.
     """
+    workunit = None
 
     def __init__(self, login=None, password=None, externaljobid=None,
                  user='*', queue="PRX@fgcz-r-028", GRIDENGINEROOT='/opt/sge'):
@@ -418,6 +422,10 @@ class BfabricSubmitter(BfabricExternalJob, gridengine.GridEngine):
         gridengine.GridEngine.__init__(self, user=user, queue=queue, GRIDENGINEROOT=GRIDENGINEROOT)
         BfabricExternalJob.__init__(self, login=login, password=password, externaljobid=externaljobid)
 
+
+        print("externaljobid={}".format(self.externaljobid))
+
+
         try:
             workunitid = self.get_workunitid_of_externaljob()
             self.workunit = self.read_object(endpoint='workunit', obj={'id': workunitid})[0]
@@ -425,20 +433,63 @@ class BfabricSubmitter(BfabricExternalJob, gridengine.GridEngine):
             print ("ERROR: could not fetch workunit.")
             raise
 
+
         try:
             self.parameters = map(lambda x: self.read_object(endpoint='parameter', obj={'id': x._id})[0],  self.workunit.parameter)
-            parameters = filter(lambda x: x.key == "queue" , self.parameters)
+        except:
+            self.parameters = list()
+            print ("Warning: could not fetch parameter.")
+
+        parameters = filter(lambda x: x.key == "queue" , self.parameters)
+
+        try:
             if len(parameters) > 0:
                 self.queue = parameters[0].value
                 print ("queue={0}".format(self.queue))
         except:
-            print ("Warning: could not fetch parameter.")
-            raise
+            pass
+            
 
-    def submit(self, script, arguments=""):
 
-        resQsub = super(BfabricSubmitter, self).qsub(script, arguments)
-        self.logger(resQsub)
+    def submitter_yaml(self):
+        """
+        implements the default submitter
+
+        the function fetches the yaml base64 configuration file linked to the external job id out of the B-Fabric
+        system. Since the file can not be stagged to the LRMS as argument, we copy the yaml file into the bash script
+        and stage it on execution the application.
+
+        TODO(cp): create the output url before the application is started.
+
+        return None
+        """
+
+        # foreach (executable in external job):
+        for executable in self.get_executable_of_externaljobid():
+            self.logger("executable = {0}".format(executable))
+
+
+            try:
+                content = base64.b64decode(executable.base64)
+            except:
+                raise ValueError("error: decoding executable.base64 failed.")
+
+
+            _cmd_template = self.compose_bash_script(configuration=content,
+                                                     configuration_parser=lambda x: yaml.load(x))
+
+
+            _bash_script_filename = "/tmp/externaljobid-{0}_executableid-{1}.bash"\
+                .format(self.externaljobid, executable._id)
+
+            with open(_bash_script_filename, 'w') as f:
+                f.write(_cmd_template)
+
+            self.submit(_bash_script_filename)
+
+        res = self.save_object(endpoint='externaljob',
+                                obj={'id': self.externaljobid, 'status': 'done'})
+
 
 class BfabricWrapperCreator(BfabricExternalJob):
     """
