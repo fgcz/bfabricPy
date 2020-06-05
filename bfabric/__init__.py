@@ -20,3 +20,4 @@ container=project
 application=217
 
 from bfabric.bfabric import Bfabric
+from bfabric.bfabric import BfabricWrapperCreator
