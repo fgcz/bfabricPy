@@ -768,8 +768,8 @@ exit 0
                                                                        "It should be executed by the B-Fabric yaml"
                                                                        "submitter.",
                                                         'workunitid': workunit._id,
-                                                        'base64': base64.b64encode(config_serialized),
-                                                        'version': "{}".format(Bfabric.__version__)})[0]
+                                                        'base64': base64.b64encode(config_serialized.encode()),
+                                                        'version': "{}".format(10)})[0]
 
 
         submitter_externaljob = self.save_object('externaljob',
