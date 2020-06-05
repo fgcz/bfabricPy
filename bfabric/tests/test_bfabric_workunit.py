@@ -34,9 +34,6 @@ class BfabricTestCase(unittest.TestCase):
         for e in ['executable', 'sample', 'application', 'workunit', 'resource']:
             self.endpoint[e] = []
 
-
-
-
     def resource_save(self, filename, workunitid):
         with open(filename, 'r') as f:
             content = f.read()
@@ -56,12 +53,12 @@ class BfabricTestCase(unittest.TestCase):
 
 
     def delete_endpoint_entries(self, endpoint=None):
-        res = [self.bfapp.delete_object(endpoint=endpoint, id=x._id)[0] for x in self.endpoint[endpoint]]
+        res = [ self.bfapp.delete_object(endpoint=endpoint, id=x._id)[0] for x in self.endpoint[endpoint] ]
         print(json.dumps(res, cls=bfabricEncoder, indent=2))
         res = [x for x in res if "removed successfully." in x.deletionreport]
         self.assertEqual(len(res), len(self.endpoint[endpoint]))
 
-    def test_01_executable_save(self, filename=os.path.abspath(__file__)):
+    def _01_executable_save(self, filename=os.path.abspath(__file__)):
         with open(filename, 'r') as f:
             executable = f.read()
 
@@ -78,9 +75,11 @@ class BfabricTestCase(unittest.TestCase):
                   #'masterexecutableid': 11871,
                   'base64': base64.b64encode(executable.encode()) }
 
-        self.endpoint['executable'].append(self.bfapp.save_object('executable', query)[0])
+        res = self.bfapp.save_object('executable', query)[0]
+        print (res)
+        self.endpoint['executable'].append(res)
 
-    def test_02_sample_save(self):
+    def _02_sample_save(self):
         sample_type = 'Biological Sample - Proteomics'
         species = "n/a"
         for name in [1, 2, 3]:
@@ -97,7 +96,7 @@ class BfabricTestCase(unittest.TestCase):
             self.endpoint['sample'].append(res[0])
 
 
-    def test_03_application_save(self):
+    def _03_application_save(self):
         query={'name': "unit test",
                     'description': '68b329da9893e34099c7d8ad5cb9c940',
                     'type': "Analysis",
@@ -109,7 +108,7 @@ class BfabricTestCase(unittest.TestCase):
         self.endpoint['application'].append(res[0])
 
 
-    def test_04_workunit_save(self):
+    def _04_workunit_save(self):
         queue = range(1, 4)
         try:
             applicationid = self.endpoint['application'][0]._id
@@ -128,7 +127,7 @@ class BfabricTestCase(unittest.TestCase):
         #self.assertEqual(len(queue), len(self.workunits))
 
         
-    def test_98_statistics(self):
+    def _98_statistics(self):
         print("\nsummary:")
         for k, v in self.endpoint.items():
             try:
@@ -137,13 +136,18 @@ class BfabricTestCase(unittest.TestCase):
             except:
                 pass
 
-    def test_99_delete(self):
-        #print(json.dumps(self.endpoint['executable'], cls=bfabricEncoder, indent=2))
+    def test_01(self):
+        self._01_executable_save()
+        self._02_sample_save()
+        self._03_application_save()
+        self._04_workunit_save()
+        self._98_statistics()
+
+
         self.delete_endpoint_entries(endpoint='executable')
         self.delete_endpoint_entries(endpoint='sample')
         self.delete_endpoint_entries(endpoint='workunit')
         self.delete_endpoint_entries(endpoint='application')
-        # self.delete_endpoint_entries(endpoint='resource')
 
 
 if __name__ == '__main__':

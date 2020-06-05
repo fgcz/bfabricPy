@@ -22,6 +22,7 @@ class BfabricTestCase(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(BfabricTestCase, self).__init__(*args, **kwargs)
 
+    # input: entity = endpoint = table = ...
     def read(self, endpoint):
         self.assertIn(endpoint, self.groundtruth)
         for (query, groundtruth) in self.groundtruth[endpoint]:
