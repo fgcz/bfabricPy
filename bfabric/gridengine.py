@@ -59,7 +59,7 @@ class GridEngine(object):
 
         self.user = user
         self.queue = queue
-        self.qsub = "{0}/{1}".format(GRIDENGINEROOT, "bin/lx-amd64/qsub")
+        self.qsubbin = "{0}/{1}".format(GRIDENGINEROOT, "bin/lx-amd64/qsub")
 
         os.environ["SGE_ROOT"] = GRIDENGINEROOT
 
@@ -70,10 +70,10 @@ class GridEngine(object):
 
             todo: pass stderr and stdout file location as argument
         """
-        qsub_cmd = [self.qsub, "-q", self.queue, script, " ".join(arguments)]
+        qsub_cmd = [self.qsubbin, "-q", self.queue, script, " ".join(arguments)]
 
-        if not os.path.isfile(self.qsub):
-            print ("{0} can not be found.".format(self.qsub))
+        if not os.path.isfile(self.qsubbin):
+            print ("{0} can not be found.".format(self.qsubbin))
             return
 
         if not os.path.isfile(script):

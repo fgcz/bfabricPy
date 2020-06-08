@@ -362,6 +362,8 @@ class BfabricExternalJob(Bfabric):
         else:
             self.externaljobid = externaljobid
 
+        print("BfabricExternalJob externaljobid={}".format(self.externaljobid))
+
     def logger(self, msg):
         if self.externaljobid:
             super(BfabricExternalJob, self).save_object('externaljob', {'id': self.externaljobid, 'logthis': str(msg)})
@@ -381,9 +383,10 @@ class BfabricExternalJob(Bfabric):
         workunit_id = None
         try:
             workunit_id = res.cliententityid
+            print("workunitid={}".format(workunit_id))
         except:
             pass
-        return int(workunit_id)
+        return workunit_id
 
 
     def get_executable_of_externaljobid(self):
@@ -407,35 +410,41 @@ class BfabricExternalJob(Bfabric):
         return executables if len(executables) > 0 else None
 
 
-class BfabricSubmitter(BfabricExternalJob, gridengine.GridEngine):
+class BfabricSubmitter():
     """
     the class is used by the submitter which is executed by the bfabric system.
     """
+    
+    (G, B) =  (None, None)
+
+    workunitid = None
     workunit = None
+    parameters = None
 
     def __init__(self, login=None, password=None, externaljobid=None,
                  user='*', queue="PRX@fgcz-r-028", GRIDENGINEROOT='/opt/sge'):
         """
-
         :rtype : object
         """
-        gridengine.GridEngine.__init__(self, user=user, queue=queue, GRIDENGINEROOT=GRIDENGINEROOT)
-        BfabricExternalJob.__init__(self, login=login, password=password, externaljobid=externaljobid)
+        self.B = BfabricExternalJob(login=login, password=password, externaljobid=externaljobid)
+        self.queue = queue
+        self.GRIDENGINEROOT = GRIDENGINEROOT
+        self.user = user
 
+        print(self.B.bflogin)
+        print(self.B.externaljobid)
 
-        print("externaljobid={}".format(self.externaljobid))
-
+        self.workunitid = self.B.get_workunitid_of_externaljob()
 
         try:
-            workunitid = self.get_workunitid_of_externaljob()
-            self.workunit = self.read_object(endpoint='workunit', obj={'id': workunitid})[0]
+            self.workunit = self.B.read_object(endpoint='workunit', obj={'id': self.workunitid})[0]
         except:
-            print ("ERROR: could not fetch workunit.")
+            print ("ERROR: could not fetch workunit while calling constructor in BfabricSubmitter.")
             raise
 
 
         try:
-            self.parameters = map(lambda x: self.read_object(endpoint='parameter', obj={'id': x._id})[0],  self.workunit.parameter)
+            self.parameters = map(lambda x: self.B.read_object(endpoint='parameter', obj={'id': x._id})[0],  self.workunit.parameter)
         except:
             self.parameters = list()
             print ("Warning: could not fetch parameter.")
@@ -448,12 +457,20 @@ class BfabricSubmitter(BfabricExternalJob, gridengine.GridEngine):
                 print ("queue={0}".format(self.queue))
         except:
             pass
+
+        print("__init__ DONE")
             
 
-    def submit(self, script, arguments=""):
 
-        resQsub = super(BfabricSubmitter, self).qsub(script, arguments)
-        self.logger(resQsub)
+    def submit(self, script="/tmp/runme.bash", arguments=""):
+
+        GE = gridengine.GridEngine(user=self.user, queue=self.queue, GRIDENGINEROOT=self.GRIDENGINEROOT)
+
+        print(script)
+        print(type(script))
+        resQsub = GE.qsub(script=script, arguments=arguments)
+
+        self.B.logger("{}".format(resQsub))
 
     def compose_bash_script(self, configuration=None, configuration_parser=lambda x: yaml.load(x)):
         """
@@ -584,31 +601,30 @@ exit 0
         """
 
         # foreach (executable in external job):
-        for executable in self.get_executable_of_externaljobid():
-            self.logger("executable = {0}".format(executable))
+        for executable in self.B.get_executable_of_externaljobid():
+            self.B.logger("executable = {0}".format(executable))
 
             try:
-                content = base64.b64decode(executable.base64).decode()
+                content = base64.b64decode(executable.base64.encode()).decode()
             except:
                 raise ValueError("error: decoding executable.base64 failed.")
 
 
             print(content)
-            sys.exit(1)
             _cmd_template = self.compose_bash_script(configuration=content,
                                                      configuration_parser=lambda x: yaml.load(x))
 
 
             _bash_script_filename = "/tmp/externaljobid-{0}_executableid-{1}.bash"\
-                .format(self.externaljobid, executable._id)
+                .format(self.B.externaljobid, executable._id)
 
             with open(_bash_script_filename, 'w') as f:
                 f.write(_cmd_template)
 
             self.submit(_bash_script_filename)
 
-        res = self.save_object(endpoint='externaljob',
-                                obj={'id': self.externaljobid, 'status': 'done'})
+        res = self.B.save_object(endpoint='externaljob',
+                                obj={'id': self.B.externaljobid, 'status': 'done'})
 
 
 class BfabricWrapperCreator(BfabricExternalJob):
@@ -941,10 +957,11 @@ exit 0
                                                                        "It should be executed by the B-Fabric yaml"
                                                                        "submitter.",
                                                         'workunitid': workunit._id,
-                                                        'base64': base64.b64encode(config_serialized.encode()),
+                                                        'base64': base64.b64encode(config_serialized.encode()).decode(),
                                                         'version': "{}".format(10)})[0]
 
 
+        print(workunit_executable)
         submitter_externaljob = self.save_object('externaljob',
                                               {"id": submitter_externaljob._id,
                                                'executableid': workunit_executable._id})
