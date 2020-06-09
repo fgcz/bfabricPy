@@ -362,6 +362,8 @@ class BfabricExternalJob(Bfabric):
         else:
             self.externaljobid = externaljobid
 
+        print("BfabricExternalJob externaljobid={}".format(self.externaljobid))
+
     def logger(self, msg):
         if self.externaljobid:
             super(BfabricExternalJob, self).save_object('externaljob', {'id': self.externaljobid, 'logthis': str(msg)})
@@ -374,9 +376,18 @@ class BfabricExternalJob(Bfabric):
         return res
 
     def get_workunitid_of_externaljob(self):
-        res = self.read_object('externaljob', {'id': self.externaljobid})[0]
-        workunit_list = filter(lambda x: x[0] == 'cliententityid', res)
-        return workunit_list[0][1] if workunit_list else None
+        print("DEBUG get_workunitid_of_externaljob self.externaljobid={}".format(self.externaljobid))
+        res = self.read_object(endpoint='externaljob', obj={'id': self.externaljobid})[0]
+        print(res)
+        print("DEBUG END")
+        workunit_id = None
+        try:
+            workunit_id = res.cliententityid
+            print("workunitid={}".format(workunit_id))
+        except:
+            pass
+        return workunit_id
+
 
     def get_executable_of_externaljobid(self):
         """ 
@@ -399,41 +410,222 @@ class BfabricExternalJob(Bfabric):
         return executables if len(executables) > 0 else None
 
 
-class BfabricSubmitter(BfabricExternalJob, gridengine.GridEngine):
+class BfabricSubmitter():
     """
     the class is used by the submitter which is executed by the bfabric system.
     """
+    
+    (G, B) =  (None, None)
+
+    workunitid = None
+    workunit = None
+    parameters = None
 
     def __init__(self, login=None, password=None, externaljobid=None,
                  user='*', queue="PRX@fgcz-r-028", GRIDENGINEROOT='/opt/sge'):
         """
-
         :rtype : object
         """
-        gridengine.GridEngine.__init__(self, user=user, queue=queue, GRIDENGINEROOT=GRIDENGINEROOT)
-        BfabricExternalJob.__init__(self, login=login, password=password, externaljobid=externaljobid)
+        self.B = BfabricExternalJob(login=login, password=password, externaljobid=externaljobid)
+        self.queue = queue
+        self.GRIDENGINEROOT = GRIDENGINEROOT
+        self.user = user
+
+        print(self.B.bflogin)
+        print(self.B.externaljobid)
+
+        self.workunitid = self.B.get_workunitid_of_externaljob()
 
         try:
-            workunitid = self.get_workunitid_of_externaljob()
-            self.workunit = self.read_object(endpoint='workunit', obj={'id': workunitid})[0]
+            self.workunit = self.B.read_object(endpoint='workunit', obj={'id': self.workunitid})[0]
         except:
-            print ("ERROR: could not fetch workunit.")
+            print ("ERROR: could not fetch workunit while calling constructor in BfabricSubmitter.")
             raise
 
+
         try:
-            self.parameters = map(lambda x: self.read_object(endpoint='parameter', obj={'id': x._id})[0],  self.workunit.parameter)
-            parameters = filter(lambda x: x.key == "queue" , self.parameters)
+            self.parameters = map(lambda x: self.B.read_object(endpoint='parameter', obj={'id': x._id})[0],  self.workunit.parameter)
+        except:
+            self.parameters = list()
+            print ("Warning: could not fetch parameter.")
+
+        parameters = filter(lambda x: x.key == "queue" , self.parameters)
+
+        try:
             if len(parameters) > 0:
                 self.queue = parameters[0].value
                 print ("queue={0}".format(self.queue))
         except:
-            print ("Warning: could not fetch parameter.")
-            raise
+            pass
 
-    def submit(self, script, arguments=""):
+        print("__init__ DONE")
+            
 
-        resQsub = super(BfabricSubmitter, self).qsub(script, arguments)
-        self.logger(resQsub)
+
+    def submit(self, script="/tmp/runme.bash", arguments=""):
+
+        GE = gridengine.GridEngine(user=self.user, queue=self.queue, GRIDENGINEROOT=self.GRIDENGINEROOT)
+
+        print(script)
+        print(type(script))
+        resQsub = GE.qsub(script=script, arguments=arguments)
+
+        self.B.logger("{}".format(resQsub))
+
+    def compose_bash_script(self, configuration=None, configuration_parser=lambda x: yaml.load(x)):
+        """
+        composes the bash script which is executed by the submitter (sun grid engine).
+        as argument it takes a configuration file, e.g., yaml, xml, json, or whatsoever, and a parser function.
+
+        it returns a str object containing the code.
+
+        :rtype : str
+        """
+
+
+        #assert isinstance(configuration, str)
+
+        try:
+            config = configuration_parser(configuration)
+        except:
+            raise ValueError("error: parsing configuration content failed.")
+
+
+        _cmd_template = """#!/bin/bash
+#
+# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/bfabric.py $
+# $Id: bfabric.py 3000 2017-08-18 14:18:30Z cpanse $
+# Christian Panse <cp@fgcz.ethz.ch> 2007-2015
+
+# Grid Engine Parameters
+#$ -q {0}
+#$ -e {1}
+#$ -o {2}
+
+
+set -e
+set -o pipefail
+
+export EMAIL="cp@fgcz.ethz.ch wew@fgcz.ethz.ch"
+export EXTERNALJOB_ID={3}
+export RESSOURCEID_OUTPUT={4}
+export RESSOURCEID_STDOUT_STDERR="{5} {6}"
+export OUTPUT="{7}"
+export WORKUNIT_ID="{10}"
+STAMP=`/bin/date +%Y%m%d%H%M`.$$.$JOB_ID
+
+
+_OUTPUT=`echo $OUTPUT | cut -d"," -f1`
+test $? -eq 0 && _OUTPUTHOST=`echo $_OUTPUT | cut -d":" -f1`
+test $? -eq 0 && _OUTPUTPATH=`echo $_OUTPUT | cut -d":" -f2`
+test $? -eq 0 && _OUTPUTPATH=`dirname $_OUTPUTPATH`
+test $? -eq 0 && ssh $_OUTPUTHOST "mkdir -p $_OUTPUTPATH"
+test $? -eq 0 && echo $$ > /tmp/$$
+test $? -eq 0 && scp /tmp/$$ $OUTPUT
+
+if [ $? -eq 1 ];
+then
+    echo "writting to output url failed!";
+    exit 1;
+fi
+
+# job configuration set by B-Fabrics wrapper_creator executable
+# application parameter/configuration
+cat > /tmp/config_W$WORKUNIT_ID.yaml <<EOF
+{8}
+EOF
+
+
+
+## interrupt here if you want to do a semi-automatic processing
+if [ -x /usr/bin/mutt ];
+then
+    cat $0 > /tmp/$JOB_ID.bash 
+
+    (who am i; hostname; uptime; echo $0; pwd; ps;) \
+    | mutt -s "JOB_ID=$JOB_ID WORKUNIT_ID=$WORKUNIT_ID EXTERNALJOB_ID=$EXTERNALJOB_ID" $EMAIL \
+        -a /tmp/$JOB_ID.bash /tmp/config_W$WORKUNIT_ID.yaml 
+fi
+# exit 0
+
+# run the application
+test -f /tmp/config_W$WORKUNIT_ID.yaml && {9} /tmp/config_W$WORKUNIT_ID.yaml
+
+sleep 10
+
+if [ $? -eq 0 ];
+then
+     ssh fgcz-ms.uzh.ch "bfabric_setResourceStatus_available.py $RESSOURCEID_OUTPUT" \
+     | mutt -s "JOB_ID=$JOB_ID WORKUNIT_ID=$WORKUNIT_ID EXTERNALJOB_ID=$EXTERNALJOB_ID DONE" $EMAIL 
+
+     bfabric_setExternalJobStatus_done.py $EXTERNALJOB_ID
+    echo $?
+else
+    echo "application failed"
+     mutt -s "JOB_ID=$JOB_ID WORKUNIT_ID=$WORKUNIT_ID EXTERNALJOB_ID=$EXTERNALJOB_ID failed" $EMAIL < /dev/null
+     bfabric_setResourceStatus_available.py $RESSOURCEID_STDOUT_STDERR $RESSOURCEID;
+    exit 1;
+fi
+
+# should be available also as zero byte files
+bfabric_setResourceStatus_available.py $RESSOURCEID_STDOUT_STDERR
+
+
+exit 0
+""".format(self.queue,
+               config['job_configuration']['stderr']['url'],
+               config['job_configuration']['stdout']['url'],
+               config['job_configuration']['external_job_id'],
+               config['job_configuration']['output']['resource_id'],
+               config['job_configuration']['stderr']['resource_id'],
+               config['job_configuration']['stdout']['resource_id'],
+               ",".join(config['application']['output']),
+               configuration,
+               config['job_configuration']['executable'],
+               config['job_configuration']['workunit_id'])
+
+        return _cmd_template
+
+
+    def submitter_yaml(self):
+        """
+        implements the default submitter
+
+        the function fetches the yaml base64 configuration file linked to the external job id out of the B-Fabric
+        system. Since the file can not be stagged to the LRMS as argument, we copy the yaml file into the bash script
+        and stage it on execution the application.
+
+        TODO(cp): create the output url before the application is started.
+
+        return None
+        """
+
+        # foreach (executable in external job):
+        for executable in self.B.get_executable_of_externaljobid():
+            self.B.logger("executable = {0}".format(executable))
+
+            try:
+                content = base64.b64decode(executable.base64.encode()).decode()
+            except:
+                raise ValueError("error: decoding executable.base64 failed.")
+
+
+            print(content)
+            _cmd_template = self.compose_bash_script(configuration=content,
+                                                     configuration_parser=lambda x: yaml.load(x))
+
+
+            _bash_script_filename = "/tmp/externaljobid-{0}_executableid-{1}.bash"\
+                .format(self.B.externaljobid, executable._id)
+
+            with open(_bash_script_filename, 'w') as f:
+                f.write(_cmd_template)
+
+            self.submit(_bash_script_filename)
+
+        res = self.B.save_object(endpoint='externaljob',
+                                obj={'id': self.B.externaljobid, 'status': 'done'})
+
 
 class BfabricWrapperCreator(BfabricExternalJob):
     """
@@ -495,86 +687,6 @@ exit 0
 
         return (resExecutable)
 
-    def uploadGridEngineScriptNonBatch(self, para={'INPUTHOST': 'fgcz-ms.uzh.ch'}):
-        """
-        the methode creates and uploads an executebale.  
-        """
-
-        self.warning(
-            "This python method is superfluously and will be removed. Please use the write_yaml method of the BfabricWrapperCreato class.")
-
-        _cmd_template0 = """#!/bin/bash
-# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/bfabric.py $
-# $Id: bfabric.py 3000 2017-08-18 14:18:30Z cpanse $
-# Christian Panse <cp@fgcz.ethz.ch>
-#$ -q PRX@fgcz-r-028
-#$ -e {1}
-#$ -o {2}
-
-set -e
-set -o pipefail
-
-# debug
-hostname
-uptime
-echo $0
-pwd
-
-# variables to be set by the wrapper_creator executable
-{0}
-
-INPUTURLS={3}
-
-export RESSOURCEID
-export INPUTURLS
-export INPUTRESOURCEID
-""".format("\n".join(sorted(['%s="%s"' % (key, info) for key, info in para.iteritems()])), para['STDERR'],
-           para['STDOUT'], para['INPUTURLS'])
-
-        _cmd_template1 = """
-# create output directory
-ssh $SSHARGS $OUTPUTHOST "mkdir -p $OUTPUTPATH" || exit 1
-test $? -eq 0 || exit 1
-
-SCRATCH=/scratch/$JOB_ID/
-
-
-mkdir -p $SCRATCH
-test $? -eq 0 || exit 1
-
-echo "BEGIN COPY INPUT"
-for (( i=0; ; i++ ))
-do
-    test -z "${INPUTURLS[$i]}" && break
-    # TODO(cp@fgcz.ethz.ch): This is pain of the art.
-    echo "${INPUTURLS[$i]}" >> $SCRATCH/inputurl.txt
-    scp ${INPUTURLS[$i]} $SCRATCH/`basename ${INPUTURLS[$i]}`
-    test $? -eq 0 || { echo "scp failed with '${INPUTURLS[$i]}'"; exit 1; }
-done
-echo "END COPY INPUT"
-
-
-$APPLICATION --scratch "$SCRATCH" --ssh "$OUTPUTHOST:$OUTPUTPATH/$OUTPUTFILE" --workunit "$WORKUNITID" \\
-&& bfabric_setResourceStatus_available.py $RESSOURCEID \\
-&& bfabric_setExternalJobStatus_done.py $EXTERNALJOBID \\
-|| { echo "application failed"; bfabric_setResourceStatus_available.py $RESSOURCEID; exit 1; }
-
-cd $SCRATCH && rm -rf ./* \
-|| { echo "clean failed"; exit 1; }
-
-exit 0
-"""
-
-        resExecutable = self.save_object('executable', {'name': os.path.basename(para['APPLICATION']) + "_executable",
-                                                        'context': 'WORKUNIT',
-                                                        'parameter': None,
-                                                        'description': "This script should run as 'bfabric' user in the FGCZ compute infrastructure.",
-                                                        'workunitid': para['WORKUNITID'],
-                                                        'base64': base64.b64encode(_cmd_template0 + _cmd_template1),
-                                                        'version': 0.3})
-
-        return (resExecutable)
-
     def write_yaml(self,  data_serializer=lambda x: yaml.dump(x, default_flow_style=False, encoding=None)):
         """
         This method writes all related parameters into a yaml file which is than upload as base64 encoded
@@ -595,12 +707,14 @@ exit 0
         if workunit is None:
             raise ValueError("ERROR: no workunit available for the given externaljobid.")
 
-        assert isinstance(workunit._id, long)
+        assert isinstance(workunit._id, int)
 
         # collects all required information out of B-Fabric to create an executable script
         application = self.read_object('application', obj={'id': workunit.application._id})[0]
         workunit_executable = self.read_object('executable', obj={'id': workunit.applicationexecutable._id})[0]
-        project = workunit.project
+
+        # TODO(cp): change to container
+        project = workunit.container
         today = datetime.date.today()
 
 
@@ -713,7 +827,7 @@ exit 0
                                                     'status': 'new', 
                                                     'action': "WORKUNIT"})[0]
 
-        assert isinstance(submitter_externaljob._id, long)
+        assert isinstance(submitter_externaljob._id, int)
 
         _output_url = "bfabric@{0}:{1}{2}/{3}".format(_output_storage.host,
                                                     _output_storage.basepath,
@@ -752,6 +866,8 @@ exit 0
         }
 
         config_serialized = data_serializer(config)
+        print ("DEBUG xxxx")
+        print(config_serialized)
 
 
         workunit_executable = self.save_object('executable', {'name': 'yaml',
@@ -761,10 +877,11 @@ exit 0
                                                                        "It should be executed by the B-Fabric yaml"
                                                                        "submitter.",
                                                         'workunitid': workunit._id,
-                                                        'base64': base64.b64encode(config_serialized),
-                                                        'version': "{}".format(Bfabric.__version__)})[0]
+                                                        'base64': base64.b64encode(config_serialized.encode()).decode(),
+                                                        'version': "{}".format(10)})[0]
 
 
+        print(workunit_executable)
         submitter_externaljob = self.save_object('externaljob',
                                               {"id": submitter_externaljob._id,
                                                'executableid': workunit_executable._id})
