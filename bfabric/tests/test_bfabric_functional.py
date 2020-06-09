@@ -10,19 +10,24 @@ import unittest
 import bfabric
 import os
 
-class BfabricTestCase(unittest.TestCase):
+class BfabricFunctionalTestCase(unittest.TestCase):
 
 
     externaljobid = 0
 
     def __init__(self, *args, **kwargs):
-        super(BfabricTestCase, self).__init__(*args, **kwargs)
+        super(BfabricFunctionalTestCase, self).__init__(*args, **kwargs)
 
 
     def test_wrappercreator_submitter(self):
         B = bfabric.Bfabric()
 
 
+        msg = "This test case requires user 'pfeeder'."
+        self.assertEqual(B.bflogin, 'pfeeder', msg)
+
+        msg = "This test case requires a bfabric test system!"
+        self.assertIn("bfabric-test", B.webbase, msg)
         # TODO
         # create application
         # create application executable
@@ -32,10 +37,12 @@ class BfabricTestCase(unittest.TestCase):
             obj={"name": "unit test", "status": "pending", 'containerid': 3000, 'applicationid': 255})
 
         workunitid = int(workunit[0]._id)
-        self.assertTrue(workunitid > 0)
+        msg = "workunitid should be a positig integer."
+        self.assertTrue(workunitid > 0, msg)
 
         externaljob = B.save_object("externaljob", obj={'workunitid': workunitid, 'action': 'pending'})
         externaljobid = int(externaljob[0]._id)
+        msg = "extrernaljobid should be a positig integer."
         self.assertTrue(externaljobid > 0)
 
         W = bfabric.BfabricWrapperCreator(externaljobid=externaljobid)
@@ -59,9 +66,14 @@ class BfabricTestCase(unittest.TestCase):
 
         res = B.delete_object('externaljob', externaljobid)
         print(res[0])
-        # self.assertIn("removed successfully", res[0].deletionreport)
+        msg = "should fail"
+        self.assertNotIn("removed successfully", res[0].deletionreport)
 
 
 if __name__ == '__main__':
-    unittest.main(verbosity=2)
+    suite = unittest.TestSuite()
+    suite.addTest(BfabricFunctionalTestCase('test_wrappercreator_submitter'))
+
+    runner = unittest.TextTestRunner(verbosity=1)
+    runner.run(suite )
 
