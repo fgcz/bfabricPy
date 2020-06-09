@@ -10,6 +10,7 @@ import unittest
 import bfabric
 import os
 import json
+import datetime
 
 class bfabricEncoder(json.JSONEncoder):
     def default(self, o):
@@ -84,7 +85,7 @@ class BfabricTestCase(unittest.TestCase):
         species = "n/a"
         for name in [1, 2, 3]:
             res = self.bfapp.save_object(endpoint='sample',
-                obj={'name': "unit test - #{}; {}".format(name, sample_type),
+                obj={'name': "unit test - #{}; {} {}".format(name, sample_type, datetime.datetime.now()),
                     'containerid': 3000,
                     'type' : sample_type,
                     'species' : species,
@@ -93,6 +94,7 @@ class BfabricTestCase(unittest.TestCase):
                     'description': '68b329da9893e34099c7d8ad5cb9c940'
                     })
 
+            print(res[0])
             self.endpoint['sample'].append(res[0])
 
 
@@ -147,7 +149,7 @@ class BfabricTestCase(unittest.TestCase):
         self.delete_endpoint_entries(endpoint='executable')
         self.delete_endpoint_entries(endpoint='sample')
         self.delete_endpoint_entries(endpoint='workunit')
-        self.delete_endpoint_entries(endpoint='application')
+        #self.delete_endpoint_entries(endpoint='application')
 
 
 if __name__ == '__main__':
