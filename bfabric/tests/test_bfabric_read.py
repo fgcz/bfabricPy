@@ -12,7 +12,7 @@ import bfabric
 import os
 import json
 
-class BfabricTestCase(unittest.TestCase):
+class BfabricTestCaseReadEndPoints(unittest.TestCase):
 
     with open('groundtruth.json') as json_file:
         groundtruth = json.load(json_file)
@@ -20,7 +20,7 @@ class BfabricTestCase(unittest.TestCase):
     bfapp = bfabric.Bfabric(verbose=False)
 
     def __init__(self, *args, **kwargs):
-        super(BfabricTestCase, self).__init__(*args, **kwargs)
+        super(BfabricTestCaseReadEndPoints, self).__init__(*args, **kwargs)
 
     # input: entity = endpoint = table = ...
     def read(self, endpoint):
@@ -37,8 +37,9 @@ class BfabricTestCase(unittest.TestCase):
                 except:
                     res = sorted(res, key = lambda x: x._id)
 
+                msg = "test for {} failed.".format(endpoint)
                 # cast all values to string
-                self.assertEqual("{}".format(gtvalue), "{}".format(getattr(res[0], gtattr)))
+                self.assertEqual("{}".format(gtvalue), "{}".format(getattr(res[0], gtattr)), msg)
 
     def test_user(self):
         self.read('user')
@@ -60,5 +61,11 @@ class BfabricTestCase(unittest.TestCase):
         self.read('annotation')
 
 if __name__ == '__main__':
-    unittest.main(verbosity=2)
+    # unittest.main(verbosity=2)
+    suite = unittest.TestSuite()
+    for entity in ['user', 'container', 'project', 'application', 'sample', 'workunit', 'resource', 'executable', 'annotation']:
+        suite.addTest(BfabricTestCaseReadEndPoints('test_{}'.format(entity)))
+
+    runner = unittest.TextTestRunner(verbosity=3)
+    runner.run(suite )
 
