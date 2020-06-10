@@ -849,10 +849,20 @@ exit 0
                                                     _output_storage.basepath,
                                                     _output_relative_path,
                                                     _output_filename)
+
+        try:
+            query_obj = {'id': workunit.inputdataset._id}
+            inputdataset = self.read_object(endpoint='dataset', obj=query_obj)[0]
+            inputdataset_json = json.dumps(inputdataset, cls=bfabricEncoder, sort_keys=True, indent=2)
+            inputdataset = json.loads(inputdataset_json)
+        except:
+            inputdataset = None
+
         # compose configuration structure
         config = {
             'job_configuration': {
                 'executable': "{}".format(workunit_executable.program),
+                'inputdataset': inputdataset,
                 'input': resource_ids,
                 'output': {
                     'protocol': 'scp',
