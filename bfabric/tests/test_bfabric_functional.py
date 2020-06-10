@@ -29,12 +29,23 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         msg = "This test case requires a bfabric test system!"
         self.assertIn("bfabric-test", B.webbase, msg)
         # TODO
-        # create application
-        # create application executable
         # create input resource
 
+        executable = B.save_object("executable", obj={"name": "exec_func_test", "context": "APPLICATION"})
+
+        executableid = int(executable[0]._id)
+        msg = "executableid should be a positig integer."
+        self.assertTrue(executableid > 0, msg)
+
+        application = B.save_object("application", obj={"name": "appl_func_test", 'type': 'Analysis', 'technologyid': 2, 'description': "Application functional test", 'executableid': executableid})
+
+        applicationid = int(application[0]._id)
+        msg = "applicationid should be a positig integer."
+        self.assertTrue(applicationid > 0, msg)
+
+
         workunit = B.save_object("workunit",
-            obj={"name": "unit test", "status": "pending", 'containerid': 3000, 'applicationid': 255})
+            obj={"name": "unit test", "status": "pending", 'containerid': 3000, 'applicationid': applicationid})
 
         workunitid = int(workunit[0]._id)
         msg = "workunitid should be a positig integer."
@@ -60,6 +71,14 @@ class BfabricFunctionalTestCase(unittest.TestCase):
 
         # Cleanup
         # externaljobid, workunitid, ...
+        res = B.delete_object('executable', executableid)
+        print(res[0])
+        self.assertIn("removed successfully", res[0].deletionreport)
+
+        res = B.delete_object('application', applicationid)
+        print(res[0])
+        self.assertIn("removed successfully", res[0].deletionreport)
+
         res = B.delete_object('workunit', workunitid)
         print(res[0])
         self.assertIn("removed successfully", res[0].deletionreport)
