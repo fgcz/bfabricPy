@@ -45,7 +45,7 @@ def usage():
     print(msg)
 
 if __name__ == "__main__":
-    bfapp = bfabric.Bfabric(verbose=False)
+    B = bfabric.Bfabric(verbose=False)
 
     sys.stderr.write(bfabric.msg)
 
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     if endpoint in bfabric.endpoints:
         print_color_msg("query = {}".format(query_obj))
         start_time = time.time()
-        res = bfapp.read_object(endpoint=endpoint, obj=query_obj)
+        res = B.read_object(endpoint=endpoint, obj=query_obj)
         end_time = time.time()
 
         if res is None:
@@ -80,7 +80,7 @@ if __name__ == "__main__":
         try:
             # print json object
             if len(res) < 2:
-                bfapp.print_json(res[0])
+                B.print_json(res[0])
         except Exception as e:
             print_color_msg("invalid query. {}.".format(e), color=95)
             sys.exit(1)

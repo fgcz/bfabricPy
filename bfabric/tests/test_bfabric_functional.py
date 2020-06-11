@@ -45,7 +45,7 @@ class BfabricFunctionalTestCase(unittest.TestCase):
 
 
         workunit = B.save_object("workunit",
-            obj={"name": "unit test", "status": "pending", 'containerid': 3000, 'applicationid': applicationid})
+            obj={"name": "unit test", "status": "pending", 'containerid': 3061, 'applicationid': applicationaid, 'inputdatasetid': 32428})
 
         workunitid = int(workunit[0]._id)
         msg = "workunitid should be a positig integer."
