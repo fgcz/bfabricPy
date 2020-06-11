@@ -38,6 +38,8 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         self.assertTrue(executableid > 0, msg)
 
         application = B.save_object("application", obj={"name": "appl_func_test", 'type': 'Analysis', 'technologyid': 2, 'description': "Application functional test", 'executableid': executableid})
+        # just a template
+        #  B.save_object("application", obj={"name": "appl_func_test", 'type': 'Analysis', 'technologyid': 2, 'description': "Application functional test", 'executableid': 20714, "wrappercreatorid":8, "submitterid":5 })
 
         applicationid = int(application[0]._id)
         msg = "applicationid should be a positig integer."
