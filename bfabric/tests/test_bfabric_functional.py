@@ -33,16 +33,15 @@ class BfabricFunctionalTestCase(unittest.TestCase):
 
 
         # 0. THIS IS ALL DONE PRIOR TO THE APPLICATION LAUNCH USING WEB BROWSER
-        executable = B.save_object("executable", obj={"name": "exec_func_test", "context": "APPLICATION"})
+        executable = B.save_object("executable", obj={"name": "exec_func_test", "context": "APPLICATION", "id": 20714, "program": "/usr/bin/wc"})
 
         executableid = int(executable[0]._id)
         msg = "executableid should be a positig integer."
         self.assertTrue(executableid > 0, msg)
 
-        application = B.save_object("application", obj={"name": "appl_func_test", 'type': 'Analysis', 'technologyid': 2, 'description': "Application functional test", 'executableid': executableid})
-        # just a template
-        #  B.save_object("application", obj={"name": "appl_func_test", 'type': 'Analysis', 'technologyid': 2, 'description': "Application functional test", 'executableid': 20714, "wrappercreatorid":8, "submitterid":5 , 'storageid': 1})
-        ## a=  B.save_object("application", obj={"name": "appl_func_test", 'type': 'Analysis', 'technologyid': 2, 'description': "Application functional test", 'executableid': 20714, "wrappercreatorid":8, "submitterid":5 , 'storageid': 1, 'id': 299})
+        # The wrappercreatorid and submitterid is set while creating the application as required by B-Fabric, however this setting is not 
+        # used in this functional test: BfabricWrapperCreator and BfabricSubmitter are calling directily below 
+        application =  B.save_object("application", obj={"name": "appl_func_test", 'type': 'Analysis', 'technologyid': 2, 'description': "Application functional test", 'executableid': 20714, "wrappercreatorid": 8, "submitterid": 5, 'storageid': 1, 'id': 299})
 
         applicationid = int(application[0]._id)
         msg = "applicationid should be a positig integer."
@@ -57,7 +56,7 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         msg = "workunitid should be a positig integer."
         self.assertTrue(workunitid > 0, msg)
 
-        externaljob = B.save_object("externaljob", obj={'workunitid': workunitid, 'action': 'pending'})
+        externaljob = B.save_object("externaljob", obj={'workunitid': workunitid, 'action': 'pending', 'executableid': executableid})
         externaljobid = int(externaljob[0]._id)
         msg = "extrernaljobid should be a positig integer."
         self.assertTrue(externaljobid > 0)
