@@ -780,6 +780,7 @@ exit 0
         submitter_externaljob = self.save_object('externaljob',
                                                     {"workunitid": workunit._id, 
                                                     'status': 'new', 
+                                                    'executableid' : workunit.applicationexecutable._id,
                                                     'action': "WORKUNIT"})[0]
 
         assert isinstance(submitter_externaljob._id, long)
