@@ -838,9 +838,23 @@ exit 0
             'relativepath': "/workunitid-{0}_resourceid-{1}.out".format(workunit._id, _ressource_output._id)})[0]
 
 
+        # The config includes the externaljobid: the submitter_externaljob has to be created before it. 
+        # The submitter_externaljob cannot be created without specifying an executableid: a yaml_workunit_executable is thus created 
+        # before the config definition in order to provide the correct executableid to the submitter_externaljob.
+        # However this yaml_workunit_executable has to be updated later to include 'base64': base64.b64encode(config_serialized.encode()).decode()  
+        yaml_workunit_executable = self.save_object('executable', {'name': 'yaml',
+                                                        'context': 'WORKUNIT',
+                                                        'parameter': None,
+                                                        'description': "This is a yaml job configuration file base64 encoded."
+                                                                       "It should be executed by the B-Fabric yaml"
+                                                                       "submitter.",
+                                                        'workunitid': workunit._id,
+                                                        'version': "{}".format(10)})[0]
+
         submitter_externaljob = self.save_object('externaljob',
                                                     {"workunitid": workunit._id, 
-                                                    'status': 'new', 
+                                                    'status': 'new',
+                                                    'executableid' : yaml_workunit_executable._id, 
                                                     'action': "WORKUNIT"})[0]
 
         assert isinstance(submitter_externaljob._id, int)
@@ -896,21 +910,11 @@ exit 0
         print(config_serialized)
 
 
-        workunit_executable = self.save_object('executable', {'name': 'yaml',
-                                                        'context': 'WORKUNIT',
-                                                        'parameter': None,
-                                                        'description': "This is a yaml job configuration file base64 encoded."
-                                                                       "It should be executed by the B-Fabric yaml"
-                                                                       "submitter.",
-                                                        'workunitid': workunit._id,
-                                                        'base64': base64.b64encode(config_serialized.encode()).decode(),
-                                                        'version': "{}".format(10)})[0]
+        yaml_workunit_executable = self.save_object('executable', {'id': yaml_workunit_executable._id,
+                                                        'base64': base64.b64encode(config_serialized.encode()).decode()})[0]
 
 
-        print(workunit_executable)
-        submitter_externaljob = self.save_object('externaljob',
-                                              {"id": submitter_externaljob._id,
-                                               'executableid': workunit_executable._id})
+        print(yaml_workunit_executable)
 
         wrapper_creator_externaljob = self.save_object(endpoint='externaljob',
                                                        obj={'id': self.externaljobid, 'status': 'done'})
