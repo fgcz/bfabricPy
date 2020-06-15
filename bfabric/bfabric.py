@@ -119,9 +119,6 @@ class Bfabric(object):
                     else:
                         self.warning("while reading {0}. '{1}' is already set."
                             .format(self.bfabricfilename, A[0]))
-        except:
-            print ("reading configfile {} failed".format(self.bfabricfilename))
-            raise
 
     def __init__(self, login=None, password=None, webbase=None, externaljobid=None, bfabricrc=None, verbose=False):
 
@@ -189,7 +186,7 @@ class Bfabric(object):
             password = self.bfpassword
 
         self.query_counter = self.query_counter + 1
-        QUERY = dict(login=login, page='', password=password, query=obj)
+        QUERY = dict(login=login, page=1, password=password, query=obj)
 
         try:
             if not endpoint in self.cl:
