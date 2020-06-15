@@ -108,19 +108,19 @@ class Bfabric(object):
             self.warning("could not find '.bfabricrc.py' file in home directory.")
             return
 
-        try:
-            with open(self.bfabricfilename) as myfile:
-                for line in myfile:
-                    if not re.match("^#", line):
-                        A = line.strip().replace("\"", "").replace("'", "").partition('=')
-                        if not A[0] in ['_PASSWD', '_LOGIN', '_WEBBASE']:
-                            continue
-                        if not A[0] in self.bfabricrc:
-                            self.bfabricrc[A[0]] = A[2]
-                        else:
-                            self.warning("while reading {0}. '{1}' is already set."
-                                .format(self.bfabricfilename, A[0]))
+        with open(self.bfabricfilename) as configfile:
+            for line in configfile:
+                if not re.match("^#", line):
+                    A = line.strip().replace("\"", "").replace("'", "").partition('=')
+                    if not A[0] in ['_PASSWD', '_LOGIN', '_WEBBASE']:
+                        continue
+                    if not A[0] in self.bfabricrc:
+                        self.bfabricrc[A[0]] = A[2]
+                    else:
+                        self.warning("while reading {0}. '{1}' is already set."
+                            .format(self.bfabricfilename, A[0]))
         except:
+            print ("reading configfile {} failed".format(self.bfabricfilename))
             raise
 
     def __init__(self, login=None, password=None, webbase=None, externaljobid=None, bfabricrc=None, verbose=False):
