@@ -108,20 +108,17 @@ class Bfabric(object):
             self.warning("could not find '.bfabricrc.py' file in home directory.")
             return
 
-        try:
-            with open(self.bfabricfilename) as myfile:
-                for line in myfile:
-                    if not re.match("^#", line):
-                        A = line.strip().replace("\"", "").replace("'", "").partition('=')
-                        if not A[0] in ['_PASSWD', '_LOGIN', '_WEBBASE']:
-                            continue
-                        if not A[0] in self.bfabricrc:
-                            self.bfabricrc[A[0]] = A[2]
-                        else:
-                            self.warning("while reading {0}. '{1}' is already set."
-                                .format(self.bfabricfilename, A[0]))
-        except:
-            raise
+        with open(self.bfabricfilename) as configfile:
+            for line in configfile:
+                if not re.match("^#", line):
+                    A = line.strip().replace("\"", "").replace("'", "").partition('=')
+                    if not A[0] in ['_PASSWD', '_LOGIN', '_WEBBASE']:
+                        continue
+                    if not A[0] in self.bfabricrc:
+                        self.bfabricrc[A[0]] = A[2]
+                    else:
+                        self.warning("while reading {0}. '{1}' is already set."
+                            .format(self.bfabricfilename, A[0]))
 
     def __init__(self, login=None, password=None, webbase=None, externaljobid=None, bfabricrc=None, verbose=False):
 
@@ -189,7 +186,7 @@ class Bfabric(object):
             password = self.bfpassword
 
         self.query_counter = self.query_counter + 1
-        QUERY = dict(login=login, page='', password=password, query=obj)
+        QUERY = dict(login=login, page=1, password=password, query=obj)
 
         try:
             if not endpoint in self.cl:
@@ -253,7 +250,8 @@ class Bfabric(object):
         except:
             raise
 
-    def print_json(self, queryres=None):
+    @staticmethod
+    def print_json(queryres=None):
         """
         This method prints the query result as returned by ``read_object`` in JSON format.
 
@@ -266,6 +264,23 @@ class Bfabric(object):
             raise TypeError("print_json() missing 1 required positional argument: please provide the output from read_object as parameter to print_json")
 
         res = json.dumps(queryres, cls=bfabricEncoder, sort_keys=True, indent=2)
+        print(res)
+
+    @staticmethod
+    def print_yaml(queryres=None):
+        """
+        This method prints the query result as returned by ``read_object`` in YAML format.
+
+        Parameter
+        ---------
+
+        queryres : the object returned by ``read_object`` method.  
+        """
+        if queryres is None:
+            raise TypeError("print_yaml() missing 1 required positional argument: please provide the output from read_object as parameter to print_yaml")
+
+        res_json = json.dumps(queryres, cls=bfabricEncoder, sort_keys=True)  
+        res = yaml.dump(res_json, default_flow_style=False, encoding=None, default_style=None)
         print(res)
 
     def set_bfabric_credentials(self, login, password):
@@ -633,6 +648,11 @@ class BfabricWrapperCreator(BfabricExternalJob):
     (non batch) so each resource is processed seperate
     """
 
+    (externaljobid_submitter, workunit_executableid) = (None, None)
+
+    def get_externaljobid_submitter(self):
+        return self.externaljobid_submitter
+
     def uploadGridEngineScript(self, para={'INPUTHOST': 'fgcz-ms.uzh.ch'}):
         """
         the methode creates and uploads an executebale.  
@@ -687,6 +707,9 @@ exit 0
 
         return (resExecutable)
 
+    def get_executableid(self):
+        return (self.workunit_executableid)
+
     def write_yaml(self,  data_serializer=lambda x: yaml.dump(x, default_flow_style=False, encoding=None)):
         """
         This method writes all related parameters into a yaml file which is than upload as base64 encoded
@@ -712,6 +735,10 @@ exit 0
         # collects all required information out of B-Fabric to create an executable script
         application = self.read_object('application', obj={'id': workunit.application._id})[0]
         workunit_executable = self.read_object('executable', obj={'id': workunit.applicationexecutable._id})[0]
+        try:
+            self.workunit_executableid = workunit_executable._id
+        except:
+            self.workunit_executableid = None
 
         # TODO(cp): change to container
         project = workunit.container
@@ -778,12 +805,10 @@ exit 0
 
                 sample_id = self.get_sampleid(int(resource_iterator._id))
 
-                # TODO(cp): change resouceID
                 _resource_sample = {'resource_id': int(resource_iterator._id),
                                         'resource_url': "{0}/userlab/show-resource.html?resourceId={1}".format(self.webbase,resource_iterator._id)}
 
 
-                # TODO(cp): change sampleID
                 if not sample_id is None:
                     _resource_sample['sample_id'] = int(sample_id)
                     _resource_sample['sample_url'] = "{0}/userlab/show-sample.html?sampleId={1}".format(self.webbase, sample_id)
@@ -798,20 +823,20 @@ exit 0
         _ressource_output = self.save_object('resource', {
             'name': "{0} {1} - resource".format(application.name, len(input_resources)),
             'workunitid': workunit._id,
-            'storageid': application.storage._id,
+            'storageid': int(application.storage._id),
             'relativepath': _output_relative_path})[0]
 
 
         _output_filename = "{0}.{1}".format(_ressource_output._id, application.outputfileformat)
         # we want to include the resource._id into the filename
         _ressource_output = self.save_object('resource',
-                                    {'id': _ressource_output._id,
+                                    {'id': int(_ressource_output._id),
                                      'relativepath': "{0}/{1}".format(_output_relative_path, _output_filename)})[0]
 
         print (_ressource_output)
         _resource_stderr = self.save_object('resource', {
             'name': 'grid_engine_stderr',
-            'workunitid': workunit._id,
+            'workunitid': int(workunit._id),
             'storageid': _log_storage._id,
             'relativepath': "/workunitid-{0}_resourceid-{1}.err".format(workunit._id, _ressource_output._id)})[0]
 
@@ -821,22 +846,42 @@ exit 0
             'storageid': _log_storage._id,
             'relativepath': "/workunitid-{0}_resourceid-{1}.out".format(workunit._id, _ressource_output._id)})[0]
 
+        # template will be filled changed later
+        submitter_executable = self.save_object('executable', {'name': 'yaml',
+                                                        'workunitid': workunit._id,
+                                                        'context': 'WORKUNIT'})[0]
 
+
+        print(submitter_executable)
         submitter_externaljob = self.save_object('externaljob',
                                                     {"workunitid": workunit._id, 
+                                                    'executableid': submitter_executable._id,
                                                     'status': 'new', 
                                                     'action': "WORKUNIT"})[0]
 
+        print(submitter_externaljob)
         assert isinstance(submitter_externaljob._id, int)
+        self.externaljobid_submitter = int(submitter_externaljob._id)
+        print ("XXXXXXX self.externaljobid_submitter ={} XXXXXXX".format(self.externaljobid_submitter))
 
         _output_url = "bfabric@{0}:{1}{2}/{3}".format(_output_storage.host,
                                                     _output_storage.basepath,
                                                     _output_relative_path,
                                                     _output_filename)
+
+        try:
+            query_obj = {'id': workunit.inputdataset._id}
+            inputdataset = self.read_object(endpoint='dataset', obj=query_obj)[0]
+            inputdataset_json = json.dumps(inputdataset, cls=bfabricEncoder, sort_keys=True, indent=2)
+            inputdataset = json.loads(inputdataset_json)
+        except:
+            inputdataset = None
+
         # compose configuration structure
         config = {
             'job_configuration': {
                 'executable': "{}".format(workunit_executable.program),
+                'inputdataset': inputdataset,
                 'input': resource_ids,
                 'output': {
                     'protocol': 'scp',
@@ -855,7 +900,7 @@ exit 0
                     },
                 'workunit_id': int(workunit._id),
                 'workunit_url': "{0}/userlab/show-workunit.html?workunitId={1}".format(self.webbase, workunit._id),
-                'external_job_id': submitter_externaljob._id
+                'external_job_id': int(submitter_externaljob._id)
             },
             'application' : {
                 'protocol': 'scp',
@@ -870,21 +915,20 @@ exit 0
         print(config_serialized)
 
 
-        workunit_executable = self.save_object('executable', {'name': 'yaml',
+        submitter_executable = self.save_object('executable', {'id': submitter_executable._id,
                                                         'context': 'WORKUNIT',
                                                         'parameter': None,
                                                         'description': "This is a yaml job configuration file base64 encoded."
                                                                        "It should be executed by the B-Fabric yaml"
                                                                        "submitter.",
-                                                        'workunitid': workunit._id,
                                                         'base64': base64.b64encode(config_serialized.encode()).decode(),
                                                         'version': "{}".format(10)})[0]
 
 
-        print(workunit_executable)
-        submitter_externaljob = self.save_object('externaljob',
-                                              {"id": submitter_externaljob._id,
-                                               'executableid': workunit_executable._id})
+        print(submitter_executable)
+        #submitter_externaljob = self.save_object('externaljob',
+        #                                      {"id": submitter_externaljob._id,
+        #                                       'executableid': workunit_executable._id})
 
         wrapper_creator_externaljob = self.save_object(endpoint='externaljob',
                                                        obj={'id': self.externaljobid, 'status': 'done'})
@@ -893,6 +937,7 @@ exit 0
 
 
 
+
 if __name__ == "__main__":
     bfapp = Bfabric(verbose=True)
-
+:
