@@ -30,6 +30,7 @@ class BfabricFunctionalTestCase(unittest.TestCase):
 
 
     def test_wrappercreator_submitter(self):
+        logging.info("XXX start functional testing")
         B = bfabric.Bfabric()
         wrapper_creator_executableid = 16374
 
@@ -75,7 +76,11 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         logging.info("Creating new workunit")
         try:
             workunit = B.save_object("workunit",
-                obj={"name": "unit test", "status": "PENDING", 'containerid': 3061, 'applicationid': applicationid, 'inputdatasetid': 32428})
+                obj={"name": "bfabricPy unit test",
+                    "status": "PENDING", 'containerid': 3061,
+                    'applicationid': applicationid,
+                    'description': "https://github.com/fgcz/bfabricPy/blob/iss27/bfabric/tests/test_bfabric_functional.py",
+                    'inputdatasetid': 32428})
             print(workunit[0])
             workunitid = int(workunit[0]._id)
             logging.info("workunit = {}".format(workunitid))
@@ -150,6 +155,17 @@ class BfabricFunctionalTestCase(unittest.TestCase):
             logging.error("Error while setting submitter externaljob status to DONE")
 
 
+        # delete resource of workunit 
+        res = B.read_object('workunit', {'id',  workunit[0]._id})[0]
+        for i in res.resource:
+            print (i._id)
+            resdel = B.delete_object('resource', i._id)
+            print(resdel[0])
+            self.assertIn("removed successfully", resdel[0].deletionreport)
+            logging.info("deleted resource id={}.".format(i._id))
+
+        res =B.upload_file("test_functional.log", workunit[0]._id)
+        print(res[0])
         # Cleanup for the python test whatever is possible can be removed
         # externaljobid, workunitid, ...
         res = B.delete_object('executable', executableid)

@@ -250,6 +250,20 @@ class Bfabric(object):
         except:
             raise
 
+    def upload_file(self, filename, workunitid):
+        with open(filename, 'r') as f:
+            content = f.read()
+        
+        resource_base64 = base64.b64encode(content.encode())
+
+        res = self.save_object('resource', {'base64': resource_base64,
+            'name': os.path.basename(filename),
+            'description': "base64 encoded file",
+            'workunitid': workunitid})
+
+        return res
+        
+
     @staticmethod
     def print_json(queryres=None):
         """
