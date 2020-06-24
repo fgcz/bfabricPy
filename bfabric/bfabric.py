@@ -734,6 +734,7 @@ exit 0
 
         # collects all required information out of B-Fabric to create an executable script
         application = self.read_object('application', obj={'id': workunit.application._id})[0]
+        # TODO(cp): rename to application_execuatbel
         workunit_executable = self.read_object('executable', obj={'id': workunit.applicationexecutable._id})[0]
         try:
             self.workunit_executableid = workunit_executable._id
@@ -743,7 +744,6 @@ exit 0
         # TODO(cp): change to container
         project = workunit.container
         today = datetime.date.today()
-
 
         # merge all information into the executable script
         _output_storage = self.read_object('storage', obj={'id': application.storage._id})[0]
@@ -770,9 +770,6 @@ exit 0
                             application_parameter["{}".format(p.key)] = "{}".format(p.value)
                         except:
                             application_parameter["{}".format(p.key)] = ""
-
-
-
 
         try:
             input_resources = map(lambda x: x._id, workunit.inputresource)
@@ -846,18 +843,23 @@ exit 0
             'storageid': _log_storage._id,
             'relativepath': "/workunitid-{0}_resourceid-{1}.out".format(workunit._id, _ressource_output._id)})[0]
 
-        # template will be filled changed later
-        submitter_executable = self.save_object('executable', {'name': 'yaml',
-                                                        'workunitid': workunit._id,
-                                                        'context': 'WORKUNIT'})[0]
 
+        workunit_executable2 = self.save_object('executable', { 'name': 'job configuration (executable) in YAML',
+            'context': 'WORKUNIT',
+            "workunitid": workunit._id,
+            'description': "This is a job configuration as YAML base64 encoded. It is configured to be executed by the B-Fabric yaml submitter."})[0]
+        print(workunit_executable2)
 
-        print(submitter_executable)
+        workunit_executable2id = workunit_executable2._id
+        # taken from the bfabric system
+        #submitter_executableid = 16375
+        #'executableid': submitter_executableid,
         submitter_externaljob = self.save_object('externaljob',
                                                     {"workunitid": workunit._id, 
-                                                    'executableid': submitter_executable._id,
-                                                    'status': 'new', 
+                                                    'status': 'new',
+                                                    'executableid':  workunit_executable2id,
                                                     'action': "WORKUNIT"})[0]
+
 
         print(submitter_externaljob)
         assert isinstance(submitter_externaljob._id, int)
@@ -914,21 +916,13 @@ exit 0
         print ("DEBUG xxxx")
         print(config_serialized)
 
+        # job to be submitted by the submitter
+        # 'parameter': None,
+        workunit_executable2 = self.save_object('executable', { 'id': workunit_executable2id,
+            'base64': base64.b64encode(config_serialized.encode()).decode(),
+            'version': "{}".format(10)})[0]
 
-        submitter_executable = self.save_object('executable', {'id': submitter_executable._id,
-                                                        'context': 'WORKUNIT',
-                                                        'parameter': None,
-                                                        'description': "This is a yaml job configuration file base64 encoded."
-                                                                       "It should be executed by the B-Fabric yaml"
-                                                                       "submitter.",
-                                                        'base64': base64.b64encode(config_serialized.encode()).decode(),
-                                                        'version': "{}".format(10)})[0]
-
-
-        print(submitter_executable)
-        #submitter_externaljob = self.save_object('externaljob',
-        #                                      {"id": submitter_externaljob._id,
-        #                                       'executableid': workunit_executable._id})
+        print(workunit_executable2)
 
         wrapper_creator_externaljob = self.save_object(endpoint='externaljob',
                                                        obj={'id': self.externaljobid, 'status': 'done'})
@@ -940,4 +934,3 @@ exit 0
 
 if __name__ == "__main__":
     bfapp = Bfabric(verbose=True)
-:

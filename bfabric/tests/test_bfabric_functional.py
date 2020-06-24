@@ -11,6 +11,7 @@ import bfabric
 import os
 import sys
 import logging
+import time
 
 
 logging.basicConfig(filename="test_functional.log",
@@ -30,6 +31,7 @@ class BfabricFunctionalTestCase(unittest.TestCase):
 
     def test_wrappercreator_submitter(self):
         B = bfabric.Bfabric()
+        wrapper_creator_executableid = 16374
 
         logging.info("Running functional test on bfabricPy")
 
@@ -73,21 +75,25 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         logging.info("Creating new workunit")
         try:
             workunit = B.save_object("workunit",
-                obj={"name": "unit test", "status": "pending", 'containerid': 3061, 'applicationid': applicationid, 'inputdatasetid': 32428})
+                obj={"name": "unit test", "status": "PENDING", 'containerid': 3061, 'applicationid': applicationid, 'inputdatasetid': 32428})
+            print(workunit[0])
             workunitid = int(workunit[0]._id)
+            logging.info("workunit = {}".format(workunitid))
         except:
             logging.error('Error while creating workunit')
+            raise
 
-        logging.info("workunit = {}".format(workunitid))
         msg = "workunitid should be a positig integer."
         self.assertTrue(workunitid > 0, msg)
 
         logging.info("Creating new externaljob for wrapper creator")
         try:
-            externaljob_wc = B.save_object("externaljob", obj={'workunitid': workunitid, 'action': 'pending', 'executableid': executableid})
+            externaljob_wc = B.save_object("externaljob", obj={'workunitid': workunitid, 'action': 'pending', 'executableid':  wrapper_creator_executableid})
+            print(externaljob_wc[0])
             externaljobid_wc = int(externaljob_wc[0]._id)
         except:
             logging.error("Error while creating externaljob")
+            raise
 
         logging.info("externaljob = {}".format(externaljobid_wc))
         msg = "extrernaljobid should be a positig integer."
@@ -156,11 +162,11 @@ class BfabricFunctionalTestCase(unittest.TestCase):
 
         res = B.save_object('workunit', {'id': workunitid, 'status': 'available'})
         print (res[0])
-        res = B.delete_object('workunit', workunitid)
-        print(res[0])
-        self.assertNotIn("removed successfully", res[0].deletionreport)
+        #res = B.delete_object('workunit', workunitid)
+        #print(res[0])
+        #self.assertNotIn("removed successfully", res[0].deletionreport)
 
-        res = B.delete_object('externaljob', externaljobid)
+        res = B.delete_object('externaljob', externaljobid_submitter)
         print(res[0])
         msg = "should fail"
         self.assertNotIn("removed successfully", res[0].deletionreport)
