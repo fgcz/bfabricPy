@@ -131,22 +131,6 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         except:
             logging.error("Error while running Submitter")
 
-        # 2.
-        ###### 
-
-        # TODO(cp): lets have a simple word count on the dataset or input resources for demonstration
-        # HERE ALL THE MAGIC IS PROCESSED 
-
-
-        # 2.1. stage input data
-        # 2.2. run the job 
-        # 2.3. stage the output data to the storage defined in the application (YAML file contains already that information)
-
-        ######
-
-
-        # 3. THIS LINE IST CALLED WHEN THE APPLICATION IS DONE
-        ## TODO(cp): ask Can or Marco if this is correct
         logging.info("Checking if submitter's externaljob with id={} was set to 'done'".format(externaljobid_submitter))
         try:
             res = B.read_object('externaljob', {'id': externaljobid_submitter, 'status': 'DONE'})
@@ -154,20 +138,42 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         except:
             logging.error("Error while setting submitter externaljob status to DONE")
 
+        # 2.
+        ###### 
 
-        # delete resource of workunit 
+        # TODO(cp): lets have a simple word count on the dataset or input resources for demonstration
+        # HERE ALL THE MAGIC IS PROCESSED 
+        
+        logging.info("start processing job.")
+        for i in S.get_job_script():
+            print (i)
+            logging.info("processing file '{}' ...".format(i))
+            time.sleep(1)
+        logging.info("end processing job.")
+
+        # 2.1. stage input data
+        # 2.2. run the job 
+        # 2.3. stage the output data to the storage defined in the application (YAML file contains already that information)
+
+        # delete resource of workunit and add log file
         res = B.read_object('workunit', {'id',  workunit[0]._id})[0]
         for i in res.resource:
-            print (i._id)
             resdel = B.delete_object('resource', i._id)
-            print(resdel[0])
             self.assertIn("removed successfully", resdel[0].deletionreport)
             logging.info("deleted resource id={}.".format(i._id))
 
-        res =B.upload_file("test_functional.log", workunit[0]._id)
-        print(res[0])
+        logging.info("adding this logfile as resource to workuinit id={}.".format(workunit[0]._id))
+        res = B.upload_file("test_functional.log", workunit[0]._id)
+        self.assertTrue(res[0]._id > 0, msg)
+
+        ######
+
+        # 3. THIS LINE IST CALLED WHEN THE APPLICATION IS DONE
+        ## TODO(cp): ask Can or Marco if this is correct
+
+
+
         # Cleanup for the python test whatever is possible can be removed
-        # externaljobid, workunitid, ...
         res = B.delete_object('executable', executableid)
         print(res[0])
         self.assertNotIn("removed successfully", res[0].deletionreport)
@@ -178,9 +184,6 @@ class BfabricFunctionalTestCase(unittest.TestCase):
 
         res = B.save_object('workunit', {'id': workunitid, 'status': 'available'})
         print (res[0])
-        #res = B.delete_object('workunit', workunitid)
-        #print(res[0])
-        #self.assertNotIn("removed successfully", res[0].deletionreport)
 
         res = B.delete_object('externaljob', externaljobid_submitter)
         print(res[0])

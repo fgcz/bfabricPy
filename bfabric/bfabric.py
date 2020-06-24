@@ -449,6 +449,7 @@ class BfabricSubmitter():
     workunitid = None
     workunit = None
     parameters = None
+    execfilelist = []
 
     def __init__(self, login=None, password=None, externaljobid=None,
                  user='*', queue="PRX@fgcz-r-028", GRIDENGINEROOT='/opt/sge'):
@@ -651,9 +652,13 @@ exit 0
                 f.write(_cmd_template)
 
             self.submit(_bash_script_filename)
+            self.execfilelist.append(_bash_script_filename)
+
 
         res = self.B.save_object(endpoint='externaljob',
                                 obj={'id': self.B.externaljobid, 'status': 'done'})
+    def get_job_script(self):
+        return self.execfilelist
 
 
 class BfabricWrapperCreator(BfabricExternalJob):
