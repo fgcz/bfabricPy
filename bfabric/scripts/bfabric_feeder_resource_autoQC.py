@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """
 feeds autoQC runs into bfabric
@@ -82,11 +82,11 @@ class autoQC():
 
     @property
     def getId(self, obj):
-        print "=============="
-        print obj
+        print ("==============")
+        print (obj)
 
         try:
-            print "DEBGUG obj: {}".format(obj[0]._id)
+            print ("DEBGUG obj: {}".format(obj[0]._id))
             return int(obj[0]._id)
         except:
             raise

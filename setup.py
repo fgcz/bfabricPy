@@ -47,7 +47,9 @@ B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper
         'bfabric/scripts/bfabric_delete.py',
         'bfabric/scripts/bfabric_read.py',
         'bfabric/scripts/bfabric_flask.py',
-        'bfabric/scripts/bfabric_save_resource.py'
+        'bfabric/scripts/bfabric_save_importresource_sample.py',
+        'bfabric/scripts/bfabric_save_resource.py',
+        'bfabric/scripts/bfabric_feeder_resource_autoQC.py'
         #'bfabric/scripts/bfabric_list_executables.py',
         #'bfabric/scripts/bfabric_list_proteomics_projects.py',
         #'bfabric/scripts/bfabric_upload_wrapper_creator_executable.py',
@@ -62,8 +64,6 @@ B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper
         #'bfabric/scripts/bfabric_setWorkunitStatus_available.py',
         #'bfabric/scripts/bfabric_wrapper_creator_yaml.py',
         #'bfabric/scripts/bfabric_submitter_yaml.py',
-        #'bfabric/scripts/bfabric_save_importresource_sample.py'
-        #'bfabric/scripts/bfabric_feeder_resource_autoQC'
         #'bfabric/scripts/fgcz_maxquant_wrapper.py'
         ],
       zip_safe=True)
