@@ -76,12 +76,11 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         logging.info("Creating new workunit")
         try:
             workunit = B.save_object("workunit",
-                obj={"name": "bfabricPy unit test",
+                obj={"name": "unit test run - bfabricPy",
                     "status": "PENDING", 'containerid': 3061,
                     'applicationid': applicationid,
                     'description': "https://github.com/fgcz/bfabricPy/blob/iss27/bfabric/tests/test_bfabric_functional.py",
                     'inputdatasetid': 32428})
-            print(workunit[0])
             workunitid = int(workunit[0]._id)
             logging.info("workunit = {}".format(workunitid))
         except:
@@ -94,7 +93,6 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         logging.info("Creating new externaljob for wrapper creator")
         try:
             externaljob_wc = B.save_object("externaljob", obj={'workunitid': workunitid, 'action': 'pending', 'executableid':  wrapper_creator_executableid})
-            print(externaljob_wc[0])
             externaljobid_wc = int(externaljob_wc[0]._id)
         except:
             logging.error("Error while creating externaljob")
@@ -146,7 +144,6 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         
         logging.info("start processing job.")
         for i in S.get_job_script():
-            print (i)
             logging.info("processing file '{}' ...".format(i))
             time.sleep(1)
         logging.info("end processing job.")
@@ -155,7 +152,7 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         # 2.2. run the job 
         # 2.3. stage the output data to the storage defined in the application (YAML file contains already that information)
 
-        # delete resource of workunit and add log file
+        logging.info("deleting superfluous resources of test run workunit.")
         res = B.read_object('workunit', {'id',  workunit[0]._id})[0]
         for i in res.resource:
             resdel = B.delete_object('resource', i._id)
@@ -175,18 +172,14 @@ class BfabricFunctionalTestCase(unittest.TestCase):
 
         # Cleanup for the python test whatever is possible can be removed
         res = B.delete_object('executable', executableid)
-        print(res[0])
         self.assertNotIn("removed successfully", res[0].deletionreport)
 
         res = B.delete_object('application', applicationid)
-        print(res[0])
         self.assertNotIn("removed successfully", res[0].deletionreport)
 
         res = B.save_object('workunit', {'id': workunitid, 'status': 'available'})
-        print (res[0])
 
         res = B.delete_object('externaljob', externaljobid_submitter)
-        print(res[0])
         msg = "should fail"
         self.assertNotIn("removed successfully", res[0].deletionreport)
 
