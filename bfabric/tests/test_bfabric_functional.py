@@ -60,6 +60,28 @@ class BfabricFunctionalTestCase(unittest.TestCase):
 
         # The wrappercreatorid and submitterid is set while creating the application as required by B-Fabric, however this setting is not 
         # used in this functional test: BfabricWrapperCreator and BfabricSubmitter are calling directily below 
+        # The executable for submitterid=5 has been changed in the test system to the following:
+        # executable = """#!/bin/bash
+        # echo "This is a bfabric dummy submitter executable."
+        # echo "The arguments are"
+        # echo $@
+        # 
+        # exit 0
+        # """
+        # attr = { 'name': 'dummy submitter executable',
+        # 'context': 'SUBMITTER',
+        # 'parameter': {'modifiable': 'true',
+        #     'description': 'the executable will just print the arguments. all the parameter will be ignored.',
+        #     'key': 'queue',
+        #     'label': 'queue',
+        #     'required': 'true',
+        #     'type':'string',
+        #     'value': 'PRX@fgcz-r-028'},
+        # 'description': 'stages yaml config file to an application using Grid Eninge .', 'version': 3.00,
+        # 'masterexecutableid': 11871,
+        # 'base64': base64.b64encode(executable.encode()).decode() }
+
+        # res = bfapp.save_object('executable', attr)[0]
         logging.info("Creating new application")
         try:
             application =  B.save_object("application", obj={"name": "appl_func_test", 'type': 'Analysis', 'technologyid': 2, 'description': "Application functional test", 'executableid': executableid, "wrappercreatorid": 8, "submitterid": 5, 'storageid': 1, 'outputfileformat': 'txt'})
@@ -117,7 +139,16 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         res = B.read_object('externaljob', {'id': externaljobid_wc, 'status':'DONE'})
         self.assertEqual(res[0].status, 'done', 'set externaljob id={} of wrapper creator failed.'.format(externaljobid_wc))
 
-        externaljobid_submitter = W.get_externaljobid_submitter()
+        # The method W.get_externaljobid_submitter() returns the external job with Action=WORKUNIT
+        externaljobid_workunit = W.get_externaljobid_submitter()
+        logging.info("Externaljobid with action WORKUNIT is {}".format(externaljobid_workunit))
+        logging.info("Testing the details of the WORKUNIT externaljob")
+        res = B.read_object('externaljob', {'id': externaljobid_workunit})[0]
+        logging.info(res[0])
+
+        # Fetching the submitter's externaljob
+        externaljobid_submitter = B.read_object('externaljob', {'cliententityid': workunitid, "action": "SUBMIT", 'cliententityclass': 'Workunit'})[0]._id
+        #externaljobid_submitter = W.get_externaljobid_submitter()
         logging.info("Running submitter_yaml from Submitter")
         logging.info("externaljobid for submitter is {}.".format(externaljobid_submitter))
 
@@ -136,6 +167,13 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         except:
             logging.error("Error while setting submitter externaljob status to DONE")
 
+
+        # Setting WORKUNIT's externaljob to DONE
+        res = B.save_object(endpoint='externaljob', obj={'id': externaljobid_workunit, 'status': 'done'})
+        logging.info("Checking if WORKUNIT's externaljob with id={} was set to 'done'".format(externaljobid_workunit))
+        res = B.read_object('externaljob', {'id': externaljobid_workunit, 'status':'DONE'})
+        self.assertEqual(res[0].status, 'done', 'set externaljob id={} of wrapper creator failed.'.format(externaljobid_workunit))
+        
         # 2.
         ###### 
 
