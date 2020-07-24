@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3  
 # -*- coding: latin1 -*-
 
 """
@@ -30,7 +30,7 @@ if __name__ == "__main__":
         for i in range(1, len(sys.argv)):
             sleep(randint(2, 20))
             try:
-                print bfapp.report_resource(resourceid=int(sys.argv[i]))
+                print(bfapp.report_resource(resourceid=int(sys.argv[i])))
             except:
-                print "failed to set resourceid {} 'available'.".format(int(sys.argv[i]))
-                pass
+                print( "failed to set resourceid {} 'available'.".format(int(sys.argv[i])))
+                raise

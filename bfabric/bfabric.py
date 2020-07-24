@@ -250,6 +250,19 @@ class Bfabric(object):
         except:
             raise
 
+    def upload_file(self, filename, workunitid):
+        with open(filename, 'r') as f:
+            content = f.read()
+        
+        resource_base64 = base64.b64encode(content.encode())
+
+        res = self.save_object('resource', {'base64': resource_base64,
+            'name': os.path.basename(filename),
+            'description': "base64 encoded file",
+            'workunitid': workunitid})
+
+        return res
+        
     @staticmethod
     def print_json(queryres=None):
         """
@@ -435,6 +448,7 @@ class BfabricSubmitter():
     workunitid = None
     workunit = None
     parameters = None
+    execfilelist = []
 
     def __init__(self, login=None, password=None, externaljobid=None,
                  user='*', queue="PRX@fgcz-r-028", GRIDENGINEROOT='/opt/sge'):
@@ -637,9 +651,13 @@ exit 0
                 f.write(_cmd_template)
 
             self.submit(_bash_script_filename)
+            self.execfilelist.append(_bash_script_filename)
+
 
         res = self.B.save_object(endpoint='externaljob',
                                 obj={'id': self.B.externaljobid, 'status': 'done'})
+    def get_job_script(self):
+        return self.execfilelist
 
 
 class BfabricWrapperCreator(BfabricExternalJob):
@@ -647,6 +665,11 @@ class BfabricWrapperCreator(BfabricExternalJob):
     the class is used for the wrapper_creator which is executed by the bfabtic system
     (non batch) so each resource is processed seperate
     """
+
+    (externaljobid_submitter, workunit_executableid) = (None, None)
+
+    def get_externaljobid_submitter(self):
+        return self.externaljobid_submitter
 
     def uploadGridEngineScript(self, para={'INPUTHOST': 'fgcz-ms.uzh.ch'}):
         """
@@ -702,6 +725,9 @@ exit 0
 
         return (resExecutable)
 
+    def get_executableid(self):
+        return (self.workunit_executableid)
+
     def write_yaml(self,  data_serializer=lambda x: yaml.dump(x, default_flow_style=False, encoding=None)):
         """
         This method writes all related parameters into a yaml file which is than upload as base64 encoded
@@ -725,12 +751,16 @@ exit 0
         assert isinstance(workunit._id, int)
 
         application = self.read_object('application', obj={'id': workunit.application._id})[0]
+        # TODO(cp): rename to application_execuatbel
         workunit_executable = self.read_object('executable', obj={'id': workunit.applicationexecutable._id})[0]
+        try:
+            self.workunit_executableid = workunit_executable._id
+        except:
+            self.workunit_executableid = None
 
         # TODO(cp): change to container
         project = workunit.container
         today = datetime.date.today()
-
 
         # merge all information into the executable script
         _output_storage = self.read_object('storage', obj={'id': application.storage._id})[0]
@@ -757,9 +787,6 @@ exit 0
                             application_parameter["{}".format(p.key)] = "{}".format(p.value)
                         except:
                             application_parameter["{}".format(p.key)] = ""
-
-
-
 
         try:
             input_resources = map(lambda x: x._id, workunit.inputresource)
@@ -840,22 +867,21 @@ exit 0
         # a yaml_workunit_executable is thus created before the config definition in order to provide
         # the correct executableid to the yaml_workunit_externaljob.
         # However this yaml_workunit_executable has to be updated later to include 'base64': base64.b64encode(config_serialized.encode()).decode()  
-        yaml_workunit_executable = self.save_object('executable', {'name': 'yaml',
-                                                        'context': 'WORKUNIT',
-                                                        'parameter': None,
-                                                        'description': "This is a yaml job configuration file base64 encoded."
-                                                                       "It should be executed by the B-Fabric yaml"
-                                                                       "submitter.",
-                                                        'workunitid': workunit._id,
-                                                        'version': "{}".format(10)})[0]
-
+        yaml_workunit_executable = self.save_object('executable', {'name': 'job configuration (executable) in YAML',
+                       'context': 'WORKUNIT',
+                       'workunitid': workunit._id,
+                       'description': "This is a job configuration as YAML base64 encoded. It is configured to be executed by the B-Fabric yaml submitter."})[0]
+        print(yaml_workunit_executable)
+        
         yaml_workunit_externaljob = self.save_object('externaljob',
                                                     {"workunitid": workunit._id, 
                                                     'status': 'new',
                                                     'executableid' : yaml_workunit_executable._id, 
                                                     'action': "WORKUNIT"})[0]
-
+        print(yaml_workunit_externaljob)
         assert isinstance(yaml_workunit_externaljob._id, int)
+        self.externaljobid_submitter = int(yaml_workunit_externaljob._id)
+        print ("XXXXXXX self.externaljobid_submitter ={} XXXXXXX".format(self.externaljobid_submitter))
 
         _output_url = "bfabric@{0}:{1}{2}/{3}".format(_output_storage.host,
                                                     _output_storage.basepath,
@@ -869,7 +895,6 @@ exit 0
             inputdataset = json.loads(inputdataset_json)
         except:
             inputdataset = None
-
 
         # Compose configuration structure
         config = {
@@ -908,11 +933,13 @@ exit 0
         print(config_serialized)
 
         yaml_workunit_executable = self.save_object('executable', {'id': yaml_workunit_executable._id,
-                                                        'base64': base64.b64encode(config_serialized.encode()).decode()})[0]
+                                                        'base64': base64.b64encode(config_serialized.encode()).decode(),
+                                                        'version': "{}".format(10)})[0]
         print(yaml_workunit_executable)
 
         # The WrapperCreator executable is successful, and the status of the its external job is set to done,
         # which triggers B-Fabric to create an external job for the submitter executable.
+
         wrapper_creator_externaljob = self.save_object(endpoint='externaljob',
                                                        obj={'id': self.externaljobid, 'status': 'done'})
 
@@ -920,6 +947,6 @@ exit 0
 
 
 
+
 if __name__ == "__main__":
     bfapp = Bfabric(verbose=True)
-
