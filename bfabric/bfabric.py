@@ -668,8 +668,8 @@ class BfabricWrapperCreator(BfabricExternalJob):
 
     (externaljobid_submitter, workunit_executableid) = (None, None)
 
-    def get_externaljobid_submitter(self):
-        return self.externaljobid_submitter
+    def get_externaljobid_yaml_workunit(self):
+        return self.externaljobid_yaml_workunit
 
     def uploadGridEngineScript(self, para={'INPUTHOST': 'fgcz-ms.uzh.ch'}):
         """
@@ -880,8 +880,8 @@ exit 0
                                                     'action': "WORKUNIT"})[0]
         print(yaml_workunit_externaljob)
         assert isinstance(yaml_workunit_externaljob._id, int)
-        self.externaljobid_submitter = int(yaml_workunit_externaljob._id)
-        print ("XXXXXXX self.externaljobid_submitter ={} XXXXXXX".format(self.externaljobid_submitter))
+        self.externaljobid_yaml_workunit = int(yaml_workunit_externaljob._id)
+        print ("XXXXXXX self.externaljobid_yaml_workunit ={} XXXXXXX".format(self.externaljobid_yaml_workunit))
 
         _output_url = "bfabric@{0}:{1}{2}/{3}".format(_output_storage.host,
                                                     _output_storage.basepath,

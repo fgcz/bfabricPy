@@ -157,8 +157,8 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         # 2.3
         logging.info("Fetching the id of the yaml_workunit_externaljob in order to set it as DONE at the end of this functional test")
         try:
-            # The method W.get_externaljobid_submitter() returns the external job with Action=WORKUNIT
-            externaljobid_yaml_workunit = W.get_externaljobid_submitter()
+            # The method W.get_externaljobid_yaml_workunit() returns the external job with Action=WORKUNIT
+            externaljobid_yaml_workunit = W.get_externaljobid_yaml_workunit()
             logging.info("Externaljobid with action WORKUNIT is {}".format(externaljobid_yaml_workunit))
         except:
             logging.error("Error while fetching the id of the yaml_workunit externaljob")
