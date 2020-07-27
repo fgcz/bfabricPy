@@ -400,7 +400,8 @@ class BfabricExternalJob(Bfabric):
 
     def save_object(self, endpoint, obj, debug=None):
         res = super(BfabricExternalJob, self).save_object(endpoint, obj, debug)
-        self.logger('saved ' + endpoint + '=' + str(res))
+        jsonres = json.dumps(res, cls=bfabricEncoder, sort_keys=True, indent=2)
+        self.logger('saved ' + endpoint + '=' + str(jsonres))
         return res
 
     def get_workunitid_of_externaljob(self):
