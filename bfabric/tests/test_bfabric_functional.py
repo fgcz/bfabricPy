@@ -47,13 +47,20 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         # 0. THIS IS ALL DONE PRIOR TO THE APPLICATION LAUNCH
         # 0.1
         logging.info("Creating a new executable for the test application")
+        executable = B.save_object("executable", obj={"name": "exec_func_test", "context": "APPLICATION", "program": "/usr/bin/wc"})
         try:
-            executable = B.save_object("executable", obj={"name": "exec_func_test", "context": "APPLICATION", "program": "/usr/bin/wc"})
-            executableid = int(executable[0]._id)
+            if executable[0].errorreport:
+                logging.error("Error while creating the executable")
+                logging.info('Errorreport present: {}'.format(executable[0].errorreport))
+                raise
         except:
-            logging.error('Error while creating executable')
+            logging.info('Executable successfully created')
+        try:
+            executableid = int(executable[0]._id)
+            logging.info("executableid = {}".format(executableid))
+        except:
+            logging.error('Error while getting the executable id')
 
-        logging.info("executableid = {}".format(executableid))
         msg = "executableid should be a positig integer."
         self.assertTrue(executableid > 0, msg)
 
@@ -83,13 +90,21 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         # 'base64': base64.b64encode(executable.encode()).decode() }
         #
         # res = bfapp.save_object('executable', attr)[0]
-        try:
-            application =  B.save_object("application", obj={"name": "appl_func_test", 'type': 'Analysis', 'technologyid': 2, 'description': "Application functional test", 'executableid': executableid, "wrappercreatorid": 8, "submitterid": 5, 'storageid': 1, 'outputfileformat': 'txt'})
-            applicationid = int(application[0]._id)
+        application =  B.save_object("application", obj={"name": "appl_func_test", 'type': 'Analysis', 'technologyid': 2, 'description': "Application functional test", 'executableid': executableid, "wrappercreatorid": 8, "submitterid": 5, 'storageid': 1, 'outputfileformat': 'txt'})
+        try: 
+            if application[0].errorreport:
+                logging.error("Error while creating the application")
+                logging.info('Errorreport present: {}'.format(application[0].errorreport))
+                raise
         except:
-            logging.error('Error while creating application')
+            logging.info('Application successfully created')
+        try:
+            applicationid = int(application[0]._id)
+            logging.info("applicationid = {}".format(applicationid))
+        except:
+            logging.error('Error while getting the application id')
+            raise
 
-        logging.info("applicationid = {}".format(applicationid))
         msg = "applicationid should be a positig integer."
         self.assertTrue(applicationid > 0, msg)
 
@@ -97,17 +112,24 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         # 1. THIS CODE SNIPPET IS TRIGGERED BY THE BFABRIC SYSTEM AFTER THE USER RUN THE APPLICATION 
         # 1.1
         logging.info("Creating new workunit connecting the test application executable to the execution anvironment")
-        try:
-            workunit = B.save_object("workunit",
+        workunit = B.save_object("workunit",
                 obj={"name": "unit test run - bfabricPy",
                     "status": "PENDING", 'containerid': 3061,
                     'applicationid': applicationid,
                     'description': "https://github.com/fgcz/bfabricPy/blob/iss27/bfabric/tests/test_bfabric_functional.py",
                     'inputdatasetid': 32428})
+        try:
+            if workunit[0].errorreport:
+                logging.error('Error while creating workunit')
+                logging.info('Errorreport present: {}'.format(workunit[0].errorreport))
+                raise
+        except:
+            logging.info('Workunit successfully created')
+        try:
             workunitid = int(workunit[0]._id)
             logging.info("workunit = {}".format(workunitid))
         except:
-            logging.error('Error while creating workunit')
+            logging.error('Error while getting the workunit id')
             raise
 
         msg = "workunitid should be a positig integer."
@@ -118,14 +140,21 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         logging.info("Creating new externaljob for the WrapperCreator executable")
         # Here a precomputed test executable is replacing the wrappercreatorid in the application definition
         wrapper_creator_executableid = 16374
+        externaljob_wc = B.save_object("externaljob", obj={'workunitid': workunitid, 'action': 'CREATE', 'executableid':  wrapper_creator_executableid})
         try:
-            externaljob_wc = B.save_object("externaljob", obj={'workunitid': workunitid, 'action': 'CREATE', 'executableid':  wrapper_creator_executableid})
-            externaljobid_wc = int(externaljob_wc[0]._id)
+            if externaljob_wc[0].errorreport:
+                logging.error('Error while creating externaljob_wc')
+                logging.info('Errorreport present: {}'.format(externaljob_wc[0].errorreport))
+                raise
         except:
-            logging.error("Error while creating externaljob")
+            logging.info('Externaljob_wc successfully created')
+        try:
+            externaljobid_wc = int(externaljob_wc[0]._id)
+            logging.info("externaljob = {}".format(externaljobid_wc))
+        except:
+            logging.error("Error while getting externaljob_wc id")
             raise
 
-        logging.info("externaljob = {}".format(externaljobid_wc))
         msg = "extrernaljobid should be a positig integer."
         self.assertTrue(externaljobid_wc > 0)
 
