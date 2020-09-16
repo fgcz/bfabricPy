@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: latin1 -*-
 
 # $Id: bfabric_save_importresource.py 2526 2016-10-17 10:25:25Z cpanse $
@@ -149,7 +149,8 @@ def save_importresource(line):
 
 
     # the timeformat bfabric understands
-    _file_date = time.strftime("%FT%H:%M:%S-01:00",time.gmtime(int(_file_date)))
+    #_file_date = time.strftime("%FT%H:%M:%S-01:00",time.gmtime(int(_file_date)))
+    _file_date = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(int(_file_date)))
 
     # linear search through dictionary. first hit counts!
     for i in bfabric_application_ids.keys():
@@ -166,7 +167,7 @@ def save_importresource(line):
 
     obj = { 'applicationid':_bfabric_applicationid,
             'filechecksum':_md5,
-            'projectid':_bfabric_projectid,
+            'containerid':_bfabric_projectid,
             'filedate':_file_date,
             'relativepath':_file_path,
             'name': os.path.basename(_file_path),
