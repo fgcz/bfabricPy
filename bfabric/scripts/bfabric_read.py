@@ -80,7 +80,7 @@ if __name__ == "__main__":
         try:
             # print json object
             if len(res) < 2:
-                B.print_json(res[0])
+                print(res[0])
         except Exception as e:
             print_color_msg("invalid query. {}.".format(e), color=95)
             sys.exit(1)

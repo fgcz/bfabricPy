@@ -3,7 +3,7 @@ from ._version import __version__
 name = "bfabricPy"
 alias = "suds-py3"
 
-msg = "\033[93m{} version {} (2020-06-15) -- \"{}\"\
+msg = "\033[93m{} version {} (2020-09-20) -- \"{}\"\
     \nCopyright (C) 2019 Functional Genomics Center Zurich\033[0m\n\n"\
     .format(name, __version__, alias)
 
