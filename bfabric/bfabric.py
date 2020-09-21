@@ -543,15 +543,15 @@ export RESSOURCEID_STDOUT_STDERR="{5} {6}"
 export OUTPUT="{7}"
 export WORKUNIT_ID="{10}"
 STAMP=`/bin/date +%Y%m%d%H%M`.$$.$JOB_ID
-
+TEMPDIR="/home/bfabric/prx"
 
 _OUTPUT=`echo $OUTPUT | cut -d"," -f1`
 test $? -eq 0 && _OUTPUTHOST=`echo $_OUTPUT | cut -d":" -f1`
 test $? -eq 0 && _OUTPUTPATH=`echo $_OUTPUT | cut -d":" -f2`
 test $? -eq 0 && _OUTPUTPATH=`dirname $_OUTPUTPATH`
 test $? -eq 0 && ssh $_OUTPUTHOST "mkdir -p $_OUTPUTPATH"
-test $? -eq 0 && echo $$ > /tmp/$$
-test $? -eq 0 && scp /tmp/$$ $OUTPUT
+test $? -eq 0 && echo $$ > $TEMPDIR/$$
+test $? -eq 0 && scp $TEMPDIR/$$ $OUTPUT
 
 if [ $? -eq 1 ];
 then
@@ -561,7 +561,7 @@ fi
 
 # job configuration set by B-Fabrics wrapper_creator executable
 # application parameter/configuration
-cat > /tmp/config_W$WORKUNIT_ID.yaml <<EOF
+cat > $TEMPDIR/config_W$WORKUNIT_ID.yaml <<EOF
 {8}
 EOF
 
@@ -570,16 +570,16 @@ EOF
 ## interrupt here if you want to do a semi-automatic processing
 if [ -x /usr/bin/mutt ];
 then
-    cat $0 > /tmp/$JOB_ID.bash 
+    cat $0 > $TEMPDIR/$JOB_ID.bash 
 
     (who am i; hostname; uptime; echo $0; pwd; ps;) \
     | mutt -s "JOB_ID=$JOB_ID WORKUNIT_ID=$WORKUNIT_ID EXTERNALJOB_ID=$EXTERNALJOB_ID" $EMAIL \
-        -a /tmp/$JOB_ID.bash /tmp/config_W$WORKUNIT_ID.yaml 
+        -a $TEMPDIR/$JOB_ID.bash $TEMPDIR/config_W$WORKUNIT_ID.yaml 
 fi
 # exit 0
 
 # run the application
-test -f /tmp/config_W$WORKUNIT_ID.yaml && {9} /tmp/config_W$WORKUNIT_ID.yaml
+test -f $TEMPDIR/config_W$WORKUNIT_ID.yaml && {9} $TEMPDIR/config_W$WORKUNIT_ID.yaml
 
 sleep 10
 
