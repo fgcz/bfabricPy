@@ -50,7 +50,7 @@ class GridEngine(object):
     interface to Open Grid Sceduler qsub 
     """
 
-    def __init__(self, user='*', queue="PRX@fgcz-c-071", GRIDENGINEROOT='/opt/sge'):
+    def __init__(self, user='*', queue="PRX@fgcz-r-035", GRIDENGINEROOT='/export/bfabric/bfabric/'):
         """
         Set up parameters for querying Grid Engine.
 
@@ -59,7 +59,7 @@ class GridEngine(object):
 
         self.user = user
         self.queue = queue
-        self.qsubbin = "{0}/{1}".format(GRIDENGINEROOT, "bin/lx-amd64/qsub")
+        self.qsubbin = "{0}/{1}".format(GRIDENGINEROOT, "bin/qsub")
 
         os.environ["SGE_ROOT"] = GRIDENGINEROOT
 

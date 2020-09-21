@@ -452,7 +452,7 @@ class BfabricSubmitter():
     execfilelist = []
 
     def __init__(self, login=None, password=None, externaljobid=None,
-                 user='*', queue="PRX@fgcz-r-028", GRIDENGINEROOT='/opt/sge'):
+                 user='*', queue="PRX@fgcz-r-028", GRIDENGINEROOT='/export/bfabric/bfabric/'):
         """
         :rtype : object
         """
