@@ -645,7 +645,7 @@ exit 0
                                                      configuration_parser=lambda x: yaml.load(x))
 
 
-            _bash_script_filename = "/tmp/externaljobid-{0}_executableid-{1}.bash"\
+            _bash_script_filename = "/home/bfabric/prx/externaljobid-{0}_executableid-{1}.bash"\
                 .format(self.B.externaljobid, executable._id)
 
             with open(_bash_script_filename, 'w') as f:
