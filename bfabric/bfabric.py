@@ -103,7 +103,7 @@ class Bfabric(object):
 
     def _read_bfabric(self):
         if self.verbose:
-            print ("self.bfabricfilename='{}'".format(self.bfabricfilename))
+            print(("self.bfabricfilename='{}'".format(self.bfabricfilename)))
         if not os.path.isfile(self.bfabricfilename):
             self.warning("could not find '.bfabricrc.py' file in home directory.")
             return
@@ -140,13 +140,13 @@ class Bfabric(object):
         if bfabricrc:
             self.bfabricfilename = bfabricrc
 
-        if '_PASSWD' in self.bfabricrc.keys() and password is None:
+        if '_PASSWD' in list(self.bfabricrc.keys()) and password is None:
             password = self.bfabricrc['_PASSWD']
 
-        if '_LOGIN' in self.bfabricrc.keys() and login is None:
+        if '_LOGIN' in list(self.bfabricrc.keys()) and login is None:
             login = self.bfabricrc['_LOGIN']
 
-        if '_WEBBASE' in self.bfabricrc.keys() and webbase is None:
+        if '_WEBBASE' in list(self.bfabricrc.keys()) and webbase is None:
             self.webbase = self.bfabricrc['_WEBBASE']
 
         if not login is None:
@@ -385,18 +385,18 @@ class BfabricExternalJob(Bfabric):
     def __init__(self, login=None, password=None, externaljobid=None):
         super(BfabricExternalJob, self).__init__(login, password)
         if not externaljobid:
-            print ("Error: no externaljobid provided.")
+            print("Error: no externaljobid provided.")
             raise
         else:
             self.externaljobid = externaljobid
 
-        print("BfabricExternalJob externaljobid={}".format(self.externaljobid))
+        print(("BfabricExternalJob externaljobid={}".format(self.externaljobid)))
 
     def logger(self, msg):
         if self.externaljobid:
             super(BfabricExternalJob, self).save_object('externaljob', {'id': self.externaljobid, 'logthis': str(msg)})
         else:
-            print (str(msg))
+            print((str(msg)))
 
     def save_object(self, endpoint, obj, debug=None):
         res = super(BfabricExternalJob, self).save_object(endpoint, obj, debug)
@@ -405,14 +405,14 @@ class BfabricExternalJob(Bfabric):
         return res
 
     def get_workunitid_of_externaljob(self):
-        print("DEBUG get_workunitid_of_externaljob self.externaljobid={}".format(self.externaljobid))
+        print(("DEBUG get_workunitid_of_externaljob self.externaljobid={}".format(self.externaljobid)))
         res = self.read_object(endpoint='externaljob', obj={'id': self.externaljobid})[0]
         print(res)
         print("DEBUG END")
         workunit_id = None
         try:
             workunit_id = res.cliententityid
-            print("workunitid={}".format(workunit_id))
+            print(("workunitid={}".format(workunit_id)))
         except:
             pass
         return workunit_id
@@ -461,8 +461,8 @@ class BfabricSubmitter():
         self.GRIDENGINEROOT = GRIDENGINEROOT
         self.user = user
 
-        print(self.B.bflogin)
-        print(self.B.externaljobid)
+        print((self.B.bflogin))
+        print((self.B.externaljobid))
 
         self.workunitid = self.B.get_workunitid_of_externaljob()
 
@@ -474,17 +474,17 @@ class BfabricSubmitter():
 
 
         try:
-            self.parameters = map(lambda x: self.B.read_object(endpoint='parameter', obj={'id': x._id})[0],  self.workunit.parameter)
+            self.parameters = [self.B.read_object(endpoint='parameter', obj={'id': x._id})[0] for x in self.workunit.parameter]
         except:
             self.parameters = list()
             print ("Warning: could not fetch parameter.")
 
-        parameters = filter(lambda x: x.key == "queue" , self.parameters)
+        parameters = [x for x in self.parameters if x.key == "queue"]
 
         try:
             if len(parameters) > 0:
                 self.queue = parameters[0].value
-                print ("queue={0}".format(self.queue))
+                print(("queue={0}".format(self.queue)))
         except:
             pass
 
@@ -497,7 +497,7 @@ class BfabricSubmitter():
         GE = gridengine.GridEngine(user=self.user, queue=self.queue, GRIDENGINEROOT=self.GRIDENGINEROOT)
 
         print(script)
-        print(type(script))
+        print((type(script)))
         resQsub = GE.qsub(script=script, arguments=arguments)
 
         self.B.logger("{}".format(resQsub))
@@ -790,8 +790,8 @@ exit 0
                             application_parameter["{}".format(p.key)] = ""
 
         try:
-            input_resources = map(lambda x: x._id, workunit.inputresource)
-            input_resources = map(lambda x: self.read_object(endpoint='resource', obj={'id': x})[0], input_resources)
+            input_resources = [x._id for x in workunit.inputresource]
+            input_resources = [self.read_object(endpoint='resource', obj={'id': x})[0] for x in input_resources]
         except:
             print("no input resources found. continue with empty list.")
             input_resources = []
@@ -882,7 +882,7 @@ exit 0
         print(yaml_workunit_externaljob)
         assert isinstance(yaml_workunit_externaljob._id, int)
         self.externaljobid_yaml_workunit = int(yaml_workunit_externaljob._id)
-        print ("XXXXXXX self.externaljobid_yaml_workunit ={} XXXXXXX".format(self.externaljobid_yaml_workunit))
+        print(("XXXXXXX self.externaljobid_yaml_workunit ={} XXXXXXX".format(self.externaljobid_yaml_workunit)))
 
         _output_url = "bfabric@{0}:{1}{2}/{3}".format(_output_storage.host,
                                                     _output_storage.basepath,
@@ -944,7 +944,7 @@ exit 0
         wrapper_creator_externaljob = self.save_object(endpoint='externaljob',
                                                        obj={'id': self.externaljobid, 'status': 'done'})
 
-        print ("\n\nquery_counter={0}".format(self.query_counter))
+        print(("\n\nquery_counter={0}".format(self.query_counter)))
 
 
 
