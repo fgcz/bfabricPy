@@ -780,8 +780,8 @@ exit 0
         application_parameter = {}
 
         if not getattr(workunit, "parameter", None) is None:
-            for parameter in workunit.parameter:
-                parameter = self.read_object('parameter', obj={'id': parameter._id, 'context': 'APPLICATION'})
+            for para in workunit.parameter:
+                parameter = self.read_object('parameter', obj={'id': para._id})
                 if parameter:
                     for p in parameter:
                         try:
