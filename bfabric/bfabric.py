@@ -507,7 +507,7 @@ class BfabricSubmitter():
 
     def submit_slurm(self, script="/tmp/runme.bash", arguments=""):
 
-        SL = slurm.SLURM(user=self.user, partition=self.queue, SLURMROOT=self.SCHEDULEROOT)
+        SL = slurm.SLURM(user=self.user, SLURMROOT=self.SCHEDULEROOT)
 
         print(script)
         print((type(script)))
@@ -542,7 +542,7 @@ class BfabricSubmitter():
 # https://GitHub.com/fgcz/bfabricPy/
 
 # Slurm
-#SBATCH --partition={0}
+#SBATCH --nodelist={0}
 #SBACTH -e {1}
 #SBATCH -o {2}
 
@@ -672,7 +672,7 @@ exit 0
             
             if self.scheduler=="GridEngine" :
                 self.submit_gridengine(_bash_script_filename)
-            else 
+            else: 
                 self.submit_slurm(_bash_script_filename)
             self.execfilelist.append(_bash_script_filename)
 
