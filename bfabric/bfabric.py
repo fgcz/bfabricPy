@@ -69,6 +69,7 @@ logging.config.dictConfig({
 })
 
 import bfabric.gridengine as gridengine
+import bfabric.slurm as slurm
 
 if (sys.version_info > (3, 0)):
     import http.client
@@ -452,14 +453,15 @@ class BfabricSubmitter():
     execfilelist = []
 
     def __init__(self, login=None, password=None, externaljobid=None,
-                 user='*', queue="PRX@fgcz-r-028", GRIDENGINEROOT='/export/bfabric/bfabric/'):
+                 user='*', queue="PRX@fgcz-r-028", SCHEDULEROOT='/export/bfabric/bfabric/', scheduler="GridEngine"):
         """
         :rtype : object
         """
         self.B = BfabricExternalJob(login=login, password=password, externaljobid=externaljobid)
         self.queue = queue
-        self.GRIDENGINEROOT = GRIDENGINEROOT
+        self.SCHEDULEROOT = SCHEDULEROOT
         self.user = user
+        self.scheduler = scheduler
 
         print((self.B.bflogin))
         print((self.B.externaljobid))
@@ -492,9 +494,9 @@ class BfabricSubmitter():
             
 
 
-    def submit(self, script="/tmp/runme.bash", arguments=""):
+    def submit_gridengine(self, script="/tmp/runme.bash", arguments=""):
 
-        GE = gridengine.GridEngine(user=self.user, queue=self.queue, GRIDENGINEROOT=self.GRIDENGINEROOT)
+        GE = gridengine.GridEngine(user=self.user, queue=self.queue, GRIDENGINEROOT=self.SCHEDULEROOT)
 
         print(script)
         print((type(script)))
@@ -502,6 +504,16 @@ class BfabricSubmitter():
 
         self.B.logger("{}".format(resQsub))
 
+
+    def submit_slurm(self, script="/tmp/runme.bash", arguments=""):
+
+        SL = slurm.SLURM(user=self.user, partition=self.queue, SLURMROOT=self.SCHEDULEROOT)
+
+        print(script)
+        print((type(script)))
+        resSbatch = SL.sbatch(script=script, arguments=arguments)
+
+        self.B.logger("{}".format(resSbatch))
 
 
     def compose_bash_script(self, configuration=None, configuration_parser=lambda x: yaml.load(x)):
@@ -657,8 +669,11 @@ exit 0
 
             with open(_bash_script_filename, 'w') as f:
                 f.write(_cmd_template)
-
-            self.submit(_bash_script_filename)
+            
+            if self.scheduler=="GridEngine" :
+                self.submit_gridengine(_bash_script_filename)
+            else 
+                self.submit_slurm(_bash_script_filename)
             self.execfilelist.append(_bash_script_filename)
 
 
