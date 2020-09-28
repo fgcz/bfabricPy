@@ -502,6 +502,8 @@ class BfabricSubmitter():
 
         self.B.logger("{}".format(resQsub))
 
+
+
     def compose_bash_script(self, configuration=None, configuration_parser=lambda x: yaml.load(x)):
         """
         composes the bash script which is executed by the submitter (sun grid engine).
@@ -522,12 +524,17 @@ class BfabricSubmitter():
 
 
         _cmd_template = """#!/bin/bash
-#
-# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/bfabric.py $
-# $Id: bfabric.py 3000 2017-08-18 14:18:30Z cpanse $
-# Christian Panse <cp@fgcz.ethz.ch> 2007-2015
+# Maria d'Errico
+# Christian Panse
+# 2020-09-29
+# https://GitHub.com/fgcz/bfabricPy/
 
-# Grid Engine Parameters
+# Slurm
+#SBATCH --partition={0}
+#SBACTH -e {1}
+#SBATCH -o {2}
+
+# Open Grid Engine
 #$ -q {0}
 #$ -e {1}
 #$ -o {2}
