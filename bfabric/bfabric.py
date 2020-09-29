@@ -502,8 +502,6 @@ class BfabricSubmitter():
 
         self.B.logger("{}".format(resQsub))
 
-
-
     def compose_bash_script(self, configuration=None, configuration_parser=lambda x: yaml.load(x)):
         """
         composes the bash script which is executed by the submitter (sun grid engine).
@@ -526,15 +524,15 @@ class BfabricSubmitter():
         _cmd_template = """#!/bin/bash
 # Maria d'Errico
 # Christian Panse
+# 2020-09-28
 # 2020-09-29
 # https://GitHub.com/fgcz/bfabricPy/
-
 # Slurm
 #SBATCH --partition={0}
 #SBACTH -e {1}
 #SBATCH -o {2}
 
-# Open Grid Engine
+# Grid Engine Parameters
 #$ -q {0}
 #$ -e {1}
 #$ -o {2}
@@ -592,7 +590,7 @@ sleep 10
 
 if [ $? -eq 0 ];
 then
-     ssh fgcz-ms.uzh.ch "bfabric_setResourceStatus_available.py $RESSOURCEID_OUTPUT" \
+     ssh fgcz-r-035.uzh.ch "bfabric_setResourceStatus_available.py $RESSOURCEID_OUTPUT" \
      | mutt -s "JOB_ID=$JOB_ID WORKUNIT_ID=$WORKUNIT_ID EXTERNALJOB_ID=$EXTERNALJOB_ID DONE" $EMAIL 
 
      bfabric_setExternalJobStatus_done.py $EXTERNALJOB_ID
@@ -679,7 +677,7 @@ class BfabricWrapperCreator(BfabricExternalJob):
     def get_externaljobid_yaml_workunit(self):
         return self.externaljobid_yaml_workunit
 
-    def uploadGridEngineScript(self, para={'INPUTHOST': 'fgcz-ms.uzh.ch'}):
+    def uploadGridEngineScript(self, para={'INPUTHOST': 'fgcz-r-035.uzh.ch'}):
         """
         the methode creates and uploads an executebale.  
         """
@@ -849,6 +847,7 @@ exit 0
             'relativepath': _output_relative_path})[0]
 
 
+        print(_ressource_output)
         _output_filename = "{0}.{1}".format(_ressource_output._id, application.outputfileformat)
         # we want to include the resource._id into the filename
         _ressource_output = self.save_object('resource',
