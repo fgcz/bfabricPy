@@ -1,0 +1,5 @@
+.idea/
+bfabric.egg-info/
+bfabric/__pycache__/
+bfabric/scripts/query_result.txt
+dist/

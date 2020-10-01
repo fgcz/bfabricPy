@@ -257,7 +257,7 @@ def add_dataset(containerid):
         return (jsonify({'id':res._id}))
 
     except:
-        print (res)
+        print(res)
         return jsonify({'error': 'beaming dataset to bfabric failed.'})
 
 
@@ -265,9 +265,9 @@ def add_dataset(containerid):
 @app.route('/user/<int:containerid>', methods=['GET'])
 def get_user(containerid):
 
-    users =  bfapp.read_object(endpoint='user', obj={'containerid': containerid})
-
-    if len(users) == 0:
+    users = bfapp.read_object(endpoint='user', obj={'containerid': containerid})
+    #not users or
+    if not users or len(users) == 0:
         return jsonify({'error': 'no resources found.'})
         # abort(404)
 
