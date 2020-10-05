@@ -20,13 +20,15 @@ B = bfabric.Bfabric()
 
 ROOTDIR="/srv/www/htdocs/"
 
-def listNotExistingStorageDirs():
-    rv = B.read_object('sample', {'type': '%Biological Sample%'})
-    containerIDs = list(set(map(lambda x: x.container._id, rv)))
+def listNotExistingStorageDirs(technologyid=2):
+    rv = B.read_object('container', {'technologyid': technologyid})
+    containerIDs = list(set(map(lambda x: x._id, rv)))
+
 
     for cid in containerIDs:
         if not os.path.isdir("{}/p{}".format(ROOTDIR, cid)):
             print (cid)
 
 
-listNotExistingStorageDirs()
+listNotExistingStorageDirs(technologyid=2)
+listNotExistingStorageDirs(technologyid=4)
