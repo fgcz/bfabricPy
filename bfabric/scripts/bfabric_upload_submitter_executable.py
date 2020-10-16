@@ -6,8 +6,10 @@ Uploader for B-Fabric
 """
 
 # Copyright (C) 2014 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
+# Copyright (C) 2020 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 #
 # Authors:
+#   Maria d'Errico <maria.derrico@fgcz.ethz.ch>
 #   Marco Schmidt <marco.schmidt@fgcz.ethz.ch>
 #   Christian Panse <cp@fgcz.ethz.ch>
 #
@@ -20,34 +22,59 @@ import os
 import sys
 import base64
 from bfabric import Bfabric
+import argparse
 
 SVN="$HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/scripts/bfabric_upload_submitter_executable.py $"
 
-if __name__ == "__main__":
-    if len(sys.argv) == 2 and os.path.isfile(sys.argv[1]):
-        executeableFileName = sys.argv[1]
-    else:
-        print "usage: " + sys.argv[0] + "<filename>"    
+def setup(argv=sys.argv[1:]):
+    argparser = argparse.ArgumentParser(description="Arguments for new submitter executable.\nFor more details run: ./bfabric_upload_submitter_executable.py --help") 
+    argparser.add_argument('filename', type=str, help="Bash executable of the submitter")
+    argparser.add_argument('engine', type=str, choices=['slurm', 'gridengine'], help="Valid engines for job handling are: slurm, gridengine")
+    if len(sys.argv) < 3:
+        argparser.print_help(sys.stderr)
         sys.exit(1)
+    options = argparser.parse_args()
+    return options
+
+def main(options):
+    executableFileName = options.filename
+    engine = options.engine
 
     bfapp = Bfabric()
 
-    with open(executeableFileName, 'r') as f:
+    with open(executableFileName, 'r') as f:
         executable = f.read()
 
-    attr = { 'name': 'yaml /  Grid Engine executable', 
-        'context': 'SUBMITTER', 
+    attr = { 'context': 'SUBMITTER', 
         'parameter': {'modifiable': 'true', 
-            'description': 'which Grid Engine queue should be used.', 
-            'key': 'queue', 
-            'label': 'queue', 
             'required': 'true', 
-            'type':'string', 
-            'value': 'PRX@fgcz-r-028'}, 
-        'description': 'stages yaml config file to an appliaction using Grid Eninge .', 'version': 3.00, 
+            'type':'string'}, 
         'masterexecutableid': 11871, 
-        'base64': base64.b64encode(executable) }
+        'base64': base64.b64encode(executable.encode()).decode() }
 
+    if engine == "slurm":
+        attr['name'] = 'yaml / Slurm executable'
+        attr['parameter']['description'] = 'Which Slurm partition should be used.'
+        attr['parameter']['key'] = 'partition'
+        attr['parameter']['label'] = 'partition'
+        attr['parameter']['value'] = 'fgcz-r-035'
+        attr['version'] = 0.1 
+        attr['description'] = 'Stage the yaml config file to application using Slurm.'
+    elif engine == "gridengine":
+        attr['name'] = 'yaml /  Grid Engine executable'
+        attr['parameter']['description'] = 'Which Grid Engine queue should be used.'
+        attr['parameter']['key'] = 'queue'
+        attr['parameter']['label'] = 'queue'
+        attr['parameter']['value'] = 'PRX@fgcz-r-028' 
+        attr['version'] = 3.00 
+        attr['description'] = 'Stage the yaml config file to an application using Grid Engine.' 
+                                         
     res = bfapp.save_object('executable', attr)
 
-    print (res)
+    bfapp.print_yaml(res)
+
+
+if __name__ == "__main__":
+    options = setup()
+    main(options)
+
