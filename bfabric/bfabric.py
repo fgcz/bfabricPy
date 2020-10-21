@@ -228,6 +228,30 @@ class Bfabric(object):
             return getattr(self.cl[endpoint].service.save(QUERY), endpoint, None)
         except:
             raise
+    
+    def checkandinsert_object(self, endpoint, obj, debug=None):
+        """
+        wsdl method to check iff dependencies are fullfield
+        """
+
+        self.query_counter = self.query_counter + 1
+        QUERY = dict(login=self.bflogin, password=self.bfpassword)
+        QUERY[endpoint] = obj
+
+        try:
+            if not endpoint in self.cl:
+                self.cl[endpoint] = Client("".join((self.webbase, '/', endpoint, "?wsdl")), cache=None)
+        except:
+            raise
+
+
+        try:
+            if debug is not None:
+                return self.cl[endpoint].service.save(QUERY)
+
+            return getattr(self.cl[endpoint].service.checkandinsert(QUERY), endpoint, None)
+        except:
+            raise
 
     def delete_object(self, endpoint, id=None, debug=None):
         """
