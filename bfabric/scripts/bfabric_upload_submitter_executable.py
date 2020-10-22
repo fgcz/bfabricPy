@@ -69,10 +69,10 @@ def main(options):
 
     if engine == "slurm":
         attr['name'] = 'yaml / Slurm executable'
-        attr['parameter']['description'] = 'Which Slurm partition should be used.'
+        attr['parameter']['description'] = 'Which Slurm node in partiton PRX should be used.'
         attr['parameter']['enumeration'] = 'fgcz-r-035'
-        attr['parameter']['key'] = 'partition'
-        attr['parameter']['label'] = 'partition'
+        attr['parameter']['key'] = 'queue'
+        attr['parameter']['label'] = 'queue'
         attr['parameter']['value'] = 'fgcz-r-035'
         attr['version'] = 0.1 
         attr['description'] = 'Stage the yaml config file to application using Slurm.'
