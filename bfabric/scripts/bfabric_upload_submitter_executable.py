@@ -13,9 +13,21 @@ Uploader for B-Fabric
 #   Marco Schmidt <marco.schmidt@fgcz.ethz.ch>
 #   Christian Panse <cp@fgcz.ethz.ch>
 #
+# Last modified on October 22nd 2020
+#
 # Licensed under  GPL version 3
-
-# @Version: $Rev: 1232 $
+#
+#
+# Usage: bfabric_upload_submitter_executable.py [-h] filename {slurm,gridengine}
+#
+# Arguments for new submitter executable. For more details run:
+# ./bfabric_upload_submitter_executable.py --help
+#
+# positional arguments:
+#   filename            Bash executable of the submitter
+#   {slurm,gridengine}  Valid engines for job handling are: slurm, gridengine
+#
+#
 
 
 import os
@@ -48,13 +60,17 @@ def main(options):
     attr = { 'context': 'SUBMITTER', 
         'parameter': {'modifiable': 'true', 
             'required': 'true', 
-            'type':'string'}, 
-        'masterexecutableid': 11871, 
+            'type':'STRING'}, 
+        'masterexecutableid': 11871,
+        'status': 'available',
+        'enabled': 'true',
+        'valid': 'true',
         'base64': base64.b64encode(executable.encode()).decode() }
 
     if engine == "slurm":
         attr['name'] = 'yaml / Slurm executable'
         attr['parameter']['description'] = 'Which Slurm partition should be used.'
+        attr['parameter']['enumeration'] = 'fgcz-r-035'
         attr['parameter']['key'] = 'partition'
         attr['parameter']['label'] = 'partition'
         attr['parameter']['value'] = 'fgcz-r-035'
@@ -63,6 +79,7 @@ def main(options):
     elif engine == "gridengine":
         attr['name'] = 'yaml /  Grid Engine executable'
         attr['parameter']['description'] = 'Which Grid Engine queue should be used.'
+        attr['parameter']['enumeration'] = 'PRX@fgcz-r-028'
         attr['parameter']['key'] = 'queue'
         attr['parameter']['label'] = 'queue'
         attr['parameter']['value'] = 'PRX@fgcz-r-028' 
