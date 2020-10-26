@@ -43,7 +43,7 @@ class SLURM(object):
     interface to Slurm sbatch 
     """
 
-    def __init__(self, user='*', partition="PRX", SLURMROOT='/usr/'):
+    def __init__(self, user='*', partition="prx", SLURMROOT='/usr/'):
         """
         Set up parameters for querying Slurm.
 
