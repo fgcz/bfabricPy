@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: latin1 -*-
 
 """
@@ -10,6 +10,7 @@ set status of a resource of a given resource id
 # Authors:
 #   Marco Schmidt <marco.schmidt@fgcz.ethz.ch>
 #   Christian Panse <cp@fgcz.ethz.ch>
+#   Maria d'Errico <maria.derrico@fgcz.ethz.ch>
 #
 # Licensed under  GPL version 3
 #
@@ -28,5 +29,5 @@ if __name__ == "__main__":
                 res = bfapp.save_object('externaljob', {'id':int(sys.argv[i]), 'status':'done'})
                 print res
             except:
-                print "failed to set externaljob with id={} 'available'.".format(int(sys.argv[i]))
-                pass
+                print("failed to set externaljob with id={} 'available'.".format(int(sys.argv[i])))
+                raise
