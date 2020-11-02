@@ -34,3 +34,6 @@ if __name__ == "__main__":
             except:
                 print( "failed to set resourceid {} 'available'.".format(int(sys.argv[i])))
                 raise
+    else:
+        print("Invalid argument: no resourceid is provided")
+        sys.exit(0)
