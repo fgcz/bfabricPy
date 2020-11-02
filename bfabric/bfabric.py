@@ -819,6 +819,9 @@ exit 0
             workunitid)
 
         _log_storage = self.read_object('storage', obj={'id': 7})[0]
+        # Temporarily modified to run Slurm test jobs
+        if application.name.replace(' ', '_')=="MaxQuant_textfiles":
+            _log_storage = self.read_object('storage', obj={'id': 13})[0]
 
         #_cmd_applicationList = [workunit_executable.program]
 
