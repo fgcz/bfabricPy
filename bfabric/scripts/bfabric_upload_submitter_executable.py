@@ -27,6 +27,9 @@ Uploader for B-Fabric
 #   filename            Bash executable of the submitter
 #   {slurm,gridengine}  Valid engines for job handling are: slurm, gridengine
 #
+# Example of use:
+#
+# bfabric_upload_submitter_executable.py bfabric_executable_submitter_functionalTest.py gridengine --name "Dummy - yaml / Grid Engine executable" --description "Dummy submitter for the bfabric functional test using Grid Engine."
 #
 
 
@@ -42,6 +45,8 @@ def setup(argv=sys.argv[1:]):
     argparser = argparse.ArgumentParser(description="Arguments for new submitter executable.\nFor more details run: ./bfabric_upload_submitter_executable.py --help") 
     argparser.add_argument('filename', type=str, help="Bash executable of the submitter")
     argparser.add_argument('engine', type=str, choices=['slurm', 'gridengine'], help="Valid engines for job handling are: slurm, gridengine")
+    argparser.add_argument('--name', type=str, help="Name of the submitter", required=False)
+    argparser.add_argument('--description', type=str, help="Description about the submitter", required=False)
     if len(sys.argv) < 3:
         argparser.print_help(sys.stderr)
         sys.exit(1)
@@ -85,7 +90,16 @@ def main(options):
         attr['parameter']['value'] = 'PRX@fgcz-r-028' 
         attr['version'] = 3.00 
         attr['description'] = 'Stage the yaml config file to an application using Grid Engine.' 
-                                         
+
+    if options.name:
+        attr['name'] = options.name
+    else:
+        pass
+    if options.description:
+        attr['description'] = options.description
+    else:
+        pass
+
     res = bfapp.save_object('executable', attr)
 
     bfapp.print_yaml(res)
