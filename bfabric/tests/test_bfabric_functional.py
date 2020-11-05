@@ -193,10 +193,13 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         except:
             logging.error("Error while running Submitter")
             raise
-
+        logging.info("Waiting 10 seconds for the submitter to be executed")
+        time.sleep(10)
         logging.info("Checking if submitter's externaljob with id={} was set to 'done'".format(externaljobid_submitter))
         try:
-            res = B.read_object('externaljob', {'id': externaljobid_submitter, 'status': 'DONE'})
+            #res = B.read_object('externaljob', {'id': externaljobid_submitter, 'status': 'DONE'})
+            res = B.read_object('externaljob', {'id': externaljobid_submitter})
+            logging.info("Status of externaljob for submitter {}".format(res[0].status))
             self.assertEqual(res[0].status, 'done', 'submitter externaljob with id={} failed.'.format(externaljobid_submitter))
         except:
             logging.error("Error while setting submitter externaljob status to DONE")
