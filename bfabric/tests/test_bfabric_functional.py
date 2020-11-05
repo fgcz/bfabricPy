@@ -68,29 +68,10 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         logging.info("Creating a new test application, mimicking the user application")
         # In order to create the application, wrappercreatorid and submitterid must be provided.
         # Note that: in this specific case the wrappercreatorid is a placeholder, and it will be replaced by a test executable later in this functional test.
-        # The executable for submitterid=5 has been changed in the test system to the following test executable:
-        # executable = """#!/bin/bash
-        # echo "This is a bfabric dummy submitter executable."
-        # echo "The arguments are"
-        # echo $@
-        # 
-        # exit 0
-        # """
-        # attr = { 'name': 'dummy submitter executable',
-        # 'context': 'SUBMITTER',
-        # 'parameter': {'modifiable': 'true',
-        #     'description': 'the executable will just print the arguments. all the parameter will be ignored.',
-        #     'key': 'queue',
-        #     'label': 'queue',
-        #     'required': 'true',
-        #     'type':'string',
-        #     'value': 'PRX@fgcz-r-028'},
-        # 'description': 'stages yaml config file to an application using Grid Eninge .', 'version': 3.00,
-        # 'masterexecutableid': 11871,
-        # 'base64': base64.b64encode(executable.encode()).decode() }
-        #
-        # res = bfapp.save_object('executable', attr)[0]
-        application =  B.save_object("application", obj={"name": "appl_func_test", 'type': 'Analysis', 'technologyid': 2, 'description': "Application functional test", 'executableid': executableid, "wrappercreatorid": 8, "submitterid": 5, 'storageid': 1, 'outputfileformat': 'txt'})
+        # The executable for submitterid=10 has been created in the test system running the following script:
+        # ./bfabric_upload_submitter_executable.py bfabric_executable_submitter_functionalTest.py gridengine --name "Dummy - yaml / Grid Engine executable" --description "Dummy submitter for the bfabric functional test using Grid Engine."
+        # Note that the executable bfabric_executable_submitter_functionalTest.py only prints "Dummy submitter executable defined for the bfabricPy functional test".
+        application =  B.save_object("application", obj={"name": "appl_func_test", 'type': 'Analysis', 'technologyid': 2, 'description': "Application functional test", 'executableid': executableid, "wrappercreatorid": 8, "submitterid": 10, 'storageid': 1, 'outputfileformat': 'txt'})
         try: 
             if application[0].errorreport:
                 logging.error("Error while creating the application")
@@ -211,6 +192,7 @@ class BfabricFunctionalTestCase(unittest.TestCase):
             S.submitter_yaml()
         except:
             logging.error("Error while running Submitter")
+            raise
 
         logging.info("Checking if submitter's externaljob with id={} was set to 'done'".format(externaljobid_submitter))
         try:
@@ -218,6 +200,7 @@ class BfabricFunctionalTestCase(unittest.TestCase):
             self.assertEqual(res[0].status, 'done', 'submitter externaljob with id={} failed.'.format(externaljobid_submitter))
         except:
             logging.error("Error while setting submitter externaljob status to DONE")
+            raise
 
         # 4. SETTING YAML_WORKUNIT_EXTERNALJOB TO DONE
         logging.info("Setting the yaml_workunit_externaljob created by the WrapperCreator to 'done'")
