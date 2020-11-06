@@ -27,7 +27,7 @@ if __name__ == "__main__":
         for i in range(1, len(sys.argv)):
             try:
                 res = bfapp.save_object('externaljob', {'id':int(sys.argv[i]), 'status':'done'})
-                print res
+                print(res)
             except:
                 print("failed to set externaljob with id={} 'available'.".format(int(sys.argv[i])))
                 raise
