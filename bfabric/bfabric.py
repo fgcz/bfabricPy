@@ -566,8 +566,9 @@ class BfabricSubmitter():
 # https://GitHub.com/fgcz/bfabricPy/
 # Slurm
 #SBATCH --nodelist={0}
-#SBACTH -e {1}
+#SBATCH -e {1}
 #SBATCH -o {2}
+#SBATCH --export=ALL,HOME=/home/bfabric
 
 # Grid Engine Parameters
 #$ -q {0}
