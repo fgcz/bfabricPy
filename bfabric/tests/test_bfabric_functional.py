@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: latin1 -*-
 
+# Modified to use Slurm on November 9th 2020
+
 """
 unittest by <cp@fgcz.ethz.ch>
 """
@@ -69,7 +71,7 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         # In order to create the application, wrappercreatorid and submitterid must be provided.
         # Note that: in this specific case the wrappercreatorid is a placeholder, and it will be replaced by a test executable later in this functional test.
         # The executable for submitterid=10 has been created in the test system running the following script:
-        # ./bfabric_upload_submitter_executable.py bfabric_executable_submitter_functionalTest.py gridengine --name "Dummy - yaml / Grid Engine executable" --description "Dummy submitter for the bfabric functional test using Grid Engine."
+        # ./bfabric_upload_submitter_executable.py bfabric_executable_submitter_functionalTest.py slurm --name "Dummy_-_yaml___Slurm_executable" --description "test new submitter's parameters"
         # Note that the executable bfabric_executable_submitter_functionalTest.py only prints "Dummy submitter executable defined for the bfabricPy functional test".
         application =  B.save_object("application", obj={"name": "appl_func_test", 'type': 'Analysis', 'technologyid': 2, 'description': "Application functional test", 'executableid': executableid, "wrappercreatorid": 8, "submitterid": 10, 'storageid': 1, 'outputfileformat': 'txt'})
         try: 
@@ -186,7 +188,7 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         logging.info("Executing the Submitter executable: function submitter_yaml from BfabricSubmitter")
         # Submitter executable is supposed to download all workunit executables and submit them.
         # When finished successfully, the status of its external job is set to done, else to failed.
-        S = bfabric.BfabricSubmitter(externaljobid=externaljobid_submitter)
+        S = bfabric.BfabricSubmitter(externaljobid=externaljobid_submitter, SCHEDULEROOT="/usr/", scheduler="Slurm")
         ## this information is contained in the application definition
         try:
             S.submitter_yaml()

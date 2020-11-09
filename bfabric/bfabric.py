@@ -477,12 +477,13 @@ class BfabricSubmitter():
     execfilelist = []
 
     def __init__(self, login=None, password=None, externaljobid=None,
-                 user='*', queue="PRX@fgcz-r-028", SCHEDULEROOT='/export/bfabric/bfabric/', scheduler="GridEngine"):
+                 user='*', partition="prx", nodelist="fgcz-r-028", SCHEDULEROOT='/export/bfabric/bfabric/', scheduler="GridEngine"):
         """
         :rtype : object
         """
         self.B = BfabricExternalJob(login=login, password=password, externaljobid=externaljobid)
-        self.queue = queue
+        self.partition = partition
+        self.nodelist = nodelist
         self.SCHEDULEROOT = SCHEDULEROOT
         self.user = user
         self.scheduler = scheduler
@@ -505,12 +506,15 @@ class BfabricSubmitter():
             self.parameters = list()
             print ("Warning: could not fetch parameter.")
 
-        parameters = [x for x in self.parameters if x.key == "queue"]
+        partition = [x for x in self.parameters if x.key == "partition"]
+        nodelist = [x for x in self.parameters if x.key == "nodelist"]
 
         try:
-            if len(parameters) > 0:
-                self.queue = parameters[0].value
-                print(("queue={0}".format(self.queue)))
+            if len(partition) > 0 and len(nodelist) > 0:
+                self.partition = partition[0].value
+                self.nodelist = nodelist[0].value
+                print(("partition={0}".format(self.partition)))
+                print(("nodelist={0}".format(self.nodelist)))
         except:
             pass
 
@@ -519,7 +523,7 @@ class BfabricSubmitter():
 
     def submit_gridengine(self, script="/tmp/runme.bash", arguments=""):
 
-        GE = gridengine.GridEngine(user=self.user, queue=self.queue, GRIDENGINEROOT=self.SCHEDULEROOT)
+        GE = gridengine.GridEngine(user=self.user, queue="@".join((self.partition, self.nodelist)), GRIDENGINEROOT=self.SCHEDULEROOT)
 
         print(script)
         print((type(script)))
@@ -565,13 +569,16 @@ class BfabricSubmitter():
 # 2020-09-29
 # https://GitHub.com/fgcz/bfabricPy/
 # Slurm
-#SBATCH --nodelist={0}
+#SBATCH --partition={0}
+#SBATCH --nodelist={11}
 #SBATCH -e {1}
 #SBATCH -o {2}
+#SBATCH --job-name=WU{10}
+#SBATCH --workdir=/home/bfabric
 #SBATCH --export=ALL,HOME=/home/bfabric
 
 # Grid Engine Parameters
-#$ -q {0}
+#$ -q {0}&{11}
 #$ -e {1}
 #$ -o {2}
 
@@ -645,7 +652,7 @@ bfabric_setResourceStatus_available.py $RESSOURCEID_STDOUT_STDERR
 
 
 exit 0
-""".format(self.queue,
+""".format(self.partition,
                config['job_configuration']['stderr']['url'],
                config['job_configuration']['stdout']['url'],
                config['job_configuration']['external_job_id'],
@@ -655,7 +662,8 @@ exit 0
                ",".join(config['application']['output']),
                configuration,
                config['job_configuration']['executable'],
-               config['job_configuration']['workunit_id'])
+               config['job_configuration']['workunit_id'],
+               self.nodelist)
 
         return _cmd_template
 
@@ -821,7 +829,7 @@ exit 0
 
         _log_storage = self.read_object('storage', obj={'id': 7})[0]
         # Temporarily modified to run Slurm test jobs
-        if application.name.replace(' ', '_')=="MaxQuant_textfiles":
+        if application.name.replace(' ', '_') in ["MaxQuant_textfiles","appl_func_test"]:
             _log_storage = self.read_object('storage', obj={'id': 13})[0]
 
         #_cmd_applicationList = [workunit_executable.program]

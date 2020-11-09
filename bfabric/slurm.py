@@ -43,7 +43,7 @@ class SLURM(object):
     interface to Slurm sbatch 
     """
 
-    def __init__(self, user='*', partition="prx", SLURMROOT='/usr/'):
+    def __init__(self, user='*', SLURMROOT='/usr/'):
         """
         Set up parameters for querying Slurm.
 
@@ -51,7 +51,6 @@ class SLURM(object):
         """
 
         self.user = user
-        self.partition = partition
         self.sbatchbin = "{0}/{1}".format(SLURMROOT, "bin/sbatch")
 
         os.environ["SLURM_ROOT"] = SLURMROOT
@@ -60,7 +59,7 @@ class SLURM(object):
         """
             todo: pass stderr and stdout file location as argument
         """
-        sbatch_cmd = [self.sbatchbin, "-p", self.partition, script, " ".join(arguments)]
+        sbatch_cmd = [self.sbatchbin, script, " ".join(arguments)]
 
         if not os.path.isfile(self.sbatchbin):
             print ("{0} can not be found.".format(self.sbatchbin))
@@ -85,10 +84,3 @@ class SLURM(object):
             raise
 
 
-def main():
-    print ("hello world!")
-    pass
-
-
-if __name__ == "__main__": 
-    main()

@@ -14,6 +14,7 @@ Uploader for B-Fabric
 #   Christian Panse <cp@fgcz.ethz.ch>
 #
 # Last modified on October 22nd 2020
+# Last modified on November 9th 2020
 #
 # Licensed under  GPL version 3
 #
@@ -28,10 +29,14 @@ Uploader for B-Fabric
 #   {slurm,gridengine}  Valid engines for job handling are: slurm, gridengine
 #
 # Example of use:
-#
+# 
+# For bfabric.__version__ <= 10.21
 # bfabric_upload_submitter_executable.py bfabric_executable_submitter_functionalTest.py gridengine --name "Dummy - yaml / Grid Engine executable" --description "Dummy submitter for the bfabric functional test using Grid Engine."
 #
-
+# For bfabric.__version__ >= 10.22
+# ./bfabric_upload_submitter_executable.py bfabric_executable_submitter_functionalTest.py gridengine --name "Dummy_-_yaml___Grid_Engine_executable" --description "test new submitter's parameters"
+# ./bfabric_upload_submitter_executable.py bfabric_executable_submitter_functionalTest.py slurm --name "Dummy_-_yaml___Slurm_executable" --description "test new submitter's parameters"
+#
 
 import os
 import sys
@@ -63,9 +68,12 @@ def main(options):
         executable = f.read()
 
     attr = { 'context': 'SUBMITTER', 
-        'parameter': {'modifiable': 'true', 
+        'parameter': [{'modifiable': 'true', 
             'required': 'true', 
-            'type':'STRING'}, 
+            'type':'STRING'},
+            {'modifiable': 'true', 
+            'required': 'true', 
+            'type':'STRING'}],
         'masterexecutableid': 11871,
         'status': 'available',
         'enabled': 'true',
@@ -74,20 +82,31 @@ def main(options):
 
     if engine == "slurm":
         attr['name'] = 'yaml / Slurm executable'
-        attr['parameter']['description'] = 'Which Slurm node in partiton PRX should be used.'
-        attr['parameter']['enumeration'] = 'fgcz-r-035'
-        attr['parameter']['key'] = 'queue'
-        attr['parameter']['label'] = 'queue'
-        attr['parameter']['value'] = 'fgcz-r-035'
+        attr['parameter'][0]['description'] = 'Which Slurm partition in partiton PRX should be used.'
+        attr['parameter'][0]['enumeration'] = 'prx'
+        attr['parameter'][0]['key'] = 'partition'
+        attr['parameter'][0]['label'] = 'partition'
+        attr['parameter'][0]['value'] = 'prx'
+        attr['parameter'][1]['description'] = 'Which Slurm nodelist in partiton PRX should be used.'
+        attr['parameter'][1]['enumeration'] = 'fgcz-r-035'
+        attr['parameter'][1]['enumeration'] = 'fgcz-r-028'
+        attr['parameter'][1]['key'] = 'nodelist'
+        attr['parameter'][1]['label'] = 'nodelist'
+        attr['parameter'][1]['value'] = 'fgcz-r-035'
         attr['version'] = 0.1 
         attr['description'] = 'Stage the yaml config file to application using Slurm.'
     elif engine == "gridengine":
         attr['name'] = 'yaml /  Grid Engine executable'
-        attr['parameter']['description'] = 'Which Grid Engine queue should be used.'
-        attr['parameter']['enumeration'] = 'PRX@fgcz-r-028'
-        attr['parameter']['key'] = 'queue'
-        attr['parameter']['label'] = 'queue'
-        attr['parameter']['value'] = 'PRX@fgcz-r-028' 
+        attr['parameter'][0]['description'] = 'Which Grid Engine partition should be used.'
+        attr['parameter'][0]['enumeration'] = 'PRX'
+        attr['parameter'][0]['key'] = 'partition'
+        attr['parameter'][0]['label'] = 'partition'
+        attr['parameter'][0]['value'] = 'PRX' 
+        attr['parameter'][1]['description'] = 'Which Grid Engine nodelist should be used.'
+        attr['parameter'][1]['enumeration'] = 'fgcz-r-028'
+        attr['parameter'][1]['key'] = 'nodelist'
+        attr['parameter'][1]['label'] = 'nodelist'
+        attr['parameter'][1]['value'] = 'fgcz-r-028' 
         attr['version'] = 3.00 
         attr['description'] = 'Stage the yaml config file to an application using Grid Engine.' 
 
