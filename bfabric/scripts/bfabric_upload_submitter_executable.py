@@ -83,17 +83,16 @@ def main(options):
     if engine == "slurm":
         attr['name'] = 'yaml / Slurm executable'
         attr['parameter'][0]['description'] = 'Which Slurm partition in partiton PRX should be used.'
-        attr['parameter'][0]['enumeration'] = 'prx'
+        attr['parameter'][0]['enumeration'] = ['prx','maxquant','scaffold','mascot']
         attr['parameter'][0]['key'] = 'partition'
         attr['parameter'][0]['label'] = 'partition'
         attr['parameter'][0]['value'] = 'prx'
         attr['parameter'][1]['description'] = 'Which Slurm nodelist in partiton PRX should be used.'
-        attr['parameter'][1]['enumeration'] = 'fgcz-r-035'
-        attr['parameter'][1]['enumeration'] = 'fgcz-r-028'
+        attr['parameter'][1]['enumeration'] = ['fgcz-r-[035,028,033,018]','fgcz-r-035','fgcz-r-033','fgcz-r-028','fgcz-r-018']
         attr['parameter'][1]['key'] = 'nodelist'
         attr['parameter'][1]['label'] = 'nodelist'
-        attr['parameter'][1]['value'] = 'fgcz-r-035'
-        attr['version'] = 0.1 
+        attr['parameter'][1]['value'] = 'fgcz-r-[035,033,028,018]'
+        attr['version'] = 1.00 
         attr['description'] = 'Stage the yaml config file to application using Slurm.'
     elif engine == "gridengine":
         attr['name'] = 'yaml /  Grid Engine executable'
@@ -102,12 +101,12 @@ def main(options):
         attr['parameter'][0]['key'] = 'partition'
         attr['parameter'][0]['label'] = 'partition'
         attr['parameter'][0]['value'] = 'PRX' 
-        attr['parameter'][1]['description'] = 'Which Grid Engine nodelist should be used.'
-        attr['parameter'][1]['enumeration'] = 'fgcz-r-028'
+        attr['parameter'][1]['description'] = 'Which Grid Engine node should be used.'
+        attr['parameter'][1]['enumeration'] = ['fgcz-r-033','fgcz-r-028','fgcz-r-018']
         attr['parameter'][1]['key'] = 'nodelist'
         attr['parameter'][1]['label'] = 'nodelist'
         attr['parameter'][1]['value'] = 'fgcz-r-028' 
-        attr['version'] = 3.00 
+        attr['version'] = 1.00 
         attr['description'] = 'Stage the yaml config file to an application using Grid Engine.' 
 
     if options.name:
