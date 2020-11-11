@@ -28,13 +28,20 @@ Uploader for B-Fabric
 #   filename            Bash executable of the submitter
 #   {slurm,gridengine}  Valid engines for job handling are: slurm, gridengine
 #
+#
 # Example of use:
 # 
-# For bfabric.__version__ <= 10.21
-# bfabric_upload_submitter_executable.py bfabric_executable_submitter_functionalTest.py gridengine --name "Dummy - yaml / Grid Engine executable" --description "Dummy submitter for the bfabric functional test using Grid Engine."
+# For bfabric.__version__ < 0.10.22
 #
-# For bfabric.__version__ >= 10.22
-# ./bfabric_upload_submitter_executable.py bfabric_executable_submitter_functionalTest.py gridengine --name "Dummy_-_yaml___Grid_Engine_executable" --description "test new submitter's parameters"
+# ./bfabric_upload_submitter_executable.py bfabric_executable_submitter_functionalTest.py gridengine --name "Dummy - yaml / Grid Engine executable" --description "Dummy submitter for the bfabric functional test using Grid Engine."
+#
+#
+# For bfabric.__version__ >= 0.10.22
+#
+# ./bfabric_upload_submitter_executable.py bfabric_executable_submitter_slurm.py slurm
+#
+# ./bfabric_upload_submitter_executable.py bfabric_executable_submitter_functionalTest.py slurm --name "Yaml_Slurm executable - bfabric functional test" --description "Submitter executable for the bfabric functional test using Slurm"
+#
 # ./bfabric_upload_submitter_executable.py bfabric_executable_submitter_functionalTest.py slurm --name "Dummy_-_yaml___Slurm_executable" --description "test new submitter's parameters"
 #
 
@@ -69,9 +76,12 @@ def main(options):
 
     attr = { 'context': 'SUBMITTER', 
         'parameter': [{'modifiable': 'true', 
-            'required': 'true', 
+            'required': 'true',
             'type':'STRING'},
-            {'modifiable': 'true', 
+            {'modifiable': 'true',
+            'required': 'true',
+            'type':'STRING'},
+            {'modifiable': 'true',
             'required': 'true', 
             'type':'STRING'}],
         'masterexecutableid': 11871,
@@ -82,17 +92,22 @@ def main(options):
 
     if engine == "slurm":
         attr['name'] = 'yaml / Slurm executable'
-        attr['parameter'][0]['description'] = 'Which Slurm partition in partiton PRX should be used.'
+        attr['parameter'][0]['description'] = 'Which Slurm partition should be used.'
         attr['parameter'][0]['enumeration'] = ['prx','maxquant','scaffold','mascot']
         attr['parameter'][0]['key'] = 'partition'
         attr['parameter'][0]['label'] = 'partition'
         attr['parameter'][0]['value'] = 'prx'
-        attr['parameter'][1]['description'] = 'Which Slurm nodelist in partiton PRX should be used.'
-        attr['parameter'][1]['enumeration'] = ['fgcz-r-[035,028,033,018]','fgcz-r-035','fgcz-r-033','fgcz-r-028','fgcz-r-018']
+        attr['parameter'][1]['description'] = 'Which Slurm nodelist should be used.'
+        attr['parameter'][1]['enumeration'] = ['fgcz-r-[035,028]','fgcz-r-035','fgcz-r-033','fgcz-r-028','fgcz-r-018']
         attr['parameter'][1]['key'] = 'nodelist'
         attr['parameter'][1]['label'] = 'nodelist'
-        attr['parameter'][1]['value'] = 'fgcz-r-[035,033,028,018]'
-        attr['version'] = 1.00 
+        attr['parameter'][1]['value'] = 'fgcz-r-[035,028]'
+        attr['parameter'][2]['description'] = 'Which Slurm memory should be used.'
+        attr['parameter'][2]['enumeration'] = ['10G','50G','128G','256G','512G','960G']
+        attr['parameter'][2]['key'] = 'memory'
+        attr['parameter'][2]['label'] = 'memory'
+        attr['parameter'][2]['value'] = '10G'
+        attr['version'] = 1.02
         attr['description'] = 'Stage the yaml config file to application using Slurm.'
     elif engine == "gridengine":
         attr['name'] = 'yaml /  Grid Engine executable'

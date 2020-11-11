@@ -477,13 +477,14 @@ class BfabricSubmitter():
     execfilelist = []
 
     def __init__(self, login=None, password=None, externaljobid=None,
-                 user='*', partition="prx", nodelist="fgcz-r-028", SCHEDULEROOT='/export/bfabric/bfabric/', scheduler="GridEngine"):
+                 user='*', partition="prx", nodelist="fgcz-r-028", memory="10G", SCHEDULEROOT='/export/bfabric/bfabric/', scheduler="GridEngine"):
         """
         :rtype : object
         """
         self.B = BfabricExternalJob(login=login, password=password, externaljobid=externaljobid)
         self.partition = partition
         self.nodelist = nodelist
+        self.memory = memory
         self.SCHEDULEROOT = SCHEDULEROOT
         self.user = user
         self.scheduler = scheduler
@@ -508,13 +509,16 @@ class BfabricSubmitter():
 
         partition = [x for x in self.parameters if x.key == "partition"]
         nodelist = [x for x in self.parameters if x.key == "nodelist"]
+        memory = [x for x in self.parameters if x.key == "memory"]
 
         try:
-            if len(partition) > 0 and len(nodelist) > 0:
+            if len(partition) > 0 and len(nodelist) > 0 and len(memory)>0:
                 self.partition = partition[0].value
                 self.nodelist = nodelist[0].value
+                self.memory = memory[0].value
                 print(("partition={0}".format(self.partition)))
                 print(("nodelist={0}".format(self.nodelist)))
+                print(("memory={0}".format(self.memory)))
         except:
             pass
 
@@ -571,6 +575,10 @@ class BfabricSubmitter():
 # Slurm
 #SBATCH --partition={0}
 #SBATCH --nodelist={11}
+#SBATCH -n 1
+#SBATCH -N 1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem-per-cpu={12}
 #SBATCH -e {1}
 #SBATCH -o {2}
 #SBATCH --job-name=WU{10}
@@ -663,7 +671,8 @@ exit 0
                configuration,
                config['job_configuration']['executable'],
                config['job_configuration']['workunit_id'],
-               self.nodelist)
+               self.nodelist,
+               self.memory)
 
         return _cmd_template
 
