@@ -704,9 +704,8 @@ exit 0
             _cmd_template = self.compose_bash_script(configuration=content,
                                                      configuration_parser=lambda x: yaml.load(x))
 
-
-            _bash_script_filename = "/home/bfabric/prx/externaljobid-{0}_executableid-{1}.bash"\
-                .format(self.B.externaljobid, executable._id)
+            _bash_script_filename = "/home/bfabric/prx/workunitid-{0}_externaljobid-{1}_executableid-{2}.bash"\
+                .format(self.B.get_workunitid_of_externaljob(), self.B.externaljobid, executable._id)
 
             with open(_bash_script_filename, 'w') as f:
                 f.write(_cmd_template)
@@ -915,13 +914,13 @@ exit 0
 
         print (_ressource_output)
         _resource_stderr = self.save_object('resource', {
-            'name': 'grid_engine_stderr',
+            'name': 'slurm_stderr',
             'workunitid': int(workunit._id),
             'storageid': _log_storage._id,
             'relativepath': "/workunitid-{0}_resourceid-{1}.err".format(workunit._id, _ressource_output._id)})[0]
 
         _resource_stdout = self.save_object('resource', {
-            'name': 'grid_engine_stdout',
+            'name': 'slurm_stdout',
             'workunitid': workunit._id,
             'storageid': _log_storage._id,
             'relativepath': "/workunitid-{0}_resourceid-{1}.out".format(workunit._id, _ressource_output._id)})[0]
