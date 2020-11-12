@@ -619,7 +619,7 @@ fi
 
 # job configuration set by B-Fabrics wrapper_creator executable
 # application parameter/configuration
-cat > $TEMPDIR/config_W$WORKUNIT_ID.yaml <<EOF
+cat > $TEMPDIR/config_WU$WORKUNIT_ID.yaml <<EOF
 {8}
 EOF
 
@@ -632,12 +632,12 @@ then
 
     (who am i; hostname; uptime; echo $0; pwd; ps;) \
     | mutt -s "JOB_ID=$JOB_ID WORKUNIT_ID=$WORKUNIT_ID EXTERNALJOB_ID=$EXTERNALJOB_ID" $EMAIL \
-        -a $TEMPDIR/$JOB_ID.bash $TEMPDIR/config_W$WORKUNIT_ID.yaml 
+        -a $TEMPDIR/$JOB_ID.bash $TEMPDIR/config_WU$WORKUNIT_ID.yaml 
 fi
 # exit 0
 
 # run the application
-test -f $TEMPDIR/config_W$WORKUNIT_ID.yaml && {9} $TEMPDIR/config_W$WORKUNIT_ID.yaml
+test -f $TEMPDIR/config_WU$WORKUNIT_ID.yaml && {9} $TEMPDIR/config_WU$WORKUNIT_ID.yaml
 
 sleep 10
 
