@@ -836,10 +836,8 @@ exit 0
             today.strftime('%Y/%Y-%m/%Y-%m-%d/'),
             workunitid)
 
-        _log_storage = self.read_object('storage', obj={'id': 7})[0]
-        # Temporarily modified to run Slurm test jobs
-        if application.name.replace(' ', '_') in ["MaxQuant_textfiles","appl_func_test"]:
-            _log_storage = self.read_object('storage', obj={'id': 13})[0]
+        # Setup the log_storage to SlurmLog with id 13
+        _log_storage = self.read_object('storage', obj={'id': 13})[0]
 
         #_cmd_applicationList = [workunit_executable.program]
 
