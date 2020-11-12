@@ -70,10 +70,10 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         logging.info("Creating a new test application, mimicking the user application")
         # In order to create the application, wrappercreatorid and submitterid must be provided.
         # Note that: in this specific case the wrappercreatorid is a placeholder, and it will be replaced by a test executable later in this functional test.
-        # The executable for submitterid=10 has been created in the test system running the following script:
+        # The executable for submitterid=11 has been created in the test system running the following script:
         # ./bfabric_upload_submitter_executable.py bfabric_executable_submitter_functionalTest.py slurm --name "Dummy_-_yaml___Slurm_executable" --description "test new submitter's parameters"
         # Note that the executable bfabric_executable_submitter_functionalTest.py only prints "Dummy submitter executable defined for the bfabricPy functional test".
-        application =  B.save_object("application", obj={"name": "appl_func_test", 'type': 'Analysis', 'technologyid': 2, 'description': "Application functional test", 'executableid': executableid, "wrappercreatorid": 8, "submitterid": 10, 'storageid': 1, 'outputfileformat': 'txt'})
+        application =  B.save_object("application", obj={"name": "appl_func_test", 'type': 'Analysis', 'technologyid': 2, 'description': "Application functional test", 'executableid': executableid, "wrappercreatorid": 8, "submitterid": 11, 'storageid': 1, 'outputfileformat': 'txt'})
         try: 
             if application[0].errorreport:
                 logging.error("Error while creating the application")
