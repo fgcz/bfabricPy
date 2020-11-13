@@ -442,6 +442,17 @@ class BfabricExternalJob(Bfabric):
             pass
         return workunit_id
 
+    def get_application_name(self):
+        workunitid = self.get_workunitid_of_externaljob()
+        if workunitid is None:
+            raise ValueError("no workunit available for the given externaljobid.")
+        workunit = self.read_object(endpoint='workunit', obj={'id': workunitid})[0]
+        if workunit is None:
+            raise ValueError("ERROR: no workunit available for the given externaljobid.")
+        assert isinstance(workunit._id, int)
+        application = self.read_object('application', obj={'id': workunit.application._id})[0]
+        return application.name.replace(' ', '_')
+        
 
     def get_executable_of_externaljobid(self):
         """ 
@@ -475,6 +486,14 @@ class BfabricSubmitter():
     workunit = None
     parameters = None
     execfilelist = []
+    slurm_dict = {"MaxQuant_textfiles_sge" : {'partition': "prx", 'nodelist': "fgcz-r-033", 'memory':"1G"}, 
+            "fragpipe" : {'partition': "prx", 'nodelist': "fgcz-r-033", 'memory':"256G"}, 
+            "MaxQuant" : {'partition': "maxquant", 'nodelist': "fgcz-r-033", 'memory':"4G"}, 
+            "scaffold_generic" : {'partition': "scaffold", 'nodelist': "fgcz-r-033", 'memory':"256G"}, 
+            "MSstats dataProcess" : {'partition': "prx", 'nodelist': "fgcz-r-033", 'memory':"64G"}, 
+            "MaxQuant_sampleSizeEstimation" : {'partition': "prx", 'nodelist': "fgcz-r-028", 'memory': "32G"}, 
+            "ProteomeDiscovererQC" : {'partition': "prx", 'nodelist': "fgcz-r-035", 'memory': "16G"} 
+            }
 
     def __init__(self, login=None, password=None, externaljobid=None,
                  user='*', partition="prx", nodelist="fgcz-r-028", memory="10G", SCHEDULEROOT='/export/bfabric/bfabric/', scheduler="GridEngine"):
@@ -511,17 +530,22 @@ class BfabricSubmitter():
         nodelist = [x for x in self.parameters if x.key == "nodelist"]
         memory = [x for x in self.parameters if x.key == "memory"]
 
-        try:
-            if len(partition) > 0 and len(nodelist) > 0 and len(memory)>0:
-                self.partition = partition[0].value
-                self.nodelist = nodelist[0].value
-                self.memory = memory[0].value
-                print(("partition={0}".format(self.partition)))
-                print(("nodelist={0}".format(self.nodelist)))
-                print(("memory={0}".format(self.memory)))
-        except:
+        if len(partition) > 0 and len(nodelist) > 0 and len(memory)>0:
+            self.partition = partition[0].value
+            self.nodelist = nodelist[0].value
+            self.memory = memory[0].value
+        elif "queue" in [x.key for x in self.parameters][0]:
+            # Temporary check for old workunit previously run with SGE
+            application_name = self.B.get_application_name()
+            self.partition = self.slurm_dict[application_name]['partition']
+            self.nodelist = self.slurm_dict[application_name]['nodelist']
+            self.memory = self.slurm_dict[application_name]['memory']
+        else:
             pass
 
+        print(("partition={0}".format(self.partition)))
+        print(("nodelist={0}".format(self.nodelist)))
+        print(("memory={0}".format(self.memory)))
         print("__init__ DONE")
 
 
