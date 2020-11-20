@@ -491,8 +491,8 @@ class BfabricSubmitter():
             "MaxQuant" : {'partition': "maxquant", 'nodelist': "fgcz-r-033", 'memory':"4G"}, 
             "scaffold_generic" : {'partition': "scaffold", 'nodelist': "fgcz-r-033", 'memory':"256G"}, 
             "MSstats dataProcess" : {'partition': "prx", 'nodelist': "fgcz-r-033", 'memory':"64G"}, 
-            "MaxQuant_sampleSizeEstimation" : {'partition': "prx", 'nodelist': "fgcz-r-028", 'memory': "32G"}, 
-            "ProteomeDiscovererQC" : {'partition': "prx", 'nodelist': "fgcz-r-035", 'memory': "16G"} 
+            "MaxQuant_sampleSizeEstimation" : {'partition': "prx", 'nodelist': "fgcz-r-028", 'memory': "2G"}, 
+            "ProteomeDiscovererQC" : {'partition': "prx", 'nodelist': "fgcz-r-035", 'memory': "2G"} 
             }
 
     def __init__(self, login=None, password=None, externaljobid=None,
