@@ -69,18 +69,14 @@ class SLURM(object):
             print ("'{0}' - no such file.".format(script))
             return
 
-        try:
-            sbatch_process = subprocess.Popen(
-                sbatch_cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                shell=False)
-            stdout, stderr = sbatch_process.communicate()
+        sbatch_process = subprocess.Popen(
+            sbatch_cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=False)
+        result = [x.decode('utf-8') for x in sbatch_process.communicate()]
 
-            return stdout
+        return ''.join(result)
 
-        # except subprocess.CalledProcessError, ex:
-        except:
-            raise
 
 
