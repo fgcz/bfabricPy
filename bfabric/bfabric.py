@@ -847,6 +847,17 @@ exit 0
 
         # Get container details
         container = workunit.container
+        if container._classname=="order":
+            order = self.read_object('container', obj={'id': container._id})[0]
+            order_id = order._id
+            if "project" in order:
+                project_id = order.project._id
+            else:
+                project_id = None
+        else:
+            order_id = None
+            project_id = container._id
+
         today = datetime.date.today()
 
         # merge all information into the executable script
@@ -1008,7 +1019,9 @@ exit 0
                     },
                 'workunit_id': int(workunit._id),
                 'workunit_url': "{0}/userlab/show-workunit.html?workunitId={1}".format(self.webbase, workunit._id),
-                'external_job_id': int(yaml_workunit_externaljob._id)
+                'external_job_id': int(yaml_workunit_externaljob._id),
+                'order_id': order_id,
+                'project_id': project_id
             },
             'application' : {
                 'protocol': 'scp',
