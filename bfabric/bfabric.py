@@ -618,7 +618,7 @@ class BfabricSubmitter():
 set -e
 set -o pipefail
 
-export EMAIL="cp@fgcz.ethz.ch wew@fgcz.ethz.ch"
+export EMAIL="cp@fgcz.ethz.ch wew@fgcz.ethz.ch maria.derrico@fgcz.ethz.ch"
 export EXTERNALJOB_ID={3}
 export RESSOURCEID_OUTPUT={4}
 export RESSOURCEID_STDOUT_STDERR="{5} {6}"
