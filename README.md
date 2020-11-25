@@ -73,7 +73,7 @@ resource = B.read_object(endpoint = 'resource', obj={'id': 550327 })
 
 ### save
 ```
-B.save_object('workunit', {'id': 254063, 'status': 'available'})
+rv = B.save_object('workunit', {'id': 254063, 'status': 'available'})
 B.print_json(rv)
 ```
 
