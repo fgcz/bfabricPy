@@ -83,7 +83,7 @@ B.print_json(rv)
 remove pending workunits from the past
 ```{bash} 
  bfabric_read.py workunit status pending \
-   | awk '$2~/cpanse/&&$3~/2015/{print $1}'
+   | awk '$2~/cpanse/ && $3~/2015/{print $1}'
    | fgcz_bfabric_delete_workunits.py 
 ```
 
