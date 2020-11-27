@@ -534,7 +534,7 @@ class BfabricSubmitter():
             self.partition = partition[0].value
             self.nodelist = nodelist[0].value
             self.memory = memory[0].value
-        elif "queue" in [x.key for x in self.parameters][0]:
+        elif "queue" in [x.key for x in self.parameters]:
             # Temporary check for old workunit previously run with SGE
             application_name = self.B.get_application_name()
             self.partition = self.slurm_dict[application_name]['partition']
