@@ -23,14 +23,15 @@ jobs:
       with:
         python-version: 3.8
     - shell: bash
+      name: Create .bfabricrc.py configuration file
       env:
         WEBBASE: ${{ secrets.BFABRICWEBBASE }}
         LOGIN: ${{ secrets.BFABRICLOGIN }}
         PASSWD: ${{ secrets.BFABRICPASSWD }}
       run: |
-        echo "_WEBBASE=\""$WEBBASE\" > .bfabricrc.py
-        echo "_LOGIN=\""$LOGIN\" >> .bfabricrc.py
-        echo "_PASSWD=\""$PASSWD\" >> .bfabricrc.py
+        echo "_WEBBASE=\""$WEBBASE\" > ~/.bfabricrc.py
+        echo "_LOGIN=\""$LOGIN\" >> ~/.bfabricrc.py
+        echo "_PASSWD=\""$PASSWD\" >> ~/.bfabricrc.py
     - name: Install bfabricPy and dependencies
       run: |
         python -m pip install --upgrade pip
