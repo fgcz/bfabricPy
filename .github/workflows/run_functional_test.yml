@@ -34,6 +34,7 @@ jobs:
         echo "_PASSWD=\""$PASSWD\" >> ~/.bfabricrc.py
     - name: Install bfabricPy and dependencies
       run: |
+        mkdir -p /home/bfabric/prx/
         python -m pip install --upgrade pip
         python setup.py sdist
         pip install dist/bfabric-0.10.*.tar.gz
