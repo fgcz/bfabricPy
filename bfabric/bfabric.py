@@ -496,7 +496,7 @@ class BfabricSubmitter():
             }
 
     def __init__(self, login=None, password=None, externaljobid=None,
-                 user='*', partition="prx", nodelist="fgcz-r-028", memory="10G", SCHEDULEROOT='/export/bfabric/bfabric/', scheduler="GridEngine"):
+                 user='*', node="PRX@fgcz-r-018", partition="prx", nodelist="fgcz-r-028", memory="10G", SCHEDULEROOT='/export/bfabric/bfabric/', scheduler="GridEngine"):
         """
         :rtype : object
         """
@@ -529,14 +529,17 @@ class BfabricSubmitter():
         partition = [x for x in self.parameters if x.key == "partition"]
         nodelist = [x for x in self.parameters if x.key == "nodelist"]
         memory = [x for x in self.parameters if x.key == "memory"]
+        application_name = self.B.get_application_name()
 
         if len(partition) > 0 and len(nodelist) > 0 and len(memory)>0:
             self.partition = partition[0].value
             self.nodelist = nodelist[0].value
             self.memory = memory[0].value
-        elif "queue" in [x.key for x in self.parameters]:
+        elif "queue" in [x.key for x in self.parameters] and application_name=="Mascot_site_localization_export":
+            self.queue = [x for x in self.parameters if x.key == "queue"][0].value
+            print(("queue={0}".format(self.queue)))
+        elif "queue" in [x.key for x in self.parameters] and application_name in self.slurm_dict:
             # Temporary check for old workunit previously run with SGE
-            application_name = self.B.get_application_name()
             self.partition = self.slurm_dict[application_name]['partition']
             self.nodelist = self.slurm_dict[application_name]['nodelist']
             self.memory = self.slurm_dict[application_name]['memory']
@@ -551,7 +554,7 @@ class BfabricSubmitter():
 
     def submit_gridengine(self, script="/tmp/runme.bash", arguments=""):
 
-        GE = gridengine.GridEngine(user=self.user, queue="@".join((self.partition, self.nodelist)), GRIDENGINEROOT=self.SCHEDULEROOT)
+        GE = gridengine.GridEngine(user=self.user, queue=self.queue, GRIDENGINEROOT=self.SCHEDULEROOT)
 
         print(script)
         print((type(script)))
