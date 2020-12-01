@@ -37,7 +37,7 @@
             },
             {
                "_id":162,
-               "status":"archived"
+               "status":"ARCHIVED"
             }
          ]
       ],
@@ -48,7 +48,7 @@
             },
             {
                "name":"autoQC4L",
-               "type":"Biological Sample - Proteomics"
+               "type":"Biological Sample - Proteomics User Lab"
             }
          ]
       ],
