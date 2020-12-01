@@ -7,7 +7,7 @@ on:
   push:
     branches: [ bfabric10 ]
   schedule:
-    - cron: "00 13 * * *"
+    - cron: "00 08 * * *"
   pull_request:
     branches: [ bfabric10 ]
 
