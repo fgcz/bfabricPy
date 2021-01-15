@@ -857,6 +857,10 @@ exit 0
                 project_id = order.project._id
             else:
                 project_id = None
+            if "fastasequence" in order:
+                fastasequence = order.fastasequence
+            else:
+                fastasequence = ""
         else:
             order_id = None
             project_id = container._id
@@ -1024,7 +1028,8 @@ exit 0
                 'workunit_url': "{0}/userlab/show-workunit.html?workunitId={1}".format(self.webbase, workunit._id),
                 'external_job_id': int(yaml_workunit_externaljob._id),
                 'order_id': order_id,
-                'project_id': project_id
+                'project_id': project_id,
+                'fastasequence': fastasequence
             },
             'application' : {
                 'protocol': 'scp',
