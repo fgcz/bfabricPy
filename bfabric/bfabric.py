@@ -173,6 +173,38 @@ class Bfabric(object):
     def get_para(self):
         return {'bflogin': self.bflogin, 'webbase': self.webbase}
 
+
+    def read_content(self, endpoint, obj, login=None, password=None):
+    """
+    https://gitlab.bfabric.org/employees/b-fabric-issues/-/issues/247
+    """
+        if login is None:
+            login = self.bflogin
+
+        if password is None:
+            password = self.bfpassword
+
+        if endpoint is not 'resource':
+            self.warning("This function works only with 'resource' as endpoint.")
+            return None
+
+        self.query_counter = self.query_counter + 1
+        query = dict(login=login, page=1, password=password, query=obj)
+
+        try:
+            if not endpoint in self.cl:
+                self.cl[endpoint] = Client("".join((self.webbase, '/', endpoint, "?wsdl")), cache=None)
+        except Exception as e:
+            print (e)
+            raise
+
+        try:
+            res = self.cl[endpoint].service.readContent(query)
+        except Exception as e:
+            print (e)
+            raise
+
+        return res
     def read_object(self, endpoint, obj, login=None, password=None):
         """
         A generic method which can connect to any endpoint, e.g., workunit, project, order,
