@@ -25,11 +25,7 @@ from time import sleep
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        bfapp = bfabric.BfabricFeeder()
-        # bfapp.set_bfabric_webbase()
+        B = bfabric.BfabricFeeder()
 
-        try:
-            res = bfapp.save_object(endpoint='workunit', obj={'id': int(sys.argv[1]), 'status': 'available'})
-            print res
-        except:
-            pass
+        res = B.save_object(endpoint='workunit', obj={'id': int(sys.argv[1]), 'status': 'available'})
+        B.print_json(res)
