@@ -173,7 +173,7 @@ class Bfabric(object):
     def get_para(self):
         return {'bflogin': self.bflogin, 'webbase': self.webbase}
 
-    def read_object(self, endpoint, obj, login=None, password=None):
+    def read_object(self, endpoint, obj, login=None, password=None, page=1):
         """
         A generic method which can connect to any endpoint, e.g., workunit, project, order,
         externaljob, etc, and returns the object with the requested id.
@@ -187,7 +187,7 @@ class Bfabric(object):
             password = self.bfpassword
 
         self.query_counter = self.query_counter + 1
-        QUERY = dict(login=login, page=1, password=password, query=obj)
+        QUERY = dict(login=login, page=page, password=password, query=obj)
 
         try:
             if not endpoint in self.cl:
