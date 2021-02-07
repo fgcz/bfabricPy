@@ -7,35 +7,31 @@
 # $Date: 2021-02-05 16:38:38 +0100 (Fri, 05 Feb 2021) $
 
 
-# LOG
+# Author
 2012-10-08 Christian Panse <cp@fgcz.ethz.ch>
 2012-10-10 Christian Panse <cp@fgcz.ethz.ch>
 2012-10-11 Christian Panse <cp@fgcz.ethz.ch>
 2021-01-06 Christian Panse <cp@fgcz.ethz.ch> - replace multiprocess by caching strategy
 
-# use shell for getting the files ready 
+# Usage
 
 find /usr/local/mascot/data/ -type f -mtime -1 -name "*dat" \
   | /home/cpanse/__checkouts/bfabricPy/bfabric/scripts/bfabric_feeder_mascot.py --stdin
 
-# crontab
+# Crontab
 0   0      *       *       7       nice -19 /usr/local/fgcz-s-018/bfabric-feeder/run_fgcz_dataFeederMascot.bash 365 2>&1 >/dev/null
 3   */2       *       *       1-6       nice -19 /usr/local/fgcz-s-018/bfabric-feeder/run_fgcz_dataFeederMascot.bash 7 2>&1 >/dev/null
 */7   5-22       *       *       1-5     nice -19  /usr/local/fgcz-s-018/bfabric-feeder/run_fgcz_dataFeederMascot.bash 1  2>&1 >/dev/null
-
 """
 
 import os
-import signal
 import re
 import sys
-import itertools
-import urllib 
+#import urllib 
 import hashlib 
 import time
 import getopt
 from suds.client import Client
-#import logging, logging.handlers
 import json
 
 import httplib
@@ -52,6 +48,7 @@ BFPASSWORD='!ForYourEyesOnly!'
 DB=dict()
 DBfilename="{}/mascot.json".format(os.getenv("HOME"))
 DBwritten=False
+
 try:
     DB = json.load(open(DBfilename))
 except:
@@ -83,6 +80,7 @@ def feedMascot2BFabric(f):
         else:
             print ("parsing mascot result file '{}'...".format(f))
             wu = parseMascotDatFile(f)
+            print ("updating cache '{}' file ...".format(DBfilename))
             DB[f] = wu
 
         if len(wu['inputresource']) > 0:
@@ -90,7 +88,9 @@ def feedMascot2BFabric(f):
                 print ("WARNING This script ignores autoQC based mascot dat file {}.".format(f))
                 return 
 
-            print("\tquerying  bfabric ...")
+            print("\tquerying bfabric ...")
+
+            # jsut in case
             if 'errorreport' in wu:
                 del(wu['errorreport'])
 
@@ -120,6 +120,7 @@ def feedMascot2BFabric(f):
                 DBwritten=True
 
             if not '_id' in rv and not 'errorreport' in rv:
+                print("something went wrong.")
                 raise
                 # print (resultClientWorkUnit)
                 #print ("exception for file {} with error {}".format(f, e))
