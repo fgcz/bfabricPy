@@ -17,14 +17,13 @@ For more advanced users the *bfabricPy* package also provides a powerful query i
 
 ```{bash}
 git clone git@github.com:fgcz/bfabricPy.git  \
-  && cd bfabricPy \
-  && git checkout bfabric10
+  && cd bfabricPy 
 ```
 
 ## Install
 
 ```{bash}
-python3 setup.py sdist && sudo pip3 install dist/bfabric-0.10.*.tar.gz
+python3 setup.py sdist && pip3 install dist/bfabric-0.10.*.tar.gz --user
 ```
 
 
