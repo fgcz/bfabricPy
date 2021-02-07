@@ -1,101 +1,129 @@
 #!/usr/bin/python
 # -*- coding: latin1 -*-
+ 
+"""
+# $HeadURL: https://fgcz-svn.uzh.ch/repos/fgcz/computer/fgcz-s-018/bfabric-feeder/fgcz_dataFeederMascot.py $
+# $Id: fgcz_dataFeederMascot.py 9097 2021-02-05 15:38:38Z cpanse $
+# $Date: 2021-02-05 16:38:38 +0100 (Fri, 05 Feb 2021) $
 
-# $HeadURL: http://fgcz-svn.uzh.ch/repos/fgcz/computer/fgcz-s-018/bfabric-feeder/fgcz_dataFeederMascot.py $
-# $Id: fgcz_dataFeederMascot.py 8105 2016-11-24 15:31:03Z cpanse $
-# $Date: 2016-11-24 16:31:03 +0100 (Thu, 24 Nov 2016) $
 
+# Author
+2012-10-08 Christian Panse <cp@fgcz.ethz.ch>
+2012-10-10 Christian Panse <cp@fgcz.ethz.ch>
+2012-10-11 Christian Panse <cp@fgcz.ethz.ch>
+2021-01-06 Christian Panse <cp@fgcz.ethz.ch> - replace multiprocess by caching strategy
 
-# Mascot Feeder
-# 2012-10-08 Christian Panse <cp@fgcz.ethz.ch>
-# 2012-10-10 Christian Panse <cp@fgcz.ethz.ch>
-# 2012-10-11 Christian Panse <cp@fgcz.ethz.ch>
+# Usage
+
+find /usr/local/mascot/data/ -type f -mtime -1 -name "*dat" \
+  | /home/cpanse/__checkouts/bfabricPy/bfabric/scripts/bfabric_feeder_mascot.py --stdin
+
+# Crontab
+0   0      *       *       7       nice -19 /usr/local/fgcz-s-018/bfabric-feeder/run_fgcz_dataFeederMascot.bash 365 2>&1 >/dev/null
+3   */2       *       *       1-6       nice -19 /usr/local/fgcz-s-018/bfabric-feeder/run_fgcz_dataFeederMascot.bash 7 2>&1 >/dev/null
+*/7   5-22       *       *       1-5     nice -19  /usr/local/fgcz-s-018/bfabric-feeder/run_fgcz_dataFeederMascot.bash 1  2>&1 >/dev/null
+"""
 
 import os
-import signal
 import re
 import sys
-import itertools
-import multiprocessing
 import urllib 
 import hashlib 
 import time
 import getopt
 from suds.client import Client
-import logging, logging.handlers
+import json
 
 import httplib
 httplib.HTTPConnection._http_vsn = 10
 httplib.HTTPConnection._http_vsn_str = 'HTTP/1.0'
- 
+
 #handler = logging.StreamHandler(sys.stderr)
 
-logger = logging.getLogger('mascot_feeder')
-hdlr_syslog = logging.handlers.SysLogHandler(address=('130.60.193.21', 514))
-formatter = logging.Formatter('%(name)s %(message)s', datefmt="%Y-%m-%d %H:%M:%S")
-hdlr_syslog.setFormatter(formatter)
-logger.addHandler(hdlr_syslog)
-logger.setLevel(logging.INFO)
-
-
-SVN="feeder = http://fgcz-svn.uzh.ch/repos/fgcz/computer/fgcz-c-064/bfabric-feeder/fgcz_dataFeederMascot.py"
 workuniturl='http://fgcz-bfabric.uzh.ch/bfabric/workunit?wsdl'
-# workuniturl='https://fgcz-bfabric-test.uzh.ch/bfabric/workunit?wsdl'
-nCPU=8
+clientWorkUnit=Client(workuniturl)
 BFLOGIN='pfeeder'
 BFPASSWORD='!ForYourEyesOnly!'
+
+DB=dict()
+DBfilename="{}/mascot.json".format(os.getenv("HOME"))
+DBwritten=False
+
+try:
+    DB = json.load(open(DBfilename))
+except:
+    pass
 
 def signal_handler(signal, frame):
     print( ( "sys exit 1; signal=" + str(signal)+ "; frame="+str(frame)) )
     sys.exit(1) 
-
-def walkOnError(e):
-    print(e)
-    sys.exit(1)
-
-def crawlForFiles(path, pattern, mintimediff):
-    allPaths = list()
-    regex=re.compile(pattern)
-
-    for root, dirs, files in os.walk(path, topdown=True, onerror=walkOnError, followlinks=False):
-        for f in files:
-            jfile=os.path.join(root,f)
-            if regex.match(jfile):
-                timediff=time.time() - os.path.getmtime(jfile)
-                print (jfile, timediff, timediff/(24*3600))
-                if (timediff < mintimediff):
-                    allPaths.append(jfile)
-
-    return allPaths
 
 def read_bfabricrc():
     with open(os.environ['HOME']+"/.bfabricrc") as myfile: 
         for line in myfile:
             return(line.strip())
 
-        
-
-def extractMetaDataPrint(p):
-    print (p)
-    pass
-
 def feedMascot2BFabric(f):
+    global DBwritten
     regex2=re.compile(".*.+\/(data\/.+\.dat$)")
     regex2Result=regex2.match(f)
     if regex2Result:
-        wu=parseMascotDatFile(f)
+        print("input>")
+        print ("\t{}".format(f))
+        if f in DB:
+            print ("\thit")
+            wu = DB[f]
+            if 'workunitid' in wu:
+                print ("\tdat file {} already registered as workunit id {}. continue ...".format(f, wu['workunitid']))
+                return
+            else:
+                print ('\tno workunitid found')
+        else:
+            print ("\tparsing mascot result file '{}'...".format(f))
+            wu = parseMascotDatFile(f)
+            print ("\tupdating cache '{}' file ...".format(DBfilename))
+            DBwritten=True
+            DB[f] = wu
+
         if len(wu['inputresource']) > 0:
-            # "submit to B-Fabric"
-            clientWorkUnit=Client(workuniturl)
+            if re.search("autoQC4L", wu['name']) or re.search("autoQC01", wu['name']):
+                print ("WARNING This script ignores autoQC based mascot dat file {}.".format(f))
+                return 
+
+            print("\tquerying bfabric ...")
+
+            # jsut in case
+            if 'errorreport' in wu:
+                del(wu['errorreport'])
+
             try:
-                resultClientWorkUnit=clientWorkUnit.service.checkandinsert(dict(
-                    login=BFLOGIN, 
-                    password=BFPASSWORD, 
-                    workunit=wu))
-                print (resultClientWorkUnit)
+                resultClientWorkUnit=clientWorkUnit.service.checkandinsert(dict(login=BFLOGIN, password=BFPASSWORD, workunit=wu))
             except Exception, e:
-                logger.warning(e)
-                return(wu)
+                print("Exception {}".format(e))
+                raise
+
+            try:
+                rv = resultClientWorkUnit.workunit[0]
+            except Exception, e:
+                print("Exception {}".format(e))
+                raise
+                
+
+            print("output>")
+            if 'errorreport' in rv:
+                print ("\tfound errorreport '{}'.".format(rv['errorreport']))
+
+            if '_id' in rv:
+                wu['workunitid'] = rv['_id']
+                print ("\tfound workunitid'{}'.".format(wu['workunitid']))
+                DB[f] = wu
+                DBwritten=True
+
+            if not '_id' in rv and not 'errorreport' in rv:
+                print("something went wrong.")
+                raise
+                # print (resultClientWorkUnit)
+                #print ("exception for file {} with error {}".format(f, e))
         return
 
 """ 
@@ -150,6 +178,10 @@ it returns a 'workunit' dict for the following web api
 def parseMascotDatFile(f):
     regex0 = re.compile("^title=.*(p([0-9]+).+Proteomics.*(raw|RAW|wiff)).*")
     regex3 = re.compile("^(FILE|COM|release|USERNAME|USERID|TOL|TOLU|ITOL|ITOLU|MODS|IT_MODS|CHARGE|INSTRUMENT|QUANTITATION|DECOY)=(.+)$")
+
+    control_chars = ''.join(map(unichr, range(0x00,0x20) + range(0x7f,0xa0)))
+    control_char_re = re.compile('[%s]' % re.escape(control_chars))
+
     lineCount = 0
     metaDataDict=dict(COM='', FILE='', release='', relativepath=f.replace('/usr/local/mascot/',''))
     inputresourceHitHash = dict()
@@ -179,67 +211,44 @@ def parseMascotDatFile(f):
                     metaDataDict[result.group(1)] = result.group(2)
 
 
-    desc = desc.encode('ascii',errors='ignore')
-    return (dict(
+    desc = desc.encode('ascii', errors='ignore')
+
+    name = "{}; {}".format(metaDataDict['COM'], os.path.basename(metaDataDict['relativepath']))[:255]
+
+    rv = dict(
         applicationid=19,
-        projectid=project, 
-        name=(metaDataDict['COM'] + "; " + os.path.basename(metaDataDict['relativepath']) + "; " + metaDataDict['FILE'])[:255],
-        description=desc+SVN,
+        containerid=project, 
+        name=control_char_re.sub('', name),
+        description=control_char_re.sub('', desc),
         inputresource=inputresourceList,
         resource=dict(
             name=metaDataDict['relativepath'],
             storageid=4,
+            status='available',
             relativepath=metaDataDict['relativepath'],
-            #weburl="scp://fgcz-c-064.fgcz-net.unizh.ch/usr/local/mascot/"+metaDataDict['relativepath'],
             size=os.path.getsize(f),
             filechecksum=md5.hexdigest()
             )
         )
-    )
+    return (rv)
 
 if __name__ == "__main__":
     BFPASSWORD=read_bfabricrc()
-    timdiff=3600*24
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "td", ["days=", "mintimediff=", "file="])
+        opts, args = getopt.getopt(sys.argv[1:], "f", ["file=", "stdin"])
     except getopt.GetoptError as err:
         print (str(err))
         sys.exit(2)
 
     for o, value in opts:
-        if o == "--days" or o == "mintimediff":
-            if value > 0:
-                timediff = 3600 * 24 *  int(value)
-            else:
-                print ("value not valid")
-        elif o == "--file":
+        if o == "--stdin":
+            print ("reading file names from stdin ...")
+            for f in sys.stdin.readlines():
+                feedMascot2BFabric(f.strip())
+        elif o == "--file" or o == 'f':
             print ("processesing", value, "...")
             feedMascot2BFabric(value)
-            sys.exit(0)
-            
 
-
-    # L=crawlForFiles('/usr/local/mascot/data', '.+2012[0-9]+/F174054.dat$', timediff)
-    # L=crawlForFiles('/usr/local/mascot/data', '.+2012[0-9]+/F174047.dat$', timediff)
-    logger.info("crawlForFiles")
-    L=crawlForFiles('/usr/local/mascot/data', '.+data\/20[0-9][0-9][0-9]+\/F[0-9]+\.dat$', timediff)
-
-    logger.info("found {0} mascot canditate mascot files".format(len(L)))
-
-    # simon 20140714 there were problems with the multiprocessing method. Therefore switched to snail processing
-    #for d in L:
-    #	feedMascot2BFabric(d)
-    
-    logger.info("filter files using {0} cpu(s)".format(nCPU))
-    pool=multiprocessing.Pool(processes=nCPU)
-    L=pool.map(feedMascot2BFabric, L)
-
-    logger.info("done {0} ".format(len(L)))
-    print L
-
-    #pool.map_async(extractMetaData, L, callback=extractMetaDataPrint)
-    #pool.join()
-    #pool.close()
-
-# TODO
-# think about using async
+if DBwritten:
+    print ("dumping json file '{}' ...".format(DBfilename))
+    json.dump(DB, open(DBfilename, 'w'), sort_keys=True, indent=4)
