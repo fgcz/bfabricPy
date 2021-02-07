@@ -27,7 +27,7 @@ find /usr/local/mascot/data/ -type f -mtime -1 -name "*dat" \
 import os
 import re
 import sys
-#import urllib 
+import urllib 
 import hashlib 
 import time
 import getopt
@@ -64,6 +64,7 @@ def read_bfabricrc():
             return(line.strip())
 
 def feedMascot2BFabric(f):
+    global DBwritten
     regex2=re.compile(".*.+\/(data\/.+\.dat$)")
     regex2Result=regex2.match(f)
     if regex2Result:
@@ -73,14 +74,15 @@ def feedMascot2BFabric(f):
             print ("\thit")
             wu = DB[f]
             if 'workunitid' in wu:
-                print ("\tdat file {} already as workunit id {}".format(f, wu['workunitid']))
+                print ("\tdat file {} already registered as workunit id {}. continue ...".format(f, wu['workunitid']))
                 return
             else:
                 print ('\tno workunitid found')
         else:
-            print ("parsing mascot result file '{}'...".format(f))
+            print ("\tparsing mascot result file '{}'...".format(f))
             wu = parseMascotDatFile(f)
-            print ("updating cache '{}' file ...".format(DBfilename))
+            print ("\tupdating cache '{}' file ...".format(DBfilename))
+            DBwritten=True
             DB[f] = wu
 
         if len(wu['inputresource']) > 0:
@@ -110,8 +112,6 @@ def feedMascot2BFabric(f):
             print("output>")
             if 'errorreport' in rv:
                 print ("\tfound errorreport '{}'.".format(rv['errorreport']))
-                DB[f] = wu
-                DBwritten=True
 
             if '_id' in rv:
                 wu['workunitid'] = rv['_id']
