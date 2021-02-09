@@ -851,7 +851,7 @@ exit 0
         container = workunit.container
         fastasequence = ""
         if container._classname=="order":
-            order = self.read_object('container', obj={'id': container._id})[0]
+            order = self.read_object('order', obj={'id': container._id})[0]
             order_id = order._id
             if "project" in order:
                 project_id = order.project._id
