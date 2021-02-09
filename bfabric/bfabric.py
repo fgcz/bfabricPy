@@ -666,7 +666,6 @@ fi
 # run the application
 test -f $TEMPDIR/config_WU$WORKUNIT_ID.yaml && {9} $TEMPDIR/config_WU$WORKUNIT_ID.yaml
 
-sleep 10
 
 if [ $? -eq 0 ];
 then
