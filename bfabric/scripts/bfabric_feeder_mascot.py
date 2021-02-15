@@ -1,6 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: latin1 -*-
- 
+
 """
 # $HeadURL: https://fgcz-svn.uzh.ch/repos/fgcz/computer/fgcz-s-018/bfabric-feeder/fgcz_dataFeederMascot.py $
 # $Id: fgcz_dataFeederMascot.py 9097 2021-02-05 15:38:38Z cpanse $
@@ -27,104 +27,106 @@ find /usr/local/mascot/data/ -type f -mtime -1 -name "*dat" \
 import os
 import re
 import sys
-import urllib 
-import hashlib 
-import time
+import urllib
+import hashlib
 import getopt
 from suds.client import Client
 import json
+import itertools
+import http.client
+http.client.HTTPConnection._http_vsn = 10
+http.client.HTTPConnection._http_vsn_str = 'HTTP/1.0'
 
-import httplib
-httplib.HTTPConnection._http_vsn = 10
-httplib.HTTPConnection._http_vsn_str = 'HTTP/1.0'
+workuniturl = 'http://fgcz-bfabric.uzh.ch/bfabric/workunit?wsdl'
+clientWorkUnit = Client(workuniturl)
+BFLOGIN = 'pfeeder'
+BFPASSWORD = '!ForYourEyesOnly!'
 
-#handler = logging.StreamHandler(sys.stderr)
-
-workuniturl='http://fgcz-bfabric.uzh.ch/bfabric/workunit?wsdl'
-clientWorkUnit=Client(workuniturl)
-BFLOGIN='pfeeder'
-BFPASSWORD='!ForYourEyesOnly!'
-
-DB=dict()
-DBfilename="{}/mascot.json".format(os.getenv("HOME"))
-DBwritten=False
+DB = dict()
+DBfilename = "{}/mascot.json".format(os.getenv("HOME"))
+DBwritten = False
 
 try:
     DB = json.load(open(DBfilename))
 except:
     pass
 
+
 def signal_handler(signal, frame):
-    print( ( "sys exit 1; signal=" + str(signal)+ "; frame="+str(frame)) )
-    sys.exit(1) 
+    print(("sys exit 1; signal=" + str(signal) + "; frame=" + str(frame)))
+    sys.exit(1)
 
+
+# TODO(cp): read .bfabricrc.py
 def read_bfabricrc():
-    with open(os.environ['HOME']+"/.bfabricrc") as myfile: 
+    with open(os.environ['HOME'] + "/.bfabricrc") as myfile:
         for line in myfile:
-            return(line.strip())
+            return (line.strip())
 
-def feedMascot2BFabric(f):
+
+def query_mascot_result(f):
     global DBwritten
-    regex2=re.compile(".*.+\/(data\/.+\.dat$)")
-    regex2Result=regex2.match(f)
-    if regex2Result:
+    regex2 = re.compile(".*.+/(data/.+\.dat)$")
+    regex2Result = regex2.match(f)
+    if True:
         print("input>")
-        print ("\t{}".format(f))
+        print("\t{}".format(f))
         if f in DB:
-            print ("\thit")
+            print("\thit")
             wu = DB[f]
             if 'workunitid' in wu:
-                print ("\tdat file {} already registered as workunit id {}. continue ...".format(f, wu['workunitid']))
+                print("\tdat file {} already registered as workunit id {}. continue ...".format(f, wu['workunitid']))
                 return
             else:
-                print ('\tno workunitid found')
+                print('\tno workunitid found')
         else:
-            print ("\tparsing mascot result file '{}'...".format(f))
-            wu = parseMascotDatFile(f)
-            print ("\tupdating cache '{}' file ...".format(DBfilename))
-            DBwritten=True
+            print("\tparsing mascot result file '{}'...".format(f))
+            wu = parse_mascot_result_file(f)
+            print("\tupdating cache '{}' file ...".format(DBfilename))
+            DBwritten = True
             DB[f] = wu
 
         if len(wu['inputresource']) > 0:
             if re.search("autoQC4L", wu['name']) or re.search("autoQC01", wu['name']):
-                print ("WARNING This script ignores autoQC based mascot dat file {}.".format(f))
-                return 
+                print("WARNING This script ignores autoQC based mascot dat file {}.".format(f))
+                return
 
             print("\tquerying bfabric ...")
 
             # jsut in case
             if 'errorreport' in wu:
-                del(wu['errorreport'])
+                del (wu['errorreport'])
 
             try:
-                resultClientWorkUnit=clientWorkUnit.service.checkandinsert(dict(login=BFLOGIN, password=BFPASSWORD, workunit=wu))
-            except Exception, e:
-                print("Exception {}".format(e))
+                resultClientWorkUnit = clientWorkUnit.service.checkandinsert(
+                    dict(login=BFLOGIN, password=BFPASSWORD, workunit=wu))
+            except ValueError:
+                print("Exception {}".format(ValueError))
                 raise
 
             try:
                 rv = resultClientWorkUnit.workunit[0]
-            except Exception, e:
-                print("Exception {}".format(e))
+            except ValueError:
+                print("Exception {}".format(ValueError))
                 raise
-                
 
             print("output>")
             if 'errorreport' in rv:
-                print ("\tfound errorreport '{}'.".format(rv['errorreport']))
+                print("\tfound errorreport '{}'.".format(rv['errorreport']))
 
             if '_id' in rv:
                 wu['workunitid'] = rv['_id']
-                print ("\tfound workunitid'{}'.".format(wu['workunitid']))
+                print("\tfound workunitid'{}'.".format(wu['workunitid']))
                 DB[f] = wu
-                DBwritten=True
+                DBwritten = True
 
             if not '_id' in rv and not 'errorreport' in rv:
                 print("something went wrong.")
                 raise
-                # print (resultClientWorkUnit)
-                #print ("exception for file {} with error {}".format(f, e))
+                # print(resultClientWorkUnit)
+                # print("exception for file {} with error {}".format(f, e))
         return
+
 
 """ 
 parse the mascot dat file and extract meta data and title information for inputresource retrival 
@@ -175,80 +177,113 @@ it returns a 'workunit' dict for the following web api
    </soapenv:Body>
 </soapenv:Envelope>
 """
-def parseMascotDatFile(f):
+
+
+def parse_mascot_result_file(f):
     regex0 = re.compile("^title=.*(p([0-9]+).+Proteomics.*(raw|RAW|wiff)).*")
     regex3 = re.compile("^(FILE|COM|release|USERNAME|USERID|TOL|TOLU|ITOL|ITOLU|MODS|IT_MODS|CHARGE|INSTRUMENT|QUANTITATION|DECOY)=(.+)$")
 
-    control_chars = ''.join(map(unichr, range(0x00,0x20) + range(0x7f,0xa0)))
+    # control_chars = ''.join(map(chr, [range(0x00, 0x20) , range(0x7f, 0xa0)]))
+    control_chars = ''.join(map(chr, itertools.chain(range(0x00, 0x20), range(0x7f, 0xa0))))
+
     control_char_re = re.compile('[%s]' % re.escape(control_chars))
 
-    lineCount = 0
-    metaDataDict=dict(COM='', FILE='', release='', relativepath=f.replace('/usr/local/mascot/',''))
+    line_count = 0
+    meta_data_dict = dict(COM='', FILE='', release='', relativepath=f.replace('/usr/local/mascot/', ''))
     inputresourceHitHash = dict()
     inputresourceList = list()
     md5 = hashlib.md5()
     project = -1
     desc = ""
-    with open(f) as myfile:
-        for line in myfile:
-            lineCount = lineCount + 1
-            md5.update(line)
-            # check if the first character of the line is a 't' to save regex time
+    with open(f) as dat:
+        for line in dat:
+            line_count = line_count + 1
+            md5.update(line.encode())
+            # check if the first character of the line is a 't' for title to save regex time
             if line[0] == 't':
-                result=regex0.match(urllib.url2pathname(line.strip()).replace('\\',"/").replace("//","/"))
-                if result and not inputresourceHitHash.has_key(result.group(1)):
+                # result = regex0.match(urllib.url2pathname(line.strip()).replace('\\', "/").replace("//", "/"))
+                result = regex0.match(urllib.parse.unquote(line.strip()).replace('\\', "/").replace("//", "/"))
+                if result and not result.group(1) in inputresourceHitHash:
                     inputresourceHitHash[result.group(1)] = result.group(2)
                     inputresourceList.append(dict(storageid=2, relativepath=result.group(1)))
-                    project=result.group(2)
+                    project = result.group(2)
                 else:
-                    # nothing as do be done since the inputresource is already recorded
+                    # nothing as do be done since the input_resource is already recorded
                     pass
-            elif lineCount < 600:
+            elif line_count < 600:
                 # none of the regex3 pattern is starting with 't'
-                result=regex3.match(urllib.url2pathname(line.strip()))
+                # result = regex3.match(urllib.url2pathname(line.strip()))
+                result = regex3.match(urllib.parse.unquote(line.strip()))
                 if result:
                     desc = desc + result.group(1) + "=" + result.group(2) + "; "
-                    metaDataDict[result.group(1)] = result.group(2)
-
+                    meta_data_dict[result.group(1)] = result.group(2)
 
     desc = desc.encode('ascii', errors='ignore')
 
-    name = "{}; {}".format(metaDataDict['COM'], os.path.basename(metaDataDict['relativepath']))[:255]
+    name = "{}; {}".format(meta_data_dict['COM'], os.path.basename(meta_data_dict['relativepath']))[:255]
 
     rv = dict(
         applicationid=19,
-        containerid=project, 
+        containerid=project,
         name=control_char_re.sub('', name),
-        description=control_char_re.sub('', desc),
+        description=control_char_re.sub('', desc.decode()),
         inputresource=inputresourceList,
         resource=dict(
-            name=metaDataDict['relativepath'],
+            name=meta_data_dict['relativepath'],
             storageid=4,
             status='available',
-            relativepath=metaDataDict['relativepath'],
+            relativepath=meta_data_dict['relativepath'],
             size=os.path.getsize(f),
             filechecksum=md5.hexdigest()
-            )
         )
+    )
     return (rv)
 
+
+def printFrequency(S):
+    count = dict()
+    for x in S:
+        if x in count:
+            count[x] = count[x] + 1
+        else:
+            count[x] = 1
+
+    for key in sorted(count.keys(), key=lambda key: int(key)):
+        print(key, count[key])
+
+
+def statistics():
+    print(len(DB))
+    printFrequency(map(lambda x: x['containerid'], DB.values()))
+    print("{} GBytes".format(sum(map(lambda x: int(x['resource']['size']), DB.values())) / (1024 * 1024 * 1024)))
+
+    # printFrequency(map(lambda x: x['description'].split(";"), DB.values()))
+
+    print(json.dumps(list(DB.values())[100], indent=4))
+
+
 if __name__ == "__main__":
-    BFPASSWORD=read_bfabricrc()
+    BFPASSWORD = read_bfabricrc()
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "f", ["file=", "stdin"])
+        opts, args = getopt.getopt(sys.argv[1:], "f:s", ["file=", "stdin", "statistics"])
     except getopt.GetoptError as err:
-        print (str(err))
+        print(str(err))
         sys.exit(2)
 
     for o, value in opts:
         if o == "--stdin":
-            print ("reading file names from stdin ...")
+            print("reading file names from stdin ...")
             for f in sys.stdin.readlines():
-                feedMascot2BFabric(f.strip())
+                query_mascot_result(f.strip())
         elif o == "--file" or o == 'f':
-            print ("processesing", value, "...")
-            feedMascot2BFabric(value)
+            print("processesing", value, "...")
+            query_mascot_result(value)
+        elif o == "--statistics" or o == 's':
+            statistics()
+            sys.exit(0)
 
 if DBwritten:
-    print ("dumping json file '{}' ...".format(DBfilename))
+    print("dumping json file '{}' ...".format(DBfilename))
     json.dump(DB, open(DBfilename, 'w'), sort_keys=True, indent=4)
+    sys.exit(0)
+
