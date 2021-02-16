@@ -858,7 +858,7 @@ exit 0
             else:
                 project_id = None
             if "fastasequence" in order:
-                fastasequence = order.fastasequence
+                fastasequence = "\n".join([x.strip() for x in str(order.fastasequence).split("\r")])
         else:
             order_id = None
             project_id = container._id
