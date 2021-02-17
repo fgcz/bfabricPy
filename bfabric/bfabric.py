@@ -921,12 +921,12 @@ exit 0
                 sample_id = self.get_sampleid(int(resource_iterator._id))
 
                 _resource_sample = {'resource_id': int(resource_iterator._id),
-                                        'resource_url': "{0}/userlab/show-resource.html?resourceId={1}".format(self.webbase,resource_iterator._id)}
+                                        'resource_url': "{0}/userlab/show-resource.html?id={1}".format(self.webbase,resource_iterator._id)}
 
 
                 if not sample_id is None:
                     _resource_sample['sample_id'] = int(sample_id)
-                    _resource_sample['sample_url'] = "{0}/userlab/show-sample.html?sampleId={1}".format(self.webbase, sample_id)
+                    _resource_sample['sample_url'] = "{0}/userlab/show-sample.html?id={1}".format(self.webbase, sample_id)
 
                 resource_ids[_application_name].append(_resource_sample)
             except:
