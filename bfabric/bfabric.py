@@ -535,9 +535,6 @@ class BfabricSubmitter():
             self.partition = partition[0].value
             self.nodelist = nodelist[0].value
             self.memory = memory[0].value
-        elif "queue" in [x.key for x in self.parameters] and application_name=="Mascot_site_localization_export":
-            self.queue = [x for x in self.parameters if x.key == "queue"][0].value
-            print(("queue={0}".format(self.queue)))
         elif "queue" in [x.key for x in self.parameters] and application_name in self.slurm_dict:
             # Temporary check for old workunit previously run with SGE
             self.partition = self.slurm_dict[application_name]['partition']
