@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: latin1 -*-
 
 """
@@ -29,15 +29,15 @@ if __name__ == "__main__":
     filename = sys.argv[1]
     wuid = sys.argv[2]
 
-    with open(filename, 'r') as f:
+    with open(filename, 'rb') as f:
         content = f.read()
 
     try:
-        resource_base64 = base64.b64encode(content)
+        resource_base64 = base64.b64encode(content).decode()
     except:
-        print "error: could not encode content"
+        print("error: could not encode content")
         raise
 
-    bfapp = Bfabric()
-    res = bfapp.save_object('resource', {'base64': resource_base64, 'name': os.path.basename(filename), 'workunitid': wuid})
-    print res
+    B = Bfabric()
+    res = B.save_object('resource', {'base64': resource_base64, 'name': os.path.basename(filename), 'workunitid': wuid})
+    B.print_json(res)
