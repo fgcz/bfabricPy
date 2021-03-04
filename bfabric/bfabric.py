@@ -535,9 +535,6 @@ class BfabricSubmitter():
             self.partition = partition[0].value
             self.nodelist = nodelist[0].value
             self.memory = memory[0].value
-        elif "queue" in [x.key for x in self.parameters] and application_name=="Mascot_site_localization_export":
-            self.queue = [x for x in self.parameters if x.key == "queue"][0].value
-            print(("queue={0}".format(self.queue)))
         elif "queue" in [x.key for x in self.parameters] and application_name in self.slurm_dict:
             # Temporary check for old workunit previously run with SGE
             self.partition = self.slurm_dict[application_name]['partition']
@@ -666,7 +663,6 @@ fi
 # run the application
 test -f $TEMPDIR/config_WU$WORKUNIT_ID.yaml && {9} $TEMPDIR/config_WU$WORKUNIT_ID.yaml
 
-sleep 10
 
 if [ $? -eq 0 ];
 then
@@ -852,14 +848,14 @@ exit 0
         container = workunit.container
         fastasequence = ""
         if container._classname=="order":
-            order = self.read_object('container', obj={'id': container._id})[0]
+            order = self.read_object('order', obj={'id': container._id})[0]
             order_id = order._id
             if "project" in order:
                 project_id = order.project._id
             else:
                 project_id = None
             if "fastasequence" in order:
-                fastasequence = order.fastasequence
+                fastasequence = "\n".join([x.strip() for x in str(order.fastasequence).split("\r")])
         else:
             order_id = None
             project_id = container._id
@@ -925,12 +921,12 @@ exit 0
                 sample_id = self.get_sampleid(int(resource_iterator._id))
 
                 _resource_sample = {'resource_id': int(resource_iterator._id),
-                                        'resource_url': "{0}/userlab/show-resource.html?resourceId={1}".format(self.webbase,resource_iterator._id)}
+                                        'resource_url': "{0}/userlab/show-resource.html?id={1}".format(self.webbase,resource_iterator._id)}
 
 
                 if not sample_id is None:
                     _resource_sample['sample_id'] = int(sample_id)
-                    _resource_sample['sample_url'] = "{0}/userlab/show-sample.html?sampleId={1}".format(self.webbase, sample_id)
+                    _resource_sample['sample_url'] = "{0}/userlab/show-sample.html?id={1}".format(self.webbase, sample_id)
 
                 resource_ids[_application_name].append(_resource_sample)
             except:
