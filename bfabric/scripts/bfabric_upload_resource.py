@@ -3,41 +3,24 @@
 
 """
 
-Copyright (C) 2017 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
+Copyright (C) 2017,2020 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 
 Author:
  Christian Panse <cp@fgcz.ethz.ch>
 
 Licensed under  GPL version 3
 
-$HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/scripts/bfabric_upload_resource.py $
-$Id: bfabric_upload_resource.py 2989 2017-08-17 12:58:53Z cpanse $ 
-
-
-
 this script takes a blob file and a workunit id as input and adds the file as resource to bfabric
 """
 
-
-import os
 import sys
-import base64
+import os
 from bfabric import Bfabric
 
 if __name__ == "__main__":
-
-    filename = sys.argv[1]
-    wuid = sys.argv[2]
-
-    with open(filename, 'rb') as f:
-        content = f.read()
-
-    try:
-        resource_base64 = base64.b64encode(content).decode()
-    except:
-        print("error: could not encode content")
-        raise
-
-    B = Bfabric()
-    res = B.save_object('resource', {'base64': resource_base64, 'name': os.path.basename(filename), 'workunitid': wuid})
-    B.print_json(res)
+    if len(sys.argv) == 3 and os.path.isfile(sys.argv[1]):
+        B = Bfabric()
+        B.print_json(B.upload_file(filename = sys.argv[1], workunitid = int(sys.argv[2])))
+    else:
+        print("usage:\nbfabric_upload_resource.py <filename> <workunitid>")
+        sys.exit(1)

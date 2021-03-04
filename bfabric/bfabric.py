@@ -276,10 +276,10 @@ class Bfabric(object):
             raise
 
     def upload_file(self, filename, workunitid):
-        with open(filename, 'r') as f:
+        with open(filename, 'rb') as f:
             content = f.read()
         
-        resource_base64 = base64.b64encode(content.encode())
+        resource_base64 = base64.b64encode(content).decode()
 
         res = self.save_object('resource', {'base64': resource_base64,
             'name': os.path.basename(filename),
