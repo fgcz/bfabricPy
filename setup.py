@@ -55,12 +55,12 @@ B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper
         'bfabric/scripts/bfabric_setExternalJobStatus_done.py',
         'bfabric/scripts/bfabric_setWorkunitStatus_available.py',
         'bfabric/scripts/bfabric_setWorkunitStatus_failed.py',
+        'bfabric/scripts/bfabric_upload_resource.py',
         'bfabric/scripts/bfabric_save_fasta.py'
         #'bfabric/scripts/bfabric_list_executables.py',
         #'bfabric/scripts/bfabric_list_proteomics_projects.py',
         #'bfabric/scripts/bfabric_upload_wrapper_creator_executable.py',
         #'bfabric/scripts/bfabric_upload_submitter_executable.py',
-        #'bfabric/scripts/bfabric_upload_resource.py',
         #'bfabric/scripts/bfabric_create_bfabricrc.py',
         #'bfabric/scripts/bfabric_save_importresource.py',
         ##'bfabric/scripts/bfabric_save_importresource_mascot.py',
