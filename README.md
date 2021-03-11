@@ -1,4 +1,6 @@
 ![functionTest](https://github.com/fgcz/bfabricPy/workflows/functionalTest/badge.svg)
+[![EDBT'10](https://img.shields.io/badge/EDBT-10.1145%2F1739041.1739135-brightgreen)](https://doi.org/10.1145/1739041.1739135)
+
 # branch *bfabric10* WSDL python3 package -- suds-py3
 
 This package connects the [bfabric](https://fgcz-bfabric.uzh.ch/bfabric/) system to the [python](https://www.python.org/) and [R](https://cran.r-project.org/) world while providing a JSON and REST interface using [Flask](https://www.fullstackpython.com).
