@@ -10,7 +10,7 @@ msg = "\033[93m{} version {} (2020-09-20) -- \"{}\"\
 endpoints = sorted(['access', 'annotation', 'application',
         'attachement', 'comment', 'container', 'dataset', 'executable',
         'externaljob', 'groupingvar', 'importresource', 'mail',
-        'parameter', 'project', 'resource', 'sample',
+        'parameter', 'plate', 'project', 'resource', 'sample',
         'workflow', 'workflowstep',
         'storage', 'user', 'workunit', 'charge', 'order', 'instrument'])
 
