@@ -17,18 +17,8 @@ if __name__ == "__main__":
         {'name': 'actions', 'position':5}
     ]
     obj['item'] = []
- #{'user_date': '2021-06-22 17:06:19', 'user_email': 'paolo.nanni@fgcz.uzh.ch', 'additional_information': None, 'problems': [], 'actions': [{'name': 'Pre-column changed', 'qccv': 'TS:0000029'}]}
-    #obj['item'] = [ {'field':[ {'value': 1, 'attributeposition':1}, {'value': 1,  'attributeposition':2 } ], 'position':1}]
-    #obj['item'] = [ {'field':[ 
-    #    {'value': '2021-06-22 17:06:19', 'attributeposition':1},
-    #    {'value': 'paolo.nanni@fgcz.uzh.ch',  'attributeposition':2 },
-    #    {'value': 'paolo.nanni@fgcz.uzh.ch',  'attributeposition':3 },
-    #    {'value': 'paolo.nanni@fgcz.uzh.ch',  'attributeposition':4 },
-    #    {'value': 'paolo.nanni@fgcz.uzh.ch',  'attributeposition':5 },
-    #    {'value': 'paolo.nanni@fgcz.uzh.ch',  'attributeposition':6 }
-    #    ], 'position':1}]
 
-    with open('/home/cpanse/LUMOS_2.json') as json_file:
+    with open('LUMOS_2.json') as json_file:
         d = json.load(json_file)
 
     for i in range(len(d)):
@@ -51,5 +41,9 @@ if __name__ == "__main__":
         ], 'position': i + 1}
         obj['item'].append(it)
     print(obj)
-    res = B.save_object(endpoint='dataset', obj=obj)
-    print (res[0])
+    #res = B.save_object(endpoint='dataset', obj=obj)
+    #print (res[0])
+
+"""
+curl --location --request GET 'https://api.qcloud2.crg.eu/annotations?start_date=2019-04-01&end_date=2021-10-03&labsystem_name=LUMOS_2' --header "Authorization: Bearer ${ACCESSTOKEN}" > LUMOS_2.json
+"""
