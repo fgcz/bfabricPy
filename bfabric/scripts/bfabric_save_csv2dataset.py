@@ -25,7 +25,7 @@ Description:
                           {'value': 2,  'attributeposition':2 }], 
                    'position':2}]
 
-Usage: bfabric_save_csv2dataset.py [-h] --csvfile CSVFILE --name NAME --containerid int 
+Usage: bfabric_save_csv2dataset.py [-h] --csvfile CSVFILE --name NAME --containerid int [--workunitid int]
 """
 
 import sys
@@ -63,11 +63,15 @@ def csv2json(csvFilePath):
             obj["item"].append(item)
     return(obj)
 
-def main(csv_file, dataset_name, container_id):
+def main(csv_file, dataset_name, container_id, workunit_id = None):
     bfapp = Bfabric()
     obj = csv2json(csv_file)
     obj['name'] = dataset_name
     obj['containerid'] = container_id
+    if workunit_id is not None:
+        obj['workunitid'] = workunit_id
+    else:
+        pass
     endpoint = 'dataset'
     res = bfapp.save_object(endpoint=endpoint, obj=obj)
     print(res[0])
@@ -82,5 +86,12 @@ if __name__ == "__main__":
             help='dataset name as a string')
     parser.add_argument('--containerid', metavar='int', required=True,
             help='container id')
+    parser.add_argument('--workunitid', metavar='int', required=False,
+            help='workunit id')
     args = parser.parse_args()
-    main(csv_file = args.csvfile, dataset_name = args.name, container_id = args.containerid)
+    if args.workunitid is None:
+        main(csv_file = args.csvfile, dataset_name = args.name, container_id = args.containerid)
+    else:
+        main(csv_file = args.csvfile, dataset_name = args.name, container_id = args.containerid,
+                workunit_id = args.workunitid)
+
