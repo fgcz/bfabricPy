@@ -5,11 +5,11 @@ name: functionalTest
 
 on:
   push:
-    branches: [ bfabric10 ]
+    branches: [ bfabric11 ]
   schedule:
     - cron: "00 08 * * *"
   pull_request:
-    branches: [ bfabric10 ]
+    branches: [ bfabric11 ]
 
 jobs:
   build:

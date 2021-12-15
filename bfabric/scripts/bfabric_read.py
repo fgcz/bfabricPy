@@ -94,7 +94,7 @@ if __name__ == "__main__":
             
         for x in res:
             try:
-                print ("{}\t{}\t{}\t{}".format(x._id, x.createdby, x.modified, x.name))
+                print ("{}\t{}\t{}\t{}\t{}".format(x._id, x.createdby, x.modified, x.name, x.groupingvar.name))
             except Exception as e:
                 print ("{}\t{}\t{}".format(x._id, x.createdby, x.modified))
 
