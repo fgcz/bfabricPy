@@ -19,7 +19,8 @@ def dataset2csv(ds, outputfile, sep=","):
     # ds.attribute contains the list of columns name
     with open(outputfile, "w") as f:
         f.write("{}\n".format(sep.join(map(lambda x: x.name, ds.attribute))))
-        f.write(sep.join([x.value for i in ds.item for x in i.field]))
+        for i in ds.item:
+            f.write("{}\n".format(sep.join([x.value for x in i.field])))
 
 
 def main(dataset_id, scratchdir):
