@@ -20,7 +20,10 @@ def dataset2csv(ds, outputfile, sep=","):
     with open(outputfile, "w") as f:
         f.write("{}\n".format(sep.join(map(lambda x: x.name, ds.attribute))))
         for i in ds.item:
-            f.write("{}\n".format(sep.join([x.value for x in i.field])))
+            # sort values based on the columns order in attributeposition
+            fields = [(x.value, x.attributeposition) for x in i.field]
+            fields.sort(key=lambda y: y[1])
+            f.write("{}\n".format(sep.join([t[0] for t in fields])))
 
 
 def main(dataset_id, scratchdir):
