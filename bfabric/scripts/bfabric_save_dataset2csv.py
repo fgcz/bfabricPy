@@ -4,12 +4,15 @@
 Author:
      Maria d'Errico <maria.derrico@fgcz.ethz.ch>
 
+     2021-12
+
 
 Description:
  The following script gets the dataset id as input and automatically
  generates a csv file with the dataset content.
 
 Usage: bfabric_save_dataset2csv.py [-h] --id DATASET_ID [--dir SCRATCHDIR]
+Example: bfabric_save_dataset2csv.py --id 32335 && cat dataset.csv    
 """
 
 import sys
@@ -51,4 +54,3 @@ if __name__ == "__main__":
             help='the path to the directory where to save the csv file')
     args = parser.parse_args()
     main(scratchdir = args.dir, dataset_id = args.id)
-
