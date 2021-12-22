@@ -57,6 +57,7 @@ logger.setLevel(logging.INFO)
 bfabric_storageid = 2
 bfapp = Bfabric()
 
+# TODO(cp): should go into a config file, e.g., bfabricrc
 # the hash  maps the 'real world' to the BFabric application._id
 bfabric_application_ids = {'Proteomics/TOFTOF_2':91,
     'Proteomics/T100_1':18, 
@@ -76,6 +77,7 @@ bfabric_application_ids = {'Proteomics/TOFTOF_2':91,
     'Proteomics/Analysis/Progenesis':84, 
     'Proteomics/Analysis/ProteinPilot':148,
     'Proteomics/Analysis/MaxQuant':151,
+                           'Proteomics/Analysis/FragPipeGuiZip':299,
                            'Proteomics/Analysis/GenericZip':185,
                            'Proteomics/QEXACTIVE_1':160,
                            'Proteomics/QEXACTIVE_2':161,
