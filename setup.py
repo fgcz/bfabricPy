@@ -6,10 +6,11 @@ The code contains classes for wrapper_creator and submitter.
 
 Ensure that this file is available on the bfabric exec host.
 
-Copyright (C) 2014, 2015, 2016, 2017, 2018, 2019, 2020 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
+Copyright (C) 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 
 Authors:
     Christian Panse <cp@fgcz.ethz.ch>
+    Maria d'Errico <maria.derrico@fgcz.ethz.ch>
 
 Licensed under  GPL version 3
 
