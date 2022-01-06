@@ -25,7 +25,7 @@ git clone git@github.com:fgcz/bfabricPy.git  \
 ## Install
 
 ```{bash}
-python3 setup.py sdist && pip3 install dist/bfabric-0.10.*.tar.gz --user
+python3 setup.py sdist && pip3 install dist/bfabric-0.11.*.tar.gz --user
 ```
 
 
