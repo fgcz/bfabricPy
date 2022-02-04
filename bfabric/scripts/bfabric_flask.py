@@ -3,14 +3,21 @@
 
 
 """
-this script can be used as a bfabric <-> shiny wrapper
-it can also be seen a proxy REST to SOAP proxy.
+This script is thought to be used as a
+Rest SOAP proxy.
+In particular, it connects R shiny to https://bfabric.org
 
-Christian Panse <cp@fgcz.ethz.ch
+
+run as pfeeder
+FLASK_APP=$(which bfabric_flask.py) flask run --host=0.0.0.0 
+
+Christian Panse <cp@fgcz.ethz.ch>
 Christian Trachsel
+
 2016-07-05 1700
 2017-05-11
 2019-10-16 adapted to bfabric10
+2022-02-04 adaptation to start flask by Debian's systemd
 """
 
 import base64
