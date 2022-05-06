@@ -34,14 +34,16 @@ def usage():
 
 
 if __name__ == "__main__":
+
+
+    try:
+        if len(sys.argv) == 2:
+            workunitid = sys.argv[1]
+    except:
+        raise
+
     B = bfabric.Bfabric(verbose=False)
-
-    query_obj = {}
-    endpoint = "dataset"
-
-
-    if len(sys.argv) == 2:
-        workunitid = sys.argv[1]
+    sys.stderr.write(bfabric.msg)
 
     start_time = time.time()
 
