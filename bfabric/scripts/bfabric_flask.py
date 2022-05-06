@@ -34,7 +34,7 @@ import logging.handlers
 from flask.logging import default_handler
 
 
-def create_logger(name="bfabric10_flask", address=("fgcz-ms.uzh.ch", 514)):
+def create_logger(name="bfabric11_flask", address=("fgcz-ms.uzh.ch", 514)):
     """
     create a logger object
     """
@@ -289,7 +289,11 @@ def get_user(containerid):
 @app.route('/sample/<int:containerid>', methods=['GET'])
 def get_all_sample(containerid):
 
-    samples = bfapp.read_object(endpoint='sample', obj={'containerid': containerid})
+    samples = []
+    rv = list(map(lambda p: bfapp.read_object(endpoint='sample', obj={'containerid': containerid}, page=p), range(1,10)))
+    rv = list(map(lambda x: [] if x is None else x, rv))
+    for el in rv: samples.extend(el)
+
 
     try:
         annotationDict = {}
