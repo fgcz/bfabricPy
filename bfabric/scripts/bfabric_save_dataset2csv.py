@@ -24,6 +24,9 @@ def dataset2csv(ds, outputfile, sep=","):
         f.write("{}\n".format(sep.join(map(lambda x: x.name, ds.attribute))))
         for i in ds.item:
             # sort values based on the columns order in attributeposition
+            for x in i.field:
+                if not hasattr(x,"value"):
+                    x.value = ''
             fields = [(x.value, x.attributeposition) for x in i.field]
             fields.sort(key=lambda y: y[1])
             f.write("{}\n".format(sep.join([t[0] for t in fields])))
