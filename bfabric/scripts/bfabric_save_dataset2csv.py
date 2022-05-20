@@ -28,7 +28,7 @@ def dataset2csv(ds, outputfile, sep=","):
                 if not hasattr(x,"value"):
                     x.value = ''
             fields = [(x.value, x.attributeposition) for x in i.field]
-            fields.sort(key=lambda y: y[1])
+            fields.sort(key=lambda y: int(y[1]))
             f.write("{}\n".format(sep.join([t[0] for t in fields])))
 
 
