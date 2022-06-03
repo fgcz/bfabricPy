@@ -9,6 +9,11 @@ Author:
 
 Licensed under  GPL version 3
 
+
+2022-06-03 add sample.name
+
+Usage example:
+  bfabric_read_samples_of_workunit.py 278175 
 """
 
 import signal
@@ -55,12 +60,14 @@ if __name__ == "__main__":
 
     samples = list(map(lambda x: B.read_object(endpoint="sample", obj={'id': x.sample._id})[0], inputresources))
 
-    groupingvars = list(map(lambda x: (x._id, x.groupingvar.name), samples))
+    #print(samples[1])
+
+    groupingvars = list(map(lambda x: (x._id, x.name, x.groupingvar.name), samples))
 
 
-    print ("{}\t{}\t{}\t{}".format('workunitid', 'inputresource.id', 'inputresource.name', 'groupingvar.name'))
+    print ("{}\t{}\t{}\t{}\t{}".format('workunit.id', 'inputresource.id', 'inputresource.name', 'sample.name', 'groupingvar.name'))
     for i in zip(inputresourcesname, groupingvars):
-        print ("{}\t{}\t{}\t{}".format(workunitid, i[0][0], i[0][1], i[1][1]))
+        print ("{}\t{}\t{}\t{}\t{}".format(workunitid, i[0][0], i[0][1], i[1][1], i[1][2]))
 
     end_time = time.time()
     print_color_msg("query time = {} seconds".format(round(end_time - start_time, 2)))

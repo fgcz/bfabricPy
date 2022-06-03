@@ -107,11 +107,16 @@ def q():
     except:
         return jsonify({'error': 'could not get POST content.'})
 
+    # TODO(cp): more finetuning on paging
     try:
         webservicepassword = content['webservicepassword'][0].replace("\t", "")
         login = content['login'][0]
+
+        # TODO(cp): check if meaningful page
+        page = content['page'][0]
+        
         bf = bfabric.Bfabric(login=login, password=webservicepassword)
-        res = bf.read_object(endpoint=content['endpoint'][0], obj=content['query'])
+        res = bf.read_object(endpoint=content['endpoint'][0], obj=content['query'], page=page)
         logger.info("'{}' login success query {} ...".format(login, content['query']))
     except:
         logger.info("'{}' login failed ...".format(login))
@@ -372,5 +377,5 @@ def add_workunit():
     return jsonify({'rv': 'ok'})
 
 if __name__ == '__main__':
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    app.run(debug=False, host="0.0.0.0", port=5000)
 

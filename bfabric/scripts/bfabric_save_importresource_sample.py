@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 # -*- coding: latin1 -*-
 
 # $Id: bfabric_save_importresource.py 2526 2016-10-17 10:25:25Z cpanse $
@@ -91,6 +91,8 @@ bfabric_application_ids = {'Proteomics/TOFTOF_2':91,
                            'Proteomics/QEXACTIVEHF_4':254,
                            'Proteomics/LUMOS_2':268,
                            'Proteomics/EXPLORIS_1':269,
+                           'Proteomics/EXPLORIS_2':301,
+                           'Proteomics/RAPIFLEX_1':303,
                            'Proteomics/PROTEONXPR36': 82,
                            'Proteomics/EXTERNAL_0': 188,
                            'Proteomics/EXTERNAL_1': 189,
