@@ -571,7 +571,7 @@ class BfabricSubmitter():
         self.B.logger("{}".format(resSbatch))
 
 
-    def compose_bash_script(self, configuration=None, configuration_parser=lambda x: yaml.load(x)):
+    def compose_bash_script(self, configuration=None, configuration_parser=lambda x: yaml.safe_load(x)):
         """
         composes the bash script which is executed by the submitter (sun grid engine).
         as argument it takes a configuration file, e.g., yaml, xml, json, or whatsoever, and a parser function.
@@ -726,7 +726,7 @@ exit 0
 
             print(content)
             _cmd_template = self.compose_bash_script(configuration=content,
-                                                     configuration_parser=lambda x: yaml.load(x))
+                                                     configuration_parser=lambda x: yaml.safe_load(x))
 
             _bash_script_filename = "/home/bfabric/prx/workunitid-{0}_externaljobid-{1}_executableid-{2}.bash"\
                 .format(self.B.get_workunitid_of_externaljob(), self.B.externaljobid, executable._id)
