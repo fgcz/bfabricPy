@@ -263,10 +263,12 @@ bfabric_read.py importresource \
 cd bfabric/tests/ && python3 -m unittest discover; echo $?; cd -
 ```
 
-
 ## See also
 - [bfabric documentation](https://fgcz-bfabric.uzh.ch/wiki/HomePage)
 - [FAQ](faq.md)
 - [wsdl4BFabric](http://fgcz-intranet.uzh.ch/tiki-index.php?page=wsdl4BFabric) wiki page
 - WSDL Interface to B-Fabric [endpoints](http://fgcz-bfabric.uzh.ch/bfabric/workunit?wsdl)
 
+## Howto cite
+
+Panse, Christian, Trachsel, Christian and Türker, Can. "Bridging data management platforms and visualization tools to enable ad-hoc and smart analytics in life sciences" Journal of Integrative Bioinformatics, 2022, pp. 20220031. https://doi.org/10.1515/jib-2022-0031

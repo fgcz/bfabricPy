@@ -192,6 +192,12 @@ class Bfabric(object):
         if password is None:
             password = self.bfpassword
 
+        if len(login) >= 32:
+            raise ValueError("Sorry, login >= 32 characters.") 
+
+        if len(password) != 32:
+            raise ValueError("Sorry, password != 32 characters.") 
+
         self.query_counter = self.query_counter + 1
         QUERY = dict(login=login, page=page, password=password, query=obj)
 
