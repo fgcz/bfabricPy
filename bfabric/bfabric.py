@@ -150,6 +150,12 @@ class Bfabric(object):
         if '_WEBBASE' in list(self.bfabricrc.keys()) and webbase is None:
             self.webbase = self.bfabricrc['_WEBBASE']
 
+        if '_APPLICATION' in list(self.bfabricrc.keys()):
+            try:
+                self.application = json.loads(self.bfabricrc['_WEBBASE'])
+            except:
+                raise("json parsing failed.")
+
         if not login is None:
             self.bflogin = login
 
