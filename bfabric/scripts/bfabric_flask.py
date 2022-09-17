@@ -131,7 +131,7 @@ def q():
     try:
         webservicepassword = content['webservicepassword'][0].replace("\t", "")
         login = content['login'][0]
-        logger.info("debug {}".format(webservicepassword))
+        #logger.info("debug {}".format(webservicepassword))
 
         
         bf = bfabric.Bfabric(login=login, password=webservicepassword)
