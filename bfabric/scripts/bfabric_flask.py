@@ -13,11 +13,24 @@ FLASK_APP=$(which bfabric_flask.py) flask run --host=0.0.0.0
 
 Christian Panse <cp@fgcz.ethz.ch>
 Christian Trachsel
+Marco Schmid
 
 2016-07-05 1700
 2017-05-11
 2019-10-16 adapted to bfabric10
 2022-02-04 adaptation to start flask by Debian's systemd
+
+useful commands when using the debian package:
+
+systemctl status bfabric-flask-prx.service
+
+journalctl -u bfabric-flask-prx
+
+journalctl -u bfabric-flask-prx -S -1h
+
+systemctl restart bfabric-flask-prx.service
+
+Of note, do not forget rerun the flask service after modification!
 """
 
 import base64
@@ -107,13 +120,19 @@ def q():
     except:
         return jsonify({'error': 'could not get POST content.'})
 
+    try:
+        # TODO(cp): check if meaningful page
+        page = content['page'][0]
+    except:
+        logger.info("set page to 1.")
+        page = 1
+
     # TODO(cp): more finetuning on paging
     try:
         webservicepassword = content['webservicepassword'][0].replace("\t", "")
         login = content['login'][0]
+        logger.info("debug {}".format(webservicepassword))
 
-        # TODO(cp): check if meaningful page
-        page = content['page'][0]
         
         bf = bfabric.Bfabric(login=login, password=webservicepassword)
         res = bf.read_object(endpoint=content['endpoint'][0], obj=content['query'], page=page)
