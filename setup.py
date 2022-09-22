@@ -42,7 +42,7 @@ B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper
       author_email = 'cp@fgcz.ethz.ch',
       license = 'GPLv3 / apache 2.0',
       packages = ['bfabric'],
-      python_requires = ">=3.6",
+      python_requires = ">=3.7",
       install_requires = INSTALL_REQUIRES,
       scripts = [
         'bfabric/scripts/bfabric_delete.py',
