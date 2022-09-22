@@ -210,20 +210,17 @@ class Bfabric(object):
             print (e)
             raise
 
-        p = 1
-        n_pages = 0
+        n_pages = 1
         OUTPUT = []
 
         while True:
             self.query_counter = self.query_counter + 1
-            QUERY = dict(login=login, page=p, password=password, query=obj)
+            QUERY = dict(login=login, page=n_pages, password=password, query=obj)
             try:
                 QUERYRES = getattr(self.cl[endpoint].service.read(QUERY), endpoint, None)
             except Exception as e:
                 print (e)
                 raise
-            n_pages = n_pages + 1
-            p = p + 1
             if QUERYRES:
                 OUTPUT.extend(QUERYRES)
                 if self.verbose:
@@ -232,6 +229,7 @@ class Bfabric(object):
                     break
             else:
                 break
+            n_pages = n_pages + 1
 
             if self.verbose:
                 pprint (QUERYRES)
