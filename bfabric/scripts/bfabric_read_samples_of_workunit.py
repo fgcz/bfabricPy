@@ -60,9 +60,12 @@ if __name__ == "__main__":
 
     samples = list(map(lambda x: B.read_object(endpoint="sample", obj={'id': x.sample._id})[0], inputresources))
 
-    #print(samples[1])
 
-    groupingvars = list(map(lambda x: (x._id, x.name, x.groupingvar.name), samples))
+    # no x.groupingvar.name defined
+    try:
+        groupingvars = list(map(lambda x: (x._id, x.name, x.groupingvar.name), samples))
+    except:
+        groupingvars = list(map(lambda x: (x._id, x.name, "NA"), samples))
 
 
     print ("{}\t{}\t{}\t{}\t{}".format('workunit.id', 'inputresource.id', 'inputresource.name', 'sample.name', 'groupingvar.name'))
