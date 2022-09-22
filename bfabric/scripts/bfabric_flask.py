@@ -308,11 +308,11 @@ def get_user(containerid):
 @app.route('/sample/<int:containerid>', methods=['GET'])
 def get_all_sample(containerid):
 
-    samples = []
-    rv = list(map(lambda p: bfapp.read_object(endpoint='sample', obj={'containerid': containerid}, page=p), range(1,10)))
-    rv = list(map(lambda x: [] if x is None else x, rv))
-    for el in rv: samples.extend(el)
-
+    #samples = []
+    #rv = list(map(lambda p: bfapp.read_object(endpoint='sample', obj={'containerid': containerid}, page=p), range(1,10)))
+    #rv = list(map(lambda x: [] if x is None else x, rv))
+    #for el in rv: samples.extend(el)
+    samples = bfapp.read_object(endpoint='sample', obj={'containerid': containerid}, max_results=900)
 
     try:
         annotationDict = {}

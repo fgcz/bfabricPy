@@ -223,6 +223,7 @@ class Bfabric(object):
                 print (e)
                 raise
             n_pages = n_pages + 1
+            p = p + 1
             if QUERYRES:
                 OUTPUT.extend(QUERYRES)
                 if self.verbose:
