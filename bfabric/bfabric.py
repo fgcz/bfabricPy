@@ -179,7 +179,7 @@ class Bfabric(object):
     def get_para(self):
         return {'bflogin': self.bflogin, 'webbase': self.webbase}
 
-    def read_object(self, endpoint, obj, login=None, password=None, page_size=100, max_results=100):
+    def read_object(self, endpoint, obj, login=None, password=None, page=1, page_size=100, max_results=100):
         """
         A generic method which can connect to any endpoint, e.g., workunit, project, order,
         externaljob, etc, and returns the object with the requested id.
