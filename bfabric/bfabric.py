@@ -209,7 +209,7 @@ class Bfabric(object):
             raise
 
         rv = self.cl[endpoint].service.read(QUERY)
-        if page != 1 || hasattr(rv, 'errorreport'):
+        if page != 1 | hasattr(rv, 'errorreport'):
             return (rv)
         else:
             pass
