@@ -208,6 +208,12 @@ class Bfabric(object):
             print (e)
             raise
 
+        rv = self.cl[endpoint].service.read(QUERY)
+        if page != 1 || hasattr(rv, 'errorreport'):
+            return (rv)
+        else:
+            pass
+
         try:
             QUERYRES = getattr(self.cl[endpoint].service.read(QUERY), endpoint, None)
         except Exception as e:
