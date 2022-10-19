@@ -257,6 +257,19 @@ bfabric_read.py importresource \
   done
 ```
 
+## Send an E-mail
+
+```
+# by CT,CP
+# not implemented yet 2022-10-19 , 
+rv = B.save_object(endpoint = 'mail',
+    obj={'subject': "TEST",
+       'recipientemail': 'bfabrictest482.cp@fgcz.ethz.ch',
+       'message': "TEST; ignore that email",
+       'parentId': 482,
+       'parentClassName': 'user'})
+# shows as mail for user id 482
+```
 
 ## Testing
 
