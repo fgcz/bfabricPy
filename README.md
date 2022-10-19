@@ -268,7 +268,7 @@ rv = B.save_object(endpoint = 'mail',
        'message': "TEST; ignore that email",
        'parentId': 482,
        'parentClassName': 'user'})
-# shows as mail for user id 482
+# shown as mail for user id 482
 ```
 
 ## Testing
