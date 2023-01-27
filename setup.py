@@ -55,6 +55,7 @@ B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper
         'bfabric/scripts/bfabric_list_not_existing_storage_directories.py',
         'bfabric/scripts/bfabric_setExternalJobStatus_done.py',
         'bfabric/scripts/bfabric_setWorkunitStatus_available.py',
+        'bfabric/scripts/bfabric_setWorkunitStatus_processing.py',
         'bfabric/scripts/bfabric_setWorkunitStatus_failed.py',
         'bfabric/scripts/bfabric_upload_resource.py',
         'bfabric/scripts/bfabric_save_fasta.py',
