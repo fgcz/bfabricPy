@@ -179,17 +179,12 @@ class Bfabric(object):
     def get_para(self):
         return {'bflogin': self.bflogin, 'webbase': self.webbase}
 
-    def read_object(self, endpoint, obj, login=None, password=None, page=1, page_size=100, max_results=100):
+    def read_object(self, endpoint, obj, login=None, password=None, page=1):
         """
         A generic method which can connect to any endpoint, e.g., workunit, project, order,
         externaljob, etc, and returns the object with the requested id.
         obj is a python dictionary which contains all the attributes of the endpoint 
         for the "query".
-
-        page_size : int, default = 100
-            The number or results per page. It is defined by B-Fabric and it is currently set to 100. This parameter needs to be updated if the number of results per page changes in B-Fabric.
-        max_results : int, default = 100
-            The maximum number of results. The default value is the minumum number of results we can get by quering only one page.
         """
         if login is None:
             login = self.bflogin
@@ -203,6 +198,9 @@ class Bfabric(object):
         if len(password) != 32:
             raise ValueError("Sorry, password != 32 characters.") 
 
+        self.query_counter = self.query_counter + 1
+        QUERY = dict(login=login, page=page, password=password, query=obj)
+
         try:
             if not endpoint in self.cl:
                 self.cl[endpoint] = Client("".join((self.webbase, '/', endpoint, "?wsdl")), cache=None)
@@ -210,31 +208,21 @@ class Bfabric(object):
             print (e)
             raise
 
-        n_pages = 1
-        OUTPUT = []
+        rv = self.cl[endpoint].service.read(QUERY)
+        if page != 1 | hasattr(rv, 'errorreport'):
+            return (rv)
+        else:
+            pass
 
-        while True:
-            self.query_counter = self.query_counter + 1
-            QUERY = dict(login=login, page=n_pages, password=password, query=obj)
-            try:
-                QUERYRES = getattr(self.cl[endpoint].service.read(QUERY), endpoint, None)
-            except Exception as e:
-                print (e)
-                raise
-            if QUERYRES:
-                OUTPUT.extend(QUERYRES)
-                if self.verbose:
-                    pprint (QUERYRES)
-                if n_pages*page_size >= max_results:
-                    break
-            else:
-                break
-            n_pages = n_pages + 1
+        try:
+            QUERYRES = getattr(self.cl[endpoint].service.read(QUERY), endpoint, None)
+        except Exception as e:
+            print (e)
+            raise
+        if self.verbose:
+            pprint (QUERYRES)
 
-            if self.verbose:
-                pprint (QUERYRES)
-
-        return OUTPUT
+        return QUERYRES
 
     def save_object(self, endpoint, obj, debug=None):
         """
