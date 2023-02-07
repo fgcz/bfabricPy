@@ -97,3 +97,36 @@ if __name__ == "__main__":
 
 
 
+"""
+sample output having the TMT TAG
+(xmlSample){
+   _id = 460998
+   _classname = "sample"
+   deletable = "true"
+   updatable = "true"
+   created = "2023-02-07 08:39:26"
+   createdby = "tobiasko"
+   modified = "2023-02-07 08:39:26"
+   modifiedby = "tobiasko"
+   name = "Labeled_460978"
+   child[] =
+      (xmlSample){
+         _id = 461017
+         _classname = "sample"
+      },
+   container =
+      (xmlContainer){
+         _id = 30781
+         _classname = "order"
+      }
+   multiplexid = "127C"
+   multiplexkit = "TMT10"
+   parent[] =
+      (xmlSample){
+         _id = 460978
+         _classname = "sample"
+      },
+   tubeid = "o30781/2"
+   type = "Labeled MS Sample - Proteomics"
+ }
+"""
