@@ -51,17 +51,17 @@ class SampleGraph:
 
         if "multiplexid" in  childSample:
             # in this special case we reached last level keeping the tag
-            print ("\t# {} {}".format(childSample._id, childSample.multiplexid))
+            print ('''\t{} [shape=box label="{}\\n{}"];'''.format(childSample._id, childSample._id, childSample.multiplexid))
 
         if 'parent' in childSample:
             self.annotation[childSampleId] = [x._id for x in childSample.parent]
             for parent in res[0].parent:
+                print("\t{} -> {}".format(parent._id, childSampleId))
                 if not parent._id in self.VISITED:
-                    print("\t{} -> {}".format(parent._id, childSampleId))
                     self.VISITED.append(parent._id)
                     self.L.append(parent._id)
 
-        print("\t# DEBUG = {}".format(len(self.L)))
+        #print("\t# DEBUG = {}".format(len(self.L)))
 
         while (len(self.L) > 0):
             u = self.L[0]
@@ -76,9 +76,9 @@ class SampleGraph:
 
     def writetable(self, childSampleID):
         MSsample = self.annotation[childSampleID][0]
-        print(childSampleID, MSsample)
-        print(MSsample, self.annotation[MSsample])
-        print (self.annotation)
+        print("# {} {}".format(childSampleID, MSsample))
+        print("# {} {}".format(MSsample, self.annotation[MSsample]))
+        print("# {}".format(self.annotation))
 
         
 if __name__ == "__main__":
@@ -86,14 +86,19 @@ if __name__ == "__main__":
     # TODO(cp): read WU12345.yaml file
 
     # constructor
-    G = SampleGraph()
+
+    print ('''digraph G{\n\trankdir="LR";''')
 
     # TODO(cp): G.run(listOfResources)
-    if len(sys.argv) > 1:
-        G.traverse(int(sys.argv[1]))
+    #if len(sys.argv) > 1:
+    #    G.traverse(int(sys.argv[1]))
+    G = SampleGraph()
+    for i in range(461019, 461043):
+        print ("# inputSampleId ={}".format(i))
+        G.traverse(i)
 
-
-    G.writetable(int(sys.argv[1]))
+    print ('''}''')
+    #G.writetable(int(sys.argv[1]))
 
 
 
