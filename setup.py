@@ -62,6 +62,7 @@ B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper
         'bfabric/scripts/bfabric_save_workunit_attribute.py',
         'bfabric/scripts/bfabric_save_csv2dataset.py',
         'bfabric/scripts/bfabric_save_dataset2csv.py',
+        'bfabric/scripts/bfabric_logthis.py',
         'bfabric/scripts/bfabric_read_samples_of_workunit.py'
         #'bfabric/scripts/bfabric_list_executables.py',
         #'bfabric/scripts/bfabric_list_proteomics_projects.py',
