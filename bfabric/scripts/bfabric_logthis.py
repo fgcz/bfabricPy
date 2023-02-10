@@ -2,19 +2,14 @@
 # -*- coding: latin1 -*-
 
 """
-set status of a resource of a given resource id
+set status of a resource of a given external job
+input <externaljobid> <message>
 """
 
-# Copyright (C) 2014 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
+# Copyright (C) 2023 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 #
-# Authors:
-#   Marco Schmidt <marco.schmidt@fgcz.ethz.ch>
+# Author:
 #   Christian Panse <cp@fgcz.ethz.ch>
-#
-# Licensed under  GPL version 3
-#
-# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/fgcz_bfabric_setResourceStatus_available.py $
-# $Id: fgcz_bfabric_setResourceStatus_available.py 2397 2016-09-06 07:04:35Z cpanse $
 
 import sys
 import bfabric
