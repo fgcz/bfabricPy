@@ -3,8 +3,8 @@ from ._version import __version__
 name = "bfabricPy"
 alias = "suds-py3"
 
-msg = "\033[93m{} version {} (2022-09-17) -- \"{}\"\
-    \nCopyright (C) 2019-2022 Functional Genomics Center Zurich\033[0m\n\n"\
+msg = "\033[93m{} version {} (2023-02-02) -- \"{}\"\
+    \nCopyright (C) 2014-2023 Functional Genomics Center Zurich\033[0m\n\n"\
     .format(name, __version__, alias)
 
 endpoints = sorted(['access', 'annotation', 'application', 'attachement',

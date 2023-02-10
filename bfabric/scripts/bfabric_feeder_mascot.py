@@ -180,6 +180,7 @@ it returns a 'workunit' dict for the following web api
 
 
 def parse_mascot_result_file(f):
+    print("DEBUG parse_mascot_result_file")
     regex0 = re.compile("^title=.*(p([0-9]+).+Proteomics.*(raw|RAW|wiff)).*")
     regex3 = re.compile("^(FILE|COM|release|USERNAME|USERID|TOL|TOLU|ITOL|ITOLU|MODS|IT_MODS|CHARGE|INSTRUMENT|QUANTITATION|DECOY)=(.+)$")
 
@@ -237,6 +238,11 @@ def parse_mascot_result_file(f):
             filechecksum=md5.hexdigest()
         )
     )
+    #TODO
+    print("DEBUG")
+    print(rv)
+    print("DEBUG END")
+
     return (rv)
 
 

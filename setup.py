@@ -6,7 +6,7 @@ The code contains classes for wrapper_creator and submitter.
 
 Ensure that this file is available on the bfabric exec host.
 
-Copyright (C) 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
+Copyright (C) 2014-2023 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 
 Authors:
     Christian Panse <cp@fgcz.ethz.ch>
@@ -62,7 +62,9 @@ B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper
         'bfabric/scripts/bfabric_save_workunit_attribute.py',
         'bfabric/scripts/bfabric_save_csv2dataset.py',
         'bfabric/scripts/bfabric_save_dataset2csv.py',
-        'bfabric/scripts/bfabric_read_samples_of_workunit.py'
+        'bfabric/scripts/bfabric_logthis.py',
+        'bfabric/scripts/bfabric_read_samples_of_workunit.py',
+        'bfabric/scripts/bfabric_save_workflowstep.py'
         #'bfabric/scripts/bfabric_list_executables.py',
         #'bfabric/scripts/bfabric_list_proteomics_projects.py',
         #'bfabric/scripts/bfabric_upload_wrapper_creator_executable.py',

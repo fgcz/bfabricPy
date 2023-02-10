@@ -6,16 +6,15 @@ by Christian Panse <cp@fgcz.ethz.ch> November 2018
 
 an bash code snippet how it can be used:
 
-tail -n 1000 ~/Downloads/pfiles.txt \
-  | grep p1000 \
-  | grep raw$ \
-  | grep autoQC01 \
-  | head \
-  | ./bfabric_autoQC.py
+tail -n 1000 /srv/www/htdocs/Data2San/sync_LOGS/pfiles.txt \
+  | egrep "_autoQC01.*raw$" \
+  | tail -n 1 \
+  | ./bfabric/scripts/bfabric_feeder_resource_autoQC.py
 """
 
 import sys
 import os
+import yaml
 import re
 import time
 import unittest
@@ -27,56 +26,10 @@ class autoQC():
         feeder for autoQC raw files
     """
     bfabric_storageid = 2
-    bfabric_application_ids = {'Proteomics/TOFTOF_2': 91,
-                               'Proteomics/T100_1': 18,
-                               'Proteomics/TRIPLETOF_1': 93,
-                               'Proteomics/VELOS_1': 90,
-                               'Proteomics/VELOS_2': 89,
-                               'Proteomics/ORBI_1': 10,
-                               'Proteomics/ORBI_2': 12,
-                               'Proteomics/ORBI_3': 87,
-                               'Proteomics/G2HD_1': 128,
-                               'Proteomics/LTQ_1': 7,
-                               'Proteomics/LTQFT_1': 8,
-                               'Proteomics/QTRAP_1': 92,
-                               'Proteomics/TSQ_1': 15,
-                               'Proteomics/TSQ_2': 53,
-                               'Proteomics/Analysis/Progenesis': 84,
-                               'Proteomics/Analysis/ProteinPilot': 148,
-                               'Proteomics/Analysis/MaxQuant': 151,
-                               'Proteomics/Analysis/GenericZip': 185,
-                               'Proteomics/QEXACTIVE_1': 160,
-                               'Proteomics/QEXACTIVE_2': 161,
-                               'Proteomics/QEXACTIVE_3': 163,
-                               'Proteomics/FUSION_1': 162,
-                               'Proteomics/FUSION_2': 176,
-                               'Proteomics/LUMOS_1': 248,
-                               'Proteomics/QEXACTIVEHF_1': 177,
-                               'Proteomics/QEXACTIVEHF_2': 197,
-                               'Proteomics/QEXACTIVEHF_3': 207,
-                               'Proteomics/PROTEONXPR36': 82,
-                               'Proteomics/EXTERNAL_0': 188,
-                               'Proteomics/EXTERNAL_1': 189,
-                               'Proteomics/EXTERNAL_2': 190,
-                               'Proteomics/EXTERNAL_3': 191,
-                               'Proteomics/EXTERNAL_4': 192,
-                               'Proteomics/EXTERNAL_5': 193,
-                               'Proteomics/QEXACTIVEHFX_1': 232,
-                               'Metabolomics/QEXACTIVE_3': 171,
-                               'Metabolomics/TRIPLETOF_1': 144,
-                               'Metabolomics/TOFTOF_2': 143,
-                               'Metabolomics/QTOF': 14,
-                               'Metabolomics/LTQFT_1': 9,
-                               'Metabolomics/G2HD_1': 81,
-                               'Metabolomics/TSQ_1': 16,
-                               'Metabolomics/TSQ_2': 43,
-                               'Metabolomics/GCT_1': 44,
-                               'Metabolomics/ORBI_1': 11,
-                               'Metabolomics/ORBI_2': 13,
-                               'Metabolomics/IMSTOF_1': 203,
-                               'Metabolomics/QUANTIVA_1': 214,
-                               'Metabolomics/Analysis/ProgenesisQI': 226,
-                               'Metabolomics/ORBI_3': 77}
+    configfile = os.path.normpath("{0}/{1}".format(os.path.expanduser('~'), r'.bfabricrc.yaml'))
+    with open(configfile, 'r') as file:
+        config = yaml.load(file, Loader=yaml.FullLoader)
+    bfabric_application_ids = config['applicationId']
 
     bfapp = Bfabric(verbose=False)
 
@@ -104,15 +57,17 @@ class autoQC():
 
         try:
             res = self.bfapp.read_object(endpoint='sample',
-                                         obj={'projectid': projectid, 'name': name})
+                                         obj={'containerid': projectid, 'name': name})
         except:
+            print(res)
             raise
+
 
         sample_type = 'Biological Sample - Proteomics'
         
         query_autoQC01 = {'name': "{}".format(name),
                           'type': sample_type,
-                          'projectid': projectid,
+                          'containerid': projectid,
                           'species': "Bos taurus",
                           'groupingvar': "A",
                           'samplingdate': "2018-11-15",
@@ -120,7 +75,7 @@ class autoQC():
 
         query_autoQC4L = {'name': "{}".format(name),
                           'type': sample_type,
-                          'projectid': projectid,
+                          'containerid': projectid,
                           'species': "n/a",
                           'groupingvar': "A",
                           'samplingdate': "2018-11-15",
@@ -128,7 +83,7 @@ class autoQC():
 
         query_lipidQC01 = {'name': "{}".format(name),
                           'type': 'Biological Sample - Metabolomics',
-                          'projectid': projectid,
+                          'containerid': projectid,
                           'species': "n/a",
                           'extractionprotocolannotation': "n/a",
                           'organismpart': "n/a",
@@ -143,6 +98,8 @@ class autoQC():
             elif name == 'lipidQC01':
                 res = self.bfapp.save_object(endpoint='sample', obj=query_lipidQC01)
 
+        print(res)
+        print(res[0])
         return res[0]._id
 
     def workunit_check(self, projectid, name, applicationid):
@@ -266,12 +223,16 @@ listed below.
             applicationid = self.bfabric_application_ids[m.group(2)]
             autoQCType = m.group(4)
 
+
         except Exception as err:
             print ("# no match '{}'.".format(filename))
             return
 
+        print ("{}\t{}\t{}\n".format(projectid, applicationid, autoQCType))
+
         try:
             sampleid = self.sample_check(projectid, name=autoQCType)
+            sys.exit(0)
             #print sampleid
             workunitid = self.workunit_check(projectid, name=autoQCType, applicationid=applicationid)
             #print "WUID={}".format(workunitid)

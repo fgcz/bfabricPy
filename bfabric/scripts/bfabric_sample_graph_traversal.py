@@ -19,6 +19,7 @@ from time import sleep
 
 
 class SampleGraph:
+
     B = bfabric.Bfabric()
 
     # use as stack for the DFS
@@ -38,6 +39,16 @@ class SampleGraph:
     def init(self):
         pass
 
+    def read_dataset(self, dataset_id):
+        ds = self.B.read_object(endpoint="dataset", obj={'id': dataset_id})[0]
+        return ds
+
+    def get_sampleID(self, relativepath):
+        res = self.B.read_object(endpoint='resource', obj={'relativepath': relativepath})[0]
+        print("\t{} -> {}".format(res.sample._id, res._id))
+        return res.sample._id
+
+
     def traverse(self, childSampleId):
         """
         fill up the internal data structure
@@ -46,7 +57,7 @@ class SampleGraph:
 
         TODO: when to we populate the table? now or later?
         """
-        res = self.B.read_object(endpoint='sample', obj={'id': childSampleId}, page=1)
+        res = self.B.read_object(endpoint='sample', obj={'id': childSampleId})
         childSample = res[0]
 
         if "multiplexid" in  childSample:
@@ -68,11 +79,17 @@ class SampleGraph:
             self.L.remove(u)
             self.traverse(u)
 
-    def run(self, inputResource):
-        for resourceId in inputResource:
-            # sampleId = getSampleOfResource(resourceId)
-            # traverse(sampleId)
-            pass
+    def run(self, dataset_id):
+        ds = self.read_dataset(dataset_id)
+        attributeposition = [x.position for x in ds.attribute if x.name == "Relative Path"][0]
+        for i in ds.item:
+            for x in i.field:
+                if hasattr(x, "value") and x.attributeposition ==attributeposition:
+                    print ("# relativepath = {}".format(x.value))
+                    sampleID = self.get_sampleID(x.value)
+                    print ("# inputSampleId = {}".format(sampleID))
+                    G.traverse(sampleID)
+
 
     def writetable(self, childSampleID):
         MSsample = self.annotation[childSampleID][0]
@@ -84,19 +101,14 @@ class SampleGraph:
 if __name__ == "__main__":
 
     # TODO(cp): read WU12345.yaml file
+    dataset_id = 44384 #int(sys.argv[1])
 
     # constructor
 
     print ('''digraph G{\n\trankdir="LR";''')
 
-    # TODO(cp): G.run(listOfResources)
-    #if len(sys.argv) > 1:
-    #    G.traverse(int(sys.argv[1]))
     G = SampleGraph()
-    for i in range(461019, 461043):
-        print ("# inputSampleId ={}".format(i))
-        G.traverse(i)
-
+    G.run(dataset_id)
     print ('''}''')
     #G.writetable(int(sys.argv[1]))
 
