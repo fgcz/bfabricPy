@@ -59,9 +59,6 @@ class SampleGraph:
         """
         fill up the internal data structure
         for producing the manifest and annotation.txt files for each exp.
-
-
-        TODO: when to we populate the table? now or later?
         """
         res = self.B.read_object(endpoint='sample', obj={'id': childSampleId})
         childSample = res[0]
@@ -101,31 +98,38 @@ class SampleGraph:
                     print ("# inputSampleId = {}".format(sampleID))
                     self.annotation = self.annotation_template
                     self.traverse(sampleID)
-                    self.write_annotation(sampleID)
-        #self.writetable(sampleID, annotation)
+                    experiment = self.links[sampleID]
+                    if len(experiment)==1:
+                        self.write_annotation(experiment[0])
+                        self.write_manifest(x.value, experiment[0])
+                    else:
+                        print("# Wrong inputSampleId, please check the sample ID {}, it should be after fractionation".format(sampleID))
 
-    def write_annotation(self, childSampleID):
-        if len(self.links[childSampleID])==1:
-            dirname = str(self.links[childSampleID][0])
-            if not os.path.isdir(dirname):
-                print("# creating directory {}".format(dirname))
-                os.makedirs(dirname)
-                with open("./"+dirname+"/annotation.txt", "w") as f:
-                    w = csv.writer(f, delimiter = '\t')
-                    w.writerows(self.annotation.items())
-            else:
-                pass
+    def write_annotation(self, experiment):
+        dirname = str(experiment)
+        if not os.path.isdir(dirname):
+            print("# creating directory {}".format(dirname))
+            os.makedirs(dirname)
+            with open("./"+dirname+"/annotation.txt", "w") as f:
+                w = csv.writer(f, delimiter = '\t')
+                w.writerows(self.annotation.items())
         else:
-            print("# please check the sample ID {}, it should be after fractionation".format(childSampleID))
+            pass
+
+    def write_manifest(self, resource, experiment):
+        filename = "manifest.fp-manifest"
+        pathtoresource = os.getcwd()+"/"+os.path.basename(resource)
+        if not os.path.exists(filename):
+            with open (filename, "w") as f:
+                line = '\t'.join([pathtoresource, str(experiment), "", "", "DDA"]) + "\n"
+                f.write(line)
+        else:
+            with open (filename, "a") as f:
+                line = '\t'.join([pathtoresource, str(experiment), "", "", "DDA"]) + "\n"
+                f.write(line)
 
 
-    def writetable(self, childSampleID, annotation):
-        #MSsample = self.manifest[childSampleID][0]
-        #print("# {} {}".format(childSampleID, MSsample))
-        #print("# {} {}".format(MSsample, self.manifest[MSsample]))
-        #print("# {}".format(self.annotation))
-        pass
-        
+
 if __name__ == "__main__":
 
     dataset_id = 44384 #int(sys.argv[1])
@@ -133,25 +137,24 @@ if __name__ == "__main__":
     infile = open(sys.argv[1], 'r')
     annotation_template = {} 
     for line in infile:
-        line = line.strip() #remove newline character at end of each line
-        content = line.split(' ', 1) # split max of one time
+        line = line.strip()
+        content = line.split(' ', 1)
         annotation_template.update({content[0]:content[1]})
     infile.close()
 
     # constructor
     print ('''digraph G{\n\trankdir="LR";''')
     G = SampleGraph(annotation_template)
-#G.run(dataset_id)
-    for s in [461042, 461041, 461017]:
-        G.annotation = G.annotation_template.copy()
-        G.traverse(s)
-        G.write_annotation(s)
-        print("# {}".format(G.annotation))
-        print("# {}".format(G.annotation_template))
-    print("# {}".format(G.links))
+    G.run(dataset_id)
+    #for s in [461042, 461041, 461017]:
+    #    G.annotation = G.annotation_template.copy()
+    #    G.traverse(s)
+    #    G.write_annotation(s)
+    #    print("# {}".format(G.annotation))
+    #    print("# {}".format(G.annotation_template))
+    #print("# {}".format(G.links))
 
     print ('''}''')
-    #G.writetable(int(sys.argv[1]))
 
 
 
