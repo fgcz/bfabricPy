@@ -52,26 +52,27 @@ def main(workunit_id = None):
     application_id = workunit["application"]["_id"]
     container_id = workunit["container"]["_id"]
 
-    workflows = B.read_object("workflow", obj={"containerid": container_id})
-    # if workflows is None, no workflow is available - > create a new one
-    daw_id = -1
-    if workflows is not None:
-        # check if the corresponding workflow exists (template id 59)
-        for item in workflows:
-            if item["workflowtemplate"]["_id"] == workflowtemplate_ids[application_id]:
-                daw_id = item["_id"]
-                break
+    if application_id in workflowtemplatestep_ids and application_id in workflowtemplate_ids:
+        workflows = B.read_object("workflow", obj={"containerid": container_id})
+        # if workflows is None, no workflow is available - > create a new one
+        daw_id = -1
+        if workflows is not None:
+            # check if the corresponding workflow exists (template id 59)
+            for item in workflows:
+                if item["workflowtemplate"]["_id"] == workflowtemplate_ids[application_id]:
+                    daw_id = item["_id"]
+                    break
+        else:
+            pass
+        # case when no workflows are available (workflows == None)
+        if daw_id == -1:
+            daw = B.save_object("workflow", obj={"containerid": container_id, "workflowtemplateid": workflowtemplate_ids[application_id]})
+            daw_id = daw[0]["_id"]
+
+        res = B.save_object("workflowstep", obj = {"workflowid": daw_id, "workflowtemplatestepid": workflowtemplatestep_ids[application_id], "workunitid": workunit_id})
+        print(res[0])
     else:
         pass
-    # case when no workflows are available (workflows == None)
-    if daw_id == -1:
-        daw = B.save_object("workflow", obj={"containerid": container_id, "workflowtemplateid": workflowtemplate_ids[application_id]})
-        daw_id = daw[0]["_id"]
-
-    res = B.save_object("workflowstep", obj = {"workflowid": daw_id, "workflowtemplatestepid": workflowtemplatestep_ids[application_id], "workunitid": workunit_id})
-
-    print(res[0])
-
 
 if __name__ == "__main__":
     import argparse
