@@ -112,11 +112,17 @@ class Bfabric(object):
         with open(self.bfabricfilename) as configfile:
             for line in configfile:
                 if not re.match("^#", line):
-                    A = line.strip().replace("\"", "").replace("'", "").partition('=')
-                    if not A[0] in ['_PASSWD', '_LOGIN', '_WEBBASE']:
+                    A = line.strip().partition('=')
+                    if not A[0] in ['_PASSWD', '_LOGIN', '_WEBBASE', '_APPLICATION']:
                         continue
+                    ## The first rule counts!
                     if not A[0] in self.bfabricrc:
-                        self.bfabricrc[A[0]] = A[2]
+                        if A[0] in ['_APPLICATION']:
+                            self.bfabricrc[A[0]] = A[2]
+                        else:
+                            # to make it downward compatible; so we replace quotes in login and password
+                            self.bfabricrc[A[0]] = A[2].replace("\"", "").replace("'", "")
+
                     else:
                         self.warning("while reading {0}. '{1}' is already set."
                             .format(self.bfabricfilename, A[0]))
@@ -152,7 +158,7 @@ class Bfabric(object):
 
         if '_APPLICATION' in list(self.bfabricrc.keys()):
             try:
-                self.application = json.loads(self.bfabricrc['_WEBBASE'])
+                self.application = json.loads(self.bfabricrc['_APPLICATION'])
             except:
                 raise("json parsing failed.")
 
