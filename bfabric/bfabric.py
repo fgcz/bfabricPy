@@ -693,6 +693,7 @@ then
      ssh fgcz-r-035.uzh.ch "bfabric_setResourceStatus_available.py $RESSOURCEID_OUTPUT" \
      | mutt -s "JOB_ID=$JOB_ID WORKUNIT_ID=$WORKUNIT_ID EXTERNALJOB_ID=$EXTERNALJOB_ID DONE" $EMAIL 
 
+     bfabric_save_workflowstep.py $WORKUNIT_ID
      bfabric_setExternalJobStatus_done.py $EXTERNALJOB_ID
      bfabric_setWorkunitStatus_available.py $WORKUNIT_ID
     echo $?

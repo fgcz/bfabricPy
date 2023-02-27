@@ -12,6 +12,8 @@ usage:
 """
 
 import sys
+import os
+import csv
 import bfabric
 
 from random import randint
@@ -32,12 +34,16 @@ class SampleGraph:
     # key is resource id and the value is a list experiments
     manifest = {}
 
-    # annimation.txt
-    # data structure for keeping annotation.txt infors (de-multiplexed data) containing the tagging
-    annotation = {}
+    # annotation.txt
+    # data structure for keeping annotation.txt infos (de-multiplexed data) containing the tagging
+    #annotation = {}
 
-    def init(self):
-        pass
+    links = {}
+
+    def __init__(self, annotation_template):
+        self.annotation_template = annotation_template
+        self.annotation = {}
+
 
     def read_dataset(self, dataset_id):
         ds = self.B.read_object(endpoint="dataset", obj={'id': dataset_id})[0]
@@ -53,9 +59,6 @@ class SampleGraph:
         """
         fill up the internal data structure
         for producing the manifest and annotation.txt files for each exp.
-
-
-        TODO: when to we populate the table? now or later?
         """
         res = self.B.read_object(endpoint='sample', obj={'id': childSampleId})
         childSample = res[0]
@@ -63,10 +66,15 @@ class SampleGraph:
         if "multiplexid" in  childSample:
             # in this special case we reached last level keeping the tag
             print ('''\t{} [shape=box label="{}\\n{}"];'''.format(childSample._id, childSample._id, childSample.multiplexid))
+            try:
+                self.annotation[childSample.multiplexid] = childSample.parent[0]._id
+            except:
+                print("multiplexid {} for sample {} not in the annotation file template".format(childSample.multiplexid, childSample._id))
+
 
         if 'parent' in childSample:
-            self.annotation[childSampleId] = [x._id for x in childSample.parent]
-            for parent in res[0].parent:
+            self.links[childSampleId] = [x._id for x in childSample.parent]
+            for parent in childSample.parent:
                 print("\t{} -> {}".format(parent._id, childSampleId))
                 if not parent._id in self.VISITED:
                     self.VISITED.append(parent._id)
@@ -84,33 +92,69 @@ class SampleGraph:
         attributeposition = [x.position for x in ds.attribute if x.name == "Relative Path"][0]
         for i in ds.item:
             for x in i.field:
-                if hasattr(x, "value") and x.attributeposition ==attributeposition:
+                if hasattr(x, "value") and x.attributeposition == attributeposition:
                     print ("# relativepath = {}".format(x.value))
                     sampleID = self.get_sampleID(x.value)
                     print ("# inputSampleId = {}".format(sampleID))
-                    G.traverse(sampleID)
+                    self.annotation = self.annotation_template
+                    self.traverse(sampleID)
+                    experiment = self.links[sampleID]
+                    if len(experiment)==1:
+                        self.write_annotation(experiment[0])
+                        self.write_manifest(x.value, experiment[0])
+                    else:
+                        print("# Wrong inputSampleId, please check the sample ID {}, it should be after fractionation".format(sampleID))
+
+    def write_annotation(self, experiment):
+        dirname = str(experiment)
+        if not os.path.isdir(dirname):
+            print("# creating directory {}".format(dirname))
+            os.makedirs(dirname)
+            with open("./"+dirname+"/annotation.txt", "w") as f:
+                w = csv.writer(f, delimiter = '\t')
+                w.writerows(self.annotation.items())
+        else:
+            pass
+
+    def write_manifest(self, resource, experiment):
+        filename = "manifest.fp-manifest"
+        pathtoresource = os.getcwd()+"/"+os.path.basename(resource)
+        if not os.path.exists(filename):
+            with open (filename, "w") as f:
+                line = '\t'.join([pathtoresource, str(experiment), "", "", "DDA"]) + "\n"
+                f.write(line)
+        else:
+            with open (filename, "a") as f:
+                line = '\t'.join([pathtoresource, str(experiment), "", "", "DDA"]) + "\n"
+                f.write(line)
 
 
-    def writetable(self, childSampleID):
-        MSsample = self.annotation[childSampleID][0]
-        print("# {} {}".format(childSampleID, MSsample))
-        print("# {} {}".format(MSsample, self.annotation[MSsample]))
-        print("# {}".format(self.annotation))
 
-        
 if __name__ == "__main__":
 
-    # TODO(cp): read WU12345.yaml file
     dataset_id = 44384 #int(sys.argv[1])
+    
+    infile = open(sys.argv[1], 'r')
+    annotation_template = {} 
+    for line in infile:
+        line = line.strip()
+        content = line.split(' ', 1)
+        annotation_template.update({content[0]:content[1]})
+    infile.close()
 
     # constructor
-
     print ('''digraph G{\n\trankdir="LR";''')
-
-    G = SampleGraph()
+    G = SampleGraph(annotation_template)
     G.run(dataset_id)
+    #for s in [461042, 461041, 461017]:
+    #    G.annotation = G.annotation_template.copy()
+    #    G.traverse(s)
+    #    G.write_annotation(s)
+    #    print("# {}".format(G.annotation))
+    #    print("# {}".format(G.annotation_template))
+    #print("# {}".format(G.links))
+
     print ('''}''')
-    #G.writetable(int(sys.argv[1]))
 
 
 
