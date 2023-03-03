@@ -185,7 +185,7 @@ class Bfabric(object):
     def get_para(self):
         return {'bflogin': self.bflogin, 'webbase': self.webbase}
 
-    def read_object(self, endpoint, obj, login=None, password=None, page=1):
+    def read_object(self, endpoint, obj, login=None, password=None, page=1, plain=False):
         """
         A generic method which can connect to any endpoint, e.g., workunit, project, order,
         externaljob, etc, and returns the object with the requested id.
@@ -215,13 +215,13 @@ class Bfabric(object):
             raise
 
         rv = self.cl[endpoint].service.read(QUERY)
-        if page != 1 | hasattr(rv, 'errorreport'):
+        if plain:
             return (rv)
         else:
             pass
 
         try:
-            QUERYRES = getattr(self.cl[endpoint].service.read(QUERY), endpoint, None)
+            QUERYRES = getattr(rv, endpoint, None)
         except Exception as e:
             print (e)
             raise
