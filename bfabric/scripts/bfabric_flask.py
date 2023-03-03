@@ -96,6 +96,33 @@ bfapp = bfabric.Bfabric()
 
 inlcude_child_extracts = True
 
+
+@app.route('/read', methods=['GET', 'POST'])
+def read():
+    try:
+        content = json.loads(request.data)
+    except:
+        return jsonify({'error': 'could not get POST content.'})
+
+    try:
+        webservicepassword = content['webservicepassword'][0].replace("\t", "")
+        login = content['login'][0]
+        # logger.info("debug {}".format(webservicepassword))
+
+        bf = bfabric.Bfabric(login=login, password=webservicepassword)
+        res = bf.read_object(endpoint=content['endpoint'][0], obj=content['query'], plain=true)
+        logger.info("'{}' login success query {} ...".format(login, content['query']))
+    except:
+        logger.info("'{}' query failed ...".format(login))
+        return jsonify({'status': 'jsonify failed: bfabric python module.'})
+
+    try:
+        return jsonify({'res': res})
+    except:
+        logger.info("'{}' query failed ...".format(login))
+        return jsonify({'status': 'jsonify failed'})
+
+
 """
 generic query interface for read interface
 
@@ -395,5 +422,5 @@ def add_workunit():
     return jsonify({'rv': 'ok'})
 
 if __name__ == '__main__':
-    app.run(debug=False, host="0.0.0.0", port=5000)
+    app.run(debug=False, host="0.0.0.0", port=5001)
 
