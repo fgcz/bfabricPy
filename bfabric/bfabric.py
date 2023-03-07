@@ -230,6 +230,50 @@ class Bfabric(object):
 
         return QUERYRES
 
+    def readid_object(self, endpoint, obj, login=None, password=None, page=1, plain=False):
+        """
+        A generic method which can connect to any endpoint, e.g., workunit, project, order,
+        externaljob, etc, and returns the object with the requested id.
+        obj is a python dictionary which contains only the id of the endpoint for the "query".
+        """
+        if login is None:
+            login = self.bflogin
+
+        if password is None:
+            password = self.bfpassword
+
+        if len(login) >= 32:
+            raise ValueError("Sorry, login >= 32 characters.")
+
+        if len(password) != 32:
+            raise ValueError("Sorry, password != 32 characters.")
+
+        self.query_counter = self.query_counter + 1
+        QUERY = dict(login=login, page=page, password=password, query=obj)
+
+        try:
+            if not endpoint in self.cl:
+                self.cl[endpoint] = Client("".join((self.webbase, '/', endpoint, "?wsdl")), cache=None)
+        except Exception as e:
+            print (e)
+            raise
+
+        rv = self.cl[endpoint].service.readid(QUERY)
+        if plain:
+            return (rv)
+        else:
+            pass
+
+        try:
+            QUERYRES = getattr(rv, endpoint, None)
+        except Exception as e:
+            print (e)
+            raise
+        if self.verbose:
+            pprint (QUERYRES)
+
+        return QUERYRES
+
     def save_object(self, endpoint, obj, debug=None):
         """
         same as read_object above but uses the save method.
