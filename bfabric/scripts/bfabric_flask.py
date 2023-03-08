@@ -105,12 +105,20 @@ def read():
         return jsonify({'error': 'could not get POST content.'})
 
     try:
+        # TODO(cp): check if meaningful page
+        page = content['page'][0]
+        print("page = ", page)
+    except:
+        logger.info("set page to 1.")
+        page = 1
+
+    try:
         webservicepassword = content['webservicepassword'][0].replace("\t", "")
         login = content['login'][0]
         # logger.info("debug {}".format(webservicepassword))
 
         bf = bfabric.Bfabric(login=login, password=webservicepassword)
-        res = bf.read_object(endpoint=content['endpoint'][0], obj=content['query'], plain=true)
+        res = bf.read_object(endpoint=content['endpoint'][0], obj=content['query'], plain=True, page=page)
         logger.info("'{}' login success query {} ...".format(login, content['query']))
     except:
         logger.info("'{}' query failed ...".format(login))
@@ -320,6 +328,7 @@ def add_dataset(containerid):
 
 
 
+# @deprecated("Use read instead")
 @app.route('/user/<int:containerid>', methods=['GET'])
 def get_user(containerid):
 
@@ -332,6 +341,7 @@ def get_user(containerid):
     return jsonify({'user': users})
 
 
+# @deprecated("Use read instead")
 @app.route('/sample/<int:containerid>', methods=['GET'])
 def get_all_sample(containerid):
 
@@ -422,5 +432,4 @@ def add_workunit():
     return jsonify({'rv': 'ok'})
 
 if __name__ == '__main__':
-    app.run(debug=False, host="0.0.0.0", port=5001)
-
+    app.run(debug=False, host="0.0.0.0", port=5000)
