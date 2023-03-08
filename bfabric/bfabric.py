@@ -221,10 +221,11 @@ class Bfabric(object):
             pass
 
         try:
-            QUERYRES = getattr(rv, endpoint, None)
-        except Exception as e:
-            print (e)
+            QUERYRES = getattr(rv, endpoint)
+        except AttributeError:
+            print(rv)
             raise
+
         if self.verbose:
             pprint (QUERYRES)
 
@@ -265,9 +266,9 @@ class Bfabric(object):
             pass
 
         try:
-            QUERYRES = getattr(rv, endpoint, None)
-        except Exception as e:
-            print (e)
+            QUERYRES = getattr(rv, endpoint)
+        except AttributeError:
+            print(rv)
             raise
         if self.verbose:
             pprint (QUERYRES)
@@ -288,13 +289,13 @@ class Bfabric(object):
         except:
             raise
 
-
+        rv = self.cl[endpoint].service.save(QUERY)
         try:
             if debug is not None:
-                return self.cl[endpoint].service.save(QUERY)
-
-            return getattr(self.cl[endpoint].service.save(QUERY), endpoint, None)
-        except:
+                return rv
+            return getattr(rv, endpoint)
+        except AttributeError:
+            print(rv)
             raise
     
     def checkandinsert_object(self, endpoint, obj, debug=None):
@@ -313,12 +314,13 @@ class Bfabric(object):
             raise
 
 
+        rv = self.cl[endpoint].service.save(QUERY)
         try:
             if debug is not None:
-                return self.cl[endpoint].service.save(QUERY)
-
-            return getattr(self.cl[endpoint].service.checkandinsert(QUERY), endpoint, None)
-        except:
+                return rv
+            return getattr(rv, endpoint)
+        except AttributeError:
+            print(rv)
             raise
 
     def delete_object(self, endpoint, id=None, debug=None):
@@ -335,12 +337,13 @@ class Bfabric(object):
         except:
             raise
 
+        rv = self.cl[endpoint].service.delete(QUERY)
         try:
             if debug is not None:
-                return self.cl[endpoint].service.delete(QUERY)
-
-            return getattr(self.cl[endpoint].service.delete(QUERY), endpoint, None)
-        except:
+                return rv
+            return getattr(rv, endpoint)
+        except AttributeError:
+            print(rv)
             raise
 
     def upload_file(self, filename, workunitid):
