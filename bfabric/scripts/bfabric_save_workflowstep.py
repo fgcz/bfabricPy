@@ -4,28 +4,16 @@
 Author:
      Maria d'Errico <maria.derrico@fgcz.ethz.ch>
 
+     Feb 2023
 
 Description:
- The following script gets a csv file as input and automatically
- generates a json structure with attributes accepted by B-Fabric for 
- the creation of datasets.
+ The following script automatically creates an analysis workflow step given a workunit id.
+ i.e. if the Maxquant workunit 285507 is given, a workflow step Maxquant is created
+ (see https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=285507&tab=workflowsteps)
+ More details: https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=285507&tab=comments
+ See workflowtemplatestep_ids for the currently enabled apps.
 
- Example of input file:
-  attr1, attr2
-  "1", "1"
-  "2", "2"
-
- Example of json output:
-  obj['attribute'] = [ {'name':'attr1', 'position':1},
-                       {'name':'attr2', 'position':2} ]
-  obj['item'] = [ {'field': [{'value': 1, 'attributeposition':1},
-                             {'value': 1,  'attributeposition':2 }],
-                   'position':1},
-                  {'field': [{'value': 2, 'attributeposition':1},
-                          {'value': 2,  'attributeposition':2 }],
-                   'position':2}]
-
-Usage: bfabric_save_csv2dataset.py [-h] --csvfile CSVFILE --name NAME --containerid int [--workunitid int]
+Usage: bfabric_save_workflowstep.py 285507
 """
 
 import sys
