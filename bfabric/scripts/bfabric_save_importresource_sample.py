@@ -184,7 +184,7 @@ def save_importresource(line):
             }
 
     try:
-        m = re.search(r"p([0-9]+)\/(Proteomics\/[A-Z]+_[1-9])\/.*_S([0-9][0-9][0-9][0-9][0-9][0-9]+)_.*raw$", _file_path)
+        m = re.search(r"p([0-9]+)\/(Proteomics\/[A-Z]+_[1-9])\/.*_\d\d\d_S([0-9][0-9][0-9][0-9][0-9][0-9]+)_.*(raw|zip)$", _file_path)
         print ("found sampleid={} pattern".format(m.group(3)))
         obj['sampleid'] = int(m.group(3))
     except:
