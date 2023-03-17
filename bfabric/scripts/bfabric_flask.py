@@ -222,9 +222,18 @@ def s():
     except:
         return jsonify({'error': 'could not get POST content.'})
 
-    bf = bfabric.Bfabric()
-    print (content)
-    res = bf.save_object(endpoint=content['endpoint'][0], obj=content['query'])
+    try:
+        webservicepassword = content['webservicepassword'][0].replace("\t", "")
+        login = content['login'][0]
+        bf = bfabric.Bfabric(login=login, password=webservicepassword)
+        print (content)
+
+        res = bf.save_object(endpoint=content['endpoint'][0], obj=content['query'])
+
+        logger.info("'{}' login success query {} ...".format(login, content['query']))
+    except:
+        logger.info("'{}' query failed ...".format(login))
+        return jsonify({'status': 'jsonify failed: bfabric python module.'})
 
     try:
         return jsonify({'res': res})
