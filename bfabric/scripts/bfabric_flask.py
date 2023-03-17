@@ -217,22 +217,44 @@ def q():
 
 @app.route('/s', methods=['GET', 'POST'])
 def s():
+
     try:
         content = json.loads(request.data)
     except:
-        return jsonify({'error': 'could not get POST content.'})
+        msg = 'could not get POST content.'
+        print("Exception: {}".format(msg))
+        return jsonify({'error': msg})
 
     try:
         webservicepassword = content['webservicepassword'][0].replace("\t", "")
         login = content['login'][0]
-        bf = bfabric.Bfabric(login=login, password=webservicepassword)
-        print (content)
-
-        res = bf.save_object(endpoint=content['endpoint'][0], obj=content['query'])
-
-        logger.info("'{}' login success query {} ...".format(login, content['query']))
     except:
-        logger.info("'{}' query failed ...".format(login))
+        msg = 'Could not extract login|webservicepassword.'
+        print("Exception: {}".format(msg))
+        return jsonify({'error': msg})
+
+    try:
+        endpoint = content['endpoint'][0]
+    except:
+        msg = 'Could not extract endpoint.'
+        print("Exception: {}".format(msg))
+        return jsonify({'error': msg})
+
+    try:
+        query = content['query']
+    except:
+        msg = 'Could not extract query.'
+        print("Exception: {}".format(msg))
+        return jsonify({'error': msg})
+
+    try:
+        print("Calling constructor and save method using login", login)
+        bf = bfabric.Bfabric(login=login, password=webservicepassword)
+        res = bf.save_object(endpoint=endpoint, obj=content['query'])
+
+        logger.info("'{}' login success save method ...".format(login))
+    except:
+        logger.info("save method failed for login {}.".format(login))
         return jsonify({'status': 'jsonify failed: bfabric python module.'})
 
     try:
@@ -240,8 +262,6 @@ def s():
     except:
         return jsonify({'status': 'jsonify failed'})
     
-    
-
 def dfs__(extract_id):
     stack = list()
     visited = dict()
