@@ -224,7 +224,10 @@ class Bfabric(object):
             QUERYRES = getattr(rv, endpoint)
         except AttributeError:
             print(rv)
-            raise
+            if hasattr(rv, "entitiesonpage") and rv["entitiesonpage"]==0:
+                return None
+            else:
+                raise
 
         if self.verbose:
             pprint (QUERYRES)
