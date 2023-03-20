@@ -23,17 +23,17 @@ from bfabric import Bfabric
 
 def main(workunit_id = None):
     B = Bfabric()
-    workflowtemplatestep_ids = {224: 247 # MaxQuant
+    workflowtemplatestep_ids = {224: 247, # MaxQuant
                  #295: 248, # FragPipe-RESOURCE
-                 #314: 254, # DIANN
-                 #255: 256, # maxquant_scaffold
-                 #266: 258  # MaxQuant-sampleSizeEstimation
+                 314: 254, # DIANN
+                 255: 256, # maxquant_scaffold
+                 266: 258  # MaxQuant-sampleSizeEstimation
                  }
-    workflowtemplate_ids = {224: 59 # Proteomics Data analysis
+    workflowtemplate_ids = {224: 59, # Proteomics Data analysis
                #295: 59,
-               #314: 59,
-               #255: 60, # Proteomics Results
-               #266: 60
+               314: 59,
+               255: 60, # Proteomics Results
+               266: 60
                }
 
     workunit = B.read_object("workunit", obj={"id": workunit_id})[0]
