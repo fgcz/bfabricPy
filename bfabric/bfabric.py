@@ -185,7 +185,7 @@ class Bfabric(object):
     def get_para(self):
         return {'bflogin': self.bflogin, 'webbase': self.webbase}
 
-    def read_object(self, endpoint, obj, login=None, password=None, page=1, plain=False):
+    def read_object(self, endpoint, obj, login=None, password=None, page=1, plain=False, idonly=False):
         """
         A generic method which can connect to any endpoint, e.g., workunit, project, order,
         externaljob, etc, and returns the object with the requested id.
@@ -205,7 +205,8 @@ class Bfabric(object):
             raise ValueError("Sorry, password != 32 characters.") 
 
         self.query_counter = self.query_counter + 1
-        QUERY = dict(login=login, page=page, password=password, query=obj)
+        QUERY = dict(login=login, page=page, password=password, query=obj, idonly=idonly)
+        print(QUERY)
 
         try:
             if not endpoint in self.cl:
@@ -224,10 +225,7 @@ class Bfabric(object):
             QUERYRES = getattr(rv, endpoint)
         except AttributeError:
             print(rv)
-            if hasattr(rv, "entitiesonpage") and rv["entitiesonpage"]==0:
-                return None
-            else:
-                raise
+            raise
 
         if self.verbose:
             pprint (QUERYRES)

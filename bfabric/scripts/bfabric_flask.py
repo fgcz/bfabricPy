@@ -96,41 +96,9 @@ bfapp = bfabric.Bfabric()
 
 inlcude_child_extracts = True
 
-@app.route('/readid', methods=['GET', 'POST'])
-def readid():
-    try:
-        content = json.loads(request.data)
-    except:
-        return jsonify({'error': 'could not get POST content.'})
-
-    try:
-        # TODO(cp): check if meaningful page
-        page = content['page'][0]
-        print("page = ", page)
-    except:
-        logger.info("set page to 1.")
-        page = 1
-
-    try:
-        webservicepassword = content['webservicepassword'][0].replace("\t", "")
-        login = content['login'][0]
-        # logger.info("debug {}".format(webservicepassword))
-
-        bf = bfabric.Bfabric(login=login, password=webservicepassword)
-        res = bf.readid_object(endpoint=content['endpoint'][0], obj=content['query'], plain=True, page=page)
-        logger.info("'{}' login success query {} ...".format(login, content['query']))
-    except:
-        logger.info("'{}' query failed ...".format(login))
-        return jsonify({'status': 'jsonify failed: bfabric python module.'})
-
-    try:
-        return jsonify({'res': res})
-    except:
-        logger.info("'{}' query failed ...".format(login))
-        return jsonify({'status': 'jsonify failed'})
-
 @app.route('/read', methods=['GET', 'POST'])
 def read():
+    idonly = None
     try:
         content = json.loads(request.data)
     except:
@@ -145,12 +113,19 @@ def read():
         page = 1
 
     try:
+        # TODO(cp): check if meaningful page
+        idonly = content['idonly'][0]
+        print("idonly = ", idonly)
+    except:
+        idonly = False
+
+    try:
         webservicepassword = content['webservicepassword'][0].replace("\t", "")
         login = content['login'][0]
         # logger.info("debug {}".format(webservicepassword))
 
         bf = bfabric.Bfabric(login=login, password=webservicepassword)
-        res = bf.read_object(endpoint=content['endpoint'][0], obj=content['query'], plain=True, page=page)
+        res = bf.read_object(endpoint=content['endpoint'][0], obj=content['query'], plain=True, page=page, idonly=idonly)
         logger.info("'{}' login success query {} ...".format(login, content['query']))
     except:
         logger.info("'{}' query failed ...".format(login))
