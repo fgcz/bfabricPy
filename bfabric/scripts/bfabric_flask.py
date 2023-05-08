@@ -38,7 +38,7 @@ import json
 from flask import Flask, jsonify, request
 from flask.json import JSONEncoder
 from slugify import slugify
-
+from os.path import exists
 
 import bfabric
 
@@ -468,4 +468,7 @@ def add_workunit():
     return jsonify({'rv': 'ok'})
 
 if __name__ == '__main__':
-    app.run(debug=False, host="0.0.0.0", port=5000)
+    if exists('/etc/ssl/fgcz-host.pem') and exists('/etc/ssl/private/fgcz-c-072_key.pem'):    
+        app.run(debug=False, host="0.0.0.0", port=5001, ssl_context=('/etc/ssl/fgcz-host.pem', '/etc/ssl/private/fgcz-c-072_key.pem'))
+    else:
+        app.run(debug=False, host="127.0.0.1", port=5000)
