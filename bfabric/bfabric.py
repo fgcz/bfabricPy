@@ -206,7 +206,7 @@ class Bfabric(object):
 
         self.query_counter = self.query_counter + 1
         QUERY = dict(login=login, page=page, password=password, query=obj, idonly=idonly)
-        print(QUERY)
+        
 
         try:
             if not endpoint in self.cl:
