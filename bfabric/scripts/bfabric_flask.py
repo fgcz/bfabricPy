@@ -19,6 +19,8 @@ Marco Schmid
 2017-05-11
 2019-10-16 adapted to bfabric10
 2022-02-04 adaptation to start flask by Debian's systemd
+2023-05-08 use https if certified ssh keys are available
+
 
 useful commands when using the debian package:
 
@@ -468,7 +470,7 @@ def add_workunit():
     return jsonify({'rv': 'ok'})
 
 if __name__ == '__main__':
-    if exists('/etc/ssl/fgcz-host.pem') and exists('/etc/ssl/private/fgcz-c-072_key.pem'):    
-        app.run(debug=False, host="0.0.0.0", port=5001, ssl_context=('/etc/ssl/fgcz-host.pem', '/etc/ssl/private/fgcz-c-072_key.pem'))
+    if exists('/etc/ssl/fgcz-host.pem') and exists('/etc/ssl/private/fgcz-host_key.pem'):
+        app.run(debug=False, host="0.0.0.0", port=5001, ssl_context=('/etc/ssl/fgcz-host.pem', '/etc/ssl/private/fgcz-host_key.pem'))
     else:
         app.run(debug=False, host="127.0.0.1", port=5000)
