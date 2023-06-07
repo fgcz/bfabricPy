@@ -25,7 +25,7 @@ def dataset2csv(ds, outputfile, sep=","):
         for i in ds.item:
             # sort values based on the columns order in attributeposition
             for x in i.field:
-                if not hasattr(x,"value"):
+                if not hasattr(x,"value") or x.value == None:
                     x.value = ''
             fields = [(x.value, x.attributeposition) for x in i.field]
             fields.sort(key=lambda y: int(y[1]))
