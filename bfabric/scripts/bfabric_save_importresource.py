@@ -104,6 +104,7 @@ bfabric_application_ids = {'Proteomics/TOFTOF_2':91,
                            'Metabolomics/ORBI_2':13,
                            'Metabolomics/IMSTOF_1':203,
                            'Metabolomics/QUANTIVA_1':214,
+                           'Metabolomics/QEXACTIVEHF_2':316,
                            'Metabolomics/ORBI_3':77}
 
 def save_importresource(line):
