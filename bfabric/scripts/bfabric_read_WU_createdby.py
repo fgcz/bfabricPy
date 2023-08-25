@@ -1,14 +1,3 @@
-#!/usr/bin/python3
-
-"""
-Author:
-  Witold Wolski
-
-Description:
-  get created by user name
-
-"""
-
 import bfabric
 import sys
 

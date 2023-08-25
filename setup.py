@@ -65,9 +65,8 @@ B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper
         'bfabric/scripts/bfabric_logthis.py',
         'bfabric/scripts/bfabric_read_samples_of_workunit.py',
         'bfabric/scripts/bfabric_read_samples_from_dataset.py',
-        'bfabric/scripts/bfabric_save_workflowstep.py',
-        'bfabric/scripts/bfabric_read_WU_createdby.py'
-	#'bfabric/scripts/bfabric_list_executables.py',
+        'bfabric/scripts/bfabric_save_workflowstep.py'
+        #'bfabric/scripts/bfabric_list_executables.py',
         #'bfabric/scripts/bfabric_list_proteomics_projects.py',
         #'bfabric/scripts/bfabric_upload_wrapper_creator_executable.py',
         #'bfabric/scripts/bfabric_upload_submitter_executable.py',
