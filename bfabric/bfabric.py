@@ -1094,6 +1094,7 @@ exit 0
                         'url': "{0}/workunitid-{1}_resourceid-{2}.out".format(_log_storage.basepath, workunit._id, _ressource_output._id)
                     },
                 'workunit_id': int(workunit._id),
+                'createdby': workunit.createdby,
                 'workunit_url': "{0}/userlab/show-workunit.html?workunitId={1}".format(self.webbase, workunit._id),
                 'external_job_id': int(yaml_workunit_externaljob._id),
                 'order_id': order_id,
