@@ -3,7 +3,7 @@
 [![JIB](https://img.shields.io/badge/JIB-10.1515%2Fjib.2022.0031-brightgreen)](https://doi.org/10.1515/jib-2022-0031)
 
 
-# branch *bfabric10* WSDL python3 package -- suds-py3
+# branch *bfabric12* WSDL python3 package -- suds-py3
 
 This package connects the [bfabric](https://fgcz-bfabric.uzh.ch/bfabric/) system to the [python](https://www.python.org/) and [R](https://cran.r-project.org/) world while providing a JSON and REST interface using [Flask](https://www.fullstackpython.com).
  The [bfabricShiny](https://github.com/cpanse/bfabricShiny) R package is an extension and provides code snippets and sample implementation for a seamless R shiny bfabric integration.
@@ -29,7 +29,6 @@ git clone git@github.com:fgcz/bfabricPy.git  \
 ```{bash}
 python3 setup.py sdist && pip3 install dist/bfabric-0.13.*.tar.gz --user
 ```
-
 
 ## Configuration
 
@@ -283,6 +282,17 @@ cd bfabric/tests/ && python3 -m unittest discover; echo $?; cd -
 - [wsdl4BFabric](http://fgcz-intranet.uzh.ch/tiki-index.php?page=wsdl4BFabric) wiki page
 - WSDL Interface to B-Fabric [endpoints](http://fgcz-bfabric.uzh.ch/bfabric/workunit?wsdl)
 
-## Howto cite
+## FAQ
+
+### How is the version numbering working
+
+X.Y.Z
+X is not used
+Y should be the bfabric release
+Z increment for significant changes
+
+Also, please note that the branch ID should correspond with the bfabric stable release number.
+
+### Howto cite ?
 
 Panse, Christian, Trachsel, Christian and Türker, Can. "Bridging data management platforms and visualization tools to enable ad-hoc and smart analytics in life sciences" Journal of Integrative Bioinformatics, 2022, pp. 20220031. https://doi.org/10.1515/jib-2022-0031
