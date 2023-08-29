@@ -277,6 +277,7 @@ cd bfabric/tests/ && python3 -m unittest discover; echo $?; cd -
 ```
 
 ## See also
+
 - [bfabric documentation](https://fgcz-bfabric.uzh.ch/wiki/HomePage)
 - [FAQ](faq.md)
 - [wsdl4BFabric](http://fgcz-intranet.uzh.ch/tiki-index.php?page=wsdl4BFabric) wiki page
@@ -284,15 +285,18 @@ cd bfabric/tests/ && python3 -m unittest discover; echo $?; cd -
 
 ## FAQ
 
-### How is the version numbering working
+### How is the version numbering working?
 
 X.Y.Z
+
 X is not used
+
 Y should be the bfabric release
+
 Z increment for significant changes
 
 Also, please note that the branch ID should correspond with the bfabric stable release number.
 
-### Howto cite ?
+### Howto cite?
 
-Panse, Christian, Trachsel, Christian and Türker, Can. "Bridging data management platforms and visualization tools to enable ad-hoc and smart analytics in life sciences" Journal of Integrative Bioinformatics, 2022, pp. 20220031. https://doi.org/10.1515/jib-2022-0031
+Panse, Christian, Trachsel, Christian and Türker, Can. "Bridging data management platforms and visualization tools to enable ad-hoc and smart analytics in life sciences" Journal of Integrative Bioinformatics, 2022, pp. 20220031. [doi: 10.1515/jib-2022-0031](https://doi.org/10.1515/jib-2022-0031).
