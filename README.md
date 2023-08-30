@@ -1,6 +1,8 @@
 ![functionTest](https://github.com/fgcz/bfabricPy/workflows/functionalTest/badge.svg)
 [![EDBT'10](https://img.shields.io/badge/EDBT-10.1145%2F1739041.1739135-brightgreen)](https://doi.org/10.1145/1739041.1739135)
 [![JIB](https://img.shields.io/badge/JIB-10.1515%2Fjib.2022.0031-brightgreen)](https://doi.org/10.1515/jib-2022-0031)
+![Downloads](https://img.shields.io/github/downloads/fgcz/bfabricPy/total)
+
 
 
 # branch *bfabric12* WSDL python3 package -- suds-py3
