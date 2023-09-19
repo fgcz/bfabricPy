@@ -37,7 +37,7 @@ setup(name = 'bfabric',
       description = """
 B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper_creator and submitter.
 """,
-      url = 'git@github.com:cpanse/bfabricPy.git ',
+      url = 'git@github.com:fgcz/bfabricPy.git ',
       author = 'Christian Panse',
       author_email = 'cp@fgcz.ethz.ch',
       license = 'GPLv3 / apache 2.0',
@@ -65,6 +65,7 @@ B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper
         'bfabric/scripts/bfabric_logthis.py',
         'bfabric/scripts/bfabric_read_samples_of_workunit.py',
         'bfabric/scripts/bfabric_read_samples_from_dataset.py',
+        'bfabric/scripts/bfabric_list_not_available_proteomics_workunits.py',
         'bfabric/scripts/bfabric_save_workflowstep.py'
         #'bfabric/scripts/bfabric_list_executables.py',
         #'bfabric/scripts/bfabric_list_proteomics_projects.py',
