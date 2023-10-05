@@ -32,7 +32,7 @@ def renderoutput(wu):
         "Failed"    : "\033[31mFailed    \033[0m"}
 
     for x in wu:
-        print ("{wuid}\t{cdate}\t{status}\t{createdby:12}\t{name}".format(status = cm[s], cdate = x.created, wuid = x._id, createdby = x.createdby, name = x.name))
+        print ("WU{wuid}\t{cdate}\t{status}\t{createdby:12}\t{name}".format(status = cm[s], cdate = x.created, wuid = x._id, createdby = x.createdby, name = x.name))
 
 
 if __name__ == "__main__":
