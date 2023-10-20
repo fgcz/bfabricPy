@@ -12,6 +12,7 @@
 2012-10-10 Christian Panse <cp@fgcz.ethz.ch>
 2012-10-11 Christian Panse <cp@fgcz.ethz.ch>
 2021-01-06 Christian Panse <cp@fgcz.ethz.ch> - replace multiprocess by caching strategy
+2023-10-20 Christian Panse <cp@fgcz.ethz.ch> - add timestamp
 
 # Usage
 
@@ -31,6 +32,7 @@ import urllib
 import hashlib
 import getopt
 from suds.client import Client
+from datetime import datetime
 import json
 import itertools
 import http.client
@@ -48,7 +50,11 @@ DBwritten = False
 
 try:
     DB = json.load(open(DBfilename))
+    print("Read {len} data items from {name} using {size:.1f} GBytes.".format(len=len(DB),
+        name=DBfilename,
+        size=sum(map(lambda x: int(x['resource']['size']), DB.values())) / (1024 * 1024 * 1024)))
 except:
+    print("loading '{}' failed".format(DBfilename))
     pass
 
 
@@ -69,7 +75,7 @@ def query_mascot_result(f):
     regex2 = re.compile(".*.+/(data/.+\.dat)$")
     regex2Result = regex2.match(f)
     if True:
-        print("input>")
+        print("{} input>".format(datetime.now()))
         print("\t{}".format(f))
         if f in DB:
             print("\thit")
@@ -110,7 +116,7 @@ def query_mascot_result(f):
                 print("Exception {}".format(ValueError))
                 raise
 
-            print("output>")
+            print("{} output>".format(datetime.now()))
             if 'errorreport' in rv:
                 print("\tfound errorreport '{}'.".format(rv['errorreport']))
 
@@ -180,7 +186,10 @@ it returns a 'workunit' dict for the following web api
 
 
 def parse_mascot_result_file(f):
-    print("DEBUG parse_mascot_result_file")
+
+    # Getting the current date and time
+    print("{} DEBUG parse_mascot_result_file".format(datetime.now()))
+
     regex0 = re.compile("^title=.*(p([0-9]+).+Proteomics.*(raw|RAW|wiff)).*")
     regex3 = re.compile("^(FILE|COM|release|USERNAME|USERID|TOL|TOLU|ITOL|ITOLU|MODS|IT_MODS|CHARGE|INSTRUMENT|QUANTITATION|DECOY)=(.+)$")
 
@@ -239,7 +248,8 @@ def parse_mascot_result_file(f):
         )
     )
     #TODO
-    print("DEBUG")
+
+    print("{}".format(datetime.now()))
     print(rv)
     print("DEBUG END")
 
@@ -255,17 +265,17 @@ def printFrequency(S):
             count[x] = 1
 
     for key in sorted(count.keys(), key=lambda key: int(key)):
-        print(key, count[key])
+        print("p{}\t{}".format(key, count[key]))
 
 
 def statistics():
-    print(len(DB))
+    print("Statistics ...")
+    print("len(DB)\t=\t{}".format(len(DB)))
     printFrequency(map(lambda x: x['containerid'], DB.values()))
-    print("{} GBytes".format(sum(map(lambda x: int(x['resource']['size']), DB.values())) / (1024 * 1024 * 1024)))
+    print("file size\t=\t{} GBytes".format(sum(map(lambda x: int(x['resource']['size']), DB.values())) / (1024 * 1024 * 1024)))
 
     # printFrequency(map(lambda x: x['description'].split(";"), DB.values()))
-
-    print(json.dumps(list(DB.values())[100], indent=4))
+    # print(json.dumps(list(DB.values())[100], indent=4))
 
 
 if __name__ == "__main__":
@@ -281,10 +291,10 @@ if __name__ == "__main__":
             print("reading file names from stdin ...")
             for f in sys.stdin.readlines():
                 query_mascot_result(f.strip())
-        elif o == "--file" or o == 'f':
+        elif o == "--file" or o == '-f':
             print("processesing", value, "...")
             query_mascot_result(value)
-        elif o == "--statistics" or o == 's':
+        elif o == "--statistics" or o == '-s':
             statistics()
             sys.exit(0)
 
