@@ -1,71 +1,64 @@
 #!/usr/bin/env python3
-# -*- coding: latin1 -*-
 
 """
 unittest by <cp@fgcz.ethz.ch>
 2019-09-11
 """
-
-import base64
-import unittest
-import bfabric
-import os
 import json
+import os
+import unittest
+
+import bfabric
+
 
 class BfabricTestCaseReadEndPoints(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        path = os.path.join(os.path.dirname(__file__), "groundtruth.json")
+        with open(path) as json_file:
+            cls.ground_truth = json.load(json_file)
+        cls.bfapp = bfabric.Bfabric(verbose=False)
 
-    with open('groundtruth.json') as json_file:
-        groundtruth = json.load(json_file)
-
-    bfapp = bfabric.Bfabric(verbose=False)
-
-    def __init__(self, *args, **kwargs):
-        super(BfabricTestCaseReadEndPoints, self).__init__(*args, **kwargs)
-
-    # input: entity = endpoint = table = ...
     def read(self, endpoint):
-        self.assertIn(endpoint, self.groundtruth)
-        for (query, groundtruth) in self.groundtruth[endpoint]:
+        """Executes read queries for `endpoint` and compares results with ground truth."""
+        self.assertIn(endpoint, self.ground_truth)
+        for query, ground_truth in self.ground_truth[endpoint]:
             res = self.bfapp.read_object(endpoint=endpoint, obj=query)
-            for gtattr, gtvalue in groundtruth.items():
-                #if self.verbosity>2:
-                #    print ("{}:{} = {} \t?\t{}".format(endpoint, gtattr, gtvalue, getattr(res[0], gtattr)))
+            for gt_attr, gt_value in ground_truth.items():
+                with self.subTest(endpoint=endpoint, query=query):
+                    # sort results for comparison by id
+                    res = sorted(res, key=lambda x: x._id)
 
-                # to make it deterministic!
-                try:
-                    res = sorted(res, key = lambda x: x.id)
-                except:
-                    res = sorted(res, key = lambda x: x._id)
-
-                msg = "test for {} failed.".format(endpoint)
-                # cast all values to string
-                self.assertEqual("{}".format(gtvalue), "{}".format(getattr(res[0], gtattr)), msg)
+                    # cast all values to strings (i.e. ignoring int/float/string differences)
+                    self.assertEqual(str(gt_value), str(res[0][gt_attr]))
 
     def test_user(self):
-        self.read('user')
+        self.read("user")
+
     def test_container(self):
-        self.read('container')
+        self.read("container")
+
     def test_project(self):
-        self.read('project')
+        self.read("project")
+
     def test_application(self):
-        self.read('application')
+        self.read("application")
+
     def test_sample(self):
-        self.read('sample')
+        self.read("sample")
+
     def test_workunit(self):
-        self.read('workunit')
+        self.read("workunit")
+
     def test_resource(self):
-        self.read('resource')
+        self.read("resource")
+
     def test_executable(self):
-        self.read('executable')
+        self.read("executable")
+
     def test_annotation(self):
-        self.read('annotation')
+        self.read("annotation")
 
-if __name__ == '__main__':
-    # unittest.main(verbosity=2)
-    suite = unittest.TestSuite()
-    for entity in ['user', 'container', 'project', 'application', 'sample', 'workunit', 'resource', 'executable', 'annotation']:
-        suite.addTest(BfabricTestCaseReadEndPoints('test_{}'.format(entity)))
 
-    runner = unittest.TextTestRunner(verbosity=3)
-    runner.run(suite )
-
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
