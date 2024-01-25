@@ -1,26 +1,25 @@
 #!/usr/bin/env python3
 # -*- coding: latin1 -*-
 
-"""
-Copyright (C) 2014, 2019 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
+"""B-Fabric command line reader
+
+Copyright:
+    2014, 2019, 2024 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 
 Author:
- Christian Panse <cp@fgcz.ethz.ch>
+    Christian Panse <cp@fgcz.ethz.ch>
 
-Licensed under  GPL version 3
+License:
+    GPL version 3
 
-$HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/scripts/bfabric_list.py $
-$Id: bfabric_list.py 2541M 2017-08-21 13:06:30Z (local) $ 
-
-
-http://fgcz-bfabric.uzh.ch/bfabric/executable?wsdl
+See also:
+    http://fgcz-bfabric.uzh.ch/bfabric/executable?wsdl
 """
 
 import signal
 import sys
 import time
 import bfabric
-import json
 
 
 def signal_handler(signal, frame):
@@ -29,13 +28,13 @@ def signal_handler(signal, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
-def print_color_msg(msg, color="93"):
-    msg = "\033[{color}m--- {} ---\033[0m\n".format(msg, color=color)
-    sys.stderr.write(msg)
+def print_color_msg(msg, color = "93"):
+    sys.stderr.write(f"\033[{color}m--- {msg} ---\033[0m\n")
 
 def usage():
+    print(__doc__)
     print("usage:\n")
-    msg = "\t{} <endpoint> <attribute> <value>".format(sys.argv[0])
+    msg = f"\t{sys.argv[0]} <endpoint> <attribute> <value>"
     print(msg)
     msg = "\t{} <endpoint>\n\n".format(sys.argv[0])
     print(msg)
@@ -63,9 +62,9 @@ if __name__ == "__main__":
         query_obj[attribute] = name
 
     if endpoint in bfabric.endpoints:
-        print_color_msg("query = {}".format(query_obj))
+        print_color_msg(f"query = {query_obj}")
         start_time = time.time()
-        res = B.read_object(endpoint=endpoint, obj=query_obj)
+        res = B.read_object(endpoint = endpoint, obj = query_obj)
         end_time = time.time()
 
         if res is None:
@@ -82,31 +81,29 @@ if __name__ == "__main__":
             if len(res) < 2:
                 print(res[0])
         except Exception as e:
-            print_color_msg("invalid query. {}.".format(e), color=95)
+            print_color_msg(f"invalid query. {e}.", color=95)
             sys.exit(1)
 
         try:
-
             print_color_msg("possible attributes are: {}.".format((", ".join([at[0] for at in res[0]]))))
-
         except Exception as e:
-            print_color_msg("Exception: {}".format(e))
+            print_color_msg(f"Exception: {e}")
             
         for x in res:
             try:
-                print ("{}\t{}\t{}\t{}\t{}".format(x._id, x.createdby, x.modified, x.name, x.groupingvar.name))
+                print(f"{x._id}\t{x.createdby}\t{x.modified}\t{x.name}\t{x.groupingvar.name}")
             except Exception as e:
-                print ("{}\t{}\t{}".format(x._id, x.createdby, x.modified))
+                print(f"{x._id}\t{x.createdby}\t{x.modified}")
 
 
     else:
-        print_color_msg ("The first argument must be a valid endpoint.", color=95)
+        print_color_msg("The first argument must be a valid endpoint.", color=95)
         usage()
         sys.exit(1) 
 
     try:
-        print_color_msg("number of query result items = {}".format(len(res)))
+        print_color_msg(f"number of query result items = {len(res)}")
     except:
         pass
 
-    print_color_msg("query time = {} seconds".format(round(end_time - start_time, 2)))
+    print_color_msg(f"query time = {round(end_time - start_time, 2)} seconds")
