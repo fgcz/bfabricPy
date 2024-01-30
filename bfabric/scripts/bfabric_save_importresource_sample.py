@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: latin1 -*-
 
-""" Gerneral Importresource Feeder for bfabric
+"""Gerneral Importresource Feeder for bfabric
 
 Author:
     Christian Panse <cp@fgcz.ethz.ch>, 2012-2024
@@ -51,6 +51,9 @@ logger.setLevel(logging.INFO)
 bfabric_storageid = 2
 bfapp = Bfabric()
 
+#print(bfapp.application)
+#sys.exit(1)
+
 # TODO(cp): should go into a config file, e.g., bfabricrc
 # the hash  maps the 'real world' to the BFabric application._id
 bfabric_application_ids = {'Proteomics/TOFTOF_2':91,
@@ -73,6 +76,7 @@ bfabric_application_ids = {'Proteomics/TOFTOF_2':91,
     'Proteomics/Analysis/MaxQuant':151,
                            'Proteomics/Analysis/FragPipeGuiZip':299,
                            'Proteomics/Analysis/GenericZip':185,
+                           'Metabolomics/Analysis/GenericZip':335,
                            'Proteomics/QEXACTIVE_1':160,
                            'Proteomics/QEXACTIVE_2':161,
                            'Metabolomics/QEXACTIVE_2':309,
@@ -190,7 +194,6 @@ def save_importresource(line):
 
 
     print (obj)
-    #return
     res = bfapp.save_object(endpoint='importresource', obj=obj)
     print (res[0])
 
@@ -199,6 +202,8 @@ if __name__ == "__main__":
         print ("reading from stdin ...")
         for input_line in sys.stdin:
             save_importresource(input_line.rstrip())
+    elif sys.argv[1] == '-h':
+        print(__doc__)
     else:
         save_importresource(sys.argv[1])
 
