@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: latin1 -*-
 
-"""Gerneral Importresource Feeder for bfabric
+"""General Importresource Feeder for bfabric
 
 Author:
     Christian Panse <cp@fgcz.ethz.ch>, 2012-2024
