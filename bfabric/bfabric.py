@@ -91,8 +91,8 @@ class bfabricEncoder(json.JSONEncoder):
         return JSONEncoder.default(self, o)
 
 class Bfabric(object):
-    """
-    Implements read and save object methods for BFabric wsdl interface
+    """B-Fabric python3 module
+    Implements read and save object methods for B-Fabric wsdl interface
     """
     def warning(self, msg):
         sys.stderr.write("\033[93m{}\033[0m\n".format(msg))
@@ -123,8 +123,6 @@ class Bfabric(object):
                             .format(self.bfabricfilename, A[0]))
 
     def __init__(self, login=None, password=None, webbase=None, externaljobid=None, bfabricrc=None, verbose=False):
-
-
         self.verbose = verbose
 
         self.cl = {}
@@ -151,6 +149,7 @@ class Bfabric(object):
         if '_WEBBASE' in list(self.bfabricrc.keys()) and webbase is None:
             self.webbase = self.bfabricrc['_WEBBASE']
 
+        self.application = None
         if '_APPLICATION' in list(self.bfabricrc.keys()):
             try:
                 self.application = json.loads(self.bfabricrc['_APPLICATION'])
