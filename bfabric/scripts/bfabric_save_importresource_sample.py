@@ -1,40 +1,34 @@
 #!/usr/bin/python3
 # -*- coding: latin1 -*-
 
-# $Id: bfabric_save_importresource.py 2526 2016-10-17 10:25:25Z cpanse $
-# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/scripts/bfabric_save_importresource.py $
-# $Date: 2016-10-17 12:25:25 +0200 (Mon, 17 Oct 2016) $
-
-
 """ Gerneral Importresource Feeder for bfabric
 
-author: Christian Panse <cp@fgcz.ethz.ch>
+Author:
+    Christian Panse <cp@fgcz.ethz.ch>, 2012-2024
 
-usage:
+Usage:
+    runs under www-data credentials
 
-$ ./prg "906acd3541f056e0f6d6073a4e528570;1345834449;46342144;\
-p996/Proteomics/TRIPLETOF_1/jonas_20120820_SILAC_comparison/\
-20120824_01_NiKu_1to5_IDA_rep2.wiff"
+    $ ./prg "906acd3541f056e0f6d6073a4e528570;1345834449;46342144;\
+    p996/Proteomics/TRIPLETOF_1/jonas_20120820_SILAC_comparison/\
+    20120824_01_NiKu_1to5_IDA_rep2.wiff"
 
-or reading from stdin
+    or reading from stdin
 
-$ echo "906acd3541f056e0f6d6073a4e528570;\
-1345834449;\
-46342144;\
-p996/Proteomics/TRIPLETOF_1/jonas_20120820_SILAC_comparison/\
-20120824_01_NiKu_1to5_IDA_rep2.wiff" | ./prg - 
+    $ echo "906acd3541f056e0f6d6073a4e528570;\
+    1345834449;\
+    46342144;\
+    p996/Proteomics/TRIPLETOF_1/jonas_20120820_SILAC_comparison/\
+    20120824_01_NiKu_1to5_IDA_rep2.wiff" | ./prg - 
 
-template
-https://fgcz-bfabric.uzh.ch/bfabric/importresource?wsdl
+    template
+    https://fgcz-bfabric.uzh.ch/bfabric/importresource?wsdl
+
+History:
+    The first version of the scrpt appeared on Wed Oct 24 17:02:04 CEST 2012. 
 """
 
 
-# Wed Oct 24 17:02:04 CEST 2012 Christian Panse <cp@fgcz.ethz.ch>; 
-# refactoring from Marcos bash code
-# Thu Oct 25 09:04:09 CEST 2012 Christian Panse <cp@fgcz.ethz.ch>;  testing
-# Thu Nov 13 22:03:01 CET 2014 refactor using pylint bfabric8 w
-# Mon Mar  2 12:23:54 CET 2015 added syslog handler
-# Wed Oct 25 11:21:41 CEST 2017 refactor and bfabric9 testing
 
 import os
 import re
