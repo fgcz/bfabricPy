@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: latin1 -*-
 
-"""B-Fabric Appliaction Interface using WSDL
+"""B-Fabric Application Interface using WSDL
 
 The code contains classes for wrapper_creator and submitter.
 
