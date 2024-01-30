@@ -1,29 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: latin1 -*-
 
-"""
-
-B-Fabric Appliaction Interface using WSDL
+"""B-Fabric Appliaction Interface using WSDL
 
 The code contains classes for wrapper_creator and submitter.
 
 Ensure that this file is available on the bfabric exec host.
 
-Copyright (C) 2014 - 2019 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
+Copyright (C) 2014 - 2024 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
+
+Licensed under GPL version 3
 
 Authors:
   Marco Schmidt <marco.schmidt@fgcz.ethz.ch>
   Christian Panse <cp@fgcz.ethz.ch>
 
-Licensed under GPL version 3
 
-$Id: bfabric.py 3000 2017-08-18 14:18:30Z cpanse $
-$HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/bfabric.py $
-$Date: 2017-08-18 16:18:30 +0200 (Fri, 18 Aug 2017) $
-$Revision: 3000 $
-
+History
+    The python3 library first appeared in 2014.
 """
-
 
 import yaml
 import json
