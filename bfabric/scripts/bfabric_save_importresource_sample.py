@@ -41,7 +41,7 @@ bfapp = Bfabric()
 # TODO(cp): should go into a config file, e.g., bfabricrc
 # the hash  maps the 'real world' to the BFabric application._id
 if bfapp.application is None:
-    raise("No bfapp.application variable configured. check '~/.bfabricrc.py' file!")
+    raise RuntimeError("No bfapp.application variable configured. check '~/.bfabricrc.py' file!")
 print (bfapp.application)
 bfabric_application_ids = bfapp.application
 
