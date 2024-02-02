@@ -17,7 +17,7 @@ import bfabric
 from datetime import datetime, timedelta
 
 def print_color_msg(msg, color="93"):
-    msg = "\033[{color}m--- {} ---\033[0m\n".format(msg, color=color)
+    msg = f"\033[{color}m--- {msg} ---\033[0m\n"
     sys.stderr.write(msg)
 
 def render_output(wu):
@@ -31,24 +31,19 @@ def render_output(wu):
         if x.status in cm:
             statuscol = cm[x.status]
         else:
-            statuscol = "\033[36m{} \033[0m".format(x.status)
-        print("A{aid:3} WU{wuid} {cdate} {status} {createdby:12} {name}"
-               .format(status = statuscol,
-                    cdate = x.created,
-                    wuid = x._id,
-                    createdby = x.createdby,
-                    name = x.name,
-                    aid = x.application._id))
+            statuscol = f"\033[36m{x.status} \033[0m"
+
+        print(f"A{x.application._id:3} WU{x._id} {x.created} {statuscol} {x.createdby:12} {x.name}")
 
 if __name__ == "__main__":
     B = bfabric.Bfabric()
-    d = datetime.today() - timedelta(days=14)
+    diffdatetime = datetime.today() - timedelta(days=14)
 
-    print_color_msg("list not available proteomics workunits created after {}".format(d))
+    print_color_msg(f"list not available proteomics workunits created after {diffdatetime}")
 
     for status in ['Pending', 'Processing', 'Failed']:
         pwu = B.read_object(endpoint = 'workunit',
-                            obj = {'status': status, 'createdafter': d},
+                            obj = {'status': status, 'createdafter': diffdatetime},
                             plain = True,
                             page = 1)
         try:
