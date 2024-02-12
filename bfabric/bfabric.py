@@ -1,29 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: latin1 -*-
 
-"""
-
-B-Fabric Appliaction Interface using WSDL
+"""B-Fabric Application Interface using WSDL
 
 The code contains classes for wrapper_creator and submitter.
 
 Ensure that this file is available on the bfabric exec host.
 
-Copyright (C) 2014 - 2019 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
+Copyright (C) 2014 - 2024 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
+
+Licensed under GPL version 3
 
 Authors:
   Marco Schmidt <marco.schmidt@fgcz.ethz.ch>
   Christian Panse <cp@fgcz.ethz.ch>
 
-Licensed under GPL version 3
 
-$Id: bfabric.py 3000 2017-08-18 14:18:30Z cpanse $
-$HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/bfabric.py $
-$Date: 2017-08-18 16:18:30 +0200 (Fri, 18 Aug 2017) $
-$Revision: 3000 $
-
+History
+    The python3 library first appeared in 2014.
 """
-
 
 import yaml
 import json
@@ -96,8 +91,8 @@ class bfabricEncoder(json.JSONEncoder):
         return JSONEncoder.default(self, o)
 
 class Bfabric(object):
-    """
-    Implements read and save object methods for BFabric wsdl interface
+    """B-Fabric python3 module
+    Implements read and save object methods for B-Fabric wsdl interface
     """
     def warning(self, msg):
         sys.stderr.write("\033[93m{}\033[0m\n".format(msg))
@@ -128,8 +123,6 @@ class Bfabric(object):
                             .format(self.bfabricfilename, A[0]))
 
     def __init__(self, login=None, password=None, webbase=None, externaljobid=None, bfabricrc=None, verbose=False):
-
-
         self.verbose = verbose
 
         self.cl = {}
@@ -156,6 +149,7 @@ class Bfabric(object):
         if '_WEBBASE' in list(self.bfabricrc.keys()) and webbase is None:
             self.webbase = self.bfabricrc['_WEBBASE']
 
+        self.application = None
         if '_APPLICATION' in list(self.bfabricrc.keys()):
             try:
                 self.application = json.loads(self.bfabricrc['_APPLICATION'])
