@@ -25,6 +25,8 @@ import json
 import sys
 from pprint import pprint
 
+from bfabric.bfabric_config import BfabricConfig
+
 try:
     from suds.client import Client
     from suds.client import WebFault
@@ -35,8 +37,6 @@ import hashlib
 import os
 import base64
 import datetime
-import re
-import unittest
 
 import logging.config
 
@@ -90,6 +90,7 @@ class bfabricEncoder(json.JSONEncoder):
             return list(o)
         return JSONEncoder.default(self, o)
 
+
 class Bfabric(object):
     """B-Fabric python3 module
     Implements read and save object methods for B-Fabric wsdl interface
@@ -97,84 +98,53 @@ class Bfabric(object):
     def warning(self, msg):
         sys.stderr.write("\033[93m{}\033[0m\n".format(msg))
 
-    def _read_bfabric(self):
-        if self.verbose:
-            print(("self.bfabricfilename='{}'".format(self.bfabricfilename)))
-        if not os.path.isfile(self.bfabricfilename):
-            self.warning("could not find '.bfabricrc.py' file in home directory.")
-            return
-
-        with open(self.bfabricfilename) as configfile:
-            for line in configfile:
-                if not re.match("^#", line):
-                    A = line.strip().partition('=')
-                    if not A[0] in ['_PASSWD', '_LOGIN', '_WEBBASE', '_APPLICATION']:
-                        continue
-                    ## The first rule counts!
-                    if not A[0] in self.bfabricrc:
-                        if A[0] in ['_APPLICATION']:
-                            self.bfabricrc[A[0]] = A[2]
-                        else:
-                            # to make it downward compatible; so we replace quotes in login and password
-                            self.bfabricrc[A[0]] = A[2].replace("\"", "").replace("'", "")
-
-                    else:
-                        self.warning("while reading {0}. '{1}' is already set."
-                            .format(self.bfabricfilename, A[0]))
-
     def __init__(self, login=None, password=None, webbase=None, externaljobid=None, bfabricrc=None, verbose=False):
         self.verbose = verbose
 
         self.cl = {}
         self.verbose = False
-        self.bflogin = None
-        self.bfpassword = None
-        self.webbase = 'https://fgcz-bfabric.uzh.ch/bfabric'
-        self.bfabricrc = dict()
         self.query_counter = 0
-        self.bfabricfilename = os.path.normpath("{0}/{1}"
-            .format(os.path.expanduser("~"), ".bfabricrc.py"))
 
-        self._read_bfabric()
+        bfabricrc = bfabricrc or os.path.normpath(os.path.expanduser("~/.bfabricrc.py"))
+        if not os.path.isfile(bfabricrc):
+            self.warning("could not find '.bfabricrc.py' file in home directory.")
+            self.config = BfabricConfig(login=login, password=password, base_url=webbase)
+        else:
+            with open(bfabricrc, "r", encoding="utf-8") as file:
+                self.config = BfabricConfig.read_bfabricrc_py(file).with_overrides(
+                    login=login,
+                    password=password,
+                    base_url=webbase
+                )
 
-        if bfabricrc:
-            self.bfabricfilename = bfabricrc
-
-        if '_PASSWD' in list(self.bfabricrc.keys()) and password is None:
-            password = self.bfabricrc['_PASSWD']
-
-        if '_LOGIN' in list(self.bfabricrc.keys()) and login is None:
-            login = self.bfabricrc['_LOGIN']
-
-        if '_WEBBASE' in list(self.bfabricrc.keys()) and webbase is None:
-            self.webbase = self.bfabricrc['_WEBBASE']
-
-        self.application = None
-        if '_APPLICATION' in list(self.bfabricrc.keys()):
-            try:
-                self.application = json.loads(self.bfabricrc['_APPLICATION'])
-            except:
-                raise("json parsing failed.")
-
-        if not login is None:
-            self.bflogin = login
-
-        if not password is None:
-            self.bfpassword = password
-
-        if not webbase is None:
-            self.webbase = webbase
-
-        if not password or not login:
-            print ("login or password missing")
-            raise
+        if not self.config.login or not self.config.password:
+            raise ValueError("login or password missing")
 
         if self.verbose:
             pprint(self.bfabricrc)
 
-        msg = "\033[93m--- webbase {}; login; {} ---\033[0m\n".format(self.webbase, self.bflogin)
-
+        msg = f"\033[93m--- webbase {self.config.base_url}; login; {self.config.login} ---\033[0m\n"
         sys.stderr.write(msg)
+
+    @property
+    def bflogin(self):
+        # TODO remove after refactoring is complete
+        return self.config.login
+
+    @property
+    def bfpassword(self):
+        # TODO remove after refactoring is complete
+        return self.config.password
+
+    @property
+    def webbase(self):
+        # TODO remove after refactoring is complete
+        return self.config.base_url
+
+    @property
+    def application(self):
+        # TODO remove after refactoring is complete
+        return self.config.application_ids
 
     def get_para(self):
         return {'bflogin': self.bflogin, 'webbase': self.webbase}
