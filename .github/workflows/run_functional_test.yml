@@ -10,6 +10,7 @@ on:
     - cron: "00 08 * * *"
   pull_request:
     branches: [ bfabric12 ]
+  workflow_dispatch:
 
 jobs:
   build:
