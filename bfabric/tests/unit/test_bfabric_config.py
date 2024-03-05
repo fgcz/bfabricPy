@@ -51,6 +51,7 @@ class TestBfabricConfig(unittest.TestCase):
             "# Another comment\n"
             """_WEBBASE = "url"\n"""
             """_APPLICATION = {"app": 1}\n"""
+            """_JOB_NOTIFICATION_EMAILS = "email1 email2"\n"""
         )
         file = io.StringIO(input_text)
         setattr(file, "name", "/file")
@@ -60,6 +61,7 @@ class TestBfabricConfig(unittest.TestCase):
         self.assertEqual("user", config.password)
         self.assertEqual("url", config.base_url)
         self.assertEqual({"app": 1}, config.application_ids)
+        self.assertEqual("email1 email2", config.job_notification_emails)
         self.assertEqual(
             [
                 "INFO:bfabric.bfabric_config.BfabricConfig:Reading configuration from: /file"
@@ -77,11 +79,13 @@ class TestBfabricConfig(unittest.TestCase):
         self.assertIsNone(config.password)
         self.assertEqual("https://fgcz-bfabric.uzh.ch/bfabric", config.base_url)
         self.assertEqual({}, config.application_ids)
+        self.assertEqual("", config.job_notification_emails)
 
     def test_repr(self):
         rep = repr(self.config)
         self.assertEqual(
-            "BfabricConfig(login='login', password=..., base_url='url', application_ids={'app': 1})",
+            "BfabricConfig(login='login', password=..., base_url='url', application_ids={'app': 1}, "
+            "job_notification_emails='')",
             rep,
         )
 

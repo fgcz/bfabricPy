@@ -15,19 +15,22 @@ class BfabricConfig:
         password: The web service password (i.e. not the regular user password)
         base_url (optional): The API base url
         application_ids (optional): Map of application names to ids.
+        job_notification_emails (optional): Space-separated list of email addresses to notify when a job finishes.
     """
 
     def __init__(
         self,
         login: str,
         password: str,
-        base_url: str = None,
-        application_ids: Dict[str, int] = None,
+        base_url: Optional[str] = None,
+        application_ids: Optional[Dict[str, int]] = None,
+        job_notification_emails: Optional[str] = None,
     ):
         self.login = login
         self.password = password
         self.base_url = base_url or "https://fgcz-bfabric.uzh.ch/bfabric"
         self.application_ids = application_ids or {}
+        self.job_notification_emails = job_notification_emails or ""
 
     def with_overrides(
         self,
@@ -59,7 +62,7 @@ class BfabricConfig:
                 continue
 
             key, _, value = [part.strip() for part in line.partition("=")]
-            if key not in ["_PASSWD", "_LOGIN", "_WEBBASE", "_APPLICATION"]:
+            if key not in ["_PASSWD", "_LOGIN", "_WEBBASE", "_APPLICATION", "_JOB_NOTIFICATION_EMAILS"]:
                 continue
 
             # In case of multiple definitions, the first rule counts!
@@ -82,10 +85,14 @@ class BfabricConfig:
             password=values.get("_PASSWD"),
             base_url=values.get("_WEBBASE"),
             application_ids=values.get("_APPLICATION"),
+            job_notification_emails=values.get("_JOB_NOTIFICATION_EMAILS"),
         )
 
     def __repr__(self):
         return (
-            f"BfabricConfig(login={repr(self.login)}, password=..., base_url={repr(self.base_url)}, "
-            f"application_ids={repr(self.application_ids)})"
+            f"BfabricConfig(login={repr(self.login)}, "
+            f"password=..., "
+            f"base_url={repr(self.base_url)}, "
+            f"application_ids={repr(self.application_ids)}, "
+            f"job_notification_emails={repr(self.job_notification_emails)})"
         )
