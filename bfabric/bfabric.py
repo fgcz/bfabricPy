@@ -631,35 +631,35 @@ class BfabricSubmitter():
 # Christian Panse
 # 2020-09-28
 # 2020-09-29
-# https://GitHub.com/fgcz/bfabricPy/
+# https://github.com/fgcz/bfabricPy/
 # Slurm
-#SBATCH --partition={0}
-#SBATCH --nodelist={11}
+#SBATCH --partition={job_partition}
+#SBATCH --nodelist={job_nodelist}
 #SBATCH -n 1
 #SBATCH -N 1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem-per-cpu={12}
-#SBATCH -e {1}
-#SBATCH -o {2}
-#SBATCH --job-name=WU{10}
+#SBATCH --mem-per-cpu={job_total_memory}
+#SBATCH -e {resource_url_stderr}
+#SBATCH -o {resource_url_stdout}
+#SBATCH --job-name=WU{workunit_id}
 #SBATCH --workdir=/home/bfabric
 #SBATCH --export=ALL,HOME=/home/bfabric
 
 # Grid Engine Parameters
-#$ -q {0}&{11}
-#$ -e {1}
-#$ -o {2}
+#$ -q {job_partition}&{job_nodelist}
+#$ -e {resource_url_stderr}
+#$ -o {resource_url_stdout}
 
 
 set -e
 set -o pipefail
 
 export EMAIL="{job_notification_emails}"
-export EXTERNALJOB_ID={3}
-export RESSOURCEID_OUTPUT={4}
-export RESSOURCEID_STDOUT_STDERR="{5} {6}"
-export OUTPUT="{7}"
-export WORKUNIT_ID="{10}"
+export EXTERNALJOB_ID={external_job_id}
+export RESSOURCEID_OUTPUT={resource_id_output}
+export RESSOURCEID_STDOUT_STDERR="{resource_id_stdout} {resource_id_stderr}"
+export OUTPUT="{workunit_output}"
+export WORKUNIT_ID="{workunit_id}"
 STAMP=`/bin/date +%Y%m%d%H%M`.$$.$JOB_ID
 TEMPDIR="/home/bfabric/prx"
 
@@ -673,14 +673,14 @@ test $? -eq 0 && scp $TEMPDIR/$$ $OUTPUT
 
 if [ $? -eq 1 ];
 then
-    echo "writting to output url failed!";
+    echo "writing to output url failed!";
     exit 1;
 fi
 
 # job configuration set by B-Fabrics wrapper_creator executable
 # application parameter/configuration
 cat > $TEMPDIR/config_WU$WORKUNIT_ID.yaml <<EOF
-{8}
+{workunit_config}
 EOF
 
 
@@ -697,7 +697,7 @@ fi
 # exit 0
 
 # run the application
-test -f $TEMPDIR/config_WU$WORKUNIT_ID.yaml && {9} $TEMPDIR/config_WU$WORKUNIT_ID.yaml
+test -f $TEMPDIR/config_WU$WORKUNIT_ID.yaml && {executable} $TEMPDIR/config_WU$WORKUNIT_ID.yaml
 
 
 if [ $? -eq 0 ];
@@ -721,20 +721,22 @@ bfabric_setResourceStatus_available.py $RESSOURCEID_STDOUT_STDERR
 
 
 exit 0
-""".format(self.partition,
-               config['job_configuration']['stderr']['url'],
-               config['job_configuration']['stdout']['url'],
-               config['job_configuration']['external_job_id'],
-               config['job_configuration']['output']['resource_id'],
-               config['job_configuration']['stderr']['resource_id'],
-               config['job_configuration']['stdout']['resource_id'],
-               ",".join(config['application']['output']),
-               configuration,
-               config['job_configuration']['executable'],
-               config['job_configuration']['workunit_id'],
-               self.nodelist,
-               self.memory,
-               job_notification_emails=self.B.config.job_notification_emails)
+""".format(
+            job_partition=self.partition,
+            resource_url_stderr=config['job_configuration']['stderr']['url'],
+            resource_url_stdout=config['job_configuration']['stdout']['url'],
+            external_job_id=config['job_configuration']['external_job_id'],
+            resource_id_output=config['job_configuration']['output']['resource_id'],
+            resource_id_stderr=config['job_configuration']['stderr']['resource_id'],
+            resource_id_stdout=config['job_configuration']['stdout']['resource_id'],
+            workunit_output=",".join(config['application']['output']),
+            workunit_config=configuration,
+            executable=config['job_configuration']['executable'],
+            workunit_id=config['job_configuration']['workunit_id'],
+            job_nodelist=self.nodelist,
+            job_total_memory=self.memory,
+            job_notification_emails=self.B.config.job_notification_emails
+        )
 
         return _cmd_template
 
