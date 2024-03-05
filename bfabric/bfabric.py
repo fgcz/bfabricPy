@@ -654,8 +654,7 @@ class BfabricSubmitter():
 set -e
 set -o pipefail
 
-## TODO: #59
-export EMAIL="cp@fgcz.ethz.ch wew@fgcz.ethz.ch"
+export EMAIL="{job_notification_emails}"
 export EXTERNALJOB_ID={3}
 export RESSOURCEID_OUTPUT={4}
 export RESSOURCEID_STDOUT_STDERR="{5} {6}"
@@ -734,7 +733,8 @@ exit 0
                config['job_configuration']['executable'],
                config['job_configuration']['workunit_id'],
                self.nodelist,
-               self.memory)
+               self.memory,
+               job_notification_emails=self.B.config.job_notification_emails)
 
         return _cmd_template
 
