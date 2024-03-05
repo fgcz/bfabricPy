@@ -127,24 +127,9 @@ class Bfabric(object):
         sys.stderr.write(msg)
 
     @property
-    def bflogin(self):
-        # TODO remove after refactoring is complete
-        return self.config.login
-
-    @property
-    def bfpassword(self):
-        # TODO remove after refactoring is complete
-        return self.config.password
-
-    @property
     def webbase(self):
         # TODO remove after refactoring is complete
         return self.config.base_url
-
-    @property
-    def application(self):
-        # TODO remove after refactoring is complete
-        return self.config.application_ids
 
     def read_object(self, endpoint, obj, login=None, password=None, page=1, plain=False, idonly=False):
         """
@@ -154,10 +139,10 @@ class Bfabric(object):
         for the "query".
         """
         if login is None:
-            login = self.bflogin
+            login = self.config.login
 
         if password is None:
-            password = self.bfpassword
+            password = self.config.password
 
         if len(login) >= 32:
             raise ValueError("Sorry, login >= 32 characters.") 
@@ -200,10 +185,10 @@ class Bfabric(object):
         obj is a python dictionary which contains only the id of the endpoint for the "query".
         """
         if login is None:
-            login = self.bflogin
+            login = self.config.login
 
         if password is None:
-            password = self.bfpassword
+            password = self.config.password
 
         if len(login) >= 32:
             raise ValueError("Sorry, login >= 32 characters.")
@@ -242,7 +227,7 @@ class Bfabric(object):
         same as read_object above but uses the save method.
         """
         self.query_counter = self.query_counter + 1
-        QUERY = dict(login=self.bflogin, password=self.bfpassword)
+        QUERY = dict(login=self.config.login, password=self.config.password)
         QUERY[endpoint] = obj
 
         try:
@@ -266,7 +251,7 @@ class Bfabric(object):
         """
 
         self.query_counter = self.query_counter + 1
-        QUERY = dict(login=self.bflogin, password=self.bfpassword)
+        QUERY = dict(login=self.config.login, password=self.config.password)
         QUERY[endpoint] = obj
 
         try:
@@ -291,7 +276,7 @@ class Bfabric(object):
         """
 
         self.query_counter = self.query_counter + 1
-        QUERY = dict(login=self.bflogin, password=self.bfpassword, id=id)
+        QUERY = dict(login=self.config.login, password=self.config.password, id=id)
 
         try:
             if not endpoint in self.cl:

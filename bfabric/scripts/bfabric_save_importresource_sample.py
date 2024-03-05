@@ -40,10 +40,10 @@ bfapp = Bfabric()
 
 # TODO(cp): should go into a config file, e.g., bfabricrc
 # the hash  maps the 'real world' to the BFabric application._id
-if bfapp.application is None:
-    raise RuntimeError("No bfapp.application variable configured. check '~/.bfabricrc.py' file!")
-print (bfapp.application)
-bfabric_application_ids = bfapp.application
+if bfapp.config.application_ids is None:
+    raise RuntimeError("No bfapp.config.application_ids variable configured. check '~/.bfabricrc.py' file!")
+print(bfapp.config.application_ids)
+bfabric_application_ids = bfapp.config.application_ids
 
 def save_importresource(line):
     """ reads, splits and submit the input line to the bfabric system
