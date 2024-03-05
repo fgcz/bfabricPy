@@ -514,8 +514,8 @@ class BfabricSubmitter():
         self.user = user
         self.scheduler = scheduler
 
-        print((self.B.bflogin))
-        print((self.B.externaljobid))
+        print(self.B.config.login)
+        print(self.B.externaljobid)
 
         self.workunitid = self.B.get_workunitid_of_externaljob()
 
