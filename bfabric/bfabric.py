@@ -146,9 +146,6 @@ class Bfabric(object):
         # TODO remove after refactoring is complete
         return self.config.application_ids
 
-    def get_para(self):
-        return {'bflogin': self.bflogin, 'webbase': self.webbase}
-
     def read_object(self, endpoint, obj, login=None, password=None, page=1, plain=False, idonly=False):
         """
         A generic method which can connect to any endpoint, e.g., workunit, project, order,
@@ -356,13 +353,6 @@ class Bfabric(object):
         res_json = json.dumps(queryres, cls=bfabricEncoder, sort_keys=True)  
         res = yaml.dump(res_json, default_flow_style=False, encoding=None, default_style=None)
         print(res)
-
-    def set_bfabric_credentials(self, login, password):
-        self.bflogin = login
-        self.bfpassword = password
-
-    def set_bfabric_webbase(self, url):
-        self.webbase = url
 
     def get_sampleid(self, resourceid=None):
         """
