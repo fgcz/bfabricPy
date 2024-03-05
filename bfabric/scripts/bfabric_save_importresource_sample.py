@@ -38,8 +38,7 @@ logger.setLevel(logging.INFO)
 bfabric_storageid = 2
 bfapp = Bfabric()
 
-# TODO(cp): should go into a config file, e.g., bfabricrc
-# the hash  maps the 'real world' to the BFabric application._id
+# maps the 'real world' to the BFabric application._id
 if bfapp.config.application_ids is None:
     raise RuntimeError("No bfapp.config.application_ids variable configured. check '~/.bfabricrc.py' file!")
 print(bfapp.config.application_ids)
