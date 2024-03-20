@@ -126,29 +126,6 @@ class Bfabric(object):
         msg = f"\033[93m--- webbase {self.config.base_url}; login; {self.config.login} ---\033[0m\n"
         sys.stderr.write(msg)
 
-    @property
-    def bflogin(self):
-        # TODO remove after refactoring is complete
-        return self.config.login
-
-    @property
-    def bfpassword(self):
-        # TODO remove after refactoring is complete
-        return self.config.password
-
-    @property
-    def webbase(self):
-        # TODO remove after refactoring is complete
-        return self.config.base_url
-
-    @property
-    def application(self):
-        # TODO remove after refactoring is complete
-        return self.config.application_ids
-
-    def get_para(self):
-        return {'bflogin': self.bflogin, 'webbase': self.webbase}
-
     def read_object(self, endpoint, obj, login=None, password=None, page=1, plain=False, idonly=False):
         """
         A generic method which can connect to any endpoint, e.g., workunit, project, order,
@@ -157,10 +134,10 @@ class Bfabric(object):
         for the "query".
         """
         if login is None:
-            login = self.bflogin
+            login = self.config.login
 
         if password is None:
-            password = self.bfpassword
+            password = self.config.password
 
         if len(login) >= 32:
             raise ValueError("Sorry, login >= 32 characters.") 
@@ -174,7 +151,7 @@ class Bfabric(object):
 
         try:
             if not endpoint in self.cl:
-                self.cl[endpoint] = Client("".join((self.webbase, '/', endpoint, "?wsdl")), cache=None)
+                self.cl[endpoint] = Client("".join((self.config.base_url, '/', endpoint, "?wsdl")), cache=None)
         except Exception as e:
             print (e)
             raise
@@ -203,10 +180,10 @@ class Bfabric(object):
         obj is a python dictionary which contains only the id of the endpoint for the "query".
         """
         if login is None:
-            login = self.bflogin
+            login = self.config.login
 
         if password is None:
-            password = self.bfpassword
+            password = self.config.password
 
         if len(login) >= 32:
             raise ValueError("Sorry, login >= 32 characters.")
@@ -219,7 +196,7 @@ class Bfabric(object):
 
         try:
             if not endpoint in self.cl:
-                self.cl[endpoint] = Client("".join((self.webbase, '/', endpoint, "?wsdl")), cache=None)
+                self.cl[endpoint] = Client("".join((self.config.base_url, '/', endpoint, "?wsdl")), cache=None)
         except Exception as e:
             print (e)
             raise
@@ -245,12 +222,12 @@ class Bfabric(object):
         same as read_object above but uses the save method.
         """
         self.query_counter = self.query_counter + 1
-        QUERY = dict(login=self.bflogin, password=self.bfpassword)
+        QUERY = dict(login=self.config.login, password=self.config.password)
         QUERY[endpoint] = obj
 
         try:
             if not endpoint in self.cl:
-                self.cl[endpoint] = Client("".join((self.webbase, '/', endpoint, "?wsdl")), cache=None)
+                self.cl[endpoint] = Client("".join((self.config.base_url, '/', endpoint, "?wsdl")), cache=None)
         except:
             raise
 
@@ -269,12 +246,12 @@ class Bfabric(object):
         """
 
         self.query_counter = self.query_counter + 1
-        QUERY = dict(login=self.bflogin, password=self.bfpassword)
+        QUERY = dict(login=self.config.login, password=self.config.password)
         QUERY[endpoint] = obj
 
         try:
             if not endpoint in self.cl:
-                self.cl[endpoint] = Client("".join((self.webbase, '/', endpoint, "?wsdl")), cache=None)
+                self.cl[endpoint] = Client("".join((self.config.base_url, '/', endpoint, "?wsdl")), cache=None)
         except:
             raise
 
@@ -294,11 +271,11 @@ class Bfabric(object):
         """
 
         self.query_counter = self.query_counter + 1
-        QUERY = dict(login=self.bflogin, password=self.bfpassword, id=id)
+        QUERY = dict(login=self.config.login, password=self.config.password, id=id)
 
         try:
             if not endpoint in self.cl:
-                self.cl[endpoint] = Client("".join((self.webbase, '/', endpoint, "?wsdl")), cache=None)
+                self.cl[endpoint] = Client("".join((self.config.base_url, '/', endpoint, "?wsdl")), cache=None)
         except:
             raise
 
@@ -356,13 +333,6 @@ class Bfabric(object):
         res_json = json.dumps(queryres, cls=bfabricEncoder, sort_keys=True)  
         res = yaml.dump(res_json, default_flow_style=False, encoding=None, default_style=None)
         print(res)
-
-    def set_bfabric_credentials(self, login, password):
-        self.bflogin = login
-        self.bfpassword = password
-
-    def set_bfabric_webbase(self, url):
-        self.webbase = url
 
     def get_sampleid(self, resourceid=None):
         """
@@ -544,8 +514,8 @@ class BfabricSubmitter():
         self.user = user
         self.scheduler = scheduler
 
-        print((self.B.bflogin))
-        print((self.B.externaljobid))
+        print(self.B.config.login)
+        print(self.B.externaljobid)
 
         self.workunitid = self.B.get_workunitid_of_externaljob()
 
@@ -960,12 +930,12 @@ exit 0
                 sample_id = self.get_sampleid(int(resource_iterator._id))
 
                 _resource_sample = {'resource_id': int(resource_iterator._id),
-                                        'resource_url': "{0}/userlab/show-resource.html?id={1}".format(self.webbase,resource_iterator._id)}
+                                        'resource_url': "{0}/userlab/show-resource.html?id={1}".format(self.config.base_url,resource_iterator._id)}
 
 
                 if not sample_id is None:
                     _resource_sample['sample_id'] = int(sample_id)
-                    _resource_sample['sample_url'] = "{0}/userlab/show-sample.html?id={1}".format(self.webbase, sample_id)
+                    _resource_sample['sample_url'] = "{0}/userlab/show-sample.html?id={1}".format(self.config.base_url, sample_id)
 
                 resource_ids[_application_name].append(_resource_sample)
             except:
@@ -1060,7 +1030,7 @@ exit 0
                     },
                 'workunit_id': int(workunit._id),
                 'workunit_createdby': str(workunit.createdby),
-                'workunit_url': "{0}/userlab/show-workunit.html?workunitId={1}".format(self.webbase, workunit._id),
+                'workunit_url': "{0}/userlab/show-workunit.html?workunitId={1}".format(self.config.base_url, workunit._id),
                 'external_job_id': int(yaml_workunit_externaljob._id),
                 'order_id': order_id,
                 'project_id': project_id,
