@@ -14,9 +14,7 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.x
@@ -24,7 +22,7 @@ jobs:
       with:
         python-version: 3.9
     - shell: bash
-      name: Create .bfabricrc.py configuration file
+      name: Create and populate .bfabricrc.py configuration file
       env:
         WEBBASE: ${{ secrets.BFABRICWEBBASE }}
         LOGIN: ${{ secrets.BFABRICLOGIN }}
@@ -33,16 +31,16 @@ jobs:
         echo "_WEBBASE=\""$WEBBASE\" > ~/.bfabricrc.py
         echo "_LOGIN=\""$LOGIN\" >> ~/.bfabricrc.py
         echo "_PASSWD=\""$PASSWD\" >> ~/.bfabricrc.py
-    - name: Install bfabricPy and dependencies
+    - name: Install latest bfabricPy and dependencies
       run: |
         sudo mkdir -p /home/bfabric/prx/ \
         && python -m pip install --upgrade pip \
         && python setup.py sdist \
         && pip install dist/bfabric-*.tar.gz \
-    - name: Run unittest
+    - name: Run py lang unittest modules
       run: |
         cd ./bfabric/tests/ \
         && python -m unittest test_bfabric_functional.py \
         && python -m unittest test_bfabric_read.py
-    - name: Print test_functional.log 
+    - name: Print 'test_functional.log' (unittest log) 
       run: cat -n bfabric/tests/test_functional.log 
