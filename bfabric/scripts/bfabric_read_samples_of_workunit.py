@@ -29,12 +29,12 @@ def signal_handler(signal, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 def print_color_msg(msg, color="93"):
-    msg = "\033[{color}m--- {} ---\033[0m\n".format(msg, color=color)
+    msg = f"\x1b[{color}m--- {msg} ---\x1b[0m\n"
     sys.stderr.write(msg)
 
 def usage():
     print("usage:\n")
-    msg = "\t{} <datasetid>".format(sys.argv[0])
+    msg = f"\t{sys.argv[0]} <datasetid>"
     print(msg)
 
 
@@ -68,11 +68,11 @@ if __name__ == "__main__":
         groupingvars = list(map(lambda x: (x._id, x.name, "NA"), samples))
 
 
-    print ("{}\t{}\t{}\t{}\t{}".format('workunit.id', 'inputresource.id', 'inputresource.name', 'sample.name', 'groupingvar.name'))
+    print ("workunit.id\tinputresource.id\tinputresource.name\tsample.name\tgroupingvar.name")
     for i in zip(inputresourcesname, groupingvars):
-        print ("{}\t{}\t{}\t{}\t{}".format(workunitid, i[0][0], i[0][1], i[1][1], i[1][2]))
+        print (f"{workunitid}\t{i[0][0]}\t{i[0][1]}\t{i[1][1]}\t{i[1][2]}")
 
     end_time = time.time()
-    print_color_msg("query time = {} seconds".format(round(end_time - start_time, 2)))
+    print_color_msg(f"query time = {round(end_time - start_time, 2)} seconds")
 
     sys.exit(0)

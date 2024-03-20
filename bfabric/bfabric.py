@@ -96,7 +96,7 @@ class Bfabric(object):
     Implements read and save object methods for B-Fabric wsdl interface
     """
     def warning(self, msg):
-        sys.stderr.write("\033[93m{}\033[0m\n".format(msg))
+        sys.stderr.write(f"\x1b[93m{msg}\x1b[0m\n")
 
     def __init__(self, login=None, password=None, webbase=None, externaljobid=None, bfabricrc=None, verbose=False):
         self.verbose = verbose
@@ -355,7 +355,7 @@ class Bfabric(object):
             workunit = self.read_object(endpoint='workunit', obj={'id': resource.workunit._id})[0]
             return (self.get_sampleid(resourceid=int(workunit.inputresource[0]._id)))
         except:
-            self.warning("fetching sampleid of resource.workunitid = {} failed.".format(resource.workunit._id))
+            self.warning(f"fetching sampleid of resource.workunitid = {resource.workunit._id} failed.")
             return (None)
 
 class BfabricFeeder(Bfabric):
@@ -379,15 +379,15 @@ class BfabricFeeder(Bfabric):
 
         storage = self.read_object('storage', {'id': res.storage._id})[0]
 
-        filename = "{0}/{1}".format(storage.basepath, res.relativepath)
+        filename = f"{storage.basepath}/{res.relativepath}"
 
         if os.path.isfile(filename):
             try:
                 fmd5 = hashlib.md5(open(filename, 'rb').read()).hexdigest()
-                print ("md5sum ({}) = {}".format(filename, fmd5))
+                print (f"md5sum ({filename}) = {fmd5}")
 
                 fsize = int(os.path.getsize(filename)) + 1
-                print ("size ({}) = {}".format(filename, fsize))
+                print (f"size ({filename}) = {fsize}")
 
 
                 return self.save_object('resource', {'id': resourceid,
@@ -421,7 +421,7 @@ class BfabricExternalJob(Bfabric):
         else:
             self.externaljobid = externaljobid
 
-        print(("BfabricExternalJob externaljobid={}".format(self.externaljobid)))
+        print(f"BfabricExternalJob externaljobid={self.externaljobid}")
 
     def logger(self, msg):
         if self.externaljobid:
@@ -436,14 +436,14 @@ class BfabricExternalJob(Bfabric):
         return res
 
     def get_workunitid_of_externaljob(self):
-        print(("DEBUG get_workunitid_of_externaljob self.externaljobid={}".format(self.externaljobid)))
+        print(f"DEBUG get_workunitid_of_externaljob self.externaljobid={self.externaljobid}")
         res = self.read_object(endpoint='externaljob', obj={'id': self.externaljobid})[0]
         print(res)
         print("DEBUG END")
         workunit_id = None
         try:
             workunit_id = res.cliententityid
-            print(("workunitid={}".format(workunit_id)))
+            print(f"workunitid={workunit_id}")
         except:
             pass
         return workunit_id
@@ -549,9 +549,9 @@ class BfabricSubmitter():
         else:
             pass
 
-        print(("partition={0}".format(self.partition)))
-        print(("nodelist={0}".format(self.nodelist)))
-        print(("memory={0}".format(self.memory)))
+        print(f"partition={self.partition}")
+        print(f"nodelist={self.nodelist}")
+        print(f"memory={self.memory}")
         print("__init__ DONE")
 
 
@@ -563,7 +563,7 @@ class BfabricSubmitter():
         print((type(script)))
         resQsub = GE.qsub(script=script, arguments=arguments)
 
-        self.B.logger("{}".format(resQsub))
+        self.B.logger(f"{resQsub}")
 
 
     def submit_slurm(self, script="/tmp/runme.bash", arguments=""):
@@ -574,7 +574,7 @@ class BfabricSubmitter():
         print((type(script)))
         resSbatch = SL.sbatch(script=script, arguments=arguments)
 
-        self.B.logger("{}".format(resSbatch))
+        self.B.logger(f"{resSbatch}")
 
 
     def compose_bash_script(self, configuration=None, configuration_parser=lambda x: yaml.safe_load(x)):
@@ -724,7 +724,7 @@ exit 0
 
         # foreach (executable in external job):
         for executable in self.B.get_executable_of_externaljobid():
-            self.B.logger("executable = {0}".format(executable))
+            self.B.logger(f"executable = {executable}")
 
             try:
                 content = base64.b64decode(executable.base64.encode()).decode()
@@ -807,7 +807,7 @@ ssh $SSHARGS $INPUTHOST "cat $INPUTPATH/$INPUTFILE" \\
 || exit 1
 
 exit 0
-""".format("\n".join(sorted(['%s="%s"' % (key, info) for key, info in para.iteritems()])), para['STDERR'],
+""".format("\n".join(sorted([f'{key}="{info}"' for key, info in para.iteritems()])), para['STDERR'],
            para['STDOUT'])
 
         resExecutable = self.save_object('executable', {'name': os.path.basename(para['APPLICATION']) + "_executable",
@@ -894,9 +894,9 @@ exit 0
                 if parameter:
                     for p in parameter:
                         try:
-                            application_parameter["{}".format(p.key)] = "{}".format(p.value)
+                            application_parameter[f"{p.key}"] = f"{p.value}"
                         except:
-                            application_parameter["{}".format(p.key)] = ""
+                            application_parameter[f"{p.key}"] = ""
 
         try:
             input_resources = [x._id for x in workunit.inputresource]
@@ -915,11 +915,11 @@ exit 0
                 _appication_id = self.read_object(endpoint='workunit',
                                                obj={'id': resource_iterator.workunit._id})[0].application._id
 
-                _application_name = "{0}".format(self.read_object('application', obj={'id': _appication_id})[0].name)
+                _application_name = f"{self.read_object('application', obj={'id': _appication_id})[0].name}"
 
                 _storage = self.read_object('storage', {'id': resource_iterator.storage._id})[0]
 
-                _inputUrl = "bfabric@{0}:/{1}/{2}".format(_storage.host, _storage.basepath, resource_iterator.relativepath)
+                _inputUrl = f"bfabric@{_storage.host}:/{_storage.basepath}/{resource_iterator.relativepath}"
 
                 if not _application_name in resource_urls:
                     resource_urls[_application_name] = []
@@ -930,12 +930,12 @@ exit 0
                 sample_id = self.get_sampleid(int(resource_iterator._id))
 
                 _resource_sample = {'resource_id': int(resource_iterator._id),
-                                        'resource_url': "{0}/userlab/show-resource.html?id={1}".format(self.config.base_url,resource_iterator._id)}
+                                        'resource_url': f"{self.config.base_url}/userlab/show-resource.html?id={resource_iterator._id}"}
 
 
                 if not sample_id is None:
                     _resource_sample['sample_id'] = int(sample_id)
-                    _resource_sample['sample_url'] = "{0}/userlab/show-sample.html?id={1}".format(self.config.base_url, sample_id)
+                    _resource_sample['sample_url'] = f"{self.config.base_url}/userlab/show-sample.html?id={sample_id}"
 
                 resource_ids[_application_name].append(_resource_sample)
             except:
@@ -945,31 +945,31 @@ exit 0
 
         # create resources for output, stderr, stdout
         _ressource_output = self.save_object('resource', {
-            'name': "{0} {1} - resource".format(application.name, len(input_resources)),
+            'name': f"{application.name} {len(input_resources)} - resource",
             'workunitid': workunit._id,
             'storageid': int(application.storage._id),
             'relativepath': _output_relative_path})[0]
 
 
         print(_ressource_output)
-        _output_filename = "{0}.{1}".format(_ressource_output._id, application.outputfileformat)
+        _output_filename = f"{_ressource_output._id}.{application.outputfileformat}"
         # we want to include the resource._id into the filename
         _ressource_output = self.save_object('resource',
                                     {'id': int(_ressource_output._id),
-                                     'relativepath': "{0}/{1}".format(_output_relative_path, _output_filename)})[0]
+                                     'relativepath': f"{_output_relative_path}/{_output_filename}"})[0]
 
         print (_ressource_output)
         _resource_stderr = self.save_object('resource', {
             'name': 'slurm_stderr',
             'workunitid': int(workunit._id),
             'storageid': _log_storage._id,
-            'relativepath': "/workunitid-{0}_resourceid-{1}.err".format(workunit._id, _ressource_output._id)})[0]
+            'relativepath': f"/workunitid-{workunit._id}_resourceid-{_ressource_output._id}.err"})[0]
 
         _resource_stdout = self.save_object('resource', {
             'name': 'slurm_stdout',
             'workunitid': workunit._id,
             'storageid': _log_storage._id,
-            'relativepath': "/workunitid-{0}_resourceid-{1}.out".format(workunit._id, _ressource_output._id)})[0]
+            'relativepath': f"/workunitid-{workunit._id}_resourceid-{_ressource_output._id}.out"})[0]
 
 
         # Creates the workunit executable
@@ -992,7 +992,7 @@ exit 0
         print(yaml_workunit_externaljob)
         assert isinstance(yaml_workunit_externaljob._id, int)
         self.externaljobid_yaml_workunit = int(yaml_workunit_externaljob._id)
-        print(("XXXXXXX self.externaljobid_yaml_workunit ={} XXXXXXX".format(self.externaljobid_yaml_workunit)))
+        print(f"XXXXXXX self.externaljobid_yaml_workunit ={self.externaljobid_yaml_workunit} XXXXXXX")
 
         _output_url = "bfabric@{0}:{1}{2}/{3}".format(_output_storage.host,
                                                     _output_storage.basepath,
@@ -1010,7 +1010,7 @@ exit 0
         # Compose configuration structure
         config = {
             'job_configuration': {
-                'executable': "{}".format(workunit_executable.program),
+                'executable': f"{workunit_executable.program}",
                 'inputdataset': inputdataset,
                 'input': resource_ids,
                 'output': {
@@ -1021,16 +1021,16 @@ exit 0
                 'stderr': {
                         'protocol': 'file',
                         'resource_id': int(_resource_stderr._id) ,
-                        'url': "{0}/workunitid-{1}_resourceid-{2}.err".format(_log_storage.basepath, workunit._id, _ressource_output._id)
+                        'url': f"{_log_storage.basepath}/workunitid-{workunit._id}_resourceid-{_ressource_output._id}.err"
                     },
                 'stdout': {
                         'protocol': 'file',
                         'resource_id': int(_resource_stdout._id),
-                        'url': "{0}/workunitid-{1}_resourceid-{2}.out".format(_log_storage.basepath, workunit._id, _ressource_output._id)
+                        'url': f"{_log_storage.basepath}/workunitid-{workunit._id}_resourceid-{_ressource_output._id}.out"
                     },
                 'workunit_id': int(workunit._id),
                 'workunit_createdby': str(workunit.createdby),
-                'workunit_url': "{0}/userlab/show-workunit.html?workunitId={1}".format(self.config.base_url, workunit._id),
+                'workunit_url': f"{self.config.base_url}/userlab/show-workunit.html?workunitId={workunit._id}",
                 'external_job_id': int(yaml_workunit_externaljob._id),
                 'order_id': order_id,
                 'project_id': project_id,
@@ -1049,7 +1049,7 @@ exit 0
 
         yaml_workunit_executable = self.save_object('executable', {'id': yaml_workunit_executable._id,
                                                         'base64': base64.b64encode(config_serialized.encode()).decode(),
-                                                        'version': "{}".format(10)})[0]
+                                                        'version': f"{10}"})[0]
         print(yaml_workunit_executable)
 
         # The WrapperCreator executable is successful, and the status of the its external job is set to done,
@@ -1058,7 +1058,7 @@ exit 0
         wrapper_creator_externaljob = self.save_object(endpoint='externaljob',
                                                        obj={'id': self.externaljobid, 'status': 'done'})
 
-        print(("\n\nquery_counter={0}".format(self.query_counter)))
+        print(f"\n\nquery_counter={self.query_counter}")
 
 
 

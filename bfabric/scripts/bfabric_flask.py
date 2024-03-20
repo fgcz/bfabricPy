@@ -128,15 +128,15 @@ def read():
 
         bf = bfabric.Bfabric(login=login, password=webservicepassword)
         res = bf.read_object(endpoint=content['endpoint'][0], obj=content['query'], plain=True, page=page, idonly=idonly)
-        logger.info("'{}' login success query {} ...".format(login, content['query']))
+        logger.info(f"'{login}' login success query {content['query']} ...")
     except:
-        logger.info("'{}' query failed ...".format(login))
+        logger.info(f"'{login}' query failed ...")
         return jsonify({'status': 'jsonify failed: bfabric python module.'})
 
     try:
         return jsonify({'res': res})
     except:
-        logger.info("'{}' query failed ...".format(login))
+        logger.info(f"'{login}' query failed ...")
         return jsonify({'status': 'jsonify failed'})
 
 
@@ -180,15 +180,15 @@ def q():
         
         bf = bfabric.Bfabric(login=login, password=webservicepassword)
         res = bf.read_object(endpoint=content['endpoint'][0], obj=content['query'], page=page)
-        logger.info("'{}' login success query {} ...".format(login, content['query']))
+        logger.info(f"'{login}' login success query {content['query']} ...")
     except:
-        logger.info("'{}' login failed ...".format(login))
+        logger.info(f"'{login}' login failed ...")
         return jsonify({'status': 'jsonify failed: bfabric python module.'})
 
     try:
         return jsonify({'res': res})
     except:
-        logger.info("'{}' query failed ...".format(login))
+        logger.info(f"'{login}' query failed ...")
         return jsonify({'status': 'jsonify failed'})
 
 
@@ -199,7 +199,7 @@ def s():
         content = json.loads(request.data)
     except:
         msg = 'could not get POST content.'
-        print("Exception: {}".format(msg))
+        print(f"Exception: {msg}")
         return jsonify({'error': msg})
 
     try:
@@ -207,21 +207,21 @@ def s():
         login = content['login'][0]
     except:
         msg = 'Could not extract login|webservicepassword.'
-        print("Exception: {}".format(msg))
+        print(f"Exception: {msg}")
         return jsonify({'error': msg})
 
     try:
         endpoint = content['endpoint'][0]
     except:
         msg = 'Could not extract endpoint.'
-        print("Exception: {}".format(msg))
+        print(f"Exception: {msg}")
         return jsonify({'error': msg})
 
     try:
         query = content['query']
     except:
         msg = 'Could not extract query.'
-        print("Exception: {}".format(msg))
+        print(f"Exception: {msg}")
         return jsonify({'error': msg})
 
     try:
@@ -229,9 +229,9 @@ def s():
         bf = bfabric.Bfabric(login=login, password=webservicepassword)
         res = bf.save_object(endpoint=endpoint, obj=content['query'])
 
-        logger.info("'{}' login success save method ...".format(login))
+        logger.info(f"'{login}' login success save method ...")
     except:
-        logger.info("save method failed for login {}.".format(login))
+        logger.info(f"save method failed for login {login}.")
         return jsonify({'status': 'jsonify failed: bfabric python module.'})
 
     try:
@@ -309,7 +309,7 @@ def add_resource():
         return jsonify({'error': 'could not get POST content.'})
 
     res = bfapp.save_object('workunit', {'name': queue_content['name'],
-                                         'description': "{}".format(queue_content['workunitdescription'][0]),
+                                         'description': f"{queue_content['workunitdescription'][0]}",
                                          'containerid': queue_content['containerid'],
                                          'applicationid': queue_content['applicationid']
                                          })
@@ -357,7 +357,7 @@ def add_dataset(containerid):
 
     try:
         res = bfapp.save_object(endpoint='dataset', obj=obj)[0]
-        print ("added dataset {} to bfabric.".format(res._id))
+        print (f"added dataset {res._id} to bfabric.")
         return (jsonify({'id':res._id}))
 
     except:
@@ -435,7 +435,7 @@ def query():
       webbase='http://fgcz-bfabric.uzh.ch/bfabric')
 
     for i in content.keys():
-      print ("{}\t{}".format(i, content[i]))
+      print (f"{i}\t{content[i]}")
 
     if 'containerid' in content:
       workunits = bf.read_object(endpoint='workunit', 

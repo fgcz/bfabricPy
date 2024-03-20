@@ -51,10 +51,10 @@ class FgczMaxQuantConfig:
     def __init__(self, config=None, scratch = "/scratch/MAXQUANT/"):
         if config:
             self.config = config
-            self.scratchdir = Path("{0}/WU{1}".format(scratch, self.config['job_configuration']['workunit_id']))
+            self.scratchdir = Path(f"{scratch}/WU{self.config['job_configuration']['workunit_id']}")
 
             if not os.path.isdir(self.scratchdir):
-                print ("no scratch dir '{0}'.".format(self.scratchdir))
+                print (f"no scratch dir '{self.scratchdir}'.")
                 # raise SystemError
 
     def generate_mqpar(self, xml_filename, xml_template):
@@ -71,7 +71,7 @@ class FgczMaxQuantConfig:
                       element.append(estring)
                     pass
                 else:
-                    print ("replacing xpath expression {} by {}.".format(query, value))
+                    print (f"replacing xpath expression {query} by {value}.")
                     element.text = value
 
         ecount = 0;
@@ -85,19 +85,19 @@ class FgczMaxQuantConfig:
 
                 host, file = input.split(":")
 
-                print ("{}\t{}".format(os.path.basename(input), file))
+                print (f"{os.path.basename(input)}\t{file}")
 
                 if not os.path.isfile(file):
-                    print("'{}' do not exists.".format(file))
+                    print(f"'{file}' do not exists.")
                     #raise SystemError
 
-                targetRawFile = "{}/{}".format(self.scratchdir, os.path.basename(input))
+                targetRawFile = f"{self.scratchdir}/{os.path.basename(input)}"
 
                 if not os.path.islink(targetRawFile):
                     try:
                         os.symlink(file,  targetRawFile)
                     except:
-                        print("linking '{}' failed.".format(file))
+                        print(f"linking '{file}' failed.")
 
                 estring = etree.Element("string")
                 estring.text = targetRawFile
@@ -108,7 +108,7 @@ class FgczMaxQuantConfig:
                     raise TypeError
 
                 estring = etree.Element("string")
-                estring.text = "{}".format(os.path.basename(input).replace(".raw", "").replace(".RAW", ""))
+                estring.text = f"{os.path.basename(input).replace('.raw', '').replace('.RAW', '')}"
                 ecount += 1
                 element.append(estring)
 
@@ -514,7 +514,7 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
 
     if not os.path.isfile(options.yaml_filename):
-        print ("ERROR: no such file '{0}'".format(options.yaml_filename))
+        print (f"ERROR: no such file '{options.yaml_filename}'")
         sys.exit(1)
     try:
         with open(options.yaml_filename, 'r') as f:

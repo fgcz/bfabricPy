@@ -89,7 +89,7 @@ def save_importresource(line):
             break
 
     if _bfabric_applicationid < 0:
-        logger.error("{0}; no bfabric application id.".format(_file_path))
+        logger.error(f"{_file_path}; no bfabric application id.")
         return 
 
     obj = { 'applicationid':_bfabric_applicationid,
@@ -104,7 +104,7 @@ def save_importresource(line):
 
     try:
         m = re.search(r"p([0-9]+)\/(Proteomics\/[A-Z]+_[1-9])\/.*_\d\d\d_S([0-9][0-9][0-9][0-9][0-9][0-9]+)_.*(raw|zip)$", _file_path)
-        print ("found sampleid={} pattern".format(m.group(3)))
+        print (f"found sampleid={m.group(3)} pattern")
         obj['sampleid'] = int(m.group(3))
     except:
         pass

@@ -21,7 +21,7 @@ from bfabric import Bfabric
 def dataset2csv(ds, outputfile, sep=","):
     # ds.attribute contains the list of columns name
     with open(outputfile, "w") as f:
-        f.write("{}\n".format(sep.join(map(lambda x: x.name, ds.attribute))))
+        f.write(f"{sep.join(map(lambda x: x.name, ds.attribute))}\n")
         for i in ds.item:
             # sort values based on the columns order in attributeposition
             for x in i.field:
@@ -29,7 +29,7 @@ def dataset2csv(ds, outputfile, sep=","):
                     x.value = ''
             fields = [(x.value, x.attributeposition) for x in i.field]
             fields.sort(key=lambda y: int(y[1]))
-            f.write("{}\n".format(sep.join([t[0] for t in fields])))
+            f.write(f"{sep.join([t[0] for t in fields])}\n")
 
 
 def main(dataset_id, scratchdir):
@@ -42,9 +42,9 @@ def main(dataset_id, scratchdir):
         raise
 
     try:
-        dataset2csv(ds, "{}/dataset.csv".format(scratchdir))
+        dataset2csv(ds, f"{scratchdir}/dataset.csv")
     except:
-        print("The writing process to '{}'/dataset.csv failed.".format(scratchdir))
+        print(f"The writing process to '{scratchdir}'/dataset.csv failed.")
         raise
 
 

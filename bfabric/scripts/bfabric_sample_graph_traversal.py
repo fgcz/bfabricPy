@@ -51,7 +51,7 @@ class SampleGraph:
 
     def get_sampleID(self, relativepath):
         res = self.B.read_object(endpoint='resource', obj={'relativepath': relativepath})[0]
-        print("\t{} -> {}".format(res.sample._id, res._id))
+        print(f"\t{res.sample._id} -> {res._id}")
         return res.sample._id
 
 
@@ -65,17 +65,17 @@ class SampleGraph:
 
         if "multiplexid" in  childSample:
             # in this special case we reached last level keeping the tag
-            print ('''\t{} [shape=box label="{}\\n{}"];'''.format(childSample._id, childSample._id, childSample.multiplexid))
+            print (f'''\t{childSample._id} [shape=box label="{childSample._id}\\n{childSample.multiplexid}"];''')
             try:
                 self.annotation[childSample.multiplexid] = childSample.parent[0]._id
             except:
-                print("multiplexid {} for sample {} not in the annotation file template".format(childSample.multiplexid, childSample._id))
+                print(f"multiplexid {childSample.multiplexid} for sample {childSample._id} not in the annotation file template")
 
 
         if 'parent' in childSample:
             self.links[childSampleId] = [x._id for x in childSample.parent]
             for parent in childSample.parent:
-                print("\t{} -> {}".format(parent._id, childSampleId))
+                print(f"\t{parent._id} -> {childSampleId}")
                 if not parent._id in self.VISITED:
                     self.VISITED.append(parent._id)
                     self.L.append(parent._id)
@@ -93,9 +93,9 @@ class SampleGraph:
         for i in ds.item:
             for x in i.field:
                 if hasattr(x, "value") and x.attributeposition == attributeposition:
-                    print ("# relativepath = {}".format(x.value))
+                    print (f"# relativepath = {x.value}")
                     sampleID = self.get_sampleID(x.value)
-                    print ("# inputSampleId = {}".format(sampleID))
+                    print (f"# inputSampleId = {sampleID}")
                     self.annotation = self.annotation_template
                     self.traverse(sampleID)
                     experiment = self.links[sampleID]
@@ -103,12 +103,12 @@ class SampleGraph:
                         self.write_annotation(experiment[0])
                         self.write_manifest(x.value, experiment[0])
                     else:
-                        print("# Wrong inputSampleId, please check the sample ID {}, it should be after fractionation".format(sampleID))
+                        print(f"# Wrong inputSampleId, please check the sample ID {sampleID}, it should be after fractionation")
 
     def write_annotation(self, experiment):
         dirname = str(experiment)
         if not os.path.isdir(dirname):
-            print("# creating directory {}".format(dirname))
+            print(f"# creating directory {dirname}")
             os.makedirs(dirname)
             with open("./"+dirname+"/annotation.txt", "w") as f:
                 w = csv.writer(f, delimiter = '\t')

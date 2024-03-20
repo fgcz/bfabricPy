@@ -20,7 +20,7 @@ import datetime
 
 def usage():
     print("usage:\n")
-    msg = "\t{} <workunitID> <attribute> <value>".format(sys.argv[0])
+    msg = f"\t{sys.argv[0]} <workunitID> <attribute> <value>"
     print(msg)
 
 if __name__ == "__main__":

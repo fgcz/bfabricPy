@@ -41,7 +41,7 @@ def save_fasta(containerid=1875, fasta_file="p1875_db10_20170817.fasta"):
 
     try:
         workunit = bfapp.save_object(endpoint='workunit',
-                                 obj={'name': "FASTA: {}".format(os.path.basename(fasta_file)),
+                                 obj={'name': f"FASTA: {os.path.basename(fasta_file)}",
                                       'containerid': containerid,
                                       'applicationid': BFABRICAPPLIATIONID})
         print (workunit)
@@ -51,7 +51,7 @@ def save_fasta(containerid=1875, fasta_file="p1875_db10_20170817.fasta"):
 
     obj = {'workunitid': workunit[0]._id,
            'filechecksum': md5,
-           'relativepath': "{}{}".format(FASTAHTTPROOT, os.path.basename(fasta_file)),
+           'relativepath': f"{FASTAHTTPROOT}{os.path.basename(fasta_file)}",
            'name': os.path.basename(fasta_file),
            'size': os.path.getsize(fasta_file),
            'status': 'available',

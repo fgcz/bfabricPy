@@ -21,7 +21,7 @@ class BfabricTestCase(unittest.TestCase):
     def workunit_save(self):
         print("WORKUNIT SAVE")
         for name in ['test1', 'test2', 'test3']:
-            res = self.bfapp.save_object(endpoint='workunit', obj={'name': "unit test - {}".format(name),
+            res = self.bfapp.save_object(endpoint='workunit', obj={'name': f"unit test - {name}",
                                                                    'containerid': 3000,
                                                                    'description': '68b329da9893e34099c7d8ad5cb9c940',
                                                                    'applicationid': 217
@@ -48,7 +48,7 @@ class BfabricTestCase(unittest.TestCase):
         sample_type = 'Biological Sample - Proteomics'
         species = "n/a"
         for name in ['test1', 'test2', 'test3']:
-            res = self.bfapp.save_object(endpoint='sample', obj={'name': "unit test - {} - {}".format(name, sample_type),
+            res = self.bfapp.save_object(endpoint='sample', obj={'name': f"unit test - {name} - {sample_type}",
                                                                    'containerid': 3000,
                                                                    'type' : sample_type,
                                                                    'species' : species,

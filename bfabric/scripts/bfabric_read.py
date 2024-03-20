@@ -36,11 +36,11 @@ def usage():
     print("usage:\n")
     msg = f"\t{sys.argv[0]} <endpoint> <attribute> <value>"
     print(msg)
-    msg = "\t{} <endpoint>\n\n".format(sys.argv[0])
+    msg = f"\t{sys.argv[0]} <endpoint>\n\n"
     print(msg)
     print("valid endpoints are: [{}]\n\n".format(",\n\t ".join(bfabric.endpoints)))
     print("example:")
-    msg = "\t{} user login cpanse\n\n".format(sys.argv[0])
+    msg = f"\t{sys.argv[0]} user login cpanse\n\n"
     print(msg)
 
 if __name__ == "__main__":
@@ -85,7 +85,7 @@ if __name__ == "__main__":
             sys.exit(1)
 
         try:
-            print_color_msg("possible attributes are: {}.".format((", ".join([at[0] for at in res[0]]))))
+            print_color_msg(f"possible attributes are: {', '.join([at[0] for at in res[0]])}.")
         except Exception as e:
             print_color_msg(f"Exception: {e}")
             

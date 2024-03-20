@@ -45,7 +45,7 @@ BFLOGIN = 'pfeeder'
 BFPASSWORD = '!ForYourEyesOnly!'
 
 DB = dict()
-DBfilename = "{}/mascot.json".format(os.getenv("HOME"))
+DBfilename = f"{os.getenv('HOME')}/mascot.json"
 DBwritten = False
 
 try:
@@ -54,7 +54,7 @@ try:
         name=DBfilename,
         size=sum(map(lambda x: int(x['resource']['size']), DB.values())) / (1024 * 1024 * 1024)))
 except:
-    print("loading '{}' failed".format(DBfilename))
+    print(f"loading '{DBfilename}' failed")
     pass
 
 
@@ -75,26 +75,26 @@ def query_mascot_result(f):
     regex2 = re.compile(".*.+/(data/.+\.dat)$")
     regex2Result = regex2.match(f)
     if True:
-        print("{} input>".format(datetime.now()))
-        print("\t{}".format(f))
+        print(f"{datetime.now()} input>")
+        print(f"\t{f}")
         if f in DB:
             print("\thit")
             wu = DB[f]
             if 'workunitid' in wu:
-                print("\tdat file {} already registered as workunit id {}. continue ...".format(f, wu['workunitid']))
+                print(f"\tdat file {f} already registered as workunit id {wu['workunitid']}. continue ...")
                 return
             else:
                 print('\tno workunitid found')
         else:
-            print("\tparsing mascot result file '{}'...".format(f))
+            print(f"\tparsing mascot result file '{f}'...")
             wu = parse_mascot_result_file(f)
-            print("\tupdating cache '{}' file ...".format(DBfilename))
+            print(f"\tupdating cache '{DBfilename}' file ...")
             DBwritten = True
             DB[f] = wu
 
         if len(wu['inputresource']) > 0:
             if re.search("autoQC4L", wu['name']) or re.search("autoQC01", wu['name']):
-                print("WARNING This script ignores autoQC based mascot dat file {}.".format(f))
+                print(f"WARNING This script ignores autoQC based mascot dat file {f}.")
                 return
 
             print("\tquerying bfabric ...")
@@ -107,22 +107,22 @@ def query_mascot_result(f):
                 resultClientWorkUnit = clientWorkUnit.service.checkandinsert(
                     dict(login=BFLOGIN, password=BFPASSWORD, workunit=wu))
             except ValueError:
-                print("Exception {}".format(ValueError))
+                print(f"Exception {ValueError}")
                 raise
 
             try:
                 rv = resultClientWorkUnit.workunit[0]
             except ValueError:
-                print("Exception {}".format(ValueError))
+                print(f"Exception {ValueError}")
                 raise
 
-            print("{} output>".format(datetime.now()))
+            print(f"{datetime.now()} output>")
             if 'errorreport' in rv:
-                print("\tfound errorreport '{}'.".format(rv['errorreport']))
+                print(f"\tfound errorreport '{rv['errorreport']}'.")
 
             if '_id' in rv:
                 wu['workunitid'] = rv['_id']
-                print("\tfound workunitid'{}'.".format(wu['workunitid']))
+                print(f"\tfound workunitid'{wu['workunitid']}'.")
                 DB[f] = wu
                 DBwritten = True
 
@@ -188,7 +188,7 @@ it returns a 'workunit' dict for the following web api
 def parse_mascot_result_file(f):
 
     # Getting the current date and time
-    print("{} DEBUG parse_mascot_result_file".format(datetime.now()))
+    print(f"{datetime.now()} DEBUG parse_mascot_result_file")
 
     regex0 = re.compile("^title=.*(p([0-9]+).+Proteomics.*(raw|RAW|wiff)).*")
     regex3 = re.compile("^(FILE|COM|release|USERNAME|USERID|TOL|TOLU|ITOL|ITOLU|MODS|IT_MODS|CHARGE|INSTRUMENT|QUANTITATION|DECOY)=(.+)$")
@@ -196,7 +196,7 @@ def parse_mascot_result_file(f):
     # control_chars = ''.join(map(chr, [range(0x00, 0x20) , range(0x7f, 0xa0)]))
     control_chars = ''.join(map(chr, itertools.chain(range(0x00, 0x20), range(0x7f, 0xa0))))
 
-    control_char_re = re.compile('[%s]' % re.escape(control_chars))
+    control_char_re = re.compile(f'[{re.escape(control_chars)}]')
 
     line_count = 0
     meta_data_dict = dict(COM='', FILE='', release='', relativepath=f.replace('/usr/local/mascot/', ''))
@@ -230,7 +230,7 @@ def parse_mascot_result_file(f):
 
     desc = desc.encode('ascii', errors='ignore')
 
-    name = "{}; {}".format(meta_data_dict['COM'], os.path.basename(meta_data_dict['relativepath']))[:255]
+    name = f"{meta_data_dict['COM']}; {os.path.basename(meta_data_dict['relativepath'])}"[:255]
 
     rv = dict(
         applicationid=19,
@@ -249,7 +249,7 @@ def parse_mascot_result_file(f):
     )
     #TODO
 
-    print("{}".format(datetime.now()))
+    print(f"{datetime.now()}")
     print(rv)
     print("DEBUG END")
 
@@ -265,14 +265,14 @@ def printFrequency(S):
             count[x] = 1
 
     for key in sorted(count.keys(), key=lambda key: int(key)):
-        print("p{}\t{}".format(key, count[key]))
+        print(f"p{key}\t{count[key]}")
 
 
 def statistics():
     print("Statistics ...")
-    print("len(DB)\t=\t{}".format(len(DB)))
+    print(f"len(DB)\t=\t{len(DB)}")
     printFrequency(map(lambda x: x['containerid'], DB.values()))
-    print("file size\t=\t{} GBytes".format(sum(map(lambda x: int(x['resource']['size']), DB.values())) / (1024 * 1024 * 1024)))
+    print(f"file size\t=\t{sum(map(lambda x: int(x['resource']['size']), DB.values())) / (1024 * 1024 * 1024)} GBytes")
 
     # printFrequency(map(lambda x: x['description'].split(";"), DB.values()))
     # print(json.dumps(list(DB.values())[100], indent=4))
@@ -299,7 +299,7 @@ if __name__ == "__main__":
             sys.exit(0)
 
 if DBwritten:
-    print("dumping json file '{}' ...".format(DBfilename))
+    print(f"dumping json file '{DBfilename}' ...")
     json.dump(DB, open(DBfilename, 'w'), sort_keys=True, indent=4)
     sys.exit(0)
 

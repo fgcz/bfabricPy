@@ -32,7 +32,7 @@ if __name__ == "__main__":
             try:
                 print(bfapp.report_resource(resourceid=int(sys.argv[i])))
             except:
-                print( "failed to set resourceid {} 'available'.".format(int(sys.argv[i])))
+                print( f"failed to set resourceid {int(sys.argv[i])} 'available'.")
                 raise
     else:
         print("Invalid argument: no resourceid is provided")

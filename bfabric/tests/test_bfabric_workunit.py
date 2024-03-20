@@ -85,7 +85,7 @@ class BfabricTestCase(unittest.TestCase):
         species = "n/a"
         for name in [1, 2, 3]:
             res = self.bfapp.save_object(endpoint='sample',
-                obj={'name': "unit test - #{}; {} {}".format(name, sample_type, datetime.datetime.now()),
+                obj={'name': f"unit test - #{name}; {sample_type} {datetime.datetime.now()}",
                     'containerid': 3000,
                     'type' : sample_type,
                     'species' : species,
@@ -117,7 +117,7 @@ class BfabricTestCase(unittest.TestCase):
         except:
             applicationid = 61
         for j in queue:
-            res = self.bfapp.save_object(endpoint='workunit', obj={'name': "unit test - #{}.".format(j),
+            res = self.bfapp.save_object(endpoint='workunit', obj={'name': f"unit test - #{j}.",
                                                                    'containerid': bfabric.project,
                                                                    'description': '68b329da9893e34099c7d8ad5cb9c940',
                                                                    'applicationid': applicationid
@@ -134,7 +134,7 @@ class BfabricTestCase(unittest.TestCase):
         for k, v in self.endpoint.items():
             try:
                 res = [x._id for x in v]
-                print ("{}\n\t{}".format(k,  [x._id for x in v]))
+                print (f"{k}\n\t{[x._id for x in v]}")
             except:
                 pass
 
