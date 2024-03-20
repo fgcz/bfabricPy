@@ -59,13 +59,13 @@ except:
 
 
 def signal_handler(signal, frame):
-    print(("sys exit 1; signal=" + str(signal) + "; frame=" + str(frame)))
+    print(f"sys exit 1; signal={str(signal)}; frame={str(frame)}")
     sys.exit(1)
 
 
 # TODO(cp): read .bfabricrc.py
 def read_bfabricrc():
-    with open(os.environ['HOME'] + "/.bfabricrc") as myfile:
+    with open(f"{os.environ['HOME']}/.bfabricrc") as myfile:
         for line in myfile:
             return (line.strip())
 
@@ -225,7 +225,7 @@ def parse_mascot_result_file(f):
                 # result = regex3.match(urllib.url2pathname(line.strip()))
                 result = regex3.match(urllib.parse.unquote(line.strip()))
                 if result:
-                    desc = desc + result.group(1) + "=" + result.group(2) + "; "
+                    desc = f"{desc + result.group(1)}={result.group(2)}; "
                     meta_data_dict[result.group(1)] = result.group(2)
 
     desc = desc.encode('ascii', errors='ignore')

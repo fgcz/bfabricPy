@@ -31,7 +31,7 @@ def save_fasta(containerid=1875, fasta_file="p1875_db10_20170817.fasta"):
     resource = bfapp.read_object(endpoint='resource', obj={'filechecksum': md5})
 
     try:    
-        print("resource(s) already exist.".format(resource[0]._id))
+        print("resource(s) already exist.")
         resource = bfapp.save_object(endpoint='resource', obj={'id': resource[0]._id, 'description': description})
         print(resource)
         return

@@ -151,7 +151,7 @@ class Bfabric(object):
 
         try:
             if not endpoint in self.cl:
-                self.cl[endpoint] = Client("".join((self.config.base_url, '/', endpoint, "?wsdl")), cache=None)
+                self.cl[endpoint] = Client(f"{self.config.base_url}/{endpoint}?wsdl", cache=None)
         except Exception as e:
             print (e)
             raise
@@ -196,7 +196,7 @@ class Bfabric(object):
 
         try:
             if not endpoint in self.cl:
-                self.cl[endpoint] = Client("".join((self.config.base_url, '/', endpoint, "?wsdl")), cache=None)
+                self.cl[endpoint] = Client(f"{self.config.base_url}/{endpoint}?wsdl", cache=None)
         except Exception as e:
             print (e)
             raise
@@ -227,7 +227,7 @@ class Bfabric(object):
 
         try:
             if not endpoint in self.cl:
-                self.cl[endpoint] = Client("".join((self.config.base_url, '/', endpoint, "?wsdl")), cache=None)
+                self.cl[endpoint] = Client(f"{self.config.base_url}/{endpoint}?wsdl", cache=None)
         except:
             raise
 
@@ -251,7 +251,7 @@ class Bfabric(object):
 
         try:
             if not endpoint in self.cl:
-                self.cl[endpoint] = Client("".join((self.config.base_url, '/', endpoint, "?wsdl")), cache=None)
+                self.cl[endpoint] = Client(f"{self.config.base_url}/{endpoint}?wsdl", cache=None)
         except:
             raise
 
@@ -275,7 +275,7 @@ class Bfabric(object):
 
         try:
             if not endpoint in self.cl:
-                self.cl[endpoint] = Client("".join((self.config.base_url, '/', endpoint, "?wsdl")), cache=None)
+                self.cl[endpoint] = Client(f"{self.config.base_url}/{endpoint}?wsdl", cache=None)
         except:
             raise
 
@@ -432,7 +432,7 @@ class BfabricExternalJob(Bfabric):
     def save_object(self, endpoint, obj, debug=None):
         res = super(BfabricExternalJob, self).save_object(endpoint, obj, debug)
         jsonres = json.dumps(res, cls=bfabricEncoder, sort_keys=True, indent=2)
-        self.logger('saved ' + endpoint + '=' + str(jsonres))
+        self.logger(f"saved {endpoint}={str(jsonres)}")
         return res
 
     def get_workunitid_of_externaljob(self):
@@ -810,7 +810,7 @@ exit 0
 """.format("\n".join(sorted([f'{key}="{info}"' for key, info in para.iteritems()])), para['STDERR'],
            para['STDOUT'])
 
-        resExecutable = self.save_object('executable', {'name': os.path.basename(para['APPLICATION']) + "_executable",
+        resExecutable = self.save_object('executable', {'name': f"{os.path.basename(para['APPLICATION'])}_executable",
                                                         'context': 'WORKUNIT',
                                                         'parameter': None,
                                                         'description': "This script should run as 'bfabric' user in the FGCZ compute infrastructure.",

@@ -60,7 +60,7 @@ def save_resource(projectid=None, resourcefile=None, applicationid=None, read_st
     resource = bfapp.read_object(endpoint='resource', obj={'filechecksum': md5})
 
     try:    
-        print("resource(s) already exist.".format(resource[0]._id))
+        print("resource(s) already exist.")
         resource = bfapp.save_object(endpoint='resource', obj={'id': resource[0]._id, 'description': description})
         print(resource[0])
         return
