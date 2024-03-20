@@ -25,7 +25,7 @@ if __name__ == "__main__":
         bfapp = bfabric.BfabricFeeder()
 
         workunitid = int(sys.argv[1])
-        print("workunitit={}".format(workunitid))
+        print(f"workunitit={workunitid}")
 
         res = bfapp.save_object(endpoint='workunit', obj={'id': workunitid, 'status': 'failed'})
         bfapp.print_json(res)

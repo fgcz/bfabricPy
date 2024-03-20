@@ -23,7 +23,7 @@ class BfabricTestCase(unittest.TestCase):
         sample_type = 'Biological Sample - Proteomics'
         species = "n/a"
         for name in [1, 2, 3]:
-            res = self.bfapp.save_object(endpoint='sample', obj={'name': "unit test - #{} - {}".format(name, sample_type),
+            res = self.bfapp.save_object(endpoint='sample', obj={'name': f"unit test - #{name} - {sample_type}",
                                                                    'containerid': 3000,
                                                                    'type' : sample_type,
                                                                    'species' : species,

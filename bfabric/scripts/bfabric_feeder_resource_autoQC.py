@@ -26,7 +26,7 @@ class autoQC():
         feeder for autoQC raw files
     """
     bfabric_storageid = 2
-    configfile = os.path.normpath("{0}/{1}".format(os.path.expanduser('~'), r'.bfabricrc.yaml'))
+    configfile = os.path.normpath(f"{os.path.expanduser('~')}/.bfabricrc.yaml")
     with open(configfile, 'r') as file:
         config = yaml.load(file, Loader=yaml.FullLoader)
     bfabric_application_ids = config['applicationId']
@@ -39,7 +39,7 @@ class autoQC():
         print (obj)
 
         try:
-            print ("DEBGUG obj: {}".format(obj[0]._id))
+            print (f"DEBGUG obj: {obj[0]._id}")
             return int(obj[0]._id)
         except:
             raise
@@ -65,7 +65,7 @@ class autoQC():
 
         sample_type = 'Biological Sample - Proteomics'
         
-        query_autoQC01 = {'name': "{}".format(name),
+        query_autoQC01 = {'name': f"{name}",
                           'type': sample_type,
                           'containerid': projectid,
                           'species': "Bos taurus",
@@ -73,7 +73,7 @@ class autoQC():
                           'samplingdate': "2018-11-15",
                           'description': 'core4life standard: sample BSA + iRT 1:800'}
 
-        query_autoQC4L = {'name': "{}".format(name),
+        query_autoQC4L = {'name': f"{name}",
                           'type': sample_type,
                           'containerid': projectid,
                           'species': "n/a",
@@ -81,7 +81,7 @@ class autoQC():
                           'samplingdate': "2018-11-15",
                           'description': 'core4life standard: 6 x 5 LC-MS/MS Peptide Reference Mix'}
 
-        query_lipidQC01 = {'name': "{}".format(name),
+        query_lipidQC01 = {'name': f"{name}",
                           'type': 'Biological Sample - Metabolomics',
                           'containerid': projectid,
                           'species': "n/a",
@@ -225,10 +225,10 @@ listed below.
 
 
         except Exception as err:
-            print ("# no match '{}'.".format(filename))
+            print (f"# no match '{filename}'.")
             return
 
-        print ("{}\t{}\t{}\n".format(projectid, applicationid, autoQCType))
+        print (f"{projectid}\t{applicationid}\t{autoQCType}\n")
 
         try:
             sampleid = self.sample_check(projectid, name=autoQCType)
@@ -253,7 +253,7 @@ listed below.
                                                                        WU=workunitid,
                                                                        R=resourceid))
         except Exception as err:
-            print('# Failed to register to bfabric: {}'.format(err))
+            print(f'# Failed to register to bfabric: {err}')
 
 
 class TestCaseAutoQC(unittest.TestCase):

@@ -17,7 +17,7 @@ import bfabric
 from datetime import datetime, timedelta
 
 def print_color_msg(msg, color="93"):
-    msg = "\033[{color}m--- {} ---\033[0m\n".format(msg, color=color)
+    msg = f"\x1b[{color}m--- {msg} ---\x1b[0m\n"
     sys.stderr.write(msg)
 
 def render_output(wu):
@@ -31,7 +31,7 @@ def render_output(wu):
         if x.status in cm:
             statuscol = cm[x.status]
         else:
-            statuscol = "\033[36m{} \033[0m".format(x.status)
+            statuscol = f"\x1b[36m{x.status} \x1b[0m"
         print("A{aid:3} WU{wuid} {cdate} {status} {createdby:12} {name}"
                .format(status = statuscol,
                     cdate = x.created,
@@ -44,7 +44,7 @@ if __name__ == "__main__":
     B = bfabric.Bfabric()
     d = datetime.today() - timedelta(days=14)
 
-    print_color_msg("list not available proteomics workunits created after {}".format(d))
+    print_color_msg(f"list not available proteomics workunits created after {d}")
 
     for status in ['Pending', 'Processing', 'Failed']:
         pwu = B.read_object(endpoint = 'workunit',

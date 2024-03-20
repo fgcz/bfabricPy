@@ -35,7 +35,7 @@ class FgczMaxQuantScaffold:
     def __init__(self, yamlfilename=None, zipfilename=None):
 
         if not os.path.isfile(zipfilename):
-            print("ERROR: no such file '{0}'".format(zipfilename))
+            print(f"ERROR: no such file '{zipfilename}'")
             sys.exit(1)
 
 
@@ -78,12 +78,12 @@ class FgczMaxQuantScaffold:
         if eInputFile is None:
             raise TypeError
 
-        eInputFile.text = '{}'.format(InputFile)
-        eInputFile.attrib['maxQuantExperiment'] = "{}".format(category)
+        eInputFile.text = f'{InputFile}'
+        eInputFile.attrib['maxQuantExperiment'] = f"{category}"
 
         eBiologicalSample = eInputFile.getparent()
-        eBiologicalSample.attrib['category'] = "{}".format(category)
-        eBiologicalSample.attrib['name'] = "{}".format(category)
+        eBiologicalSample.attrib['category'] = f"{category}"
+        eBiologicalSample.attrib['name'] = f"{category}"
 
         return(pBioSample)
 
@@ -126,7 +126,7 @@ class FgczMaxQuantScaffold:
         xml = self.getScaffold()
         eExperiment = xml.find('/Experiment')
         eFastaDatabase = xml.find('/Experiment/FastaDatabase')
-        eFastaDatabase.attrib['path'] = "{}/{}".format(os.getcwd(), self.fasta)
+        eFastaDatabase.attrib['path'] = f"{os.getcwd()}/{self.fasta}"
 
         for s in self.samples:
             eExperiment.append(self.getBiologicalSample(category=s, InputFile = self.zipfilename))

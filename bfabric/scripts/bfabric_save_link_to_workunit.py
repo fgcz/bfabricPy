@@ -26,7 +26,7 @@ if __name__ == "__main__":
         save_link(wuid=sys.argv[1], link=sys.argv[2], name=sys.argv[3])
     else:
         print ("Usage:")
-        print ("{} <workunit id> <link> <name>".format(sys.argv[0]))
+        print (f"{sys.argv[0]} <workunit id> <link> <name>")
         print ("Example:")
-        print ("{} 294156 'https://fgcz-shiny.uzh.ch/exploreDE_prot/?data=p3000/bfabric/Proteomics/SummarizedExperiment/2023/2023-09/2023-09-29/workunit_294156/2363303.rds' 'demo1 link'".format(sys.argv[0]))
+        print (f"{sys.argv[0]} 294156 'https://fgcz-shiny.uzh.ch/exploreDE_prot/?data=p3000/bfabric/Proteomics/SummarizedExperiment/2023/2023-09/2023-09-29/workunit_294156/2363303.rds' 'demo1 link'")
 

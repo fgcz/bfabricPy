@@ -24,12 +24,12 @@ def signal_handler(signal, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 def print_color_msg(msg, color="93"):
-    msg = "\033[{color}m--- {} ---\033[0m\n".format(msg, color=color)
+    msg = f"\x1b[{color}m--- {msg} ---\x1b[0m\n"
     sys.stderr.write(msg)
 
 def usage():
     print("usage:\n")
-    msg = "\t{} <datasetid>".format(sys.argv[0])
+    msg = f"\t{sys.argv[0]} <datasetid>"
     print(msg)
 
 
@@ -56,12 +56,12 @@ if __name__ == "__main__":
 
     start_time = time.time()
     query_obj = {'id': '32003'}
-    print_color_msg("query = {}".format(query_obj))
+    print_color_msg(f"query = {query_obj}")
     res = bfapp.read_object(endpoint=endpoint, obj=query_obj)
 
     dataset2csv(res[0])
 
     end_time = time.time()
-    print_color_msg("query time = {} seconds".format(round(end_time - start_time, 2)))
+    print_color_msg(f"query time = {round(end_time - start_time, 2)} seconds")
 
     sys.exit(0)

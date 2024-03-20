@@ -44,12 +44,12 @@ def get_table(relativepath):
 def run(dataset_id):
     ds = read_dataset(dataset_id)
     attributeposition = [x.position for x in ds.attribute if x.name == "Relative Path"][0]
-    print ("{}\t{}\t{}\t{}\t{}".format('workunit.id', 'inputresource.id', 'inputresource.name', 'sample.name', 'groupingvar.name'))
+    print ("workunit.id\tinputresource.id\tinputresource.name\tsample.name\tgroupingvar.name")
     for i in ds.item:
         for x in i.field:
             if hasattr(x, "value") and x.attributeposition == attributeposition:
                 workunitid, resourceid, resourcename, samplename, groupingvar = get_table(x.value)
-                print ("{}\t{}\t{}\t{}\t{}".format(workunitid, resourceid, resourcename, samplename, groupingvar))
+                print (f"{workunitid}\t{resourceid}\t{resourcename}\t{samplename}\t{groupingvar}")
 
 
 if __name__ == "__main__":

@@ -26,7 +26,7 @@ def listNotExistingStorageDirs(technologyid=2):
 
 
     for cid in containerIDs:
-        if not os.path.isdir("{}/p{}".format(ROOTDIR, cid)):
+        if not os.path.isdir(f"{ROOTDIR}/p{cid}"):
             print (cid)
 
 
