@@ -39,10 +39,10 @@ jobs:
         && python -m pip install --upgrade pip \
         && python setup.py sdist \
         && pip install dist/bfabric-*.tar.gz \
-    - name: Test with unittest
+    - name: Run unittest
       run: |
         cd ./bfabric/tests/ \
         && python -m unittest test_bfabric_functional.py \
         && python -m unittest test_bfabric_read.py
-    - name: print test_functional.log 
+    - name: Print test_functional.log 
       run: cat -n bfabric/tests/test_functional.log 
