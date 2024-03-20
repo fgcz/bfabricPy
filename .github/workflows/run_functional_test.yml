@@ -44,3 +44,5 @@ jobs:
         cd ./bfabric/tests/ \
         && python -m unittest test_bfabric_functional.py \
         && python -m unittest test_bfabric_read.py
+    - name: print test_functional.log 
+      run: cat -n bfabric/tests/test_functional.log 
