@@ -287,6 +287,14 @@ cd bfabric/tests/ && python3 -m unittest discover; echo $?; cd -
 
 ## FAQ
 
+
+### How to resolve `<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed`?
+
+on macOSX
+```
+cd /Applications/Python 3.12 && ./Install\ Certificates.command
+```
+
 ### How is the version numbering working?
 
 X.Y.Z
