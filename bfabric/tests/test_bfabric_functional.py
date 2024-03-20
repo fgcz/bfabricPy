@@ -244,21 +244,39 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         ######
 
         # 6. THIS LINE IS CALLED WHEN THE APPLICATION IS DONE
-        ## TODO(cp): ask Can or Marco if this is correct
-
+        logging.info(f"set workunit {workunitid} status available.")
+        res = B.save_object('workunit', {'id': workunitid, 'status': 'available'})
 
         logging.info("Cleanup for the python test: whatever is possible to be removed")
+        logging.info(f"trying to delete executable {executableid} [expect to fail].")
         res = B.delete_object('executable', executableid)
         self.assertNotIn("removed successfully", res[0].deletionreport)
 
+        logging.info(f"trying to delete application {applicationid} [expect to fail; since we have a workunit].")
         res = B.delete_object('application', applicationid)
         self.assertNotIn("removed successfully", res[0].deletionreport)
 
-        res = B.save_object('workunit', {'id': workunitid, 'status': 'available'})
 
+        logging.info(f"trying to delete submitter externaljob {externaljobid_submitter} [expect to fail].")
         res = B.delete_object('externaljob', externaljobid_submitter)
         msg = "should fail"
         self.assertNotIn("removed successfully", res[0].deletionreport)
+
+        logging.info(f"trying to delete workunit {workunitid}.")
+        res = B.delete_object('workunit', workunitid)
+        self.assertIn("removed successfully", res[0].deletionreport)
+
+        logging.info(f"trying to delete submitter executable {executableid} [expect to fail].")
+        res = B.delete_object('executable', executableid)
+        self.assertNotIn("removed successfully", res[0].deletionreport)
+
+        logging.info(f"trying to delete wrapper creator externaljob {externaljobid_wc} [expect to fail].")
+        res = B.delete_object('externaljob', externaljobid_wc)
+        self.assertNotIn("removed successfully", res[0].deletionreport)
+
+        logging.info(f"trying to delete application {applicationid}.")
+        res = B.delete_object('application', applicationid)
+        self.assertIn("removed successfully", res[0].deletionreport)
 
 
 if __name__ == '__main__':
