@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import Any, Union
+from typing import Any, Union, List
 from suds.sax.text import Text
 from suds.sudsobject import asdict
 
@@ -40,7 +40,7 @@ def convert_suds_type(item: Any) -> Union[int, str]:
     return item
 
 
-def suds_to_json(data, convert_types: bool = False):
+def suds_to_json(data, convert_types: bool = False) -> Union[OrderedDict, List[OrderedDict]]:
     if type(data) == list:
         return [_recursive_asdict(d, convert_types) for d in data]
     return _recursive_asdict(data, convert_types)
