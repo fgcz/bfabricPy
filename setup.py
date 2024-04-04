@@ -6,18 +6,13 @@ The code contains classes for wrapper_creator and submitter.
 
 Ensure that this file is available on the bfabric exec host.
 
-Copyright (C) 2014-2023 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
+Copyright (C) 2014-2024 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 
 Authors:
     Christian Panse <cp@fgcz.ethz.ch>
     Maria d'Errico <maria.derrico@fgcz.ethz.ch>
 
 Licensed under  GPL version 3
-
-$Id: setup.py 2997M 2017-08-21 13:04:42Z (local) $
-$HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/setup.py $
-$Date: 2017-08-21 15:04:42 +0200 (Mon, 21 Aug 2017) $
-$Revision: 2627 $
 
 """
 
@@ -42,7 +37,7 @@ B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper
       author_email = 'cp@fgcz.ethz.ch',
       license = 'GPLv3 / apache 2.0',
       packages = ['bfabric'],
-      python_requires = ">=3.7",
+      python_requires = ">=3.9",
       install_requires = INSTALL_REQUIRES,
       scripts = [
         'bfabric/scripts/bfabric_flask.py',
@@ -70,3 +65,4 @@ B-Fabric Appliaction Interface using WSDL. The code contains classes for wrapper
         'bfabric/scripts/bfabric_save_workflowstep.py'
         ],
       zip_safe=True)
+
