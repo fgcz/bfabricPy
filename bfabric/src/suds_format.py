@@ -4,7 +4,7 @@ from suds.sax.text import Text
 from suds.sudsobject import asdict
 
 
-def _recursive_asdict(d, convert_types: bool) -> OrderedDict:
+def _recursive_asdict(d, convert_types: bool) -> dict:
     """Convert Suds object into serializable format.
     https://stackoverflow.com/a/15678861
     :param d: The input suds object
@@ -24,7 +24,8 @@ def _recursive_asdict(d, convert_types: bool) -> OrderedDict:
                     out[k].append(convert_suds_type(item) if convert_types else item)
         else:
             out[k] = convert_suds_type(v) if convert_types else v
-    return OrderedDict(out)
+    # return OrderedDict(out)
+    return out
 
 
 def convert_suds_type(item: Any) -> Union[int, str]:
@@ -40,7 +41,7 @@ def convert_suds_type(item: Any) -> Union[int, str]:
     return item
 
 
-def suds_to_json(data, convert_types: bool = False) -> Union[OrderedDict, List[OrderedDict]]:
+def suds_to_json(data, convert_types: bool = False) -> Union[dict, List[dict]]:
     if type(data) == list:
         return [_recursive_asdict(d, convert_types) for d in data]
     return _recursive_asdict(data, convert_types)
