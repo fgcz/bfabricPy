@@ -75,19 +75,22 @@ class Bfabric(object):
         else:
             raise ValueError("Unexpected engine", BFABRIC_API_ENGINE)
 
-    def read(self, endpoint: str, obj: dict, page: int = 1, plain: bool = False, **kwargs) -> ResultContainer:
+    # TODO: Perform pagination. Return inner values, i.e. val[endpoint].
+    def read(self, endpoint: str, obj: dict, page: int = 1, **kwargs) -> ResultContainer:
         results = self.engine.read(endpoint, obj, page = page, **kwargs)
         return ResultContainer(results, self.resultType)
 
-
+    # TODO: Perform pagination. Return inner values, i.e. val[endpoint].
     def readid(self, endpoint: str, obj: dict, page: int = 1, plain: bool = False, **kwargs) -> ResultContainer:
         results = self.engine.readid(endpoint, obj, page=page, **kwargs)
         return ResultContainer(results, self.resultType)
 
+    # TODO: Perform pagination. Return inner values, i.e. val[endpoint].
     def save(self, endpoint: str, obj: dict, **kwargs) -> ResultContainer:
         results = self.engine.save(endpoint, obj, **kwargs)
         return ResultContainer(results, self.resultType)
 
+    # TODO: Perform pagination. Return inner values, i.e. val[endpoint].
     def delete(self, endpoint: str, id: Union[List, int]) -> ResultContainer:
         results = self.engine.delete(endpoint, id)
         return ResultContainer(results, self.resultType)

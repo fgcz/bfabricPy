@@ -1,5 +1,7 @@
-
 from enum import Enum
+
+from bfabric.src.suds_format import suds_asdict_recursive
+
 
 class BFABRIC_RESULT_TYPE(Enum):
     LISTDICT = 1
@@ -17,7 +19,7 @@ class ResultContainer:
             case BFABRIC_RESULT_TYPE.LISTDICT:
                 return self.results
             case BFABRIC_RESULT_TYPE.LISTSUDS:
-                return self.results   # TODO: Implement me
+                return [suds_asdict_recursive(v) for v in self.results]
             case BFABRIC_RESULT_TYPE.LISTZEEP:
                 return self.results   # TODO: Implement me
             case _:
