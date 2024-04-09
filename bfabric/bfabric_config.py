@@ -24,7 +24,7 @@ class BfabricAuth:
 
 @dataclasses.dataclass(frozen=True)
 class BfabricConfig:
-    """Holds the configuration for the B-Fabric client, and provides methods to load the configuration from a file.
+    """Holds the configuration for the B-Fabric client for connecting to particular instance of B-Fabric.
 
     Attributes:
         base_url (optional): The API base url
