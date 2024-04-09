@@ -19,7 +19,7 @@ For more advanced users the *bfabricPy* package also provides a powerful query i
 
 - install current stable Debian Linux release (any current BSD like or Microsoft OS will do)
 
-- install the python3 package as follow:
+- install the python3 package as follows:
 
 ```{bash}
 git clone git@github.com:fgcz/bfabricPy.git  \
@@ -29,7 +29,7 @@ git clone git@github.com:fgcz/bfabricPy.git  \
 ## Install
 
 ```{bash}
-python3 setup.py sdist && pip3 install dist/bfabric-0.13.*.tar.gz --user
+python3 setup.py install --user
 ```
 
 ## Configuration
