@@ -30,7 +30,7 @@ def list_dict_to_df(l: List[Dict]) -> pd.DataFrame:
     * Columns are a union of all keys that appear in the dictionaries. Any missing key is treated as a NAN
     * All non-basic data types are converted to strings
     """
-    return pd.concat([pd.DataFrame(_stringify_dict(r), index=[0]) for r in l])
+    return pd.DataFrame([_stringify_dict(r) for r in l])
 
 
 if __name__ == "__main__":
