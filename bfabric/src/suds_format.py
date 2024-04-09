@@ -12,7 +12,7 @@ def convert_suds_type(item: Any) -> Union[int, str]:
     :param item: The suds item
     :return: The item as a built-in python type
     """
-    if type(item) == Text:
+    if isinstance(item, Text):
         return str(item)
     return item
 
