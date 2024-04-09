@@ -45,9 +45,9 @@ from typing import Union, List
 
 from bfabric.src.engine_suds import EngineSUDS
 from bfabric.src.engine_zeep import EngineZeep
-from bfabric.src.result_container import ResultContainer, BFABRIC_RESULT_TYPE
+from bfabric.src.result_container import ResultContainer, BfabricResultType
 
-class BFABRIC_API_ENGINE(Enum):
+class BfabricAPIEngine(Enum):
     SUDS = 1
     ZEEP = 2
 
@@ -60,20 +60,20 @@ class Bfabric(object):
     Implements read and save object methods for B-Fabric wsdl interface
     """
 
-    def __init__(self, authClass, configClass, engine: BFABRIC_API_ENGINE = BFABRIC_API_ENGINE.SUDS,
+    def __init__(self, auth_class, config_class, engine: BfabricAPIEngine = BfabricAPIEngine.SUDS,
                  verbose: bool = False):
 
         self.verbose = verbose
         self.query_counter = 0
 
-        if engine == BFABRIC_API_ENGINE.SUDS:
-            self.engine = EngineSUDS(authClass.login(), authClass.password(), configClass.webbase())
-            self.resultType = BFABRIC_RESULT_TYPE.LISTSUDS
-        elif engine == BFABRIC_API_ENGINE.ZEEP:
-            self.engine = EngineZeep(authClass.login(), authClass.password(), configClass.webbase())
-            self.resultType = BFABRIC_RESULT_TYPE.LISTZEEP
+        if engine == BfabricAPIEngine.SUDS:
+            self.engine = EngineSUDS(auth_class.login(), auth_class.password(), config_class.webbase())
+            self.resultType = BfabricResultType.LISTSUDS
+        elif engine == BfabricAPIEngine.ZEEP:
+            self.engine = EngineZeep(auth_class.login(), auth_class.password(), config_class.webbase())
+            self.resultType = BfabricResultType.LISTZEEP
         else:
-            raise ValueError("Unexpected engine", BFABRIC_API_ENGINE)
+            raise ValueError("Unexpected engine", BfabricAPIEngine)
 
     # TODO: Perform pagination. Return inner values, i.e. val[endpoint].
     def read(self, endpoint: str, obj: dict, page: int = 1, **kwargs) -> ResultContainer:

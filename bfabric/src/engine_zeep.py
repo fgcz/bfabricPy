@@ -53,12 +53,12 @@ class EngineZeep(object):
     def readid(self, endpoint: str, obj: dict, page: int = 1, includedeletableupdateable: bool = True):
         raise NotImplementedError("Attempted to use a method `readid` of Zeep, which does not exist")
 
-    def save(self, endpoint: str, obj: dict, skippedKeys: list = None):
+    def save(self, endpoint: str, obj: dict, skipped_keys: list = None):
         query = {'login': self.login, 'password': self.password, endpoint: obj}
 
         # If necessary, add skipped keys to the query
-        if skippedKeys is not None:
-            query = _zeep_query_append_skipped(query, skippedKeys)
+        if skipped_keys is not None:
+            query = _zeep_query_append_skipped(query, skipped_keys)
 
         client = self._get_client(endpoint)
         with client.settings(strict=False):

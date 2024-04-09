@@ -10,17 +10,17 @@ class BfabricResultType(Enum):
 
 
 class ResultContainer:
-    def __init__(self, results: list, resultType: BFABRIC_RESULT_TYPE):
+    def __init__(self, results: list, resultType: BfabricResultType):
         self.results = results
         self.resultType = resultType
 
     def to_dict(self):
         match self.resultType:
-            case BFABRIC_RESULT_TYPE.LISTDICT:
+            case BfabricResultType.LISTDICT:
                 return self.results
-            case BFABRIC_RESULT_TYPE.LISTSUDS:
+            case BfabricResultType.LISTSUDS:
                 return [suds_asdict_recursive(v) for v in self.results]
-            case BFABRIC_RESULT_TYPE.LISTZEEP:
+            case BfabricResultType.LISTZEEP:
                 return self.results   # TODO: Implement me
             case _:
                 raise ValueError("Unexpected results type", self.resultType)
