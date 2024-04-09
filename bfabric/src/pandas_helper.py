@@ -41,4 +41,4 @@ if __name__ == "__main__":
         {'cat': 1, 'dog': 2, 'mouse': 7},
     ]
 
-    print(list_dict_to_df(exampleLstDict))
+    print(list_dict_to_df(example_list_dict))
