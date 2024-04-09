@@ -26,7 +26,7 @@ import json
 import sys
 from pprint import pprint
 
-from bfabric.bfabric_config import BfabricConfig
+from bfabric.bfabric_config import BfabricAuth, BfabricConfig, parse_bfabricrc_py
 from suds.client import Client
 from suds.wsdl import Service
 
@@ -104,22 +104,21 @@ class Bfabric(object):
         bfabricrc = bfabricrc or os.path.normpath(os.path.expanduser("~/.bfabricrc.py"))
         if not os.path.isfile(bfabricrc):
             self.warning("could not find '.bfabricrc.py' file in home directory.")
-            self.config = BfabricConfig(login=login, password=password, base_url=webbase)
+            self.config = BfabricConfig(base_url=webbase)
+            self.auth = BfabricAuth(login=login, password=password)
         else:
             with open(bfabricrc, "r", encoding="utf-8") as file:
-                self.config = BfabricConfig.read_bfabricrc_py(file).with_overrides(
-                    login=login,
-                    password=password,
-                    base_url=webbase
-                )
+                config, auth = parse_bfabricrc_py(file)
+                self.config = config.with_overrides(base_url=webbase)
+                self.auth = auth if login is None and password is None else BfabricAuth(login=login, password=password)
 
-        if not self.config.login or not self.config.password:
+        if not self.auth.login or not self.auth.password:
             raise ValueError("login or password missing")
 
         if self.verbose:
-            pprint(self.bfabricrc)
+            pprint(self.config)
 
-        msg = f"\033[93m--- webbase {self.config.base_url}; login; {self.config.login} ---\033[0m\n"
+        msg = f"\033[93m--- webbase {self.config.base_url}; login; {self.auth.login} ---\033[0m\n"
         sys.stderr.write(msg)
 
     def read_object(self, endpoint, obj, page=1, plain=False, idonly=False):
@@ -208,7 +207,7 @@ class Bfabric(object):
     ) -> Any:
         """Performs a request to the given endpoint and returns the result."""
         self.query_counter += 1
-        request_params = dict(login=self.config.login, password=self.config.password, **params)
+        request_params = dict(login=self.auth.login, password=self.auth.password, **params)
         service = self._get_service(endpoint=endpoint)
         response = getattr(service, method)(request_params)
         if plain:
@@ -430,7 +429,7 @@ class BfabricSubmitter():
         self.user = user
         self.scheduler = scheduler
 
-        print(self.B.config.login)
+        print(self.B.auth.login)
         print(self.B.externaljobid)
 
         self.workunitid = self.B.get_workunitid_of_externaljob()
