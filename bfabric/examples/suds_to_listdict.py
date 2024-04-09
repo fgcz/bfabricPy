@@ -9,6 +9,6 @@ def read_shallow(b: bfabric.Bfabric, endpoint: str, obj: dict) -> List[dict]:
     return response_dict[endpoint]
 
 b = bfabric.Bfabric()
-resLstDict = read_shallow(b, 'user', {'login': 'fomins'})
+res_list_dict = read_shallow(b, 'user', {'login': 'fomins'})
 
-print(resLstDict)
+print(res_list_dict)
