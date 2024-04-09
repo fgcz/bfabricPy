@@ -34,7 +34,7 @@ def list_dict_to_df(l: List[Dict]) -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    exampleLstDict = [
+    example_list_dict = [
         {'cat': 1, 'dog': 2},
         {'cat': 3, 'mouse': ["a", "b"]},
         {'mouse': 5},
