@@ -213,6 +213,8 @@ class Bfabric(object):
         response = getattr(service, method)(request_params)
         if plain:
             return response
+        elif getattr(response, "entitiesonpage", None) == 0:
+            return []
         return getattr(response, endpoint)
 
     @staticmethod
