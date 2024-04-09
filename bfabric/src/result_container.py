@@ -3,7 +3,7 @@ from enum import Enum
 from bfabric.src.suds_format import suds_asdict_recursive
 
 
-class BFABRIC_RESULT_TYPE(Enum):
+class BfabricResultType(Enum):
     LISTDICT = 1
     LISTSUDS = 2
     LISTZEEP = 3
