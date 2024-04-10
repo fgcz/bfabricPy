@@ -38,7 +38,7 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         logging.info("Running functional test on bfabricPy")
 
         msg = "This test case requires user 'pfeeder'."
-        self.assertEqual(B.config.login, 'pfeeder', msg)
+        self.assertEqual(B.auth.login, 'pfeeder', msg)
 
         msg = "This test case requires a bfabric test system!"
         self.assertIn("bfabric-test", B.config.base_url, msg)

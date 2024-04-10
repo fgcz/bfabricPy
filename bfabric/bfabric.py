@@ -19,25 +19,21 @@ Authors:
 History
     The python3 library first appeared in 2014.
 """
+from typing import Dict, Any
 
 import yaml
 import json
 import sys
 from pprint import pprint
 
-from bfabric.bfabric_config import BfabricConfig
-
-try:
-    from suds.client import Client
-    from suds.client import WebFault
-except:
-    raise
+from bfabric.bfabric_config import BfabricAuth, BfabricConfig, parse_bfabricrc_py
+from suds.client import Client
+from suds.wsdl import Service
 
 import hashlib
 import os
 import base64
 import datetime
-
 import logging.config
 
 logging.config.dictConfig({
@@ -79,7 +75,7 @@ else:
 
 class bfabricEncoder(json.JSONEncoder):
     """
-    Implements json encoder for the Bfabric.print_json method  
+    Implements json encoder for the Bfabric.print_json method
     """
     def default(self, o):
         try:
@@ -108,190 +104,89 @@ class Bfabric(object):
         bfabricrc = bfabricrc or os.path.normpath(os.path.expanduser("~/.bfabricrc.py"))
         if not os.path.isfile(bfabricrc):
             self.warning("could not find '.bfabricrc.py' file in home directory.")
-            self.config = BfabricConfig(login=login, password=password, base_url=webbase)
+            self.config = BfabricConfig(base_url=webbase)
+            self.auth = BfabricAuth(login=login, password=password)
         else:
             with open(bfabricrc, "r", encoding="utf-8") as file:
-                self.config = BfabricConfig.read_bfabricrc_py(file).with_overrides(
-                    login=login,
-                    password=password,
-                    base_url=webbase
-                )
+                config, auth = parse_bfabricrc_py(file)
+                self.config = config.with_overrides(base_url=webbase)
+                self.auth = auth if login is None and password is None else BfabricAuth(login=login, password=password)
 
-        if not self.config.login or not self.config.password:
+        if not self.auth.login or not self.auth.password:
             raise ValueError("login or password missing")
 
         if self.verbose:
-            pprint(self.bfabricrc)
+            pprint(self.config)
 
-        msg = f"\033[93m--- webbase {self.config.base_url}; login; {self.config.login} ---\033[0m\n"
+        msg = f"\033[93m--- webbase {self.config.base_url}; login; {self.auth.login} ---\033[0m\n"
         sys.stderr.write(msg)
 
-    def read_object(self, endpoint, obj, login=None, password=None, page=1, plain=False, idonly=False):
+    def read_object(self, endpoint, obj, page=1, plain=False, idonly=False):
         """
         A generic method which can connect to any endpoint, e.g., workunit, project, order,
         externaljob, etc, and returns the object with the requested id.
-        obj is a python dictionary which contains all the attributes of the endpoint 
+        obj is a python dictionary which contains all the attributes of the endpoint
         for the "query".
         """
-        if login is None:
-            login = self.config.login
+        return self._perform_request(
+            endpoint=endpoint,
+            method="read",
+            plain=plain,
+            params=dict(query=obj, idonly=idonly, page=page)
+        )
 
-        if password is None:
-            password = self.config.password
-
-        if len(login) >= 32:
-            raise ValueError("Sorry, login >= 32 characters.") 
-
-        if len(password) != 32:
-            raise ValueError("Sorry, password != 32 characters.") 
-
-        self.query_counter = self.query_counter + 1
-        QUERY = dict(login=login, page=page, password=password, query=obj, idonly=idonly)
-        
-
-        try:
-            if not endpoint in self.cl:
-                self.cl[endpoint] = Client("".join((self.config.base_url, '/', endpoint, "?wsdl")), cache=None)
-        except Exception as e:
-            print (e)
-            raise
-
-        rv = self.cl[endpoint].service.read(QUERY)
-        if plain:
-            return (rv)
-        else:
-            pass
-
-        try:
-            QUERYRES = getattr(rv, endpoint)
-        except AttributeError:
-            print(rv)
-            raise
-
-        if self.verbose:
-            pprint (QUERYRES)
-
-        return QUERYRES
-
-    def readid_object(self, endpoint, obj, login=None, password=None, page=1, plain=False):
+    def readid_object(self, endpoint, obj, page=1, plain=False):
         """
         A generic method which can connect to any endpoint, e.g., workunit, project, order,
         externaljob, etc, and returns the object with the requested id.
         obj is a python dictionary which contains only the id of the endpoint for the "query".
         """
-        if login is None:
-            login = self.config.login
-
-        if password is None:
-            password = self.config.password
-
-        if len(login) >= 32:
-            raise ValueError("Sorry, login >= 32 characters.")
-
-        if len(password) != 32:
-            raise ValueError("Sorry, password != 32 characters.")
-
-        self.query_counter = self.query_counter + 1
-        QUERY = dict(login=login, page=page, password=password, query=obj)
-
-        try:
-            if not endpoint in self.cl:
-                self.cl[endpoint] = Client("".join((self.config.base_url, '/', endpoint, "?wsdl")), cache=None)
-        except Exception as e:
-            print (e)
-            raise
-
-        rv = self.cl[endpoint].service.readid(QUERY)
-        if plain:
-            return (rv)
-        else:
-            pass
-
-        try:
-            QUERYRES = getattr(rv, endpoint)
-        except AttributeError:
-            print(rv)
-            raise
-        if self.verbose:
-            pprint (QUERYRES)
-
-        return QUERYRES
+        return self._perform_request(
+            endpoint=endpoint,
+            method="readid",
+            plain=plain,
+            params=dict(query=obj, page=page)
+        )
 
     def save_object(self, endpoint, obj, debug=None):
         """
         same as read_object above but uses the save method.
         """
-        self.query_counter = self.query_counter + 1
-        QUERY = dict(login=self.config.login, password=self.config.password)
-        QUERY[endpoint] = obj
+        return self._perform_request(
+            endpoint=endpoint,
+            method="save",
+            plain=debug is not None,
+            params={endpoint: obj}
+        )
 
-        try:
-            if not endpoint in self.cl:
-                self.cl[endpoint] = Client("".join((self.config.base_url, '/', endpoint, "?wsdl")), cache=None)
-        except:
-            raise
-
-        rv = self.cl[endpoint].service.save(QUERY)
-        try:
-            if debug is not None:
-                return rv
-            return getattr(rv, endpoint)
-        except AttributeError:
-            print(rv)
-            raise
-    
     def checkandinsert_object(self, endpoint, obj, debug=None):
         """
-        wsdl method to check iff dependencies are fullfield
+        wsdl method to check iff dependencies are fulfilled
         """
-
-        self.query_counter = self.query_counter + 1
-        QUERY = dict(login=self.config.login, password=self.config.password)
-        QUERY[endpoint] = obj
-
-        try:
-            if not endpoint in self.cl:
-                self.cl[endpoint] = Client("".join((self.config.base_url, '/', endpoint, "?wsdl")), cache=None)
-        except:
-            raise
-
-
-        rv = self.cl[endpoint].service.save(QUERY)
-        try:
-            if debug is not None:
-                return rv
-            return getattr(rv, endpoint)
-        except AttributeError:
-            print(rv)
-            raise
+        # TODO This method was changed a while ago to use the "save"endpoint, which makes it functionally identical
+        #      to the save_object method. Check if this was intended.
+        return self._perform_request(
+            endpoint=endpoint,
+            method="save",
+            plain=debug is not None,
+            params={endpoint: obj}
+        )
 
     def delete_object(self, endpoint, id=None, debug=None):
         """
         same as read_object above but uses the delete method.
         """
-
-        self.query_counter = self.query_counter + 1
-        QUERY = dict(login=self.config.login, password=self.config.password, id=id)
-
-        try:
-            if not endpoint in self.cl:
-                self.cl[endpoint] = Client("".join((self.config.base_url, '/', endpoint, "?wsdl")), cache=None)
-        except:
-            raise
-
-        rv = self.cl[endpoint].service.delete(QUERY)
-        try:
-            if debug is not None:
-                return rv
-            return getattr(rv, endpoint)
-        except AttributeError:
-            print(rv)
-            raise
+        return self._perform_request(
+            endpoint=endpoint,
+            method="delete",
+            plain=debug is not None,
+            params=dict(id=id)
+        )
 
     def upload_file(self, filename, workunitid):
         with open(filename, 'rb') as f:
             content = f.read()
-        
+
         resource_base64 = base64.b64encode(content).decode()
 
         res = self.save_object('resource', {'base64': resource_base64,
@@ -300,7 +195,27 @@ class Bfabric(object):
             'workunitid': workunitid})
 
         return res
-        
+
+    def _get_service(self, endpoint: str) -> Service:
+        """Returns a `suds.client.Service` object for the given endpoint name."""
+        if endpoint not in self.cl:
+            self.cl[endpoint] = Client(f"{self.config.base_url}/{endpoint}?wsdl", cache=None)
+        return self.cl[endpoint].service
+
+    def _perform_request(
+        self, endpoint: str, method: str, plain: bool, params: Dict[str, Any]
+    ) -> Any:
+        """Performs a request to the given endpoint and returns the result."""
+        self.query_counter += 1
+        request_params = dict(login=self.auth.login, password=self.auth.password, **params)
+        service = self._get_service(endpoint=endpoint)
+        response = getattr(service, method)(request_params)
+        if plain:
+            return response
+        elif getattr(response, "entitiesonpage", None) == 0:
+            return []
+        return getattr(response, endpoint)
+
     @staticmethod
     def print_json(queryres=None):
         """
@@ -309,7 +224,7 @@ class Bfabric(object):
         Parameter
         ---------
 
-        queryres : the object returned by ``read_object`` method.  
+        queryres : the object returned by ``read_object`` method.
         """
         if queryres is None:
             raise TypeError("print_json() missing 1 required positional argument: please provide the output from read_object as parameter to print_json")
@@ -325,12 +240,12 @@ class Bfabric(object):
         Parameter
         ---------
 
-        queryres : the object returned by ``read_object`` method.  
+        queryres : the object returned by ``read_object`` method.
         """
         if queryres is None:
             raise TypeError("print_yaml() missing 1 required positional argument: please provide the output from read_object as parameter to print_yaml")
 
-        res_json = json.dumps(queryres, cls=bfabricEncoder, sort_keys=True)  
+        res_json = json.dumps(queryres, cls=bfabricEncoder, sort_keys=True)
         res = yaml.dump(res_json, default_flow_style=False, encoding=None, default_style=None)
         print(res)
 
@@ -359,16 +274,16 @@ class Bfabric(object):
             return (None)
 
 class BfabricFeeder(Bfabric):
-    """ 
-        this class is used for reporting 'resource' status 
+    """
+        this class is used for reporting 'resource' status
     """
 
     def report_resource(self, resourceid):
         """
-        this function determines the 'md5 checksum', 'the file size', 
+        this function determines the 'md5 checksum', 'the file size',
         and set the status of the resource available.
 
-        this is gonna executed on the storage host 
+        this is gonna executed on the storage host
 
         """
         res = self.read_object('resource', {'id': resourceid})[0]
@@ -458,13 +373,13 @@ class BfabricExternalJob(Bfabric):
         assert isinstance(workunit._id, int)
         application = self.read_object('application', obj={'id': workunit.application._id})[0]
         return application.name.replace(' ', '_')
-        
+
 
     def get_executable_of_externaljobid(self):
-        """ 
-        It takes as input an `externaljobid` and fetches the the `executables` 
-        out of the bfabric system using wsdl into a file.       
-        returns a list of executables. 
+        """
+        It takes as input an `externaljobid` and fetches the the `executables`
+        out of the bfabric system using wsdl into a file.
+        returns a list of executables.
 
         todo: this function should check if base64 is provided or
         just a program.
@@ -485,20 +400,20 @@ class BfabricSubmitter():
     """
     the class is used by the submitter which is executed by the bfabric system.
     """
-    
+
     (G, B) =  (None, None)
 
     workunitid = None
     workunit = None
     parameters = None
     execfilelist = []
-    slurm_dict = {"MaxQuant_textfiles_sge" : {'partition': "prx", 'nodelist': "fgcz-r-033", 'memory':"1G"}, 
-            "fragpipe" : {'partition': "prx", 'nodelist': "fgcz-r-033", 'memory':"256G"}, 
-            "MaxQuant" : {'partition': "maxquant", 'nodelist': "fgcz-r-033", 'memory':"4G"}, 
-            "scaffold_generic" : {'partition': "scaffold", 'nodelist': "fgcz-r-033", 'memory':"256G"}, 
-            "MSstats dataProcess" : {'partition': "prx", 'nodelist': "fgcz-r-033", 'memory':"64G"}, 
-            "MaxQuant_sampleSizeEstimation" : {'partition': "prx", 'nodelist': "fgcz-r-028", 'memory': "2G"}, 
-            "ProteomeDiscovererQC" : {'partition': "prx", 'nodelist': "fgcz-r-035", 'memory': "2G"} 
+    slurm_dict = {"MaxQuant_textfiles_sge" : {'partition': "prx", 'nodelist': "fgcz-r-033", 'memory':"1G"},
+            "fragpipe" : {'partition': "prx", 'nodelist': "fgcz-r-033", 'memory':"256G"},
+            "MaxQuant" : {'partition': "maxquant", 'nodelist': "fgcz-r-033", 'memory':"4G"},
+            "scaffold_generic" : {'partition': "scaffold", 'nodelist': "fgcz-r-033", 'memory':"256G"},
+            "MSstats dataProcess" : {'partition': "prx", 'nodelist': "fgcz-r-033", 'memory':"64G"},
+            "MaxQuant_sampleSizeEstimation" : {'partition': "prx", 'nodelist': "fgcz-r-028", 'memory': "2G"},
+            "ProteomeDiscovererQC" : {'partition': "prx", 'nodelist': "fgcz-r-035", 'memory': "2G"}
             }
 
     def __init__(self, login=None, password=None, externaljobid=None,
@@ -514,7 +429,7 @@ class BfabricSubmitter():
         self.user = user
         self.scheduler = scheduler
 
-        print(self.B.config.login)
+        print(self.B.auth.login)
         print(self.B.externaljobid)
 
         self.workunitid = self.B.get_workunitid_of_externaljob()
@@ -741,10 +656,10 @@ exit 0
 
             with open(_bash_script_filename, 'w') as f:
                 f.write(_cmd_template)
-            
+
             if self.scheduler=="GridEngine" :
                 self.submit_gridengine(_bash_script_filename)
-            else: 
+            else:
                 self.submit_slurm(_bash_script_filename)
             self.execfilelist.append(_bash_script_filename)
 
@@ -768,7 +683,7 @@ class BfabricWrapperCreator(BfabricExternalJob):
 
     def uploadGridEngineScript(self, para={'INPUTHOST': 'fgcz-r-035.uzh.ch'}):
         """
-        the methode creates and uploads an executebale.  
+        the methode creates and uploads an executebale.
         """
 
         self.warning(
@@ -977,17 +892,17 @@ exit 0
         # The yaml_workunit_externaljob cannot be created without specifying an executableid:
         # a yaml_workunit_executable is thus created before the config definition in order to provide
         # the correct executableid to the yaml_workunit_externaljob.
-        # However this yaml_workunit_executable has to be updated later to include 'base64': base64.b64encode(config_serialized.encode()).decode()  
+        # However this yaml_workunit_executable has to be updated later to include 'base64': base64.b64encode(config_serialized.encode()).decode()
         yaml_workunit_executable = self.save_object('executable', {'name': 'job configuration (executable) in YAML',
                        'context': 'WORKUNIT',
                        'workunitid': workunit._id,
                        'description': "This is a job configuration as YAML base64 encoded. It is configured to be executed by the B-Fabric yaml submitter."})[0]
         print(yaml_workunit_executable)
-        
+
         yaml_workunit_externaljob = self.save_object('externaljob',
-                                                    {"workunitid": workunit._id, 
+                                                    {"workunitid": workunit._id,
                                                     'status': 'new',
-                                                    'executableid' : yaml_workunit_executable._id, 
+                                                    'executableid' : yaml_workunit_executable._id,
                                                     'action': "WORKUNIT"})[0]
         print(yaml_workunit_externaljob)
         assert isinstance(yaml_workunit_externaljob._id, int)
