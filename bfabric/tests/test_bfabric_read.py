@@ -41,6 +41,10 @@ class BfabricTestCaseReadEndPoints(unittest.TestCase):
     def test_project(self):
         self.read("project")
 
+    def test_project_when_not_exists(self):
+        res = self.bfapp.read_object(endpoint="project", obj={"name": "this project does not exist"})
+        self.assertEqual(res, [])
+
     def test_application(self):
         self.read("application")
 
