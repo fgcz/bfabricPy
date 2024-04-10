@@ -1,44 +1,42 @@
 import io
 import unittest
 
-from bfabric.bfabric_config import BfabricConfig
+from bfabric.bfabric_config import BfabricConfig, BfabricAuth, parse_bfabricrc_py
+
+
+class TestBfabricAuth(unittest.TestCase):
+    def test_repr(self):
+        auth = BfabricAuth("login", "password")
+        rep = repr(auth)
+        self.assertEqual("BfabricAuth(login='login', password=...)", rep)
+
+    def test_str(self):
+        auth = BfabricAuth("login", "password")
+        rep = str(auth)
+        self.assertEqual("BfabricAuth(login='login', password=...)", rep)
 
 
 class TestBfabricConfig(unittest.TestCase):
     def setUp(self):
         self.config = BfabricConfig(
-            login="login",
-            password="user",
             base_url="url",
             application_ids={"app": 1},
         )
 
     def test_with_overrides(self):
         new_config = self.config.with_overrides(
-            login="new_login",
-            password="new_user",
             base_url="new_url",
             application_ids={"new": 2},
         )
-        self.assertEqual("new_login", new_config.login)
-        self.assertEqual("new_user", new_config.password)
         self.assertEqual("new_url", new_config.base_url)
         self.assertEqual({"new": 2}, new_config.application_ids)
-        self.assertEqual("login", self.config.login)
-        self.assertEqual("user", self.config.password)
         self.assertEqual("url", self.config.base_url)
         self.assertEqual({"app": 1}, self.config.application_ids)
 
     def test_with_replaced_when_none(self):
-        new_config = self.config.with_overrides(
-            login=None, password=None, base_url=None, application_ids=None
-        )
-        self.assertEqual("login", new_config.login)
-        self.assertEqual("user", new_config.password)
+        new_config = self.config.with_overrides(base_url=None, application_ids=None)
         self.assertEqual("url", new_config.base_url)
         self.assertEqual({"app": 1}, new_config.application_ids)
-        self.assertEqual("login", self.config.login)
-        self.assertEqual("user", self.config.password)
         self.assertEqual("url", self.config.base_url)
         self.assertEqual({"app": 1}, self.config.application_ids)
 
@@ -56,15 +54,15 @@ class TestBfabricConfig(unittest.TestCase):
         file = io.StringIO(input_text)
         setattr(file, "name", "/file")
         with self.assertLogs(level="INFO") as log_context:
-            config = BfabricConfig.read_bfabricrc_py(file)
-        self.assertEqual("login", config.login)
-        self.assertEqual("user", config.password)
+            config, auth = parse_bfabricrc_py(file)
+        self.assertEqual("login", auth.login)
+        self.assertEqual("user", auth.password)
         self.assertEqual("url", config.base_url)
         self.assertEqual({"app": 1}, config.application_ids)
         self.assertEqual("email1 email2", config.job_notification_emails)
         self.assertEqual(
             [
-                "INFO:bfabric.bfabric_config.BfabricConfig:Reading configuration from: /file"
+                "INFO:bfabric.bfabric_config:Reading configuration from: /file"
             ],
             log_context.output,
         )
@@ -74,9 +72,8 @@ class TestBfabricConfig(unittest.TestCase):
         file = io.StringIO(input_text)
         setattr(file, "name", "/file")
         with self.assertLogs(level="INFO"):
-            config = BfabricConfig.read_bfabricrc_py(file)
-        self.assertIsNone(config.login)
-        self.assertIsNone(config.password)
+            config, auth = parse_bfabricrc_py(file)
+        self.assertIsNone(auth)
         self.assertEqual("https://fgcz-bfabric.uzh.ch/bfabric", config.base_url)
         self.assertEqual({}, config.application_ids)
         self.assertEqual("", config.job_notification_emails)
@@ -84,8 +81,14 @@ class TestBfabricConfig(unittest.TestCase):
     def test_repr(self):
         rep = repr(self.config)
         self.assertEqual(
-            "BfabricConfig(login='login', password=..., base_url='url', application_ids={'app': 1}, "
-            "job_notification_emails='')",
+            "BfabricConfig(base_url='url', application_ids={'app': 1}, job_notification_emails='')",
+            rep,
+        )
+
+    def test_str(self):
+        rep = str(self.config)
+        self.assertEqual(
+            "BfabricConfig(base_url='url', application_ids={'app': 1}, job_notification_emails='')",
             rep,
         )
 
