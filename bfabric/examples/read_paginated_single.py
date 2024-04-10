@@ -1,8 +1,8 @@
-from bfabric import bfabric
-from bfabric.src.paginator import read
+from bfabric.bfabric2 import Bfabric, BfabricAPIEngineType
 
-b = bfabric.Bfabric()
+b = Bfabric(engine=BfabricAPIEngineType.SUDS)
 
-responseLst = read(b, 'run', query={})
+responseClass = b.read('run', {}, max_results=None)
+responseDict = responseClass.to_dict()
 
-print(len(responseLst))
+print(len(responseDict))
