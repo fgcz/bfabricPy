@@ -23,23 +23,7 @@ History
     The python3 library first appeared in 2014.
 """
 
-
-
-# TODO: Move login checks to Auth
-# if login is None:
-#     login = self.config.login
-#
-# if password is None:
-#     password = self.config.password
-#
-# if len(login) >= 32:
-#     raise ValueError("Sorry, login >= 32 characters.")
-#
-# if len(password) != 32:
-#     raise ValueError("Sorry, password != 32 characters.")
-
-
-
+import os
 from enum import Enum
 from copy import deepcopy
 from typing import Union, List, Optional
@@ -48,6 +32,7 @@ from bfabric.src.math_helper import div_int_ceil
 from bfabric.src.engine_suds import EngineSUDS
 from bfabric.src.engine_zeep import EngineZeep
 from bfabric.src.result_container import ResultContainer, BfabricResultType
+from bfabric.bfabric_config import BfabricAuth, BfabricConfig, parse_bfabricrc_py
 
 class BfabricAPIEngineType(Enum):
     SUDS = 1
@@ -55,6 +40,17 @@ class BfabricAPIEngineType(Enum):
 
 # Single page query limit for BFabric API (as of time of writing, adapt if it changes)
 BFABRIC_QUERY_LIMIT = 100
+
+
+def get_system_auth():
+    path_bfabricrc = os.path.normpath(os.path.expanduser("~/.bfabricrc.py"))
+    if not os.path.isfile(path_bfabricrc):
+        raise IOError("Config file not found:", path_bfabricrc)
+
+    with open(path_bfabricrc, "r", encoding="utf-8") as file:
+        config, auth = parse_bfabricrc_py(file)
+
+    return config, auth
 
 
 # TODO: What does idonly do for SUDS? Does it make sense for Zeep?
@@ -65,23 +61,24 @@ class Bfabric(object):
     Implements read and save object methods for B-Fabric wsdl interface
     """
 
-    def __init__(self, auth_class, config_class, engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS,
-                 verbose: bool = False):
+    def __init__(self, config: BfabricConfig, auth: BfabricAuth,
+                 engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS, verbose: bool = False):
 
         self.verbose = verbose
         self.query_counter = 0
 
         if engine == BfabricAPIEngineType.SUDS:
-            self.engine = EngineSUDS(auth_class.login(), auth_class.password(), config_class.webbase())
+            self.engine = EngineSUDS(auth.login, auth.password, config.base_url)
             self.result_type = BfabricResultType.LISTSUDS
         elif engine == BfabricAPIEngineType.ZEEP:
-            self.engine = EngineZeep(auth_class.login(), auth_class.password(), config_class.webbase())
+            self.engine = EngineZeep(auth.login, auth.password, config.base_url)
             self.result_type = BfabricResultType.LISTZEEP
         else:
             raise ValueError("Unexpected engine", BfabricAPIEngineType)
 
     def _read_method(self, readid: bool, endpoint: str, obj: dict, page: int = 1, **kwargs):
         if readid:
+            # https://fgcz-bfabric.uzh.ch/wiki/tiki-index.php?page=endpoint.workunit#Web_Method_readid_
             return self.engine.readid(endpoint, obj, page=page, **kwargs)
         else:
             return self.engine.read(endpoint, obj, page=page, **kwargs)

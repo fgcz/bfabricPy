@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from enum import Enum
 from bfabric.src.suds_format import suds_asdict_recursive
+from zeep.helpers import serialize_object
 
 
 class BfabricResultType(Enum):
@@ -28,6 +29,18 @@ class ResultContainer:
         self.result_type = result_type
         self.total_pages_api = total_pages_api
 
+    def __getitem__(self, idx: int):
+        return self.results[idx]
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return str(self.to_list_dict())
+
+    def __len__(self):
+        return len(self.results)
+
     def append(self, other: ResultContainer) -> None:
         """
         Can merge results of two queries. This can happen if the engine splits a complicated query in two
@@ -47,13 +60,13 @@ class ResultContainer:
     def total_pages_api(self):
         return self.total_pages_api
 
-    def to_dict(self):
+    def to_list_dict(self):
         match self.result_type:
             case BfabricResultType.LISTDICT:
                 return self.results
             case BfabricResultType.LISTSUDS:
                 return [suds_asdict_recursive(v) for v in self.results]
             case BfabricResultType.LISTZEEP:
-                return self.results   # TODO: Implement me
+                return [dict(serialize_object(v)) for v in self.results]
             case _:
                 raise ValueError("Unexpected results type", self.result_type)

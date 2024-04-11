@@ -34,7 +34,7 @@ class EngineZeep(object):
             if not endpoint in self.cl:
                 wsdl = "".join((self.webbase, '/', endpoint, "?wsdl"))
                 self.cl[endpoint] = zeep.Client(wsdl)
-                return self.cl[endpoint]
+            return self.cl[endpoint]
         except Exception as e:
             print(e)
             raise
@@ -44,11 +44,11 @@ class EngineZeep(object):
         if includedeletableupdateable:
             query['includedeletableupdateable'] = True
 
-        query = dict(login=self.login, page=page, password=self.password, query=query)
+        fullQuery = dict(login=self.login, page=page, password=self.password, query=query)
 
         client = self._get_client(endpoint)
         with client.settings(strict=False):
-            return client.service.read(query)
+            return client.service.read(fullQuery)
 
     def readid(self, endpoint: str, obj: dict, page: int = 1, includedeletableupdateable: bool = True):
         raise NotImplementedError("Attempted to use a method `readid` of Zeep, which does not exist")

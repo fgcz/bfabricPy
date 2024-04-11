@@ -17,7 +17,7 @@ class EngineSUDS(object):
             if not endpoint in self.cl:
                 wsdl = "".join((self.webbase, '/', endpoint, "?wsdl"))
                 self.cl[endpoint] = Client(wsdl, cache=None)
-                return self.cl[endpoint]
+            return self.cl[endpoint]
         except Exception as e:
             print(e)
             raise
