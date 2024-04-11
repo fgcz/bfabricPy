@@ -62,16 +62,6 @@ logging.config.dictConfig({
 import bfabric.gridengine as gridengine
 import bfabric.slurm as slurm
 
-if (sys.version_info > (3, 0)):
-    import http.client
-    http.client.HTTPConnection._http_vsn = 10
-    http.client.HTTPConnection._http_vsn_str = 'HTTP/1.0'
-    pass
-else:
-    import httplib
-    httplib.HTTPConnection._http_vsn = 10
-    httplib.HTTPConnection._http_vsn_str = 'HTTP/1.0'
-
 
 class bfabricEncoder(json.JSONEncoder):
     """
