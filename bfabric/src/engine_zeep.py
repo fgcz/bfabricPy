@@ -5,17 +5,17 @@ import copy
 
 
 # TODO: Check if this is a bug of BFabric or Zeep. Specifically, see if the same call to bFabricPy has the same bug
-def _zeep_query_append_skipped(query: dict, skippedKeys: list) -> dict:
+def _zeep_query_append_skipped(query: dict, skipped_keys: list) -> dict:
     """
     This function is used to fix a buggy behaviour of Zeep/BFabric. Specifically, Zeep does not return correct
     query results if some of the optional parameters are not mentioned in the query.
 
     :param query:         Original query
-    :param skippedKeys:   Optional keys to skip
+    :param skipped_keys:   Optional keys to skip
     :return:              Adds optional keys to query as skipped values.
     """
     queryThis = query.copy()
-    for key in skippedKeys:
+    for key in skipped_keys:
         queryThis[key] = zeep.xsd.SkipValue
     return queryThis
 
@@ -39,16 +39,16 @@ class EngineZeep(object):
             print(e)
             raise
 
-    def read(self, endpoint: str, obj: dict, page: int = 1, includedeletableupdateable: bool = True):
+    def read(self, endpoint: str, obj: dict, page: int = 1, idonly: bool = False,
+             includedeletableupdateable: bool = False):
         query = copy.deepcopy(obj)
-        if includedeletableupdateable:
-            query['includedeletableupdateable'] = True
+        query['includedeletableupdateable'] = includedeletableupdateable
 
-        fullQuery = dict(login=self.login, page=page, password=self.password, query=query)
+        full_query = dict(login=self.login, page=page, password=self.password, query=query, idonly=idonly)
 
         client = self._get_client(endpoint)
         with client.settings(strict=False):
-            return client.service.read(fullQuery)
+            return client.service.read(full_query)
 
     def readid(self, endpoint: str, obj: dict, page: int = 1, includedeletableupdateable: bool = True):
         raise NotImplementedError("Attempted to use a method `readid` of Zeep, which does not exist")

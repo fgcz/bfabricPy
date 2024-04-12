@@ -50,13 +50,13 @@ logging.config.dictConfig({
             'formatter': 'verbose',
         },
     },
-    'loggers': {
-        'zeep.transports': {
-            'level': 'DEBUG',
-            'propagate': True,
-            'handlers': ['console'],
-        },
-    }
+    # 'loggers': {
+    #     'zeep.transports': {
+    #         'level': 'DEBUG',
+    #         'propagate': True,
+    #         'handlers': ['console'],
+    #     },
+    # }
 })
 
 import bfabric.gridengine as gridengine

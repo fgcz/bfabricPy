@@ -65,7 +65,7 @@ class ResultContainer:
             case BfabricResultType.LISTDICT:
                 return self.results
             case BfabricResultType.LISTSUDS:
-                return [suds_asdict_recursive(v) for v in self.results]
+                return [suds_asdict_recursive(v, convert_types=True) for v in self.results]
             case BfabricResultType.LISTZEEP:
                 return [dict(serialize_object(v)) for v in self.results]
             case _:
