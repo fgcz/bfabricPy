@@ -32,14 +32,12 @@ from bfabric.src.math_helper import div_int_ceil
 from bfabric.src.engine_suds import EngineSUDS
 from bfabric.src.engine_zeep import EngineZeep
 from bfabric.src.result_container import ResultContainer, BfabricResultType
+from bfabric.src.paginator import page_iter, BFABRIC_QUERY_LIMIT
 from bfabric.bfabric_config import BfabricAuth, BfabricConfig, parse_bfabricrc_py
 
 class BfabricAPIEngineType(Enum):
     SUDS = 1
     ZEEP = 2
-
-# Single page query limit for BFabric API (as of time of writing, adapt if it changes)
-BFABRIC_QUERY_LIMIT = 100
 
 
 def get_system_auth():
@@ -156,9 +154,9 @@ class Bfabric(object):
         response_tot = ResultContainer([], self.result_type, total_pages_api = 0)
         obj_exteded = deepcopy(obj)  # Make a copy of the query, not to make edits to the argument
 
-        for i in range(0, len(multi_query_vals), BFABRIC_QUERY_LIMIT):
-            # Limit the multi-query parameter to an acceptable chunk size
-            obj_exteded[multi_query_key] = multi_query_vals[i:i + BFABRIC_QUERY_LIMIT]
+        # Iterate over request chunks that fit into a single API page
+        for page_vals in page_iter(multi_query_vals):
+            obj_exteded[multi_query_key] = page_vals
 
             # TODO: Test what happens if there are multiple responses to each of the individual queries.
             #     * What would happen?
@@ -173,14 +171,12 @@ class Bfabric(object):
         return response_tot
 
     def save_multi(self, endpoint: str, obj_lst: list, **kwargs) -> ResultContainer:
-        # We must account for the possibility that the number of query values exceeds the BFabric maximum,
-        # so we must split it into smaller chunks
-
         response_tot = ResultContainer([], self.result_type, total_pages_api = 0)
-        for i in range(0, len(obj_lst), BFABRIC_QUERY_LIMIT):
-            obj_list_this = obj_lst[i:i + BFABRIC_QUERY_LIMIT]
-            response_this = self.save(endpoint, obj_list_this, **kwargs)
-            response_tot.append(response_this)
+
+        # Iterate over request chunks that fit into a single API page
+        for page_objs in page_iter(obj_lst):
+            response_page = self.save(endpoint, page_objs, **kwargs)
+            response_tot.append(response_page)
 
         return response_tot
 
@@ -191,9 +187,38 @@ class Bfabric(object):
             print('Warning, empty list provided for deletion, ignoring')
             return response_tot
 
-        for i in range(0, len(id_list), BFABRIC_QUERY_LIMIT):
-            id_list_this = id_list[i:i + BFABRIC_QUERY_LIMIT]
-            response_this = self.delete(endpoint, id_list_this)
-            response_tot.append(response_this)
+        # Iterate over request chunks that fit into a single API page
+        for page_ids in page_iter(id_list):
+            response_page = self.delete(endpoint, page_ids)
+            response_tot.append(response_page)
 
         return response_tot
+
+    def exists(self, endpoint: str, id: Union[List, int]) -> Union[bool, List[bool]]:
+        """
+        :param endpoint:  endpoint
+        :param id:        an id or a list of ids
+        :return:          for each
+        """
+
+        # 1. Read data for this id
+        if isinstance(id, int):
+            results = self.read(endpoint, {'id': id})
+        elif isinstance(id, list):
+            results = self.read_multi(endpoint, {}, 'id', id)
+        else:
+            raise ValueError("Unexpected data type", type(id))
+
+        # 2. Extract all the ids for which there was a response
+        result_ids = []
+        for r in results.results:
+            if 'id' in r:
+                result_ids += [r['id']]
+            elif '_id' in r:   # TODO: Remove this if SUDS bug is ever resolved
+                result_ids += [r['_id']]
+
+        # 3. For each of the requested ids, return true if there was a response and false if there was not
+        if isinstance(id, int):
+            return id in result_ids
+        else:
+            return [id_this in result_ids for id_this in id]
