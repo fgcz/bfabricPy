@@ -194,31 +194,34 @@ class Bfabric(object):
 
         return response_tot
 
-    def exists(self, endpoint: str, id: Union[List, int]) -> Union[bool, List[bool]]:
+    def exists(self, endpoint: str, key: str, value: Union[List, Union[int, str]]) -> Union[bool, List[bool]]:
         """
         :param endpoint:  endpoint
-        :param id:        an id or a list of ids
-        :return:          for each
+        :param key:       A key for the query (e.g. id or name)
+        :param value:     A value or a list of values
+        :return:          Return a single bool or a list of bools for each value
+            For each value, test if a key with that value is found in the API.
         """
+        is_scalar = isinstance(value, (int, str))
 
         # 1. Read data for this id
-        if isinstance(id, int):
-            results = self.read(endpoint, {'id': id})
-        elif isinstance(id, list):
-            results = self.read_multi(endpoint, {}, 'id', id)
+        if is_scalar:
+            results = self.read(endpoint, {key: value})
+        elif isinstance(value, list):
+            results = self.read_multi(endpoint, {}, key, value)
         else:
-            raise ValueError("Unexpected data type", type(id))
+            raise ValueError("Unexpected data type", type(value))
 
         # 2. Extract all the ids for which there was a response
-        result_ids = []
+        result_vals = []
         for r in results.results:
-            if 'id' in r:
-                result_ids += [r['id']]
-            elif '_id' in r:   # TODO: Remove this if SUDS bug is ever resolved
-                result_ids += [r['_id']]
+            if key in r:
+                result_vals += [r[key]]
+            elif '_' + key in r:   # TODO: Remove this if SUDS bug is ever resolved
+                result_vals += [r['_' + key]]
 
         # 3. For each of the requested ids, return true if there was a response and false if there was not
-        if isinstance(id, int):
-            return id in result_ids
+        if is_scalar:
+            return key in result_vals
         else:
-            return [id_this in result_ids for id_this in id]
+            return [val in result_vals for val in value]
