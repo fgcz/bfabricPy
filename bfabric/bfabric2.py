@@ -170,6 +170,9 @@ class Bfabric(object):
 
         return response_tot
 
+    # TODO: This is likely useless. When saving multiple objects, they all have different fields.
+    #    One option would be to provide a dataframe, but it might struggle with nested dicts
+    #    Likely best solution is to not provide this method, and let users run a for-loop themselves.
     def save_multi(self, endpoint: str, obj_lst: list, **kwargs) -> ResultContainer:
         response_tot = ResultContainer([], self.result_type, total_pages_api = 0)
 
