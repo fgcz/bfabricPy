@@ -3,16 +3,33 @@
 # this should become default behaviour in one of the future versions of python. Remove this import
 # once it is no longer necessary
 from __future__ import annotations
-
 from enum import Enum
-from bfabric.src.suds_format import suds_asdict_recursive
+
 from zeep.helpers import serialize_object
+
+from bfabric.src.suds_format import suds_asdict_recursive
+from bfabric.src.iter_helper import drop_empty_response_elements, map_response_element_keys, sort_response_dicts
 
 
 class BfabricResultType(Enum):
     LISTDICT = 1
     LISTSUDS = 2
     LISTZEEP = 3
+
+
+def _clean_result(rez: dict, drop_empty: bool = True, drop_underscores_suds: bool = True,
+                  have_sort_responses: bool = False) -> dict:
+    if drop_empty:
+        drop_empty_response_elements(rez, inplace=True)
+
+    if drop_underscores_suds:
+        map_response_element_keys(rez,
+                                  {'_id': 'id', '_classname': 'classname', '_projectid': 'projectid'},
+                                  inplace=True)
+    if have_sort_responses:
+        sort_response_dicts(rez, inplace=True)
+
+    return rez
 
 
 class ResultContainer:
@@ -60,13 +77,28 @@ class ResultContainer:
     def total_pages_api(self):
         return self.total_pages_api
 
-    def to_list_dict(self):
+    def to_list_dict(self, drop_empty: bool = True, drop_underscores_suds: bool = True,
+                     have_sort_responses: bool = False):
         match self.result_type:
             case BfabricResultType.LISTDICT:
                 return self.results
             case BfabricResultType.LISTSUDS:
-                return [suds_asdict_recursive(v, convert_types=True) for v in self.results]
+                results = []
+                for rez in self.results:
+                    rez_parsed = suds_asdict_recursive(rez, convert_types=True)
+                    rez_parsed = _clean_result(rez_parsed, drop_empty=drop_empty,
+                                               drop_underscores_suds=drop_underscores_suds,
+                                               have_sort_responses=have_sort_responses)
+                    results += [rez_parsed]
+                return results
             case BfabricResultType.LISTZEEP:
-                return [dict(serialize_object(v)) for v in self.results]
+                results = []
+                for rez in self.results:
+                    rez_parsed = dict(serialize_object(rez, target_cls=dict))
+                    rez_parsed = _clean_result(rez_parsed, drop_empty=drop_empty,
+                                               drop_underscores_suds=False,               # NOTE: Underscore problem specific to SUDS
+                                               have_sort_responses=have_sort_responses)
+                    results += [rez_parsed]
+                return results
             case _:
                 raise ValueError("Unexpected results type", self.result_type)

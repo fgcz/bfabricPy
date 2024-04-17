@@ -1,5 +1,8 @@
 from typing import Optional, Union
 from copy import deepcopy
+from collections import OrderedDict
+
+from bfabric.src.dict_helper import sort_dict
 
 
 def _recursive_drop_empty(response_elem: Union[list, dict]) -> None:
@@ -70,4 +73,35 @@ def map_response_element_keys(response: Union[list, dict], keymap: dict,
     """
     response_filtered = deepcopy(response) if not inplace else response
     _recursive_map_keys(response_filtered, keymap)
+    return response_filtered
+
+def _recursive_sort_dicts(response_elem) -> None:
+    """
+    Iterates over all nested lists, dictionaries and basic values. Whenever a nested dictionary is found, it is sorted
+    by key by converting into OrderedDict and back
+    :param response_elem: One of the sub-objects in the hierarchical storage of the response. Initially the root
+    :return: Nothing
+    """
+    if isinstance(response_elem, list):
+        for idx, el in enumerate(response_elem):
+            if isinstance(el, dict):
+                response_elem[idx] = sort_dict(el)
+            _recursive_sort_dicts(el)
+    elif isinstance(response_elem, dict):
+        for k, v in response_elem.items():
+            if isinstance(v, dict):
+                response_elem[k] = sort_dict(v)
+            _recursive_sort_dicts(v)
+
+def sort_response_dicts(response: Union[list, dict], inplace: bool = True) -> Optional[Union[list, dict]]:
+    """
+    Iterates over all nested lists, dictionaries and basic values. Whenever a nested dictionary is found, it is sorted
+       by key by converting into OrderedDict and back
+    :param response:  A parsed query response, consisting of nested lists, dicts and basic types (int, str)
+    :param inplace:   If true, will return nothing and edit the argument. Otherwise, will preserve the argument
+        and return an edited copy
+    :return: Nothing, or an edited response, depending on `inplace`
+    """
+    response_filtered = deepcopy(response) if not inplace else response
+    _recursive_sort_dicts(response_filtered)
     return response_filtered

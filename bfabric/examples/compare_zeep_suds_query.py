@@ -177,14 +177,14 @@ def parsed_data_match_test(auth, config, endpoint, query, drop_empty: bool = Tru
         print("-- failed --")
 
 
-# parsed_data_match_test(auth, config, 'user', {'id': 9026}, drop_empty=True, drop_underscores_suds=True,
-#                        log_file_path=None)
+parsed_data_match_test(auth, config, 'user', {'id': 9026}, drop_empty=True, drop_underscores_suds=True,
+                       log_file_path=None)
 #
 # parsed_data_match_test(auth, config, 'user', {}, drop_empty=True, drop_underscores_suds=True,
 #                        log_file_path=None)
 
-parsed_data_match_test(auth, config, 'run', {}, drop_empty=True, drop_underscores_suds=True,
-                       log_file_path=None)
+# parsed_data_match_test(auth, config, 'run', {}, drop_empty=True, drop_underscores_suds=True,
+#                        log_file_path=None)
 
 # print("Zeep", retZeep['user'][0]['project'][0])
 # print("Suds", retSuds['user'][0]['project'][0])
