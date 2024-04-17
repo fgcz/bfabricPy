@@ -9,8 +9,8 @@ import zeep
 import suds
 
 from bfabric.bfabric2 import get_system_auth
-from bfabric.src.suds_format import suds_asdict_recursive
-from bfabric.src.iter_helper import drop_empty_response_elements, map_response_element_keys
+from bfabric.src.response_format_suds import suds_asdict_recursive
+from bfabric.src.response_format_dict import drop_empty_elements, map_element_keys
 
 '''
 This file is intended to eventually become a test to compare that Zeep and SUDS produce
@@ -157,12 +157,12 @@ def parsed_data_match_test(auth, config, endpoint, query, drop_empty: bool = Tru
     retZeepDict, retSudsDict = calc_both(auth, config, endpoint, query, raw=False)
 
     if drop_empty:
-        drop_empty_response_elements(retZeepDict, inplace=True)
-        drop_empty_response_elements(retSudsDict, inplace=True)
+        drop_empty_elements(retZeepDict, inplace=True)
+        drop_empty_elements(retSudsDict, inplace=True)
 
     if drop_underscores_suds:
-        map_response_element_keys(retSudsDict, {'_id': 'id', '_classname': 'classname', '_projectid': 'projectid'},
-                                  inplace=True)
+        map_element_keys(retSudsDict, {'_id': 'id', '_classname': 'classname', '_projectid': 'projectid'},
+                         inplace=True)
 
     if log_file_path is not None:
         with open(log_file_path, 'w') as f:

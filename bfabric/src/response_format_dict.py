@@ -25,7 +25,7 @@ def _recursive_drop_empty(response_elem: Union[list, dict]) -> None:
         for k in keys_to_delete:
             del response_elem[k]
 
-def drop_empty_response_elements(response: Union[list, dict], inplace: bool = True) -> Optional[Union[list, dict]]:
+def drop_empty_elements(response: Union[list, dict], inplace: bool = True) -> Optional[Union[list, dict]]:
     """
     Iterates over all nested lists, dictionaries and basic values. Whenever a dictionary value is encountered, that is
       either an empty list or None, the key-value pair gets deleted from the dictionary
@@ -60,8 +60,8 @@ def _recursive_map_keys(response_elem, keymap: dict) -> None:
             response_elem[keymap[k]] = response_elem[k]  # Copy old value to the new key
             del response_elem[k]                             # Delete old key
 
-def map_response_element_keys(response: Union[list, dict], keymap: dict,
-                              inplace: bool = True) -> Union[list, dict]:
+def map_element_keys(response: Union[list, dict], keymap: dict,
+                     inplace: bool = True) -> Union[list, dict]:
     """
     Iterates over all nested lists, dictionaries and basic values. Whenever a dictionary key is found for which
        the mapping is requested, that the key is renamed to the corresponding mapped one
@@ -75,7 +75,7 @@ def map_response_element_keys(response: Union[list, dict], keymap: dict,
     _recursive_map_keys(response_filtered, keymap)
     return response_filtered
 
-def _recursive_sort_dicts(response_elem) -> None:
+def _recursive_sort_dicts_by_key(response_elem) -> None:
     """
     Iterates over all nested lists, dictionaries and basic values. Whenever a nested dictionary is found, it is sorted
     by key by converting into OrderedDict and back
@@ -86,14 +86,14 @@ def _recursive_sort_dicts(response_elem) -> None:
         for idx, el in enumerate(response_elem):
             if isinstance(el, dict):
                 response_elem[idx] = sort_dict(el)
-            _recursive_sort_dicts(el)
+            _recursive_sort_dicts_by_key(el)
     elif isinstance(response_elem, dict):
         for k, v in response_elem.items():
             if isinstance(v, dict):
                 response_elem[k] = sort_dict(v)
-            _recursive_sort_dicts(v)
+            _recursive_sort_dicts_by_key(v)
 
-def sort_response_dicts(response: Union[list, dict], inplace: bool = True) -> Optional[Union[list, dict]]:
+def sort_dicts_by_key(response: Union[list, dict], inplace: bool = True) -> Optional[Union[list, dict]]:
     """
     Iterates over all nested lists, dictionaries and basic values. Whenever a nested dictionary is found, it is sorted
        by key by converting into OrderedDict and back
@@ -103,5 +103,5 @@ def sort_response_dicts(response: Union[list, dict], inplace: bool = True) -> Op
     :return: Nothing, or an edited response, depending on `inplace`
     """
     response_filtered = deepcopy(response) if not inplace else response
-    _recursive_sort_dicts(response_filtered)
+    _recursive_sort_dicts_by_key(response_filtered)
     return response_filtered

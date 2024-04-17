@@ -7,8 +7,8 @@ from enum import Enum
 
 from zeep.helpers import serialize_object
 
-from bfabric.src.suds_format import suds_asdict_recursive
-from bfabric.src.iter_helper import drop_empty_response_elements, map_response_element_keys, sort_response_dicts
+from bfabric.src.response_format_suds import suds_asdict_recursive
+import bfabric.src.response_format_dict as formatter
 
 
 class BfabricResultType(Enum):
@@ -18,16 +18,16 @@ class BfabricResultType(Enum):
 
 
 def _clean_result(rez: dict, drop_empty: bool = True, drop_underscores_suds: bool = True,
-                  have_sort_responses: bool = False) -> dict:
+                  sort_responses: bool = False) -> dict:
     if drop_empty:
-        drop_empty_response_elements(rez, inplace=True)
+        formatter.drop_empty_elements(rez, inplace=True)
 
     if drop_underscores_suds:
-        map_response_element_keys(rez,
+        formatter.map_element_keys(rez,
                                   {'_id': 'id', '_classname': 'classname', '_projectid': 'projectid'},
                                   inplace=True)
-    if have_sort_responses:
-        sort_response_dicts(rez, inplace=True)
+    if sort_responses:
+        formatter.sort_dicts_by_key(rez, inplace=True)
 
     return rez
 
@@ -88,7 +88,7 @@ class ResultContainer:
                     rez_parsed = suds_asdict_recursive(rez, convert_types=True)
                     rez_parsed = _clean_result(rez_parsed, drop_empty=drop_empty,
                                                drop_underscores_suds=drop_underscores_suds,
-                                               have_sort_responses=have_sort_responses)
+                                               sort_responses=have_sort_responses)
                     results += [rez_parsed]
                 return results
             case BfabricResultType.LISTZEEP:
@@ -96,8 +96,8 @@ class ResultContainer:
                 for rez in self.results:
                     rez_parsed = dict(serialize_object(rez, target_cls=dict))
                     rez_parsed = _clean_result(rez_parsed, drop_empty=drop_empty,
-                                               drop_underscores_suds=False,               # NOTE: Underscore problem specific to SUDS
-                                               have_sort_responses=have_sort_responses)
+                                               drop_underscores_suds=False,  # NOTE: Underscore problem specific to SUDS
+                                               sort_responses=have_sort_responses)
                     results += [rez_parsed]
                 return results
             case _:
