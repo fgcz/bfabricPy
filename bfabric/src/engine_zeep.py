@@ -47,7 +47,7 @@ class EngineZeep(object):
         full_query = dict(login=self.login, page=page, password=self.password, query=query, idonly=idonly)
 
         client = self._get_client(endpoint)
-        with client.settings(strict=False):
+        with client.settings(strict=False, xml_huge_tree=True, xsd_ignore_sequence_order=True):
             return client.service.read(full_query)
 
     def readid(self, endpoint: str, obj: dict, page: int = 1, includedeletableupdateable: bool = True):

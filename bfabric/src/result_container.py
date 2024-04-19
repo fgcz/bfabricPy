@@ -74,7 +74,7 @@ class ResultContainer:
         else:
             self.total_pages_api = None
 
-    def total_pages_api(self):
+    def get_total_pages_api(self):
         return self.total_pages_api
 
     def to_list_dict(self, drop_empty: bool = True, drop_underscores_suds: bool = True,
