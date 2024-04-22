@@ -5,8 +5,7 @@ import bfabric.src.result_container as result_container
 
 # TODO: Add coverage for LISTSUDS and LISTZEEP
 class BfabricTestCase(unittest.TestCase):
-    def __init__(self, *args, **kwargs):
-        super(BfabricTestCase, self).__init__(*args, **kwargs)
+    def setUp(self):
 
         self.c1 = result_container.ResultContainer([1,2,3], total_pages_api=1,
                                                    result_type=result_container.BfabricResultType.LISTDICT)
