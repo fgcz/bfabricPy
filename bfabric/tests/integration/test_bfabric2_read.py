@@ -6,9 +6,7 @@ from bfabric.bfabric2 import Bfabric, BfabricAPIEngineType, get_system_auth
 
 
 class BfabricTestRead(unittest.TestCase):
-    def __init__(self, *args, **kwargs):
-        super(BfabricTestRead, self).__init__(*args, **kwargs)
-
+    def setUp(self, *args, **kwargs):
         # Load ground truth
         path = os.path.join(os.path.dirname(__file__), "groundtruth.json")
         with open(path) as json_file:
@@ -18,64 +16,68 @@ class BfabricTestRead(unittest.TestCase):
         self.config, self.auth = get_system_auth()
 
         # Init the engines
-        self.bfZeep = Bfabric(self.config, self.auth, engine=BfabricAPIEngineType.ZEEP)
-        self.bfSuds = Bfabric(self.config, self.auth, engine=BfabricAPIEngineType.SUDS)
+        self.clients = {
+            "zeep": Bfabric(self.config, self.auth, engine=BfabricAPIEngineType.ZEEP),
+            "suds": Bfabric(self.config, self.auth, engine=BfabricAPIEngineType.SUDS)
+        }
 
-    def read(self, bf: Bfabric, endpoint: str):
+    def read(self, engine: str, endpoint: str):
         """Executes read queries for `endpoint` and compares results with ground truth."""
-        self.assertIn(endpoint, self.ground_truth)
-        for query, ground_truth in self.ground_truth[endpoint]:
-            res = bf.read(endpoint=endpoint, obj=query).to_list_dict()
+        with self.subTest(engine=engine):
+            bf = self.clients[engine]
+            self.assertIn(endpoint, self.ground_truth)
+            for query, ground_truth in self.ground_truth[endpoint]:
+                res = bf.read(endpoint=endpoint, obj=query).to_list_dict()
 
-            # print(query, res)
+                # print(query, res)
 
-            self.assertEqual(len(res), 1)  # Expecting only one query result in all cases
-            for gt_attr, gt_value in ground_truth.items():
-                self.assertEqual(str(gt_value), str(res[0][gt_attr]))
+                self.assertEqual(len(res), 1)  # Expecting only one query result in all cases
+                for gt_attr, gt_value in ground_truth.items():
+                    self.assertEqual(str(gt_value), str(res[0][gt_attr]))
 
     def _test_empty_project(self, bf: Bfabric):
         res = bf.read(endpoint="project", obj={"name": "this project does not exist"}).to_list_dict()
         self.assertEqual(res, [])
 
     def test_user(self):
-        self.read(self.bfSuds, "user")
-        self.read(self.bfZeep, "user")
+        self.read("suds", "user")
+        self.read("zeep", "user")
 
     def test_container(self):
-        self.read(self.bfSuds, "container")
-        self.read(self.bfZeep, "container")
+        self.read("suds", "container")
+        self.read("zeep", "container")
 
     def test_project(self):
-        self.read(self.bfSuds, "project")
-        # self.read(self.bfZeep, "project")  # FIXME: Zeep does not parse name correctly for project queries
+        self.read("suds", "project")
+        # self.read("zeep", "project")  # FIXME: Zeep does not parse name correctly for project queries
 
     def test_project_when_not_exists(self):
-        self._test_empty_project(self.bfZeep)
-        self._test_empty_project(self.bfSuds)
+        self._test_empty_project("zeep")
+        self._test_empty_project("suds")
 
     def test_application(self):
-        self.read(self.bfSuds, "application")
-        self.read(self.bfZeep, "application")
+        self.read("suds", "application")
+        self.read("zeep", "application")
 
     def test_sample(self):
-        self.read(self.bfSuds, "sample")
-        self.read(self.bfZeep, "sample")
+        self.read("suds", "sample")
+        self.read("zeep", "sample")
 
     def test_workunit(self):
-        self.read(self.bfSuds, "workunit")
-        self.read(self.bfZeep, "workunit")
+        self.read("suds", "workunit")
+        self.read("zeep", "workunit")
 
     def test_resource(self):
-        self.read(self.bfSuds, "resource")
-        self.read(self.bfZeep, "resource")
+        self.read("suds", "resource")
+        self.read("zeep", "resource")
 
     def test_executable(self):
-        self.read(self.bfSuds, "executable")
-        self.read(self.bfZeep, "executable")
+        self.read("suds", "executable")
+        self.read("zeep", "executable")
 
     def test_annotation(self):
-        self.read(self.bfSuds, "annotation")
-        self.read(self.bfZeep, "annotation")
+        self.read("suds", "annotation")
+        self.read("zeep", "annotation")
 
 
 if __name__ == "__main__":
