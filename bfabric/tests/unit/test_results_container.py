@@ -17,8 +17,8 @@ class BfabricTestResultsContainer(unittest.TestCase):
         self.assertEqual(str(self.c1), "[1, 2, 3]")
         self.assertEqual(str(self.c2), "[4, 5]")
 
-        self.assertEqual(self.c1.__repr__(), "[1, 2, 3]")
-        self.assertEqual(self.c2.__repr__(), "[4, 5]")
+        self.assertEqual(repr(self.c1), "[1, 2, 3]")
+        self.assertEqual(repr(self.c2), "[4, 5]")
 
     def test_len(self):
         self.assertEqual(len(self.c1), 3)
