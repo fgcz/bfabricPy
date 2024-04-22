@@ -5,19 +5,22 @@ import copy
 
 
 # TODO: Check if this is a bug of BFabric or Zeep. Specifically, see if the same call to bFabricPy has the same bug
-def _zeep_query_append_skipped(query: dict, skipped_keys: list) -> dict:
+def _zeep_query_append_skipped(query: dict, skipped_keys: list, inplace: bool = False, overwrite: bool = False) -> dict:
     """
     This function is used to fix a buggy behaviour of Zeep/BFabric. Specifically, Zeep does not return correct
     query results if some of the optional parameters are not mentioned in the query.
 
     :param query:         Original query
-    :param skipped_keys:   Optional keys to skip
+    :param skipped_keys:  Optional keys to skip
+    :param inplace:       Whether to change the argument, or make a new copy to return
+    :param overwrite:     Whether to overwrite the key if it is already present in the query
     :return:              Adds optional keys to query as skipped values.
     """
-    queryThis = query.copy()
+    query_this = query.copy() if not inplace else query
     for key in skipped_keys:
-        queryThis[key] = zeep.xsd.SkipValue
-    return queryThis
+        if overwrite or (key not in query_this.keys()):
+            query_this[key] = zeep.xsd.SkipValue
+    return query_this
 
 
 class EngineZeep(object):
@@ -43,6 +46,12 @@ class EngineZeep(object):
              includedeletableupdateable: bool = False):
         query = copy.deepcopy(obj)
         query['includedeletableupdateable'] = includedeletableupdateable
+
+        # FIXME: Hacks for the cases where Zeep thinks a parameter is compulsory and it is actually not
+        if endpoint == 'sample':
+            excl_keys = ['includefamily', 'includeassociations', 'includeplates', 'includeresources', 'includeruns',
+                         'includechildren', 'includeparents', 'includereplacements']
+            _zeep_query_append_skipped(query, excl_keys, inplace=True, overwrite=False)
 
         full_query = dict(login=self.login, page=page, password=self.password, query=query, idonly=idonly)
 
