@@ -42,8 +42,8 @@ class BfabricTestPagination(unittest.TestCase):
 
         # Test that columns are exactly the same
         print("Testing if SUDS and ZEEP parsed responses have the same root fields")
-        suds_cols = list(sorted(resp_df_suds.columns))
-        zeep_cols = list(sorted(resp_df_zeep.columns))
+        suds_cols = sorted(resp_df_suds.columns)
+        zeep_cols = sorted(resp_df_zeep.columns)
         assert suds_cols == zeep_cols
 
         print("Testing if SUDS and ZEEP responses are the same field by field")
