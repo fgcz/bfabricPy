@@ -170,18 +170,18 @@ class Bfabric(object):
 
         return response_tot
 
-    # TODO: This is likely useless. When saving multiple objects, they all have different fields.
+    # NOTE: Save-multi method is likely useless. When saving multiple objects, they all have different fields.
     #    One option would be to provide a dataframe, but it might struggle with nested dicts
     #    Likely best solution is to not provide this method, and let users run a for-loop themselves.
-    def save_multi(self, endpoint: str, obj_lst: list, **kwargs) -> ResultContainer:
-        response_tot = ResultContainer([], self.result_type, total_pages_api = 0)
-
-        # Iterate over request chunks that fit into a single API page
-        for page_objs in page_iter(obj_lst):
-            response_page = self.save(endpoint, page_objs, **kwargs)
-            response_tot.extend(response_page)
-
-        return response_tot
+    # def save_multi(self, endpoint: str, obj_lst: list, **kwargs) -> ResultContainer:
+    #     response_tot = ResultContainer([], self.result_type, total_pages_api = 0)
+    #
+    #     # Iterate over request chunks that fit into a single API page
+    #     for page_objs in page_iter(obj_lst):
+    #         response_page = self.save(endpoint, page_objs, **kwargs)
+    #         response_tot.extend(response_page)
+    #
+    #     return response_tot
 
     def delete_multi(self, endpoint: str, id_list: list) -> ResultContainer:
         response_tot = ResultContainer([], self.result_type, total_pages_api=0)
