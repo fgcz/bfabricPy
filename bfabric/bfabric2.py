@@ -152,7 +152,7 @@ class Bfabric(object):
         """
 
         response_tot = ResultContainer([], self.result_type, total_pages_api = 0)
-        obj_exteded = deepcopy(obj)  # Make a copy of the query, not to make edits to the argument
+        obj_extended = deepcopy(obj)  # Make a copy of the query, not to make edits to the argument
 
         # Iterate over request chunks that fit into a single API page
         for page_vals in page_iter(multi_query_vals):
