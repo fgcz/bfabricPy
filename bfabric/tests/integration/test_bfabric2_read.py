@@ -5,9 +5,9 @@ import unittest
 from bfabric.bfabric2 import Bfabric, BfabricAPIEngineType, get_system_auth
 
 
-class BfabricTestCase(unittest.TestCase):
+class BfabricTestRead(unittest.TestCase):
     def __init__(self, *args, **kwargs):
-        super(BfabricTestCase, self).__init__(*args, **kwargs)
+        super(BfabricTestRead, self).__init__(*args, **kwargs)
 
         # Load ground truth
         path = os.path.join(os.path.dirname(__file__), "groundtruth.json")

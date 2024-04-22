@@ -2,8 +2,14 @@ from typing import Optional, Union
 from copy import deepcopy
 from collections import OrderedDict
 
-from bfabric.src.dict_helper import sort_dict
 
+def sort_dict(d: dict) -> dict:
+    """
+    :param d:  A dictionary
+    :return:   A dictionary with items sorted by key.
+       Affects how the dictionary appears, when mapped to a string
+    """
+    return dict(sorted(d.items()))
 
 def _recursive_drop_empty(response_elem: Union[list, dict]) -> None:
     """

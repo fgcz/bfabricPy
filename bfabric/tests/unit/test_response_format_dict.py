@@ -4,7 +4,7 @@ import numpy as np
 import bfabric.src.response_format_dict as response_format_dict
 
 
-class BfabricTestCase(unittest.TestCase):
+class BfabricTestResponseFormatDict(unittest.TestCase):
     def test_drop_empty_elements(self):
         # Should delete all hierarchical instances of key-value pairs, where value is None or empty dict
         input_list_dict = [{'a': [], 'b': [1, {'aa': 14, 'gg': None}], 'c': []}, {'zz': None, 'uu': 'cat'}]

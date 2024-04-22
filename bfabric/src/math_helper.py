@@ -9,12 +9,3 @@ def div_int_ceil(n: int, d: int) -> int:
     """
     q, r = divmod(n, d)
     return q + bool(r)
-
-
-
-if __name__ == "__main__":
-    print(
-        div_int_ceil(120, 100),
-        div_int_ceil(200, 100),
-        div_int_ceil(245, 100)
-    )

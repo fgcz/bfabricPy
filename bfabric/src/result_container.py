@@ -58,7 +58,7 @@ class ResultContainer:
     def __len__(self):
         return len(self.results)
 
-    def append(self, other: ResultContainer) -> None:
+    def extend(self, other: ResultContainer) -> None:
         """
         Can merge results of two queries. This can happen if the engine splits a complicated query in two
         :param other: The other query results that should be appended to this

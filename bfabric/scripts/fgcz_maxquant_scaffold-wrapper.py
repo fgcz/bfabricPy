@@ -129,7 +129,7 @@ class FgczMaxQuantScaffold:
         eFastaDatabase.attrib['path'] = "{}/{}".format(os.getcwd(), self.fasta)
 
         for s in self.samples:
-            eExperiment.append(self.getBiologicalSample(category=s, InputFile = self.zipfilename))
+            eExperiment.extend(self.getBiologicalSample(category=s, InputFile = self.zipfilename))
 
 
         xml.write('/dev/stdout' ,   pretty_print=True, xml_declaration=True,  method='xml', encoding="UTF-8")

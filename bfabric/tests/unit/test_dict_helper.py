@@ -1,13 +1,13 @@
 import unittest
 
-import bfabric.src.dict_helper as dict_helper
+from bfabric.src.response_format_dict import sort_dict
 
 
-class BfabricTestCase(unittest.TestCase):
+class BfabricTestSortDict(unittest.TestCase):
     def test_sort_dict(self):
         # Main purpose of dictionary sorting is that they appear consistent when printed
         d = {'c': 5, 'b': 10}
-        d_sorted = dict_helper.sort_dict(d)
+        d_sorted = sort_dict(d)
         self.assertEqual(str(d_sorted), "{'b': 10, 'c': 5}")
 
 

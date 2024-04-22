@@ -3,7 +3,7 @@ import unittest
 import bfabric.src.paginator as paginator
 
 
-class BfabricTestCase(unittest.TestCase):
+class BfabricTestBasicPagination(unittest.TestCase):
     def test_page_iter(self):
         # Main purpose of dictionary sorting is that they appear consistent when printed
         data = list(range(123))

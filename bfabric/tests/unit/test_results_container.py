@@ -4,9 +4,9 @@ import bfabric.src.result_container as result_container
 
 
 # TODO: Add coverage for LISTSUDS and LISTZEEP
-class BfabricTestCase(unittest.TestCase):
+class BfabricTestResultsContainer(unittest.TestCase):
     def __init__(self, *args, **kwargs):
-        super(BfabricTestCase, self).__init__(*args, **kwargs)
+        super(BfabricTestResultsContainer, self).__init__(*args, **kwargs)
 
         self.c1 = result_container.ResultContainer([1,2,3], total_pages_api=1,
                                                    result_type=result_container.BfabricResultType.LISTDICT)
@@ -31,7 +31,7 @@ class BfabricTestCase(unittest.TestCase):
     def test_append(self):
         c3 = result_container.ResultContainer(list(range(200, 400)), total_pages_api=2,
                                               result_type=result_container.BfabricResultType.LISTDICT)
-        c3.append(self.c1)
+        c3.extend(self.c1)
 
         self.assertEqual(len(c3), 203)
         self.assertEqual(c3.results, list(range(200, 400)) + [1,2,3])

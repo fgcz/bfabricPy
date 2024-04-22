@@ -166,7 +166,7 @@ class Bfabric(object):
             # TODO: It is assumed that a user requesting multi_query always wants all of the pages. Can anybody think of
             #   exceptions to this?
             response_this = self.read(endpoint, obj_exteded, max_results=None, readid=readid, **kwargs)
-            response_tot.append(response_this)
+            response_tot.extend(response_this)
 
         return response_tot
 
@@ -179,7 +179,7 @@ class Bfabric(object):
         # Iterate over request chunks that fit into a single API page
         for page_objs in page_iter(obj_lst):
             response_page = self.save(endpoint, page_objs, **kwargs)
-            response_tot.append(response_page)
+            response_tot.extend(response_page)
 
         return response_tot
 
@@ -193,7 +193,7 @@ class Bfabric(object):
         # Iterate over request chunks that fit into a single API page
         for page_ids in page_iter(id_list):
             response_page = self.delete(endpoint, page_ids)
-            response_tot.append(response_page)
+            response_tot.extend(response_page)
 
         return response_tot
 

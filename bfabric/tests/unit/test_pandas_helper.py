@@ -4,7 +4,7 @@ import numpy as np
 import bfabric.src.pandas_helper as pandas_helper
 
 
-class BfabricTestCase(unittest.TestCase):
+class BfabricTestPandasHelper(unittest.TestCase):
     def test_list_dict_to_df(self):
         # Main purpose of dictionary sorting is that they appear consistent when printed
         example_list_dict = [
