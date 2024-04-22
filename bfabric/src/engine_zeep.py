@@ -16,7 +16,7 @@ def _zeep_query_append_skipped(query: dict, skipped_keys: list, inplace: bool = 
     :param overwrite:     Whether to overwrite the key if it is already present in the query
     :return:              Adds optional keys to query as skipped values.
     """
-    query_this = query.copy() if not inplace else query
+    query_this = copy.deepcopy(query) if not inplace else query
     for key in skipped_keys:
         if overwrite or (key not in query_this.keys()):
             query_this[key] = zeep.xsd.SkipValue
