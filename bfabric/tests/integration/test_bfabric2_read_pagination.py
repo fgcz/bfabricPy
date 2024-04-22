@@ -17,8 +17,7 @@ def _calc_query(config, auth, engine: BfabricAPIEngineType, endpoint: str,
 
 
 class BfabricTestCase(unittest.TestCase):
-    def __init__(self, *args, **kwargs):
-        super(BfabricTestCase, self).__init__(*args, **kwargs)
+    def setUp(self):
         self.config, self.auth = get_system_auth()
 
     def test_composite_user(self):
