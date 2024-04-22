@@ -35,7 +35,8 @@ class BfabricTestRead(unittest.TestCase):
                 for gt_attr, gt_value in ground_truth.items():
                     self.assertEqual(str(gt_value), str(res[0][gt_attr]))
 
-    def _test_empty_project(self, bf: Bfabric):
+    def _test_empty_project(self, engine: str):
+        bf = self.clients[engine]
         res = bf.read(endpoint="project", obj={"name": "this project does not exist"}).to_list_dict()
         self.assertEqual(res, [])
 

@@ -35,7 +35,7 @@ class BfabricTestResultsContainer(unittest.TestCase):
 
         self.assertEqual(len(c3), 203)
         self.assertEqual(c3.results, list(range(200, 400)) + [1,2,3])
-        self.assertEqual(c3.get_total_pages_api(), 3)
+        self.assertEqual(c3.total_pages_api(), 3)
 
     def test_to_list_dict(self):
         # NOTE: For LISTDICT format, the conversion to listdict does nothing

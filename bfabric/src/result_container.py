@@ -44,7 +44,7 @@ class ResultContainer:
         """
         self.results = results
         self.result_type = result_type
-        self.total_pages_api = total_pages_api
+        self._total_pages_api = total_pages_api
 
     def __getitem__(self, idx: int):
         return self.results[idx]
@@ -69,13 +69,14 @@ class ResultContainer:
             raise ValueError("Attempting to merge results of two different types", self.result_type, other.result_type)
 
         self.results += other.results
-        if (self.total_pages_api is not None) and (other.total_pages_api is not None):
-            self.total_pages_api += other.total_pages_api
+        if (self._total_pages_api is not None) and (other._total_pages_api is not None):
+            self._total_pages_api += other._total_pages_api
         else:
-            self.total_pages_api = None
+            self._total_pages_api = None
 
-    def get_total_pages_api(self):
-        return self.total_pages_api
+    @property
+    def total_pages_api(self):
+        return self._total_pages_api
 
     def to_list_dict(self, drop_empty: bool = True, drop_underscores_suds: bool = True,
                      have_sort_responses: bool = False):
