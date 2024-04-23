@@ -98,7 +98,7 @@ def _read_config_env_as_dict(config_path: str, config_env: str = None) -> Tuple[
         else:
             logger.info(f"found BFABRICPY_CONFIG_ENV = {config_env}")
     else:
-        logger.log(20, "config environment specified explicitly as " + config_env)
+        logger.info(f"config environment specified explicitly as {config_env}")
 
     if config_env not in config_dict:
         raise IOError("The requested config environment", config_env, "is not present in the config file")
