@@ -60,8 +60,6 @@ def _read_config_env_as_dict(config_path: str, config_env: str = None) -> Tuple[
        or the config file itself.
     :return: Returns a target environment name, and the corresponding data from bfabricpy.yml file as a dictionary
     """
-
-    """Parses a .bfabricrc.py file and returns a tuple of BfabricConfig and BfabricAuth objects."""
     logger = logging.getLogger(__name__)
     logger.info(f"Reading configuration from: {config_path}")
 
@@ -88,7 +86,7 @@ def _read_config_env_as_dict(config_path: str, config_env: str = None) -> Tuple[
         logger.info(f"config environment specified explicitly as {config_env}")
 
     if config_env not in config_dict:
-        raise IOError("The requested config environment", config_env, "is not present in the config file")
+        raise IOError(f"The requested config environment {config_env} is not present in the config file")
 
     return config_env, config_dict[config_env]
 
@@ -96,7 +94,7 @@ def _have_all_keys(d: dict, l: list) -> bool:
     """True if all elements in list l are present as keys in dict d, otherwise false"""
     return all([k in d for k in l])
 
-def _parse_dict(d: dict, mandatory_keys: list, optional_keys: list = None, error_prefix: str = None):
+def _parse_dict(d: dict, mandatory_keys: list, optional_keys: list = None, error_prefix: str = " "):
     """
     Returns a copy of an existing dictionary, only keeping mandatory and optional keys
     If a mandatory key is not found, an exception is raised
@@ -106,20 +104,11 @@ def _parse_dict(d: dict, mandatory_keys: list, optional_keys: list = None, error
     :param error_prefix:      A string to print if a mandatory key is not found
     :return:                  Copy of a starting dictionary, only containing mandatory and optional keys
     """
-    d_rez = {}
-
-    # Get all mandatory fields, and complain if not found
-    for k in mandatory_keys:
-        if k in d:
-            d_rez[k] = d[k]
-        else:
-            raise ValueError(error_prefix + k)
-
-    # Get all optional fields
-    if optional_keys is not None:
-        for k in optional_keys:
-            if k in d:
-                d_rez[k] = d[k]
+    missing_keys = set(mandatory_keys) - set(d)
+    if missing_keys:
+        raise ValueError(f"{error_prefix}{missing_keys}")
+    result_keys = set(mandatory_keys) + set(optional_keys or [])
+    d_rez = {d[k] for k in result_keys}
 
     # Ignore all other fields
     return d_rez
@@ -150,7 +139,7 @@ def read_config(config_path: str, config_env: str = None,
 
     config_env_final, config_dict = _read_config_env_as_dict(config_path, config_env=config_env)
 
-    error_prefix = "Config environment " + config_env_final + " does not have a compulsory field: "
+    error_prefix = f"Config environment {config_env_final} does not have a compulsory field: "
 
     # Parse authentification
     if optional_auth and not _have_all_keys(config_dict, ['login', 'password']):
