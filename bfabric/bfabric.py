@@ -86,6 +86,18 @@ class Bfabric(object):
 
     def __init__(self, login: str = None, password: str = None, webbase: str = None, externaljobid=None,
                  config_path: str = None, config_env: str = None, optional_auth: bool = False, verbose: bool = False):
+        """
+        :param login:           Login string for overriding config file
+        :param password:        Password for overriding config file
+        :param webbase:         Webbase for overriding config file
+        :param externaljobid:   ?
+        :param config_path:     Path to the config file, in case it is different from default
+        :param config_env:      Which config environment to use. Can also specify via environment variable or use
+           default in the config file (at your own risk)
+        :param optional_auth:   Whether authentification is optional. If yes, missing authentification will be ignored,
+           otherwise an exception will be raised
+        :param verbose:         Verbosity (TODO: resolve potential redundancy with logger)
+        """
         self.verbose = verbose
 
         self.cl = {}

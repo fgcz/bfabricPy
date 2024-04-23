@@ -54,7 +54,7 @@ class BfabricConfig:
 
 
 '''
-NOTE: BFabricPy expects a bfabricpy.yml of the format, as seen in bfabricPy/tests/unit/example_config.yml
+NOTE: BFabricPy expects a .bfabricpy.yml of the format, as seen in bfabricPy/tests/unit/example_config.yml
 * The general field always has to be present
 * There may be any number of environments, and they may have arbitrary names. Here, they are called PRODUCTION and TEST
 * Must specify correct login, password and webbase for each environment.
@@ -62,7 +62,7 @@ NOTE: BFabricPy expects a bfabricpy.yml of the format, as seen in bfabricPy/test
 * The default environment will be selected as follows:
     - First, parser will check if the optional argument `config_env` is provided directly to the parser function
     - If not, secondly, the parser will check if the environment variable `BFABRICPY_CONFIG_ENV` is declared
-    - If not, finally, the parser will select the default_config specified in [GENERAL] of the .bfabricpy.ini file 
+    - If not, finally, the parser will select the default_config specified in [GENERAL] of the .bfabricpy.yml file 
 '''
 
 
