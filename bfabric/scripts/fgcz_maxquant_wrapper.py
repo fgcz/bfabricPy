@@ -68,7 +68,7 @@ class FgczMaxQuantConfig:
                     for a in value.split(","):
                       estring = etree.Element("string")
                       estring.text = a
-                      element.append(estring)
+                      element.extend(estring)
                     pass
                 else:
                     print ("replacing xpath expression {} by {}.".format(query, value))
@@ -101,7 +101,7 @@ class FgczMaxQuantConfig:
 
                 estring = etree.Element("string")
                 estring.text = targetRawFile
-                element.append(estring)
+                element.extend(estring)
 
                 element = xml_template.find("/experiments")
                 if element is None:
@@ -110,7 +110,7 @@ class FgczMaxQuantConfig:
                 estring = etree.Element("string")
                 estring.text = "{}".format(os.path.basename(input).replace(".raw", "").replace(".RAW", ""))
                 ecount += 1
-                element.append(estring)
+                element.extend(estring)
 
                 element = xml_template.find("/fractions")
                 if element is None:
@@ -118,7 +118,7 @@ class FgczMaxQuantConfig:
 
                 estring = etree.Element("short")
                 estring.text = "32767"
-                element.append(estring)
+                element.extend(estring)
 
                 element = xml_template.find("/ptms")
                 if element is None:
@@ -126,7 +126,7 @@ class FgczMaxQuantConfig:
 
                 estring = etree.Element("boolean")
                 estring.text = "false"
-                element.append(estring)
+                element.extend(estring)
 
                 element = xml_template.find("/paramGroupIndices")
                 if element is None:
@@ -134,7 +134,7 @@ class FgczMaxQuantConfig:
 
                 estring = etree.Element("int")
                 estring.text = "0"
-                element.append(estring)
+                element.extend(estring)
 
         #return(xml_template)
         xml_template.write(xml_filename)#, pretty_print=True)

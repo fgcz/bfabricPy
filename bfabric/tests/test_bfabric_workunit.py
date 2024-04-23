@@ -50,7 +50,7 @@ class BfabricTestCase(unittest.TestCase):
             'description': content,
             'workunitid': workunitid})
 
-        self.endpoint['resource'].append(res[0])
+        self.endpoint['resource'].extend(res[0])
 
 
     def delete_endpoint_entries(self, endpoint=None):
@@ -78,7 +78,7 @@ class BfabricTestCase(unittest.TestCase):
 
         res = self.bfapp.save_object('executable', query)[0]
         print (res)
-        self.endpoint['executable'].append(res)
+        self.endpoint['executable'].extend(res)
 
     def _02_sample_save(self):
         sample_type = 'Biological Sample - Proteomics'
@@ -95,7 +95,7 @@ class BfabricTestCase(unittest.TestCase):
                     })
 
             print(res[0])
-            self.endpoint['sample'].append(res[0])
+            self.endpoint['sample'].extend(res[0])
 
 
     def _03_application_save(self):
@@ -107,7 +107,7 @@ class BfabricTestCase(unittest.TestCase):
 
         res = self.bfapp.save_object(endpoint='application', obj=query)
         print(json.dumps(res, cls=bfabricEncoder, indent=2))
-        self.endpoint['application'].append(res[0])
+        self.endpoint['application'].extend(res[0])
 
 
     def _04_workunit_save(self):
@@ -122,7 +122,7 @@ class BfabricTestCase(unittest.TestCase):
                                                                    'description': '68b329da9893e34099c7d8ad5cb9c940',
                                                                    'applicationid': applicationid
                                                                    })
-            self.endpoint['workunit'].append(res[0])
+            self.endpoint['workunit'].extend(res[0])
             print(json.dumps(self.endpoint['workunit'], cls=bfabricEncoder, indent=2))
             self.resource_save(os.path.abspath(__file__), res[0]._id)
 

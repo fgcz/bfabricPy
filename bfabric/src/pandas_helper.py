@@ -31,14 +31,3 @@ def list_dict_to_df(l: List[Dict]) -> pd.DataFrame:
     * All non-basic data types are converted to strings
     """
     return pd.DataFrame([_stringify_dict(r) for r in l])
-
-
-if __name__ == "__main__":
-    example_list_dict = [
-        {'cat': 1, 'dog': 2},
-        {'cat': 3, 'mouse': ["a", "b"]},
-        {'mouse': 5},
-        {'cat': 1, 'dog': 2, 'mouse': 7},
-    ]
-
-    print(list_dict_to_df(example_list_dict))

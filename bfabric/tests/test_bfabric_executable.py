@@ -47,7 +47,7 @@ class BfabricTestCase(unittest.TestCase):
                                                                    'description': 'unit test',
                                                                    'applicationid': 61
                                                                    })
-        self.endpoint['workunit'].append(wu_res[0])
+        self.endpoint['workunit'].extend(wu_res[0])
         # print(json.dumps(wu_res, cls=bfabricEncoder, indent=2))
         # save
         with open(filename, 'r') as f:
@@ -73,7 +73,7 @@ class BfabricTestCase(unittest.TestCase):
                   #'masterexecutableid': 11871,
                   'base64': input_b64_executable }
 
-        self.endpoint['executable'].append(self.B.save_object('executable', query)[0])
+        self.endpoint['executable'].extend(self.B.save_object('executable', query)[0])
 
         # read
         for e in self.endpoint['executable']:
