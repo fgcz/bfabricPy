@@ -30,23 +30,23 @@ class BfabricConfig:
     """Holds the configuration for the B-Fabric client for connecting to particular instance of B-Fabric.
 
     Attributes:
-        webbase (optional): The API base url
+        base_url (optional): The API base url
         application_ids (optional): Map of application names to ids.
         job_notification_emails (optional): Space-separated list of email addresses to notify when a job finishes.
     """
 
-    webbase: str = "https://fgcz-bfabric.uzh.ch/bfabric"
+    base_url: str = "https://fgcz-bfabric.uzh.ch/bfabric"
     application_ids: Dict[str, int] = dataclasses.field(default_factory=dict)
     job_notification_emails: str = ""
 
     def with_overrides(
         self,
-        webbase: Optional[str] = None,
+        base_url: Optional[str] = None,
         application_ids: Optional[Dict[str, int]] = None,
     ) -> BfabricConfig:
         """Returns a copy of the configuration with new values applied, if they are not None."""
         return BfabricConfig(
-            webbase=webbase if webbase is not None else self.webbase,
+            base_url=base_url if base_url is not None else self.base_url,
             application_ids=application_ids
             if application_ids is not None
             else self.application_ids,
@@ -57,7 +57,7 @@ class BfabricConfig:
 NOTE: BFabricPy expects a .bfabricpy.yml of the format, as seen in bfabricPy/tests/unit/example_config.yml
 * The general field always has to be present
 * There may be any number of environments, and they may have arbitrary names. Here, they are called PRODUCTION and TEST
-* Must specify correct login, password and webbase for each environment.
+* Must specify correct login, password and base_url for each environment.
 * application and job_notification_emails fields are optional
 * The default environment will be selected as follows:
     - First, parser will check if the optional argument `config_env` is provided directly to the parser function
@@ -168,7 +168,7 @@ def read_bfabricpy_yml(config_path: str, config_env: str = None,
         auth = BfabricAuth(**auth_dict)
 
     # Parse config
-    config_dict = _parse_dict(config_dict, ['webbase'], optional_keys=['application_ids', 'job_notification_emails'],
+    config_dict = _parse_dict(config_dict, ['base_url'], optional_keys=['application_ids', 'job_notification_emails'],
                               error_prefix=error_prefix)
     config = BfabricConfig(**config_dict)
 

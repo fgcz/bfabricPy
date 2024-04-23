@@ -41,7 +41,7 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         self.assertEqual(B.auth.login, 'pfeeder', msg)
 
         msg = "This test case requires a bfabric test system!"
-        self.assertIn("bfabric-test", B.config.webbase, msg)
+        self.assertIn("bfabric-test", B.config.base_url, msg)
         # TODO
         # create input resource
 
