@@ -42,12 +42,12 @@ class BfabricAPIEngineType(Enum):
     ZEEP = 2
 
 
-def get_system_auth(login: str = None, password: str = None, webbase: str = None, externaljobid=None,
-    config_path: str = None, config_env: str = None, optional_auth: bool = False, verbose: bool = False):
+def get_system_auth(login: str = None, password: str = None, base_url: str = None, externaljobid=None,
+                    config_path: str = None, config_env: str = None, optional_auth: bool = False, verbose: bool = False):
     """
     :param login:           Login string for overriding config file
     :param password:        Password for overriding config file
-    :param webbase:         Webbase for overriding config file
+    :param base_url:        Base server url for overriding config file
     :param externaljobid:   ?
     :param config_path:     Path to the config file, in case it is different from default
     :param config_env:      Which config environment to use. Can also specify via environment variable or use
@@ -64,13 +64,13 @@ def get_system_auth(login: str = None, password: str = None, webbase: str = None
     if not os.path.isfile(config_path):
         # TODO: Convert to log
         print("Warning: could not find '.bfabricpy.yml' file in home directory.")
-        config = BfabricConfig(webbase=webbase)
+        config = BfabricConfig(base_url=base_url)
         auth = BfabricAuth(login=login, password=password)
 
     # Load config from file, override some of the fields with the provided ones
     else:
         config, auth = read_bfabricpy_yml(config_path, config_env=config_env, optional_auth=optional_auth)
-        config = config.with_overrides(webbase=webbase)
+        config = config.with_overrides(base_url=base_url)
         if (login is not None) and (password is not None):
             auth = BfabricAuth(login=login, password=password)
         elif (login is None) and (password is None):
@@ -78,13 +78,13 @@ def get_system_auth(login: str = None, password: str = None, webbase: str = None
         else:
             raise IOError("Must provide both username and password, or neither.")
 
-    if not config.webbase:
-        raise ValueError("webbase missing")
+    if not config.base_url:
+        raise ValueError("base_url missing")
     if not optional_auth:
         if not auth or not auth.login or not auth.password:
             raise ValueError("Authentification not initialized but required")
 
-        msg = f"\033[93m--- webbase {config.webbase}; login; {auth.login} ---\033[0m\n"
+        msg = f"\033[93m--- base_url {config.base_url}; login; {auth.login} ---\033[0m\n"
         sys.stderr.write(msg)
 
     if verbose:
@@ -108,10 +108,10 @@ class Bfabric(object):
         self.query_counter = 0
 
         if engine == BfabricAPIEngineType.SUDS:
-            self.engine = EngineSUDS(auth.login, auth.password, config.webbase)
+            self.engine = EngineSUDS(auth.login, auth.password, config.base_url)
             self.result_type = BfabricResultType.LISTSUDS
         elif engine == BfabricAPIEngineType.ZEEP:
-            self.engine = EngineZeep(auth.login, auth.password, config.webbase)
+            self.engine = EngineZeep(auth.login, auth.password, config.base_url)
             self.result_type = BfabricResultType.LISTZEEP
         else:
             raise ValueError("Unexpected engine", BfabricAPIEngineType)

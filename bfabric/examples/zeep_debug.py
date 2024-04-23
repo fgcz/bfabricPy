@@ -38,7 +38,7 @@ def read_zeep(wsdl, fullQuery, raw=True):
 
 
 def read(auth: BfabricAuth, config: BfabricConfig, endpoint: str, query: dict, raw: bool = True):
-    wsdl = "".join((config.webbase, '/', endpoint, "?wsdl"))
+    wsdl = "".join((config.base_url, '/', endpoint, "?wsdl"))
     fullQuery = full_query(auth, query)
     return read_zeep(wsdl, fullQuery, raw=raw)
 

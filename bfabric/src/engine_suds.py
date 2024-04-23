@@ -7,16 +7,16 @@ from suds.client import Client
 class EngineSUDS(object):
     """B-Fabric API SUDS Engine"""
 
-    def __init__(self, login: str, password: str, webbase: str):
+    def __init__(self, login: str, password: str, base_url: str):
         self.cl = {}
         self.login = login
         self.password = password
-        self.webbase = webbase
+        self.base_url = base_url
 
     def _get_client(self, endpoint: str):
         try:
             if not endpoint in self.cl:
-                wsdl = "".join((self.webbase, '/', endpoint, "?wsdl"))
+                wsdl = "".join((self.base_url, '/', endpoint, "?wsdl"))
                 self.cl[endpoint] = Client(wsdl, cache=None)
             return self.cl[endpoint]
         except Exception as e:

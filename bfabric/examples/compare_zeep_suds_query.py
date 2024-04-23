@@ -58,7 +58,7 @@ def full_query(auth: BfabricAuth, query: dict, includedeletableupdateable: bool 
     }
 
 def calc_both(auth: BfabricAuth, config: BfabricConfig, endpoint: str, query: dict, raw: bool = True):
-    wsdl = "".join((config.webbase, '/', endpoint, "?wsdl"))
+    wsdl = "".join((config.base_url, '/', endpoint, "?wsdl"))
     fullQuery = full_query(auth, query)
     retZeep = read_zeep(wsdl, fullQuery, raw=raw)
     retSuds = read_suds(wsdl, fullQuery, raw=raw)
