@@ -101,7 +101,7 @@ def _read_config_env_as_dict(config_path: str, config_env: str = None) -> Tuple[
         logger.info(f"config environment specified explicitly as {config_env}")
 
     if config_env not in config_dict:
-        raise IOError("The requested config environment", config_env, "is not present in the config file")
+        raise IOError(f"The requested config environment {config_env} is not present in the config file")
 
     return config_env, config_dict[config_env]
 
