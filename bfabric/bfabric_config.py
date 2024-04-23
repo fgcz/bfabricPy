@@ -52,19 +52,6 @@ class BfabricConfig:
         )
 
 
-'''
-NOTE: BFabricPy expects a .bfabricpy.yml of the format, as seen in bfabricPy/tests/unit/example_config.yml
-* The general field always has to be present
-* There may be any number of environments, and they may have arbitrary names. Here, they are called PRODUCTION and TEST
-* Must specify correct login, password and base_url for each environment.
-* application and job_notification_emails fields are optional
-* The default environment will be selected as follows:
-    - First, parser will check if the optional argument `config_env` is provided directly to the parser function
-    - If not, secondly, the parser will check if the environment variable `BFABRICPY_CONFIG_ENV` is declared
-    - If not, finally, the parser will select the default_config specified in [GENERAL] of the .bfabricpy.yml file 
-'''
-
-
 def _read_config_env_as_dict(config_path: str, config_env: str = None) -> Tuple[str, dict]:
     """
     Reads and partially parses a bfabricpy.yml file
@@ -137,8 +124,8 @@ def _parse_dict(d: dict, mandatory_keys: list, optional_keys: list = None, error
     # Ignore all other fields
     return d_rez
 
-def read_bfabricrc_py(config_path: str, config_env: str = None,
-                      optional_auth: bool = False) -> Tuple[BfabricConfig, Optional[BfabricAuth]]:
+def read_config(config_path: str, config_env: str = None,
+                optional_auth: bool = False) -> Tuple[BfabricConfig, Optional[BfabricAuth]]:
     """
     Reads bfabricpy.yml file, parses it, extracting authentication and configuration data
     :param config_path:   Path to the configuration file. It is assumed the file exists
@@ -147,6 +134,17 @@ def read_bfabricrc_py(config_path: str, config_env: str = None,
         If not, both login and password must be present in the config file, otherwise an exception is thrown
         If yes, missing login and password would result in authentication class being None, but no exception
     :return: Configuration and Authentication class instances
+
+    
+    NOTE: BFabricPy expects a .bfabricpy.yml of the format, as seen in bfabricPy/tests/unit/example_config.yml
+    * The general field always has to be present
+    * There may be any number of environments, and they may have arbitrary names. Here, they are called PRODUCTION and TEST
+    * Must specify correct login, password and base_url for each environment.
+    * application and job_notification_emails fields are optional
+    * The default environment will be selected as follows:
+        - First, parser will check if the optional argument `config_env` is provided directly to the parser function
+        - If not, secondly, the parser will check if the environment variable `BFABRICPY_CONFIG_ENV` is declared
+        - If not, finally, the parser will select the default_config specified in [GENERAL] of the .bfabricpy.yml file
     """
 
 
