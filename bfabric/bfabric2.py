@@ -35,7 +35,7 @@ from bfabric.src.engine_suds import EngineSUDS
 from bfabric.src.engine_zeep import EngineZeep
 from bfabric.src.result_container import ResultContainer, BfabricResultType
 from bfabric.src.paginator import page_iter, BFABRIC_QUERY_LIMIT
-from bfabric.bfabric_config import BfabricAuth, BfabricConfig, read_bfabricpy_yml
+from bfabric.bfabric_config import BfabricAuth, BfabricConfig, read_config
 
 class BfabricAPIEngineType(Enum):
     SUDS = 1
@@ -69,7 +69,7 @@ def get_system_auth(login: str = None, password: str = None, base_url: str = Non
 
     # Load config from file, override some of the fields with the provided ones
     else:
-        config, auth = read_bfabricpy_yml(config_path, config_env=config_env, optional_auth=optional_auth)
+        config, auth = read_config(config_path, config_env=config_env, optional_auth=optional_auth)
         config = config.with_overrides(base_url=base_url)
         if (login is not None) and (password is not None):
             auth = BfabricAuth(login=login, password=password)
