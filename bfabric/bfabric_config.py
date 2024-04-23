@@ -143,7 +143,7 @@ def read_bfabricrc_py(config_path: str, config_env: str = None,
 
     config_env_final, config_dict = _read_config_env_as_dict(config_path, config_env=config_env)
 
-    error_prefix = "Config environment " + config_env_final + " does not have a compulsory field: "
+    error_prefix = f"Config environment {config_env_final} does not have a compulsory field: "
 
     # Parse authentification
     if optional_auth and not _have_all_keys(config_dict, ['login', 'password']):
