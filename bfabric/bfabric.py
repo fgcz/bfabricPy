@@ -26,7 +26,7 @@ import json
 import sys
 from pprint import pprint
 
-from bfabric.bfabric_config import BfabricAuth, BfabricConfig, read_bfabricrc_py
+from bfabric.bfabric_config import BfabricAuth, BfabricConfig, read_config
 from suds.client import Client
 from suds.wsdl import Service
 
@@ -107,6 +107,11 @@ class Bfabric(object):
         # Get default path config file path
         config_path = config_path or os.path.normpath(os.path.expanduser("~/.bfabricpy.yml"))
 
+        # TODO: Convert to an exception when this branch becomes main
+        config_path_old = config_path or os.path.normpath(os.path.expanduser("~/.bfabricrc.py"))
+        if os.path.isfile(config_path):
+            self.warning("WARNING! The old .bfabricrc.py was found in the home directory. Delete and make sure to use the new .bfabricpy.yml")
+
         # Use the provided config data from arguments instead of the file
         if not os.path.isfile(config_path):
             self.warning("could not find '.bfabricpy.yml' file in home directory.")
@@ -115,7 +120,7 @@ class Bfabric(object):
 
         # Load config from file, override some of the fields with the provided ones
         else:
-            config, auth = read_bfabricrc_py(config_path, config_env=config_env, optional_auth=optional_auth)
+            config, auth = read_config(config_path, config_env=config_env, optional_auth=optional_auth)
             self.config = config.with_overrides(base_url=base_url)
             if (login is not None) and (password is not None):
                 self.auth = BfabricAuth(login=login, password=password)
