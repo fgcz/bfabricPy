@@ -109,7 +109,7 @@ def _have_all_keys(d: dict, l: list) -> bool:
     """True if all elements in list l are present as keys in dict d, otherwise false"""
     return all([k in d for k in l])
 
-def _parse_dict(d: dict, mandatory_keys: list, optional_keys: list = None, error_prefix: str = None):
+def _parse_dict(d: dict, mandatory_keys: list, optional_keys: list = None, error_prefix: str = " "):
     """
     Returns a copy of an existing dictionary, only keeping mandatory and optional keys
     If a mandatory key is not found, an exception is raised
