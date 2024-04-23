@@ -82,10 +82,6 @@ def _read_config_env_as_dict(config_path: str, config_env: str = None) -> Tuple[
     # Read the config file
     config_dict = yaml.safe_load(Path(config_path).read_text())
 
-    # config = ConfigParser()
-    # config.read(config_path)
-    # config_dict = {s: dict(config.items(s)) for s in config.sections()}
-
     if "GENERAL" not in config_dict:
         raise IOError("Config file must have a general section")
     if 'default_config' not in config_dict['GENERAL']:
