@@ -124,7 +124,6 @@ def read_config(config_path: str, config_env: str = None,
         If yes, missing login and password would result in authentication class being None, but no exception
     :return: Configuration and Authentication class instances
 
-
     NOTE: BFabricPy expects a .bfabricpy.yml of the format, as seen in bfabricPy/tests/unit/example_config.yml
     * The general field always has to be present
     * There may be any number of environments, and they may have arbitrary names. Here, they are called PRODUCTION and TEST
