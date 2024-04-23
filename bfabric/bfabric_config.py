@@ -93,7 +93,7 @@ def _read_config_env_as_dict(config_path: str, config_env: str = None) -> Tuple[
         # Try to find a relevant
         config_env = os.getenv("BFABRICPY_CONFIG_ENV")
         if config_env is None:
-            logger.log(20, "BFABRICPY_CONFIG_ENV not found, using default environment " + config_env_default)
+            logger.info(f"BFABRICPY_CONFIG_ENV not found, using default environment {config_env_default}")
             config_env = config_env_default
         else:
             logger.log(20, "found BFABRICPY_CONFIG_ENV = " + config_env)
