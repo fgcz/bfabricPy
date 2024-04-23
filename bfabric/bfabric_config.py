@@ -73,8 +73,6 @@ def _read_config_env_as_dict(config_path: str, config_env: str = None) -> Tuple[
        or the config file itself.
     :return: Returns a target environment name, and the corresponding data from bfabricpy.yml file as a dictionary
     """
-
-    """Parses a .bfabricrc.py file and returns a tuple of BfabricConfig and BfabricAuth objects."""
     logger = logging.getLogger(__name__)
     logger.info(f"Reading configuration from: {config_path}")
 
