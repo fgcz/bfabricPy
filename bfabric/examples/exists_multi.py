@@ -1,7 +1,7 @@
 from bfabric.bfabric2 import Bfabric, BfabricAPIEngineType, get_system_auth
 
 
-config, auth = get_system_auth()
+config, auth = get_system_auth(config_env="TEST")
 
 b1 = Bfabric(config, auth, engine = BfabricAPIEngineType.SUDS)
 b2 = Bfabric(config, auth, engine = BfabricAPIEngineType.ZEEP)

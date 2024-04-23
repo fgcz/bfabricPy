@@ -1,4 +1,4 @@
-from bfabric.bfabric2 import Bfabric, BfabricAPIEngineType, get_system_auth
+from bfabric.bfabric2 import get_system_auth, BfabricAuth, BfabricConfig
 import zeep
 from copy import deepcopy
 from lxml import etree
@@ -17,7 +17,7 @@ Intermediate conclusions:
 '''
 
 
-def full_query(auth, query: dict, includedeletableupdateable: bool = False) -> dict:
+def full_query(auth: BfabricAuth, query: dict, includedeletableupdateable: bool = False) -> dict:
     thisQuery = deepcopy(query)
     thisQuery['includedeletableupdateable'] = includedeletableupdateable
 
@@ -37,21 +37,21 @@ def read_zeep(wsdl, fullQuery, raw=True):
         return ret
 
 
-def read(auth, config, endpoint: str, query: dict, raw: bool = True):
+def read(auth: BfabricAuth, config: BfabricConfig, endpoint: str, query: dict, raw: bool = True):
     wsdl = "".join((config.base_url, '/', endpoint, "?wsdl"))
     fullQuery = full_query(auth, query)
     return read_zeep(wsdl, fullQuery, raw=raw)
 
 
-config, auth = get_system_auth()
+bfconfig, bfauth = get_system_auth(config_env="TEST")
 
 print('============== RAW ================')
 
-rez = read(auth, config, 'user', {'id': 9026}, raw = True)
+rez = read(bfauth, bfconfig, 'user', {'id': 9026}, raw = True)
 root = etree.fromstring(rez)
 print(etree.tostring(root, pretty_print=True).decode())
 
-rez = read(auth, config, 'user', {'id': 9026}, raw = False)
+rez = read(bfauth, bfconfig, 'user', {'id': 9026}, raw = False)
 
 print('============== ORIG ================')
 print(rez['user'][0]['project'])

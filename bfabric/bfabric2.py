@@ -24,6 +24,8 @@ History
 """
 
 import os
+import sys
+from pprint import pprint
 from enum import Enum
 from copy import deepcopy
 from typing import Union, List, Optional
@@ -33,20 +35,60 @@ from bfabric.src.engine_suds import EngineSUDS
 from bfabric.src.engine_zeep import EngineZeep
 from bfabric.src.result_container import ResultContainer, BfabricResultType
 from bfabric.src.paginator import page_iter, BFABRIC_QUERY_LIMIT
-from bfabric.bfabric_config import BfabricAuth, BfabricConfig, parse_bfabricrc_py
+from bfabric.bfabric_config import BfabricAuth, BfabricConfig, read_config
 
 class BfabricAPIEngineType(Enum):
     SUDS = 1
     ZEEP = 2
 
 
-def get_system_auth():
-    path_bfabricrc = os.path.normpath(os.path.expanduser("~/.bfabricrc.py"))
-    if not os.path.isfile(path_bfabricrc):
-        raise IOError("Config file not found:", path_bfabricrc)
+def get_system_auth(login: str = None, password: str = None, base_url: str = None, externaljobid=None,
+                    config_path: str = None, config_env: str = None, optional_auth: bool = False, verbose: bool = False):
+    """
+    :param login:           Login string for overriding config file
+    :param password:        Password for overriding config file
+    :param base_url:        Base server url for overriding config file
+    :param externaljobid:   ?
+    :param config_path:     Path to the config file, in case it is different from default
+    :param config_env:      Which config environment to use. Can also specify via environment variable or use
+       default in the config file (at your own risk)
+    :param optional_auth:   Whether authentification is optional. If yes, missing authentification will be ignored,
+       otherwise an exception will be raised
+    :param verbose:         Verbosity (TODO: resolve potential redundancy with logger)
+    """
 
-    with open(path_bfabricrc, "r", encoding="utf-8") as file:
-        config, auth = parse_bfabricrc_py(file)
+    # Get default path config file path
+    config_path = config_path or os.path.normpath(os.path.expanduser("~/.bfabricpy.yml"))
+
+    # Use the provided config data from arguments instead of the file
+    if not os.path.isfile(config_path):
+        # TODO: Convert to log
+        print("Warning: could not find '.bfabricpy.yml' file in home directory.")
+        config = BfabricConfig(base_url=base_url)
+        auth = BfabricAuth(login=login, password=password)
+
+    # Load config from file, override some of the fields with the provided ones
+    else:
+        config, auth = read_config(config_path, config_env=config_env, optional_auth=optional_auth)
+        config = config.with_overrides(base_url=base_url)
+        if (login is not None) and (password is not None):
+            auth = BfabricAuth(login=login, password=password)
+        elif (login is None) and (password is None):
+            auth = auth
+        else:
+            raise IOError("Must provide both username and password, or neither.")
+
+    if not config.base_url:
+        raise ValueError("base_url missing")
+    if not optional_auth:
+        if not auth or not auth.login or not auth.password:
+            raise ValueError("Authentification not initialized but required")
+
+        msg = f"\033[93m--- base_url {config.base_url}; login; {auth.login} ---\033[0m\n"
+        sys.stderr.write(msg)
+
+    if verbose:
+        pprint(config)
 
     return config, auth
 
@@ -156,7 +198,7 @@ class Bfabric(object):
 
         # Iterate over request chunks that fit into a single API page
         for page_vals in page_iter(multi_query_vals):
-            obj_exteded[multi_query_key] = page_vals
+            obj_extended[multi_query_key] = page_vals
 
             # TODO: Test what happens if there are multiple responses to each of the individual queries.
             #     * What would happen?
@@ -165,7 +207,7 @@ class Bfabric(object):
             #       automatically? If yes, perhaps we don't need this method at all?
             # TODO: It is assumed that a user requesting multi_query always wants all of the pages. Can anybody think of
             #   exceptions to this?
-            response_this = self.read(endpoint, obj_exteded, max_results=None, readid=readid, **kwargs)
+            response_this = self.read(endpoint, obj_extended, max_results=None, readid=readid, **kwargs)
             response_tot.extend(response_this)
 
         return response_tot

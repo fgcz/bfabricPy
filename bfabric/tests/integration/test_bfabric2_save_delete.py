@@ -86,7 +86,7 @@ def _save_delete_workunit(b: Bfabric, verbose: bool = False) -> None:
 
 class BfabricTestSaveDelete(unittest.TestCase):
     def setUp(self):
-        self.config, self.auth = get_system_auth()
+        self.config, self.auth = get_system_auth(config_env="TEST")
 
     def test_zeep(self):
         bZeep = Bfabric(self.config, self.auth, engine=BfabricAPIEngineType.ZEEP)

@@ -18,7 +18,7 @@ def _calc_query(config, auth, engine: BfabricAPIEngineType, endpoint: str,
 
 class BfabricTestPagination(unittest.TestCase):
     def setUp(self):
-        self.config, self.auth = get_system_auth()
+        self.config, self.auth = get_system_auth(config_env="TEST")
 
     def test_composite_user(self):
         endpoint = 'user'

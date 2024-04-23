@@ -13,7 +13,7 @@ class BfabricTestRead(unittest.TestCase):
             self.ground_truth = json.load(json_file)
 
         # Load config and authentification
-        self.config, self.auth = get_system_auth()
+        self.config, self.auth = get_system_auth(config_env="TEST")
 
         # Init the engines
         self.clients = {
