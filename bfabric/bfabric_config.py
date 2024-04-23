@@ -142,8 +142,8 @@ def _parse_dict(d: dict, mandatory_keys: list, optional_keys: list = None, error
     # Ignore all other fields
     return d_rez
 
-def read_bfabricrc_py(config_path: str, config_env: str = None,
-                      optional_auth: bool = False) -> Tuple[BfabricConfig, Optional[BfabricAuth]]:
+def read_bfabricpy_yml(config_path: str, config_env: str = None,
+                       optional_auth: bool = False) -> Tuple[BfabricConfig, Optional[BfabricAuth]]:
     """
     Reads bfabricpy.yml file, parses it, extracting authentication and configuration data
     :param config_path:   Path to the configuration file. It is assumed the file exists

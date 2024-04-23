@@ -26,7 +26,7 @@ import json
 import sys
 from pprint import pprint
 
-from bfabric.bfabric_config import BfabricAuth, BfabricConfig, read_bfabricrc_py
+from bfabric.bfabric_config import BfabricAuth, BfabricConfig, read_bfabricpy_yml
 from suds.client import Client
 from suds.wsdl import Service
 
@@ -115,7 +115,7 @@ class Bfabric(object):
 
         # Load config from file, override some of the fields with the provided ones
         else:
-            config, auth = read_bfabricrc_py(config_path, config_env=config_env, optional_auth=optional_auth)
+            config, auth = read_bfabricpy_yml(config_path, config_env=config_env, optional_auth=optional_auth)
             self.config = config.with_overrides(webbase=webbase)
             if (login is not None) and (password is not None):
                 self.auth = BfabricAuth(login=login, password=password)

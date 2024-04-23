@@ -2,7 +2,7 @@ import os
 import io
 import unittest
 
-from bfabric.bfabric_config import BfabricConfig, BfabricAuth, read_bfabricrc_py
+from bfabric.bfabric_config import BfabricConfig, BfabricAuth, read_bfabricpy_yml
 
 
 class TestBfabricAuth(unittest.TestCase):
@@ -47,7 +47,7 @@ class TestBfabricConfig(unittest.TestCase):
         # Ensure environment variable is not available, and the default is environment is loaded
         os.environ.pop('BFABRICPY_CONFIG_ENV', None)
 
-        config, auth = read_bfabricrc_py('example_config.yml')  # Should deduce
+        config, auth = read_bfabricpy_yml('example_config.yml')  # Should deduce
         self.assertEqual("my_epic_production_login", auth.login)
         self.assertEqual("my_secret_production_password", auth.password)
         self.assertEqual("https://mega-production-server.uzh.ch/myprod", config.webbase)
@@ -58,7 +58,7 @@ class TestBfabricConfig(unittest.TestCase):
         # Explicitly set the environment variable for this process
         os.environ["BFABRICPY_CONFIG_ENV"] = "TEST"
 
-        config, auth = read_bfabricrc_py('example_config.yml')  # Should deduce
+        config, auth = read_bfabricpy_yml('example_config.yml')  # Should deduce
         self.assertEqual("my_epic_test_login", auth.login)
         self.assertEqual("my_secret_test_password", auth.password)
         self.assertEqual("https://mega-test-server.uzh.ch/mytest", config.webbase)
@@ -67,7 +67,7 @@ class TestBfabricConfig(unittest.TestCase):
     # TODO: Test that logging is consistent with default config
     def test_read_yml_bypath_allfields(self):
         with self.assertLogs(level="INFO") as log_context:
-            config, auth = read_bfabricrc_py('example_config.yml', config_env='TEST')
+            config, auth = read_bfabricpy_yml('example_config.yml', config_env='TEST')
 
         # # Testing log
         # self.assertEqual(
@@ -96,7 +96,7 @@ class TestBfabricConfig(unittest.TestCase):
     # Testing that we can load webbase without authentication if correctly requested
     def test_read_yml_when_empty_optional(self):
         with self.assertLogs(level="INFO"):
-            config, auth = read_bfabricrc_py('example_config.yml', config_env='STANDBY', optional_auth=True)
+            config, auth = read_bfabricpy_yml('example_config.yml', config_env='STANDBY', optional_auth=True)
 
         self.assertIsNone(auth)
         self.assertEqual("https://standby-server.uzh.ch/mystandby", config.webbase)
@@ -106,7 +106,7 @@ class TestBfabricConfig(unittest.TestCase):
     # Test that missing authentication will raise an error if required
     def test_read_yml_when_empty_mandatory(self):
         with self.assertRaises(ValueError):
-            read_bfabricrc_py('example_config.yml', config_env='STANDBY', optional_auth=False)
+            read_bfabricpy_yml('example_config.yml', config_env='STANDBY', optional_auth=False)
 
     def test_repr(self):
         rep = repr(self.config)

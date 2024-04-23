@@ -8,7 +8,7 @@ from contextlib import redirect_stdout
 import zeep
 import suds
 
-from bfabric.bfabric2 import get_system_auth
+from bfabric.bfabric2 import get_system_auth, BfabricAuth, BfabricConfig
 from bfabric.src.response_format_suds import suds_asdict_recursive
 from bfabric.src.response_format_dict import drop_empty_elements, map_element_keys
 
@@ -47,7 +47,7 @@ def read_suds(wsdl, fullQuery, raw=True):
     else:
         return suds_asdict_recursive(ret, convert_types=True)
 
-def full_query(auth, query: dict, includedeletableupdateable: bool = False) -> dict:
+def full_query(auth: BfabricAuth, query: dict, includedeletableupdateable: bool = False) -> dict:
     thisQuery = deepcopy(query)
     thisQuery['includedeletableupdateable'] = includedeletableupdateable
 
@@ -57,8 +57,8 @@ def full_query(auth, query: dict, includedeletableupdateable: bool = False) -> d
         'query': thisQuery
     }
 
-def calc_both(auth, config, endpoint: str, query: dict, raw: bool = True):
-    wsdl = "".join((config.base_url, '/', endpoint, "?wsdl"))
+def calc_both(auth: BfabricAuth, config: BfabricConfig, endpoint: str, query: dict, raw: bool = True):
+    wsdl = "".join((config.webbase, '/', endpoint, "?wsdl"))
     fullQuery = full_query(auth, query)
     retZeep = read_zeep(wsdl, fullQuery, raw=raw)
     retSuds = read_suds(wsdl, fullQuery, raw=raw)
@@ -69,7 +69,7 @@ def calc_both(auth, config, endpoint: str, query: dict, raw: bool = True):
 # Raw XML tests
 ######################
 
-def raw_test(auth, config, endpoint, query):
+def raw_test(auth: BfabricAuth, config: BfabricConfig, endpoint, query):
     print("Testing raw XML match for", endpoint, query)
     retZeep, retSuds = calc_both(auth, config, endpoint, query, raw=True)
     assert len(retZeep) == len(retSuds)
@@ -77,7 +77,7 @@ def raw_test(auth, config, endpoint, query):
     print('-- passed --')
 
 
-config, auth = get_system_auth()
+config, auth = get_system_auth(config_env="TEST")
 # raw_test(auth, config, 'user', {'id': 9026})
 # raw_test(auth, config, 'user', {})
 
@@ -167,7 +167,7 @@ def parsed_data_match_test(auth, config, endpoint, query, drop_empty: bool = Tru
     if log_file_path is not None:
         with open(log_file_path, 'w') as f:
             with redirect_stdout(f):
-                recursive_comparison(retZeepDict, retSudsDict, prefix = [])
+                matched = recursive_comparison(retZeepDict, retSudsDict, prefix = [])
     else:
         matched = recursive_comparison(retZeepDict, retSudsDict, prefix=[])
 

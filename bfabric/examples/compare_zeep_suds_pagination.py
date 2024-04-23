@@ -85,7 +85,7 @@ def dataframe_pagination_test(config, auth, endpoint, use_cached: bool = False, 
     return match_test_result
 
 
-config, auth = get_system_auth()
+config, auth = get_system_auth(config_env="TEST")
 
 result = dataframe_pagination_test(config, auth, 'user', use_cached=False, store_cached=True)
 report_test_result(result, "pagination")
