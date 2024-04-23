@@ -119,20 +119,11 @@ def _parse_dict(d: dict, mandatory_keys: list, optional_keys: list = None, error
     :param error_prefix:      A string to print if a mandatory key is not found
     :return:                  Copy of a starting dictionary, only containing mandatory and optional keys
     """
-    d_rez = {}
-
-    # Get all mandatory fields, and complain if not found
-    for k in mandatory_keys:
-        if k in d:
-            d_rez[k] = d[k]
-        else:
-            raise ValueError(error_prefix + k)
-
-    # Get all optional fields
-    if optional_keys is not None:
-        for k in optional_keys:
-            if k in d:
-                d_rez[k] = d[k]
+    missing_keys = set(mandatory_keys) - set(d)
+    if missing_keys:
+        raise ValueError(f"{error_prefix}{missing_keys}")
+    result_keys = set(mandatory_keys) + set(optional_keys or [])
+    d_rez = {d[k] for k in result_keys}
 
     # Ignore all other fields
     return d_rez
