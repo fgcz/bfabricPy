@@ -20,25 +20,25 @@ class TestBfabricAuth(unittest.TestCase):
 class TestBfabricConfig(unittest.TestCase):
     def setUp(self):
         self.config = BfabricConfig(
-            webbase="url",
+            base_url="url",
             application_ids={"app": 1},
         )
 
     def test_with_overrides(self):
         new_config = self.config.with_overrides(
-            webbase="new_url",
+            base_url="new_url",
             application_ids={"new": 2},
         )
-        self.assertEqual("new_url", new_config.webbase)
+        self.assertEqual("new_url", new_config.base_url)
         self.assertEqual({"new": 2}, new_config.application_ids)
-        self.assertEqual("url", self.config.webbase)
+        self.assertEqual("url", self.config.base_url)
         self.assertEqual({"app": 1}, self.config.application_ids)
 
     def test_with_replaced_when_none(self):
-        new_config = self.config.with_overrides(webbase=None, application_ids=None)
-        self.assertEqual("url", new_config.webbase)
+        new_config = self.config.with_overrides(base_url=None, application_ids=None)
+        self.assertEqual("url", new_config.base_url)
         self.assertEqual({"app": 1}, new_config.application_ids)
-        self.assertEqual("url", self.config.webbase)
+        self.assertEqual("url", self.config.base_url)
         self.assertEqual({"app": 1}, self.config.application_ids)
 
     # Testing default initialization
@@ -50,7 +50,7 @@ class TestBfabricConfig(unittest.TestCase):
         config, auth = read_bfabricrc_py('example_config.yml')  # Should deduce
         self.assertEqual("my_epic_production_login", auth.login)
         self.assertEqual("my_secret_production_password", auth.password)
-        self.assertEqual("https://mega-production-server.uzh.ch/myprod", config.webbase)
+        self.assertEqual("https://mega-production-server.uzh.ch/myprod", config.base_url)
 
     # Testing environment variable initialization
     # TODO: Test that logging is consistent with default config
@@ -61,7 +61,7 @@ class TestBfabricConfig(unittest.TestCase):
         config, auth = read_bfabricrc_py('example_config.yml')  # Should deduce
         self.assertEqual("my_epic_test_login", auth.login)
         self.assertEqual("my_secret_test_password", auth.password)
-        self.assertEqual("https://mega-test-server.uzh.ch/mytest", config.webbase)
+        self.assertEqual("https://mega-test-server.uzh.ch/mytest", config.base_url)
 
     # Testing explicit initialization, as well as extra fields (application_ids, job_notification_emails)
     # TODO: Test that logging is consistent with default config
@@ -80,7 +80,7 @@ class TestBfabricConfig(unittest.TestCase):
 
         self.assertEqual("my_epic_test_login", auth.login)
         self.assertEqual("my_secret_test_password", auth.password)
-        self.assertEqual("https://mega-test-server.uzh.ch/mytest", config.webbase)
+        self.assertEqual("https://mega-test-server.uzh.ch/mytest", config.base_url)
 
         applications_dict_ground_truth = {
             'Proteomics/CAT_123': 7,
@@ -93,13 +93,13 @@ class TestBfabricConfig(unittest.TestCase):
         self.assertEqual(applications_dict_ground_truth, config.application_ids)
         self.assertEqual(job_notification_emails_ground_truth, config.job_notification_emails)
 
-    # Testing that we can load webbase without authentication if correctly requested
+    # Testing that we can load base_url without authentication if correctly requested
     def test_read_yml_when_empty_optional(self):
         with self.assertLogs(level="INFO"):
             config, auth = read_bfabricrc_py('example_config.yml', config_env='STANDBY', optional_auth=True)
 
         self.assertIsNone(auth)
-        self.assertEqual("https://standby-server.uzh.ch/mystandby", config.webbase)
+        self.assertEqual("https://standby-server.uzh.ch/mystandby", config.base_url)
         self.assertEqual({}, config.application_ids)
         self.assertEqual("", config.job_notification_emails)
 
@@ -111,14 +111,14 @@ class TestBfabricConfig(unittest.TestCase):
     def test_repr(self):
         rep = repr(self.config)
         self.assertEqual(
-            "BfabricConfig(webbase='url', application_ids={'app': 1}, job_notification_emails='')",
+            "BfabricConfig(base_url='url', application_ids={'app': 1}, job_notification_emails='')",
             rep,
         )
 
     def test_str(self):
         rep = str(self.config)
         self.assertEqual(
-            "BfabricConfig(webbase='url', application_ids={'app': 1}, job_notification_emails='')",
+            "BfabricConfig(base_url='url', application_ids={'app': 1}, job_notification_emails='')",
             rep,
         )
 

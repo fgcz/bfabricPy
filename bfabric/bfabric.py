@@ -84,12 +84,12 @@ class Bfabric(object):
     def warning(self, msg):
         sys.stderr.write("\033[93m{}\033[0m\n".format(msg))
 
-    def __init__(self, login: str = None, password: str = None, webbase: str = None, externaljobid=None,
+    def __init__(self, login: str = None, password: str = None, base_url: str = None, externaljobid=None,
                  config_path: str = None, config_env: str = None, optional_auth: bool = False, verbose: bool = False):
         """
         :param login:           Login string for overriding config file
         :param password:        Password for overriding config file
-        :param webbase:         Webbase for overriding config file
+        :param base_url:        Base url of the BFabric server for overriding config file
         :param externaljobid:   ?
         :param config_path:     Path to the config file, in case it is different from default
         :param config_env:      Which config environment to use. Can also specify via environment variable or use
@@ -110,13 +110,13 @@ class Bfabric(object):
         # Use the provided config data from arguments instead of the file
         if not os.path.isfile(config_path):
             self.warning("could not find '.bfabricpy.yml' file in home directory.")
-            self.config = BfabricConfig(webbase=webbase)
+            self.config = BfabricConfig(base_url=base_url)
             self.auth = BfabricAuth(login=login, password=password)
 
         # Load config from file, override some of the fields with the provided ones
         else:
             config, auth = read_bfabricrc_py(config_path, config_env=config_env, optional_auth=optional_auth)
-            self.config = config.with_overrides(webbase=webbase)
+            self.config = config.with_overrides(base_url=base_url)
             if (login is not None) and (password is not None):
                 self.auth = BfabricAuth(login=login, password=password)
             elif (login is None) and (password is None):
@@ -124,13 +124,13 @@ class Bfabric(object):
             else:
                 raise IOError("Must provide both username and password, or neither.")
 
-        if not self.config.webbase:
-            raise ValueError("webbase missing")
+        if not self.config.base_url:
+            raise ValueError("base server url missing")
         if not optional_auth:
             if not self.auth or not self.auth.login or not self.auth.password:
                 raise ValueError("Authentification not initialized but required")
 
-            msg = f"\033[93m--- webbase {self.config.webbase}; login; {self.auth.login} ---\033[0m\n"
+            msg = f"\033[93m--- base_url {self.config.base_url}; login; {self.auth.login} ---\033[0m\n"
             sys.stderr.write(msg)
 
         if self.verbose:
@@ -214,7 +214,7 @@ class Bfabric(object):
     def _get_service(self, endpoint: str) -> Service:
         """Returns a `suds.client.Service` object for the given endpoint name."""
         if endpoint not in self.cl:
-            self.cl[endpoint] = Client(f"{self.config.webbase}/{endpoint}?wsdl", cache=None)
+            self.cl[endpoint] = Client(f"{self.config.base_url}/{endpoint}?wsdl", cache=None)
         return self.cl[endpoint].service
 
     def _perform_request(
@@ -860,12 +860,12 @@ exit 0
                 sample_id = self.get_sampleid(int(resource_iterator._id))
 
                 _resource_sample = {'resource_id': int(resource_iterator._id),
-                                        'resource_url': "{0}/userlab/show-resource.html?id={1}".format(self.config.webbase, resource_iterator._id)}
+                                        'resource_url': "{0}/userlab/show-resource.html?id={1}".format(self.config.base_url, resource_iterator._id)}
 
 
                 if not sample_id is None:
                     _resource_sample['sample_id'] = int(sample_id)
-                    _resource_sample['sample_url'] = "{0}/userlab/show-sample.html?id={1}".format(self.config.webbase, sample_id)
+                    _resource_sample['sample_url'] = "{0}/userlab/show-sample.html?id={1}".format(self.config.base_url, sample_id)
 
                 resource_ids[_application_name].append(_resource_sample)
             except:
@@ -960,7 +960,7 @@ exit 0
                     },
                 'workunit_id': int(workunit._id),
                 'workunit_createdby': str(workunit.createdby),
-                'workunit_url': "{0}/userlab/show-workunit.html?workunitId={1}".format(self.config.webbase, workunit._id),
+                'workunit_url': "{0}/userlab/show-workunit.html?workunitId={1}".format(self.config.base_url, workunit._id),
                 'external_job_id': int(yaml_workunit_externaljob._id),
                 'order_id': order_id,
                 'project_id': project_id,
