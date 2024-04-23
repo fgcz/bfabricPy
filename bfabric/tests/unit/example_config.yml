@@ -1,0 +1,20 @@
+GENERAL:
+  default_config: PRODUCTION
+
+PRODUCTION:
+  login: my_epic_production_login
+  password: my_secret_production_password
+  webbase: https://mega-production-server.uzh.ch/myprod
+
+TEST:
+  login: my_epic_test_login
+  password: my_secret_test_password
+  webbase: https://mega-test-server.uzh.ch/mytest
+  application_ids:
+    Proteomics/CAT_123: 7
+    Proteomics/DOG_552: 6
+    Proteomics/DUCK_666: 12
+  job_notification_emails: john.snow@fgcz.uzh.ch billy.the.kid@fgcz.ethz.ch
+
+STANDBY:
+  webbase: https://standby-server.uzh.ch/mystandby

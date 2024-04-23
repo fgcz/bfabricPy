@@ -26,7 +26,7 @@ import json
 import sys
 from pprint import pprint
 
-from bfabric.bfabric_config import BfabricAuth, BfabricConfig, parse_bfabricrc_py
+from bfabric.bfabric_config import BfabricAuth, BfabricConfig, read_bfabricrc_py
 from suds.client import Client
 from suds.wsdl import Service
 
@@ -84,32 +84,57 @@ class Bfabric(object):
     def warning(self, msg):
         sys.stderr.write("\033[93m{}\033[0m\n".format(msg))
 
-    def __init__(self, login=None, password=None, webbase=None, externaljobid=None, bfabricrc=None, verbose=False):
+    def __init__(self, login: str = None, password: str = None, webbase: str = None, externaljobid=None,
+                 config_path: str = None, config_env: str = None, optional_auth: bool = False, verbose: bool = False):
+        """
+        :param login:           Login string for overriding config file
+        :param password:        Password for overriding config file
+        :param webbase:         Webbase for overriding config file
+        :param externaljobid:   ?
+        :param config_path:     Path to the config file, in case it is different from default
+        :param config_env:      Which config environment to use. Can also specify via environment variable or use
+           default in the config file (at your own risk)
+        :param optional_auth:   Whether authentification is optional. If yes, missing authentification will be ignored,
+           otherwise an exception will be raised
+        :param verbose:         Verbosity (TODO: resolve potential redundancy with logger)
+        """
         self.verbose = verbose
 
         self.cl = {}
         self.verbose = False
         self.query_counter = 0
 
-        bfabricrc = bfabricrc or os.path.normpath(os.path.expanduser("~/.bfabricrc.py"))
-        if not os.path.isfile(bfabricrc):
-            self.warning("could not find '.bfabricrc.py' file in home directory.")
-            self.config = BfabricConfig(base_url=webbase)
-            self.auth = BfabricAuth(login=login, password=password)
-        else:
-            with open(bfabricrc, "r", encoding="utf-8") as file:
-                config, auth = parse_bfabricrc_py(file)
-                self.config = config.with_overrides(base_url=webbase)
-                self.auth = auth if login is None and password is None else BfabricAuth(login=login, password=password)
+        # Get default path config file path
+        config_path = config_path or os.path.normpath(os.path.expanduser("~/.bfabricpy.yml"))
 
-        if not self.auth.login or not self.auth.password:
-            raise ValueError("login or password missing")
+        # Use the provided config data from arguments instead of the file
+        if not os.path.isfile(config_path):
+            self.warning("could not find '.bfabricpy.yml' file in home directory.")
+            self.config = BfabricConfig(webbase=webbase)
+            self.auth = BfabricAuth(login=login, password=password)
+
+        # Load config from file, override some of the fields with the provided ones
+        else:
+            config, auth = read_bfabricrc_py(config_path, config_env=config_env, optional_auth=optional_auth)
+            self.config = config.with_overrides(webbase=webbase)
+            if (login is not None) and (password is not None):
+                self.auth = BfabricAuth(login=login, password=password)
+            elif (login is None) and (password is None):
+                self.auth = auth
+            else:
+                raise IOError("Must provide both username and password, or neither.")
+
+        if not self.config.webbase:
+            raise ValueError("webbase missing")
+        if not optional_auth:
+            if not self.auth or not self.auth.login or not self.auth.password:
+                raise ValueError("Authentification not initialized but required")
+
+            msg = f"\033[93m--- webbase {self.config.webbase}; login; {self.auth.login} ---\033[0m\n"
+            sys.stderr.write(msg)
 
         if self.verbose:
             pprint(self.config)
-
-        msg = f"\033[93m--- webbase {self.config.base_url}; login; {self.auth.login} ---\033[0m\n"
-        sys.stderr.write(msg)
 
     def read_object(self, endpoint, obj, page=1, plain=False, idonly=False):
         """
@@ -189,7 +214,7 @@ class Bfabric(object):
     def _get_service(self, endpoint: str) -> Service:
         """Returns a `suds.client.Service` object for the given endpoint name."""
         if endpoint not in self.cl:
-            self.cl[endpoint] = Client(f"{self.config.base_url}/{endpoint}?wsdl", cache=None)
+            self.cl[endpoint] = Client(f"{self.config.webbase}/{endpoint}?wsdl", cache=None)
         return self.cl[endpoint].service
 
     def _perform_request(
@@ -835,12 +860,12 @@ exit 0
                 sample_id = self.get_sampleid(int(resource_iterator._id))
 
                 _resource_sample = {'resource_id': int(resource_iterator._id),
-                                        'resource_url': "{0}/userlab/show-resource.html?id={1}".format(self.config.base_url,resource_iterator._id)}
+                                        'resource_url': "{0}/userlab/show-resource.html?id={1}".format(self.config.webbase, resource_iterator._id)}
 
 
                 if not sample_id is None:
                     _resource_sample['sample_id'] = int(sample_id)
-                    _resource_sample['sample_url'] = "{0}/userlab/show-sample.html?id={1}".format(self.config.base_url, sample_id)
+                    _resource_sample['sample_url'] = "{0}/userlab/show-sample.html?id={1}".format(self.config.webbase, sample_id)
 
                 resource_ids[_application_name].append(_resource_sample)
             except:
@@ -935,7 +960,7 @@ exit 0
                     },
                 'workunit_id': int(workunit._id),
                 'workunit_createdby': str(workunit.createdby),
-                'workunit_url': "{0}/userlab/show-workunit.html?workunitId={1}".format(self.config.base_url, workunit._id),
+                'workunit_url': "{0}/userlab/show-workunit.html?workunitId={1}".format(self.config.webbase, workunit._id),
                 'external_job_id': int(yaml_workunit_externaljob._id),
                 'order_id': order_id,
                 'project_id': project_id,
