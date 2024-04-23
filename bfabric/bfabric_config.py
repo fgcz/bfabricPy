@@ -63,6 +63,9 @@ def _read_config_env_as_dict(config_path: str, config_env: str = None) -> Tuple[
     logger = logging.getLogger(__name__)
     logger.info(f"Reading configuration from: {config_path}")
 
+    if os.path.splitext(config_path)[1] != '.yml':
+        raise IOError(f"Expected config file with .yml extension, got {config_path}")
+
     # Read the config file
     config_dict = yaml.safe_load(Path(config_path).read_text())
 

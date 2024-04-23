@@ -63,7 +63,7 @@ def get_system_auth(login: str = None, password: str = None, base_url: str = Non
     # Use the provided config data from arguments instead of the file
     if not os.path.isfile(config_path):
         # TODO: Convert to log
-        print("Warning: could not find '.bfabricpy.yml' file in home directory.")
+        print(f"Warning: could not find the config file in {config_path}")
         config = BfabricConfig(base_url=base_url)
         auth = BfabricAuth(login=login, password=password)
 
