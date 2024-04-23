@@ -6,7 +6,6 @@ import logging
 import os
 from typing import Optional, Dict, Tuple
 import dataclasses
-# from configparser import ConfigParser
 import yaml
 from pathlib import Path
 
