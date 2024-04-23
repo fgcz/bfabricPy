@@ -107,6 +107,11 @@ class Bfabric(object):
         # Get default path config file path
         config_path = config_path or os.path.normpath(os.path.expanduser("~/.bfabricpy.yml"))
 
+        # TODO: Convert to an exception when this branch becomes main
+        config_path_old = config_path or os.path.normpath(os.path.expanduser("~/.bfabricrc.py"))
+        if os.path.isfile(config_path):
+            self.warning("WARNING! The old .bfabricrc.py was found in the home directory. Delete and make sure to use the new .bfabricpy.yml")
+
         # Use the provided config data from arguments instead of the file
         if not os.path.isfile(config_path):
             self.warning("could not find '.bfabricpy.yml' file in home directory.")
