@@ -96,7 +96,7 @@ def _read_config_env_as_dict(config_path: str, config_env: str = None) -> Tuple[
             logger.info(f"BFABRICPY_CONFIG_ENV not found, using default environment {config_env_default}")
             config_env = config_env_default
         else:
-            logger.log(20, "found BFABRICPY_CONFIG_ENV = " + config_env)
+            logger.info(f"found BFABRICPY_CONFIG_ENV = {config_env}")
     else:
         logger.log(20, "config environment specified explicitly as " + config_env)
 
