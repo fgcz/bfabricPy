@@ -430,9 +430,9 @@ def query():
 
     print ("PASSWORD CLEARTEXT", content['webservicepassword'])
     
-    bf = bfabric.Bfabric(login=content['login'], 
-      password=content['webservicepassword'], 
-      webbase='http://fgcz-bfabric.uzh.ch/bfabric')
+    bf = bfabric.Bfabric(login=content['login'],
+                         password=content['webservicepassword'],
+                         base_url='http://fgcz-bfabric.uzh.ch/bfabric')
 
     for i in content.keys():
       print ("{}\t{}".format(i, content[i]))
