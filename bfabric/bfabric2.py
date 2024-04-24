@@ -270,3 +270,8 @@ class Bfabric(object):
             return key in result_vals
         else:
             return [val in result_vals for val in value]
+
+
+def default_client(engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS):
+    config, auth = get_system_auth()
+    return Bfabric(config=config, auth=auth, engine=engine)

@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: latin1 -*-
-
 """B-Fabric command line reader
 
 Copyright:
@@ -15,95 +13,66 @@ License:
 See also:
     http://fgcz-bfabric.uzh.ch/bfabric/executable?wsdl
 """
-
-import signal
+import argparse
 import sys
 import time
 import bfabric
+from pprint import pprint
+from bfabric.bfabric2 import default_client, BfabricAPIEngineType
 
 
-def signal_handler(signal, frame):
-    print('You pressed Ctrl+C!')
-    sys.exit(0)
-
-signal.signal(signal.SIGINT, signal_handler)
-
-def print_color_msg(msg, color = "93"):
+def print_color_msg(msg, color="93"):
     sys.stderr.write(f"\033[{color}m--- {msg} ---\033[0m\n")
 
-def usage():
-    print(__doc__)
-    print("usage:\n")
-    msg = f"\t{sys.argv[0]} <endpoint> <attribute> <value>"
-    print(msg)
-    msg = "\t{} <endpoint>\n\n".format(sys.argv[0])
-    print(msg)
-    print("valid endpoints are: [{}]\n\n".format(",\n\t ".join(bfabric.endpoints)))
-    print("example:")
-    msg = "\t{} user login cpanse\n\n".format(sys.argv[0])
-    print(msg)
 
-if __name__ == "__main__":
-    B = bfabric.Bfabric(verbose=False)
-
+def main():
+    client = default_client()
     sys.stderr.write(bfabric.msg)
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument("endpoint", help="endpoint to query", choices=bfabric.endpoints)
+    parser.add_argument("attribute", help="attribute to query for", nargs="?")
+    parser.add_argument("value", help="value to query for", nargs="?")
+    args = parser.parse_args()
+
     query_obj = {}
-    
+    endpoint = args.endpoint
+    attribute = args.attribute
+    value = args.value
+    if value is not None:
+        query_obj[attribute] = value
+
+    print_color_msg(f"query = {query_obj}")
+    start_time = time.time()
+    results = client.read(endpoint=endpoint, obj=query_obj)
+    #results.sort("id")
+    res = results.to_list_dict(drop_empty=False)
+    res = sorted(res, key=lambda x: x["id"])
+    possible_attributes = set(res[0].keys())
+    end_time = time.time()
+
     try:
-        endpoint = sys.argv[1]
-    except:
-        usage()
+        # print json object
+        if len(res) < 2:
+            pprint(res[0], width=140)
+    except Exception as e:
+        # TODO fail more gracefully for no result case?
+        print_color_msg(f"invalid query. {e}.", color=95)
         sys.exit(1)
 
-    if len(sys.argv) == 4:
-        attribute = sys.argv[2]
-        name = sys.argv[3]
-        query_obj[attribute] = name
+    print_color_msg(f"possible attributes are: {possible_attributes}")
 
-    if endpoint in bfabric.endpoints:
-        print_color_msg(f"query = {query_obj}")
-        start_time = time.time()
-        res = B.read_object(endpoint = endpoint, obj = query_obj)
-        end_time = time.time()
-
-        if res is None:
-            print_color_msg("Empty result set or invalid query.", color=95)
-            sys.exit(0)
-
+    for x in res:
         try:
-            res = sorted(res, key=lambda x: x._id)
-        except:
-            print_color_msg("sorting failed.")
+            print(
+                f'{x["id"]}\t{x["createdby"]}\t{x["modified"]}\t{x["name"]}\t{x["groupingvar"]["name"]}'
+            )
+        except (KeyError, TypeError):
+            print(f'{x["id"]}\t{x["createdby"]}\t{x["modified"]}')
 
-        try:
-            # print json object
-            if len(res) < 2:
-                print(res[0])
-        except Exception as e:
-            print_color_msg(f"invalid query. {e}.", color=95)
-            sys.exit(1)
-
-        try:
-            print_color_msg("possible attributes are: {}.".format((", ".join([at[0] for at in res[0]]))))
-        except Exception as e:
-            print_color_msg(f"Exception: {e}")
-            
-        for x in res:
-            try:
-                print(f"{x._id}\t{x.createdby}\t{x.modified}\t{x.name}\t{x.groupingvar.name}")
-            except Exception as e:
-                print(f"{x._id}\t{x.createdby}\t{x.modified}")
-
-
-    else:
-        print_color_msg("The first argument must be a valid endpoint.", color=95)
-        usage()
-        sys.exit(1) 
-
-    try:
-        print_color_msg(f"number of query result items = {len(res)}")
-    except:
-        pass
-
+    print_color_msg(f"number of query result items = {len(res)}")
     print_color_msg(f"query time = {round(end_time - start_time, 2)} seconds")
+
+
+if __name__ == "__main__":
+    main()
