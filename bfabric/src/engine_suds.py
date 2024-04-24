@@ -62,8 +62,3 @@ class EngineSUDS:
 
         client = self._get_client(endpoint)
         return client.service.delete(query)
-
-    def _assert_success(self, response):
-        """Asserts that the server response indicates success, and raises an error otherwise."""
-        if getattr(response, "errorreport", None):
-            raise RuntimeError(f"Error response: {response.errorreport}")
