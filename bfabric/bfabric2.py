@@ -36,7 +36,7 @@ from bfabric.src.engine_zeep import EngineZeep
 from bfabric.src.result_container import ResultContainer, BfabricResultType
 from bfabric.src.paginator import page_iter, BFABRIC_QUERY_LIMIT
 from bfabric.bfabric_config import BfabricAuth, BfabricConfig, read_config
-from bfabric.src.api_errors import RequestError
+from bfabric.src.api_errors import BfabricRequestError
 
 
 class BfabricAPIEngineType(Enum):
@@ -296,9 +296,9 @@ class Bfabric(object):
         else:
             return [val in result_vals for val in value]
 
-    def _get_response_errors(self, response) -> list:
-        """Asserts that the server response indicates success, and raises an error otherwise."""
+    def _get_response_errors(self, response) -> List[BfabricRequestError]:
+        """Returns reported errors from the response."""
         if getattr(response, "errorreport", None):
-            return [RequestError(response.errorreport)]
+            return [BfabricRequestError(response.errorreport)]
         else:
             return []
