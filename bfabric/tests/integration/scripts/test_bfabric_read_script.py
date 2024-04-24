@@ -8,7 +8,7 @@ import bfabric
 
 
 @patch.dict("os.environ", {"BFABRICPY_CONFIG_ENV": "TEST"})
-class TestBfabricRead(unittest.TestCase):
+class TestBfabricReadScript(unittest.TestCase):
     def setUp(self):
         root_dir = pathlib.Path(inspect.getfile(bfabric)).parent
         script_path = root_dir.joinpath("scripts", "bfabric_read.py")
