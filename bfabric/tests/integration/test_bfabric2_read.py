@@ -3,6 +3,7 @@ import os
 import unittest
 
 from bfabric.bfabric2 import Bfabric, BfabricAPIEngineType, get_system_auth
+from bfabric_config import BfabricAuth
 
 
 class BfabricTestRead(unittest.TestCase):
@@ -12,7 +13,7 @@ class BfabricTestRead(unittest.TestCase):
         with open(path) as json_file:
             self.ground_truth = json.load(json_file)
 
-        # Load config and authentification
+        # Load config and authentication
         self.config, self.auth = get_system_auth(config_env="TEST")
 
         # Init the engines
@@ -36,9 +37,10 @@ class BfabricTestRead(unittest.TestCase):
                     self.assertEqual(str(gt_value), str(res[0][gt_attr]))
 
     def _test_empty_project(self, engine: str):
-        bf = self.clients[engine]
-        res = bf.read(endpoint="project", obj={"name": "this project does not exist"}).to_list_dict()
-        self.assertEqual(res, [])
+        with self.subTest(engine=engine):
+            bf = self.clients[engine]
+            res = bf.read(endpoint="project", obj={"name": "this project does not exist"}).to_list_dict()
+            self.assertEqual(res, [])
 
     def test_user(self):
         self.read("suds", "user")
@@ -79,6 +81,18 @@ class BfabricTestRead(unittest.TestCase):
     def test_annotation(self):
         self.read("suds", "annotation")
         self.read("zeep", "annotation")
+
+    def test_invalid_auth(self):
+        auth = BfabricAuth(login=self.auth.login, password="invalid_password")
+        clients = {
+            "zeep": Bfabric(self.config, auth, engine=BfabricAPIEngineType.ZEEP),
+            "suds": Bfabric(self.config, auth, engine=BfabricAPIEngineType.SUDS)
+        }
+        for engine, bf in clients.items():
+            with self.subTest(engine=engine):
+                with self.assertRaises(RuntimeError) as e:
+                    bf.read(endpoint="workunit", obj={})
+                self.assertIn("Invalid login or password. Could not login.", str(e.exception))
 
 
 if __name__ == "__main__":
