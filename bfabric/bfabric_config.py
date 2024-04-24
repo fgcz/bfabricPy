@@ -43,14 +43,17 @@ class BfabricConfig:
 
     @property
     def base_url(self) -> str:
+        """The API base url."""
         return self._base_url
 
     @property
     def application_ids(self) -> Dict[str, int]:
+        """Map of known application names to ids."""
         return self._application_ids
 
     @property
     def job_notification_emails(self) -> str:
+        """Space-separated list of email addresses to notify when a job finishes."""
         return self._job_notification_emails
 
     def with_overrides(

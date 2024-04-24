@@ -44,7 +44,7 @@ GENERAL:
   
 PRODUCTION:
   login: yourBfabricLogin
-  passwd: yourBfabricWebPassword
+  password: yourBfabricWebPassword
   base_url: https://fgcz-bfabric.uzh.ch/bfabric
 ```
 

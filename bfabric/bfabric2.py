@@ -57,13 +57,18 @@ def get_system_auth(login: str = None, password: str = None, base_url: str = Non
     :param verbose:         Verbosity (TODO: resolve potential redundancy with logger)
     """
 
-    # Get default path config file path
-    config_path = config_path or os.path.normpath(os.path.expanduser("~/.bfabricpy.yml"))
+    have_config_path = config_path is not None
+    if not have_config_path:
+        # Get default path config file path
+        config_path = os.path.normpath(os.path.expanduser("~/.bfabricpy.yml"))
 
     # Use the provided config data from arguments instead of the file
     if not os.path.isfile(config_path):
+        if have_config_path:
+            # NOTE: If user explicitly specifies a path to a wrong config file, this has to be an exception
+            raise IOError(f"Explicitly specified config file does not exist: {config_path}")
         # TODO: Convert to log
-        print(f"Warning: could not find the config file in {config_path}")
+        print(f"Warning: could not find the config file in the default location: {config_path}")
         config = BfabricConfig(base_url=base_url)
         auth = BfabricAuth(login=login, password=password)
 
