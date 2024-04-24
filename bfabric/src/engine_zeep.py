@@ -23,8 +23,8 @@ def _zeep_query_append_skipped(query: dict, skipped_keys: list, inplace: bool = 
     return query_this
 
 
-class EngineZeep(object):
-    """B-Fabric API SUDS Engine"""
+class EngineZeep:
+    """B-Fabric API Zeep Engine"""
 
     def __init__(self, login: str, password: str, base_url: str):
         self.cl = {}
@@ -34,7 +34,7 @@ class EngineZeep(object):
 
     def _get_client(self, endpoint: str):
         try:
-            if not endpoint in self.cl:
+            if endpoint not in self.cl:
                 wsdl = "".join((self.base_url, '/', endpoint, "?wsdl"))
                 self.cl[endpoint] = zeep.Client(wsdl)
             return self.cl[endpoint]
@@ -57,7 +57,9 @@ class EngineZeep(object):
 
         client = self._get_client(endpoint)
         with client.settings(strict=False, xml_huge_tree=True, xsd_ignore_sequence_order=True):
-            return client.service.read(full_query)
+            response = client.service.read(full_query)
+        self._assert_success(response)
+        return response
 
     def readid(self, endpoint: str, obj: dict, page: int = 1, includedeletableupdateable: bool = True):
         raise NotImplementedError("Attempted to use a method `readid` of Zeep, which does not exist")
@@ -71,7 +73,9 @@ class EngineZeep(object):
 
         client = self._get_client(endpoint)
         with client.settings(strict=False):
-            return client.service.save(query)
+            response = client.service.save(query)
+        self._assert_success(response)
+        return response
 
     def delete(self, endpoint: str, id: Union[int, List]):
         if isinstance(id, list) and len(id) == 0:
@@ -81,4 +85,11 @@ class EngineZeep(object):
         query = {'login': self.login, 'password': self.password, 'id': id}
 
         client = self._get_client(endpoint)
-        return client.service.delete(query)
+        response = client.service.delete(query)
+        self._assert_success(response)
+        return response
+
+    def _assert_success(self, response):
+        """Asserts that the server response indicates success, and raises an error otherwise."""
+        if getattr(response, "errorreport", None):
+            raise RuntimeError(f"Error response: {response.errorreport}")
