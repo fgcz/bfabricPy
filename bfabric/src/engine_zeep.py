@@ -24,7 +24,7 @@ def _zeep_query_append_skipped(query: dict, skipped_keys: list, inplace: bool = 
 
 
 class EngineZeep:
-    """B-Fabric API SUDS Engine"""
+    """B-Fabric API Zeep Engine"""
 
     def __init__(self, login: str, password: str, base_url: str):
         self.cl = {}
@@ -34,7 +34,7 @@ class EngineZeep:
 
     def _get_client(self, endpoint: str):
         try:
-            if not endpoint in self.cl:
+            if endpoint not in self.cl:
                 wsdl = "".join((self.base_url, '/', endpoint, "?wsdl"))
                 self.cl[endpoint] = zeep.Client(wsdl)
             return self.cl[endpoint]

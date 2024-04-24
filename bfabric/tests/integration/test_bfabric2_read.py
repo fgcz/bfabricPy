@@ -3,6 +3,7 @@ import os
 import unittest
 
 from bfabric.bfabric2 import Bfabric, BfabricAPIEngineType, get_system_auth
+from bfabric_config import BfabricAuth
 
 
 class BfabricTestRead(unittest.TestCase):
@@ -80,6 +81,18 @@ class BfabricTestRead(unittest.TestCase):
     def test_annotation(self):
         self.read("suds", "annotation")
         self.read("zeep", "annotation")
+
+    def test_invalid_auth(self):
+        auth = BfabricAuth(login=self.auth.login, password="invalid_password")
+        clients = {
+            "zeep": Bfabric(self.config, auth, engine=BfabricAPIEngineType.ZEEP),
+            "suds": Bfabric(self.config, auth, engine=BfabricAPIEngineType.SUDS)
+        }
+        for engine, bf in clients.items():
+            with self.subTest(engine=engine):
+                with self.assertRaises(RuntimeError) as e:
+                    bf.read(endpoint="workunit", obj={})
+                self.assertEqual("Error response: Invalid login or password. Could not login.", str(e.exception))
 
 
 if __name__ == "__main__":
