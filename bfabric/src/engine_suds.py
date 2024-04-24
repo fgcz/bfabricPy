@@ -4,7 +4,7 @@ import copy
 from suds.client import Client
 
 
-class EngineSUDS(object):
+class EngineSUDS:
     """B-Fabric API SUDS Engine"""
 
     def __init__(self, login: str, password: str, base_url: str):
@@ -15,7 +15,7 @@ class EngineSUDS(object):
 
     def _get_client(self, endpoint: str):
         try:
-            if not endpoint in self.cl:
+            if endpoint not in self.cl:
                 wsdl = "".join((self.base_url, '/', endpoint, "?wsdl"))
                 self.cl[endpoint] = Client(wsdl, cache=None)
             return self.cl[endpoint]

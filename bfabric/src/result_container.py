@@ -33,7 +33,7 @@ def _clean_result(rez: dict, drop_empty: bool = True, drop_underscores_suds: boo
 
 
 class ResultContainer:
-    def __init__(self, results: list, result_type: BfabricResultType, total_pages_api: int = None):
+    def __init__(self, results: list, result_type: BfabricResultType, total_pages_api: int = None, errors: list = None):
         """
         :param results:    List of BFabric query results
         :param result_type: Format of each result (All must be of the same format)
@@ -45,6 +45,7 @@ class ResultContainer:
         self.results = results
         self.result_type = result_type
         self._total_pages_api = total_pages_api
+        self._errors = errors or []
 
     def __getitem__(self, idx: int):
         return self.results[idx]
@@ -58,6 +59,18 @@ class ResultContainer:
     def __len__(self):
         return len(self.results)
 
+    def assert_success(self):
+        if not self.is_success:
+            raise RuntimeError("Query was not successful", self._errors)
+
+    @property
+    def is_success(self) -> bool:
+        return len(self._errors) == 0
+
+    @property
+    def errors(self) -> list:
+        return self._errors
+
     def extend(self, other: ResultContainer) -> None:
         """
         Can merge results of two queries. This can happen if the engine splits a complicated query in two
@@ -69,6 +82,7 @@ class ResultContainer:
             raise ValueError("Attempting to merge results of two different types", self.result_type, other.result_type)
 
         self.results += other.results
+        self._errors += other.errors
         if (self._total_pages_api is not None) and (other._total_pages_api is not None):
             self._total_pages_api += other._total_pages_api
         else:
