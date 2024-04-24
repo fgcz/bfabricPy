@@ -36,6 +36,8 @@ from bfabric.src.engine_zeep import EngineZeep
 from bfabric.src.result_container import ResultContainer, BfabricResultType
 from bfabric.src.paginator import page_iter, BFABRIC_QUERY_LIMIT
 from bfabric.bfabric_config import BfabricAuth, BfabricConfig, read_config
+from bfabric.src.errors import BfabricRequestError
+
 
 class BfabricAPIEngineType(Enum):
     SUDS = 1
@@ -52,7 +54,7 @@ def get_system_auth(login: str = None, password: str = None, base_url: str = Non
     :param config_path:     Path to the config file, in case it is different from default
     :param config_env:      Which config environment to use. Can also specify via environment variable or use
        default in the config file (at your own risk)
-    :param optional_auth:   Whether authentification is optional. If yes, missing authentification will be ignored,
+    :param optional_auth:   Whether authentication is optional. If yes, missing authentication will be ignored,
        otherwise an exception will be raised
     :param verbose:         Verbosity (TODO: resolve potential redundancy with logger)
     """
@@ -128,7 +130,7 @@ class Bfabric(object):
         else:
             return self.engine.read(endpoint, obj, page=page, **kwargs)
 
-    def read(self, endpoint: str, obj: dict, max_results: Optional[int] = 100, readid: bool = False,
+    def read(self, endpoint: str, obj: dict, max_results: Optional[int] = 100, readid: bool = False, check: bool = True,
              **kwargs) -> ResultContainer:
         """
         Make a read query to the engine. Determine the number of pages. Make calls for every page, concatenate
@@ -141,17 +143,24 @@ class Bfabric(object):
            come in blocks, and there is little overhead to providing results over integer number of pages.
         :param readid: whether to use reading by ID. Currently only available for engine=SUDS
             TODO: Test the extent to which this method works. Add safeguards
+        :param check: whether to check for errors in the response
         :return: List of responses, packaged in the results container
         """
 
         # Get the first page.
         # NOTE: According to old interface, this is equivalent to plain=True
         response = self._read_method(readid, endpoint, obj, page=1, **kwargs)
-        n_pages = response["numberofpages"]
+        try:
+            n_pages = response["numberofpages"]
+        except AttributeError:
+            n_pages = 0
 
         # Return empty list if nothing found
         if not n_pages:
-            return ResultContainer([], self.result_type, total_pages_api=0)
+            result = ResultContainer([], self.result_type, total_pages_api=0, errors=self._get_response_errors(response))
+            if check:
+                result.assert_success()
+            return result
 
         # Get results from other pages as well, if need be
         # Only load as many pages as user has interest in
@@ -161,21 +170,32 @@ class Bfabric(object):
             n_pages_trg = min(n_pages, div_int_ceil(max_results, BFABRIC_QUERY_LIMIT))
 
         # NOTE: Page numbering starts at 1
-        response_list = response[endpoint]
+        response_items = response[endpoint]
+        errors = []
         for i_page in range(2, n_pages_trg + 1):
             print('-- reading page', i_page, 'of', n_pages)
-            response_list += self._read_method(readid, endpoint, obj, page=i_page, **kwargs)[endpoint]
+            response = self._read_method(readid, endpoint, obj, page=i_page, **kwargs)
+            errors += self._get_response_errors(response)
+            response_items += response[endpoint]
 
-        return ResultContainer(response_list, self.result_type, total_pages_api=n_pages)
+        result = ResultContainer(response_items, self.result_type, total_pages_api=n_pages, errors=errors)
+        if check:
+            result.assert_success()
+        return result
 
-    def save(self, endpoint: str, obj: dict, **kwargs) -> ResultContainer:
+    def save(self, endpoint: str, obj: dict, check: bool = True, **kwargs) -> ResultContainer:
         results = self.engine.save(endpoint, obj, **kwargs)
-        return ResultContainer(results[endpoint], self.result_type)
+        result = ResultContainer(results[endpoint], self.result_type, errors=self._get_response_errors(results))
+        if check:
+            result.assert_success()
+        return result
 
-    def delete(self, endpoint: str, id: Union[List, int]) -> ResultContainer:
+    def delete(self, endpoint: str, id: Union[List, int], check: bool = True) -> ResultContainer:
         results = self.engine.delete(endpoint, id)
-        return ResultContainer(results[endpoint], self.result_type)
-
+        result = ResultContainer(results[endpoint], self.result_type, errors=self._get_response_errors(results))
+        if check:
+            result.assert_success()
+        return result
 
     ############################
     # Multi-query functionality
@@ -275,6 +295,13 @@ class Bfabric(object):
             return key in result_vals
         else:
             return [val in result_vals for val in value]
+
+    def _get_response_errors(self, response) -> List[BfabricRequestError]:
+        """Returns reported errors from the response."""
+        if getattr(response, "errorreport", None):
+            return [BfabricRequestError(response.errorreport)]
+        else:
+            return []
 
 
 def default_client(engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS):
