@@ -67,6 +67,7 @@ class ResultContainer:
     def is_success(self) -> bool:
         return len(self._errors) == 0
 
+    @property
     def errors(self) -> list:
         return self._errors
 
@@ -81,7 +82,7 @@ class ResultContainer:
             raise ValueError("Attempting to merge results of two different types", self.result_type, other.result_type)
 
         self.results += other.results
-        self.errors += other.errors
+        self._errors += other.errors
         if (self._total_pages_api is not None) and (other._total_pages_api is not None):
             self._total_pages_api += other._total_pages_api
         else:
