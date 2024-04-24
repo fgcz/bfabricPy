@@ -22,7 +22,7 @@ from bfabric.bfabric2 import default_client, BfabricAPIEngineType
 
 
 def print_color_msg(msg, color="93"):
-    sys.stderr.write(f"\033[{color}m--- {msg} ---\033[0m\n")
+    print(f"\033[{color}m--- {msg} ---\033[0m", file=sys.stderr)
 
 
 def main():
@@ -51,8 +51,9 @@ def main():
     res = results.to_list_dict(drop_empty=False)
     res = sorted(res, key=lambda x: x["id"])
 
-    possible_attributes = set(res[0].keys())
-    print_color_msg(f"possible attributes are: {possible_attributes}")
+    if res:
+        possible_attributes = set(res[0].keys())
+        print_color_msg(f"possible attributes are: {possible_attributes}")
 
     if output_mode == "auto":
         output_mode = "json" if len(res) < 2 else "table"
