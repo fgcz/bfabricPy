@@ -14,11 +14,12 @@ See also:
     http://fgcz-bfabric.uzh.ch/bfabric/executable?wsdl
 """
 import argparse
+import json
 import sys
 import time
+
 import bfabric
-from pprint import pprint
-from bfabric.bfabric2 import default_client, BfabricAPIEngineType
+from bfabric.bfabric2 import default_client
 
 
 def print_color_msg(msg, color="93"):
@@ -30,7 +31,12 @@ def main():
     sys.stderr.write(bfabric.msg)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", help="output mode", choices=["json", "table", "auto"], default="auto")
+    parser.add_argument(
+        "--format",
+        help="output format",
+        choices=["json", "table_tsv", "auto"],
+        default="auto",
+    )
     parser.add_argument("endpoint", help="endpoint to query", choices=bfabric.endpoints)
     parser.add_argument("attribute", help="attribute to query for", nargs="?")
     parser.add_argument("value", help="value to query for", nargs="?")
@@ -40,7 +46,7 @@ def main():
     endpoint = args.endpoint
     attribute = args.attribute
     value = args.value
-    output_mode = args.mode
+    output_format = args.format
     if value is not None:
         query_obj[attribute] = value
 
@@ -55,12 +61,12 @@ def main():
         possible_attributes = set(res[0].keys())
         print_color_msg(f"possible attributes are: {possible_attributes}")
 
-    if output_mode == "auto":
-        output_mode = "json" if len(res) < 2 else "table"
+    if output_format == "auto":
+        output_format = "json" if len(res) < 2 else "table_tsv"
 
-    if output_mode == "json":
-        pprint(res, width=140)
-    elif output_mode == "table":
+    if output_format == "json":
+        print(json.dumps(res, indent=2))
+    elif output_format == "table_tsv":
         for x in res:
             try:
                 print(
