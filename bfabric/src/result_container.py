@@ -80,6 +80,13 @@ class ResultContainer:
 
     def to_list_dict(self, drop_empty: bool = True, drop_underscores_suds: bool = True,
                      have_sort_responses: bool = False):
+        """
+        Converts the results to a list of dictionaries.
+        :param drop_empty: If True, empty attributes will be removed from the results
+        :param drop_underscores_suds: If True, leading underscores will be removed from the keys of the results
+        :param have_sort_responses: If True, keys of dictionaries in the response will be sorted.
+        TODO what about the order of items in the list?
+        """
         match self.result_type:
             case BfabricResultType.LISTDICT:
                 return self.results
