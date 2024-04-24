@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import io
-import json
 import logging
 import os
 from typing import Optional, Dict, Tuple
@@ -24,7 +22,6 @@ class BfabricAuth:
         return repr(self)
 
 
-@dataclasses.dataclass(frozen=True)
 class BfabricConfig:
     """Holds the configuration for the B-Fabric client for connecting to particular instance of B-Fabric.
 
@@ -34,9 +31,27 @@ class BfabricConfig:
         job_notification_emails (optional): Space-separated list of email addresses to notify when a job finishes.
     """
 
-    base_url: str = "https://fgcz-bfabric.uzh.ch/bfabric"
-    application_ids: Dict[str, int] = dataclasses.field(default_factory=dict)
-    job_notification_emails: str = ""
+    def __init__(
+        self,
+        base_url: Optional[str] = None,
+        application_ids: Optional[Dict[str, int]] = None,
+        job_notification_emails: Optional[str] = None
+    ):
+        self._base_url = base_url or "https://fgcz-bfabric.uzh.ch/bfabric"
+        self._application_ids = application_ids or {}
+        self._job_notification_emails = job_notification_emails or ""
+
+    @property
+    def base_url(self) -> str:
+        return self._base_url
+
+    @property
+    def application_ids(self) -> Dict[str, int]:
+        return self._application_ids
+
+    @property
+    def job_notification_emails(self) -> str:
+        return self._job_notification_emails
 
     def with_overrides(
         self,
@@ -51,6 +66,11 @@ class BfabricConfig:
             else self.application_ids,
         )
 
+    def __repr__(self):
+        return (
+            f"BfabricConfig(base_url={repr(self.base_url)}, application_ids={repr(self.application_ids)}, "
+            f"job_notification_emails={repr(self.job_notification_emails)})"
+        )
 
 def _read_config_env_as_dict(config_path: str, config_env: str = None) -> Tuple[str, dict]:
     """

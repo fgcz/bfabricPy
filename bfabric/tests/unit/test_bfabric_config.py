@@ -24,6 +24,18 @@ class TestBfabricConfig(unittest.TestCase):
             application_ids={"app": 1},
         )
 
+    def test_default_params_when_omitted(self):
+        config = BfabricConfig()
+        self.assertEqual("https://fgcz-bfabric.uzh.ch/bfabric", config.base_url)
+        self.assertEqual({}, config.application_ids)
+        self.assertEqual("", config.job_notification_emails)
+
+    def test_default_params_when_specified(self):
+        config = BfabricConfig(base_url=None, application_ids=None, job_notification_emails=None)
+        self.assertEqual("https://fgcz-bfabric.uzh.ch/bfabric", config.base_url)
+        self.assertEqual({}, config.application_ids)
+        self.assertEqual("", config.job_notification_emails)
+
     def test_with_overrides(self):
         new_config = self.config.with_overrides(
             base_url="new_url",
