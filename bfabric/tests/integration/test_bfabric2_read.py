@@ -92,7 +92,7 @@ class BfabricTestRead(unittest.TestCase):
             with self.subTest(engine=engine):
                 with self.assertRaises(RuntimeError) as e:
                     bf.read(endpoint="workunit", obj={})
-                self.assertEqual("Error response: Invalid login or password. Could not login.", str(e.exception))
+                self.assertIn("Invalid login or password. Could not login.", str(e.exception))
 
 
 if __name__ == "__main__":

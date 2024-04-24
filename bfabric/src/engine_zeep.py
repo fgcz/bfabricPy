@@ -57,9 +57,7 @@ class EngineZeep:
 
         client = self._get_client(endpoint)
         with client.settings(strict=False, xml_huge_tree=True, xsd_ignore_sequence_order=True):
-            response = client.service.read(full_query)
-        self._assert_success(response)
-        return response
+            return client.service.read(full_query)
 
     def readid(self, endpoint: str, obj: dict, page: int = 1, includedeletableupdateable: bool = True):
         raise NotImplementedError("Attempted to use a method `readid` of Zeep, which does not exist")
@@ -73,9 +71,7 @@ class EngineZeep:
 
         client = self._get_client(endpoint)
         with client.settings(strict=False):
-            response = client.service.save(query)
-        self._assert_success(response)
-        return response
+            return client.service.save(query)
 
     def delete(self, endpoint: str, id: Union[int, List]):
         if isinstance(id, list) and len(id) == 0:
@@ -85,11 +81,4 @@ class EngineZeep:
         query = {'login': self.login, 'password': self.password, 'id': id}
 
         client = self._get_client(endpoint)
-        response = client.service.delete(query)
-        self._assert_success(response)
-        return response
-
-    def _assert_success(self, response):
-        """Asserts that the server response indicates success, and raises an error otherwise."""
-        if getattr(response, "errorreport", None):
-            raise RuntimeError(f"Error response: {response.errorreport}")
+        return client.service.delete(query)
