@@ -35,10 +35,17 @@ python3 setup.py install --user
 ## Configuration
 
 ```{bash}
-cat ~/.bfabricrc.py 
-_WEBBASE="https://fgcz-bfabric-test.uzh.ch/bfabric"
-_LOGIN="yourBfabricLogin"
-_PASSWD='yourBfabricWebPassword'
+cat ~/.bfabricpy.yml
+```
+
+```{yaml}
+GENERAL:
+  default_config: PRODUCTION
+  
+PRODUCTION:
+  login: yourBfabricLogin
+  password: yourBfabricWebPassword
+  base_url: https://fgcz-bfabric.uzh.ch/bfabric
 ```
 
 ## CheatSheet
