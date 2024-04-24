@@ -36,7 +36,7 @@ from bfabric.src.engine_zeep import EngineZeep
 from bfabric.src.result_container import ResultContainer, BfabricResultType
 from bfabric.src.paginator import page_iter, BFABRIC_QUERY_LIMIT
 from bfabric.bfabric_config import BfabricAuth, BfabricConfig, read_config
-from src.api_errors import RequestError
+from bfabric.src.api_errors import RequestError
 
 
 class BfabricAPIEngineType(Enum):
