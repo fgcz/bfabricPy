@@ -2,6 +2,9 @@ from typing import Union, List
 import copy
 
 from suds.client import Client
+from suds import MethodNotFound
+
+from bfabric.src.errors import BfabricRequestError
 
 
 class EngineSUDS:
@@ -51,7 +54,11 @@ class EngineSUDS:
         query = {'login': self.login, 'password': self.password, endpoint: obj}
 
         client = self._get_client(endpoint)
-        return client.service.save(query)
+        try:
+            res = client.service.save(query)
+        except MethodNotFound as e:
+            raise BfabricRequestError(f"SUDS failed to find save method for the {endpoint} endpoint.") from e
+        return res
 
     def delete(self, endpoint: str, id: Union[int, List]):
         if isinstance(id, list) and len(id) == 0:
