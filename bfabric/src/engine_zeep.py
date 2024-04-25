@@ -3,6 +3,8 @@ from typing import Union, List
 import zeep
 import copy
 
+from bfabric.src.errors import BfabricRequestError
+
 
 # TODO: Check if this is a bug of BFabric or Zeep. Specifically, see if the same call to bFabricPy has the same bug
 def _zeep_query_append_skipped(query: dict, skipped_keys: list, inplace: bool = False, overwrite: bool = False) -> dict:
@@ -70,8 +72,15 @@ class EngineZeep:
             query = _zeep_query_append_skipped(query, skipped_keys)
 
         client = self._get_client(endpoint)
-        with client.settings(strict=False):
-            return client.service.save(query)
+
+        try:
+            with client.settings(strict=False):
+                res = client.service.save(query)
+        except AttributeError as e:
+            if repr(e) == '''AttributeError("Service has no operation 'save'")''':
+                raise BfabricRequestError(f"ZEEP failed to find save method for the {endpoint} endpoint.") from e
+            raise e
+        return res
 
     def delete(self, endpoint: str, id: Union[int, List]):
         if isinstance(id, list) and len(id) == 0:

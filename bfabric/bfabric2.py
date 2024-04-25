@@ -36,7 +36,7 @@ from bfabric.src.engine_zeep import EngineZeep
 from bfabric.src.result_container import ResultContainer, BfabricResultType
 from bfabric.src.paginator import page_iter, BFABRIC_QUERY_LIMIT
 from bfabric.bfabric_config import BfabricAuth, BfabricConfig, read_config
-from bfabric.src.errors import BfabricRequestError
+from bfabric.src.errors import get_response_errors
 
 
 class BfabricAPIEngineType(Enum):
@@ -157,7 +157,7 @@ class Bfabric(object):
 
         # Return empty list if nothing found
         if not n_pages:
-            result = ResultContainer([], self.result_type, total_pages_api=0, errors=self._get_response_errors(response))
+            result = ResultContainer([], self.result_type, total_pages_api=0, errors=get_response_errors(response, endpoint))
             if check:
                 result.assert_success()
             return result
@@ -175,7 +175,7 @@ class Bfabric(object):
         for i_page in range(2, n_pages_trg + 1):
             print('-- reading page', i_page, 'of', n_pages)
             response = self._read_method(readid, endpoint, obj, page=i_page, **kwargs)
-            errors += self._get_response_errors(response)
+            errors += get_response_errors(response, endpoint)
             response_items += response[endpoint]
 
         result = ResultContainer(response_items, self.result_type, total_pages_api=n_pages, errors=errors)
@@ -185,14 +185,14 @@ class Bfabric(object):
 
     def save(self, endpoint: str, obj: dict, check: bool = True, **kwargs) -> ResultContainer:
         results = self.engine.save(endpoint, obj, **kwargs)
-        result = ResultContainer(results[endpoint], self.result_type, errors=self._get_response_errors(results))
+        result = ResultContainer(results[endpoint], self.result_type, errors=get_response_errors(results, endpoint))
         if check:
             result.assert_success()
         return result
 
     def delete(self, endpoint: str, id: Union[List, int], check: bool = True) -> ResultContainer:
         results = self.engine.delete(endpoint, id)
-        result = ResultContainer(results[endpoint], self.result_type, errors=self._get_response_errors(results))
+        result = ResultContainer(results[endpoint], self.result_type, errors=get_response_errors(results, endpoint))
         if check:
             result.assert_success()
         return result
@@ -296,9 +296,3 @@ class Bfabric(object):
         else:
             return [val in result_vals for val in value]
 
-    def _get_response_errors(self, response) -> List[BfabricRequestError]:
-        """Returns reported errors from the response."""
-        if getattr(response, "errorreport", None):
-            return [BfabricRequestError(response.errorreport)]
-        else:
-            return []
