@@ -77,7 +77,7 @@ class EngineZeep:
             with client.settings(strict=False):
                 res = client.service.save(query)
         except AttributeError as e:
-            if repr(e) == '''AttributeError("Service has no operation 'save'")''':
+            if e.args[0] == "Service has no operation 'save'":
                 raise BfabricRequestError(f"ZEEP failed to find save method for the {endpoint} endpoint.") from e
             raise e
         return res

@@ -7,7 +7,7 @@ from bfabric.src.errors import BfabricRequestError
 
 
 class BfabricTestBadRequest(unittest.TestCase):
-    def setUp(self, *args, **kwargs):
+    def setUp(self):
         # Load ground truth
         path = os.path.join(os.path.dirname(__file__), "groundtruth.json")
         with open(path) as json_file:
@@ -44,16 +44,22 @@ class BfabricTestBadRequest(unittest.TestCase):
             101010101010101
         )
 
-    def test_non_existing_read(self):
+    def test_non_existing_read_when_suds(self):
         self._test_non_existing_read("suds")
+
+    def test_non_existing_read_when_zeep(self):
         self._test_non_existing_read("zeep")
 
-    def test_forbidden_save(self):
+    def test_forbidden_save_when_suds(self):
         self._test_forbidden_save("suds")
+
+    def test_forbidden_save_when_zeep(self):
         self._test_forbidden_save("zeep")
 
-    def test_wrong_delete(self):
+    def test_wrong_delete_when_suds(self):
         self._test_wrong_delete("suds")
+
+    def test_wrong_delete_when_zeep(self):
         self._test_wrong_delete("zeep")
 
 
