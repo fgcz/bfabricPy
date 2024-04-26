@@ -3,7 +3,7 @@ import os
 import unittest
 
 from bfabric.bfabric2 import Bfabric, BfabricAPIEngineType, get_system_auth
-from bfabric_config import BfabricAuth
+from bfabric.bfabric_config import BfabricAuth
 
 
 class BfabricTestRead(unittest.TestCase):
