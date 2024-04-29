@@ -292,7 +292,7 @@ class Bfabric(object):
 
         # 3. For each of the requested ids, return true if there was a response and false if there was not
         if is_scalar:
-            return key in result_vals
+            return value in result_vals
         else:
             return [val in result_vals for val in value]
 
