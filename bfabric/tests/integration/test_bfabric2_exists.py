@@ -9,7 +9,7 @@ class BfabricTestExists(unittest.TestCase):
 
     def _test_single_exists(self, engine: BfabricAPIEngineType):
         bf = Bfabric(self.config, self.auth, engine=engine)
-        res = bf.exists('dataset', 'id', 31024)
+        res = bf.exists('dataset', 'id', 30721)   # Take ID which is the same as in production
         self.assertEqual(res, True)
 
     def test_zeep(self):
