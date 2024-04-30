@@ -24,6 +24,7 @@ dependencies = [
     "PyYAML >= 6.0",
     "Flask == 2.2.5",
     "zeep >= 4.2.1",
+    "typer"
 ]
 
 [project.urls]
@@ -43,7 +44,7 @@ Repository = "https://github.com/fgcz/bfabricPy"
 #bfabric_setWorkunitStatus_processing="bfabric.scripts.bfabric_setWorkunitStatus_processing:main"
 #bfabric_setWorkunitStatus_failed="bfabric.scripts.bfabric_setWorkunitStatus_failed:main"
 #bfabric_delete="bfabric.scripts.bfabric_delete:main"
-#bfabric_read"="bfabric.scripts.bfabric_read:main"
+"bfabric_read.py"="bfabric.scripts.bfabric_read:main"
 #bfabric_read_samples_of_workunit="bfabric.scripts.bfabric_read_samples_of_workunit:main"
 #bfabric_read_samples_from_dataset="bfabric.scripts.bfabric_read_samples_from_dataset:main"
 #bfabric_save_csv2dataset="bfabric.scripts.bfabric_save_csv2dataset:main"
