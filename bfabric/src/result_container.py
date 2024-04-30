@@ -101,25 +101,26 @@ class ResultContainer:
         :param have_sort_responses: If True, keys of dictionaries in the response will be sorted.
         TODO what about the order of items in the list?
         """
-        if self.result_type == BfabricResultType.LISTDICT:
-            return self.results
-        elif self.result_type == BfabricResultType.LISTSUDS:
-            results = []
-            for rez in self.results:
-                rez_parsed = suds_asdict_recursive(rez, convert_types=True)
-                rez_parsed = _clean_result(rez_parsed, drop_empty=drop_empty,
-                                           drop_underscores_suds=drop_underscores_suds,
-                                           sort_responses=have_sort_responses)
-                results += [rez_parsed]
-            return results
-        elif self.result_type == BfabricResultType.LISTZEEP:
-            results = []
-            for rez in self.results:
-                rez_parsed = dict(serialize_object(rez, target_cls=dict))
-                rez_parsed = _clean_result(rez_parsed, drop_empty=drop_empty,
-                                           drop_underscores_suds=False,  # NOTE: Underscore problem specific to SUDS
-                                           sort_responses=have_sort_responses)
-                results += [rez_parsed]
-            return results
-        else:
-            raise ValueError("Unexpected results type", self.result_type)
+        match self.result_type:
+            case BfabricResultType.LISTDICT:
+                return self.results
+            case BfabricResultType.LISTSUDS:
+                results = []
+                for rez in self.results:
+                    rez_parsed = suds_asdict_recursive(rez, convert_types=True)
+                    rez_parsed = _clean_result(rez_parsed, drop_empty=drop_empty,
+                                               drop_underscores_suds=drop_underscores_suds,
+                                               sort_responses=have_sort_responses)
+                    results += [rez_parsed]
+                return results
+            case BfabricResultType.LISTZEEP:
+                results = []
+                for rez in self.results:
+                    rez_parsed = dict(serialize_object(rez, target_cls=dict))
+                    rez_parsed = _clean_result(rez_parsed, drop_empty=drop_empty,
+                                               drop_underscores_suds=False,  # NOTE: Underscore problem specific to SUDS
+                                               sort_responses=have_sort_responses)
+                    results += [rez_parsed]
+                return results
+            case _:
+                raise ValueError("Unexpected results type", self.result_type)
