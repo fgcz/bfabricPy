@@ -1,5 +1,0 @@
-Flask==2.2.5
-PyYAML>=3.11
-suds-py3>=1.4.1
-slugify
-zeep>=4.2.1

@@ -1,2 +1,0 @@
-recursive-include bfabric/scripts bfabric_delete.py bfabric_flask.py bfabric_read.py bfabric_save_resource.py
-include  README.md setup.py requirements.txt
