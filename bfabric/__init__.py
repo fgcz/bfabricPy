@@ -1,4 +1,6 @@
-from ._version import __version__
+import importlib.metadata
+
+__version__ = importlib.metadata.version("bfabric")
 
 name = "bfabricPy"
 alias = "suds-py3"
