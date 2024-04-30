@@ -43,11 +43,12 @@ def render_output(wu):
                 wuid=x["id"],
                 createdby=x["createdby"],
                 name=x["name"],
-                aid=x["application"]["id"]
+                aid=x["application"]["id"],
             )
         )
 
-if __name__ == "__main__":
+
+def main():
     client = default_client()
     date_cutoff = datetime.today() - timedelta(days=14)
 
@@ -62,3 +63,7 @@ if __name__ == "__main__":
         ).to_list_dict()
 
         render_output(pending_workunits)
+
+
+if __name__ == "__main__":
+    main()

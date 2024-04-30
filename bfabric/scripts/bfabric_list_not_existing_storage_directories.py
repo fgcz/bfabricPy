@@ -30,7 +30,11 @@ def list_not_existing_storage_dirs(client, technologyid: int=2):
             print(cid)
 
 
-if __name__ == "__main__":
+def main():
     client = default_client()
     list_not_existing_storage_dirs(client=client, technologyid=2)
     list_not_existing_storage_dirs(client=client, technologyid=4)
+
+
+if __name__ == "__main__":
+    main()
