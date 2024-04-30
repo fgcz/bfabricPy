@@ -1,6 +1,4 @@
 import unittest
-import numpy as np
-
 import bfabric.src.response_format_dict as response_format_dict
 
 
