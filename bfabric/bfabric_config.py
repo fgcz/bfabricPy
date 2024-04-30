@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Optional, Dict, Tuple
+from typing import Optional, Dict, Tuple, Union
 import dataclasses
 import yaml
 from pathlib import Path
@@ -75,7 +75,7 @@ class BfabricConfig:
             f"job_notification_emails={repr(self.job_notification_emails)})"
         )
 
-def _read_config_env_as_dict(config_path: str, config_env: str = None) -> Tuple[str, dict]:
+def _read_config_env_as_dict(config_path: Union[str, Path], config_env: str = None) -> Tuple[str, dict]:
     """
     Reads and partially parses a bfabricpy.yml file
     :param config_path:  Path to the configuration file. It is assumed that it exists
@@ -139,7 +139,7 @@ def _parse_dict(d: dict, mandatory_keys: list, optional_keys: list = None, error
     # Ignore all other fields
     return d_rez
 
-def read_config(config_path: str, config_env: str = None,
+def read_config(config_path: Union[str, Path], config_env: str = None,
                 optional_auth: bool = False) -> Tuple[BfabricConfig, Optional[BfabricAuth]]:
     """
     Reads bfabricpy.yml file, parses it, extracting authentication and configuration data
