@@ -16,19 +16,18 @@ History:
 """
 
 
-
 import os
 import re
 import time
 import sys
 from bfabric import Bfabric
 
- 
+
 import logging, logging.handlers
 
-logger = logging.getLogger('sync_feeder')
+logger = logging.getLogger("sync_feeder")
 hdlr_syslog = logging.handlers.SysLogHandler(address=("130.60.81.21", 514))
-formatter = logging.Formatter('%(name)s %(message)s', datefmt="%Y-%m-%d %H:%M:%S")
+formatter = logging.Formatter("%(name)s %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 hdlr_syslog.setFormatter(formatter)
 logger.addHandler(hdlr_syslog)
 logger.setLevel(logging.INFO)
@@ -44,8 +43,9 @@ if bfapp.config.application_ids is None:
 print(bfapp.config.application_ids)
 bfabric_application_ids = bfapp.config.application_ids
 
+
 def save_importresource(line):
-    """ reads, splits and submit the input line to the bfabric system
+    """reads, splits and submit the input line to the bfabric system
     Input: a line containg
     md5sum;date;size;path
 
@@ -59,7 +59,7 @@ def save_importresource(line):
     """
 
     _bfabric_applicationid = -1
-    _bfabric_projectid = -1,
+    _bfabric_projectid = (-1,)
     _file_size = -1
     _file_date = -1
 
@@ -69,14 +69,12 @@ def save_importresource(line):
     _sampleid = None
 
     try:
-        (_md5,  _file_date, _file_size, _file_path) = line.split(";")
+        (_md5, _file_date, _file_size, _file_path) = line.split(";")
     except:
         raise
 
-
-
     # the timeformat bfabric understands
-    #_file_date = time.strftime("%FT%H:%M:%S-01:00",time.gmtime(int(_file_date)))
+    # _file_date = time.strftime("%FT%H:%M:%S-01:00",time.gmtime(int(_file_date)))
     _file_date = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(int(_file_date)))
 
     # linear search through dictionary. first hit counts!
@@ -90,37 +88,40 @@ def save_importresource(line):
 
     if _bfabric_applicationid < 0:
         logger.error("{0}; no bfabric application id.".format(_file_path))
-        return 
+        return
 
-    obj = { 'applicationid':_bfabric_applicationid,
-            'filechecksum':_md5,
-            'containerid':_bfabric_projectid,
-            'filedate':_file_date,
-            'relativepath':_file_path,
-            'name': os.path.basename(_file_path),
-            'size':_file_size,
-            'storageid': bfabric_storageid
-            }
+    obj = {
+        "applicationid": _bfabric_applicationid,
+        "filechecksum": _md5,
+        "containerid": _bfabric_projectid,
+        "filedate": _file_date,
+        "relativepath": _file_path,
+        "name": os.path.basename(_file_path),
+        "size": _file_size,
+        "storageid": bfabric_storageid,
+    }
 
     try:
-        m = re.search(r"p([0-9]+)\/(Proteomics\/[A-Z]+_[1-9])\/.*_\d\d\d_S([0-9][0-9][0-9][0-9][0-9][0-9]+)_.*(raw|zip)$", _file_path)
-        print ("found sampleid={} pattern".format(m.group(3)))
-        obj['sampleid'] = int(m.group(3))
+        m = re.search(
+            r"p([0-9]+)\/(Proteomics\/[A-Z]+_[1-9])\/.*_\d\d\d_S([0-9][0-9][0-9][0-9][0-9][0-9]+)_.*(raw|zip)$",
+            _file_path,
+        )
+        print("found sampleid={} pattern".format(m.group(3)))
+        obj["sampleid"] = int(m.group(3))
     except:
         pass
 
+    print(obj)
+    res = bfapp.save_object(endpoint="importresource", obj=obj)
+    print(res[0])
 
-    print (obj)
-    res = bfapp.save_object(endpoint='importresource', obj=obj)
-    print (res[0])
 
 if __name__ == "__main__":
-    if sys.argv[1] == '-':
-        print ("reading from stdin ...")
+    if sys.argv[1] == "-":
+        print("reading from stdin ...")
         for input_line in sys.stdin:
             save_importresource(input_line.rstrip())
-    elif sys.argv[1] == '-h':
+    elif sys.argv[1] == "-h":
         print(__doc__)
     else:
         save_importresource(sys.argv[1])
-
