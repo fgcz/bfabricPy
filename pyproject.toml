@@ -65,3 +65,11 @@ Repository = "https://github.com/fgcz/bfabricPy"
 
 [tool.black]
 line-length = 120
+
+[tool.ruff]
+line-length = 120
+indent-width = 4
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["D103", "E", "F", "ANN", "PTH", "UP", "BLE", "SIM"]
