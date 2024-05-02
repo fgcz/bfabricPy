@@ -25,13 +25,6 @@ from bfabric import Bfabric
 
 import logging, logging.handlers
 
-logger = logging.getLogger("sync_feeder")
-hdlr_syslog = logging.handlers.SysLogHandler(address=("130.60.81.21", 514))
-formatter = logging.Formatter("%(name)s %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-hdlr_syslog.setFormatter(formatter)
-logger.addHandler(hdlr_syslog)
-logger.setLevel(logging.INFO)
-
 
 ################################################################################
 bfabric_storageid = 2
@@ -87,6 +80,7 @@ def save_importresource(line):
             break
 
     if _bfabric_applicationid < 0:
+        logger = logging.getLogger("sync_feeder")
         logger.error("{0}; no bfabric application id.".format(_file_path))
         return
 
@@ -116,7 +110,17 @@ def save_importresource(line):
     print(res[0])
 
 
-if __name__ == "__main__":
+def setup_logger():
+    logger = logging.getLogger("sync_feeder")
+    hdlr_syslog = logging.handlers.SysLogHandler(address=("130.60.81.21", 514))
+    formatter = logging.Formatter("%(name)s %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+    hdlr_syslog.setFormatter(formatter)
+    logger.addHandler(hdlr_syslog)
+    logger.setLevel(logging.INFO)
+
+
+def main():
+    setup_logger()
     if sys.argv[1] == "-":
         print("reading from stdin ...")
         for input_line in sys.stdin:
@@ -125,3 +129,7 @@ if __name__ == "__main__":
         print(__doc__)
     else:
         save_importresource(sys.argv[1])
+
+
+if __name__ == "__main__":
+    main()
