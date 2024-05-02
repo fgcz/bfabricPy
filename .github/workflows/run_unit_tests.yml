@@ -18,9 +18,9 @@ jobs:
         with:
           python-version: 3.9
       - name: Install bfabricPy
-        run:
+        run: |
           pip install uv
-          uv install .
+          uv install ".[dev]"
       - name: Run unit tests
         run: python -m unittest discover -s bfabric/tests/unit -p 'test_*.py'
   code_style:
@@ -33,9 +33,9 @@ jobs:
         with:
           python-version: 3.9
       - name: Install bfabricPy
-        run:
+        run: |
           pip install uv
-          uv install .
+          uv install ".[dev]"
       - name: Check code with ruff
         run:
           ruff bfabric
