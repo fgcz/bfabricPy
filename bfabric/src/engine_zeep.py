@@ -3,6 +3,7 @@ from typing import Union, List
 import zeep
 import copy
 
+from bfabric.bfabric_config import BfabricAuth
 from bfabric.src.errors import BfabricRequestError
 
 
@@ -28,10 +29,8 @@ def _zeep_query_append_skipped(query: dict, skipped_keys: list, inplace: bool = 
 class EngineZeep:
     """B-Fabric API Zeep Engine"""
 
-    def __init__(self, login: str, password: str, base_url: str):
+    def __init__(self, base_url: str):
         self.cl = {}
-        self.login = login
-        self.password = password
         self.base_url = base_url
 
     def _get_client(self, endpoint: str):
@@ -44,7 +43,7 @@ class EngineZeep:
             print(e)
             raise
 
-    def read(self, endpoint: str, obj: dict, page: int = 1, idonly: bool = False,
+    def read(self, endpoint: str, obj: dict, auth: BfabricAuth, page: int = 1, idonly: bool = False,
              includedeletableupdateable: bool = False):
         query = copy.deepcopy(obj)
         query['includedeletableupdateable'] = includedeletableupdateable
@@ -55,17 +54,17 @@ class EngineZeep:
                          'includechildren', 'includeparents', 'includereplacements']
             _zeep_query_append_skipped(query, excl_keys, inplace=True, overwrite=False)
 
-        full_query = dict(login=self.login, page=page, password=self.password, query=query, idonly=idonly)
+        full_query = dict(login=auth.login, page=page, password=auth.password, query=query, idonly=idonly)
 
         client = self._get_client(endpoint)
         with client.settings(strict=False, xml_huge_tree=True, xsd_ignore_sequence_order=True):
             return client.service.read(full_query)
 
-    def readid(self, endpoint: str, obj: dict, page: int = 1, includedeletableupdateable: bool = True):
+    def readid(self, endpoint: str, obj: dict, auth: BfabricAuth, page: int = 1, includedeletableupdateable: bool = True):
         raise NotImplementedError("Attempted to use a method `readid` of Zeep, which does not exist")
 
-    def save(self, endpoint: str, obj: dict, skipped_keys: list = None):
-        query = {'login': self.login, 'password': self.password, endpoint: obj}
+    def save(self, endpoint: str, obj: dict, auth: BfabricAuth, skipped_keys: list = None):
+        query = {'login': auth.login, 'password': auth.password, endpoint: obj}
 
         # If necessary, add skipped keys to the query
         if skipped_keys is not None:
@@ -82,12 +81,12 @@ class EngineZeep:
             raise e
         return res
 
-    def delete(self, endpoint: str, id: Union[int, List]):
+    def delete(self, endpoint: str, id: Union[int, List], auth: BfabricAuth):
         if isinstance(id, list) and len(id) == 0:
             print("Warning, attempted to delete an empty list, ignoring")
             return []
 
-        query = {'login': self.login, 'password': self.password, 'id': id}
+        query = {'login': auth.login, 'password': auth.password, 'id': id}
 
         client = self._get_client(endpoint)
         return client.service.delete(query)

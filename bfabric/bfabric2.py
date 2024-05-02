@@ -102,7 +102,7 @@ def get_system_auth(login: str = None, password: str = None, base_url: str = Non
 # TODO: What does idonly do for SUDS? Does it make sense for Zeep?
 # TODO: What does includedeletableupdateable do for Zeep? Does it make sense for Suds?
 # TODO: How to deal with save-skip fields in Zeep? Does it happen in SUDS?
-class Bfabric(object):
+class Bfabric:
     """B-Fabric python3 module
     Implements read and save object methods for B-Fabric wsdl interface
     """
@@ -113,12 +113,13 @@ class Bfabric(object):
         self.verbose = verbose
         self.query_counter = 0
         self._config = config
+        self._auth = auth
 
         if engine == BfabricAPIEngineType.SUDS:
-            self.engine = EngineSUDS(auth.login, auth.password, config.base_url)
+            self.engine = EngineSUDS(base_url=config.base_url)
             self.result_type = BfabricResultType.LISTSUDS
         elif engine == BfabricAPIEngineType.ZEEP:
-            self.engine = EngineZeep(auth.login, auth.password, config.base_url)
+            self.engine = EngineZeep(base_url=config.base_url)
             self.result_type = BfabricResultType.LISTZEEP
         else:
             raise ValueError("Unexpected engine", BfabricAPIEngineType)
@@ -126,9 +127,9 @@ class Bfabric(object):
     def _read_method(self, readid: bool, endpoint: str, obj: dict, page: int = 1, **kwargs):
         if readid:
             # https://fgcz-bfabric.uzh.ch/wiki/tiki-index.php?page=endpoint.workunit#Web_Method_readid_
-            return self.engine.readid(endpoint, obj, page=page, **kwargs)
+            return self.engine.readid(endpoint, obj, auth=self._auth, page=page, **kwargs)
         else:
-            return self.engine.read(endpoint, obj, page=page, **kwargs)
+            return self.engine.read(endpoint, obj, auth=self._auth, page=page, **kwargs)
 
     @property
     def config(self) -> BfabricConfig:
@@ -188,14 +189,14 @@ class Bfabric(object):
         return result
 
     def save(self, endpoint: str, obj: dict, check: bool = True, **kwargs) -> ResultContainer:
-        results = self.engine.save(endpoint, obj, **kwargs)
+        results = self.engine.save(endpoint, obj, auth=self._auth, **kwargs)
         result = ResultContainer(results[endpoint], self.result_type, errors=get_response_errors(results, endpoint))
         if check:
             result.assert_success()
         return result
 
     def delete(self, endpoint: str, id: Union[List, int], check: bool = True) -> ResultContainer:
-        results = self.engine.delete(endpoint, id)
+        results = self.engine.delete(endpoint, id, auth=self._auth)
         result = ResultContainer(results[endpoint], self.result_type, errors=get_response_errors(results, endpoint))
         if check:
             result.assert_success()
