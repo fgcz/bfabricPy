@@ -20,7 +20,12 @@ jobs:
       - name: Install bfabricPy
         run: |
           pip install uv
+          uv venv
           uv pip install ".[dev]"
+      - name: Activate virtualenv
+        run: |
+          . .venv/bin/activate
+          echo PATH=$PATH >> $GITHUB_ENV
       - name: Run unit tests
         run: python -m unittest discover -s bfabric/tests/unit -p 'test_*.py'
   code_style:
@@ -36,6 +41,10 @@ jobs:
         run: |
           pip install uv
           uv pip install ".[dev]"
+      - name: Activate virtualenv
+        run: |
+          . .venv/bin/activate
+          echo PATH=$PATH >> $GITHUB_ENV
       - name: Check code with ruff
         run:
           ruff bfabric
