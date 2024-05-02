@@ -28,70 +28,57 @@ Description:
 Usage: bfabric_save_csv2dataset.py [-h] --csvfile CSVFILE --name NAME --containerid int [--workunitid int]
 """
 
-import sys
-from bfabric import Bfabric
-import csv 
+import argparse
+import csv
 
-def csv2json(csvFilePath):
-    obj = {}
-    obj["item"] = []
-    obj["attribute"] = []
+from bfabric.bfabric2 import Bfabric, get_system_auth
+
+
+def csv2json(csv_file_path):
+    obj = {"item": [], "attribute": []}
     types = {int: "Integer", str: "String", float: "Float"}
     # Open the csv file in read mode and create a file object
-    with open(csvFilePath, encoding='utf-8') as csv_file:
+    with open(csv_file_path, encoding="utf-8") as csv_file:
         # Creating the DictReader iterator
         csv_reader = csv.DictReader(csv_file)
-        nrow = 0
         # Read individual rows of the csv file as a dictionary
-        for row in csv_reader:
-            nrow = nrow + 1
+        for i_row, row in enumerate(csv_reader):
             fields = []
             for attr in range(0, len(list(row.keys()))):
-                if nrow == 1:
+                if i_row == 0:
                     # Fill in attributes info
                     attr_type = type(list(row.values())[attr])
-                    entry = {"name": list(row.keys())[attr], "position": attr+1,
-                            "type": types[attr_type]}
+                    entry = {"name": list(row.keys())[attr], "position": attr + 1, "type": types[attr_type]}
                     obj["attribute"].append(entry)
-                else:
-                    pass
                 # Fill in values info
-                field = {"attributeposition": attr+1,
-                        "value": list(row.values())[attr]}
-                fields.append(field)
-            item = {"field": fields, "position": nrow} 
-            obj["item"].append(item)
-    return(obj)
+                fields.append({"attributeposition": attr + 1, "value": list(row.values())[attr]})
+            obj["item"].append({"field": fields, "position": i_row + 1})
+    return obj
 
-def main(csv_file, dataset_name, container_id, workunit_id = None):
-    bfapp = Bfabric()
+
+def bfabric_save_csv2dataset(csv_file, dataset_name, container_id, workunit_id=None):
+    client = Bfabric(*get_system_auth())
     obj = csv2json(csv_file)
-    obj['name'] = dataset_name
-    obj['containerid'] = container_id
+    obj["name"] = dataset_name
+    obj["containerid"] = container_id
     if workunit_id is not None:
-        obj['workunitid'] = workunit_id
-    else:
-        pass
-    endpoint = 'dataset'
-    res = bfapp.save_object(endpoint=endpoint, obj=obj)
-    print(res[0])
+        obj["workunitid"] = workunit_id
+    endpoint = "dataset"
+    res = client.save(endpoint=endpoint, obj=obj)
+    print(res.to_list_dict()[0])
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Create a B-Fabric dataset")
+    parser.add_argument("--csvfile", required=True, help="the path to the csv file to be uploaded as dataset")
+    parser.add_argument("--name", required=True, help="dataset name as a string")
+    parser.add_argument("--containerid", metavar="int", required=True, help="container id")
+    parser.add_argument("--workunitid", metavar="int", required=False, help="workunit id")
+    args = parser.parse_args()
+    bfabric_save_csv2dataset(
+        csv_file=args.csvfile, dataset_name=args.name, container_id=args.containerid, workunit_id=args.workunitid
+    )
 
 
 if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser(description='Create a B-Fabric dataset')
-    parser.add_argument('--csvfile', required=True,
-            help='the path to the csv file to be uploaded as dataset')
-    parser.add_argument('--name', required=True,
-            help='dataset name as a string')
-    parser.add_argument('--containerid', metavar='int', required=True,
-            help='container id')
-    parser.add_argument('--workunitid', metavar='int', required=False,
-            help='workunit id')
-    args = parser.parse_args()
-    if args.workunitid is None:
-        main(csv_file = args.csvfile, dataset_name = args.name, container_id = args.containerid)
-    else:
-        main(csv_file = args.csvfile, dataset_name = args.name, container_id = args.containerid,
-                workunit_id = args.workunitid)
-
+    main()
