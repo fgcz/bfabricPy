@@ -44,13 +44,12 @@ class BfabricAPIEngineType(Enum):
     ZEEP = 2
 
 
-def get_system_auth(login: str = None, password: str = None, base_url: str = None, externaljobid=None,
+def get_system_auth(login: str = None, password: str = None, base_url: str = None,
                     config_path: str = None, config_env: str = None, optional_auth: bool = False, verbose: bool = False):
     """
     :param login:           Login string for overriding config file
     :param password:        Password for overriding config file
     :param base_url:        Base server url for overriding config file
-    :param externaljobid:   ?
     :param config_path:     Path to the config file, in case it is different from default
     :param config_env:      Which config environment to use. Can also specify via environment variable or use
        default in the config file (at your own risk)
@@ -113,6 +112,7 @@ class Bfabric(object):
 
         self.verbose = verbose
         self.query_counter = 0
+        self._config = config
 
         if engine == BfabricAPIEngineType.SUDS:
             self.engine = EngineSUDS(auth.login, auth.password, config.base_url)
@@ -129,6 +129,10 @@ class Bfabric(object):
             return self.engine.readid(endpoint, obj, page=page, **kwargs)
         else:
             return self.engine.read(endpoint, obj, page=page, **kwargs)
+
+    @property
+    def config(self) -> BfabricConfig:
+        return self._config
 
     def read(self, endpoint: str, obj: dict, max_results: Optional[int] = 100, readid: bool = False, check: bool = True,
              **kwargs) -> ResultContainer:

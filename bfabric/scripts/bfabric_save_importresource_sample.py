@@ -16,19 +16,17 @@ History:
 """
 
 
+import logging
+import logging.handlers
 import os
 import re
-import time
 import sys
-from bfabric import Bfabric
+import time
 
+from bfabric.bfabric2 import Bfabric
+from bfabric.bfabric2 import get_system_auth
 
-import logging, logging.handlers
-
-
-################################################################################
-bfabric_storageid = 2
-bfapp = Bfabric()
+BFABRIC_STORAGE_ID = 2
 
 
 def save_importresource(client: Bfabric, line: str):
@@ -49,7 +47,7 @@ def save_importresource(client: Bfabric, line: str):
     # Format the timestamp for bfabric
     file_date = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(int(file_date)))
 
-    bfabric_application_ids = bfapp.config.application_ids
+    bfabric_application_ids = client.config.application_ids
     if not bfabric_application_ids:
         raise RuntimeError("No bfabric_application_ids configured. check '~/.bfabricpy.yml' file!")
 
@@ -65,7 +63,7 @@ def save_importresource(client: Bfabric, line: str):
         "relativepath": file_path,
         "name": os.path.basename(file_path),
         "size": file_size,
-        "storageid": bfabric_storageid,
+        "storageid": BFABRIC_STORAGE_ID,
     }
 
     try:
@@ -79,7 +77,7 @@ def save_importresource(client: Bfabric, line: str):
         pass
 
     print(obj)
-    res = bfapp.save_object(endpoint="importresource", obj=obj)
+    res = client.save(endpoint="importresource", obj=obj).to_list_dict()
     print(res[0])
 
 
@@ -112,14 +110,15 @@ def setup_logger():
 
 def main():
     setup_logger()
+    client = Bfabric(*get_system_auth())
     if sys.argv[1] == "-":
         print("reading from stdin ...")
         for input_line in sys.stdin:
-            save_importresource(input_line.rstrip())
+            save_importresource(client, input_line.rstrip())
     elif sys.argv[1] == "-h":
         print(__doc__)
     else:
-        save_importresource(sys.argv[1])
+        save_importresource(client, sys.argv[1])
 
 
 if __name__ == "__main__":
