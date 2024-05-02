@@ -30,14 +30,8 @@ import logging, logging.handlers
 bfabric_storageid = 2
 bfapp = Bfabric()
 
-# maps the 'real world' to the BFabric application._id
-if bfapp.config.application_ids is None:
-    raise RuntimeError("No bfapp.config.application_ids variable configured. check '~/.bfabricrc.py' file!")
-print(bfapp.config.application_ids)
-bfabric_application_ids = bfapp.config.application_ids
 
-
-def save_importresource(line: str):
+def save_importresource(client: Bfabric, line: str):
     """reads, splits and submit the input line to the bfabric system
     Input: a line containg
     md5sum;date;size;path
@@ -50,15 +44,21 @@ def save_importresource(line: str):
     Output:
         True on success otherwise an exception raise
     """
-    (mdf5_checksum, file_date, file_size, file_path) = line.split(";")
+    mdf5_checksum, file_date, file_size, file_path = line.split(";")
 
-    # the timeformat bfabric understands
+    # Format the timestamp for bfabric
     file_date = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(int(file_date)))
 
-    bfabric_applicationid, bfabric_projectid = get_bfabric_application_and_project_id(file_path)
+    bfabric_application_ids = bfapp.config.application_ids
+    if not bfabric_application_ids:
+        raise RuntimeError("No bfabric_application_ids configured. check '~/.bfabricpy.yml' file!")
+
+    bfabric_application_id, bfabric_projectid = get_bfabric_application_and_project_id(
+        bfabric_application_ids, file_path
+    )
 
     obj = {
-        "applicationid": bfabric_applicationid,
+        "applicationid": bfabric_application_id,
         "filechecksum": mdf5_checksum,
         "containerid": bfabric_projectid,
         "filedate": file_date,
@@ -75,7 +75,7 @@ def save_importresource(line: str):
         )
         print("found sampleid={} pattern".format(m.group(3)))
         obj["sampleid"] = int(m.group(3))
-    except:
+    except Exception:
         pass
 
     print(obj)
@@ -83,7 +83,7 @@ def save_importresource(line: str):
     print(res[0])
 
 
-def get_bfabric_application_and_project_id(file_path):
+def get_bfabric_application_and_project_id(bfabric_application_ids, file_path):
     # linear search through dictionary. first hit counts!
     bfabric_applicationid = -1
     bfabric_projectid = (-1,)
