@@ -4,6 +4,10 @@
 """
 set status of a resource of a given resource id
 """
+import argparse
+
+from bfabric.bfabric2 import get_system_auth, Bfabric
+
 
 # Copyright (C) 2014 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 #
@@ -16,25 +20,20 @@ set status of a resource of a given resource id
 # $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/fgcz_bfabric_setResourceStatus_available.py $
 # $Id: fgcz_bfabric_setResourceStatus_available.py 2397 2016-09-06 07:04:35Z cpanse $
 
-import sys
-import bfabric
 
-from random import randint
-from time import sleep
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("resource_id", type=int, help="resource id", nargs="+")
+    args = parser.parse_args()
+    client = Bfabric(*get_system_auth())
+    for resource_id in args.resource_id:
+        try:
+            res = client.save('resource', {'id': resource_id, 'status': 'available'})
+            print(res)
+        except Exception:
+            print("failed to set resourceid {} 'available'.".format(resource_id))
+            raise
 
-import bfabric.wrapper_creator.bfabric_feeder
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        bfapp = bfabric.wrapper_creator.bfabric_feeder.BfabricFeeder()
-
-        for i in range(1, len(sys.argv)):
-            sleep(randint(2, 20))
-            try:
-                print(bfapp.report_resource(resourceid=int(sys.argv[i])))
-            except:
-                print( "failed to set resourceid {} 'available'.".format(int(sys.argv[i])))
-                raise
-    else:
-        print("Invalid argument: no resourceid is provided")
-        sys.exit(0)
+    main()

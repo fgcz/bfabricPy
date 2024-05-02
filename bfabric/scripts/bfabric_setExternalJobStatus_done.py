@@ -4,6 +4,10 @@
 """
 set status of a resource of a given resource id
 """
+import argparse
+
+from bfabric.bfabric2 import Bfabric, get_system_auth
+
 
 # Copyright (C) 2014 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 #
@@ -17,18 +21,21 @@ set status of a resource of a given resource id
 # $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/scripts/bfabric_setExternalJobStatus_done.py $
 # $Id: bfabric_setExternalJobStatus_done.py 2996 2017-08-18 12:11:17Z cpanse $
 
-import sys
-import bfabric
-import bfabric.wrapper_creator.bfabric_feeder
+
+def main():
+    parser = argparse.ArgumentParser(description="set external job status to 'done'")
+    parser.add_argument('external_job_id', type=int, help='external job id', nargs="+")
+    args = parser.parse_args()
+    client = Bfabric(*get_system_auth())
+
+    for job_id in args.external_job_id:
+        try:
+            res = client.save('externaljob', {'id': job_id, 'status': 'done'})
+            print(res)
+        except Exception:
+            print("failed to set externaljob with id={} 'available'.".format(job_id))
+            raise
+
 
 if __name__ == "__main__":
-    bfapp = bfabric.wrapper_creator.bfabric_feeder.BfabricFeeder()
-
-    if len(sys.argv) > 1:
-        for i in range(1, len(sys.argv)):
-            try:
-                res = bfapp.save_object('externaljob', {'id':int(sys.argv[i]), 'status':'done'})
-                print(res)
-            except:
-                print("failed to set externaljob with id={} 'available'.".format(int(sys.argv[i])))
-                raise
+    main()
