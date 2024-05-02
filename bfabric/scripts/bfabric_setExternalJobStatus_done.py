@@ -19,9 +19,10 @@ set status of a resource of a given resource id
 
 import sys
 import bfabric
+import bfabric.wrapper_creator.bfabric_feeder
 
 if __name__ == "__main__":
-    bfapp = bfabric.BfabricFeeder()
+    bfapp = bfabric.wrapper_creator.bfabric_feeder.BfabricFeeder()
 
     if len(sys.argv) > 1:
         for i in range(1, len(sys.argv)):

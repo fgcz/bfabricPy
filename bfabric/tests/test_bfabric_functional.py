@@ -15,6 +15,8 @@ import sys
 import logging
 import time
 
+import bfabric.wrapper_creator.bfabric_submitter
+import bfabric.wrapper_creator.bfabric_wrapper_creator
 
 logging.basicConfig(filename="test_functional.log",
                             filemode='a',
@@ -153,7 +155,7 @@ class BfabricFunctionalTestCase(unittest.TestCase):
 
         ## this information is contained in the application definition
         try:
-            W = bfabric.BfabricWrapperCreator(externaljobid=externaljobid_wc)
+            W = wrapper_creator.bfabric_wrapper_creator.BfabricWrapperCreator(externaljobid=externaljobid_wc)
             W.write_yaml()
             # TODO(cp): write getter of execuableid
         except:
@@ -188,7 +190,7 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         logging.info("Executing the Submitter executable: function submitter_yaml from BfabricSubmitter")
         # Submitter executable is supposed to download all workunit executables and submit them.
         # When finished successfully, the status of its external job is set to done, else to failed.
-        S = bfabric.BfabricSubmitter(externaljobid=externaljobid_submitter, SCHEDULEROOT="/usr/", scheduler="Slurm")
+        S = wrapper_creator.bfabric_submitter.BfabricSubmitter(externaljobid=externaljobid_submitter, SCHEDULEROOT="/usr/", scheduler="Slurm")
         ## this information is contained in the application definition
         try:
             S.submitter_yaml()

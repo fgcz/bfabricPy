@@ -12,11 +12,12 @@ import re
 import time
 import sys
 import bfabric
+import bfabric.wrapper_creator.bfabric_feeder
 
 
 def main():
     BFABRICSTORAGEID = 2
-    bfapp = bfabric.BfabricFeeder()
+    bfapp = bfabric.wrapper_creator.bfabric_feeder.BfabricFeeder()
 
     # create workunit
     wuobj = { 'applicationid': 155,
