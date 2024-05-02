@@ -51,8 +51,6 @@ def save_importresource(line):
         True on success otherwise an exception raise
     """
 
-    _bfabric_applicationid = -1
-    _bfabric_projectid = (-1,)
     _file_size = -1
     _file_date = -1
 
@@ -71,18 +69,7 @@ def save_importresource(line):
     _file_date = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(int(_file_date)))
 
     # linear search through dictionary. first hit counts!
-    for i in bfabric_application_ids.keys():
-        # first match counts!
-        if re.search(i, _file_path):
-            _bfabric_applicationid = bfabric_application_ids[i]
-            re_result = re.search(r"^p([0-9]+)\/.+", _file_path)
-            _bfabric_projectid = re_result.group(1)
-            break
-
-    if _bfabric_applicationid < 0:
-        logger = logging.getLogger("sync_feeder")
-        logger.error("{0}; no bfabric application id.".format(_file_path))
-        return
+    _bfabric_applicationid, _bfabric_projectid = get_bfabric_application_and_project_id(_file_path)
 
     obj = {
         "applicationid": _bfabric_applicationid,
@@ -108,6 +95,23 @@ def save_importresource(line):
     print(obj)
     res = bfapp.save_object(endpoint="importresource", obj=obj)
     print(res[0])
+
+
+def get_bfabric_application_and_project_id(file_path):
+    bfabric_applicationid = -1
+    bfabric_projectid = (-1,)
+    for i in bfabric_application_ids.keys():
+        # first match counts!
+        if re.search(i, file_path):
+            bfabric_applicationid = bfabric_application_ids[i]
+            re_result = re.search(r"^p([0-9]+)\/.+", file_path)
+            bfabric_projectid = re_result.group(1)
+            break
+    if bfabric_applicationid < 0:
+        logger = logging.getLogger("sync_feeder")
+        logger.error("{0}; no bfabric application id.".format(file_path))
+        raise RuntimeError("no bfabric application id.")
+    return bfabric_applicationid, bfabric_projectid
 
 
 def setup_logger():
