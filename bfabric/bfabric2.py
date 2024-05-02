@@ -22,7 +22,7 @@ BFabric V2 Authors:
 History
     The python3 library first appeared in 2014.
 """
-
+import base64
 import os
 import sys
 from pprint import pprint
@@ -196,6 +196,19 @@ class Bfabric(object):
         if check:
             result.assert_success()
         return result
+
+    def upload_resource(self, resource_name: str, content: bytes, workunit_id: int, check: bool = True) -> ResultContainer:
+        content_encoded = base64.b64encode(content).decode()
+        return self.save(
+            endpoint='resource',
+            obj={'base64': content_encoded,
+                 'name': resource_name,
+                 'description': "base64 encoded file",
+                 'workunitid': workunit_id},
+            check=check
+        )
+
+
 
     ############################
     # Multi-query functionality
