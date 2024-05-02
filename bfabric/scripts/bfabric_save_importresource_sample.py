@@ -37,7 +37,7 @@ print(bfapp.config.application_ids)
 bfabric_application_ids = bfapp.config.application_ids
 
 
-def save_importresource(line):
+def save_importresource(line: str):
     """reads, splits and submit the input line to the bfabric system
     Input: a line containg
     md5sum;date;size;path
@@ -50,42 +50,28 @@ def save_importresource(line):
     Output:
         True on success otherwise an exception raise
     """
-
-    _file_size = -1
-    _file_date = -1
-
-    # empty string / file
-    _md5 = "d41d8cd98f00b204e9800998ecf8427e"
-
-    _sampleid = None
-
-    try:
-        (_md5, _file_date, _file_size, _file_path) = line.split(";")
-    except:
-        raise
+    (mdf5_checksum, file_date, file_size, file_path) = line.split(";")
 
     # the timeformat bfabric understands
-    # _file_date = time.strftime("%FT%H:%M:%S-01:00",time.gmtime(int(_file_date)))
-    _file_date = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(int(_file_date)))
+    file_date = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(int(file_date)))
 
-    # linear search through dictionary. first hit counts!
-    _bfabric_applicationid, _bfabric_projectid = get_bfabric_application_and_project_id(_file_path)
+    bfabric_applicationid, bfabric_projectid = get_bfabric_application_and_project_id(file_path)
 
     obj = {
-        "applicationid": _bfabric_applicationid,
-        "filechecksum": _md5,
-        "containerid": _bfabric_projectid,
-        "filedate": _file_date,
-        "relativepath": _file_path,
-        "name": os.path.basename(_file_path),
-        "size": _file_size,
+        "applicationid": bfabric_applicationid,
+        "filechecksum": mdf5_checksum,
+        "containerid": bfabric_projectid,
+        "filedate": file_date,
+        "relativepath": file_path,
+        "name": os.path.basename(file_path),
+        "size": file_size,
         "storageid": bfabric_storageid,
     }
 
     try:
         m = re.search(
             r"p([0-9]+)\/(Proteomics\/[A-Z]+_[1-9])\/.*_\d\d\d_S([0-9][0-9][0-9][0-9][0-9][0-9]+)_.*(raw|zip)$",
-            _file_path,
+            file_path,
         )
         print("found sampleid={} pattern".format(m.group(3)))
         obj["sampleid"] = int(m.group(3))
@@ -98,6 +84,7 @@ def save_importresource(line):
 
 
 def get_bfabric_application_and_project_id(file_path):
+    # linear search through dictionary. first hit counts!
     bfabric_applicationid = -1
     bfabric_projectid = (-1,)
     for i in bfabric_application_ids.keys():
