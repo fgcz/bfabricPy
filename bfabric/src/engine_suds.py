@@ -1,8 +1,10 @@
+from __future__ import annotations
 from typing import Union, List
 import copy
 
 from suds.client import Client
 from suds import MethodNotFound
+from suds.serviceproxy import ServiceProxy
 
 from bfabric.bfabric_config import BfabricAuth
 from bfabric.src.errors import BfabricRequestError
@@ -14,16 +16,6 @@ class EngineSUDS:
     def __init__(self, base_url: str):
         self.cl = {}
         self.base_url = base_url
-
-    def _get_client(self, endpoint: str):
-        try:
-            if endpoint not in self.cl:
-                wsdl = "".join((self.base_url, '/', endpoint, "?wsdl"))
-                self.cl[endpoint] = Client(wsdl, cache=None)
-            return self.cl[endpoint]
-        except Exception as e:
-            print(e)
-            raise
 
     def read(self, endpoint: str, obj: dict, auth: BfabricAuth, page: int = 1, idonly: bool = False,
              includedeletableupdateable: bool = False):
@@ -66,3 +58,10 @@ class EngineSUDS:
 
         client = self._get_client(endpoint)
         return client.service.delete(query)
+
+    def _get_client(self, endpoint: str) -> ServiceProxy:
+        """Returns a SUDS service client for the given endpoint. Reuses existing instances when possible."""
+        if endpoint not in self.cl:
+            wsdl = "".join((self.base_url, '/', endpoint, "?wsdl"))
+            self.cl[endpoint] = Client(wsdl, cache=None)
+        return self.cl[endpoint]
