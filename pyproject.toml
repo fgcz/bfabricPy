@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["bfabric"]
+
+[project]
+name = "bfabric"
+description = "Python client for the B-Fabric WSDL API"
+version = "0.13.8"
+license = { text = "GPL-3.0" }
+authors = [
+    {name = "Christian Panse", email = "cp@fgcz.ethz.ch"},
+    {name = "Leonardo Schwarz", email = "leonardo.schwarz@fgcz.ethz.ch"},
+    {name = "Aleksejs Fomins"},
+    {name = "Marco Schmidt"},
+    {name = "Maria d'Errico"},
+    {name = "Witold Eryk Wolski"}
+]
+requires-python = ">=3.9"
+dependencies = [
+    "suds >= 1.1.2",
+    "PyYAML >= 6.0",
+    "Flask == 2.2.5",
+    "zeep >= 4.2.1",
+    "pandas >= 2.2.2"
+]
+
+[project.urls]
+Homepage = "https://github.com/fgcz/bfabricPy"
+Repository = "https://github.com/fgcz/bfabricPy"
+
+[project.scripts]
+#bfabric_flask="bfabric.scripts.bfabric_flask:main"
+#bfabric_feeder_resource_autoQC="bfabric.scripts.bfabric_feeder_resource_autoQC:main"
+#bfabric_list_not_existing_storage_directories="bfabric.scripts.bfabric_list_not_existing_storage_directories:main"
+#bfabric_list_not_available_proteomics_workunits="bfabric.scripts.bfabric_list_not_available_proteomics_workunits:main"
+#bfabric_upload_resource="bfabric.scripts.bfabric_upload_resource:main"
+#bfabric_logthis="bfabric.scripts.bfabric_logthis:main"
+#bfabric_setResourceStatus_available="bfabric.scripts.bfabric_setResourceStatus_available:main"
+#bfabric_setExternalJobStatus_done="bfabric.scripts.bfabric_setExternalJobStatus_done:main"
+#bfabric_setWorkunitStatus_available="bfabric.scripts.bfabric_setWorkunitStatus_available:main"
+#bfabric_setWorkunitStatus_processing="bfabric.scripts.bfabric_setWorkunitStatus_processing:main"
+#bfabric_setWorkunitStatus_failed="bfabric.scripts.bfabric_setWorkunitStatus_failed:main"
+#bfabric_delete="bfabric.scripts.bfabric_delete:main"
+#bfabric_read"="bfabric.scripts.bfabric_read:main"
+#bfabric_read_samples_of_workunit="bfabric.scripts.bfabric_read_samples_of_workunit:main"
+#bfabric_read_samples_from_dataset="bfabric.scripts.bfabric_read_samples_from_dataset:main"
+#bfabric_save_csv2dataset="bfabric.scripts.bfabric_save_csv2dataset:main"
+#bfabric_save_dataset2csv="bfabric.scripts.bfabric_save_dataset2csv:main"
+#bfabric_save_fasta="bfabric.scripts.bfabric_save_fasta:main"
+#bfabric_save_importresource_sample="bfabric.scripts.bfabric_save_importresource_sample:main"
+#bfabric_save_link_to_workunit="bfabric.scripts.bfabric_save_link_to_workunit:main"
+#bfabric_save_resource="bfabric.scripts.bfabric_save_resource:main"
+#bfabric_save_workunit_attribute="bfabric.scripts.bfabric_save_workunit_attribute:main"
+#bfabric_save_workflowstep="bfabric.scripts.bfabric_save_workflowstep:main"
