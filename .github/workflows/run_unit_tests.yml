@@ -20,7 +20,7 @@ jobs:
       - name: Install bfabricPy
         run: |
           pip install uv
-          uv install ".[dev]"
+          uv pip install ".[dev]"
       - name: Run unit tests
         run: python -m unittest discover -s bfabric/tests/unit -p 'test_*.py'
   code_style:
@@ -35,7 +35,7 @@ jobs:
       - name: Install bfabricPy
         run: |
           pip install uv
-          uv install ".[dev]"
+          uv pip install ".[dev]"
       - name: Check code with ruff
         run:
           ruff bfabric
