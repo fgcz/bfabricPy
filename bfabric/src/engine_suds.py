@@ -2,8 +2,8 @@ from __future__ import annotations
 from typing import Union, List
 import copy
 
-from suds.client import Client
 from suds import MethodNotFound
+from suds.client import Client
 from suds.serviceproxy import ServiceProxy
 
 from bfabric.bfabric_config import BfabricAuth
@@ -27,31 +27,32 @@ class EngineSUDS:
         includedeletableupdateable: bool = False,
     ):
         """
-        A generic method which can connect to any endpoint, e.g., workunit, project, order,
-        externaljob, etc, and returns the object with the requested id.
-        obj is a python dictionary which contains all the attributes of the endpoint
-        for the "query".
+        Reads the requested `obj` from `endpoint`.
+        :param endpoint: the endpoint to read, e.g. `workunit`, `project`, `order`, `externaljob`, etc.
+        :param obj: a python dictionary which contains all the attribute values that have to match
+        :param auth: the authentication handle of the user performing the request
+        :param page: the page number to read
+        :param idonly: whether to return only the ids of the objects
+        :param includedeletableupdateable: TODO
         """
         query = copy.deepcopy(obj)
         query["includedeletableupdateable"] = includedeletableupdateable
 
         full_query = dict(login=auth.login, page=page, password=auth.password, query=query, idonly=idonly)
-        client = self._get_client(endpoint)
-        return client.service.read(full_query)
+        service = self._get_suds_service(endpoint)
+        return service.read(full_query)
 
     # TODO: How is client.service.readid different from client.service.read. Do we need this method?
     def readid(self, endpoint: str, obj: dict, auth: BfabricAuth, page: int = 1):
         query = dict(login=auth.login, page=page, password=auth.password, query=obj)
-
-        client = self._get_client(endpoint)
-        return client.service.readid(query)
+        service = self._get_suds_service(endpoint)
+        return service.readid(query)
 
     def save(self, endpoint: str, obj: dict, auth: BfabricAuth):
         query = {"login": auth.login, "password": auth.password, endpoint: obj}
-
-        client = self._get_client(endpoint)
+        service = self._get_suds_service(endpoint)
         try:
-            res = client.service.save(query)
+            res = service.save(query)
         except MethodNotFound as e:
             raise BfabricRequestError(f"SUDS failed to find save method for the {endpoint} endpoint.") from e
         return res
@@ -62,13 +63,13 @@ class EngineSUDS:
             return []
 
         query = {"login": auth.login, "password": auth.password, "id": id}
+        service = self._get_suds_service(endpoint)
+        return service.delete(query)
 
-        client = self._get_client(endpoint)
-        return client.service.delete(query)
-
-    def _get_client(self, endpoint: str) -> ServiceProxy:
-        """Returns a SUDS service client for the given endpoint. Reuses existing instances when possible."""
+    def _get_suds_service(self, endpoint: str) -> ServiceProxy:
+        """Returns a SUDS service service for the given endpoint. Reuses existing instances when possible."""
         if endpoint not in self.cl:
             wsdl = "".join((self.base_url, "/", endpoint, "?wsdl"))
             self.cl[endpoint] = Client(wsdl, cache=None)
-        return self.cl[endpoint]
+        return self.cl[endpoint].service
+
