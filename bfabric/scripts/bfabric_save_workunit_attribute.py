@@ -12,32 +12,25 @@ Licensed under  GPL version 3
 
 
 """
+import argparse
+import json
+from bfabric.bfabric2 import Bfabric, get_system_auth
 
-import os
-import sys
-import bfabric
-import datetime
 
-def usage():
-    print("usage:\n")
-    msg = "\t{} <workunitID> <attribute> <value>".format(sys.argv[0])
-    print(msg)
+def bfabric_save_workunit_attribute(workunit_id: int, attribute: str, value: str):
+    client = Bfabric(*get_system_auth())
+    result = client.save(endpoint="workunit", obj={"id": workunit_id, attribute: value}).to_list_dict()
+    print(json.dumps(result[0], indent=2))
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("workunit_id", type=int, help="the workunit ID")
+    parser.add_argument("attribute", type=str, help="the attribute to save")
+    parser.add_argument("value", type=str, help="the value to save")
+    args = vars(parser.parse_args())
+    bfabric_save_workunit_attribute(**args)
+
 
 if __name__ == "__main__":
-    B = bfabric.Bfabric()
-
-    query_obj = {}
-
-    try:
-        workunitID = sys.argv[1]
-        attribute = sys.argv[2]
-        value = sys.argv[3]
-        query_obj["id"] = workunitID
-        query_obj[attribute] = value
-    except:
-        usage()
-        sys.exit(1)
-    
-
-    res = B.save_object(endpoint='workunit', obj=query_obj)
-    print(res)
+    main()

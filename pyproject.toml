@@ -60,7 +60,7 @@ Repository = "https://github.com/fgcz/bfabricPy"
 #bfabric_save_importresource_sample="bfabric.scripts.bfabric_save_importresource_sample:main"
 "bfabric_save_link_to_workunit.py"="bfabric.scripts.bfabric_save_link_to_workunit:main"
 #bfabric_save_resource="bfabric.scripts.bfabric_save_resource:main"
-#bfabric_save_workunit_attribute="bfabric.scripts.bfabric_save_workunit_attribute:main"
+"bfabric_save_workunit_attribute.py"="bfabric.scripts.bfabric_save_workunit_attribute:main"
 #bfabric_save_workflowstep="bfabric.scripts.bfabric_save_workflowstep:main"
 
 [tool.black]
