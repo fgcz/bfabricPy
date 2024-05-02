@@ -42,7 +42,7 @@ container = project
 application = 217
 
 from bfabric.bfabric import Bfabric
-from wrapper_creator.bfabric_wrapper_creator import BfabricWrapperCreator
-from wrapper_creator.bfabric_submitter import BfabricSubmitter
-from wrapper_creator.bfabric_feeder import BfabricFeeder
+from bfabric.wrapper_creator.bfabric_wrapper_creator import BfabricWrapperCreator
+from bfabric.wrapper_creator.bfabric_submitter import BfabricSubmitter
+from bfabric.wrapper_creator.bfabric_feeder import BfabricFeeder
 from bfabric.bfabric_config import BfabricConfig
