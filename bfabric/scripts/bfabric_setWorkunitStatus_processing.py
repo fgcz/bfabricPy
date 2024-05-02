@@ -20,8 +20,10 @@ import bfabric
 from random import randint
 from time import sleep
 
+import bfabric.wrapper_creator.bfabric_feeder
+
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        B = bfabric.BfabricFeeder()
+        B = bfabric.wrapper_creator.bfabric_feeder.BfabricFeeder()
         res = B.save_object(endpoint='workunit', obj={'id': int(sys.argv[1]), 'status': 'processing'})
         B.print_json(res)

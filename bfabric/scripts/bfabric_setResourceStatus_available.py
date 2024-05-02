@@ -22,10 +22,11 @@ import bfabric
 from random import randint
 from time import sleep
 
+import bfabric.wrapper_creator.bfabric_feeder
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        bfapp = bfabric.BfabricFeeder()
+        bfapp = bfabric.wrapper_creator.bfabric_feeder.BfabricFeeder()
 
         for i in range(1, len(sys.argv)):
             sleep(randint(2, 20))
