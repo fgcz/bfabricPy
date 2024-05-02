@@ -17,8 +17,15 @@ class EngineSUDS:
         self.cl = {}
         self.base_url = base_url
 
-    def read(self, endpoint: str, obj: dict, auth: BfabricAuth, page: int = 1, idonly: bool = False,
-             includedeletableupdateable: bool = False):
+    def read(
+        self,
+        endpoint: str,
+        obj: dict,
+        auth: BfabricAuth,
+        page: int = 1,
+        idonly: bool = False,
+        includedeletableupdateable: bool = False,
+    ):
         """
         A generic method which can connect to any endpoint, e.g., workunit, project, order,
         externaljob, etc, and returns the object with the requested id.
@@ -26,7 +33,7 @@ class EngineSUDS:
         for the "query".
         """
         query = copy.deepcopy(obj)
-        query['includedeletableupdateable'] = includedeletableupdateable
+        query["includedeletableupdateable"] = includedeletableupdateable
 
         full_query = dict(login=auth.login, page=page, password=auth.password, query=query, idonly=idonly)
         client = self._get_client(endpoint)
@@ -40,7 +47,7 @@ class EngineSUDS:
         return client.service.readid(query)
 
     def save(self, endpoint: str, obj: dict, auth: BfabricAuth):
-        query = {'login': auth.login, 'password': auth.password, endpoint: obj}
+        query = {"login": auth.login, "password": auth.password, endpoint: obj}
 
         client = self._get_client(endpoint)
         try:
@@ -54,7 +61,7 @@ class EngineSUDS:
             print("Warning, attempted to delete an empty list, ignoring")
             return []
 
-        query = {'login': auth.login, 'password': auth.password, 'id': id}
+        query = {"login": auth.login, "password": auth.password, "id": id}
 
         client = self._get_client(endpoint)
         return client.service.delete(query)
@@ -62,6 +69,6 @@ class EngineSUDS:
     def _get_client(self, endpoint: str) -> ServiceProxy:
         """Returns a SUDS service client for the given endpoint. Reuses existing instances when possible."""
         if endpoint not in self.cl:
-            wsdl = "".join((self.base_url, '/', endpoint, "?wsdl"))
+            wsdl = "".join((self.base_url, "/", endpoint, "?wsdl"))
             self.cl[endpoint] = Client(wsdl, cache=None)
         return self.cl[endpoint]
