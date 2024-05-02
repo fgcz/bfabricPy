@@ -15,45 +15,45 @@ Usage: bfabric_save_dataset2csv.py [-h] --id DATASET_ID [--dir SCRATCHDIR]
 Example: bfabric_save_dataset2csv.py --id 32335 && cat dataset.csv    
 """
 
-import sys
-from bfabric import Bfabric
+import argparse
+
+from bfabric.bfabric2 import Bfabric, get_system_auth
+
 
 def dataset2csv(ds, outputfile, sep=","):
     # ds.attribute contains the list of columns name
     with open(outputfile, "w") as f:
-        f.write("{}\n".format(sep.join(map(lambda x: x.name, ds.attribute))))
-        for i in ds.item:
+        f.write("{}\n".format(sep.join(map(lambda x: x["name"], ds["attribute"]))))
+        for i in ds["item"]:
             # sort values based on the columns order in attributeposition
-            for x in i.field:
-                if not hasattr(x,"value") or x.value == None:
-                    x.value = ''
-            fields = [(x.value, x.attributeposition) for x in i.field]
+            fields = [(x.get("value") or "", x["attributeposition"]) for x in i["field"]]
             fields.sort(key=lambda y: int(y[1]))
             f.write("{}\n".format(sep.join([t[0] for t in fields])))
 
 
-def main(dataset_id, scratchdir):
-    bfapp = Bfabric()
-    try:
-        query_obj = {'id': dataset_id}
-        ds = bfapp.read_object(endpoint='dataset', obj=query_obj)[0]
-    except:
-        print("No input dataset found")
-        raise
+def bfabric_save_dataset2csv(dataset_id: int, out_dir: str):
+    bfapp = Bfabric(*get_system_auth())
+    results = bfapp.read(endpoint="dataset", obj={"id": dataset_id}).to_list_dict()
+    if not results:
+        raise RuntimeError("No dataset found with id '{}'".format(dataset_id))
+    dataset = results[0]
 
     try:
-        dataset2csv(ds, "{}/dataset.csv".format(scratchdir))
-    except:
-        print("The writing process to '{}'/dataset.csv failed.".format(scratchdir))
+        dataset2csv(dataset, "{}/dataset.csv".format(out_dir))
+    except Exception:
+        print("The writing process to '{}'/dataset.csv failed.".format(out_dir))
         raise
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Save a B-Fabric dataset to a csv file")
+    parser.add_argument("--id", metavar="int", required=True, help="dataset id", type=int)
+    parser.add_argument(
+        "--dir", required=False, default="./", help="the path to the directory where to save the csv file"
+    )
+    args = parser.parse_args()
+    bfabric_save_dataset2csv(out_dir=args.dir, dataset_id=args.id)
 
 
 if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser(description='Save a B-Fabric dataset to a csv file')
-    parser.add_argument('--id', metavar='int', required=True,
-            help='dataset id')
-    parser.add_argument('--dir', required=False, default='./',
-            help='the path to the directory where to save the csv file')
-    args = parser.parse_args()
-    main(scratchdir = args.dir, dataset_id = args.id)
+    main()
