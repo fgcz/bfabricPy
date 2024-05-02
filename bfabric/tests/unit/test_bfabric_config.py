@@ -1,6 +1,6 @@
 import os
-import io
 import unittest
+from pathlib import Path
 
 from bfabric.bfabric_config import BfabricConfig, BfabricAuth, read_config
 
@@ -23,6 +23,7 @@ class TestBfabricConfig(unittest.TestCase):
             base_url="url",
             application_ids={"app": 1},
         )
+        self.example_config_path = Path(__file__).parent / "example_config.yml"
 
     def test_default_params_when_omitted(self):
         config = BfabricConfig()
@@ -59,7 +60,7 @@ class TestBfabricConfig(unittest.TestCase):
         # Ensure environment variable is not available, and the default is environment is loaded
         os.environ.pop('BFABRICPY_CONFIG_ENV', None)
 
-        config, auth = read_config('example_config.yml')  # Should deduce
+        config, auth = read_config(self.example_config_path)
         self.assertEqual("my_epic_production_login", auth.login)
         self.assertEqual("my_secret_production_password", auth.password)
         self.assertEqual("https://mega-production-server.uzh.ch/myprod", config.base_url)
@@ -70,16 +71,16 @@ class TestBfabricConfig(unittest.TestCase):
         # Explicitly set the environment variable for this process
         os.environ["BFABRICPY_CONFIG_ENV"] = "TEST"
 
-        config, auth = read_config('example_config.yml')  # Should deduce
+        config, auth = read_config(self.example_config_path)
         self.assertEqual("my_epic_test_login", auth.login)
         self.assertEqual("my_secret_test_password", auth.password)
         self.assertEqual("https://mega-test-server.uzh.ch/mytest", config.base_url)
 
     # Testing explicit initialization, as well as extra fields (application_ids, job_notification_emails)
     # TODO: Test that logging is consistent with default config
-    def test_read_yml_bypath_allfields(self):
+    def test_read_yml_bypath_all_fields(self):
         with self.assertLogs(level="INFO") as log_context:
-            config, auth = read_config('example_config.yml', config_env='TEST')
+            config, auth = read_config(self.example_config_path, config_env='TEST')
 
         # # Testing log
         # self.assertEqual(
@@ -108,7 +109,7 @@ class TestBfabricConfig(unittest.TestCase):
     # Testing that we can load base_url without authentication if correctly requested
     def test_read_yml_when_empty_optional(self):
         with self.assertLogs(level="INFO"):
-            config, auth = read_config('example_config.yml', config_env='STANDBY', optional_auth=True)
+            config, auth = read_config(self.example_config_path, config_env='STANDBY', optional_auth=True)
 
         self.assertIsNone(auth)
         self.assertEqual("https://standby-server.uzh.ch/mystandby", config.base_url)
@@ -118,7 +119,7 @@ class TestBfabricConfig(unittest.TestCase):
     # Test that missing authentication will raise an error if required
     def test_read_yml_when_empty_mandatory(self):
         with self.assertRaises(ValueError):
-            read_config('example_config.yml', config_env='STANDBY', optional_auth=False)
+            read_config(self.example_config_path, config_env='STANDBY', optional_auth=False)
 
     def test_repr(self):
         rep = repr(self.config)

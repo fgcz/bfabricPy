@@ -17,10 +17,11 @@ import bfabric
 from random import randint
 from time import sleep
 
+import bfabric.wrapper_creator.bfabric_feeder
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        B = bfabric.BfabricFeeder()
+        B = bfabric.wrapper_creator.bfabric_feeder.BfabricFeeder()
         try:
             externaljobid, msg = (int(sys.argv[1]), sys.argv[2])
         except:

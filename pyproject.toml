@@ -24,6 +24,7 @@ dependencies = [
     "PyYAML >= 6.0",
     "Flask == 2.2.5",
     "zeep >= 4.2.1",
+    "pandas >= 2.2.2"
 ]
 
 [project.optional-dependencies]
