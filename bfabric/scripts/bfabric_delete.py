@@ -18,26 +18,21 @@ $Id: bfabric_delete.py 2525 2016-10-17 09:52:59Z cpanse $
 http://fgcz-bfabric.uzh.ch/bfabric/executable?wsdl
 
 """
+import argparse
+import bfabric
+from bfabric.bfabric2 import Bfabric, get_system_auth
 
-import sys
-import bfabric 
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("endpoint", help="endpoint", choices=bfabric.endpoints)
+    parser.add_argument("id", help="id", type=int)
+    args = parser.parse_args()
+    client = Bfabric(*get_system_auth())
+    res = client.delete(endpoint=args.endpoint, id=args.id).to_list_dict()
+    for i in res:
+        print(i)
+
 
 if __name__ == "__main__":
-    bfapp = bfabric.Bfabric()
-
-    query_obj = {}
-    
-    print (len(sys.argv))
-
-    endpoint = sys.argv[1]
-
-    if len(sys.argv) == 3:
-        id = sys.argv[2]
-
-    if endpoint in bfabric.endpoints:
-        res = bfapp.delete_object(endpoint=endpoint, id=id)
-        for i in res:
-            print (i)
-    else:
-        raise "1st argument must be a valid endpoint."
-
+    main()
