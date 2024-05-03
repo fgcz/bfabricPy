@@ -1,11 +1,11 @@
+import datetime
 import unittest
 from functools import cached_property
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch, ANY
 
 from bfabric import BfabricConfig
 from bfabric.bfabric2 import BfabricAPIEngineType, Bfabric
 from bfabric.src.engine_suds import EngineSUDS
-
 
 class TestBfabric(unittest.TestCase):
     def setUp(self):
@@ -53,6 +53,26 @@ class TestBfabric(unittest.TestCase):
         self.assertEqual(mock_old_auth, self.mock_bfabric.auth)
 
     # TODO further unit tests
+
+    def test_get_version_message(self):
+        self.mock_config.base_url = "dummy_url"
+        message = self.mock_bfabric.get_version_message()
+        lines = message.split("\n")
+        self.assertEqual(2, len(lines))
+        # first line
+        pattern = r"--- bfabricPy v\d+\.\d+\.\d+ \(EngineSUDS, dummy_url, U=None\) ---"
+        self.assertRegex(lines[0], pattern)
+        # second line
+        year = datetime.datetime.now().year
+        self.assertEqual(f"--- Copyright (C) 2014-{year} Functional Genomics Center Zurich ---", lines[1])
+
+    @patch("bfabric.bfabric2.Console")
+    @patch.object(Bfabric, "get_version_message")
+    def test_print_version_message(self, method_get_version_message, mock_console):
+        mock_stderr = MagicMock(name="mock_stderr")
+        self.mock_bfabric.print_version_message(stderr=mock_stderr)
+        mock_console.assert_called_once_with(stderr=mock_stderr, highlighter=ANY, theme=ANY)
+        mock_console.return_value.print.assert_called_once_with(method_get_version_message.return_value, style="bright_yellow")
 
 
 if __name__ == "__main__":
