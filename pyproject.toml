@@ -23,6 +23,7 @@ dependencies = [
     "suds >= 1.1.2",
     "PyYAML >= 6.0",
     "Flask == 2.2.5",
+    "rich >= 13.7.1",
     "zeep >= 4.2.1",
     "pandas >= 2.2.2"
 ]
