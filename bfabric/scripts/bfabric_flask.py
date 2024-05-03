@@ -44,9 +44,14 @@ from flask import Flask, jsonify, request
 from flask.json import JSONEncoder
 
 import bfabric
+from bfabric import bfabric2
+from bfabric.bfabric2 import get_system_auth
+from bfabric.bfabric_config import BfabricAuth
 
 
-def create_logger(name="bfabric11_flask", address=("fgcz-ms.uzh.ch", 514)):
+DEFAULT_LOGGER_NAME = "bfabric11_flask"
+
+def setup_logger_prod(name=DEFAULT_LOGGER_NAME, address=("fgcz-ms.uzh.ch", 514)):
     """
     create a logger object
     """
@@ -60,8 +65,16 @@ def create_logger(name="bfabric11_flask", address=("fgcz-ms.uzh.ch", 514)):
 
     return logger
 
+def setup_logger_debug(name=DEFAULT_LOGGER_NAME):
+    """
+    create a logger object
+    """
+    logger = logging.getLogger(name)
+    logger.setLevel(10)
+    return logger
 
-logger = create_logger()
+
+logger = logging.getLogger(DEFAULT_LOGGER_NAME)
 
 
 class BfabricJSONEncoder(JSONEncoder):
@@ -91,7 +104,9 @@ syslog_handler.setFormatter(formatter)
 app = Flask(__name__)
 
 app.json_encoder = BfabricJSONEncoder
-bfapp = bfabric.Bfabric()
+#bfapp = bfabric.Bfabric()
+
+client = bfabric2.Bfabric(config=get_system_auth()[0], auth=None)
 
 inlcude_child_extracts = True
 
@@ -101,14 +116,14 @@ def read():
     idonly = None
     try:
         content = json.loads(request.data)
-    except:
+    except Exception:
         return jsonify({"error": "could not get POST content."})
 
     try:
         # TODO(cp): check if meaningful page
         page = content["page"][0]
         print("page = ", page)
-    except:
+    except Exception:
         logger.info("set page to 1.")
         page = 1
 
@@ -116,31 +131,31 @@ def read():
         # TODO(cp): check if meaningful page
         idonly = content["idonly"][0]
         print("idonly = ", idonly)
-    except:
+    except Exception:
         idonly = False
 
     try:
         webservicepassword = content["webservicepassword"][0].replace("\t", "")
         login = content["login"][0]
-        # logger.info("debug {}".format(webservicepassword))
 
-        bf = bfabric.Bfabric(login=login, password=webservicepassword)
-        res = bf.read_object(
-            endpoint=content["endpoint"][0],
-            obj=content["query"],
-            plain=True,
-            page=page,
-            idonly=idonly,
-        )
+        auth = BfabricAuth(login=login, password=webservicepassword)
+        with client.with_auth(auth):
+            res = client.read(
+                endpoint=content["endpoint"][0],
+                obj=content["query"],
+                # TODO this needs to be handled somehow and it's not fully clear yet how
+                #page=page,
+                idonly=idonly,
+            )
         logger.info("'{}' login success query {} ...".format(login, content["query"]))
-    except:
-        logger.info("'{}' query failed ...".format(login))
+    except Exception:
+        logger.exception("'{}' query failed ...".format(login))
         return jsonify({"status": "jsonify failed: bfabric python module."})
 
     try:
-        return jsonify({"res": res})
-    except:
-        logger.info("'{}' query failed ...".format(login))
+        return jsonify({"res": res.to_list_dict()})
+    except Exception:
+        logger.exception("'{}' query failed ...".format(login))
         return jsonify({"status": "jsonify failed"})
 
 
@@ -167,13 +182,13 @@ TODO(cp@fgcz.ethz.ch): also provide an argument for the webbase
 def q():
     try:
         content = json.loads(request.data)
-    except:
+    except json.JSONDecodeError:
         return jsonify({"error": "could not get POST content."})
 
     try:
         # TODO(cp): check if meaningful page
         page = content["page"][0]
-    except:
+    except Exception:
         logger.info("set page to 1.")
         page = 1
 
@@ -183,18 +198,21 @@ def q():
         login = content["login"][0]
         # logger.info("debug {}".format(webservicepassword))
 
-        bf = bfabric.Bfabric(login=login, password=webservicepassword)
-        res = bf.read_object(
-            endpoint=content["endpoint"][0], obj=content["query"], page=page
-        )
+        auth = BfabricAuth(login=login, password=webservicepassword)
+        with client.with_auth(auth):
+            res = client.read(
+                endpoint=content["endpoint"][0], obj=content["query"],
+                # TODO this needs to be handled somehow and it's not fully clear yet how
+                #page=page
+            )
         logger.info("'{}' login success query {} ...".format(login, content["query"]))
-    except:
-        logger.info("'{}' login failed ...".format(login))
+    except Exception:
+        logger.exception("'{}' login failed ...".format(login))
         return jsonify({"status": "jsonify failed: bfabric python module."})
 
     try:
-        return jsonify({"res": res})
-    except:
+        return jsonify({"res": res.to_list_dict()})
+    except Exception:
         logger.info("'{}' query failed ...".format(login))
         return jsonify({"status": "jsonify failed"})
 
@@ -247,30 +265,30 @@ def s():
         return jsonify({"status": "jsonify failed"})
 
 
-def dfs__(extract_id):
-    stack = list()
-    visited = dict()
-    stack.append(extract_id)
-
-    extract_dict = dict()
-
-    while len(stack) > 0:
-        o = stack.pop()
-        visited[u] = True
-
-        extract = bfapp.read_object(endpoint="extract", obj={"id": u})
-        extract_dict[u] = extract[0]
-
-        try:
-            for child_extract in extract[0].childextract:
-                if child_extract._id not in visited:
-
-                    stack.append(child_extract._id)
-
-        except:
-            pass
-
-    return extract_dict
+#def dfs__(extract_id):
+#    stack = list()
+#    visited = dict()
+#    stack.append(extract_id)
+#
+#    extract_dict = dict()
+#
+#    while len(stack) > 0:
+#        o = stack.pop()
+#        visited[u] = True
+#
+#        extract = bfapp.read_object(endpoint="extract", obj={"id": u})
+#        extract_dict[u] = extract[0]
+#
+#        try:
+#            for child_extract in extract[0].childextract:
+#                if child_extract._id not in visited:
+#
+#                    stack.append(child_extract._id)
+#
+#        except:
+#            pass
+#
+#    return extract_dict
 
 
 # def wsdl_sample(containerid):
@@ -547,6 +565,7 @@ def main():
     if exists("/etc/ssl/fgcz-host.pem") and exists(
         "/etc/ssl/private/fgcz-host_key.pem"
     ):
+        setup_logger_prod()
         app.run(
             debug=False,
             host="0.0.0.0",
@@ -557,6 +576,7 @@ def main():
             ),
         )
     else:
+        setup_logger_debug()
         app.run(debug=False, host="127.0.0.1", port=5000)
 
 
