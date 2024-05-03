@@ -39,6 +39,7 @@ import json
 import logging
 import logging.handlers
 from os.path import exists
+from typing import Dict, Any, Optional
 
 from flask import Flask, jsonify, request
 from flask.json import JSONEncoder
@@ -111,51 +112,58 @@ client = bfabric2.Bfabric(config=get_system_auth()[0], auth=None)
 inlcude_child_extracts = True
 
 
+def get_request_auth(request_data: Dict[str, Any]) -> Optional[BfabricAuth]:
+    try:
+        webservicepassword = request_data["webservicepassword"][0].replace("\t", "")
+        login = request_data["login"][0]
+        return BfabricAuth(login=login, password=webservicepassword)
+    except (TypeError, KeyError, IndexError):
+        return None
+
+
 @app.route("/read", methods=["GET", "POST"])
 def read():
-    idonly = None
+    # Parse request object
     try:
         content = json.loads(request.data)
-    except Exception:
-        return jsonify({"error": "could not get POST content."})
+        endpoint = content["endpoint"][0]
+        query = content["query"]
+    except json.JSONDecodeError:
+        return jsonify({"error": "could not parse JSON content."})
+    except (KeyError, IndexError):
+        return jsonify({"error": "could not get required POST content."})
 
+    # Pagination information.
+    page_offset = content.get("page_offset", [0])[0]
+    page_max_results = content.get("page_max_results", [100])[0]
+
+    # Idonly parameter.
+    idonly = content.get("idonly", [False])[0]
+
+    # Auth information.
+    auth = get_request_auth(content)
+    if not auth:
+        return jsonify({"error": "could not get login and password."})
+
+    logger.info(f"'{auth.login}' /read {page_offset=}, {page_max_results=}, {idonly=}")
     try:
-        # TODO(cp): check if meaningful page
-        page = content["page"][0]
-        print("page = ", page)
-    except Exception:
-        logger.info("set page to 1.")
-        page = 1
-
-    try:
-        # TODO(cp): check if meaningful page
-        idonly = content["idonly"][0]
-        print("idonly = ", idonly)
-    except Exception:
-        idonly = False
-
-    try:
-        webservicepassword = content["webservicepassword"][0].replace("\t", "")
-        login = content["login"][0]
-
-        auth = BfabricAuth(login=login, password=webservicepassword)
         with client.with_auth(auth):
             res = client.read(
-                endpoint=content["endpoint"][0],
-                obj=content["query"],
-                # TODO this needs to be handled somehow and it's not fully clear yet how
-                #page=page,
+                endpoint=endpoint,
+                obj=query,
+                # TODO offset
+                max_results=page_max_results,
                 idonly=idonly,
             )
-        logger.info("'{}' login success query {} ...".format(login, content["query"]))
+        logger.info("'{}' login success query {} ...".format(auth.login, content["query"]))
     except Exception:
-        logger.exception("'{}' query failed ...".format(login))
+        logger.exception("'{}' query failed ...".format(auth.login))
         return jsonify({"status": "jsonify failed: bfabric python module."})
 
     try:
         return jsonify({"res": res.to_list_dict()})
     except Exception:
-        logger.exception("'{}' query failed ...".format(login))
+        logger.exception("'{}' query failed ...".format(auth.login))
         return jsonify({"status": "jsonify failed"})
 
 

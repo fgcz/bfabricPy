@@ -154,7 +154,7 @@ class Bfabric:
         finally:
             self._auth = old_auth
 
-    def read(self, endpoint: str, obj: dict, max_results: Optional[int] = 100, readid: bool = False, check: bool = True,
+    def read(self, endpoint: str, obj: dict, max_results: Optional[int] = 100, offset: int = 0, readid: bool = False, check: bool = True,
              **kwargs) -> ResultContainer:
         """Reads objects from the specified endpoint that match all specified attributes in `obj`.
         By setting `max_results` it is possible to change the number of results that are returned.
@@ -164,6 +164,8 @@ class Bfabric:
            are read or expected number of results has been reached. If None, load all available pages.
            NOTE: max_results will be rounded upwards to the nearest multiple of BFABRIC_QUERY_LIMIT, because results
            come in blocks, and there is little overhead to providing results over integer number of pages.
+        :param offset: the number of elements to skip before starting to return results (useful for pagination, default
+              is 0 which means no skipping)
         :param readid: whether to use reading by ID. Currently only available for engine=SUDS
             TODO: Test the extent to which this method works. Add safeguards
         :param check: whether to check for errors in the response
@@ -173,13 +175,14 @@ class Bfabric:
         # Get the first page.
         # NOTE: According to old interface, this is equivalent to plain=True
         response = self._read_method(readid, endpoint, obj, page=1, **kwargs)
+
         try:
-            n_pages = response["numberofpages"]
+            n_available_pages = response["numberofpages"]
         except AttributeError:
-            n_pages = 0
+            n_available_pages = 0
 
         # Return empty list if nothing found
-        if not n_pages:
+        if not n_available_pages:
             result = ResultContainer([], self.result_type, total_pages_api=0, errors=get_response_errors(response, endpoint))
             if check:
                 result.assert_success()
@@ -188,23 +191,33 @@ class Bfabric:
         # Get results from other pages as well, if need be
         # Only load as many pages as user has interest in
         if max_results is None:
-            n_pages_trg = n_pages
+            n_pages_trg = n_available_pages
         else:
-            n_pages_trg = min(n_pages, div_int_ceil(max_results, BFABRIC_QUERY_LIMIT))
+            n_pages_trg = min(n_available_pages, div_int_ceil(max_results, BFABRIC_QUERY_LIMIT))
 
         # NOTE: Page numbering starts at 1
         response_items = response[endpoint]
         errors = []
         for i_page in range(2, n_pages_trg + 1):
-            print('-- reading page', i_page, 'of', n_pages)
+            print('-- reading page', i_page, 'of', n_available_pages)
             response = self._read_method(readid, endpoint, obj, page=i_page, **kwargs)
             errors += get_response_errors(response, endpoint)
             response_items += response[endpoint]
 
-        result = ResultContainer(response_items, self.result_type, total_pages_api=n_pages, errors=errors)
+        result = ResultContainer(response_items, self.result_type, total_pages_api=n_available_pages, errors=errors)
         if check:
             result.assert_success()
         return result
+
+    def _determine_relevant_pages_and_indices(self, n_available_pages: int, max_results: Optional[int], offset: int):
+        if n_available_pages == 0:
+            return {"pages": [], "indices": []}
+        page_size = BFABRIC_QUERY_LIMIT
+
+        if max_results is None:
+            max_results = n_available_pages * page_size
+
+
 
     def save(self, endpoint: str, obj: dict, check: bool = True, **kwargs) -> ResultContainer:
         results = self.engine.save(endpoint, obj, auth=self.auth, **kwargs)
