@@ -144,7 +144,8 @@ class Bfabric:
     @contextmanager
     def with_auth(self, auth: BfabricAuth):
         """Context manager that temporarily (within the scope of the context) sets the authentication for
-        the Bfabric object to the provided value. This is useful in a server situation."""
+        the Bfabric object to the provided value. This is useful when authenticating multiple users, to avoid accidental
+        use of the wrong credentials."""
         old_auth = self._auth
         self._auth = auth
         try:
