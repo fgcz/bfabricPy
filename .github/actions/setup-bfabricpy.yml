@@ -1,0 +1,16 @@
+name: "Setup bfabricPy"
+inputs:
+  python-version:
+    description: "Python version to use"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ inputs.python-version }}
+    - name: Install bfabricPy
+      run: |
+        pip install uv
+        uv pip install --system ".[dev]"

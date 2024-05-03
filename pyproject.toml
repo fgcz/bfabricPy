@@ -31,7 +31,8 @@ dependencies = [
 dev = [
     "black",
     "isort",
-    "ruff"
+    "ruff",
+    "licensecheck"
 ]
 
 [project.urls]
@@ -74,3 +75,6 @@ target-version = "py39"
 
 [tool.ruff.lint]
 select = ["D103", "E", "F", "ANN", "PTH", "UP", "BLE", "SIM"]
+
+[tool.licensecheck]
+using = "PEP631"
