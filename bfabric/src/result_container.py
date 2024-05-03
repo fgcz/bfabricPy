@@ -4,9 +4,11 @@
 # once it is no longer necessary
 from __future__ import annotations
 from enum import Enum
+from typing import List
 
 from zeep.helpers import serialize_object
 
+from bfabric.src.errors import BfabricRequestError
 from bfabric.src.response_format_suds import suds_asdict_recursive
 import bfabric.src.response_format_dict as formatter
 
@@ -33,7 +35,7 @@ def _clean_result(rez: dict, drop_empty: bool = True, drop_underscores_suds: boo
 
 
 class ResultContainer:
-    def __init__(self, results: list, result_type: BfabricResultType, total_pages_api: int = None, errors: list = None):
+    def __init__(self, results: list, result_type: BfabricResultType, total_pages_api: int = None, errors: List[BfabricRequestError] = None):
         """
         :param results:    List of BFabric query results
         :param result_type: Format of each result (All must be of the same format)
@@ -41,6 +43,7 @@ class ResultContainer:
             NOTE: User may have requested to cap the total number of results. Thus, it may be of interest to know
             the (approximate) total number of results the API had for the query. The total number of results is
             somewhere between max_pages * (BFABRIC_QUERY_LIMIT - 1) and max_pages * BFABRIC_QUERY_LIMIT
+        :param errors:     List of errors that occurred during the query, if any
         """
         self.results = results
         self.result_type = result_type
@@ -50,29 +53,32 @@ class ResultContainer:
     def __getitem__(self, idx: int):
         return self.results[idx]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__str__()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.to_list_dict())
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.results)
 
     def assert_success(self):
+        """Raises a RuntimeError if the query was not successful."""
         if not self.is_success:
             raise RuntimeError("Query was not successful", self._errors)
 
     @property
     def is_success(self) -> bool:
+        """True if the query was successful, False otherwise."""
         return len(self._errors) == 0
 
     @property
-    def errors(self) -> list:
+    def errors(self) -> List[BfabricRequestError]:
+        """Errors that occurred during the query, if any."""
         return self._errors
 
     def extend(self, other: ResultContainer) -> None:
-        """
+        """Appends the results of `other` to this container.
         Can merge results of two queries. This can happen if the engine splits a complicated query in two
         :param other: The other query results that should be appended to this
         :return:
@@ -89,7 +95,8 @@ class ResultContainer:
             self._total_pages_api = None
 
     @property
-    def total_pages_api(self):
+    def total_pages_api(self) -> int:
+        """Total number of pages that were available for reading."""
         return self._total_pages_api
 
     def to_list_dict(self, drop_empty: bool = True, drop_underscores_suds: bool = True,
