@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Union, List
+from typing import Union, List, Dict, Any
 import copy
 
 from suds import MethodNotFound
@@ -20,14 +20,13 @@ class EngineSUDS:
     def read(
         self,
         endpoint: str,
-        obj: dict,
+        obj: Dict[str, Any],
         auth: BfabricAuth,
         page: int = 1,
         idonly: bool = False,
         includedeletableupdateable: bool = False,
     ):
-        """
-        Reads the requested `obj` from `endpoint`.
+        """Reads the requested `obj` from `endpoint`.
         :param endpoint: the endpoint to read, e.g. `workunit`, `project`, `order`, `externaljob`, etc.
         :param obj: a python dictionary which contains all the attribute values that have to match
         :param auth: the authentication handle of the user performing the request
