@@ -18,10 +18,11 @@ from typing import Any
 from rich.console import Console
 from rich.table import Column, Table
 
+from bfabric import BfabricConfig
 from bfabric.bfabric2 import Bfabric, get_system_auth
 
 
-def render_output(workunits_by_status: dict[str, list[dict[str, Any]]]) -> None:
+def render_output(workunits_by_status: dict[str, list[dict[str, Any]]], config: BfabricConfig) -> None:
     """Renders the output as a table."""
     table = Table(
         Column("AID", no_wrap=True),
@@ -41,8 +42,8 @@ def render_output(workunits_by_status: dict[str, list[dict[str, Any]]]) -> None:
         }.get(status, "black")
 
         for wu in workunits:
-            app_url = f"https://fgcz-bfabric.uzh.ch/bfabric/application/show.html?id={wu['application']['id']}"
-            wu_url = f"https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id={wu['id']}&tab=details"
+            app_url = f"{config.base_url}/application/show.html?id={wu['application']['id']}"
+            wu_url = f"{config.base_url}/workunit/show.html?id={wu['id']}&tab=details"
             table.add_row(
                 f"[link={app_url}]A{wu['application']['id']:3}[/link]",
                 f"[link={wu_url}]WU{wu['id']}[/link]",
@@ -71,7 +72,7 @@ def list_not_available_proteomics_workunits(date_cutoff: datetime) -> None:
             obj={"status": status, "createdafter": date_cutoff},
         ).to_list_dict()
 
-    render_output(workunits_by_status)
+    render_output(workunits_by_status, config=client.config)
 
 
 def main() -> None:

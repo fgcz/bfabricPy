@@ -65,15 +65,15 @@ def bfabric_read(endpoint: str, attribute: Optional[str], value: Optional[str], 
             except (KeyError, TypeError):
                 print(f'{x["id"]}\t{x["createdby"]}\t{x["modified"]}')
     elif output_format == "table_rich":
-        table = Table("id", "createdby", "modified", "name", "groupingvar")
+        table = Table("Id", "Created By", "Modified", "Name", "Grouping Var")
         for x in res:
-            entry_url = f"https://fgcz-bfabric.uzh.ch/bfabric/{endpoint}/show.html?id={x['id']}"
+            entry_url = f"{client.config.base_url}/{endpoint}/show.html?id={x['id']}"
             table.add_row(
                 f"[link={entry_url}]{x['id']}[/link]",
                 str(x["createdby"]),
                 str(x["modified"]),
                 str(x["name"]),
-                str(x.get("groupingvar")),
+                str(x.get("groupingvar", {}).get("name", "")),
             )
         console_out.print(table)
     else:
