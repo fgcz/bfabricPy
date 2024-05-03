@@ -23,6 +23,7 @@ dependencies = [
     "suds >= 1.1.2",
     "PyYAML >= 6.0",
     "Flask == 2.2.5",
+    "rich >= 13.7.1",
     "zeep >= 4.2.1",
     "pandas >= 2.2.2"
 ]
@@ -35,7 +36,7 @@ Repository = "https://github.com/fgcz/bfabricPy"
 #bfabric_flask="bfabric.scripts.bfabric_flask:main"
 #bfabric_feeder_resource_autoQC="bfabric.scripts.bfabric_feeder_resource_autoQC:main"
 #bfabric_list_not_existing_storage_directories="bfabric.scripts.bfabric_list_not_existing_storage_directories:main"
-#bfabric_list_not_available_proteomics_workunits="bfabric.scripts.bfabric_list_not_available_proteomics_workunits:main"
+"bfabric_list_not_available_proteomics_workunits.py"="bfabric.scripts.bfabric_list_not_available_proteomics_workunits:main"
 #bfabric_upload_resource="bfabric.scripts.bfabric_upload_resource:main"
 #bfabric_logthis="bfabric.scripts.bfabric_logthis:main"
 #bfabric_setResourceStatus_available="bfabric.scripts.bfabric_setResourceStatus_available:main"
