@@ -52,7 +52,23 @@ class TestBfabric(unittest.TestCase):
             pass
         self.assertEqual(mock_old_auth, self.mock_bfabric.auth)
 
-    # TODO further unit tests
+    @patch.object(Bfabric, "save")
+    def test_upload_resource(self, method_save):
+        resource_name = "hello_world.txt"
+        content = b"Hello, World!"
+        workunit_id = 123
+        check = MagicMock(name="check")
+        self.mock_bfabric.upload_resource(resource_name, content, workunit_id, check)
+        method_save.assert_called_once_with(
+            endpoint="resource",
+            obj={
+                "base64": "SGVsbG8sIFdvcmxkIQ==",
+                "workunitid": 123,
+                "name": "hello_world.txt",
+                "description": "base64 encoded file",
+            },
+            check=check,
+        )
 
     def test_get_version_message(self):
         self.mock_config.base_url = "dummy_url"

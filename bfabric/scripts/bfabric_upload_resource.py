@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: latin1 -*-
-
 """
 
 Copyright (C) 2017,2020 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
@@ -19,22 +17,20 @@ from pathlib import Path
 from bfabric.bfabric2 import Bfabric, get_system_auth
 
 
-def bfabric_upload_resource(filename: Path, workunitid: int):
-    client = Bfabric(*get_system_auth())
-    result = client.upload_resource(
-        resource_name=filename.name,
-        content=filename.read_bytes(),
-        workunit_id=workunitid
-    )
+def bfabric_upload_resource(filename: Path, workunit_id: int) -> None:
+    """Uploads the specified file to the workunit with the name of the file as resource name."""
+    client = Bfabric(*get_system_auth(), verbose=True)
+    result = client.upload_resource(resource_name=filename.name, content=filename.read_bytes(), workunit_id=workunit_id)
     print(json.dumps(result.to_list_dict(), indent=2))
 
 
-def main():
+def main() -> None:
+    """Parses the command line arguments and calls `bfabric_upload_resource`."""
     parser = argparse.ArgumentParser()
     parser.add_argument("filename", help="filename", type=Path)
     parser.add_argument("workunitid", help="workunitid", type=int)
     args = parser.parse_args()
-    bfabric_upload_resource(filename=args.filename, workunitid=args.workunitid)
+    bfabric_upload_resource(filename=args.filename, workunit_id=args.workunitid)
 
 
 if __name__ == "__main__":
