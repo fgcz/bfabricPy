@@ -116,7 +116,7 @@ class Bfabric(object):
         # Load config from file, override some of the fields with the provided ones
         else:
             config, auth = read_config(config_path, config_env=config_env, optional_auth=optional_auth)
-            self.config = config.with_overrides(base_url=base_url)
+            self.config = config.copy_with(base_url=base_url)
             if (login is not None) and (password is not None):
                 self.auth = BfabricAuth(login=login, password=password)
             elif (login is None) and (password is None):

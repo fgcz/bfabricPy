@@ -77,7 +77,7 @@ def get_system_auth(login: str = None, password: str = None, base_url: str = Non
     # Load config from file, override some of the fields with the provided ones
     else:
         config, auth = read_config(config_path, config_env=config_env, optional_auth=optional_auth)
-        config = config.with_overrides(base_url=base_url)
+        config = config.copy_with(base_url=base_url)
         if (login is not None) and (password is not None):
             auth = BfabricAuth(login=login, password=password)
         elif (login is None) and (password is None):

@@ -37,8 +37,8 @@ class TestBfabricConfig(unittest.TestCase):
         self.assertEqual({}, config.application_ids)
         self.assertEqual("", config.job_notification_emails)
 
-    def test_with_overrides(self):
-        new_config = self.config.with_overrides(
+    def test_copy_with_overrides(self):
+        new_config = self.config.copy_with(
             base_url="new_url",
             application_ids={"new": 2},
         )
@@ -47,8 +47,8 @@ class TestBfabricConfig(unittest.TestCase):
         self.assertEqual("url", self.config.base_url)
         self.assertEqual({"app": 1}, self.config.application_ids)
 
-    def test_with_replaced_when_none(self):
-        new_config = self.config.with_overrides(base_url=None, application_ids=None)
+    def test_copy_with_replaced_when_none(self):
+        new_config = self.config.copy_with(base_url=None, application_ids=None)
         self.assertEqual("url", new_config.base_url)
         self.assertEqual({"app": 1}, new_config.application_ids)
         self.assertEqual("url", self.config.base_url)

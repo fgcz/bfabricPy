@@ -67,7 +67,7 @@ class EngineSUDS:
         return service.delete(query)
 
     def _get_suds_service(self, endpoint: str) -> ServiceProxy:
-        """Returns a SUDS service service for the given endpoint. Reuses existing instances when possible."""
+        """Returns a SUDS service for the given endpoint. Reuses existing instances when possible."""
         if endpoint not in self.cl:
             wsdl = "".join((self.base_url, "/", endpoint, "?wsdl"))
             self.cl[endpoint] = Client(wsdl, cache=None)

@@ -56,7 +56,7 @@ class BfabricConfig:
         """Space-separated list of email addresses to notify when a job finishes."""
         return self._job_notification_emails
 
-    def with_overrides(
+    def copy_with(
         self,
         base_url: Optional[str] = None,
         application_ids: Optional[Dict[str, int]] = None,
