@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: latin1 -*-
-
 """
 Copyright (C) 2022 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 
@@ -16,21 +14,16 @@ Usage example:
   bfabric_read_samples_of_workunit.py 278175 
 """
 import argparse
-import sys
 import time
 
-import bfabric
+from rich.console import Console
+
 from bfabric.bfabric2 import Bfabric, get_system_auth
 
 
-def print_color_msg(msg, color="93"):
-    msg = "\033[{color}m--- {} ---\033[0m\n".format(msg, color=color)
-    sys.stderr.write(msg)
-
-
-def bfabric_read_samples_of_workunit(workunit_id: int):
-    client = Bfabric(*get_system_auth())
-    sys.stderr.write(bfabric.msg)
+def bfabric_read_samples_of_workunit(workunit_id: int) -> None:
+    """Reads the samples of the specified workunit and prints the results to stdout."""
+    client = Bfabric(*get_system_auth(), verbose=True)
 
     start_time = time.time()
     res_workunit = client.read(endpoint="workunit", obj={"id": workunit_id}).to_list_dict()[0]
@@ -46,10 +39,11 @@ def bfabric_read_samples_of_workunit(workunit_id: int):
         print("\t".join([str(workunit_id), str(i[0][0]), i[0][1], i[1][1], i[1][2]]))
 
     end_time = time.time()
-    print_color_msg(f"query time = {end_time - start_time:.2f} seconds")
+    Console(stderr=True).print(f"--- query time = {end_time - start_time:.2f} seconds ---", style="bright_yellow")
 
 
-def main():
+def main() -> None:
+    """Parses the command line arguments and calls `bfabric_read_samples_of_workunit`."""
     parser = argparse.ArgumentParser()
     parser.add_argument("workunit_id", type=int, help="workunit id")
     args = parser.parse_args()

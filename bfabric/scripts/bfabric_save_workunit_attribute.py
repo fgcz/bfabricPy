@@ -1,6 +1,4 @@
 #!/usr/bin/python
-# -*- coding: latin1 -*-
-
 """
 
 Copyright (C) 2021 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
@@ -14,16 +12,19 @@ Licensed under  GPL version 3
 """
 import argparse
 import json
+
 from bfabric.bfabric2 import Bfabric, get_system_auth
 
 
-def bfabric_save_workunit_attribute(workunit_id: int, attribute: str, value: str):
-    client = Bfabric(*get_system_auth())
+def bfabric_save_workunit_attribute(workunit_id: int, attribute: str, value: str) -> None:
+    """Sets the specified attribute to the specified value for the specified workunit."""
+    client = Bfabric(*get_system_auth(), verbose=True)
     result = client.save(endpoint="workunit", obj={"id": workunit_id, attribute: value}).to_list_dict()
     print(json.dumps(result[0], indent=2))
 
 
-def main():
+def main() -> None:
+    """Parses the command line arguments and calls `bfabric_save_workunit_attribute`."""
     parser = argparse.ArgumentParser()
     parser.add_argument("workunit_id", type=int, help="the workunit ID")
     parser.add_argument("attribute", type=str, help="the attribute to save")
