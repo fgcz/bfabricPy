@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: latin1 -*-
 """
 Copyright (C) 2023 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 
@@ -10,63 +9,64 @@ Author:
 
 Licensed under GPL version 3
 """
+from __future__ import annotations
 
 from argparse import ArgumentParser
 from datetime import datetime, timedelta
+from typing import Any
 
 from rich.console import Console
-from rich.table import Table
+from rich.table import Column, Table
 
-from bfabric.bfabric2 import default_client
+from bfabric.bfabric2 import Bfabric, get_system_auth
 
 
-def render_output(workunits_by_status):
+def render_output(workunits_by_status: dict[str, list[dict[str, Any]]]) -> None:
     """Renders the output as a table."""
-    table = Table()
-    table.add_column("AID", no_wrap=True)
-    table.add_column("WUID", no_wrap=True)
-    table.add_column("Created", no_wrap=True)
-    table.add_column("Status", no_wrap=True)
-    table.add_column("Created by", no_wrap=True, max_width=12)
-    table.add_column("Name", no_wrap=False)
+    table = Table(
+        Column("AID", no_wrap=True),
+        Column("WUID", no_wrap=True),
+        Column("Created", no_wrap=True),
+        Column("Status", no_wrap=True),
+        Column("Created by", no_wrap=True, max_width=12),
+        Column("Name", no_wrap=False),
+    )
 
     for status, workunits in workunits_by_status.items():
-        workunits = [x for x in workunits if x["createdby"] not in ["gfeeder", "itfeeder"]]
+        workunits = [
+            x for x in workunits if x["createdby"] not in ["gfeeder", "itfeeder"]
+        ]
         status_color = {
             "Pending": "yellow",
             "Processing": "blue",
             "Failed": "red",
         }.get(status, "black")
 
-        for x in workunits:
-            app_url = f"https://fgcz-bfabric.uzh.ch/bfabric/application/show.html?id={x['application']['id']}"
-            wu_url = f"https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id={x['id']}&tab=details"
+        for wu in workunits:
+            app_url = f"https://fgcz-bfabric.uzh.ch/bfabric/application/show.html?id={wu['application']['id']}"
+            wu_url = f"https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id={wu['id']}&tab=details"
             table.add_row(
-                f"[link={app_url}]A{x['application']['id']:3}[/link]",
-                f"[link={wu_url}]WU{x['id']}[/link]",
-                x["created"],
+                f"[link={app_url}]A{wu['application']['id']:3}[/link]",
+                f"[link={wu_url}]WU{wu['id']}[/link]",
+                wu["created"],
                 f"[{status_color}]{status}[/{status_color}]",
-                x["createdby"],
-                x["name"],
+                wu["createdby"],
+                wu["name"],
             )
 
     console = Console()
     console.print(table)
 
 
-def main():
+def list_not_available_proteomics_workunits(date_cutoff: datetime) -> None:
     """Lists proteomics work units that are not available on bfabric."""
-    parser = ArgumentParser(description="Lists proteomics work units that are not available on bfabric.")
-    parser.add_argument("--max-age", type=int, help="Max age of work units in days", default=14)
-    args = parser.parse_args()
-    client = default_client()
-    date_cutoff = datetime.today() - timedelta(days=args.max_age)
-
     Console(stderr=True).print(
-        f"--- list not available proteomics work units created after {date_cutoff}---", style="bright_yellow"
+        f"--- list not available proteomics work units created after {date_cutoff}---",
+        style="bright_yellow",
     )
 
     workunits_by_status = {}
+    client = Bfabric(*get_system_auth())
     for status in ["Pending", "Processing", "Failed"]:
         workunits_by_status[status] = client.read(
             endpoint="workunit",
@@ -74,6 +74,19 @@ def main():
         ).to_list_dict()
 
     render_output(workunits_by_status)
+
+
+def main() -> None:
+    """Parses the command line arguments and calls `list_not_available_proteomics_workunits`."""
+    parser = ArgumentParser(
+        description="Lists proteomics work units that are not available on bfabric."
+    )
+    parser.add_argument(
+        "--max-age", type=int, help="Max age of work units in days", default=14
+    )
+    args = parser.parse_args()
+    date_cutoff = datetime.today() - timedelta(days=args.max_age)
+    list_not_available_proteomics_workunits(date_cutoff)
 
 
 if __name__ == "__main__":
