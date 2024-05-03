@@ -25,7 +25,7 @@ class BfabricAuth:
 class BfabricConfig:
     """Holds the configuration for the B-Fabric client for connecting to particular instance of B-Fabric.
 
-    Attributes:
+    Parameters:
         base_url (optional): The API base url
         application_ids (optional): Map of application names to ids.
         job_notification_emails (optional): Space-separated list of email addresses to notify when a job finishes.
