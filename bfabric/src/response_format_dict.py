@@ -1,15 +1,15 @@
-from typing import Optional, Union
 from copy import deepcopy
-from collections import OrderedDict
+from typing import Optional, Union
 
 
 def sort_dict(d: dict) -> dict:
-    """
+    """Returns a copy of the dictionary with items sorted by key.
+    Affects how the dictionary appears, when mapped to a string.
     :param d:  A dictionary
     :return:   A dictionary with items sorted by key.
-       Affects how the dictionary appears, when mapped to a string
     """
     return dict(sorted(d.items()))
+
 
 def _recursive_drop_empty(response_elem: Union[list, dict]) -> None:
     """
@@ -31,6 +31,7 @@ def _recursive_drop_empty(response_elem: Union[list, dict]) -> None:
         for k in keys_to_delete:
             del response_elem[k]
 
+
 def drop_empty_elements(response: Union[list, dict], inplace: bool = True) -> Optional[Union[list, dict]]:
     """
     Iterates over all nested lists, dictionaries and basic values. Whenever a dictionary value is encountered, that is
@@ -44,7 +45,8 @@ def drop_empty_elements(response: Union[list, dict], inplace: bool = True) -> Op
     _recursive_drop_empty(response_filtered)
     return response_filtered
 
-def _recursive_map_keys(response_elem, keymap: dict) -> None:
+
+def _recursive_map_keys(response_elem: list | dict, keymap: dict) -> None:
     """
     Iterates over all nested lists, dictionaries and basic values. Whenever a dictionary key is found for which
        the mapping is requested, that the key is renamed to the corresponding mapped one
@@ -59,15 +61,15 @@ def _recursive_map_keys(response_elem, keymap: dict) -> None:
         keys_to_delete = []  # NOTE: Avoid deleting keys inside iterator, may break iterator
         for k, v in response_elem.items():
             _recursive_map_keys(v, keymap)
-            if k in keymap.keys():
+            if k in keymap:
                 keys_to_delete += [k]
 
         for k in keys_to_delete:
             response_elem[keymap[k]] = response_elem[k]  # Copy old value to the new key
-            del response_elem[k]                             # Delete old key
+            del response_elem[k]  # Delete old key
 
-def map_element_keys(response: Union[list, dict], keymap: dict,
-                     inplace: bool = True) -> Union[list, dict]:
+
+def map_element_keys(response: Union[list, dict], keymap: dict, inplace: bool = True) -> Union[list, dict]:
     """
     Iterates over all nested lists, dictionaries and basic values. Whenever a dictionary key is found for which
        the mapping is requested, that the key is renamed to the corresponding mapped one
@@ -81,7 +83,8 @@ def map_element_keys(response: Union[list, dict], keymap: dict,
     _recursive_map_keys(response_filtered, keymap)
     return response_filtered
 
-def _recursive_sort_dicts_by_key(response_elem) -> None:
+
+def _recursive_sort_dicts_by_key(response_elem: list | dict) -> None:
     """
     Iterates over all nested lists, dictionaries and basic values. Whenever a nested dictionary is found, it is sorted
     by key by converting into OrderedDict and back
@@ -98,6 +101,7 @@ def _recursive_sort_dicts_by_key(response_elem) -> None:
             if isinstance(v, dict):
                 response_elem[k] = sort_dict(v)
             _recursive_sort_dicts_by_key(v)
+
 
 def sort_dicts_by_key(response: Union[list, dict], inplace: bool = True) -> Optional[Union[list, dict]]:
     """
