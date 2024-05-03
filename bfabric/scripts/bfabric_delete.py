@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: latin1 -*-
-
 """
 
 Copyright (C) 2014 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
@@ -19,19 +17,26 @@ http://fgcz-bfabric.uzh.ch/bfabric/executable?wsdl
 
 """
 import argparse
+import json
+
 import bfabric
 from bfabric.bfabric2 import Bfabric, get_system_auth
 
 
-def main():
+def bfabric_delete(endpoint: str, id: int) -> None:
+    """Deletes the object with id `id` from the `endpoint`."""
+    client = Bfabric(*get_system_auth(), verbose=True)
+    res = client.delete(endpoint=endpoint, id=id).to_list_dict()
+    print(json.dumps(res), indent=2)
+
+
+def main() -> None:
+    """Parses arguments and calls `bfabric_delete`."""
     parser = argparse.ArgumentParser()
     parser.add_argument("endpoint", help="endpoint", choices=bfabric.endpoints)
     parser.add_argument("id", help="id", type=int)
     args = parser.parse_args()
-    client = Bfabric(*get_system_auth())
-    res = client.delete(endpoint=args.endpoint, id=args.id).to_list_dict()
-    for i in res:
-        print(i)
+    bfabric_delete(args.endpoint, args.id)
 
 
 if __name__ == "__main__":

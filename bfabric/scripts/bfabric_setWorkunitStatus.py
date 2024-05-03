@@ -4,7 +4,6 @@ import json
 
 from bfabric.bfabric2 import Bfabric, get_system_auth
 
-
 # Copyright (C) 2014 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 #
 # Authors:
@@ -17,22 +16,26 @@ from bfabric.bfabric2 import Bfabric, get_system_auth
 # $Id: fgcz_bfabric_setResourceStatus_available.py 2397 2016-09-06 07:04:35Z cpanse $
 
 
-def main_generic(result_status: str):
+def main_generic(result_status: str) -> None:
+    """Main function for setting workunit status to `result_status`."""
     parser = argparse.ArgumentParser(description=f"Sets workunit status to '{result_status}'")
     parser.add_argument("workunit_id", type=int, help="workunit id")
     args = parser.parse_args()
-    client = Bfabric(*get_system_auth())
-    res = client.save('workunit', {'id': args.workunit_id, 'status': 'available'})
+    client = Bfabric(*get_system_auth(), verbose=True)
+    res = client.save("workunit", {"id": args.workunit_id, "status": "available"})
     print(json.dump(res.to_list_dict()))
 
 
-def main_available():
-    main_generic('available')
+def main_available() -> None:
+    """Calls `main_generic` with 'available' as argument."""
+    main_generic("available")
 
 
-def main_failed():
-    main_generic('failed')
+def main_failed() -> None:
+    """Calls `main_generic` with 'failed' as argument."""
+    main_generic("failed")
 
 
-def main_processing():
-    main_generic('processing')
+def main_processing() -> None:
+    """Calls `main_generic` with 'processing' as argument."""
+    main_generic("processing")

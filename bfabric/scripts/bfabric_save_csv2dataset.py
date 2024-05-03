@@ -27,18 +27,21 @@ Description:
 
 Usage: bfabric_save_csv2dataset.py [-h] --csvfile CSVFILE --name NAME --containerid int [--workunitid int]
 """
+from __future__ import annotations
 
 import argparse
 import csv
+from pathlib import Path
 
 from bfabric.bfabric2 import Bfabric, get_system_auth
 
 
-def csv2json(csv_file_path):
+def csv2json(csv_file_path: Path) -> dict[str, list[dict[str, int | str | float]]]:
+    """Parses a csv file and returns a B-Fabric compatible dictionary structure."""
     obj = {"item": [], "attribute": []}
     types = {int: "Integer", str: "String", float: "Float"}
     # Open the csv file in read mode and create a file object
-    with open(csv_file_path, encoding="utf-8") as csv_file:
+    with csv_file_path.open(encoding="utf-8") as csv_file:
         # Creating the DictReader iterator
         csv_reader = csv.DictReader(csv_file)
         # Read individual rows of the csv file as a dictionary
@@ -56,8 +59,11 @@ def csv2json(csv_file_path):
     return obj
 
 
-def bfabric_save_csv2dataset(csv_file, dataset_name, container_id, workunit_id=None):
-    client = Bfabric(*get_system_auth())
+def bfabric_save_csv2dataset(
+    csv_file: Path, dataset_name: str, container_id: int, workunit_id: int | None = None
+) -> None:
+    """Creates a dataset in B-Fabric from a csv file."""
+    client = Bfabric(*get_system_auth(), verbose=True)
     obj = csv2json(csv_file)
     obj["name"] = dataset_name
     obj["containerid"] = container_id
@@ -68,12 +74,15 @@ def bfabric_save_csv2dataset(csv_file, dataset_name, container_id, workunit_id=N
     print(res.to_list_dict()[0])
 
 
-def main():
+def main() -> None:
+    """Parses command line arguments and calls `bfabric_save_csv2dataset`."""
     parser = argparse.ArgumentParser(description="Create a B-Fabric dataset")
-    parser.add_argument("--csvfile", required=True, help="the path to the csv file to be uploaded as dataset")
+    parser.add_argument(
+        "--csvfile", required=True, help="the path to the csv file to be uploaded as dataset", type=Path
+    )
     parser.add_argument("--name", required=True, help="dataset name as a string")
-    parser.add_argument("--containerid", metavar="int", required=True, help="container id")
-    parser.add_argument("--workunitid", metavar="int", required=False, help="workunit id")
+    parser.add_argument("--containerid", type=int, required=True, help="container id")
+    parser.add_argument("--workunitid", type=int, required=False, help="workunit id")
     args = parser.parse_args()
     bfabric_save_csv2dataset(
         csv_file=args.csvfile, dataset_name=args.name, container_id=args.containerid, workunit_id=args.workunitid

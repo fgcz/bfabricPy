@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: latin1 -*-
-
 """
 Copyright (C) 2023 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 
@@ -8,18 +6,21 @@ Christian Panse <cp@fgcz.ethz.ch> 20231011
 """
 import argparse
 import json
-from bfabric.bfabric2 import get_system_auth, Bfabric
+
+from bfabric.bfabric2 import Bfabric, get_system_auth
 
 
-def save_link(workunit_id: int, url: str, name: str):
-    client = Bfabric(*get_system_auth())
+def save_link(workunit_id: int, url: str, name: str) -> None:
+    """Saves a link to a workunit."""
+    client = Bfabric(*get_system_auth(), verbose=True)
     results = client.save(
         endpoint="link", obj={"name": name, "parentclassname": "workunit", "parentid": workunit_id, "url": url}
     ).to_list_dict()
     print(json.dumps(results[0], indent=2))
 
 
-def main():
+def main() -> None:
+    """Parses the command line arguments and calls `save_link`."""
     parser = argparse.ArgumentParser()
     parser.add_argument("workunit_id", type=int, help="the workunit ID")
     parser.add_argument("link", type=str, help="the url to save")

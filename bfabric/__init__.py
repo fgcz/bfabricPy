@@ -3,11 +3,7 @@ import importlib.metadata
 __version__ = importlib.metadata.version("bfabric")
 
 name = "bfabricPy"
-alias = "suds-py3"
 
-msg = "\033[93m{} version {} (2023-11-03) -- \"{}\"\
-    \nCopyright (C) 2014-2023 Functional Genomics Center Zurich\033[0m\n\n"\
-    .format(name, __version__, alias)
 
 endpoints = sorted([
         'annotation',
