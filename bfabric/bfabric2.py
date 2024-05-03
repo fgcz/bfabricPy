@@ -25,6 +25,7 @@ History
 
 import os
 import sys
+from contextlib import contextmanager
 from pprint import pprint
 from enum import Enum
 from copy import deepcopy
@@ -44,13 +45,12 @@ class BfabricAPIEngineType(Enum):
     ZEEP = 2
 
 
-def get_system_auth(login: str = None, password: str = None, base_url: str = None, externaljobid=None,
+def get_system_auth(login: str = None, password: str = None, base_url: str = None,
                     config_path: str = None, config_env: str = None, optional_auth: bool = False, verbose: bool = False):
     """
     :param login:           Login string for overriding config file
     :param password:        Password for overriding config file
     :param base_url:        Base server url for overriding config file
-    :param externaljobid:   ?
     :param config_path:     Path to the config file, in case it is different from default
     :param config_env:      Which config environment to use. Can also specify via environment variable or use
        default in the config file (at your own risk)
@@ -77,7 +77,7 @@ def get_system_auth(login: str = None, password: str = None, base_url: str = Non
     # Load config from file, override some of the fields with the provided ones
     else:
         config, auth = read_config(config_path, config_env=config_env, optional_auth=optional_auth)
-        config = config.with_overrides(base_url=base_url)
+        config = config.copy_with(base_url=base_url)
         if (login is not None) and (password is not None):
             auth = BfabricAuth(login=login, password=password)
         elif (login is None) and (password is None):
@@ -103,38 +103,61 @@ def get_system_auth(login: str = None, password: str = None, base_url: str = Non
 # TODO: What does idonly do for SUDS? Does it make sense for Zeep?
 # TODO: What does includedeletableupdateable do for Zeep? Does it make sense for Suds?
 # TODO: How to deal with save-skip fields in Zeep? Does it happen in SUDS?
-class Bfabric(object):
-    """B-Fabric python3 module
-    Implements read and save object methods for B-Fabric wsdl interface
-    """
+class Bfabric:
+    """Bfabric client class, providing general functionality for interaction with the B-Fabric API."""
 
-    def __init__(self, config: BfabricConfig, auth: BfabricAuth,
-                 engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS, verbose: bool = False):
-
+    def __init__(
+        self,
+        config: BfabricConfig,
+        auth: Optional[BfabricAuth],
+        engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS,
+        verbose: bool = False
+    ):
         self.verbose = verbose
         self.query_counter = 0
+        self._config = config
+        self._auth = auth
 
         if engine == BfabricAPIEngineType.SUDS:
-            self.engine = EngineSUDS(auth.login, auth.password, config.base_url)
+            self.engine = EngineSUDS(base_url=config.base_url)
             self.result_type = BfabricResultType.LISTSUDS
         elif engine == BfabricAPIEngineType.ZEEP:
-            self.engine = EngineZeep(auth.login, auth.password, config.base_url)
+            self.engine = EngineZeep(base_url=config.base_url)
             self.result_type = BfabricResultType.LISTZEEP
         else:
-            raise ValueError("Unexpected engine", BfabricAPIEngineType)
+            raise ValueError(f"Unexpected engine: {engine}")
 
-    def _read_method(self, readid: bool, endpoint: str, obj: dict, page: int = 1, **kwargs):
-        if readid:
-            # https://fgcz-bfabric.uzh.ch/wiki/tiki-index.php?page=endpoint.workunit#Web_Method_readid_
-            return self.engine.readid(endpoint, obj, page=page, **kwargs)
-        else:
-            return self.engine.read(endpoint, obj, page=page, **kwargs)
+    @property
+    def config(self) -> BfabricConfig:
+        """Returns the config object."""
+        return self._config
+
+    @property
+    def auth(self) -> BfabricAuth:
+        """Returns the auth object.
+        :raises ValueError: If authentication is not available
+        """
+        if self._auth is None:
+            raise ValueError("Authentication not available")
+        return self._auth
+
+    @contextmanager
+    def with_auth(self, auth: BfabricAuth):
+        """Context manager that temporarily (within the scope of the context) sets the authentication for
+        the Bfabric object to the provided value. This is useful when authenticating multiple users, to avoid accidental
+        use of the wrong credentials.
+        """
+        old_auth = self._auth
+        self._auth = auth
+        try:
+            yield
+        finally:
+            self._auth = old_auth
 
     def read(self, endpoint: str, obj: dict, max_results: Optional[int] = 100, readid: bool = False, check: bool = True,
              **kwargs) -> ResultContainer:
-        """
-        Make a read query to the engine. Determine the number of pages. Make calls for every page, concatenate
-           results.
+        """Reads objects from the specified endpoint that match all specified attributes in `obj`.
+        By setting `max_results` it is possible to change the number of results that are returned.
         :param endpoint: endpoint
         :param obj: query dictionary
         :param max_results: cap on the number of results to query. The code will keep reading pages until all pages
@@ -184,18 +207,25 @@ class Bfabric(object):
         return result
 
     def save(self, endpoint: str, obj: dict, check: bool = True, **kwargs) -> ResultContainer:
-        results = self.engine.save(endpoint, obj, **kwargs)
+        results = self.engine.save(endpoint, obj, auth=self.auth, **kwargs)
         result = ResultContainer(results[endpoint], self.result_type, errors=get_response_errors(results, endpoint))
         if check:
             result.assert_success()
         return result
 
     def delete(self, endpoint: str, id: Union[List, int], check: bool = True) -> ResultContainer:
-        results = self.engine.delete(endpoint, id)
+        results = self.engine.delete(endpoint, id, auth=self.auth)
         result = ResultContainer(results[endpoint], self.result_type, errors=get_response_errors(results, endpoint))
         if check:
             result.assert_success()
         return result
+
+    def _read_method(self, readid: bool, endpoint: str, obj: dict, page: int = 1, **kwargs):
+        if readid:
+            # https://fgcz-bfabric.uzh.ch/wiki/tiki-index.php?page=endpoint.workunit#Web_Method_readid_
+            return self.engine.readid(endpoint, obj, auth=self.auth, page=page, **kwargs)
+        else:
+            return self.engine.read(endpoint, obj, auth=self.auth, page=page, **kwargs)
 
     ############################
     # Multi-query functionality
