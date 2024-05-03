@@ -1,6 +1,4 @@
 #!/usr/bin/python3
-# -*- coding: latin1 -*-
-
 """
 Copyright (C) 2020 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 
@@ -14,7 +12,7 @@ http://fgcz-bfabric.uzh.ch/bfabric/executable?wsdl
 """
 import os
 
-from bfabric.bfabric2 import default_client
+from bfabric.bfabric2 import Bfabric, get_system_auth
 
 ROOTDIR = "/srv/www/htdocs/"
 
@@ -31,7 +29,7 @@ def list_not_existing_storage_dirs(client, technologyid: int=2):
 
 
 def main():
-    client = default_client()
+    client = Bfabric(*get_system_auth(), verbose=True)
     list_not_existing_storage_dirs(client=client, technologyid=2)
     list_not_existing_storage_dirs(client=client, technologyid=4)
 

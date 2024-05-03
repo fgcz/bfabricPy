@@ -372,8 +372,3 @@ class Bfabric:
         console = Console(stderr=True, highlighter=HostnameHighlighter(), theme=DEFAULT_THEME)
         console.print(self.get_version_message(), style="bright_yellow")
 
-
-# TODO create a class method and see how we feel about this vs the current construction that is done in several places
-def default_client(engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS):
-    config, auth = get_system_auth()
-    return Bfabric(config=config, auth=auth, engine=engine)
