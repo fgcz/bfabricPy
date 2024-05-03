@@ -215,7 +215,9 @@ class Bfabric:
         page_size = BFABRIC_QUERY_LIMIT
 
         if max_results is None:
+            # TODO this could contain more than the actually available items, so computing indices might be tricky
             max_results = n_available_pages * page_size
+
 
 
 
