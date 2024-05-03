@@ -1,10 +1,13 @@
 .PHONY: install build clean
 
-## TODO(leo): make  venv
 install: 
 	pip install -e .
-build: 
-	python3 setup.py sdist 
-clean:
-	rm -vf dist/*
+
+test: test_read
+
+test_workunit:
+	python3 -m unittest -v bfabric/tests/test_bfabric_workunit.py 
+
+test_read:
+	cd bfabric/tests && python3 -m unittest -v test_bfabric_read.py 
 
