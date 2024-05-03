@@ -22,6 +22,7 @@ History
 """
 import base64
 import os
+import sys
 from contextlib import contextmanager
 from copy import deepcopy
 from datetime import datetime
