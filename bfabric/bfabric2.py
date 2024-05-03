@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: latin1 -*-
-
 """B-Fabric Application Interface using WSDL
 
 The code contains classes for wrapper_creator and submitter.
@@ -25,12 +23,18 @@ History
 import base64
 import os
 import sys
+import rich
 from contextlib import contextmanager
+from datetime import datetime
 from pprint import pprint
 from enum import Enum
 from copy import deepcopy
 from typing import Union, List, Optional
 
+from rich.theme import Theme
+
+from bfabric import __version__ as PACKAGE_VERSION
+from bfabric.src.cli_formatting import HostnameHighlighter, DEFAULT_THEME
 from bfabric.src.math_helper import div_int_ceil
 from bfabric.src.engine_suds import EngineSUDS
 from bfabric.src.engine_zeep import EngineZeep
@@ -91,9 +95,6 @@ def get_system_auth(login: str = None, password: str = None, base_url: str = Non
         if not auth or not auth.login or not auth.password:
             raise ValueError("Authentification not initialized but required")
 
-        msg = f"\033[93m--- base_url {config.base_url}; login; {auth.login} ---\033[0m\n"
-        sys.stderr.write(msg)
-
     if verbose:
         pprint(config)
 
@@ -126,6 +127,9 @@ class Bfabric:
             self.result_type = BfabricResultType.LISTZEEP
         else:
             raise ValueError(f"Unexpected engine: {engine}")
+
+        if self.verbose:
+            self.print_version_message()
 
     @property
     def config(self) -> BfabricConfig:
@@ -351,6 +355,24 @@ class Bfabric:
             return value in result_vals
         else:
             return [val in result_vals for val in value]
+
+    def get_version_message(self) -> str:
+        """Returns the version message as a string."""
+        year = datetime.now().year
+        engine_name = self.engine.__class__.__name__
+        base_url = self.config.base_url
+        user_name = f"U={self._auth.login if self._auth else None}"
+        return (
+            f"--- bfabricPy v{PACKAGE_VERSION} ({engine_name}, {base_url}, {user_name}) ---\n"
+            f"--- Copyright (C) 2014-{year} Functional Genomics Center Zurich ---"
+        )
+
+    def print_version_message(self, stderr: bool = True) -> None:
+        """Prints the version message to the console.
+        :param stderr: Whether to print to stderr (True) or stdout (False)
+        """
+        console = rich.console.Console(stderr=True, highlighter=HostnameHighlighter(), theme=DEFAULT_THEME)
+        console.print(self.get_version_message(), style="bright_yellow")
 
 
 # TODO create a class method and see how we feel about this vs the current construction that is done in several places

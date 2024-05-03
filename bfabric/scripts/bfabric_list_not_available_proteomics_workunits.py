@@ -60,13 +60,13 @@ def render_output(workunits_by_status: dict[str, list[dict[str, Any]]]) -> None:
 
 def list_not_available_proteomics_workunits(date_cutoff: datetime) -> None:
     """Lists proteomics work units that are not available on bfabric."""
+    client = Bfabric(*get_system_auth(), verbose=True)
     Console(stderr=True).print(
         f"--- list not available proteomics work units created after {date_cutoff}---",
         style="bright_yellow",
     )
 
     workunits_by_status = {}
-    client = Bfabric(*get_system_auth())
     for status in ["Pending", "Processing", "Failed"]:
         workunits_by_status[status] = client.read(
             endpoint="workunit",
