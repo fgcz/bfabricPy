@@ -18,10 +18,11 @@ from typing import Any
 from rich.console import Console
 from rich.table import Column, Table
 
+from bfabric import BfabricConfig
 from bfabric.bfabric2 import Bfabric, get_system_auth
 
 
-def render_output(workunits_by_status: dict[str, list[dict[str, Any]]]) -> None:
+def render_output(workunits_by_status: dict[str, list[dict[str, Any]]], config: BfabricConfig) -> None:
     """Renders the output as a table."""
     table = Table(
         Column("AID", no_wrap=True),
@@ -33,9 +34,7 @@ def render_output(workunits_by_status: dict[str, list[dict[str, Any]]]) -> None:
     )
 
     for status, workunits in workunits_by_status.items():
-        workunits = [
-            x for x in workunits if x["createdby"] not in ["gfeeder", "itfeeder"]
-        ]
+        workunits = [x for x in workunits if x["createdby"] not in ["gfeeder", "itfeeder"]]
         status_color = {
             "Pending": "yellow",
             "Processing": "blue",
@@ -43,8 +42,8 @@ def render_output(workunits_by_status: dict[str, list[dict[str, Any]]]) -> None:
         }.get(status, "black")
 
         for wu in workunits:
-            app_url = f"https://fgcz-bfabric.uzh.ch/bfabric/application/show.html?id={wu['application']['id']}"
-            wu_url = f"https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id={wu['id']}&tab=details"
+            app_url = f"{config.base_url}/application/show.html?id={wu['application']['id']}"
+            wu_url = f"{config.base_url}/workunit/show.html?id={wu['id']}&tab=details"
             table.add_row(
                 f"[link={app_url}]A{wu['application']['id']:3}[/link]",
                 f"[link={wu_url}]WU{wu['id']}[/link]",
@@ -60,30 +59,26 @@ def render_output(workunits_by_status: dict[str, list[dict[str, Any]]]) -> None:
 
 def list_not_available_proteomics_workunits(date_cutoff: datetime) -> None:
     """Lists proteomics work units that are not available on bfabric."""
+    client = Bfabric(*get_system_auth(), verbose=True)
     Console(stderr=True).print(
         f"--- list not available proteomics work units created after {date_cutoff}---",
         style="bright_yellow",
     )
 
     workunits_by_status = {}
-    client = Bfabric(*get_system_auth())
     for status in ["Pending", "Processing", "Failed"]:
         workunits_by_status[status] = client.read(
             endpoint="workunit",
             obj={"status": status, "createdafter": date_cutoff},
         ).to_list_dict()
 
-    render_output(workunits_by_status)
+    render_output(workunits_by_status, config=client.config)
 
 
 def main() -> None:
     """Parses the command line arguments and calls `list_not_available_proteomics_workunits`."""
-    parser = ArgumentParser(
-        description="Lists proteomics work units that are not available on bfabric."
-    )
-    parser.add_argument(
-        "--max-age", type=int, help="Max age of work units in days", default=14
-    )
+    parser = ArgumentParser(description="Lists proteomics work units that are not available on bfabric.")
+    parser.add_argument("--max-age", type=int, help="Max age of work units in days", default=14)
     args = parser.parse_args()
     date_cutoff = datetime.today() - timedelta(days=args.max_age)
     list_not_available_proteomics_workunits(date_cutoff)

@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: latin1 -*-
-
 """B-Fabric Application Interface using WSDL
 
 The code contains classes for wrapper_creator and submitter.
@@ -22,21 +20,24 @@ BFabric V2 Authors:
 History
     The python3 library first appeared in 2014.
 """
-
 import os
-import sys
-from pprint import pprint
-from enum import Enum
 from copy import deepcopy
+from datetime import datetime
+from enum import Enum
+from pprint import pprint
 from typing import Union, List, Optional
 
-from bfabric.src.math_helper import div_int_ceil
+from rich.console import Console
+
+from bfabric import __version__ as PACKAGE_VERSION
+from bfabric.bfabric_config import BfabricAuth, BfabricConfig, read_config
+from bfabric.src.cli_formatting import HostnameHighlighter, DEFAULT_THEME
 from bfabric.src.engine_suds import EngineSUDS
 from bfabric.src.engine_zeep import EngineZeep
-from bfabric.src.result_container import ResultContainer, BfabricResultType
-from bfabric.src.paginator import page_iter, BFABRIC_QUERY_LIMIT
-from bfabric.bfabric_config import BfabricAuth, BfabricConfig, read_config
 from bfabric.src.errors import get_response_errors
+from bfabric.src.math_helper import div_int_ceil
+from bfabric.src.paginator import page_iter, BFABRIC_QUERY_LIMIT
+from bfabric.src.result_container import ResultContainer, BfabricResultType
 
 
 class BfabricAPIEngineType(Enum):
@@ -91,9 +92,6 @@ def get_system_auth(login: str = None, password: str = None, base_url: str = Non
         if not auth or not auth.login or not auth.password:
             raise ValueError("Authentification not initialized but required")
 
-        msg = f"\033[93m--- base_url {config.base_url}; login; {auth.login} ---\033[0m\n"
-        sys.stderr.write(msg)
-
     if verbose:
         pprint(config)
 
@@ -103,16 +101,20 @@ def get_system_auth(login: str = None, password: str = None, base_url: str = Non
 # TODO: What does idonly do for SUDS? Does it make sense for Zeep?
 # TODO: What does includedeletableupdateable do for Zeep? Does it make sense for Suds?
 # TODO: How to deal with save-skip fields in Zeep? Does it happen in SUDS?
-class Bfabric(object):
-    """B-Fabric python3 module
-    Implements read and save object methods for B-Fabric wsdl interface
-    """
+class Bfabric:
+    """Bfabric client class, providing general functionality for interaction with the B-Fabric API."""
 
-    def __init__(self, config: BfabricConfig, auth: BfabricAuth,
-                 engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS, verbose: bool = False):
-
+    def __init__(
+        self,
+        config: BfabricConfig,
+        auth: Optional[BfabricAuth],
+        engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS,
+        verbose: bool = False
+    ):
         self.verbose = verbose
         self.query_counter = 0
+        self._config = config
+        self._auth = auth
 
         if engine == BfabricAPIEngineType.SUDS:
             self.engine = EngineSUDS(auth.login, auth.password, config.base_url)
@@ -121,14 +123,24 @@ class Bfabric(object):
             self.engine = EngineZeep(auth.login, auth.password, config.base_url)
             self.result_type = BfabricResultType.LISTZEEP
         else:
-            raise ValueError("Unexpected engine", BfabricAPIEngineType)
+            raise ValueError(f"Unexpected engine: {engine}")
 
-    def _read_method(self, readid: bool, endpoint: str, obj: dict, page: int = 1, **kwargs):
-        if readid:
-            # https://fgcz-bfabric.uzh.ch/wiki/tiki-index.php?page=endpoint.workunit#Web_Method_readid_
-            return self.engine.readid(endpoint, obj, page=page, **kwargs)
-        else:
-            return self.engine.read(endpoint, obj, page=page, **kwargs)
+        if self.verbose:
+            self.print_version_message()
+
+    @property
+    def config(self) -> BfabricConfig:
+        """Returns the config object."""
+        return self._config
+
+    @property
+    def auth(self) -> BfabricAuth:
+        """Returns the auth object.
+        :raises ValueError: If authentication is not available
+        """
+        if self._auth is None:
+            raise ValueError("Authentication not available")
+        return self._auth
 
     def read(self, endpoint: str, obj: dict, max_results: Optional[int] = 100, readid: bool = False, check: bool = True,
              **kwargs) -> ResultContainer:
@@ -141,6 +153,8 @@ class Bfabric(object):
            are read or expected number of results has been reached. If None, load all available pages.
            NOTE: max_results will be rounded upwards to the nearest multiple of BFABRIC_QUERY_LIMIT, because results
            come in blocks, and there is little overhead to providing results over integer number of pages.
+        :param offset: the number of elements to skip before starting to return results (useful for pagination, default
+              is 0 which means no skipping)
         :param readid: whether to use reading by ID. Currently only available for engine=SUDS
             TODO: Test the extent to which this method works. Add safeguards
         :param check: whether to check for errors in the response
@@ -196,6 +210,13 @@ class Bfabric(object):
         if check:
             result.assert_success()
         return result
+
+    def _read_method(self, readid: bool, endpoint: str, obj: dict, page: int = 1, **kwargs):
+        if readid:
+            # https://fgcz-bfabric.uzh.ch/wiki/tiki-index.php?page=endpoint.workunit#Web_Method_readid_
+            return self.engine.readid(endpoint, obj, page=page, **kwargs)
+        else:
+            return self.engine.read(endpoint, obj, page=page, **kwargs)
 
     ############################
     # Multi-query functionality
@@ -295,4 +316,22 @@ class Bfabric(object):
             return value in result_vals
         else:
             return [val in result_vals for val in value]
+
+    def get_version_message(self) -> str:
+        """Returns the version message as a string."""
+        year = datetime.now().year
+        engine_name = self.engine.__class__.__name__
+        base_url = self.config.base_url
+        user_name = f"U={self._auth.login if self._auth else None}"
+        return (
+            f"--- bfabricPy v{PACKAGE_VERSION} ({engine_name}, {base_url}, {user_name}) ---\n"
+            f"--- Copyright (C) 2014-{year} Functional Genomics Center Zurich ---"
+        )
+
+    def print_version_message(self, stderr: bool = True) -> None:
+        """Prints the version message to the console.
+        :param stderr: Whether to print to stderr (True, default) or stdout (False)
+        """
+        console = Console(stderr=stderr, highlighter=HostnameHighlighter(), theme=DEFAULT_THEME)
+        console.print(self.get_version_message(), style="bright_yellow")
 
