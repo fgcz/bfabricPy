@@ -1,3 +1,11 @@
+.PHONY: install install_dev build clean
+
+install: 
+	pip install -e .
+
+install_dev:
+    pip install -e ".[dev]"
+
 test: test_read
 
 test_workunit:
@@ -5,10 +13,4 @@ test_workunit:
 
 test_read:
 	cd bfabric/tests && python3 -m unittest -v test_bfabric_read.py 
-
-install: test
-	pip install -e .
-
-clean:
-	rm -vf dist/*
 
