@@ -369,6 +369,6 @@ class Bfabric:
         """Prints the version message to the console.
         :param stderr: Whether to print to stderr (True) or stdout (False)
         """
-        console = Console(stderr=True, highlighter=HostnameHighlighter(), theme=DEFAULT_THEME)
+        console = Console(stderr=stderr, highlighter=HostnameHighlighter(), theme=DEFAULT_THEME)
         console.print(self.get_version_message(), style="bright_yellow")
 
