@@ -33,9 +33,7 @@ def render_output(workunits_by_status: dict[str, list[dict[str, Any]]]) -> None:
     )
 
     for status, workunits in workunits_by_status.items():
-        workunits = [
-            x for x in workunits if x["createdby"] not in ["gfeeder", "itfeeder"]
-        ]
+        workunits = [x for x in workunits if x["createdby"] not in ["gfeeder", "itfeeder"]]
         status_color = {
             "Pending": "yellow",
             "Processing": "blue",
@@ -78,12 +76,8 @@ def list_not_available_proteomics_workunits(date_cutoff: datetime) -> None:
 
 def main() -> None:
     """Parses the command line arguments and calls `list_not_available_proteomics_workunits`."""
-    parser = ArgumentParser(
-        description="Lists proteomics work units that are not available on bfabric."
-    )
-    parser.add_argument(
-        "--max-age", type=int, help="Max age of work units in days", default=14
-    )
+    parser = ArgumentParser(description="Lists proteomics work units that are not available on bfabric.")
+    parser.add_argument("--max-age", type=int, help="Max age of work units in days", default=14)
     args = parser.parse_args()
     date_cutoff = datetime.today() - timedelta(days=args.max_age)
     list_not_available_proteomics_workunits(date_cutoff)

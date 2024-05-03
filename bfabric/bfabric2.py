@@ -22,26 +22,24 @@ History
 """
 import base64
 import os
-import sys
-import rich
 from contextlib import contextmanager
-from datetime import datetime
-from pprint import pprint
-from enum import Enum
 from copy import deepcopy
+from datetime import datetime
+from enum import Enum
+from pprint import pprint
 from typing import Union, List, Optional
 
-from rich.theme import Theme
+from rich.console import Console
 
 from bfabric import __version__ as PACKAGE_VERSION
+from bfabric.bfabric_config import BfabricAuth, BfabricConfig, read_config
 from bfabric.src.cli_formatting import HostnameHighlighter, DEFAULT_THEME
-from bfabric.src.math_helper import div_int_ceil
 from bfabric.src.engine_suds import EngineSUDS
 from bfabric.src.engine_zeep import EngineZeep
-from bfabric.src.result_container import ResultContainer, BfabricResultType
-from bfabric.src.paginator import page_iter, BFABRIC_QUERY_LIMIT
-from bfabric.bfabric_config import BfabricAuth, BfabricConfig, read_config
 from bfabric.src.errors import get_response_errors
+from bfabric.src.math_helper import div_int_ceil
+from bfabric.src.paginator import page_iter, BFABRIC_QUERY_LIMIT
+from bfabric.src.result_container import ResultContainer, BfabricResultType
 
 
 class BfabricAPIEngineType(Enum):
@@ -371,7 +369,7 @@ class Bfabric:
         """Prints the version message to the console.
         :param stderr: Whether to print to stderr (True) or stdout (False)
         """
-        console = rich.console.Console(stderr=True, highlighter=HostnameHighlighter(), theme=DEFAULT_THEME)
+        console = Console(stderr=True, highlighter=HostnameHighlighter(), theme=DEFAULT_THEME)
         console.print(self.get_version_message(), style="bright_yellow")
 
 

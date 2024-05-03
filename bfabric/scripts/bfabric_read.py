@@ -15,34 +15,37 @@ See also:
 """
 import argparse
 import json
-import sys
 import time
 from typing import Optional
 
+from rich.console import Console
+
 import bfabric
-from bfabric.bfabric2 import default_client
-
-
-def print_color_msg(msg, color="93"):
-    print(f"\033[{color}m--- {msg} ---\033[0m", file=sys.stderr)
+from bfabric.bfabric2 import Bfabric, get_system_auth
 
 
 def bfabric_read(
     endpoint: str, attribute: Optional[str], value: Optional[str], output_format: str
-):
-    query_obj = {attribute: value} if value is not None else {}
-    print_color_msg(f"query = {query_obj}")
+) -> None:
+    """Reads one or several items from a B-Fabric endpoint and prints them."""
+    if attribute is not None and value is None:
+        message = "value must be provided if attribute is provided"
+        raise ValueError(message)
 
-    client = default_client()
-    sys.stderr.write(bfabric.msg)
+    client = Bfabric(*get_system_auth(), verbose=True)
+
+    query_obj = {attribute: value} if value is not None else {}
+    console = Console(style="bright_yellow", stderr=True)
+    console.print(f"--- query = {query_obj} ---")
+
     start_time = time.time()
     results = client.read(endpoint=endpoint, obj=query_obj)
     end_time = time.time()
     res = sorted(results.to_list_dict(drop_empty=False), key=lambda x: x["id"])
 
     if res:
-        possible_attributes = set(res[0].keys())
-        print_color_msg(f"possible attributes are: {possible_attributes}")
+        possible_attributes = sorted(set(res[0].keys()))
+        console.print(f"--- possible attributes = {possible_attributes} ---")
 
     if output_format == "auto":
         output_format = "json" if len(res) < 2 else "table_tsv"
@@ -58,11 +61,12 @@ def bfabric_read(
             except (KeyError, TypeError):
                 print(f'{x["id"]}\t{x["createdby"]}\t{x["modified"]}')
 
-    print_color_msg(f"number of query result items = {len(res)}")
-    print_color_msg(f"query time = {round(end_time - start_time, 2)} seconds")
+    console.print(f"--- number of query result items = {len(res)} ---")
+    console.print(f"--- query time = {end_time - start_time:.2f} seconds ---")
 
 
-def main():
+def main() -> None:
+    """Parses command line arguments and calls `bfabric_read`."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--format",
