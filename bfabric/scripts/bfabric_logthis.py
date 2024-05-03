@@ -5,15 +5,18 @@
 #   Christian Panse <cp@fgcz.ethz.ch>
 
 import argparse
+
 from bfabric.bfabric2 import Bfabric, get_system_auth
 
 
-def bfabric_logthis(external_job_id: int, message: str):
+def bfabric_logthis(external_job_id: int, message: str) -> None:
+    """Logs a message for an external job."""
     client = Bfabric(*get_system_auth())
-    client.save('externaljob', {'id': external_job_id, 'logthis': message})
+    client.save("externaljob", {"id": external_job_id, "logthis": message})
 
 
-def main():
+def main() -> None:
+    """Parses the command line arguments and calls `bfabric_logthis`."""
     parser = argparse.ArgumentParser(description="log message of external job")
     parser.add_argument("external_job_id", type=int, help="external job id")
     parser.add_argument("message", type=str, help="message")
