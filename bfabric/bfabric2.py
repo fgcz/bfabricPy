@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: latin1 -*-
-
 """B-Fabric Application Interface using WSDL
 
 The code contains classes for wrapper_creator and submitter.
@@ -22,22 +20,26 @@ BFabric V2 Authors:
 History
     The python3 library first appeared in 2014.
 """
-
 import os
 import sys
 from contextlib import contextmanager
-from pprint import pprint
-from enum import Enum
 from copy import deepcopy
+from datetime import datetime
+from enum import Enum
+from pprint import pprint
 from typing import Union, List, Optional
 
-from bfabric.src.math_helper import div_int_ceil
+from rich.console import Console
+
+from bfabric import __version__ as PACKAGE_VERSION
+from bfabric.bfabric_config import BfabricAuth, BfabricConfig, read_config
+from bfabric.src.cli_formatting import HostnameHighlighter, DEFAULT_THEME
 from bfabric.src.engine_suds import EngineSUDS
 from bfabric.src.engine_zeep import EngineZeep
-from bfabric.src.result_container import ResultContainer, BfabricResultType
-from bfabric.src.paginator import page_iter, BFABRIC_QUERY_LIMIT
-from bfabric.bfabric_config import BfabricAuth, BfabricConfig, read_config
 from bfabric.src.errors import get_response_errors
+from bfabric.src.math_helper import div_int_ceil
+from bfabric.src.paginator import page_iter, BFABRIC_QUERY_LIMIT
+from bfabric.src.result_container import ResultContainer, BfabricResultType
 
 
 class BfabricAPIEngineType(Enum):
@@ -91,9 +93,6 @@ def get_system_auth(login: str = None, password: str = None, base_url: str = Non
         if not auth or not auth.login or not auth.password:
             raise ValueError("Authentification not initialized but required")
 
-        msg = f"\033[93m--- base_url {config.base_url}; login; {auth.login} ---\033[0m\n"
-        sys.stderr.write(msg)
-
     if verbose:
         pprint(config)
 
@@ -126,6 +125,9 @@ class Bfabric:
             self.result_type = BfabricResultType.LISTZEEP
         else:
             raise ValueError(f"Unexpected engine: {engine}")
+
+        if self.verbose:
+            self.print_version_message()
 
     @property
     def config(self) -> BfabricConfig:
@@ -164,6 +166,8 @@ class Bfabric:
            are read or expected number of results has been reached. If None, load all available pages.
            NOTE: max_results will be rounded upwards to the nearest multiple of BFABRIC_QUERY_LIMIT, because results
            come in blocks, and there is little overhead to providing results over integer number of pages.
+        :param offset: the number of elements to skip before starting to return results (useful for pagination, default
+              is 0 which means no skipping)
         :param readid: whether to use reading by ID. Currently only available for engine=SUDS
             TODO: Test the extent to which this method works. Add safeguards
         :param check: whether to check for errors in the response
@@ -325,4 +329,22 @@ class Bfabric:
             return value in result_vals
         else:
             return [val in result_vals for val in value]
+
+    def get_version_message(self) -> str:
+        """Returns the version message as a string."""
+        year = datetime.now().year
+        engine_name = self.engine.__class__.__name__
+        base_url = self.config.base_url
+        user_name = f"U={self._auth.login if self._auth else None}"
+        return (
+            f"--- bfabricPy v{PACKAGE_VERSION} ({engine_name}, {base_url}, {user_name}) ---\n"
+            f"--- Copyright (C) 2014-{year} Functional Genomics Center Zurich ---"
+        )
+
+    def print_version_message(self, stderr: bool = True) -> None:
+        """Prints the version message to the console.
+        :param stderr: Whether to print to stderr (True, default) or stdout (False)
+        """
+        console = Console(stderr=stderr, highlighter=HostnameHighlighter(), theme=DEFAULT_THEME)
+        console.print(self.get_version_message(), style="bright_yellow")
 
