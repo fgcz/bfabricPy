@@ -11,6 +11,7 @@ runs:
       with:
         python-version: ${{ inputs.python-version }}
     - name: Install bfabricPy
+      shell: bash
       run: |
         pip install uv
         uv pip install --system ".[dev]"
