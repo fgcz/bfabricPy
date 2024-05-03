@@ -25,6 +25,7 @@ History
 import base64
 import os
 import sys
+from contextlib import contextmanager
 from pprint import pprint
 from enum import Enum
 from copy import deepcopy
@@ -107,9 +108,13 @@ class Bfabric:
     Implements read and save object methods for B-Fabric wsdl interface
     """
 
-    def __init__(self, config: BfabricConfig, auth: BfabricAuth,
-                 engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS, verbose: bool = False):
-
+    def __init__(
+        self,
+        config: BfabricConfig,
+        auth: Optional[BfabricAuth],
+        engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS,
+        verbose: bool = False
+    ):
         self.verbose = verbose
         self.query_counter = 0
         self._config = config
@@ -124,16 +129,28 @@ class Bfabric:
         else:
             raise ValueError("Unexpected engine", BfabricAPIEngineType)
 
-    def _read_method(self, readid: bool, endpoint: str, obj: dict, page: int = 1, **kwargs):
-        if readid:
-            # https://fgcz-bfabric.uzh.ch/wiki/tiki-index.php?page=endpoint.workunit#Web_Method_readid_
-            return self.engine.readid(endpoint, obj, auth=self._auth, page=page, **kwargs)
-        else:
-            return self.engine.read(endpoint, obj, auth=self._auth, page=page, **kwargs)
-
     @property
     def config(self) -> BfabricConfig:
+        """Returns the config object."""
         return self._config
+
+    @property
+    def auth(self) -> Optional[BfabricAuth]:
+        """Returns the auth object."""
+        # TODO we should consider raising an error when this property is accessed, and maybe use it instead in the
+        #      methods below...
+        return self._auth
+
+    @contextmanager
+    def with_auth(self, auth: BfabricAuth):
+        """Context manager that temporarily (within the scope of the context) sets the authentication for
+        the Bfabric object to the provided value. This is useful in a server situation."""
+        old_auth = self._auth
+        self._auth = auth
+        try:
+            yield
+        finally:
+            self._auth = old_auth
 
     def read(self, endpoint: str, obj: dict, max_results: Optional[int] = 100, readid: bool = False, check: bool = True,
              **kwargs) -> ResultContainer:
@@ -213,7 +230,12 @@ class Bfabric:
             check=check
         )
 
-
+    def _read_method(self, readid: bool, endpoint: str, obj: dict, page: int = 1, **kwargs):
+        if readid:
+            # https://fgcz-bfabric.uzh.ch/wiki/tiki-index.php?page=endpoint.workunit#Web_Method_readid_
+            return self.engine.readid(endpoint, obj, auth=self._auth, page=page, **kwargs)
+        else:
+            return self.engine.read(endpoint, obj, auth=self._auth, page=page, **kwargs)
 
     ############################
     # Multi-query functionality
@@ -315,6 +337,7 @@ class Bfabric:
             return [val in result_vals for val in value]
 
 
+# TODO create a class method and see how we feel about this vs the current construction that is done in several places
 def default_client(engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS):
     config, auth = get_system_auth()
     return Bfabric(config=config, auth=auth, engine=engine)
