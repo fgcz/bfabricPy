@@ -104,9 +104,7 @@ def get_system_auth(login: str = None, password: str = None, base_url: str = Non
 # TODO: What does includedeletableupdateable do for Zeep? Does it make sense for Suds?
 # TODO: How to deal with save-skip fields in Zeep? Does it happen in SUDS?
 class Bfabric:
-    """B-Fabric python3 module
-    Implements read and save object methods for B-Fabric wsdl interface
-    """
+    """Bfabric client class, providing general functionality for interaction with the B-Fabric API."""
 
     def __init__(
         self,
@@ -127,7 +125,7 @@ class Bfabric:
             self.engine = EngineZeep(base_url=config.base_url)
             self.result_type = BfabricResultType.LISTZEEP
         else:
-            raise ValueError("Unexpected engine", BfabricAPIEngineType)
+            raise ValueError(f"Unexpected engine: {engine}")
 
     @property
     def config(self) -> BfabricConfig:
@@ -135,10 +133,12 @@ class Bfabric:
         return self._config
 
     @property
-    def auth(self) -> Optional[BfabricAuth]:
-        """Returns the auth object."""
-        # TODO we should consider raising an error when this property is accessed, and maybe use it instead in the
-        #      methods below...
+    def auth(self) -> BfabricAuth:
+        """Returns the auth object.
+        :raises ValueError: If authentication is not available
+        """
+        if self._auth is None:
+            raise ValueError("Authentication not available")
         return self._auth
 
     @contextmanager
@@ -154,9 +154,8 @@ class Bfabric:
 
     def read(self, endpoint: str, obj: dict, max_results: Optional[int] = 100, readid: bool = False, check: bool = True,
              **kwargs) -> ResultContainer:
-        """
-        Make a read query to the engine. Determine the number of pages. Make calls for every page, concatenate
-           results.
+        """Reads objects from the specified endpoint that match all specified attributes in `obj`.
+        By setting `max_results` it is possible to change the number of results that are returned.
         :param endpoint: endpoint
         :param obj: query dictionary
         :param max_results: cap on the number of results to query. The code will keep reading pages until all pages
@@ -206,14 +205,14 @@ class Bfabric:
         return result
 
     def save(self, endpoint: str, obj: dict, check: bool = True, **kwargs) -> ResultContainer:
-        results = self.engine.save(endpoint, obj, auth=self._auth, **kwargs)
+        results = self.engine.save(endpoint, obj, auth=self.auth, **kwargs)
         result = ResultContainer(results[endpoint], self.result_type, errors=get_response_errors(results, endpoint))
         if check:
             result.assert_success()
         return result
 
     def delete(self, endpoint: str, id: Union[List, int], check: bool = True) -> ResultContainer:
-        results = self.engine.delete(endpoint, id, auth=self._auth)
+        results = self.engine.delete(endpoint, id, auth=self.auth)
         result = ResultContainer(results[endpoint], self.result_type, errors=get_response_errors(results, endpoint))
         if check:
             result.assert_success()
@@ -233,9 +232,9 @@ class Bfabric:
     def _read_method(self, readid: bool, endpoint: str, obj: dict, page: int = 1, **kwargs):
         if readid:
             # https://fgcz-bfabric.uzh.ch/wiki/tiki-index.php?page=endpoint.workunit#Web_Method_readid_
-            return self.engine.readid(endpoint, obj, auth=self._auth, page=page, **kwargs)
+            return self.engine.readid(endpoint, obj, auth=self.auth, page=page, **kwargs)
         else:
-            return self.engine.read(endpoint, obj, auth=self._auth, page=page, **kwargs)
+            return self.engine.read(endpoint, obj, auth=self.auth, page=page, **kwargs)
 
     ############################
     # Multi-query functionality
