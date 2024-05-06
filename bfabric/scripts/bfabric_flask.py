@@ -91,20 +91,17 @@ def read() -> Response:
     try:
         endpoint = request.json["endpoint"]
         query = request.json["query"]
+        auth = get_request_auth(request.json)
+
+        # optional fields
+        page_offset = request.json.get("page_offset", 0)
+        page_max_results = request.json.get("page_max_results", 100)
+        idonly = request.json.get("idonly", False)
     except json.JSONDecodeError:
         return jsonify({"error": "could not parse JSON request content"})
     except (KeyError, IndexError):
         return jsonify({"error": "could not get required POST content."})
 
-    # Pagination information.
-    page_offset = request.json.get("page_offset", [0])[0]
-    page_max_results = request.json.get("page_max_results", [100])[0]
-
-    # Idonly parameter.
-    idonly = request.json.get("idonly", [False])[0]
-
-    # Auth information.
-    auth = get_request_auth(request.json)
     if not auth:
         return jsonify({"error": "could not get login and password."})
 
