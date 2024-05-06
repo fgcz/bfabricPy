@@ -102,20 +102,17 @@ def _read_config_env_as_dict(config_path: Path, config_env: str | None = None) -
     # Read the config file
     config_dict = yaml.safe_load(config_path.read_text())
 
-    if "GENERAL" not in config_dict:
-        raise OSError("Config file must have a general section")
-    if "default_config" not in config_dict["GENERAL"]:
-        raise OSError("Config file must provide a default environment")
+    if "default_config" not in config_dict.get("GENERAL", {}):
+        raise ValueError("Config file must provide a `default_config` in the `GENERAL` section")
     config_env_default = config_dict["GENERAL"]["default_config"]
 
     # Determine which environment we will use
     # By default, use the one provided by config_env
-    config_env = _select_config_env(explicit_config_env=config_env,
-                                    config_file_default_config=config_env_default,
-                                    logger=logger)
-
+    config_env = _select_config_env(
+        explicit_config_env=config_env, config_file_default_config=config_env_default, logger=logger
+    )
     if config_env not in config_dict:
-        raise OSError(f"The requested config environment {config_env} is not present in the config file")
+        raise ValueError(f"The requested config environment {config_env} is not present in the config file")
 
     return config_env, config_dict[config_env]
 
