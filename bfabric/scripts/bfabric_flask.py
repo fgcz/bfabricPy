@@ -189,51 +189,34 @@ TODO(cp@fgcz.ethz.ch): also provide an argument for the webbase
 #        return jsonify({"status": "jsonify failed"})
 
 
-@app.route("/save", methods=["GET", "POST"])
-def s():
+@app.route("/save", methods=["POST"])
+def save():
+    try:
+        # required fields
+        endpoint = request.json["endpoint"]
+        query = request.json["query"]
+        auth = get_request_auth(request.json)
+    except json.JSONDecodeError:
+        return jsonify({"error": "could not parse JSON request content"})
+    except (KeyError, IndexError):
+        return jsonify({"error": "could not get required POST content."})
+
+    # check if authenticated
+    if not auth:
+        return jsonify({"error": "could not get login and password."})
 
     try:
-        content = json.loads(request.data)
-    except:
-        msg = "could not get POST content."
-        print("Exception: {}".format(msg))
-        return jsonify({"error": msg})
-
-    try:
-        webservicepassword = content["webservicepassword"][0].replace("\t", "")
-        login = content["login"][0]
-    except:
-        msg = "Could not extract login|webservicepassword."
-        print("Exception: {}".format(msg))
-        return jsonify({"error": msg})
-
-    try:
-        endpoint = content["endpoint"][0]
-    except:
-        msg = "Could not extract endpoint."
-        print("Exception: {}".format(msg))
-        return jsonify({"error": msg})
-
-    try:
-        query = content["query"]
-    except:
-        msg = "Could not extract query."
-        print("Exception: {}".format(msg))
-        return jsonify({"error": msg})
-
-    try:
-        print("Calling constructor and save method using login", login)
-        bf = bfabric.Bfabric(login=login, password=webservicepassword)
-        res = bf.save_object(endpoint=endpoint, obj=content["query"])
-
-        logger.info("'{}' login success save method ...".format(login))
-    except:
-        logger.info("save method failed for login {}.".format(login))
+        print("Calling constructor and save method using login", auth.login)
+        with client.with_auth(auth):
+            res = client.save(endpoint=endpoint, obj=query)
+        logger.info("'{}' login success save method ...".format(auth.login))
+    except Exception:
+        logger.exception("save method failed for login {}.".format(auth.login))
         return jsonify({"status": "jsonify failed: bfabric python module."})
 
     try:
-        return jsonify({"res": res})
-    except:
+        return jsonify({"res": res.to_list_dict()})
+    except Exception:
         return jsonify({"status": "jsonify failed"})
 
 

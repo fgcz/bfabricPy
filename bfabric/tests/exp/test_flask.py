@@ -1,6 +1,6 @@
 """very experimental
 """
-
+import datetime
 import unittest
 
 import requests
@@ -15,8 +15,10 @@ class TestFlaskRESTProxy(unittest.TestCase):
         config, auth = get_system_auth(config_env="TEST")
         self.auth = auth
 
+        self.auth_dict = {"login": self.auth.login, "webservicepassword": self.auth.password}
+
     def test_read(self):
-        req_data = {"endpoint": "dataset", "query": {}, "login": self.auth.login, "webservicepassword": self.auth.password}
+        req_data = {"endpoint": "dataset", "query": {}, **self.auth_dict}
         print(requests.post(f"{self.rest_url}/read", json=req_data).json())
 
     @unittest.skip
@@ -30,6 +32,11 @@ class TestFlaskRESTProxy(unittest.TestCase):
             verify=False
         ).json())
 
+
+    def test_save(self):
+        now = datetime.datetime.now().isoformat()
+        req_data = {"endpoint": "dataset", "query": {"id": 46178, "name": f"20240506 Testing {now}"}, **self.auth_dict}
+        print(requests.post(f"{self.rest_url}/save", json=req_data).json())
 
 
 
