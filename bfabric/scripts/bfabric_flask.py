@@ -39,7 +39,7 @@ import logging.handlers
 from os.path import exists
 from typing import Any
 
-from flask import Flask, jsonify, request, Response
+from flask import Flask, Response, jsonify, request
 
 import bfabric
 from bfabric import bfabric2
@@ -86,9 +86,10 @@ def get_request_auth(request_data: dict[str, Any]) -> BfabricAuth | None:
         return None
 
 
-@app.route("/read", methods=["GET", "POST"])
+@app.route("/read", methods=["POST"])
 def read() -> Response:
     try:
+        # required fields
         endpoint = request.json["endpoint"]
         query = request.json["query"]
         auth = get_request_auth(request.json)
@@ -102,6 +103,7 @@ def read() -> Response:
     except (KeyError, IndexError):
         return jsonify({"error": "could not get required POST content."})
 
+    # check if authenticated
     if not auth:
         return jsonify({"error": "could not get login and password."})
 
@@ -147,47 +149,47 @@ TODO(cp@fgcz.ethz.ch): also provide an argument for the webbase
 """
 
 
-@app.route("/q", methods=["GET", "POST"])
-def q():
-    try:
-        content = json.loads(request.data)
-    except json.JSONDecodeError:
-        return jsonify({"error": "could not get POST content."})
+#@app.route("/q", methods=["GET", "POST"])
+#def q():
+#    try:
+#        content = json.loads(request.data)
+#    except json.JSONDecodeError:
+#        return jsonify({"error": "could not get POST content."})
+#
+#    try:
+#        # TODO(cp): check if meaningful page
+#        page = content["page"][0]
+#    except Exception:
+#        logger.info("set page to 1.")
+#        page = 1
+#
+#    # TODO(cp): more finetuning on paging
+#    try:
+#        webservicepassword = content["webservicepassword"][0].replace("\t", "")
+#        login = content["login"][0]
+#        # logger.info("debug {}".format(webservicepassword))
+#
+#        auth = BfabricAuth(login=login, password=webservicepassword)
+#        with client.with_auth(auth):
+#            res = client.read(
+#                endpoint=content["endpoint"][0],
+#                obj=content["query"],
+#                # TODO this needs to be handled somehow and it's not fully clear yet how
+#                # page=page
+#            )
+#        logger.info("'{}' login success query {} ...".format(login, content["query"]))
+#    except Exception:
+#        logger.exception("'{}' login failed ...".format(login))
+#        return jsonify({"status": "jsonify failed: bfabric python module."})
+#
+#    try:
+#        return jsonify({"res": res.to_list_dict()})
+#    except Exception:
+#        logger.info("'{}' query failed ...".format(login))
+#        return jsonify({"status": "jsonify failed"})
 
-    try:
-        # TODO(cp): check if meaningful page
-        page = content["page"][0]
-    except Exception:
-        logger.info("set page to 1.")
-        page = 1
 
-    # TODO(cp): more finetuning on paging
-    try:
-        webservicepassword = content["webservicepassword"][0].replace("\t", "")
-        login = content["login"][0]
-        # logger.info("debug {}".format(webservicepassword))
-
-        auth = BfabricAuth(login=login, password=webservicepassword)
-        with client.with_auth(auth):
-            res = client.read(
-                endpoint=content["endpoint"][0],
-                obj=content["query"],
-                # TODO this needs to be handled somehow and it's not fully clear yet how
-                # page=page
-            )
-        logger.info("'{}' login success query {} ...".format(login, content["query"]))
-    except Exception:
-        logger.exception("'{}' login failed ...".format(login))
-        return jsonify({"status": "jsonify failed: bfabric python module."})
-
-    try:
-        return jsonify({"res": res.to_list_dict()})
-    except Exception:
-        logger.info("'{}' query failed ...".format(login))
-        return jsonify({"status": "jsonify failed"})
-
-
-@app.route("/s", methods=["GET", "POST"])
+@app.route("/save", methods=["GET", "POST"])
 def s():
 
     try:
