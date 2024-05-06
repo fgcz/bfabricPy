@@ -11,14 +11,9 @@ class BfabricRequestError(Exception):
         return f"RequestError(message={repr(self.message)})"
 
 
-class BfabricConfigError(Exception):
+class BfabricConfigError(RuntimeError):
     """An error that is raised when the configuration is invalid."""
-
-    def __init__(self, message: str) -> None:
-        self.message = message
-
-    def __repr__(self) -> str:
-        return f"ConfigError(message={repr(self.message)})"
+    pass
 
 
 # TODO: Also test for response-level errors
