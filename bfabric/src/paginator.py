@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 # Single page query limit for BFabric API (as of time of writing, adapt if it changes)
 BFABRIC_QUERY_LIMIT = 100
+
 
 def page_iter(objs: list, page_size: int = BFABRIC_QUERY_LIMIT) -> list:
     """
@@ -9,4 +12,27 @@ def page_iter(objs: list, page_size: int = BFABRIC_QUERY_LIMIT) -> list:
     """
 
     for i in range(0, len(objs), page_size):
-        yield objs[i:i + page_size]
+        yield objs[i : i + page_size]
+
+
+def compute_requested_pages(
+    n_page_total: int,
+    n_item_per_page: int,
+    n_item_offset: int,
+    n_item_return_max: int | None,
+) -> list[int]:
+    """Computes the page indices that need to be requested to get all requested items.
+    :param n_page_total: Total number of pages available
+    :param n_item_per_page: Number of items per page
+    :param n_item_offset: Number of items to skip from the beginning
+    :param n_item_return_max: Maximum number of items to return
+    :return: List of page indices that need to be requested
+    """
+    # Determine the page indices to request
+    # If n_item_return_max is not provided, we will return all items
+    if n_item_return_max is None:
+        n_item_return_max = n_page_total * n_item_per_page
+
+    # Determine the page indices to request
+    idx_max_return = (n_item_return_max + n_item_offset + 1) // n_item_per_page
+    return list(range(n_item_offset // n_item_per_page, min(n_page_total, idx_max_return)))

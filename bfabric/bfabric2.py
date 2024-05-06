@@ -41,8 +41,7 @@ from bfabric.src.cli_formatting import DEFAULT_THEME, HostnameHighlighter
 from bfabric.src.engine_suds import EngineSUDS
 from bfabric.src.engine_zeep import EngineZeep
 from bfabric.src.errors import get_response_errors
-from bfabric.src.math_helper import div_int_ceil
-from bfabric.src.paginator import BFABRIC_QUERY_LIMIT, page_iter
+from bfabric.src.paginator import BFABRIC_QUERY_LIMIT, compute_requested_pages, page_iter
 from bfabric.src.result_container import BfabricResultType, ResultContainer
 
 
@@ -219,7 +218,6 @@ class Bfabric:
         :param check: whether to check for errors in the response
         :return: List of responses, packaged in the results container
         """
-
         # Ensure stability
         obj = self._add_query_timestamp(obj)
 
@@ -242,16 +240,20 @@ class Bfabric:
             return result
 
         # Get results from other pages as well, if need be
-        # Only load as many pages as user has interest in
-        if max_results is None:
-            n_pages_trg = n_available_pages
-        else:
-            n_pages_trg = min(n_available_pages, div_int_ceil(max_results, BFABRIC_QUERY_LIMIT))
+        requested_pages = compute_requested_pages(
+            n_page_total=n_available_pages,
+            n_item_per_page=BFABRIC_QUERY_LIMIT,
+            n_item_offset=offset,
+            n_item_return_max=max_results,
+        )
+        logging.info(f"Requested pages: {requested_pages}")
 
         # NOTE: Page numbering starts at 1
         response_items = response[endpoint]
         errors = []
-        for i_page in range(2, n_pages_trg + 1):
+        for i_page in requested_pages:
+            if i_page == 0:
+                continue
             print("-- reading page", i_page, "of", n_available_pages)
             response = self._read_method(readid, endpoint, obj, page=i_page, **kwargs)
             errors += get_response_errors(response, endpoint)
@@ -280,15 +282,6 @@ class Bfabric:
             return query
         else:
             return {**query, "createdbefore": server_time.strftime("%Y-%m-%dT%H:%M:%S")}
-
-    def _determine_relevant_pages_and_indices(self, n_available_pages: int, max_results: int | None, offset: int):
-        if n_available_pages == 0:
-            return {"pages": [], "indices": []}
-        page_size = BFABRIC_QUERY_LIMIT
-
-        if max_results is None:
-            # TODO this could contain more than the actually available items, so computing indices might be tricky
-            max_results = n_available_pages * page_size
 
     def save(self, endpoint: str, obj: dict, check: bool = True, **kwargs) -> ResultContainer:
         results = self.engine.save(endpoint, obj, auth=self.auth, **kwargs)
