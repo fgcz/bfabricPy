@@ -94,8 +94,10 @@ def read() -> Response:
         page_max_results = request.json.get("page_max_results", 100)
         idonly = request.json.get("idonly", False)
     except json.JSONDecodeError:
+        logger.exception("decode error")
         return jsonify({"error": "could not parse JSON request content"})
     except (KeyError, IndexError):
+        logger.exception("request error")
         return jsonify({"error": "could not get required POST content."})
 
     # check if authenticated
@@ -111,7 +113,8 @@ def read() -> Response:
                 obj=query,
                 # TODO offset
                 max_results=page_max_results,
-                readid=idonly,
+                # TODO
+                #readid=idonly,
             )
         logger.info("'{}' login success query {} ...".format(auth.login, request.json["query"]))
     except Exception:
