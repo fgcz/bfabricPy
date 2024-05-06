@@ -18,7 +18,7 @@ Example: bfabric_save_dataset2csv.py --id 32335 && cat dataset.csv
 import argparse
 from pathlib import Path
 
-from bfabric.bfabric2 import Bfabric, get_system_auth
+from bfabric.bfabric2 import Bfabric
 
 
 def dataset2csv(dataset: dict, output_path: Path, sep: str = ",") -> None:
@@ -35,7 +35,7 @@ def dataset2csv(dataset: dict, output_path: Path, sep: str = ",") -> None:
 
 def bfabric_save_dataset2csv(dataset_id: int, out_dir: Path) -> None:
     """Saves the dataset with id `dataset_id` to a csv file at `out_dir`."""
-    client = Bfabric(*get_system_auth())
+    client = Bfabric.from_config(verbose=True)
     results = client.read(endpoint="dataset", obj={"id": dataset_id}).to_list_dict()
     if not results:
         raise RuntimeError(f"No dataset found with id '{dataset_id}'")

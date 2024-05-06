@@ -6,12 +6,12 @@
 
 import argparse
 
-from bfabric.bfabric2 import Bfabric, get_system_auth
+from bfabric.bfabric2 import Bfabric
 
 
 def bfabric_logthis(external_job_id: int, message: str) -> None:
     """Logs a message for an external job."""
-    client = Bfabric(*get_system_auth())
+    client = Bfabric.from_config()
     client.save("externaljob", {"id": external_job_id, "logthis": message})
 
 

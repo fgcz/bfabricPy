@@ -24,7 +24,6 @@ import sys
 import time
 
 from bfabric.bfabric2 import Bfabric
-from bfabric.bfabric2 import get_system_auth
 
 BFABRIC_STORAGE_ID = 2
 
@@ -108,9 +107,9 @@ def setup_logger():
     logger.setLevel(logging.INFO)
 
 
-def main():
+def main() -> None:
     setup_logger()
-    client = Bfabric(*get_system_auth())
+    client = Bfabric.from_config(verbose=True)
     if sys.argv[1] == "-":
         print("reading from stdin ...")
         for input_line in sys.stdin:

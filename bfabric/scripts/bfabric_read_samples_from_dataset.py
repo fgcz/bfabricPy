@@ -17,7 +17,8 @@ Usage:
    bfabric_read_samples_from_dataset.py datasetid
 """
 import argparse
-from bfabric.bfabric2 import Bfabric, get_system_auth
+
+from bfabric.bfabric2 import Bfabric
 
 
 def get_table_row(client: Bfabric, relative_path: str):
@@ -28,7 +29,7 @@ def get_table_row(client: Bfabric, relative_path: str):
 
 
 def bfabric_read_samples_from_dataset(dataset_id: int):
-    client = Bfabric(*get_system_auth())
+    client = Bfabric.from_config(verbose=True)
     dataset = client.read(endpoint="dataset", obj={"id": dataset_id}).to_list_dict()[0]
 
     positions = [a["position"] for a in dataset["attribute"] if a["name"] == "Relative Path"]
@@ -45,7 +46,7 @@ def bfabric_read_samples_from_dataset(dataset_id: int):
         print("{}\t{}\t{}\t{}\t{}".format(workunitid, resourceid, resourcename, samplename, groupingvar))
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("dataset_id", type=int)
     args = parser.parse_args()

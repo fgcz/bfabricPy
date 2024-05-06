@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-#TODO this file was refactored without testing anything
+# TODO this file was refactored without testing anything
+# TODO this file was refactored without testing anything
 import argparse
 import hashlib
 import json
@@ -8,7 +9,7 @@ import os
 import sys
 from pathlib import Path
 
-from bfabric.bfabric2 import Bfabric, get_system_auth
+from bfabric.bfabric2 import Bfabric
 
 FASTAHTTPROOT = "/fasta/"
 BFABRICSTORAGEID = 2
@@ -16,7 +17,7 @@ BFABRIC_APPLICATION_ID = 61
 
 
 def save_fast(container_id: int, fasta_file: Path):
-    client = Bfabric(*get_system_auth())
+    client = Bfabric.from_config(verbose=True)
 
     print("Reading description from stdin")
     description = sys.stdin.read()
@@ -67,7 +68,7 @@ def save_fast(container_id: int, fasta_file: Path):
     print(json.dumps(workunit, indent=2))
 
 
-def main():
+def main() -> Non:
     parser = argparse.ArgumentParser()
     parser.add_argument("container_id", help="container_id", type=int)
     parser.add_argument("fasta_file", help="fasta_file", type=Path)
@@ -77,4 +78,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

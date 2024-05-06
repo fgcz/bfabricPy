@@ -6,8 +6,7 @@ set status of a resource of a given resource id
 """
 import argparse
 
-from bfabric.bfabric2 import Bfabric, get_system_auth
-
+from bfabric.bfabric2 import Bfabric
 
 # Copyright (C) 2014 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 #
@@ -22,15 +21,15 @@ from bfabric.bfabric2 import Bfabric, get_system_auth
 # $Id: bfabric_setExternalJobStatus_done.py 2996 2017-08-18 12:11:17Z cpanse $
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="set external job status to 'done'")
-    parser.add_argument('external_job_id', type=int, help='external job id', nargs="+")
+    parser.add_argument("external_job_id", type=int, help="external job id", nargs="+")
     args = parser.parse_args()
-    client = Bfabric(*get_system_auth())
+    client = Bfabric.from_config(verbose=True)
 
     for job_id in args.external_job_id:
         try:
-            res = client.save('externaljob', {'id': job_id, 'status': 'done'})
+            res = client.save("externaljob", {"id": job_id, "status": "done"})
             print(res)
         except Exception:
             print("failed to set externaljob with id={} 'available'.".format(job_id))
