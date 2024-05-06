@@ -4,7 +4,6 @@ import dataclasses
 import logging
 import os
 from pathlib import Path
-from typing import Optional
 
 import yaml
 
@@ -155,7 +154,7 @@ def _parse_dict(d: dict, mandatory_keys: list, optional_keys: list = None, error
 
 def read_config(
     config_path: str | Path, config_env: str = None, optional_auth: bool = False
-) -> tuple[BfabricConfig, Optional[BfabricAuth]]:
+) -> tuple[BfabricConfig, BfabricAuth | None]:
     """
     Reads bfabricpy.yml file, parses it, extracting authentication and configuration data
     :param config_path:   Path to the configuration file. It is assumed the file exists
@@ -167,7 +166,7 @@ def read_config(
 
     NOTE: BFabricPy expects a .bfabricpy.yml of the format, as seen in bfabricPy/tests/unit/example_config.yml
     * The general field always has to be present
-    * There may be any number of environments, and they may have arbitrary names. Here, they are called PRODUCTION and TEST
+    * There may be any number of environments, with arbitrary names. Here, they are called PRODUCTION and TEST
     * Must specify correct login, password and base_url for each environment.
     * application and job_notification_emails fields are optional
     * The default environment will be selected as follows:
