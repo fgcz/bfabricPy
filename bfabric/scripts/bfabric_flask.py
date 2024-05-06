@@ -130,7 +130,7 @@ def read() -> Response:
 
 
 @app.route("/save", methods=["POST"])
-def save():
+def save() -> Response:
     try:
         # required fields
         endpoint = request.json["endpoint"]
@@ -146,7 +146,6 @@ def save():
         return jsonify({"error": "could not get login and password."})
 
     try:
-        print("Calling constructor and save method using login", auth.login)
         with client.with_auth(auth):
             res = client.save(endpoint=endpoint, obj=query)
         logger.info("'{}' login success save method ...".format(auth.login))
@@ -160,80 +159,53 @@ def save():
         return jsonify({"status": "jsonify failed"})
 
 
-
-
-def compose_ms_queue_dataset(jsoncontent, workunitid, containerid):
-    obj = {}
-    try:
-        obj["name"] = "generated through http://fgcz-s-028.uzh.ch:8080/queue_generator/"
-        obj["workunitid"] = workunitid
-        obj["containerid"] = containerid
-        obj["attribute"] = [
-            {"name": "File Name", "position": 1, "type": "String"},
-            {"name": "Condition", "position": 2, "type": "String"},
-            {"name": "Path", "position": 3},
-            {"name": "Position", "position": 4},
-            {"name": "Inj Vol", "position": 5, "type": "numeric"},
-            {"name": "ExtractID", "position": 6, "type": "extract"},
-        ]
-
-        obj["item"] = list()
-
-        for idx in range(0, len(jsoncontent)):
-            obj["item"].append(
-                {
-                    "field": map(
-                        lambda x: {
-                            "attributeposition": x + 1,
-                            "value": jsoncontent[idx][x],
-                        },
-                        range(0, len(jsoncontent[idx])),
-                    ),
-                    "position": idx + 1,
-                }
-            )
-
-    except:
-        pass
-
-    return obj
-
-
 @app.route("/add_resource", methods=["POST"])
-def add_resource():
+def add_resource() -> Response:
     try:
-        queue_content = json.loads(request.data)
-        print(queue_content)
-        print("--")
-    except:
-        print("failed: could not get POST content")
+        name = request.json["name"]
+        description = request.json["workunitdescription"]
+        container_id = request.json["containerid"]
+        application_id = request.json["applicationid"]
+        queue_content = request.json["base64"]
+        resource_name = request.json["resourcename"]
+        auth = get_request_auth(request.json)
+    except json.JSONDecodeError:
+        logger.exception("failed: could not get POST content")
         return jsonify({"error": "could not get POST content."})
+    except (KeyError, IndexError):
+        logger.exception("failed: could not get required POST content.")
+        return jsonify({"error": "could not get required POST content."})
 
-    res = bfapp.save_object(
-        "workunit",
-        {
-            "name": queue_content["name"],
-            "description": "{}".format(queue_content["workunitdescription"][0]),
-            "containerid": queue_content["containerid"],
-            "applicationid": queue_content["applicationid"],
-        },
-    )
-    print(res)
+    # check if authenticated
+    if not auth:
+        return jsonify({"error": "could not get login and password."})
 
-    workunit_id = res[0]._id
+    # Save the workunit
+    with client.with_auth(auth):
+        res = client.save(
+            "workunit",
+            {
+                "name": name,
+                "description": description,
+                "containerid": container_id,
+                "applicationid": application_id,
+            },
+        ).to_list_dict()
+    logger.info(res)
 
-    print(workunit_id)
+    workunit_id = res[0]["id"]
+    logger.info(f"workunit_id = {workunit_id}")
 
-    res = bfapp.save_object(
-        "resource",
-        {
-            "base64": queue_content["base64"],
-            "name": queue_content["resourcename"],
-            "workunitid": workunit_id,
-        },
-    )
-
-    res = bfapp.save_object("workunit", {"id": workunit_id, "status": "available"})
+    with client.with_auth(auth):
+        client.save(
+            "resource",
+            {
+                "base64": queue_content,
+                "name": resource_name,
+                "workunitid": workunit_id,
+            },
+        )
+        client.save("workunit", {"id": workunit_id, "status": "available"})
 
     return jsonify(dict(workunit_id=workunit_id))
 
