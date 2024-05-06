@@ -10,6 +10,7 @@ from bfabric.src.engine_suds import EngineSUDS
 class TestBfabric(unittest.TestCase):
     def setUp(self):
         self.mock_config = MagicMock(name="mock_config", spec=BfabricConfig)
+        self.mock_config.server_timezone = "Pacific/Kiritimati"
         self.mock_auth = None
         self.mock_engine_type = BfabricAPIEngineType.SUDS
         self.mock_engine = MagicMock(name="mock_engine", spec=EngineSUDS)
