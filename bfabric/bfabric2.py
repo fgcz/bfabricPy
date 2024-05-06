@@ -151,7 +151,6 @@ class Bfabric:
         determined by checking the following in order (picking the first one that is found):
         - The `BFABRICPY_CONFIG_ENV` environment variable
         - The `default_config` field in the config file "GENERAL" section
-        - The only environment in the config file, if there is only one
         """
         config, auth = get_system_auth(config_env=config_env)
         return cls(config, auth)

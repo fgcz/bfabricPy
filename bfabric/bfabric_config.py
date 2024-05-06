@@ -110,21 +110,33 @@ def _read_config_env_as_dict(config_path: Path, config_env: str | None = None) -
 
     # Determine which environment we will use
     # By default, use the one provided by config_env
-    if config_env is None:
-        # Try to find a relevant
-        config_env = os.getenv("BFABRICPY_CONFIG_ENV")
-        if config_env is None:
-            logger.info(f"BFABRICPY_CONFIG_ENV not found, using default environment {config_env_default}")
-            config_env = config_env_default
-        else:
-            logger.info(f"found BFABRICPY_CONFIG_ENV = {config_env}")
-    else:
-        logger.info(f"config environment specified explicitly as {config_env}")
+    config_env = _select_config_env(explicit_config_env=config_env,
+                                    config_file_default_config=config_env_default,
+                                    logger=logger)
 
     if config_env not in config_dict:
         raise OSError(f"The requested config environment {config_env} is not present in the config file")
 
     return config_env, config_dict[config_env]
+
+
+def _select_config_env(explicit_config_env: str | None, config_file_default_config: str, logger: logging.Logger) -> str:
+    """Selects the appropriate configuration environment to use, based on the provided arguments.
+    :param explicit_config_env: Explicitly provided configuration environment to use (i.e. from a function argument)
+    :param config_file_default_config: Default configuration environment to use, as specified in the config file
+    :param logger: Logger to use for output
+    """
+    if explicit_config_env is None:
+        config_env = os.getenv("BFABRICPY_CONFIG_ENV")
+        if config_env is None:
+            logger.info(f"BFABRICPY_CONFIG_ENV not found, using default environment {config_file_default_config}")
+            config_env = config_file_default_config
+        else:
+            logger.info(f"found BFABRICPY_CONFIG_ENV = {config_env}")
+    else:
+        config_env = explicit_config_env
+        logger.info(f"config environment specified explicitly as {config_env}")
+    return config_env
 
 
 def _have_all_keys(dict_: dict, expected_keys: list) -> bool:
