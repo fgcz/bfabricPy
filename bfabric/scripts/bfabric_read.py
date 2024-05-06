@@ -31,7 +31,7 @@ def bfabric_read(endpoint: str, attribute: Optional[str], value: Optional[str], 
         message = "value must be provided if attribute is provided"
         raise ValueError(message)
 
-    client = Bfabric(*get_system_auth(), verbose=True)
+    client = Bfabric.from_config(verbose=True)
 
     query_obj = {attribute: value} if value is not None else {}
     console_info = Console(style="bright_yellow", stderr=True)

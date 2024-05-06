@@ -21,29 +21,29 @@ History
     The python3 library first appeared in 2014.
 """
 from __future__ import annotations
+
 import base64
 import logging
 import os
-import sys
 from contextlib import contextmanager
 from copy import deepcopy
 from datetime import datetime
 from enum import Enum
 from pprint import pprint
-from typing import Union, List, Optional, Any, Dict, Literal
+from typing import Any, Optional
 from zoneinfo import ZoneInfo
 
 from rich.console import Console
 
 from bfabric import __version__ as PACKAGE_VERSION
 from bfabric.bfabric_config import BfabricAuth, BfabricConfig, read_config
-from bfabric.src.cli_formatting import HostnameHighlighter, DEFAULT_THEME
+from bfabric.src.cli_formatting import DEFAULT_THEME, HostnameHighlighter
 from bfabric.src.engine_suds import EngineSUDS
 from bfabric.src.engine_zeep import EngineZeep
 from bfabric.src.errors import get_response_errors
 from bfabric.src.math_helper import div_int_ceil
-from bfabric.src.paginator import page_iter, BFABRIC_QUERY_LIMIT
-from bfabric.src.result_container import ResultContainer, BfabricResultType
+from bfabric.src.paginator import BFABRIC_QUERY_LIMIT, page_iter
+from bfabric.src.result_container import BfabricResultType, ResultContainer
 
 
 class BfabricAPIEngineType(Enum):
@@ -81,7 +81,7 @@ def get_system_auth(
     if not os.path.isfile(config_path):
         if have_config_path:
             # NOTE: If user explicitly specifies a path to a wrong config file, this has to be an exception
-            raise IOError(f"Explicitly specified config file does not exist: {config_path}")
+            raise OSError(f"Explicitly specified config file does not exist: {config_path}")
         # TODO: Convert to log
         print(f"Warning: could not find the config file in the default location: {config_path}")
         config = BfabricConfig(base_url=base_url)
@@ -99,7 +99,7 @@ def get_system_auth(
         elif (login is None) and (password is None):
             auth = auth
         else:
-            raise IOError("Must provide both username and password, or neither.")
+            raise OSError("Must provide both username and password, or neither.")
 
     if not config.base_url:
         raise ValueError("base_url missing")
@@ -145,15 +145,23 @@ class Bfabric:
             self.print_version_message()
 
     @classmethod
-    def new(cls, config_env: str | None = None) -> Bfabric:
+    def from_config(
+        cls,
+        config_env: str | None = None,
+        engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS,
+        verbose: bool = False,
+    ) -> Bfabric:
         """Returns a new Bfabric instance, configured with the user configuration file.
         If the `config_env` is specified then it will be used, if it is not specified the default environment will be
         determined by checking the following in order (picking the first one that is found):
         - The `BFABRICPY_CONFIG_ENV` environment variable
         - The `default_config` field in the config file "GENERAL" section
+        :param config_env: Configuration environment to use. If not given, it is deduced as described above.
+        :param engine: Engine to use for the API. Default is SUDS.
+        :param verbose: Print a system info message to standard error console
         """
         config, auth = get_system_auth(config_env=config_env)
-        return cls(config, auth)
+        return cls(config, auth, engine=engine, verbose=verbose)
 
     @property
     def config(self) -> BfabricConfig:
@@ -185,7 +193,7 @@ class Bfabric:
     def read(
         self,
         endpoint: str,
-        obj: Dict[str, Any],
+        obj: dict[str, Any],
         max_results: Optional[int] = 100,
         offset: int = 0,
         readid: bool = False,
@@ -250,7 +258,7 @@ class Bfabric:
             result.assert_success()
         return result
 
-    def _add_query_timestamp(self, query: Dict[str, Any]) -> Dict[str, Any]:
+    def _add_query_timestamp(self, query: dict[str, Any]) -> dict[str, Any]:
         """Adds the current time as a createdbefore timestamp to the query, if there is no time in the query already.
         This ensures pagination will be robust to insertion of new items during the query.
         If a time is already present, it will be left as is, but a warning will be printed if it is in the future as
@@ -265,7 +273,6 @@ class Bfabric:
                 )
         else:
             return {**query, "createdbefore": server_time.strftime("%Y-%m-%dT%H:%M:%S.%f")}
-
 
     def _determine_relevant_pages_and_indices(self, n_available_pages: int, max_results: Optional[int], offset: int):
         if n_available_pages == 0:
@@ -283,7 +290,7 @@ class Bfabric:
             result.assert_success()
         return result
 
-    def delete(self, endpoint: str, id: Union[List, int], check: bool = True) -> ResultContainer:
+    def delete(self, endpoint: str, id: int | list[int], check: bool = True) -> ResultContainer:
         results = self.engine.delete(endpoint, id, auth=self.auth)
         result = ResultContainer(results[endpoint], self.result_type, errors=get_response_errors(results, endpoint))
         if check:
@@ -380,7 +387,7 @@ class Bfabric:
 
         return response_tot
 
-    def exists(self, endpoint: str, key: str, value: Union[List, Union[int, str]]) -> Union[bool, List[bool]]:
+    def exists(self, endpoint: str, key: str, value: list[int | str] | int | str) -> bool | list[bool]:
         """
         :param endpoint:  endpoint
         :param key:       A key for the query (e.g. id or name)
