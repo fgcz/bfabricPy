@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: latin1 -*-
-
-
 """
 This script is thought to be used as a
 Rest SOAP proxy.
@@ -34,24 +31,24 @@ systemctl restart bfabric-flask-prx.service
 
 Of note, do not forget rerun the flask service after modification!
 """
+from __future__ import annotations
 
 import json
 import logging
 import logging.handlers
 from os.path import exists
-from typing import Any, Dict, Optional
+from typing import Any
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, Response
 
 import bfabric
 from bfabric import bfabric2
-from bfabric.bfabric2 import get_system_auth
 from bfabric.bfabric_config import BfabricAuth
 
 DEFAULT_LOGGER_NAME = "bfabric11_flask"
 
 
-def setup_logger_prod(name=DEFAULT_LOGGER_NAME, address=("fgcz-ms.uzh.ch", 514)):
+def setup_logger_prod(name: str = DEFAULT_LOGGER_NAME, address: tuple[str, int] = ("fgcz-ms.uzh.ch", 514)) -> None:
     """
     create a logger object
     """
@@ -62,11 +59,10 @@ def setup_logger_prod(name=DEFAULT_LOGGER_NAME, address=("fgcz-ms.uzh.ch", 514))
     logger = logging.getLogger(name)
     logger.setLevel(20)
     logger.addHandler(syslog_handler)
-
     return logger
 
 
-def setup_logger_debug(name=DEFAULT_LOGGER_NAME):
+def setup_logger_debug(name: str = DEFAULT_LOGGER_NAME) -> None:
     """
     create a logger object
     """
@@ -76,85 +72,54 @@ def setup_logger_debug(name=DEFAULT_LOGGER_NAME):
 
 
 logger = logging.getLogger(DEFAULT_LOGGER_NAME)
-
-
-#class BfabricJSONEncoder(JSONEncoder):
-#    """
-#    enables to serialize (jsonify) bfabric wsdl objects
-#    """
-#
-#    def default(self, obj):
-#        try:
-#            iterable = iter(obj)
-#        except TypeError:
-#            pass
-#        else:
-#            return dict(iterable)
-#
-#        return JSONEncoder.default(self, obj)
-
-
-address = ("fgcz-ms.uzh.ch", 514)
-name = "bfabric_flask"
-formatter = logging.Formatter("%(name)s %(message)s")
-
-syslog_handler = logging.handlers.SysLogHandler(address=address)
-syslog_handler.setFormatter(formatter)
-
-
 app = Flask(__name__)
-#app.json_encoder = BfabricJSONEncoder
-# bfapp = bfabric.Bfabric()
-
-client = bfabric2.Bfabric.from_config(auth=None)
-
-inlcude_child_extracts = True
+client = bfabric2.Bfabric.from_config("TEST", auth=None, verbose=True)
 
 
-def get_request_auth(request_data: Dict[str, Any]) -> Optional[BfabricAuth]:
+def get_request_auth(request_data: dict[str, Any]) -> BfabricAuth | None:
     try:
-        webservicepassword = request_data["webservicepassword"][0].replace("\t", "")
-        login = request_data["login"][0]
+        # TODO when coming from R these were in a list of size 0? why? (maybe adapt)
+        webservicepassword = request_data["webservicepassword"].replace("\t", "")
+        login = request_data["login"]
         return BfabricAuth(login=login, password=webservicepassword)
     except (TypeError, KeyError, IndexError):
         return None
 
 
 @app.route("/read", methods=["GET", "POST"])
-def read():
-    # Parse request object
+def read() -> Response:
     try:
-        content = json.loads(request.data)
-        endpoint = content["endpoint"][0]
-        query = content["query"]
+        endpoint = request.json["endpoint"]
+        query = request.json["query"]
     except json.JSONDecodeError:
-        return jsonify({"error": "could not parse JSON content."})
+        return jsonify({"error": "could not parse JSON request content"})
     except (KeyError, IndexError):
         return jsonify({"error": "could not get required POST content."})
 
     # Pagination information.
-    page_offset = content.get("page_offset", [0])[0]
-    page_max_results = content.get("page_max_results", [100])[0]
+    page_offset = request.json.get("page_offset", [0])[0]
+    page_max_results = request.json.get("page_max_results", [100])[0]
 
     # Idonly parameter.
-    idonly = content.get("idonly", [False])[0]
+    idonly = request.json.get("idonly", [False])[0]
 
     # Auth information.
-    auth = get_request_auth(content)
+    auth = get_request_auth(request.json)
     if not auth:
         return jsonify({"error": "could not get login and password."})
 
     logger.info(f"'{auth.login}' /read {page_offset=}, {page_max_results=}, {idonly=}")
     try:
         with client.with_auth(auth):
+            client.print_version_message()
             res = client.read(
                 endpoint=endpoint,
                 obj=query,
                 # TODO offset
                 max_results=page_max_results,
-                idonly=idonly,
+                readid=idonly,
             )
-        logger.info("'{}' login success query {} ...".format(auth.login, content["query"]))
+        logger.info("'{}' login success query {} ...".format(auth.login, request.json["query"]))
     except Exception:
         logger.exception("'{}' query failed ...".format(auth.login))
         return jsonify({"status": "jsonify failed: bfabric python module."})
