@@ -29,7 +29,7 @@ class BfabricConfig:
         base_url (optional): The API base url
         application_ids (optional): Map of application names to ids.
         job_notification_emails (optional): Space-separated list of email addresses to notify when a job finishes.
-        timezone_name (optional): Timezone name of the server (used for queries)
+        server_timezone (optional): Timezone name of the server (used for queries)
     """
 
     def __init__(
@@ -37,12 +37,12 @@ class BfabricConfig:
         base_url: Optional[str] = None,
         application_ids: Optional[Dict[str, int]] = None,
         job_notification_emails: Optional[str] = None,
-        timezone_name: str = "Europe/Zurich",
+        server_timezone: str = "Europe/Zurich",
     ):
         self._base_url = base_url or "https://fgcz-bfabric.uzh.ch/bfabric"
         self._application_ids = application_ids or {}
         self._job_notification_emails = job_notification_emails or ""
-        self._timezone_name = timezone_name
+        self._server_timezone = server_timezone
 
     @property
     def base_url(self) -> str:
@@ -60,9 +60,9 @@ class BfabricConfig:
         return self._job_notification_emails
 
     @property
-    def timezone_name(self) -> str:
+    def server_timezone(self) -> str:
         """Timezone name of the server (used for queries)."""
-        return self._timezone_name
+        return self._server_timezone
 
     def copy_with(
         self,
@@ -76,13 +76,13 @@ class BfabricConfig:
                 application_ids if application_ids is not None else self.application_ids
             ),
             job_notification_emails=self.job_notification_emails,
-            timezone_name=self.timezone_name,
+            server_timezone=self.server_timezone,
         )
 
     def __repr__(self):
         return (
             f"BfabricConfig(base_url={repr(self.base_url)}, application_ids={repr(self.application_ids)}, "
-            f"job_notification_emails={repr(self.job_notification_emails)}, timezone_name={repr(self.timezone_name)})"
+            f"job_notification_emails={repr(self.job_notification_emails)}, server_timezone={repr(self.server_timezone)})"
         )
 
 
@@ -206,7 +206,7 @@ def read_config(
     config_dict = _parse_dict(
         config_dict,
         ["base_url"],
-        optional_keys=["application_ids", "job_notification_emails", "timezone_name"],
+        optional_keys=["application_ids", "job_notification_emails", "server_timezone"],
         error_prefix=error_prefix,
     )
     config = BfabricConfig(**config_dict)

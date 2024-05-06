@@ -22,7 +22,7 @@ class TestBfabricConfig(unittest.TestCase):
         self.config = BfabricConfig(
             base_url="url",
             application_ids={"app": 1},
-            timezone_name="t/z",
+            server_timezone="t/z",
         )
         self.example_config_path = Path(__file__).parent / "example_config.yml"
 
@@ -114,7 +114,7 @@ class TestBfabricConfig(unittest.TestCase):
         self.assertEqual(
             job_notification_emails_ground_truth, config.job_notification_emails
         )
-        self.assertEqual("UTC", config.timezone_name)
+        self.assertEqual("UTC", config.server_timezone)
 
     # Testing that we can load base_url without authentication if correctly requested
     def test_read_yml_when_empty_optional(self):
@@ -127,7 +127,7 @@ class TestBfabricConfig(unittest.TestCase):
         self.assertEqual("https://standby-server.uzh.ch/mystandby", config.base_url)
         self.assertEqual({}, config.application_ids)
         self.assertEqual("", config.job_notification_emails)
-        self.assertEqual("Europe/Zurich", config.timezone_name)
+        self.assertEqual("Europe/Zurich", config.server_timezone)
 
     # Test that missing authentication will raise an error if required
     def test_read_yml_when_empty_mandatory(self):
@@ -139,14 +139,14 @@ class TestBfabricConfig(unittest.TestCase):
     def test_repr(self):
         rep = repr(self.config)
         self.assertEqual(
-            "BfabricConfig(base_url='url', application_ids={'app': 1}, job_notification_emails='', timezone_name='t/z')",
+            "BfabricConfig(base_url='url', application_ids={'app': 1}, job_notification_emails='', server_timezone='t/z')",
             rep,
         )
 
     def test_str(self):
         rep = str(self.config)
         self.assertEqual(
-            "BfabricConfig(base_url='url', application_ids={'app': 1}, job_notification_emails='', timezone_name='t/z')",
+            "BfabricConfig(base_url='url', application_ids={'app': 1}, job_notification_emails='', server_timezone='t/z')",
             rep,
         )
 
