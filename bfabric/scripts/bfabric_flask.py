@@ -49,25 +49,21 @@ DEFAULT_LOGGER_NAME = "bfabric11_flask"
 
 
 def setup_logger_prod(name: str = DEFAULT_LOGGER_NAME, address: tuple[str, int] = ("fgcz-ms.uzh.ch", 514)) -> None:
-    """
-    create a logger object
-    """
+    """Sets up the production logger."""
     syslog_handler = logging.handlers.SysLogHandler(address=address)
     formatter = logging.Formatter("%(name)s %(message)s")
     syslog_handler.setFormatter(formatter)
 
     logger = logging.getLogger(name)
-    logger.setLevel(20)
+    logger.setLevel(logging.INFO)
     logger.addHandler(syslog_handler)
     return logger
 
 
 def setup_logger_debug(name: str = DEFAULT_LOGGER_NAME) -> None:
-    """
-    create a logger object
-    """
+    """Sets up the debug logger."""
     logger = logging.getLogger(name)
-    logger.setLevel(10)
+    logger.setLevel(logging.DEBUG)
     return logger
 
 
