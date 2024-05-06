@@ -32,11 +32,12 @@ from __future__ import annotations
 import argparse
 import csv
 from pathlib import Path
+from typing import Union, Dict, List, Optional
 
 from bfabric.bfabric2 import Bfabric, get_system_auth
 
 
-def csv2json(csv_file_path: Path) -> dict[str, list[dict[str, int | str | float]]]:
+def csv2json(csv_file_path: Path) -> Dict[str, List[Dict[str, Union[int, str, float]]]]:
     """Parses a csv file and returns a B-Fabric compatible dictionary structure."""
     obj = {"item": [], "attribute": []}
     types = {int: "Integer", str: "String", float: "Float"}
@@ -60,7 +61,7 @@ def csv2json(csv_file_path: Path) -> dict[str, list[dict[str, int | str | float]
 
 
 def bfabric_save_csv2dataset(
-    csv_file: Path, dataset_name: str, container_id: int, workunit_id: int | None = None
+    csv_file: Path, dataset_name: str, container_id: int, workunit_id: Optional[int] = None
 ) -> None:
     """Creates a dataset in B-Fabric from a csv file."""
     client = Bfabric(*get_system_auth(), verbose=True)
