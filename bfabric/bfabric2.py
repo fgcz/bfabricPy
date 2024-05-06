@@ -30,7 +30,7 @@ from copy import deepcopy
 from datetime import datetime
 from enum import Enum
 from pprint import pprint
-from typing import Any, Literal, Optional
+from typing import Any, Literal
 from zoneinfo import ZoneInfo
 
 from rich.console import Console
@@ -122,7 +122,7 @@ class Bfabric:
     def __init__(
         self,
         config: BfabricConfig,
-        auth: Optional[BfabricAuth],
+        auth: BfabricAuth | None,
         engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS,
         verbose: bool = False,
     ) -> None:
@@ -198,7 +198,7 @@ class Bfabric:
         self,
         endpoint: str,
         obj: dict[str, Any],
-        max_results: Optional[int] = 100,
+        max_results: int | None = 100,
         offset: int = 0,
         readid: bool = False,
         check: bool = True,
@@ -279,7 +279,7 @@ class Bfabric:
         else:
             return {**query, "createdbefore": server_time.strftime("%Y-%m-%dT%H:%M:%S.%f")}
 
-    def _determine_relevant_pages_and_indices(self, n_available_pages: int, max_results: Optional[int], offset: int):
+    def _determine_relevant_pages_and_indices(self, n_available_pages: int, max_results: int | None, offset: int):
         if n_available_pages == 0:
             return {"pages": [], "indices": []}
         page_size = BFABRIC_QUERY_LIMIT
