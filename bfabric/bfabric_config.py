@@ -188,7 +188,7 @@ def read_config(
 
     error_prefix = f"Config environment {config_env_final} does not have a compulsory field: "
 
-    # Parse authentification
+    # Parse authentication
     if optional_auth and not _have_all_keys(config_dict, ["login", "password"]):
         # Allow returning None auth if enabled
         auth = None
