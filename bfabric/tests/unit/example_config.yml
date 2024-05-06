@@ -15,6 +15,7 @@ TEST:
     Proteomics/DOG_552: 6
     Proteomics/DUCK_666: 12
   job_notification_emails: john.snow@fgcz.uzh.ch billy.the.kid@fgcz.ethz.ch
+  timezone_name: UTC
 
 STANDBY:
   base_url: https://standby-server.uzh.ch/mystandby
