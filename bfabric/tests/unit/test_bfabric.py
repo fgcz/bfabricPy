@@ -20,6 +20,42 @@ class TestBfabric(unittest.TestCase):
     def mock_bfabric(self) -> Bfabric:
         return Bfabric(config=self.mock_config, auth=self.mock_auth, engine=self.mock_engine_type)
 
+    @patch("bfabric.bfabric2.get_system_auth")
+    def test_from_config_when_no_args(self, mock_get_system_auth):
+        mock_config = MagicMock(name="mock_config", server_timezone="Pacific/Kiritimati")
+        mock_auth = MagicMock(name="mock_auth")
+        mock_get_system_auth.return_value = (mock_config, mock_auth)
+        client = Bfabric.from_config()
+        self.assertIsInstance(client, Bfabric)
+        self.assertEqual(mock_config, client.config)
+        self.assertEqual(mock_auth, client.auth)
+        mock_get_system_auth.assert_called_once_with(config_env=None)
+
+    @patch("bfabric.bfabric2.get_system_auth")
+    def test_from_config_when_explicit_auth(self, mock_get_system_auth):
+        mock_config = MagicMock(name="mock_config", server_timezone="Pacific/Kiritimati")
+        mock_auth = MagicMock(name="mock_auth")
+        mock_config_auth = MagicMock(name="mock_config_auth")
+        mock_get_system_auth.return_value = (mock_config, mock_config_auth)
+        client = Bfabric.from_config(config_env="TestingEnv", auth=mock_auth)
+        self.assertIsInstance(client, Bfabric)
+        self.assertEqual(mock_config, client.config)
+        self.assertEqual(mock_auth, client.auth)
+        mock_get_system_auth.assert_called_once_with(config_env="TestingEnv")
+
+    @patch("bfabric.bfabric2.get_system_auth")
+    def test_from_config_when_none_auth(self, mock_get_system_auth):
+        mock_config = MagicMock(name="mock_config", server_timezone="Pacific/Kiritimati")
+        mock_auth = MagicMock(name="mock_auth")
+        mock_get_system_auth.return_value = (mock_config, mock_auth)
+        client = Bfabric.from_config(config_env="TestingEnv", auth=None)
+        self.assertIsInstance(client, Bfabric)
+        self.assertEqual(mock_config, client.config)
+        with self.assertRaises(ValueError) as error:
+            _ = client.auth
+        self.assertIn("Authentication not available", str(error.exception))
+        mock_get_system_auth.assert_called_once_with(config_env="TestingEnv")
+
     def test_query_counter(self):
         self.assertEqual(0, self.mock_bfabric.query_counter)
 
