@@ -2,7 +2,7 @@
 
 clean_script() {
   target_name=$1
-  target_path=$(find . -name $target_name | head -n 1)
+  target_path=$(find bfabric -name $target_name | head -n 1)
   if [ -z $target_path ]; then
     echo "No $target_name script found"
   else

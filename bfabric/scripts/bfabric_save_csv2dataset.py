@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-
 """
 Author:
      Maria d'Errico <maria.derrico@fgcz.ethz.ch>
@@ -32,12 +31,15 @@ from __future__ import annotations
 import argparse
 import csv
 from pathlib import Path
-from typing import Union, Dict, List, Optional
+from typing import TYPE_CHECKING
 
 from bfabric.bfabric2 import Bfabric, get_system_auth
 
+if TYPE_CHECKING:
+    import pandas as pd
 
-def csv2json(csv_file_path: Path) -> Dict[str, List[Dict[str, Union[int, str, float]]]]:
+
+def csv2json(csv_file_path: Path) -> dict[str, list[dict[str, int | str | float]]]:
     """Parses a csv file and returns a B-Fabric compatible dictionary structure."""
     obj = {"item": [], "attribute": []}
     types = {int: "Integer", str: "String", float: "Float"}
@@ -60,8 +62,26 @@ def csv2json(csv_file_path: Path) -> Dict[str, List[Dict[str, Union[int, str, fl
     return obj
 
 
+def pandas2json(df: pd.DataFrame) -> dict[str, list[dict[str, int | str | float]]]:
+    """Converts a pandas DataFrame to a B-Fabric compatible dictionary structure."""
+    obj = {"item": [], "attribute": []}
+    types = {int: "Integer", str: "String", float: "Float"}
+    for i_row, row in df.iterrows():
+        fields = []
+        for attr in range(0, len(list(row.keys()))):
+            if i_row == 0:
+                # Fill in attributes info
+                attr_type = type(row[attr])
+                entry = {"name": list(row.keys())[attr], "position": attr + 1, "type": types[attr_type]}
+                obj["attribute"].append(entry)
+            # Fill in values info
+            fields.append({"attributeposition": attr + 1, "value": row[attr]})
+        obj["item"].append({"field": fields, "position": i_row + 1})
+    return obj
+
+
 def bfabric_save_csv2dataset(
-    csv_file: Path, dataset_name: str, container_id: int, workunit_id: Optional[int] = None
+    csv_file: Path, dataset_name: str, container_id: int, workunit_id: int | None = None
 ) -> None:
     """Creates a dataset in B-Fabric from a csv file."""
     client = Bfabric(*get_system_auth(), verbose=True)
