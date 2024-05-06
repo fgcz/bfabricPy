@@ -3,6 +3,7 @@ import unittest
 from pathlib import Path
 
 from bfabric.bfabric_config import BfabricAuth, BfabricConfig, read_config
+from bfabric.src.errors import BfabricConfigError
 
 
 class TestBfabricAuth(unittest.TestCase):
@@ -121,7 +122,7 @@ class TestBfabricConfig(unittest.TestCase):
 
     # Test that missing authentication will raise an error if required
     def test_read_yml_when_empty_mandatory(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(BfabricConfigError):
             read_config(self.example_config_path, config_env="STANDBY", optional_auth=False)
 
     def test_repr(self):

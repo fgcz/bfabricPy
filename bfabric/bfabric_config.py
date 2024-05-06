@@ -7,6 +7,8 @@ from pathlib import Path
 
 import yaml
 
+from bfabric.src.errors import BfabricConfigError
+
 
 @dataclasses.dataclass(frozen=True)
 class BfabricAuth:
@@ -103,7 +105,7 @@ def _read_config_env_as_dict(config_path: Path, config_env: str | None = None) -
     config_dict = yaml.safe_load(config_path.read_text())
 
     if "default_config" not in config_dict.get("GENERAL", {}):
-        raise ValueError("Config file must provide a `default_config` in the `GENERAL` section")
+        raise BfabricConfigError("Config file must provide a `default_config` in the `GENERAL` section")
     config_env_default = config_dict["GENERAL"]["default_config"]
 
     # Determine which environment we will use
@@ -112,7 +114,7 @@ def _read_config_env_as_dict(config_path: Path, config_env: str | None = None) -
         explicit_config_env=config_env, config_file_default_config=config_env_default, logger=logger
     )
     if config_env not in config_dict:
-        raise ValueError(f"The requested config environment {config_env} is not present in the config file")
+        raise BfabricConfigError(f"The requested config environment {config_env} is not present in the config file")
 
     return config_env, config_dict[config_env]
 
@@ -153,7 +155,7 @@ def _parse_dict(d: dict, mandatory_keys: list, optional_keys: list = None, error
     """
     missing_keys = set(mandatory_keys) - set(d)
     if missing_keys:
-        raise ValueError(f"{error_prefix}{missing_keys}")
+        raise BfabricConfigError(f"{error_prefix}{missing_keys}")
     result_keys = set(mandatory_keys) | set(optional_keys or [])
     d_rez = {k: d[k] for k in result_keys if k in d}
 
