@@ -108,8 +108,7 @@ app = Flask(__name__)
 app.json_encoder = BfabricJSONEncoder
 # bfapp = bfabric.Bfabric()
 
-# TODO this is a challenging case in my opinion, as far as API design is concerned
-client = bfabric2.Bfabric(config=get_system_auth()[0], auth=None)
+client = bfabric2.Bfabric.from_config(auth=None)
 
 inlcude_child_extracts = True
 

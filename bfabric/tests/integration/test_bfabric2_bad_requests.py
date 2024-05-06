@@ -2,7 +2,7 @@ import json
 import os
 import unittest
 
-from bfabric.bfabric2 import Bfabric, BfabricAPIEngineType, get_system_auth
+from bfabric.bfabric2 import Bfabric, BfabricAPIEngineType
 from bfabric.src.errors import BfabricRequestError
 
 
@@ -13,13 +13,10 @@ class BfabricTestBadRequest(unittest.TestCase):
         with open(path) as json_file:
             self.ground_truth = json.load(json_file)
 
-        # Load config and authentication
-        self.config, self.auth = get_system_auth(config_env="TEST")
-
-        # Init the engines
+        # Create clients
         self.clients = {
-            "zeep": Bfabric(self.config, self.auth, engine=BfabricAPIEngineType.ZEEP),
-            "suds": Bfabric(self.config, self.auth, engine=BfabricAPIEngineType.SUDS)
+            "zeep": Bfabric.from_config("TEST", engine=BfabricAPIEngineType.ZEEP),
+            "suds": Bfabric.from_config("TEST", engine=BfabricAPIEngineType.SUDS)
         }
 
     def _test_non_existing_read(self, engine_name: str):
