@@ -223,7 +223,7 @@ class Bfabric:
 
         # Get the first page.
         # NOTE: According to old interface, this is equivalent to plain=True
-        response = self._read_method(readid, endpoint, obj, page=1, **kwargs)
+        response, errors = self._read_page(readid, endpoint, obj, page=1, **kwargs)
 
         try:
             n_available_pages = response["numberofpages"]
@@ -250,13 +250,13 @@ class Bfabric:
 
         # NOTE: Page numbering starts at 1
         response_items = response[endpoint]
-        errors = []
         for i_page in requested_pages:
             if i_page == 0:
                 continue
             print("-- reading page", i_page, "of", n_available_pages)
-            response = self._read_method(readid, endpoint, obj, page=i_page, **kwargs)
-            errors += get_response_errors(response, endpoint)
+            response, errors_page = self._read_page(readid, endpoint, obj, page=i_page, **kwargs)
+            errors += errors_page
+            # TODO basically now the user might have obtained other than the desired results (or duplicates)
             response_items += response[endpoint]
 
         result = ResultContainer(response_items, self.result_type, total_pages_api=n_available_pages, errors=errors)
@@ -312,12 +312,18 @@ class Bfabric:
             check=check,
         )
 
-    def _read_method(self, readid: bool, endpoint: str, obj: dict, page: int = 1, **kwargs):
+    def _read_page(self, readid: bool, endpoint: str, query: dict[str, Any], page: int = 1, **kwargs):
+        """Reads the specified page of objects from the specified endpoint that match the query."""
+
+        #TODO handle 1-indexing!
+
         if readid:
             # https://fgcz-bfabric.uzh.ch/wiki/tiki-index.php?page=endpoint.workunit#Web_Method_readid_
-            return self.engine.readid(endpoint, obj, auth=self.auth, page=page, **kwargs)
+            response = self.engine.readid(endpoint, query, auth=self.auth, page=page, **kwargs)
         else:
-            return self.engine.read(endpoint, obj, auth=self.auth, page=page, **kwargs)
+            response = self.engine.read(endpoint, query, auth=self.auth, page=page, **kwargs)
+
+        return response, get_response_errors(response, endpoint)
 
     ############################
     # Multi-query functionality
