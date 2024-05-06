@@ -20,6 +20,7 @@ BFabric V2 Authors:
 History
     The python3 library first appeared in 2014.
 """
+from __future__ import annotations
 import base64
 import logging
 import os
@@ -58,7 +59,7 @@ def get_system_auth(
     config_env: str = None,
     optional_auth: bool = False,
     verbose: bool = False,
-):
+) -> tuple[BfabricConfig, BfabricAuth]:
     """
     :param login:           Login string for overriding config file
     :param password:        Password for overriding config file
@@ -84,7 +85,10 @@ def get_system_auth(
         # TODO: Convert to log
         print(f"Warning: could not find the config file in the default location: {config_path}")
         config = BfabricConfig(base_url=base_url)
-        auth = BfabricAuth(login=login, password=password)
+        if login is None and password is None:
+            auth = None
+        else:
+            auth = BfabricAuth(login=login, password=password)
 
     # Load config from file, override some of the fields with the provided ones
     else:
@@ -139,6 +143,18 @@ class Bfabric:
 
         if self.verbose:
             self.print_version_message()
+
+    @classmethod
+    def new(cls, config_env: str | None = None) -> Bfabric:
+        """Returns a new Bfabric instance, configured with the user configuration file.
+        If the `config_env` is specified then it will be used, if it is not specified the default environment will be
+        determined by checking the following in order (picking the first one that is found):
+        - The `BFABRICPY_CONFIG_ENV` environment variable
+        - The `default_config` field in the config file "GENERAL" section
+        - The only environment in the config file, if there is only one
+        """
+        config, auth = get_system_auth(config_env=config_env)
+        return cls(config, auth)
 
     @property
     def config(self) -> BfabricConfig:

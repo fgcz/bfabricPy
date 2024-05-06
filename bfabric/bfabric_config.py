@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+import dataclasses
 import logging
 import os
-from typing import Optional, Dict, Tuple, Union
-import dataclasses
-import yaml
 from pathlib import Path
+from typing import Optional
+
+import yaml
 
 
 @dataclasses.dataclass(frozen=True)
@@ -15,10 +16,10 @@ class BfabricAuth:
     login: str
     password: str
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"BfabricAuth(login={repr(self.login)}, password=...)"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return repr(self)
 
 
@@ -34,11 +35,11 @@ class BfabricConfig:
 
     def __init__(
         self,
-        base_url: Optional[str] = None,
-        application_ids: Optional[Dict[str, int]] = None,
-        job_notification_emails: Optional[str] = None,
+        base_url: str | None = None,
+        application_ids: dict[str, int] = None,
+        job_notification_emails: str | None = None,
         server_timezone: str = "Europe/Zurich",
-    ):
+    ) -> None:
         self._base_url = base_url or "https://fgcz-bfabric.uzh.ch/bfabric"
         self._application_ids = application_ids or {}
         self._job_notification_emails = job_notification_emails or ""
@@ -50,7 +51,7 @@ class BfabricConfig:
         return self._base_url
 
     @property
-    def application_ids(self) -> Dict[str, int]:
+    def application_ids(self) -> dict[str, int]:
         """Map of known application names to ids."""
         return self._application_ids
 
@@ -66,29 +67,26 @@ class BfabricConfig:
 
     def copy_with(
         self,
-        base_url: Optional[str] = None,
-        application_ids: Optional[Dict[str, int]] = None,
+        base_url: str | None = None,
+        application_ids: dict[str, int] | None = None,
     ) -> BfabricConfig:
         """Returns a copy of the configuration with new values applied, if they are not None."""
         return BfabricConfig(
             base_url=base_url if base_url is not None else self.base_url,
-            application_ids=(
-                application_ids if application_ids is not None else self.application_ids
-            ),
+            application_ids=(application_ids if application_ids is not None else self.application_ids),
             job_notification_emails=self.job_notification_emails,
             server_timezone=self.server_timezone,
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"BfabricConfig(base_url={repr(self.base_url)}, application_ids={repr(self.application_ids)}, "
-            f"job_notification_emails={repr(self.job_notification_emails)}, server_timezone={repr(self.server_timezone)})"
+            f"job_notification_emails={repr(self.job_notification_emails)}, "
+            f"server_timezone={repr(self.server_timezone)})"
         )
 
 
-def _read_config_env_as_dict(
-    config_path: Union[str, Path], config_env: str = None
-) -> Tuple[str, dict]:
+def _read_config_env_as_dict(config_path: Path, config_env: str | None = None) -> tuple[str, dict]:
     """
     Reads and partially parses a bfabricpy.yml file
     :param config_path:  Path to the configuration file. It is assumed that it exists
@@ -99,16 +97,16 @@ def _read_config_env_as_dict(
     logger = logging.getLogger(__name__)
     logger.info(f"Reading configuration from: {config_path}")
 
-    if os.path.splitext(config_path)[1] != ".yml":
-        raise IOError(f"Expected config file with .yml extension, got {config_path}")
+    if config_path.suffix != ".yml":
+        raise OSError(f"Expected config file with .yml extension, got {config_path}")
 
     # Read the config file
-    config_dict = yaml.safe_load(Path(config_path).read_text())
+    config_dict = yaml.safe_load(config_path.read_text())
 
     if "GENERAL" not in config_dict:
-        raise IOError("Config file must have a general section")
+        raise OSError("Config file must have a general section")
     if "default_config" not in config_dict["GENERAL"]:
-        raise IOError("Config file must provide a default environment")
+        raise OSError("Config file must provide a default environment")
     config_env_default = config_dict["GENERAL"]["default_config"]
 
     # Determine which environment we will use
@@ -117,9 +115,7 @@ def _read_config_env_as_dict(
         # Try to find a relevant
         config_env = os.getenv("BFABRICPY_CONFIG_ENV")
         if config_env is None:
-            logger.info(
-                f"BFABRICPY_CONFIG_ENV not found, using default environment {config_env_default}"
-            )
+            logger.info(f"BFABRICPY_CONFIG_ENV not found, using default environment {config_env_default}")
             config_env = config_env_default
         else:
             logger.info(f"found BFABRICPY_CONFIG_ENV = {config_env}")
@@ -127,21 +123,17 @@ def _read_config_env_as_dict(
         logger.info(f"config environment specified explicitly as {config_env}")
 
     if config_env not in config_dict:
-        raise IOError(
-            f"The requested config environment {config_env} is not present in the config file"
-        )
+        raise OSError(f"The requested config environment {config_env} is not present in the config file")
 
     return config_env, config_dict[config_env]
 
 
-def _have_all_keys(d: dict, l: list) -> bool:
-    """True if all elements in list l are present as keys in dict d, otherwise false"""
-    return all([k in d for k in l])
+def _have_all_keys(dict_: dict, expected_keys: list) -> bool:
+    """Returns True if all elements in list l are present as keys in dict d, otherwise false"""
+    return all(k in dict_ for k in expected_keys)
 
 
-def _parse_dict(
-    d: dict, mandatory_keys: list, optional_keys: list = None, error_prefix: str = " "
-) -> dict:
+def _parse_dict(d: dict, mandatory_keys: list, optional_keys: list = None, error_prefix: str = " ") -> dict:
     """
     Returns a copy of an existing dictionary, only keeping mandatory and optional keys
     If a mandatory key is not found, an exception is raised
@@ -162,8 +154,8 @@ def _parse_dict(
 
 
 def read_config(
-    config_path: Union[str, Path], config_env: str = None, optional_auth: bool = False
-) -> Tuple[BfabricConfig, Optional[BfabricAuth]]:
+    config_path: str | Path, config_env: str = None, optional_auth: bool = False
+) -> tuple[BfabricConfig, Optional[BfabricAuth]]:
     """
     Reads bfabricpy.yml file, parses it, extracting authentication and configuration data
     :param config_path:   Path to the configuration file. It is assumed the file exists
@@ -184,22 +176,16 @@ def read_config(
         - If not, finally, the parser will select the default_config specified in [GENERAL] of the .bfabricpy.yml file
     """
 
-    config_env_final, config_dict = _read_config_env_as_dict(
-        config_path, config_env=config_env
-    )
+    config_env_final, config_dict = _read_config_env_as_dict(Path(config_path), config_env=config_env)
 
-    error_prefix = (
-        f"Config environment {config_env_final} does not have a compulsory field: "
-    )
+    error_prefix = f"Config environment {config_env_final} does not have a compulsory field: "
 
     # Parse authentification
     if optional_auth and not _have_all_keys(config_dict, ["login", "password"]):
         # Allow returning None auth if enabled
         auth = None
     else:
-        auth_dict = _parse_dict(
-            config_dict, ["login", "password"], error_prefix=error_prefix
-        )
+        auth_dict = _parse_dict(config_dict, ["login", "password"], error_prefix=error_prefix)
         auth = BfabricAuth(**auth_dict)
 
     # Parse config

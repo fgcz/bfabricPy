@@ -7,6 +7,7 @@ from bfabric import BfabricConfig
 from bfabric.bfabric2 import BfabricAPIEngineType, Bfabric
 from bfabric.src.engine_suds import EngineSUDS
 
+
 class TestBfabric(unittest.TestCase):
     def setUp(self):
         self.mock_config = MagicMock(name="mock_config", spec=BfabricConfig)
