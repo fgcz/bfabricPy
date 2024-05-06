@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import math
+
 # Single page query limit for BFabric API (as of time of writing, adapt if it changes)
 BFABRIC_QUERY_LIMIT = 100
 
@@ -28,11 +30,14 @@ def compute_requested_pages(
     :param n_item_return_max: Maximum number of items to return
     :return: List of page indices that need to be requested
     """
+    # B-Fabric API uses 1-based indexing for pages
+    index_start = 1
+
     # Determine the page indices to request
     # If n_item_return_max is not provided, we will return all items
     if n_item_return_max is None:
         n_item_return_max = n_page_total * n_item_per_page
 
     # Determine the page indices to request
-    idx_max_return = (n_item_return_max + n_item_offset + 1) // n_item_per_page
-    return list(range(n_item_offset // n_item_per_page, min(n_page_total, idx_max_return)))
+    idx_max_return = math.ceil((n_item_return_max + n_item_offset) / n_item_per_page)
+    return [idx + index_start for idx in range(n_item_offset // n_item_per_page, min(n_page_total, idx_max_return))]

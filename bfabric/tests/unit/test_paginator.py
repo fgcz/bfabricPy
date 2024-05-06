@@ -17,31 +17,31 @@ class BfabricTestBasicPagination(unittest.TestCase):
         pages = paginator.compute_requested_pages(
             n_page_total=5, n_item_per_page=3, n_item_offset=0, n_item_return_max=None
         )
-        self.assertListEqual([0, 1, 2, 3, 4], pages)
+        self.assertListEqual([1, 2, 3, 4, 5], pages)
 
     def test_compute_requested_pages_when_offset_2(self):
         pages = paginator.compute_requested_pages(
             n_page_total=5, n_item_per_page=3, n_item_offset=2, n_item_return_max=None
         )
-        self.assertListEqual([0, 1, 2, 3, 4], pages)
+        self.assertListEqual([1, 2, 3, 4, 5], pages)
 
     def test_compute_requested_pages_when_offset_3(self):
         pages = paginator.compute_requested_pages(
             n_page_total=5, n_item_per_page=3, n_item_offset=3, n_item_return_max=None
         )
-        self.assertListEqual([1, 2, 3, 4], pages)
+        self.assertListEqual([2, 3, 4, 5], pages)
 
     def test_compute_requested_pages_when_offset_4(self):
         pages = paginator.compute_requested_pages(
             n_page_total=5, n_item_per_page=3, n_item_offset=4, n_item_return_max=None
         )
-        self.assertListEqual([1, 2, 3, 4], pages)
+        self.assertListEqual([2, 3, 4, 5], pages)
 
     def test_compute_requested_pages_when_offset_6(self):
         pages = paginator.compute_requested_pages(
             n_page_total=5, n_item_per_page=3, n_item_offset=6, n_item_return_max=None
         )
-        self.assertListEqual([2, 3, 4], pages)
+        self.assertListEqual([3, 4, 5], pages)
 
     def test_compute_requested_pages_when_offset_out_of_bounds(self):
         # TODO maybe it should yield an error?
@@ -54,19 +54,19 @@ class BfabricTestBasicPagination(unittest.TestCase):
         pages = paginator.compute_requested_pages(
             n_page_total=5, n_item_per_page=3, n_item_offset=0, n_item_return_max=10
         )
-        self.assertListEqual([0, 1, 2], pages)
+        self.assertListEqual([1, 2, 3, 4], pages)
 
     def test_compute_requested_pages_when_max_9(self):
         pages = paginator.compute_requested_pages(
+            n_page_total=5, n_item_per_page=3, n_item_offset=0, n_item_return_max=9
+        )
+        self.assertListEqual([1, 2, 3], pages)
+
+    def test_compute_requested_pages_when_max_6(self):
+        pages = paginator.compute_requested_pages(
             n_page_total=5, n_item_per_page=3, n_item_offset=0, n_item_return_max=6
         )
-        self.assertListEqual([0, 1, 2], pages)
-
-    def test_compute_requested_pages_when_max_5(self):
-        pages = paginator.compute_requested_pages(
-            n_page_total=5, n_item_per_page=3, n_item_offset=0, n_item_return_max=5
-        )
-        self.assertListEqual([0, 1], pages)
+        self.assertListEqual([1, 2], pages)
 
 
 if __name__ == "__main__":
