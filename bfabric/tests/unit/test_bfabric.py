@@ -1,7 +1,9 @@
 import datetime
+import logging
 import unittest
 from functools import cached_property
 from unittest.mock import MagicMock, patch, ANY
+from zoneinfo import ZoneInfo
 
 from bfabric import BfabricConfig
 from bfabric.bfabric2 import BfabricAPIEngineType, Bfabric
@@ -89,6 +91,43 @@ class TestBfabric(unittest.TestCase):
         except ValueError:
             pass
         self.assertEqual(mock_old_auth, self.mock_bfabric.auth)
+
+    @patch("bfabric.bfabric2.datetime")
+    def test_add_query_timestamp_when_not_present(self, module_datetime):
+        module_datetime.now.return_value = datetime.datetime(2020, 1, 2, 3, 4, 5)
+        query = self.mock_bfabric._add_query_timestamp( {"a": "b", "c": 1})
+        self.assertDictEqual(
+            {"a": "b", "c": 1, 'createdbefore': '2020-01-02T03:04:05'},
+            query,
+        )
+        module_datetime.now.assert_called_once_with(ZoneInfo('Pacific/Kiritimati'))
+
+    @patch("bfabric.bfabric2.datetime")
+    def test_add_query_timestamp_when_set_and_past(self, module_datetime):
+        module_datetime.now.return_value = datetime.datetime(2020, 1, 2, 3, 4, 5)
+        module_datetime.fromisoformat = datetime.datetime.fromisoformat
+        query_before = {"a": "b", "createdbefore": "2019-12-31T23:59:59"}
+        with self.assertNoLogs():
+            query = self.mock_bfabric._add_query_timestamp(query_before)
+        self.assertDictEqual(
+            {"a": "b", "createdbefore": "2019-12-31T23:59:59"},
+            query,
+        )
+        module_datetime.now.assert_called_once_with(ZoneInfo('Pacific/Kiritimati'))
+
+    @patch("bfabric.bfabric2.datetime")
+    def test_add_query_timestamp_when_set_and_future(self, module_datetime):
+        module_datetime.now.return_value = datetime.datetime(2020, 1, 2, 3, 4, 5)
+        module_datetime.fromisoformat = datetime.datetime.fromisoformat
+        query_before = {"a": "b", "createdbefore": "2020-01-02T03:04:06"}
+        with self.assertLogs(level=logging.WARNING) as logs:
+            query = self.mock_bfabric._add_query_timestamp(query_before)
+        self.assertDictEqual(
+            {"a": "b", "createdbefore": "2020-01-02T03:04:06"},
+            query,
+        )
+        self.assertEqual(1, len(logs.output))
+        self.assertIn("Query timestamp is in the future: 2020-01-02 03:04:06", logs.output[0])
 
     @patch.object(Bfabric, "save")
     def test_upload_resource(self, method_save):

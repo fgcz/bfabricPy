@@ -274,10 +274,12 @@ class Bfabric:
             query_time = datetime.fromisoformat(query["createdbefore"])
             if query_time > server_time:
                 logging.warning(
-                    "Warning: Query timestamp is in the future. This will not be robust to insertion of new items."
+                    f"Warning: Query timestamp is in the future: {query_time}. "
+                    "This will not be robust to insertion of new items."
                 )
+            return query
         else:
-            return {**query, "createdbefore": server_time.strftime("%Y-%m-%dT%H:%M:%S.%f")}
+            return {**query, "createdbefore": server_time.strftime("%Y-%m-%dT%H:%M:%S")}
 
     def _determine_relevant_pages_and_indices(self, n_available_pages: int, max_results: int | None, offset: int):
         if n_available_pages == 0:
