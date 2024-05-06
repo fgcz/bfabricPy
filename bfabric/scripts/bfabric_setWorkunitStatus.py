@@ -23,7 +23,7 @@ def main_generic(result_status: str) -> None:
     args = parser.parse_args()
     client = Bfabric(*get_system_auth(), verbose=True)
     res = client.save("workunit", {"id": args.workunit_id, "status": "available"})
-    print(json.dump(res.to_list_dict()))
+    print(json.dumps(res.to_list_dict(), indent=2))
 
 
 def main_available() -> None:

@@ -46,7 +46,7 @@ def drop_empty_elements(response: Union[list, dict], inplace: bool = True) -> Op
     return response_filtered
 
 
-def _recursive_map_keys(response_elem: list | dict, keymap: dict) -> None:
+def _recursive_map_keys(response_elem: Union[list, dict], keymap: dict) -> None:
     """
     Iterates over all nested lists, dictionaries and basic values. Whenever a dictionary key is found for which
        the mapping is requested, that the key is renamed to the corresponding mapped one
@@ -84,7 +84,7 @@ def map_element_keys(response: Union[list, dict], keymap: dict, inplace: bool = 
     return response_filtered
 
 
-def _recursive_sort_dicts_by_key(response_elem: list | dict) -> None:
+def _recursive_sort_dicts_by_key(response_elem: Union[list, dict]) -> None:
     """
     Iterates over all nested lists, dictionaries and basic values. Whenever a nested dictionary is found, it is sorted
     by key by converting into OrderedDict and back

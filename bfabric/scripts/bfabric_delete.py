@@ -27,7 +27,7 @@ def bfabric_delete(endpoint: str, id: int) -> None:
     """Deletes the object with id `id` from the `endpoint`."""
     client = Bfabric(*get_system_auth(), verbose=True)
     res = client.delete(endpoint=endpoint, id=id).to_list_dict()
-    print(json.dumps(res), indent=2)
+    print(json.dumps(res, indent=2))
 
 
 def main() -> None:

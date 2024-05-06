@@ -518,8 +518,7 @@ if __name__ == "__main__":
         sys.exit(1)
     try:
         with open(options.yaml_filename, 'r') as f:
-            content = f.read()
-        job_config = yaml.load(content)
+            job_config = yaml.safe_load(f)
 
         if options.xml_template_filename is None:
             try:
@@ -631,7 +630,7 @@ job_configuration:
 
         """
 
-        job_config = yaml.load(input_WU181492_yaml)
+        job_config = yaml.safe_load(input_WU181492_yaml)
         mqpartree = etree.parse(StringIO(mqpar_templ_xml))
 
         MQC = FgczMaxQuantConfig(config=job_config)

@@ -1,4 +1,5 @@
 name: "Setup bfabricPy"
+description: "Set up bfabricPy for use in GitHub Actions"
 inputs:
   python-version:
     description: "Python version to use"
