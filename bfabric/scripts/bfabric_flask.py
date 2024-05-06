@@ -78,7 +78,6 @@ client = bfabric2.Bfabric.from_config("TEST", auth=None, verbose=True)
 
 def get_request_auth(request_data: dict[str, Any]) -> BfabricAuth | None:
     try:
-        # TODO when coming from R these were in a list of size 0? why? (maybe adapt)
         webservicepassword = request_data["webservicepassword"].replace("\t", "")
         login = request_data["login"]
         return BfabricAuth(login=login, password=webservicepassword)
@@ -130,65 +129,6 @@ def read() -> Response:
         return jsonify({"status": "jsonify failed"})
 
 
-"""
-generic query interface for read interface
-
-example (assumes the proxy runs on localhost):
-
-R>     rv <- POST('http://localhost:5000/query', 
-               body = toJSON(list(login = login, 
-                                  webservicepassword = webservicepassword,
-                                  query = 'resource',
-                                  containerid = 3000,
-                                  applicationid = 205)), 
-               encode = 'json')
-    
-R>    rv <- content(rv)
-
-TODO(cp@fgcz.ethz.ch): also provide an argument for the webbase
-"""
-
-
-#@app.route("/q", methods=["GET", "POST"])
-#def q():
-#    try:
-#        content = json.loads(request.data)
-#    except json.JSONDecodeError:
-#        return jsonify({"error": "could not get POST content."})
-#
-#    try:
-#        # TODO(cp): check if meaningful page
-#        page = content["page"][0]
-#    except Exception:
-#        logger.info("set page to 1.")
-#        page = 1
-#
-#    # TODO(cp): more finetuning on paging
-#    try:
-#        webservicepassword = content["webservicepassword"][0].replace("\t", "")
-#        login = content["login"][0]
-#        # logger.info("debug {}".format(webservicepassword))
-#
-#        auth = BfabricAuth(login=login, password=webservicepassword)
-#        with client.with_auth(auth):
-#            res = client.read(
-#                endpoint=content["endpoint"][0],
-#                obj=content["query"],
-#                # TODO this needs to be handled somehow and it's not fully clear yet how
-#                # page=page
-#            )
-#        logger.info("'{}' login success query {} ...".format(login, content["query"]))
-#    except Exception:
-#        logger.exception("'{}' login failed ...".format(login))
-#        return jsonify({"status": "jsonify failed: bfabric python module."})
-#
-#    try:
-#        return jsonify({"res": res.to_list_dict()})
-#    except Exception:
-#        logger.info("'{}' query failed ...".format(login))
-#        return jsonify({"status": "jsonify failed"})
-
-
 @app.route("/save", methods=["POST"])
 def save():
     try:
@@ -220,38 +160,6 @@ def save():
         return jsonify({"status": "jsonify failed"})
 
 
-# def dfs__(extract_id):
-#    stack = list()
-#    visited = dict()
-#    stack.append(extract_id)
-#
-#    extract_dict = dict()
-#
-#    while len(stack) > 0:
-#        o = stack.pop()
-#        visited[u] = True
-#
-#        extract = bfapp.read_object(endpoint="extract", obj={"id": u})
-#        extract_dict[u] = extract[0]
-#
-#        try:
-#            for child_extract in extract[0].childextract:
-#                if child_extract._id not in visited:
-#
-#                    stack.append(child_extract._id)
-#
-#        except:
-#            pass
-#
-#    return extract_dict
-
-
-# def wsdl_sample(containerid):
-#    try:
-#        return map(lambda x: {'id': x._id, 'name': x.name},
-#            bfapp.read_object(endpoint='sample', obj={'containerid': containerid}))
-#    except:
-#        pass
 
 
 def compose_ms_queue_dataset(jsoncontent, workunitid, containerid):
