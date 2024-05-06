@@ -42,7 +42,6 @@ from os.path import exists
 from typing import Any, Dict, Optional
 
 from flask import Flask, jsonify, request
-from flask.json import JSONEncoder
 
 import bfabric
 from bfabric import bfabric2
@@ -79,20 +78,20 @@ def setup_logger_debug(name=DEFAULT_LOGGER_NAME):
 logger = logging.getLogger(DEFAULT_LOGGER_NAME)
 
 
-class BfabricJSONEncoder(JSONEncoder):
-    """
-    enables to serialize (jsonify) bfabric wsdl objects
-    """
-
-    def default(self, obj):
-        try:
-            iterable = iter(obj)
-        except TypeError:
-            pass
-        else:
-            return dict(iterable)
-
-        return JSONEncoder.default(self, obj)
+#class BfabricJSONEncoder(JSONEncoder):
+#    """
+#    enables to serialize (jsonify) bfabric wsdl objects
+#    """
+#
+#    def default(self, obj):
+#        try:
+#            iterable = iter(obj)
+#        except TypeError:
+#            pass
+#        else:
+#            return dict(iterable)
+#
+#        return JSONEncoder.default(self, obj)
 
 
 address = ("fgcz-ms.uzh.ch", 514)
@@ -104,8 +103,7 @@ syslog_handler.setFormatter(formatter)
 
 
 app = Flask(__name__)
-
-app.json_encoder = BfabricJSONEncoder
+#app.json_encoder = BfabricJSONEncoder
 # bfapp = bfabric.Bfabric()
 
 client = bfabric2.Bfabric.from_config(auth=None)
