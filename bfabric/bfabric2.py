@@ -250,7 +250,7 @@ class Bfabric:
         # NOTE: Page numbering starts at 1
         response_items = response[endpoint]
         for i_page in requested_pages:
-            if i_page == 0:
+            if i_page == 1:
                 continue
             print("-- reading page", i_page, "of", n_available_pages)
             response, errors_page = self._read_page(readid, endpoint, obj, page=i_page)
