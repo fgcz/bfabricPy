@@ -21,6 +21,7 @@ History
     The python3 library first appeared in 2014.
 """
 import base64
+import logging
 import os
 import sys
 from contextlib import contextmanager
@@ -28,7 +29,8 @@ from copy import deepcopy
 from datetime import datetime
 from enum import Enum
 from pprint import pprint
-from typing import Union, List, Optional
+from typing import Union, List, Optional, Any, Dict, Literal
+from zoneinfo import ZoneInfo
 
 from rich.console import Console
 
@@ -48,8 +50,15 @@ class BfabricAPIEngineType(Enum):
     ZEEP = 2
 
 
-def get_system_auth(login: str = None, password: str = None, base_url: str = None,
-                    config_path: str = None, config_env: str = None, optional_auth: bool = False, verbose: bool = False):
+def get_system_auth(
+    login: str = None,
+    password: str = None,
+    base_url: str = None,
+    config_path: str = None,
+    config_env: str = None,
+    optional_auth: bool = False,
+    verbose: bool = False,
+):
     """
     :param login:           Login string for overriding config file
     :param password:        Password for overriding config file
@@ -111,12 +120,13 @@ class Bfabric:
         config: BfabricConfig,
         auth: Optional[BfabricAuth],
         engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS,
-        verbose: bool = False
+        verbose: bool = False,
     ):
         self.verbose = verbose
         self.query_counter = 0
         self._config = config
         self._auth = auth
+        self._zone_info = ZoneInfo(config.server_timezone)
 
         if engine == BfabricAPIEngineType.SUDS:
             self.engine = EngineSUDS(base_url=config.base_url)
@@ -157,8 +167,16 @@ class Bfabric:
         finally:
             self._auth = old_auth
 
-    def read(self, endpoint: str, obj: dict, max_results: Optional[int] = 100, offset: int = 0, readid: bool = False, check: bool = True,
-             **kwargs) -> ResultContainer:
+    def read(
+        self,
+        endpoint: str,
+        obj: Dict[str, Any],
+        max_results: Optional[int] = 100,
+        offset: int = 0,
+        readid: bool = False,
+        check: bool = True,
+        **kwargs,
+    ) -> ResultContainer:
         """Reads objects from the specified endpoint that match all specified attributes in `obj`.
         By setting `max_results` it is possible to change the number of results that are returned.
         :param endpoint: endpoint
@@ -175,6 +193,9 @@ class Bfabric:
         :return: List of responses, packaged in the results container
         """
 
+        # Ensure stability
+        obj = self._add_query_timestamp(obj)
+
         # Get the first page.
         # NOTE: According to old interface, this is equivalent to plain=True
         response = self._read_method(readid, endpoint, obj, page=1, **kwargs)
@@ -186,7 +207,9 @@ class Bfabric:
 
         # Return empty list if nothing found
         if not n_available_pages:
-            result = ResultContainer([], self.result_type, total_pages_api=0, errors=get_response_errors(response, endpoint))
+            result = ResultContainer(
+                [], self.result_type, total_pages_api=0, errors=get_response_errors(response, endpoint)
+            )
             if check:
                 result.assert_success()
             return result
@@ -202,7 +225,7 @@ class Bfabric:
         response_items = response[endpoint]
         errors = []
         for i_page in range(2, n_pages_trg + 1):
-            print('-- reading page', i_page, 'of', n_available_pages)
+            print("-- reading page", i_page, "of", n_available_pages)
             response = self._read_method(readid, endpoint, obj, page=i_page, **kwargs)
             errors += get_response_errors(response, endpoint)
             response_items += response[endpoint]
@@ -212,6 +235,23 @@ class Bfabric:
             result.assert_success()
         return result
 
+    def _add_query_timestamp(self, query: Dict[str, Any]) -> Dict[str, Any]:
+        """Adds the current time as a createdbefore timestamp to the query, if there is no time in the query already.
+        This ensures pagination will be robust to insertion of new items during the query.
+        If a time is already present, it will be left as is, but a warning will be printed if it is in the future as
+        the query will not be robust to insertion of new items.
+        """
+        server_time = datetime.now(self._zone_info)
+        if "createdbefore" in query:
+            query_time = datetime.fromisoformat(query["createdbefore"])
+            if query_time > server_time:
+                logging.warning(
+                    "Warning: Query timestamp is in the future. This will not be robust to insertion of new items."
+                )
+        else:
+            return {**query, "createdbefore": server_time.strftime("%Y-%m-%dT%H:%M:%S.%f")}
+
+
     def _determine_relevant_pages_and_indices(self, n_available_pages: int, max_results: Optional[int], offset: int):
         if n_available_pages == 0:
             return {"pages": [], "indices": []}
@@ -220,9 +260,6 @@ class Bfabric:
         if max_results is None:
             # TODO this could contain more than the actually available items, so computing indices might be tricky
             max_results = n_available_pages * page_size
-
-
-
 
     def save(self, endpoint: str, obj: dict, check: bool = True, **kwargs) -> ResultContainer:
         results = self.engine.save(endpoint, obj, auth=self.auth, **kwargs)
@@ -238,15 +275,19 @@ class Bfabric:
             result.assert_success()
         return result
 
-    def upload_resource(self, resource_name: str, content: bytes, workunit_id: int, check: bool = True) -> ResultContainer:
+    def upload_resource(
+        self, resource_name: str, content: bytes, workunit_id: int, check: bool = True
+    ) -> ResultContainer:
         content_encoded = base64.b64encode(content).decode()
         return self.save(
-            endpoint='resource',
-            obj={'base64': content_encoded,
-                 'name': resource_name,
-                 'description': "base64 encoded file",
-                 'workunitid': workunit_id},
-            check=check
+            endpoint="resource",
+            obj={
+                "base64": content_encoded,
+                "name": resource_name,
+                "description": "base64 encoded file",
+                "workunitid": workunit_id,
+            },
+            check=check,
         )
 
     def _read_method(self, readid: bool, endpoint: str, obj: dict, page: int = 1, **kwargs):
@@ -261,8 +302,9 @@ class Bfabric:
     ############################
 
     # TODO: Is this scope sufficient? Is there ever more than one multi-query parameter, and/or not at the root of dict?
-    def read_multi(self, endpoint: str, obj: dict, multi_query_key: str, multi_query_vals: list,
-                   readid: bool = False, **kwargs) -> ResultContainer:
+    def read_multi(
+        self, endpoint: str, obj: dict, multi_query_key: str, multi_query_vals: list, readid: bool = False, **kwargs
+    ) -> ResultContainer:
         """
         Makes a 1-parameter multi-query (there is 1 parameter that takes a list of values)
         Since the API only allows BFABRIC_QUERY_LIMIT queries per page, split the list into chunks before querying
@@ -277,7 +319,7 @@ class Bfabric:
         NOTE: It is assumed that there is only 1 response for each value.
         """
 
-        response_tot = ResultContainer([], self.result_type, total_pages_api = 0)
+        response_tot = ResultContainer([], self.result_type, total_pages_api=0)
         obj_extended = deepcopy(obj)  # Make a copy of the query, not to make edits to the argument
 
         # Iterate over request chunks that fit into a single API page
@@ -313,7 +355,7 @@ class Bfabric:
         response_tot = ResultContainer([], self.result_type, total_pages_api=0)
 
         if len(id_list) == 0:
-            print('Warning, empty list provided for deletion, ignoring')
+            print("Warning, empty list provided for deletion, ignoring")
             return response_tot
 
         # Iterate over request chunks that fit into a single API page
@@ -346,8 +388,8 @@ class Bfabric:
         for r in results.results:
             if key in r:
                 result_vals += [r[key]]
-            elif '_' + key in r:   # TODO: Remove this if SUDS bug is ever resolved
-                result_vals += [r['_' + key]]
+            elif "_" + key in r:  # TODO: Remove this if SUDS bug is ever resolved
+                result_vals += [r["_" + key]]
 
         # 3. For each of the requested ids, return true if there was a response and false if there was not
         if is_scalar:
@@ -372,4 +414,3 @@ class Bfabric:
         """
         console = Console(stderr=stderr, highlighter=HostnameHighlighter(), theme=DEFAULT_THEME)
         console.print(self.get_version_message(), style="bright_yellow")
-
