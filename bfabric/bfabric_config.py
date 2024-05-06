@@ -164,15 +164,12 @@ def _parse_dict(d: dict, mandatory_keys: list, optional_keys: list = None, error
 
 
 def read_config(
-    config_path: str | Path, config_env: str = None, optional_auth: bool = False
+    config_path: str | Path, config_env: str = None,
 ) -> tuple[BfabricConfig, BfabricAuth | None]:
     """
     Reads bfabricpy.yml file, parses it, extracting authentication and configuration data
     :param config_path:   Path to the configuration file. It is assumed the file exists
     :param config_env:    Configuration environment to use. If not given, it is deduced.
-    :param optional_auth: Whether authentication is optional.
-        If not, both login and password must be present in the config file, otherwise an exception is thrown
-        If yes, missing login and password would result in authentication class being None, but no exception
     :return: Configuration and Authentication class instances
 
     NOTE: BFabricPy expects a .bfabricpy.yml of the format, as seen in bfabricPy/tests/unit/example_config.yml
@@ -191,8 +188,7 @@ def read_config(
     error_prefix = f"Config environment {config_env_final} does not have a compulsory field: "
 
     # Parse authentication
-    if optional_auth and not _have_all_keys(config_dict, ["login", "password"]):
-        # Allow returning None auth if enabled
+    if not _have_all_keys(config_dict, ["login", "password"]):
         auth = None
     else:
         auth_dict = _parse_dict(config_dict, ["login", "password"], error_prefix=error_prefix)

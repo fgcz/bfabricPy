@@ -22,13 +22,15 @@ def compute_requested_pages(
     n_item_per_page: int,
     n_item_offset: int,
     n_item_return_max: int | None,
-) -> list[int]:
+) -> tuple[list[int], int]:
     """Computes the page indices that need to be requested to get all requested items.
     :param n_page_total: Total number of pages available
     :param n_item_per_page: Number of items per page
     :param n_item_offset: Number of items to skip from the beginning
     :param n_item_return_max: Maximum number of items to return
-    :return: List of page indices that need to be requested
+    :return:
+        - list of page indices that need to be requested
+        - initial page offset (0-based), i.e. the i-th item from which onwards to retain results
     """
     # B-Fabric API uses 1-based indexing for pages
     index_start = 1
@@ -40,4 +42,9 @@ def compute_requested_pages(
 
     # Determine the page indices to request
     idx_max_return = math.ceil((n_item_return_max + n_item_offset) / n_item_per_page)
-    return [idx + index_start for idx in range(n_item_offset // n_item_per_page, min(n_page_total, idx_max_return))]
+    idx_arr = [idx + index_start for idx in range(n_item_offset // n_item_per_page, min(n_page_total, idx_max_return))]
+
+    # Determine the initial offset on the first page
+    initial_offset = min(n_item_offset, n_item_return_max) % n_item_per_page
+
+    return idx_arr, initial_offset

@@ -56,7 +56,7 @@ def get_system_auth(
     base_url: str = None,
     config_path: str = None,
     config_env: str = None,
-    optional_auth: bool = False,
+    optional_auth: bool = True,
     verbose: bool = False,
 ) -> tuple[BfabricConfig, BfabricAuth]:
     """
@@ -91,7 +91,7 @@ def get_system_auth(
 
     # Load config from file, override some of the fields with the provided ones
     else:
-        config, auth = read_config(config_path, config_env=config_env, optional_auth=optional_auth)
+        config, auth = read_config(config_path, config_env=config_env)
         config = config.copy_with(base_url=base_url)
         if (login is not None) and (password is not None):
             auth = BfabricAuth(login=login, password=password)
@@ -239,7 +239,7 @@ class Bfabric:
             return result
 
         # Get results from other pages as well, if need be
-        requested_pages = compute_requested_pages(
+        requested_pages, initial_offset = compute_requested_pages(
             n_page_total=n_available_pages,
             n_item_per_page=BFABRIC_QUERY_LIMIT,
             n_item_offset=offset,
@@ -248,15 +248,16 @@ class Bfabric:
         logging.info(f"Requested pages: {requested_pages}")
 
         # NOTE: Page numbering starts at 1
-        response_items = response[endpoint]
-        for i_page in requested_pages:
-            if i_page == 1:
-                continue
-            print("-- reading page", i_page, "of", n_available_pages)
-            response, errors_page = self._read_page(readid, endpoint, obj, page=i_page)
-            errors += errors_page
-            # TODO basically now the user might have obtained other than the desired results (or duplicates)
-            response_items += response[endpoint]
+        response_items = []
+        page_offset = initial_offset
+        for i_iter, i_page in enumerate(requested_pages):
+            if not (i_iter == 0 and i_page == 1):
+                print("-- reading page", i_page, "of", n_available_pages)
+                response, errors_page = self._read_page(readid, endpoint, obj, page=i_page)
+                errors += errors_page
+
+            response_items += response[endpoint][page_offset:]
+            page_offset = 0
 
         result = ResultContainer(response_items, self.result_type, total_pages_api=n_available_pages, errors=errors)
         if check:
