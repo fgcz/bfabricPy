@@ -125,7 +125,7 @@ class Bfabric:
         auth: Optional[BfabricAuth],
         engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS,
         verbose: bool = False,
-    ):
+    ) -> None:
         self.verbose = verbose
         self.query_counter = 0
         self._config = config
@@ -267,6 +267,7 @@ class Bfabric:
         This ensures pagination will be robust to insertion of new items during the query.
         If a time is already present, it will be left as is, but a warning will be printed if it is in the future as
         the query will not be robust to insertion of new items.
+        Note that this does not ensure robustness against deletion of items.
         """
         server_time = datetime.now(self._zone_info)
         if "createdbefore" in query:
