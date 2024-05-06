@@ -17,10 +17,8 @@ from bfabric.bfabric2 import Bfabric, get_system_auth
 ROOTDIR = "/srv/www/htdocs/"
 
 
-def list_not_existing_storage_dirs(client, technologyid: int=2):
-    results = client.read(
-        endpoint="container", obj={"technologyid": technologyid}
-    ).to_list_dict()
+def list_not_existing_storage_dirs(client, technologyid: int = 2):
+    results = client.read(endpoint="container", obj={"technologyid": technologyid}).to_list_dict()
     container_ids = sorted({x["id"] for x in results})
 
     for cid in container_ids:
@@ -29,7 +27,7 @@ def list_not_existing_storage_dirs(client, technologyid: int=2):
 
 
 def main():
-    client = Bfabric(*get_system_auth(), verbose=True)
+    client = Bfabric.from_config(verbose=True)
     list_not_existing_storage_dirs(client=client, technologyid=2)
     list_not_existing_storage_dirs(client=client, technologyid=4)
 

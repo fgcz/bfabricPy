@@ -23,7 +23,7 @@ from bfabric.bfabric2 import Bfabric, get_system_auth
 
 def bfabric_read_samples_of_workunit(workunit_id: int) -> None:
     """Reads the samples of the specified workunit and prints the results to stdout."""
-    client = Bfabric(*get_system_auth(), verbose=True)
+    client = Bfabric.from_config(verbose=True)
 
     start_time = time.time()
     res_workunit = client.read(endpoint="workunit", obj={"id": workunit_id}).to_list_dict()[0]

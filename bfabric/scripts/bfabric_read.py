@@ -22,7 +22,7 @@ from rich.console import Console
 from rich.table import Table
 
 import bfabric
-from bfabric.bfabric2 import Bfabric, get_system_auth
+from bfabric.bfabric2 import Bfabric
 
 
 def bfabric_read(endpoint: str, attribute: Optional[str], value: Optional[str], output_format: str) -> None:

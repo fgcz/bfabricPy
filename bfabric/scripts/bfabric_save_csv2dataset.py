@@ -84,7 +84,7 @@ def bfabric_save_csv2dataset(
     csv_file: Path, dataset_name: str, container_id: int, workunit_id: int | None = None
 ) -> None:
     """Creates a dataset in B-Fabric from a csv file."""
-    client = Bfabric(*get_system_auth(), verbose=True)
+    client = Bfabric.from_config(verbose=True)
     obj = csv2json(csv_file)
     obj["name"] = dataset_name
     obj["containerid"] = container_id

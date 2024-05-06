@@ -21,7 +21,7 @@ def main_generic(result_status: str) -> None:
     parser = argparse.ArgumentParser(description=f"Sets workunit status to '{result_status}'")
     parser.add_argument("workunit_id", type=int, help="workunit id")
     args = parser.parse_args()
-    client = Bfabric(*get_system_auth(), verbose=True)
+    client = Bfabric.from_config(verbose=True)
     res = client.save("workunit", {"id": args.workunit_id, "status": "available"})
     print(json.dumps(res.to_list_dict(), indent=2))
 

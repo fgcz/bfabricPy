@@ -18,7 +18,7 @@ from bfabric.bfabric2 import Bfabric, get_system_auth
 
 def bfabric_save_workunit_attribute(workunit_id: int, attribute: str, value: str) -> None:
     """Sets the specified attribute to the specified value for the specified workunit."""
-    client = Bfabric(*get_system_auth(), verbose=True)
+    client = Bfabric.from_config(verbose=True)
     result = client.save(endpoint="workunit", obj={"id": workunit_id, attribute: value}).to_list_dict()
     print(json.dumps(result[0], indent=2))
 

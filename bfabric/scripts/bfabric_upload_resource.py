@@ -19,7 +19,7 @@ from bfabric.bfabric2 import Bfabric, get_system_auth
 
 def bfabric_upload_resource(filename: Path, workunit_id: int) -> None:
     """Uploads the specified file to the workunit with the name of the file as resource name."""
-    client = Bfabric(*get_system_auth(), verbose=True)
+    client = Bfabric.from_config(verbose=True)
     result = client.upload_resource(resource_name=filename.name, content=filename.read_bytes(), workunit_id=workunit_id)
     print(json.dumps(result.to_list_dict(), indent=2))
 
