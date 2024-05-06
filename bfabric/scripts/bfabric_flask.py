@@ -258,60 +258,6 @@ def add_dataset(containerid):
         print(res)
         return jsonify({"error": "beaming dataset to bfabric failed."})
 
-
-# @deprecated("Use read instead")
-@app.route("/user/<int:containerid>", methods=["GET"])
-def get_user(containerid):
-
-    users = bfapp.read_object(endpoint="user", obj={"containerid": containerid})
-    # not users or
-    if not users or len(users) == 0:
-        return jsonify({"error": "no resources found."})
-        # abort(404)
-
-    return jsonify({"user": users})
-
-
-# @deprecated("Use read instead")
-@app.route("/sample/<int:containerid>", methods=["GET"])
-def get_all_sample(containerid):
-
-    samples = []
-    rv = list(
-        map(
-            lambda p: bfapp.read_object(endpoint="sample", obj={"containerid": containerid}, page=p),
-            range(1, 10),
-        )
-    )
-    rv = list(map(lambda x: [] if x is None else x, rv))
-    for el in rv:
-        samples.extend(el)
-
-    try:
-        annotationDict = {}
-        for annotationId in filter(
-            lambda x: x is not None,
-            set(map(lambda x: x.groupingvar._id if "groupingvar" in x else None, samples)),
-        ):
-            print(annotationId)
-            annotation = bfapp.read_object(endpoint="annotation", obj={"id": annotationId})
-            annotationDict[annotationId] = annotation[0].name
-    except:
-        pass
-
-    for sample in samples:
-        try:
-            sample["condition"] = annotationDict[sample.groupingvar._id]
-        except:
-            sample["condition"] = None
-
-    if len(samples) == 0:
-        return jsonify({"error": "no extract found."})
-        # abort(404)
-
-    return jsonify({"samples": samples})
-
-
 """
 example
 curl http://localhost:5000/zip_resource_of_workunitid/154547
