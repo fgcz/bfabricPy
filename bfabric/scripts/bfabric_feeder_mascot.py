@@ -174,7 +174,7 @@ it returns a 'workunit' dict for the following web api
 """
 
 
-def parse_mascot_result_file(f) -> dict[str, Any]:
+def parse_mascot_result_file(file_path: str) -> dict[str, Any]:
     # Getting the current date and time
     print(f"{datetime.now()} DEBUG parse_mascot_result_file")
 
@@ -187,13 +187,13 @@ def parse_mascot_result_file(f) -> dict[str, Any]:
     control_char_re = re.compile(f"[{re.escape(control_chars)}]")
 
     line_count = 0
-    meta_data_dict = dict(COM="", FILE="", release="", relativepath=f.replace("/usr/local/mascot/", ""))
+    meta_data_dict = dict(COM="", FILE="", release="", relativepath=file_path.replace("/usr/local/mascot/", ""))
     inputresourceHitHash = dict()
     inputresourceList = list()
     md5 = hashlib.md5()
     project = -1
     desc = ""
-    with Path(f).open() as dat:
+    with Path(file_path).open() as dat:
         for line in dat:
             line_count = line_count + 1
             md5.update(line.encode())
@@ -216,9 +216,7 @@ def parse_mascot_result_file(f) -> dict[str, Any]:
                     meta_data_dict[result.group(1)] = result.group(2)
 
     desc = desc.encode("ascii", errors="ignore")
-
-    name = "{}; {}".format(meta_data_dict["COM"], os.path.basename(meta_data_dict["relativepath"]))[:255]
-
+    name = f"{meta_data_dict['COM']}; {os.path.basename(meta_data_dict['relativepath'])}"[:255]
     rv = dict(
         applicationid=19,
         containerid=project,
@@ -230,7 +228,7 @@ def parse_mascot_result_file(f) -> dict[str, Any]:
             storageid=4,
             status="available",
             relativepath=meta_data_dict["relativepath"],
-            size=os.path.getsize(f),
+            size=os.path.getsize(file_path),
             filechecksum=md5.hexdigest(),
         ),
     )
