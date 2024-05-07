@@ -44,7 +44,7 @@ from flask import Flask, Response, jsonify, request
 from bfabric.bfabric2 import Bfabric
 from bfabric.bfabric_config import BfabricAuth
 
-DEFAULT_LOGGER_NAME = "bfabric11_flask"
+DEFAULT_LOGGER_NAME = "bfabric13_flask"
 
 logger = logging.getLogger(DEFAULT_LOGGER_NAME)
 app = Flask(__name__)
