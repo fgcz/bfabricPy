@@ -37,7 +37,7 @@ jobs:
       - run: sudo apt-get install -y ripgrep
         name: Install ripgrep
       - run:
-          ripgrep -n TODO bfabric
+          rg -n TODO bfabric
         name: List TODOs
   license_check:
     name: License Check
