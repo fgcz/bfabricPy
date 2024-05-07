@@ -1,6 +1,4 @@
 #!/usr/bin/python3
-# -*- coding: latin1 -*-
-
 """General Importresource Feeder for bfabric
 
 Author:
@@ -14,7 +12,7 @@ Usage:
 History:
     The first version of the script appeared on Wed Oct 24 17:02:04 CEST 2012. 
 """
-
+from __future__ import annotations
 
 import logging
 import logging.handlers
@@ -28,7 +26,7 @@ from bfabric.bfabric2 import Bfabric
 BFABRIC_STORAGE_ID = 2
 
 
-def save_importresource(client: Bfabric, line: str):
+def save_importresource(client: Bfabric, line: str) -> None:
     """reads, splits and submit the input line to the bfabric system
     Input: a line containg
     md5sum;date;size;path
@@ -80,7 +78,7 @@ def save_importresource(client: Bfabric, line: str):
     print(res[0])
 
 
-def get_bfabric_application_and_project_id(bfabric_application_ids, file_path):
+def get_bfabric_application_and_project_id(bfabric_application_ids: dict[str, int], file_path: str) -> tuple[int, int]:
     # linear search through dictionary. first hit counts!
     bfabric_applicationid = -1
     bfabric_projectid = (-1,)
@@ -98,7 +96,7 @@ def get_bfabric_application_and_project_id(bfabric_application_ids, file_path):
     return bfabric_applicationid, bfabric_projectid
 
 
-def setup_logger():
+def setup_logger() -> None:
     logger = logging.getLogger("sync_feeder")
     hdlr_syslog = logging.handlers.SysLogHandler(address=("130.60.81.21", 514))
     formatter = logging.Formatter("%(name)s %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
