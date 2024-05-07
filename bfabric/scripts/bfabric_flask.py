@@ -36,7 +36,7 @@ from __future__ import annotations
 import json
 import logging
 import logging.handlers
-from os.path import exists
+from pathlib import Path
 from typing import Any
 
 from flask import Flask, Response, jsonify, request
@@ -52,13 +52,11 @@ app = Flask(__name__)
 client = bfabric2.Bfabric.from_config("TEST", auth=None, verbose=True)
 
 
-def get_request_auth(request_data: dict[str, Any]) -> BfabricAuth | None:
-    try:
-        webservicepassword = request_data["webservicepassword"].replace("\t", "")
-        login = request_data["login"]
-        return BfabricAuth(login=login, password=webservicepassword)
-    except (TypeError, KeyError, IndexError):
-        return None
+def get_request_auth(request_data: dict[str, Any]) -> BfabricAuth:
+    """Extracts the login and password from a JSON request body. Assumes it has been filtered beforehand."""
+    webservicepassword = request_data["webservicepassword"].replace("\t", "")
+    login = request_data["login"]
+    return BfabricAuth(login=login, password=webservicepassword)
 
 
 @app.errorhandler(Exception)
@@ -306,15 +304,17 @@ def setup_logger_debug(name: str = DEFAULT_LOGGER_NAME) -> None:
 
 def main() -> None:
     """Starts the server, auto-detecting production mode if SSL keys are present."""
-    if exists("/etc/ssl/fgcz-host.pem") and exists("/etc/ssl/private/fgcz-host_key.pem"):
+    ssl_key_pub = Path("/etc/ssl/fgcz-host.pem")
+    ssl_key_priv = Path("/etc/ssl/private/fgcz-host_key.pem")
+    if ssl_key_pub.exists() and ssl_key_priv.exists():
         setup_logger_prod()
         app.run(
             debug=False,
             host="0.0.0.0",
             port=5001,
             ssl_context=(
-                "/etc/ssl/fgcz-host.pem",
-                "/etc/ssl/private/fgcz-host_key.pem",
+                str(ssl_key_pub),
+                str(ssl_key_priv),
             ),
         )
     else:
