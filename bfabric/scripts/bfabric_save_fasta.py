@@ -1,74 +1,80 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
-import sys
-import os
-import yaml
-#import xmlrpclib
+# TODO this file was refactored without testing anything
+# TODO this file was refactored without testing anything
+import argparse
 import hashlib
-from optparse import OptionParser
-from bfabric import Bfabric
+import json
+import os
+import sys
+from pathlib import Path
 
-FASTAHTTPROOT="/fasta/"
+from bfabric.bfabric2 import Bfabric
+
+FASTAHTTPROOT = "/fasta/"
 BFABRICSTORAGEID = 2
-BFABRICAPPLIATIONID = 61
-
-def save_fasta(containerid=1875, fasta_file="p1875_db10_20170817.fasta"):
-    bfapp = Bfabric()
-
-    try:
-        print("reading stdin")
-        description = sys.stdin.read()
-    except:
-        print("reading from stdin failed.")
-        raise
-
-    try:
-        md5 = hashlib.md5(open(fasta_file, 'rb').read()).hexdigest()
-    except:
-        print("computing file checksum failed.")
-        raise
-
-    resource = bfapp.read_object(endpoint='resource', obj={'filechecksum': md5})
-
-    try:    
-        print("resource(s) already exist.".format(resource[0]._id))
-        resource = bfapp.save_object(endpoint='resource', obj={'id': resource[0]._id, 'description': description})
-        print(resource)
-        return
-    except:
-        pass
+BFABRIC_APPLICATION_ID = 61
 
 
-    try:
-        workunit = bfapp.save_object(endpoint='workunit',
-                                 obj={'name': "FASTA: {}".format(os.path.basename(fasta_file)),
-                                      'containerid': containerid,
-                                      'applicationid': BFABRICAPPLIATIONID})
-        print (workunit)
-    except:
-        raise
+def save_fast(container_id: int, fasta_file: Path):
+    client = Bfabric.from_config(verbose=True)
+
+    print("Reading description from stdin")
+    description = sys.stdin.read()
+
+    if not fasta_file.exists():
+        raise FileNotFoundError(fasta_file)
+
+    with fasta_file.open("rb") as f:
+        md5 = hashlib.md5(f.read()).hexdigest()
+
+    resources = client.read(endpoint="resource", obj={"filechecksum": md5}).to_list_dict()
+    if resources:
+        print("resource(s) already exist.")
+        # TODO this logic was mostly carried over from before, does it still make sense?
+        try:
+            resources = client.save(endpoint="resource", obj={"id": resources[0]["_id"], "description": description})
+            print(json.dumps(resources.to_list_dict(), indent=2))
+            return
+        except Exception:
+            pass
+
+    workunit = client.save(
+        endpoint="workunit",
+        obj={
+            "name": f"FASTA: {fasta_file.name}",
+            "containerid": container_id,
+            # TODO make configurable if needed in the future
+            "applicationid": BFABRIC_APPLICATION_ID,
+        },
+    ).to_list_dict()
+    print(json.dumps(workunit, indent=2))
+
+    obj = {
+        "workunitid": workunit[0]["id"],
+        "filechecksum": md5,
+        "relativepath": "{}{}".format(FASTAHTTPROOT, fasta_file.name),
+        "name": fasta_file.name,
+        "size": os.path.getsize(fasta_file),
+        "status": "available",
+        "description": description,
+        "storageid": BFABRICSTORAGEID,
+    }
+
+    resource = client.save(endpoint="resource", obj=obj).to_list_dict()
+    print(json.dumps(resource, indent=2))
+
+    workunit = client.save(endpoint="workunit", obj={"id": workunit[0]._id, "status": "available"}).to_list_dict()
+    print(json.dumps(workunit, indent=2))
 
 
-    obj = {'workunitid': workunit[0]._id,
-           'filechecksum': md5,
-           'relativepath': "{}{}".format(FASTAHTTPROOT, os.path.basename(fasta_file)),
-           'name': os.path.basename(fasta_file),
-           'size': os.path.getsize(fasta_file),
-           'status': 'available',
-           'description': description,
-           'storageid': BFABRICSTORAGEID
-           }
+def main() -> Non:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("container_id", help="container_id", type=int)
+    parser.add_argument("fasta_file", help="fasta_file", type=Path)
+    args = parser.parse_args()
+    save_fast(container_id=args.container_id, fasta_file=args.fasta_file)
 
-
-    resource = bfapp.save_object(endpoint='resource', obj=obj)
-    print(resource)
-
-    workunit = bfapp.save_object(endpoint='workunit',
-                                 obj={'id': workunit[0]._id, 'status': 'available'})
-    print (workunit)
 
 if __name__ == "__main__":
-    save_fasta(containerid=sys.argv[1], fasta_file=sys.argv[2])
-
-
-    #p#rint (workunit)
+    main()
