@@ -160,31 +160,31 @@ def save() -> Response:
 
 @app.route("/add_resource", methods=["POST"])
 def add_resource() -> Response:
-    try:
-        name = request.json["name"]
-        description = request.json["workunitdescription"]
-        container_id = request.json["containerid"]
-        application_id = request.json["applicationid"]
-        queue_content = request.json["base64"]
-        resource_name = request.json["resourcename"]
-        auth = get_request_auth(request.json)
-    except (KeyError, IndexError):
-        logger.exception("failed: could not get required POST content.")
-        return jsonify({"error": "could not get required POST content."})
-
-    # check if authenticated
-    if not auth:
-        return jsonify({"error": "could not get login and password."})
+    """Adds a resource to a workunit."""
+    params = get_fields(
+        required_fields=[
+            "name",
+            "workunitdescription",
+            "containerid",
+            "applicationid",
+            "base64",
+            "resourcename",
+            "login",
+            "webservicepassword",
+        ],
+        optional_fields={},
+    )
+    auth = get_request_auth(params)
 
     # Save the workunit
     with client.with_auth(auth):
         res = client.save(
             "workunit",
             {
-                "name": name,
-                "description": description,
-                "containerid": container_id,
-                "applicationid": application_id,
+                "name": params["name"],
+                "description": params["workunitdescription"],
+                "containerid": params["containerid"],
+                "applicationid": params["applicationid"],
             },
         ).to_list_dict()
     logger.info(res)
@@ -196,8 +196,8 @@ def add_resource() -> Response:
         client.save(
             "resource",
             {
-                "base64": queue_content,
-                "name": resource_name,
+                "base64": params["base64"],
+                "name": params["resourcename"],
                 "workunitid": workunit_id,
             },
         )
