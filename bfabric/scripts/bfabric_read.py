@@ -16,6 +16,7 @@ See also:
 import argparse
 import json
 import time
+import yaml
 from typing import Optional
 
 from rich.console import Console
@@ -58,6 +59,8 @@ def bfabric_read(endpoint: str, attribute: Optional[str], value: Optional[str], 
 
     if output_format == "json":
         print(json.dumps(res, indent=2))
+    elif output_format == "yaml":
+        print(yaml.dump(res))
     elif output_format == "table_tsv":
         for x in res:
             try:
@@ -89,7 +92,7 @@ def main() -> None:
     parser.add_argument(
         "--format",
         help="output format",
-        choices=["json", "table_tsv", "table_rich", "auto"],
+        choices=["json", "yaml", "table_tsv", "table_rich", "auto"],
         default="auto",
         dest="output_format",
     )
