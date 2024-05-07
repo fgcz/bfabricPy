@@ -14,7 +14,7 @@ import argparse
 import json
 from pathlib import Path
 
-from bfabric.bfabric2 import Bfabric, get_system_auth
+from bfabric.bfabric2 import Bfabric
 
 
 def bfabric_upload_resource(filename: Path, workunit_id: int) -> None:
