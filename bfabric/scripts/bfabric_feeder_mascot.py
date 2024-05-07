@@ -18,20 +18,21 @@ find /usr/local/mascot/data/ -type f -mtime -1 -name "*dat" \
 */7   5-22       *       *       1-5     nice -19  /usr/local/fgcz-s-018/bfabric-feeder/run_fgcz_dataFeederMascot.bash 1  2>&1 >/dev/null
 """
 from __future__ import annotations
+
+import argparse
+import hashlib
+import itertools
+import json
 import os
 import re
 import sys
 import urllib
-import hashlib
-import getopt
 from collections import Counter
+from datetime import datetime
+from pathlib import Path
 from typing import Any
 
 from suds.client import Client
-from datetime import datetime
-import json
-import itertools
-
 
 workuniturl = "http://fgcz-bfabric.uzh.ch/bfabric/workunit?wsdl"
 clientWorkUnit = Client(workuniturl)
@@ -39,11 +40,12 @@ BFLOGIN = "pfeeder"
 BFPASSWORD = "!ForYourEyesOnly!"
 
 DB = {}
-DBfilename = "{}/mascot.json".format(os.getenv("HOME"))
+DBfilename = Path.home() / "mascot.json"
 DBwritten = False
 
 try:
-    DB = json.load(open(DBfilename))
+    with DBfilename.open() as file:
+        DB = json.load(file)
     print(
         "Read {len} data items from {name} using {size:.1f} GBytes.".format(
             len=len(DB),
@@ -56,28 +58,30 @@ except:
     pass
 
 
-def query_mascot_result(f):
+def query_mascot_result(file_path: str) -> None:
     global DBwritten
     print(f"{datetime.now()} input>")
-    print(f"\t{f}")
-    if f in DB:
+    print(f"\t{file_path}")
+    if file_path in DB:
         print("\thit")
-        wu = DB[f]
+        wu = DB[file_path]
         if "workunitid" in wu:
-            print("\tdat file {} already registered as workunit id {}. continue ...".format(f, wu["workunitid"]))
+            print(
+                "\tdat file {} already registered as workunit id {}. continue ...".format(file_path, wu["workunitid"])
+            )
             return
         else:
             print("\tno workunitid found")
     else:
-        print(f"\tparsing mascot result file '{f}'...")
-        wu = parse_mascot_result_file(f)
+        print(f"\tparsing mascot result file '{file_path}'...")
+        wu = parse_mascot_result_file(file_path)
         print(f"\tupdating cache '{DBfilename}' file ...")
         DBwritten = True
-        DB[f] = wu
+        DB[file_path] = wu
 
     if len(wu["inputresource"]) > 0:
         if re.search("autoQC4L", wu["name"]) or re.search("autoQC01", wu["name"]):
-            print(f"WARNING This script ignores autoQC based mascot dat file {f}.")
+            print(f"WARNING This script ignores autoQC based mascot dat file {file_path}.")
             return
 
         print("\tquerying bfabric ...")
@@ -107,7 +111,7 @@ def query_mascot_result(f):
         if "_id" in rv:
             wu["workunitid"] = rv["_id"]
             print("\tfound workunitid'{}'.".format(wu["workunitid"]))
-            DB[f] = wu
+            DB[file_path] = wu
             DBwritten = True
 
         if "_id" not in rv and "errorreport" not in rv:
@@ -262,28 +266,28 @@ def print_statistics() -> None:
 
 def main() -> None:
     """Parses the CLI arguments and calls the appropriate functions."""
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "f:s", ["file=", "stdin", "statistics"])
-    except getopt.GetoptError as err:
-        print(str(err))
-        sys.exit(2)
+    parser = argparse.ArgumentParser()
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--stdin", action="store_true", help="read file names from stdin")
+    group.add_argument("--file", type=str, help="processes the provided file")
+    parser.add_argument("--statistics", action="store_true", help="print statistics")
 
-    for o, value in opts:
-        if o == "--stdin":
-            print("reading file names from stdin ...")
-            for f in sys.stdin.readlines():
-                query_mascot_result(f.strip())
-        elif o == "--file" or o == "-f":
-            print("processesing", value, "...")
-            query_mascot_result(value)
-        elif o == "--statistics" or o == "-s":
-            print_statistics()
-            sys.exit(0)
+    args = parser.parse_args()
+
+    if args.stdin:
+        print("reading file names from stdin ...")
+        for filename in sys.stdin.readlines():
+            query_mascot_result(filename.strip())
+    elif args.file:
+        print("processesing", args.file, "...")
+        query_mascot_result(args.file)
+    elif args.statistics:
+        print_statistics()
 
     if DBwritten:
         print(f"dumping json file '{DBfilename}' ...")
-        json.dump(DB, open(DBfilename, "w"), sort_keys=True, indent=4)
-        sys.exit(0)
+        with DBfilename.open("w") as file:
+            json.dump(DB, file, sort_keys=True, indent=4)
 
 
 if __name__ == "__main__":
