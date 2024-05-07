@@ -107,8 +107,8 @@ class TestBfabric(unittest.TestCase):
         module_datetime.now.return_value = datetime.datetime(2020, 1, 2, 3, 4, 5)
         module_datetime.fromisoformat = datetime.datetime.fromisoformat
         query_before = {"a": "b", "createdbefore": "2019-12-31T23:59:59"}
-        with self.assertNoLogs():
-            query = self.mock_bfabric._add_query_timestamp(query_before)
+        # TODO once py3.10 is available, use assertNoLogs
+        query = self.mock_bfabric._add_query_timestamp(query_before)
         self.assertDictEqual(
             {"a": "b", "createdbefore": "2019-12-31T23:59:59"},
             query,

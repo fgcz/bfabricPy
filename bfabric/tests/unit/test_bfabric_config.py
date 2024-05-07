@@ -112,7 +112,7 @@ class TestBfabricConfig(unittest.TestCase):
     # Testing that we can load base_url without authentication if correctly requested
     def test_read_yml_when_empty_optional(self):
         with self.assertLogs(level="INFO"):
-            config, auth = read_config(self.example_config_path, config_env="STANDBY", optional_auth=True)
+            config, auth = read_config(self.example_config_path, config_env="STANDBY")
 
         self.assertIsNone(auth)
         self.assertEqual("https://standby-server.uzh.ch/mystandby", config.base_url)
@@ -120,10 +120,11 @@ class TestBfabricConfig(unittest.TestCase):
         self.assertEqual("", config.job_notification_emails)
         self.assertEqual("Europe/Zurich", config.server_timezone)
 
+    # TODO delete if no mandatory fields are reintroduced
     # Test that missing authentication will raise an error if required
-    def test_read_yml_when_empty_mandatory(self):
-        with self.assertRaises(BfabricConfigError):
-            read_config(self.example_config_path, config_env="STANDBY", optional_auth=False)
+    #def test_read_yml_when_empty_mandatory(self):
+    #    with self.assertRaises(BfabricConfigError):
+    #        read_config(self.example_config_path, config_env="STANDBY")
 
     def test_repr(self):
         rep = repr(self.config)
