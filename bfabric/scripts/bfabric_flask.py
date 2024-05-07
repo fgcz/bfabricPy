@@ -108,8 +108,8 @@ def read() -> Response:
         required_fields=["endpoint", "login", "webservicepassword"],
         optional_fields={"query": {}, "page_offset": 0, "page_max_results": 100},
     )
-    page_offset = params["page_offset"]
     query = params["query"]
+    page_offset = params["page_offset"]
     page_max_results = params["page_max_results"]
     endpoint = params["endpoint"]
     auth = get_request_auth(params)
@@ -126,13 +126,13 @@ def read() -> Response:
             )
         logger.info(f"'{auth.login}' login success query {query} ...")
     except Exception:
-        logger.exception("'{}' query failed ...".format(auth.login))
+        logger.exception(f"'{auth.login}' query failed ...")
         return jsonify({"status": "jsonify failed: bfabric python module."})
 
     try:
         return jsonify({"res": res.to_list_dict()})
     except Exception:
-        logger.exception("'{}' query failed ...".format(auth.login))
+        logger.exception(f"'{auth.login}' query failed ...")
         return jsonify({"status": "jsonify failed"})
 
 
@@ -147,9 +147,9 @@ def save() -> Response:
     try:
         with client.with_auth(auth):
             res = client.save(endpoint=endpoint, obj=query)
-        logger.info("'{}' login success save method ...".format(auth.login))
+        logger.info(f"'{auth.login}' login success save method ...")
     except Exception:
-        logger.exception("save method failed for login {}.".format(auth.login))
+        logger.exception(f"save method failed for login {auth.login}.")
         return jsonify({"status": "jsonify failed: bfabric python module."})
 
     try:
