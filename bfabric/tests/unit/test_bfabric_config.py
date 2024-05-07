@@ -3,7 +3,6 @@ import unittest
 from pathlib import Path
 
 from bfabric.bfabric_config import BfabricAuth, BfabricConfig, read_config
-from bfabric.src.errors import BfabricConfigError
 
 
 class TestBfabricAuth(unittest.TestCase):
