@@ -32,54 +32,61 @@ systemctl restart bfabric-flask-prx.service
 Of note, do not forget rerun the flask service after modification!
 """
 from __future__ import annotations
-
+import os
 import json
 import logging
 import logging.handlers
-from os.path import exists
+from pathlib import Path
 from typing import Any
 
 from flask import Flask, Response, jsonify, request
 
-from bfabric import bfabric2
+from bfabric.bfabric2 import Bfabric
 from bfabric.bfabric_config import BfabricAuth
 
-DEFAULT_LOGGER_NAME = "bfabric11_flask"
 
+if "BFABRICPY_CONFIG_ENV" not in os.environ:
+    # Set the environment to the name of the PROD config section to use
+    os.environ["BFABRICPY_CONFIG_ENV"] = "TEST"
+
+DEFAULT_LOGGER_NAME = "bfabric13_flask"
 
 logger = logging.getLogger(DEFAULT_LOGGER_NAME)
 app = Flask(__name__)
-client = bfabric2.Bfabric.from_config("TEST", auth=None, verbose=True)
+client = Bfabric.from_config(auth=None, verbose=True)
 
 
-def get_request_auth(request_data: dict[str, Any]) -> BfabricAuth | None:
-    try:
-        webservicepassword = request_data["webservicepassword"].replace("\t", "")
-        login = request_data["login"]
-        return BfabricAuth(login=login, password=webservicepassword)
-    except (TypeError, KeyError, IndexError):
-        return None
+def get_request_auth(request_data: dict[str, Any]) -> BfabricAuth:
+    """Extracts the login and password from a JSON request body. Assumes it has been filtered beforehand."""
+    webservicepassword = request_data["webservicepassword"].replace("\t", "")
+    login = request_data["login"]
+    return BfabricAuth(login=login, password=webservicepassword)
 
 
 @app.errorhandler(Exception)
 def handle_unknown_exception(e: Exception) -> Response:
+    """Handles exceptions which are not handled by a more specific handler."""
     logger.error("Unknown exception", exc_info=e)
     return jsonify({"error": f"unknown exception occurred: {e}"})
 
 
 @app.errorhandler(json.JSONDecodeError)
 def handle_json_decode_error(e: json.JSONDecodeError) -> Response:
+    """Handles JSON decode errors."""
     logger.error("JSON decode error", exc_info=e)
     return jsonify({"error": "could not parse JSON request content"})
 
 
 class InvalidRequestContent(RuntimeError):
+    """Raised when the request content is invalid."""
+
     def __init__(self, missing_fields: list[str]) -> None:
         super().__init__(f"missing fields: {missing_fields}")
 
 
 @app.errorhandler(InvalidRequestContent)
 def handle_invalid_request_content(e: InvalidRequestContent) -> Response:
+    """Handles invalid request content errors."""
     logger.error("Invalid request content", exc_info=e)
     return jsonify({"error": f"invalid request content: {e}"})
 
@@ -160,31 +167,31 @@ def save() -> Response:
 
 @app.route("/add_resource", methods=["POST"])
 def add_resource() -> Response:
-    try:
-        name = request.json["name"]
-        description = request.json["workunitdescription"]
-        container_id = request.json["containerid"]
-        application_id = request.json["applicationid"]
-        queue_content = request.json["base64"]
-        resource_name = request.json["resourcename"]
-        auth = get_request_auth(request.json)
-    except (KeyError, IndexError):
-        logger.exception("failed: could not get required POST content.")
-        return jsonify({"error": "could not get required POST content."})
-
-    # check if authenticated
-    if not auth:
-        return jsonify({"error": "could not get login and password."})
+    """Adds a resource to a workunit."""
+    params = get_fields(
+        required_fields=[
+            "name",
+            "workunitdescription",
+            "containerid",
+            "applicationid",
+            "base64",
+            "resourcename",
+            "login",
+            "webservicepassword",
+        ],
+        optional_fields={},
+    )
+    auth = get_request_auth(params)
 
     # Save the workunit
     with client.with_auth(auth):
         res = client.save(
             "workunit",
             {
-                "name": name,
-                "description": description,
-                "containerid": container_id,
-                "applicationid": application_id,
+                "name": params["name"],
+                "description": params["workunitdescription"],
+                "containerid": params["containerid"],
+                "applicationid": params["applicationid"],
             },
         ).to_list_dict()
     logger.info(res)
@@ -196,8 +203,8 @@ def add_resource() -> Response:
         client.save(
             "resource",
             {
-                "base64": queue_content,
-                "name": resource_name,
+                "base64": params["base64"],
+                "name": params["resourcename"],
                 "workunitid": workunit_id,
             },
         )
@@ -306,15 +313,17 @@ def setup_logger_debug(name: str = DEFAULT_LOGGER_NAME) -> None:
 
 def main() -> None:
     """Starts the server, auto-detecting production mode if SSL keys are present."""
-    if exists("/etc/ssl/fgcz-host.pem") and exists("/etc/ssl/private/fgcz-host_key.pem"):
+    ssl_key_pub = Path("/etc/ssl/fgcz-host.pem")
+    ssl_key_priv = Path("/etc/ssl/private/fgcz-host_key.pem")
+    if ssl_key_pub.exists() and ssl_key_priv.exists():
         setup_logger_prod()
         app.run(
             debug=False,
             host="0.0.0.0",
             port=5001,
             ssl_context=(
-                "/etc/ssl/fgcz-host.pem",
-                "/etc/ssl/private/fgcz-host_key.pem",
+                str(ssl_key_pub),
+                str(ssl_key_priv),
             ),
         )
     else:
