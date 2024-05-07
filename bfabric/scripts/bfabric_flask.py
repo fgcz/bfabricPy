@@ -41,7 +41,6 @@ from typing import Any
 
 from flask import Flask, Response, jsonify, request
 
-import bfabric
 from bfabric import bfabric2
 from bfabric.bfabric_config import BfabricAuth
 
@@ -81,42 +80,68 @@ def get_request_auth(request_data: dict[str, Any]) -> BfabricAuth | None:
         return None
 
 
+@app.errorhandler(Exception)
+def handle_unknown_exception(e: Exception) -> Response:
+    logger.error("Unknown exception", exc_info=e)
+    return jsonify({"error": f"unknown exception occurred: {e}"})
+
+
+@app.errorhandler(json.JSONDecodeError)
+def handle_json_decode_error(e: json.JSONDecodeError) -> Response:
+    logger.error("JSON decode error", exc_info=e)
+    return jsonify({"error": "could not parse JSON request content"})
+
+
+class InvalidRequestContent(RuntimeError):
+    def __init__(self, missing_fields: list[str]) -> None:
+        super().__init__(f"missing fields: {missing_fields}")
+
+
+@app.errorhandler(InvalidRequestContent)
+def handle_invalid_request_content(e: InvalidRequestContent) -> Response:
+    logger.error("Invalid request content", exc_info=e)
+    return jsonify({"error": f"invalid request content: {e}"})
+
+
+def get_fields(required_fields: list[str], optional_fields: dict[str, Any]) -> dict[str, Any]:
+    available_fields = request.json.keys()
+    missing_fields = set(required_fields) - set(available_fields)
+    if missing_fields:
+        raise InvalidRequestContent(sorted(missing_fields))
+    else:
+        required_values = {field: request.json[field] for field in required_fields}
+        optional_values = {field: request.json.get(field, default) for field, default in optional_fields.items()}
+        return {**required_values, **optional_values}
+
+
 @app.route("/read", methods=["POST"])
 def read() -> Response:
-    try:
-        # required fields
-        endpoint = request.json["endpoint"]
-        query = request.json["query"]
-        auth = get_request_auth(request.json)
-
-        # optional fields
-        page_offset = request.json.get("page_offset", 0)
-        page_max_results = request.json.get("page_max_results", 100)
-        idonly = request.json.get("idonly", False)
-    except json.JSONDecodeError:
-        logger.exception("decode error")
-        return jsonify({"error": "could not parse JSON request content"})
-    except (KeyError, IndexError):
-        logger.exception("request error")
-        return jsonify({"error": "could not get required POST content."})
+    """Reads data from a particular B-Fabric endpoint matching a query."""
+    params = get_fields(
+        required_fields=["endpoint", "login", "webservicepassword"],
+        optional_fields={"query": {}, "page_offset": 0, "page_max_results": 100}
+    )
+    page_offset = params["page_offset"]
+    query = params["query"]
+    page_max_results = params["page_max_results"]
+    endpoint = params["endpoint"]
+    auth = get_request_auth(params)
 
     # check if authenticated
     if not auth:
         return jsonify({"error": "could not get login and password."})
 
-    logger.info(f"'{auth.login}' /read {page_offset=}, {page_max_results=}, {idonly=}")
+    logger.info(f"'{auth.login}' /read {page_offset=}, {page_max_results=}, {query=}")
     try:
         with client.with_auth(auth):
             client.print_version_message()
             res = client.read(
                 endpoint=endpoint,
                 obj=query,
-                # TODO offset
+                offset=page_offset,
                 max_results=page_max_results,
-                # TODO
-                #readid=idonly,
             )
-        logger.info("'{}' login success query {} ...".format(auth.login, request.json["query"]))
+        logger.info(f"'{auth.login}' login success query {query} ...")
     except Exception:
         logger.exception("'{}' query failed ...".format(auth.login))
         return jsonify({"status": "jsonify failed: bfabric python module."})
@@ -130,13 +155,12 @@ def read() -> Response:
 
 @app.route("/save", methods=["POST"])
 def save() -> Response:
+    """Saves data to a particular B-Fabric endpoint."""
     try:
         # required fields
         endpoint = request.json["endpoint"]
         query = request.json["query"]
         auth = get_request_auth(request.json)
-    except json.JSONDecodeError:
-        return jsonify({"error": "could not parse JSON request content"})
     except (KeyError, IndexError):
         return jsonify({"error": "could not get required POST content."})
 
@@ -168,9 +192,6 @@ def add_resource() -> Response:
         queue_content = request.json["base64"]
         resource_name = request.json["resourcename"]
         auth = get_request_auth(request.json)
-    except json.JSONDecodeError:
-        logger.exception("failed: could not get POST content")
-        return jsonify({"error": "could not get POST content."})
     except (KeyError, IndexError):
         logger.exception("failed: could not get required POST content.")
         return jsonify({"error": "could not get required POST content."})
@@ -209,129 +230,87 @@ def add_resource() -> Response:
     return jsonify(dict(workunit_id=workunit_id))
 
 
-@app.route("/add_dataset/<int:containerid>", methods=["GET", "POST"])
-def add_dataset(containerid):
-    try:
-        queue_content = json.loads(request.data)
-    except:
-        return jsonify({"error": "could not get POST content."})
-
-    try:
-        obj = {}
-        obj["name"] = "autogenerated dataset by http://fgcz-s-028.uzh.ch:8080/queue_generator/"
-        obj["containerid"] = containerid
-        obj["attribute"] = [
-            {"name": "File Name", "position": 1, "type": "String"},
-            {"name": "Path", "position": 2},
-            {"name": "Position", "position": 3},
-            {"name": "Inj Vol", "position": 4, "type": "numeric"},
-            {"name": "ExtractID", "position": 5, "type": "extract"},
-        ]
-
-        obj["item"] = list()
-
-        for idx in range(0, len(queue_content)):
-            obj["item"].append(
-                {
-                    "field": map(
-                        lambda x: {
-                            "attributeposition": x + 1,
-                            "value": queue_content[idx][x],
-                        },
-                        range(0, len(queue_content[idx])),
-                    ),
-                    "position": idx + 1,
-                }
-            )
-
-            print(obj)
-
-    except:
-        return jsonify({"error": "composing bfabric object failed."})
-
-    try:
-        res = bfapp.save_object(endpoint="dataset", obj=obj)[0]
-        print("added dataset {} to bfabric.".format(res._id))
-        return jsonify({"id": res._id})
-
-    except:
-        print(res)
-        return jsonify({"error": "beaming dataset to bfabric failed."})
-
-"""
-example
-curl http://localhost:5000/zip_resource_of_workunitid/154547
-"""
+#@app.route("/add_dataset/<int:containerid>", methods=["GET", "POST"])
+#def add_dataset(containerid):
+#    try:
+#        queue_content = json.loads(request.data)
+#    except:
+#        return jsonify({"error": "could not get POST content."})
+#
+#    try:
+#        obj = {}
+#        obj["name"] = "autogenerated dataset by http://fgcz-s-028.uzh.ch:8080/queue_generator/"
+#        obj["containerid"] = containerid
+#        obj["attribute"] = [
+#            {"name": "File Name", "position": 1, "type": "String"},
+#            {"name": "Path", "position": 2},
+#            {"name": "Position", "position": 3},
+#            {"name": "Inj Vol", "position": 4, "type": "numeric"},
+#            {"name": "ExtractID", "position": 5, "type": "extract"},
+#        ]
+#
+#        obj["item"] = list()
+#
+#        for idx in range(0, len(queue_content)):
+#            obj["item"].append(
+#                {
+#                    "field": map(
+#                        lambda x: {
+#                            "attributeposition": x + 1,
+#                            "value": queue_content[idx][x],
+#                        },
+#                        range(0, len(queue_content[idx])),
+#                    ),
+#                    "position": idx + 1,
+#                }
+#            )
+#
+#            print(obj)
+#
+#    except:
+#        return jsonify({"error": "composing bfabric object failed."})
+#
+#    try:
+#        res = bfapp.save_object(endpoint="dataset", obj=obj)[0]
+#        print("added dataset {} to bfabric.".format(res._id))
+#        return jsonify({"id": res._id})
+#
+#    except:
+#        print(res)
+#        return jsonify({"error": "beaming dataset to bfabric failed."})
 
 
-@app.route("/zip_resource_of_workunitid/<int:workunitid>", methods=["GET"])
-def get_zip_resources_of_workunit(workunitid):
-    res = map(
-        lambda x: x.relativepath,
-        bfapp.read_object(endpoint="resource", obj={"workunitid": workunitid}),
-    )
-    print(res)
-    res = filter(lambda x: x.endswith(".zip"), res)
-    return jsonify(res)
+#@app.route("/zip_resource_of_workunitid/<int:workunitid>", methods=["GET"])
+#def get_zip_resources_of_workunit(workunitid):
+#    res = map(
+#        lambda x: x.relativepath,
+#        bfapp.read_object(endpoint="resource", obj={"workunitid": workunitid}),
+#    )
+#    print(res)
+#    res = filter(lambda x: x.endswith(".zip"), res)
+#    return jsonify(res)
+
+#@app.route("/addworkunit", methods=["GET", "POST"])
+#def add_workunit():
+#    appid = request.args.get("appid", None)
+#    pid = request.args.get("pid", None)
+#    rname = request.args.get("rname", None)
+#
+#    try:
+#        content = json.loads(request.data)
+#        # print content
+#    except:
+#        return jsonify({"error": "could not get POST content.", "appid": appid})
+#
+#    resource_base64 = content["base64"]
+#    # base64.b64encode(content)
+#    print(resource_base64)
+#
+#    return jsonify({"rv": "ok"})
 
 
-@app.route("/query", methods=["GET", "POST"])
-def query():
-    try:
-        content = json.loads(request.data)
-    except:
-        return jsonify({"error": "could not get POST content.", "appid": appid})
-
-    print("PASSWORD CLEARTEXT", content["webservicepassword"])
-
-    bf = bfabric.Bfabric(
-        login=content["login"],
-        password=content["webservicepassword"],
-        base_url="http://fgcz-bfabric.uzh.ch/bfabric",
-    )
-
-    for i in content.keys():
-        print("{}\t{}".format(i, content[i]))
-
-    if "containerid" in content:
-        workunits = bf.read_object(
-            endpoint="workunit",
-            obj={
-                "applicationid": content["applicationid"],
-                "containerid": content["containerid"],
-            },
-        )
-        print(workunits)
-        return jsonify({"workunits": map(lambda x: x._id, workunits)})
-    # elif 'query' in content and "{}".format(content['query']) is 'project':
-    else:
-        user = bf.read_object(endpoint="user", obj={"login": content["login"]})[0]
-        projects = map(lambda x: x._id, user.project)
-        return jsonify({"projects": projects})
-
-    return jsonify({"error": "could not process query"})
-
-
-@app.route("/addworkunit", methods=["GET", "POST"])
-def add_workunit():
-    appid = request.args.get("appid", None)
-    pid = request.args.get("pid", None)
-    rname = request.args.get("rname", None)
-
-    try:
-        content = json.loads(request.data)
-        # print content
-    except:
-        return jsonify({"error": "could not get POST content.", "appid": appid})
-
-    resource_base64 = content["base64"]
-    # base64.b64encode(content)
-    print(resource_base64)
-
-    return jsonify({"rv": "ok"})
-
-
-def main():
+def main() -> None:
+    """Starts the server, auto-detecting production mode if SSL keys are present."""
     if exists("/etc/ssl/fgcz-host.pem") and exists("/etc/ssl/private/fgcz-host_key.pem"):
         setup_logger_prod()
         app.run(
