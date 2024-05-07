@@ -41,15 +41,14 @@ from typing import Any
 
 from flask import Flask, Response, jsonify, request
 
-from bfabric import bfabric2
+from bfabric.bfabric2 import Bfabric
 from bfabric.bfabric_config import BfabricAuth
 
 DEFAULT_LOGGER_NAME = "bfabric11_flask"
 
-
 logger = logging.getLogger(DEFAULT_LOGGER_NAME)
 app = Flask(__name__)
-client = bfabric2.Bfabric.from_config("TEST", auth=None, verbose=True)
+client = Bfabric.from_config(auth=None, verbose=True)
 
 
 def get_request_auth(request_data: dict[str, Any]) -> BfabricAuth:
