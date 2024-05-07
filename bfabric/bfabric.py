@@ -288,6 +288,3 @@ class Bfabric(object):
             self.warning("fetching sampleid of resource.workunitid = {} failed.".format(resource.workunit._id))
             return (None)
 
-
-if __name__ == "__main__":
-    bfapp = Bfabric(verbose=True)
