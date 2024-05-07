@@ -95,12 +95,12 @@ class TestBfabric(unittest.TestCase):
     @patch("bfabric.bfabric2.datetime")
     def test_add_query_timestamp_when_not_present(self, module_datetime):
         module_datetime.now.return_value = datetime.datetime(2020, 1, 2, 3, 4, 5)
-        query = self.mock_bfabric._add_query_timestamp( {"a": "b", "c": 1})
+        query = self.mock_bfabric._add_query_timestamp({"a": "b", "c": 1})
         self.assertDictEqual(
-            {"a": "b", "c": 1, 'createdbefore': '2020-01-02T03:04:05'},
+            {"a": "b", "c": 1, "createdbefore": "2020-01-02T03:04:05"},
             query,
         )
-        module_datetime.now.assert_called_once_with(ZoneInfo('Pacific/Kiritimati'))
+        module_datetime.now.assert_called_once_with(ZoneInfo("Pacific/Kiritimati"))
 
     @patch("bfabric.bfabric2.datetime")
     def test_add_query_timestamp_when_set_and_past(self, module_datetime):
@@ -113,7 +113,7 @@ class TestBfabric(unittest.TestCase):
             {"a": "b", "createdbefore": "2019-12-31T23:59:59"},
             query,
         )
-        module_datetime.now.assert_called_once_with(ZoneInfo('Pacific/Kiritimati'))
+        module_datetime.now.assert_called_once_with(ZoneInfo("Pacific/Kiritimati"))
 
     @patch("bfabric.bfabric2.datetime")
     def test_add_query_timestamp_when_set_and_future(self, module_datetime):
@@ -128,6 +128,24 @@ class TestBfabric(unittest.TestCase):
         )
         self.assertEqual(1, len(logs.output))
         self.assertIn("Query timestamp is in the future: 2020-01-02 03:04:06", logs.output[0])
+
+    @patch.object(Bfabric, "save")
+    def test_upload_resource(self, method_save):
+        resource_name = "hello_world.txt"
+        content = b"Hello, World!"
+        workunit_id = 123
+        check = MagicMock(name="check")
+        self.mock_bfabric.upload_resource(resource_name, content, workunit_id, check)
+        method_save.assert_called_once_with(
+            endpoint="resource",
+            obj={
+                "base64": "SGVsbG8sIFdvcmxkIQ==",
+                "workunitid": 123,
+                "name": "hello_world.txt",
+                "description": "base64 encoded file",
+            },
+            check=check,
+        )
 
     def test_get_version_message(self):
         self.mock_config.base_url = "dummy_url"
@@ -147,7 +165,9 @@ class TestBfabric(unittest.TestCase):
         mock_stderr = MagicMock(name="mock_stderr")
         self.mock_bfabric.print_version_message(stderr=mock_stderr)
         mock_console.assert_called_once_with(stderr=mock_stderr, highlighter=ANY, theme=ANY)
-        mock_console.return_value.print.assert_called_once_with(method_get_version_message.return_value, style="bright_yellow")
+        mock_console.return_value.print.assert_called_once_with(
+            method_get_version_message.return_value, style="bright_yellow"
+        )
 
 
 if __name__ == "__main__":
