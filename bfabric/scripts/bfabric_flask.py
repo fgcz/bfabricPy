@@ -127,10 +127,6 @@ def read() -> Response:
     endpoint = params["endpoint"]
     auth = get_request_auth(params)
 
-    # check if authenticated
-    if not auth:
-        return jsonify({"error": "could not get login and password."})
-
     logger.info(f"'{auth.login}' /read {page_offset=}, {page_max_results=}, {query=}")
     try:
         with client.with_auth(auth):
@@ -156,17 +152,13 @@ def read() -> Response:
 @app.route("/save", methods=["POST"])
 def save() -> Response:
     """Saves data to a particular B-Fabric endpoint."""
-    try:
-        # required fields
-        endpoint = request.json["endpoint"]
-        query = request.json["query"]
-        auth = get_request_auth(request.json)
-    except (KeyError, IndexError):
-        return jsonify({"error": "could not get required POST content."})
-
-    # check if authenticated
-    if not auth:
-        return jsonify({"error": "could not get login and password."})
+    params = get_fields(
+        required_fields=["endpoint", "query", "login", "webservicepassword"],
+        optional_fields={}
+    )
+    endpoint = params["endpoint"]
+    query = params["query"]
+    auth = get_request_auth(params)
 
     try:
         with client.with_auth(auth):
