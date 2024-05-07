@@ -1,6 +1,7 @@
 from __future__ import annotations
-from typing import Union, List, Dict, Any
+
 import copy
+from typing import Any
 
 from suds import MethodNotFound
 from suds.client import Client
@@ -13,14 +14,14 @@ from bfabric.src.errors import BfabricRequestError
 class EngineSUDS:
     """B-Fabric API SUDS Engine"""
 
-    def __init__(self, base_url: str):
+    def __init__(self, base_url: str) -> None:
         self.cl = {}
         self.base_url = base_url
 
     def read(
         self,
         endpoint: str,
-        obj: Dict[str, Any],
+        obj: dict[str, Any],
         auth: BfabricAuth,
         page: int = 1,
         idonly: bool = False,
@@ -56,7 +57,7 @@ class EngineSUDS:
             raise BfabricRequestError(f"SUDS failed to find save method for the {endpoint} endpoint.") from e
         return res
 
-    def delete(self, endpoint: str, id: Union[int, List], auth: BfabricAuth):
+    def delete(self, endpoint: str, id: int | list[int], auth: BfabricAuth):
         if isinstance(id, list) and len(id) == 0:
             print("Warning, attempted to delete an empty list, ignoring")
             return []
@@ -71,4 +72,3 @@ class EngineSUDS:
             wsdl = "".join((self.base_url, "/", endpoint, "?wsdl"))
             self.cl[endpoint] = Client(wsdl, cache=None)
         return self.cl[endpoint].service
-
