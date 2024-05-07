@@ -59,7 +59,7 @@ def render_output(workunits_by_status: dict[str, list[dict[str, Any]]], config: 
 
 def list_not_available_proteomics_workunits(date_cutoff: datetime) -> None:
     """Lists proteomics work units that are not available on bfabric."""
-    client = Bfabric(*get_system_auth(), verbose=True)
+    client = Bfabric.from_config(verbose=True)
     Console(stderr=True).print(
         f"--- list not available proteomics work units created after {date_cutoff}---",
         style="bright_yellow",

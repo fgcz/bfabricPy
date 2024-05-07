@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: latin1 -*-
-
 """B-Fabric command line reader
 
 Copyright:
@@ -15,95 +13,95 @@ License:
 See also:
     http://fgcz-bfabric.uzh.ch/bfabric/executable?wsdl
 """
-
-import signal
-import sys
+import argparse
+import json
 import time
+import yaml
+from typing import Optional
+
+from rich.console import Console
+from rich.table import Table
+
 import bfabric
+from bfabric.bfabric2 import Bfabric
 
 
-def signal_handler(signal, frame):
-    print('You pressed Ctrl+C!')
-    sys.exit(0)
+def bfabric_read(endpoint: str, attribute: Optional[str], value: Optional[str], output_format: str) -> None:
+    """Reads one or several items from a B-Fabric endpoint and prints them."""
+    if attribute is not None and value is None:
+        message = "value must be provided if attribute is provided"
+        raise ValueError(message)
 
-signal.signal(signal.SIGINT, signal_handler)
+    client = Bfabric.from_config(verbose=True)
 
-def print_color_msg(msg, color = "93"):
-    sys.stderr.write(f"\033[{color}m--- {msg} ---\033[0m\n")
+    query_obj = {attribute: value} if value is not None else {}
+    console_info = Console(style="bright_yellow", stderr=True)
+    console_info.print(f"--- query = {query_obj} ---")
+    console_out = Console()
 
-def usage():
-    print(__doc__)
-    print("usage:\n")
-    msg = f"\t{sys.argv[0]} <endpoint> <attribute> <value>"
-    print(msg)
-    msg = "\t{} <endpoint>\n\n".format(sys.argv[0])
-    print(msg)
-    print("valid endpoints are: [{}]\n\n".format(",\n\t ".join(bfabric.endpoints)))
-    print("example:")
-    msg = "\t{} user login cpanse\n\n".format(sys.argv[0])
-    print(msg)
+    start_time = time.time()
+    results = client.read(endpoint=endpoint, obj=query_obj)
+    end_time = time.time()
+    res = sorted(results.to_list_dict(drop_empty=False), key=lambda x: x["id"])
 
-if __name__ == "__main__":
-    B = bfabric.Bfabric(verbose=False)
+    if res:
+        possible_attributes = sorted(set(res[0].keys()))
+        console_info.print(f"--- possible attributes = {possible_attributes} ---")
 
-    sys.stderr.write(bfabric.msg)
+    if output_format == "auto":
+        if len(res) < 2:
+            output_format = "json"
+        elif console_out.is_interactive:
+            output_format = "table_rich"
+        else:
+            output_format = "table_tsv"
+    console_info.print(f"--- output format = {output_format} ---")
 
-    query_obj = {}
-    
-    try:
-        endpoint = sys.argv[1]
-    except:
-        usage()
-        sys.exit(1)
-
-    if len(sys.argv) == 4:
-        attribute = sys.argv[2]
-        name = sys.argv[3]
-        query_obj[attribute] = name
-
-    if endpoint in bfabric.endpoints:
-        print_color_msg(f"query = {query_obj}")
-        start_time = time.time()
-        res = B.read_object(endpoint = endpoint, obj = query_obj)
-        end_time = time.time()
-
-        if res is None:
-            print_color_msg("Empty result set or invalid query.", color=95)
-            sys.exit(0)
-
-        try:
-            res = sorted(res, key=lambda x: x._id)
-        except:
-            print_color_msg("sorting failed.")
-
-        try:
-            # print json object
-            if len(res) < 2:
-                print(res[0])
-        except Exception as e:
-            print_color_msg(f"invalid query. {e}.", color=95)
-            sys.exit(1)
-
-        try:
-            print_color_msg("possible attributes are: {}.".format((", ".join([at[0] for at in res[0]]))))
-        except Exception as e:
-            print_color_msg(f"Exception: {e}")
-            
+    if output_format == "json":
+        print(json.dumps(res, indent=2))
+    elif output_format == "yaml":
+        print(yaml.dump(res))
+    elif output_format == "table_tsv":
         for x in res:
             try:
-                print(f"{x._id}\t{x.createdby}\t{x.modified}\t{x.name}\t{x.groupingvar.name}")
-            except Exception as e:
-                print(f"{x._id}\t{x.createdby}\t{x.modified}")
-
-
+                print(f'{x["id"]}\t{x["createdby"]}\t{x["modified"]}\t{x["name"]}\t{x["groupingvar"]["name"]}')
+            except (KeyError, TypeError):
+                print(f'{x["id"]}\t{x["createdby"]}\t{x["modified"]}')
+    elif output_format == "table_rich":
+        table = Table("Id", "Created By", "Modified", "Name", "Grouping Var")
+        for x in res:
+            entry_url = f"{client.config.base_url}/{endpoint}/show.html?id={x['id']}"
+            table.add_row(
+                f"[link={entry_url}]{x['id']}[/link]",
+                str(x["createdby"]),
+                str(x["modified"]),
+                str(x["name"]),
+                str(x.get("groupingvar", {}).get("name", "")),
+            )
+        console_out.print(table)
     else:
-        print_color_msg("The first argument must be a valid endpoint.", color=95)
-        usage()
-        sys.exit(1) 
+        raise ValueError(f"output format {output_format} not supported")
 
-    try:
-        print_color_msg(f"number of query result items = {len(res)}")
-    except:
-        pass
+    console_info.print(f"--- number of query result items = {len(res)} ---")
+    console_info.print(f"--- query time = {end_time - start_time:.2f} seconds ---")
 
-    print_color_msg(f"query time = {round(end_time - start_time, 2)} seconds")
+
+def main() -> None:
+    """Parses command line arguments and calls `bfabric_read`."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--format",
+        help="output format",
+        choices=["json", "yaml", "table_tsv", "table_rich", "auto"],
+        default="auto",
+        dest="output_format",
+    )
+    parser.add_argument("endpoint", help="endpoint to query", choices=bfabric.endpoints)
+    parser.add_argument("attribute", help="attribute to query for", nargs="?")
+    parser.add_argument("value", help="value to query for", nargs="?")
+    args = parser.parse_args()
+    bfabric_read(**vars(args))
+
+
+if __name__ == "__main__":
+    main()
