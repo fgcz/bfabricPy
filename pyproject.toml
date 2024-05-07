@@ -75,7 +75,7 @@ indent-width = 4
 target-version = "py39"
 
 [tool.ruff.lint]
-select = ["D103", "E", "F", "ANN", "PTH", "UP", "BLE", "SIM"]
+select = ["ANN", "BLE", "D103", "E", "F", "PLW", "PTH", "SIM", "UP"]
 ignore = ["ANN101"]
 
 [tool.licensecheck]

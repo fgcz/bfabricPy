@@ -41,7 +41,7 @@ BFPASSWORD = "!ForYourEyesOnly!"
 
 DB = {}
 DBfilename = Path.home() / "mascot.json"
-DBwritten = False
+# DBwritten = False
 
 try:
     with DBfilename.open() as file:
@@ -53,13 +53,13 @@ try:
             size=sum(map(lambda x: int(x["resource"]["size"]), DB.values())) / (1024 * 1024 * 1024),
         )
     )
-except:
+except Exception:
     print(f"loading '{DBfilename}' failed")
     pass
 
 
-def query_mascot_result(file_path: str) -> None:
-    global DBwritten
+def query_mascot_result(file_path: str) -> bool:
+    db_written = False
     print(f"{datetime.now()} input>")
     print(f"\t{file_path}")
     if file_path in DB:
@@ -76,7 +76,7 @@ def query_mascot_result(file_path: str) -> None:
         print(f"\tparsing mascot result file '{file_path}'...")
         wu = parse_mascot_result_file(file_path)
         print(f"\tupdating cache '{DBfilename}' file ...")
-        DBwritten = True
+        db_written = True
         DB[file_path] = wu
 
     if len(wu["inputresource"]) > 0:
@@ -112,13 +112,15 @@ def query_mascot_result(file_path: str) -> None:
             wu["workunitid"] = rv["_id"]
             print("\tfound workunitid'{}'.".format(wu["workunitid"]))
             DB[file_path] = wu
-            DBwritten = True
+            db_written = True
 
         if "_id" not in rv and "errorreport" not in rv:
             print("something went wrong.")
             raise
             # print(resultClientWorkUnit)
             # print("exception for file {} with error {}".format(f, e))
+
+    return db_written
 
 
 """ 
@@ -181,10 +183,8 @@ def parse_mascot_result_file(f) -> dict[str, Any]:
         "^(FILE|COM|release|USERNAME|USERID|TOL|TOLU|ITOL|ITOLU|MODS|IT_MODS|CHARGE|INSTRUMENT|QUANTITATION|DECOY)=(.+)$"
     )
 
-    # control_chars = ''.join(map(chr, [range(0x00, 0x20) , range(0x7f, 0xa0)]))
     control_chars = "".join(map(chr, itertools.chain(range(0x00, 0x20), range(0x7F, 0xA0))))
-
-    control_char_re = re.compile("[%s]" % re.escape(control_chars))
+    control_char_re = re.compile(f"[{re.escape(control_chars)}]")
 
     line_count = 0
     meta_data_dict = dict(COM="", FILE="", release="", relativepath=f.replace("/usr/local/mascot/", ""))
@@ -193,13 +193,12 @@ def parse_mascot_result_file(f) -> dict[str, Any]:
     md5 = hashlib.md5()
     project = -1
     desc = ""
-    with open(f) as dat:
+    with Path(f).open() as dat:
         for line in dat:
             line_count = line_count + 1
             md5.update(line.encode())
             # check if the first character of the line is a 't' for title to save regex time
             if line[0] == "t":
-                # result = regex0.match(urllib.url2pathname(line.strip()).replace('\\', "/").replace("//", "/"))
                 result = regex0.match(urllib.parse.unquote(line.strip()).replace("\\", "/").replace("//", "/"))
                 if result and result.group(1) not in inputresourceHitHash:
                     inputresourceHitHash[result.group(1)] = result.group(2)
@@ -274,17 +273,18 @@ def main() -> None:
 
     args = parser.parse_args()
 
+    db_written = False
     if args.stdin:
         print("reading file names from stdin ...")
         for filename in sys.stdin.readlines():
-            query_mascot_result(filename.strip())
+            db_written = query_mascot_result(filename.strip()) or db_written
     elif args.file:
         print("processesing", args.file, "...")
-        query_mascot_result(args.file)
-    elif args.statistics:
+        db_written = query_mascot_result(args.file)
+    if args.statistics:
         print_statistics()
 
-    if DBwritten:
+    if db_written:
         print(f"dumping json file '{DBfilename}' ...")
         with DBfilename.open("w") as file:
             json.dump(DB, file, sort_keys=True, indent=4)
