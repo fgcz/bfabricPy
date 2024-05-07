@@ -68,7 +68,7 @@ def save_importresource(client: Bfabric, line: str) -> None:
             r"p([0-9]+)\/(Proteomics\/[A-Z]+_[1-9])\/.*_\d\d\d_S([0-9][0-9][0-9][0-9][0-9][0-9]+)_.*(raw|zip)$",
             file_path,
         )
-        print("found sampleid={} pattern".format(m.group(3)))
+        print(f"found sampleid={m.group(3)} pattern")
         obj["sampleid"] = int(m.group(3))
     except Exception:
         pass
@@ -79,10 +79,11 @@ def save_importresource(client: Bfabric, line: str) -> None:
 
 
 def get_bfabric_application_and_project_id(bfabric_application_ids: dict[str, int], file_path: str) -> tuple[int, int]:
+    """Returns the bfabric application id and project id for a given file path."""
     # linear search through dictionary. first hit counts!
     bfabric_applicationid = -1
     bfabric_projectid = (-1,)
-    for i in bfabric_application_ids.keys():
+    for i in bfabric_application_ids:
         # first match counts!
         if re.search(i, file_path):
             bfabric_applicationid = bfabric_application_ids[i]
@@ -91,12 +92,13 @@ def get_bfabric_application_and_project_id(bfabric_application_ids: dict[str, in
             break
     if bfabric_applicationid < 0:
         logger = logging.getLogger("sync_feeder")
-        logger.error("{0}; no bfabric application id.".format(file_path))
+        logger.error(f"{file_path}; no bfabric application id.")
         raise RuntimeError("no bfabric application id.")
     return bfabric_applicationid, bfabric_projectid
 
 
 def setup_logger() -> None:
+    """Sets up a logger for the script."""
     logger = logging.getLogger("sync_feeder")
     hdlr_syslog = logging.handlers.SysLogHandler(address=("130.60.81.21", 514))
     formatter = logging.Formatter("%(name)s %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
@@ -106,6 +108,7 @@ def setup_logger() -> None:
 
 
 def main() -> None:
+    """Parses arguments and calls `save_importresource`."""
     setup_logger()
     client = Bfabric.from_config(verbose=True)
     if sys.argv[1] == "-":

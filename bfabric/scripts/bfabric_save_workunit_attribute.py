@@ -13,7 +13,7 @@ Licensed under  GPL version 3
 import argparse
 import json
 
-from bfabric.bfabric2 import Bfabric, get_system_auth
+from bfabric.bfabric2 import Bfabric
 
 
 def bfabric_save_workunit_attribute(workunit_id: int, attribute: str, value: str) -> None:
