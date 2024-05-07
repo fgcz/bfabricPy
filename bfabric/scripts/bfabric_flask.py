@@ -47,25 +47,6 @@ from bfabric.bfabric_config import BfabricAuth
 DEFAULT_LOGGER_NAME = "bfabric11_flask"
 
 
-def setup_logger_prod(name: str = DEFAULT_LOGGER_NAME, address: tuple[str, int] = ("fgcz-ms.uzh.ch", 514)) -> None:
-    """Sets up the production logger."""
-    syslog_handler = logging.handlers.SysLogHandler(address=address)
-    formatter = logging.Formatter("%(name)s %(message)s")
-    syslog_handler.setFormatter(formatter)
-
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
-    logger.addHandler(syslog_handler)
-    return logger
-
-
-def setup_logger_debug(name: str = DEFAULT_LOGGER_NAME) -> None:
-    """Sets up the debug logger."""
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
-    return logger
-
-
 logger = logging.getLogger(DEFAULT_LOGGER_NAME)
 app = Flask(__name__)
 client = bfabric2.Bfabric.from_config("TEST", auth=None, verbose=True)
@@ -104,6 +85,12 @@ def handle_invalid_request_content(e: InvalidRequestContent) -> Response:
 
 
 def get_fields(required_fields: list[str], optional_fields: dict[str, Any]) -> dict[str, Any]:
+    """Extracts fields from a JSON request body. All `required_fields` must be present, or an error will be raised
+    indicating the missing fields. The optional fields are filled with the default values if not present.
+    :param required_fields: list of required fields
+    :param optional_fields: dictionary of optional fields with default values
+    :return: dictionary of all field values, if all required fields are present
+    """
     available_fields = request.json.keys()
     missing_fields = set(required_fields) - set(available_fields)
     if missing_fields:
@@ -119,7 +106,7 @@ def read() -> Response:
     """Reads data from a particular B-Fabric endpoint matching a query."""
     params = get_fields(
         required_fields=["endpoint", "login", "webservicepassword"],
-        optional_fields={"query": {}, "page_offset": 0, "page_max_results": 100}
+        optional_fields={"query": {}, "page_offset": 0, "page_max_results": 100},
     )
     page_offset = params["page_offset"]
     query = params["query"]
@@ -152,10 +139,7 @@ def read() -> Response:
 @app.route("/save", methods=["POST"])
 def save() -> Response:
     """Saves data to a particular B-Fabric endpoint."""
-    params = get_fields(
-        required_fields=["endpoint", "query", "login", "webservicepassword"],
-        optional_fields={}
-    )
+    params = get_fields(required_fields=["endpoint", "query", "login", "webservicepassword"], optional_fields={})
     endpoint = params["endpoint"]
     query = params["query"]
     auth = get_request_auth(params)
@@ -222,8 +206,8 @@ def add_resource() -> Response:
     return jsonify(dict(workunit_id=workunit_id))
 
 
-#@app.route("/add_dataset/<int:containerid>", methods=["GET", "POST"])
-#def add_dataset(containerid):
+# @app.route("/add_dataset/<int:containerid>", methods=["GET", "POST"])
+# def add_dataset(containerid):
 #    try:
 #        queue_content = json.loads(request.data)
 #    except:
@@ -272,8 +256,8 @@ def add_resource() -> Response:
 #        return jsonify({"error": "beaming dataset to bfabric failed."})
 
 
-#@app.route("/zip_resource_of_workunitid/<int:workunitid>", methods=["GET"])
-#def get_zip_resources_of_workunit(workunitid):
+# @app.route("/zip_resource_of_workunitid/<int:workunitid>", methods=["GET"])
+# def get_zip_resources_of_workunit(workunitid):
 #    res = map(
 #        lambda x: x.relativepath,
 #        bfapp.read_object(endpoint="resource", obj={"workunitid": workunitid}),
@@ -282,8 +266,8 @@ def add_resource() -> Response:
 #    res = filter(lambda x: x.endswith(".zip"), res)
 #    return jsonify(res)
 
-#@app.route("/addworkunit", methods=["GET", "POST"])
-#def add_workunit():
+# @app.route("/addworkunit", methods=["GET", "POST"])
+# def add_workunit():
 #    appid = request.args.get("appid", None)
 #    pid = request.args.get("pid", None)
 #    rname = request.args.get("rname", None)
@@ -299,6 +283,25 @@ def add_resource() -> Response:
 #    print(resource_base64)
 #
 #    return jsonify({"rv": "ok"})
+
+
+def setup_logger_prod(name: str = DEFAULT_LOGGER_NAME, address: tuple[str, int] = ("fgcz-ms.uzh.ch", 514)) -> None:
+    """Sets up the production logger."""
+    syslog_handler = logging.handlers.SysLogHandler(address=address)
+    formatter = logging.Formatter("%(name)s %(message)s")
+    syslog_handler.setFormatter(formatter)
+
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
+    logger.addHandler(syslog_handler)
+    return logger
+
+
+def setup_logger_debug(name: str = DEFAULT_LOGGER_NAME) -> None:
+    """Sets up the debug logger."""
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+    return logger
 
 
 def main() -> None:
