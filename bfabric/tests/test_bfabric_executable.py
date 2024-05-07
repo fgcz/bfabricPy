@@ -11,6 +11,9 @@ import bfabric
 import os
 import json
 
+import bfabric.bfabric_legacy
+
+
 class bfabricEncoder(json.JSONEncoder):
     def default(self, o):
         try:
@@ -29,7 +32,7 @@ class BfabricTestCase(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(BfabricTestCase, self).__init__(*args, **kwargs)
 
-        self.B = bfabric.Bfabric(verbose=False)
+        self.B = bfabric.bfabric_legacy.Bfabric(verbose=False)
 
         for e in ['executable', 'sample', 'application', 'workunit', 'resource']:
             self.endpoint[e] = []

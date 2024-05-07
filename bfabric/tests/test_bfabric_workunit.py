@@ -12,6 +12,9 @@ import os
 import json
 import datetime
 
+import bfabric.bfabric_legacy
+
+
 class bfabricEncoder(json.JSONEncoder):
     def default(self, o):
         try:
@@ -30,7 +33,7 @@ class BfabricTestCase(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(BfabricTestCase, self).__init__(*args, **kwargs)
 
-        self.bfapp = bfabric.Bfabric(verbose=False)
+        self.bfapp = bfabric.bfabric_legacy.Bfabric(verbose=False)
 
         for e in ['executable', 'sample', 'application', 'workunit', 'resource']:
             self.endpoint[e] = []

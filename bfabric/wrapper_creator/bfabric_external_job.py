@@ -1,6 +1,7 @@
 import json
 
-from bfabric.bfabric import Bfabric, bfabricEncoder
+from bfabric import Bfabric
+from bfabric.bfabric_legacy import bfabricEncoder
 
 
 class BfabricExternalJob(Bfabric):

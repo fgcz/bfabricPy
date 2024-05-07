@@ -39,7 +39,7 @@ project = 403
 container = project
 application = 217
 
-from bfabric.bfabric import Bfabric
+from bfabric.bfabric_legacy import Bfabric
 from bfabric.wrapper_creator.bfabric_wrapper_creator import BfabricWrapperCreator
 from bfabric.wrapper_creator.bfabric_submitter import BfabricSubmitter
 from bfabric.wrapper_creator.bfabric_feeder import BfabricFeeder

@@ -5,7 +5,7 @@ import os
 
 import yaml
 
-from bfabric.bfabric import bfabricEncoder
+from bfabric.bfabric_legacy import bfabricEncoder
 from bfabric.wrapper_creator.bfabric_external_job import BfabricExternalJob
 
 
