@@ -30,7 +30,7 @@ Uploader for B-Fabric
 #
 #
 # Example of use:
-# 
+#
 # For bfabric.__version__ < 0.10.22
 #
 # ./bfabric_upload_submitter_executable.py bfabric_executable_submitter_functionalTest.py gridengine --name "Dummy - yaml / Grid Engine executable" --description "Dummy submitter for the bfabric functional test using Grid Engine."
@@ -45,100 +45,110 @@ Uploader for B-Fabric
 # ./bfabric_upload_submitter_executable.py bfabric_executable_submitter_functionalTest.py slurm --name "Dummy_-_yaml___Slurm_executable" --description "test new submitter's parameters"
 #
 
-import os
-import sys
-import base64
-from bfabric import Bfabric
 import argparse
+import base64
 
-SVN="$HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/scripts/bfabric_upload_submitter_executable.py $"
+import yaml
 
-def setup(argv=sys.argv[1:]):
-    argparser = argparse.ArgumentParser(description="Arguments for new submitter executable.\nFor more details run: ./bfabric_upload_submitter_executable.py --help") 
-    argparser.add_argument('filename', type=str, help="Bash executable of the submitter")
-    argparser.add_argument('engine', type=str, choices=['slurm', 'gridengine'], help="Valid engines for job handling are: slurm, gridengine")
-    argparser.add_argument('--name', type=str, help="Name of the submitter", required=False)
-    argparser.add_argument('--description', type=str, help="Description about the submitter", required=False)
-    if len(sys.argv) < 3:
-        argparser.print_help(sys.stderr)
-        sys.exit(1)
-    options = argparser.parse_args()
-    return options
+from bfabric.bfabric2 import Bfabric
 
-def main(options):
+
+def setup():
+    argparser = argparse.ArgumentParser(
+        description="Arguments for new submitter executable.\nFor more details run: ./bfabric_upload_submitter_executable.py --help"
+    )
+    argparser.add_argument("filename", type=str, help="Bash executable of the submitter")
+    argparser.add_argument(
+        "engine",
+        type=str,
+        choices=["slurm", "gridengine"],
+        help="Valid engines for job handling are: slurm, gridengine",
+    )
+    argparser.add_argument("--name", type=str, help="Name of the submitter", required=False)
+    argparser.add_argument("--description", type=str, help="Description about the submitter", required=False)
+    return argparser.parse_args()
+
+
+def main_upload_submitter_executable(options) -> None:
     executableFileName = options.filename
     engine = options.engine
 
-    bfapp = Bfabric()
+    client = Bfabric.from_config(verbose=True)
 
-    with open(executableFileName, 'r') as f:
+    with open(executableFileName, "r") as f:
         executable = f.read()
 
-    attr = { 'context': 'SUBMITTER', 
-        'parameter': [{'modifiable': 'true', 
-            'required': 'true',
-            'type':'STRING'},
-            {'modifiable': 'true',
-            'required': 'true',
-            'type':'STRING'},
-            {'modifiable': 'true',
-            'required': 'true', 
-            'type':'STRING'}],
-        'masterexecutableid': 11871,
-        'status': 'available',
-        'enabled': 'true',
-        'valid': 'true',
-        'base64': base64.b64encode(executable.encode()).decode() }
+    attr = {
+        "context": "SUBMITTER",
+        "parameter": [
+            {"modifiable": "true", "required": "true", "type": "STRING"},
+            {"modifiable": "true", "required": "true", "type": "STRING"},
+            {"modifiable": "true", "required": "true", "type": "STRING"},
+        ],
+        "masterexecutableid": 11871,
+        "status": "available",
+        "enabled": "true",
+        "valid": "true",
+        "base64": base64.b64encode(executable.encode()).decode(),
+    }
 
     if engine == "slurm":
-        attr['name'] = 'yaml / Slurm executable'
-        attr['parameter'][0]['description'] = 'Which Slurm partition should be used.'
-        attr['parameter'][0]['enumeration'] = ['prx','maxquant','scaffold','mascot']
-        attr['parameter'][0]['key'] = 'partition'
-        attr['parameter'][0]['label'] = 'partition'
-        attr['parameter'][0]['value'] = 'prx'
-        attr['parameter'][1]['description'] = 'Which Slurm nodelist should be used.'
-        attr['parameter'][1]['enumeration'] = ['fgcz-r-[035,028]','fgcz-r-035','fgcz-r-033','fgcz-r-028','fgcz-r-018']
-        attr['parameter'][1]['key'] = 'nodelist'
-        attr['parameter'][1]['label'] = 'nodelist'
-        attr['parameter'][1]['value'] = 'fgcz-r-[035,028]'
-        attr['parameter'][2]['description'] = 'Which Slurm memory should be used.'
-        attr['parameter'][2]['enumeration'] = ['10G','50G','128G','256G','512G','960G']
-        attr['parameter'][2]['key'] = 'memory'
-        attr['parameter'][2]['label'] = 'memory'
-        attr['parameter'][2]['value'] = '10G'
-        attr['version'] = 1.02
-        attr['description'] = 'Stage the yaml config file to application using Slurm.'
+        attr["name"] = "yaml / Slurm executable"
+        attr["parameter"][0]["description"] = "Which Slurm partition should be used."
+        attr["parameter"][0]["enumeration"] = ["prx", "maxquant", "scaffold", "mascot"]
+        attr["parameter"][0]["key"] = "partition"
+        attr["parameter"][0]["label"] = "partition"
+        attr["parameter"][0]["value"] = "prx"
+        attr["parameter"][1]["description"] = "Which Slurm nodelist should be used."
+        attr["parameter"][1]["enumeration"] = [
+            "fgcz-r-[035,028]",
+            "fgcz-r-035",
+            "fgcz-r-033",
+            "fgcz-r-028",
+            "fgcz-r-018",
+        ]
+        attr["parameter"][1]["key"] = "nodelist"
+        attr["parameter"][1]["label"] = "nodelist"
+        attr["parameter"][1]["value"] = "fgcz-r-[035,028]"
+        attr["parameter"][2]["description"] = "Which Slurm memory should be used."
+        attr["parameter"][2]["enumeration"] = ["10G", "50G", "128G", "256G", "512G", "960G"]
+        attr["parameter"][2]["key"] = "memory"
+        attr["parameter"][2]["label"] = "memory"
+        attr["parameter"][2]["value"] = "10G"
+        attr["version"] = 1.02
+        attr["description"] = "Stage the yaml config file to application using Slurm."
     elif engine == "gridengine":
-        attr['name'] = 'yaml /  Grid Engine executable'
-        attr['parameter'][0]['description'] = 'Which Grid Engine partition should be used.'
-        attr['parameter'][0]['enumeration'] = 'PRX'
-        attr['parameter'][0]['key'] = 'partition'
-        attr['parameter'][0]['label'] = 'partition'
-        attr['parameter'][0]['value'] = 'PRX' 
-        attr['parameter'][1]['description'] = 'Which Grid Engine node should be used.'
-        attr['parameter'][1]['enumeration'] = ['fgcz-r-033','fgcz-r-028','fgcz-r-018']
-        attr['parameter'][1]['key'] = 'nodelist'
-        attr['parameter'][1]['label'] = 'nodelist'
-        attr['parameter'][1]['value'] = 'fgcz-r-028' 
-        attr['version'] = 1.00 
-        attr['description'] = 'Stage the yaml config file to an application using Grid Engine.' 
+        attr["name"] = "yaml /  Grid Engine executable"
+        attr["parameter"][0]["description"] = "Which Grid Engine partition should be used."
+        attr["parameter"][0]["enumeration"] = "PRX"
+        attr["parameter"][0]["key"] = "partition"
+        attr["parameter"][0]["label"] = "partition"
+        attr["parameter"][0]["value"] = "PRX"
+        attr["parameter"][1]["description"] = "Which Grid Engine node should be used."
+        attr["parameter"][1]["enumeration"] = ["fgcz-r-033", "fgcz-r-028", "fgcz-r-018"]
+        attr["parameter"][1]["key"] = "nodelist"
+        attr["parameter"][1]["label"] = "nodelist"
+        attr["parameter"][1]["value"] = "fgcz-r-028"
+        attr["version"] = 1.00
+        attr["description"] = "Stage the yaml config file to an application using Grid Engine."
 
     if options.name:
-        attr['name'] = options.name
+        attr["name"] = options.name
     else:
         pass
     if options.description:
-        attr['description'] = options.description
+        attr["description"] = options.description
     else:
         pass
 
-    res = bfapp.save_object('executable', attr)
+    res = client.save("executable", attr)
+    print(yaml.dump(res))
 
-    bfapp.print_yaml(res)
 
-
-if __name__ == "__main__":
+def main() -> None:
     options = setup()
     main(options)
 
+
+if __name__ == "__main__":
+    main()
