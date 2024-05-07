@@ -30,7 +30,7 @@ from copy import deepcopy
 from datetime import datetime
 from enum import Enum
 from pprint import pprint
-from typing import Any, Literal
+from typing import Any, Literal, ContextManager
 from zoneinfo import ZoneInfo
 
 from rich.console import Console
@@ -181,7 +181,7 @@ class Bfabric:
         return self._auth
 
     @contextmanager
-    def with_auth(self, auth: BfabricAuth):
+    def with_auth(self, auth: BfabricAuth) -> ContextManager[Bfabric]:
         """Context manager that temporarily (within the scope of the context) sets the authentication for
         the Bfabric object to the provided value. This is useful when authenticating multiple users, to avoid accidental
         use of the wrong credentials.
