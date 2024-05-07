@@ -29,6 +29,16 @@ jobs:
       - name: Check code with ruff
         run:
           ruff bfabric || true
+  list_todos:
+    name: List TODOs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: apt-get install -y ripgrep
+        name: Install ripgrep
+      - run:
+          ripgrep -n TODO bfabric
+        name: List TODOs
   license_check:
     name: License Check
     runs-on: ubuntu-latest
