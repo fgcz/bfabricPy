@@ -32,7 +32,7 @@ systemctl restart bfabric-flask-prx.service
 Of note, do not forget rerun the flask service after modification!
 """
 from __future__ import annotations
-
+import os
 import json
 import logging
 import logging.handlers
@@ -43,6 +43,11 @@ from flask import Flask, Response, jsonify, request
 
 from bfabric.bfabric2 import Bfabric
 from bfabric.bfabric_config import BfabricAuth
+
+
+if "BFABRICPY_CONFIG_ENV" not in os.environ:
+    # Set the environment to the name of the PROD config section to use
+    os.environ["BFABRICPY_CONFIG_ENV"] = "TEST"
 
 DEFAULT_LOGGER_NAME = "bfabric13_flask"
 
