@@ -121,7 +121,7 @@ class TestBfabricConfig(unittest.TestCase):
 
     # TODO delete if no mandatory fields are reintroduced
     # Test that missing authentication will raise an error if required
-    #def test_read_yml_when_empty_mandatory(self):
+    # def test_read_yml_when_empty_mandatory(self):
     #    with self.assertRaises(BfabricConfigError):
     #        read_config(self.example_config_path, config_env="STANDBY")
 
