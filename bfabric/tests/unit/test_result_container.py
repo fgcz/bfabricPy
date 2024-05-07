@@ -1,9 +1,9 @@
 import unittest
 
 import bfabric.src.result_container as result_container
+from bfabric.src.errors import BfabricRequestError
 
 
-# TODO: Add coverage for LISTSUDS and LISTZEEP
 class TestResultContainer(unittest.TestCase):
     def setUp(self):
 
@@ -23,6 +23,22 @@ class TestResultContainer(unittest.TestCase):
         self.assertEqual(len(self.c1), 3)
         self.assertEqual(len(self.c2), 2)
 
+    def test_is_success_when_success(self):
+        self.assertTrue(self.c1.is_success)
+
+    def test_is_success_when_error(self):
+        self.c1.errors.append(BfabricRequestError("error"))
+        self.assertFalse(self.c1.is_success)
+
+    def test_assert_success_when_success(self):
+        self.c1.assert_success()
+
+    def test_assert_success_when_error(self):
+        self.c1.errors.append(BfabricRequestError("a descriptive error message"))
+        with self.assertRaises(RuntimeError) as error:
+            self.c1.assert_success()
+        self.assertIn("a descriptive error message", str(error.exception))
+
     def test_get_item(self):
         self.assertEqual(self.c1[2], 3)
         self.assertEqual(self.c2[0], 4)
@@ -39,7 +55,6 @@ class TestResultContainer(unittest.TestCase):
     def test_to_list_dict(self):
         # NOTE: For LISTDICT format, the conversion to listdict does nothing
         self.assertEqual(self.c1.to_list_dict(), self.c1.results)
-
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
