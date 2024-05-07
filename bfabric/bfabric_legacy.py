@@ -9,8 +9,7 @@ import yaml
 from suds.client import Client
 from suds.wsdl import Service
 
-from bfabric import BfabricConfig
-from bfabric.bfabric_config import BfabricAuth, read_config
+from bfabric.bfabric_config import BfabricAuth, BfabricConfig, read_config
 
 
 class bfabricEncoder(json.JSONEncoder):

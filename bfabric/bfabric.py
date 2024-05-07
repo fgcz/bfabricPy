@@ -20,29 +20,3 @@ History
     The python3 library first appeared in 2014.
 """
 
-import logging.config
-
-logging.config.dictConfig({
-    'version': 1,
-    'formatters': {
-        'verbose': {
-            'format': 'DEBUG %(name)s: %(message)s'
-        }
-    },
-    'handlers': {
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
-        },
-    },
-    # 'loggers': {
-    #     'zeep.transports': {
-    #         'level': 'DEBUG',
-    #         'propagate': True,
-    #         'handlers': ['console'],
-    #     },
-    # }
-})
-
-
