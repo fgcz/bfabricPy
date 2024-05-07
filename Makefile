@@ -6,7 +6,7 @@ test_workunit:
 test_read:
 	cd bfabric/tests && python3 -m unittest -v test_bfabric_read.py 
 
-install: test
+install:
 	pip install -e .
 
 clean:
