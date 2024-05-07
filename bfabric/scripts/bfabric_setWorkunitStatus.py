@@ -2,7 +2,7 @@
 import argparse
 import json
 
-from bfabric.bfabric2 import Bfabric, get_system_auth
+from bfabric.bfabric2 import Bfabric
 
 # Copyright (C) 2014 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 #
@@ -12,8 +12,6 @@ from bfabric.bfabric2 import Bfabric, get_system_auth
 #
 # Licensed under  GPL version 3
 #
-# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/fgcz_bfabric_setResourceStatus_available.py $
-# $Id: fgcz_bfabric_setResourceStatus_available.py 2397 2016-09-06 07:04:35Z cpanse $
 
 
 def main_generic(result_status: str) -> None:
