@@ -1,3 +1,5 @@
+.PHONY: install install_dev build clean
+
 test: test_read
 
 test_workunit:
@@ -8,6 +10,9 @@ test_read:
 
 install:
 	pip install -e .
+
+install_dev:
+    pip install -e ".[dev]"
 
 clean:
 	rm -vf dist/*
