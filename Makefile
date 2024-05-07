@@ -12,7 +12,7 @@ install:
 	pip install -e .
 
 install_dev:
-    pip install -e ".[dev]"
+	pip install -e ".[dev]"
 
 clean:
 	rm -vf dist/*
