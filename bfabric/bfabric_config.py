@@ -164,7 +164,8 @@ def _parse_dict(d: dict, mandatory_keys: list, optional_keys: list = None, error
 
 
 def read_config(
-    config_path: str | Path, config_env: str = None,
+    config_path: str | Path,
+    config_env: str = None,
 ) -> tuple[BfabricConfig, BfabricAuth | None]:
     """
     Reads bfabricpy.yml file, parses it, extracting authentication and configuration data
