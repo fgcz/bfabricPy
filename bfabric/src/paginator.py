@@ -23,7 +23,7 @@ def compute_requested_pages(
     n_item_offset: int,
     n_item_return_max: int | None,
 ) -> tuple[list[int], int]:
-    """Computes the page indices that need to be requested to get all requested items.
+    """Returns the page indices that need to be requested to get all requested items.
     :param n_page_total: Total number of pages available
     :param n_item_per_page: Number of items per page
     :param n_item_offset: Number of items to skip from the beginning

@@ -1,16 +1,13 @@
-# NOTE: This allows class type annotations inside the same class. According to
-#    https://stackoverflow.com/questions/44798635/how-can-i-set-the-same-type-as-class-in-methods-parameter-following-pep484
-# this should become default behaviour in one of the future versions of python. Remove this import
-# once it is no longer necessary
 from __future__ import annotations
+
 from enum import Enum
-from typing import List
+from typing import Any
 
 from zeep.helpers import serialize_object
 
+import bfabric.src.response_format_dict as formatter
 from bfabric.src.errors import BfabricRequestError
 from bfabric.src.response_format_suds import suds_asdict_recursive
-import bfabric.src.response_format_dict as formatter
 
 
 class BfabricResultType(Enum):
@@ -19,15 +16,16 @@ class BfabricResultType(Enum):
     LISTZEEP = 3
 
 
-def _clean_result(rez: dict, drop_empty: bool = True, drop_underscores_suds: bool = True,
-                  sort_responses: bool = False) -> dict:
+def _clean_result(
+    rez: dict, drop_empty: bool = True, drop_underscores_suds: bool = True, sort_responses: bool = False
+) -> dict:
     if drop_empty:
         formatter.drop_empty_elements(rez, inplace=True)
 
     if drop_underscores_suds:
-        formatter.map_element_keys(rez,
-                                  {'_id': 'id', '_classname': 'classname', '_projectid': 'projectid'},
-                                  inplace=True)
+        formatter.map_element_keys(
+            rez, {"_id": "id", "_classname": "classname", "_projectid": "projectid"}, inplace=True
+        )
     if sort_responses:
         formatter.sort_dicts_by_key(rez, inplace=True)
 
@@ -35,7 +33,13 @@ def _clean_result(rez: dict, drop_empty: bool = True, drop_underscores_suds: boo
 
 
 class ResultContainer:
-    def __init__(self, results: list, result_type: BfabricResultType, total_pages_api: int = None, errors: List[BfabricRequestError] = None):
+    def __init__(
+        self,
+        results: list,
+        result_type: BfabricResultType,
+        total_pages_api: int = None,
+        errors: list[BfabricRequestError] | None = None,
+    ) -> None:
         """
         :param results:    List of BFabric query results
         :param result_type: Format of each result (All must be of the same format)
@@ -62,7 +66,7 @@ class ResultContainer:
     def __len__(self) -> int:
         return len(self.results)
 
-    def assert_success(self):
+    def assert_success(self) -> None:
         """Raises a RuntimeError if the query was not successful."""
         if not self.is_success:
             raise RuntimeError("Query was not successful", self._errors)
@@ -73,7 +77,7 @@ class ResultContainer:
         return len(self._errors) == 0
 
     @property
-    def errors(self) -> List[BfabricRequestError]:
+    def errors(self) -> list[BfabricRequestError]:
         """Errors that occurred during the query, if any."""
         return self._errors
 
@@ -99,8 +103,9 @@ class ResultContainer:
         """Total number of pages that were available for reading."""
         return self._total_pages_api
 
-    def to_list_dict(self, drop_empty: bool = True, drop_underscores_suds: bool = True,
-                     have_sort_responses: bool = False):
+    def to_list_dict(
+        self, drop_empty: bool = True, drop_underscores_suds: bool = True, have_sort_responses: bool = False
+    ) -> list[dict[str, Any]]:
         """
         Converts the results to a list of dictionaries.
         :param drop_empty: If True, empty attributes will be removed from the results
@@ -114,18 +119,24 @@ class ResultContainer:
             results = []
             for rez in self.results:
                 rez_parsed = suds_asdict_recursive(rez, convert_types=True)
-                rez_parsed = _clean_result(rez_parsed, drop_empty=drop_empty,
-                                           drop_underscores_suds=drop_underscores_suds,
-                                           sort_responses=have_sort_responses)
+                rez_parsed = _clean_result(
+                    rez_parsed,
+                    drop_empty=drop_empty,
+                    drop_underscores_suds=drop_underscores_suds,
+                    sort_responses=have_sort_responses,
+                )
                 results += [rez_parsed]
             return results
         elif self.result_type == BfabricResultType.LISTZEEP:
             results = []
             for rez in self.results:
                 rez_parsed = dict(serialize_object(rez, target_cls=dict))
-                rez_parsed = _clean_result(rez_parsed, drop_empty=drop_empty,
-                                           drop_underscores_suds=False,  # NOTE: Underscore problem specific to SUDS
-                                           sort_responses=have_sort_responses)
+                rez_parsed = _clean_result(
+                    rez_parsed,
+                    drop_empty=drop_empty,
+                    drop_underscores_suds=False,  # NOTE: Underscore problem specific to SUDS
+                    sort_responses=have_sort_responses,
+                )
                 results += [rez_parsed]
             return results
         else:
