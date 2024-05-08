@@ -26,13 +26,12 @@ import bfabric
 from bfabric.bfabric2 import Bfabric
 
 
-def bfabric_read(endpoint: str, attribute: Optional[str], value: Optional[str], output_format: str) -> None:
+def bfabric_read(client: Bfabric, endpoint: str, attribute: Optional[str], value: Optional[str], output_format: str) -> None:
     """Reads one or several items from a B-Fabric endpoint and prints them."""
     if attribute is not None and value is None:
         message = "value must be provided if attribute is provided"
         raise ValueError(message)
 
-    client = Bfabric.from_config(verbose=True)
 
     query_obj = {attribute: value} if value is not None else {}
     console_info = Console(style="bright_yellow", stderr=True)
@@ -88,6 +87,7 @@ def bfabric_read(endpoint: str, attribute: Optional[str], value: Optional[str], 
 
 def main() -> None:
     """Parses command line arguments and calls `bfabric_read`."""
+    client = Bfabric.from_config(verbose=True)
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--format",
@@ -100,7 +100,7 @@ def main() -> None:
     parser.add_argument("attribute", help="attribute to query for", nargs="?")
     parser.add_argument("value", help="value to query for", nargs="?")
     args = parser.parse_args()
-    bfabric_read(**vars(args))
+    bfabric_read(client=client, **vars(args))
 
 
 if __name__ == "__main__":
