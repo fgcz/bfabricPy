@@ -79,7 +79,7 @@ def pandas2json(df: pd.DataFrame) -> dict[str, list[dict[str, int | str | float]
 
 
 def bfabric_save_csv2dataset(
-    client: Bfabric, csv_file: Path, dataset_name: str, container_id: int, workunit_id: int | None = None
+    client: Bfabric, csv_file: Path, dataset_name: str, container_id: int, workunit_id: int | None, sep: str,
 ) -> None:
     """Creates a dataset in B-Fabric from a csv file."""
     obj = csv2json(csv_file)
@@ -102,6 +102,8 @@ def main() -> None:
     parser.add_argument("--name", required=True, help="dataset name as a string")
     parser.add_argument("--containerid", type=int, required=True, help="container id")
     parser.add_argument("--workunitid", type=int, required=False, help="workunit id")
+    parser.add_argument("--sep", type=str, default=",", help="the separator to use in the csv file e.g. ',' or '\\t'")
+    parser.add_argument("--")
     args = parser.parse_args()
     bfabric_save_csv2dataset(
         client=client,
@@ -109,6 +111,7 @@ def main() -> None:
         dataset_name=args.name,
         container_id=args.containerid,
         workunit_id=args.workunitid,
+        sep=args.sep,
     )
 
 

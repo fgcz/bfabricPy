@@ -30,12 +30,14 @@ class TestSaveCsv2Dataset(unittest.TestCase):
             work_dir = Path(work_dir)
             sample_file = work_dir / "sample_table.csv"
             data.to_csv(sample_file, index=False)
+
             bfabric_save_csv2dataset(
                 self.mock_client,
                 csv_file=sample_file,
                 dataset_name=f"test_dataset {timestamp}",
                 container_id=3000,
                 workunit_id=None,
+                sep=","
             )
 
         # check the result
