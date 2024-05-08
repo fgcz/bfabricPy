@@ -218,7 +218,7 @@ class Bfabric:
         :return: List of responses, packaged in the results container
         """
         # Ensure stability
-        obj = self._add_query_timestamp(obj)
+        # obj = self._add_query_timestamp(obj)
 
         # Get the first page.
         # NOTE: According to old interface, this is equivalent to plain=True
