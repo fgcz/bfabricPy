@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: latin1 -*-
-
 """
 Author:
     Maria d'Errico <maria.derrico@fgcz.ethz.ch>
@@ -16,43 +14,45 @@ Output: list of sample id
 Usage:
    bfabric_read_samples_from_dataset.py datasetid
 """
-
-import sys
-import os
-import csv
-import bfabric
+import argparse
+from bfabric.bfabric2 import Bfabric
 
 
-
-B = bfabric.Bfabric()
-
-def read_dataset(dataset_id):
-    ds = B.read_object(endpoint="dataset", obj={'id': dataset_id})[0]
-    return ds
-
-def get_table(relativepath):
-    res = B.read_object(endpoint='resource', obj={'relativepath': relativepath})[0]
-    sample = B.read_object(endpoint='sample', obj={'id': res.sample._id})[0]
-    try:
-        groupingvar = sample.groupingvar.name
-    except:
-        groupingvar = ""
-        pass
-    return res.workunit._id, res._id, res.name, sample.name, groupingvar
+def get_table_row(client: Bfabric, relative_path: str) -> tuple[str, int, str, str, str]:
+    """Returns the row of the table with the information of the resource with the given relative path."""
+    resource = client.read(endpoint="resource", obj={"relativepath": relative_path}).to_list_dict()[0]
+    sample = client.read(endpoint="sample", obj={"id": resource["sample"]["id"]}).to_list_dict()[0]
+    groupingvar = (sample.get("groupingvar") or {}).get("name") or ""
+    return resource["workunit"]["id"], resource["id"], resource["name"], sample["name"], groupingvar
 
 
-def run(dataset_id):
-    ds = read_dataset(dataset_id)
-    attributeposition = [x.position for x in ds.attribute if x.name == "Relative Path"][0]
-    print ("{}\t{}\t{}\t{}\t{}".format('workunit.id', 'inputresource.id', 'inputresource.name', 'sample.name', 'groupingvar.name'))
-    for i in ds.item:
-        for x in i.field:
-            if hasattr(x, "value") and x.attributeposition == attributeposition:
-                workunitid, resourceid, resourcename, samplename, groupingvar = get_table(x.value)
-                print ("{}\t{}\t{}\t{}\t{}".format(workunitid, resourceid, resourcename, samplename, groupingvar))
+def bfabric_read_samples_from_dataset(dataset_id: int) -> None:
+    """Prints the workunit id, inputresource id, inputresource name, sample name and groupingvar name for each resource
+    in the dataset with the given id."""
+    client = Bfabric.from_config(verbose=True)
+    dataset = client.read(endpoint="dataset", obj={"id": dataset_id}).to_list_dict()[0]
+
+    positions = [a["position"] for a in dataset["attribute"] if a["name"] == "Relative Path"]
+    if not positions:
+        raise ValueError(f"No 'Relative Path' attribute found in the dataset {dataset_id}")
+    relative_path_position = positions[0]
+
+    print("\t".join(["workunit.id", "inputresource.id", "inputresource.name", "sample.name", "groupingvar.name"]))
+    for item in dataset["item"]:
+        relative_path = [
+            field["value"] for field in item["field"] if field["attributeposition"] == relative_path_position
+        ][0]
+        workunitid, resourceid, resourcename, samplename, groupingvar = get_table_row(client, relative_path)
+        print(f"{workunitid}\t{resourceid}\t{resourcename}\t{samplename}\t{groupingvar}")
+
+
+def main() -> None:
+    """Parses the command line arguments and calls the function bfabric_read_samples_from_dataset."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("dataset_id", type=int)
+    args = parser.parse_args()
+    bfabric_read_samples_from_dataset(dataset_id=args.dataset_id)
 
 
 if __name__ == "__main__":
-    dataset_id = int(sys.argv[1])
-    run(dataset_id)
-
+    main()
