@@ -63,18 +63,22 @@ class EngineZeep:
     def readid(self, endpoint: str, obj: dict, auth: BfabricAuth, page: int = 1, includedeletableupdateable: bool = True):
         raise NotImplementedError("Attempted to use a method `readid` of Zeep, which does not exist")
 
-    def save(self, endpoint: str, obj: dict, auth: BfabricAuth, skipped_keys: list = None):
-        query = {'login': auth.login, 'password': auth.password, endpoint: obj}
+    def save(self, endpoint: str, obj: dict, auth: BfabricAuth):
+        query = copy.deepcopy(obj)
 
-        # If necessary, add skipped keys to the query
-        if skipped_keys is not None:
-            query = _zeep_query_append_skipped(query, skipped_keys)
+        # FIXME: Hacks for the cases where Zeep thinks a parameter is compulsory and it is actually not
+        if endpoint == 'resource':
+            excl_keys = ['name', 'sampleid', 'storageid', 'workunitid', 'relativepath']
+            _zeep_query_append_skipped(query, excl_keys, inplace=True, overwrite=False)
+
+
+        full_query = {'login': auth.login, 'password': auth.password, endpoint: query}
 
         client = self._get_client(endpoint)
 
         try:
             with client.settings(strict=False):
-                res = client.service.save(query)
+                res = client.service.save(full_query)
         except AttributeError as e:
             if e.args[0] == "Service has no operation 'save'":
                 raise BfabricRequestError(f"ZEEP failed to find save method for the {endpoint} endpoint.") from e

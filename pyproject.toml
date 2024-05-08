@@ -25,7 +25,8 @@ dependencies = [
     "Flask == 2.2.5",
     "rich >= 13.7.1",
     "zeep >= 4.2.1",
-    "pandas >= 2.2.2"
+    "pandas >= 2.2.2",
+    "polars >= 0.20.25",
 ]
 
 [project.optional-dependencies]
@@ -41,7 +42,7 @@ Homepage = "https://github.com/fgcz/bfabricPy"
 Repository = "https://github.com/fgcz/bfabricPy"
 
 [project.scripts]
-#bfabric_flask="bfabric.scripts.bfabric_flask:main"
+"bfabric_flask.py"="bfabric.scripts.bfabric_flask:main"
 #bfabric_feeder_resource_autoQC="bfabric.scripts.bfabric_feeder_resource_autoQC:main"
 #bfabric_list_not_existing_storage_directories="bfabric.scripts.bfabric_list_not_existing_storage_directories:main"
 "bfabric_list_not_available_proteomics_workunits.py"="bfabric.scripts.bfabric_list_not_available_proteomics_workunits:main"
@@ -56,8 +57,8 @@ Repository = "https://github.com/fgcz/bfabricPy"
 "bfabric_read.py"="bfabric.scripts.bfabric_read:main"
 "bfabric_read_samples_of_workunit.py"="bfabric.scripts.bfabric_read_samples_of_workunit:main"
 "bfabric_read_samples_from_dataset.py"="bfabric.scripts.bfabric_read_samples_from_dataset:main"
-#bfabric_save_csv2dataset="bfabric.scripts.bfabric_save_csv2dataset:main"
-#bfabric_save_dataset2csv="bfabric.scripts.bfabric_save_dataset2csv:main"
+"bfabric_save_csv2dataset.py"="bfabric.scripts.bfabric_save_csv2dataset:main"
+"bfabric_save_dataset2csv.py"="bfabric.scripts.bfabric_save_dataset2csv:main"
 #bfabric_save_fasta="bfabric.scripts.bfabric_save_fasta:main"
 #bfabric_save_importresource_sample="bfabric.scripts.bfabric_save_importresource_sample:main"
 #bfabric_save_link_to_workunit="bfabric.scripts.bfabric_save_link_to_workunit:main"
