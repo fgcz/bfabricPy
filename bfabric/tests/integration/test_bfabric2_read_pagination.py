@@ -10,14 +10,14 @@ def _calc_query(config, auth, engine: BfabricAPIEngineType, endpoint: str, max_r
     print("Sending query via", engine)
     b = Bfabric(config, auth, engine=engine)
 
-    response_class = b.read(endpoint, {}, max_results=max_results, idonly=False, includedeletableupdateable=True)
-    response_dict = response_class.to_list_dict(drop_empty=True, drop_underscores_suds=True, have_sort_responses=True)
+    response_class = b.read(endpoint, {}, max_results=max_results)
+    response_dict = response_class.to_list_dict(drop_empty=True, drop_underscores_suds=True,
+                                                have_sort_responses=True)
     return list_dict_to_df(response_dict)
 
 
 class BfabricTestPagination(unittest.TestCase):
     def setUp(self):
-        logging.basicConfig(level=logging.INFO)
         self.config, self.auth = get_system_auth(config_env="TEST")
 
     def test_composite_user(self):
