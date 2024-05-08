@@ -1,8 +1,8 @@
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
-
-import pandas as pd
+import polars.testing
+import polars as pl
 
 from bfabric.bfabric2 import Bfabric
 from bfabric.scripts.bfabric_save_dataset2csv import bfabric_save_dataset2csv
@@ -29,8 +29,8 @@ class TestSaveDataset2Csv(unittest.TestCase):
 
             self.assertListEqual(expected_lines, actual_lines)
 
-            df = pd.read_csv(out_file)
-            expected_df = pd.DataFrame(
+            df = pl.read_csv(out_file)
+            expected_df = pl.DataFrame(
                 [
                     {
                         "Normal": "just a normal string",
@@ -40,7 +40,7 @@ class TestSaveDataset2Csv(unittest.TestCase):
                     }
                 ]
             )
-            pd.testing.assert_frame_equal(expected_df, df)
+            pl.testing.assert_frame_equal(expected_df, df)
 
 
 if __name__ == "__main__":

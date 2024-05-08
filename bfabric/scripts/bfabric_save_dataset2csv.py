@@ -18,7 +18,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-import pandas as pd
+import polars as pl
 
 from bfabric.bfabric2 import Bfabric
 
@@ -30,8 +30,8 @@ def dataset2csv(dataset: dict, output_path: Path, sep: str) -> None:
     for item in dataset["item"]:
         row_values = [x.get("value") for x in item["field"]]
         data.append(dict(zip(column_names, row_values)))
-    df = pd.DataFrame(data)
-    df.to_csv(output_path, index=False, sep=sep)
+    df = pl.DataFrame(data)
+    df.write_csv(output_path, separator=sep)
 
 
 def bfabric_save_dataset2csv(client: Bfabric, dataset_id: int, out_dir: Path, sep: str) -> None:

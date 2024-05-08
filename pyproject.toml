@@ -25,7 +25,8 @@ dependencies = [
     "Flask >= 3.0.3",
     "rich >= 13.7.1",
     "zeep >= 4.2.1",
-    "pandas >= 2.2.2"
+    "pandas >= 2.2.2",
+    "polars >= 0.20.25",
 ]
 
 [project.optional-dependencies]
