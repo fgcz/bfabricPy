@@ -19,7 +19,7 @@ from rich.console import Console
 from rich.table import Column, Table
 
 from bfabric import BfabricConfig
-from bfabric.bfabric2 import Bfabric, get_system_auth
+from bfabric.bfabric2 import Bfabric
 
 
 def render_output(workunits_by_status: dict[str, list[dict[str, Any]]], config: BfabricConfig) -> None:

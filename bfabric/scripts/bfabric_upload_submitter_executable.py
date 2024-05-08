@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: latin1 -*-
-
 """
 Uploader for B-Fabric
 """
@@ -53,29 +51,13 @@ import yaml
 from bfabric.bfabric2 import Bfabric
 
 
-def setup():
-    argparser = argparse.ArgumentParser(
-        description="Arguments for new submitter executable.\nFor more details run: ./bfabric_upload_submitter_executable.py --help"
-    )
-    argparser.add_argument("filename", type=str, help="Bash executable of the submitter")
-    argparser.add_argument(
-        "engine",
-        type=str,
-        choices=["slurm", "gridengine"],
-        help="Valid engines for job handling are: slurm, gridengine",
-    )
-    argparser.add_argument("--name", type=str, help="Name of the submitter", required=False)
-    argparser.add_argument("--description", type=str, help="Description about the submitter", required=False)
-    return argparser.parse_args()
-
-
 def main_upload_submitter_executable(options) -> None:
     executableFileName = options.filename
     engine = options.engine
 
     client = Bfabric.from_config(verbose=True)
 
-    with open(executableFileName, "r") as f:
+    with open(executableFileName) as f:
         executable = f.read()
 
     attr = {
@@ -134,19 +116,26 @@ def main_upload_submitter_executable(options) -> None:
 
     if options.name:
         attr["name"] = options.name
-    else:
-        pass
     if options.description:
         attr["description"] = options.description
-    else:
-        pass
 
     res = client.save("executable", attr)
     print(yaml.dump(res))
 
 
 def main() -> None:
-    options = setup()
+    """Parses command line arguments and calls `main_upload_submitter_executable`."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("filename", type=str, help="Bash executable of the submitter")
+    parser.add_argument(
+        "engine",
+        type=str,
+        choices=["slurm", "gridengine"],
+        help="Valid engines for job handling are: slurm, gridengine",
+    )
+    parser.add_argument("--name", type=str, help="Name of the submitter", required=False)
+    parser.add_argument("--description", type=str, help="Description about the submitter", required=False)
+    options = parser.parse_args()
     main(options)
 
 
