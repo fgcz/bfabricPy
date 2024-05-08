@@ -29,60 +29,51 @@ Usage: bfabric_save_csv2dataset.py [-h] --csvfile CSVFILE --name NAME --containe
 from __future__ import annotations
 
 import argparse
-import csv
 from pathlib import Path
 
-import pandas as pd
+import polars as pl
 
 from bfabric.bfabric2 import Bfabric
 
 
-def csv2json(csv_file_path: Path) -> dict[str, list[dict[str, int | str | float]]]:
-    """Parses a csv file and returns a B-Fabric compatible dictionary structure."""
-    obj = {"item": [], "attribute": []}
-    types = {int: "Integer", str: "String", float: "Float"}
-    # Open the csv file in read mode and create a file object
-    with csv_file_path.open(encoding="utf-8") as csv_file:
-        # Creating the DictReader iterator
-        csv_reader = csv.DictReader(csv_file)
-        # Read individual rows of the csv file as a dictionary
-        for i_row, row in enumerate(csv_reader):
-            fields = []
-            for attr in range(0, len(list(row.keys()))):
-                if i_row == 0:
-                    # Fill in attributes info
-                    attr_type = type(list(row.values())[attr])
-                    entry = {"name": list(row.keys())[attr], "position": attr + 1, "type": types[attr_type]}
-                    obj["attribute"].append(entry)
-                # Fill in values info
-                fields.append({"attributeposition": attr + 1, "value": list(row.values())[attr]})
-            obj["item"].append({"field": fields, "position": i_row + 1})
-    return obj
+def polars_to_bfabric_type(dtype: pl.DataType) -> str | None:
+    if str(dtype).startswith("Int"):
+        return "Integer"
+    elif str(dtype).startswith("String"):
+        return "String"
+    elif str(dtype).startswith("Float"):
+        return "Float"
+    else:
+        return "String"
 
 
-def pandas2json(df: pd.DataFrame) -> dict[str, list[dict[str, int | str | float]]]:
-    """Converts a pandas DataFrame to a B-Fabric compatible dictionary structure."""
-    obj = {"item": [], "attribute": []}
-    types = {int: "Integer", str: "String", float: "Float"}
-    for i_row, row in df.iterrows():
-        fields = []
-        for attr in range(0, len(list(row.keys()))):
-            if i_row == 0:
-                # Fill in attributes info
-                attr_type = type(row[attr])
-                entry = {"name": list(row.keys())[attr], "position": attr + 1, "type": types[attr_type]}
-                obj["attribute"].append(entry)
-            # Fill in values info
-            fields.append({"attributeposition": attr + 1, "value": row[attr]})
-        obj["item"].append({"field": fields, "position": i_row + 1})
-    return obj
+def polars_to_bfabric_dataset(data: pl.DataFrame) -> dict[str, list[dict[str, int | str | float]]]:
+    attributes = [
+        {"name": col, "position": i + 1, "type": polars_to_bfabric_type(data[col].dtype)}
+        for i, col in enumerate(data.columns)
+    ]
+    items = [
+        {
+            "field": [{"attributeposition": i_field + 1, "value": value} for i_field, value in enumerate(row)],
+            "position": i_row + 1,
+        }
+        for i_row, row in enumerate(data.iter_rows())
+    ]
+    return {"attribute": attributes, "item": items}
 
 
 def bfabric_save_csv2dataset(
-    client: Bfabric, csv_file: Path, dataset_name: str, container_id: int, workunit_id: int | None, sep: str,
+    client: Bfabric,
+    csv_file: Path,
+    dataset_name: str,
+    container_id: int,
+    workunit_id: int | None,
+    sep: str,
+    has_header: bool,
 ) -> None:
     """Creates a dataset in B-Fabric from a csv file."""
-    obj = csv2json(csv_file)
+    data = pl.read_csv(csv_file, separator=sep, has_header=has_header)
+    obj = polars_to_bfabric_dataset(data)
     obj["name"] = dataset_name
     obj["containerid"] = container_id
     if workunit_id is not None:
@@ -103,7 +94,7 @@ def main() -> None:
     parser.add_argument("--containerid", type=int, required=True, help="container id")
     parser.add_argument("--workunitid", type=int, required=False, help="workunit id")
     parser.add_argument("--sep", type=str, default=",", help="the separator to use in the csv file e.g. ',' or '\\t'")
-    parser.add_argument("--")
+    parser.add_argument("--no-header", action="store_false", dest="has_header", help="the csv file has no header")
     args = parser.parse_args()
     bfabric_save_csv2dataset(
         client=client,
@@ -112,6 +103,7 @@ def main() -> None:
         container_id=args.containerid,
         workunit_id=args.workunitid,
         sep=args.sep,
+        has_header=args.has_header,
     )
 
 

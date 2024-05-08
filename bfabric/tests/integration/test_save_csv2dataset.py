@@ -1,21 +1,37 @@
+from __future__ import annotations
 import time
 import unittest
+import datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-import pandas as pd
-
+import polars as pl
 from bfabric.bfabric2 import Bfabric
 from bfabric.scripts.bfabric_save_csv2dataset import bfabric_save_csv2dataset
+
+
+class DeleteEntities:
+    def __init__(self, client: Bfabric, created_entities: list[tuple[str, int]]):
+        self.client = client
+        self.created_entities = created_entities
+
+    def __call__(self):
+        errors = []
+        for entity_type, entity_id in self.created_entities:
+            errors += self.client.delete(entity_type, entity_id, check=False).errors
+        if errors:
+            print("Error deleting entities:", errors)
+        else:
+            print("Successfully deleted entities:", self.created_entities)
 
 
 class TestSaveCsv2Dataset(unittest.TestCase):
     def setUp(self):
         self.mock_client = Bfabric.from_config(config_env="TEST", verbose=True)
-        self.dataset_id = 46184
+        self.created_entities = []
+        self.addCleanup(DeleteEntities(self.mock_client, self.created_entities))
 
-    def test_save_csv2dataset(self):
-        data = pd.DataFrame(
+        self.sample_data = pl.DataFrame(
             [
                 {
                     "Normal": "just a normal string",
@@ -25,11 +41,13 @@ class TestSaveCsv2Dataset(unittest.TestCase):
                 }
             ]
         )
-        timestamp = pd.Timestamp.now().strftime("%Y%m%d%H%M%S")
+
+    def test_save_csv2dataset(self):
+        timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         with TemporaryDirectory() as work_dir:
             work_dir = Path(work_dir)
             sample_file = work_dir / "sample_table.csv"
-            data.to_csv(sample_file, index=False)
+            self.sample_data.write_csv(sample_file)
 
             bfabric_save_csv2dataset(
                 self.mock_client,
@@ -37,12 +55,14 @@ class TestSaveCsv2Dataset(unittest.TestCase):
                 dataset_name=f"test_dataset {timestamp}",
                 container_id=3000,
                 workunit_id=None,
-                sep=","
+                sep=",",
+                has_header=True,
             )
 
         # check the result
         time.sleep(1)
         response = self.mock_client.read("dataset", {"name": f"test_dataset {timestamp}"}).to_list_dict()[0]
+        self.created_entities.append(("dataset", response["id"]))
 
         expected_attribute = [
             {"name": "Normal", "position": "1", "type": "String"},
@@ -65,7 +85,48 @@ class TestSaveCsv2Dataset(unittest.TestCase):
         ]
         self.assertListEqual(expected_item, response["item"])
 
-        self.mock_client.delete("dataset", response["id"])
+    def test_save_csv2dataset_no_header(self):
+        timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        with TemporaryDirectory() as work_dir:
+            work_dir = Path(work_dir)
+            sample_file = work_dir / "sample_table.csv"
+            self.sample_data.write_csv(sample_file, include_header=False)
+
+            bfabric_save_csv2dataset(
+                self.mock_client,
+                csv_file=sample_file,
+                dataset_name=f"test_dataset {timestamp}",
+                container_id=3000,
+                workunit_id=None,
+                sep=",",
+                has_header=False,
+            )
+
+        # check the result
+        time.sleep(1)
+        response = self.mock_client.read("dataset", {"name": f"test_dataset {timestamp}"}).to_list_dict()[0]
+        self.created_entities.append(("dataset", response["id"]))
+
+        expected_attribute = [
+            {"name": "Column_1", "position": "1", "type": "String"},
+            {"name": "Column_2", "position": "2", "type": "String"},
+            {"name": "Column_3", "position": "3", "type": "String"},
+            {"name": "Column_4", "position": "4", "type": "String"},
+        ]
+        self.assertListEqual(expected_attribute, response["attribute"])
+
+        expected_item = [
+            {
+                "field": [
+                    {"attributeposition": "1", "value": "just a normal string"},
+                    {"attributeposition": "2", "value": "contains,some,commas,,,"},
+                    {"attributeposition": "3", "value": "testing\\backslash/support"},
+                    {"attributeposition": "4", "value": 'Lot\'s"of"apostrophes'},
+                ],
+                "position": "1",
+            }
+        ]
+        self.assertListEqual(expected_item, response["item"])
 
 
 if __name__ == "__main__":
