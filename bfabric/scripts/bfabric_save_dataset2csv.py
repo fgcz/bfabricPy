@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-
 """
 Author:
      Maria d'Errico <maria.derrico@fgcz.ethz.ch>
@@ -14,6 +13,7 @@ Description:
 Usage: bfabric_save_dataset2csv.py [-h] --id DATASET_ID [--dir SCRATCHDIR]
 Example: bfabric_save_dataset2csv.py --id 32335 && cat dataset.csv    
 """
+from __future__ import annotations
 
 import argparse
 from pathlib import Path
