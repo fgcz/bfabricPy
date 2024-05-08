@@ -68,6 +68,7 @@ def bfabric_read(
 
 
 def _print_table_rich(config: BfabricConfig, console_out: Console, endpoint: str, res: list[dict[str, Any]]) -> None:
+    """Prints the results as a rich table to the console."""
     table = Table("Id", "Created By", "Modified", "Name", "Grouping Var")
     for x in res:
         entry_url = f"{config.base_url}/{endpoint}/show.html?id={x['id']}"
@@ -82,6 +83,7 @@ def _print_table_rich(config: BfabricConfig, console_out: Console, endpoint: str
 
 
 def _print_table_tsv(res) -> None:
+    """Prints the results as a tab-separated table, using the original cols this script returned."""
     for x in res:
         try:
             print(f'{x["id"]}\t{x["createdby"]}\t{x["modified"]}\t{x["name"]}\t{x["groupingvar"]["name"]}')
@@ -90,6 +92,9 @@ def _print_table_tsv(res) -> None:
 
 
 def _determine_output_format(console_out: Console, output_format: str, n_results: int) -> str:
+    """Returns the format to use, based on the number of results, and whether the output is an interactive console.
+    If the format is already set to a concrete value instead of "auto", it will be returned unchanged.
+    """
     if output_format == "auto":
         if n_results < 2:
             output_format = "json"
