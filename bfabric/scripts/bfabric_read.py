@@ -18,7 +18,7 @@ import argparse
 import json
 import time
 import yaml
-from typing import Optional, Any
+from typing import Any
 
 from rich.console import Console
 from rich.table import Table
@@ -29,7 +29,7 @@ from bfabric.bfabric2 import Bfabric
 
 
 def bfabric_read(
-    client: Bfabric, endpoint: str, attribute: Optional[str], value: Optional[str], output_format: str
+    client: Bfabric, endpoint: str, attribute: str | None, value: str | None, output_format: str
 ) -> None:
     """Reads one or several items from a B-Fabric endpoint and prints them."""
     if attribute is not None and value is None:
@@ -82,7 +82,7 @@ def _print_table_rich(config: BfabricConfig, console_out: Console, endpoint: str
     console_out.print(table)
 
 
-def _print_table_tsv(res) -> None:
+def _print_table_tsv(res: list[dict[str, Any]]) -> None:
     """Prints the results as a tab-separated table, using the original cols this script returned."""
     for x in res:
         try:
