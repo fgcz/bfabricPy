@@ -31,12 +31,10 @@ from __future__ import annotations
 import argparse
 import csv
 from pathlib import Path
-from typing import TYPE_CHECKING
 
-from bfabric.bfabric2 import Bfabric, get_system_auth
+import pandas as pd
 
-if TYPE_CHECKING:
-    import pandas as pd
+from bfabric.bfabric2 import Bfabric
 
 
 def csv2json(csv_file_path: Path) -> dict[str, list[dict[str, int | str | float]]]:
@@ -81,10 +79,9 @@ def pandas2json(df: pd.DataFrame) -> dict[str, list[dict[str, int | str | float]
 
 
 def bfabric_save_csv2dataset(
-    csv_file: Path, dataset_name: str, container_id: int, workunit_id: int | None = None
+    client: Bfabric, csv_file: Path, dataset_name: str, container_id: int, workunit_id: int | None = None
 ) -> None:
     """Creates a dataset in B-Fabric from a csv file."""
-    client = Bfabric.from_config(verbose=True)
     obj = csv2json(csv_file)
     obj["name"] = dataset_name
     obj["containerid"] = container_id
@@ -97,6 +94,7 @@ def bfabric_save_csv2dataset(
 
 def main() -> None:
     """Parses command line arguments and calls `bfabric_save_csv2dataset`."""
+    client = Bfabric.from_config(verbose=True)
     parser = argparse.ArgumentParser(description="Create a B-Fabric dataset")
     parser.add_argument(
         "--csvfile", required=True, help="the path to the csv file to be uploaded as dataset", type=Path
@@ -106,7 +104,11 @@ def main() -> None:
     parser.add_argument("--workunitid", type=int, required=False, help="workunit id")
     args = parser.parse_args()
     bfabric_save_csv2dataset(
-        csv_file=args.csvfile, dataset_name=args.name, container_id=args.containerid, workunit_id=args.workunitid
+        client=client,
+        csv_file=args.csvfile,
+        dataset_name=args.name,
+        container_id=args.containerid,
+        workunit_id=args.workunitid,
     )
 
 
