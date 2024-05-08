@@ -1,4 +1,3 @@
-# TODO check escaping of "," and other special chars?
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
