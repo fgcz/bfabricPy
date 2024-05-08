@@ -73,6 +73,5 @@ class TestUploadResource(unittest.TestCase):
             self.assertIn("Resource with the specified attribute combination already exists", str(error.exception))
 
 
-
 if __name__ == "__main__":
     unittest.main()
