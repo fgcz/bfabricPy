@@ -304,7 +304,6 @@ class Bfabric:
     ) -> ResultContainer:
         """Uploads a resource to B-Fabric, only intended for relatively small files that will be tracked by B-Fabric
         and not one of the dedicated experimental data stores.
-        TODO test behavior when resource_name already exists
         :param resource_name: the name of the resource to create (the same name can only exist once per workunit)
         :param content: the content of the resource as bytes
         :param workunit_id: the workunit ID to which the resource belongs
