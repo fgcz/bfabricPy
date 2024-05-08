@@ -64,7 +64,8 @@ class TestUploadResource(unittest.TestCase):
             out_text = StringIO()
             with contextlib.redirect_stdout(out_text):
                 bfabric_upload_resource(client=self.client, filename=file, workunit_id=workunit_id)
-            resp1 = json.loads(out_text.getvalue())[0]
+            resp = json.loads(out_text.getvalue())[0]
+            self.assertEqual(workunit_id, resp["workunit"]["id"])
 
             # upload resource again
             with self.assertRaises(RuntimeError) as error:
