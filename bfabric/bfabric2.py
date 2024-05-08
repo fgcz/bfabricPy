@@ -201,6 +201,7 @@ class Bfabric:
         offset: int = 0,
         readid: bool = False,
         check: bool = True,
+        idonly: bool = False
     ) -> ResultContainer:
         """Reads objects from the specified endpoint that match all specified attributes in `obj`.
         By setting `max_results` it is possible to change the number of results that are returned.
@@ -215,14 +216,15 @@ class Bfabric:
         :param readid: whether to use reading by ID. Currently only available for engine=SUDS
             TODO: Test the extent to which this method works. Add safeguards
         :param check: whether to check for errors in the response
+        :param idonly: whether to return only the ids of referenced objects
         :return: List of responses, packaged in the results container
         """
         # Ensure stability
-        obj = self._add_query_timestamp(obj)
+        # obj = self._add_query_timestamp(obj)
 
         # Get the first page.
         # NOTE: According to old interface, this is equivalent to plain=True
-        response, errors = self._read_page(readid, endpoint, obj, page=1)
+        response, errors = self._read_page(readid, endpoint, obj, page=1, idonly=idonly)
 
         try:
             n_available_pages = response["numberofpages"]
@@ -253,7 +255,7 @@ class Bfabric:
         for i_iter, i_page in enumerate(requested_pages):
             if not (i_iter == 0 and i_page == 1):
                 print("-- reading page", i_page, "of", n_available_pages)
-                response, errors_page = self._read_page(readid, endpoint, obj, page=i_page)
+                response, errors_page = self._read_page(readid, endpoint, obj, page=i_page, idonly=idonly)
                 errors += errors_page
 
             response_items += response[endpoint][page_offset:]
@@ -312,13 +314,14 @@ class Bfabric:
             check=check,
         )
 
-    def _read_page(self, readid: bool, endpoint: str, query: dict[str, Any], page: int = 1):
+    def _read_page(self, readid: bool, endpoint: str, query: dict[str, Any], idonly: bool = False, page: int = 1):
         """Reads the specified page of objects from the specified endpoint that match the query."""
         if readid:
+            # TODO
             # https://fgcz-bfabric.uzh.ch/wiki/tiki-index.php?page=endpoint.workunit#Web_Method_readid_
             response = self.engine.readid(endpoint, query, auth=self.auth, page=page)
         else:
-            response = self.engine.read(endpoint, query, auth=self.auth, page=page)
+            response = self.engine.read(endpoint, query, auth=self.auth, page=page, idonly=idonly)
 
         return response, get_response_errors(response, endpoint)
 
@@ -328,7 +331,8 @@ class Bfabric:
 
     # TODO: Is this scope sufficient? Is there ever more than one multi-query parameter, and/or not at the root of dict?
     def read_multi(
-        self, endpoint: str, obj: dict, multi_query_key: str, multi_query_vals: list, readid: bool = False
+        self, endpoint: str, obj: dict, multi_query_key: str, multi_query_vals: list, readid: bool = False,
+        idonly: bool = False
     ) -> ResultContainer:
         """
         Makes a 1-parameter multi-query (there is 1 parameter that takes a list of values)
@@ -339,6 +343,7 @@ class Bfabric:
         :param multi_query_vals: list of values for which the multi-query is performed
         :param readid: whether to use reading by ID. Currently only available for engine=SUDS
             TODO: Test the extent to which this method works. Add safeguards
+        :param idonly: whether to return only the ids of the objects
         :return: List of responses, packaged in the results container
 
         NOTE: It is assumed that there is only 1 response for each value.
@@ -358,7 +363,7 @@ class Bfabric:
             #       automatically? If yes, perhaps we don't need this method at all?
             # TODO: It is assumed that a user requesting multi_query always wants all of the pages. Can anybody think of
             #   exceptions to this?
-            response_this = self.read(endpoint, obj_extended, max_results=None, readid=readid)
+            response_this = self.read(endpoint, obj_extended, max_results=None, readid=readid, idonly=idonly)
             response_tot.extend(response_this)
 
         return response_tot
