@@ -41,7 +41,6 @@ BFPASSWORD = "!ForYourEyesOnly!"
 
 DB = {}
 DBfilename = Path.home() / "mascot.json"
-# DBwritten = False
 
 try:
     with DBfilename.open() as file:
@@ -53,7 +52,7 @@ try:
             size=sum(map(lambda x: int(x["resource"]["size"]), DB.values())) / (1024 * 1024 * 1024),
         )
     )
-except Exception:
+except OSError:
     print(f"loading '{DBfilename}' failed")
     pass
 
