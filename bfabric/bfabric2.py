@@ -299,6 +299,28 @@ class Bfabric:
             result.assert_success()
         return result
 
+    def upload_resource(
+        self, resource_name: str, content: bytes, workunit_id: int, check: bool = True
+    ) -> ResultContainer:
+        """Uploads a resource to B-Fabric, only intended for relatively small files that will be tracked by B-Fabric
+        and not one of the dedicated experimental data stores.
+        :param resource_name: the name of the resource to create (the same name can only exist once per workunit)
+        :param content: the content of the resource as bytes
+        :param workunit_id: the workunit ID to which the resource belongs
+        :param check: whether to check for errors in the response
+        """
+        content_encoded = base64.b64encode(content).decode()
+        return self.save(
+            endpoint="resource",
+            obj={
+                "base64": content_encoded,
+                "name": resource_name,
+                "description": "base64 encoded file",
+                "workunitid": workunit_id,
+            },
+            check=check,
+        )
+
     def _read_page(self, readid: bool, endpoint: str, query: dict[str, Any], idonly: bool = False, page: int = 1):
         """Reads the specified page of objects from the specified endpoint that match the query."""
         if readid:
