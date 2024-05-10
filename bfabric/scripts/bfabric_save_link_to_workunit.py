@@ -1,32 +1,33 @@
 #!/usr/bin/env python3
-# -*- coding: latin1 -*-
-
 """
 Copyright (C) 2023 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 
 Christian Panse <cp@fgcz.ethz.ch> 20231011
 """
+import argparse
+import json
 
-import sys
-import os
-from bfabric import Bfabric
+from bfabric.bfabric2 import Bfabric
 
-def save_link(wuid=294156, link="", name=""):
-    B = Bfabric()
 
-    rv = B.save_object('link',
-        obj={'name': name,
-            'parentclassname': 'workunit',
-            'parentid': wuid,
-            'url': link})
-    B.print_json(rv)
+def save_link(workunit_id: int, url: str, name: str) -> None:
+    """Saves a link to a workunit."""
+    client = Bfabric.from_config(verbose=True)
+    results = client.save(
+        endpoint="link", obj={"name": name, "parentclassname": "workunit", "parentid": workunit_id, "url": url}
+    ).to_list_dict()
+    print(json.dumps(results[0], indent=2))
+
+
+def main() -> None:
+    """Parses the command line arguments and calls `save_link`."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("workunit_id", type=int, help="the workunit ID")
+    parser.add_argument("link", type=str, help="the url to save")
+    parser.add_argument("name", type=str, help="the name of the link")
+    args = parser.parse_args()
+    save_link(workunit_id=args.workunit_id, url=args.link, name=args.name)
+
 
 if __name__ == "__main__":
-    if len(sys.argv) == 4:
-        save_link(wuid=sys.argv[1], link=sys.argv[2], name=sys.argv[3])
-    else:
-        print ("Usage:")
-        print ("{} <workunit id> <link> <name>".format(sys.argv[0]))
-        print ("Example:")
-        print ("{} 294156 'https://fgcz-shiny.uzh.ch/exploreDE_prot/?data=p3000/bfabric/Proteomics/SummarizedExperiment/2023/2023-09/2023-09-29/workunit_294156/2363303.rds' 'demo1 link'".format(sys.argv[0]))
-
+    main()

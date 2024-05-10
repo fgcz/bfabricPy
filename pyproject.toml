@@ -59,12 +59,12 @@ Repository = "https://github.com/fgcz/bfabricPy"
 "bfabric_read_samples_from_dataset.py"="bfabric.scripts.bfabric_read_samples_from_dataset:main"
 "bfabric_save_csv2dataset.py"="bfabric.scripts.bfabric_save_csv2dataset:main"
 "bfabric_save_dataset2csv.py"="bfabric.scripts.bfabric_save_dataset2csv:main"
-#bfabric_save_fasta="bfabric.scripts.bfabric_save_fasta:main"
-#bfabric_save_importresource_sample="bfabric.scripts.bfabric_save_importresource_sample:main"
-#bfabric_save_link_to_workunit="bfabric.scripts.bfabric_save_link_to_workunit:main"
+"bfabric_save_fasta.py"="bfabric.scripts.bfabric_save_fasta:main"
+"bfabric_save_importresource_sample.py"="bfabric.scripts.bfabric_save_importresource_sample:main"
+"bfabric_save_link_to_workunit.py"="bfabric.scripts.bfabric_save_link_to_workunit:main"
 #bfabric_save_resource="bfabric.scripts.bfabric_save_resource:main"
-#bfabric_save_workunit_attribute="bfabric.scripts.bfabric_save_workunit_attribute:main"
-#bfabric_save_workflowstep="bfabric.scripts.bfabric_save_workflowstep:main"
+"bfabric_save_workunit_attribute.py"="bfabric.scripts.bfabric_save_workunit_attribute:main"
+"bfabric_save_workflowstep.py"="bfabric.scripts.bfabric_save_workflowstep:main"
 
 [tool.black]
 line-length = 120
