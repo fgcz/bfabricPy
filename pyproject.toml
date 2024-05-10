@@ -78,7 +78,6 @@ target-version = "py39"
 [tool.ruff.lint]
 select = ["ANN", "BLE", "D103", "E", "F", "PLW", "PTH", "SIM", "UP"]
 ignore = ["ANN101"]
-ignore = ["ANN101"]
 
 [tool.licensecheck]
 using = "PEP631"
