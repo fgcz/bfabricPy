@@ -22,7 +22,7 @@ requires-python = ">=3.9"
 dependencies = [
     "suds >= 1.1.2",
     "PyYAML >= 6.0",
-    "Flask == 2.2.5",
+    "Flask >= 3.0.3",
     "rich >= 13.7.1",
     "zeep >= 4.2.1",
     "pandas >= 2.2.2",
@@ -47,12 +47,12 @@ Repository = "https://github.com/fgcz/bfabricPy"
 #bfabric_list_not_existing_storage_directories="bfabric.scripts.bfabric_list_not_existing_storage_directories:main"
 "bfabric_list_not_available_proteomics_workunits.py"="bfabric.scripts.bfabric_list_not_available_proteomics_workunits:main"
 "bfabric_upload_resource.py"="bfabric.scripts.bfabric_upload_resource:main"
-#bfabric_logthis="bfabric.scripts.bfabric_logthis:main"
-#bfabric_setResourceStatus_available="bfabric.scripts.bfabric_setResourceStatus_available:main"
-#bfabric_setExternalJobStatus_done="bfabric.scripts.bfabric_setExternalJobStatus_done:main"
-#bfabric_setWorkunitStatus_available="bfabric.scripts.bfabric_setWorkunitStatus_available:main"
-#bfabric_setWorkunitStatus_processing="bfabric.scripts.bfabric_setWorkunitStatus_processing:main"
-#bfabric_setWorkunitStatus_failed="bfabric.scripts.bfabric_setWorkunitStatus_failed:main"
+"bfabric_logthis.py"="bfabric.scripts.bfabric_logthis:main"
+"bfabric_setResourceStatus_available.py"="bfabric.scripts.bfabric_setResourceStatus_available:main"
+"bfabric_setExternalJobStatus_done.py"="bfabric.scripts.bfabric_setExternalJobStatus_done:main"
+"bfabric_setWorkunitStatus_available.py"="bfabric.scripts.bfabric_setWorkunitStatus_generic:main_available"
+"bfabric_setWorkunitStatus_processing.py"="bfabric.scripts.bfabric_setWorkunitStatus_processing:main_processing"
+"bfabric_setWorkunitStatus_failed.py"="bfabric.scripts.bfabric_setWorkunitStatus_failed:main_failed"
 #bfabric_delete="bfabric.scripts.bfabric_delete:main"
 "bfabric_read.py"="bfabric.scripts.bfabric_read:main"
 "bfabric_read_samples_of_workunit.py"="bfabric.scripts.bfabric_read_samples_of_workunit:main"
@@ -77,6 +77,7 @@ target-version = "py39"
 
 [tool.ruff.lint]
 select = ["D103", "E", "F", "ANN", "PTH", "UP", "BLE", "SIM"]
+ignore = ["ANN101"]
 
 [tool.licensecheck]
 using = "PEP631"

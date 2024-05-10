@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-# -*- coding: latin1 -*-
-
 """
 set status of a resource of a given resource id
 """
+from __future__ import annotations
+import argparse
+
+from bfabric.bfabric2 import Bfabric
 
 # Copyright (C) 2014 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 #
@@ -14,21 +16,27 @@ set status of a resource of a given resource id
 #
 # Licensed under  GPL version 3
 #
-# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/scripts/bfabric_setExternalJobStatus_done.py $
-# $Id: bfabric_setExternalJobStatus_done.py 2996 2017-08-18 12:11:17Z cpanse $
 
-import sys
-import bfabric
-import bfabric.wrapper_creator.bfabric_feeder
+
+def set_external_job_status_done(client: Bfabric, external_job_id: list[int]) -> None:
+    """Sets the status of the specified external jobs to 'done'."""
+    for job_id in external_job_id:
+        try:
+            res = client.save("externaljob", {"id": job_id, "status": "done"}).to_list_dict()
+            print(res)
+        except Exception:
+            print(f"failed to set externaljob with id={job_id} 'available'.")
+            raise
+
+
+def main() -> None:
+    """Parses command line arguments and calls `set_external_job_status_done`."""
+    parser = argparse.ArgumentParser(description="set external job status to 'done'")
+    parser.add_argument("external_job_id", type=int, help="external job id", nargs="+")
+    args = parser.parse_args()
+    client = Bfabric.from_config(verbose=True)
+    set_external_job_status_done(client, args.external_job_id)
+
 
 if __name__ == "__main__":
-    bfapp = bfabric.wrapper_creator.bfabric_feeder.BfabricFeeder()
-
-    if len(sys.argv) > 1:
-        for i in range(1, len(sys.argv)):
-            try:
-                res = bfapp.save_object('externaljob', {'id':int(sys.argv[i]), 'status':'done'})
-                print(res)
-            except:
-                print("failed to set externaljob with id={} 'available'.".format(int(sys.argv[i])))
-                raise
+    main()

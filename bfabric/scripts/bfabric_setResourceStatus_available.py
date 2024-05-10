@@ -1,9 +1,13 @@
-#!/usr/bin/env python3  
-# -*- coding: latin1 -*-
-
+#!/usr/bin/env python3
 """
 set status of a resource of a given resource id
 """
+from __future__ import annotations
+
+import argparse
+
+from bfabric.bfabric2 import Bfabric
+
 
 # Copyright (C) 2014 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 #
@@ -13,28 +17,26 @@ set status of a resource of a given resource id
 #
 # Licensed under  GPL version 3
 #
-# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/fgcz_bfabric_setResourceStatus_available.py $
-# $Id: fgcz_bfabric_setResourceStatus_available.py 2397 2016-09-06 07:04:35Z cpanse $
 
-import sys
-import bfabric
 
-from random import randint
-from time import sleep
+def set_resource_status_available(client: Bfabric, resource_id: list[int]) -> None:
+    """Sets the status of the specified resources to 'available'."""
+    for resource_id in resource_id:
+        try:
+            res = client.save("resource", {"id": resource_id, "status": "available"}).to_list_dict()
+            print(res)
+        except Exception:
+            print(f"failed to set resourceid {resource_id} 'available'.")
+            raise
 
-import bfabric.wrapper_creator.bfabric_feeder
+def main() -> None:
+    """Parses command line arguments and calls `set_resource_status_available`."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("resource_id", type=int, help="resource id", nargs="+")
+    args = parser.parse_args()
+    client = Bfabric.from_config(verbose=True)
+    set_resource_status_available(client, args.resource_id)
+
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        bfapp = bfabric.wrapper_creator.bfabric_feeder.BfabricFeeder()
-
-        for i in range(1, len(sys.argv)):
-            sleep(randint(2, 20))
-            try:
-                print(bfapp.report_resource(resourceid=int(sys.argv[i])))
-            except:
-                print( "failed to set resourceid {} 'available'.".format(int(sys.argv[i])))
-                raise
-    else:
-        print("Invalid argument: no resourceid is provided")
-        sys.exit(0)
+    main()
