@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from bfabric.bfabric2 import Bfabric
+from bfabric import Bfabric
 
 
 class DeleteEntities:

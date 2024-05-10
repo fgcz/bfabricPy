@@ -24,8 +24,7 @@ from rich.console import Console
 from rich.table import Table
 
 import bfabric
-from bfabric import BfabricConfig
-from bfabric.bfabric2 import Bfabric
+from bfabric import Bfabric, BfabricConfig
 
 
 def bfabric_read(

@@ -19,8 +19,7 @@ http://fgcz-bfabric.uzh.ch/bfabric/executable?wsdl
 import argparse
 import json
 
-import bfabric
-from bfabric.bfabric2 import Bfabric, get_system_auth
+from bfabric import Bfabric
 
 
 def bfabric_delete(endpoint: str, id: int) -> None:

@@ -9,24 +9,11 @@ import yaml
 from suds.client import Client
 from suds.wsdl import Service
 
-from bfabric.bfabric_config import BfabricAuth, BfabricConfig, read_config
+from bfabric import BfabricConfig
+from bfabric.bfabric_config import BfabricAuth, read_config
 
 
-class bfabricEncoder(json.JSONEncoder):
-    """
-    Implements json encoder for the Bfabric.print_json method
-    """
-    def default(self, o):
-        try:
-            return dict(o)
-        except TypeError:
-            pass
-        else:
-            return list(o)
-        return JSONEncoder.default(self, o)
-
-
-class Bfabric(object):
+class BfabricLegacy(object):
     """B-Fabric python3 module
     Implements read and save object methods for B-Fabric wsdl interface
     """
@@ -70,7 +57,7 @@ class Bfabric(object):
         # Load config from file, override some of the fields with the provided ones
         else:
             config, auth = read_config(config_path, config_env=config_env, optional_auth=optional_auth)
-            self.config = config.copy_with(base_url=base_url)
+            self.config = config.with_overrides(base_url=base_url)
             if (login is not None) and (password is not None):
                 self.auth = BfabricAuth(login=login, password=password)
             elif (login is None) and (password is None):
@@ -241,3 +228,17 @@ class Bfabric(object):
         except:
             self.warning("fetching sampleid of resource.workunitid = {} failed.".format(resource.workunit._id))
             return (None)
+
+
+class bfabricEncoder(json.JSONEncoder):
+    """
+    Implements json encoder for the Bfabric.print_json method
+    """
+    def default(self, o):
+        try:
+            return dict(o)
+        except TypeError:
+            pass
+        else:
+            return list(o)
+        return JSONEncoder.default(self, o)

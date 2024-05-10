@@ -18,7 +18,7 @@ import sys
 import time
 import unittest
 
-from bfabric.bfabric2 import Bfabric
+from bfabric import Bfabric
 
 
 class AutoQC:

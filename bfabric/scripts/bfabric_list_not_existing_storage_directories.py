@@ -10,14 +10,15 @@ Licensed under  GPL version 3
 
 http://fgcz-bfabric.uzh.ch/bfabric/executable?wsdl
 """
+from __future__ import annotations
 import os
 
-from bfabric.bfabric2 import Bfabric, get_system_auth
+from bfabric import Bfabric
 
 ROOTDIR = "/srv/www/htdocs/"
 
 
-def list_not_existing_storage_dirs(client, technologyid: int = 2):
+def list_not_existing_storage_dirs(client: Bfabric, technologyid: int = 2) -> None:
     results = client.read(endpoint="container", obj={"technologyid": technologyid}).to_list_dict()
     container_ids = sorted({x["id"] for x in results})
 
@@ -26,7 +27,7 @@ def list_not_existing_storage_dirs(client, technologyid: int = 2):
             print(cid)
 
 
-def main():
+def main() -> None:
     client = Bfabric.from_config(verbose=True)
     list_not_existing_storage_dirs(client=client, technologyid=2)
     list_not_existing_storage_dirs(client=client, technologyid=4)

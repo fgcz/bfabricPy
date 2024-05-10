@@ -21,7 +21,7 @@ import re
 import sys
 import time
 
-from bfabric.bfabric2 import Bfabric
+from bfabric import Bfabric
 
 BFABRIC_STORAGE_ID = 2
 

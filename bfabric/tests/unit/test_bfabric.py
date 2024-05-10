@@ -3,8 +3,7 @@ import unittest
 from functools import cached_property
 from unittest.mock import MagicMock, patch, ANY
 
-from bfabric import BfabricConfig
-from bfabric.bfabric2 import BfabricAPIEngineType, Bfabric
+from bfabric import Bfabric, BfabricAPIEngineType, BfabricConfig
 from bfabric.src.engine_suds import EngineSUDS
 
 
@@ -19,7 +18,7 @@ class TestBfabric(unittest.TestCase):
     def mock_bfabric(self) -> Bfabric:
         return Bfabric(config=self.mock_config, auth=self.mock_auth, engine=self.mock_engine_type)
 
-    @patch("bfabric.bfabric2.get_system_auth")
+    @patch("bfabric.bfabric.get_system_auth")
     def test_from_config_when_no_args(self, mock_get_system_auth):
         mock_config = MagicMock(name="mock_config")
         mock_auth = MagicMock(name="mock_auth")
@@ -30,7 +29,7 @@ class TestBfabric(unittest.TestCase):
         self.assertEqual(mock_auth, client.auth)
         mock_get_system_auth.assert_called_once_with(config_env=None)
 
-    @patch("bfabric.bfabric2.get_system_auth")
+    @patch("bfabric.bfabric.get_system_auth")
     def test_from_config_when_explicit_auth(self, mock_get_system_auth):
         mock_config = MagicMock(name="mock_config")
         mock_auth = MagicMock(name="mock_auth")
@@ -42,7 +41,7 @@ class TestBfabric(unittest.TestCase):
         self.assertEqual(mock_auth, client.auth)
         mock_get_system_auth.assert_called_once_with(config_env="TestingEnv")
 
-    @patch("bfabric.bfabric2.get_system_auth")
+    @patch("bfabric.bfabric.get_system_auth")
     def test_from_config_when_none_auth(self, mock_get_system_auth):
         mock_config = MagicMock(name="mock_config")
         mock_auth = MagicMock(name="mock_auth")
@@ -119,7 +118,7 @@ class TestBfabric(unittest.TestCase):
         year = datetime.datetime.now().year
         self.assertEqual(f"--- Copyright (C) 2014-{year} Functional Genomics Center Zurich ---", lines[1])
 
-    @patch("bfabric.bfabric2.Console")
+    @patch("bfabric.bfabric.Console")
     @patch.object(Bfabric, "get_version_message")
     def test_print_version_message(self, method_get_version_message, mock_console):
         mock_stderr = MagicMock(name="mock_stderr")

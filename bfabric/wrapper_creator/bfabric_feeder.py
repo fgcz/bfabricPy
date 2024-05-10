@@ -1,10 +1,10 @@
 import hashlib
 import os
 
-from bfabric import Bfabric
+from bfabric.bfabric_legacy import BfabricLegacy
 
 
-class BfabricFeeder(Bfabric):
+class BfabricFeeder(BfabricLegacy):
     """
         this class is used for reporting 'resource' status
     """

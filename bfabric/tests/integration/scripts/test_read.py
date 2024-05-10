@@ -5,7 +5,7 @@ from io import StringIO
 
 import yaml
 
-from bfabric.bfabric2 import Bfabric
+from bfabric import Bfabric
 from bfabric.scripts.bfabric_read import bfabric_read
 from bfabric.tests.integration.integration_test_helper import DeleteEntities
 

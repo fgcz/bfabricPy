@@ -5,7 +5,8 @@ set status of a resource of a given resource id
 from __future__ import annotations
 import argparse
 
-from bfabric.bfabric2 import Bfabric
+from bfabric import Bfabric
+
 
 # Copyright (C) 2014 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 #

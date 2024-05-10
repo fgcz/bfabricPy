@@ -18,8 +18,7 @@ from typing import Any
 from rich.console import Console
 from rich.table import Column, Table
 
-from bfabric import BfabricConfig
-from bfabric.bfabric2 import Bfabric
+from bfabric import Bfabric, BfabricConfig
 
 
 def render_output(workunits_by_status: dict[str, list[dict[str, Any]]], config: BfabricConfig) -> None:

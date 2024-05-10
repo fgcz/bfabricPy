@@ -1,4 +1,5 @@
-from bfabric.bfabric2 import get_system_auth, BfabricAuth, BfabricConfig
+from bfabric import BfabricAuth, BfabricConfig
+from bfabric.bfabric import get_system_auth
 import zeep
 from copy import deepcopy
 from lxml import etree

@@ -2,7 +2,7 @@ import json
 import os
 import unittest
 
-from bfabric.bfabric2 import Bfabric, BfabricAPIEngineType
+from bfabric import Bfabric, BfabricAPIEngineType
 from bfabric.src.errors import BfabricRequestError
 
 

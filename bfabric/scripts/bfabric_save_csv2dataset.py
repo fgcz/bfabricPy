@@ -33,7 +33,7 @@ from pathlib import Path
 
 import polars as pl
 
-from bfabric.bfabric2 import Bfabric
+from bfabric import Bfabric
 
 
 def polars_to_bfabric_type(dtype: pl.DataType) -> str | None:

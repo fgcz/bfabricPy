@@ -1,16 +1,14 @@
-import sys
 from collections import OrderedDict
-from copy import deepcopy
-from lxml import etree
-from pprint import pprint
 from contextlib import redirect_stdout
+from copy import deepcopy
 
-import zeep
 import suds
+import zeep
 
-from bfabric.bfabric2 import get_system_auth, BfabricAuth, BfabricConfig
-from bfabric.src.response_format_suds import suds_asdict_recursive
+from bfabric import BfabricAuth, BfabricConfig
+from bfabric.bfabric import get_system_auth
 from bfabric.src.response_format_dict import drop_empty_elements, map_element_keys
+from bfabric.src.response_format_suds import suds_asdict_recursive
 
 '''
 This file is intended to eventually become a test to compare that Zeep and SUDS produce

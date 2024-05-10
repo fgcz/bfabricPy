@@ -33,7 +33,7 @@ class BfabricTestCase(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(BfabricTestCase, self).__init__(*args, **kwargs)
 
-        self.bfapp = bfabric.bfabric_legacy.Bfabric(verbose=False)
+        self.bfapp = bfabric.bfabric_legacy.BfabricLegacy(verbose=False)
 
         for e in ['executable', 'sample', 'application', 'workunit', 'resource']:
             self.endpoint[e] = []

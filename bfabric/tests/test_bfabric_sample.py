@@ -6,7 +6,7 @@ unittest by <cp@fgcz.ethz.ch>
 """
 
 import unittest
-from bfabric import Bfabric
+from bfabric.bfabric_legacy import BfabricLegacy
 
 """
 ssh localhost "cat > /tmp/bb.py && /usr/bin/python /tmp/bb.py" < PycharmProjects/untitled/bfabric_wsdl.py 
@@ -17,7 +17,7 @@ class BfabricTestCase(unittest.TestCase):
     samples = []
 
 
-    bfapp = Bfabric(verbose=True)
+    bfapp = BfabricLegacy(verbose=True)
     def sample_save(self):
         print("SAVE SAMPLE")
         sample_type = 'Biological Sample - Proteomics'

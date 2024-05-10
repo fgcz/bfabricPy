@@ -2,7 +2,8 @@
 import argparse
 import json
 
-from bfabric.bfabric2 import Bfabric
+from bfabric import Bfabric
+
 
 # Copyright (C) 2014 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 #

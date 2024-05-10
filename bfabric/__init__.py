@@ -2,7 +2,8 @@ import importlib.metadata
 
 __version__ = importlib.metadata.version("bfabric")
 
-name = "bfabricPy"
+from bfabric.bfabric import Bfabric, BfabricAPIEngineType
+from bfabric.bfabric_config import BfabricAuth, BfabricConfig
 
 
 endpoints = sorted([
@@ -39,8 +40,8 @@ project = 403
 container = project
 application = 217
 
-from bfabric.bfabric_legacy import Bfabric
+
+from bfabric.bfabric_legacy import BfabricLegacy
 from bfabric.wrapper_creator.bfabric_wrapper_creator import BfabricWrapperCreator
 from bfabric.wrapper_creator.bfabric_submitter import BfabricSubmitter
 from bfabric.wrapper_creator.bfabric_feeder import BfabricFeeder
-from bfabric.bfabric_config import BfabricConfig

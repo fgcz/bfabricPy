@@ -6,7 +6,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import polars as pl
-from bfabric.bfabric2 import Bfabric
+from bfabric import Bfabric
 from bfabric.scripts.bfabric_save_csv2dataset import bfabric_save_csv2dataset
 from bfabric.tests.integration.integration_test_helper import DeleteEntities
 

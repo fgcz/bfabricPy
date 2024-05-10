@@ -2,7 +2,8 @@ import logging
 import unittest
 import pandas as pd
 
-from bfabric.bfabric2 import Bfabric, BfabricAPIEngineType, get_system_auth
+from bfabric import BfabricAPIEngineType, Bfabric
+from bfabric.bfabric import get_system_auth
 from bfabric.src.pandas_helper import list_dict_to_df
 
 
