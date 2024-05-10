@@ -1,7 +1,8 @@
 from typing import Tuple
 import unittest
 
-from bfabric.bfabric2 import Bfabric, BfabricAPIEngineType, get_system_auth
+from bfabric import BfabricAPIEngineType, Bfabric
+from bfabric.bfabric import get_system_auth
 
 
 def _find_delete_existing_objects_by_name(b: Bfabric, endpoint: str, name_list: list) -> Tuple[list, list]:

@@ -48,7 +48,7 @@ import base64
 
 import yaml
 
-from bfabric.bfabric2 import Bfabric
+from bfabric import Bfabric
 
 
 def main_upload_submitter_executable(options) -> None:

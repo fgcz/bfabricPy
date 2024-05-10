@@ -15,6 +15,7 @@ import sys
 import logging
 import time
 
+import bfabric.bfabric_legacy
 import bfabric.wrapper_creator.bfabric_submitter
 import bfabric.wrapper_creator.bfabric_wrapper_creator
 
@@ -35,7 +36,7 @@ class BfabricFunctionalTestCase(unittest.TestCase):
 
     def test_wrappercreator_submitter(self):
         logging.info("XXX start functional testing")
-        B = bfabric.Bfabric()
+        B = bfabric.bfabric_legacy.BfabricLegacy()
 
         logging.info("Running functional test on bfabricPy")
 

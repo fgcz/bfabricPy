@@ -1,7 +1,8 @@
 import os
 import pandas as pd
 
-from bfabric.bfabric2 import Bfabric, BfabricAPIEngineType, get_system_auth
+from bfabric import Bfabric, BfabricAPIEngineType
+from bfabric.bfabric import get_system_auth
 from bfabric.src.pandas_helper import list_dict_to_df
 
 '''

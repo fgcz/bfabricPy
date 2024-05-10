@@ -1,9 +1,9 @@
 import json
 
-from bfabric.bfabric import Bfabric, bfabricEncoder
+from bfabric.bfabric_legacy import bfabricEncoder, BfabricLegacy
 
 
-class BfabricExternalJob(Bfabric):
+class BfabricExternalJob(BfabricLegacy):
     """
     ExternalJobs can use logging.
     if you have a valid externaljobid use this class instead of

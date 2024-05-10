@@ -1,5 +1,5 @@
-from bfabric.bfabric2 import Bfabric, BfabricAPIEngineType, get_system_auth
-
+from bfabric import BfabricAPIEngineType, Bfabric
+from bfabric.bfabric import get_system_auth
 
 config, auth = get_system_auth(config_env="TEST")
 

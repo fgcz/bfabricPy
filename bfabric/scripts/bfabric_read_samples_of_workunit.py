@@ -18,7 +18,7 @@ import time
 
 from rich.console import Console
 
-from bfabric.bfabric2 import Bfabric
+from bfabric import Bfabric
 
 
 def bfabric_read_samples_of_workunit(workunit_id: int) -> None:

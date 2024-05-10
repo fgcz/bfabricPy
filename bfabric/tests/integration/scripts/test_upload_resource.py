@@ -7,7 +7,7 @@ from io import StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from bfabric.bfabric2 import Bfabric
+from bfabric import Bfabric
 from bfabric.scripts.bfabric_upload_resource import bfabric_upload_resource
 from bfabric.tests.integration.integration_test_helper import DeleteEntities
 

@@ -20,7 +20,7 @@ from pathlib import Path
 
 import polars as pl
 
-from bfabric.bfabric2 import Bfabric
+from bfabric import Bfabric
 
 
 def dataset2csv(dataset: dict, output_path: Path, sep: str) -> None:

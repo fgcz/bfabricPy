@@ -15,8 +15,9 @@ http://fgcz-bfabric.uzh.ch/bfabric/executable?wsdl
 import os
 
 
-import bfabric
-B = bfabric.Bfabric()
+import bfabric.bfabric_legacy
+
+B = bfabric.bfabric_legacy.BfabricLegacy()
 
 ROOTDIR="/srv/www/htdocs/"
 

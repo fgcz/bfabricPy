@@ -9,6 +9,7 @@ import os
 import unittest
 
 import bfabric
+import bfabric.bfabric_legacy
 
 
 class BfabricTestCaseReadEndPoints(unittest.TestCase):
@@ -17,7 +18,7 @@ class BfabricTestCaseReadEndPoints(unittest.TestCase):
         path = os.path.join(os.path.dirname(__file__), "groundtruth.json")
         with open(path) as json_file:
             cls.ground_truth = json.load(json_file)
-        cls.bfapp = bfabric.Bfabric(verbose=False)
+        cls.bfapp = bfabric.bfabric_legacy.BfabricLegacy(verbose=False)
 
     def read(self, endpoint):
         """Executes read queries for `endpoint` and compares results with ground truth."""

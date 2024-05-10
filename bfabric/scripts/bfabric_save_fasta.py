@@ -8,7 +8,7 @@ import json
 import sys
 from pathlib import Path
 
-from bfabric.bfabric2 import Bfabric
+from bfabric import Bfabric
 
 FASTAHTTPROOT = "/fasta/"
 BFABRICSTORAGEID = 2

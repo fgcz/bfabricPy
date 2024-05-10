@@ -6,7 +6,7 @@
 from __future__ import annotations
 import argparse
 
-from bfabric.bfabric2 import Bfabric
+from bfabric import Bfabric
 
 
 def bfabric_logthis(client: Bfabric, external_job_id: int, message: str) -> None:

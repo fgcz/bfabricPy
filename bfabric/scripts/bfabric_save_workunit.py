@@ -20,9 +20,10 @@ import sys
 import bfabric
 import datetime
 
+import bfabric.bfabric_legacy
 
 if __name__ == "__main__":
-    bfapp = bfabric.Bfabric()
+    bfapp = bfabric.bfabric_legacy.BfabricLegacy()
 
 
     workunit = bfapp.save_object(endpoint='workunit', obj={'name': 'MaxQuant report', 'projectid': '1000', 'applicationid': 217, 'status': 'available'})

@@ -20,10 +20,10 @@ http://fgcz-bfabric.uzh.ch/bfabric/executable?wsdl
 """
 
 import sys
-import bfabric 
+import bfabric.bfabric_legacy
 
 if __name__ == "__main__":
-    bfapp = bfabric.Bfabric()
+    bfapp = bfabric.bfabric_legacy.BfabricLegacy()
 
     query_obj = {}
     

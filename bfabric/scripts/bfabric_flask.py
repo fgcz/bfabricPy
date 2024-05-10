@@ -41,8 +41,7 @@ from typing import Any
 
 from flask import Flask, Response, jsonify, request
 
-from bfabric.bfabric2 import Bfabric
-from bfabric.bfabric_config import BfabricAuth
+from bfabric import Bfabric, BfabricAuth
 
 
 if "BFABRICPY_CONFIG_ENV" not in os.environ:

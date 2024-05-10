@@ -6,13 +6,13 @@ unittest by <cp@fgcz.ethz.ch>
 """
 
 import unittest
-from bfabric import Bfabric
+from bfabric import BfabricLegacy
 
 """
 ssh localhost "cat > /tmp/bb.py && /usr/bin/python /tmp/bb.py" < PycharmProjects/untitled/bfabric_wsdl.py 
 """
 class BfabricTestCase(unittest.TestCase):
-    bfapp = Bfabric(verbose=True)
+    bfapp = BfabricLegacy(verbose=True)
 
     workunits = []
     samples = []

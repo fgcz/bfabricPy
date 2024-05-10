@@ -18,7 +18,7 @@ import yaml
 import re
 import time
 import unittest
-from bfabric import Bfabric
+from bfabric.bfabric_legacy import BfabricLegacy
 
 
 class autoQC():
@@ -31,7 +31,7 @@ class autoQC():
         config = yaml.load(file, Loader=yaml.FullLoader)
     bfabric_application_ids = config['applicationId']
 
-    bfapp = Bfabric(verbose=False)
+    bfapp = BfabricLegacy(verbose=False)
 
     @property
     def getId(self, obj):

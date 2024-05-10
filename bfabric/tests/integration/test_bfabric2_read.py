@@ -2,8 +2,8 @@ import json
 import os
 import unittest
 
-from bfabric.bfabric2 import Bfabric, BfabricAPIEngineType, get_system_auth
-from bfabric.bfabric_config import BfabricAuth
+from bfabric import BfabricAPIEngineType, Bfabric, BfabricAuth
+from bfabric.bfabric import get_system_auth
 
 
 class BfabricTestRead(unittest.TestCase):

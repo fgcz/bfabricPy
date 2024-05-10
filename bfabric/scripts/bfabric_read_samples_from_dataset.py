@@ -15,7 +15,7 @@ Usage:
    bfabric_read_samples_from_dataset.py datasetid
 """
 import argparse
-from bfabric.bfabric2 import Bfabric
+from bfabric import Bfabric
 
 
 def get_table_row(client: Bfabric, relative_path: str) -> tuple[str, int, str, str, str]:

@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import argparse
 
-from bfabric.bfabric2 import Bfabric
+from bfabric import Bfabric
 
 
 def save_workflowstep(workunit_id: int | None = None) -> None:

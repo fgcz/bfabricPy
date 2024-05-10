@@ -7,7 +7,7 @@ Christian Panse <cp@fgcz.ethz.ch> 20231011
 import argparse
 import json
 
-from bfabric.bfabric2 import Bfabric
+from bfabric import Bfabric
 
 
 def save_link(workunit_id: int, url: str, name: str) -> None:

@@ -2,7 +2,8 @@ import json
 import os
 import unittest
 
-from bfabric.bfabric2 import Bfabric, BfabricAPIEngineType, get_system_auth
+from bfabric import BfabricAPIEngineType, Bfabric
+from bfabric.bfabric import get_system_auth
 from bfabric.src.errors import BfabricRequestError
 
 
