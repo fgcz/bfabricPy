@@ -2,8 +2,8 @@ import base64
 
 import yaml
 
-import bfabric.gridengine as gridengine
-import bfabric.slurm as slurm
+import bfabric.wrapper_creator.gridengine as gridengine
+import bfabric.wrapper_creator.slurm as slurm
 from bfabric.wrapper_creator.bfabric_external_job import BfabricExternalJob
 
 
