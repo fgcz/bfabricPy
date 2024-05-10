@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: latin1 -*-
-
 """
 
 Copyright (C) 2017,2020 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
@@ -12,15 +10,28 @@ Licensed under  GPL version 3
 
 this script takes a blob file and a workunit id as input and adds the file as resource to bfabric
 """
+import argparse
+import json
+from pathlib import Path
 
-import sys
-import os
-from bfabric import Bfabric
+from bfabric.bfabric2 import Bfabric
+
+
+def bfabric_upload_resource(client: Bfabric, filename: Path, workunit_id: int) -> None:
+    """Uploads the specified file to the workunit with the name of the file as resource name."""
+    result = client.upload_resource(resource_name=filename.name, content=filename.read_bytes(), workunit_id=workunit_id)
+    print(json.dumps(result.to_list_dict(), indent=2))
+
+
+def main() -> None:
+    """Parses the command line arguments and calls `bfabric_upload_resource`."""
+    client = Bfabric.from_config(verbose=True)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("filename", help="filename", type=Path)
+    parser.add_argument("workunitid", help="workunitid", type=int)
+    args = parser.parse_args()
+    bfabric_upload_resource(client=client, filename=args.filename, workunit_id=args.workunitid)
+
 
 if __name__ == "__main__":
-    if len(sys.argv) == 3 and os.path.isfile(sys.argv[1]):
-        B = Bfabric()
-        B.print_json(B.upload_file(filename = sys.argv[1], workunitid = int(sys.argv[2])))
-    else:
-        print("usage:\nbfabric_upload_resource.py <filename> <workunitid>")
-        sys.exit(1)
+    main()
