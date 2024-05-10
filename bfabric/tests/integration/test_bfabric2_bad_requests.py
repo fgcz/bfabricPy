@@ -4,7 +4,7 @@ import unittest
 
 from bfabric import BfabricAPIEngineType, Bfabric
 from bfabric.bfabric import get_system_auth
-from bfabric.src.errors import BfabricRequestError
+from bfabric.errors import BfabricRequestError
 
 
 class BfabricTestBadRequest(unittest.TestCase):

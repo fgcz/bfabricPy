@@ -31,7 +31,7 @@ from bfabric.bfabric_config import BfabricConfig
 from bfabric.src.cli_formatting import HostnameHighlighter, DEFAULT_THEME
 from bfabric.src.engine_suds import EngineSUDS
 from bfabric.src.engine_zeep import EngineZeep
-from bfabric.src.errors import get_response_errors
+from bfabric.errors import get_response_errors
 from bfabric.src.paginator import compute_requested_pages, BFABRIC_QUERY_LIMIT, page_iter
 from bfabric.src.result_container import BfabricResultType, ResultContainer
 

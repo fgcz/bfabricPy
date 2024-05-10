@@ -4,7 +4,7 @@ import zeep
 import copy
 
 from bfabric.bfabric_config import BfabricAuth
-from bfabric.src.errors import BfabricRequestError
+from bfabric.errors import BfabricRequestError
 
 
 # TODO: Check if this is a bug of BFabric or Zeep. Specifically, see if the same call to bFabricPy has the same bug

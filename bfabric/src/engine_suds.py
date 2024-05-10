@@ -8,7 +8,7 @@ from suds.client import Client
 from suds.serviceproxy import ServiceProxy
 
 from bfabric.bfabric_config import BfabricAuth
-from bfabric.src.errors import BfabricRequestError
+from bfabric.errors import BfabricRequestError
 
 
 class EngineSUDS:
