@@ -15,11 +15,15 @@ Description:
 
 Usage: bfabric_save_workflowstep.py 285507
 """
+from __future__ import annotations
+
+import argparse
 
 from bfabric.bfabric2 import Bfabric
 
 
-def main(workunit_id=None):
+def save_workflowstep(workunit_id: int | None = None) -> None:
+    """Creates an analysis workflow step for a given workunit id."""
     client = Bfabric.from_config(verbose=True)
     workflowtemplatestep_ids = {
         224: 247,  # MaxQuant
@@ -67,14 +71,15 @@ def main(workunit_id=None):
             },
         ).to_list_dict()
         print(res[0])
-    else:
-        pass
 
 
-if __name__ == "__main__":
-    import argparse
-
+def main() -> None:
+    """Parses command line args and calls `save_workflowstep`."""
     parser = argparse.ArgumentParser(description="Create an analysis workflow step")
     parser.add_argument("workunitid", metavar="workunitid", type=int, help="workunit id")
     args = parser.parse_args()
-    main(workunit_id=args.workunitid)
+    save_workflowstep(workunit_id=args.workunitid)
+
+
+if __name__ == "__main__":
+    main()

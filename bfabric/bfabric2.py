@@ -31,7 +31,6 @@ from datetime import datetime
 from enum import Enum
 from pprint import pprint
 from typing import Any, Literal, ContextManager
-from zoneinfo import ZoneInfo
 
 from rich.console import Console
 
@@ -129,7 +128,6 @@ class Bfabric:
         self.query_counter = 0
         self._config = config
         self._auth = auth
-        self._zone_info = ZoneInfo(config.server_timezone)
 
         if engine == BfabricAPIEngineType.SUDS:
             self.engine = EngineSUDS(base_url=config.base_url)
@@ -219,9 +217,6 @@ class Bfabric:
         :param idonly: whether to return only the ids of referenced objects
         :return: List of responses, packaged in the results container
         """
-        # Ensure stability
-        # obj = self._add_query_timestamp(obj)
-
         # Get the first page.
         # NOTE: According to old interface, this is equivalent to plain=True
         response, errors = self._read_page(readid, endpoint, obj, page=1, idonly=idonly)
@@ -265,25 +260,6 @@ class Bfabric:
         if check:
             result.assert_success()
         return result
-
-    def _add_query_timestamp(self, query: dict[str, Any]) -> dict[str, Any]:
-        """Adds the current time as a createdbefore timestamp to the query, if there is no time in the query already.
-        This ensures pagination will be robust to insertion of new items during the query.
-        If a time is already present, it will be left as is, but a warning will be printed if it is in the future as
-        the query will not be robust to insertion of new items.
-        Note that this does not ensure robustness against deletion of items.
-        """
-        server_time = datetime.now(self._zone_info)
-        if "createdbefore" in query:
-            query_time = datetime.fromisoformat(query["createdbefore"])
-            if query_time > server_time:
-                logging.warning(
-                    f"Warning: Query timestamp is in the future: {query_time}. "
-                    "This will not be robust to insertion of new items."
-                )
-            return query
-        else:
-            return {**query, "createdbefore": server_time.strftime("%Y-%m-%dT%H:%M:%S")}
 
     def save(self, endpoint: str, obj: dict, check: bool = True) -> ResultContainer:
         results = self.engine.save(endpoint, obj, auth=self.auth)

@@ -5,7 +5,6 @@
 import argparse
 import hashlib
 import json
-import os
 import sys
 from pathlib import Path
 
@@ -16,7 +15,8 @@ BFABRICSTORAGEID = 2
 BFABRIC_APPLICATION_ID = 61
 
 
-def save_fast(container_id: int, fasta_file: Path):
+def save_fasta(container_id: int, fasta_file: Path) -> None:
+    """Save a fasta file to bfabric."""
     client = Bfabric.from_config(verbose=True)
 
     print("Reading description from stdin")
@@ -33,7 +33,7 @@ def save_fast(container_id: int, fasta_file: Path):
         print("resource(s) already exist.")
         # TODO this logic was mostly carried over from before, does it still make sense?
         try:
-            resources = client.save(endpoint="resource", obj={"id": resources[0]["_id"], "description": description})
+            resources = client.save(endpoint="resource", obj={"id": resources[0]["id"], "description": description})
             print(json.dumps(resources.to_list_dict(), indent=2))
             return
         except Exception:
@@ -53,9 +53,9 @@ def save_fast(container_id: int, fasta_file: Path):
     obj = {
         "workunitid": workunit[0]["id"],
         "filechecksum": md5,
-        "relativepath": "{}{}".format(FASTAHTTPROOT, fasta_file.name),
+        "relativepath": f"{FASTAHTTPROOT}{fasta_file.name}",
         "name": fasta_file.name,
-        "size": os.path.getsize(fasta_file),
+        "size": fasta_file.stat().st_size,
         "status": "available",
         "description": description,
         "storageid": BFABRICSTORAGEID,
@@ -68,12 +68,13 @@ def save_fast(container_id: int, fasta_file: Path):
     print(json.dumps(workunit, indent=2))
 
 
-def main() -> Non:
+def main() -> None:
+    """Parses command line arguments and calls `save_fasta`."""
     parser = argparse.ArgumentParser()
     parser.add_argument("container_id", help="container_id", type=int)
     parser.add_argument("fasta_file", help="fasta_file", type=Path)
     args = parser.parse_args()
-    save_fast(container_id=args.container_id, fasta_file=args.fasta_file)
+    save_fasta(container_id=args.container_id, fasta_file=args.fasta_file)
 
 
 if __name__ == "__main__":

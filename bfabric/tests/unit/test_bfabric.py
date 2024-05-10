@@ -1,9 +1,7 @@
 import datetime
-import logging
 import unittest
 from functools import cached_property
 from unittest.mock import MagicMock, patch, ANY
-from zoneinfo import ZoneInfo
 
 from bfabric import BfabricConfig
 from bfabric.bfabric2 import BfabricAPIEngineType, Bfabric
@@ -13,7 +11,6 @@ from bfabric.src.engine_suds import EngineSUDS
 class TestBfabric(unittest.TestCase):
     def setUp(self):
         self.mock_config = MagicMock(name="mock_config", spec=BfabricConfig)
-        self.mock_config.server_timezone = "Pacific/Kiritimati"
         self.mock_auth = None
         self.mock_engine_type = BfabricAPIEngineType.SUDS
         self.mock_engine = MagicMock(name="mock_engine", spec=EngineSUDS)
@@ -24,7 +21,7 @@ class TestBfabric(unittest.TestCase):
 
     @patch("bfabric.bfabric2.get_system_auth")
     def test_from_config_when_no_args(self, mock_get_system_auth):
-        mock_config = MagicMock(name="mock_config", server_timezone="Pacific/Kiritimati")
+        mock_config = MagicMock(name="mock_config")
         mock_auth = MagicMock(name="mock_auth")
         mock_get_system_auth.return_value = (mock_config, mock_auth)
         client = Bfabric.from_config()
@@ -35,7 +32,7 @@ class TestBfabric(unittest.TestCase):
 
     @patch("bfabric.bfabric2.get_system_auth")
     def test_from_config_when_explicit_auth(self, mock_get_system_auth):
-        mock_config = MagicMock(name="mock_config", server_timezone="Pacific/Kiritimati")
+        mock_config = MagicMock(name="mock_config")
         mock_auth = MagicMock(name="mock_auth")
         mock_config_auth = MagicMock(name="mock_config_auth")
         mock_get_system_auth.return_value = (mock_config, mock_config_auth)
@@ -47,7 +44,7 @@ class TestBfabric(unittest.TestCase):
 
     @patch("bfabric.bfabric2.get_system_auth")
     def test_from_config_when_none_auth(self, mock_get_system_auth):
-        mock_config = MagicMock(name="mock_config", server_timezone="Pacific/Kiritimati")
+        mock_config = MagicMock(name="mock_config")
         mock_auth = MagicMock(name="mock_auth")
         mock_get_system_auth.return_value = (mock_config, mock_auth)
         client = Bfabric.from_config(config_env="TestingEnv", auth=None)
@@ -91,43 +88,6 @@ class TestBfabric(unittest.TestCase):
         except ValueError:
             pass
         self.assertEqual(mock_old_auth, self.mock_bfabric.auth)
-
-    @patch("bfabric.bfabric2.datetime")
-    def test_add_query_timestamp_when_not_present(self, module_datetime):
-        module_datetime.now.return_value = datetime.datetime(2020, 1, 2, 3, 4, 5)
-        query = self.mock_bfabric._add_query_timestamp({"a": "b", "c": 1})
-        self.assertDictEqual(
-            {"a": "b", "c": 1, "createdbefore": "2020-01-02T03:04:05"},
-            query,
-        )
-        module_datetime.now.assert_called_once_with(ZoneInfo("Pacific/Kiritimati"))
-
-    @patch("bfabric.bfabric2.datetime")
-    def test_add_query_timestamp_when_set_and_past(self, module_datetime):
-        module_datetime.now.return_value = datetime.datetime(2020, 1, 2, 3, 4, 5)
-        module_datetime.fromisoformat = datetime.datetime.fromisoformat
-        query_before = {"a": "b", "createdbefore": "2019-12-31T23:59:59"}
-        # TODO once py3.10 is available, use assertNoLogs
-        query = self.mock_bfabric._add_query_timestamp(query_before)
-        self.assertDictEqual(
-            {"a": "b", "createdbefore": "2019-12-31T23:59:59"},
-            query,
-        )
-        module_datetime.now.assert_called_once_with(ZoneInfo("Pacific/Kiritimati"))
-
-    @patch("bfabric.bfabric2.datetime")
-    def test_add_query_timestamp_when_set_and_future(self, module_datetime):
-        module_datetime.now.return_value = datetime.datetime(2020, 1, 2, 3, 4, 5)
-        module_datetime.fromisoformat = datetime.datetime.fromisoformat
-        query_before = {"a": "b", "createdbefore": "2020-01-02T03:04:06"}
-        with self.assertLogs(level=logging.WARNING) as logs:
-            query = self.mock_bfabric._add_query_timestamp(query_before)
-        self.assertDictEqual(
-            {"a": "b", "createdbefore": "2020-01-02T03:04:06"},
-            query,
-        )
-        self.assertEqual(1, len(logs.output))
-        self.assertIn("Query timestamp is in the future: 2020-01-02 03:04:06", logs.output[0])
 
     @patch.object(Bfabric, "save")
     def test_upload_resource(self, method_save):
