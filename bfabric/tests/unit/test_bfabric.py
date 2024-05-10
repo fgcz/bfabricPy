@@ -4,7 +4,7 @@ from functools import cached_property
 from unittest.mock import MagicMock, patch, ANY
 
 from bfabric import Bfabric, BfabricAPIEngineType, BfabricConfig
-from bfabric.src.engine_suds import EngineSUDS
+from bfabric.engine.engine_suds import EngineSUDS
 
 
 class TestBfabric(unittest.TestCase):

@@ -6,14 +6,12 @@ from bfabric.bfabric import get_system_auth
 from bfabric.src.pandas_helper import list_dict_to_df
 
 
-def _calc_query(config, auth, engine: BfabricAPIEngineType, endpoint: str,
-                max_results: int = 300) -> pd.DataFrame:
+def _calc_query(config, auth, engine: BfabricAPIEngineType, endpoint: str, max_results: int = 300) -> pd.DataFrame:
     print("Sending query via", engine)
     b = Bfabric(config, auth, engine=engine)
 
     response_class = b.read(endpoint, {}, max_results=max_results)
-    response_dict = response_class.to_list_dict(drop_empty=True, drop_underscores_suds=True,
-                                                have_sort_responses=True)
+    response_dict = response_class.to_list_dict(drop_empty=True)
     return list_dict_to_df(response_dict)
 
 
@@ -22,19 +20,17 @@ class BfabricTestPagination(unittest.TestCase):
         self.config, self.auth = get_system_auth(config_env="TEST")
 
     def test_composite_user(self):
-        endpoint = 'user'
+        endpoint = "user"
         max_results = 300
 
         # Test SUDS
         print("Testing if SUDS returns the requested number of entries")
-        resp_df_suds = _calc_query(self.config, self.auth, BfabricAPIEngineType.SUDS, endpoint,
-                                   max_results=max_results)
+        resp_df_suds = _calc_query(self.config, self.auth, BfabricAPIEngineType.SUDS, endpoint, max_results=max_results)
         assert len(resp_df_suds.index) == max_results
 
         # Test ZEEP
         print("Testing if ZEEP returns the requested number of entries")
-        resp_df_zeep = _calc_query(self.config, self.auth, BfabricAPIEngineType.ZEEP, endpoint,
-                                   max_results=max_results)
+        resp_df_zeep = _calc_query(self.config, self.auth, BfabricAPIEngineType.ZEEP, endpoint, max_results=max_results)
         assert len(resp_df_zeep.index) == max_results
 
         # Rename suds to remove underscores
@@ -53,5 +49,5 @@ class BfabricTestPagination(unittest.TestCase):
                 mismatch_cols += [col_name]
 
         # TODO: Make the test strict if Zeep bug is ever resolved.
-        assert mismatch_cols == ['formerproject', 'project']
+        self.assertListEqual(["formerproject", "project"], mismatch_cols)
         print("SUDS and ZEEP mismatch in", mismatch_cols, "(expected)")

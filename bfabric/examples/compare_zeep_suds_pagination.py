@@ -1,11 +1,12 @@
 import os
+
 import pandas as pd
 
 from bfabric import Bfabric, BfabricAPIEngineType
 from bfabric.bfabric import get_system_auth
 from bfabric.src.pandas_helper import list_dict_to_df
 
-'''
+"""
 This will eventually become a test that will compare Zeep and Suds paginated output
 Strategy:
 1. Make a query for 300 entries from user for both Zeep and Suds
@@ -15,7 +16,7 @@ Strategy:
 Observations:
 * There are mismatches in the fields of "project" and "formerproject", where about half of projects are not
    correctly parsed by Zeep. 
-'''
+"""
 
 
 def report_test_result(rez: bool, prefix: str):
@@ -24,14 +25,15 @@ def report_test_result(rez: bool, prefix: str):
     else:
         print("--", prefix, "test failed --")
 
+
 def _calc_query(config, auth, engine, endpoint):
     print("Sending query via", engine)
     b = Bfabric(config, auth, engine=engine)
 
     response_class = b.read(endpoint, {}, max_results=300, idonly=False, includedeletableupdateable=True)
-    response_dict = response_class.to_list_dict(drop_empty=True, drop_underscores_suds=True,
-                                                have_sort_responses=True)
+    response_dict = response_class.to_list_dict(drop_empty=True, have_sort_responses=True)
     return list_dict_to_df(response_dict)
+
 
 def _set_partition_test(a, b) -> bool:
     aSet = set(a)
@@ -46,6 +48,7 @@ def _set_partition_test(a, b) -> bool:
 
     # Test passes if there are no entities unique to only one of the sets
     return (len(unique1) == 0) and (len(unique2) == 0)
+
 
 def dataframe_pagination_test(config, auth, endpoint, use_cached: bool = False, store_cached: bool = True):
     pwd_zeep = "tmp_zeep_" + endpoint + ".csv"
@@ -78,9 +81,9 @@ def dataframe_pagination_test(config, auth, endpoint, use_cached: bool = False, 
     match_test_result = True
     for col_name in suds_cols:
         if not resp_df_suds[col_name].equals(resp_df_zeep[col_name]):
-            print('------- Mismatch in: ', col_name, '-------')
-            print('Suds', list(resp_df_suds[col_name]))
-            print('Zeep', list(resp_df_zeep[col_name]))
+            print("------- Mismatch in: ", col_name, "-------")
+            print("Suds", list(resp_df_suds[col_name]))
+            print("Zeep", list(resp_df_zeep[col_name]))
             match_test_result = False
 
     return match_test_result
@@ -88,5 +91,5 @@ def dataframe_pagination_test(config, auth, endpoint, use_cached: bool = False, 
 
 config, auth = get_system_auth(config_env="TEST")
 
-result = dataframe_pagination_test(config, auth, 'user', use_cached=False, store_cached=True)
+result = dataframe_pagination_test(config, auth, "user", use_cached=False, store_cached=True)
 report_test_result(result, "pagination")

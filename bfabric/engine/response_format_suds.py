@@ -1,10 +1,10 @@
-# from collections import OrderedDict
-from typing import Any, Union, List
+from __future__ import annotations
+from typing import Any
 from suds.sax.text import Text
 from suds.sudsobject import asdict
 
 
-def convert_suds_type(item: Any) -> Union[int, str]:
+def convert_suds_type(item: Any) -> int | str:
     """
     Converts the suds type to an equivalent python type. There is, to my knowledge, only a single suds type which
     is currently ever return, namely 'Text'. Integers and doubles are already cast to their python equivalents and
@@ -26,16 +26,15 @@ def suds_asdict_recursive(d, convert_types: bool = False) -> dict:
     """
     out = {}
     for k, v in asdict(d).items():
-        if hasattr(v, '__keylist__'):
+        if hasattr(v, "__keylist__"):
             out[k] = suds_asdict_recursive(v, convert_types=convert_types)
         elif isinstance(v, list):
             out[k] = []
             for item in v:
-                if hasattr(item, '__keylist__'):
+                if hasattr(item, "__keylist__"):
                     out[k].append(suds_asdict_recursive(item, convert_types=convert_types))
                 else:
                     out[k].append(convert_suds_type(item) if convert_types else item)
         else:
             out[k] = convert_suds_type(v) if convert_types else v
-    # return OrderedDict(out)
     return out
