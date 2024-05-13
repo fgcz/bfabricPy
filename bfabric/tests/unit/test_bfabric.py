@@ -91,6 +91,16 @@ class TestBfabric(unittest.TestCase):
         mock_engine_zeep.assert_called_once_with(base_url=mock_config.base_url)
         self.assertEqual(mock_engine_zeep.return_value, client.engine)
 
+    @patch.object(Bfabric, "print_version_message")
+    @patch("bfabric.bfabric.get_system_auth")
+    @patch("bfabric.bfabric.EngineSUDS")
+    def test_from_config_when_verbose(self, _mock_engine_suds, mock_get_system_auth, mock_print_version_message):
+        mock_config = MagicMock(name="mock_config")
+        mock_auth = MagicMock(name="mock_auth")
+        mock_get_system_auth.return_value = (mock_config, mock_auth)
+        client = Bfabric.from_config(verbose=True)
+        mock_print_version_message.assert_called_once_with()
+
     def test_query_counter(self):
         self.assertEqual(0, self.mock_bfabric.query_counter)
 
