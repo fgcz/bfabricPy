@@ -45,7 +45,7 @@ class BfabricAPIEngineType(Enum):
 # TODO: How to deal with save-skip fields in Zeep? Does it happen in SUDS?
 class Bfabric:
     """Bfabric client class, providing general functionality for interaction with the B-Fabric API.
-    Instead of instantiating using the constructor directly, it is generally better to use the `from_config` method.
+    Use `Bfabric.from_config` to create a new instance.
     :param config: Configuration object
     :param auth: Authentication object (if `None`, it has to be provided using the `with_auth` context manager)
     :param engine: Engine to use for the API. Default is SUDS.
