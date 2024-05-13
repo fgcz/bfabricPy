@@ -1,5 +1,5 @@
 import unittest
-import bfabric.src.response_format_dict as response_format_dict
+import bfabric.results.response_format_dict as response_format_dict
 
 
 class BfabricTestResponseFormatDict(unittest.TestCase):

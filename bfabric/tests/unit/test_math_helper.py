@@ -1,6 +1,6 @@
 import unittest
 
-import bfabric.src.math_helper as math_helper
+import bfabric.utils.math_helper as math_helper
 
 
 class BfabricTestMath(unittest.TestCase):

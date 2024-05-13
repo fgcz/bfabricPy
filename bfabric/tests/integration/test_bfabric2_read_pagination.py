@@ -4,7 +4,7 @@ import pandas as pd
 
 from bfabric import BfabricAPIEngineType, Bfabric
 from bfabric.bfabric import get_system_auth
-from bfabric.src.pandas_helper import list_dict_to_df
+from bfabric.results.pandas_helper import list_dict_to_df
 
 
 def _calc_query(config, auth, engine: BfabricAPIEngineType, endpoint: str, max_results: int = 300) -> pd.DataFrame:
@@ -12,8 +12,7 @@ def _calc_query(config, auth, engine: BfabricAPIEngineType, endpoint: str, max_r
     b = Bfabric(config, auth, engine=engine)
 
     response_class = b.read(endpoint, {}, max_results=max_results)
-    response_dict = response_class.to_list_dict(drop_empty=True, drop_underscores_suds=True,
-                                                have_sort_responses=True)
+    response_dict = response_class.to_list_dict(drop_empty=True)
     return list_dict_to_df(response_dict)
 
 
@@ -51,7 +50,7 @@ class BfabricTestPagination(unittest.TestCase):
                 mismatch_cols += [col_name]
 
         # TODO: Make the test strict if Zeep bug is ever resolved.
-        assert mismatch_cols == ["formerproject", "project"]
+        self.assertListEqual(["formerproject", "project"], mismatch_cols)
         print("SUDS and ZEEP mismatch in", mismatch_cols, "(expected)")
 
 

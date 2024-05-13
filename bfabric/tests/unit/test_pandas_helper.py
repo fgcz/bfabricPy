@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-import bfabric.src.pandas_helper as pandas_helper
+import bfabric.results.pandas_helper as pandas_helper
 
 
 class BfabricTestPandasHelper(unittest.TestCase):

@@ -28,24 +28,29 @@ from rich.console import Console
 
 from bfabric.bfabric_config import BfabricAuth, read_config
 from bfabric.bfabric_config import BfabricConfig
-from bfabric.src.cli_formatting import HostnameHighlighter, DEFAULT_THEME
-from bfabric.src.engine_suds import EngineSUDS
-from bfabric.src.engine_zeep import EngineZeep
-from bfabric.src.errors import get_response_errors
-from bfabric.src.paginator import compute_requested_pages, BFABRIC_QUERY_LIMIT, page_iter
-from bfabric.src.result_container import BfabricResultType, ResultContainer
+from bfabric.cli_formatting import HostnameHighlighter, DEFAULT_THEME
+from bfabric.engine.engine_suds import EngineSUDS
+from bfabric.engine.engine_zeep import EngineZeep
+from bfabric.results.result_container import ResultContainer
+from bfabric.utils.paginator import compute_requested_pages, BFABRIC_QUERY_LIMIT, page_iter
 
 
 class BfabricAPIEngineType(Enum):
+    """Choice of engine to use."""
     SUDS = 1
     ZEEP = 2
 
 
-# TODO: What does idonly do for SUDS? Does it make sense for Zeep?
 # TODO: What does includedeletableupdateable do for Zeep? Does it make sense for Suds?
 # TODO: How to deal with save-skip fields in Zeep? Does it happen in SUDS?
 class Bfabric:
-    """Bfabric client class, providing general functionality for interaction with the B-Fabric API."""
+    """Bfabric client class, providing general functionality for interaction with the B-Fabric API.
+    Instead of instantiating using the constructor directly, it is generally better to use the `from_config` method.
+    :param config: Configuration object
+    :param auth: Authentication object (if `None`, it has to be provided using the `with_auth` context manager)
+    :param engine: Engine to use for the API. Default is SUDS.
+    :param verbose: Print a system info message to standard error console
+    """
 
     def __init__(
         self,
@@ -54,21 +59,18 @@ class Bfabric:
         engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS,
         verbose: bool = False,
     ) -> None:
-        self.verbose = verbose
         self.query_counter = 0
         self._config = config
         self._auth = auth
 
         if engine == BfabricAPIEngineType.SUDS:
             self.engine = EngineSUDS(base_url=config.base_url)
-            self.result_type = BfabricResultType.LISTSUDS
         elif engine == BfabricAPIEngineType.ZEEP:
             self.engine = EngineZeep(base_url=config.base_url)
-            self.result_type = BfabricResultType.LISTZEEP
         else:
             raise ValueError(f"Unexpected engine: {engine}")
 
-        if self.verbose:
+        if verbose:
             self.print_version_message()
 
     @classmethod
@@ -127,9 +129,8 @@ class Bfabric:
         obj: dict[str, Any],
         max_results: int | None = 100,
         offset: int = 0,
-        readid: bool = False,
         check: bool = True,
-        idonly: bool = False,
+        return_id_only: bool = False,
     ) -> ResultContainer:
         """Reads objects from the specified endpoint that match all specified attributes in `obj`.
         By setting `max_results` it is possible to change the number of results that are returned.
@@ -141,29 +142,18 @@ class Bfabric:
            come in blocks, and there is little overhead to providing results over integer number of pages.
         :param offset: the number of elements to skip before starting to return results (useful for pagination, default
               is 0 which means no skipping)
-        :param readid: whether to use reading by ID. Currently only available for engine=SUDS
-            TODO: Test the extent to which this method works. Add safeguards
         :param check: whether to check for errors in the response
-        :param idonly: whether to return only the ids of the objects
+        :param return_id_only: whether to return only the ids of the found objects
         :return: List of responses, packaged in the results container
         """
         # Get the first page.
         # NOTE: According to old interface, this is equivalent to plain=True
-        response, errors = self._read_page(readid, endpoint, obj, page=1, idonly=idonly)
-
-        try:
-            n_available_pages = response["numberofpages"]
-        except AttributeError:
-            n_available_pages = 0
-
-        # Return empty list if nothing found
+        results = self._read_page(endpoint=endpoint, query=obj, page=1, return_id_only=return_id_only)
+        n_available_pages = results.total_pages_api
         if not n_available_pages:
-            result = ResultContainer(
-                [], self.result_type, total_pages_api=0, errors=get_response_errors(response, endpoint)
-            )
             if check:
-                result.assert_success()
-            return result
+                results.assert_success()
+            return results.get_first_n_results(max_results)
 
         # Get results from other pages as well, if need be
         requested_pages, initial_offset = compute_requested_pages(
@@ -176,34 +166,33 @@ class Bfabric:
 
         # NOTE: Page numbering starts at 1
         response_items = []
+        errors = results.errors
         page_offset = initial_offset
         for i_iter, i_page in enumerate(requested_pages):
             if not (i_iter == 0 and i_page == 1):
                 print("-- reading page", i_page, "of", n_available_pages)
-                response, errors_page = self._read_page(readid, endpoint, obj, page=i_page, idonly=idonly)
-                errors += errors_page
+                results = self._read_page(endpoint=endpoint, query=obj, page=i_page, return_id_only=return_id_only)
+                errors += results.errors
 
-            response_items += response[endpoint][page_offset:]
+            response_items += results[page_offset:]
             page_offset = 0
 
-        result = ResultContainer(response_items, self.result_type, total_pages_api=n_available_pages, errors=errors)
+        result = ResultContainer(response_items, total_pages_api=n_available_pages, errors=errors)
         if check:
             result.assert_success()
-        return result
+        return result.get_first_n_results(max_results)
 
     def save(self, endpoint: str, obj: dict, check: bool = True) -> ResultContainer:
         results = self.engine.save(endpoint, obj, auth=self.auth)
-        result = ResultContainer(results[endpoint], self.result_type, errors=get_response_errors(results, endpoint))
         if check:
-            result.assert_success()
-        return result
+            results.assert_success()
+        return results
 
     def delete(self, endpoint: str, id: int | list[int], check: bool = True) -> ResultContainer:
         results = self.engine.delete(endpoint, id, auth=self.auth)
-        result = ResultContainer(results[endpoint], self.result_type, errors=get_response_errors(results, endpoint))
         if check:
-            result.assert_success()
-        return result
+            results.assert_success()
+        return results
 
     def upload_resource(
         self, resource_name: str, content: bytes, workunit_id: int, check: bool = True
@@ -227,15 +216,13 @@ class Bfabric:
             check=check,
         )
 
-    def _read_page(self, readid: bool, endpoint: str, query: dict[str, Any], idonly: bool = False, page: int = 1):
+    def _read_page(
+        self, endpoint: str, query: dict[str, Any], return_id_only: bool = False, page: int = 1
+    ) -> ResultContainer:
         """Reads the specified page of objects from the specified endpoint that match the query."""
-        if readid:
-            # https://fgcz-bfabric.uzh.ch/wiki/tiki-index.php?page=endpoint.workunit#Web_Method_readid_
-            response = self.engine.readid(endpoint, query, auth=self.auth, page=page)
-        else:
-            response = self.engine.read(endpoint, query, auth=self.auth, page=page, idonly=idonly)
-
-        return response, get_response_errors(response, endpoint)
+        return self.engine.read(
+            endpoint=endpoint, obj=query, auth=self.auth, page=page, return_id_only=return_id_only
+        )
 
     ############################
     # Multi-query functionality
@@ -248,8 +235,7 @@ class Bfabric:
         obj: dict,
         multi_query_key: str,
         multi_query_vals: list,
-        readid: bool = False,
-        idonly: bool = False,
+        return_id_only: bool = False,
     ) -> ResultContainer:
         """
         Makes a 1-parameter multi-query (there is 1 parameter that takes a list of values)
@@ -258,15 +244,13 @@ class Bfabric:
         :param obj: query dictionary
         :param multi_query_key:  key for which the multi-query is performed
         :param multi_query_vals: list of values for which the multi-query is performed
-        :param readid: whether to use reading by ID. Currently only available for engine=SUDS
-            TODO: Test the extent to which this method works. Add safeguards
-        :param idonly: whether to return only the ids of the objects
+        :param return_id_only: whether to return only the ids of the objects
         :return: List of responses, packaged in the results container
 
         NOTE: It is assumed that there is only 1 response for each value.
         """
 
-        response_tot = ResultContainer([], self.result_type, total_pages_api=0)
+        response_tot = ResultContainer([], total_pages_api=0)
         obj_extended = deepcopy(obj)  # Make a copy of the query, not to make edits to the argument
 
         # Iterate over request chunks that fit into a single API page
@@ -280,7 +264,9 @@ class Bfabric:
             #       automatically? If yes, perhaps we don't need this method at all?
             # TODO: It is assumed that a user requesting multi_query always wants all of the pages. Can anybody think of
             #   exceptions to this?
-            response_this = self.read(endpoint, obj_extended, max_results=None, readid=readid, idonly=idonly)
+            response_this = self.read(
+                endpoint, obj_extended, max_results=None, return_id_only=return_id_only
+            )
             response_tot.extend(response_this)
 
         return response_tot
@@ -299,7 +285,7 @@ class Bfabric:
     #     return response_tot
 
     def delete_multi(self, endpoint: str, id_list: list) -> ResultContainer:
-        response_tot = ResultContainer([], self.result_type, total_pages_api=0)
+        response_tot = ResultContainer([], total_pages_api=0)
 
         if len(id_list) == 0:
             print("Warning, empty list provided for deletion, ignoring")

@@ -1,6 +1,6 @@
 import unittest
 
-from bfabric.src.response_format_dict import sort_dict
+from bfabric.results.response_format_dict import sort_dict
 
 
 class BfabricTestSortDict(unittest.TestCase):

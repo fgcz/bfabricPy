@@ -1,6 +1,6 @@
 import unittest
 
-import bfabric.src.paginator as paginator
+import bfabric.utils.paginator as paginator
 
 
 class BfabricTestBasicPagination(unittest.TestCase):
