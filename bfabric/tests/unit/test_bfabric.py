@@ -1,7 +1,7 @@
 import datetime
 import unittest
 from functools import cached_property
-from unittest.mock import MagicMock, patch, ANY
+from unittest.mock import MagicMock, patch, ANY, call
 
 from bfabric import Bfabric, BfabricAPIEngineType, BfabricConfig
 from bfabric.engine.engine_suds import EngineSUDS
@@ -134,6 +134,74 @@ class TestBfabric(unittest.TestCase):
         except ValueError:
             pass
         self.assertEqual(mock_old_auth, self.mock_bfabric.auth)
+
+    def test_read_when_no_pages_available_and_check(self):
+        self.mock_auth = MagicMock(name="mock_auth")
+        with patch.object(self.mock_bfabric, "engine") as mock_engine:
+            mock_result = MagicMock(name="mock_result", total_pages_api=0, assert_success=MagicMock())
+            mock_engine.read.return_value = mock_result
+            result = self.mock_bfabric.read(endpoint="mock_endpoint", obj="mock_obj")
+            self.assertEqual(mock_result.get_first_n_results.return_value, result)
+            mock_engine.read.assert_called_once_with(
+                endpoint="mock_endpoint", obj="mock_obj", auth=self.mock_auth, page=1, return_id_only=False
+            )
+            mock_result.assert_success.assert_called_once_with()
+            mock_result.get_first_n_results.assert_called_once_with(100)
+
+    @patch("bfabric.bfabric.compute_requested_pages")
+    def test_read_when_pages_available_and_check(self, mock_compute_requested_pages):
+        self.mock_auth = MagicMock(name="mock_auth")
+        with patch.object(self.mock_bfabric, "engine") as mock_engine:
+            mock_page_results = [
+                MagicMock(
+                    name="mock_page_result_1",
+                    assert_success=MagicMock(),
+                    total_pages_api=3,
+                    errors=[],
+                ),
+                MagicMock(
+                    name="mock_page_result_2",
+                    assert_success=MagicMock(),
+                    total_pages_api=3,
+                    errors=[],
+                ),
+                MagicMock(
+                    name="mock_page_result_3",
+                    assert_success=MagicMock(),
+                    total_pages_api=3,
+                    errors=[],
+                ),
+            ]
+            mock_page_results[0].__getitem__.side_effect = lambda i: [1, 2, 3, 4, 5][i]
+            mock_page_results[1].__getitem__.side_effect = lambda i: [6, 7, 8, 9, 10][i]
+            mock_page_results[2].__getitem__.side_effect = lambda i: [11, 12, 13, 14, 15][i]
+
+            mock_engine.read.side_effect = lambda **kwargs: mock_page_results[kwargs["page"] - 1]
+            mock_compute_requested_pages.return_value = ([1, 2], 4)
+
+            result = self.mock_bfabric.read(endpoint="mock_endpoint", obj="mock_obj")
+
+            mock_compute_requested_pages.assert_called_once_with(
+                n_page_total=3,
+                n_item_per_page=100,
+                n_item_offset=0,
+                n_item_return_max=100,
+            )
+            self.assertListEqual([], result.errors)
+            self.assertListEqual(
+                [
+                    call.read(
+                        endpoint="mock_endpoint", obj="mock_obj", auth=self.mock_auth, page=1, return_id_only=False
+                    ),
+                    call.read(
+                        endpoint="mock_endpoint", obj="mock_obj", auth=self.mock_auth, page=2, return_id_only=False
+                    ),
+                ],
+                mock_engine.mock_calls,
+            )
+            self.assertEqual(6, len(result))
+            self.assertEqual(5, result[0])
+            self.assertEqual(10, result[5])
 
     def test_save_when_no_auth(self):
         endpoint = "test_endpoint"
