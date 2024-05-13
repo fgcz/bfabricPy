@@ -4,7 +4,7 @@ import pandas as pd
 
 from bfabric import Bfabric, BfabricAPIEngineType
 from bfabric.bfabric import get_system_auth
-from bfabric.src.pandas_helper import list_dict_to_df
+from bfabric.results.pandas_helper import list_dict_to_df
 
 """
 This will eventually become a test that will compare Zeep and Suds paginated output

@@ -32,7 +32,7 @@ from bfabric.engine.engine_suds import EngineSUDS
 from bfabric.engine.engine_zeep import EngineZeep
 from bfabric.src.cli_formatting import HostnameHighlighter, DEFAULT_THEME
 from bfabric.src.paginator import compute_requested_pages, BFABRIC_QUERY_LIMIT, page_iter
-from bfabric.src.result_container import ResultContainer
+from bfabric.results.result_container import ResultContainer
 
 
 class BfabricAPIEngineType(Enum):

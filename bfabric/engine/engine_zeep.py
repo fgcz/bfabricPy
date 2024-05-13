@@ -7,7 +7,7 @@ from zeep.helpers import serialize_object
 
 from bfabric.bfabric_config import BfabricAuth
 from bfabric.errors import BfabricRequestError, get_response_errors
-from bfabric.src.result_container import ResultContainer, _clean_result
+from bfabric.results.result_container import ResultContainer, _clean_result
 
 
 class EngineZeep:

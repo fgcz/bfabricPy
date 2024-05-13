@@ -10,7 +10,7 @@ from suds.serviceproxy import ServiceProxy
 from bfabric.bfabric_config import BfabricAuth
 from bfabric.engine.response_format_suds import suds_asdict_recursive
 from bfabric.errors import BfabricRequestError, get_response_errors
-from bfabric.src.result_container import _clean_result, ResultContainer
+from bfabric.results.result_container import _clean_result, ResultContainer
 
 
 class EngineSUDS:

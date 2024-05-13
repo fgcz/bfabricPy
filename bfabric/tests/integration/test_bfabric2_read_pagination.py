@@ -3,7 +3,7 @@ import pandas as pd
 
 from bfabric import BfabricAPIEngineType, Bfabric
 from bfabric.bfabric import get_system_auth
-from bfabric.src.pandas_helper import list_dict_to_df
+from bfabric.results.pandas_helper import list_dict_to_df
 
 
 def _calc_query(config, auth, engine: BfabricAPIEngineType, endpoint: str, max_results: int = 300) -> pd.DataFrame:

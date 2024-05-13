@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-import bfabric.src.response_format_dict as formatter
+import bfabric.results.response_format_dict as formatter
 
 
 class ResultContainer:

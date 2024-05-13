@@ -1,7 +1,7 @@
 import logging
 import unittest
 
-from bfabric.src.result_container import ResultContainer
+from bfabric.results.result_container import ResultContainer
 
 
 class BfabricTestResultContainer(unittest.TestCase):

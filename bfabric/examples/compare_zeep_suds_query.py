@@ -7,7 +7,7 @@ import zeep
 
 from bfabric import BfabricAuth, BfabricConfig
 from bfabric.bfabric import get_system_auth
-from bfabric.src.response_format_dict import drop_empty_elements, map_element_keys
+from bfabric.results.response_format_dict import drop_empty_elements, map_element_keys
 from bfabric.engine.response_format_suds import suds_asdict_recursive
 
 '''
