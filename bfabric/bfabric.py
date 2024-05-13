@@ -132,10 +132,11 @@ class Bfabric:
         check: bool = True,
         return_id_only: bool = False,
     ) -> ResultContainer:
-        """Reads objects from the specified endpoint that match all specified attributes in `obj`.
+        """Reads from the specified endpoint matching all specified attributes in `obj`.
         By setting `max_results` it is possible to change the number of results that are returned.
         :param endpoint: endpoint
-        :param obj: query dictionary
+        :param obj: a dictionary containing the query, for every field multiple possible values can be provided, the
+            final query requires the condition for each field to be met
         :param max_results: cap on the number of results to query. The code will keep reading pages until all pages
            are read or expected number of results has been reached. If None, load all available pages.
            NOTE: max_results will be rounded upwards to the nearest multiple of BFABRIC_QUERY_LIMIT, because results

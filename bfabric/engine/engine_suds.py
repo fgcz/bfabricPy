@@ -32,7 +32,8 @@ class EngineSUDS:
     ) -> ResultContainer:
         """Reads the requested `obj` from `endpoint`.
         :param endpoint: the endpoint to read from, e.g. "sample"
-        :param obj: a dictionary containing the query
+        :param obj: a dictionary containing the query, for every field multiple possible values can be provided, the
+            final query requires the condition for each field to be met
         :param auth: the authentication handle of the user performing the request
         :param page: the page number to read
         :param return_id_only: whether to return only the ids of the objects
