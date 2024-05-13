@@ -37,6 +37,7 @@ from bfabric.utils.paginator import compute_requested_pages, BFABRIC_QUERY_LIMIT
 
 class BfabricAPIEngineType(Enum):
     """Choice of engine to use."""
+
     SUDS = 1
     ZEEP = 2
 
@@ -149,9 +150,7 @@ class Bfabric:
         """
         # Get the first page.
         # NOTE: According to old interface, this is equivalent to plain=True
-        results = self.engine.read(
-            endpoint=endpoint, obj=obj, auth=self.auth, page=1, return_id_only=return_id_only
-        )
+        results = self.engine.read(endpoint=endpoint, obj=obj, auth=self.auth, page=1, return_id_only=return_id_only)
         n_available_pages = results.total_pages_api
         if not n_available_pages:
             if check:
@@ -261,9 +260,7 @@ class Bfabric:
             #       automatically? If yes, perhaps we don't need this method at all?
             # TODO: It is assumed that a user requesting multi_query always wants all of the pages. Can anybody think of
             #   exceptions to this?
-            response_this = self.read(
-                endpoint, obj_extended, max_results=None, return_id_only=return_id_only
-            )
+            response_this = self.read(endpoint, obj_extended, max_results=None, return_id_only=return_id_only)
             response_tot.extend(response_this)
 
         return response_tot
