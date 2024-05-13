@@ -16,30 +16,20 @@ class BfabricTestBadRequest(unittest.TestCase):
         # Create clients
         self.clients = {
             "zeep": Bfabric.from_config("TEST", engine=BfabricAPIEngineType.ZEEP),
-            "suds": Bfabric.from_config("TEST", engine=BfabricAPIEngineType.SUDS)
+            "suds": Bfabric.from_config("TEST", engine=BfabricAPIEngineType.SUDS),
         }
 
     def _test_non_existing_read(self, engine_name: str):
         # NOTE: Currently a bad read request simply returns no matches, but does not throw errors
-        res = self.clients[engine_name].read('user', {'id': 'cat'}).to_list_dict()
+        res = self.clients[engine_name].read("user", {"id": "cat"}).to_list_dict()
         self.assertEqual([], res)
 
     def _test_forbidden_save(self, engine_name: str):
         # Test what happens if we save to an endpoint that does not accept saving
-        self.assertRaises(
-            BfabricRequestError,
-            self.clients[engine_name].save,
-            'project',
-            {'name': 'TheForbiddenPlan'}
-        )
+        self.assertRaises(BfabricRequestError, self.clients[engine_name].save, "project", {"name": "TheForbiddenPlan"})
 
     def _test_wrong_delete(self, engine_name: str):
-        self.assertRaises(
-            RuntimeError,
-            self.clients[engine_name].delete,
-            'workunit',
-            101010101010101
-        )
+        self.assertRaises(RuntimeError, self.clients[engine_name].delete, "workunit", 101010101010101)
 
     def test_non_existing_read_when_suds(self):
         self._test_non_existing_read("suds")

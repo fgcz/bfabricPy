@@ -91,6 +91,4 @@ class EngineSUDS:
                 sort_responses=True,
             )
             results += [result_parsed]
-        return ResultContainer(
-            results=results, total_pages_api=n_available_pages, errors=errors
-        )
+        return ResultContainer(results=results, total_pages_api=n_available_pages, errors=errors)

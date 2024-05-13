@@ -1,5 +1,6 @@
 """very experimental
 """
+
 import datetime
 import unittest
 
@@ -25,19 +26,16 @@ class TestFlaskRESTProxy(unittest.TestCase):
     def test_read_garbage_json(self):
         # TODO make it work
         garbage_json = "{aea"
-        print(requests.post(
-            f"{self.rest_url}/read",
-            headers={"Content-Type": "application/json"},
-            data=garbage_json,
-            verify=False
-        ).json())
-
+        print(
+            requests.post(
+                f"{self.rest_url}/read", headers={"Content-Type": "application/json"}, data=garbage_json, verify=False
+            ).json()
+        )
 
     def test_save(self):
         now = datetime.datetime.now().isoformat()
         req_data = {"endpoint": "dataset", "query": {"id": 46178, "name": f"20240506 Testing {now}"}, **self.auth_dict}
         print(requests.post(f"{self.rest_url}/save", json=req_data).json())
-
 
 
 if __name__ == "__main__":

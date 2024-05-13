@@ -9,6 +9,7 @@ class DeleteEntities:
     """Deletes entities that were registered, when a test is torn down.
     Please use `self.addCleanup` to ensure that the entities are deleted even if the test fails.
     """
+
     def __init__(self, client: Bfabric, created_entities: list[tuple[str, int]] | None = None) -> None:
         self.client = client
         self.created_entities = created_entities or []

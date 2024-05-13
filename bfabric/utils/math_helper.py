@@ -1,5 +1,3 @@
-
-
 def div_int_ceil(n: int, d: int) -> int:
     """
     :param n: Numerator

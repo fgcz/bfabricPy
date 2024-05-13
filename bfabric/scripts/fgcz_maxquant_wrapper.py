@@ -1,6 +1,4 @@
 #!/usr/bin/python3
-# -*- coding: latin1 -*-
-
 # Copyright (C) 2017, 2018 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 #
 # Authors:
@@ -8,23 +6,16 @@
 #
 # Licensed under  GPL version 3
 #
-# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/scripts/fgcz_pd_wrapper.py $
-# $Id: fgcz_pd_wrapper.py 2992 2017-08-17 13:37:36Z cpanse $
 
-import logging
-import logging.handlers
 import os
-import pprint
-import re
 import sys
-import time
-import urllib
+from io import StringIO
 from optparse import OptionParser
-from lxml import etree
-import yaml
 from pathlib import Path
-import hashlib
-from io import StringIO, BytesIO
+
+import yaml
+from lxml import etree
+
 # import warnings
 
 """
@@ -33,69 +24,67 @@ requirements
 
 """
 
-import unittest
 
 class FgczMaxQuantConfig:
     """
-  input:
-    QEXACTIVE_2:
-    - bfabric@fgczdata.fgcz-net.unizh.ch://srv/www/htdocs//p1946/Proteomics/QEXACTIVE_2/paolo_20150811_course/20150811_01_Fetuin40fmol.raw
-    - bfabric@fgczdata.fgcz-net.unizh.ch://srv/www/htdocs//p1946/Proteomics/QEXACTIVE_2/paolo_20150811_course/20150811_02_YPG1.raw
-  output:
+    input:
+      QEXACTIVE_2:
+      - bfabric@fgczdata.fgcz-net.unizh.ch://srv/www/htdocs//p1946/Proteomics/QEXACTIVE_2/paolo_20150811_course/20150811_01_Fetuin40fmol.raw
+      - bfabric@fgczdata.fgcz-net.unizh.ch://srv/www/htdocs//p1946/Proteomics/QEXACTIVE_2/paolo_20150811_course/20150811_02_YPG1.raw
+    output:
 
     """
 
     config = None
     scratchdir = None
 
-    def __init__(self, config=None, scratch = "/scratch/MAXQUANT/"):
+    def __init__(self, config=None, scratch="/scratch/MAXQUANT/"):
         if config:
             self.config = config
-            self.scratchdir = Path("{0}/WU{1}".format(scratch, self.config['job_configuration']['workunit_id']))
+            self.scratchdir = Path("{0}/WU{1}".format(scratch, self.config["job_configuration"]["workunit_id"]))
 
             if not os.path.isdir(self.scratchdir):
-                print ("no scratch dir '{0}'.".format(self.scratchdir))
+                print("no scratch dir '{0}'.".format(self.scratchdir))
                 # raise SystemError
 
     def generate_mqpar(self, xml_filename, xml_template):
-        """ PARAMETER """
-        for query, value in self.config['application']['parameters'].items():
+        """PARAMETER"""
+        for query, value in self.config["application"]["parameters"].items():
             element = xml_template.find(query)
             if element is not None:
                 if value == "None":
-                    element.text = ''
+                    element.text = ""
                 elif query == "/parameterGroups/parameterGroup/variableModifications":
                     for a in value.split(","):
-                      estring = etree.Element("string")
-                      estring.text = a
-                      element.extend(estring)
+                        estring = etree.Element("string")
+                        estring.text = a
+                        element.extend(estring)
                     pass
                 else:
-                    print ("replacing xpath expression {} by {}.".format(query, value))
+                    print("replacing xpath expression {} by {}.".format(query, value))
                     element.text = value
 
-        ecount = 0;
+        ecount = 0
         """ INPUT """
-        for query, value in self.config['application']['input'].items():
-            for input in self.config['application']['input'][query]:
+        for query, value in self.config["application"]["input"].items():
+            for input in self.config["application"]["input"][query]:
                 element = xml_template.find("/filePaths")
                 if element is None:
                     raise TypeError
 
-
                 host, file = input.split(":")
 
-                print ("{}\t{}".format(os.path.basename(input), file))
+                print("{}\t{}".format(os.path.basename(input), file))
 
                 if not os.path.isfile(file):
                     print("'{}' do not exists.".format(file))
-                    #raise SystemError
+                    # raise SystemError
 
                 targetRawFile = "{}/{}".format(self.scratchdir, os.path.basename(input))
 
                 if not os.path.islink(targetRawFile):
                     try:
-                        os.symlink(file,  targetRawFile)
+                        os.symlink(file, targetRawFile)
                     except:
                         print("linking '{}' failed.".format(file))
 
@@ -136,15 +125,14 @@ class FgczMaxQuantConfig:
                 estring.text = "0"
                 element.extend(estring)
 
-        #return(xml_template)
-        xml_template.write(xml_filename)#, pretty_print=True)
-
+        # return(xml_template)
+        xml_template.write(xml_filename)  # , pretty_print=True)
 
     def run(self):
-      pass
+        pass
 
 
-mqpar_templ_xml ='''<MaxQuantParams xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+mqpar_templ_xml = """<MaxQuantParams xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
    <fastaFiles>
       <FastaFileInfo>
          <fastaFilePath>test.fasta</fastaFilePath>
@@ -484,40 +472,42 @@ mqpar_templ_xml ='''<MaxQuantParams xmlns:xsd="http://www.w3.org/2001/XMLSchema"
       </msmsParams>
    </msmsParamsArray>
 </MaxQuantParams>
-'''
+"""
 
 if __name__ == "__main__":
-    parser = OptionParser(usage="usage: %prog -y <yaml formated config file>",
-                          version="%prog 1.0")
+    parser = OptionParser(usage="usage: %prog -y <yaml formated config file>", version="%prog 1.0")
 
-    parser.add_option("-y", "--yaml",
-                      type='string',
-                      action="store",
-                      dest="yaml_filename",
-                      default=None,
-                      help="config file.yaml")
+    parser.add_option(
+        "-y", "--yaml", type="string", action="store", dest="yaml_filename", default=None, help="config file.yaml"
+    )
 
-    parser.add_option("-x", "--xml",
-                      type='string',
-                      action="store",
-                      dest="xml_filename",
-                      default=None,
-                      help="MaxQuant mqpar xml parameter filename.")
+    parser.add_option(
+        "-x",
+        "--xml",
+        type="string",
+        action="store",
+        dest="xml_filename",
+        default=None,
+        help="MaxQuant mqpar xml parameter filename.",
+    )
 
-    parser.add_option("-t", "--xmltemplate",
-                      type='string',
-                      action="store",
-                      dest="xml_template_filename",
-                      default=None,
-                      help="MaxQuant mqpar template xml parameter filename.")
+    parser.add_option(
+        "-t",
+        "--xmltemplate",
+        type="string",
+        action="store",
+        dest="xml_template_filename",
+        default=None,
+        help="MaxQuant mqpar template xml parameter filename.",
+    )
 
     (options, args) = parser.parse_args()
 
     if not os.path.isfile(options.yaml_filename):
-        print ("ERROR: no such file '{0}'".format(options.yaml_filename))
+        print("ERROR: no such file '{0}'".format(options.yaml_filename))
         sys.exit(1)
     try:
-        with open(options.yaml_filename, 'r') as f:
+        with open(options.yaml_filename, "r") as f:
             job_config = yaml.safe_load(f)
 
         if options.xml_template_filename is None:
@@ -526,16 +516,15 @@ if __name__ == "__main__":
             except:
                 raise
         else:
-            with open(options.xml_template_filename, 'r') as f:
+            with open(options.xml_template_filename, "r") as f:
                 mqpartree = etree.parse(f)
 
-        MQC = FgczMaxQuantConfig(config = job_config, scratch="d:/scratch/")
+        MQC = FgczMaxQuantConfig(config=job_config, scratch="d:/scratch/")
         output = MQC.generate_mqpar(options.xml_filename, xml_template=mqpartree)
 
     except:
-        print ("ERROR: exit 1")
+        print("ERROR: exit 1")
         raise
-
 
 
 import unittest
@@ -543,6 +532,8 @@ import unittest
 """
 python3 -m unittest fgcz_maxquant_wrapper.py 
 """
+
+
 class TestFgczMaxQuantConfig(unittest.TestCase):
     def test_xml(self):
         input_WU181492_yaml = """

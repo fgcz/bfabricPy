@@ -13,6 +13,7 @@ class BfabricRequestError(Exception):
 
 class BfabricConfigError(RuntimeError):
     """An error that is raised when the configuration is invalid."""
+
     pass
 
 

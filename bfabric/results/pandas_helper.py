@@ -15,12 +15,14 @@ def _stringify(a: Any) -> Any:
     else:
         return a
 
+
 def _stringify_dict(d: dict) -> dict:
     """
     :param d:  A dictionary
     :return:   Same dictionary, with all values stringified if necessary
     """
     return {k: _stringify(v) for k, v in d.items()}
+
 
 def list_dict_to_df(l: List[Dict]) -> pd.DataFrame:
     """

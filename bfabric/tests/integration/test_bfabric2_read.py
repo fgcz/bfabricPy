@@ -15,7 +15,7 @@ class BfabricTestRead(unittest.TestCase):
         # Create clients
         self.clients = {
             "zeep": Bfabric.from_config("TEST", engine=BfabricAPIEngineType.ZEEP),
-            "suds": Bfabric.from_config("TEST", engine=BfabricAPIEngineType.SUDS)
+            "suds": Bfabric.from_config("TEST", engine=BfabricAPIEngineType.SUDS),
         }
 
     def read(self, engine: str, endpoint: str):
@@ -82,7 +82,7 @@ class BfabricTestRead(unittest.TestCase):
         auth = BfabricAuth(login=self.clients["suds"].auth.login, password="invalid_password")
         clients = {
             "zeep": Bfabric.from_config("TEST", auth, engine=BfabricAPIEngineType.ZEEP),
-            "suds": Bfabric.from_config("TEST", auth, engine=BfabricAPIEngineType.SUDS)
+            "suds": Bfabric.from_config("TEST", auth, engine=BfabricAPIEngineType.SUDS),
         }
         for engine, bf in clients.items():
             with self.subTest(engine=engine):

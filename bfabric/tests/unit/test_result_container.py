@@ -8,9 +8,7 @@ class BfabricTestResultContainer(unittest.TestCase):
     def setUp(self):
         self.res1 = ResultContainer([1, 2, 3], total_pages_api=1)
         self.res2 = ResultContainer([4, 5], total_pages_api=1)
-        self.res_with_empty = ResultContainer(
-            [{"a": None, "b": 1, "c": []}, {"a": 2, "b": 3, "c": None}]
-        )
+        self.res_with_empty = ResultContainer([{"a": None, "b": 1, "c": []}, {"a": 2, "b": 3, "c": None}])
 
     def test_str(self):
         self.assertEqual("[1, 2, 3]", str(self.res1))
