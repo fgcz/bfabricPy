@@ -24,7 +24,7 @@ class EngineZeep:
         auth: BfabricAuth,
         page: int = 1,
         return_id_only: bool = False,
-        include_deletable_and_updatable_fields: bool = True,
+        include_deletable_and_updatable_fields: bool = False,
     ) -> ResultContainer:
         """Reads the requested `obj` from `endpoint`.
         :param endpoint: the endpoint to read from, e.g. "sample"
