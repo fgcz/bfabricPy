@@ -7,7 +7,7 @@ from pathlib import Path
 
 import yaml
 
-from bfabric.src.errors import BfabricConfigError
+from bfabric.errors import BfabricConfigError
 
 
 @dataclasses.dataclass(frozen=True)

@@ -28,12 +28,11 @@ from rich.console import Console
 
 from bfabric.bfabric_config import BfabricAuth, read_config
 from bfabric.bfabric_config import BfabricConfig
+from bfabric.engine.engine_suds import EngineSUDS
+from bfabric.engine.engine_zeep import EngineZeep
 from bfabric.src.cli_formatting import HostnameHighlighter, DEFAULT_THEME
-from bfabric.src.engine_suds import EngineSUDS
-from bfabric.src.engine_zeep import EngineZeep
-from bfabric.src.errors import get_response_errors
 from bfabric.src.paginator import compute_requested_pages, BFABRIC_QUERY_LIMIT, page_iter
-from bfabric.src.result_container import BfabricResultType, ResultContainer
+from bfabric.src.result_container import ResultContainer
 
 
 class BfabricAPIEngineType(Enum):
@@ -61,10 +60,8 @@ class Bfabric:
 
         if engine == BfabricAPIEngineType.SUDS:
             self.engine = EngineSUDS(base_url=config.base_url)
-            self.result_type = BfabricResultType.LISTSUDS
         elif engine == BfabricAPIEngineType.ZEEP:
             self.engine = EngineZeep(base_url=config.base_url)
-            self.result_type = BfabricResultType.LISTZEEP
         else:
             raise ValueError(f"Unexpected engine: {engine}")
 
@@ -149,21 +146,12 @@ class Bfabric:
         """
         # Get the first page.
         # NOTE: According to old interface, this is equivalent to plain=True
-        response, errors = self._read_page(readid, endpoint, obj, page=1, idonly=idonly)
-
-        try:
-            n_available_pages = response["numberofpages"]
-        except AttributeError:
-            n_available_pages = 0
-
-        # Return empty list if nothing found
+        results = self._read_page(readid, endpoint, obj, page=1, idonly=idonly)
+        n_available_pages = results.total_pages_api
         if not n_available_pages:
-            result = ResultContainer(
-                [], self.result_type, total_pages_api=0, errors=get_response_errors(response, endpoint)
-            )
             if check:
-                result.assert_success()
-            return result
+                results.assert_success()
+            return results.get_first_n_results(max_results)
 
         # Get results from other pages as well, if need be
         requested_pages, initial_offset = compute_requested_pages(
@@ -176,34 +164,33 @@ class Bfabric:
 
         # NOTE: Page numbering starts at 1
         response_items = []
+        errors = results.errors
         page_offset = initial_offset
         for i_iter, i_page in enumerate(requested_pages):
             if not (i_iter == 0 and i_page == 1):
                 print("-- reading page", i_page, "of", n_available_pages)
-                response, errors_page = self._read_page(readid, endpoint, obj, page=i_page, idonly=idonly)
-                errors += errors_page
+                results = self._read_page(readid, endpoint, obj, page=i_page, idonly=idonly)
+                errors += results.errors
 
-            response_items += response[endpoint][page_offset:]
+            response_items += results[page_offset:]
             page_offset = 0
 
-        result = ResultContainer(response_items, self.result_type, total_pages_api=n_available_pages, errors=errors)
+        result = ResultContainer(response_items, total_pages_api=n_available_pages, errors=errors)
         if check:
             result.assert_success()
-        return result
+        return result.get_first_n_results(max_results)
 
     def save(self, endpoint: str, obj: dict, check: bool = True) -> ResultContainer:
         results = self.engine.save(endpoint, obj, auth=self.auth)
-        result = ResultContainer(results[endpoint], self.result_type, errors=get_response_errors(results, endpoint))
         if check:
-            result.assert_success()
-        return result
+            results.assert_success()
+        return results
 
     def delete(self, endpoint: str, id: int | list[int], check: bool = True) -> ResultContainer:
         results = self.engine.delete(endpoint, id, auth=self.auth)
-        result = ResultContainer(results[endpoint], self.result_type, errors=get_response_errors(results, endpoint))
         if check:
-            result.assert_success()
-        return result
+            results.assert_success()
+        return results
 
     def upload_resource(
         self, resource_name: str, content: bytes, workunit_id: int, check: bool = True
@@ -227,15 +214,15 @@ class Bfabric:
             check=check,
         )
 
-    def _read_page(self, readid: bool, endpoint: str, query: dict[str, Any], idonly: bool = False, page: int = 1):
+    def _read_page(
+        self, readid: bool, endpoint: str, query: dict[str, Any], idonly: bool = False, page: int = 1
+    ) -> ResultContainer:
         """Reads the specified page of objects from the specified endpoint that match the query."""
         if readid:
             # https://fgcz-bfabric.uzh.ch/wiki/tiki-index.php?page=endpoint.workunit#Web_Method_readid_
-            response = self.engine.readid(endpoint, query, auth=self.auth, page=page)
+            return self.engine.readid(endpoint=endpoint, obj=query, auth=self.auth, page=page)
         else:
-            response = self.engine.read(endpoint, query, auth=self.auth, page=page, idonly=idonly)
-
-        return response, get_response_errors(response, endpoint)
+            return self.engine.read(endpoint=endpoint, obj=query, auth=self.auth, page=page, idonly=idonly)
 
     ############################
     # Multi-query functionality
@@ -266,7 +253,7 @@ class Bfabric:
         NOTE: It is assumed that there is only 1 response for each value.
         """
 
-        response_tot = ResultContainer([], self.result_type, total_pages_api=0)
+        response_tot = ResultContainer([], total_pages_api=0)
         obj_extended = deepcopy(obj)  # Make a copy of the query, not to make edits to the argument
 
         # Iterate over request chunks that fit into a single API page
@@ -299,7 +286,7 @@ class Bfabric:
     #     return response_tot
 
     def delete_multi(self, endpoint: str, id_list: list) -> ResultContainer:
-        response_tot = ResultContainer([], self.result_type, total_pages_api=0)
+        response_tot = ResultContainer([], total_pages_api=0)
 
         if len(id_list) == 0:
             print("Warning, empty list provided for deletion, ignoring")
