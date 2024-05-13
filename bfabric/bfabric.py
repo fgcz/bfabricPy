@@ -42,6 +42,7 @@ class BfabricAPIEngineType(Enum):
 
 
 # TODO: What does includedeletableupdateable do for Zeep? Does it make sense for Suds?
+# -> in both cases the flag ensures that "updatable" and "deletable" fields are included in the response
 # TODO: How to deal with save-skip fields in Zeep? Does it happen in SUDS?
 class Bfabric:
     """Bfabric client class, providing general functionality for interaction with the B-Fabric API.
