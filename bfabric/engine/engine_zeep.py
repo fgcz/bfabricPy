@@ -115,7 +115,11 @@ class EngineZeep:
         return ResultContainer(results=results, total_pages_api=n_available_pages, errors=errors)
 
 
-# TODO: Check if this is a bug of BFabric or Zeep. Specifically, see if the same call to bFabricPy has the same bug
+# TODO: The reason why Zeep requires to explicitly skip certain values remains unclear
+#    To the best of our current understanding, the fields are actually optional, but because of some differences in
+#      formatting they appear to zeep as compulsory. The current solution is envisioned by developers of Zeep, but
+#      it is a hack, and should ideally be handled internally by Zeep.
+#    If developers of Zeep ever resume its maintenance, it would make sense to revisit
 def _zeep_query_append_skipped(query: dict, skipped_keys: list, inplace: bool = False, overwrite: bool = False) -> dict:
     """
     This function is used to fix a buggy behaviour of Zeep/BFabric. Specifically, Zeep does not return correct
