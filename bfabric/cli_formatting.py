@@ -4,6 +4,7 @@ from rich.theme import Theme
 
 class HostnameHighlighter(RegexHighlighter):
     """Highlights hostnames in URLs."""
+
     base_style = "bfabric."
     highlights = [r"https://(?P<hostname>[^.]+)"]
 

@@ -27,9 +27,7 @@ import bfabric
 from bfabric import Bfabric, BfabricConfig
 
 
-def bfabric_read(
-    client: Bfabric, endpoint: str, attribute: str | None, value: str | None, output_format: str
-) -> None:
+def bfabric_read(client: Bfabric, endpoint: str, attribute: str | None, value: str | None, output_format: str) -> None:
     """Reads one or several items from a B-Fabric endpoint and prints them."""
     if attribute is not None and value is None:
         message = "value must be provided if attribute is provided"

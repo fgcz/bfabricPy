@@ -118,23 +118,21 @@ class TestBfabricConfig(unittest.TestCase):
 
     # TODO delete if no mandatory fields are reintroduced
     # Test that missing authentication will raise an error if required
-    #def test_read_yml_when_empty_mandatory(self):
+    # def test_read_yml_when_empty_mandatory(self):
     #    with self.assertRaises(BfabricConfigError):
     #        read_config(self.example_config_path, config_env="STANDBY")
 
     def test_repr(self):
         rep = repr(self.config)
         self.assertEqual(
-            "BfabricConfig(base_url='url', application_ids={'app': 1}, "
-            "job_notification_emails='')",
+            "BfabricConfig(base_url='url', application_ids={'app': 1}, " "job_notification_emails='')",
             rep,
         )
 
     def test_str(self):
         rep = str(self.config)
         self.assertEqual(
-            "BfabricConfig(base_url='url', application_ids={'app': 1}, "
-            "job_notification_emails='')",
+            "BfabricConfig(base_url='url', application_ids={'app': 1}, " "job_notification_emails='')",
             rep,
         )
 

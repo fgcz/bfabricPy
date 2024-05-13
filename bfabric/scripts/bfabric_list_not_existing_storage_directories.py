@@ -19,16 +19,16 @@ import bfabric.bfabric_legacy
 
 B = bfabric.bfabric_legacy.BfabricLegacy()
 
-ROOTDIR="/srv/www/htdocs/"
+ROOTDIR = "/srv/www/htdocs/"
+
 
 def listNotExistingStorageDirs(technologyid=2):
-    rv = B.read_object('container', {'technologyid': technologyid})
+    rv = B.read_object("container", {"technologyid": technologyid})
     containerIDs = list(set(map(lambda x: x._id, rv)))
-
 
     for cid in containerIDs:
         if not os.path.isdir("{}/p{}".format(ROOTDIR, cid)):
-            print (cid)
+            print(cid)
 
 
 listNotExistingStorageDirs(technologyid=2)

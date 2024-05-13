@@ -29,6 +29,7 @@ def set_resource_status_available(client: Bfabric, resource_id: list[int]) -> No
             print(f"failed to set resourceid {resource_id} 'available'.")
             raise
 
+
 def main() -> None:
     """Parses command line arguments and calls `set_resource_status_available`."""
     parser = argparse.ArgumentParser()
