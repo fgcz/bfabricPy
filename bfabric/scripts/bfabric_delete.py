@@ -15,20 +15,20 @@ import bfabric
 from bfabric import Bfabric
 
 
-def bfabric_delete(endpoint: str, id: int) -> None:
+def bfabric_delete(client: Bfabric, endpoint: str, id: int) -> None:
     """Deletes the object with id `id` from the `endpoint`."""
-    client = Bfabric.from_config(verbose=True)
     res = client.delete(endpoint=endpoint, id=id).to_list_dict()
     print(json.dumps(res, indent=2))
 
 
 def main() -> None:
     """Parses arguments and calls `bfabric_delete`."""
+    client = Bfabric.from_config(verbose=True)
     parser = argparse.ArgumentParser()
     parser.add_argument("endpoint", help="endpoint", choices=bfabric.endpoints)
     parser.add_argument("id", help="id", type=int)
     args = parser.parse_args()
-    bfabric_delete(args.endpoint, args.id)
+    bfabric_delete(client=client, endpoint=args.endpoint, id=args.id)
 
 
 if __name__ == "__main__":
