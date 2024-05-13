@@ -18,7 +18,6 @@ import importlib.metadata
 import logging
 import os
 from contextlib import contextmanager
-from copy import deepcopy
 from datetime import datetime
 from enum import Enum
 from pprint import pprint
@@ -32,7 +31,7 @@ from bfabric.cli_formatting import HostnameHighlighter, DEFAULT_THEME
 from bfabric.engine.engine_suds import EngineSUDS
 from bfabric.engine.engine_zeep import EngineZeep
 from bfabric.results.result_container import ResultContainer
-from bfabric.utils.paginator import compute_requested_pages, BFABRIC_QUERY_LIMIT, page_iter
+from bfabric.utils.paginator import compute_requested_pages, BFABRIC_QUERY_LIMIT
 
 
 class BfabricAPIEngineType(Enum):

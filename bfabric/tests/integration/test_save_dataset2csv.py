@@ -4,7 +4,7 @@ from tempfile import TemporaryDirectory
 import polars.testing
 import polars as pl
 
-from bfabric.bfabric2 import Bfabric
+from bfabric import Bfabric
 from bfabric.scripts.bfabric_save_dataset2csv import bfabric_save_dataset2csv
 
 

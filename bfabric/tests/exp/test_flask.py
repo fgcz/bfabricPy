@@ -6,7 +6,7 @@ import unittest
 
 import requests
 
-from bfabric.bfabric2 import get_system_auth
+from bfabric.bfabric import get_system_auth
 
 
 class TestFlaskRESTProxy(unittest.TestCase):
