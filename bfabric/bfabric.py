@@ -148,7 +148,9 @@ class Bfabric:
         """
         # Get the first page.
         # NOTE: According to old interface, this is equivalent to plain=True
-        results = self._read_page(endpoint=endpoint, query=obj, page=1, return_id_only=return_id_only)
+        results = self.engine.read(
+            endpoint=endpoint, obj=obj, auth=self.auth, page=1, return_id_only=return_id_only
+        )
         n_available_pages = results.total_pages_api
         if not n_available_pages:
             if check:
@@ -171,7 +173,9 @@ class Bfabric:
         for i_iter, i_page in enumerate(requested_pages):
             if not (i_iter == 0 and i_page == 1):
                 print("-- reading page", i_page, "of", n_available_pages)
-                results = self._read_page(endpoint=endpoint, query=obj, page=i_page, return_id_only=return_id_only)
+                results = self.engine.read(
+                    endpoint=endpoint, obj=obj, auth=self.auth, page=i_page, return_id_only=return_id_only
+                )
                 errors += results.errors
 
             response_items += results[page_offset:]
@@ -214,14 +218,6 @@ class Bfabric:
                 "workunitid": workunit_id,
             },
             check=check,
-        )
-
-    def _read_page(
-        self, endpoint: str, query: dict[str, Any], return_id_only: bool = False, page: int = 1
-    ) -> ResultContainer:
-        """Reads the specified page of objects from the specified endpoint that match the query."""
-        return self.engine.read(
-            endpoint=endpoint, obj=query, auth=self.auth, page=page, return_id_only=return_id_only
         )
 
     ############################
