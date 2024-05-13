@@ -27,7 +27,7 @@ class EngineSUDS:
         obj: dict[str, Any],
         auth: BfabricAuth,
         page: int = 1,
-        idonly: bool = False,
+        return_id_only: bool = False,
         includedeletableupdateable: bool = False,
     ) -> ResultContainer:
         """Reads the requested `obj` from `endpoint`.
@@ -35,13 +35,13 @@ class EngineSUDS:
         :param obj: a python dictionary which contains all the attribute values that have to match
         :param auth: the authentication handle of the user performing the request
         :param page: the page number to read
-        :param idonly: whether to return only the ids of the objects
+        :param return_id_only: whether to return only the ids of the objects
         :param includedeletableupdateable: TODO
         """
         query = copy.deepcopy(obj)
         query["includedeletableupdateable"] = includedeletableupdateable
 
-        full_query = dict(login=auth.login, page=page, password=auth.password, query=query, idonly=idonly)
+        full_query = dict(login=auth.login, page=page, password=auth.password, query=query, idonly=return_id_only)
         service = self._get_suds_service(endpoint)
         response = service.read(full_query)
         return self._convert_results(response=response, endpoint=endpoint)

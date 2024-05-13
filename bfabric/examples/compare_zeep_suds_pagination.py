@@ -30,7 +30,7 @@ def _calc_query(config, auth, engine, endpoint):
     print("Sending query via", engine)
     b = Bfabric(config, auth, engine=engine)
 
-    response_class = b.read(endpoint, {}, max_results=300, idonly=False, includedeletableupdateable=True)
+    response_class = b.read(endpoint, {}, max_results=300, return_id_only=False, includedeletableupdateable=True)
     response_dict = response_class.to_list_dict(drop_empty=True, have_sort_responses=True)
     return list_dict_to_df(response_dict)
 

@@ -23,7 +23,7 @@ class EngineZeep:
         obj: dict,
         auth: BfabricAuth,
         page: int = 1,
-        idonly: bool = False,
+        return_id_only: bool = False,
         includedeletableupdateable: bool = False,
     ) -> ResultContainer:
         query = copy.deepcopy(obj)
@@ -43,7 +43,7 @@ class EngineZeep:
             ]
             _zeep_query_append_skipped(query, excl_keys, inplace=True, overwrite=False)
 
-        full_query = dict(login=auth.login, page=page, password=auth.password, query=query, idonly=idonly)
+        full_query = dict(login=auth.login, page=page, password=auth.password, query=query, idonly=return_id_only)
 
         client = self._get_client(endpoint)
         with client.settings(strict=False, xml_huge_tree=True, xsd_ignore_sequence_order=True):

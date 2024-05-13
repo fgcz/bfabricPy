@@ -28,11 +28,11 @@ from rich.console import Console
 
 from bfabric.bfabric_config import BfabricAuth, read_config
 from bfabric.bfabric_config import BfabricConfig
+from bfabric.cli_formatting import HostnameHighlighter, DEFAULT_THEME
 from bfabric.engine.engine_suds import EngineSUDS
 from bfabric.engine.engine_zeep import EngineZeep
-from bfabric.cli_formatting import HostnameHighlighter, DEFAULT_THEME
-from bfabric.utils.paginator import compute_requested_pages, BFABRIC_QUERY_LIMIT, page_iter
 from bfabric.results.result_container import ResultContainer
+from bfabric.utils.paginator import compute_requested_pages, BFABRIC_QUERY_LIMIT, page_iter
 
 
 class BfabricAPIEngineType(Enum):
@@ -40,7 +40,6 @@ class BfabricAPIEngineType(Enum):
     ZEEP = 2
 
 
-# TODO: What does idonly do for SUDS? Does it make sense for Zeep?
 # TODO: What does includedeletableupdateable do for Zeep? Does it make sense for Suds?
 # TODO: How to deal with save-skip fields in Zeep? Does it happen in SUDS?
 class Bfabric:
@@ -126,7 +125,7 @@ class Bfabric:
         offset: int = 0,
         readid: bool = False,
         check: bool = True,
-        idonly: bool = False,
+        return_id_only: bool = False,
     ) -> ResultContainer:
         """Reads objects from the specified endpoint that match all specified attributes in `obj`.
         By setting `max_results` it is possible to change the number of results that are returned.
@@ -141,12 +140,12 @@ class Bfabric:
         :param readid: whether to use reading by ID. Currently only available for engine=SUDS
             TODO: Test the extent to which this method works. Add safeguards
         :param check: whether to check for errors in the response
-        :param idonly: whether to return only the ids of the objects
+        :param return_id_only: whether to return only the ids of the found objects
         :return: List of responses, packaged in the results container
         """
         # Get the first page.
         # NOTE: According to old interface, this is equivalent to plain=True
-        results = self._read_page(readid, endpoint, obj, page=1, idonly=idonly)
+        results = self._read_page(readid, endpoint, obj, page=1, return_id_only=return_id_only)
         n_available_pages = results.total_pages_api
         if not n_available_pages:
             if check:
@@ -169,7 +168,7 @@ class Bfabric:
         for i_iter, i_page in enumerate(requested_pages):
             if not (i_iter == 0 and i_page == 1):
                 print("-- reading page", i_page, "of", n_available_pages)
-                results = self._read_page(readid, endpoint, obj, page=i_page, idonly=idonly)
+                results = self._read_page(readid, endpoint, obj, page=i_page, return_id_only=return_id_only)
                 errors += results.errors
 
             response_items += results[page_offset:]
@@ -215,14 +214,16 @@ class Bfabric:
         )
 
     def _read_page(
-        self, readid: bool, endpoint: str, query: dict[str, Any], idonly: bool = False, page: int = 1
+        self, readid: bool, endpoint: str, query: dict[str, Any], return_id_only: bool = False, page: int = 1
     ) -> ResultContainer:
         """Reads the specified page of objects from the specified endpoint that match the query."""
         if readid:
             # https://fgcz-bfabric.uzh.ch/wiki/tiki-index.php?page=endpoint.workunit#Web_Method_readid_
             return self.engine.readid(endpoint=endpoint, obj=query, auth=self.auth, page=page)
         else:
-            return self.engine.read(endpoint=endpoint, obj=query, auth=self.auth, page=page, idonly=idonly)
+            return self.engine.read(
+                endpoint=endpoint, obj=query, auth=self.auth, page=page, return_id_only=return_id_only
+            )
 
     ############################
     # Multi-query functionality
@@ -236,7 +237,7 @@ class Bfabric:
         multi_query_key: str,
         multi_query_vals: list,
         readid: bool = False,
-        idonly: bool = False,
+        return_id_only: bool = False,
     ) -> ResultContainer:
         """
         Makes a 1-parameter multi-query (there is 1 parameter that takes a list of values)
@@ -247,7 +248,7 @@ class Bfabric:
         :param multi_query_vals: list of values for which the multi-query is performed
         :param readid: whether to use reading by ID. Currently only available for engine=SUDS
             TODO: Test the extent to which this method works. Add safeguards
-        :param idonly: whether to return only the ids of the objects
+        :param return_id_only: whether to return only the ids of the objects
         :return: List of responses, packaged in the results container
 
         NOTE: It is assumed that there is only 1 response for each value.
@@ -267,7 +268,9 @@ class Bfabric:
             #       automatically? If yes, perhaps we don't need this method at all?
             # TODO: It is assumed that a user requesting multi_query always wants all of the pages. Can anybody think of
             #   exceptions to this?
-            response_this = self.read(endpoint, obj_extended, max_results=None, readid=readid, idonly=idonly)
+            response_this = self.read(
+                endpoint, obj_extended, max_results=None, readid=readid, return_id_only=return_id_only
+            )
             response_tot.extend(response_this)
 
         return response_tot
