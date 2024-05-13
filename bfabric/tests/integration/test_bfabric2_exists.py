@@ -1,5 +1,5 @@
 import unittest
-
+from bfabric.experimental.multi_query import  MultiQuery
 from bfabric import BfabricAPIEngineType, Bfabric
 from bfabric.bfabric import get_system_auth
 
@@ -10,7 +10,8 @@ class BfabricTestExists(unittest.TestCase):
 
     def _test_single_exists(self, engine: BfabricAPIEngineType):
         bf = Bfabric(self.config, self.auth, engine=engine)
-        res = bf.exists("dataset", "id", 30721)  # Take ID which is the same as in production
+        multiquery = MultiQuery(bf)
+        res = multiquery.exists("dataset", "id", 30721)  # Take ID which is the same as in production
         self.assertEqual(res, True)
 
     def test_zeep(self):
