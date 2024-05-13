@@ -17,11 +17,21 @@ class BfabricLegacy(object):
     """B-Fabric python3 module
     Implements read and save object methods for B-Fabric wsdl interface
     """
+
     def warning(self, msg):
         sys.stderr.write("\033[93m{}\033[0m\n".format(msg))
 
-    def __init__(self, login: str = None, password: str = None, base_url: str = None, externaljobid=None,
-                 config_path: str = None, config_env: str = None, optional_auth: bool = False, verbose: bool = False):
+    def __init__(
+        self,
+        login: str = None,
+        password: str = None,
+        base_url: str = None,
+        externaljobid=None,
+        config_path: str = None,
+        config_env: str = None,
+        optional_auth: bool = False,
+        verbose: bool = False,
+    ):
         """
         :param login:           Login string for overriding config file
         :param password:        Password for overriding config file
@@ -46,7 +56,9 @@ class BfabricLegacy(object):
         # TODO: Convert to an exception when this branch becomes main
         config_path_old = config_path or os.path.normpath(os.path.expanduser("~/.bfabricrc.py"))
         if os.path.isfile(config_path):
-            self.warning("WARNING! The old .bfabricrc.py was found in the home directory. Delete and make sure to use the new .bfabricpy.yml")
+            self.warning(
+                "WARNING! The old .bfabricrc.py was found in the home directory. Delete and make sure to use the new .bfabricpy.yml"
+            )
 
         # Use the provided config data from arguments instead of the file
         if not os.path.isfile(config_path):
@@ -85,10 +97,7 @@ class BfabricLegacy(object):
         for the "query".
         """
         return self._perform_request(
-            endpoint=endpoint,
-            method="read",
-            plain=plain,
-            params=dict(query=obj, idonly=idonly, page=page)
+            endpoint=endpoint, method="read", plain=plain, params=dict(query=obj, idonly=idonly, page=page)
         )
 
     def readid_object(self, endpoint, obj, page=1, plain=False):
@@ -97,23 +106,13 @@ class BfabricLegacy(object):
         externaljob, etc, and returns the object with the requested id.
         obj is a python dictionary which contains only the id of the endpoint for the "query".
         """
-        return self._perform_request(
-            endpoint=endpoint,
-            method="readid",
-            plain=plain,
-            params=dict(query=obj, page=page)
-        )
+        return self._perform_request(endpoint=endpoint, method="readid", plain=plain, params=dict(query=obj, page=page))
 
     def save_object(self, endpoint, obj, debug=None):
         """
         same as read_object above but uses the save method.
         """
-        return self._perform_request(
-            endpoint=endpoint,
-            method="save",
-            plain=debug is not None,
-            params={endpoint: obj}
-        )
+        return self._perform_request(endpoint=endpoint, method="save", plain=debug is not None, params={endpoint: obj})
 
     def checkandinsert_object(self, endpoint, obj, debug=None):
         """
@@ -121,34 +120,29 @@ class BfabricLegacy(object):
         """
         # TODO This method was changed a while ago to use the "save"endpoint, which makes it functionally identical
         #      to the save_object method. Check if this was intended.
-        return self._perform_request(
-            endpoint=endpoint,
-            method="save",
-            plain=debug is not None,
-            params={endpoint: obj}
-        )
+        return self._perform_request(endpoint=endpoint, method="save", plain=debug is not None, params={endpoint: obj})
 
     def delete_object(self, endpoint, id=None, debug=None):
         """
         same as read_object above but uses the delete method.
         """
-        return self._perform_request(
-            endpoint=endpoint,
-            method="delete",
-            plain=debug is not None,
-            params=dict(id=id)
-        )
+        return self._perform_request(endpoint=endpoint, method="delete", plain=debug is not None, params=dict(id=id))
 
     def upload_file(self, filename, workunitid):
-        with open(filename, 'rb') as f:
+        with open(filename, "rb") as f:
             content = f.read()
 
         resource_base64 = base64.b64encode(content).decode()
 
-        res = self.save_object('resource', {'base64': resource_base64,
-            'name': os.path.basename(filename),
-            'description': "base64 encoded file",
-            'workunitid': workunitid})
+        res = self.save_object(
+            "resource",
+            {
+                "base64": resource_base64,
+                "name": os.path.basename(filename),
+                "description": "base64 encoded file",
+                "workunitid": workunitid,
+            },
+        )
 
         return res
 
@@ -158,9 +152,7 @@ class BfabricLegacy(object):
             self.cl[endpoint] = Client(f"{self.config.base_url}/{endpoint}?wsdl", cache=None)
         return self.cl[endpoint].service
 
-    def _perform_request(
-        self, endpoint: str, method: str, plain: bool, params: Dict[str, Any]
-    ) -> Any:
+    def _perform_request(self, endpoint: str, method: str, plain: bool, params: Dict[str, Any]) -> Any:
         """Performs a request to the given endpoint and returns the result."""
         self.query_counter += 1
         request_params = dict(login=self.auth.login, password=self.auth.password, **params)
@@ -183,7 +175,9 @@ class BfabricLegacy(object):
         queryres : the object returned by ``read_object`` method.
         """
         if queryres is None:
-            raise TypeError("print_json() missing 1 required positional argument: please provide the output from read_object as parameter to print_json")
+            raise TypeError(
+                "print_json() missing 1 required positional argument: please provide the output from read_object as parameter to print_json"
+            )
 
         res = json.dumps(queryres, cls=bfabricEncoder, sort_keys=True, indent=2)
         print(res)
@@ -199,7 +193,9 @@ class BfabricLegacy(object):
         queryres : the object returned by ``read_object`` method.
         """
         if queryres is None:
-            raise TypeError("print_yaml() missing 1 required positional argument: please provide the output from read_object as parameter to print_yaml")
+            raise TypeError(
+                "print_yaml() missing 1 required positional argument: please provide the output from read_object as parameter to print_yaml"
+            )
 
         res_json = json.dumps(queryres, cls=bfabricEncoder, sort_keys=True)
         res = yaml.dump(res_json, default_flow_style=False, encoding=None, default_style=None)
@@ -218,22 +214,23 @@ class BfabricLegacy(object):
         assert isinstance(resourceid, int)
 
         try:
-            resource = self.read_object('resource', obj={'id': resourceid})[0]
+            resource = self.read_object("resource", obj={"id": resourceid})[0]
         except:
-            return (None)
+            return None
 
         try:
-            workunit = self.read_object(endpoint='workunit', obj={'id': resource.workunit._id})[0]
-            return (self.get_sampleid(resourceid=int(workunit.inputresource[0]._id)))
+            workunit = self.read_object(endpoint="workunit", obj={"id": resource.workunit._id})[0]
+            return self.get_sampleid(resourceid=int(workunit.inputresource[0]._id))
         except:
             self.warning("fetching sampleid of resource.workunitid = {} failed.".format(resource.workunit._id))
-            return (None)
+            return None
 
 
 class bfabricEncoder(json.JSONEncoder):
     """
     Implements json encoder for the Bfabric.print_json method
     """
+
     def default(self, o):
         try:
             return dict(o)
