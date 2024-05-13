@@ -191,7 +191,7 @@ class Bfabric:
         :param check: whether to raise an error if the response is not successful
         :return a ResultContainer describing the saved object if successful
         """
-        results = self.engine.save(endpoint, obj, auth=self.auth)
+        results = self.engine.save(endpoint=endpoint, obj=obj, auth=self.auth)
         if check:
             results.assert_success()
         return results
@@ -203,7 +203,7 @@ class Bfabric:
         :param check: whether to raise an error if the response is not successful
         :return a ResultContainer describing the deleted object if successful
         """
-        results = self.engine.delete(endpoint, id, auth=self.auth)
+        results = self.engine.delete(endpoint=endpoint, id=id, auth=self.auth)
         if check:
             results.assert_success()
         return results
