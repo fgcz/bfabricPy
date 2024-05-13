@@ -36,6 +36,7 @@ from bfabric.utils.paginator import compute_requested_pages, BFABRIC_QUERY_LIMIT
 
 
 class BfabricAPIEngineType(Enum):
+    """Choice of engine to use."""
     SUDS = 1
     ZEEP = 2
 
