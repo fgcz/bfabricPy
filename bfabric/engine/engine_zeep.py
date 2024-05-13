@@ -50,11 +50,6 @@ class EngineZeep:
             response = client.service.read(full_query)
         return self._convert_results(response=response, endpoint=endpoint)
 
-    def readid(
-        self, endpoint: str, obj: dict, auth: BfabricAuth, page: int = 1, includedeletableupdateable: bool = True
-    ) -> ResultContainer:
-        raise NotImplementedError("Attempted to use a method `readid` of Zeep, which does not exist")
-
     def save(self, endpoint: str, obj: dict, auth: BfabricAuth) -> ResultContainer:
         query = copy.deepcopy(obj)
 

@@ -46,13 +46,6 @@ class EngineSUDS:
         response = service.read(full_query)
         return self._convert_results(response=response, endpoint=endpoint)
 
-    # TODO: How is client.service.readid different from client.service.read. Do we need this method?
-    def readid(self, endpoint: str, query: dict, auth: BfabricAuth, page: int = 1) -> ResultContainer:
-        query = dict(login=auth.login, page=page, password=auth.password, query=query)
-        service = self._get_suds_service(endpoint)
-        response = service.readid(query)
-        return self._convert_results(response=response, endpoint=endpoint)
-
     def save(self, endpoint: str, obj: dict, auth: BfabricAuth) -> ResultContainer:
         query = {"login": auth.login, "password": auth.password, endpoint: obj}
         service = self._get_suds_service(endpoint)
