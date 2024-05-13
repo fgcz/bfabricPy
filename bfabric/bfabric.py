@@ -134,7 +134,7 @@ class Bfabric:
     ) -> ResultContainer:
         """Reads from the specified endpoint matching all specified attributes in `obj`.
         By setting `max_results` it is possible to change the number of results that are returned.
-        :param endpoint: endpoint
+        :param endpoint: the endpoint to read from, e.g. "sample"
         :param obj: a dictionary containing the query, for every field multiple possible values can be provided, the
             final query requires the condition for each field to be met
         :param max_results: cap on the number of results to query. The code will keep reading pages until all pages
@@ -143,7 +143,7 @@ class Bfabric:
            come in blocks, and there is little overhead to providing results over integer number of pages.
         :param offset: the number of elements to skip before starting to return results (useful for pagination, default
               is 0 which means no skipping)
-        :param check: whether to check for errors in the response
+        :param check: whether to raise an error if the response is not successful
         :param return_id_only: whether to return only the ids of the found objects
         :return: List of responses, packaged in the results container
         """
@@ -185,13 +185,25 @@ class Bfabric:
             result.assert_success()
         return result.get_first_n_results(max_results)
 
-    def save(self, endpoint: str, obj: dict, check: bool = True) -> ResultContainer:
+    def save(self, endpoint: str, obj: dict[str, Any], check: bool = True) -> ResultContainer:
+        """Saves the provided object to the specified endpoint.
+        :param endpoint: the endpoint to save to, e.g. "sample"
+        :param obj: the object to save
+        :param check: whether to raise an error if the response is not successful
+        :return a ResultContainer describing the saved object if successful
+        """
         results = self.engine.save(endpoint, obj, auth=self.auth)
         if check:
             results.assert_success()
         return results
 
     def delete(self, endpoint: str, id: int | list[int], check: bool = True) -> ResultContainer:
+        """Deletes the object with the specified ID from the specified endpoint.
+        :param endpoint: the endpoint to delete from, e.g. "sample"
+        :param id: the ID of the object to delete
+        :param check: whether to raise an error if the response is not successful
+        :return a ResultContainer describing the deleted object if successful
+        """
         results = self.engine.delete(endpoint, id, auth=self.auth)
         if check:
             results.assert_success()

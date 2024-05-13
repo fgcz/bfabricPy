@@ -48,6 +48,11 @@ class EngineSUDS:
         return self._convert_results(response=response, endpoint=endpoint)
 
     def save(self, endpoint: str, obj: dict, auth: BfabricAuth) -> ResultContainer:
+        """Saves the provided object to the specified endpoint.
+        :param endpoint: the endpoint to save to, e.g. "sample"
+        :param obj: the object to save
+        :param auth: the authentication handle of the user performing the request
+        """
         query = {"login": auth.login, "password": auth.password, endpoint: obj}
         service = self._get_suds_service(endpoint)
         try:
@@ -57,6 +62,11 @@ class EngineSUDS:
         return self._convert_results(response=response, endpoint=endpoint)
 
     def delete(self, endpoint: str, id: int | list[int], auth: BfabricAuth) -> ResultContainer:
+        """Deletes the object with the specified ID from the specified endpoint.
+        :param endpoint: the endpoint to delete from, e.g. "sample"
+        :param id: the ID of the object to delete
+        :param auth: the authentication handle of the user performing the request
+        """
         if isinstance(id, list) and len(id) == 0:
             print("Warning, attempted to delete an empty list, ignoring")
             # TODO maybe use error here (and make sure it's consistent)

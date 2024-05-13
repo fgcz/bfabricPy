@@ -60,6 +60,11 @@ class EngineZeep:
         return self._convert_results(response=response, endpoint=endpoint)
 
     def save(self, endpoint: str, obj: dict, auth: BfabricAuth) -> ResultContainer:
+        """Saves the provided object to the specified endpoint.
+        :param endpoint: the endpoint to save to, e.g. "sample"
+        :param obj: the object to save
+        :param auth: the authentication handle of the user performing the request
+        """
         query = copy.deepcopy(obj)
 
         # FIXME: Hacks for the cases where Zeep thinks a parameter is compulsory and it is actually not
@@ -81,6 +86,11 @@ class EngineZeep:
         return self._convert_results(response=response, endpoint=endpoint)
 
     def delete(self, endpoint: str, id: int | list[int], auth: BfabricAuth) -> ResultContainer:
+        """Deletes the object with the specified ID from the specified endpoint.
+        :param endpoint: the endpoint to delete from, e.g. "sample"
+        :param id: the ID of the object to delete
+        :param auth: the authentication handle of the user performing the request
+        """
         if isinstance(id, list) and len(id) == 0:
             print("Warning, attempted to delete an empty list, ignoring")
             # TODO maybe use error here (and make sure it's consistent)
