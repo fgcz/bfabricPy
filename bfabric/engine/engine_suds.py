@@ -28,18 +28,18 @@ class EngineSUDS:
         auth: BfabricAuth,
         page: int = 1,
         return_id_only: bool = False,
-        includedeletableupdateable: bool = False,
+        include_deletable_and_updatable_fields: bool = True,
     ) -> ResultContainer:
         """Reads the requested `obj` from `endpoint`.
-        :param endpoint: the endpoint to read, e.g. `workunit`, `project`, `order`, `externaljob`, etc.
-        :param obj: a python dictionary which contains all the attribute values that have to match
+        :param endpoint: the endpoint to read from, e.g. "sample"
+        :param obj: a dictionary containing the query
         :param auth: the authentication handle of the user performing the request
         :param page: the page number to read
         :param return_id_only: whether to return only the ids of the objects
-        :param includedeletableupdateable: TODO
+        :param include_deletable_and_updatable_fields: whether to include the deletable and updatable fields
         """
         query = copy.deepcopy(obj)
-        query["includedeletableupdateable"] = includedeletableupdateable
+        query["includedeletableupdateable"] = include_deletable_and_updatable_fields
 
         full_query = dict(login=auth.login, page=page, password=auth.password, query=query, idonly=return_id_only)
         service = self._get_suds_service(endpoint)
