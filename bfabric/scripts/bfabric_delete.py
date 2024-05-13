@@ -7,18 +7,11 @@ Author:
  Christian Panse <cp@fgcz.ethz.ch>
 
 Licensed under  GPL version 3
-
-$HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/scripts/bfabric_delete.py $
-$Id: bfabric_delete.py 2525 2016-10-17 09:52:59Z cpanse $ 
-
-
-
-http://fgcz-bfabric.uzh.ch/bfabric/executable?wsdl
-
 """
 import argparse
 import json
 
+import bfabric
 from bfabric import Bfabric
 
 
