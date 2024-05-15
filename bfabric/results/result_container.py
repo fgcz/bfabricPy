@@ -3,6 +3,8 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+from polars import polars
+
 import bfabric.results.response_format_dict as formatter
 
 
@@ -86,6 +88,12 @@ class ResultContainer:
             return formatter.drop_empty_elements(self.results, inplace=False)
         else:
             return self.results
+
+    def to_polars(self, drop_empty: bool = False) -> polars.DataFrame:
+        """Returns the results as a polars DataFrame.
+        :param drop_empty: If True, empty attributes will be removed from the results
+        """
+        return polars.DataFrame(self.to_list_dict(drop_empty=drop_empty))
 
 
 def _clean_result(result: dict, drop_underscores_suds: bool = True, sort_responses: bool = False) -> dict:
