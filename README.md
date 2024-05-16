@@ -22,17 +22,24 @@ For more advanced users the *bfabricPy* package also provides a powerful query i
 - install the python3 package as follows:
 
 ```{bash}
-git clone git@github.com:fgcz/bfabricPy.git  \
-  && cd bfabricPy 
+git clone git@github.com:fgcz/bfabricPy.git && cd bfabricPy 
 ```
 
 ## Install
 
+As a user: (i.e. a regular install, files will be used from your current directory instead of properly installing a copy of it)
+
 ```{bash}
-python3 setup.py install --user
+pip install .
 ```
 
-## Configuration
+As a bfabricPy developer: (i.e. an editable install)
+
+```{bash}
+pip install -e ".[dev]"
+```
+
+## Configuration [outdated]
 
 ```{bash}
 cat ~/.bfabricpy.yml
