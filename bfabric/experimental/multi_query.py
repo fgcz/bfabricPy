@@ -31,7 +31,7 @@ class MultiQuery:
 
         NOTE: It is assumed that there is only 1 response for each value.
         """
-
+        # TODO add `check` parameter
         response_tot = ResultContainer([], total_pages_api=0)
         obj_extended = deepcopy(obj)  # Make a copy of the query, not to make edits to the argument
 
@@ -64,10 +64,13 @@ class MultiQuery:
     #
     #     return response_tot
 
-    def delete_multi(self, endpoint: str, id_list: list) -> ResultContainer:
+    def delete_multi(self, endpoint: str, id_list: list[int]) -> ResultContainer:
+        """Deletes multiple objects from `endpoint` by their ids."""
+        # TODO document and test error handling
+        # TODO add `check` parameter
         response_tot = ResultContainer([], total_pages_api=0)
 
-        if len(id_list) == 0:
+        if not id_list:
             print("Warning, empty list provided for deletion, ignoring")
             return response_tot
 
@@ -78,7 +81,7 @@ class MultiQuery:
 
         return response_tot
 
-    def exists(self, endpoint: str, key: str, value: list[int | str] | int | str) -> bool | list[bool]:
+    def exists_multi(self, endpoint: str, key: str, value: list[int | str] | int | str) -> bool | list[bool]:
         """
         :param endpoint:  endpoint
         :param key:       A key for the query (e.g. id or name)

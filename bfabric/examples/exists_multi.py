@@ -27,8 +27,8 @@ b2 = MultiQuery(Bfabric(config, auth, engine=BfabricAPIEngineType.ZEEP))
 
 target_workunit_names = ["tomcat", "tomcat2"]
 
-response1 = b1.exists("workunit", "name", target_workunit_names)
-response2 = b2.exists("workunit", "name", target_workunit_names)
+response1 = b1.exists_multi("workunit", "name", target_workunit_names)
+response2 = b2.exists_multi("workunit", "name", target_workunit_names)
 
 print(response1)
 print(response2)
