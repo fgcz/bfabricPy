@@ -35,7 +35,7 @@ def _find_delete_existing_objects_by_name(b: Bfabric, endpoint: str, name_list: 
             ids_to_delete += ids_this
 
         # Delete
-        delete_response_dict = b.delete(endpoint, ids_to_delete).to_list_dict()
+        delete_response_dict = b.delete(endpoint, ids_to_delete).to_list_dict(drop_empty=True)
         print("Deletion results:", delete_response_dict)
 
         return objs_exist_names, delete_response_dict
