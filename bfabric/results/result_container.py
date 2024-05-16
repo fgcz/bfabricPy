@@ -3,8 +3,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from polars import polars
-
+import polars
 import bfabric.results.response_format_dict as formatter
 
 
