@@ -208,6 +208,23 @@ class Bfabric:
             results.assert_success()
         return results
 
+    def exists(
+        self, endpoint: str, key: str, value: int | str, query: dict[str, Any] | None = None, check: bool = True
+    ) -> bool:
+        """Returns whether an object with the specified key-value pair exists in the specified endpoint.
+        Further conditions can be specified in the query.
+        :param endpoint: the endpoint to check, e.g. "sample"
+        :param key: the key to check, e.g. "id"
+        :param value: the value to check, e.g. 123
+        :param query: additional query conditions (optional)
+        :param check: whether to raise an error if the response is not successful
+        """
+        query = query or {}
+        results = self.read(
+            endpoint=endpoint, obj={**query, key: value}, max_results=1, check=check, return_id_only=True
+        )
+        return len(results) > 0
+
     def upload_resource(
         self, resource_name: str, content: bytes, workunit_id: int, check: bool = True
     ) -> ResultContainer:
