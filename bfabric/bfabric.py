@@ -304,7 +304,7 @@ def get_system_auth(
         raise ValueError("base_url missing")
     if not optional_auth:
         if not auth or not auth.login or not auth.password:
-            raise ValueError("Authentification not initialized but required")
+            raise ValueError("Authentication not initialized but required")
 
     if verbose:
         pprint(config)
