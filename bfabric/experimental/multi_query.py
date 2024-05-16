@@ -8,6 +8,11 @@ from bfabric.utils.paginator import page_iter
 
 
 class MultiQuery:
+    """Some advanced functionality that supports paginating over a list of conditions that is larger than the 100
+    conditions limit of the API.
+    This functionality might eventually be merged into the main Bfabric class but will probably be subject to some
+    breaking changes and is not as thoroughly tested as the main classes functionality.
+    """
     def __init__(self, client: Bfabric) -> None:
         self._client = client
 
