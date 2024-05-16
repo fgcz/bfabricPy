@@ -28,23 +28,29 @@ from rich.console import Console
 
 from bfabric.bfabric_config import BfabricAuth, read_config
 from bfabric.bfabric_config import BfabricConfig
+from bfabric.cli_formatting import HostnameHighlighter, DEFAULT_THEME
 from bfabric.engine.engine_suds import EngineSUDS
 from bfabric.engine.engine_zeep import EngineZeep
-from bfabric.cli_formatting import HostnameHighlighter, DEFAULT_THEME
-from bfabric.utils.paginator import compute_requested_pages, BFABRIC_QUERY_LIMIT, page_iter
 from bfabric.results.result_container import ResultContainer
+from bfabric.utils.paginator import compute_requested_pages, BFABRIC_QUERY_LIMIT, page_iter
 
 
 class BfabricAPIEngineType(Enum):
+    """Choice of engine to use."""
+
     SUDS = 1
     ZEEP = 2
 
 
-# TODO: What does idonly do for SUDS? Does it make sense for Zeep?
-# TODO: What does includedeletableupdateable do for Zeep? Does it make sense for Suds?
 # TODO: How to deal with save-skip fields in Zeep? Does it happen in SUDS?
 class Bfabric:
-    """Bfabric client class, providing general functionality for interaction with the B-Fabric API."""
+    """Bfabric client class, providing general functionality for interaction with the B-Fabric API.
+    Use `Bfabric.from_config` to create a new instance.
+    :param config: Configuration object
+    :param auth: Authentication object (if `None`, it has to be provided using the `with_auth` context manager)
+    :param engine: Engine to use for the API. Default is SUDS.
+    :param verbose: Print a system info message to standard error console
+    """
 
     def __init__(
         self,
@@ -53,7 +59,6 @@ class Bfabric:
         engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS,
         verbose: bool = False,
     ) -> None:
-        self.verbose = verbose
         self.query_counter = 0
         self._config = config
         self._auth = auth
@@ -65,7 +70,7 @@ class Bfabric:
         else:
             raise ValueError(f"Unexpected engine: {engine}")
 
-        if self.verbose:
+        if verbose:
             self.print_version_message()
 
     @classmethod
@@ -124,29 +129,27 @@ class Bfabric:
         obj: dict[str, Any],
         max_results: int | None = 100,
         offset: int = 0,
-        readid: bool = False,
         check: bool = True,
-        idonly: bool = False,
+        return_id_only: bool = False,
     ) -> ResultContainer:
-        """Reads objects from the specified endpoint that match all specified attributes in `obj`.
+        """Reads from the specified endpoint matching all specified attributes in `obj`.
         By setting `max_results` it is possible to change the number of results that are returned.
-        :param endpoint: endpoint
-        :param obj: query dictionary
+        :param endpoint: the endpoint to read from, e.g. "sample"
+        :param obj: a dictionary containing the query, for every field multiple possible values can be provided, the
+            final query requires the condition for each field to be met
         :param max_results: cap on the number of results to query. The code will keep reading pages until all pages
            are read or expected number of results has been reached. If None, load all available pages.
            NOTE: max_results will be rounded upwards to the nearest multiple of BFABRIC_QUERY_LIMIT, because results
            come in blocks, and there is little overhead to providing results over integer number of pages.
         :param offset: the number of elements to skip before starting to return results (useful for pagination, default
               is 0 which means no skipping)
-        :param readid: whether to use reading by ID. Currently only available for engine=SUDS
-            TODO: Test the extent to which this method works. Add safeguards
-        :param check: whether to check for errors in the response
-        :param idonly: whether to return only the ids of the objects
+        :param check: whether to raise an error if the response is not successful
+        :param return_id_only: whether to return only the ids of the found objects
         :return: List of responses, packaged in the results container
         """
         # Get the first page.
         # NOTE: According to old interface, this is equivalent to plain=True
-        results = self._read_page(readid, endpoint, obj, page=1, idonly=idonly)
+        results = self.engine.read(endpoint=endpoint, obj=obj, auth=self.auth, page=1, return_id_only=return_id_only)
         n_available_pages = results.total_pages_api
         if not n_available_pages:
             if check:
@@ -169,7 +172,9 @@ class Bfabric:
         for i_iter, i_page in enumerate(requested_pages):
             if not (i_iter == 0 and i_page == 1):
                 print("-- reading page", i_page, "of", n_available_pages)
-                results = self._read_page(readid, endpoint, obj, page=i_page, idonly=idonly)
+                results = self.engine.read(
+                    endpoint=endpoint, obj=obj, auth=self.auth, page=i_page, return_id_only=return_id_only
+                )
                 errors += results.errors
 
             response_items += results[page_offset:]
@@ -180,14 +185,26 @@ class Bfabric:
             result.assert_success()
         return result.get_first_n_results(max_results)
 
-    def save(self, endpoint: str, obj: dict, check: bool = True) -> ResultContainer:
-        results = self.engine.save(endpoint, obj, auth=self.auth)
+    def save(self, endpoint: str, obj: dict[str, Any], check: bool = True) -> ResultContainer:
+        """Saves the provided object to the specified endpoint.
+        :param endpoint: the endpoint to save to, e.g. "sample"
+        :param obj: the object to save
+        :param check: whether to raise an error if the response is not successful
+        :return a ResultContainer describing the saved object if successful
+        """
+        results = self.engine.save(endpoint=endpoint, obj=obj, auth=self.auth)
         if check:
             results.assert_success()
         return results
 
     def delete(self, endpoint: str, id: int | list[int], check: bool = True) -> ResultContainer:
-        results = self.engine.delete(endpoint, id, auth=self.auth)
+        """Deletes the object with the specified ID from the specified endpoint.
+        :param endpoint: the endpoint to delete from, e.g. "sample"
+        :param id: the ID of the object to delete
+        :param check: whether to raise an error if the response is not successful
+        :return a ResultContainer describing the deleted object if successful
+        """
+        results = self.engine.delete(endpoint=endpoint, id=id, auth=self.auth)
         if check:
             results.assert_success()
         return results
@@ -213,16 +230,6 @@ class Bfabric:
             },
             check=check,
         )
-
-    def _read_page(
-        self, readid: bool, endpoint: str, query: dict[str, Any], idonly: bool = False, page: int = 1
-    ) -> ResultContainer:
-        """Reads the specified page of objects from the specified endpoint that match the query."""
-        if readid:
-            # https://fgcz-bfabric.uzh.ch/wiki/tiki-index.php?page=endpoint.workunit#Web_Method_readid_
-            return self.engine.readid(endpoint=endpoint, obj=query, auth=self.auth, page=page)
-        else:
-            return self.engine.read(endpoint=endpoint, obj=query, auth=self.auth, page=page, idonly=idonly)
 
     ############################
     # Multi-query functionality
@@ -267,7 +274,7 @@ class Bfabric:
             #       automatically? If yes, perhaps we don't need this method at all?
             # TODO: It is assumed that a user requesting multi_query always wants all of the pages. Can anybody think of
             #   exceptions to this?
-            response_this = self.read(endpoint, obj_extended, max_results=None, readid=readid, idonly=idonly)
+            response_this = self.read(endpoint, obj_extended, max_results=None, return_id_only=idonly)
             response_tot.extend(response_this)
 
         return response_tot
@@ -405,7 +412,7 @@ def get_system_auth(
         raise ValueError("base_url missing")
     if not optional_auth:
         if not auth or not auth.login or not auth.password:
-            raise ValueError("Authentification not initialized but required")
+            raise ValueError("Authentication not initialized but required")
 
     if verbose:
         pprint(config)

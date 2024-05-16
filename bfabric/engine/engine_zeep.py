@@ -23,11 +23,20 @@ class EngineZeep:
         obj: dict,
         auth: BfabricAuth,
         page: int = 1,
-        idonly: bool = False,
-        includedeletableupdateable: bool = False,
+        return_id_only: bool = False,
+        include_deletable_and_updatable_fields: bool = False,
     ) -> ResultContainer:
+        """Reads the requested `obj` from `endpoint`.
+        :param endpoint: the endpoint to read from, e.g. "sample"
+        :param obj: a dictionary containing the query, for every field multiple possible values can be provided, the
+            final query requires the condition for each field to be met
+        :param auth: the authentication handle of the user performing the request
+        :param page: the page number to read
+        :param return_id_only: whether to return only the ids of the objects
+        :param include_deletable_and_updatable_fields: whether to include the deletable and updatable fields
+        """
         query = copy.deepcopy(obj)
-        query["includedeletableupdateable"] = includedeletableupdateable
+        query["includedeletableupdateable"] = include_deletable_and_updatable_fields
 
         # FIXME: Hacks for the cases where Zeep thinks a parameter is compulsory and it is actually not
         if endpoint == "sample":
@@ -43,19 +52,19 @@ class EngineZeep:
             ]
             _zeep_query_append_skipped(query, excl_keys, inplace=True, overwrite=False)
 
-        full_query = dict(login=auth.login, page=page, password=auth.password, query=query, idonly=idonly)
+        full_query = dict(login=auth.login, page=page, password=auth.password, query=query, idonly=return_id_only)
 
         client = self._get_client(endpoint)
         with client.settings(strict=False, xml_huge_tree=True, xsd_ignore_sequence_order=True):
             response = client.service.read(full_query)
         return self._convert_results(response=response, endpoint=endpoint)
 
-    def readid(
-        self, endpoint: str, obj: dict, auth: BfabricAuth, page: int = 1, includedeletableupdateable: bool = True
-    ) -> ResultContainer:
-        raise NotImplementedError("Attempted to use a method `readid` of Zeep, which does not exist")
-
     def save(self, endpoint: str, obj: dict, auth: BfabricAuth) -> ResultContainer:
+        """Saves the provided object to the specified endpoint.
+        :param endpoint: the endpoint to save to, e.g. "sample"
+        :param obj: the object to save
+        :param auth: the authentication handle of the user performing the request
+        """
         query = copy.deepcopy(obj)
 
         # FIXME: Hacks for the cases where Zeep thinks a parameter is compulsory and it is actually not
@@ -77,6 +86,11 @@ class EngineZeep:
         return self._convert_results(response=response, endpoint=endpoint)
 
     def delete(self, endpoint: str, id: int | list[int], auth: BfabricAuth) -> ResultContainer:
+        """Deletes the object with the specified ID from the specified endpoint.
+        :param endpoint: the endpoint to delete from, e.g. "sample"
+        :param id: the ID of the object to delete
+        :param auth: the authentication handle of the user performing the request
+        """
         if isinstance(id, list) and len(id) == 0:
             print("Warning, attempted to delete an empty list, ignoring")
             # TODO maybe use error here (and make sure it's consistent)

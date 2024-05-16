@@ -27,33 +27,32 @@ class EngineSUDS:
         obj: dict[str, Any],
         auth: BfabricAuth,
         page: int = 1,
-        idonly: bool = False,
-        includedeletableupdateable: bool = False,
+        return_id_only: bool = False,
+        include_deletable_and_updatable_fields: bool = False,
     ) -> ResultContainer:
         """Reads the requested `obj` from `endpoint`.
-        :param endpoint: the endpoint to read, e.g. `workunit`, `project`, `order`, `externaljob`, etc.
-        :param obj: a python dictionary which contains all the attribute values that have to match
+        :param endpoint: the endpoint to read from, e.g. "sample"
+        :param obj: a dictionary containing the query, for every field multiple possible values can be provided, the
+            final query requires the condition for each field to be met
         :param auth: the authentication handle of the user performing the request
         :param page: the page number to read
-        :param idonly: whether to return only the ids of the objects
-        :param includedeletableupdateable: TODO
+        :param return_id_only: whether to return only the ids of the objects
+        :param include_deletable_and_updatable_fields: whether to include the deletable and updatable fields
         """
         query = copy.deepcopy(obj)
-        query["includedeletableupdateable"] = includedeletableupdateable
+        query["includedeletableupdateable"] = include_deletable_and_updatable_fields
 
-        full_query = dict(login=auth.login, page=page, password=auth.password, query=query, idonly=idonly)
+        full_query = dict(login=auth.login, page=page, password=auth.password, query=query, idonly=return_id_only)
         service = self._get_suds_service(endpoint)
         response = service.read(full_query)
         return self._convert_results(response=response, endpoint=endpoint)
 
-    # TODO: How is client.service.readid different from client.service.read. Do we need this method?
-    def readid(self, endpoint: str, query: dict, auth: BfabricAuth, page: int = 1) -> ResultContainer:
-        query = dict(login=auth.login, page=page, password=auth.password, query=query)
-        service = self._get_suds_service(endpoint)
-        response = service.readid(query)
-        return self._convert_results(response=response, endpoint=endpoint)
-
     def save(self, endpoint: str, obj: dict, auth: BfabricAuth) -> ResultContainer:
+        """Saves the provided object to the specified endpoint.
+        :param endpoint: the endpoint to save to, e.g. "sample"
+        :param obj: the object to save
+        :param auth: the authentication handle of the user performing the request
+        """
         query = {"login": auth.login, "password": auth.password, endpoint: obj}
         service = self._get_suds_service(endpoint)
         try:
@@ -63,6 +62,11 @@ class EngineSUDS:
         return self._convert_results(response=response, endpoint=endpoint)
 
     def delete(self, endpoint: str, id: int | list[int], auth: BfabricAuth) -> ResultContainer:
+        """Deletes the object with the specified ID from the specified endpoint.
+        :param endpoint: the endpoint to delete from, e.g. "sample"
+        :param id: the ID of the object to delete
+        :param auth: the authentication handle of the user performing the request
+        """
         if isinstance(id, list) and len(id) == 0:
             print("Warning, attempted to delete an empty list, ignoring")
             # TODO maybe use error here (and make sure it's consistent)
