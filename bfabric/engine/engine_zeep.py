@@ -1,13 +1,15 @@
 from __future__ import annotations
 import copy
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import zeep
 from zeep.helpers import serialize_object
 
-from bfabric.bfabric_config import BfabricAuth
 from bfabric.errors import BfabricRequestError, get_response_errors
 from bfabric.results.result_container import ResultContainer, _clean_result
+
+if TYPE_CHECKING:
+    from bfabric.bfabric_config import BfabricAuth
 
 
 class EngineZeep:
