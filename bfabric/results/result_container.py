@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
-import polars
 import bfabric.results.response_format_dict as formatter
+
+if TYPE_CHECKING:
+    import polars
 
 
 class ResultContainer:
@@ -92,6 +94,7 @@ class ResultContainer:
         """Returns the results as a polars DataFrame.
         :param drop_empty: If True, empty attributes will be removed from the results
         """
+        import polars
         return polars.DataFrame(self.to_list_dict(drop_empty=drop_empty))
 
 
