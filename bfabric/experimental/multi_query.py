@@ -95,14 +95,13 @@ class MultiQuery:
             For each value, test if a key with that value is found in the API.
         """
         is_scalar = isinstance(value, (int, str))
+        if is_scalar:
+            return self._client.exists(endpoint=endpoint, key=key, value=value, check=True)
+        elif not isinstance(value, list):
+            raise ValueError("Unexpected data type", type(value))
 
         # 1. Read data for this id
-        if is_scalar:
-            results = self._client.read(endpoint, {key: value})
-        elif isinstance(value, list):
-            results = self.read_multi(endpoint, {}, key, value)
-        else:
-            raise ValueError("Unexpected data type", type(value))
+        results = self.read_multi(endpoint, {}, key, value)
 
         # 2. Extract all the ids for which there was a response
         result_vals = []
@@ -113,7 +112,4 @@ class MultiQuery:
                 result_vals += [r["_" + key]]
 
         # 3. For each of the requested ids, return true if there was a response and false if there was not
-        if is_scalar:
-            return value in result_vals
-        else:
-            return [val in result_vals for val in value]
+        return [val in result_vals for val in value]
