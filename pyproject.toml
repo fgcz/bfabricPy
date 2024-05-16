@@ -2,8 +2,10 @@
 requires = ["setuptools >= 61.0"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-py-modules = ["bfabric"]
+[tool.setuptools.packages.find]
+include = ["bfabric*"]  # package names should match these glob patterns (["*"] by default)
+#exclude = ["bfabric.tests*"]  # exclude packages matching these glob patterns (empty by default)
+#namespaces = false  # to disable scanning PEP 420 namespaces (true by default)
 
 [project]
 name = "bfabric"
@@ -27,6 +29,7 @@ dependencies = [
     "zeep >= 4.2.1",
     "pandas >= 2.2.2",
     "polars >= 0.20.25",
+    "setuptools"
 ]
 
 [project.optional-dependencies]
