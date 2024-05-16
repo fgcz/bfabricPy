@@ -15,22 +15,26 @@ For more advanced users the *bfabricPy* package also provides a powerful query i
 ![bfabricPy-read](https://user-images.githubusercontent.com/4901987/65025926-db77c900-d937-11e9-8c92-f2412d6793ee.gif)
 [see also #14](https://github.com/fgcz/bfabricPy/issues/14)
 
-## Requirements
-
-- install current stable Debian Linux release (any current BSD like or Microsoft OS will do)
-
-- install the python3 package as follows:
-
-```{bash}
-git clone git@github.com:fgcz/bfabricPy.git && cd bfabricPy 
-```
 
 ## Install
+There are many ways to install Python packages.
+Generally it's recommended to use some type of virtual environment manager, like [conda](https://docs.conda.io/en/latest/), [uv](https://github.com/astral-sh/uv), or Python's [venv](https://docs.python.org/3/library/venv.html). Then the following commands work.
+If you don't, you might need to specify `--user` to the pip commands, so they get installed into the user's Python package directory.
+
+To use bfabricPy a normal installation is good enough:
+```{bash}
+pip install git+https://github.com/fgcz/bfabricPy.git
+```
 
 As a user: (i.e. a regular install, files will be used from your current directory instead of properly installing a copy of it)
 
 ```{bash}
+# variant 1) clone to a folder
+git clone https://github.com/fgcz/bfabricPy.git && cd bfabricPy
 pip install .
+
+# variant 2) direct install from GitHub
+pip install git+https://github.com/fgcz/bfabricPy.git
 ```
 
 As a bfabricPy developer: (i.e. an editable install)
