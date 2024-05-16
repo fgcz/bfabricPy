@@ -1,10 +1,12 @@
 from bfabric import BfabricAPIEngineType, Bfabric
 from bfabric.bfabric import get_system_auth
+from bfabric.experimental.multi_query import MultiQuery
+
 
 config, auth = get_system_auth(config_env="TEST")
 
-b1 = Bfabric(config, auth, engine=BfabricAPIEngineType.SUDS)
-b2 = Bfabric(config, auth, engine=BfabricAPIEngineType.ZEEP)
+b1 = MultiQuery(Bfabric(config, auth, engine=BfabricAPIEngineType.SUDS))
+b2 = MultiQuery(Bfabric(config, auth, engine=BfabricAPIEngineType.ZEEP))
 
 
 ###################
@@ -25,8 +27,8 @@ b2 = Bfabric(config, auth, engine=BfabricAPIEngineType.ZEEP)
 
 target_workunit_names = ["tomcat", "tomcat2"]
 
-response1 = b1.exists("workunit", "name", target_workunit_names)
-response2 = b2.exists("workunit", "name", target_workunit_names)
+response1 = b1.exists_multi("workunit", "name", target_workunit_names)
+response2 = b2.exists_multi("workunit", "name", target_workunit_names)
 
 print(response1)
 print(response2)

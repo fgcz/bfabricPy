@@ -1,16 +1,12 @@
 import unittest
 
 from bfabric import BfabricAPIEngineType, Bfabric
-from bfabric.bfabric import get_system_auth
 
 
 class BfabricTestExists(unittest.TestCase):
-    def setUp(self):
-        self.config, self.auth = get_system_auth(config_env="TEST")
-
     def _test_single_exists(self, engine: BfabricAPIEngineType):
-        bf = Bfabric(self.config, self.auth, engine=engine)
-        res = bf.exists("dataset", "id", 30721)  # Take ID which is the same as in production
+        client = Bfabric.from_config("TEST", engine=engine)
+        res = client.exists("dataset", "id", 30721)
         self.assertEqual(res, True)
 
     def test_zeep(self):
@@ -18,3 +14,7 @@ class BfabricTestExists(unittest.TestCase):
 
     def test_suds(self):
         self._test_single_exists(engine=BfabricAPIEngineType.SUDS)
+
+
+if __name__ == "__main__":
+    pass
