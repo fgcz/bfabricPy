@@ -44,7 +44,7 @@ Repository = "https://github.com/fgcz/bfabricPy"
 [project.scripts]
 "bfabric_flask.py"="bfabric.scripts.bfabric_flask:main"
 #bfabric_feeder_resource_autoQC="bfabric.scripts.bfabric_feeder_resource_autoQC:main"
-#bfabric_list_not_existing_storage_directories="bfabric.scripts.bfabric_list_not_existing_storage_directories:main"
+"bfabric_list_not_existing_storage_directories.py"="bfabric.scripts.bfabric_list_not_existing_storage_directories:main"
 "bfabric_list_not_available_proteomics_workunits.py"="bfabric.scripts.bfabric_list_not_available_proteomics_workunits:main"
 "bfabric_upload_resource.py"="bfabric.scripts.bfabric_upload_resource:main"
 "bfabric_logthis.py"="bfabric.scripts.bfabric_logthis:main"
@@ -53,7 +53,7 @@ Repository = "https://github.com/fgcz/bfabricPy"
 "bfabric_setWorkunitStatus_available.py"="bfabric.scripts.bfabric_setWorkunitStatus_generic:main_available"
 "bfabric_setWorkunitStatus_processing.py"="bfabric.scripts.bfabric_setWorkunitStatus_processing:main_processing"
 "bfabric_setWorkunitStatus_failed.py"="bfabric.scripts.bfabric_setWorkunitStatus_failed:main_failed"
-#bfabric_delete="bfabric.scripts.bfabric_delete:main"
+"bfabric_delete.py"="bfabric.scripts.bfabric_delete:main"
 "bfabric_read.py"="bfabric.scripts.bfabric_read:main"
 "bfabric_read_samples_of_workunit.py"="bfabric.scripts.bfabric_read_samples_of_workunit:main"
 "bfabric_read_samples_from_dataset.py"="bfabric.scripts.bfabric_read_samples_from_dataset:main"
@@ -76,7 +76,7 @@ indent-width = 4
 target-version = "py39"
 
 [tool.ruff.lint]
-select = ["D103", "E", "F", "ANN", "PTH", "UP", "BLE", "SIM"]
+select = ["ANN", "BLE", "D103", "E", "F", "PLW", "PTH", "SIM", "UP"]
 ignore = ["ANN101"]
 
 [tool.licensecheck]
