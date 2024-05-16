@@ -19,7 +19,9 @@ from lxml import etree
 import yaml
 from io import StringIO, BytesIO
 from optparse import OptionParser
+
 # import unittest
+
 
 class FgczMaxQuantScaffold:
     """
@@ -38,27 +40,26 @@ class FgczMaxQuantScaffold:
             print("ERROR: no such file '{0}'".format(zipfilename))
             sys.exit(1)
 
-
         self.zipfilename = zipfilename
-        with open(yamlfilename, 'r') as f:
+        with open(yamlfilename, "r") as f:
             content = f.read()
 
         self.config = yaml.load(content, Loader=yaml.FullLoader)
 
         try:
-            self.fasta = os.path.basename(self.config['application']['parameters']['/fastaFiles/FastaFileInfo/fastaFilePath'])
+            self.fasta = os.path.basename(
+                self.config["application"]["parameters"]["/fastaFiles/FastaFileInfo/fastaFilePath"]
+            )
         except:
             raise
 
-        L = [value for values in self.config['application']['input'].values() for value in values]
+        L = [value for values in self.config["application"]["input"].values() for value in values]
 
-        self.samples = list(map(lambda x: os.path.basename(x).replace('.raw', ''), L))
+        self.samples = list(map(lambda x: os.path.basename(x).replace(".raw", ""), L))
 
+    def getBiologicalSample(selfs, InputFile=None, category="***BASENAME***"):
 
-
-    def getBiologicalSample(selfs, InputFile = None, category = '***BASENAME***'):
-
-        scaffold_BiologicalSample = '''
+        scaffold_BiologicalSample = """
         <BiologicalSample
             analyzeAsMudpit="false"
             category="20191015_002_HeLa_50_PreOmics_LK_3"
@@ -69,7 +70,7 @@ class FgczMaxQuantScaffold:
             <InputFile 
                 maxQuantExperiment="20191015_002_HeLa_50_PreOmics_LK_3">WU192418/output-WU192418.zip</InputFile>
         </BiologicalSample>
-        '''
+        """
 
         pBioSample = etree.XML(scaffold_BiologicalSample)
 
@@ -78,18 +79,17 @@ class FgczMaxQuantScaffold:
         if eInputFile is None:
             raise TypeError
 
-        eInputFile.text = '{}'.format(InputFile)
-        eInputFile.attrib['maxQuantExperiment'] = "{}".format(category)
+        eInputFile.text = "{}".format(InputFile)
+        eInputFile.attrib["maxQuantExperiment"] = "{}".format(category)
 
         eBiologicalSample = eInputFile.getparent()
-        eBiologicalSample.attrib['category'] = "{}".format(category)
-        eBiologicalSample.attrib['name'] = "{}".format(category)
+        eBiologicalSample.attrib["category"] = "{}".format(category)
+        eBiologicalSample.attrib["name"] = "{}".format(category)
 
-        return(pBioSample)
-
+        return pBioSample
 
     def getScaffold(selfs):
-        xml = '''
+        xml = """
 <Scaffold pathsep="/" version="Scaffold_4.8.9">
     <Experiment analyzeWithSubsetDB="false" analyzeWithTandem="false"
         annotateWithGOA="false" condenseDataWhileLoading="true"
@@ -114,43 +114,49 @@ class FgczMaxQuantScaffold:
         <Export type="sf3"/>
     </Experiment>
 </Scaffold>
-'''
+"""
         pxml = etree.parse(StringIO(xml))
-        #pxml = etree.XML(xml)
-        return(pxml)
-
-
+        # pxml = etree.XML(xml)
+        return pxml
 
     def run(self):
 
         xml = self.getScaffold()
-        eExperiment = xml.find('/Experiment')
-        eFastaDatabase = xml.find('/Experiment/FastaDatabase')
-        eFastaDatabase.attrib['path'] = "{}/{}".format(os.getcwd(), self.fasta)
+        eExperiment = xml.find("/Experiment")
+        eFastaDatabase = xml.find("/Experiment/FastaDatabase")
+        eFastaDatabase.attrib["path"] = "{}/{}".format(os.getcwd(), self.fasta)
 
         for s in self.samples:
-            eExperiment.extend(self.getBiologicalSample(category=s, InputFile = self.zipfilename))
+            eExperiment.extend(self.getBiologicalSample(category=s, InputFile=self.zipfilename))
 
+        xml.write("/dev/stdout", pretty_print=True, xml_declaration=True, method="xml", encoding="UTF-8")
 
-        xml.write('/dev/stdout' ,   pretty_print=True, xml_declaration=True,  method='xml', encoding="UTF-8")
 
 if __name__ == "__main__":
-    parser = OptionParser(usage="usage: %prog -y <yaml formated config file> -z <zip file containing the MaxQuant results>",
-                          version="%prog 1.0")
+    parser = OptionParser(
+        usage="usage: %prog -y <yaml formated config file> -z <zip file containing the MaxQuant results>",
+        version="%prog 1.0",
+    )
 
-    parser.add_option("-y", "--yaml",
-                      type='string',
-                      action="store",
-                      dest="yaml_filename",
-                      default="/Users/cp/WU199270.yaml ",
-                      help="config file.yaml")
+    parser.add_option(
+        "-y",
+        "--yaml",
+        type="string",
+        action="store",
+        dest="yaml_filename",
+        default="/Users/cp/WU199270.yaml ",
+        help="config file.yaml",
+    )
 
-    parser.add_option("-z", "--zip",
-                      type='string',
-                      action="store",
-                      dest="zip_filename",
-                      default="output-WU199270.zip",
-                      help="config file.yaml")
+    parser.add_option(
+        "-z",
+        "--zip",
+        type="string",
+        action="store",
+        dest="zip_filename",
+        default="output-WU199270.zip",
+        help="config file.yaml",
+    )
 
     (options, args) = parser.parse_args()
     driver = FgczMaxQuantScaffold(yamlfilename=options.yaml_filename, zipfilename=options.zip_filename)

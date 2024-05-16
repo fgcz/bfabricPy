@@ -12,60 +12,49 @@ tail -n 1000 /srv/www/htdocs/Data2San/sync_LOGS/pfiles.txt \
   | ./bfabric/scripts/bfabric_feeder_resource_autoQC.py
 """
 
-import sys
 import os
-import yaml
 import re
+import sys
 import time
 import unittest
-from bfabric.bfabric_legacy import BfabricLegacy
+
+from bfabric import Bfabric
 
 
-class autoQC:
+class AutoQC:
     """
     feeder for autoQC raw files
     """
 
-    bfabric_storageid = 2
-    configfile = os.path.normpath("{0}/{1}".format(os.path.expanduser("~"), r".bfabricrc.yaml"))
-    with open(configfile, "r") as file:
-        config = yaml.load(file, Loader=yaml.FullLoader)
-    bfabric_application_ids = config["applicationId"]
-
-    bfapp = BfabricLegacy(verbose=False)
+    def __init__(self):
+        self.bfabric_storageid = 2
+        self.client = Bfabric.from_config(verbose=True)
+        self.bfabric_application_ids = self.client.config.application_ids
 
     @property
-    def getId(self, obj):
+    def get_id(self, obj) -> int:
         print("==============")
         print(obj)
+        print(f"DEBGUG obj: {obj[0]._id}")
+        return int(obj[0]._id)
 
-        try:
-            print("DEBGUG obj: {}".format(obj[0]._id))
-            return int(obj[0]._id)
-        except:
-            raise
-
-    def __init__(self):
-        pass
-
-    def sample_check(self, projectid, name):
+    def sample_check(self, projectid: int, name: str):
         """
         checks wether a S exists or not. if not the S is created.
         :param projectid:
         :param name:
         :return: SID
         """
-
         try:
-            res = self.bfapp.read_object(endpoint="sample", obj={"containerid": projectid, "name": name})
-        except:
+            res = self.client.read(endpoint="sample", obj={"containerid": projectid, "name": name}).to_list_dict()
+        except Exception:
             print(res)
             raise
 
         sample_type = "Biological Sample - Proteomics"
 
         query_autoQC01 = {
-            "name": "{}".format(name),
+            "name": f"{name}",
             "type": sample_type,
             "containerid": projectid,
             "species": "Bos taurus",
@@ -75,7 +64,7 @@ class autoQC:
         }
 
         query_autoQC4L = {
-            "name": "{}".format(name),
+            "name": f"{name}",
             "type": sample_type,
             "containerid": projectid,
             "species": "n/a",
@@ -85,7 +74,7 @@ class autoQC:
         }
 
         query_lipidQC01 = {
-            "name": "{}".format(name),
+            "name": f"{name}",
             "type": "Biological Sample - Metabolomics",
             "containerid": projectid,
             "species": "n/a",
@@ -95,19 +84,19 @@ class autoQC:
             "description": "Lipidmix containing 2uM of FFA, BA, LPC. positive mode, C18.",
         }
 
-        if res is None:
+        if not res:
             if name == "autoQC4L":
-                res = self.bfapp.save_object(endpoint="sample", obj=query_autoQC4L)
+                res = self.client.save(endpoint="sample", obj=query_autoQC4L).to_list_dict()
             elif name == "autoQC01":
-                res = self.bfapp.save_object(endpoint="sample", obj=query_autoQC01)
+                res = self.client.save(endpoint="sample", obj=query_autoQC01).to_list_dict()
             elif name == "lipidQC01":
-                res = self.bfapp.save_object(endpoint="sample", obj=query_lipidQC01)
+                res = self.client.save(endpoint="sample", obj=query_lipidQC01).to_list_dict()
 
         print(res)
         print(res[0])
-        return res[0]._id
+        return res[0]["id"]
 
-    def workunit_check(self, projectid, name, applicationid):
+    def workunit_check(self, projectid: int, name: str, applicationid: int):
         """
 
         checks wether a WU exists or not. if not the WU is created.
@@ -119,10 +108,7 @@ class autoQC:
         """
 
         query = {"projectid": projectid, "name": name, "applicationid": applicationid}
-        try:
-            res = self.bfapp.read_object(endpoint="workunit", obj=query)
-        except:
-            raise
+        res = self.client.read(endpoint="workunit", obj=query).to_list_dict()
 
         description = """
 contains automatic registered quality control (QC)
@@ -149,7 +135,7 @@ listed below.
             description = "Contains automatic registered quality control (QC) measurements, positive mode."
             links = ["http://fgcz-ms.uzh.ch/~cpanse/lipidQC01.html"]
 
-        if res is None:
+        if not res:
             query = {
                 "projectid": projectid,
                 "name": name,
@@ -158,14 +144,11 @@ listed below.
                 "link": links,
             }
 
-            res = self.bfapp.save_object(endpoint="workunit", obj=query)
+            res = self.client.save(endpoint="workunit", obj=query).to_list_dict()
 
-        else:
-            pass
+        return res[0]["id"]
 
-        return res[0]._id
-
-    def resource_check(self, projectid, name, workunitid, filename, filedate, size, md5, sampleid):
+    def resource_check(self, projectid: int, name: str, workunitid: int, filename: str, filedate, size, md5, sampleid):
         """
         checks wether a R exists or not. if not the R is created.
         :param projectid:
@@ -187,12 +170,9 @@ listed below.
             "workunitid": workunitid,
             "projectid": projectid,
         }
-        try:
-            res = self.bfapp.read_object(endpoint="resource", obj=query)
-        except:
-            raise
+        res = self.client.read(endpoint="resource", obj=query).to_list_dict()
 
-        if res is None:
+        if not res:
             query = {
                 "workunitid": workunitid,
                 "sampleid": sampleid,
@@ -204,12 +184,12 @@ listed below.
                 "storageid": self.bfabric_storageid,
             }
 
-            res = self.bfapp.save_object(endpoint="resource", obj=query)
+            res = self.client.save(endpoint="resource", obj=query).to_list_dict()
 
             query = {"id": workunitid, "status": "available"}
-            res2 = self.bfapp.save_object(endpoint="workunit", obj=query)
+            res2 = self.client.save(endpoint="workunit", obj=query).to_list_dict()
 
-        return res[0]._id
+        return res[0]["id"]
 
     def feed(self, line):
         """
@@ -220,7 +200,7 @@ listed below.
 
         try:
             (_md5, _file_date, _file_size, filename) = line.split(";")
-        except Exception as err:
+        except Exception:
             return
 
         try:
@@ -232,11 +212,11 @@ listed below.
             applicationid = self.bfabric_application_ids[m.group(2)]
             autoQCType = m.group(4)
 
-        except Exception as err:
-            print("# no match '{}'.".format(filename))
+        except Exception:
+            print(f"# no match '{filename}'.")
             return
 
-        print("{}\t{}\t{}\n".format(projectid, applicationid, autoQCType))
+        print(f"{projectid}\t{applicationid}\t{autoQCType}\n")
 
         try:
             sampleid = self.sample_check(projectid, name=autoQCType)
@@ -258,12 +238,10 @@ listed below.
 
             # sampleid=0
             print(
-                "p{p}\tA{A}\t{filename}\tS{S}\tWU{WU}\tR{R}".format(
-                    p=projectid, A=applicationid, filename=filename, S=sampleid, WU=workunitid, R=resourceid
-                )
+                f"p{projectid}\tA{applicationid}\t{filename}\tS{sampleid}\tWU{workunitid}\tR{resourceid}"
             )
         except Exception as err:
-            print("# Failed to register to bfabric: {}".format(err))
+            print(f"# Failed to register to bfabric: {err}")
 
 
 class TestCaseAutoQC(unittest.TestCase):
@@ -272,7 +250,7 @@ class TestCaseAutoQC(unittest.TestCase):
 
     """
 
-    BF = autoQC()
+    BF = AutoQC()
 
     def setUp(self):
         pass
@@ -287,7 +265,6 @@ class TestCaseAutoQC(unittest.TestCase):
 
 
 if __name__ == "__main__":
-
-    BF = autoQC()
+    BF = AutoQC()
     for input_line in sys.stdin:
         BF.feed(input_line.rstrip())
