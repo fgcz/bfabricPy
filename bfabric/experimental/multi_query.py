@@ -2,9 +2,12 @@ from __future__ import annotations
 
 from copy import deepcopy
 
-from bfabric.bfabric import Bfabric
 from bfabric.results.result_container import ResultContainer
 from bfabric.utils.paginator import page_iter
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from bfabric.bfabric import Bfabric
 
 
 class MultiQuery:
