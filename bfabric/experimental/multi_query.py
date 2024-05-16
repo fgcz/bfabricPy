@@ -2,12 +2,20 @@ from __future__ import annotations
 
 from copy import deepcopy
 
-from bfabric.bfabric import Bfabric
 from bfabric.results.result_container import ResultContainer
 from bfabric.utils.paginator import page_iter
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from bfabric.bfabric import Bfabric
 
 
 class MultiQuery:
+    """Some advanced functionality that supports paginating over a list of conditions that is larger than the 100
+    conditions limit of the API.
+    This functionality might eventually be merged into the main Bfabric class but will probably be subject to some
+    breaking changes and is not as thoroughly tested as the main classes functionality.
+    """
     def __init__(self, client: Bfabric) -> None:
         self._client = client
 
@@ -31,7 +39,7 @@ class MultiQuery:
 
         NOTE: It is assumed that there is only 1 response for each value.
         """
-
+        # TODO add `check` parameter
         response_tot = ResultContainer([], total_pages_api=0)
         obj_extended = deepcopy(obj)  # Make a copy of the query, not to make edits to the argument
 
@@ -64,10 +72,13 @@ class MultiQuery:
     #
     #     return response_tot
 
-    def delete_multi(self, endpoint: str, id_list: list) -> ResultContainer:
+    def delete_multi(self, endpoint: str, id_list: list[int]) -> ResultContainer:
+        """Deletes multiple objects from `endpoint` by their ids."""
+        # TODO document and test error handling
+        # TODO add `check` parameter
         response_tot = ResultContainer([], total_pages_api=0)
 
-        if len(id_list) == 0:
+        if not id_list:
             print("Warning, empty list provided for deletion, ignoring")
             return response_tot
 
@@ -78,7 +89,7 @@ class MultiQuery:
 
         return response_tot
 
-    def exists(self, endpoint: str, key: str, value: list[int | str] | int | str) -> bool | list[bool]:
+    def exists_multi(self, endpoint: str, key: str, value: list[int | str] | int | str) -> bool | list[bool]:
         """
         :param endpoint:  endpoint
         :param key:       A key for the query (e.g. id or name)
@@ -87,14 +98,13 @@ class MultiQuery:
             For each value, test if a key with that value is found in the API.
         """
         is_scalar = isinstance(value, (int, str))
+        if is_scalar:
+            return self._client.exists(endpoint=endpoint, key=key, value=value, check=True)
+        elif not isinstance(value, list):
+            raise ValueError("Unexpected data type", type(value))
 
         # 1. Read data for this id
-        if is_scalar:
-            results = self._client.read(endpoint, {key: value})
-        elif isinstance(value, list):
-            results = self.read_multi(endpoint, {}, key, value)
-        else:
-            raise ValueError("Unexpected data type", type(value))
+        results = self.read_multi(endpoint, {}, key, value)
 
         # 2. Extract all the ids for which there was a response
         result_vals = []
@@ -105,7 +115,4 @@ class MultiQuery:
                 result_vals += [r["_" + key]]
 
         # 3. For each of the requested ids, return true if there was a response and false if there was not
-        if is_scalar:
-            return value in result_vals
-        else:
-            return [val in result_vals for val in value]
+        return [val in result_vals for val in value]
