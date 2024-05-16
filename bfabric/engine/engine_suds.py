@@ -1,16 +1,18 @@
 from __future__ import annotations
 
 import copy
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from suds import MethodNotFound
 from suds.client import Client
-from suds.serviceproxy import ServiceProxy
 
-from bfabric.bfabric_config import BfabricAuth
 from bfabric.engine.response_format_suds import suds_asdict_recursive
 from bfabric.errors import BfabricRequestError, get_response_errors
 from bfabric.results.result_container import _clean_result, ResultContainer
+
+if TYPE_CHECKING:
+    from suds.serviceproxy import ServiceProxy
+    from bfabric.bfabric_config import BfabricAuth
 
 
 class EngineSUDS:
