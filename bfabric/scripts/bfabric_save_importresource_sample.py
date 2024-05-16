@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# TODO add integration test
+# TODO add integration test (with and without sample id)
 """General Importresource Feeder for bfabric
 
 Author:
@@ -65,19 +65,29 @@ def save_importresource(client: Bfabric, line: str) -> None:
         "storageid": BFABRIC_STORAGE_ID,
     }
 
-    try:
-        m = re.search(
-            r"p([0-9]+)\/(Proteomics\/[A-Z]+_[1-9])\/.*_\d\d\d_S([0-9][0-9][0-9][0-9][0-9][0-9]+)_.*(raw|zip)$",
-            file_path,
-        )
-        print(f"found sampleid={m.group(3)} pattern")
-        obj["sampleid"] = int(m.group(3))
-    except Exception:
-        pass
+    match = re.search(
+        r"p([0-9]+)\/(Proteomics\/[A-Z]+_[1-9])\/.*_\d\d\d_S([0-9][0-9][0-9][0-9][0-9][0-9]+)_.*(raw|zip)$",
+        file_path,
+    )
+    if match:
+        print(f"found sampleid={match.group(3)} pattern")
+        obj["sampleid"] = int(match.group(3))
 
     print(obj)
     res = client.save(endpoint="importresource", obj=obj)
-    print(json.dumps(res[0], indent=2))
+    print(json.dumps(res, indent=2))
+
+
+def get_sample_id_from_path(file_path: str) -> int | None:
+    match = re.search(
+        r"p([0-9]+)\/(Proteomics\/[A-Z]+_[1-9])\/.*_\d\d\d_S([0-9][0-9][0-9][0-9][0-9][0-9]+)_.*(raw|zip)$",
+        file_path,
+    )
+    if match:
+        print(f"found sampleid={match.group(3)} pattern")
+        return int(match.group(3))
+    else:
+        return None
 
 
 def get_bfabric_application_and_project_id(bfabric_application_ids: dict[str, int], file_path: str) -> tuple[int, int]:
