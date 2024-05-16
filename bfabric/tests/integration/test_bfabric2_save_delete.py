@@ -71,8 +71,8 @@ class BfabricTestSaveDelete(unittest.TestCase):
         print("Phase 2: Creating the target units")
         new_ids = []
         for name in workunit_names:
-            workunit1 = {"name": name, "applicationid": 2, "description": "is warm and fluffy", "containerid": 3000}
-            response = b.save("workunit", workunit1).to_list_dict()  # We do the conversion to drop underscores in SUDS
+            query = {"name": name, "applicationid": 2, "description": "is warm and fluffy", "containerid": 3000}
+            response = b.save("workunit", query).to_list_dict()  # We do the conversion to drop underscores in SUDS
             if verbose:
                 print(response[0])
 
