@@ -3,14 +3,12 @@ requires = ["setuptools >= 61.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["bfabric*"]  # package names should match these glob patterns (["*"] by default)
-#exclude = ["bfabric.tests*"]  # exclude packages matching these glob patterns (empty by default)
-#namespaces = false  # to disable scanning PEP 420 namespaces (true by default)
+include = ["bfabric*"]
 
 [project]
 name = "bfabric"
 description = "Python client for the B-Fabric WSDL API"
-version = "0.13.8"
+version = "0.13.9"
 license = { text = "GPL-3.0" }
 authors = [
     {name = "Christian Panse", email = "cp@fgcz.ethz.ch"},
