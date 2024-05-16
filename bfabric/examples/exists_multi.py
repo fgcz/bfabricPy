@@ -1,10 +1,12 @@
 from bfabric import BfabricAPIEngineType, Bfabric
 from bfabric.bfabric import get_system_auth
+from bfabric.experimental.multi_query import MultiQuery
+
 
 config, auth = get_system_auth(config_env="TEST")
 
-b1 = Bfabric(config, auth, engine=BfabricAPIEngineType.SUDS)
-b2 = Bfabric(config, auth, engine=BfabricAPIEngineType.ZEEP)
+b1 = MultiQuery(Bfabric(config, auth, engine=BfabricAPIEngineType.SUDS))
+b2 = MultiQuery(Bfabric(config, auth, engine=BfabricAPIEngineType.ZEEP))
 
 
 ###################

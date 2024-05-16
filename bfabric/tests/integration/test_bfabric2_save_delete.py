@@ -3,6 +3,7 @@ import unittest
 
 from bfabric import BfabricAPIEngineType, Bfabric
 from bfabric.bfabric import get_system_auth
+from bfabric.experimental.multi_query import MultiQuery
 
 
 def _find_delete_existing_objects_by_name(b: Bfabric, endpoint: str, name_list: list) -> Tuple[list, list]:
@@ -16,7 +17,7 @@ def _find_delete_existing_objects_by_name(b: Bfabric, endpoint: str, name_list: 
     """
 
     # 1. Check which objects exist
-    objs_exist = b.exists(endpoint, "name", name_list)
+    objs_exist = MultiQuery(b).exists(endpoint, "name", name_list)
     objs_exist_names = [name for i, name in enumerate(name_list) if objs_exist[i]]
 
     if len(objs_exist_names) == 0:
