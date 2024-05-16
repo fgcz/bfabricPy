@@ -1,3 +1,4 @@
+import logging
 import unittest
 import pandas as pd
 
@@ -51,3 +52,8 @@ class BfabricTestPagination(unittest.TestCase):
         # TODO: Make the test strict if Zeep bug is ever resolved.
         self.assertListEqual(["formerproject", "project"], mismatch_cols)
         print("SUDS and ZEEP mismatch in", mismatch_cols, "(expected)")
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    unittest.main()

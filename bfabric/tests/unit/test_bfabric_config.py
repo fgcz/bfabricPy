@@ -125,14 +125,14 @@ class TestBfabricConfig(unittest.TestCase):
     def test_repr(self):
         rep = repr(self.config)
         self.assertEqual(
-            "BfabricConfig(base_url='url', application_ids={'app': 1}, " "job_notification_emails='')",
+            "BfabricConfig(base_url='url', application_ids={'app': 1}, job_notification_emails='')",
             rep,
         )
 
     def test_str(self):
         rep = str(self.config)
         self.assertEqual(
-            "BfabricConfig(base_url='url', application_ids={'app': 1}, " "job_notification_emails='')",
+            "BfabricConfig(base_url='url', application_ids={'app': 1}, job_notification_emails='')",
             rep,
         )
 

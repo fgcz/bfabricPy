@@ -2,8 +2,7 @@ import json
 import os
 import unittest
 
-from bfabric import BfabricAPIEngineType, Bfabric, BfabricAuth
-from bfabric.bfabric import get_system_auth
+from bfabric import Bfabric, BfabricAuth, BfabricAPIEngineType
 
 
 class BfabricTestRead(unittest.TestCase):
@@ -13,13 +12,10 @@ class BfabricTestRead(unittest.TestCase):
         with open(path) as json_file:
             self.ground_truth = json.load(json_file)
 
-        # Load config and authentication
-        self.config, self.auth = get_system_auth(config_env="TEST")
-
-        # Init the engines
+        # Create clients
         self.clients = {
-            "zeep": Bfabric(self.config, self.auth, engine=BfabricAPIEngineType.ZEEP),
-            "suds": Bfabric(self.config, self.auth, engine=BfabricAPIEngineType.SUDS),
+            "zeep": Bfabric.from_config("TEST", engine=BfabricAPIEngineType.ZEEP),
+            "suds": Bfabric.from_config("TEST", engine=BfabricAPIEngineType.SUDS),
         }
 
     def read(self, engine: str, endpoint: str):
@@ -83,10 +79,10 @@ class BfabricTestRead(unittest.TestCase):
         self.read("zeep", "annotation")
 
     def test_invalid_auth(self):
-        auth = BfabricAuth(login=self.auth.login, password="invalid_password")
+        auth = BfabricAuth(login=self.clients["suds"].auth.login, password="invalid_password")
         clients = {
-            "zeep": Bfabric(self.config, auth, engine=BfabricAPIEngineType.ZEEP),
-            "suds": Bfabric(self.config, auth, engine=BfabricAPIEngineType.SUDS),
+            "zeep": Bfabric.from_config("TEST", auth, engine=BfabricAPIEngineType.ZEEP),
+            "suds": Bfabric.from_config("TEST", auth, engine=BfabricAPIEngineType.SUDS),
         }
         for engine, bf in clients.items():
             with self.subTest(engine=engine):
