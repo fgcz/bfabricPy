@@ -26,7 +26,7 @@ class AutoQC:
     feeder for autoQC raw files
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.bfabric_storageid = 2
         self.client = Bfabric.from_config(verbose=True)
         self.bfabric_application_ids = self.client.config.application_ids
@@ -187,11 +187,11 @@ listed below.
             res = self.client.save(endpoint="resource", obj=query).to_list_dict()
 
             query = {"id": workunitid, "status": "available"}
-            res2 = self.client.save(endpoint="workunit", obj=query).to_list_dict()
+            self.client.save(endpoint="workunit", obj=query).to_list_dict()
 
         return res[0]["id"]
 
-    def feed(self, line):
+    def feed(self, line) -> None:
         """
         feeds one line example:
         :param line:
@@ -250,10 +250,10 @@ class TestCaseAutoQC(unittest.TestCase):
 
     BF = AutoQC()
 
-    def setUp(self):
+    def setUp(self) -> None:
         pass
 
-    def test_feed(self):
+    def test_feed(self) -> None:
         line = "61cf7e172713344bdf6ebe5b1ed61d99;1549963879;306145606;p2928/Proteomics/QEXACTIVEHF_2/ciuffar_20190211_190211_TNF_PRM_rT_again_AQUA_LHration/20190211_013_autoQC4L.raw"
         # self.BF.feed(line)
         line = "efdf5e375d6e0e4e4abf9c2b3e1e97d5;1542134408;59129652;p1000/Proteomics/QEXACTIVEHF_2/tobiasko_20181113/20181113_003_autoQC01.raw"

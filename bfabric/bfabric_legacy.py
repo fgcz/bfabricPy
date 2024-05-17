@@ -1,9 +1,10 @@
+from __future__ import annotations
 import base64
 import json
 import os
 import sys
 from pprint import pprint
-from typing import Dict, Any
+from typing import Any
 
 import yaml
 from suds.client import Client
@@ -13,13 +14,13 @@ from bfabric import BfabricConfig
 from bfabric.bfabric_config import BfabricAuth, read_config
 
 
-class BfabricLegacy(object):
+class BfabricLegacy:
     """B-Fabric python3 module
     Implements read and save object methods for B-Fabric wsdl interface
     """
 
-    def warning(self, msg):
-        sys.stderr.write("\033[93m{}\033[0m\n".format(msg))
+    def warning(self, msg) -> None:
+        sys.stderr.write(f"\033[93m{msg}\033[0m\n")
 
     def __init__(
         self,
@@ -31,7 +32,7 @@ class BfabricLegacy(object):
         config_env: str = None,
         optional_auth: bool = False,
         verbose: bool = False,
-    ):
+    ) -> None:
         """
         :param login:           Login string for overriding config file
         :param password:        Password for overriding config file
@@ -54,7 +55,7 @@ class BfabricLegacy(object):
         config_path = config_path or os.path.normpath(os.path.expanduser("~/.bfabricpy.yml"))
 
         # TODO: Convert to an exception when this branch becomes main
-        config_path_old = config_path or os.path.normpath(os.path.expanduser("~/.bfabricrc.py"))
+        config_path or os.path.normpath(os.path.expanduser("~/.bfabricrc.py"))
         if os.path.isfile(config_path):
             self.warning(
                 "WARNING! The old .bfabricrc.py was found in the home directory. Delete and make sure to use the new .bfabricpy.yml"
@@ -75,7 +76,7 @@ class BfabricLegacy(object):
             elif (login is None) and (password is None):
                 self.auth = auth
             else:
-                raise IOError("Must provide both username and password, or neither.")
+                raise OSError("Must provide both username and password, or neither.")
 
         if not self.config.base_url:
             raise ValueError("base server url missing")
@@ -152,7 +153,7 @@ class BfabricLegacy(object):
             self.cl[endpoint] = Client(f"{self.config.base_url}/{endpoint}?wsdl", cache=None)
         return self.cl[endpoint].service
 
-    def _perform_request(self, endpoint: str, method: str, plain: bool, params: Dict[str, Any]) -> Any:
+    def _perform_request(self, endpoint: str, method: str, plain: bool, params: dict[str, Any]) -> Any:
         """Performs a request to the given endpoint and returns the result."""
         self.query_counter += 1
         request_params = dict(login=self.auth.login, password=self.auth.password, **params)
@@ -165,7 +166,7 @@ class BfabricLegacy(object):
         return getattr(response, endpoint)
 
     @staticmethod
-    def print_json(queryres=None):
+    def print_json(queryres=None) -> None:
         """
         This method prints the query result as returned by ``read_object`` in JSON format.
 
@@ -183,7 +184,7 @@ class BfabricLegacy(object):
         print(res)
 
     @staticmethod
-    def print_yaml(queryres=None):
+    def print_yaml(queryres=None) -> None:
         """
         This method prints the query result as returned by ``read_object`` in YAML format.
 
@@ -222,7 +223,7 @@ class BfabricLegacy(object):
             workunit = self.read_object(endpoint="workunit", obj={"id": resource.workunit._id})[0]
             return self.get_sampleid(resourceid=int(workunit.inputresource[0]._id))
         except:
-            self.warning("fetching sampleid of resource.workunitid = {} failed.".format(resource.workunit._id))
+            self.warning(f"fetching sampleid of resource.workunitid = {resource.workunit._id} failed.")
             return None
 
 

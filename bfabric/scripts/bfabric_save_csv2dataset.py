@@ -37,6 +37,7 @@ from bfabric import Bfabric
 
 
 def polars_to_bfabric_type(dtype: pl.DataType) -> str | None:
+    """Returns the B-Fabric type for a given Polars data type, defaulting to String if no correspondence is found."""
     if str(dtype).startswith("Int"):
         return "Integer"
     elif str(dtype).startswith("String"):
@@ -48,6 +49,7 @@ def polars_to_bfabric_type(dtype: pl.DataType) -> str | None:
 
 
 def polars_to_bfabric_dataset(data: pl.DataFrame) -> dict[str, list[dict[str, int | str | float]]]:
+    """Converts a Polars DataFrame to a B-Fabric dataset representation."""
     attributes = [
         {"name": col, "position": i + 1, "type": polars_to_bfabric_type(data[col].dtype)}
         for i, col in enumerate(data.columns)

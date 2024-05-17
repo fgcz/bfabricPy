@@ -35,7 +35,7 @@ python bfabric_executable_submitter_functionalTest.py -j 45864
 from optparse import OptionParser
 
 
-def main():
+def main() -> None:
 
     parser = OptionParser(usage="usage: %prog -j <externaljobid>", version="%prog 1.0")
 

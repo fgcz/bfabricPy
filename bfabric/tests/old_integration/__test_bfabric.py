@@ -5,7 +5,7 @@ unittest by <cp@fgcz.ethz.ch>
 """
 
 import unittest
-from bfabric import BfabricLegacy
+from bfabric.bfabric_legacy import BfabricLegacy
 
 """
 ssh localhost "cat > /tmp/bb.py && /usr/bin/python /tmp/bb.py" < PycharmProjects/untitled/bfabric_wsdl.py 

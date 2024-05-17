@@ -21,7 +21,6 @@ wrapper_creator_yaml.py -j 45631
 # $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/wrapper_creator_yaml.py $
 # $Id: wrapper_creator_yaml.py 2478 2016-09-26 09:46:53Z cpanse $
 
-import os
 import sys
 from bfabric import BfabricWrapperCreator
 
@@ -32,7 +31,7 @@ if __name__ == "__main__":
     if len(sys.argv) == 3 and sys.argv[1] == "-j" and int(sys.argv[2]) > 0:
         externaljobid = int(sys.argv[2])
     else:
-        print("usage: {} -j <externaljobid>".format(sys.argv[0]))
+        print(f"usage: {sys.argv[0]} -j <externaljobid>")
         sys.exit(1)
 
     bfapp = BfabricWrapperCreator(externaljobid=externaljobid)

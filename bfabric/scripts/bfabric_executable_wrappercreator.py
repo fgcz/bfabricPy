@@ -22,7 +22,6 @@ wrapper_creator_yaml.py -j 45631
 # $HeadURL: http://fgcz-svn/repos/scripts/trunk/linux/bfabric/apps/python/wrapper_creator_yaml.py $
 # $Id: wrapper_creator_yaml.py 2397 2016-09-06 07:04:35Z cpanse $
 
-import os
 import sys
 from bfabric import BfabricWrapperCreator
 

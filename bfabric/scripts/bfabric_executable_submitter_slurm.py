@@ -37,7 +37,7 @@ from optparse import OptionParser
 from bfabric import BfabricSubmitter
 
 
-def main():
+def main() -> None:
 
     parser = OptionParser(usage="usage: %prog -j <externaljobid>", version="%prog 1.0")
 

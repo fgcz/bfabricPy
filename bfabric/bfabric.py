@@ -16,10 +16,10 @@ from __future__ import annotations
 import base64
 import importlib.metadata
 import logging
-import os
 from contextlib import contextmanager
 from datetime import datetime
 from enum import Enum
+from pathlib import Path
 from pprint import pprint
 from typing import Literal, ContextManager, Any
 
@@ -291,20 +291,17 @@ def get_system_auth(
     have_config_path = config_path is not None
     if not have_config_path:
         # Get default path config file path
-        config_path = os.path.normpath(os.path.expanduser("~/.bfabricpy.yml"))
+        config_path = Path("~/.bfabricpy.yml").expanduser()
 
     # Use the provided config data from arguments instead of the file
-    if not os.path.isfile(config_path):
+    if not config_path.is_file():
         if have_config_path:
             # NOTE: If user explicitly specifies a path to a wrong config file, this has to be an exception
             raise OSError(f"Explicitly specified config file does not exist: {config_path}")
         # TODO: Convert to log
         print(f"Warning: could not find the config file in the default location: {config_path}")
         config = BfabricConfig(base_url=base_url)
-        if login is None and password is None:
-            auth = None
-        else:
-            auth = BfabricAuth(login=login, password=password)
+        auth = None if login is None and password is None else BfabricAuth(login=login, password=password)
 
     # Load config from file, override some of the fields with the provided ones
     else:
@@ -319,9 +316,8 @@ def get_system_auth(
 
     if not config.base_url:
         raise ValueError("base_url missing")
-    if not optional_auth:
-        if not auth or not auth.login or not auth.password:
-            raise ValueError("Authentication not initialized but required")
+    if not optional_auth and (not auth or not auth.login or not auth.password):
+        raise ValueError("Authentication not initialized but required")
 
     if verbose:
         pprint(config)

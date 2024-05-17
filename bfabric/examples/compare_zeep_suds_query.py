@@ -68,7 +68,7 @@ def calc_both(auth: BfabricAuth, config: BfabricConfig, endpoint: str, query: di
 ######################
 
 
-def raw_test(auth: BfabricAuth, config: BfabricConfig, endpoint, query):
+def raw_test(auth: BfabricAuth, config: BfabricConfig, endpoint, query) -> None:
     print("Testing raw XML match for", endpoint, query)
     retZeep, retSuds = calc_both(auth, config, endpoint, query, raw=True)
     assert len(retZeep) == len(retSuds)
@@ -102,7 +102,7 @@ def recursive_get_types(generic_container) -> set:
         return {type(generic_container)}
 
 
-def basic_data_type_match_test(auth, config, endpoint, query):
+def basic_data_type_match_test(auth, config, endpoint, query) -> None:
     print("Testing data types for", endpoint, query)
     retZeepDict, retSudsDict = calc_both(auth, config, endpoint, query, raw=False)
     typesZeep = recursive_get_types(retZeepDict)
@@ -160,7 +160,7 @@ def parsed_data_match_test(
     drop_empty: bool = True,
     drop_underscores_suds: bool = True,
     log_file_path: str = None,
-):
+) -> None:
     print("Testing parsed data match for", endpoint, query)
     retZeepDict, retSudsDict = calc_both(auth, config, endpoint, query, raw=False)
 
@@ -172,9 +172,8 @@ def parsed_data_match_test(
         map_element_keys(retSudsDict, {"_id": "id", "_classname": "classname", "_projectid": "projectid"}, inplace=True)
 
     if log_file_path is not None:
-        with open(log_file_path, "w") as f:
-            with redirect_stdout(f):
-                matched = recursive_comparison(retZeepDict, retSudsDict, prefix=[])
+        with open(log_file_path, "w") as f, redirect_stdout(f):
+            matched = recursive_comparison(retZeepDict, retSudsDict, prefix=[])
     else:
         matched = recursive_comparison(retZeepDict, retSudsDict, prefix=[])
 

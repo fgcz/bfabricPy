@@ -149,6 +149,6 @@ def _zeep_query_append_skipped(query: dict, skipped_keys: list, inplace: bool = 
     """
     query_this = copy.deepcopy(query) if not inplace else query
     for key in skipped_keys:
-        if overwrite or (key not in query_this.keys()):
+        if overwrite or (key not in query_this):
             query_this[key] = zeep.xsd.SkipValue
     return query_this
