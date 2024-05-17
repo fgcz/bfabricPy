@@ -121,25 +121,17 @@ def read() -> Response:
     auth = get_request_auth(params)
 
     logger.info(f"'{auth.login}' /read {page_offset=}, {page_max_results=}, {query=}")
-    try:
-        with client.with_auth(auth):
-            client.print_version_message()
-            res = client.read(
-                endpoint=endpoint,
-                obj=query,
-                offset=page_offset,
-                max_results=page_max_results,
-            )
-        logger.info(f"'{auth.login}' login success query {query} ...")
-    except Exception:
-        logger.exception(f"'{auth.login}' query failed ...")
-        return jsonify({"status": "jsonify failed: bfabric python module."})
+    with client.with_auth(auth):
+        client.print_version_message()
+        res = client.read(
+            endpoint=endpoint,
+            obj=query,
+            offset=page_offset,
+            max_results=page_max_results,
+        )
+    logger.info(f"'{auth.login}' login success query {query} ...")
 
-    try:
-        return jsonify({"res": res.to_list_dict()})
-    except Exception:
-        logger.exception(f"'{auth.login}' query failed ...")
-        return jsonify({"status": "jsonify failed"})
+    return jsonify({"res": res.to_list_dict()})
 
 
 @app.route("/save", methods=["POST"])
@@ -150,18 +142,11 @@ def save() -> Response:
     query = params["query"]
     auth = get_request_auth(params)
 
-    try:
-        with client.with_auth(auth):
-            res = client.save(endpoint=endpoint, obj=query)
-        logger.info(f"'{auth.login}' login success save method ...")
-    except Exception:
-        logger.exception(f"save method failed for login {auth.login}.")
-        return jsonify({"status": "jsonify failed: bfabric python module."})
+    with client.with_auth(auth):
+        res = client.save(endpoint=endpoint, obj=query)
+    logger.info(f"'{auth.login}' login success save method ...")
 
-    try:
-        return jsonify({"res": res.to_list_dict()})
-    except Exception:
-        return jsonify({"status": "jsonify failed"})
+    return jsonify({"res": res.to_list_dict()})
 
 
 @app.route("/add_resource", methods=["POST"])
