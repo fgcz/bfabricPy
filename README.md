@@ -1,23 +1,17 @@
-![functionTest](https://github.com/fgcz/bfabricPy/workflows/functionalTest/badge.svg)
+![unitTests](https://github.com/fgcz/bfabricPy/workflows/unit%20tests/badge.svg)
 [![EDBT'10](https://img.shields.io/badge/EDBT-10.1145%2F1739041.1739135-brightgreen)](https://doi.org/10.1145/1739041.1739135)
 [![JIB](https://img.shields.io/badge/JIB-10.1515%2Fjib.2022.0031-brightgreen)](https://doi.org/10.1515/jib-2022-0031)
-![Downloads](https://img.shields.io/github/downloads/fgcz/bfabricPy/total)
-
-
 
 # bfabricPy
-
 This package connects the [bfabric](https://fgcz-bfabric.uzh.ch/bfabric/) system to the [python](https://www.python.org/) and [R](https://cran.r-project.org/) world while providing a JSON and REST interface using [Flask](https://www.fullstackpython.com).
  The [bfabricShiny](https://github.com/cpanse/bfabricShiny) R package is an extension and provides code snippets and sample implementation for a seamless R shiny bfabric integration.
 For more advanced users the *bfabricPy* package also provides a powerful query interface on the command-line though using the provided scripts.
 
-
-![bfabricPy-read](https://user-images.githubusercontent.com/4901987/65025926-db77c900-d937-11e9-8c92-f2412d6793ee.gif)
-[see also #14](https://github.com/fgcz/bfabricPy/issues/14)
-
-
 ## Install
-The installation will vary depending on which of the use cases you want:
+The package can be installed like any other Python package, so if you are familiar you might not need to read this section.
+Currently, it's only available from GitHub.
+
+The best way to install the package depends on your use case, i.e. whether you want to:
 
 1. Use the command line scripts
 2. Use the Python API
