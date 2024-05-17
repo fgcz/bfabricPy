@@ -294,6 +294,9 @@ def get_system_auth(
     if not have_config_path:
         # Get default path config file path
         config_path = Path("~/.bfabricpy.yml").expanduser()
+    else:
+        config_path = Path(config_path).expanduser()
+
 
     # Use the provided config data from arguments instead of the file
     if not config_path.is_file():
