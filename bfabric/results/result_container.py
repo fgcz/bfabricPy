@@ -61,15 +61,16 @@ class ResultContainer:
         """List of errors that occurred during the query. An empty list means the query was successful."""
         return self._errors
 
-    def extend(self, other: ResultContainer) -> None:
-        """
-        Can merge results of two queries. This can happen if the engine splits a complicated query in two
-        :param other: The other query results that should be appended to this
-        :return:
+    def extend(self, other: ResultContainer, reset_total_pages_api: bool = False) -> None:
+        """Merges the results of `other` into this container.
+        :param other: The container whose elements to append to the end of this container
+        :param reset_total_pages_api: If True, the total_pages_api attribute will be reset to None
         """
         self.results += other.results
         self._errors += other.errors
-        if self._total_pages_api != other.total_pages_api:
+        if reset_total_pages_api:
+            self._total_pages_api = None
+        elif self._total_pages_api != other.total_pages_api:
             logging.warning(
                 f"Results observed with different total pages counts: "
                 f"{self._total_pages_api} != {other.total_pages_api}"
