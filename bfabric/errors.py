@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 
 class BfabricRequestError(Exception):
     """An error that is returned by the server in response to a full request."""
@@ -18,7 +20,7 @@ class BfabricConfigError(RuntimeError):
 
 
 # TODO: Also test for response-level errors
-def get_response_errors(response, endpoint: str) -> list[BfabricRequestError]:
+def get_response_errors(response: Any, endpoint: str) -> list[BfabricRequestError]:
     """
     :param response:  A raw response to a query from an underlying engine
     :param endpoint:  The target endpoint

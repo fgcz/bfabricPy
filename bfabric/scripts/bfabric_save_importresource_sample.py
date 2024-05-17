@@ -79,6 +79,7 @@ def save_importresource(client: Bfabric, line: str) -> None:
 
 
 def get_sample_id_from_path(file_path: str) -> int | None:
+    """Returns the sample id for a given file path, if it's present in the correct format."""
     match = re.search(
         r"p([0-9]+)\/(Proteomics\/[A-Z]+_[1-9])\/.*_\d\d\d_S([0-9][0-9][0-9][0-9][0-9][0-9]+)_.*(raw|zip)$",
         file_path,

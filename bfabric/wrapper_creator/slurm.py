@@ -30,20 +30,20 @@ $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/b
 # limitations under the License.
 #
 
-__docformat__ = 'reStructuredText'
-#__version__ = '$Revision: 2463 $'
-
+__docformat__ = "reStructuredText"
+# __version__ = '$Revision: 2463 $'
 
 
 import os
 import subprocess
 
+
 class SLURM(object):
     """
-    interface to Slurm sbatch 
+    interface to Slurm sbatch
     """
 
-    def __init__(self, user='*', SLURMROOT='/usr/'):
+    def __init__(self, user="*", SLURMROOT="/usr/"):
         """
         Set up parameters for querying Slurm.
 
@@ -57,26 +57,19 @@ class SLURM(object):
 
     def sbatch(self, script, arguments=""):
         """
-            todo: pass stderr and stdout file location as argument
+        todo: pass stderr and stdout file location as argument
         """
         sbatch_cmd = [self.sbatchbin, script, " ".join(arguments)]
 
         if not os.path.isfile(self.sbatchbin):
-            print ("{0} can not be found.".format(self.sbatchbin))
+            print("{0} can not be found.".format(self.sbatchbin))
             return
 
         if not os.path.isfile(script):
-            print ("'{0}' - no such file.".format(script))
+            print("'{0}' - no such file.".format(script))
             return
 
-        sbatch_process = subprocess.Popen(
-            sbatch_cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            shell=False)
-        result = [x.decode('utf-8') for x in sbatch_process.communicate()]
+        sbatch_process = subprocess.Popen(sbatch_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+        result = [x.decode("utf-8") for x in sbatch_process.communicate()]
 
-        return ''.join(result)
-
-
-
+        return "".join(result)

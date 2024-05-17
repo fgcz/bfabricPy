@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: latin1 -*-
 
 # Modified to use Slurm on November 9th 2020
 
@@ -19,20 +18,21 @@ import bfabric.bfabric_legacy
 import bfabric.wrapper_creator.bfabric_submitter
 import bfabric.wrapper_creator.bfabric_wrapper_creator
 
-logging.basicConfig(filename="test_functional.log",
-                            filemode='a',
-                            format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-                            datefmt='%H:%M:%S',
-                            level=logging.DEBUG)
+logging.basicConfig(
+    filename="test_functional.log",
+    filemode="a",
+    format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
+    datefmt="%H:%M:%S",
+    level=logging.DEBUG,
+)
+
 
 class BfabricFunctionalTestCase(unittest.TestCase):
-
 
     externaljobid = 0
 
     def __init__(self, *args, **kwargs):
         super(BfabricFunctionalTestCase, self).__init__(*args, **kwargs)
-
 
     def test_wrappercreator_submitter(self):
         logging.info("XXX start functional testing")
@@ -41,30 +41,31 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         logging.info("Running functional test on bfabricPy")
 
         msg = "This test case requires user 'pfeeder'."
-        self.assertEqual(B.auth.login, 'pfeeder', msg)
+        self.assertEqual(B.auth.login, "pfeeder", msg)
 
         msg = "This test case requires a bfabric test system!"
         self.assertIn("bfabric-test", B.config.base_url, msg)
         # TODO
         # create input resource
 
-
         # 0. THIS IS ALL DONE PRIOR TO THE APPLICATION LAUNCH
         # 0.1
         logging.info("Creating a new executable for the test application")
-        executable = B.save_object("executable", obj={"name": "exec_func_test", "context": "APPLICATION", "program": "/usr/bin/wc"})
+        executable = B.save_object(
+            "executable", obj={"name": "exec_func_test", "context": "APPLICATION", "program": "/usr/bin/wc"}
+        )
         try:
             if executable[0].errorreport:
                 logging.error("Error while creating the executable")
-                logging.info('Errorreport present: {}'.format(executable[0].errorreport))
+                logging.info("Errorreport present: {}".format(executable[0].errorreport))
                 raise
         except:
-            logging.info('Executable successfully created')
+            logging.info("Executable successfully created")
         try:
             executableid = int(executable[0]._id)
             logging.info("executableid = {}".format(executableid))
         except:
-            logging.error('Error while getting the executable id')
+            logging.error("Error while getting the executable id")
 
         msg = "executableid should be a positig integer."
         self.assertTrue(executableid > 0, msg)
@@ -76,46 +77,63 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         # The executable for submitterid=11 has been created in the test system running the following script:
         # ./bfabric_upload_submitter_executable.py bfabric_executable_submitter_functionalTest.py slurm --name "Dummy_-_yaml___Slurm_executable" --description "test new submitter's parameters"
         # Note that the executable bfabric_executable_submitter_functionalTest.py only prints "Dummy submitter executable defined for the bfabricPy functional test".
-        application =  B.save_object("application", obj={"name": "appl_func_test", 'type': 'Analysis', 'technologyid': 2, 'description': "Application functional test", 'executableid': executableid, "wrappercreatorid": 8, "submitterid": 11, 'storageid': 1, 'outputfileformat': 'txt'})
-        try: 
+        application = B.save_object(
+            "application",
+            obj={
+                "name": "appl_func_test",
+                "type": "Analysis",
+                "technologyid": 2,
+                "description": "Application functional test",
+                "executableid": executableid,
+                "wrappercreatorid": 8,
+                "submitterid": 11,
+                "storageid": 1,
+                "outputfileformat": "txt",
+            },
+        )
+        try:
             if application[0].errorreport:
                 logging.error("Error while creating the application")
-                logging.info('Errorreport present: {}'.format(application[0].errorreport))
+                logging.info("Errorreport present: {}".format(application[0].errorreport))
                 raise
         except:
-            logging.info('Application successfully created')
+            logging.info("Application successfully created")
         try:
             applicationid = int(application[0]._id)
             logging.info("applicationid = {}".format(applicationid))
         except:
-            logging.error('Error while getting the application id')
+            logging.error("Error while getting the application id")
             raise
 
         msg = "applicationid should be a positig integer."
         self.assertTrue(applicationid > 0, msg)
 
-
-        # 1. THIS CODE SNIPPET IS TRIGGERED BY THE BFABRIC SYSTEM AFTER THE USER RUN THE APPLICATION 
+        # 1. THIS CODE SNIPPET IS TRIGGERED BY THE BFABRIC SYSTEM AFTER THE USER RUN THE APPLICATION
         # 1.1
         logging.info("Creating new workunit connecting the test application executable to the execution anvironment")
-        workunit = B.save_object("workunit",
-                obj={"name": "unit test run - bfabricPy",
-                    "status": "PENDING", 'containerid': 3061,
-                    'applicationid': applicationid,
-                    'description': "https://github.com/fgcz/bfabricPy/blob/iss27/bfabric/tests/test_bfabric_functional.py",
-                    'inputdatasetid': 32428})
+        workunit = B.save_object(
+            "workunit",
+            obj={
+                "name": "unit test run - bfabricPy",
+                "status": "PENDING",
+                "containerid": 3061,
+                "applicationid": applicationid,
+                "description": "https://github.com/fgcz/bfabricPy/blob/iss27/bfabric/tests/test_bfabric_functional.py",
+                "inputdatasetid": 32428,
+            },
+        )
         try:
             if workunit[0].errorreport:
-                logging.error('Error while creating workunit')
-                logging.info('Errorreport present: {}'.format(workunit[0].errorreport))
+                logging.error("Error while creating workunit")
+                logging.info("Errorreport present: {}".format(workunit[0].errorreport))
                 raise
         except:
-            logging.info('Workunit successfully created')
+            logging.info("Workunit successfully created")
         try:
             workunitid = int(workunit[0]._id)
             logging.info("workunit = {}".format(workunitid))
         except:
-            logging.error('Error while getting the workunit id')
+            logging.error("Error while getting the workunit id")
             raise
 
         msg = "workunitid should be a positig integer."
@@ -126,14 +144,17 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         logging.info("Creating new externaljob for the WrapperCreator executable")
         # Here a precomputed test executable is replacing the wrappercreatorid in the application definition
         wrapper_creator_executableid = 16374
-        externaljob_wc = B.save_object("externaljob", obj={'workunitid': workunitid, 'action': 'CREATE', 'executableid':  wrapper_creator_executableid})
+        externaljob_wc = B.save_object(
+            "externaljob",
+            obj={"workunitid": workunitid, "action": "CREATE", "executableid": wrapper_creator_executableid},
+        )
         try:
             if externaljob_wc[0].errorreport:
-                logging.error('Error while creating externaljob_wc')
-                logging.info('Errorreport present: {}'.format(externaljob_wc[0].errorreport))
+                logging.error("Error while creating externaljob_wc")
+                logging.info("Errorreport present: {}".format(externaljob_wc[0].errorreport))
                 raise
         except:
-            logging.info('Externaljob_wc successfully created')
+            logging.info("Externaljob_wc successfully created")
         try:
             externaljobid_wc = int(externaljob_wc[0]._id)
             logging.info("externaljob = {}".format(externaljobid_wc))
@@ -164,13 +185,17 @@ class BfabricFunctionalTestCase(unittest.TestCase):
 
         logging.info("Checking if wrapper creator's externaljob with id={} was set to 'done'".format(externaljobid_wc))
         try:
-            res = B.read_object('externaljob', {'id': externaljobid_wc, 'status':'DONE'})
-            self.assertEqual(res[0].status, 'done', 'set externaljob id={} of wrapper creator failed.'.format(externaljobid_wc))
+            res = B.read_object("externaljob", {"id": externaljobid_wc, "status": "DONE"})
+            self.assertEqual(
+                res[0].status, "done", "set externaljob id={} of wrapper creator failed.".format(externaljobid_wc)
+            )
         except:
             logging.error("Error while setting wrapper creator's externaljob status to done")
 
         # 2.3
-        logging.info("Fetching the id of the yaml_workunit_externaljob in order to set it as DONE at the end of this functional test")
+        logging.info(
+            "Fetching the id of the yaml_workunit_externaljob in order to set it as DONE at the end of this functional test"
+        )
         try:
             # The method W.get_externaljobid_yaml_workunit() returns the external job with Action=WORKUNIT
             externaljobid_yaml_workunit = W.get_externaljobid_yaml_workunit()
@@ -182,7 +207,9 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         # 3.1
         logging.info("Fetching the submitter's externaljob automatically triggered by B-Fabric")
         try:
-            externaljobid_submitter = B.read_object('externaljob', {'cliententityid': workunitid, "action": "SUBMIT", 'cliententityclass': 'Workunit'})[0]._id
+            externaljobid_submitter = B.read_object(
+                "externaljob", {"cliententityid": workunitid, "action": "SUBMIT", "cliententityclass": "Workunit"}
+            )[0]._id
             logging.info("externaljobid for submitter is {}.".format(externaljobid_submitter))
         except:
             logging.error("Error while fetching the id of the submitter's externaljob")
@@ -191,7 +218,9 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         logging.info("Executing the Submitter executable: function submitter_yaml from BfabricSubmitter")
         # Submitter executable is supposed to download all workunit executables and submit them.
         # When finished successfully, the status of its external job is set to done, else to failed.
-        S = wrapper_creator.bfabric_submitter.BfabricSubmitter(externaljobid=externaljobid_submitter, SCHEDULEROOT="/usr/", scheduler="Slurm")
+        S = wrapper_creator.bfabric_submitter.BfabricSubmitter(
+            externaljobid=externaljobid_submitter, SCHEDULEROOT="/usr/", scheduler="Slurm"
+        )
         ## this information is contained in the application definition
         try:
             S.submitter_yaml()
@@ -202,10 +231,12 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         time.sleep(10)
         logging.info("Checking if submitter's externaljob with id={} was set to 'done'".format(externaljobid_submitter))
         try:
-            #res = B.read_object('externaljob', {'id': externaljobid_submitter, 'status': 'DONE'})
-            res = B.read_object('externaljob', {'id': externaljobid_submitter})
+            # res = B.read_object('externaljob', {'id': externaljobid_submitter, 'status': 'DONE'})
+            res = B.read_object("externaljob", {"id": externaljobid_submitter})
             logging.info("Status of externaljob for submitter {}".format(res[0].status))
-            self.assertEqual(res[0].status, 'done', 'submitter externaljob with id={} failed.'.format(externaljobid_submitter))
+            self.assertEqual(
+                res[0].status, "done", "submitter externaljob with id={} failed.".format(externaljobid_submitter)
+            )
         except:
             logging.error("Error while setting submitter externaljob status to DONE")
             raise
@@ -213,10 +244,16 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         # 4. SETTING YAML_WORKUNIT_EXTERNALJOB TO DONE
         logging.info("Setting the yaml_workunit_externaljob created by the WrapperCreator to 'done'")
         try:
-            res = B.save_object(endpoint='externaljob', obj={'id': externaljobid_yaml_workunit, 'status': 'done'})
-            logging.info("Checking if WORKUNIT's externaljob with id={} was set to 'done'".format(externaljobid_yaml_workunit))
-            res = B.read_object('externaljob', {'id': externaljobid_yaml_workunit, 'status':'DONE'})
-            self.assertEqual(res[0].status, 'done', 'yaml_workunit_externaljob with id={} failed.'.format(externaljobid_yaml_workunit))
+            res = B.save_object(endpoint="externaljob", obj={"id": externaljobid_yaml_workunit, "status": "done"})
+            logging.info(
+                "Checking if WORKUNIT's externaljob with id={} was set to 'done'".format(externaljobid_yaml_workunit)
+            )
+            res = B.read_object("externaljob", {"id": externaljobid_yaml_workunit, "status": "DONE"})
+            self.assertEqual(
+                res[0].status,
+                "done",
+                "yaml_workunit_externaljob with id={} failed.".format(externaljobid_yaml_workunit),
+            )
         except:
             logging.error("Error while setting yaml_workunit externaljob status to done")
 
@@ -232,11 +269,10 @@ class BfabricFunctionalTestCase(unittest.TestCase):
             time.sleep(1)
         logging.info("end processing job.")
 
-
         logging.info("Deleting superfluous resources of test run workunit.")
-        res = B.read_object('workunit', {'id',  workunit[0]._id})[0]
+        res = B.read_object("workunit", {"id", workunit[0]._id})[0]
         for i in res.resource:
-            resdel = B.delete_object('resource', i._id)
+            resdel = B.delete_object("resource", i._id)
             self.assertIn("removed successfully", resdel[0].deletionreport)
             logging.info("deleted resource id={}.".format(i._id))
 
@@ -248,44 +284,42 @@ class BfabricFunctionalTestCase(unittest.TestCase):
 
         # 6. THIS LINE IS CALLED WHEN THE APPLICATION IS DONE
         logging.info(f"set workunit {workunitid} status available.")
-        res = B.save_object('workunit', {'id': workunitid, 'status': 'available'})
+        res = B.save_object("workunit", {"id": workunitid, "status": "available"})
 
         logging.info("Cleanup for the python test: whatever is possible to be removed")
         logging.info(f"trying to delete executable {executableid} [expect to fail].")
-        res = B.delete_object('executable', executableid)
+        res = B.delete_object("executable", executableid)
         self.assertNotIn("removed successfully", res[0].deletionreport)
 
         logging.info(f"trying to delete application {applicationid} [expect to fail; since we have a workunit].")
-        res = B.delete_object('application', applicationid)
+        res = B.delete_object("application", applicationid)
         self.assertNotIn("removed successfully", res[0].deletionreport)
 
-
         logging.info(f"trying to delete submitter externaljob {externaljobid_submitter} [expect to fail].")
-        res = B.delete_object('externaljob', externaljobid_submitter)
+        res = B.delete_object("externaljob", externaljobid_submitter)
         msg = "should fail"
         self.assertNotIn("removed successfully", res[0].deletionreport)
 
         logging.info(f"trying to delete workunit {workunitid}.")
-        res = B.delete_object('workunit', workunitid)
+        res = B.delete_object("workunit", workunitid)
         self.assertIn("removed successfully", res[0].deletionreport)
 
         logging.info(f"trying to delete submitter executable {executableid} [expect to fail].")
-        res = B.delete_object('executable', executableid)
+        res = B.delete_object("executable", executableid)
         self.assertNotIn("removed successfully", res[0].deletionreport)
 
         logging.info(f"trying to delete wrapper creator externaljob {externaljobid_wc} [expect to fail].")
-        res = B.delete_object('externaljob', externaljobid_wc)
+        res = B.delete_object("externaljob", externaljobid_wc)
         self.assertNotIn("removed successfully", res[0].deletionreport)
 
         logging.info(f"trying to delete application {applicationid}.")
-        res = B.delete_object('application', applicationid)
+        res = B.delete_object("application", applicationid)
         self.assertIn("removed successfully", res[0].deletionreport)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     suite = unittest.TestSuite()
-    suite.addTest(BfabricFunctionalTestCase('test_wrappercreator_submitter'))
+    suite.addTest(BfabricFunctionalTestCase("test_wrappercreator_submitter"))
 
     runner = unittest.TextTestRunner(verbosity=1)
-    runner.run(suite )
-
+    runner.run(suite)

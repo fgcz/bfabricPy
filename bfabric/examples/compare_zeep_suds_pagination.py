@@ -19,7 +19,7 @@ Observations:
 """
 
 
-def report_test_result(rez: bool, prefix: str):
+def report_test_result(rez: bool, prefix: str) -> None:
     if rez:
         print("--", prefix, "test passed --")
     else:

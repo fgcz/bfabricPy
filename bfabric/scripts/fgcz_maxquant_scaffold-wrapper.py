@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # Copyright (C) 2019 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 #
@@ -17,7 +16,7 @@ import os
 import sys
 from lxml import etree
 import yaml
-from io import StringIO, BytesIO
+from io import StringIO
 from optparse import OptionParser
 
 # import unittest
@@ -34,14 +33,14 @@ class FgczMaxQuantScaffold:
     fasta = None
     samples = None
 
-    def __init__(self, yamlfilename=None, zipfilename=None):
+    def __init__(self, yamlfilename=None, zipfilename=None) -> None:
 
         if not os.path.isfile(zipfilename):
-            print("ERROR: no such file '{0}'".format(zipfilename))
+            print(f"ERROR: no such file '{zipfilename}'")
             sys.exit(1)
 
         self.zipfilename = zipfilename
-        with open(yamlfilename, "r") as f:
+        with open(yamlfilename) as f:
             content = f.read()
 
         self.config = yaml.load(content, Loader=yaml.FullLoader)
@@ -79,12 +78,12 @@ class FgczMaxQuantScaffold:
         if eInputFile is None:
             raise TypeError
 
-        eInputFile.text = "{}".format(InputFile)
-        eInputFile.attrib["maxQuantExperiment"] = "{}".format(category)
+        eInputFile.text = f"{InputFile}"
+        eInputFile.attrib["maxQuantExperiment"] = f"{category}"
 
         eBiologicalSample = eInputFile.getparent()
-        eBiologicalSample.attrib["category"] = "{}".format(category)
-        eBiologicalSample.attrib["name"] = "{}".format(category)
+        eBiologicalSample.attrib["category"] = f"{category}"
+        eBiologicalSample.attrib["name"] = f"{category}"
 
         return pBioSample
 
@@ -119,12 +118,12 @@ class FgczMaxQuantScaffold:
         # pxml = etree.XML(xml)
         return pxml
 
-    def run(self):
+    def run(self) -> None:
 
         xml = self.getScaffold()
         eExperiment = xml.find("/Experiment")
         eFastaDatabase = xml.find("/Experiment/FastaDatabase")
-        eFastaDatabase.attrib["path"] = "{}/{}".format(os.getcwd(), self.fasta)
+        eFastaDatabase.attrib["path"] = f"{os.getcwd()}/{self.fasta}"
 
         for s in self.samples:
             eExperiment.extend(self.getBiologicalSample(category=s, InputFile=self.zipfilename))

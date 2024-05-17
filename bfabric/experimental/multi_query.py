@@ -16,6 +16,7 @@ class MultiQuery:
     This functionality might eventually be merged into the main Bfabric class but will probably be subject to some
     breaking changes and is not as thoroughly tested as the main classes functionality.
     """
+
     def __init__(self, client: Bfabric) -> None:
         self._client = client
 
@@ -55,7 +56,7 @@ class MultiQuery:
             # TODO: It is assumed that a user requesting multi_query always wants all of the pages. Can anybody think of
             #   exceptions to this?
             response_this = self._client.read(endpoint, obj_extended, max_results=None, return_id_only=return_id_only)
-            response_tot.extend(response_this)
+            response_tot.extend(response_this, reset_total_pages_api=True)
 
         return response_tot
 
@@ -68,7 +69,7 @@ class MultiQuery:
     #     # Iterate over request chunks that fit into a single API page
     #     for page_objs in page_iter(obj_lst):
     #         response_page = self.save(endpoint, page_objs, **kwargs)
-    #         response_tot.extend(response_page)
+    #         response_tot.extend(response_page, reset_total_pages_api=True
     #
     #     return response_tot
 
@@ -85,7 +86,7 @@ class MultiQuery:
         # Iterate over request chunks that fit into a single API page
         for page_ids in page_iter(id_list):
             response_page = self._client.delete(endpoint, page_ids)
-            response_tot.extend(response_page)
+            response_tot.extend(response_page, reset_total_pages_api=True)
 
         return response_tot
 

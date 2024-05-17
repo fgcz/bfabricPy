@@ -9,6 +9,7 @@ class bfabricEncoder(json.JSONEncoder):
     """
     Implements json encoder for the Bfabric.print_json method
     """
+
     def default(self, o):
         try:
             return dict(o)
@@ -23,4 +24,3 @@ res = json.dumps(queryres, cls=bfabricEncoder, sort_keys=True, indent=2)
 
 
 B = bfabric.Bfabric()
-

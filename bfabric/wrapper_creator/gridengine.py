@@ -37,20 +37,20 @@ $Revision: 2463 $
 # $Date: 2016-09-23 16:55:50 +0200 (Fri, 23 Sep 2016) $
 # $Author: cpanse $
 
-__docformat__ = 'reStructuredText'
-__version__ = '$Revision: 2463 $'
-
+__docformat__ = "reStructuredText"
+__version__ = "$Revision: 2463 $"
 
 
 import os
 import subprocess
 
+
 class GridEngine(object):
     """
-    interface to Open Grid Sceduler qsub 
+    interface to Open Grid Sceduler qsub
     """
 
-    def __init__(self, user='*', queue="PRX@fgcz-r-035", GRIDENGINEROOT='/export/bfabric/bfabric/'):
+    def __init__(self, user="*", queue="PRX@fgcz-r-035", GRIDENGINEROOT="/export/bfabric/bfabric/"):
         """
         Set up parameters for querying Grid Engine.
 
@@ -65,41 +65,37 @@ class GridEngine(object):
 
     def qsub(self, script, arguments=""):
         """
-            if qsub and script are files do 
-            qsub as fire and forget
+        if qsub and script are files do
+        qsub as fire and forget
 
-            todo: pass stderr and stdout file location as argument
+        todo: pass stderr and stdout file location as argument
         """
         qsub_cmd = [self.qsubbin, "-q", self.queue, script, " ".join(arguments)]
 
         if not os.path.isfile(self.qsubbin):
-            print ("{0} can not be found.".format(self.qsubbin))
+            print("{0} can not be found.".format(self.qsubbin))
             return
 
         if not os.path.isfile(script):
-            print ("'{0}' - no such file.".format(script))
+            print("'{0}' - no such file.".format(script))
             return
 
         try:
-            qsub_process = subprocess.Popen(
-                qsub_cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                shell=False)
+            qsub_process = subprocess.Popen(qsub_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
             stdout, stderr = qsub_process.communicate()
 
             return stdout
 
         # except subprocess.CalledProcessError, ex:
         except:
-            #logging.error("Error running '%s': '%s'; exit code %d", str.join(' ', qstat_cmd), stderr, ex.returncode)
+            # logging.error("Error running '%s': '%s'; exit code %d", str.join(' ', qstat_cmd), stderr, ex.returncode)
             raise
 
 
 def main():
-    print ("hello world!")
+    print("hello world!")
     pass
 
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
     main()

@@ -1,55 +1,70 @@
-![functionTest](https://github.com/fgcz/bfabricPy/workflows/functionalTest/badge.svg)
+![unitTests](https://github.com/fgcz/bfabricPy/workflows/unit%20tests/badge.svg)
 [![EDBT'10](https://img.shields.io/badge/EDBT-10.1145%2F1739041.1739135-brightgreen)](https://doi.org/10.1145/1739041.1739135)
 [![JIB](https://img.shields.io/badge/JIB-10.1515%2Fjib.2022.0031-brightgreen)](https://doi.org/10.1515/jib-2022-0031)
-![Downloads](https://img.shields.io/github/downloads/fgcz/bfabricPy/total)
-
-
 
 # bfabricPy
-
 This package connects the [bfabric](https://fgcz-bfabric.uzh.ch/bfabric/) system to the [python](https://www.python.org/) and [R](https://cran.r-project.org/) world while providing a JSON and REST interface using [Flask](https://www.fullstackpython.com).
  The [bfabricShiny](https://github.com/cpanse/bfabricShiny) R package is an extension and provides code snippets and sample implementation for a seamless R shiny bfabric integration.
 For more advanced users the *bfabricPy* package also provides a powerful query interface on the command-line though using the provided scripts.
 
-
-![bfabricPy-read](https://user-images.githubusercontent.com/4901987/65025926-db77c900-d937-11e9-8c92-f2412d6793ee.gif)
-[see also #14](https://github.com/fgcz/bfabricPy/issues/14)
-
-
 ## Install
-There are many ways to install Python packages.
-Generally it's recommended to use some type of virtual environment manager, like [conda](https://docs.conda.io/en/latest/), [uv](https://github.com/astral-sh/uv), or Python's [venv](https://docs.python.org/3/library/venv.html). Then the following commands work.
-If you don't, you might need to specify `--user` to the pip commands, so they get installed into the user's Python package directory.
+The package can be installed like any other Python package, so if you are familiar you might not need to read this section.
+Currently, it's only available from GitHub.
 
-To use bfabricPy a normal installation is good enough:
-```{bash}
-pip install git+https://github.com/fgcz/bfabricPy.git
+The best way to install the package depends on your use case, i.e. whether you want to:
+
+1. Use the command line scripts
+2. Use the Python API
+3. Develop on the package
+
+The command line scripts are currently included in all cases.
+
+### Command line scripts
+To use the command line scripts, it's recommended to install `bfabricPy` with [pipx](https://pipx.pypa.io/).
+If you don't have `pipx` installed, refer to the [pipx documentation](https://pipx.pypa.io/stable/installation/) for instructions.
+
+You can execute a command using a specific version of `bfabricPy` with the `pipx run` command.
+This command handles the dependencies of multiple concurrent installations:
+
+```bash
+pipx run --spec "git+https://github.com/fgcz/bfabricPy.git@0.13.8" bfabric_read.py --help
 ```
 
-As a user: (i.e. a regular install, files will be used from your current directory instead of properly installing a copy of it)
-
-```{bash}
-# variant 1) clone to a folder
-git clone https://github.com/fgcz/bfabricPy.git && cd bfabricPy
-pip install .
-
-# variant 2) direct install from GitHub
-pip install git+https://github.com/fgcz/bfabricPy.git
+To install a specific version of bfabricPy on your system and make the command available without `pipx run` prefix, use the following command:
+```bash
+pipx install "git+https://github.com/fgcz/bfabricPy.git@0.13.8"
+bfabric_read.py --help
 ```
 
+### Python API
+If you're interested in using the Python API of `bfabricPy`, you have two options:
+
+#### 1. Configure it in your `pyproject.toml` file.
+```toml
+[project]
+dependencies = [
+    "bfabricPy @ git+https://github.com/fgcz/bfabricPy.git@main"
+]
+```
+
+#### 2. Install the `bfabricPy` package directly using pip.
+```bash
+pip install git+https://github.com/fgcz/bfabricPy.git
+````
+
+### Development
 As a bfabricPy developer: (i.e. an editable install)
 
 ```{bash}
 pip install -e ".[dev]"
 ```
 
-## Configuration [outdated]
-
-```{bash}
-cat ~/.bfabricpy.yml
-```
+## Configuration
+Create a file as follows: (note: the password is not your login password, but the web service password)
 
 ```{yaml}
+# ~/.bfabricpy.yml
+
 GENERAL:
   default_config: PRODUCTION
   
@@ -57,6 +72,15 @@ PRODUCTION:
   login: yourBfabricLogin
   password: yourBfabricWebPassword
   base_url: https://fgcz-bfabric.uzh.ch/bfabric
+```
+
+You can also include an additional config for the TEST instance
+
+```{yaml}
+TEST:
+  login: yourBfabricLogin
+  password: yourBfabricWebPassword
+  base_url: https://fgcz-bfabric-test.uzh.ch/bfabric  
 ```
 
 ## CheatSheet
@@ -83,41 +107,50 @@ bfabric_read.py workunit status failed
 bfabric_read.py resource filechecksum d41d8cd98f00b204e9800998ecf8427e
 ```
 
-call the `python3` interpreter and enter
+Using the Python API:
 
 ```{py}
-import bfabric
+from bfabric import Bfabric
 
-B = bfabric.Bfabric()
+client = Bfabric.from.config()
 
-user = B.read_object(endpoint = 'user', obj={'login': 'cpanse'})
-resource = B.read_object(endpoint = 'resource', obj={'id': 550327 })
+user = B.read(endpoint = 'user', obj={'login': 'cpanse'})
+resource = B.read(endpoint = 'resource', obj={'id': 550327 })
 ```
 
 ### save
-```
-rv = B.save_object('workunit', {'id': 254063, 'status': 'available'})
-B.print_json(rv)
-# print(rv)
+```{bash}
+bfabric_save_workunit_attribute.py 199387 status available
 ```
 
-### Command line code snippets
-
-remove pending workunits from the past
-```{bash} 
- bfabric_read.py workunit status pending \
-   | awk '$2~/cpanse/ && $3~/2015/{print $1}'
-   | fgcz_bfabric_delete_workunits.py 
+```{python}
+import json
+rv = client.save('workunit', {'id': 254063, 'status': 'available'})
+print(json.dumps(rv.to_list_dict(), indent=2))
 ```
 
-find empty resource files in bfabric
+### Command line code snippet
+Find empty resource files in bfabric
 ```{bash}
 bfabric_read.py resource filechecksum `md5sum < /dev/null | cut -c-32` \
   | cat -n \
   | tail
 ```
 
-## Examples
+## Testing
+Please be advised that integration tests will write to the `TEST` instance configured in your `~/.bfabricpy.yml` config file.
+
+Run unit tests:
+```{bash}
+python3 -m unittest discover -s "bfabric/tests/unit"
+```
+
+Run integration tests (see note above):
+```{bash}
+python3 -m unittest discover -s "bfabric/tests/integration"
+```
+
+## Examples [outdated]
 
 ### bash script generated by the yaml wrapper creator / submitter
 
@@ -276,7 +309,7 @@ bfabric_read.py importresource \
   done
 ```
 
-## Send an E-mail
+## Send an E-mail [outdated]
 
 ```
 # by CT,CP
@@ -290,11 +323,7 @@ rv = B.save_object(endpoint = 'mail',
 # shown as mail for user id 482
 ```
 
-## Testing
 
-```{sh}
-cd bfabric/tests/ && python3 -m unittest discover; echo $?; cd -
-```
 
 ## See also
 
@@ -305,16 +334,13 @@ cd bfabric/tests/ && python3 -m unittest discover; echo $?; cd -
 
 ## FAQ
 
-
 ### How to resolve `<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed`?
-
 on macOSX
 ```
 cd /Applications/Python 3.12 && ./Install\ Certificates.command
 ```
 
 ### How is the version numbering working?
-
 X.Y.Z
 
 X is not used
@@ -322,8 +348,6 @@ X is not used
 Y should be the bfabric release
 
 Z increment for significant changes
-
-Also, please note that the branch ID should correspond with the bfabric stable release number.
 
 ### Howto cite?
 
