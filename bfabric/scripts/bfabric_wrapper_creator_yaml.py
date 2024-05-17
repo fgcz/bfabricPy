@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: latin1 -*-
+#!/usr/bin/env python3
 
 """
 A wrapper_creator for B-Fabric

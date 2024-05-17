@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: latin1 -*-
 
 # Modified to use Slurm on November 9th 2020
 

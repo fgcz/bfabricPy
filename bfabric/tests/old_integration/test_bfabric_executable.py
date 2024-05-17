@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: latin1 -*-
 
 """
 unittest by <cp@fgcz.ethz.ch>

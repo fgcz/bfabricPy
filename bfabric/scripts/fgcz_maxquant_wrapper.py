@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # Copyright (C) 2017, 2018 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 #
 # Authors:
