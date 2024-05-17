@@ -98,19 +98,3 @@ class ResultContainer:
         import polars
 
         return polars.DataFrame(self.to_list_dict(drop_empty=drop_empty))
-
-
-def _clean_result(result: dict, drop_underscores_suds: bool = True, sort_responses: bool = False) -> dict:
-    """
-    :param drop_underscores_suds: if True, the keys of the dictionaries in the response will have leading
-        underscores removed in some cases (relevant for SUDS)
-    :param sort_responses: the keys of the dictionaries in the response will be sorted (recursively)
-    """
-    if drop_underscores_suds:
-        formatter.map_element_keys(
-            result, {"_id": "id", "_classname": "classname", "_projectid": "projectid"}, inplace=True
-        )
-    if sort_responses:
-        formatter.sort_dicts_by_key(result, inplace=True)
-
-    return result

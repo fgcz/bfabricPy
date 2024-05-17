@@ -6,7 +6,8 @@ import zeep
 from zeep.helpers import serialize_object
 
 from bfabric.errors import BfabricRequestError, get_response_errors
-from bfabric.results.result_container import ResultContainer, _clean_result
+from bfabric.results.result_container import ResultContainer
+from bfabric.results.response_format_dict import clean_result
 
 if TYPE_CHECKING:
     from bfabric.bfabric_config import BfabricAuth
@@ -122,10 +123,10 @@ class EngineZeep:
         results = []
         for result in response[endpoint]:
             results_parsed = dict(serialize_object(result, target_cls=dict))
-            results_parsed = _clean_result(
+            results_parsed = clean_result(
                 results_parsed,
                 drop_underscores_suds=False,  # NOTE: Underscore problem specific to SUDS
-                sort_responses=True,
+                sort_keys=True,
             )
             results += [results_parsed]
         return ResultContainer(results=results, total_pages_api=n_available_pages, errors=errors)

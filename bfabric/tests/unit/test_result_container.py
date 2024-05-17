@@ -1,6 +1,8 @@
 import logging
 import unittest
 
+import polars.testing
+
 from bfabric.results.result_container import ResultContainer
 
 
@@ -15,8 +17,8 @@ class BfabricTestResultContainer(unittest.TestCase):
         self.assertEqual("[4, 5]", str(self.res2))
 
     def test_repr(self):
-        self.assertEqual("[1, 2, 3]", str(self.res1))
-        self.assertEqual("[4, 5]", str(self.res2))
+        self.assertEqual("[1, 2, 3]", repr(self.res1))
+        self.assertEqual("[4, 5]", repr(self.res2))
 
     def test_len(self):
         self.assertEqual(3, len(self.res1))
@@ -81,6 +83,11 @@ class BfabricTestResultContainer(unittest.TestCase):
     def test_to_list_dict_when_drop_empty(self):
         expected = [{"b": 1}, {"a": 2, "b": 3}]
         self.assertListEqual(expected, self.res_with_empty.to_list_dict(drop_empty=True))
+
+    def test_to_polars(self):
+        res = ResultContainer([{"a": 1, "b": 2}, {"a": 3, "b": 4}])
+        df = res.to_polars()
+        polars.testing.assert_frame_equal(polars.DataFrame({"a": [1, 3], "b": [2, 4]}), df)
 
 
 if __name__ == "__main__":

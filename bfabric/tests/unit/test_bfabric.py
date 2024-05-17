@@ -267,6 +267,38 @@ class TestBfabric(unittest.TestCase):
         method_assert_success.assert_called_once_with()
         mock_engine.delete.assert_called_once_with(endpoint=endpoint, id=10, auth=self.mock_auth)
 
+    @patch.object(Bfabric, "read")
+    def test_exists_when_true(self, method_read):
+        method_read.return_value.__len__.return_value = 1
+        self.assertTrue(self.mock_bfabric.exists(endpoint="test_endpoint", key="key", value="value"))
+        method_read.assert_called_once_with(
+            endpoint="test_endpoint", obj={"key": "value"}, max_results=1, check=True, return_id_only=True
+        )
+
+    @patch.object(Bfabric, "read")
+    def test_exists_when_true_and_extra_args(self, method_read):
+        method_read.return_value.__len__.return_value = 1
+        self.assertTrue(
+            self.mock_bfabric.exists(
+                endpoint="test_endpoint", key="key", value="value", query={"extra": "arg"}, check=False
+            )
+        )
+        method_read.assert_called_once_with(
+            endpoint="test_endpoint",
+            obj={"key": "value", "extra": "arg"},
+            max_results=1,
+            check=False,
+            return_id_only=True,
+        )
+
+    @patch.object(Bfabric, "read")
+    def test_exists_when_false(self, method_read):
+        method_read.return_value.__len__.return_value = 0
+        self.assertFalse(self.mock_bfabric.exists(endpoint="test_endpoint", key="key", value="value"))
+        method_read.assert_called_once_with(
+            endpoint="test_endpoint", obj={"key": "value"}, max_results=1, check=True, return_id_only=True
+        )
+
     @patch.object(Bfabric, "save")
     def test_upload_resource(self, method_save):
         resource_name = "hello_world.txt"

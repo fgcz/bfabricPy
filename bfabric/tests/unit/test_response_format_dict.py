@@ -1,4 +1,5 @@
 import unittest
+
 import bfabric.results.response_format_dict as response_format_dict
 
 
@@ -26,6 +27,15 @@ class BfabricTestResponseFormatDict(unittest.TestCase):
 
         output_list_dict = response_format_dict.sort_dicts_by_key(input_list_dict, inplace=False)
         self.assertEqual(str(output_list_dict), str(target_list_dict))
+
+    def test_clean_result(self):
+        result_input = [{"b": 1, "a": 2, "_id": 3}, {"b": 4, "_id": 5, "a": 6}]
+        cleaned = response_format_dict.clean_result(result_input, drop_underscores_suds=True, sort_keys=True)
+        self.assertEqual(repr([{"a": 2, "b": 1, "id": 3}, {"a": 6, "b": 4, "id": 5}]), repr(cleaned))
+        self.assertEqual(
+            repr([{"b": 1, "a": 2, "_id": 3}, {"b": 4, "_id": 5, "a": 6}]),
+            repr(result_input),
+        )
 
 
 if __name__ == "__main__":

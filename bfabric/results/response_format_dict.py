@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from copy import deepcopy
 
 
@@ -115,3 +116,19 @@ def sort_dicts_by_key(response: list | dict, inplace: bool = True) -> list | dic
     response_filtered = deepcopy(response) if not inplace else response
     _recursive_sort_dicts_by_key(response_filtered)
     return response_filtered
+
+
+def clean_result(result: dict, drop_underscores_suds: bool = True, sort_keys: bool = False) -> dict:
+    """
+    :param result: the response dictionary to clean
+    :param drop_underscores_suds: if True, the keys of the dictionaries in the response will have leading
+        underscores removed in some cases (relevant for SUDS)
+    :param sort_keys: the keys of the dictionaries in the response will be sorted (recursively)
+    """
+    result = deepcopy(result)
+    if drop_underscores_suds:
+        map_element_keys(result, {"_id": "id", "_classname": "classname", "_projectid": "projectid"}, inplace=True)
+    if sort_keys:
+        sort_dicts_by_key(result, inplace=True)
+
+    return result
