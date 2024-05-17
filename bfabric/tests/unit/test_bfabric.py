@@ -28,7 +28,7 @@ class TestBfabric(unittest.TestCase):
         self.assertIsInstance(client, Bfabric)
         self.assertEqual(mock_config, client.config)
         self.assertEqual(mock_auth, client.auth)
-        mock_get_system_auth.assert_called_once_with(config_env=None)
+        mock_get_system_auth.assert_called_once_with(config_env=None, config_path=None)
 
     @patch("bfabric.bfabric.get_system_auth")
     @patch("bfabric.bfabric.EngineSUDS")
@@ -41,7 +41,7 @@ class TestBfabric(unittest.TestCase):
         self.assertIsInstance(client, Bfabric)
         self.assertEqual(mock_config, client.config)
         self.assertEqual(mock_auth, client.auth)
-        mock_get_system_auth.assert_called_once_with(config_env="TestingEnv")
+        mock_get_system_auth.assert_called_once_with(config_env="TestingEnv", config_path=None)
 
     @patch("bfabric.bfabric.get_system_auth")
     @patch("bfabric.bfabric.EngineSUDS")
@@ -55,7 +55,7 @@ class TestBfabric(unittest.TestCase):
         with self.assertRaises(ValueError) as error:
             _ = client.auth
         self.assertIn("Authentication not available", str(error.exception))
-        mock_get_system_auth.assert_called_once_with(config_env="TestingEnv")
+        mock_get_system_auth.assert_called_once_with(config_env="TestingEnv", config_path=None)
 
     @patch("bfabric.bfabric.get_system_auth")
     @patch("bfabric.bfabric.EngineSUDS")
@@ -69,7 +69,7 @@ class TestBfabric(unittest.TestCase):
         self.assertEqual(mock_config, client.config)
         self.assertEqual(mock_auth, client.auth)
         self.assertEqual(mock_engine_suds.return_value, client.engine)
-        mock_get_system_auth.assert_called_once_with(config_env=None)
+        mock_get_system_auth.assert_called_once_with(config_env=None, config_path=None)
 
         mock_engine_suds.assert_called_once_with(base_url=mock_config.base_url)
         self.assertEqual(mock_engine_suds.return_value, client.engine)
@@ -86,7 +86,7 @@ class TestBfabric(unittest.TestCase):
         self.assertEqual(mock_config, client.config)
         self.assertEqual(mock_auth, client.auth)
         self.assertEqual(mock_engine_zeep.return_value, client.engine)
-        mock_get_system_auth.assert_called_once_with(config_env=None)
+        mock_get_system_auth.assert_called_once_with(config_env=None, config_path=None)
 
         mock_engine_zeep.assert_called_once_with(base_url=mock_config.base_url)
         self.assertEqual(mock_engine_zeep.return_value, client.engine)
