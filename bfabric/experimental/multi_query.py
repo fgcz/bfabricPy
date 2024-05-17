@@ -16,6 +16,7 @@ class MultiQuery:
     This functionality might eventually be merged into the main Bfabric class but will probably be subject to some
     breaking changes and is not as thoroughly tested as the main classes functionality.
     """
+
     def __init__(self, client: Bfabric) -> None:
         self._client = client
 

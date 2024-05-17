@@ -237,9 +237,7 @@ listed below.
             )
 
             # sampleid=0
-            print(
-                f"p{projectid}\tA{applicationid}\t{filename}\tS{sampleid}\tWU{workunitid}\tR{resourceid}"
-            )
+            print(f"p{projectid}\tA{applicationid}\t{filename}\tS{sampleid}\tWU{workunitid}\tR{resourceid}")
         except Exception as err:
             print(f"# Failed to register to bfabric: {err}")
 

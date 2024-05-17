@@ -96,6 +96,7 @@ class ResultContainer:
         :param drop_empty: If True, empty attributes will be removed from the results
         """
         import polars
+
         return polars.DataFrame(self.to_list_dict(drop_empty=drop_empty))
 
 

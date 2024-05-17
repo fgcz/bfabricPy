@@ -12,6 +12,7 @@ class BfabricExternalJob(BfabricLegacy):
 
     TODO check if an external job id is provided
     """
+
     externaljobid = None
 
     def __init__(self, login=None, password=None, externaljobid=None):
@@ -26,19 +27,19 @@ class BfabricExternalJob(BfabricLegacy):
 
     def logger(self, msg):
         if self.externaljobid:
-            super(BfabricExternalJob, self).save_object('externaljob', {'id': self.externaljobid, 'logthis': str(msg)})
+            super(BfabricExternalJob, self).save_object("externaljob", {"id": self.externaljobid, "logthis": str(msg)})
         else:
             print((str(msg)))
 
     def save_object(self, endpoint, obj, debug=None):
         res = super(BfabricExternalJob, self).save_object(endpoint, obj, debug)
         jsonres = json.dumps(res, cls=bfabricEncoder, sort_keys=True, indent=2)
-        self.logger('saved ' + endpoint + '=' + str(jsonres))
+        self.logger("saved " + endpoint + "=" + str(jsonres))
         return res
 
     def get_workunitid_of_externaljob(self):
         print(("DEBUG get_workunitid_of_externaljob self.externaljobid={}".format(self.externaljobid)))
-        res = self.read_object(endpoint='externaljob', obj={'id': self.externaljobid})[0]
+        res = self.read_object(endpoint="externaljob", obj={"id": self.externaljobid})[0]
         print(res)
         print("DEBUG END")
         workunit_id = None
@@ -53,13 +54,12 @@ class BfabricExternalJob(BfabricLegacy):
         workunitid = self.get_workunitid_of_externaljob()
         if workunitid is None:
             raise ValueError("no workunit available for the given externaljobid.")
-        workunit = self.read_object(endpoint='workunit', obj={'id': workunitid})[0]
+        workunit = self.read_object(endpoint="workunit", obj={"id": workunitid})[0]
         if workunit is None:
             raise ValueError("ERROR: no workunit available for the given externaljobid.")
         assert isinstance(workunit._id, int)
-        application = self.read_object('application', obj={'id': workunit.application._id})[0]
-        return application.name.replace(' ', '_')
-
+        application = self.read_object("application", obj={"id": workunit.application._id})[0]
+        return application.name.replace(" ", "_")
 
     def get_executable_of_externaljobid(self):
         """
@@ -75,8 +75,8 @@ class BfabricExternalJob(BfabricLegacy):
             return None
 
         executables = list()
-        for executable in self.read_object(endpoint='executable', obj={'workunitid': workunitid}):
-            if hasattr(executable, 'base64'):
+        for executable in self.read_object(endpoint="executable", obj={"workunitid": workunitid}):
+            if hasattr(executable, "base64"):
                 executables.append(executable)
 
         return executables if len(executables) > 0 else None

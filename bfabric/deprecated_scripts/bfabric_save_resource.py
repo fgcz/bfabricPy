@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 
-'''
+"""
 author:
     Christian Panse <cp@fgcz.ethz.ch>
     20200424-1300
@@ -22,7 +22,7 @@ resourcefile=/srv/www/htdocs/p3061/Proteomics/Analysis/fragpipe/cpanse_20200424/
   && unzip -l ${resourcefile} \
   | ./bfabric_save_resource.py -p 3000 -a 273 -r ${resourcefile} --stdin
 
-'''
+"""
 
 
 import sys
@@ -37,12 +37,13 @@ assert sys.version_info >= (3, 6)
 
 BFABRICSTORAGEID = 2
 
+
 def save_resource(projectid=None, resourcefile=None, applicationid=None, read_stdin=False):
 
     bfapp = Bfabric()
     description = None
 
-    print ("DEBUG {}".format(read_stdin))
+    print("DEBUG {}".format(read_stdin))
     if read_stdin is True:
         try:
             print("reading stdin")
@@ -52,60 +53,63 @@ def save_resource(projectid=None, resourcefile=None, applicationid=None, read_st
             raise
 
     try:
-        md5 = hashlib.md5(open(resourcefile, 'rb').read()).hexdigest()
+        md5 = hashlib.md5(open(resourcefile, "rb").read()).hexdigest()
     except:
         print("computing file checksum failed.")
         raise
 
-    resource = bfapp.read_object(endpoint='resource', obj={'filechecksum': md5})
+    resource = bfapp.read_object(endpoint="resource", obj={"filechecksum": md5})
 
-    try:    
+    try:
         print("resource(s) already exist.".format(resource[0]._id))
-        resource = bfapp.save_object(endpoint='resource', obj={'id': resource[0]._id, 'description': description})
+        resource = bfapp.save_object(endpoint="resource", obj={"id": resource[0]._id, "description": description})
         print(resource[0])
         return
     except:
         pass
 
-
     try:
-        workunit = bfapp.save_object(endpoint='workunit',
-                                 obj={'name': "{}".format(os.path.basename(resourcefile)),
-                                      'projectid': projectid,
-                                      'applicationid': applicationid})
+        workunit = bfapp.save_object(
+            endpoint="workunit",
+            obj={
+                "name": "{}".format(os.path.basename(resourcefile)),
+                "projectid": projectid,
+                "applicationid": applicationid,
+            },
+        )
         print(workunit)
     except:
         raise
 
+    obj = {
+        "workunitid": workunit[0]._id,
+        "filechecksum": md5,
+        "relativepath": "{}".format(resourcefile),
+        "name": os.path.basename(resourcefile),
+        "size": os.path.getsize(resourcefile),
+        "status": "available",
+        "description": description,
+        "storageid": BFABRICSTORAGEID,
+    }
 
-    obj = {'workunitid': workunit[0]._id,
-           'filechecksum': md5,
-           'relativepath': "{}".format(resourcefile),
-           'name': os.path.basename(resourcefile),
-           'size': os.path.getsize(resourcefile),
-           'status': 'available',
-           'description': description,
-           'storageid': BFABRICSTORAGEID
-           }
-
-
-    resource = bfapp.save_object(endpoint='resource', obj=obj)[0]
+    resource = bfapp.save_object(endpoint="resource", obj=obj)[0]
     print(resource)
 
-    workunit = bfapp.save_object(endpoint='workunit',
-                                 obj={'id': workunit[0]._id, 'status': 'available'})
+    workunit = bfapp.save_object(endpoint="workunit", obj={"id": workunit[0]._id, "status": "available"})
     print(workunit)
 
 
 if __name__ == "__main__":
-    #resource_file = "/srv/www/htdocs/p3061/Proteomics/Analysis/fragpipe/cpanse_20200424/DS32024.zip"
-    #save_resource(projectid=3061, resource_file=resource_file, applicationid=274)
+    # resource_file = "/srv/www/htdocs/p3061/Proteomics/Analysis/fragpipe/cpanse_20200424/DS32024.zip"
+    # save_resource(projectid=3061, resource_file=resource_file, applicationid=274)
 
     (projectid, applicationid, resourefile) = (None, None, None)
     read_stdin = False
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:],"hp:a:r:", ["help", "projectid=", "applicationid=", "resourcefile=", "stdin"])
+        opts, args = getopt.getopt(
+            sys.argv[1:], "hp:a:r:", ["help", "projectid=", "applicationid=", "resourcefile=", "stdin"]
+        )
     except getopt.GetoptError:
         usage()
         sys.exit(2)

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 
 """
 Submitter for B-Fabric
@@ -30,22 +30,25 @@ python bfabric_executable_submitter_gridengine.py -j 45864
 """
 
 
-#import os
-#import sys
+# import os
+# import sys
 from optparse import OptionParser
 from bfabric import BfabricSubmitter
 
+
 def main():
 
-    parser = OptionParser(usage="usage: %prog -j <externaljobid>",
-                          version="%prog 1.0")
+    parser = OptionParser(usage="usage: %prog -j <externaljobid>", version="%prog 1.0")
 
-    parser.add_option("-j", "--externaljobid",
-                      type='int',
-                      action="store",
-                      dest="externaljobid",
-                      default=None,
-                      help="external job id is required.")
+    parser.add_option(
+        "-j",
+        "--externaljobid",
+        type="int",
+        action="store",
+        dest="externaljobid",
+        default=None,
+        help="external job id is required.",
+    )
 
     (options, args) = parser.parse_args()
 
@@ -57,6 +60,7 @@ def main():
     bfapp.submitter_yaml()
     # TODO(cp): fix that
     # print(bfapp.query_counter)
+
 
 if __name__ == "__main__":
     main()

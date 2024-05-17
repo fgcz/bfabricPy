@@ -12,23 +12,35 @@ class BfabricSubmitter:
     the class is used by the submitter which is executed by the bfabric system.
     """
 
-    (G, B) =  (None, None)
+    (G, B) = (None, None)
 
     workunitid = None
     workunit = None
     parameters = None
     execfilelist = []
-    slurm_dict = {"MaxQuant_textfiles_sge" : {'partition': "prx", 'nodelist': "fgcz-r-033", 'memory':"1G"},
-            "fragpipe" : {'partition': "prx", 'nodelist': "fgcz-r-033", 'memory':"256G"},
-            "MaxQuant" : {'partition': "maxquant", 'nodelist': "fgcz-r-033", 'memory':"4G"},
-            "scaffold_generic" : {'partition': "scaffold", 'nodelist': "fgcz-r-033", 'memory':"256G"},
-            "MSstats dataProcess" : {'partition': "prx", 'nodelist': "fgcz-r-033", 'memory':"64G"},
-            "MaxQuant_sampleSizeEstimation" : {'partition': "prx", 'nodelist': "fgcz-r-028", 'memory': "2G"},
-            "ProteomeDiscovererQC" : {'partition': "prx", 'nodelist': "fgcz-r-035", 'memory': "2G"}
-            }
+    slurm_dict = {
+        "MaxQuant_textfiles_sge": {"partition": "prx", "nodelist": "fgcz-r-033", "memory": "1G"},
+        "fragpipe": {"partition": "prx", "nodelist": "fgcz-r-033", "memory": "256G"},
+        "MaxQuant": {"partition": "maxquant", "nodelist": "fgcz-r-033", "memory": "4G"},
+        "scaffold_generic": {"partition": "scaffold", "nodelist": "fgcz-r-033", "memory": "256G"},
+        "MSstats dataProcess": {"partition": "prx", "nodelist": "fgcz-r-033", "memory": "64G"},
+        "MaxQuant_sampleSizeEstimation": {"partition": "prx", "nodelist": "fgcz-r-028", "memory": "2G"},
+        "ProteomeDiscovererQC": {"partition": "prx", "nodelist": "fgcz-r-035", "memory": "2G"},
+    }
 
-    def __init__(self, login=None, password=None, externaljobid=None,
-                 user='*', node="PRX@fgcz-r-018", partition="prx", nodelist="fgcz-r-028", memory="10G", SCHEDULEROOT='/export/bfabric/bfabric/', scheduler="GridEngine"):
+    def __init__(
+        self,
+        login=None,
+        password=None,
+        externaljobid=None,
+        user="*",
+        node="PRX@fgcz-r-018",
+        partition="prx",
+        nodelist="fgcz-r-028",
+        memory="10G",
+        SCHEDULEROOT="/export/bfabric/bfabric/",
+        scheduler="GridEngine",
+    ):
         """
         :rtype : object
         """
@@ -46,32 +58,33 @@ class BfabricSubmitter:
         self.workunitid = self.B.get_workunitid_of_externaljob()
 
         try:
-            self.workunit = self.B.read_object(endpoint='workunit', obj={'id': self.workunitid})[0]
+            self.workunit = self.B.read_object(endpoint="workunit", obj={"id": self.workunitid})[0]
         except:
-            print ("ERROR: could not fetch workunit while calling constructor in BfabricSubmitter.")
+            print("ERROR: could not fetch workunit while calling constructor in BfabricSubmitter.")
             raise
 
-
         try:
-            self.parameters = [self.B.read_object(endpoint='parameter', obj={'id': x._id})[0] for x in self.workunit.parameter]
+            self.parameters = [
+                self.B.read_object(endpoint="parameter", obj={"id": x._id})[0] for x in self.workunit.parameter
+            ]
         except:
             self.parameters = list()
-            print ("Warning: could not fetch parameter.")
+            print("Warning: could not fetch parameter.")
 
         partition = [x for x in self.parameters if x.key == "partition"]
         nodelist = [x for x in self.parameters if x.key == "nodelist"]
         memory = [x for x in self.parameters if x.key == "memory"]
         application_name = self.B.get_application_name()
 
-        if len(partition) > 0 and len(nodelist) > 0 and len(memory)>0:
+        if len(partition) > 0 and len(nodelist) > 0 and len(memory) > 0:
             self.partition = partition[0].value
             self.nodelist = nodelist[0].value
             self.memory = memory[0].value
         elif "queue" in [x.key for x in self.parameters] and application_name in self.slurm_dict:
             # Temporary check for old workunit previously run with SGE
-            self.partition = self.slurm_dict[application_name]['partition']
-            self.nodelist = self.slurm_dict[application_name]['nodelist']
-            self.memory = self.slurm_dict[application_name]['memory']
+            self.partition = self.slurm_dict[application_name]["partition"]
+            self.nodelist = self.slurm_dict[application_name]["nodelist"]
+            self.memory = self.slurm_dict[application_name]["memory"]
         else:
             pass
 
@@ -79,7 +92,6 @@ class BfabricSubmitter:
         print(("nodelist={0}".format(self.nodelist)))
         print(("memory={0}".format(self.memory)))
         print("__init__ DONE")
-
 
     def submit_gridengine(self, script="/tmp/runme.bash", arguments=""):
 
@@ -91,7 +103,6 @@ class BfabricSubmitter:
 
         self.B.logger("{}".format(resQsub))
 
-
     def submit_slurm(self, script="/tmp/runme.bash", arguments=""):
 
         SL = slurm.SLURM(user=self.user, SLURMROOT=self.SCHEDULEROOT)
@@ -101,7 +112,6 @@ class BfabricSubmitter:
         resSbatch = SL.sbatch(script=script, arguments=arguments)
 
         self.B.logger("{}".format(resSbatch))
-
 
     def compose_bash_script(self, configuration=None, configuration_parser=lambda x: yaml.safe_load(x)):
         """
@@ -113,14 +123,12 @@ class BfabricSubmitter:
         :rtype : str
         """
 
-
-        #assert isinstance(configuration, str)
+        # assert isinstance(configuration, str)
 
         try:
             config = configuration_parser(configuration)
         except:
             raise ValueError("error: parsing configuration content failed.")
-
 
         _cmd_template = """#!/bin/bash
 # Maria d'Errico
@@ -217,23 +225,24 @@ bfabric_setResourceStatus_available.py $RESSOURCEID_STDOUT_STDERR
 
 
 exit 0
-""".format(self.partition,
-               config['job_configuration']['stderr']['url'],
-               config['job_configuration']['stdout']['url'],
-               config['job_configuration']['external_job_id'],
-               config['job_configuration']['output']['resource_id'],
-               config['job_configuration']['stderr']['resource_id'],
-               config['job_configuration']['stdout']['resource_id'],
-               ",".join(config['application']['output']),
-               configuration,
-               config['job_configuration']['executable'],
-               config['job_configuration']['workunit_id'],
-               self.nodelist,
-               self.memory,
-               job_notification_emails=self.B.config.job_notification_emails)
+""".format(
+            self.partition,
+            config["job_configuration"]["stderr"]["url"],
+            config["job_configuration"]["stdout"]["url"],
+            config["job_configuration"]["external_job_id"],
+            config["job_configuration"]["output"]["resource_id"],
+            config["job_configuration"]["stderr"]["resource_id"],
+            config["job_configuration"]["stdout"]["resource_id"],
+            ",".join(config["application"]["output"]),
+            configuration,
+            config["job_configuration"]["executable"],
+            config["job_configuration"]["workunit_id"],
+            self.nodelist,
+            self.memory,
+            job_notification_emails=self.B.config.job_notification_emails,
+        )
 
         return _cmd_template
-
 
     def submitter_yaml(self):
         """
@@ -257,25 +266,25 @@ exit 0
             except:
                 raise ValueError("error: decoding executable.base64 failed.")
 
-
             print(content)
-            _cmd_template = self.compose_bash_script(configuration=content,
-                                                     configuration_parser=lambda x: yaml.safe_load(x))
+            _cmd_template = self.compose_bash_script(
+                configuration=content, configuration_parser=lambda x: yaml.safe_load(x)
+            )
 
-            _bash_script_filename = "/home/bfabric/prx/workunitid-{0}_externaljobid-{1}_executableid-{2}.bash"\
-                .format(self.B.get_workunitid_of_externaljob(), self.B.externaljobid, executable._id)
+            _bash_script_filename = "/home/bfabric/prx/workunitid-{0}_externaljobid-{1}_executableid-{2}.bash".format(
+                self.B.get_workunitid_of_externaljob(), self.B.externaljobid, executable._id
+            )
 
-            with open(_bash_script_filename, 'w') as f:
+            with open(_bash_script_filename, "w") as f:
                 f.write(_cmd_template)
 
-            if self.scheduler=="GridEngine" :
+            if self.scheduler == "GridEngine":
                 self.submit_gridengine(_bash_script_filename)
             else:
                 self.submit_slurm(_bash_script_filename)
             self.execfilelist.append(_bash_script_filename)
 
+        res = self.B.save_object(endpoint="externaljob", obj={"id": self.B.externaljobid, "status": "done"})
 
-        res = self.B.save_object(endpoint='externaljob',
-                                obj={'id': self.B.externaljobid, 'status': 'done'})
     def get_job_script(self):
         return self.execfilelist

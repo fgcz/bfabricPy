@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 
 """
 Submitter for B-Fabric functional test
@@ -30,21 +30,24 @@ python bfabric_executable_submitter_functionalTest.py -j 45864
 """
 
 
-#import os
-#import sys
+# import os
+# import sys
 from optparse import OptionParser
+
 
 def main():
 
-    parser = OptionParser(usage="usage: %prog -j <externaljobid>",
-                          version="%prog 1.0")
+    parser = OptionParser(usage="usage: %prog -j <externaljobid>", version="%prog 1.0")
 
-    parser.add_option("-j", "--externaljobid",
-                      type='int',
-                      action="store",
-                      dest="externaljobid",
-                      default=None,
-                      help="external job id is required.")
+    parser.add_option(
+        "-j",
+        "--externaljobid",
+        type="int",
+        action="store",
+        dest="externaljobid",
+        default=None,
+        help="external job id is required.",
+    )
 
     (options, args) = parser.parse_args()
 
@@ -52,6 +55,7 @@ def main():
         parser.error("option '-j' is required.")
 
     print("Dummy submitter xecutable defined for the bfabricPy functional test")
+
 
 if __name__ == "__main__":
     main()
