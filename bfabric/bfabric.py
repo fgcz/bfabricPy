@@ -76,6 +76,7 @@ class Bfabric:
     def from_config(
         cls,
         config_env: str | None = None,
+        config_path: str | None = None,
         auth: BfabricAuth | Literal["config"] | None = "config",
         engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS,
         verbose: bool = False,
@@ -86,12 +87,13 @@ class Bfabric:
         - The `BFABRICPY_CONFIG_ENV` environment variable
         - The `default_config` field in the config file "GENERAL" section
         :param config_env: Configuration environment to use. If not given, it is deduced as described above.
+        :param config_path: Path to the config file, in case it is different from default
         :param auth: Authentication to use. If "config" is given, the authentication will be read from the config file.
             If it is set to None, no authentication will be used.
         :param engine: Engine to use for the API. Default is SUDS.
         :param verbose: Print a system info message to standard error console
         """
-        config, auth_config = get_system_auth(config_env=config_env)
+        config, auth_config = get_system_auth(config_env=config_env, config_path=config_path)
         auth_used: BfabricAuth | None = auth_config if auth == "config" else auth
         return cls(config, auth_used, engine=engine, verbose=verbose)
 
