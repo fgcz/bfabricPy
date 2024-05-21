@@ -68,7 +68,7 @@ def list_not_available_proteomics_workunits(date_cutoff: datetime) -> None:
     for status in ["Pending", "Processing", "Failed"]:
         workunits_by_status[status] = client.read(
             endpoint="workunit",
-            obj={"status": status, "createdafter": date_cutoff},
+            obj={"status": status, "createdafter": date_cutoff.isoformat()},
         ).to_list_dict()
 
     render_output(workunits_by_status, config=client.config)
