@@ -16,6 +16,7 @@ from __future__ import annotations
 import base64
 import importlib.metadata
 import logging
+import sys
 from contextlib import contextmanager
 from datetime import datetime
 from enum import Enum
@@ -172,7 +173,7 @@ class Bfabric:
         page_offset = initial_offset
         for i_iter, i_page in enumerate(requested_pages):
             if not (i_iter == 0 and i_page == 1):
-                print("-- reading page", i_page, "of", n_available_pages)
+                print(f"-- reading page {i_page} of {n_available_pages}", file=sys.stderr)
                 results = self.engine.read(
                     endpoint=endpoint, obj=obj, auth=self.auth, page=i_page, return_id_only=return_id_only
                 )
