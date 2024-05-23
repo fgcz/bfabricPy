@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING, Iterable
 
 import bfabric.results.response_format_dict as formatter
 
@@ -29,6 +29,9 @@ class ResultContainer:
 
     def __getitem__(self, idx: int) -> dict[str, Any]:
         return self.results[idx]
+
+    def __iter__(self) -> Iterable[dict[str, Any]]:
+        return iter(self.results)
 
     def __repr__(self) -> str:
         return self.__str__()

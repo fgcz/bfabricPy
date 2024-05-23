@@ -20,6 +20,10 @@ class BfabricTestResultContainer(unittest.TestCase):
         self.assertEqual("[1, 2, 3]", repr(self.res1))
         self.assertEqual("[4, 5]", repr(self.res2))
 
+    def test_iter(self):
+        items = list(iter(self.res1))
+        self.assertListEqual([1, 2, 3], items)
+
     def test_len(self):
         self.assertEqual(3, len(self.res1))
         self.assertEqual(2, len(self.res2))
