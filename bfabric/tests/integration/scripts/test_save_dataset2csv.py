@@ -1,8 +1,9 @@
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
-import polars.testing
+
 import polars as pl
+import polars.testing
 
 from bfabric import Bfabric
 from bfabric.scripts.bfabric_save_dataset2csv import bfabric_save_dataset2csv
@@ -16,7 +17,9 @@ class TestSaveDataset2Csv(unittest.TestCase):
     def test_save_dataset2csv(self):
         with TemporaryDirectory() as temp_dir:
             out_dir = Path(temp_dir)
-            bfabric_save_dataset2csv(self.mock_client, self.dataset_id, out_dir, sep=",")
+            bfabric_save_dataset2csv(
+                self.mock_client, self.dataset_id, out_dir, out_filename=Path("dataset.csv"), sep=","
+            )
 
             expected_lines = [
                 r"Normal,Comma,Backslash,Apostrophe",

@@ -34,13 +34,15 @@ def dataset2csv(dataset: dict, output_path: Path, sep: str) -> None:
     df.write_csv(output_path, separator=sep)
 
 
-def bfabric_save_dataset2csv(client: Bfabric, dataset_id: int, out_dir: Path, sep: str) -> None:
-    """Saves the dataset with id `dataset_id` to a csv file at `out_dir`."""
+def bfabric_save_dataset2csv(client: Bfabric, dataset_id: int, out_dir: Path, out_filename: Path, sep: str) -> None:
+    """Saves the dataset with id `dataset_id` to a csv file at `out_dir/out_filename` or `out_filename` if it's an
+    absolute path.
+    """
     results = client.read(endpoint="dataset", obj={"id": dataset_id}).to_list_dict()
     if not results:
         raise RuntimeError(f"No dataset found with id '{dataset_id}'")
     dataset = results[0]
-    output_path = out_dir / "dataset.csv"
+    output_path = out_dir / out_filename
     try:
         dataset2csv(dataset, output_path=output_path, sep=sep)
     except Exception:
@@ -55,14 +57,20 @@ def main() -> None:
     parser.add_argument("--id", metavar="int", required=True, help="dataset id", type=int)
     parser.add_argument(
         "--dir",
-        required=False,
         type=Path,
         default=".",
         help="the path to the directory where to save the csv file",
     )
+    parser.add_argument(
+        "--file",
+        default="dataset.csv",
+        help="the name of the csv file to save the dataset content",
+    )
     parser.add_argument("--sep", default=",", help="the separator to use in the csv file e.g. ',' or '\\t'")
     args = parser.parse_args()
-    bfabric_save_dataset2csv(client=client, out_dir=args.dir, dataset_id=args.id, sep=args.sep)
+    bfabric_save_dataset2csv(
+        client=client, out_dir=args.dir, out_filename=args.file, dataset_id=args.id, sep=args.sep
+    )
 
 
 if __name__ == "__main__":
