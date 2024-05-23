@@ -8,7 +8,7 @@ include = ["bfabric*"]
 [project]
 name = "bfabric"
 description = "Python client for the B-Fabric WSDL API"
-version = "0.13.9"
+version = "1.13.0"
 license = { text = "GPL-3.0" }
 authors = [
     {name = "Christian Panse", email = "cp@fgcz.ethz.ch"},

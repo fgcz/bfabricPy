@@ -343,11 +343,11 @@ cd /Applications/Python 3.12 && ./Install\ Certificates.command
 ### How is the version numbering working?
 X.Y.Z
 
-X is not used
+X is used for major changes, that contain breaking changes
 
-Y should be the bfabric release
+Y should be the current bfabric release
 
-Z increment for significant changes
+Z is increased for feature releases, that should not break the API
 
 ### Howto cite?
 
