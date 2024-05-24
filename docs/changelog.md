@@ -22,6 +22,9 @@ This is a major release refactoring bfabricPy's API.
 ### Added
 - Zeep can be used instead of suds for SOAP communication.
 - `Bfabric` can be instantiated without authentication, that can be provided later. This is useful in a server setup.
+- Pagination support in `Bfabric`, specify the number of max_results and a potential offset. Pages handling is abstracted away.
+- Detect errors in responses, e.g. invalid login.
 
 ### Removed
 - Several old scripts have been moved into a `deprecated_scripts` folder.
+- Wrapper creator related code is currently not updated but has been extracted into a dedicated folder `wrapper_creator` as well.
