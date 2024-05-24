@@ -7,6 +7,10 @@ Versioning currently follows `X.Y.Z` where
 - `Y` should be the current bfabric release
 - `Z` is increased for feature releases, that should not break the API
 
+## Not released
+### Changed
+- bfabric_save_csv2dataset will raise an error if problematic characters are found in any of the cells
+
 ## [1.13.0] - 2024-05-24
 This is a major release refactoring bfabricPy's API.
 

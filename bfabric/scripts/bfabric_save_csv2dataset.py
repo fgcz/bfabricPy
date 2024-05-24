@@ -72,9 +72,11 @@ def bfabric_save_csv2dataset(
     workunit_id: int | None,
     sep: str,
     has_header: bool,
+    invalid_characters: str,
 ) -> None:
     """Creates a dataset in B-Fabric from a csv file."""
     data = pl.read_csv(csv_file, separator=sep, has_header=has_header)
+    check_for_invalid_characters(data=data, invalid_characters=invalid_characters)
     obj = polars_to_bfabric_dataset(data)
     obj["name"] = dataset_name
     obj["containerid"] = container_id
@@ -83,6 +85,23 @@ def bfabric_save_csv2dataset(
     endpoint = "dataset"
     res = client.save(endpoint=endpoint, obj=obj)
     print(res.to_list_dict()[0])
+
+
+def check_for_invalid_characters(data: pl.DataFrame, invalid_characters: str) -> None:
+    """Raises a RuntimeError if any cell in the DataFrame contains an invalid character."""
+    if not invalid_characters:
+        return
+    invalid_columns_df = data.select(pl.col(pl.String).str.contains_any(list(invalid_characters)).any())
+    invalid_columns = (
+        invalid_columns_df.transpose(include_header=True, header_name="column")
+        .filter(pl.col("column_0"))
+        .select("column")
+        .to_numpy()
+    )
+    if len(invalid_columns) > 0:
+        raise RuntimeError(
+            f"Invalid characters found in columns: {invalid_columns[0]}"
+        )
 
 
 def main() -> None:
@@ -97,6 +116,12 @@ def main() -> None:
     parser.add_argument("--workunitid", type=int, required=False, help="workunit id")
     parser.add_argument("--sep", type=str, default=",", help="the separator to use in the csv file e.g. ',' or '\\t'")
     parser.add_argument("--no-header", action="store_false", dest="has_header", help="the csv file has no header")
+    parser.add_argument(
+        "--invalid-characters",
+        type=str,
+        default=",\t",
+        help="characters which are not permitted in a cell (set to empty string to deactivate)",
+    )
     args = parser.parse_args()
     bfabric_save_csv2dataset(
         client=client,
@@ -106,6 +131,7 @@ def main() -> None:
         workunit_id=args.workunitid,
         sep=args.sep,
         has_header=args.has_header,
+        invalid_characters=args.invalid_characters,
     )
 
 
