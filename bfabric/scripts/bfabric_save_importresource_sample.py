@@ -1,6 +1,5 @@
-#!/usr/bin/python3
-# -*- coding: latin1 -*-
-
+#!/usr/bin/env python3
+# TODO add integration test (with and without sample id)
 """General Importresource Feeder for bfabric
 
 Author:
@@ -14,38 +13,23 @@ Usage:
 History:
     The first version of the script appeared on Wed Oct 24 17:02:04 CEST 2012. 
 """
+from __future__ import annotations
 
-
-
+import logging
+import logging.handlers
 import os
 import re
-import time
 import sys
+import time
+import json
+
 from bfabric import Bfabric
 
- 
-import logging, logging.handlers
-
-logger = logging.getLogger('sync_feeder')
-hdlr_syslog = logging.handlers.SysLogHandler(address=("130.60.81.21", 514))
-formatter = logging.Formatter('%(name)s %(message)s', datefmt="%Y-%m-%d %H:%M:%S")
-hdlr_syslog.setFormatter(formatter)
-logger.addHandler(hdlr_syslog)
-logger.setLevel(logging.INFO)
+BFABRIC_STORAGE_ID = 2
 
 
-################################################################################
-bfabric_storageid = 2
-bfapp = Bfabric()
-
-# maps the 'real world' to the BFabric application._id
-if bfapp.config.application_ids is None:
-    raise RuntimeError("No bfapp.config.application_ids variable configured. check '~/.bfabricrc.py' file!")
-print(bfapp.config.application_ids)
-bfabric_application_ids = bfapp.config.application_ids
-
-def save_importresource(line):
-    """ reads, splits and submit the input line to the bfabric system
+def save_importresource(client: Bfabric, line: str) -> None:
+    """reads, splits and submit the input line to the bfabric system
     Input: a line containg
     md5sum;date;size;path
 
@@ -57,70 +41,98 @@ def save_importresource(line):
     Output:
         True on success otherwise an exception raise
     """
+    md5_checksum, file_date, file_size, file_path = line.split(";")
 
-    _bfabric_applicationid = -1
-    _bfabric_projectid = -1,
-    _file_size = -1
-    _file_date = -1
+    # Format the timestamp for bfabric
+    file_date = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(int(file_date)))
 
-    # empty string / file
-    _md5 = "d41d8cd98f00b204e9800998ecf8427e"
+    bfabric_application_ids = client.config.application_ids
+    if not bfabric_application_ids:
+        raise RuntimeError("No bfabric_application_ids configured. check '~/.bfabricpy.yml' file!")
 
-    _sampleid = None
+    bfabric_application_id, bfabric_projectid = get_bfabric_application_and_project_id(
+        bfabric_application_ids, file_path
+    )
 
-    try:
-        (_md5,  _file_date, _file_size, _file_path) = line.split(";")
-    except:
-        raise
+    obj = {
+        "applicationid": bfabric_application_id,
+        "filechecksum": md5_checksum,
+        "containerid": bfabric_projectid,
+        "filedate": file_date,
+        "relativepath": file_path,
+        "name": os.path.basename(file_path),
+        "size": file_size,
+        "storageid": BFABRIC_STORAGE_ID,
+    }
+
+    match = re.search(
+        r"p([0-9]+)\/(Proteomics\/[A-Z]+_[1-9])\/.*_\d\d\d_S([0-9][0-9][0-9][0-9][0-9][0-9]+)_.*(raw|zip)$",
+        file_path,
+    )
+    if match:
+        print(f"found sampleid={match.group(3)} pattern")
+        obj["sampleid"] = int(match.group(3))
+
+    print(obj)
+    res = client.save(endpoint="importresource", obj=obj)
+    print(json.dumps(res, indent=2))
 
 
+def get_sample_id_from_path(file_path: str) -> int | None:
+    """Returns the sample id for a given file path, if it's present in the correct format."""
+    match = re.search(
+        r"p([0-9]+)\/(Proteomics\/[A-Z]+_[1-9])\/.*_\d\d\d_S([0-9][0-9][0-9][0-9][0-9][0-9]+)_.*(raw|zip)$",
+        file_path,
+    )
+    if match:
+        print(f"found sampleid={match.group(3)} pattern")
+        return int(match.group(3))
+    else:
+        return None
 
-    # the timeformat bfabric understands
-    #_file_date = time.strftime("%FT%H:%M:%S-01:00",time.gmtime(int(_file_date)))
-    _file_date = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(int(_file_date)))
 
+def get_bfabric_application_and_project_id(bfabric_application_ids: dict[str, int], file_path: str) -> tuple[int, int]:
+    """Returns the bfabric application id and project id for a given file path."""
     # linear search through dictionary. first hit counts!
-    for i in bfabric_application_ids.keys():
+    bfabric_applicationid = -1
+    bfabric_projectid = (-1,)
+    for i in bfabric_application_ids:
         # first match counts!
-        if re.search(i, _file_path):
-            _bfabric_applicationid = bfabric_application_ids[i]
-            re_result = re.search(r"^p([0-9]+)\/.+", _file_path)
-            _bfabric_projectid = re_result.group(1)
+        if re.search(i, file_path):
+            bfabric_applicationid = bfabric_application_ids[i]
+            re_result = re.search(r"^p([0-9]+)\/.+", file_path)
+            bfabric_projectid = re_result.group(1)
             break
-
-    if _bfabric_applicationid < 0:
-        logger.error("{0}; no bfabric application id.".format(_file_path))
-        return 
-
-    obj = { 'applicationid':_bfabric_applicationid,
-            'filechecksum':_md5,
-            'containerid':_bfabric_projectid,
-            'filedate':_file_date,
-            'relativepath':_file_path,
-            'name': os.path.basename(_file_path),
-            'size':_file_size,
-            'storageid': bfabric_storageid
-            }
-
-    try:
-        m = re.search(r"p([0-9]+)\/(Proteomics\/[A-Z]+_[1-9])\/.*_\d\d\d_S([0-9][0-9][0-9][0-9][0-9][0-9]+)_.*(raw|zip)$", _file_path)
-        print ("found sampleid={} pattern".format(m.group(3)))
-        obj['sampleid'] = int(m.group(3))
-    except:
-        pass
+    if bfabric_applicationid < 0:
+        logger = logging.getLogger("sync_feeder")
+        logger.error(f"{file_path}; no bfabric application id.")
+        raise RuntimeError("no bfabric application id.")
+    return bfabric_applicationid, bfabric_projectid
 
 
-    print (obj)
-    res = bfapp.save_object(endpoint='importresource', obj=obj)
-    print (res[0])
+def setup_logger() -> None:
+    """Sets up a logger for the script."""
+    logger = logging.getLogger("sync_feeder")
+    hdlr_syslog = logging.handlers.SysLogHandler(address=("130.60.81.21", 514))
+    formatter = logging.Formatter("%(name)s %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+    hdlr_syslog.setFormatter(formatter)
+    logger.addHandler(hdlr_syslog)
+    logger.setLevel(logging.INFO)
 
-if __name__ == "__main__":
-    if sys.argv[1] == '-':
-        print ("reading from stdin ...")
+
+def main() -> None:
+    """Parses arguments and calls `save_importresource`."""
+    setup_logger()
+    client = Bfabric.from_config(verbose=True)
+    if sys.argv[1] == "-":
+        print("reading from stdin ...")
         for input_line in sys.stdin:
-            save_importresource(input_line.rstrip())
-    elif sys.argv[1] == '-h':
+            save_importresource(client, input_line.rstrip())
+    elif sys.argv[1] == "-h":
         print(__doc__)
     else:
-        save_importresource(sys.argv[1])
+        save_importresource(client, sys.argv[1])
 
+
+if __name__ == "__main__":
+    main()

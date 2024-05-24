@@ -1,5 +1,6 @@
 .idea/
+__pycache__
 bfabric.egg-info/
-bfabric/__pycache__/
 bfabric/scripts/query_result.txt
+build/
 dist/

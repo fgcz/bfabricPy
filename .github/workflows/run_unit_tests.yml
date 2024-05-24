@@ -1,4 +1,4 @@
-name: unit tests
+name: PR Checks
 
 on:
   push:
@@ -8,15 +8,45 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  unit_tests:
+    name: Unit Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-bfabricpy
         with:
           python-version: 3.9
-      - name: Install bfabricPy
-        run: python -m pip install .
       - name: Run unit tests
-        run: python -m unittest discover -s bfabric/tests/unit -p 'test_*.py'
+        # Note: we use cd to double-check that the installation actually worked
+        run: cd bfabric/tests && python -m unittest discover -s ./unit -p 'test_*.py'
+  code_style:
+    name: Code Style
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-bfabricpy
+        with:
+          python-version: 3.9
+      - name: Check code with ruff
+        run:
+          ruff bfabric || true
+  list_todos:
+    name: List TODOs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get install -y ripgrep
+        name: Install ripgrep
+      - run:
+          rg -n TODO bfabric
+        name: List TODOs
+  license_check:
+    name: License Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-bfabricpy
+        with:
+          python-version: 3.9
+      - name: Check licenses
+        run: licensecheck

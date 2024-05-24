@@ -1,0 +1,85 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["bfabric*"]
+
+[project]
+name = "bfabric"
+description = "Python client for the B-Fabric WSDL API"
+version = "1.13.0"
+license = { text = "GPL-3.0" }
+authors = [
+    {name = "Christian Panse", email = "cp@fgcz.ethz.ch"},
+    {name = "Leonardo Schwarz", email = "leonardo.schwarz@fgcz.ethz.ch"},
+    {name = "Aleksejs Fomins"},
+    {name = "Marco Schmidt"},
+    {name = "Maria d'Errico"},
+    {name = "Witold Eryk Wolski"}
+]
+requires-python = ">=3.9"
+dependencies = [
+    "suds >= 1.1.2",
+    "PyYAML >= 6.0",
+    "Flask >= 3.0.3",
+    "rich >= 13.7.1",
+    "zeep >= 4.2.1",
+    "pandas >= 2.2.2",
+    "polars-lts-cpu >= 0.20.25",
+    "setuptools"
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "isort",
+    "ruff",
+    "licensecheck"
+]
+
+[project.urls]
+Homepage = "https://github.com/fgcz/bfabricPy"
+Repository = "https://github.com/fgcz/bfabricPy"
+
+[project.scripts]
+"bfabric_flask.py"="bfabric.scripts.bfabric_flask:main"
+#bfabric_feeder_resource_autoQC="bfabric.scripts.bfabric_feeder_resource_autoQC:main"
+"bfabric_list_not_existing_storage_directories.py"="bfabric.scripts.bfabric_list_not_existing_storage_directories:main"
+"bfabric_list_not_available_proteomics_workunits.py"="bfabric.scripts.bfabric_list_not_available_proteomics_workunits:main"
+"bfabric_list_workunit_parameters.py"="bfabric.scripts.bfabric_list_workunit_parameters:main"
+"bfabric_upload_resource.py"="bfabric.scripts.bfabric_upload_resource:main"
+"bfabric_logthis.py"="bfabric.scripts.bfabric_logthis:main"
+"bfabric_setResourceStatus_available.py"="bfabric.scripts.bfabric_setResourceStatus_available:main"
+"bfabric_setExternalJobStatus_done.py"="bfabric.scripts.bfabric_setExternalJobStatus_done:main"
+"bfabric_setWorkunitStatus_available.py"="bfabric.scripts.bfabric_setWorkunitStatus_generic:main_available"
+"bfabric_setWorkunitStatus_processing.py"="bfabric.scripts.bfabric_setWorkunitStatus_processing:main_processing"
+"bfabric_setWorkunitStatus_failed.py"="bfabric.scripts.bfabric_setWorkunitStatus_failed:main_failed"
+"bfabric_delete.py"="bfabric.scripts.bfabric_delete:main"
+"bfabric_read.py"="bfabric.scripts.bfabric_read:main"
+"bfabric_read_samples_of_workunit.py"="bfabric.scripts.bfabric_read_samples_of_workunit:main"
+"bfabric_read_samples_from_dataset.py"="bfabric.scripts.bfabric_read_samples_from_dataset:main"
+"bfabric_save_csv2dataset.py"="bfabric.scripts.bfabric_save_csv2dataset:main"
+"bfabric_save_dataset2csv.py"="bfabric.scripts.bfabric_save_dataset2csv:main"
+"bfabric_save_fasta.py"="bfabric.scripts.bfabric_save_fasta:main"
+"bfabric_save_importresource_sample.py"="bfabric.scripts.bfabric_save_importresource_sample:main"
+"bfabric_save_link_to_workunit.py"="bfabric.scripts.bfabric_save_link_to_workunit:main"
+#bfabric_save_resource="bfabric.scripts.bfabric_save_resource:main"
+"bfabric_save_workunit_attribute.py"="bfabric.scripts.bfabric_save_workunit_attribute:main"
+"bfabric_save_workflowstep.py"="bfabric.scripts.bfabric_save_workflowstep:main"
+
+[tool.black]
+line-length = 120
+target-version = ["py39"]
+
+[tool.ruff]
+line-length = 120
+indent-width = 4
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["ANN", "BLE", "D103", "E", "F", "PLW", "PTH", "SIM", "UP", "TCH"]
+ignore = ["ANN101", "ANN102"]
+
+[tool.licensecheck]
+using = "PEP631"
