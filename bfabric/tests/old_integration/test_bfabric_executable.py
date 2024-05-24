@@ -46,7 +46,7 @@ class BfabricTestCase(unittest.TestCase):
         wu_res = self.B.save_object(
             endpoint="workunit",
             obj={
-                "name": "unit test - #{}.".format(1234),
+                "name": f"unit test - #{1234}.",
                 "containerid": 3000,
                 "description": "unit test",
                 "applicationid": 61,

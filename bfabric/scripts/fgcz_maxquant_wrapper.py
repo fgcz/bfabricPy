@@ -41,7 +41,7 @@ class FgczMaxQuantConfig:
     def __init__(self, config=None, scratch="/scratch/MAXQUANT/") -> None:
         if config:
             self.config = config
-            self.scratchdir = Path("{}/WU{}".format(scratch, self.config["job_configuration"]["workunit_id"]))
+            self.scratchdir = Path(f"{scratch}/WU{self.config['job_configuration']['workunit_id']}")
 
             if not os.path.isdir(self.scratchdir):
                 print(f"no scratch dir '{self.scratchdir}'.")
@@ -97,7 +97,7 @@ class FgczMaxQuantConfig:
                     raise TypeError
 
                 estring = etree.Element("string")
-                estring.text = "{}".format(os.path.basename(input).replace(".raw", "").replace(".RAW", ""))
+                estring.text = f"{os.path.basename(input).replace('.raw', '').replace('.RAW', '')}"
                 ecount += 1
                 element.extend(estring)
 

@@ -27,7 +27,7 @@ class BfabricTestCase(unittest.TestCase):
             res = self.bfapp.save_object(
                 endpoint="sample",
                 obj={
-                    "name": "unit test - #{} - {}".format(name, sample_type),
+                    "name": f"unit test - #{name} - {sample_type}",
                     "containerid": 3000,
                     "type": sample_type,
                     "species": species,

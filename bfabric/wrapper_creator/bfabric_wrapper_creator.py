@@ -63,7 +63,7 @@ ssh $SSHARGS $INPUTHOST "cat $INPUTPATH/$INPUTFILE" \\
 
 exit 0
 """.format(
-            "\n".join(sorted(['%s="%s"' % (key, info) for key, info in para.iteritems()])),
+            "\n".join(sorted([f'{key}="{info}"' for key, info in para.iteritems()])),
             para["STDERR"],
             para["STDOUT"],
         )
@@ -158,9 +158,9 @@ exit 0
                 if parameter:
                     for p in parameter:
                         try:
-                            application_parameter["{}".format(p.key)] = "{}".format(p.value)
+                            application_parameter[f"{p.key}"] = f"{p.value}"
                         except:
-                            application_parameter["{}".format(p.key)] = ""
+                            application_parameter[f"{p.key}"] = ""
 
         try:
             input_resources = [x._id for x in workunit.inputresource]
@@ -179,7 +179,7 @@ exit 0
                     0
                 ].application._id
 
-                _application_name = "{0}".format(self.read_object("application", obj={"id": _appication_id})[0].name)
+                _application_name = f"{self.read_object('application', obj={'id': _appication_id})[0].name}"
 
                 _storage = self.read_object("storage", {"id": resource_iterator.storage._id})[0]
 
@@ -217,7 +217,7 @@ exit 0
         _ressource_output = self.save_object(
             "resource",
             {
-                "name": "{0} {1} - resource".format(application.name, len(input_resources)),
+                "name": f"{application.name} {len(input_resources)} - resource",
                 "workunitid": workunit._id,
                 "storageid": int(application.storage._id),
                 "relativepath": _output_relative_path,
@@ -225,13 +225,13 @@ exit 0
         )[0]
 
         print(_ressource_output)
-        _output_filename = "{0}.{1}".format(_ressource_output._id, application.outputfileformat)
+        _output_filename = f"{_ressource_output._id}.{application.outputfileformat}"
         # we want to include the resource._id into the filename
         _ressource_output = self.save_object(
             "resource",
             {
                 "id": int(_ressource_output._id),
-                "relativepath": "{0}/{1}".format(_output_relative_path, _output_filename),
+                "relativepath": f"{_output_relative_path}/{_output_filename}",
             },
         )[0]
 
@@ -242,7 +242,7 @@ exit 0
                 "name": "slurm_stderr",
                 "workunitid": int(workunit._id),
                 "storageid": _log_storage._id,
-                "relativepath": "/workunitid-{0}_resourceid-{1}.err".format(workunit._id, _ressource_output._id),
+                "relativepath": f"/workunitid-{workunit._id}_resourceid-{_ressource_output._id}.err",
             },
         )[0]
 
@@ -252,7 +252,7 @@ exit 0
                 "name": "slurm_stdout",
                 "workunitid": workunit._id,
                 "storageid": _log_storage._id,
-                "relativepath": "/workunitid-{0}_resourceid-{1}.out".format(workunit._id, _ressource_output._id),
+                "relativepath": f"/workunitid-{workunit._id}_resourceid-{_ressource_output._id}.out",
             },
         )[0]
 
@@ -285,7 +285,7 @@ exit 0
         print(yaml_workunit_externaljob)
         assert isinstance(yaml_workunit_externaljob._id, int)
         self.externaljobid_yaml_workunit = int(yaml_workunit_externaljob._id)
-        print(("XXXXXXX self.externaljobid_yaml_workunit ={} XXXXXXX".format(self.externaljobid_yaml_workunit)))
+        print(f"XXXXXXX self.externaljobid_yaml_workunit ={self.externaljobid_yaml_workunit} XXXXXXX")
 
         _output_url = "bfabric@{0}:{1}{2}/{3}".format(
             _output_storage.host, _output_storage.basepath, _output_relative_path, _output_filename
@@ -302,7 +302,7 @@ exit 0
         # Compose configuration structure
         config = {
             "job_configuration": {
-                "executable": "{}".format(workunit_executable.program),
+                "executable": f"{workunit_executable.program}",
                 "inputdataset": inputdataset,
                 "input": resource_ids,
                 "output": {
@@ -350,7 +350,7 @@ exit 0
             {
                 "id": yaml_workunit_executable._id,
                 "base64": base64.b64encode(config_serialized.encode()).decode(),
-                "version": "{}".format(10),
+                "version": f"{10}",
             },
         )[0]
         print(yaml_workunit_executable)
@@ -362,4 +362,4 @@ exit 0
             endpoint="externaljob", obj={"id": self.externaljobid, "status": "done"}
         )
 
-        print(("\n\nquery_counter={0}".format(self.query_counter)))
+        print(f"\n\nquery_counter={self.query_counter}")

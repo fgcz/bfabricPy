@@ -23,7 +23,7 @@ class BfabricExternalJob(BfabricLegacy):
         else:
             self.externaljobid = externaljobid
 
-        print(("BfabricExternalJob externaljobid={}".format(self.externaljobid)))
+        print(f"BfabricExternalJob externaljobid={self.externaljobid}")
 
     def logger(self, msg):
         if self.externaljobid:
@@ -38,14 +38,14 @@ class BfabricExternalJob(BfabricLegacy):
         return res
 
     def get_workunitid_of_externaljob(self):
-        print(("DEBUG get_workunitid_of_externaljob self.externaljobid={}".format(self.externaljobid)))
+        print(f"DEBUG get_workunitid_of_externaljob self.externaljobid={self.externaljobid}")
         res = self.read_object(endpoint="externaljob", obj={"id": self.externaljobid})[0]
         print(res)
         print("DEBUG END")
         workunit_id = None
         try:
             workunit_id = res.cliententityid
-            print(("workunitid={}".format(workunit_id)))
+            print(f"workunitid={workunit_id}")
         except:
             pass
         return workunit_id

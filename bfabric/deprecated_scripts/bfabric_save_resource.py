@@ -43,7 +43,7 @@ def save_resource(projectid=None, resourcefile=None, applicationid=None, read_st
     bfapp = Bfabric()
     description = None
 
-    print("DEBUG {}".format(read_stdin))
+    print(f"DEBUG {read_stdin}")
     if read_stdin is True:
         try:
             print("reading stdin")
@@ -72,7 +72,7 @@ def save_resource(projectid=None, resourcefile=None, applicationid=None, read_st
         workunit = bfapp.save_object(
             endpoint="workunit",
             obj={
-                "name": "{}".format(os.path.basename(resourcefile)),
+                "name": f"{os.path.basename(resourcefile)}",
                 "projectid": projectid,
                 "applicationid": applicationid,
             },
@@ -84,7 +84,7 @@ def save_resource(projectid=None, resourcefile=None, applicationid=None, read_st
     obj = {
         "workunitid": workunit[0]._id,
         "filechecksum": md5,
-        "relativepath": "{}".format(resourcefile),
+        "relativepath": f"{resourcefile}",
         "name": os.path.basename(resourcefile),
         "size": os.path.getsize(resourcefile),
         "status": "available",
@@ -129,7 +129,7 @@ if __name__ == "__main__":
             try:
                 os.path.isfile(resourcefile)
             except:
-                print("can not access file '{}'".format(resourcefile))
+                print(f"can not access file '{resourcefile}'")
                 raise
         else:
             usage()
@@ -137,7 +137,7 @@ if __name__ == "__main__":
 
     if projectid is None or resourcefile is None or applicationid is None:
         msg = "at least one of the arguments is None."
-        sys.stderr.write("\033[93m{}\033[0m\n".format(msg))
+        sys.stderr.write(f"\x1b[93m{msg}\x1b[0m\n")
         sys.stdout.write(__doc__)
         sys.exit(1)
     save_resource(projectid, resourcefile, applicationid, read_stdin)

@@ -50,7 +50,7 @@ class SampleGraph:
 
     def get_sampleID(self, relativepath):
         res = self.B.read_object(endpoint="resource", obj={"relativepath": relativepath})[0]
-        print("\t{} -> {}".format(res.sample._id, res._id))
+        print(f"\t{res.sample._id} -> {res._id}")
         return res.sample._id
 
     def traverse(self, childSampleId):
@@ -64,9 +64,8 @@ class SampleGraph:
         if "multiplexid" in childSample:
             # in this special case we reached last level keeping the tag
             print(
-                """\t{} [shape=box label="{}\\n{}"];""".format(
-                    childSample._id, childSample._id, childSample.multiplexid
-                )
+                f"""\t{childSample._id} [shape=box label="{childSample._id}\
+{childSample.multiplexid}"];"""
             )
             try:
                 self.annotation[childSample.multiplexid] = childSample.parent[0]._id
@@ -80,7 +79,7 @@ class SampleGraph:
         if "parent" in childSample:
             self.links[childSampleId] = [x._id for x in childSample.parent]
             for parent in childSample.parent:
-                print("\t{} -> {}".format(parent._id, childSampleId))
+                print(f"\t{parent._id} -> {childSampleId}")
                 if not parent._id in self.VISITED:
                     self.VISITED.append(parent._id)
                     self.L.append(parent._id)
@@ -98,9 +97,9 @@ class SampleGraph:
         for i in ds.item:
             for x in i.field:
                 if hasattr(x, "value") and x.attributeposition == attributeposition:
-                    print("# relativepath = {}".format(x.value))
+                    print(f"# relativepath = {x.value}")
                     sampleID = self.get_sampleID(x.value)
-                    print("# inputSampleId = {}".format(sampleID))
+                    print(f"# inputSampleId = {sampleID}")
                     self.annotation = self.annotation_template
                     self.traverse(sampleID)
                     experiment = self.links[sampleID]
@@ -117,7 +116,7 @@ class SampleGraph:
     def write_annotation(self, experiment):
         dirname = str(experiment)
         if not os.path.isdir(dirname):
-            print("# creating directory {}".format(dirname))
+            print(f"# creating directory {dirname}")
             os.makedirs(dirname)
             with open("./" + dirname + "/annotation.txt", "w") as f:
                 w = csv.writer(f, delimiter="\t")

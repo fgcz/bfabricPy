@@ -28,13 +28,13 @@ def annotate(sampleid=None, name=None, value=None):
         customattribute = res[0].customattribute
         for a in customattribute:
             if a.name.lower() == name.lower():
-                print("{} already defined".format(a.name))
+                print(f"{a.name} already defined")
                 return
     except:
         # there are no customattributes defined yet
         customattribute = []
 
-    customattribute.append({"name": "{}".format(name), "value": "{}".format(value)})
+    customattribute.append({"name": f"{name}", "value": f"{value}"})
     res = bf.save_object(endpoint="sample", obj={"id": sampleid, "customattribute": customattribute})
 
     print(res[0])
@@ -51,9 +51,9 @@ def process(filename="/Users/cp/Desktop/annotation.csv", tryrun=True):
                 # print("{}\t{}".format(count, row))
                 x = re.search(".*_[sS]([0-9]+)_.+", row[0])
                 if x is not None:
-                    print("sampleID={sample}".format(sample=x.group(1)))
+                    print(f"sampleID={x.group(1)}")
                     for idx in range(1, len(row)):
-                        print("\t{}={}".format(colnames[idx], row[idx]))
+                        print(f"\t{colnames[idx]}={row[idx]}")
                         if tryrun is False:
                             annotate(sampleid=x.group(1), name=colnames[idx], value=row[idx])
             count = count + 1

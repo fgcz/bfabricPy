@@ -25,15 +25,15 @@ class BfabricFeeder(BfabricLegacy):
 
         storage = self.read_object("storage", {"id": res.storage._id})[0]
 
-        filename = "{0}/{1}".format(storage.basepath, res.relativepath)
+        filename = f"{storage.basepath}/{res.relativepath}"
 
         if os.path.isfile(filename):
             try:
                 fmd5 = hashlib.md5(open(filename, "rb").read()).hexdigest()
-                print("md5sum ({}) = {}".format(filename, fmd5))
+                print(f"md5sum ({filename}) = {fmd5}")
 
                 fsize = int(os.path.getsize(filename)) + 1
-                print("size ({}) = {}".format(filename, fsize))
+                print(f"size ({filename}) = {fsize}")
 
                 return self.save_object(
                     "resource", {"id": resourceid, "size": fsize, "status": "available", "filechecksum": fmd5}

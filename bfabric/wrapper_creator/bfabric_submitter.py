@@ -88,9 +88,9 @@ class BfabricSubmitter:
         else:
             pass
 
-        print(("partition={0}".format(self.partition)))
-        print(("nodelist={0}".format(self.nodelist)))
-        print(("memory={0}".format(self.memory)))
+        print(f"partition={self.partition}")
+        print(f"nodelist={self.nodelist}")
+        print(f"memory={self.memory}")
         print("__init__ DONE")
 
     def submit_gridengine(self, script="/tmp/runme.bash", arguments=""):
@@ -101,7 +101,7 @@ class BfabricSubmitter:
         print((type(script)))
         resQsub = GE.qsub(script=script, arguments=arguments)
 
-        self.B.logger("{}".format(resQsub))
+        self.B.logger(f"{resQsub}")
 
     def submit_slurm(self, script="/tmp/runme.bash", arguments=""):
 
@@ -111,7 +111,7 @@ class BfabricSubmitter:
         print((type(script)))
         resSbatch = SL.sbatch(script=script, arguments=arguments)
 
-        self.B.logger("{}".format(resSbatch))
+        self.B.logger(f"{resSbatch}")
 
     def compose_bash_script(self, configuration=None, configuration_parser=lambda x: yaml.safe_load(x)):
         """
@@ -259,7 +259,7 @@ exit 0
 
         # foreach (executable in external job):
         for executable in self.B.get_executable_of_externaljobid():
-            self.B.logger("executable = {0}".format(executable))
+            self.B.logger(f"executable = {executable}")
 
             try:
                 content = base64.b64decode(executable.base64.encode()).decode()

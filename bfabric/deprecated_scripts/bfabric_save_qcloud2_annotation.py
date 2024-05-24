@@ -23,12 +23,12 @@ if __name__ == "__main__":
 
     for i in range(len(d)):
         try:
-            problems = " | ".join(["{} ({})".format(j["name"], j["qccv"]) for j in d[i]["problems"]])
+            problems = " | ".join([f"{j['name']} ({j['qccv']})" for j in d[i]["problems"]])
         except:
             problems = "-"
 
         try:
-            actions = " | ".join(["{} ({})".format(j["name"], j["qccv"]) for j in d[i]["actions"]])
+            actions = " | ".join([f"{j['name']} ({j['qccv']})" for j in d[i]["actions"]])
         except:
             actions = "-"
 

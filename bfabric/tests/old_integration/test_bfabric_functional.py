@@ -57,13 +57,13 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         try:
             if executable[0].errorreport:
                 logging.error("Error while creating the executable")
-                logging.info("Errorreport present: {}".format(executable[0].errorreport))
+                logging.info(f"Errorreport present: {executable[0].errorreport}")
                 raise
         except:
             logging.info("Executable successfully created")
         try:
             executableid = int(executable[0]._id)
-            logging.info("executableid = {}".format(executableid))
+            logging.info(f"executableid = {executableid}")
         except:
             logging.error("Error while getting the executable id")
 
@@ -94,13 +94,13 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         try:
             if application[0].errorreport:
                 logging.error("Error while creating the application")
-                logging.info("Errorreport present: {}".format(application[0].errorreport))
+                logging.info(f"Errorreport present: {application[0].errorreport}")
                 raise
         except:
             logging.info("Application successfully created")
         try:
             applicationid = int(application[0]._id)
-            logging.info("applicationid = {}".format(applicationid))
+            logging.info(f"applicationid = {applicationid}")
         except:
             logging.error("Error while getting the application id")
             raise
@@ -125,13 +125,13 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         try:
             if workunit[0].errorreport:
                 logging.error("Error while creating workunit")
-                logging.info("Errorreport present: {}".format(workunit[0].errorreport))
+                logging.info(f"Errorreport present: {workunit[0].errorreport}")
                 raise
         except:
             logging.info("Workunit successfully created")
         try:
             workunitid = int(workunit[0]._id)
-            logging.info("workunit = {}".format(workunitid))
+            logging.info(f"workunit = {workunitid}")
         except:
             logging.error("Error while getting the workunit id")
             raise
@@ -151,13 +151,13 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         try:
             if externaljob_wc[0].errorreport:
                 logging.error("Error while creating externaljob_wc")
-                logging.info("Errorreport present: {}".format(externaljob_wc[0].errorreport))
+                logging.info(f"Errorreport present: {externaljob_wc[0].errorreport}")
                 raise
         except:
             logging.info("Externaljob_wc successfully created")
         try:
             externaljobid_wc = int(externaljob_wc[0]._id)
-            logging.info("externaljob = {}".format(externaljobid_wc))
+            logging.info(f"externaljob = {externaljobid_wc}")
         except:
             logging.error("Error while getting externaljob_wc id")
             raise
@@ -183,11 +183,11 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         except:
             logging.error("Error while running WrapperCreator")
 
-        logging.info("Checking if wrapper creator's externaljob with id={} was set to 'done'".format(externaljobid_wc))
+        logging.info(f"Checking if wrapper creator's externaljob with id={externaljobid_wc} was set to 'done'")
         try:
             res = B.read_object("externaljob", {"id": externaljobid_wc, "status": "DONE"})
             self.assertEqual(
-                res[0].status, "done", "set externaljob id={} of wrapper creator failed.".format(externaljobid_wc)
+                res[0].status, "done", f"set externaljob id={externaljobid_wc} of wrapper creator failed."
             )
         except:
             logging.error("Error while setting wrapper creator's externaljob status to done")
@@ -199,7 +199,7 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         try:
             # The method W.get_externaljobid_yaml_workunit() returns the external job with Action=WORKUNIT
             externaljobid_yaml_workunit = W.get_externaljobid_yaml_workunit()
-            logging.info("Externaljobid with action WORKUNIT is {}".format(externaljobid_yaml_workunit))
+            logging.info(f"Externaljobid with action WORKUNIT is {externaljobid_yaml_workunit}")
         except:
             logging.error("Error while fetching the id of the yaml_workunit externaljob")
 
@@ -210,7 +210,7 @@ class BfabricFunctionalTestCase(unittest.TestCase):
             externaljobid_submitter = B.read_object(
                 "externaljob", {"cliententityid": workunitid, "action": "SUBMIT", "cliententityclass": "Workunit"}
             )[0]._id
-            logging.info("externaljobid for submitter is {}.".format(externaljobid_submitter))
+            logging.info(f"externaljobid for submitter is {externaljobid_submitter}.")
         except:
             logging.error("Error while fetching the id of the submitter's externaljob")
 
@@ -229,13 +229,13 @@ class BfabricFunctionalTestCase(unittest.TestCase):
             raise
         logging.info("Waiting 10 seconds for the submitter to be executed")
         time.sleep(10)
-        logging.info("Checking if submitter's externaljob with id={} was set to 'done'".format(externaljobid_submitter))
+        logging.info(f"Checking if submitter's externaljob with id={externaljobid_submitter} was set to 'done'")
         try:
             # res = B.read_object('externaljob', {'id': externaljobid_submitter, 'status': 'DONE'})
             res = B.read_object("externaljob", {"id": externaljobid_submitter})
-            logging.info("Status of externaljob for submitter {}".format(res[0].status))
+            logging.info(f"Status of externaljob for submitter {res[0].status}")
             self.assertEqual(
-                res[0].status, "done", "submitter externaljob with id={} failed.".format(externaljobid_submitter)
+                res[0].status, "done", f"submitter externaljob with id={externaljobid_submitter} failed."
             )
         except:
             logging.error("Error while setting submitter externaljob status to DONE")
@@ -246,13 +246,13 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         try:
             res = B.save_object(endpoint="externaljob", obj={"id": externaljobid_yaml_workunit, "status": "done"})
             logging.info(
-                "Checking if WORKUNIT's externaljob with id={} was set to 'done'".format(externaljobid_yaml_workunit)
+                f"Checking if WORKUNIT's externaljob with id={externaljobid_yaml_workunit} was set to 'done'"
             )
             res = B.read_object("externaljob", {"id": externaljobid_yaml_workunit, "status": "DONE"})
             self.assertEqual(
                 res[0].status,
                 "done",
-                "yaml_workunit_externaljob with id={} failed.".format(externaljobid_yaml_workunit),
+                f"yaml_workunit_externaljob with id={externaljobid_yaml_workunit} failed.",
             )
         except:
             logging.error("Error while setting yaml_workunit externaljob status to done")
@@ -265,7 +265,7 @@ class BfabricFunctionalTestCase(unittest.TestCase):
 
         logging.info("Start processing job.")
         for i in S.get_job_script():
-            logging.info("processing file '{}' ...".format(i))
+            logging.info(f"processing file '{i}' ...")
             time.sleep(1)
         logging.info("end processing job.")
 
@@ -274,9 +274,9 @@ class BfabricFunctionalTestCase(unittest.TestCase):
         for i in res.resource:
             resdel = B.delete_object("resource", i._id)
             self.assertIn("removed successfully", resdel[0].deletionreport)
-            logging.info("deleted resource id={}.".format(i._id))
+            logging.info(f"deleted resource id={i._id}.")
 
-        logging.info("adding this logfile as resource to workuinit id={}.".format(workunit[0]._id))
+        logging.info(f"adding this logfile as resource to workuinit id={workunit[0]._id}.")
         res = B.upload_file("test_functional.log", workunit[0]._id)
         self.assertTrue(res[0]._id > 0, msg)
 

@@ -51,7 +51,7 @@ class SLURM(object):
         """
 
         self.user = user
-        self.sbatchbin = "{0}/{1}".format(SLURMROOT, "bin/sbatch")
+        self.sbatchbin = f"{SLURMROOT}/bin/sbatch"
 
         os.environ["SLURM_ROOT"] = SLURMROOT
 
@@ -62,11 +62,11 @@ class SLURM(object):
         sbatch_cmd = [self.sbatchbin, script, " ".join(arguments)]
 
         if not os.path.isfile(self.sbatchbin):
-            print("{0} can not be found.".format(self.sbatchbin))
+            print(f"{self.sbatchbin} can not be found.")
             return
 
         if not os.path.isfile(script):
-            print("'{0}' - no such file.".format(script))
+            print(f"'{script}' - no such file.")
             return
 
         sbatch_process = subprocess.Popen(sbatch_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)

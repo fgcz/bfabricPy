@@ -66,7 +66,7 @@ def query_mascot_result(file_path: str) -> bool:
         wu = DB[file_path]
         if "workunitid" in wu:
             print(
-                "\tdat file {} already registered as workunit id {}. continue ...".format(file_path, wu["workunitid"])
+                f"\tdat file {file_path} already registered as workunit id {wu['workunitid']}. continue ..."
             )
             return
         else:
@@ -105,11 +105,11 @@ def query_mascot_result(file_path: str) -> bool:
 
         print(f"{datetime.now()} output>")
         if "errorreport" in rv:
-            print("\tfound errorreport '{}'.".format(rv["errorreport"]))
+            print(f"\tfound errorreport '{rv['errorreport']}'.")
 
         if "_id" in rv:
             wu["workunitid"] = rv["_id"]
-            print("\tfound workunitid'{}'.".format(wu["workunitid"]))
+            print(f"\tfound workunitid'{wu['workunitid']}'.")
             DB[file_path] = wu
             db_written = True
 

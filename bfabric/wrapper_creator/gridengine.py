@@ -59,7 +59,7 @@ class GridEngine(object):
 
         self.user = user
         self.queue = queue
-        self.qsubbin = "{0}/{1}".format(GRIDENGINEROOT, "bin/qsub")
+        self.qsubbin = f"{GRIDENGINEROOT}/bin/qsub"
 
         os.environ["SGE_ROOT"] = GRIDENGINEROOT
 
@@ -73,11 +73,11 @@ class GridEngine(object):
         qsub_cmd = [self.qsubbin, "-q", self.queue, script, " ".join(arguments)]
 
         if not os.path.isfile(self.qsubbin):
-            print("{0} can not be found.".format(self.qsubbin))
+            print(f"{self.qsubbin} can not be found.")
             return
 
         if not os.path.isfile(script):
-            print("'{0}' - no such file.".format(script))
+            print(f"'{script}' - no such file.")
             return
 
         try:

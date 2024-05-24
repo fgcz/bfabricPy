@@ -26,6 +26,6 @@ if __name__ == "__main__":
     bfapp = Bfabric()
     res = bfapp.read_object(endpoint="executable", obj={})
     map(
-        lambda x: sys.stdout.write("{}\t{}\t{}\t{}\t{}\n".format(x._id, x.createdby, x.modified, x.context, x.name)),
+        lambda x: sys.stdout.write(f"{x._id}\t{x.createdby}\t{x.modified}\t{x.context}\t{x.name}\n"),
         res,
     )
