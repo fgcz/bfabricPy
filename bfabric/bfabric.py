@@ -42,7 +42,6 @@ class BfabricAPIEngineType(Enum):
     ZEEP = 2
 
 
-# TODO: How to deal with save-skip fields in Zeep? Does it happen in SUDS?
 class Bfabric:
     """Bfabric client class, providing general functionality for interaction with the B-Fabric API.
     Use `Bfabric.from_config` to create a new instance.

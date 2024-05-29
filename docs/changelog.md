@@ -10,6 +10,7 @@ Versioning currently follows `X.Y.Z` where
 ## Not released
 ### Changed
 - bfabric_save_csv2dataset will raise an error if problematic characters are found in any of the cells
+- Correctly define `bfabric_setWorkunitStatus_available.py`, and `processing` and `failed` variants.
 
 ## [1.13.0] - 2024-05-24
 This is a major release refactoring bfabricPy's API.
