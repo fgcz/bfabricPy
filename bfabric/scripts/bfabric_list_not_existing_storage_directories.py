@@ -17,7 +17,7 @@ from bfabric import Bfabric
 
 def list_not_existing_storage_dirs(client: Bfabric, root_dir: Path, technology_id: int | list[int]) -> None:
     """Lists not existing storage directories for a given technology id."""
-    results = client.read(endpoint="container", obj={"technologyid": technology_id})
+    results = client.read(endpoint="container", obj={"technologyid": technology_id}, return_id_only=True)
     container_ids = sorted({x["id"] for x in results})
 
     for container_id in container_ids:
