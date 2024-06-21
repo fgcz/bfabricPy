@@ -26,6 +26,7 @@ dependencies = [
     "rich >= 13.7.1",
     "zeep >= 4.2.1",
     "polars-lts-cpu >= 0.20.25",
+    "loguru>=0.7",
     "setuptools"
 ]
 

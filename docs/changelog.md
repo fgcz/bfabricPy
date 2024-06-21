@@ -12,6 +12,9 @@ Versioning currently follows `X.Y.Z` where
 - bfabric_save_csv2dataset will raise an error if problematic characters are found in any of the cells
 - Correctly define `bfabric_setWorkunitStatus_available.py`, and `processing` and `failed` variants.
 
+### Added
+- Add loguru for future logging refactoring. 
+
 ### Removed
 - Pandas is no longer a dependency, and has been replaced by polars.
 
