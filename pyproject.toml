@@ -35,7 +35,9 @@ dev = [
     "black",
     "isort",
     "ruff",
-    "licensecheck"
+    "licensecheck",
+    "pytest",
+    "pytest-mock",
 ]
 
 [project.urls]
