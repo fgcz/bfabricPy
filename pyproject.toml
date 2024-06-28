@@ -38,6 +38,8 @@ dev = [
     "licensecheck",
     "pytest",
     "pytest-mock",
+    "nox",
+    "uv"
 ]
 
 [project.urls]
