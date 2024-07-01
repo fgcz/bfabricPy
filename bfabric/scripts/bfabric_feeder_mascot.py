@@ -65,9 +65,7 @@ def query_mascot_result(file_path: str) -> bool:
         print("\thit")
         wu = DB[file_path]
         if "workunitid" in wu:
-            print(
-                f"\tdat file {file_path} already registered as workunit id {wu['workunitid']}. continue ..."
-            )
+            print(f"\tdat file {file_path} already registered as workunit id {wu['workunitid']}. continue ...")
             return
         else:
             print("\tno workunitid found")

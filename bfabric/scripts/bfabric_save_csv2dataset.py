@@ -99,9 +99,7 @@ def check_for_invalid_characters(data: pl.DataFrame, invalid_characters: str) ->
         .to_numpy()
     )
     if len(invalid_columns) > 0:
-        raise RuntimeError(
-            f"Invalid characters found in columns: {invalid_columns[0]}"
-        )
+        raise RuntimeError(f"Invalid characters found in columns: {invalid_columns[0]}")
 
 
 def main() -> None:

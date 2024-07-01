@@ -48,9 +48,7 @@ def get_workunits_table_full(application_id: int, client: Bfabric, max_workunits
             inputdataset_id=pl.col("inputdataset").struct[1],
         )
     else:
-        workunits_table_full = workunits_table_full.with_columns(
-            inputdataset_id=pl.lit(None)
-        )
+        workunits_table_full = workunits_table_full.with_columns(inputdataset_id=pl.lit(None))
     return workunits_table_full
 
 
@@ -78,7 +76,9 @@ def get_parameter_table(client: Bfabric, workunits_table_explode: pl.DataFrame) 
     # load the parameters table
     collect = []
     for i_frame, frame in enumerate(workunits_table_explode.iter_slices(100)):
-        print(f"-- Reading parameters chunk {i_frame + 1} of {len(workunits_table_explode) // 100 + 1}", file=sys.stderr)
+        print(
+            f"-- Reading parameters chunk {i_frame + 1} of {len(workunits_table_explode) // 100 + 1}", file=sys.stderr
+        )
         chunk = (
             client.read("parameter", {"id": frame["parameter_id"].to_list()}).to_polars().rename({"id": "parameter_id"})
         )

@@ -297,7 +297,6 @@ def get_system_auth(
     else:
         config_path = Path(config_path).expanduser()
 
-
     # Use the provided config data from arguments instead of the file
     if not config_path.is_file():
         if have_config_path:

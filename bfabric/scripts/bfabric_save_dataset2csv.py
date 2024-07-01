@@ -68,9 +68,7 @@ def main() -> None:
     )
     parser.add_argument("--sep", default=",", help="the separator to use in the csv file e.g. ',' or '\\t'")
     args = parser.parse_args()
-    bfabric_save_dataset2csv(
-        client=client, out_dir=args.dir, out_filename=args.file, dataset_id=args.id, sep=args.sep
-    )
+    bfabric_save_dataset2csv(client=client, out_dir=args.dir, out_filename=args.file, dataset_id=args.id, sep=args.sep)
 
 
 if __name__ == "__main__":
