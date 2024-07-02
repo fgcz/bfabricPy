@@ -59,9 +59,9 @@ def create_and_push_tag(version: str) -> None:
     subprocess.run(["git", "push", "origin", version], check=True)
 
 
-def merge_and_push_branch(branch: str) -> None:
+def merge_and_push_current_branch(branch: str) -> None:
     subprocess.run(["git", "merge", branch], check=True)
-    subprocess.run(["git", "push", "origin", branch], check=True)
+    subprocess.run(["git", "push", "origin"], check=True)
 
 
 def main() -> None:
@@ -69,7 +69,7 @@ def main() -> None:
     version = check_version()
     create_and_push_tag(version)
     checkout_branch("stable")
-    merge_and_push_branch("main")
+    merge_and_push_current_branch("main")
     checkout_branch("main")
 
 
