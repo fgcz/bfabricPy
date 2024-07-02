@@ -7,13 +7,17 @@ Versioning currently follows `X.Y.Z` where
 - `Y` should be the current bfabric release
 - `Z` is increased for feature releases, that should not break the API
 
-## Not released
+## [tba] - tba
+
+
+## [1.13.1] - 2024-07-02
 ### Changed
 - bfabric_save_csv2dataset will raise an error if problematic characters are found in any of the cells
 - Correctly define `bfabric_setWorkunitStatus_available.py`, and `processing` and `failed` variants.
 
 ### Added
 - Add loguru for future logging refactoring. 
+- Easily runnable tests with `nox` and standardized formatting using `pre-commit`.
 
 ### Removed
 - Pandas is no longer a dependency, and has been replaced by polars.
