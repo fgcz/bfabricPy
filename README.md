@@ -27,12 +27,12 @@ You can execute a command using a specific version of `bfabricPy` with the `pipx
 This command handles the dependencies of multiple concurrent installations:
 
 ```bash
-pipx run --spec "git+https://github.com/fgcz/bfabricPy.git@0.13.8" bfabric_read.py --help
+pipx run --spec "git+https://github.com/fgcz/bfabricPy.git@stable" bfabric_read.py --help
 ```
 
 To install a specific version of bfabricPy on your system and make the command available without `pipx run` prefix, use the following command:
 ```bash
-pipx install "git+https://github.com/fgcz/bfabricPy.git@0.13.8"
+pipx install "git+https://github.com/fgcz/bfabricPy.git@stable"
 bfabric_read.py --help
 ```
 
