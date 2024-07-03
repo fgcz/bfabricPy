@@ -17,6 +17,7 @@ find /usr/local/mascot/data/ -type f -mtime -1 -name "*dat" \
 3   */2       *       *       1-6       nice -19 /usr/local/fgcz-s-018/bfabric-feeder/run_fgcz_dataFeederMascot.bash 7 2>&1 >/dev/null
 */7   5-22       *       *       1-5     nice -19  /usr/local/fgcz-s-018/bfabric-feeder/run_fgcz_dataFeederMascot.bash 1  2>&1 >/dev/null
 """
+
 from __future__ import annotations
 
 import argparse

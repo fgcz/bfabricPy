@@ -2,6 +2,7 @@
 """
 set status of a resource of a given resource id
 """
+
 from __future__ import annotations
 
 import argparse

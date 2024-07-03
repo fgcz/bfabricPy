@@ -10,6 +10,7 @@ Licensed under  GPL version 3
 
 this script takes a blob file and a workunit id as input and adds the file as resource to bfabric
 """
+
 import argparse
 import json
 from pathlib import Path

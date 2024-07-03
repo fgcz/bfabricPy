@@ -37,7 +37,6 @@ from bfabric import BfabricSubmitter
 
 
 def main() -> None:
-
     parser = OptionParser(usage="usage: %prog -j <externaljobid>", version="%prog 1.0")
 
     parser.add_option(

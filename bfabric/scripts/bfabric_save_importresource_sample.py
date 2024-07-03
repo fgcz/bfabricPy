@@ -12,6 +12,7 @@ Usage:
 History:
     The first version of the script appeared on Wed Oct 24 17:02:04 CEST 2012.
 """
+
 from __future__ import annotations
 
 import hashlib

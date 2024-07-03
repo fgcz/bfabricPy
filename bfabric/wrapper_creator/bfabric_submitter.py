@@ -94,7 +94,6 @@ class BfabricSubmitter:
         print("__init__ DONE")
 
     def submit_gridengine(self, script="/tmp/runme.bash", arguments=""):
-
         GE = gridengine.GridEngine(user=self.user, queue=self.queue, GRIDENGINEROOT=self.SCHEDULEROOT)
 
         print(script)
@@ -104,7 +103,6 @@ class BfabricSubmitter:
         self.B.logger(f"{resQsub}")
 
     def submit_slurm(self, script="/tmp/runme.bash", arguments=""):
-
         SL = slurm.SLURM(user=self.user, SLURMROOT=self.SCHEDULEROOT)
 
         print(script)

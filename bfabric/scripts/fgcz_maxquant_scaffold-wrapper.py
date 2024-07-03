@@ -34,7 +34,6 @@ class FgczMaxQuantScaffold:
     samples = None
 
     def __init__(self, yamlfilename=None, zipfilename=None) -> None:
-
         if not os.path.isfile(zipfilename):
             print(f"ERROR: no such file '{zipfilename}'")
             sys.exit(1)
@@ -57,7 +56,6 @@ class FgczMaxQuantScaffold:
         self.samples = list(map(lambda x: os.path.basename(x).replace(".raw", ""), L))
 
     def getBiologicalSample(selfs, InputFile=None, category="***BASENAME***"):
-
         scaffold_BiologicalSample = """
         <BiologicalSample
             analyzeAsMudpit="false"
@@ -119,7 +117,6 @@ class FgczMaxQuantScaffold:
         return pxml
 
     def run(self) -> None:
-
         xml = self.getScaffold()
         eExperiment = xml.find("/Experiment")
         eFastaDatabase = xml.find("/Experiment/FastaDatabase")

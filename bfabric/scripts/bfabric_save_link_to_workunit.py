@@ -4,6 +4,7 @@ Copyright (C) 2023 Functional Genomics Center Zurich ETHZ|UZH. All rights reserv
 
 Christian Panse <cp@fgcz.ethz.ch> 20231011
 """
+
 import argparse
 import json
 

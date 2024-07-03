@@ -13,6 +13,7 @@ License:
 See also:
     http://fgcz-bfabric.uzh.ch/bfabric/executable?wsdl
 """
+
 from __future__ import annotations
 import argparse
 import json

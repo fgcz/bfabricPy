@@ -26,7 +26,6 @@ import sys
 from bfabric import BfabricWrapperCreator
 
 if __name__ == "__main__":
-
     externaljobid = -1
 
     if len(sys.argv) == 3 and sys.argv[1] == "-j" and int(sys.argv[2]) > 0:

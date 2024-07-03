@@ -11,6 +11,7 @@ Authors:
   Leonardo Schwarz
   Aleksejs Fomins
 """
+
 from __future__ import annotations
 
 import base64
