@@ -15,7 +15,7 @@ Strategy:
 
 Observations:
 * There are mismatches in the fields of "project" and "formerproject", where about half of projects are not
-   correctly parsed by Zeep. 
+   correctly parsed by Zeep.
 """
 
 

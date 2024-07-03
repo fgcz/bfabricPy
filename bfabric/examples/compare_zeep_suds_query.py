@@ -22,10 +22,10 @@ For both, it is important to test
 Observations:
 * SUDS produces underscores in front of 'id', 'projectid' and 'classname'. Reasons currently unknown, may also affect
     other keywords. Currently, we remove underscores by explicitly providing keywords which to purge
-* ZEEP does not match XML 
+* ZEEP does not match XML
     - Zeep generates additional keywords not present in XML, all of them have values None or empty list
     - Zeep misses some important keywords like 'id' and 'projectid' inside of nested XML, such as user->project. This
-        behaviour is inconsistent, and only affects a fraction of users. 
+        behaviour is inconsistent, and only affects a fraction of users.
 """
 
 

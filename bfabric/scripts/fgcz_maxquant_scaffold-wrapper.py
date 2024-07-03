@@ -66,7 +66,7 @@ class FgczMaxQuantScaffold:
             description=""
             name="20191015_002_HeLa_50_PreOmics_LK_3"
             quantitativeTechnique="Spectrum Counting">
-            <InputFile 
+            <InputFile
                 maxQuantExperiment="20191015_002_HeLa_50_PreOmics_LK_3">WU192418/output-WU192418.zip</InputFile>
         </BiologicalSample>
         """

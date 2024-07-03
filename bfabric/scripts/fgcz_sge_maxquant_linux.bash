@@ -34,7 +34,7 @@ STAMP=`/bin/date +%Y%m%d%H%M`.$$.$JOB_ID
 SCRATCH="/scratch/MAXQUANT/WU$WORKUNITID/"
 mkdir -p $SCRATCH || { echo "mkdir -p $SCRATCH failed"; exit 1; }
 
-sleep 1; 
+sleep 1;
 qalter -N MQ_LFQ_WU$WORKUNITID $JOB_ID
 
 cp -av $YAML "$SCRATCH/WU$WORKUNITID.yaml" \
@@ -46,7 +46,7 @@ cp -av $YAML "$SCRATCH/WU$WORKUNITID.yaml" \
 
 cd $SCRATCH && zip -j output-WU$WORKUNITID.zip *.txt *.pdf *.sf3 *.xml *.yaml combined/txt/*.txt \
   && scp $SCRATCH/output-WU$WORKUNITID.zip $OUTPUTURL \
-    || { echo "scp failed"; exit 1; }         
+    || { echo "scp failed"; exit 1; }
 bfabric_setResourceStatus_available.py $RESSOURCEID \
   && bfabric_setExternalJobStatus_done.py $EXTERNALJOBID
 

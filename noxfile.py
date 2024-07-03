@@ -7,4 +7,3 @@ nox.options.default_venv_backend = "uv"
 def tests(session):
     session.install(".[dev]")
     session.run("pytest")
-

@@ -6,7 +6,7 @@ In particular, it connects R shiny to https://bfabric.org
 
 
 run as pfeeder
-FLASK_APP=$(which bfabric_flask.py) flask run --host=0.0.0.0 
+FLASK_APP=$(which bfabric_flask.py) flask run --host=0.0.0.0
 
 Christian Panse <cp@fgcz.ethz.ch>
 Christian Trachsel

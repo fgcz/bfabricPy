@@ -120,8 +120,8 @@ def query_mascot_result(file_path: str) -> bool:
     return db_written
 
 
-""" 
-parse the mascot dat file and extract meta data and title information for inputresource retrival 
+"""
+parse the mascot dat file and extract meta data and title information for inputresource retrival
 it returns a 'workunit' dict for the following web api
 
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:end="http://endpoint.webservice.component.bfabric.org/">

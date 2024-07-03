@@ -12,4 +12,3 @@ test:
 
 clean:
 	rm -vf dist/*
-

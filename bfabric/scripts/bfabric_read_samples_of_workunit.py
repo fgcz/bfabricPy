@@ -11,7 +11,7 @@ Licensed under  GPL version 3
 2022-06-03 add sample.name
 
 Usage example:
-  bfabric_read_samples_of_workunit.py 278175 
+  bfabric_read_samples_of_workunit.py 278175
 """
 import argparse
 import time

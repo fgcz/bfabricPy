@@ -11,7 +11,7 @@ Description:
  generates a csv file with the dataset content.
 
 Usage: bfabric_save_dataset2csv.py [-h] --id DATASET_ID [--dir SCRATCHDIR]
-Example: bfabric_save_dataset2csv.py --id 32335 && cat dataset.csv    
+Example: bfabric_save_dataset2csv.py --id 32335 && cat dataset.csv
 """
 from __future__ import annotations
 

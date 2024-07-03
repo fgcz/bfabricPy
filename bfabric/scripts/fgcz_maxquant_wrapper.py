@@ -530,7 +530,7 @@ if __name__ == "__main__":
 import unittest
 
 """
-python3 -m unittest fgcz_maxquant_wrapper.py 
+python3 -m unittest fgcz_maxquant_wrapper.py
 """
 
 

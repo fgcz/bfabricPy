@@ -7,10 +7,10 @@ Author:
 Usage:
     runs under www-data credentials
 
-    $ echo "906acd3541f056e0f6d6073a4e528570;1345834449;46342144;p996/Proteomics/TRIPLETOF_1/jonas_20120820_SILAC_comparison/ 20120824_01_NiKu_1to5_IDA_rep2.wiff" | bfabric_save_importresource_sample.py - 
+    $ echo "906acd3541f056e0f6d6073a4e528570;1345834449;46342144;p996/Proteomics/TRIPLETOF_1/jonas_20120820_SILAC_comparison/ 20120824_01_NiKu_1to5_IDA_rep2.wiff" | bfabric_save_importresource_sample.py -
 
 History:
-    The first version of the script appeared on Wed Oct 24 17:02:04 CEST 2012. 
+    The first version of the script appeared on Wed Oct 24 17:02:04 CEST 2012.
 """
 from __future__ import annotations
 

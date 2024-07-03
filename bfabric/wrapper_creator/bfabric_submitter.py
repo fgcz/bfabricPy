@@ -192,11 +192,11 @@ EOF
 ## interrupt here if you want to do a semi-automatic processing
 if [ -x /usr/bin/mutt ];
 then
-    cat $0 > $TEMPDIR/$JOB_ID.bash 
+    cat $0 > $TEMPDIR/$JOB_ID.bash
 
     (who am i; hostname; uptime; echo $0; pwd; ps;) \
     | mutt -s "JOB_ID=$JOB_ID WORKUNIT_ID=$WORKUNIT_ID EXTERNALJOB_ID=$EXTERNALJOB_ID" $EMAIL \
-        -a $TEMPDIR/$JOB_ID.bash $TEMPDIR/config_WU$WORKUNIT_ID.yaml 
+        -a $TEMPDIR/$JOB_ID.bash $TEMPDIR/config_WU$WORKUNIT_ID.yaml
 fi
 # exit 0
 
@@ -207,7 +207,7 @@ test -f $TEMPDIR/config_WU$WORKUNIT_ID.yaml && {9} $TEMPDIR/config_WU$WORKUNIT_I
 if [ $? -eq 0 ];
 then
      ssh fgcz-r-035.uzh.ch "bfabric_setResourceStatus_available.py $RESSOURCEID_OUTPUT" \
-     | mutt -s "JOB_ID=$JOB_ID WORKUNIT_ID=$WORKUNIT_ID EXTERNALJOB_ID=$EXTERNALJOB_ID DONE" $EMAIL 
+     | mutt -s "JOB_ID=$JOB_ID WORKUNIT_ID=$WORKUNIT_ID EXTERNALJOB_ID=$EXTERNALJOB_ID DONE" $EMAIL
 
      bfabric_save_workflowstep.py $WORKUNIT_ID
      bfabric_setExternalJobStatus_done.py $EXTERNALJOB_ID

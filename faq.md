@@ -1,8 +1,8 @@
 # FAQ
 
 ## Q: Howto upload a small file to bfabric?
-by @gwhite-fgcz
 
+by @gwhite-fgcz
 
 ```{py}
 """
@@ -50,12 +50,14 @@ print(rv[0])
 
 ![save_resource](https://user-images.githubusercontent.com/4901987/65670931-9abe3500-e046-11e9-91db-b9a443a95a54.gif)
 
-## Q: Howto query for time and date - range query 
+## Q: Howto query for time and date - range query
+
 by @gwhite-fgcz
 
 range query are not possible with the current API design
 
 whatsoever time format is as follow
+
 ```{py}
  # the timeformat bfabric understands
     _file_date = time.strftime("%FT%H:%M:%S-01:00",time.gmtime(int(_file_date)))
@@ -87,13 +89,13 @@ lastyear = datetime.datetime.now() - datetime.timedelta(days=365)
 for customerid, year, month, day, servicetypename in data:
     dt = datetime.datetime(year=year, month=month, day=day)
     if dt > lastyear:
-        print ("{}\t{}\t{}".format(year, servicetypename, customerid))                                                                                    
+        print ("{}\t{}\t{}".format(year, servicetypename, customerid))
 ```
 
-
 KPI frequency table - returning `customerid`s
+
 ```{bash}
-cp@fgcz-148:~ > python3 orders.py |awk '{print $NF}'|sort | uniq -c| awk '{print $1}'|sort |uniq -c|sort -gr | awk '{s+=$1*$2; print s"\t"$0}'                        
+cp@fgcz-148:~ > python3 orders.py |awk '{print $NF}'|sort | uniq -c| awk '{print $1}'|sort |uniq -c|sort -gr | awk '{s+=$1*$2; print s"\t"$0}'
 557         557 1
 1091        267 2
 1586        165 3
@@ -138,13 +140,13 @@ cp@fgcz-148:~ > python3 orders.py |awk '{print $NF}'|sort | uniq -c| awk '{print
 5534          1 101
 ```
 
-
-
 ## Q: SSL: CERTIFICATE_VERIFY_FAILED on MacOSX
+
 by @cpanse
+
 ```
 cp@fgcz-113:~ > bfabric_list.py storage
-bfabricPy version 0.10.1 (2019-08-31) -- "suds-py3"    
+bfabricPy version 0.10.1 (2019-08-31) -- "suds-py3"
 Copyright (C) 2019 Functional Genomics Center Zurich
 
 <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1051)>
@@ -205,7 +207,7 @@ Traceback (most recent call last):
   File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/urllib/request.py", line 1319, in do_open
     raise URLError(err)
 urllib.error.URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1051)>
-cp@fgcz-113:~ > cat .bfabricrc.py 
+cp@fgcz-113:~ > cat .bfabricrc.py
 #_WEBBASE="https://fgcz-bfabric-demo.uzh.ch/bfabric"
 #_LOGIN="pfeeder"
 #_PASSWD='dcf40f74250459c2a7110951e2472749'
@@ -215,7 +217,7 @@ _LOGIN="cpanse"
 _PASSWD='dcf40f74250459c2a7110951e2472749'
 
 cp@fgcz-113:~ > bfabric_list.py storage
-bfabricPy version 0.10.1 (2019-08-31) -- "suds-py3"    
+bfabricPy version 0.10.1 (2019-08-31) -- "suds-py3"
 Copyright (C) 2019 Functional Genomics Center Zurich
 
 5	admin	2014-04-04 07:19:17.162000+02:00	gStore
@@ -232,13 +234,11 @@ Copyright (C) 2019 Functional Genomics Center Zurich
 --- number of query result items = 11 ---
 --- query time = 0.25 seconds ---
 
-cp@fgcz-113:~ > 
+cp@fgcz-113:~ >
 ```
 
-solution: 
+solution:
 [Once upon a time I stumbled with this issue. If you're using macOS go to Macintosh HD > Applications > Python3.6 folder (or whatever version of python you're using) > double click on "Install Certificates.command" file. :D](https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org)
-
-
 
 ## Q:Howto add a custom attribute to a sample?
 

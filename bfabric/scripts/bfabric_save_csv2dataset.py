@@ -6,22 +6,22 @@ Author:
 
 Description:
  The following script gets a csv file as input and automatically
- generates a json structure with attributes accepted by B-Fabric for 
+ generates a json structure with attributes accepted by B-Fabric for
  the creation of datasets.
 
  Example of input file:
   attr1, attr2
   "1", "1"
   "2", "2"
- 
+
  Example of json output:
   obj['attribute'] = [ {'name':'attr1', 'position':1},
                        {'name':'attr2', 'position':2} ]
-  obj['item'] = [ {'field': [{'value': 1, 'attributeposition':1}, 
-                             {'value': 1,  'attributeposition':2 }], 
-                   'position':1}, 
-                  {'field': [{'value': 2, 'attributeposition':1}, 
-                          {'value': 2,  'attributeposition':2 }], 
+  obj['item'] = [ {'field': [{'value': 1, 'attributeposition':1},
+                             {'value': 1,  'attributeposition':2 }],
+                   'position':1},
+                  {'field': [{'value': 2, 'attributeposition':1},
+                          {'value': 2,  'attributeposition':2 }],
                    'position':2}]
 
 Usage: bfabric_save_csv2dataset.py [-h] --csvfile CSVFILE --name NAME --containerid int [--workunitid int]
