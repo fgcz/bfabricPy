@@ -33,7 +33,7 @@ def bfabric_save_dataset2csv(client: Bfabric, dataset_id: int, out_dir: Path, ou
     dataset = Dataset(results[0])
     output_path = out_dir / out_filename
     try:
-        dataset.write_csv(output_path, sep=sep)
+        dataset.write_csv(output_path, separator=sep)
     except Exception:
         print(f"The writing process to '{output_path}' failed.")
         raise

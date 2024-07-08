@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from pandas import DataFrame
+from polars import DataFrame
 
 
 class Dataset:
@@ -28,9 +28,9 @@ class Dataset:
             data.append(dict(zip(column_names, row_values)))
         return DataFrame(data)
 
-    def write_csv(self, path: Path, sep: str = ",") -> None:
-        """Writes the dataset to a csv file at `path`, using `sep` as the separator."""
-        self.to_polars().to_csv(path, sep=sep, index=False)
+    def write_csv(self, path: Path, separator: str = ",") -> None:
+        """Writes the dataset to a csv file at `path`, using the specified column `separator`."""
+        self.to_polars().write_csv(path, separator=separator)
 
     def __repr__(self) -> str:
         """Returns the string representation of the dataset."""

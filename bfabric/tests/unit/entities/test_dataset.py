@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
+import polars as pl
+import polars.testing
 import pytest
 from pytest_mock import MockFixture
 
@@ -40,10 +42,15 @@ def test_dict(mock_dataset: Dataset, mock_data_dict: dict[str, Any]) -> None:
 
 def test_to_polars(mock_dataset: Dataset) -> None:
     df = mock_dataset.to_polars()
-    assert df.columns.to_list() == ["Color", "Shape"]
-    assert df.shape == (2, 2)
-    assert df["Color"].to_list() == ["Red", "Blue"]
-    assert df["Shape"].to_list() == ["Square", "Circle"]
+    pl.testing.assert_frame_equal(
+        df,
+        pl.DataFrame(
+            {
+                "Color": ["Red", "Blue"],
+                "Shape": ["Square", "Circle"],
+            }
+        ),
+    )
 
 
 def test_write_csv(mocker: MockFixture, mock_dataset: Dataset) -> None:
@@ -53,9 +60,9 @@ def test_write_csv(mocker: MockFixture, mock_dataset: Dataset) -> None:
     mock_path = mocker.MagicMock(name="mock_path")
     mock_sep = mocker.MagicMock(name="mock_sep")
 
-    mock_dataset.write_csv(mock_path, sep=mock_sep)
+    mock_dataset.write_csv(mock_path, separator=mock_sep)
 
-    mock_df.to_csv.assert_called_once_with(mock_path, sep=mock_sep, index=False)
+    mock_df.write_csv.assert_called_once_with(mock_path, separator=mock_sep)
 
 
 def test_repr(mock_empty_dataset: Dataset) -> None:
