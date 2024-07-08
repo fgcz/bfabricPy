@@ -35,9 +35,9 @@ def mock_empty_dataset() -> Dataset:
     return Dataset({"id": 1234, "attribute": [], "item": []})
 
 
-def test_dict(mock_dataset: Dataset, mock_data_dict: dict[str, Any]) -> None:
-    assert mock_dataset.dict == mock_data_dict
-    assert mock_dataset.dict is not mock_data_dict
+def test_data_dict(mock_dataset: Dataset, mock_data_dict: dict[str, Any]) -> None:
+    assert mock_dataset.data_dict == mock_data_dict
+    assert mock_dataset.data_dict is not mock_data_dict
 
 
 def test_to_polars(mock_dataset: Dataset) -> None:

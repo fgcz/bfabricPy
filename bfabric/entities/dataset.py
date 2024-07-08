@@ -15,7 +15,7 @@ class Dataset:
         self._data_dict = data_dict
 
     @property
-    def dict(self) -> dict[str, Any]:
+    def data_dict(self) -> dict[str, Any]:
         """Returns a shallow copy of the dataset dictionary."""
         return self._data_dict.copy()
 
