@@ -27,7 +27,7 @@ dependencies = [
     "zeep >= 4.2.1",
     "polars-lts-cpu >= 0.20.25",
     "loguru>=0.7",
-    "setuptools"
+    "setuptools",
 ]
 
 [project.optional-dependencies]
@@ -38,6 +38,7 @@ dev = [
     "licensecheck",
     "pytest",
     "pytest-mock",
+    "logot",
     "nox",
     "uv"
 ]
@@ -87,3 +88,6 @@ ignore = ["ANN101", "ANN102"]
 
 [tool.licensecheck]
 using = "PEP631"
+
+[tool.pytest.ini_options]
+logot_capturer = "logot.loguru.LoguruCapturer"

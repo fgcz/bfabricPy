@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import dataclasses
-import logging
 import os
 from pathlib import Path
 
 import yaml
+from loguru import logger
 
 from bfabric.errors import BfabricConfigError
 
@@ -85,7 +85,6 @@ def _read_config_env_as_dict(config_path: Path, config_env: str | None = None) -
        or the config file itself.
     :return: Returns a target environment name, and the corresponding data from bfabricpy.yml file as a dictionary
     """
-    logger = logging.getLogger(__name__)
     logger.info(f"Reading configuration from: {config_path}")
 
     if config_path.suffix != ".yml":
@@ -100,20 +99,17 @@ def _read_config_env_as_dict(config_path: Path, config_env: str | None = None) -
 
     # Determine which environment we will use
     # By default, use the one provided by config_env
-    config_env = _select_config_env(
-        explicit_config_env=config_env, config_file_default_config=config_env_default, logger=logger
-    )
+    config_env = _select_config_env(explicit_config_env=config_env, config_file_default_config=config_env_default)
     if config_env not in config_dict:
         raise BfabricConfigError(f"The requested config environment {config_env} is not present in the config file")
 
     return config_env, config_dict[config_env]
 
 
-def _select_config_env(explicit_config_env: str | None, config_file_default_config: str, logger: logging.Logger) -> str:
+def _select_config_env(explicit_config_env: str | None, config_file_default_config: str) -> str:
     """Selects the appropriate configuration environment to use, based on the provided arguments.
     :param explicit_config_env: Explicitly provided configuration environment to use (i.e. from a function argument)
     :param config_file_default_config: Default configuration environment to use, as specified in the config file
-    :param logger: Logger to use for output
     """
     if explicit_config_env is None:
         config_env = os.getenv("BFABRICPY_CONFIG_ENV")

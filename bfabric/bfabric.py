@@ -16,8 +16,6 @@ from __future__ import annotations
 
 import base64
 import importlib.metadata
-import logging
-import sys
 from contextlib import contextmanager
 from datetime import datetime
 from enum import Enum
@@ -25,6 +23,7 @@ from pathlib import Path
 from pprint import pprint
 from typing import Literal, ContextManager, Any
 
+from loguru import logger
 from rich.console import Console
 
 from bfabric.bfabric_config import BfabricAuth, read_config
@@ -165,7 +164,7 @@ class Bfabric:
             n_item_offset=offset,
             n_item_return_max=max_results,
         )
-        logging.info(f"Requested pages: {requested_pages}")
+        logger.info(f"Requested pages: {requested_pages}")
 
         # NOTE: Page numbering starts at 1
         response_items = []
@@ -173,7 +172,7 @@ class Bfabric:
         page_offset = initial_offset
         for i_iter, i_page in enumerate(requested_pages):
             if not (i_iter == 0 and i_page == 1):
-                print(f"-- reading page {i_page} of {n_available_pages}", file=sys.stderr)
+                logger.info(f"-- reading page {i_page} of {n_available_pages}")
                 results = self.engine.read(
                     endpoint=endpoint, obj=obj, auth=self.auth, page=i_page, return_id_only=return_id_only
                 )
