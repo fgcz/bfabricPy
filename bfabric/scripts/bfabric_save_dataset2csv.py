@@ -19,20 +19,8 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-import polars as pl
-
 from bfabric import Bfabric
-
-
-def dataset2csv(dataset: dict, output_path: Path, sep: str) -> None:
-    """Writes the `dataset` content to csv file at `output_path`."""
-    column_names = [x["name"] for x in dataset["attribute"]]
-    data = []
-    for item in dataset["item"]:
-        row_values = [x.get("value") for x in item["field"]]
-        data.append(dict(zip(column_names, row_values)))
-    df = pl.DataFrame(data)
-    df.write_csv(output_path, separator=sep)
+from bfabric.entities.dataset import Dataset
 
 
 def bfabric_save_dataset2csv(client: Bfabric, dataset_id: int, out_dir: Path, out_filename: Path, sep: str) -> None:
@@ -42,10 +30,10 @@ def bfabric_save_dataset2csv(client: Bfabric, dataset_id: int, out_dir: Path, ou
     results = client.read(endpoint="dataset", obj={"id": dataset_id}).to_list_dict()
     if not results:
         raise RuntimeError(f"No dataset found with id '{dataset_id}'")
-    dataset = results[0]
+    dataset = Dataset(results[0])
     output_path = out_dir / out_filename
     try:
-        dataset2csv(dataset, output_path=output_path, sep=sep)
+        dataset.write_csv(output_path, sep=sep)
     except Exception:
         print(f"The writing process to '{output_path}' failed.")
         raise
