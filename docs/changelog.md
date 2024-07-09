@@ -13,6 +13,7 @@ Versioning currently follows `X.Y.Z` where
 ### Added
 
 - Add `bfabric.entities.Dataset` to easily read datasets.
+- Make host and port configurable in `bfabric_flask.py` (currently only dev mode).
 
 ## \[1.13.1\] - 2024-07-02
 

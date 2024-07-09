@@ -33,6 +33,8 @@ Of note, do not forget rerun the flask service after modification!
 """
 
 from __future__ import annotations
+
+import argparse
 import os
 import json
 import logging
@@ -298,6 +300,11 @@ def setup_logger_debug(name: str = DEFAULT_LOGGER_NAME) -> None:
 
 def main() -> None:
     """Starts the server, auto-detecting production mode if SSL keys are present."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--host", default="127.0.0.1", type=str)
+    parser.add_argument("--port", default=5000, type=int)
+    args = parser.parse_args()
+
     ssl_key_pub = Path("/etc/ssl/fgcz-host.pem")
     ssl_key_priv = Path("/etc/ssl/private/fgcz-host_key.pem")
     if ssl_key_pub.exists() and ssl_key_priv.exists():
@@ -313,7 +320,7 @@ def main() -> None:
         )
     else:
         setup_logger_debug()
-        app.run(debug=False, host="127.0.0.1", port=5000)
+        app.run(debug=False, host=args.host, port=args.port)
 
 
 if __name__ == "__main__":
