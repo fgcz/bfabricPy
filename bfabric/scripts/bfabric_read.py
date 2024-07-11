@@ -25,7 +25,7 @@ from rich.console import Console
 from rich.table import Table
 
 import bfabric
-from bfabric import Bfabric, BfabricConfig
+from bfabric import Bfabric, BfabricClientConfig
 
 
 def bfabric_read(client: Bfabric, endpoint: str, attribute: str | None, value: str | None, output_format: str) -> None:
@@ -65,7 +65,9 @@ def bfabric_read(client: Bfabric, endpoint: str, attribute: str | None, value: s
     console_info.print(f"--- query time = {end_time - start_time:.2f} seconds ---")
 
 
-def _print_table_rich(config: BfabricConfig, console_out: Console, endpoint: str, res: list[dict[str, Any]]) -> None:
+def _print_table_rich(
+    config: BfabricClientConfig, console_out: Console, endpoint: str, res: list[dict[str, Any]]
+) -> None:
     """Prints the results as a rich table to the console."""
     table = Table("Id", "Created By", "Modified", "Name", "Grouping Var")
     for x in res:

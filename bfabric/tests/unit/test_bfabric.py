@@ -3,13 +3,13 @@ import unittest
 from functools import cached_property
 from unittest.mock import MagicMock, patch, ANY, call
 
-from bfabric import Bfabric, BfabricAPIEngineType, BfabricConfig
+from bfabric import Bfabric, BfabricAPIEngineType
 from bfabric.engine.engine_suds import EngineSUDS
 
 
 class TestBfabric(unittest.TestCase):
     def setUp(self):
-        self.mock_config = MagicMock(name="mock_config", spec=BfabricConfig)
+        self.mock_config = MagicMock(name="mock_config", spec=["base_url"])
         self.mock_auth = None
         self.mock_engine_type = BfabricAPIEngineType.SUDS
         self.mock_engine = MagicMock(name="mock_engine", spec=EngineSUDS)

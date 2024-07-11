@@ -2,11 +2,11 @@ GENERAL:
   default_config: PRODUCTION
 PRODUCTION:
   login: my_epic_production_login
-  password: my_secret_production_password
+  password: 01234567890123456789012345678901
   base_url: https://mega-production-server.uzh.ch/myprod
 TEST:
   login: my_epic_test_login
-  password: my_secret_test_password
+  password: 012345678901234567890123456789ff
   base_url: https://mega-test-server.uzh.ch/mytest
   application_ids:
     Proteomics/CAT_123: 7

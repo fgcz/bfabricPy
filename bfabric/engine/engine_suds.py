@@ -13,7 +13,7 @@ from bfabric.results.response_format_dict import clean_result
 
 if TYPE_CHECKING:
     from suds.serviceproxy import ServiceProxy
-    from bfabric.bfabric_config import BfabricAuth
+    from bfabric.config import BfabricAuth
 
 
 class EngineSUDS:

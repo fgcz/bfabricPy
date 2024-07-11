@@ -13,6 +13,10 @@ Versioning currently follows `X.Y.Z` where
 ### Added
 
 - Add `bfabric.entities.Dataset` to easily read datasets.
+- Pydantic-based configuration parsing
+  - The config format did not change.
+  - The code is easier to maintain now.
+  - Additionally, there is a lot more validation of the configuration file now, that should catch errors early.
 - Make host and port configurable in `bfabric_flask.py` (currently only dev mode).
 
 ## \[1.13.1\] - 2024-07-02

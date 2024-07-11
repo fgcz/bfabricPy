@@ -10,7 +10,7 @@ from bfabric.results.result_container import ResultContainer
 from bfabric.results.response_format_dict import clean_result
 
 if TYPE_CHECKING:
-    from bfabric.bfabric_config import BfabricAuth
+    from bfabric.config import BfabricAuth
 
 
 class EngineZeep:

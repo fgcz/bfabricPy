@@ -1,4 +1,4 @@
-from bfabric import BfabricAuth, BfabricConfig
+from bfabric import BfabricAuth, BfabricClientConfig
 from bfabric.bfabric import get_system_auth
 import zeep
 from copy import deepcopy
@@ -35,7 +35,7 @@ def read_zeep(wsdl, fullQuery, raw=True):
         return ret
 
 
-def read(auth: BfabricAuth, config: BfabricConfig, endpoint: str, query: dict, raw: bool = True):
+def read(auth: BfabricAuth, config: BfabricClientConfig, endpoint: str, query: dict, raw: bool = True):
     wsdl = "".join((config.base_url, "/", endpoint, "?wsdl"))
     fullQuery = full_query(auth, query)
     return read_zeep(wsdl, fullQuery, raw=raw)

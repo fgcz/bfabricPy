@@ -25,7 +25,7 @@ from pathlib import Path
 
 from loguru import logger
 
-from bfabric import Bfabric, BfabricConfig
+from bfabric import Bfabric, BfabricClientConfig
 
 BFABRIC_STORAGE_ID = 2
 
@@ -79,7 +79,7 @@ def get_file_attributes(file_name_or_attributes: str) -> tuple[str, int, int, st
 
 
 def create_importresource_dict(
-    config: BfabricConfig, file_path: str, file_size: int, file_unix_timestamp: int, md5_checksum
+    config: BfabricClientConfig, file_path: str, file_size: int, file_unix_timestamp: int, md5_checksum
 ) -> dict[str, str | int]:
     # Format the timestamp for bfabric
     file_date = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(file_unix_timestamp))

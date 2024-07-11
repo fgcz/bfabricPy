@@ -28,6 +28,7 @@ dependencies = [
     "polars-lts-cpu >= 0.20.25",
     "loguru>=0.7",
     "setuptools",
+    "pydantic"
 ]
 
 [project.optional-dependencies]

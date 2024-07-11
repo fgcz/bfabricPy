@@ -5,7 +5,7 @@ from copy import deepcopy
 import suds
 import zeep
 
-from bfabric import BfabricAuth, BfabricConfig
+from bfabric import BfabricAuth, BfabricClientConfig
 from bfabric.bfabric import get_system_auth
 from bfabric.results.response_format_dict import drop_empty_elements, map_element_keys
 from bfabric.engine.response_format_suds import suds_asdict_recursive
@@ -55,7 +55,7 @@ def full_query(auth: BfabricAuth, query: dict, includedeletableupdateable: bool 
     return {"login": auth.login, "password": auth.password, "query": thisQuery}
 
 
-def calc_both(auth: BfabricAuth, config: BfabricConfig, endpoint: str, query: dict, raw: bool = True):
+def calc_both(auth: BfabricAuth, config: BfabricClientConfig, endpoint: str, query: dict, raw: bool = True):
     wsdl = "".join((config.base_url, "/", endpoint, "?wsdl"))
     fullQuery = full_query(auth, query)
     retZeep = read_zeep(wsdl, fullQuery, raw=raw)
@@ -68,7 +68,7 @@ def calc_both(auth: BfabricAuth, config: BfabricConfig, endpoint: str, query: di
 ######################
 
 
-def raw_test(auth: BfabricAuth, config: BfabricConfig, endpoint, query) -> None:
+def raw_test(auth: BfabricAuth, config: BfabricClientConfig, endpoint, query) -> None:
     print("Testing raw XML match for", endpoint, query)
     retZeep, retSuds = calc_both(auth, config, endpoint, query, raw=True)
     assert len(retZeep) == len(retSuds)

@@ -19,10 +19,10 @@ from typing import Any
 from rich.console import Console
 from rich.table import Column, Table
 
-from bfabric import Bfabric, BfabricConfig
+from bfabric import Bfabric, BfabricClientConfig
 
 
-def render_output(workunits_by_status: dict[str, list[dict[str, Any]]], config: BfabricConfig) -> None:
+def render_output(workunits_by_status: dict[str, list[dict[str, Any]]], config: BfabricClientConfig) -> None:
     """Renders the output as a table."""
     table = Table(
         Column("AID", no_wrap=True),

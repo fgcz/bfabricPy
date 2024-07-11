@@ -10,8 +10,9 @@ import yaml
 from suds.client import Client
 from suds.wsdl import Service
 
-from bfabric import BfabricConfig
-from bfabric.bfabric_config import BfabricAuth, read_config
+from bfabric.config import BfabricClientConfig
+from bfabric.config import BfabricAuth
+from bfabric.bfabric_config import read_config
 
 
 class BfabricLegacy:
@@ -64,7 +65,7 @@ class BfabricLegacy:
         # Use the provided config data from arguments instead of the file
         if not os.path.isfile(config_path):
             self.warning("could not find '.bfabricpy.yml' file in home directory.")
-            self.config = BfabricConfig(base_url=base_url)
+            self.config = BfabricClientConfig(base_url=base_url)
             self.auth = BfabricAuth(login=login, password=password)
 
         # Load config from file, override some of the fields with the provided ones

@@ -1,7 +1,7 @@
 import importlib.metadata
 from bfabric.bfabric import Bfabric, BfabricAPIEngineType
-from bfabric.bfabric_config import BfabricAuth, BfabricConfig
-
+from bfabric.config.bfabric_client_config import BfabricClientConfig
+from bfabric.config import BfabricAuth
 
 __all__ = [
     "Bfabric",

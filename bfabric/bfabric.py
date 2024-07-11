@@ -26,8 +26,9 @@ from typing import Literal, ContextManager, Any
 from loguru import logger
 from rich.console import Console
 
-from bfabric.bfabric_config import BfabricAuth, read_config
-from bfabric.bfabric_config import BfabricConfig
+from bfabric.bfabric_config import read_config
+from bfabric.config import BfabricAuth
+from bfabric.config import BfabricClientConfig
 from bfabric.cli_formatting import HostnameHighlighter, DEFAULT_THEME
 from bfabric.engine.engine_suds import EngineSUDS
 from bfabric.engine.engine_zeep import EngineZeep
@@ -53,7 +54,7 @@ class Bfabric:
 
     def __init__(
         self,
-        config: BfabricConfig,
+        config: BfabricClientConfig,
         auth: BfabricAuth | None,
         engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS,
         verbose: bool = False,
@@ -98,7 +99,7 @@ class Bfabric:
         return cls(config, auth_used, engine=engine, verbose=verbose)
 
     @property
-    def config(self) -> BfabricConfig:
+    def config(self) -> BfabricClientConfig:
         """Returns the config object."""
         return self._config
 
@@ -268,6 +269,9 @@ class Bfabric:
         console = Console(stderr=stderr, highlighter=HostnameHighlighter(), theme=DEFAULT_THEME)
         console.print(self.get_version_message(), style="bright_yellow")
 
+    def __repr__(self) -> str:
+        return f"Bfabric(config={repr(self.config)}, auth={repr(self.auth)}, engine={self.engine})"
+
 
 def get_system_auth(
     login: str = None,
@@ -277,7 +281,7 @@ def get_system_auth(
     config_env: str = None,
     optional_auth: bool = True,
     verbose: bool = False,
-) -> tuple[BfabricConfig, BfabricAuth]:
+) -> tuple[BfabricClientConfig, BfabricAuth]:
     """
     :param login:           Login string for overriding config file
     :param password:        Password for overriding config file
@@ -304,7 +308,7 @@ def get_system_auth(
             raise OSError(f"Explicitly specified config file does not exist: {config_path}")
         # TODO: Convert to log
         print(f"Warning: could not find the config file in the default location: {config_path}")
-        config = BfabricConfig(base_url=base_url)
+        config = BfabricClientConfig(base_url=base_url)
         auth = None if login is None and password is None else BfabricAuth(login=login, password=password)
 
     # Load config from file, override some of the fields with the provided ones
