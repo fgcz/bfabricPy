@@ -29,7 +29,7 @@ dependencies = [
     "loguru>=0.7",
     "setuptools",
     "pydantic",
-    "eval_type_backport",
+    "eval_type_backport; python_version < '3.10'",
 ]
 
 [project.optional-dependencies]
