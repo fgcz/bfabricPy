@@ -10,6 +10,11 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[tba\] - tba
 
+### Added
+
+- Flask
+  - New endpoint `GET /config/remote_base_url` for testing
+
 ## \[1.13.2\] - 2024-07-11
 
 ### Added

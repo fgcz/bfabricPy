@@ -279,6 +279,12 @@ def add_resource() -> Response:
 #    return jsonify({"rv": "ok"})
 
 
+@app.route("/config/remote_base_url", methods=["GET"])
+def get_remote_base_url() -> Response:
+    """Returns the remote base URL, which is useful to verify we are testing against the right endpoint."""
+    return jsonify({"remote_base_url": client.config.base_url})
+
+
 def setup_logger_prod(name: str = DEFAULT_LOGGER_NAME, address: tuple[str, int] = ("fgcz-ms.uzh.ch", 514)) -> None:
     """Sets up the production logger."""
     syslog_handler = logging.handlers.SysLogHandler(address=address)
