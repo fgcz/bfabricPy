@@ -15,6 +15,11 @@ Versioning currently follows `X.Y.Z` where
 - Flask
   - New endpoint `GET /config/remote_base_url` for testing
 
+### Changed
+
+- Flask
+  - Simplify logging by using loguru only
+
 ## \[1.13.2\] - 2024-07-11
 
 ### Added

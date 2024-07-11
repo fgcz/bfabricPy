@@ -35,25 +35,22 @@ Of note, do not forget rerun the flask service after modification!
 from __future__ import annotations
 
 import argparse
-import os
 import json
-import logging
-import logging.handlers
+import os
+import sys
 from pathlib import Path
 from typing import Any
 
 from flask import Flask, Response, jsonify, request
+from loguru import logger
 
 from bfabric import Bfabric, BfabricAuth
-
 
 if "BFABRICPY_CONFIG_ENV" not in os.environ:
     # Set the environment to the name of the PROD config section to use
     os.environ["BFABRICPY_CONFIG_ENV"] = "TEST"
 
-DEFAULT_LOGGER_NAME = "bfabric13_flask"
 
-logger = logging.getLogger(DEFAULT_LOGGER_NAME)
 app = Flask(__name__)
 client = Bfabric.from_config(auth=None, verbose=True)
 
@@ -285,23 +282,10 @@ def get_remote_base_url() -> Response:
     return jsonify({"remote_base_url": client.config.base_url})
 
 
-def setup_logger_prod(name: str = DEFAULT_LOGGER_NAME, address: tuple[str, int] = ("fgcz-ms.uzh.ch", 514)) -> None:
-    """Sets up the production logger."""
-    syslog_handler = logging.handlers.SysLogHandler(address=address)
-    formatter = logging.Formatter("%(name)s %(message)s")
-    syslog_handler.setFormatter(formatter)
-
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
-    logger.addHandler(syslog_handler)
-    return logger
-
-
-def setup_logger_debug(name: str = DEFAULT_LOGGER_NAME) -> None:
-    """Sets up the debug logger."""
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
-    return logger
+def setup_logger_prod() -> None:
+    """Sets up the production logger (by default DEBUG messages are shown as well)."""
+    logger.remove()
+    logger.add(sys.stderr, level="INFO")
 
 
 def main() -> None:
@@ -325,7 +309,6 @@ def main() -> None:
             ),
         )
     else:
-        setup_logger_debug()
         app.run(debug=False, host=args.host, port=args.port)
 
 
