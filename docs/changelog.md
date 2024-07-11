@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[tba\] - tba
 
+## \[1.13.2\] - 2024-07-11
+
 ### Added
 
 - Add `bfabric.entities.Dataset` to easily read datasets.
