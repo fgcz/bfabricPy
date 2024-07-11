@@ -4,10 +4,6 @@ This script is thought to be used as a
 Rest SOAP proxy.
 In particular, it connects R shiny to https://bfabric.org
 
-
-run as pfeeder
-FLASK_APP=$(which bfabric_flask.py) flask run --host=0.0.0.0
-
 Christian Panse <cp@fgcz.ethz.ch>
 Christian Trachsel
 Marco Schmid
@@ -20,6 +16,7 @@ Marco Schmid
 
 
 useful commands when using the debian package:
+(NOTE: This will need to be improved in the future)
 
 systemctl status bfabric-flask-prx.service
 
@@ -37,8 +34,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import sys
-from pathlib import Path
 from typing import Any
 
 from flask import Flask, Response, jsonify, request
@@ -282,34 +277,15 @@ def get_remote_base_url() -> Response:
     return jsonify({"remote_base_url": client.config.base_url})
 
 
-def setup_logger_prod() -> None:
-    """Sets up the production logger (by default DEBUG messages are shown as well)."""
-    logger.remove()
-    logger.add(sys.stderr, level="INFO")
-
-
 def main() -> None:
-    """Starts the server, auto-detecting production mode if SSL keys are present."""
+    """Starts the server, for development.
+    Please use a WSGI server (e.g. gunicorn) and consider SSL in production.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", default="127.0.0.1", type=str)
     parser.add_argument("--port", default=5000, type=int)
     args = parser.parse_args()
-
-    ssl_key_pub = Path("/etc/ssl/fgcz-host.pem")
-    ssl_key_priv = Path("/etc/ssl/private/fgcz-host_key.pem")
-    if ssl_key_pub.exists() and ssl_key_priv.exists():
-        setup_logger_prod()
-        app.run(
-            debug=False,
-            host="0.0.0.0",
-            port=5001,
-            ssl_context=(
-                str(ssl_key_pub),
-                str(ssl_key_priv),
-            ),
-        )
-    else:
-        app.run(debug=False, host=args.host, port=args.port)
+    app.run(debug=False, host=args.host, port=args.port)
 
 
 if __name__ == "__main__":

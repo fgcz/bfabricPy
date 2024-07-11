@@ -18,7 +18,8 @@ Versioning currently follows `X.Y.Z` where
 ### Changed
 
 - Flask
-  - Simplify logging by using loguru only
+  - Simplify logging by using loguru only.
+  - Simplified setup logic since the production use case should use a WSGI server.
 
 ## \[1.13.2\] - 2024-07-11
 
