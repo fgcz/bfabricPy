@@ -1,9 +1,9 @@
 name: PR Checks
 on:
   push:
-    branches: [main, dev-bfabric-2]
+    branches: [main, stable]
   pull_request:
-    branches: [main, dev-bfabric-2]
+    branches: [main, stable]
   workflow_dispatch:
 jobs:
   unit_tests:
