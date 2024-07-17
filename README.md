@@ -49,7 +49,7 @@ If you're interested in using the Python API of `bfabricPy`, you have two option
 ```toml
 [project]
 dependencies = [
-    "bfabricPy @ git+https://github.com/fgcz/bfabricPy.git@main"
+    "bfabricPy @ git+https://github.com/fgcz/bfabricPy.git@stable"
 ]
 ```
 
