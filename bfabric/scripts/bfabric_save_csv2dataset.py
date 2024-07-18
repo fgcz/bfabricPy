@@ -93,14 +93,15 @@ def check_for_invalid_characters(data: pl.DataFrame, invalid_characters: str) ->
     if not invalid_characters:
         return
     invalid_columns_df = data.select(pl.col(pl.String).str.contains_any(list(invalid_characters)).any())
+    if invalid_columns_df.is_empty():
+        return
     invalid_columns = (
         invalid_columns_df.transpose(include_header=True, header_name="column")
-        .filter(pl.col("column_0"))
-        .select("column")
-        .to_numpy()
+        .filter(pl.col("column_0"))["column"]
+        .to_list()
     )
-    if len(invalid_columns) > 0:
-        raise RuntimeError(f"Invalid characters found in columns: {invalid_columns[0]}")
+    if invalid_columns:
+        raise RuntimeError(f"Invalid characters found in columns: {invalid_columns}")
 
 
 def main() -> None:
