@@ -30,7 +30,7 @@ class EnvironmentConfig(BaseModel):
     @classmethod
     def gather_auth(cls, values):
         if "login" in values.keys():
-            values["auth"] = BfabricAuth.validate(values)
+            values["auth"] = BfabricAuth.model_validate(values)
         return values
 
 
