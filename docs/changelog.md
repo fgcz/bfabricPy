@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[tba\] - tba
 
+## \[1.13.3\] - 2024-07-18
+
 ### Added
 
 - Flask
