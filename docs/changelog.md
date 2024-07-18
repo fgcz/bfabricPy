@@ -21,6 +21,10 @@ Versioning currently follows `X.Y.Z` where
   - Simplify logging by using loguru only.
   - Simplified setup logic since the production use case should use a WSGI server.
 
+### Fixed
+
+- `bfabric_save_csv2dataset.py` had an undeclared dependency on numpy and a few bugs which was improved.
+
 ## \[1.13.2\] - 2024-07-11
 
 ### Added
