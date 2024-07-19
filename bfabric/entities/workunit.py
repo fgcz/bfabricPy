@@ -20,24 +20,9 @@ class Workunit(Entity):
     def __init__(self, data_dict: dict[str, Any], client: Bfabric | None = None) -> None:
         super().__init__(data_dict=data_dict, client=client)
 
-    @property
-    def _parameter_id_list(self) -> list[int]:
-        """Returns the list of parameter IDs."""
-        return [x["id"] for x in self.data_dict["parameter"]]
-
-    @property
-    def _resource_id_list(self) -> list[int]:
-        """Returns the list of resource IDs."""
-        return [x["id"] for x in self.data_dict["resource"]]
-
-    @property
-    def _input_resource_id_list(self) -> list[int]:
-        """Returns the list of input resource IDs."""
-        return [x["id"] for x in self.data_dict["inputresource"]]
-
-    parameters = HasMany(entity=Parameter, ids_property="_parameter_id_list")
-    resources = HasMany(entity=Resource, ids_property="_resource_id_list")
-    input_resources = HasMany(entity=Resource, ids_property="_input_resource_id_list")
+    parameters = HasMany(entity=Parameter, bfabric_field="parameter")
+    resources = HasMany(entity=Resource, bfabric_field="resource")
+    input_resources = HasMany(entity=Resource, bfabric_field="inputresource")
 
     @cached_property
     def parameter_values(self) -> dict[str, Any]:

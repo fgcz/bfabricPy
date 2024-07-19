@@ -9,18 +9,34 @@ from bfabric.entities.core.entity import Entity
 
 
 class HasMany:
-    def __init__(self, entity: Type[Entity], ids_property: str, client_property: str = "_client") -> None:
+    def __init__(
+        self,
+        entity: Type[Entity],
+        *,
+        bfabric_field: str | None = None,
+        ids_property: str | None = None,
+        client_property: str = "_client",
+    ) -> None:
         self._entity_type = entity
+        self._bfabric_field = bfabric_field
         self._ids_property = ids_property
         self._client_property = client_property
 
     def __get__(self, obj, objtype=None) -> _HasManyProxy:
-        cache_attr = f"_HasMany__{self._ids_property}_cache"
+        cache_attr = f"_HasMany__{self._ids_property or self._bfabric_field}_cache"
         if not hasattr(obj, cache_attr):
-            ids = getattr(obj, self._ids_property)
+            ids = self._get_ids(obj)
             client = getattr(obj, self._client_property)
             setattr(obj, cache_attr, _HasManyProxy(entity_type=self._entity_type, ids=ids, client=client))
         return getattr(obj, cache_attr)
+
+    def _get_ids(self, obj) -> list[int]:
+        if (self._bfabric_field is None) == (self._ids_property is None):
+            raise ValueError("Exactly one of bfabric_field and ids_property must be set")
+        if self._bfabric_field is not None:
+            return [x["id"] for x in obj.data_dict[self._bfabric_field]]
+        else:
+            return getattr(obj, self._ids_property)
 
 
 class _HasManyProxy:
