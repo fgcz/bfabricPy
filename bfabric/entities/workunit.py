@@ -4,7 +4,7 @@ from functools import cached_property
 from typing import Any
 
 from bfabric import Bfabric
-from bfabric.entities.entity import Entity
+from bfabric.entities.core.entity import Entity
 from bfabric.entities.parameter import Parameter
 
 

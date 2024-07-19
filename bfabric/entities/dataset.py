@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any
 
 from bfabric import Bfabric
-from bfabric.entities.entity import Entity
+from bfabric.entities.core.entity import Entity
 from polars import DataFrame
 
 

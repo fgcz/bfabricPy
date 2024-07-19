@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from bfabric import Bfabric
-from bfabric.entities.entity import Entity
+from bfabric.entities.core.entity import Entity
 
 
 class Parameter(Entity):
