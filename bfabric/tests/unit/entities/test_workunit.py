@@ -3,7 +3,9 @@ from typing import Any
 import pytest
 from pytest_mock import MockerFixture
 
+from bfabric.entities.core.has_many import HasMany
 from bfabric.entities.parameter import Parameter
+from bfabric.entities.resource import Resource
 from bfabric.entities.workunit import Workunit
 
 
@@ -38,21 +40,40 @@ def test_data_dict(mock_workunit: Workunit, mock_data_dict: dict[str, Any]) -> N
     assert mock_workunit.data_dict is not mock_data_dict
 
 
-def test_parameter_id_list(mock_workunit: Workunit) -> None:
-    assert mock_workunit._parameter_id_list == [8118, 8122, 8119]
+def test_parameters(mocker, mock_workunit) -> None:
+    get = mocker.patch.object(HasMany, "__get__")
+    assert mock_workunit.parameters == get.return_value
+    assert get.call_args[0][0]._entity_type == Parameter
+    assert get.call_args[0][0]._bfabric_field == "parameter"
+    assert get.call_args[0][0]._ids_property is None
 
 
-def test_parameters(mocker, mock_workunit, mock_client) -> None:
-    mock_find_all = mocker.patch.object(Parameter, "find_all")
-    assert mock_workunit.parameters == mock_find_all.return_value
-    mock_find_all.assert_called_once_with(ids=[8118, 8122, 8119], client=mock_client)
+def test_resources(mocker, mock_workunit) -> None:
+    get = mocker.patch.object(HasMany, "__get__")
+    assert mock_workunit.resources == get.return_value
+    assert get.call_args[0][0]._entity_type == Resource
+    assert get.call_args[0][0]._bfabric_field == "resource"
+    assert get.call_args[0][0]._ids_property is None
+
+
+def test_input_resources(mocker, mock_workunit) -> None:
+    get = mocker.patch.object(HasMany, "__get__")
+    assert mock_workunit.input_resources == get.return_value
+    assert get.call_args[0][0]._entity_type == Resource
+    assert get.call_args[0][0]._bfabric_field == "inputresource"
+    assert get.call_args[0][0]._ids_property is None
 
 
 def test_parameter_values(mocker, mock_workunit: Workunit) -> None:
     mocker.patch.object(
         mock_workunit,
         "parameters",
-        {1234: mocker.Mock(key="key1", value="value1"), 5678: mocker.Mock(key="key2", value="value2")},
+        mocker.Mock(
+            list=[
+                mocker.Mock(key="key1", value="value1"),
+                mocker.Mock(key="key2", value="value2"),
+            ]
+        ),
     )
     assert mock_workunit.parameter_values == {"key1": "value1", "key2": "value2"}
 
