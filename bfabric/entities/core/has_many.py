@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Type, Iterable
 
+from polars import DataFrame
+
 from bfabric import Bfabric
 from bfabric.entities.core.entity import Entity
 
@@ -36,6 +38,11 @@ class _HasManyProxy:
     def list(self) -> list[Entity]:
         self._load_all()
         return sorted(self._items.values(), key=lambda x: self._items.keys())
+
+    @property
+    def polars(self) -> DataFrame:
+        self._load_all()
+        return DataFrame([x.data_dict for x in self._items.values()])
 
     def __getitem__(self, key: int) -> Entity:
         self._load_all()

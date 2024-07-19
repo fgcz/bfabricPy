@@ -7,6 +7,7 @@ from bfabric import Bfabric
 from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.has_many import HasMany
 from bfabric.entities.parameter import Parameter
+from bfabric.entities.resource import Resource
 
 
 class Workunit(Entity):
@@ -24,7 +25,19 @@ class Workunit(Entity):
         """Returns the list of parameter IDs."""
         return [x["id"] for x in self.data_dict["parameter"]]
 
+    @property
+    def _resource_id_list(self) -> list[int]:
+        """Returns the list of resource IDs."""
+        return [x["id"] for x in self.data_dict["resource"]]
+
+    @property
+    def _input_resource_id_list(self) -> list[int]:
+        """Returns the list of input resource IDs."""
+        return [x["id"] for x in self.data_dict["inputresource"]]
+
     parameters = HasMany(entity=Parameter, ids_property="_parameter_id_list")
+    resources = HasMany(entity=Resource, ids_property="_resource_id_list")
+    input_resources = HasMany(entity=Resource, ids_property="_input_resource_id_list")
 
     @cached_property
     def parameter_values(self) -> dict[str, Any]:
