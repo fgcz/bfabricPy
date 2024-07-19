@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from functools import cached_property
 from typing import Any
 
 from bfabric import Bfabric
@@ -18,14 +19,15 @@ class Workunit(Entity):
         super().__init__(data_dict=data_dict, client=client)
 
     @property
-    def parameter_id_list(self) -> list[int]:
+    def _parameter_id_list(self) -> list[int]:
         """Returns the list of parameter IDs."""
         return [x["id"] for x in self.data_dict["parameter"]]
 
-    def get_parameters(self, client: Bfabric) -> dict[int, Parameter]:
+    @cached_property
+    def parameters(self) -> dict[int, Parameter]:
         """Returns the list of parameter objects."""
-        return Parameter.find_all(self.parameter_id_list, client=client)
+        return Parameter.find_all(ids=self._parameter_id_list, client=self._client)
 
-    def get_parameter_values(self, client: Bfabric) -> dict[str, Any]:
-        """Returns the dictionary of parameter keys and values."""
-        return {x.key: x.value for x in self.get_parameters(client).values()}
+    @cached_property
+    def parameter_values(self) -> dict[str, Any]:
+        return {p.key: p.value for p in self.parameters.values()}
