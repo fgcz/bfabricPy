@@ -31,6 +31,9 @@ class Entity:
 
     @classmethod
     def find_all(cls, ids: list[int], client: Bfabric) -> dict[int, Self]:
+        if len(ids) > 100:
+            # TODO use paginated read if more than 100 ids
+            raise NotImplementedError("Pagination not yet implemented here.")
         result = client.read(cls.ENDPOINT, obj={"id": ids})
         results = {x["id"]: cls(x, client=client) for x in result}
         if len(results) != len(ids):

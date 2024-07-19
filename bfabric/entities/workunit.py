@@ -5,6 +5,7 @@ from typing import Any
 
 from bfabric import Bfabric
 from bfabric.entities.core.entity import Entity
+from bfabric.entities.core.has_many import HasMany
 from bfabric.entities.parameter import Parameter
 
 
@@ -23,11 +24,8 @@ class Workunit(Entity):
         """Returns the list of parameter IDs."""
         return [x["id"] for x in self.data_dict["parameter"]]
 
-    @cached_property
-    def parameters(self) -> dict[int, Parameter]:
-        """Returns the list of parameter objects."""
-        return Parameter.find_all(ids=self._parameter_id_list, client=self._client)
+    parameters = HasMany(entity=Parameter, ids_property="_parameter_id_list")
 
     @cached_property
     def parameter_values(self) -> dict[str, Any]:
-        return {p.key: p.value for p in self.parameters.values()}
+        return {p.key: p.value for p in self.parameters.list}
