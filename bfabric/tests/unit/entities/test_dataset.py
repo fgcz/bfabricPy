@@ -5,7 +5,7 @@ from typing import Any
 import polars as pl
 import polars.testing
 import pytest
-from pytest_mock import MockFixture
+from pytest_mock import MockFixture, MockerFixture
 
 from bfabric.entities.dataset import Dataset
 
@@ -26,13 +26,18 @@ def mock_data_dict() -> dict[str, Any]:
 
 
 @pytest.fixture()
-def mock_dataset(mock_data_dict: dict[str, Any]) -> Dataset:
-    return Dataset(mock_data_dict)
+def mock_client(mocker: MockerFixture):
+    return mocker.MagicMock(name="mock_client")
+
+
+@pytest.fixture()
+def mock_dataset(mock_data_dict: dict[str, Any], mock_client) -> Dataset:
+    return Dataset(mock_data_dict, client=mock_client)
 
 
 @pytest.fixture()
 def mock_empty_dataset() -> Dataset:
-    return Dataset({"id": 1234, "attribute": [], "item": []})
+    return Dataset({"id": 1234, "attribute": [], "item": []}, client=None)
 
 
 def test_data_dict(mock_dataset: Dataset, mock_data_dict: dict[str, Any]) -> None:
@@ -66,11 +71,11 @@ def test_write_csv(mocker: MockFixture, mock_dataset: Dataset) -> None:
 
 
 def test_repr(mock_empty_dataset: Dataset) -> None:
-    assert repr(mock_empty_dataset) == "Dataset({'id': 1234, 'attribute': [], 'item': []})"
+    assert repr(mock_empty_dataset) == "Dataset({'id': 1234, 'attribute': [], 'item': []}, client=None)"
 
 
 def test_str(mock_empty_dataset: Dataset) -> None:
-    assert str(mock_empty_dataset) == "Dataset({'id': 1234, 'attribute': [], 'item': []})"
+    assert str(mock_empty_dataset) == "Dataset({'id': 1234, 'attribute': [], 'item': []}, client=None)"
 
 
 if __name__ == "__main__":

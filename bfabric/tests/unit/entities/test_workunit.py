@@ -36,11 +36,11 @@ def test_parameter_id_list(mock_workunit: Workunit) -> None:
 
 
 def test_repr(mock_workunit: Workunit) -> None:
-    assert repr(mock_workunit) == f"Workunit({repr(mock_workunit.data_dict)})"
+    assert repr(mock_workunit) == f"Workunit({repr(mock_workunit.data_dict)}, client=None)"
 
 
 def test_str(mock_workunit: Workunit) -> None:
-    assert str(mock_workunit) == f"Workunit({repr(mock_workunit.data_dict)})"
+    assert str(mock_workunit) == f"Workunit({repr(mock_workunit.data_dict)}, client=None)"
 
 
 if __name__ == "__main__":

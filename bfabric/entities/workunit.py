@@ -14,8 +14,8 @@ class Workunit(Entity):
 
     ENDPOINT = "workunit"
 
-    def __init__(self, data_dict: dict[str, Any]) -> None:
-        super().__init__(data_dict)
+    def __init__(self, data_dict: dict[str, Any], client: Bfabric | None = None) -> None:
+        super().__init__(data_dict=data_dict, client=client)
 
     @property
     def parameter_id_list(self) -> list[int]:

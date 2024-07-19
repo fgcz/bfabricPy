@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
+
+from bfabric import Bfabric
 from bfabric.entities.entity import Entity
 from polars import DataFrame
 
@@ -11,8 +13,8 @@ class Dataset(Entity):
     :param data_dict: The dictionary representation of the dataset.
     """
 
-    def __init__(self, data_dict: dict[str, Any]) -> None:
-        super().__init__(data_dict=data_dict)
+    def __init__(self, data_dict: dict[str, Any], client: Bfabric | None = None) -> None:
+        super().__init__(data_dict=data_dict, client=client)
 
     def to_polars(self) -> DataFrame:
         """Returns a Polars DataFrame representation of the dataset."""
