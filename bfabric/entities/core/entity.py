@@ -8,7 +8,7 @@ from bfabric import Bfabric
 
 
 class Entity:
-    ENDPOINT: str
+    ENDPOINT: str = ""
 
     def __init__(self, data_dict: dict[str, Any], client: Bfabric | None) -> None:
         self.__data_dict = data_dict
