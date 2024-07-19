@@ -12,7 +12,7 @@ Versioning currently follows `X.Y.Z` where
 
 ### Added
 
-- Add `Workunit` and `Parameter` entities.
+- Add `Workunit`, `Parameter`, and `Resource` entities.
 
 ## \[1.13.3\] - 2024-07-18
 
