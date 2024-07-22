@@ -28,7 +28,7 @@ class Entity:
 
     @classmethod
     def find(cls, id: int, client: Bfabric) -> Self | None:
-        result = client.read(cls.ENDPOINT, obj={"id": id})
+        result = client.read(cls.ENDPOINT, obj={"id": int(id)})
         return cls(result[0], client=client) if len(result) == 1 else None
 
     @classmethod
@@ -36,7 +36,7 @@ class Entity:
         if len(ids) > 100:
             # TODO use paginated read if more than 100 ids
             raise NotImplementedError("Pagination not yet implemented here.")
-        result = client.read(cls.ENDPOINT, obj={"id": ids})
+        result = client.read(cls.ENDPOINT, obj={"id": [int(id) for id in ids]})
         results = {x["id"]: cls(x, client=client) for x in result}
         if len(results) != len(ids):
             logger.warning(f"Only found {len(results)} out of {len(ids)}.")
