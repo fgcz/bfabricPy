@@ -13,6 +13,7 @@ Versioning currently follows `X.Y.Z` where
 ### Added
 
 - Add `Workunit`, `Parameter`, and `Resource` entities.
+- Add concept of has_many and has_one relationships to entities.
 
 ## \[1.13.3\] - 2024-07-18
 
