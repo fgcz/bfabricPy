@@ -74,6 +74,7 @@ Repository = "https://github.com/fgcz/bfabricPy"
 #bfabric_save_resource="bfabric.scripts.bfabric_save_resource:main"
 "bfabric_save_workunit_attribute.py"="bfabric.scripts.bfabric_save_workunit_attribute:main"
 "bfabric_save_workflowstep.py"="bfabric.scripts.bfabric_save_workflowstep:main"
+"bfabric_slurm_queue_status.py"="bfabric.scripts.bfabric_slurm_queue_status:main"
 
 [tool.black]
 line-length = 120
