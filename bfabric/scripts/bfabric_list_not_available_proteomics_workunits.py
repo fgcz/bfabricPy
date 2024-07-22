@@ -33,8 +33,8 @@ def render_output(workunits_by_status: dict[str, list[dict[str, Any]]], config: 
         Column("Name", no_wrap=False),
     )
 
-    for status, workunits in workunits_by_status.items():
-        workunits = [x for x in workunits if x["createdby"] not in ["gfeeder", "itfeeder"]]
+    for status, workunits_all in workunits_by_status.items():
+        workunits = [x for x in workunits_all if x["createdby"] not in ["gfeeder", "itfeeder"]]
         status_color = {
             "Pending": "yellow",
             "Processing": "blue",

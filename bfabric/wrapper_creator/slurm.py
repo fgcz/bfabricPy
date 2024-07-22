@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 Interface to the SLURM (Simple Linux Utility for Resources Management) resource manager and job scheduler
 
@@ -38,7 +37,7 @@ import os
 import subprocess
 
 
-class SLURM(object):
+class SLURM:
     """
     interface to Slurm sbatch
     """

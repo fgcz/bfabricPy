@@ -1,5 +1,5 @@
 import hashlib
-import os
+from pathlib import Path
 
 from bfabric.bfabric_legacy import BfabricLegacy
 
@@ -25,14 +25,15 @@ class BfabricFeeder(BfabricLegacy):
 
         storage = self.read_object("storage", {"id": res.storage._id})[0]
 
-        filename = f"{storage.basepath}/{res.relativepath}"
+        filename = Path(storage.basepath) / res.relativepath
 
-        if os.path.isfile(filename):
+        if filename.is_file():
             try:
-                fmd5 = hashlib.md5(open(filename, "rb").read()).hexdigest()
+                with filename.open("rb") as file:
+                    fmd5 = hashlib.md5(file.read()).hexdigest()
                 print(f"md5sum ({filename}) = {fmd5}")
 
-                fsize = int(os.path.getsize(filename)) + 1
+                fsize = filename.stat().st_size
                 print(f"size ({filename}) = {fsize}")
 
                 return self.save_object(

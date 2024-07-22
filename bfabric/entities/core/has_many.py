@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Type, Iterable
+from collections.abc import Iterable
 
 from polars import DataFrame
 
@@ -11,7 +11,7 @@ from bfabric.entities.core.entity import Entity
 class HasMany:
     def __init__(
         self,
-        entity: Type[Entity],
+        entity: type[Entity],
         *,
         bfabric_field: str | None = None,
         ids_property: str | None = None,
@@ -40,7 +40,7 @@ class HasMany:
 
 
 class _HasManyProxy:
-    def __init__(self, entity_type: Type[Entity], ids: list[int], client: Bfabric) -> None:
+    def __init__(self, entity_type: type[Entity], ids: list[int], client: Bfabric) -> None:
         self._entity_type = entity_type
         self._ids = ids
         self._client = client

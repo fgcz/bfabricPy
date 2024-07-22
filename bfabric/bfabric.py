@@ -16,20 +16,21 @@ from __future__ import annotations
 
 import base64
 import importlib.metadata
+from contextlib import AbstractContextManager
 from contextlib import contextmanager
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
 from pprint import pprint
-from typing import Literal, ContextManager, Any
+from typing import Literal, Any
 
 from loguru import logger
 from rich.console import Console
 
 from bfabric.bfabric_config import read_config
+from bfabric.cli_formatting import HostnameHighlighter, DEFAULT_THEME
 from bfabric.config import BfabricAuth
 from bfabric.config import BfabricClientConfig
-from bfabric.cli_formatting import HostnameHighlighter, DEFAULT_THEME
 from bfabric.engine.engine_suds import EngineSUDS
 from bfabric.engine.engine_zeep import EngineZeep
 from bfabric.results.result_container import ResultContainer
@@ -113,7 +114,7 @@ class Bfabric:
         return self._auth
 
     @contextmanager
-    def with_auth(self, auth: BfabricAuth) -> ContextManager[Bfabric]:
+    def with_auth(self, auth: BfabricAuth) -> AbstractContextManager[Bfabric]:
         """Context manager that temporarily (within the scope of the context) sets the authentication for
         the Bfabric object to the provided value. This is useful when authenticating multiple users, to avoid accidental
         use of the wrong credentials.
@@ -295,11 +296,7 @@ def get_system_auth(
     """
 
     have_config_path = config_path is not None
-    if not have_config_path:
-        # Get default path config file path
-        config_path = Path("~/.bfabricpy.yml").expanduser()
-    else:
-        config_path = Path(config_path).expanduser()
+    config_path = Path(config_path or "~/.bfabricpy.yml").expanduser()
 
     # Use the provided config data from arguments instead of the file
     if not config_path.is_file():
@@ -318,7 +315,7 @@ def get_system_auth(
         if (login is not None) and (password is not None):
             auth = BfabricAuth(login=login, password=password)
         elif (login is None) and (password is None):
-            auth = auth
+            pass
         else:
             raise OSError("Must provide both username and password, or neither.")
 

@@ -29,7 +29,7 @@ class EnvironmentConfig(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def gather_auth(cls, values):
-        if "login" in values.keys():
+        if "login" in values:
             values["auth"] = BfabricAuth.model_validate(values)
         return values
 

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, TYPE_CHECKING, Iterable
+from typing import Any, TYPE_CHECKING
+from collections.abc import Iterable
 
 import bfabric.results.response_format_dict as formatter
 

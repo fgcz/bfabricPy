@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 Interfaces to the Sun/Oracle/Open Grid Engine batch queueing systems.
 taken from https://vm-mad.googlecode.com/svn/trunk
@@ -45,7 +44,7 @@ import os
 import subprocess
 
 
-class GridEngine(object):
+class GridEngine:
     """
     interface to Open Grid Sceduler qsub
     """

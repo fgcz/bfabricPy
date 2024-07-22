@@ -4,12 +4,9 @@ from typing import TYPE_CHECKING
 
 from bfabric.entities.core.entity import Entity
 
-if TYPE_CHECKING:
-    from typing import Type
-
 
 class HasOne:
-    def __init__(self, entity: Type[Entity], *, bfabric_field: str) -> None:
+    def __init__(self, entity: type[Entity], *, bfabric_field: str) -> None:
         self._entity_type = entity
         self._bfabric_field = bfabric_field
 

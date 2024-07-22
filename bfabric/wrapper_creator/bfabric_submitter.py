@@ -97,7 +97,7 @@ class BfabricSubmitter:
         GE = gridengine.GridEngine(user=self.user, queue=self.queue, GRIDENGINEROOT=self.SCHEDULEROOT)
 
         print(script)
-        print((type(script)))
+        print(type(script))
         resQsub = GE.qsub(script=script, arguments=arguments)
 
         self.B.logger(f"{resQsub}")
@@ -106,7 +106,7 @@ class BfabricSubmitter:
         SL = slurm.SLURM(user=self.user, SLURMROOT=self.SCHEDULEROOT)
 
         print(script)
-        print((type(script)))
+        print(type(script))
         resSbatch = SL.sbatch(script=script, arguments=arguments)
 
         self.B.logger(f"{resSbatch}")
@@ -269,9 +269,7 @@ exit 0
                 configuration=content, configuration_parser=lambda x: yaml.safe_load(x)
             )
 
-            _bash_script_filename = "/home/bfabric/prx/workunitid-{0}_externaljobid-{1}_executableid-{2}.bash".format(
-                self.B.get_workunitid_of_externaljob(), self.B.externaljobid, executable._id
-            )
+            _bash_script_filename = f"/home/bfabric/prx/workunitid-{self.B.get_workunitid_of_externaljob()}_externaljobid-{self.B.externaljobid}_executableid-{executable._id}.bash"
 
             with open(_bash_script_filename, "w") as f:
                 f.write(_cmd_template)

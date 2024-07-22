@@ -206,9 +206,8 @@ class TestBfabric(unittest.TestCase):
     def test_save_when_no_auth(self):
         endpoint = "test_endpoint"
         obj = {"key": "value"}
-        with patch.object(self.mock_bfabric, "engine") as mock_engine:
-            with self.assertRaises(ValueError) as error:
-                self.mock_bfabric.save(endpoint, obj)
+        with patch.object(self.mock_bfabric, "engine") as mock_engine, self.assertRaises(ValueError) as error:
+            self.mock_bfabric.save(endpoint, obj)
         self.assertEqual("Authentication not available", str(error.exception))
         mock_engine.save.assert_not_called()
 
@@ -239,9 +238,8 @@ class TestBfabric(unittest.TestCase):
     def test_delete_when_no_auth(self):
         endpoint = "test_endpoint"
         obj = {"key": "value"}
-        with patch.object(self.mock_bfabric, "engine") as mock_engine:
-            with self.assertRaises(ValueError) as error:
-                self.mock_bfabric.delete(endpoint, obj)
+        with patch.object(self.mock_bfabric, "engine") as mock_engine, self.assertRaises(ValueError) as error:
+            self.mock_bfabric.delete(endpoint, obj)
         self.assertEqual("Authentication not available", str(error.exception))
         mock_engine.delete.assert_not_called()
 

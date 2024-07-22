@@ -16,7 +16,7 @@ class BfabricExternalJob(BfabricLegacy):
     externaljobid = None
 
     def __init__(self, login=None, password=None, externaljobid=None):
-        super(BfabricExternalJob, self).__init__(login, password)
+        super().__init__(login, password)
         if not externaljobid:
             print("Error: no externaljobid provided.")
             raise
@@ -27,12 +27,12 @@ class BfabricExternalJob(BfabricLegacy):
 
     def logger(self, msg):
         if self.externaljobid:
-            super(BfabricExternalJob, self).save_object("externaljob", {"id": self.externaljobid, "logthis": str(msg)})
+            super().save_object("externaljob", {"id": self.externaljobid, "logthis": str(msg)})
         else:
-            print((str(msg)))
+            print(str(msg))
 
     def save_object(self, endpoint, obj, debug=None):
-        res = super(BfabricExternalJob, self).save_object(endpoint, obj, debug)
+        res = super().save_object(endpoint, obj, debug)
         jsonres = json.dumps(res, cls=bfabricEncoder, sort_keys=True, indent=2)
         self.logger("saved " + endpoint + "=" + str(jsonres))
         return res
