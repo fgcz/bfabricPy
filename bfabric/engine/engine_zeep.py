@@ -62,11 +62,13 @@ class EngineZeep:
             response = client.service.read(full_query)
         return self._convert_results(response=response, endpoint=endpoint)
 
-    def save(self, endpoint: str, obj: dict, auth: BfabricAuth) -> ResultContainer:
+    def save(self, endpoint: str, obj: dict, auth: BfabricAuth, method: str = "save") -> ResultContainer:
         """Saves the provided object to the specified endpoint.
         :param endpoint: the endpoint to save to, e.g. "sample"
         :param obj: the object to save
         :param auth: the authentication handle of the user performing the request
+        :param method: the method to use for saving, generally "save", but in some cases e.g. "checkandinsert" is more
+            appropriate to be used instead.
         """
         query = copy.deepcopy(obj)
 
@@ -81,7 +83,7 @@ class EngineZeep:
 
         try:
             with client.settings(strict=False):
-                response = client.service.save(full_query)
+                response = getattr(client.service, method)(full_query)
         except AttributeError as e:
             if e.args[0] == "Service has no operation 'save'":
                 raise BfabricRequestError(f"ZEEP failed to find save method for the {endpoint} endpoint.") from e

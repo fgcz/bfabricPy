@@ -225,7 +225,9 @@ def test_save_when_auth_and_check_false(bfabric_instance, mocker):
 
     assert result == mock_engine.save.return_value
     method_assert_success.assert_not_called()
-    mock_engine.save.assert_called_once_with(endpoint="test_endpoint", obj={"key": "value"}, auth=mock_auth)
+    mock_engine.save.assert_called_once_with(
+        endpoint="test_endpoint", obj={"key": "value"}, auth=mock_auth, method="save"
+    )
 
 
 def test_save_when_auth_and_check_true(bfabric_instance, mocker):
@@ -240,7 +242,9 @@ def test_save_when_auth_and_check_true(bfabric_instance, mocker):
 
     assert result == mock_engine.save.return_value
     method_assert_success.assert_called_once()
-    mock_engine.save.assert_called_once_with(endpoint="test_endpoint", obj={"key": "value"}, auth=mock_auth)
+    mock_engine.save.assert_called_once_with(
+        endpoint="test_endpoint", obj={"key": "value"}, auth=mock_auth, method="save"
+    )
 
 
 def test_delete_when_no_auth(bfabric_instance, mocker):

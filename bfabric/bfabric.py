@@ -183,14 +183,16 @@ class Bfabric:
             result.assert_success()
         return result.get_first_n_results(max_results)
 
-    def save(self, endpoint: str, obj: dict[str, Any], check: bool = True) -> ResultContainer:
+    def save(self, endpoint: str, obj: dict[str, Any], check: bool = True, method: str = "save") -> ResultContainer:
         """Saves the provided object to the specified endpoint.
         :param endpoint: the endpoint to save to, e.g. "sample"
         :param obj: the object to save
         :param check: whether to raise an error if the response is not successful
+        :param method: the method to use for saving, generally "save", but in some cases e.g. "checkandinsert" is more
+            appropriate to be used instead.
         :return a ResultContainer describing the saved object if successful
         """
-        results = self.engine.save(endpoint=endpoint, obj=obj, auth=self.auth)
+        results = self.engine.save(endpoint=endpoint, obj=obj, auth=self.auth, method=method)
         if check:
             results.assert_success()
         return results

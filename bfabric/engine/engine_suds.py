@@ -50,16 +50,18 @@ class EngineSUDS:
         response = service.read(full_query)
         return self._convert_results(response=response, endpoint=endpoint)
 
-    def save(self, endpoint: str, obj: dict, auth: BfabricAuth) -> ResultContainer:
+    def save(self, endpoint: str, obj: dict, auth: BfabricAuth, method: str = "save") -> ResultContainer:
         """Saves the provided object to the specified endpoint.
         :param endpoint: the endpoint to save to, e.g. "sample"
         :param obj: the object to save
         :param auth: the authentication handle of the user performing the request
+        :param method: the method to use for saving, generally "save", but in some cases e.g. "checkandinsert" is more
+            appropriate to be used instead.
         """
         query = {"login": auth.login, "password": auth.password, endpoint: obj}
         service = self._get_suds_service(endpoint)
         try:
-            response = service.save(query)
+            response = getattr(service, method)(query)
         except MethodNotFound as e:
             raise BfabricRequestError(f"SUDS failed to find save method for the {endpoint} endpoint.") from e
         return self._convert_results(response=response, endpoint=endpoint)

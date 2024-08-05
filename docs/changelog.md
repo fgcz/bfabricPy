@@ -15,6 +15,7 @@ Versioning currently follows `X.Y.Z` where
 - Add `Workunit`, `Parameter`, and `Resource` entities.
 - Add concept of has_many and has_one relationships to entities.
 - `bfabric_slurm_queue_status.py` to quickly check slurm queue status.
+- `Bfabric.save` provides `method` which can be set to `checkandinsert` for specific use cases.
 
 ### Changed
 
