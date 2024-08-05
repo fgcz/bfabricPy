@@ -34,7 +34,7 @@ def test_read_yml_when_empty_optional(example_config_path: Path, logot: Logot) -
     assert config.base_url == "https://standby-server.uzh.ch/mystandby"
     assert config.application_ids == {}
     assert config.job_notification_emails == ""
-    logot.assert_logged(logged.info(f"Reading configuration from: {str(example_config_path.absolute())}"))
+    logot.assert_logged(logged.debug(f"Reading configuration from: {str(example_config_path.absolute())}"))
 
 
 if __name__ == "__main__":

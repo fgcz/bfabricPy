@@ -30,7 +30,7 @@ def read_config(
         - If not, secondly, the parser will check if the environment variable `BFABRICPY_CONFIG_ENV` is declared
         - If not, finally, the parser will select the default_config specified in [GENERAL] of the .bfabricpy.yml file
     """
-    logger.info(f"Reading configuration from: {config_path}")
+    logger.debug(f"Reading configuration from: {config_path}")
     config_file = ConfigFile.model_validate(yaml.safe_load(Path(config_path).read_text()))
     env_config = config_file.get_selected_config(explicit_config_env=config_env)
     return env_config.config, env_config.auth

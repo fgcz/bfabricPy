@@ -166,7 +166,7 @@ class Bfabric:
             n_item_offset=offset,
             n_item_return_max=max_results,
         )
-        logger.info(f"Requested pages: {requested_pages}")
+        logger.debug(f"Requested pages: {requested_pages}")
 
         # NOTE: Page numbering starts at 1
         response_items = []
@@ -174,7 +174,7 @@ class Bfabric:
         page_offset = initial_offset
         for i_iter, i_page in enumerate(requested_pages):
             if not (i_iter == 0 and i_page == 1):
-                logger.info(f"-- reading page {i_page} of {n_available_pages}")
+                logger.debug(f"-- reading page {i_page} of {n_available_pages}")
                 results = self.engine.read(
                     endpoint=endpoint, obj=obj, auth=self.auth, page=i_page, return_id_only=return_id_only
                 )

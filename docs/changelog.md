@@ -16,6 +16,10 @@ Versioning currently follows `X.Y.Z` where
 - Add concept of has_many and has_one relationships to entities.
 - `bfabric_slurm_queue_status.py` to quickly check slurm queue status.
 
+### Changed
+
+- Most messages are now logged to debug level.
+
 ## \[1.13.3\] - 2024-07-18
 
 ### Added

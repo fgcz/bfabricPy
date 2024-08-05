@@ -69,8 +69,8 @@ def test_bfabric_config_read_yml_bypath_default(mocker: MockerFixture, example_c
     assert auth.password == "01234567890123456789012345678901"
     assert config.base_url == "https://mega-production-server.uzh.ch/myprod"
 
-    logot.assert_logged(logged.info(f"Reading configuration from: {str(example_config_path.absolute())}"))
-    logot.assert_logged(logged.info("BFABRICPY_CONFIG_ENV not found, using default environment PRODUCTION"))
+    logot.assert_logged(logged.debug(f"Reading configuration from: {str(example_config_path.absolute())}"))
+    logot.assert_logged(logged.debug("BFABRICPY_CONFIG_ENV not found, using default environment PRODUCTION"))
 
 
 def test_bfabric_config_read_yml_bypath_environment_variable(
@@ -84,8 +84,8 @@ def test_bfabric_config_read_yml_bypath_environment_variable(
     assert auth.password == "012345678901234567890123456789ff"
     assert config.base_url == "https://mega-test-server.uzh.ch/mytest"
 
-    logot.assert_logged(logged.info(f"Reading configuration from: {str(example_config_path.absolute())}"))
-    logot.assert_logged(logged.info("found BFABRICPY_CONFIG_ENV = TEST"))
+    logot.assert_logged(logged.debug(f"Reading configuration from: {str(example_config_path.absolute())}"))
+    logot.assert_logged(logged.debug("found BFABRICPY_CONFIG_ENV = TEST"))
 
 
 def test_repr(mock_config: BfabricClientConfig) -> None:

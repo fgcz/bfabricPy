@@ -69,10 +69,10 @@ class ConfigFile(BaseModel):
         if explicit_config_env:
             return explicit_config_env
         elif "BFABRICPY_CONFIG_ENV" in os.environ:
-            logger.info(f"found BFABRICPY_CONFIG_ENV = {os.environ['BFABRICPY_CONFIG_ENV']}")
+            logger.debug(f"found BFABRICPY_CONFIG_ENV = {os.environ['BFABRICPY_CONFIG_ENV']}")
             return os.environ["BFABRICPY_CONFIG_ENV"]
         else:
-            logger.info(f"BFABRICPY_CONFIG_ENV not found, using default environment {self.general.default_config}")
+            logger.debug(f"BFABRICPY_CONFIG_ENV not found, using default environment {self.general.default_config}")
             return self.general.default_config
 
     def get_selected_config(self, explicit_config_env: str | None = None) -> EnvironmentConfig:
