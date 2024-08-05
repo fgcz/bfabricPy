@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[tba\] - tba
 
+## \[1.13.4\] - 2024-08-05
+
 ### Added
 
 - Add `Workunit`, `Parameter`, and `Resource` entities.
