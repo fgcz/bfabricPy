@@ -64,8 +64,10 @@ def main() -> None:
     args = parser.parse_args()
     client = Bfabric.from_config()
     zombie_jobs = find_zombie_jobs(client, partition=args.partition, ssh_host=args.ssh)
-    print(json.dumps(zombie_jobs["workunit_id"].to_list()))
-    if not zombie_jobs.is_empty():
+    if zombie_jobs.is_empty():
+        print(json.dumps([]))
+    else:
+        print(json.dumps(zombie_jobs["workunit_id"].to_list()))
         sys.exit(1)
 
 
