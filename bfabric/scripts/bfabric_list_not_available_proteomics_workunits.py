@@ -16,10 +16,12 @@ from argparse import ArgumentParser
 from datetime import datetime, timedelta
 from typing import Any
 
+from loguru import logger
 from rich.console import Console
 from rich.table import Column, Table
 
 from bfabric import Bfabric, BfabricClientConfig
+from bfabric.cli_formatting import setup_script_logging
 
 
 def render_output(workunits_by_status: dict[str, list[dict[str, Any]]], config: BfabricClientConfig) -> None:
@@ -60,6 +62,12 @@ def render_output(workunits_by_status: dict[str, list[dict[str, Any]]], config: 
 def list_not_available_proteomics_workunits(date_cutoff: datetime) -> None:
     """Lists proteomics work units that are not available on bfabric."""
     client = Bfabric.from_config()
+    console = Console()
+    with console.capture() as capture:
+        console.print(
+            f"listing not available proteomics work units created after {date_cutoff}", style="bright_yellow", end=""
+        )
+    logger.info(capture.get())
 
     workunits_by_status = {}
     for status in ["Pending", "Processing", "Failed"]:
@@ -73,6 +81,7 @@ def list_not_available_proteomics_workunits(date_cutoff: datetime) -> None:
 
 def main() -> None:
     """Parses the command line arguments and calls `list_not_available_proteomics_workunits`."""
+    setup_script_logging()
     parser = ArgumentParser(description="Lists proteomics work units that are not available on bfabric.")
     parser.add_argument("--max-age", type=int, help="Max age of work units in days", default=14)
     args = parser.parse_args()
