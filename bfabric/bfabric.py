@@ -146,7 +146,7 @@ class Bfabric:
         :return: List of responses, packaged in the results container
         """
         # Get the first page.
-        # NOTE: According to old interface, this is equivalent to plain=True
+        logger.debug(f"Reading from endpoint {repr(endpoint)} with query {repr(obj)}")
         results = self.engine.read(endpoint=endpoint, obj=obj, auth=self.auth, page=1, return_id_only=return_id_only)
         n_available_pages = results.total_pages_api
         if not n_available_pages:
@@ -169,7 +169,7 @@ class Bfabric:
         page_offset = initial_offset
         for i_iter, i_page in enumerate(requested_pages):
             if not (i_iter == 0 and i_page == 1):
-                logger.debug(f"-- reading page {i_page} of {n_available_pages}")
+                logger.debug(f"Reading page {i_page} of {n_available_pages}")
                 results = self.engine.read(
                     endpoint=endpoint, obj=obj, auth=self.auth, page=i_page, return_id_only=return_id_only
                 )
