@@ -24,7 +24,7 @@ def bfabric_delete(client: Bfabric, endpoint: str, id: int) -> None:
 
 def main() -> None:
     """Parses arguments and calls `bfabric_delete`."""
-    client = Bfabric.from_config(verbose=True)
+    client = Bfabric.from_config()
     parser = argparse.ArgumentParser()
     parser.add_argument("endpoint", help="endpoint", choices=bfabric.endpoints)
     parser.add_argument("id", help="id", type=int)

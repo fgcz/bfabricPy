@@ -26,7 +26,7 @@ def bfabric_upload_resource(client: Bfabric, filename: Path, workunit_id: int) -
 
 def main() -> None:
     """Parses the command line arguments and calls `bfabric_upload_resource`."""
-    client = Bfabric.from_config(verbose=True)
+    client = Bfabric.from_config()
     parser = argparse.ArgumentParser()
     parser.add_argument("filename", help="filename", type=Path)
     parser.add_argument("workunitid", help="workunitid", type=int)

@@ -13,7 +13,7 @@ from bfabric import Bfabric
 
 def save_link(workunit_id: int, url: str, name: str) -> None:
     """Saves a link to a workunit."""
-    client = Bfabric.from_config(verbose=True)
+    client = Bfabric.from_config()
     results = client.save(
         endpoint="link", obj={"name": name, "parentclassname": "workunit", "parentid": workunit_id, "url": url}
     ).to_list_dict()

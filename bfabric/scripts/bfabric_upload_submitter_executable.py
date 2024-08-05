@@ -55,7 +55,7 @@ def main_upload_submitter_executable(options) -> None:
     executableFileName = options.filename
     engine = options.engine
 
-    client = Bfabric.from_config(verbose=True)
+    client = Bfabric.from_config()
 
     with open(executableFileName) as f:
         executable = f.read()

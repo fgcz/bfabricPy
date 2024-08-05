@@ -36,7 +36,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="set external job status to 'done'")
     parser.add_argument("external_job_id", type=int, help="external job id", nargs="+")
     args = parser.parse_args()
-    client = Bfabric.from_config(verbose=True)
+    client = Bfabric.from_config()
     set_external_job_status_done(client, args.external_job_id)
 
 

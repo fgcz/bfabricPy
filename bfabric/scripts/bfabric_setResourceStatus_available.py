@@ -36,7 +36,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("resource_id", type=int, help="resource id", nargs="+")
     args = parser.parse_args()
-    client = Bfabric.from_config(verbose=True)
+    client = Bfabric.from_config()
     set_resource_status_available(client, args.resource_id)
 
 

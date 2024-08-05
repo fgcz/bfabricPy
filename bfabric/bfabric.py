@@ -50,7 +50,6 @@ class Bfabric:
     :param config: Configuration object
     :param auth: Authentication object (if `None`, it has to be provided using the `with_auth` context manager)
     :param engine: Engine to use for the API. Default is SUDS.
-    :param verbose: Print a system info message to standard error console
     """
 
     def __init__(
@@ -58,7 +57,6 @@ class Bfabric:
         config: BfabricClientConfig,
         auth: BfabricAuth | None,
         engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS,
-        verbose: bool = False,
     ) -> None:
         self.query_counter = 0
         self._config = config
@@ -71,8 +69,7 @@ class Bfabric:
         else:
             raise ValueError(f"Unexpected engine: {engine}")
 
-        if verbose:
-            self.print_version_message()
+        self._log_version_message()
 
     @classmethod
     def from_config(
@@ -81,7 +78,6 @@ class Bfabric:
         config_path: str | None = None,
         auth: BfabricAuth | Literal["config"] | None = "config",
         engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS,
-        verbose: bool = False,
     ) -> Bfabric:
         """Returns a new Bfabric instance, configured with the user configuration file.
         If the `config_env` is specified then it will be used, if it is not specified the default environment will be
@@ -93,11 +89,10 @@ class Bfabric:
         :param auth: Authentication to use. If "config" is given, the authentication will be read from the config file.
             If it is set to None, no authentication will be used.
         :param engine: Engine to use for the API. Default is SUDS.
-        :param verbose: Print a system info message to standard error console
         """
         config, auth_config = get_system_auth(config_env=config_env, config_path=config_path)
         auth_used: BfabricAuth | None = auth_config if auth == "config" else auth
-        return cls(config, auth_used, engine=engine, verbose=verbose)
+        return cls(config, auth_used, engine=engine)
 
     @property
     def config(self) -> BfabricClientConfig:
@@ -251,7 +246,7 @@ class Bfabric:
             check=check,
         )
 
-    def get_version_message(self) -> str:
+    def _get_version_message(self) -> tuple[str, str]:
         """Returns the version message as a string."""
         package_version = importlib.metadata.version("bfabric")
         year = datetime.now().year
@@ -259,16 +254,17 @@ class Bfabric:
         base_url = self.config.base_url
         user_name = f"U={self._auth.login if self._auth else None}"
         return (
-            f"--- bfabricPy v{package_version} ({engine_name}, {base_url}, {user_name}) ---\n"
-            f"--- Copyright (C) 2014-{year} Functional Genomics Center Zurich ---"
+            f"bfabricPy v{package_version} ({engine_name}, {base_url}, {user_name})",
+            f"Copyright (C) 2014-{year} Functional Genomics Center Zurich",
         )
 
-    def print_version_message(self, stderr: bool = True) -> None:
-        """Prints the version message to the console.
-        :param stderr: Whether to print to stderr (True, default) or stdout (False)
-        """
-        console = Console(stderr=stderr, highlighter=HostnameHighlighter(), theme=DEFAULT_THEME)
-        console.print(self.get_version_message(), style="bright_yellow")
+    def _log_version_message(self) -> None:
+        """Logs the version message describing bfabricpy version, engine and base url."""
+        console = Console(highlighter=HostnameHighlighter(), theme=DEFAULT_THEME)
+        for line in self._get_version_message():
+            with console.capture() as capture:
+                console.print(line, style="bright_yellow", end="")
+            logger.info(capture.get())
 
     def __repr__(self) -> str:
         return f"Bfabric(config={repr(self.config)}, auth={repr(self.auth)}, engine={self.engine})"

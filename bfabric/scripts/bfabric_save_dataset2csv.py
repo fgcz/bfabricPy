@@ -40,7 +40,7 @@ def bfabric_save_dataset2csv(client: Bfabric, dataset_id: int, out_dir: Path, ou
 
 def main() -> None:
     """Parses arguments and calls `bfabric_save_dataset2csv`."""
-    client = Bfabric.from_config(verbose=True)
+    client = Bfabric.from_config()
     parser = argparse.ArgumentParser(description="Save a B-Fabric dataset to a csv file")
     parser.add_argument("--id", metavar="int", required=True, help="dataset id", type=int)
     parser.add_argument(

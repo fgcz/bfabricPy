@@ -28,7 +28,7 @@ def list_not_existing_storage_dirs(client: Bfabric, root_dir: Path, technology_i
 
 def main() -> None:
     """Parses CLI arguments and calls `list_not_existing_storage_dirs`."""
-    client = Bfabric.from_config(verbose=True)
+    client = Bfabric.from_config()
     root_dir = Path("/srv/www/htdocs/")
     list_not_existing_storage_dirs(client=client, root_dir=root_dir, technology_id=[2, 4])
 

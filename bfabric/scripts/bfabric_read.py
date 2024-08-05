@@ -107,7 +107,7 @@ def _determine_output_format(console_out: Console, output_format: str, n_results
 
 def main() -> None:
     """Parses command line arguments and calls `bfabric_read`."""
-    client = Bfabric.from_config(verbose=True)
+    client = Bfabric.from_config()
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--format",

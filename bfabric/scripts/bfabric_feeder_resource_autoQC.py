@@ -28,7 +28,7 @@ class AutoQC:
 
     def __init__(self) -> None:
         self.bfabric_storageid = 2
-        self.client = Bfabric.from_config(verbose=True)
+        self.client = Bfabric.from_config()
         self.bfabric_application_ids = self.client.config.application_ids
 
     @property

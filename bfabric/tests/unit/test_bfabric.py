@@ -317,7 +317,7 @@ class TestBfabric(unittest.TestCase):
 
     def test_get_version_message(self):
         self.mock_config.base_url = "dummy_url"
-        message = self.mock_bfabric.get_version_message()
+        message = self.mock_bfabric._get_version_message()
         lines = message.split("\n")
         self.assertEqual(2, len(lines))
         # first line
@@ -331,7 +331,7 @@ class TestBfabric(unittest.TestCase):
     @patch.object(Bfabric, "get_version_message")
     def test_print_version_message(self, method_get_version_message, mock_console):
         mock_stderr = MagicMock(name="mock_stderr")
-        self.mock_bfabric.print_version_message(stderr=mock_stderr)
+        self.mock_bfabric._log_version_message(stderr=mock_stderr)
         mock_console.assert_called_once_with(stderr=mock_stderr, highlighter=ANY, theme=ANY)
         mock_console.return_value.print.assert_called_once_with(
             method_get_version_message.return_value, style="bright_yellow"

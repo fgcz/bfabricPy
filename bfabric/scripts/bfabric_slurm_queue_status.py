@@ -62,7 +62,7 @@ def main() -> None:
     parser.add_argument("--partition", type=str, default="prx")
     parser.add_argument("--ssh", type=str, default=None, help="SSH into the given node to obtain list.")
     args = parser.parse_args()
-    client = Bfabric.from_config(verbose=True)
+    client = Bfabric.from_config()
     zombie_jobs = find_zombie_jobs(client, partition=args.partition, ssh_host=args.ssh)
     print(json.dumps(zombie_jobs["workunit_id"].to_list()))
     if not zombie_jobs.is_empty():

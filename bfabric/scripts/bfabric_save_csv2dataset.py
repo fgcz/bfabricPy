@@ -106,7 +106,7 @@ def check_for_invalid_characters(data: pl.DataFrame, invalid_characters: str) ->
 
 def main() -> None:
     """Parses command line arguments and calls `bfabric_save_csv2dataset`."""
-    client = Bfabric.from_config(verbose=True)
+    client = Bfabric.from_config()
     parser = argparse.ArgumentParser(description="Create a B-Fabric dataset")
     parser.add_argument(
         "--csvfile", required=True, help="the path to the csv file to be uploaded as dataset", type=Path

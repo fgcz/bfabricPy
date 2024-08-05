@@ -19,6 +19,7 @@ Versioning currently follows `X.Y.Z` where
 ### Changed
 
 - Most messages are now logged to debug level.
+- The old verbose version information is now always logged, to INFO level, since it could entail useful information for error reporting.
 
 ## \[1.13.3\] - 2024-07-18
 

@@ -94,7 +94,7 @@ def get_parameter_table(client: Bfabric, workunits_table_explode: pl.DataFrame) 
 
 def main() -> None:
     """Parses command line arguments and calls `bfabric_list_workunit_parameters`."""
-    client = Bfabric.from_config(verbose=True)
+    client = Bfabric.from_config()
     parser = argparse.ArgumentParser()
     parser.add_argument("application_id", type=int, help="The application ID to list the workunit parameters for.")
     parser.add_argument("--max-workunits", type=int, help="The maximum number of workunits to fetch.", default=200)

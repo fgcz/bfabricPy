@@ -136,7 +136,7 @@ def get_bfabric_application_and_project_id(bfabric_application_ids: dict[str, in
 
 def main() -> None:
     """Parses arguments and calls `save_importresource`."""
-    client = Bfabric.from_config(verbose=True)
+    client = Bfabric.from_config()
     if sys.argv[1] == "-":
         logger.info("reading from stdin ...")
         for input_line in sys.stdin:

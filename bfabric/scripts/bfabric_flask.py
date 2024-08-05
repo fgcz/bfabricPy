@@ -47,7 +47,7 @@ if "BFABRICPY_CONFIG_ENV" not in os.environ:
 
 
 app = Flask(__name__)
-client = Bfabric.from_config(auth=None, verbose=True)
+client = Bfabric.from_config(auth=None)
 
 
 def get_request_auth(request_data: dict[str, Any]) -> BfabricAuth:
@@ -117,7 +117,7 @@ def read() -> Response:
 
     logger.info(f"'{auth.login}' /read {page_offset=}, {page_max_results=}, {query=}")
     with client.with_auth(auth):
-        client.print_version_message()
+        client._log_version_message()
         res = client.read(
             endpoint=endpoint,
             obj=query,
