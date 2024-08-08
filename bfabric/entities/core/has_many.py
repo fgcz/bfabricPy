@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import importlib
 from collections.abc import Iterable
+from functools import cached_property
 
 from polars import DataFrame
 
@@ -11,16 +13,23 @@ from bfabric.entities.core.entity import Entity
 class HasMany:
     def __init__(
         self,
-        entity: type[Entity],
+        entity: str,
         *,
         bfabric_field: str | None = None,
         ids_property: str | None = None,
         client_property: str = "_client",
     ) -> None:
-        self._entity_type = entity
+        self._entity_type_name = entity
         self._bfabric_field = bfabric_field
         self._ids_property = ids_property
         self._client_property = client_property
+
+    @cached_property
+    def _entity_type(self) -> type[Entity]:
+        # TODO duplicated
+        return importlib.import_module(f"bfabric.entities.{self._entity_type_name.lower()}").__dict__[
+            self._entity_type_name
+        ]
 
     def __get__(self, obj, objtype=None) -> _HasManyProxy:
         cache_attr = f"_HasMany__{self._ids_property or self._bfabric_field}_cache"

@@ -4,8 +4,10 @@ from functools import cached_property
 from typing import Any
 
 from bfabric import Bfabric
+from bfabric.entities import Application
 from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.has_many import HasMany
+from bfabric.entities.core.has_one import HasOne
 from bfabric.entities.parameter import Parameter
 from bfabric.entities.resource import Resource
 
@@ -20,9 +22,10 @@ class Workunit(Entity):
     def __init__(self, data_dict: dict[str, Any], client: Bfabric | None = None) -> None:
         super().__init__(data_dict=data_dict, client=client)
 
-    parameters = HasMany(entity=Parameter, bfabric_field="parameter")
-    resources = HasMany(entity=Resource, bfabric_field="resource")
-    input_resources = HasMany(entity=Resource, bfabric_field="inputresource")
+    application = HasOne(entity="Application", bfabric_field="application")
+    parameters = HasMany(entity="Parameter", bfabric_field="parameter")
+    resources = HasMany(entity="Resource", bfabric_field="resource")
+    input_resources = HasMany(entity="Resource", bfabric_field="inputresource")
 
     @cached_property
     def parameter_values(self) -> dict[str, Any]:
