@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """B-Fabric Application Interface using WSDL
 
 Copyright (C) 2014 - 2024 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
@@ -20,6 +19,7 @@ from contextlib import AbstractContextManager
 from contextlib import contextmanager
 from datetime import datetime
 from enum import Enum
+from functools import cached_property
 from pathlib import Path
 from pprint import pprint
 from typing import Literal, Any
@@ -49,7 +49,7 @@ class Bfabric:
     Use `Bfabric.from_config` to create a new instance.
     :param config: Configuration object
     :param auth: Authentication object (if `None`, it has to be provided using the `with_auth` context manager)
-    :param engine: Engine to use for the API. Default is SUDS.
+    :param engine: Engine type to use for the API. Default is `BfabricAPIEngineType.SUDS`.
     """
 
     def __init__(
@@ -61,15 +61,17 @@ class Bfabric:
         self.query_counter = 0
         self._config = config
         self._auth = auth
-
-        if engine == BfabricAPIEngineType.SUDS:
-            self.engine = EngineSUDS(base_url=config.base_url)
-        elif engine == BfabricAPIEngineType.ZEEP:
-            self.engine = EngineZeep(base_url=config.base_url)
-        else:
-            raise ValueError(f"Unexpected engine: {engine}")
-
+        self._engine_type = engine
         self._log_version_message()
+
+    @cached_property
+    def _engine(self) -> EngineSUDS | EngineZeep:
+        if self._engine_type == BfabricAPIEngineType.SUDS:
+            return EngineSUDS(base_url=self._config.base_url)
+        elif self._engine_type == BfabricAPIEngineType.ZEEP:
+            return EngineZeep(base_url=self._config.base_url)
+        else:
+            raise ValueError(f"Unexpected engine type: {self._engine_type}")
 
     @classmethod
     def from_config(
@@ -147,7 +149,7 @@ class Bfabric:
         """
         # Get the first page.
         logger.debug(f"Reading from endpoint {repr(endpoint)} with query {repr(obj)}")
-        results = self.engine.read(endpoint=endpoint, obj=obj, auth=self.auth, page=1, return_id_only=return_id_only)
+        results = self._engine.read(endpoint=endpoint, obj=obj, auth=self.auth, page=1, return_id_only=return_id_only)
         n_available_pages = results.total_pages_api
         if not n_available_pages:
             if check:
@@ -170,7 +172,7 @@ class Bfabric:
         for i_iter, i_page in enumerate(requested_pages):
             if not (i_iter == 0 and i_page == 1):
                 logger.debug(f"Reading page {i_page} of {n_available_pages}")
-                results = self.engine.read(
+                results = self._engine.read(
                     endpoint=endpoint, obj=obj, auth=self.auth, page=i_page, return_id_only=return_id_only
                 )
                 errors += results.errors
@@ -192,7 +194,7 @@ class Bfabric:
             appropriate to be used instead.
         :return a ResultContainer describing the saved object if successful
         """
-        results = self.engine.save(endpoint=endpoint, obj=obj, auth=self.auth, method=method)
+        results = self._engine.save(endpoint=endpoint, obj=obj, auth=self.auth, method=method)
         if check:
             results.assert_success()
         return results
@@ -204,7 +206,7 @@ class Bfabric:
         :param check: whether to raise an error if the response is not successful
         :return a ResultContainer describing the deleted object if successful
         """
-        results = self.engine.delete(endpoint=endpoint, id=id, auth=self.auth)
+        results = self._engine.delete(endpoint=endpoint, id=id, auth=self.auth)
         if check:
             results.assert_success()
         return results
@@ -252,7 +254,7 @@ class Bfabric:
         """Returns the version message as a string."""
         package_version = importlib.metadata.version("bfabric")
         year = datetime.now().year
-        engine_name = self.engine.__class__.__name__
+        engine_name = self._engine.__class__.__name__
         base_url = self.config.base_url
         user_name = f"U={self._auth.login if self._auth else None}"
         return (
@@ -269,7 +271,23 @@ class Bfabric:
             logger.info(capture.get())
 
     def __repr__(self) -> str:
-        return f"Bfabric(config={repr(self.config)}, auth={repr(self.auth)}, engine={self.engine})"
+        return f"Bfabric(config={repr(self.config)}, auth={repr(self.auth)}, engine={self._engine})"
+
+    __str__ = __repr__
+
+    def __getstate__(self):
+        return {
+            "config": self._config,
+            "auth": self._auth,
+            "engine_type": self._engine_type,
+            "query_counter": self.query_counter,
+        }
+
+    def __setstate__(self, state):
+        self._config = state["config"]
+        self._auth = state["auth"]
+        self._engine_type = state["engine_type"]
+        self.query_counter = state["query_counter"]
 
 
 def get_system_auth(

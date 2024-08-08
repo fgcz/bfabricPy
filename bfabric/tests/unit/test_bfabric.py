@@ -88,7 +88,7 @@ def test_from_config_when_engine_suds(mocker):
     assert isinstance(client, Bfabric)
     assert client.config == mock_config
     assert client.auth == mock_auth
-    assert client.engine == mock_engine_suds.return_value
+    assert client._engine == mock_engine_suds.return_value
     mock_get_system_auth.assert_called_once_with(config_env=None, config_path=None)
     mock_engine_suds.assert_called_once_with(base_url=mock_config.base_url)
 
@@ -106,7 +106,7 @@ def test_from_config_when_engine_zeep(mocker):
     assert isinstance(client, Bfabric)
     assert client.config == mock_config
     assert client.auth == mock_auth
-    assert client.engine == mock_engine_zeep.return_value
+    assert client._engine == mock_engine_zeep.return_value
     mock_get_system_auth.assert_called_once_with(config_env=None, config_path=None)
     mock_engine_zeep.assert_called_once_with(base_url=mock_config.base_url)
 
@@ -157,7 +157,7 @@ def test_read_when_no_pages_available_and_check(bfabric_instance, mocker):
     mock_auth = MagicMock(name="mock_auth")
     bfabric_instance._auth = mock_auth
 
-    mock_engine = mocker.patch.object(bfabric_instance, "engine")
+    mock_engine = mocker.patch.object(bfabric_instance, "_engine")
     mock_result = MagicMock(name="mock_result", total_pages_api=0, assert_success=MagicMock())
     mock_engine.read.return_value = mock_result
 
@@ -176,7 +176,7 @@ def test_read_when_pages_available_and_check(bfabric_instance, mocker):
     bfabric_instance._auth = mock_auth
 
     mock_compute_requested_pages = mocker.patch("bfabric.bfabric.compute_requested_pages")
-    mock_engine = mocker.patch.object(bfabric_instance, "engine")
+    mock_engine = mocker.patch.object(bfabric_instance, "_engine")
 
     mock_page_results = [
         MagicMock(name=f"mock_page_result_{i}", assert_success=MagicMock(), total_pages_api=3, errors=[])
@@ -205,7 +205,7 @@ def test_read_when_pages_available_and_check(bfabric_instance, mocker):
 
 
 def test_save_when_no_auth(bfabric_instance, mocker):
-    mock_engine = mocker.patch.object(bfabric_instance, "engine")
+    mock_engine = mocker.patch.object(bfabric_instance, "_engine")
 
     with pytest.raises(ValueError, match="Authentication not available"):
         bfabric_instance.save("test_endpoint", {"key": "value"})
@@ -217,7 +217,7 @@ def test_save_when_auth_and_check_false(bfabric_instance, mocker):
     mock_auth = MagicMock(name="mock_auth")
     bfabric_instance._auth = mock_auth
 
-    mock_engine = mocker.patch.object(bfabric_instance, "engine")
+    mock_engine = mocker.patch.object(bfabric_instance, "_engine")
     method_assert_success = MagicMock(name="method_assert_success")
     mock_engine.save.return_value.assert_success = method_assert_success
 
@@ -234,7 +234,7 @@ def test_save_when_auth_and_check_true(bfabric_instance, mocker):
     mock_auth = MagicMock(name="mock_auth")
     bfabric_instance._auth = mock_auth
 
-    mock_engine = mocker.patch.object(bfabric_instance, "engine")
+    mock_engine = mocker.patch.object(bfabric_instance, "_engine")
     method_assert_success = MagicMock(name="method_assert_success")
     mock_engine.save.return_value.assert_success = method_assert_success
 
@@ -248,7 +248,7 @@ def test_save_when_auth_and_check_true(bfabric_instance, mocker):
 
 
 def test_delete_when_no_auth(bfabric_instance, mocker):
-    mock_engine = mocker.patch.object(bfabric_instance, "engine")
+    mock_engine = mocker.patch.object(bfabric_instance, "_engine")
 
     with pytest.raises(ValueError, match="Authentication not available"):
         bfabric_instance.delete("test_endpoint", {"key": "value"})
@@ -260,7 +260,7 @@ def test_delete_when_auth_and_check_false(bfabric_instance, mocker):
     mock_auth = MagicMock(name="mock_auth")
     bfabric_instance._auth = mock_auth
 
-    mock_engine = mocker.patch.object(bfabric_instance, "engine")
+    mock_engine = mocker.patch.object(bfabric_instance, "_engine")
     method_assert_success = MagicMock(name="method_assert_success")
     mock_engine.delete.return_value.assert_success = method_assert_success
 
@@ -275,7 +275,7 @@ def test_delete_when_auth_and_check_true(bfabric_instance, mocker):
     mock_auth = MagicMock(name="mock_auth")
     bfabric_instance._auth = mock_auth
 
-    mock_engine = mocker.patch.object(bfabric_instance, "engine")
+    mock_engine = mocker.patch.object(bfabric_instance, "_engine")
     method_assert_success = MagicMock(name="method_assert_success")
     mock_engine.delete.return_value.assert_success = method_assert_success
 

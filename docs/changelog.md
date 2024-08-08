@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[tba\] - tba
 
+### Added
+
+- The `Bfabric` instance is now pickleable.
+
 ## \[1.13.4\] - 2024-08-05
 
 ### Added
