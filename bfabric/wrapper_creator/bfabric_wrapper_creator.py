@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import base64
 import datetime
 import json
@@ -158,6 +159,35 @@ class BfabricWrapperCreator:
             return self._workunit.data_dict["container"]["id"]
         elif self._order_id is not None:
             return self._client.read("order", {"id": self._order_id})[0]["project"]["id"]
+
+    def write_results(self, config_serialized: str) -> None:
+        yaml_workunit_executable = self._client.save(
+            "executable",
+            {
+                "name": "job configuration (executable) in YAML",
+                "context": "WORKUNIT",
+                "workunitid": self._workunit.id,
+                "description": "This is a job configuration as YAML base64 encoded. It is configured to be executed by the B-Fabric yaml submitter.",
+                "base64": base64.b64encode(config_serialized.encode()).decode(),
+                "version": "10",
+            },
+        )[0]
+        yaml_workunit_externaljob = self._client.save(
+            "externaljob",
+            {
+                "workunitid": self._workunit.id,
+                "status": "new",
+                "executableid": yaml_workunit_executable["id"],
+                "action": "WORKUNIT",
+            },
+        )
+
+        # TODO now i am a bit confused, the external_job_id that is added to the .yml file is not the original one
+        #      but rather the one from the yaml_workunit_externaljob. I am not sure if we need this as it makes the
+        #      code here a lot more complex
+
+        print(yaml_workunit_externaljob)
+        self._client.save("externaljob", {"id": self._external_job_id, "status": "done"})
 
 
 class BfabricWrapperCreatorOld(BfabricExternalJob):
