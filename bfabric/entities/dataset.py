@@ -3,9 +3,10 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from polars import DataFrame
+
 from bfabric import Bfabric
 from bfabric.entities.core.entity import Entity
-from polars import DataFrame
 
 
 class Dataset(Entity):
