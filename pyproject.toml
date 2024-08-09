@@ -42,7 +42,8 @@ dev = [
     "pytest-mock",
     "logot",
     "nox",
-    "uv"
+    "uv",
+    "mkdocs"
 ]
 
 [project.urls]
