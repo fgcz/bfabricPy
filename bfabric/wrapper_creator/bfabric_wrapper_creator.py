@@ -27,8 +27,7 @@ class BfabricWrapperCreator:
 
     @cached_property
     def _workunit(self) -> Workunit:
-        assert self._external_job.data_dict["cliententityclassname"] == "Workunit"
-        return Workunit.find(id=self._external_job.data_dict["cliententityid"], client=self._client)
+        return self._external_job.workunit
 
     @cached_property
     def _application(self) -> Application:
