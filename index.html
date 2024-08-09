@@ -81,6 +81,10 @@
             
             <li class="nav-item" data-bs-level="1"><a href="#home" class="nav-link">Home</a>
               <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#installation" class="nav-link">Installation</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
             <li class="nav-item" data-bs-level="2"><a href="#configuration" class="nav-link">Configuration</a>
               <ul class="nav flex-column">
               </ul>
@@ -96,6 +100,42 @@
 <p>This package connects the <a href="https://fgcz-bfabric.uzh.ch/bfabric/">bfabric</a> system to the <a href="https://www.python.org/">python</a> and <a href="https://cran.r-project.org/">R</a> world while providing a JSON and REST interface using <a href="https://www.fullstackpython.com">Flask</a>.
 The <a href="https://github.com/cpanse/bfabricShiny">bfabricShiny</a> R package is an extension and provides code snippets and sample implementation for a seamless R shiny bfabric integration.
 For more advanced users the <em>bfabricPy</em> package also provides a powerful query interface on the command-line though using the provided scripts.</p>
+<h2 id="installation">Installation</h2>
+<p>The package can be installed like any other Python package, so if you are familiar you might not need to read this section.
+Currently, it's only available from GitHub.</p>
+<p>The best way to install the package depends on your use case, i.e. whether you want to:</p>
+<ol>
+<li>Use the command line scripts</li>
+<li>Use the Python API</li>
+<li>Develop on the package</li>
+</ol>
+<p>The command line scripts are currently included in all cases.</p>
+<h3 id="command-line-scripts">Command line scripts</h3>
+<p>To use the command line scripts, it's recommended to install <code>bfabricPy</code> with <a href="https://pipx.pypa.io/">pipx</a>.
+If you don't have <code>pipx</code> installed, refer to the <a href="https://pipx.pypa.io/stable/installation/">pipx documentation</a> for instructions.</p>
+<p>You can execute a command using a specific version of <code>bfabricPy</code> with the <code>pipx run</code> command.
+This command handles the dependencies of multiple concurrent installations:</p>
+<pre><code class="language-bash">pipx run --spec &quot;git+https://github.com/fgcz/bfabricPy.git@stable&quot; bfabric_read.py --help
+</code></pre>
+<p>To install a specific version of bfabricPy on your system and make the command available without <code>pipx run</code> prefix, use the following command:</p>
+<pre><code class="language-bash">pipx install &quot;git+https://github.com/fgcz/bfabricPy.git@stable&quot;
+bfabric_read.py --help
+</code></pre>
+<h3 id="python-api">Python API</h3>
+<p>If you're interested in using the Python API of <code>bfabricPy</code>, you have two options:</p>
+<h4 id="1-configure-it-in-your-pyprojecttoml-file">1. Configure it in your <code>pyproject.toml</code> file.</h4>
+<pre><code class="language-toml">[project]
+dependencies = [
+    &quot;bfabricPy @ git+https://github.com/fgcz/bfabricPy.git@stable&quot;
+]
+</code></pre>
+<h4 id="2-install-the-bfabricpy-package-directly-using-pip">2. Install the <code>bfabricPy</code> package directly using pip.</h4>
+<pre><code class="language-bash">pip install git+https://github.com/fgcz/bfabricPy.git
+</code></pre>
+<h3 id="development">Development</h3>
+<p>As a bfabricPy developer: (i.e. an editable install)</p>
+<pre><code>pip install -e &quot;.[dev]&quot;
+</code></pre>
 <h2 id="configuration">Configuration</h2>
 <p>Create a file as follows: (note: the password is not your login password, but the web service password)</p>
 <pre><code># ~/.bfabricpy.yml
@@ -195,5 +235,5 @@ PRODUCTION:
 
 <!--
 MkDocs version : 1.6.0
-Build Date UTC : 2024-08-09 13:31:08.209489+00:00
+Build Date UTC : 2024-08-09 13:34:50.206237+00:00
 -->
