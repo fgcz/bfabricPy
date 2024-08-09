@@ -74,6 +74,9 @@ class _HasManyProxy:
         if not self._items and self._ids:
             self._items = self._entity_type.find_all(ids=self._ids, client=self._client)
 
+    def __len__(self) -> int:
+        return len(self._ids)
+
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self._entity_type}, {self._ids}, {self._client})"
 
