@@ -13,6 +13,7 @@ Versioning currently follows `X.Y.Z` where
 ### Added
 
 - The `Bfabric` instance is now pickleable.
+- More entities, and the ability to define circular relationships by deferring imports.
 
 ## \[1.13.4\] - 2024-08-05
 
