@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Changelog - bfabricPy docs</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/fontawesome.min.css" rel="stylesheet">
+        <link href="../css/brands.min.css" rel="stylesheet">
+        <link href="../css/solid.min.css" rel="stylesheet">
+        <link href="../css/v4-font-face.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="..">bfabricPy docs</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="nav-item">
+                                <a href=".." class="nav-link">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="./" class="nav-link active" aria-current="page">Changelog</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../entities/" class="nav-link">Entities</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href=".." class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../entities/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#changelog" class="nav-link">Changelog</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#tba-tba" class="nav-link">[tba] - tba</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#1134-2024-08-05" class="nav-link">[1.13.4] - 2024-08-05</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#1133-2024-07-18" class="nav-link">[1.13.3] - 2024-07-18</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#1132-2024-07-11" class="nav-link">[1.13.2] - 2024-07-11</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#1131-2024-07-02" class="nav-link">[1.13.1] - 2024-07-02</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#1130-2024-05-24" class="nav-link">[1.13.0] - 2024-05-24</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="changelog">Changelog</h1>
+<p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>.</p>
+<p>Versioning currently follows <code>X.Y.Z</code> where</p>
+<ul>
+<li><code>X</code> is used for major changes, that contain breaking changes</li>
+<li><code>Y</code> should be the current bfabric release</li>
+<li><code>Z</code> is increased for feature releases, that should not break the API</li>
+</ul>
+<h2 id="tba-tba">[tba] - tba</h2>
+<h3 id="added">Added</h3>
+<ul>
+<li>The <code>Bfabric</code> instance is now pickleable.</li>
+<li>Entities mapping:</li>
+<li>More types and relationships</li>
+<li>Relationships defer imports to descriptor call, i.e. circular relationships are possible now.</li>
+<li>Add <code>Entity.id</code> and <code>Entity.web_url</code> properties.</li>
+<li><code>HasOne</code> and <code>HasMany</code> allow defining <code>optional=True</code> to indicate fields which can be missing under some circumstances.</li>
+</ul>
+<h2 id="1134-2024-08-05">[1.13.4] - 2024-08-05</h2>
+<h3 id="added_1">Added</h3>
+<ul>
+<li>Add <code>Workunit</code>, <code>Parameter</code>, and <code>Resource</code> entities.</li>
+<li>Add concept of has_many and has_one relationships to entities.</li>
+<li><code>bfabric_slurm_queue_status.py</code> to quickly check slurm queue status.</li>
+<li><code>Bfabric.save</code> provides <code>method</code> which can be set to <code>checkandinsert</code> for specific use cases.</li>
+</ul>
+<h3 id="changed">Changed</h3>
+<ul>
+<li>Most messages are now logged to debug level.</li>
+<li>The old verbose version information is now always logged, to INFO level, since it could entail useful information for error reporting.</li>
+</ul>
+<h2 id="1133-2024-07-18">[1.13.3] - 2024-07-18</h2>
+<h3 id="added_2">Added</h3>
+<ul>
+<li>Flask</li>
+<li>New endpoint <code>GET /config/remote_base_url</code> for testing</li>
+</ul>
+<h3 id="changed_1">Changed</h3>
+<ul>
+<li>Flask</li>
+<li>Simplify logging by using loguru only.</li>
+<li>Simplified setup logic since the production use case should use a WSGI server.</li>
+</ul>
+<h3 id="fixed">Fixed</h3>
+<ul>
+<li><code>bfabric_save_csv2dataset.py</code> had an undeclared dependency on numpy and a few bugs which was improved.</li>
+</ul>
+<h2 id="1132-2024-07-11">[1.13.2] - 2024-07-11</h2>
+<h3 id="added_3">Added</h3>
+<ul>
+<li>Add <code>bfabric.entities.Dataset</code> to easily read datasets.</li>
+<li>Pydantic-based configuration parsing</li>
+<li>The config format did not change.</li>
+<li>The code is easier to maintain now.</li>
+<li>Additionally, there is a lot more validation of the configuration file now, that should catch errors early.</li>
+<li>Make host and port configurable in <code>bfabric_flask.py</code> (currently only dev mode).</li>
+</ul>
+<h2 id="1131-2024-07-02">[1.13.1] - 2024-07-02</h2>
+<h3 id="changed_2">Changed</h3>
+<ul>
+<li>bfabric_save_csv2dataset will raise an error if problematic characters are found in any of the cells</li>
+<li>Correctly define <code>bfabric_setWorkunitStatus_available.py</code>, and <code>processing</code> and <code>failed</code> variants.</li>
+</ul>
+<h3 id="added_4">Added</h3>
+<ul>
+<li>Add loguru for future logging refactoring.</li>
+<li>Easily runnable tests with <code>nox</code> and standardized formatting using <code>pre-commit</code>.</li>
+</ul>
+<h3 id="removed">Removed</h3>
+<ul>
+<li>Pandas is no longer a dependency, and has been replaced by polars.</li>
+</ul>
+<h2 id="1130-2024-05-24">[1.13.0] - 2024-05-24</h2>
+<p>This is a major release refactoring bfabricPy's API.</p>
+<h3 id="changed_3">Changed</h3>
+<ul>
+<li>The <code>Bfabric</code> class operations now return <code>ResultContainer</code> objects.</li>
+<li>These provide a list-like interface to access individual items or iterate over them.</li>
+<li>Individual items are a dictionary, potentially nested, and not specific to suds/zeep anymore.</li>
+<li>Convenience conversions, e.g. to a polars DataFrame, can be provided there.</li>
+<li>Configuration is now defined in <code>~/.bfabricpy.yml</code> and supports multiple configurations, which can be selected by the <code>BFABRICPY_CONFIG_ENV</code> environment variable. Please consult the README for an example configuration.</li>
+<li>Use <code>pyproject.toml</code> for package configuration.</li>
+<li>Scripts have been refactored on a case-by-case basis.</li>
+</ul>
+<h3 id="added_5">Added</h3>
+<ul>
+<li>Zeep can be used instead of suds for SOAP communication.</li>
+<li><code>Bfabric</code> can be instantiated without authentication, that can be provided later. This is useful in a server setup.</li>
+<li>Pagination support in <code>Bfabric</code>, specify the number of max_results and a potential offset. Pages handling is abstracted away.</li>
+<li>Detect errors in responses, e.g. invalid login.</li>
+</ul>
+<h3 id="removed_1">Removed</h3>
+<ul>
+<li>Several old scripts have been moved into a <code>deprecated_scripts</code> folder.</li>
+<li>Wrapper creator related code is currently not updated but has been extracted into a dedicated folder <code>wrapper_creator</code> as well.</li>
+</ul></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js"></script>
+        <script src="../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
