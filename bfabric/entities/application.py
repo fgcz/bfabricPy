@@ -14,3 +14,4 @@ class Application(Entity):
         super().__init__(data_dict=data_dict, client=client)
 
     storage = HasOne("Storage", bfabric_field="storage")
+    executable = HasOne("Executable", bfabric_field="executable")
