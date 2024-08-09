@@ -14,6 +14,7 @@ Versioning currently follows `X.Y.Z` where
 
 - The `Bfabric` instance is now pickleable.
 - More entities, and the ability to define circular relationships by deferring imports.
+- `Entity.id` is now a property. It is still not intended to add all properties, or defer them all.
 
 ## \[1.13.4\] - 2024-08-05
 

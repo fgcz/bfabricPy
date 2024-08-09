@@ -17,6 +17,11 @@ class Entity:
         self.__client = client
 
     @property
+    def id(self) -> int:
+        """Returns the entity's ID."""
+        return int(self.__data_dict["id"])
+
+    @property
     def data_dict(self) -> dict[str, Any]:
         """Returns a shallow copy of the entity's data dictionary."""
         return self.__data_dict.copy()
