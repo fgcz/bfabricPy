@@ -13,7 +13,7 @@ This API is designed to simplify entity access by providing lazy-loading capabil
 
 ### Entity
 
-Each entity has to provide the name of its B-Fabric of its class name as `ENDPOINT`.
+Each entity has to provide the name of its B-Fabric entity classname as `ENDPOINT`.
 An entity is defined uniquely by its `classname` and `id`.
 
 Entities are initialized with the full result structure obtained from a `read` operation on its particular endpoint.
