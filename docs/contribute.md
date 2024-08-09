@@ -1,6 +1,6 @@
 # Contribute
 
-This page describes some information relevant for contruibuting to bfabricPy.
+This page describes some information relevant for contributing to bfabricPy.
 
 ## Development install
 

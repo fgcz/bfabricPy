@@ -39,7 +39,7 @@ Using the Python API:
 ```{py}
 from bfabric import Bfabric
 
-client = Bfabric.from.config()
+client = Bfabric.from_config()
 
 user = B.read(endpoint = 'user', obj={'login': 'cpanse'})
 resource = B.read(endpoint = 'resource', obj={'id': 550327 })
