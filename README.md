@@ -8,8 +8,6 @@ This package connects the [bfabric](https://fgcz-bfabric.uzh.ch/bfabric/) system
 The [bfabricShiny](https://github.com/cpanse/bfabricShiny) R package is an extension and provides code snippets and sample implementation for a seamless R shiny bfabric integration.
 For more advanced users the *bfabricPy* package also provides a powerful query interface on the command-line though using the provided scripts.
 
-## Install
-
 ## CheatSheet
 
 ### Read
