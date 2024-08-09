@@ -14,6 +14,12 @@ class MockEntity(Entity):
         super().__init__(data_dict=data_dict, client=client)
 
 
+@pytest.fixture(autouse=True)
+def mock_entity_resolution(mocker):
+    """Mocks the resolution of the MockEntity class, since it is not actually defined in the bfabric.entities module."""
+    mocker.patch.object(HasMany, "_entity_type", new_callable=mocker.PropertyMock, return_value=MockEntity)
+
+
 @pytest.fixture()
 def mock_client(mocker):
     return mocker.MagicMock(name="mock_client", spec=Bfabric)
@@ -25,7 +31,7 @@ def mock_proxy(mock_client):
 
 
 def test_has_many_init():
-    has_many = HasMany(MockEntity, bfabric_field="test_field")
+    has_many = HasMany("MockEntity", bfabric_field="test_field")
     assert has_many._entity_type == MockEntity
     assert has_many._bfabric_field == "test_field"
     assert has_many._ids_property is None
@@ -34,7 +40,7 @@ def test_has_many_init():
 
 def test_has_many_get(mock_client):
     mock_obj = MockEntity(data_dict={"test_field": [{"id": 1}, {"id": 2}]}, client=mock_client)
-    has_many = HasMany(MockEntity, bfabric_field="test_field")
+    has_many = HasMany("MockEntity", bfabric_field="test_field")
 
     result = has_many.__get__(mock_obj)
 
@@ -47,7 +53,7 @@ def test_has_many_get(mock_client):
 def test_has_many_get_ids_property(mock_client):
     mock_obj = MockEntity(client=mock_client)
     mock_obj.test_ids = [3, 4]
-    has_many = HasMany(MockEntity, ids_property="test_ids")
+    has_many = HasMany("MockEntity", ids_property="test_ids")
 
     result = has_many.__get__(mock_obj)
 
@@ -58,7 +64,7 @@ def test_has_many_get_ids_property(mock_client):
 
 
 def test_has_many_get_invalid_config():
-    has_many = HasMany(MockEntity)
+    has_many = HasMany("MockEntity")
     mock_obj = MockEntity()
 
     with pytest.raises(ValueError, match="Exactly one of bfabric_field and ids_property must be set"):
