@@ -22,6 +22,10 @@ class Entity:
         return int(self.__data_dict["id"])
 
     @property
+    def web_url(self) -> str:
+        return f"{self._client.config.base_url}/{self.ENDPOINT}/show.html?id={self.id}"
+
+    @property
     def data_dict(self) -> dict[str, Any]:
         """Returns a shallow copy of the entity's data dictionary."""
         return self.__data_dict.copy()
