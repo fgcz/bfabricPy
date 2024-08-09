@@ -108,7 +108,7 @@ bfabric_read.py user login cpanse
 bfabric_read.py project id 3000
 bfabric_read.py workunit id 199387
 bfabric_read.py sample name autoQC4L
-bfabric_read.py workunit status running
+bfabric_read.py workunit status processing
 bfabric_read.py workunit status pending
 bfabric_read.py workunit status failed
 
