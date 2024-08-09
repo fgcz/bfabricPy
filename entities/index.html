@@ -41,6 +41,9 @@
                                 <a href="../changelog/" class="nav-link">Changelog</a>
                             </li>
                             <li class="nav-item">
+                                <a href="../contribute/" class="nav-link">Contribute</a>
+                            </li>
+                            <li class="nav-item">
                                 <a href="./" class="nav-link active" aria-current="page">Entities</a>
                             </li>
                         </ul>
@@ -52,7 +55,7 @@
                             </a>
                         </li>
                             <li class="nav-item">
-                                <a rel="prev" href="../changelog/" class="nav-link">
+                                <a rel="prev" href="../contribute/" class="nav-link">
                                     <i class="fa fa-arrow-left"></i> Previous
                                 </a>
                             </li>
@@ -99,7 +102,7 @@
 <li><strong>No Circular Imports</strong>: Ensure there are no circular dependencies between entities by deferring imports of other entities inside modules until all relevant modules are processed.</li>
 </ul>
 <h3 id="entity">Entity</h3>
-<p>Each entity has to provide the name of its B-Fabric of its class name as <code>ENDPOINT</code>.
+<p>Each entity has to provide the name of its B-Fabric entity classname as <code>ENDPOINT</code>.
 An entity is defined uniquely by its <code>classname</code> and <code>id</code>.</p>
 <p>Entities are initialized with the full result structure obtained from a <code>read</code> operation on its particular endpoint.
 A <code>return_id_only</code> result is generally not supposed to be used to initialize an entity instance and behavior is undefined as of now.
