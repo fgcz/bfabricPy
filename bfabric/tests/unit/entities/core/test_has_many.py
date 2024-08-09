@@ -123,6 +123,13 @@ def test_has_many_proxy_iter(mocker: MockerFixture, mock_client, mock_proxy):
     MockEntity.find_all.assert_called_once_with(ids=[1, 2], client=mock_client)
 
 
+def test_has_many_proxy_len(mocker: MockerFixture, mock_client, mock_proxy):
+    mock_entities = {1: MockEntity(), 2: MockEntity()}
+    mocker.patch.object(MockEntity, "find_all", return_value=mock_entities)
+    assert len(mock_proxy) == 2
+    MockEntity.find_all.assert_not_called()
+
+
 def test_has_many_proxy_repr(mocker: MockerFixture, mock_client, mock_proxy):
     assert repr(mock_proxy) == f"_HasManyProxy({MockEntity}, [1, 2], {mock_client})"
     assert str(mock_proxy) == repr(mock_proxy)
