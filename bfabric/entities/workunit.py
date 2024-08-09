@@ -6,8 +6,8 @@ from typing import Any
 from bfabric import Bfabric
 from bfabric.entities import Application
 from bfabric.entities.core.entity import Entity
-from bfabric.entities.core.has_many import HasMany
 from bfabric.entities.core.has_one import HasOne
+from bfabric.entities.core.has_many import HasMany
 from bfabric.entities.parameter import Parameter
 from bfabric.entities.resource import Resource
 

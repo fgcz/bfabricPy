@@ -15,3 +15,4 @@ class Resource(Entity):
 
     application = HasOne("Application", bfabric_field="application")
     storage = HasOne("Storage", bfabric_field="storage")
+    workunit = HasOne("Workunit", bfabric_field="workunit")
