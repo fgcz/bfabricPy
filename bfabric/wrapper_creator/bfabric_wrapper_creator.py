@@ -12,7 +12,7 @@ import yaml
 
 from bfabric import Bfabric
 from bfabric.bfabric_legacy import bfabricEncoder
-from bfabric.entities import Workunit, ExternalJob, Application, Resource, Storage
+from bfabric.entities import Workunit, ExternalJob, Application, Resource, Storage, Order, Project
 from bfabric.wrapper_creator.bfabric_external_job import BfabricExternalJob
 
 
@@ -128,12 +128,11 @@ class BfabricWrapperCreator:
         return {
             "executable": self._application.executable.data_dict["program"],
             "external_job_id": self._external_job_id,
-            # TODO add back fastasequence support
-            "fastasequence": "",
+            "fastasequence": self._fasta_sequence,
             "input": self._inputs_for_configuration_section,
             "inputdataset": None,
-            "order_id": self._order_id,
-            "project_id": self._project_id,
+            "order_id": self._order.id if self._order is not None else None,
+            "project_id": self._project.id if self._project is not None else None,
             "output": {
                 "protocol": "scp",
                 "resource_id": output_resource.id,
@@ -147,18 +146,19 @@ class BfabricWrapperCreator:
         }
 
     @cached_property
-    def _order_id(self) -> int | None:
-        if self._workunit.data_dict["container"]["classname"] == "order":
-            return self._workunit.data_dict["container"]["id"]
-        else:
-            return None
+    def _order(self) -> Order | None:
+        return self._workunit.container if isinstance(self._workunit.container, Order) else None
 
     @cached_property
-    def _project_id(self) -> int | None:
-        if self._workunit.data_dict["container"]["classname"] == "project":
-            return self._workunit.data_dict["container"]["id"]
-        elif self._order_id is not None:
-            return self._client.read("order", {"id": self._order_id})[0]["project"]["id"]
+    def _project(self) -> Project | None:
+        return self._workunit.container if isinstance(self._workunit.container, Project) else self._order.project
+
+    @cached_property
+    def _fasta_sequence(self) -> str:
+        if self._order is not None and "fastasequence" in self._order.data_dict:
+            return "\n".join([x.strip() for x in str(self._order.data_dict["fastasequence"]).split("\r")])
+        else:
+            return ""
 
     def write_results(self, config_serialized: str) -> None:
         yaml_workunit_executable = self._client.save(
