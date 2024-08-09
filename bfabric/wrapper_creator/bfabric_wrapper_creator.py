@@ -1,15 +1,166 @@
+from __future__ import annotations
 import base64
 import datetime
 import json
-import os
+from collections import defaultdict
+from functools import cached_property
+from pathlib import Path
+from typing import Any, Literal
 
 import yaml
 
+from bfabric import Bfabric
 from bfabric.bfabric_legacy import bfabricEncoder
+from bfabric.entities import Workunit, ExternalJob, Application, Resource, Storage
 from bfabric.wrapper_creator.bfabric_external_job import BfabricExternalJob
 
 
-class BfabricWrapperCreator(BfabricExternalJob):
+class BfabricWrapperCreator:
+    def __init__(self, client: Bfabric, external_job_id: int) -> None:
+        self._client = client
+        self._external_job_id = external_job_id
+
+    @cached_property
+    def _external_job(self) -> ExternalJob:
+        return ExternalJob.find(id=self._external_job_id, client=self._client)
+
+    @cached_property
+    def _workunit(self) -> Workunit:
+        assert self._external_job.data_dict["cliententityclassname"] == "Workunit"
+        return Workunit.find(id=self._external_job.data_dict["cliententityid"], client=self._client)
+
+    @cached_property
+    def _application(self) -> Application:
+        return self._workunit.application
+
+    @cached_property
+    def _log_storage(self) -> Storage:
+        # this is SlurmLog
+        return Storage.find(id=13, client=self._client)
+
+    def create_output_resource(self) -> Resource:
+        # Since we use the id of the output resource in the path, we have to save it twice.
+        n_input_resource = len(self._workunit.input_resources)
+        resource_id = self._client.save(
+            "resource",
+            {
+                "name": f"{self._application.data_dict['name']} {n_input_resource} - resource",
+                "workunitid": self._workunit.id,
+                "storageid": self._application.storage.id,
+                "relativepath": "/dev/null",
+            },
+        )[0]["id"]
+
+        # Determine the correct path
+        today = datetime.date.today()
+        output_folder = Path(
+            f"p{self._workunit.data_dict['container']['id']}",
+            "bfabric",
+            self._application.data_dict["technology"].replace(" ", "_"),
+            self._application.data_dict["name"].replace(" ", "_"),
+            today.strftime("%Y/%Y-%m/%Y-%m-%d/"),
+            f"workunit_{self._workunit.id}",
+        )
+        output_filename = f"{resource_id}.{self._application.data_dict['outputfileformat']}"
+        relative_path = str(output_folder / output_filename)
+
+        # Save the path
+        result = self._client.save("resource", {"id": resource_id, "relativepath": relative_path})
+        return Resource(result[0])
+
+    def create_log_resource(self, variant: Literal["out", "err"], output_resource: Resource) -> Resource:
+        result = self._client.save(
+            "resource",
+            {
+                "name": f"slurm_std{variant}",
+                "workunitid": self._workunit.id,
+                "storageid": self._log_storage.id,
+                "relativepath": f"/workunitid-{self._workunit.id}_resourceid-{output_resource.id}.{variant}",
+            },
+        )
+        return Resource(result[0])
+
+    @cached_property
+    def _inputs_for_application_section(self):
+        inputs = defaultdict(list)
+        for resource in self._workunit.input_resources:
+            application_name = resource.workunit.application.data_dict["name"]
+            path = Path(resource.storage.data_dict["basepath"], resource.data_dict["relativepath"])
+            input_url = f"bfabric@{resource.storage.data_dict['host']}:{path}"
+            inputs[application_name].append(input_url)
+        return dict(inputs)
+
+    @cached_property
+    def _inputs_for_configuration_section(self):
+        # NOTE: This is not even consistent within the yaml but for historic reasons we keep it...
+        inputs = defaultdict(list)
+        for resource in self._workunit.input_resources:
+            inputs[resource.workunit.application.data_dict["name"]].append(
+                {
+                    "resource_id": resource.id,
+                    "resource_url": resource.web_url,
+                }
+            )
+        return dict(inputs)
+
+    def get_application_section(self, output_resource: Resource) -> dict[str, Any]:
+        output_url = f"bfabric@{self._application.storage.data_dict['host']}:{self._application.storage.data_dict['basepath']}{output_resource.data_dict['relativepath']}"
+        return {
+            "parameters": self._workunit.parameter_values,
+            "protocol": "scp",
+            "input": self._inputs_for_application_section,
+            "output": [output_url],
+        }
+
+    def get_job_configuration_section(
+        self, output_resource: Resource, stdout_resource: Resource, stderr_resource: Resource
+    ) -> dict[str, Any]:
+        log_resource = {}
+
+        for name, resource in [("stdout", stdout_resource), ("stderr", stderr_resource)]:
+            log_resource[name] = {
+                "protocol": "file",
+                "resource_id": resource.id,
+                "url": str(Path(self._log_storage.data_dict["basepath"], resource.data_dict["relativepath"])),
+            }
+
+        return {
+            "executable": self._application.executable.data_dict["program"],
+            "external_job_id": self._external_job_id,
+            # TODO add back fastasequence support
+            "fastasequence": "",
+            "input": self._inputs_for_configuration_section,
+            "inputdataset": None,
+            "order_id": self._order_id,
+            "project_id": self._project_id,
+            "output": {
+                "protocol": "scp",
+                "resource_id": output_resource.id,
+                "ssh_args": "-o StrictHostKeyChecking=no -2 -l bfabric -x",
+            },
+            "stderr": log_resource["stderr"],
+            "stdout": log_resource["stdout"],
+            "workunit_createdby": self._workunit.data_dict["createdby"],
+            "workunit_id": self._workunit.id,
+            "workunit_url": self._workunit.web_url,
+        }
+
+    @cached_property
+    def _order_id(self) -> int | None:
+        if self._workunit.data_dict["container"]["classname"] == "order":
+            return self._workunit.data_dict["container"]["id"]
+        else:
+            return None
+
+    @cached_property
+    def _project_id(self) -> int | None:
+        if self._workunit.data_dict["container"]["classname"] == "project":
+            return self._workunit.data_dict["container"]["id"]
+        elif self._order_id is not None:
+            return self._client.read("order", {"id": self._order_id})[0]["project"]["id"]
+
+
+class BfabricWrapperCreatorOld(BfabricExternalJob):
     """
     the class is used for the wrapper_creator which is executed by the bfabtic system
     (non batch) so each resource is processed seperate
@@ -19,69 +170,6 @@ class BfabricWrapperCreator(BfabricExternalJob):
 
     def get_externaljobid_yaml_workunit(self):
         return self.externaljobid_yaml_workunit
-
-    def uploadGridEngineScript(self, para={"INPUTHOST": "fgcz-r-035.uzh.ch"}):
-        """
-        the methode creates and uploads an executebale.
-        """
-
-        self.warning(
-            "This python method is superfluously and will be removed. Please use the write_yaml method of the BfabricWrapperCreato class."
-        )
-
-        _cmd_template = """#!/bin/bash
-# $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/bfabric.py $
-# $Id: bfabric.py 3000 2017-08-18 14:18:30Z cpanse $
-# Christian Panse <cp@fgcz.ethz.ch>
-#$ -q PRX@fgcz-r-028
-#$ -e {1}
-#$ -o {2}
-
-set -e
-set -o pipefail
-
-
-# debug
-hostname
-uptime
-echo $0
-pwd
-
-# variables to be set by the wrapper_creator executable
-{0}
-
-
-# create output directory
-ssh $SSHARGS $OUTPUTHOST "mkdir -p $OUTPUTPATH" || exit 1
-
-# staging input and output data and proc
-ssh $SSHARGS $INPUTHOST "cat $INPUTPATH/$INPUTFILE" \\
-| $APPLICATION --inputfile $INPUTFILE --ssh "$OUTPUTHOST:$OUTPUTPATH/$OUTPUTFILE" \\
-&& bfabric_setResourceStatus_available.py $RESSOURCEID \\
-&& bfabric_setExternalJobStatus_done.py $EXTERNALJOBID \\
-|| exit 1
-
-exit 0
-""".format(
-            "\n".join(sorted([f'{key}="{info}"' for key, info in para.iteritems()])),
-            para["STDERR"],
-            para["STDOUT"],
-        )
-
-        resExecutable = self.save_object(
-            "executable",
-            {
-                "name": os.path.basename(para["APPLICATION"]) + "_executable",
-                "context": "WORKUNIT",
-                "parameter": None,
-                "description": "This script should run as 'bfabric' user in the FGCZ compute infrastructure.",
-                "workunitid": para["WORKUNITID"],
-                "base64": base64.b64encode(_cmd_template),
-                "version": 0.2,
-            },
-        )
-
-        return resExecutable
 
     def get_executableid(self):
         return self.workunit_executableid
@@ -122,7 +210,7 @@ exit 0
         if container._classname == "order":
             order = self.read_object("order", obj={"id": container._id})[0]
             order_id = order._id
-            if "project" in order:
+            if "project" in order:  # noqa
                 project_id = order.project._id
             else:
                 project_id = None
@@ -137,7 +225,7 @@ exit 0
         # merge all information into the executable script
         _output_storage = self.read_object("storage", obj={"id": application.storage._id})[0]
 
-        _output_relative_path = "p{0}/bfabric/{1}/{2}/{3}/workunit_{4}/".format(
+        _output_relative_path = "p{0}/bfabric/{1}/{2}/{3}/workunit_{4}/".format(  # noqa
             container._id,
             application.technology.replace(" ", "_"),
             application.name.replace(" ", "_"),
@@ -152,7 +240,7 @@ exit 0
 
         application_parameter = {}
 
-        if not getattr(workunit, "parameter", None) is None:
+        if getattr(workunit, "parameter", None) is not None:
             for para in workunit.parameter:
                 parameter = self.read_object("parameter", obj={"id": para._id})
                 if parameter:
@@ -183,11 +271,9 @@ exit 0
 
                 _storage = self.read_object("storage", {"id": resource_iterator.storage._id})[0]
 
-                _inputUrl = "bfabric@{0}:/{1}/{2}".format(
-                    _storage.host, _storage.basepath, resource_iterator.relativepath
-                )
+                _inputUrl = f"bfabric@{_storage.host}:/{_storage.basepath}/{resource_iterator.relativepath}"
 
-                if not _application_name in resource_urls:
+                if _application_name not in resource_urls:
                     resource_urls[_application_name] = []
                     resource_ids[_application_name] = []
 
@@ -197,16 +283,12 @@ exit 0
 
                 _resource_sample = {
                     "resource_id": int(resource_iterator._id),
-                    "resource_url": "{0}/userlab/show-resource.html?id={1}".format(
-                        self.config.base_url, resource_iterator._id
-                    ),
+                    "resource_url": f"{self.config.base_url}/userlab/show-resource.html?id={resource_iterator._id}",
                 }
 
-                if not sample_id is None:
+                if sample_id is not None:
                     _resource_sample["sample_id"] = int(sample_id)
-                    _resource_sample["sample_url"] = "{0}/userlab/show-sample.html?id={1}".format(
-                        self.config.base_url, sample_id
-                    )
+                    _resource_sample["sample_url"] = f"{self.config.base_url}/userlab/show-sample.html?id={sample_id}"
 
                 resource_ids[_application_name].append(_resource_sample)
             except:
@@ -287,8 +369,8 @@ exit 0
         self.externaljobid_yaml_workunit = int(yaml_workunit_externaljob._id)
         print(f"XXXXXXX self.externaljobid_yaml_workunit ={self.externaljobid_yaml_workunit} XXXXXXX")
 
-        _output_url = "bfabric@{0}:{1}{2}/{3}".format(
-            _output_storage.host, _output_storage.basepath, _output_relative_path, _output_filename
+        _output_url = (
+            f"bfabric@{_output_storage.host}:{_output_storage.basepath}{_output_relative_path}/{_output_filename}"
         )
 
         try:
@@ -313,22 +395,16 @@ exit 0
                 "stderr": {
                     "protocol": "file",
                     "resource_id": int(_resource_stderr._id),
-                    "url": "{0}/workunitid-{1}_resourceid-{2}.err".format(
-                        _log_storage.basepath, workunit._id, _ressource_output._id
-                    ),
+                    "url": f"{_log_storage.basepath}/workunitid-{workunit._id}_resourceid-{_ressource_output._id}.err",
                 },
                 "stdout": {
                     "protocol": "file",
                     "resource_id": int(_resource_stdout._id),
-                    "url": "{0}/workunitid-{1}_resourceid-{2}.out".format(
-                        _log_storage.basepath, workunit._id, _ressource_output._id
-                    ),
+                    "url": f"{_log_storage.basepath}/workunitid-{workunit._id}_resourceid-{_ressource_output._id}.out",
                 },
                 "workunit_id": int(workunit._id),
                 "workunit_createdby": str(workunit.createdby),
-                "workunit_url": "{0}/userlab/show-workunit.html?workunitId={1}".format(
-                    self.config.base_url, workunit._id
-                ),
+                "workunit_url": f"{self.config.base_url}/userlab/show-workunit.html?workunitId={workunit._id}",
                 "external_job_id": int(yaml_workunit_externaljob._id),
                 "order_id": order_id,
                 "project_id": project_id,
