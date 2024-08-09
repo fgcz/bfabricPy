@@ -1,1 +1,11 @@
 site_name: bfabricPy docs
+nav:
+  - index.md
+  - entities.md
+  - contribute.md
+  - changelog.md
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.instant
