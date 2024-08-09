@@ -17,7 +17,7 @@ Versioning currently follows `X.Y.Z` where
   - More types and relationships
   - Relationships defer imports to descriptor call, i.e. circular relationships are possible now.
   - Add `Entity.id` and `Entity.web_url` properties.
-  - `HasOne` allows defining `optional=True`.
+  - `HasOne` and `HasMany` allow defining `optional=True` to indicate fields which can be missing under some circumstances.
 
 ## \[1.13.4\] - 2024-08-05
 

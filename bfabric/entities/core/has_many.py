@@ -18,11 +18,13 @@ class HasMany(Relationship):
         bfabric_field: str | None = None,
         ids_property: str | None = None,
         client_property: str = "_client",
+        optional: bool = False,
     ) -> None:
         super().__init__(entity)
         self._bfabric_field = bfabric_field
         self._ids_property = ids_property
         self._client_property = client_property
+        self._optional = optional
 
     def __get__(self, obj, objtype=None) -> _HasManyProxy:
         cache_attr = f"_HasMany__{self._ids_property or self._bfabric_field}_cache"
@@ -36,8 +38,12 @@ class HasMany(Relationship):
         if (self._bfabric_field is None) == (self._ids_property is None):
             raise ValueError("Exactly one of bfabric_field and ids_property must be set")
         if self._bfabric_field is not None:
+            if self._optional and self._bfabric_field not in obj.data_dict:
+                return []
             return [x["id"] for x in obj.data_dict[self._bfabric_field]]
         else:
+            if self._optional and not hasattr(obj, self._ids_property):
+                return []
             return getattr(obj, self._ids_property)
 
 

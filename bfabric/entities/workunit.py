@@ -25,7 +25,7 @@ class Workunit(Entity):
     application = HasOne(entity="Application", bfabric_field="application")
     parameters = HasMany(entity="Parameter", bfabric_field="parameter")
     resources = HasMany(entity="Resource", bfabric_field="resource")
-    input_resources = HasMany(entity="Resource", bfabric_field="inputresource")
+    input_resources = HasMany(entity="Resource", bfabric_field="inputresource", optional=True)
     input_dataset = HasOne(entity="Dataset", bfabric_field="inputdataset", optional=True)
 
     @cached_property
