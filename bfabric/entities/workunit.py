@@ -1,15 +1,16 @@
 from __future__ import annotations
 
 from functools import cached_property
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from bfabric import Bfabric
-from bfabric.entities import Application
 from bfabric.entities.core.entity import Entity
-from bfabric.entities.core.has_one import HasOne
 from bfabric.entities.core.has_many import HasMany
-from bfabric.entities.parameter import Parameter
-from bfabric.entities.resource import Resource
+from bfabric.entities.core.has_one import HasOne
+
+if TYPE_CHECKING:
+    from bfabric.entities.project import Project
+    from bfabric.entities.order import Order
 
 
 class Workunit(Entity):
@@ -31,3 +32,15 @@ class Workunit(Entity):
     @cached_property
     def parameter_values(self) -> dict[str, Any]:
         return {p.key: p.value for p in self.parameters.list}
+
+    @cached_property
+    def container(self) -> Project | Order:
+        from bfabric.entities.project import Project
+        from bfabric.entities.order import Order
+
+        if self.data_dict["container"]["classname"] == Project.ENDPOINT:
+            return Project.find(id=self.data_dict["container"]["id"], client=self._client)
+        elif self.data_dict["container"]["classname"] == Order.ENDPOINT:
+            return Order.find(id=self.data_dict["container"]["id"], client=self._client)
+        else:
+            raise ValueError(f"Unknown container classname: {self.data_dict['container']['classname']}")
