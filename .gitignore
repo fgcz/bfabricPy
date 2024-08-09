@@ -4,3 +4,4 @@ bfabric.egg-info/
 bfabric/scripts/query_result.txt
 build/
 dist/
+site/

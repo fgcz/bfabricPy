@@ -67,31 +67,6 @@ As a bfabricPy developer: (i.e. an editable install)
 pip install -e ".[dev]"
 ```
 
-## Configuration
-
-Create a file as follows: (note: the password is not your login password, but the web service password)
-
-```{yaml}
-# ~/.bfabricpy.yml
-
-GENERAL:
-  default_config: PRODUCTION
-
-PRODUCTION:
-  login: yourBfabricLogin
-  password: yourBfabricWebPassword
-  base_url: https://fgcz-bfabric.uzh.ch/bfabric
-```
-
-You can also include an additional config for the TEST instance
-
-```{yaml}
-TEST:
-  login: yourBfabricLogin
-  password: yourBfabricWebPassword
-  base_url: https://fgcz-bfabric-test.uzh.ch/bfabric
-```
-
 ## CheatSheet
 
 ### Read
