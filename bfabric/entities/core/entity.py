@@ -63,6 +63,10 @@ class Entity:
         """Returns the value of a key in the data dictionary."""
         return self.__data_dict[key]
 
+    def get(self, key: str, default: Any = None) -> Any:
+        """Returns the value of a key in the data dictionary, or a default value if the key is not present."""
+        return self.__data_dict.get(key, default)
+
     def __repr__(self) -> str:
         """Returns the string representation of the workunit."""
         return f"{self.__class__.__name__}({repr(self.__data_dict)}, client={repr(self.__client)})"

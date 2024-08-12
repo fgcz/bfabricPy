@@ -92,6 +92,16 @@ def test_get_item(mock_entity) -> None:
     assert mock_entity["name"] == "Test Entity"
 
 
+def test_get_when_present(mock_entity) -> None:
+    assert mock_entity.get("id") == 1
+    assert mock_entity.get("name") == "Test Entity"
+
+
+def test_get_when_missing(mock_entity) -> None:
+    assert mock_entity.get("missing") is None
+    assert mock_entity.get("missing", "default") == "default"
+
+
 def test_repr(mock_entity, mock_data_dict) -> None:
     entity = Entity(mock_data_dict, None)
     assert repr(entity) == "Entity({'id': 1, 'name': 'Test Entity'}, client=None)"

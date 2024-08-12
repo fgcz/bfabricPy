@@ -15,7 +15,7 @@ Versioning currently follows `X.Y.Z` where
 - The `Bfabric` instance is now pickleable.
 - Entities mapping:
   - Add `Entity.id` and `Entity.web_url` properties.
-  - Add `Entity.__getitem__` to access fields from the data dictionary directly.
+  - Add `Entity.__getitem__` and `Entity.get` to access fields from the data dictionary directly.
   - Add `Entity.find_by` to find entities by a query.
   - More types and relationships
   - Relationships defer imports to descriptor call, i.e. circular relationships are possible now.
