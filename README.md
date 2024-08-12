@@ -41,8 +41,8 @@ from bfabric import Bfabric
 
 client = Bfabric.from_config()
 
-user = B.read(endpoint = 'user', obj={'login': 'cpanse'})
-resource = B.read(endpoint = 'resource', obj={'id': 550327 })
+user = client.read(endpoint = 'user', obj={'login': 'cpanse'})
+resource = client.read(endpoint = 'resource', obj={'id': 550327 })
 ```
 
 ### save
