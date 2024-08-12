@@ -17,6 +17,7 @@ class Storage(Entity):
     base_path = property(lambda self: Path(self.data_dict["basepath"]))
 
     @cached_property
-    def scp_prefix(self) -> str:
+    def scp_prefix(self) -> str | None:
         """SCP prefix with storage base path included."""
-        return f"{self.data_dict['host']}:{self.data_dict['basepath']}"
+        protocol = self.data_dict["protocol"]
+        return f"{self.data_dict['host']}:{self.data_dict['basepath']}" if protocol == "scp" else None

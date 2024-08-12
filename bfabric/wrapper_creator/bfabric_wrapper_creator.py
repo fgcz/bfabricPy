@@ -13,6 +13,7 @@ import yaml
 from bfabric import Bfabric
 from bfabric.bfabric_legacy import bfabricEncoder
 from bfabric.entities import Workunit, ExternalJob, Application, Resource, Storage, Order, Project
+from bfabric.experimental.app_interface.workunit_definition import WorkunitDefinition
 from bfabric.wrapper_creator.bfabric_external_job import BfabricExternalJob
 
 
@@ -20,6 +21,10 @@ class BfabricWrapperCreator:
     def __init__(self, client: Bfabric, external_job_id: int) -> None:
         self._client = client
         self._external_job_id = external_job_id
+
+    @cached_property
+    def workunit_definition(self) -> WorkunitDefinition:
+        return WorkunitDefinition.from_external_job_id(client=self._client, external_job_id=self._external_job_id)
 
     @cached_property
     def _external_job(self) -> ExternalJob:
@@ -73,7 +78,7 @@ class BfabricWrapperCreator:
             "resource",
             {
                 "name": f"slurm_std{variant}",
-                "workunitid": self._workunit.id,
+                "workunitid": self.workunit_definition.workunit_id,
                 "storageid": self._log_storage.id,
                 "relativepath": f"/workunitid-{self._workunit.id}_resourceid-{output_resource.id}.{variant}",
             },
@@ -83,30 +88,23 @@ class BfabricWrapperCreator:
     @cached_property
     def _inputs_for_application_section(self):
         inputs = defaultdict(list)
-        for resource in self._workunit.input_resources:
-            application_name = resource.workunit.application.data_dict["name"]
-            path = Path(resource.storage.data_dict["basepath"], resource.data_dict["relativepath"])
-            input_url = f"bfabric@{resource.storage.data_dict['host']}:{path}"
-            inputs[application_name].append(input_url)
+        for resource in self.workunit_definition.execution.input_resources:
+            inputs[resource.app_name].append(f"bfabric@{resource.scp_address}")
         return dict(inputs)
 
     @cached_property
     def _inputs_for_configuration_section(self):
         # NOTE: This is not even consistent within the yaml but for historic reasons we keep it...
         inputs = defaultdict(list)
-        for resource in self._workunit.input_resources:
-            inputs[resource.workunit.application.data_dict["name"]].append(
-                {
-                    "resource_id": resource.id,
-                    "resource_url": resource.web_url,
-                }
-            )
+        for resource in self.workunit_definition.execution.input_resources:
+            web_url = Resource({"id": resource.id}, client=self._client).web_url
+            inputs[resource.app_name].append({"resource_id": resource.id, "resource_url": web_url})
         return dict(inputs)
 
     def get_application_section(self, output_resource: Resource) -> dict[str, Any]:
         output_url = f"bfabric@{self._application.storage.data_dict['host']}:{self._application.storage.data_dict['basepath']}{output_resource.data_dict['relativepath']}"
         return {
-            "parameters": self._workunit.parameter_values,
+            "parameters": self.workunit_definition.parameter_values,
             "protocol": "scp",
             "input": self._inputs_for_application_section,
             "output": [output_url],
@@ -125,13 +123,13 @@ class BfabricWrapperCreator:
             }
 
         return {
-            "executable": self._application.executable.data_dict["program"],
+            "executable": str(self.workunit_definition.executable_path),
             "external_job_id": self._external_job_id,
             "fastasequence": self._fasta_sequence,
             "input": self._inputs_for_configuration_section,
             "inputdataset": None,
-            "order_id": self._order.id if self._order is not None else None,
-            "project_id": self._project.id if self._project is not None else None,
+            "order_id": self.workunit_definition.order_id,
+            "project_id": self.workunit_definition.project_id,
             "output": {
                 "protocol": "scp",
                 "resource_id": output_resource.id,
@@ -140,7 +138,7 @@ class BfabricWrapperCreator:
             "stderr": log_resource["stderr"],
             "stdout": log_resource["stdout"],
             "workunit_createdby": self._workunit.data_dict["createdby"],
-            "workunit_id": self._workunit.id,
+            "workunit_id": self.workunit_definition.workunit_id,
             "workunit_url": self._workunit.web_url,
         }
 
@@ -165,7 +163,7 @@ class BfabricWrapperCreator:
             {
                 "name": "job configuration (executable) in YAML",
                 "context": "WORKUNIT",
-                "workunitid": self._workunit.id,
+                "workunitid": self.workunit_definition.workunit_id,
                 "description": "This is a job configuration as YAML base64 encoded. It is configured to be executed by the B-Fabric yaml submitter.",
                 "base64": base64.b64encode(config_serialized.encode()).decode(),
                 "version": "10",
@@ -174,7 +172,7 @@ class BfabricWrapperCreator:
         yaml_workunit_externaljob = self._client.save(
             "externaljob",
             {
-                "workunitid": self._workunit.id,
+                "workunitid": self.workunit_definition.workunit_id,
                 "status": "new",
                 "executableid": yaml_workunit_executable["id"],
                 "action": "WORKUNIT",
