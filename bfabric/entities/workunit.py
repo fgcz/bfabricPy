@@ -28,6 +28,7 @@ class Workunit(Entity):
     resources = HasMany(entity="Resource", bfabric_field="resource")
     input_resources = HasMany(entity="Resource", bfabric_field="inputresource", optional=True)
     input_dataset = HasOne(entity="Dataset", bfabric_field="inputdataset", optional=True)
+    external_jobs = HasMany(entity="ExternalJob", bfabric_field="externaljob", optional=True)
 
     @cached_property
     def parameter_values(self) -> dict[str, Any]:
