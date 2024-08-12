@@ -6,8 +6,7 @@ from bfabric.entities.core.entity import Entity
 
 @pytest.fixture
 def mock_client(mocker):
-    client = mocker.Mock(spec=Bfabric)
-    return client
+    return mocker.Mock(spec=Bfabric)
 
 
 @pytest.fixture
@@ -68,6 +67,11 @@ def test_find_all_when_not_all_found(mocker, mock_client) -> None:
     assert len(entities) == 1
     assert entities[5].data_dict == {"id": 5, "name": "Test Entity"}
     mock_client.read.assert_called_once_with("test_endpoint", obj={"id": [1, 5]})
+
+
+def test_get_item(mock_entity) -> None:
+    assert mock_entity["id"] == 1
+    assert mock_entity["name"] == "Test Entity"
 
 
 def test_repr(mock_entity, mock_data_dict) -> None:

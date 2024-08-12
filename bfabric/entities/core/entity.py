@@ -51,6 +51,10 @@ class Entity:
             logger.warning(f"Only found {len(results)} out of {len(ids)}.")
         return results
 
+    def __getitem__(self, key: str) -> Any:
+        """Returns the value of a key in the data dictionary."""
+        return self.__data_dict[key]
+
     def __repr__(self) -> str:
         """Returns the string representation of the workunit."""
         return f"{self.__class__.__name__}({repr(self.__data_dict)}, client={repr(self.__client)})"
