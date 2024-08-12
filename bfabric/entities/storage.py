@@ -16,10 +16,7 @@ class Storage(Entity):
     @cached_property
     def scp_prefix_no_path(self) -> str:
         """SCP prefix without storage base path included."""
-        result = self._client.read("access", {"storageid": self.id, "type": "scp"})
-        if len(result) != 1:
-            raise ValueError(f"Expected exactly 1 SCP access for storage {self.id}, actual: {len(result)}")
-        return f"{result[0]['host']}:"
+        return f"{self.data_dict['host']}:"
 
     @cached_property
     def scp_prefix_full(self) -> str:
