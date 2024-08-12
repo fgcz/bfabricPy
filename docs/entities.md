@@ -20,7 +20,9 @@ Entities are initialized with the full result structure obtained from a `read` o
 A `return_id_only` result is generally not supposed to be used to initialize an entity instance and behavior is undefined as of now.
 In cases where it makes sense to operate on the ids, it's better to directly call the `Bfabric` client methods.
 
-Entities can be retrieved with the methods `Entity.find` and `Entity.find_all`, whenever loading multiple entities of the same type the latter should be preferred since it reduces the number of API calls and returns a dictionary mapping entity ID to instance.
+Entities can be retrieved with the methods `Entity.find`, `Entity.find_all` and `Entity.find_by`.
+When loading multiple entities of the same type, `Entity.find_all` and `Entity.find_by` should be preferred.
+These two methods return a dictionary mapping entity ID to instance and this often helps avoid redundant API calls when expanding relationships over multiple entities.
 
 ### Relationships
 
