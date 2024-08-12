@@ -16,9 +16,14 @@ Versioning currently follows `X.Y.Z` where
 - Entities mapping:
   - Add `Entity.id` and `Entity.web_url` properties.
   - Add `Entity.__getitem__` to access fields from the data dictionary directly.
+  - Add `Entity.find_by` to find entities by a query.
   - More types and relationships
   - Relationships defer imports to descriptor call, i.e. circular relationships are possible now.
   - `HasOne` and `HasMany` allow defining `optional=True` to indicate fields which can be missing under some circumstances.
+
+### Changed
+
+- `Entity.find_all` supports more than 100 IDs now by using the experimental MultiQuery API.
 
 ## \[1.13.4\] - 2024-08-05
 

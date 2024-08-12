@@ -69,6 +69,24 @@ def test_find_all_when_not_all_found(mocker, mock_client) -> None:
     mock_client.read.assert_called_once_with("test_endpoint", obj={"id": [1, 5]})
 
 
+def test_find_by_when_found(mocker, mock_client) -> None:
+    mock_client.read.return_value = [{"id": 1, "name": "Test Entity"}]
+    mocker.patch.object(Entity, "ENDPOINT", new="test_endpoint")
+    entities = Entity.find_by({"id": 1}, mock_client)
+    assert len(entities) == 1
+    assert isinstance(entities[1], Entity)
+    assert entities[1].data_dict == {"id": 1, "name": "Test Entity"}
+    mock_client.read.assert_called_once_with("test_endpoint", obj={"id": 1})
+
+
+def test_find_by_when_not_found(mocker, mock_client) -> None:
+    mock_client.read.return_value = []
+    mocker.patch.object(Entity, "ENDPOINT", new="test_endpoint")
+    entities = Entity.find_by({"id": 1}, mock_client)
+    assert len(entities) == 0
+    mock_client.read.assert_called_once_with("test_endpoint", obj={"id": 1})
+
+
 def test_get_item(mock_entity) -> None:
     assert mock_entity["id"] == 1
     assert mock_entity["name"] == "Test Entity"

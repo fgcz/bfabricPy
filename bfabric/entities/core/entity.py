@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from loguru import logger
 
 from bfabric import Bfabric
-from typing import TYPE_CHECKING
+from bfabric.experimental import MultiQuery
 
 if TYPE_CHECKING:
     from typing import Any, Self
@@ -42,14 +44,20 @@ class Entity:
 
     @classmethod
     def find_all(cls, ids: list[int], client: Bfabric) -> dict[int, Self]:
+        ids = [int(id) for id in ids]
         if len(ids) > 100:
-            # TODO use paginated read if more than 100 ids
-            raise NotImplementedError("Pagination not yet implemented here.")
-        result = client.read(cls.ENDPOINT, obj={"id": [int(id) for id in ids]})
+            result = MultiQuery(client).read_multi(cls.ENDPOINT, {}, "id", ids)
+        else:
+            result = client.read(cls.ENDPOINT, obj={"id": ids})
         results = {x["id"]: cls(x, client=client) for x in result}
         if len(results) != len(ids):
             logger.warning(f"Only found {len(results)} out of {len(ids)}.")
         return results
+
+    @classmethod
+    def find_by(cls, obj: dict[str, Any], client: Bfabric) -> dict[int, Self]:
+        result = client.read(cls.ENDPOINT, obj=obj)
+        return {x["id"]: cls(x, client=client) for x in result}
 
     def __getitem__(self, key: str) -> Any:
         """Returns the value of a key in the data dictionary."""

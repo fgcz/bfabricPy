@@ -54,7 +54,9 @@ class MultiQuery:
             #     * What would happen if we naively made a multi-query with more than 100 values? Would API paginate
             #       automatically? If yes, perhaps we don't need this method at all?
             # TODO: It is assumed that a user requesting multi_query always wants all of the pages. Can anybody think of
-            #   exceptions to this?
+            #   exceptions to this? -> yes, when not reading by id but for instance matching a pattern, one might not
+            #   be aware that they might accidentally pull the whole db, so it's better to have max_results here as well
+            #   but it is not completely trivial to implement
             response_this = self._client.read(endpoint, obj_extended, max_results=None, return_id_only=return_id_only)
             response_tot.extend(response_this, reset_total_pages_api=True)
 
