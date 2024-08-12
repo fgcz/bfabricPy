@@ -27,7 +27,7 @@ If you want to add it to a `pyproject.toml` the syntax for specifying a git depe
 ```toml
 [project]
 dependencies = [
-    "bfabricPy @ git+https://github.com/fgcz/bfabricPy.git@stable"
+    "bfabric @ git+https://github.com/fgcz/bfabricPy.git@stable"
 ]
 ```
 
