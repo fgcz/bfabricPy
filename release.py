@@ -64,6 +64,10 @@ def merge_and_push_current_branch(branch: str) -> None:
     subprocess.run(["git", "push", "origin"], check=True)
 
 
+def publish_docs() -> None:
+    subprocess.run(["mkdocs", "gh-deploy"], check=True)
+
+
 def main() -> None:
     checkout_branch("main")
     version = check_version()
@@ -71,6 +75,7 @@ def main() -> None:
     checkout_branch("stable")
     merge_and_push_current_branch("main")
     checkout_branch("main")
+    publish_docs()
 
 
 if __name__ == "__main__":
