@@ -27,7 +27,7 @@ from bfabric.entities import Parameter, Workunit, Application
 def render_output(workunits_by_status: dict[str, list[Workunit]], client: Bfabric) -> None:
     """Renders the output as a table."""
     table = Table(
-        Column("Application", no_wrap=True),
+        Column("Application", no_wrap=False),
         Column("WU ID", no_wrap=True),
         Column("Created", no_wrap=True),
         Column("Status", no_wrap=True),
