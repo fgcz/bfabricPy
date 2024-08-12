@@ -20,6 +20,7 @@ Versioning currently follows `X.Y.Z` where
   - More types and relationships
   - Relationships defer imports to descriptor call, i.e. circular relationships are possible now.
   - `HasOne` and `HasMany` allow defining `optional=True` to indicate fields which can be missing under some circumstances.
+- Add `nodelist` to `bfabric_list_not_available_proteomics_workunits.py` output.
 
 ### Changed
 
