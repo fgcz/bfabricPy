@@ -31,6 +31,14 @@ dependencies = [
 ]
 ```
 
+## Updating
+
+If you installed with `pipx`, you can update the package to the most recent release with the following command:
+
+```bash
+pipx upgrade bfabric
+```
+
 ## Configuration
 
 Create a file as follows: (note: the password is not your login password, but the web service password available on your profile page)
