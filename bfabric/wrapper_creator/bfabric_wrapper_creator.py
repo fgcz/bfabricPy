@@ -85,28 +85,15 @@ class BfabricWrapperCreator:
         )
         return Resource(result[0])
 
-    @cached_property
-    def _inputs_for_application_section(self):
+    def get_application_section(self, output_resource: Resource) -> dict[str, Any]:
+        output_url = f"bfabric@{self._application.storage.data_dict['host']}:{self._application.storage.data_dict['basepath']}{output_resource.data_dict['relativepath']}"
         inputs = defaultdict(list)
         for resource in self.workunit_definition.execution.input_resources:
             inputs[resource.app_name].append(f"bfabric@{resource.scp_address}")
-        return dict(inputs)
-
-    @cached_property
-    def _inputs_for_configuration_section(self):
-        # NOTE: This is not even consistent within the yaml but for historic reasons we keep it...
-        inputs = defaultdict(list)
-        for resource in self.workunit_definition.execution.input_resources:
-            web_url = Resource({"id": resource.id}, client=self._client).web_url
-            inputs[resource.app_name].append({"resource_id": resource.id, "resource_url": web_url})
-        return dict(inputs)
-
-    def get_application_section(self, output_resource: Resource) -> dict[str, Any]:
-        output_url = f"bfabric@{self._application.storage.data_dict['host']}:{self._application.storage.data_dict['basepath']}{output_resource.data_dict['relativepath']}"
         return {
             "parameters": self.workunit_definition.parameter_values,
             "protocol": "scp",
-            "input": self._inputs_for_application_section,
+            "input": dict(inputs),
             "output": [output_url],
         }
 
@@ -122,11 +109,16 @@ class BfabricWrapperCreator:
                 "url": str(Path(self._log_storage.data_dict["basepath"], resource.data_dict["relativepath"])),
             }
 
+        inputs = defaultdict(list)
+        for resource in self.workunit_definition.execution.input_resources:
+            web_url = Resource({"id": resource.id}, client=self._client).web_url
+            inputs[resource.app_name].append({"resource_id": resource.id, "resource_url": web_url})
+
         return {
             "executable": str(self.workunit_definition.executable_path),
             "external_job_id": self._external_job_id,
             "fastasequence": self._fasta_sequence,
-            "input": self._inputs_for_configuration_section,
+            "input": dict(inputs),
             "inputdataset": None,
             "order_id": self.workunit_definition.order_id,
             "project_id": self.workunit_definition.project_id,
