@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.5\] - 2024-08-13
+
 ### Added
 
 - The `Bfabric` instance is now pickleable.
@@ -20,7 +22,7 @@ Versioning currently follows `X.Y.Z` where
   - More types and relationships
   - Relationships defer imports to descriptor call, i.e. circular relationships are possible now.
   - `HasOne` and `HasMany` allow defining `optional=True` to indicate fields which can be missing under some circumstances.
-- Add `nodelist` and `name` columns to `bfabric_list_not_available_proteomics_workunits.py` output.
+- Add `nodelist` column and application name to `bfabric_list_not_available_proteomics_workunits.py` output.
 
 ### Changed
 
