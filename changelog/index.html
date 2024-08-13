@@ -295,19 +295,37 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#tba-tba" class="md-nav__link">
+  <a href="#unreleased" class="md-nav__link">
     <span class="md-ellipsis">
-      [tba] - tba
+      [Unreleased]
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="[tba] - tba">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1135-2024-08-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      [1.13.5] - 2024-08-13
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.13.5] - 2024-08-13">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#added" class="md-nav__link">
     <span class="md-ellipsis">
       Added
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Changed
     </span>
   </a>
   
@@ -338,7 +356,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed" class="md-nav__link">
+  <a href="#changed_1" class="md-nav__link">
     <span class="md-ellipsis">
       Changed
     </span>
@@ -371,7 +389,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed_1" class="md-nav__link">
+  <a href="#changed_2" class="md-nav__link">
     <span class="md-ellipsis">
       Changed
     </span>
@@ -428,7 +446,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#changed_2" class="md-nav__link">
+  <a href="#changed_3" class="md-nav__link">
     <span class="md-ellipsis">
       Changed
     </span>
@@ -470,7 +488,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#changed_3" class="md-nav__link">
+  <a href="#changed_4" class="md-nav__link">
     <span class="md-ellipsis">
       Changed
     </span>
@@ -536,19 +554,37 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#tba-tba" class="md-nav__link">
+  <a href="#unreleased" class="md-nav__link">
     <span class="md-ellipsis">
-      [tba] - tba
+      [Unreleased]
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="[tba] - tba">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1135-2024-08-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      [1.13.5] - 2024-08-13
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.13.5] - 2024-08-13">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#added" class="md-nav__link">
     <span class="md-ellipsis">
       Added
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Changed
     </span>
   </a>
   
@@ -579,7 +615,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed" class="md-nav__link">
+  <a href="#changed_1" class="md-nav__link">
     <span class="md-ellipsis">
       Changed
     </span>
@@ -612,7 +648,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed_1" class="md-nav__link">
+  <a href="#changed_2" class="md-nav__link">
     <span class="md-ellipsis">
       Changed
     </span>
@@ -669,7 +705,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#changed_2" class="md-nav__link">
+  <a href="#changed_3" class="md-nav__link">
     <span class="md-ellipsis">
       Changed
     </span>
@@ -711,7 +747,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#changed_3" class="md-nav__link">
+  <a href="#changed_4" class="md-nav__link">
     <span class="md-ellipsis">
       Changed
     </span>
@@ -765,15 +801,23 @@
 <li><code>Y</code> should be the current bfabric release</li>
 <li><code>Z</code> is increased for feature releases, that should not break the API</li>
 </ul>
-<h2 id="tba-tba">[tba] - tba</h2>
+<h2 id="unreleased">[Unreleased]</h2>
+<h2 id="1135-2024-08-13">[1.13.5] - 2024-08-13</h2>
 <h3 id="added">Added</h3>
 <ul>
 <li>The <code>Bfabric</code> instance is now pickleable.</li>
 <li>Entities mapping:</li>
+<li>Add <code>Entity.id</code> and <code>Entity.web_url</code> properties.</li>
+<li>Add <code>Entity.__getitem__</code> and <code>Entity.get</code> to access fields from the data dictionary directly.</li>
+<li>Add <code>Entity.find_by</code> to find entities by a query.</li>
 <li>More types and relationships</li>
 <li>Relationships defer imports to descriptor call, i.e. circular relationships are possible now.</li>
-<li>Add <code>Entity.id</code> and <code>Entity.web_url</code> properties.</li>
 <li><code>HasOne</code> and <code>HasMany</code> allow defining <code>optional=True</code> to indicate fields which can be missing under some circumstances.</li>
+<li>Add <code>nodelist</code> column and application name to <code>bfabric_list_not_available_proteomics_workunits.py</code> output.</li>
+</ul>
+<h3 id="changed">Changed</h3>
+<ul>
+<li><code>Entity.find_all</code> supports more than 100 IDs now by using the experimental MultiQuery API.</li>
 </ul>
 <h2 id="1134-2024-08-05">[1.13.4] - 2024-08-05</h2>
 <h3 id="added_1">Added</h3>
@@ -783,7 +827,7 @@
 <li><code>bfabric_slurm_queue_status.py</code> to quickly check slurm queue status.</li>
 <li><code>Bfabric.save</code> provides <code>method</code> which can be set to <code>checkandinsert</code> for specific use cases.</li>
 </ul>
-<h3 id="changed">Changed</h3>
+<h3 id="changed_1">Changed</h3>
 <ul>
 <li>Most messages are now logged to debug level.</li>
 <li>The old verbose version information is now always logged, to INFO level, since it could entail useful information for error reporting.</li>
@@ -794,7 +838,7 @@
 <li>Flask</li>
 <li>New endpoint <code>GET /config/remote_base_url</code> for testing</li>
 </ul>
-<h3 id="changed_1">Changed</h3>
+<h3 id="changed_2">Changed</h3>
 <ul>
 <li>Flask</li>
 <li>Simplify logging by using loguru only.</li>
@@ -815,7 +859,7 @@
 <li>Make host and port configurable in <code>bfabric_flask.py</code> (currently only dev mode).</li>
 </ul>
 <h2 id="1131-2024-07-02">[1.13.1] - 2024-07-02</h2>
-<h3 id="changed_2">Changed</h3>
+<h3 id="changed_3">Changed</h3>
 <ul>
 <li>bfabric_save_csv2dataset will raise an error if problematic characters are found in any of the cells</li>
 <li>Correctly define <code>bfabric_setWorkunitStatus_available.py</code>, and <code>processing</code> and <code>failed</code> variants.</li>
@@ -831,7 +875,7 @@
 </ul>
 <h2 id="1130-2024-05-24">[1.13.0] - 2024-05-24</h2>
 <p>This is a major release refactoring bfabricPy's API.</p>
-<h3 id="changed_3">Changed</h3>
+<h3 id="changed_4">Changed</h3>
 <ul>
 <li>The <code>Bfabric</code> class operations now return <code>ResultContainer</code> objects.</li>
 <li>These provide a list-like interface to access individual items or iterate over them.</li>

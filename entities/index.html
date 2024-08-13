@@ -441,7 +441,9 @@ An entity is defined uniquely by its <code>classname</code> and <code>id</code>.
 <p>Entities are initialized with the full result structure obtained from a <code>read</code> operation on its particular endpoint.
 A <code>return_id_only</code> result is generally not supposed to be used to initialize an entity instance and behavior is undefined as of now.
 In cases where it makes sense to operate on the ids, it's better to directly call the <code>Bfabric</code> client methods.</p>
-<p>Entities can be retrieved with the methods <code>Entity.find</code> and <code>Entity.find_all</code>, whenever loading multiple entities of the same type the latter should be preferred since it reduces the number of API calls and returns a dictionary mapping entity ID to instance.</p>
+<p>Entities can be retrieved with the methods <code>Entity.find</code>, <code>Entity.find_all</code> and <code>Entity.find_by</code>.
+When loading multiple entities of the same type, <code>Entity.find_all</code> and <code>Entity.find_by</code> should be preferred.
+These two methods return a dictionary mapping entity ID to instance and this often helps avoid redundant API calls when expanding relationships over multiple entities.</p>
 <h3 id="relationships">Relationships</h3>
 <p>Custom descriptors are available which are used to represent relationships and enable lazy-loading of data.
 Currently the following descriptors are available:</p>
