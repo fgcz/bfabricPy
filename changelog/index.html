@@ -806,13 +806,15 @@
 <h3 id="added">Added</h3>
 <ul>
 <li>The <code>Bfabric</code> instance is now pickleable.</li>
-<li>Entities mapping:</li>
+<li>Entities mapping:<ul>
 <li>Add <code>Entity.id</code> and <code>Entity.web_url</code> properties.</li>
 <li>Add <code>Entity.__getitem__</code> and <code>Entity.get</code> to access fields from the data dictionary directly.</li>
 <li>Add <code>Entity.find_by</code> to find entities by a query.</li>
 <li>More types and relationships</li>
 <li>Relationships defer imports to descriptor call, i.e. circular relationships are possible now.</li>
 <li><code>HasOne</code> and <code>HasMany</code> allow defining <code>optional=True</code> to indicate fields which can be missing under some circumstances.</li>
+</ul>
+</li>
 <li>Add <code>nodelist</code> column and application name to <code>bfabric_list_not_available_proteomics_workunits.py</code> output.</li>
 </ul>
 <h3 id="changed">Changed</h3>
@@ -835,14 +837,18 @@
 <h2 id="1133-2024-07-18">[1.13.3] - 2024-07-18</h2>
 <h3 id="added_2">Added</h3>
 <ul>
-<li>Flask</li>
+<li>Flask<ul>
 <li>New endpoint <code>GET /config/remote_base_url</code> for testing</li>
+</ul>
+</li>
 </ul>
 <h3 id="changed_2">Changed</h3>
 <ul>
-<li>Flask</li>
+<li>Flask<ul>
 <li>Simplify logging by using loguru only.</li>
 <li>Simplified setup logic since the production use case should use a WSGI server.</li>
+</ul>
+</li>
 </ul>
 <h3 id="fixed">Fixed</h3>
 <ul>
@@ -852,10 +858,12 @@
 <h3 id="added_3">Added</h3>
 <ul>
 <li>Add <code>bfabric.entities.Dataset</code> to easily read datasets.</li>
-<li>Pydantic-based configuration parsing</li>
+<li>Pydantic-based configuration parsing<ul>
 <li>The config format did not change.</li>
 <li>The code is easier to maintain now.</li>
 <li>Additionally, there is a lot more validation of the configuration file now, that should catch errors early.</li>
+</ul>
+</li>
 <li>Make host and port configurable in <code>bfabric_flask.py</code> (currently only dev mode).</li>
 </ul>
 <h2 id="1131-2024-07-02">[1.13.1] - 2024-07-02</h2>
@@ -877,10 +885,12 @@
 <p>This is a major release refactoring bfabricPy's API.</p>
 <h3 id="changed_4">Changed</h3>
 <ul>
-<li>The <code>Bfabric</code> class operations now return <code>ResultContainer</code> objects.</li>
+<li>The <code>Bfabric</code> class operations now return <code>ResultContainer</code> objects.<ul>
 <li>These provide a list-like interface to access individual items or iterate over them.</li>
 <li>Individual items are a dictionary, potentially nested, and not specific to suds/zeep anymore.</li>
 <li>Convenience conversions, e.g. to a polars DataFrame, can be provided there.</li>
+</ul>
+</li>
 <li>Configuration is now defined in <code>~/.bfabricpy.yml</code> and supports multiple configurations, which can be selected by the <code>BFABRICPY_CONFIG_ENV</code> environment variable. Please consult the README for an example configuration.</li>
 <li>Use <code>pyproject.toml</code> for package configuration.</li>
 <li>Scripts have been refactored on a case-by-case basis.</li>
