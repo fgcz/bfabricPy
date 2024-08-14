@@ -16,12 +16,12 @@ Versioning currently follows `X.Y.Z` where
 
 - The `Bfabric` instance is now pickleable.
 - Entities mapping:
-  - Add `Entity.id` and `Entity.web_url` properties.
-  - Add `Entity.__getitem__` and `Entity.get` to access fields from the data dictionary directly.
-  - Add `Entity.find_by` to find entities by a query.
-  - More types and relationships
-  - Relationships defer imports to descriptor call, i.e. circular relationships are possible now.
-  - `HasOne` and `HasMany` allow defining `optional=True` to indicate fields which can be missing under some circumstances.
+    - Add `Entity.id` and `Entity.web_url` properties.
+    - Add `Entity.__getitem__` and `Entity.get` to access fields from the data dictionary directly.
+    - Add `Entity.find_by` to find entities by a query.
+    - More types and relationships
+    - Relationships defer imports to descriptor call, i.e. circular relationships are possible now.
+    - `HasOne` and `HasMany` allow defining `optional=True` to indicate fields which can be missing under some circumstances.
 - Add `nodelist` column and application name to `bfabric_list_not_available_proteomics_workunits.py` output.
 
 ### Changed
@@ -47,13 +47,13 @@ Versioning currently follows `X.Y.Z` where
 ### Added
 
 - Flask
-  - New endpoint `GET /config/remote_base_url` for testing
+    - New endpoint `GET /config/remote_base_url` for testing
 
 ### Changed
 
 - Flask
-  - Simplify logging by using loguru only.
-  - Simplified setup logic since the production use case should use a WSGI server.
+    - Simplify logging by using loguru only.
+    - Simplified setup logic since the production use case should use a WSGI server.
 
 ### Fixed
 
@@ -65,9 +65,9 @@ Versioning currently follows `X.Y.Z` where
 
 - Add `bfabric.entities.Dataset` to easily read datasets.
 - Pydantic-based configuration parsing
-  - The config format did not change.
-  - The code is easier to maintain now.
-  - Additionally, there is a lot more validation of the configuration file now, that should catch errors early.
+    - The config format did not change.
+    - The code is easier to maintain now.
+    - Additionally, there is a lot more validation of the configuration file now, that should catch errors early.
 - Make host and port configurable in `bfabric_flask.py` (currently only dev mode).
 
 ## \[1.13.1\] - 2024-07-02
@@ -93,9 +93,9 @@ This is a major release refactoring bfabricPy's API.
 ### Changed
 
 - The `Bfabric` class operations now return `ResultContainer` objects.
-  - These provide a list-like interface to access individual items or iterate over them.
-  - Individual items are a dictionary, potentially nested, and not specific to suds/zeep anymore.
-  - Convenience conversions, e.g. to a polars DataFrame, can be provided there.
+    - These provide a list-like interface to access individual items or iterate over them.
+    - Individual items are a dictionary, potentially nested, and not specific to suds/zeep anymore.
+    - Convenience conversions, e.g. to a polars DataFrame, can be provided there.
 - Configuration is now defined in `~/.bfabricpy.yml` and supports multiple configurations, which can be selected by the `BFABRICPY_CONFIG_ENV` environment variable. Please consult the README for an example configuration.
 - Use `pyproject.toml` for package configuration.
 - Scripts have been refactored on a case-by-case basis.
