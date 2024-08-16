@@ -2,6 +2,7 @@ site_name: bfabricPy docs
 nav:
   - index.md
   - entities.md
+  - good_to_know.md
   - contribute.md
   - changelog.md
 theme:
