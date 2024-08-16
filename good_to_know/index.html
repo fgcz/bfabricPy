@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../good_to_know/">
+        <link rel="prev" href="../entities/">
       
       
-        <link rel="next" href="../changelog/">
+        <link rel="next" href="../contribute/">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Contributing - bfabricPy docs</title>
+        <title>Good to Know - bfabricPy docs</title>
       
     
     
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#contributing" class="md-skip">
+        <a href="#good-to-know" class="md-skip">
           Skip to content
         </a>
       
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Contributing
+              Good to Know
             
           </span>
         </div>
@@ -193,26 +193,6 @@
       
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../good_to_know/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Good to Know
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
     
   
   
@@ -229,7 +209,7 @@
           
   
   <span class="md-ellipsis">
-    Contributing
+    Good to Know
   </span>
   
 
@@ -240,7 +220,7 @@
         
   
   <span class="md-ellipsis">
-    Contributing
+    Good to Know
   </span>
   
 
@@ -262,45 +242,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#development-install" class="md-nav__link">
+  <a href="#updating-workunits-with-many-associated-resources" class="md-nav__link">
     <span class="md-ellipsis">
-      Development install
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#running-tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      Running tests
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#integration-tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      Integration tests
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Documentation
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#release" class="md-nav__link">
-    <span class="md-ellipsis">
-      Release
+      Updating workunits with many associated resources
     </span>
   </a>
   
@@ -310,6 +254,26 @@
   
 </nav>
       
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contribute/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Contributing
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -361,45 +325,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#development-install" class="md-nav__link">
+  <a href="#updating-workunits-with-many-associated-resources" class="md-nav__link">
     <span class="md-ellipsis">
-      Development install
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#running-tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      Running tests
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#integration-tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      Integration tests
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Documentation
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#release" class="md-nav__link">
-    <span class="md-ellipsis">
-      Release
+      Updating workunits with many associated resources
     </span>
   </a>
   
@@ -420,34 +348,21 @@
                   
 
 
-<h1 id="contributing">Contributing</h1>
-<p>This page describes some information relevant for contributing to bfabricPy.</p>
-<h2 id="development-install">Development install</h2>
-<p>You should install the <code>dev</code> group as it contains some extra packages for running the tests.</p>
-<pre><code class="language-bash">pip install -e &quot;.[dev]&quot;
-</code></pre>
-<h2 id="running-tests">Running tests</h2>
-<p>With <code>nox</code> and <code>uv</code> installed, it is as simple as running <code>nox</code> in the project root without any arguments.</p>
-<h2 id="integration-tests">Integration tests</h2>
-<p>Note that integration tests have been moved to a separate repository. Please contact us if you are interested.</p>
-<h2 id="documentation">Documentation</h2>
-<p>We currently do not have a versioning solution for the documentation, but we can add that later once it is more mature.</p>
-<pre><code class="language-bash"># To preview while you write it
-mkdocs serve
-
-# To publish after changes
-mkdocs gh-deploy
-</code></pre>
-<h2 id="release">Release</h2>
-<p>To create a release, increase the version in <code>pyproject.toml</code>, prepare <code>changelog.md</code>,
-commit everything and run <code>release.py</code>. This script will</p>
-<ul>
-<li>Create a tag and push it to GitHub</li>
-<li>Merge the changes to the <code>stable</code> branch and push it to GitHub</li>
-<li>Build the documentation and push it to GitHub Pages</li>
-</ul>
-<p>The only manual step that remains is creating a release on GitHub.
-To do so, you can paste the changelog section of the release and create a new release on GitHub using the tag that was created.</p>
+<h1 id="good-to-know">Good to Know</h1>
+<h2 id="updating-workunits-with-many-associated-resources">Updating workunits with many associated resources</h2>
+<div class="admonition note">
+<p class="admonition-title">Summary: Updating workunits and its associated resources</p>
+<ol>
+<li>Set workunit state to <code>"processing"</code>.</li>
+<li>Update workunit and associated resources, as much as you need to.</li>
+<li>Set workunit state to <code>"available"</code>.</li>
+</ol>
+</div>
+<p>When updating large workunits, it's crucial to prevent state recomputation in B-Fabric by setting the workunit state to <code>"processing"</code> before making any changes.
+Failing to do so can lead to significant performance issues and complications, especially during iterative updates.</p>
+<p>After all entities have been saved, you can set the workunit state to <code>"available"</code>.
+However, be aware that B-Fabric will still perform a state recomputation at this stage, which might result in a different inferred state, such as <code>"failed"</code>.
+The <code>"processing"</code> state is the only one that ensures state recomputation is bypassed during the saving process.</p>
 
 
 
