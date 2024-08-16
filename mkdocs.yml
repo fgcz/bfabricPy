@@ -10,3 +10,7 @@ theme:
   features:
     - navigation.sections
     - navigation.instant
+markdown_extensions:
+  - admonition
+plugins:
+  - mkdocstrings

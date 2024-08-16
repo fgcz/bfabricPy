@@ -1,4 +1,4 @@
-# Contribute
+# Contributing
 
 This page describes some information relevant for contributing to bfabricPy.
 
