@@ -15,17 +15,20 @@ See also:
 """
 
 from __future__ import annotations
+
 import argparse
 import json
 import time
-import yaml
 from typing import Any
 
+import yaml
+from loguru import logger
 from rich.console import Console
 from rich.table import Table
 
 import bfabric
 from bfabric import Bfabric, BfabricClientConfig
+from bfabric.cli_formatting import setup_script_logging
 
 
 def bfabric_read(client: Bfabric, endpoint: str, attribute: str | None, value: str | None, output_format: str) -> None:
@@ -35,8 +38,8 @@ def bfabric_read(client: Bfabric, endpoint: str, attribute: str | None, value: s
         raise ValueError(message)
 
     query_obj = {attribute: value} if value is not None else {}
-    console_info = Console(style="bright_yellow", stderr=True)
-    console_info.print(f"--- query = {query_obj} ---")
+
+    logger.info(f"query = {query_obj}")
     console_out = Console()
 
     start_time = time.time()
@@ -45,10 +48,10 @@ def bfabric_read(client: Bfabric, endpoint: str, attribute: str | None, value: s
     res = sorted(results.to_list_dict(drop_empty=False), key=lambda x: x["id"])
     if res:
         possible_attributes = sorted(set(res[0].keys()))
-        console_info.print(f"--- possible attributes = {possible_attributes} ---")
+        logger.info(f"possible attributes = {possible_attributes}")
 
     output_format = _determine_output_format(console_out=console_out, output_format=output_format, n_results=len(res))
-    console_info.print(f"--- output format = {output_format} ---")
+    logger.info(f"output format = {output_format}")
 
     if output_format == "json":
         print(json.dumps(res, indent=2))
@@ -61,8 +64,8 @@ def bfabric_read(client: Bfabric, endpoint: str, attribute: str | None, value: s
     else:
         raise ValueError(f"output format {output_format} not supported")
 
-    console_info.print(f"--- number of query result items = {len(res)} ---")
-    console_info.print(f"--- query time = {end_time - start_time:.2f} seconds ---")
+    logger.info(f"number of query result items = {len(res)}")
+    logger.info(f"query time = {end_time - start_time:.2f} seconds")
 
 
 def _print_table_rich(
@@ -107,6 +110,7 @@ def _determine_output_format(console_out: Console, output_format: str, n_results
 
 def main() -> None:
     """Parses command line arguments and calls `bfabric_read`."""
+    setup_script_logging()
     client = Bfabric.from_config()
     parser = argparse.ArgumentParser()
     parser.add_argument(

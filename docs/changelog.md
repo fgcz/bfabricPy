@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Changed
+
+- `bfabric_read.py` prints non-output information exclusively through logger.
+
 ## \[1.13.5\] - 2024-08-13
 
 ### Added
