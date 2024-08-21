@@ -55,7 +55,7 @@ PRODUCTION:
   base_url: https://fgcz-bfabric.uzh.ch/bfabric
 ```
 
-You can also include an additional config for the TEST instance
+You can also append an additional config section for the TEST instance which will be used for instance when running the integration tests:
 
 ```{yaml}
 TEST:
@@ -63,3 +63,7 @@ TEST:
   password: yourBfabricWebPassword
   base_url: https://fgcz-bfabric-test.uzh.ch/bfabric
 ```
+
+When you run an application using bfabricPy, and it does not explicitly set the config when calling `Bfabric.from_config`, you can adjust the
+environment that is used by setting the environemnt variable `BFABRICPY_CONFIG_ENV` to the name of the config section you want to use.
+Command line scripts will log the user and base URL that is used, so you can verify that you are indeed using the correct environment.
