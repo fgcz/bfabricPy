@@ -85,8 +85,7 @@ class EngineSUDS:
     def _get_suds_service(self, endpoint: str) -> ServiceProxy:
         """Returns a SUDS service for the given endpoint. Reuses existing instances when possible."""
         if endpoint not in self._cl:
-            wsdl = "".join((self._base_url, "/", endpoint, "?wsdl"))
-            self._cl[endpoint] = Client(wsdl, cache=None)
+            self._cl[endpoint] = Client(f"{self._base_url}/{endpoint}?wsdl", cache=None)
         return self._cl[endpoint].service
 
     def _convert_results(self, response: Any, endpoint: str) -> ResultContainer:

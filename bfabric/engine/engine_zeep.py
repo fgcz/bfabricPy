@@ -109,8 +109,7 @@ class EngineZeep:
 
     def _get_client(self, endpoint: str) -> zeep.Client:
         if endpoint not in self._cl:
-            wsdl = "".join((self._base_url, "/", endpoint, "?wsdl"))
-            self._cl[endpoint] = zeep.Client(wsdl)
+            self._cl[endpoint] = zeep.Client(f"{self._base_url}/{endpoint}?wsdl")
         return self._cl[endpoint]
 
     def _convert_results(self, response: Any, endpoint: str) -> ResultContainer:
