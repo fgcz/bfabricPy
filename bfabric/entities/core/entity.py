@@ -55,8 +55,8 @@ class Entity:
         return results
 
     @classmethod
-    def find_by(cls, obj: dict[str, Any], client: Bfabric) -> dict[int, Self]:
-        result = client.read(cls.ENDPOINT, obj=obj)
+    def find_by(cls, obj: dict[str, Any], client: Bfabric, max_results: int | None = 100) -> dict[int, Self]:
+        result = client.read(cls.ENDPOINT, obj=obj, max_results=max_results)
         return {x["id"]: cls(x, client=client) for x in result}
 
     def __getitem__(self, key: str) -> Any:

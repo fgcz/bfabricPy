@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Added
+
+- `Entity.find_by` has new parameter `max_results`.
+
 ### Changed
 
 - `bfabric_read.py` prints non-output information exclusively through logger.
