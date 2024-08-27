@@ -18,6 +18,7 @@ Versioning currently follows `X.Y.Z` where
 
 - `bfabric_read.py` prints non-output information exclusively through logger and does not restrict entity types anymore.
 - `bfabric_delete.py` accepts multiple ids at once and does not restrict entity types anymore.
+- Both engines raise a `BfabricRequestError` if the endpoint was not found.
 
 ### Removed
 

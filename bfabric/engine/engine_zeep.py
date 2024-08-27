@@ -2,6 +2,7 @@ from __future__ import annotations
 import copy
 from typing import Any, TYPE_CHECKING
 
+import requests
 import zeep
 from zeep.helpers import serialize_object
 
@@ -109,7 +110,13 @@ class EngineZeep:
 
     def _get_client(self, endpoint: str) -> zeep.Client:
         if endpoint not in self._cl:
-            self._cl[endpoint] = zeep.Client(f"{self._base_url}/{endpoint}?wsdl")
+            try:
+                self._cl[endpoint] = zeep.Client(f"{self._base_url}/{endpoint}?wsdl")
+            except requests.exceptions.HTTPError as error:
+                if error.response is not None and error.response.status_code == 404:
+                    msg = f"Non-existent endpoint {repr(endpoint)} or the configured B-Fabric instance was not found."
+                    raise BfabricRequestError(msg) from error
+                raise
         return self._cl[endpoint]
 
     def _convert_results(self, response: Any, endpoint: str) -> ResultContainer:

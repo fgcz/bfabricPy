@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 from typing import Any, TYPE_CHECKING
 
+import suds.transport
 from suds import MethodNotFound
 from suds.client import Client
 
@@ -85,7 +86,13 @@ class EngineSUDS:
     def _get_suds_service(self, endpoint: str) -> ServiceProxy:
         """Returns a SUDS service for the given endpoint. Reuses existing instances when possible."""
         if endpoint not in self._cl:
-            self._cl[endpoint] = Client(f"{self._base_url}/{endpoint}?wsdl", cache=None)
+            try:
+                self._cl[endpoint] = Client(f"{self._base_url}/{endpoint}?wsdl", cache=None)
+            except suds.transport.TransportError as error:
+                if error.httpcode == 404:
+                    msg = f"Non-existent endpoint {repr(endpoint)} or the configured B-Fabric instance was not found."
+                    raise BfabricRequestError(msg) from error
+                raise
         return self._cl[endpoint].service
 
     def _convert_results(self, response: Any, endpoint: str) -> ResultContainer:
