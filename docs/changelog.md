@@ -16,8 +16,12 @@ Versioning currently follows `X.Y.Z` where
 
 ### Changed
 
-- `bfabric_read.py` prints non-output information exclusively through logger.
+- `bfabric_read.py` prints non-output information exclusively through logger and does not restrict entity types anymore.
 - `bfabric_delete.py` accepts multiple ids at once and does not restrict entity types anymore.
+
+### Removed
+
+- `bfabric.endpoints` list is deleted, since it was out of date and generally not so useful.
 
 ## \[1.13.5\] - 2024-08-13
 

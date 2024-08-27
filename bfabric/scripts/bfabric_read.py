@@ -26,7 +26,6 @@ from loguru import logger
 from rich.console import Console
 from rich.table import Table
 
-import bfabric
 from bfabric import Bfabric, BfabricClientConfig
 from bfabric.cli_formatting import setup_script_logging
 
@@ -120,8 +119,8 @@ def main() -> None:
         default="auto",
         dest="output_format",
     )
-    parser.add_argument("endpoint", help="endpoint to query", choices=bfabric.endpoints)
-    parser.add_argument("attribute", help="attribute to query for", nargs="?")
+    parser.add_argument("endpoint", help="endpoint to query", type=str)
+    parser.add_argument("attribute", help="attribute to query for", nargs="?", type=str)
     parser.add_argument("value", help="value to query for", nargs="?")
     args = parser.parse_args()
     bfabric_read(client=client, **vars(args))
