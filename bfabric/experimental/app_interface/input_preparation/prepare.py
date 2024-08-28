@@ -9,8 +9,9 @@ from loguru import logger
 
 from bfabric.entities import Resource, Dataset
 
+from bfabric.experimental.app_interface.input_preparation.specs import ResourceSpec, DatasetSpec
+
 if TYPE_CHECKING:
-    from bfabric.experimental.app_interface.input_preparation.specs import ResourceSpec, DatasetSpec
     from bfabric.bfabric import Bfabric
 
     SpecType = ResourceSpec | DatasetSpec

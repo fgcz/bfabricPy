@@ -10,6 +10,7 @@ RelativeFilePath = Annotated[str, Field(pattern=r"^[^/][^:]*$")]
 
 class ResourceSpec(BaseModel):
     model_config = ConfigDict(extra="forbid")
+    type: Literal["bfabric_resource"] = "bfabric_resource"
 
     id: int
     filename: RelativeFilePath | None = None
@@ -18,7 +19,13 @@ class ResourceSpec(BaseModel):
 
 class DatasetSpec(BaseModel):
     model_config = ConfigDict(extra="forbid")
+    type: Literal["bfabric_dataset"] = "bfabric_dataset"
 
     id: int
     filename: RelativeFilePath
     separator: Literal[",", "\t"] = ","
+
+
+class Specs(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    specs: list[Annotated[ResourceSpec | DatasetSpec, Field(..., discriminator="type")]]
