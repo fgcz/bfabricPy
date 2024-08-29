@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.6\] - 2024-08-29
+
 ### Added
 
 - `Entity.find_by` has new parameter `max_results`.
