@@ -28,8 +28,7 @@ class DatasetSpec(BaseModel):
     separator: Literal[",", "\t"] = ","
 
 
-# TODO rename to InputSpecs?
-class Specs(BaseModel):
+class InputsSpec(BaseModel):
     model_config = ConfigDict(extra="forbid")
     specs: list[Annotated[ResourceSpec | DatasetSpec, Field(..., discriminator="type")]]
 

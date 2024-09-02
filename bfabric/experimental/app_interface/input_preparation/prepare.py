@@ -10,7 +10,7 @@ from loguru import logger
 
 from bfabric.cli_formatting import setup_script_logging
 from bfabric.entities import Resource, Dataset
-from bfabric.experimental.app_interface.input_preparation.specs import ResourceSpec, DatasetSpec, Specs
+from bfabric.experimental.app_interface.input_preparation._inputs_spec import ResourceSpec, DatasetSpec, InputsSpec
 
 if TYPE_CHECKING:
     from bfabric.bfabric import Bfabric
@@ -104,7 +104,7 @@ def prepare_folder(inputs_yaml: Path, target_folder: Path | None, client: Bfabri
         target_folder = inputs_yaml.parent
 
     # parse the specs
-    specs_list = Specs.read_yaml(inputs_yaml)
+    specs_list = InputsSpec.read_yaml(inputs_yaml)
 
     # prepare the folder
     prepare = PrepareInputs(client=client, working_dir=target_folder, ssh_user=ssh_user)
