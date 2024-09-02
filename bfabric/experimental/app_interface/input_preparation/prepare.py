@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import subprocess
+import tempfile
 from pathlib import Path
 
 from loguru import logger
@@ -62,7 +63,16 @@ class PrepareInputs:
 
     def prepare_dataset(self, spec: DatasetSpec) -> None:
         dataset = Dataset.find(id=spec.id, client=self._client)
-        dataset.write_csv(self._working_dir / spec.filename, separator=spec.separator)
+        target_path = self._working_dir / spec.filename
+        with tempfile.NamedTemporaryFile() as tmp_file:
+            dataset.write_csv(Path(tmp_file.name), separator=spec.separator)
+            tmp_file.flush()
+            tmp_file.seek(0)
+            if target_path.exists() and target_path.read_text() == tmp_file.read().decode():
+                logger.debug(f"Skipping {spec.filename} as it already exists and has the correct content")
+            else:
+                tmp_file.seek(0)
+                target_path.write_text(tmp_file.read().decode())
 
     def clean_resource(self, spec: ResourceSpec) -> None:
         name = spec.filename if spec.filename else Resource.find(id=spec.id, client=self._client)["name"]
