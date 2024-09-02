@@ -10,12 +10,10 @@ from loguru import logger
 
 from bfabric.cli_formatting import setup_script_logging
 from bfabric.entities import Resource, Dataset
-from bfabric.experimental.app_interface.input_preparation._inputs_spec import ResourceSpec, DatasetSpec, InputsSpec
+from bfabric.experimental.app_interface.input_preparation._spec import ResourceSpec, DatasetSpec, InputsSpec
 
 if TYPE_CHECKING:
     from bfabric.bfabric import Bfabric
-
-    SpecType = ResourceSpec | DatasetSpec
 
 
 class PrepareInputs:

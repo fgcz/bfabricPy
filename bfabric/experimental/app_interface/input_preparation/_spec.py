@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Union
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field
@@ -28,16 +28,19 @@ class DatasetSpec(BaseModel):
     separator: Literal[",", "\t"] = ","
 
 
+SpecType = Union[ResourceSpec, DatasetSpec]
+
+
 class InputsSpec(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    inputs: list[Annotated[ResourceSpec | DatasetSpec, Field(..., discriminator="type")]]
+    inputs: list[Annotated[SpecType, Field(..., discriminator="type")]]
 
     @classmethod
-    def read_yaml(cls, path: Path) -> list[ResourceSpec | DatasetSpec]:
+    def read_yaml(cls, path: Path) -> list[SpecType]:
         model = cls.model_validate(yaml.safe_load(path.read_text()))
         return model.inputs
 
     @classmethod
-    def write_yaml(cls, specs: list[ResourceSpec | DatasetSpec], path: Path) -> None:
+    def write_yaml(cls, specs: list[SpecType], path: Path) -> None:
         model = cls.model_validate(dict(specs=specs))
         path.write_text(yaml.dump(model.model_dump(mode="json")))
