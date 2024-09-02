@@ -43,15 +43,18 @@ class PrepareInputs:
         result_name = spec.filename if spec.filename else resource["name"]
         result_path = self._working_dir / result_name
 
-        # copy
-        _scp(scp_uri, str(result_path), user=self._ssh_user)
+        # copy if necessary
+        if result_path.exists() and _md5sum(result_path) == resource["filechecksum"]:
+            logger.debug(f"Skipping {resource['name']} as it already exists and has the correct checksum")
+        else:
+            _scp(scp_uri, str(result_path), user=self._ssh_user)
 
-        # verify checksum
-        if spec.check_checksum:
-            actual_checksum = _md5sum(result_path)
-            logger.debug(f"Checksum: expected {resource['filechecksum']}, got {actual_checksum}")
-            if actual_checksum != resource["filechecksum"]:
-                raise ValueError(f"Checksum mismatch: expected {resource['filechecksum']}, got {actual_checksum}")
+            # verify checksum
+            if spec.check_checksum:
+                actual_checksum = _md5sum(result_path)
+                logger.debug(f"Checksum: expected {resource['filechecksum']}, got {actual_checksum}")
+                if actual_checksum != resource["filechecksum"]:
+                    raise ValueError(f"Checksum mismatch: expected {resource['filechecksum']}, got {actual_checksum}")
 
     def prepare_dataset(self, spec: DatasetSpec) -> None:
         dataset = Dataset.find(id=spec.id, client=self._client)
