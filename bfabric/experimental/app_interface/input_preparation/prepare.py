@@ -64,6 +64,7 @@ class PrepareInputs:
     def prepare_dataset(self, spec: DatasetSpec) -> None:
         dataset = Dataset.find(id=spec.id, client=self._client)
         target_path = self._working_dir / spec.filename
+        target_path.parent.mkdir(exist_ok=True, parents=True)
         with tempfile.NamedTemporaryFile() as tmp_file:
             dataset.write_csv(Path(tmp_file.name), separator=spec.separator)
             tmp_file.flush()
