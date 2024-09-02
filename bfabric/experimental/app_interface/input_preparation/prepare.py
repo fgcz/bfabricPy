@@ -4,16 +4,13 @@ import argparse
 import hashlib
 import subprocess
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 from loguru import logger
 
+from bfabric.bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
 from bfabric.entities import Resource, Dataset
-from bfabric.experimental.app_interface.input_preparation._spec import ResourceSpec, DatasetSpec, InputsSpec
-
-if TYPE_CHECKING:
-    from bfabric.bfabric import Bfabric
+from bfabric.experimental.app_interface.input_preparation._spec import ResourceSpec, DatasetSpec, InputsSpec, SpecType
 
 
 class PrepareInputs:
@@ -29,6 +26,15 @@ class PrepareInputs:
                 self.prepare_resource(spec)
             elif isinstance(spec, DatasetSpec):
                 self.prepare_dataset(spec)
+            else:
+                raise ValueError(f"Unknown spec type: {type(spec)}")
+
+    def clean_all(self, specs: list[SpecType]) -> None:
+        for spec in specs:
+            if isinstance(spec, ResourceSpec):
+                self.clean_resource(spec)
+            elif isinstance(spec, DatasetSpec):
+                self.clean_dataset(spec)
             else:
                 raise ValueError(f"Unknown spec type: {type(spec)}")
 
@@ -58,6 +64,23 @@ class PrepareInputs:
     def prepare_dataset(self, spec: DatasetSpec) -> None:
         dataset = Dataset.find(id=spec.id, client=self._client)
         dataset.write_csv(self._working_dir / spec.filename, separator=spec.separator)
+
+    def clean_resource(self, spec: ResourceSpec) -> None:
+        name = spec.filename if spec.filename else Resource.find(id=spec.id, client=self._client)["name"]
+        path = self._working_dir / name
+        if path.exists():
+            logger.info(f"Removing {path}")
+            path.unlink()
+        else:
+            logger.debug(f"Resource {path} does not exist")
+
+    def clean_dataset(self, spec: DatasetSpec) -> None:
+        path = self._working_dir / spec.filename
+        if path.exists():
+            logger.info(f"Removing {path}")
+            path.unlink()
+        else:
+            logger.debug(f"Dataset {path} does not exist")
 
 
 def _is_remote(path: str | Path) -> bool:
@@ -95,7 +118,9 @@ def _md5sum(file: Path) -> str:
     return hasher.hexdigest()
 
 
-def prepare_folder(inputs_yaml: Path, target_folder: Path | None, client: Bfabric, ssh_user: str | None) -> None:
+def prepare_folder(
+    inputs_yaml: Path, target_folder: Path | None, client: Bfabric, ssh_user: str | None, action: str = "prepare"
+) -> None:
     # set defaults
     inputs_yaml = inputs_yaml.absolute()
     if target_folder is None:
@@ -106,19 +131,29 @@ def prepare_folder(inputs_yaml: Path, target_folder: Path | None, client: Bfabri
 
     # prepare the folder
     prepare = PrepareInputs(client=client, working_dir=target_folder, ssh_user=ssh_user)
-    prepare.prepare_all(specs=specs_list)
+    if action == "prepare":
+        prepare.prepare_all(specs=specs_list)
+    elif action == "clean":
+        prepare.clean_all(specs=specs_list)
+    else:
+        raise ValueError(f"Unknown action: {action}")
 
 
 def main():
     setup_script_logging()
     client = Bfabric.from_config()
     parser = argparse.ArgumentParser()
+    parser.add_argument("action", default="prepare", choices=["prepare", "clean"])
     parser.add_argument("--inputs-yaml", type=Path, required=True)
     parser.add_argument("--target-folder", type=Path, required=False)
     parser.add_argument("--ssh-user", type=str, required=False)
     args = parser.parse_args()
     prepare_folder(
-        inputs_yaml=args.inputs_yaml, target_folder=args.target_folder, ssh_user=args.ssh_user, client=client
+        inputs_yaml=args.inputs_yaml,
+        target_folder=args.target_folder,
+        ssh_user=args.ssh_user,
+        client=client,
+        action=args.action,
     )
 
 
