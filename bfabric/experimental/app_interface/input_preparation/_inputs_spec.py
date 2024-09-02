@@ -30,12 +30,12 @@ class DatasetSpec(BaseModel):
 
 class InputsSpec(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    specs: list[Annotated[ResourceSpec | DatasetSpec, Field(..., discriminator="type")]]
+    inputs: list[Annotated[ResourceSpec | DatasetSpec, Field(..., discriminator="type")]]
 
     @classmethod
     def read_yaml(cls, path: Path) -> list[ResourceSpec | DatasetSpec]:
-        spec = cls.model_validate(yaml.safe_load(path.read_text()))
-        return spec.specs
+        model = cls.model_validate(yaml.safe_load(path.read_text()))
+        return model.inputs
 
     @classmethod
     def write_yaml(cls, specs: list[ResourceSpec | DatasetSpec], path: Path) -> None:
