@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import subprocess
 import tempfile
 from pathlib import Path
 
@@ -10,6 +9,7 @@ from bfabric.bfabric import Bfabric
 from bfabric.entities import Resource, Dataset
 from bfabric.experimental.app_interface.input_preparation._spec import ResourceSpec, DatasetSpec, SpecType, InputsSpec
 from bfabric.experimental.app_interface.util.checksums import md5sum
+from bfabric.experimental.app_interface.util.scp import scp
 
 
 class PrepareInputs:
@@ -52,7 +52,7 @@ class PrepareInputs:
         if result_path.exists() and md5sum(result_path) == resource["filechecksum"]:
             logger.debug(f"Skipping {resource['name']} as it already exists and has the correct checksum")
         else:
-            _scp(scp_uri, str(result_path), user=self._ssh_user)
+            scp(scp_uri, str(result_path), user=self._ssh_user)
 
             # verify checksum
             if spec.check_checksum:
@@ -112,30 +112,3 @@ def prepare_folder(
         prepare.clean_all(specs=specs_list)
     else:
         raise ValueError(f"Unknown action: {action}")
-
-
-def _is_remote(path: str | Path) -> bool:
-    return ":" in str(path)
-
-
-def _scp(source: str | Path, target: str | Path, *, user: str | None = None) -> None:
-    """Performs scp source target.
-    Make sure that either the source or target specifies a host, otherwise you should just use shutil.copyfile.
-    """
-    source_remote = _is_remote(source)
-    target_remote = _is_remote(target)
-    if source_remote == target_remote:
-        msg = (
-            f"Either source or target should be remote, but not both. "
-            f"source_remote={repr(source_remote)} == target_remote={repr(target_remote)}"
-        )
-        raise ValueError(msg)
-    if user and source_remote:
-        source = f"{user}@{source}"
-    elif user and target_remote:
-        target = f"{user}@{target}"
-    if not target_remote:
-        Path(target).parent.mkdir(parents=True, exist_ok=True)
-
-    logger.info(f"scp {source} {target}")
-    subprocess.run(["scp", source, target], check=True)
