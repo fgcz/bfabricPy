@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import subprocess
 import tempfile
 from pathlib import Path
@@ -10,6 +9,7 @@ from loguru import logger
 from bfabric.bfabric import Bfabric
 from bfabric.entities import Resource, Dataset
 from bfabric.experimental.app_interface.input_preparation._spec import ResourceSpec, DatasetSpec, SpecType, InputsSpec
+from bfabric.experimental.app_interface.util.checksums import md5sum
 
 
 class PrepareInputs:
@@ -49,14 +49,14 @@ class PrepareInputs:
         result_path = self._working_dir / result_name
 
         # copy if necessary
-        if result_path.exists() and _md5sum(result_path) == resource["filechecksum"]:
+        if result_path.exists() and md5sum(result_path) == resource["filechecksum"]:
             logger.debug(f"Skipping {resource['name']} as it already exists and has the correct checksum")
         else:
             _scp(scp_uri, str(result_path), user=self._ssh_user)
 
             # verify checksum
             if spec.check_checksum:
-                actual_checksum = _md5sum(result_path)
+                actual_checksum = md5sum(result_path)
                 logger.debug(f"Checksum: expected {resource['filechecksum']}, got {actual_checksum}")
                 if actual_checksum != resource["filechecksum"]:
                     raise ValueError(f"Checksum mismatch: expected {resource['filechecksum']}, got {actual_checksum}")
@@ -139,11 +139,3 @@ def _scp(source: str | Path, target: str | Path, *, user: str | None = None) -> 
 
     logger.info(f"scp {source} {target}")
     subprocess.run(["scp", source, target], check=True)
-
-
-def _md5sum(file: Path) -> str:
-    hasher = hashlib.md5()
-    with file.open("rb") as f:
-        for chunk in iter(lambda: f.read(16384), b""):
-            hasher.update(chunk)
-    return hasher.hexdigest()
