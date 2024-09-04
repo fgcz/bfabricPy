@@ -1,7 +1,10 @@
 from __future__ import annotations
-
+import datetime
 from functools import cached_property
+from pathlib import Path
 from typing import Any, TYPE_CHECKING
+
+import dateutil.parser
 
 from bfabric import Bfabric
 from bfabric.entities.core.entity import Entity
@@ -45,3 +48,16 @@ class Workunit(Entity):
             return Order.find(id=self.data_dict["container"]["id"], client=self._client)
         else:
             raise ValueError(f"Unknown container classname: {self.data_dict['container']['classname']}")
+
+    @cached_property
+    def store_output_folder(self) -> Path:
+        """Relative path in the storage for the workunit output."""
+        date = dateutil.parser.parse(self.data_dict["created"])
+        return Path(
+            f"{self.application.storage['projectfolderprefix']}{self.container.id}",
+            "bfabric",
+            self.application["technology"].replace(" ", "_"),
+            self.application["name"].replace(" ", "_"),
+            date.strftime("%Y/%Y-%m/%Y-%m-%d/"),
+            f"workunit_{self.id}",
+        )
