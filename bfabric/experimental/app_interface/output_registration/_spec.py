@@ -2,22 +2,16 @@ from __future__ import annotations
 
 import enum
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Union, Annotated
 
 import yaml
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class UpdateExisting(enum.Enum):
     NO = "no"
     IF_EXISTS = "if_exists"
     REQUIRED = "required"
-
-
-# class UploadResourceSpec(BaseModel):
-#    model_config = ConfigDict(extra="forbid")
-#    type: Literal["bfabric_upload_resource"] = "bfabric_upload_resource"
-#    filename: str
 
 
 class CopyResourceSpec(BaseModel):
@@ -37,14 +31,25 @@ class CopyResourceSpec(BaseModel):
     storage_id: int
 
     update_existing: UpdateExisting = UpdateExisting.NO
+    protocol: Literal["scp"] = "scp"
 
 
-SpecType = CopyResourceSpec
+class SaveDatasetSpec(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    type: Literal["bfabric_save_dataset"] = "bfabric_dataset"
+
+    local_path: Path
+    separator: str
+    workunit_id: int
+    name: str | None = None
+
+
+SpecType = Union[CopyResourceSpec, SaveDatasetSpec]
 
 
 class OutputsSpec(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    outputs: list[SpecType]
+    outputs: list[Annotated[SpecType, Field(..., discriminator="type")]]
 
     @classmethod
     def read_yaml(cls, path: Path) -> list[SpecType]:

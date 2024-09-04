@@ -11,9 +11,11 @@ from bfabric.experimental.app_interface.output_registration._spec import (
     UpdateExisting,
     OutputsSpec,
     SpecType,
+    SaveDatasetSpec,
 )
 from bfabric.experimental.app_interface.util.checksums import md5sum
 from bfabric.experimental.app_interface.util.scp import scp
+from bfabric.scripts.bfabric_save_csv2dataset import bfabric_save_csv2dataset
 
 
 def register_file_in_workunit(
@@ -23,12 +25,11 @@ def register_file_in_workunit(
     if spec.update_existing != UpdateExisting.NO:
         # TODO implement this functionality
         raise NotImplementedError("Update existing not implemented")
-    checksum = md5sum(spec.path)
-    name = spec.store_entry_path.name if not spec.name else spec.name
+    checksum = md5sum(spec.local_path)
     client.save(
         "resource",
         {
-            "name": name,
+            "name": spec.store_entry_path.name,
             "workunitid": spec.workunit_id,
             "storageid": spec.storage_id,
             # TODO this one also needs to contain the output folder
@@ -48,12 +49,29 @@ def copy_file_to_storage(spec: CopyResourceSpec, client: Bfabric, ssh_user: str 
     scp(spec.local_path, output_uri, user=ssh_user)
 
 
+def _save_dataset(spec: SaveDatasetSpec, client: Bfabric):
+    # TODO should not print to stdout in the future
+    workunit = Workunit.find(id=spec.workunit_id, client=client)
+    bfabric_save_csv2dataset(
+        client=client,
+        csv_file=spec.local_path,
+        dataset_name=spec.name or spec.local_path.stem,
+        container_id=workunit.container.id,
+        workunit_id=workunit.id,
+        sep=spec.separator,
+        has_header=spec.has_header,
+        invalid_characters=spec.invalid_characters,
+    )
+
+
 def register_all(client: Bfabric, specs_list: list[SpecType], ssh_user: str | None):
     for spec in specs_list:
         logger.debug(f"Registering {spec}")
         if isinstance(spec, CopyResourceSpec):
             copy_file_to_storage(spec, client, ssh_user)
             register_file_in_workunit(spec, client)
+        elif isinstance(spec, SaveDatasetSpec):
+            _save_dataset(spec, client)
         else:
             raise ValueError(f"Unknown spec type: {type(spec)}")
 

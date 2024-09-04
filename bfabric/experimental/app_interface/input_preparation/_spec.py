@@ -26,6 +26,8 @@ class DatasetSpec(BaseModel):
     id: int
     filename: RelativeFilePath
     separator: Literal[",", "\t"] = ","
+    has_header: bool
+    invalid_characters: str = ""
 
 
 SpecType = Union[ResourceSpec, DatasetSpec]
