@@ -18,6 +18,13 @@ from bfabric.experimental.app_interface.util.scp import scp
 from bfabric.scripts.bfabric_save_csv2dataset import bfabric_save_csv2dataset
 
 
+def _get_output_folder(spec: CopyResourceSpec, client: Bfabric) -> Path:
+    if not spec.store_folder_path:
+        return Workunit.find(id=spec.workunit_id, client=client).store_output_folder
+    else:
+        return spec.store_folder_path
+
+
 def register_file_in_workunit(
     spec: CopyResourceSpec,
     client: Bfabric,
@@ -26,14 +33,14 @@ def register_file_in_workunit(
         # TODO implement this functionality
         raise NotImplementedError("Update existing not implemented")
     checksum = md5sum(spec.local_path)
+    output_folder = _get_output_folder(spec, client)
     client.save(
         "resource",
         {
             "name": spec.store_entry_path.name,
             "workunitid": spec.workunit_id,
             "storageid": spec.storage_id,
-            # TODO this one also needs to contain the output folder
-            "relativepath": spec.store_entry_path,
+            "relativepath": output_folder / spec.store_entry_path,
             "filechecksum": checksum,
             "status": "available",
             "size": spec.local_path.stat().st_size,
@@ -43,8 +50,7 @@ def register_file_in_workunit(
 
 def copy_file_to_storage(spec: CopyResourceSpec, client: Bfabric, ssh_user: str | None):
     storage = Storage.find(id=spec.storage_id, client=client)
-    workunit = Workunit.find(id=spec.workunit_id, client=client)
-    output_folder = workunit.store_output_folder if not spec.store_folder_path else spec.store_folder_path
+    output_folder = _get_output_folder(spec, client)
     output_uri = f"{storage.scp_prefix}{output_folder / spec.store_entry_path}"
     scp(spec.local_path, output_uri, user=ssh_user)
 
