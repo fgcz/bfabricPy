@@ -57,15 +57,7 @@ class BfabricWrapperCreator:
         )[0]["id"]
 
         # Determine the correct path
-        today = datetime.date.today()
-        output_folder = Path(
-            f"p{self._workunit.data_dict['container']['id']}",
-            "bfabric",
-            self._application.data_dict["technology"].replace(" ", "_"),
-            self._application.data_dict["name"].replace(" ", "_"),
-            today.strftime("%Y/%Y-%m/%Y-%m-%d/"),
-            f"workunit_{self._workunit.id}",
-        )
+        output_folder = self._workunit.store_output_folder
         output_filename = f"{resource_id}.{self._application.data_dict['outputfileformat']}"
         relative_path = str(output_folder / output_filename)
 
