@@ -6,10 +6,10 @@ from pathlib import Path
 from loguru import logger
 
 
-def scp(source: str | Path, target: str | Path, *, user: str | None = None) -> None:
+def scp(source: str | Path, target: str | Path, *, user: str | None = None, mkdir: bool = True) -> None:
     """Copies a file using scp from source to target.
     Make sure that either the source or target specifies a host, otherwise you should just use shutil.copyfile.
-    If you copy to a folder, it is recommended to end the target with a slash (``/``).
+    Always specify the full path for the target, not just a directory.
     """
     source = str(source)
     target = str(target)
@@ -21,19 +21,22 @@ def scp(source: str | Path, target: str | Path, *, user: str | None = None) -> N
             f"source_remote={repr(source_remote)} == target_remote={repr(target_remote)}"
         )
         raise ValueError(msg)
+    if target[-1] == "/":
+        raise ValueError(f"Target should be a file, not a directory: {target}")
     if user and source_remote:
         source = f"{user}@{source}"
     elif user and target_remote:
         target = f"{user}@{target}"
 
-    # create output directory if necessary
-    if target_remote:
-        host, path = target.split(":", 1)
-        parent_path = str(Path(path).parent) if not path.endswith("/") else path
-        subprocess.run(["ssh", host, "mkdir", "-p", parent_path], check=True)
-    else:
-        parent_path = Path(target).parent if not target.endswith("/") else target
-        parent_path.mkdir(parents=True, exist_ok=True)
+    if mkdir:
+        if target_remote:
+            host, path = target.split(":", 1)
+            parent_path = str(Path(path).parent)
+            logger.debug(f"ssh {host} mkdir -p {parent_path}")
+            subprocess.run(["ssh", host, "mkdir", "-p", parent_path], check=True)
+        else:
+            parent_path = Path(target).parent
+            parent_path.mkdir(parents=True, exist_ok=True)
 
     logger.info(f"scp {source} {target}")
     subprocess.run(["scp", source, target], check=True)
