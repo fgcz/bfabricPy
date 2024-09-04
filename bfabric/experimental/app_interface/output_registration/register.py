@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import datetime
 from pathlib import Path
 
 from loguru import logger
@@ -41,22 +40,10 @@ def register_file_in_workunit(
     )
 
 
-def determine_output_folder(workunit):
-    today = datetime.date.today()
-    return Path(
-        f"p{workunit.container.id}",
-        "bfabric",
-        workunit.application["technology"].replace(" ", "_"),
-        workunit.application["name"].replace(" ", "_"),
-        today.strftime("%Y/%Y-%m/%Y-%m-%d/"),
-        f"workunit_{workunit.id}",
-    )
-
-
 def copy_file_to_storage(spec: CopyResourceSpec, client: Bfabric, ssh_user: str | None):
     storage = Storage.find(id=spec.storage_id, client=client)
     workunit = Workunit.find(id=spec.workunit_id, client=client)
-    output_folder = determine_output_folder(workunit) if not spec.store_folder_path else spec.store_folder_path
+    output_folder = workunit.store_output_folder if not spec.store_folder_path else spec.store_folder_path
     output_uri = f"{storage.scp_prefix}{output_folder / spec.store_entry_path}"
     scp(spec.local_path, output_uri, user=ssh_user)
 
