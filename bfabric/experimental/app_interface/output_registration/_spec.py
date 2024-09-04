@@ -25,12 +25,17 @@ class CopyResourceSpec(BaseModel):
     type: Literal["bfabric_copy_resource"] = "bfabric_copy_resource"
 
     local_path: Path
-    store_path: Path
+    """The local path to the file to be copied."""
+
+    store_entry_path: Path
+    """The path to the storage entry in the storage folder."""
+
+    store_folder_path: Path | None = None
+    """The storage folder will be determined by the default rule, but can be specified if needed."""
 
     workunit_id: int
     storage_id: int
 
-    name: str | None = None
     update_existing: UpdateExisting = UpdateExisting.NO
 
 

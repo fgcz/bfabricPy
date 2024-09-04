@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+import datetime
 from pathlib import Path
 
 from loguru import logger
 
 from bfabric import Bfabric
-from bfabric.entities import Storage
+from bfabric.entities import Storage, Workunit
 from bfabric.experimental.app_interface.output_registration._spec import (
     CopyResourceSpec,
     UpdateExisting,
@@ -24,14 +25,15 @@ def register_file_in_workunit(
         # TODO implement this functionality
         raise NotImplementedError("Update existing not implemented")
     checksum = md5sum(spec.path)
-    name = spec.store_path.name if not spec.name else spec.name
+    name = spec.store_entry_path.name if not spec.name else spec.name
     client.save(
         "resource",
         {
             "name": name,
             "workunitid": spec.workunit_id,
             "storageid": spec.storage_id,
-            "relativepath": spec.store_path,
+            # TODO this one also needs to contain the output folder
+            "relativepath": spec.store_entry_path,
             "filechecksum": checksum,
             "status": "available",
             "size": spec.local_path.stat().st_size,
@@ -39,9 +41,23 @@ def register_file_in_workunit(
     )
 
 
+def determine_output_folder(workunit):
+    today = datetime.date.today()
+    return Path(
+        f"p{workunit.container.id}",
+        "bfabric",
+        workunit.application["technology"].replace(" ", "_"),
+        workunit.application["name"].replace(" ", "_"),
+        today.strftime("%Y/%Y-%m/%Y-%m-%d/"),
+        f"workunit_{workunit.id}",
+    )
+
+
 def copy_file_to_storage(spec: CopyResourceSpec, client: Bfabric, ssh_user: str | None):
     storage = Storage.find(id=spec.storage_id, client=client)
-    output_uri = f"{storage.scp_prefix}{spec.store_path}"
+    workunit = Workunit.find(id=spec.workunit_id, client=client)
+    output_folder = determine_output_folder(workunit) if not spec.store_folder_path else spec.store_folder_path
+    output_uri = f"{storage.scp_prefix}{output_folder / spec.store_entry_path}"
     scp(spec.local_path, output_uri, user=ssh_user)
 
 
