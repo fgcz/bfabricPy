@@ -13,7 +13,7 @@ import yaml
 from bfabric import Bfabric
 from bfabric.bfabric_legacy import bfabricEncoder
 from bfabric.entities import Workunit, ExternalJob, Application, Resource, Storage, Order, Project
-from bfabric.experimental.app_interface.workunit_definition import WorkunitDefinition
+from bfabric.experimental.app_interface._workunit_definition import WorkunitDefinition
 from bfabric.wrapper_creator.bfabric_external_job import BfabricExternalJob
 
 

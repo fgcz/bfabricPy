@@ -1,4 +1,9 @@
+# deprecated, new code will replace this
 from __future__ import annotations
+import warnings
+
+warnings.warn("This module is deprecated", DeprecationWarning)
+
 
 from pathlib import Path
 from typing import TYPE_CHECKING
