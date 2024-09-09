@@ -6,6 +6,7 @@ from typing import Literal
 import yaml
 from pydantic import BaseModel, ConfigDict, model_validator
 
+from bfabric import Bfabric
 from bfabric.entities import Workunit
 
 
@@ -57,6 +58,17 @@ class WorkunitRegistrationDefinition(BaseModel):
 class WorkunitDefinition(BaseModel):
     execution: WorkunitExecutionDefinition
     registration: WorkunitRegistrationDefinition | None
+
+    @classmethod
+    def from_ref(cls, workunit: Path | int, client: Bfabric) -> WorkunitDefinition:
+        """Loads the workunit definition from the provided reference,
+        which can be a path to a YAML file, or a workunit ID.
+        """
+        if isinstance(workunit, Path):
+            return cls.from_yaml(workunit)
+        else:
+            workunit = Workunit.find(id=workunit, client=client)
+            return cls.from_workunit(workunit)
 
     @classmethod
     def from_workunit(cls, workunit: Workunit) -> WorkunitDefinition:
