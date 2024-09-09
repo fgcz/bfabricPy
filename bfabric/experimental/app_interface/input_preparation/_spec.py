@@ -30,19 +30,19 @@ class DatasetSpec(BaseModel):
     # invalid_characters: str = ""
 
 
-SpecType = Union[ResourceSpec, DatasetSpec]
+InputSpecType = Union[ResourceSpec, DatasetSpec]
 
 
 class InputsSpec(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    inputs: list[Annotated[SpecType, Field(..., discriminator="type")]]
+    inputs: list[Annotated[InputSpecType, Field(..., discriminator="type")]]
 
     @classmethod
-    def read_yaml(cls, path: Path) -> list[SpecType]:
+    def read_yaml(cls, path: Path) -> list[InputSpecType]:
         model = cls.model_validate(yaml.safe_load(path.read_text()))
         return model.inputs
 
     @classmethod
-    def write_yaml(cls, specs: list[SpecType], path: Path) -> None:
+    def write_yaml(cls, specs: list[InputSpecType], path: Path) -> None:
         model = cls.model_validate(dict(specs=specs))
         path.write_text(yaml.dump(model.model_dump(mode="json")))

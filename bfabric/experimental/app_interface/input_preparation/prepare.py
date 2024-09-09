@@ -7,7 +7,12 @@ from loguru import logger
 
 from bfabric.bfabric import Bfabric
 from bfabric.entities import Resource, Dataset
-from bfabric.experimental.app_interface.input_preparation._spec import ResourceSpec, DatasetSpec, SpecType, InputsSpec
+from bfabric.experimental.app_interface.input_preparation._spec import (
+    ResourceSpec,
+    DatasetSpec,
+    InputSpecType,
+    InputsSpec,
+)
 from bfabric.experimental.app_interface.util.checksums import md5sum
 from bfabric.experimental.app_interface.util.scp import scp
 
@@ -18,7 +23,7 @@ class PrepareInputs:
         self._working_dir = working_dir
         self._ssh_user = ssh_user
 
-    def prepare_all(self, specs: list[SpecType]) -> None:
+    def prepare_all(self, specs: list[InputSpecType]) -> None:
         for spec in specs:
             logger.debug(f"Preparing {spec}")
             if isinstance(spec, ResourceSpec):
@@ -28,7 +33,7 @@ class PrepareInputs:
             else:
                 raise ValueError(f"Unknown spec type: {type(spec)}")
 
-    def clean_all(self, specs: list[SpecType]) -> None:
+    def clean_all(self, specs: list[InputSpecType]) -> None:
         for spec in specs:
             logger.debug(f"Cleaning {spec}")
             if isinstance(spec, ResourceSpec):
