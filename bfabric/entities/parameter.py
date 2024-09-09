@@ -13,4 +13,4 @@ class Parameter(Entity):
         super().__init__(data_dict=data_dict, client=client)
 
     key = property(lambda self: self.data_dict["key"])
-    value = property(lambda self: self.data_dict["value"])
+    value = property(lambda self: self.data_dict.get("value"))

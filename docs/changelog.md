@@ -20,6 +20,10 @@ Versioning currently follows `X.Y.Z` where
 - (Experimental) `bfabric.app_interface.input_preparation` module core functionality is implemented
     - This will be used as a building block to standardize the input preparation for applications.
 
+### Changed
+
+- Correctly support optional workunit parameters.
+
 ## \[1.13.6\] - 2024-08-29
 
 ### Added
