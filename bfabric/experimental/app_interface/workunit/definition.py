@@ -48,3 +48,15 @@ class WorkunitRegistrationDefinition(BaseModel):
             "container_type": workunit.container.ENDPOINT,
         }
         return cls.model_validate(data)
+
+
+class WorkunitDefinition(BaseModel):
+    execution: WorkunitExecutionDefinition
+    registration: WorkunitRegistrationDefinition | None
+
+    @classmethod
+    def from_workunit(cls, workunit: Workunit) -> WorkunitDefinition:
+        return cls(
+            execution=WorkunitExecutionDefinition.from_workunit(workunit),
+            registration=WorkunitRegistrationDefinition.from_workunit(workunit),
+        )
