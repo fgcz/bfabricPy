@@ -8,7 +8,7 @@ from bfabric.cli_formatting import setup_script_logging
 from bfabric.experimental.app_interface.input_preparation.prepare import prepare_folder
 
 
-def main():
+def main() -> None:
     setup_script_logging()
     client = Bfabric.from_config()
     parser = argparse.ArgumentParser()

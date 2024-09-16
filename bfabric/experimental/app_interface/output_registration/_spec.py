@@ -27,9 +27,6 @@ class CopyResourceSpec(BaseModel):
     store_folder_path: Path | None = None
     """The storage folder will be determined by the default rule, but can be specified if needed."""
 
-    workunit_id: int
-    storage_id: int
-
     update_existing: UpdateExisting = UpdateExisting.NO
     protocol: Literal["scp"] = "scp"
 
@@ -40,7 +37,6 @@ class SaveDatasetSpec(BaseModel):
 
     local_path: Path
     separator: str
-    workunit_id: int
     name: str | None = None
 
 
