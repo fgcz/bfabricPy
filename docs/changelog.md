@@ -17,8 +17,8 @@ Versioning currently follows `X.Y.Z` where
     - Log messages from `__main__` will also be shown by default.
 - `bfabric.entities.MultiplexKit` to extract multiplex kit information.
 - `bfabric.entities.Workunit.store_output_folder` implements the old rule, but more deterministically and reusable.
-- (Experimental) `bfabric.app_interface.input_preparation` and `bfabric.app_interface.output_registartion` modules core functionality is implemented
-    - This will be used as a building block to standardize the input preparation for applications.
+- (Experimental) `bfabric.experimental.app_interface` core functionality is implemented
+    - This can be used as a building block to standardize the input preparation for applications.
 
 ### Changed
 
