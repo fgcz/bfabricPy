@@ -16,7 +16,7 @@ class BfabricClientConfig(BaseModel):
         job_notification_emails (optional): Space-separated list of email addresses to notify when a job finishes.
     """
 
-    # TODO consider using AnyHttpUrl in the future directly
+    # TODO consider using AnyHttpUrl in the future directly and make mandatory
     base_url: Annotated[
         str,
         BeforeValidator(lambda value: str(http_url_adapter.validate_python(value))),
