@@ -43,7 +43,7 @@ pipx upgrade bfabric
 
 Create a file as follows: (note: the password is not your login password, but the web service password available on your profile page)
 
-```{yaml}
+```yaml
 # ~/.bfabricpy.yml
 
 GENERAL:
@@ -57,7 +57,7 @@ PRODUCTION:
 
 You can also append an additional config section for the TEST instance which will be used for instance when running the integration tests:
 
-```{yaml}
+```yaml
 TEST:
   login: yourBfabricLogin
   password: yourBfabricWebPassword
