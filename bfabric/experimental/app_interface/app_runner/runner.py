@@ -66,4 +66,4 @@ def run_app(
         runner.run_prepare_input(chunk_dir=chunk)
         runner.run_process(chunk_dir=chunk)
         if not read_only:
-            runner.run_register_outputs(chunk_dir=chunk, workunit_ref=args.workunit_ref)
+            runner.run_register_outputs(chunk_dir=chunk, workunit_ref=workunit_ref)
