@@ -27,11 +27,16 @@ You can configure loguru in your code:
 import sys
 from loguru import logger
 
+# Configure a logger with custom settings (requires first removing the default logger)
 logger.remove()
 logger.add(sys.stderr, filter="bfabric", level="WARNING", colorize=False)
+
+# Alternative: completely deactivate logs for bfabricPy
+logger.disable("bfabric")
 ```
 
 Check the documentation for [logger.add](https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.add) for more options.
+By default, the logs go to standard error, which can be useful in some scenarios.
 
 Alternatively, you can set the environment variable `LOGURU_LEVEL`, e.g. `LOGURU_LEVEL=WARNING`. However, this will affect all loguru loggers in your code and may thus not be the preferable approach.
 
