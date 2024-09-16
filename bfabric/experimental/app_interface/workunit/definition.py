@@ -11,6 +11,8 @@ from bfabric.entities import Workunit
 
 
 class WorkunitExecutionDefinition(BaseModel):
+    """Defines the execution details of a workunit."""
+
     model_config = ConfigDict(extra="forbid")
 
     raw_parameters: dict[str, str | None]
@@ -40,6 +42,10 @@ class WorkunitExecutionDefinition(BaseModel):
 
 
 class WorkunitRegistrationDefinition(BaseModel):
+    """Defines the B-Fabric registration details of a workunit."""
+
+    model_config = ConfigDict(extra="forbid")
+
     workunit_id: int
     container_id: int
     container_type: Literal["project", "order"]
@@ -56,6 +62,11 @@ class WorkunitRegistrationDefinition(BaseModel):
 
 
 class WorkunitDefinition(BaseModel):
+    """Defines a workunit, including details on how to execute it and where to register it.
+    This class provides a simple way for developers to persist and run workunit definitions from YAML files, as well as
+    loading the same from B-Fabric workunits. This abstraction ensures easier development and testing of applications.
+    """
+
     execution: WorkunitExecutionDefinition
     registration: WorkunitRegistrationDefinition | None
 
