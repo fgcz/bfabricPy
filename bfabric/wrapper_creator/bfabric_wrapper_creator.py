@@ -81,7 +81,9 @@ class BfabricWrapperCreator:
         output_url = f"bfabric@{self._application.storage.data_dict['host']}:{self._application.storage.data_dict['basepath']}{output_resource.data_dict['relativepath']}"
         inputs = defaultdict(list)
         for resource in Resource.find_all(self.workunit_definition.execution.resources, client=self._client).values():
-            inputs[resource.application.name].append(f"bfabric@{resource.storage.scp_address}")
+            inputs[resource.workunit.application["name"]].append(
+                f"bfabric@{resource.storage.scp_prefix}{resource.data_dict['relativepath']}"
+            )
         return {
             "parameters": self.workunit_definition.execution.raw_parameters,
             "protocol": "scp",
@@ -104,7 +106,7 @@ class BfabricWrapperCreator:
         inputs = defaultdict(list)
         for resource in Resource.find_all(self.workunit_definition.execution.resources, client=self._client).values():
             web_url = Resource({"id": resource.id}, client=self._client).web_url
-            inputs[resource.storage.name].append({"resource_id": resource.id, "resource_url": web_url})
+            inputs[resource.workunit.application["name"]].append({"resource_id": resource.id, "resource_url": web_url})
 
         return {
             "executable": str(self.workunit_definition.execution.executable),
@@ -112,7 +114,7 @@ class BfabricWrapperCreator:
             "fastasequence": self._fasta_sequence,
             "input": dict(inputs),
             "inputdataset": None,
-            "order_id": self._order.id,
+            "order_id": self._order.id if self._order is not None else None,
             "project_id": self._project.id,
             "output": {
                 "protocol": "scp",
