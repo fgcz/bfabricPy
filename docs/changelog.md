@@ -10,6 +10,12 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.7\] - 2024-09-17
+
+### Fixed
+
+- `bfabric_save_csv2dataset.py` considers all rows for schema inference, only considering the first 100 rows did cause problems with some files previously.
+
 ### Added
 
 - Script logging configuration
