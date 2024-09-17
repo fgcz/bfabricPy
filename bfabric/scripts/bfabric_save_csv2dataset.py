@@ -76,7 +76,7 @@ def bfabric_save_csv2dataset(
     invalid_characters: str,
 ) -> None:
     """Creates a dataset in B-Fabric from a csv file."""
-    data = pl.read_csv(csv_file, separator=sep, has_header=has_header)
+    data = pl.read_csv(csv_file, separator=sep, has_header=has_header, infer_schema_length=None)
     check_for_invalid_characters(data=data, invalid_characters=invalid_characters)
     obj = polars_to_bfabric_dataset(data)
     obj["name"] = dataset_name
