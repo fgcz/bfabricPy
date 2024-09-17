@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Added
+
+- Entities can be compared and sorted by ID now.
+
 ## \[1.13.7\] - 2024-09-17
 
 ### Fixed

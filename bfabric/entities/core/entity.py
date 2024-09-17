@@ -67,6 +67,12 @@ class Entity:
         """Returns the value of a key in the data dictionary, or a default value if the key is not present."""
         return self.__data_dict.get(key, default)
 
+    def __lt__(self, other: Entity) -> bool:
+        """Compares the entity with another entity based on their IDs."""
+        if self.ENDPOINT != other.ENDPOINT:
+            return NotImplemented
+        return self.id < other.id
+
     def __repr__(self) -> str:
         """Returns the string representation of the workunit."""
         return f"{self.__class__.__name__}({repr(self.__data_dict)}, client={repr(self.__client)})"

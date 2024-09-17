@@ -112,5 +112,27 @@ def test_str(mock_entity, mock_data_dict) -> None:
     assert str(entity) == "Entity({'id': 1, 'name': 'Test Entity'}, client=None)"
 
 
+def test_compare_when_possible():
+    entity_1 = Entity({"id": 1, "name": "Test Entity"}, None)
+    entity_1.ENDPOINT = "X"
+    entity_10 = Entity({"id": 10, "name": "Test Entity"}, None)
+    entity_10.ENDPOINT = "X"
+    assert entity_1 == entity_1
+    assert entity_1 < entity_10
+    assert entity_10 > entity_1
+
+
+def test_compare_when_not_possible():
+    entity_1 = Entity({"id": 1, "name": "Test Entity"}, None)
+    entity_1.ENDPOINT = "X"
+    entity_2 = Entity({"id": 2, "name": "Test Entity"}, None)
+    entity_2.ENDPOINT = "Y"
+    assert entity_1 != entity_2
+    with pytest.raises(TypeError):
+        _ = entity_1 < entity_2
+    with pytest.raises(TypeError):
+        _ = entity_1 > entity_2
+
+
 if __name__ == "__main__":
     pytest.main()
