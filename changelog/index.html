@@ -286,8 +286,26 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="[Unreleased]">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1137-2024-09-17" class="md-nav__link">
+    <span class="md-ellipsis">
+      [1.13.7] - 2024-09-17
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.13.7] - 2024-09-17">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fixed
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#added" class="md-nav__link">
@@ -302,6 +320,15 @@
   <a href="#changed" class="md-nav__link">
     <span class="md-ellipsis">
       Changed
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#removed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Removed
     </span>
   </a>
   
@@ -341,7 +368,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#removed" class="md-nav__link">
+  <a href="#removed_1" class="md-nav__link">
     <span class="md-ellipsis">
       Removed
     </span>
@@ -449,7 +476,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fixed" class="md-nav__link">
+  <a href="#fixed_1" class="md-nav__link">
     <span class="md-ellipsis">
       Fixed
     </span>
@@ -515,7 +542,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#removed_1" class="md-nav__link">
+  <a href="#removed_2" class="md-nav__link">
     <span class="md-ellipsis">
       Removed
     </span>
@@ -557,7 +584,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#removed_2" class="md-nav__link">
+  <a href="#removed_3" class="md-nav__link">
     <span class="md-ellipsis">
       Removed
     </span>
@@ -611,8 +638,26 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="[Unreleased]">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1137-2024-09-17" class="md-nav__link">
+    <span class="md-ellipsis">
+      [1.13.7] - 2024-09-17
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.13.7] - 2024-09-17">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fixed
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#added" class="md-nav__link">
@@ -627,6 +672,15 @@
   <a href="#changed" class="md-nav__link">
     <span class="md-ellipsis">
       Changed
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#removed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Removed
     </span>
   </a>
   
@@ -666,7 +720,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#removed" class="md-nav__link">
+  <a href="#removed_1" class="md-nav__link">
     <span class="md-ellipsis">
       Removed
     </span>
@@ -774,7 +828,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fixed" class="md-nav__link">
+  <a href="#fixed_1" class="md-nav__link">
     <span class="md-ellipsis">
       Fixed
     </span>
@@ -840,7 +894,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#removed_1" class="md-nav__link">
+  <a href="#removed_2" class="md-nav__link">
     <span class="md-ellipsis">
       Removed
     </span>
@@ -882,7 +936,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#removed_2" class="md-nav__link">
+  <a href="#removed_3" class="md-nav__link">
     <span class="md-ellipsis">
       Removed
     </span>
@@ -919,6 +973,11 @@
 <li><code>Z</code> is increased for feature releases, that should not break the API</li>
 </ul>
 <h2 id="unreleased">[Unreleased]</h2>
+<h2 id="1137-2024-09-17">[1.13.7] - 2024-09-17</h2>
+<h3 id="fixed">Fixed</h3>
+<ul>
+<li><code>bfabric_save_csv2dataset.py</code> considers all rows for schema inference, only considering the first 100 rows did cause problems with some files previously.</li>
+</ul>
 <h3 id="added">Added</h3>
 <ul>
 <li>Script logging configuration<ul>
@@ -937,6 +996,10 @@
 <ul>
 <li>Correctly support optional workunit parameters.</li>
 </ul>
+<h3 id="removed">Removed</h3>
+<ul>
+<li><code>bfabric.entities.Resource</code> association <code>application</code> has been removed as it does not exist</li>
+</ul>
 <h2 id="1136-2024-08-29">[1.13.6] - 2024-08-29</h2>
 <h3 id="added_1">Added</h3>
 <ul>
@@ -948,7 +1011,7 @@
 <li><code>bfabric_delete.py</code> accepts multiple ids at once and does not restrict entity types anymore.</li>
 <li>Both engines raise a <code>BfabricRequestError</code> if the endpoint was not found.</li>
 </ul>
-<h3 id="removed">Removed</h3>
+<h3 id="removed_1">Removed</h3>
 <ul>
 <li><code>bfabric.endpoints</code> list is deleted, since it was out of date and generally not so useful.</li>
 </ul>
@@ -1000,7 +1063,7 @@
 </ul>
 </li>
 </ul>
-<h3 id="fixed">Fixed</h3>
+<h3 id="fixed_1">Fixed</h3>
 <ul>
 <li><code>bfabric_save_csv2dataset.py</code> had an undeclared dependency on numpy and a few bugs which was improved.</li>
 </ul>
@@ -1027,7 +1090,7 @@
 <li>Add loguru for future logging refactoring.</li>
 <li>Easily runnable tests with <code>nox</code> and standardized formatting using <code>pre-commit</code>.</li>
 </ul>
-<h3 id="removed_1">Removed</h3>
+<h3 id="removed_2">Removed</h3>
 <ul>
 <li>Pandas is no longer a dependency, and has been replaced by polars.</li>
 </ul>
@@ -1052,7 +1115,7 @@
 <li>Pagination support in <code>Bfabric</code>, specify the number of max_results and a potential offset. Pages handling is abstracted away.</li>
 <li>Detect errors in responses, e.g. invalid login.</li>
 </ul>
-<h3 id="removed_2">Removed</h3>
+<h3 id="removed_3">Removed</h3>
 <ul>
 <li>Several old scripts have been moved into a <code>deprecated_scripts</code> folder.</li>
 <li>Wrapper creator related code is currently not updated but has been extracted into a dedicated folder <code>wrapper_creator</code> as well.</li>
