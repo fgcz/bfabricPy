@@ -21,4 +21,6 @@ class HasOne(Relationship):
         entity_data = obj.data_dict.get(self._bfabric_field)
         if self._optional and entity_data is None:
             return None
+        elif entity_data is None:
+            raise ValueError(f"Field {repr(self._bfabric_field)} is required")
         return self._entity_type.find(id=entity_data["id"], client=client)
