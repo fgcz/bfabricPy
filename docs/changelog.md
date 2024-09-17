@@ -24,6 +24,10 @@ Versioning currently follows `X.Y.Z` where
 
 - Correctly support optional workunit parameters.
 
+### Removed
+
+- `bfabric.entities.Resource` association `application` has been removed as it does not exist
+
 ## \[1.13.6\] - 2024-08-29
 
 ### Added
