@@ -11,12 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-bfabricpy
+      - uses: actions/setup-python@v2
         with:
           python-version: 3.9
+      - name: Install nox
+        run: pip install nox
       - name: Run unit tests
-        # Note: we use cd to double-check that the installation actually worked
-        run: cd bfabric/tests && pytest ./unit
+        run: nox -s tests
   code_style:
     name: Code Style
     runs-on: ubuntu-latest
@@ -34,7 +35,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: sudo apt-get install -y ripgrep
         name: Install ripgrep
-      - run: rg -n TODO bfabric
+      - run: rg -n TODO .
         name: List TODOs
   license_check:
     name: License Check
