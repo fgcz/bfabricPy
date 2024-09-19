@@ -9,4 +9,5 @@ class CommandsSpec(BaseModel):
 
 
 class AppSpec(BaseModel):
+    version: list[str] = []
     commands: CommandsSpec
