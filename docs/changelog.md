@@ -17,6 +17,8 @@ Versioning currently follows `X.Y.Z` where
 ### Changed
 
 - (internal) migrate to src layout
+- (experimental) the former `process` step of the app runner has been split into a `process` and `collect` step where,
+    the collect step is responsible for generating the `output.yml` file that will then be used to register the results.
 
 ## \[1.13.7\] - 2024-09-17
 

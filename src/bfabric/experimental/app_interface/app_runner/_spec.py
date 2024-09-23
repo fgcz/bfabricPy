@@ -6,6 +6,7 @@ from pydantic import BaseModel
 class CommandsSpec(BaseModel):
     dispatch: str
     process: str
+    collect: str
 
 
 class AppSpec(BaseModel):

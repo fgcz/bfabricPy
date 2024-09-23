@@ -33,6 +33,13 @@ class Runner:
             inputs_yaml=chunk_dir / "inputs.yml", target_folder=chunk_dir, client=self._client, ssh_user=self._ssh_user
         )
 
+    def run_collect(self, workunit_ref: int | Path, chunk_dir: Path) -> None:
+        subprocess.run(
+            f"{self._app_spec.commands.collect} " f"{shlex.quote(str(workunit_ref))} " f"{shlex.quote(str(chunk_dir))}",
+            shell=True,
+            check=True,
+        )
+
     def run_process(self, chunk_dir: Path) -> None:
         subprocess.run(f"{self._app_spec.commands.process} {shlex.quote(str(chunk_dir))}", shell=True, check=True)
 
@@ -71,6 +78,7 @@ def run_app(
         logger.info(f"Processing chunk {chunk}")
         runner.run_prepare_input(chunk_dir=chunk)
         runner.run_process(chunk_dir=chunk)
+        runner.run_collect(workunit_ref=workunit_ref, chunk_dir=chunk)
         if not read_only:
             runner.run_register_outputs(chunk_dir=chunk, workunit_ref=workunit_ref)
 
