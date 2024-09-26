@@ -85,10 +85,12 @@ class DispatchIndividualResources:
         resources = Resource.find_all(ids=definition.execution.resources, client=self._client)
         paths = []
         for resource in sorted(resources.values()):
-            if self._config.resource_flow.filter_suffix is not None and not resource["name"].endswith(
+            if self._config.resource_flow.filter_suffix is not None and not resource["relativepath"].endswith(
                 self._config.resource_flow.filter_suffix
             ):
-                logger.info(f"Skipping resource {resource['name']!r} as it does not match the extension filter.")
+                logger.info(
+                    f"Skipping resource {resource['relativepath']!r} as it does not match the extension filter."
+                )
                 continue
             paths.append(self.dispatch_job(resource=resource, params=params))
         return paths
