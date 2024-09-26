@@ -28,7 +28,9 @@ def test_list_not_existing_storage_directories(
     assert err == ""
     assert out == "3050\n3300\n"
 
-    client.read.assert_called_once_with(endpoint="container", obj={"technologyid": [2, 4]}, return_id_only=True)
+    client.read.assert_called_once_with(
+        endpoint="container", obj={"technologyid": [2, 4]}, return_id_only=True, max_results=500
+    )
 
 
 if __name__ == "__main__":
