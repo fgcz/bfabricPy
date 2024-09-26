@@ -13,6 +13,7 @@ Versioning currently follows `X.Y.Z` where
 ### Added
 
 - Entities can be compared and sorted by ID now.
+- (experimental) add initial code for a resource based application dispatch
 
 ### Changed
 
