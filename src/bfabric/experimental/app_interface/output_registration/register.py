@@ -30,24 +30,25 @@ def register_file_in_workunit(
     client: Bfabric,
     workunit: Workunit,
     storage: Storage,
+    resource_id: int | None = None,
 ):
     if spec.update_existing != UpdateExisting.NO:
         # TODO implement this functionality
         raise NotImplementedError("Update existing not implemented")
     checksum = md5sum(spec.local_path)
     output_folder = _get_output_folder(spec, workunit=workunit)
-    client.save(
-        "resource",
-        {
-            "name": spec.store_entry_path.name,
-            "workunitid": workunit.id,
-            "storageid": storage.id,
-            "relativepath": output_folder / spec.store_entry_path,
-            "filechecksum": checksum,
-            "status": "available",
-            "size": spec.local_path.stat().st_size,
-        },
-    )
+    resource_data = {
+        "name": spec.store_entry_path.name,
+        "workunitid": workunit.id,
+        "storageid": storage.id,
+        "relativepath": output_folder / spec.store_entry_path,
+        "filechecksum": checksum,
+        "status": "available",
+        "size": spec.local_path.stat().st_size,
+    }
+    if resource_id is not None:
+        resource_data["id"] = resource_id
+    client.save("resource", resource_data)
 
 
 def copy_file_to_storage(spec: CopyResourceSpec, workunit: Workunit, storage: Storage, ssh_user: str | None):
@@ -70,13 +71,31 @@ def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit: Workunit):
     )
 
 
-def register_all(client: Bfabric, workunit: Workunit, specs_list: list[SpecType], ssh_user: str | None):
+def find_default_resource_id(workunit: Workunit) -> int | None:
+    candidate_resources = [
+        resource for resource in workunit.resources if resource["name"] not in ["slurm_stdout", "slurm_stderr"]
+    ]
+    if len(candidate_resources) != 1:
+        return None
+    else:
+        return candidate_resources[0].id
+
+
+def register_all(
+    client: Bfabric, workunit: Workunit, specs_list: list[SpecType], ssh_user: str | None, reuse_default_resource: bool
+):
+    default_resource_was_reused = not reuse_default_resource
     for spec in specs_list:
         logger.debug(f"Registering {spec}")
         if isinstance(spec, CopyResourceSpec):
             storage = workunit.application.storage
             copy_file_to_storage(spec, workunit=workunit, storage=storage, ssh_user=ssh_user)
-            register_file_in_workunit(spec, client=client, workunit=workunit, storage=storage)
+            if not default_resource_was_reused:
+                resource_id = find_default_resource_id(workunit=workunit)
+                default_resource_was_reused = True
+            else:
+                resource_id = None
+            register_file_in_workunit(spec, client=client, workunit=workunit, storage=storage, resource_id=resource_id)
         elif isinstance(spec, SaveDatasetSpec):
             _save_dataset(spec, client, workunit=workunit)
         else:
@@ -88,10 +107,17 @@ def register_outputs(
     workunit_id: int,
     client: Bfabric,
     ssh_user: str | None,
+    reuse_default_resource: bool,
 ) -> None:
     # parse the specs
     specs_list = OutputsSpec.read_yaml(outputs_yaml)
 
     # register all specs
     workunit = Workunit.find(id=workunit_id, client=client)
-    register_all(client=client, workunit=workunit, specs_list=specs_list, ssh_user=ssh_user)
+    register_all(
+        client=client,
+        workunit=workunit,
+        specs_list=specs_list,
+        ssh_user=ssh_user,
+        reuse_default_resource=reuse_default_resource,
+    )

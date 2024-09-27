@@ -43,13 +43,14 @@ class Runner:
     def run_process(self, chunk_dir: Path) -> None:
         subprocess.run(f"{self._app_spec.commands.process} {shlex.quote(str(chunk_dir))}", shell=True, check=True)
 
-    def run_register_outputs(self, chunk_dir: Path, workunit_ref: int | Path) -> None:
+    def run_register_outputs(self, chunk_dir: Path, workunit_ref: int | Path, reuse_default_resource: bool) -> None:
         workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client=self._client)
         register_outputs(
             outputs_yaml=chunk_dir / "outputs.yml",
             workunit_id=workunit_definition.registration.workunit_id,
             client=self._client,
             ssh_user=self._ssh_user,
+            reuse_default_resource=reuse_default_resource,
         )
 
 
@@ -80,7 +81,9 @@ def run_app(
         runner.run_process(chunk_dir=chunk)
         runner.run_collect(workunit_ref=workunit_ref, chunk_dir=chunk)
         if not read_only:
-            runner.run_register_outputs(chunk_dir=chunk, workunit_ref=workunit_ref)
+            runner.run_register_outputs(
+                chunk_dir=chunk, workunit_ref=workunit_ref, reuse_default_resource=app_spec.reuse_default_resource
+            )
 
     if not read_only:
         client.save("workunit", {"id": workunit_definition.registration.workunit_id, "status": "available"})
