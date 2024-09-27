@@ -75,10 +75,10 @@ def find_default_resource_id(workunit: Workunit) -> int | None:
     candidate_resources = [
         resource for resource in workunit.resources if resource["name"] not in ["slurm_stdout", "slurm_stderr"]
     ]
-    if len(candidate_resources) != 1:
-        return None
-    else:
+    # We also check that the resource is pending, as else we might re-use a resource that was created by the app...
+    if len(candidate_resources) == 1 and candidate_resources[0]["status"] == "pending":
         return candidate_resources[0].id
+    return None
 
 
 def register_all(
