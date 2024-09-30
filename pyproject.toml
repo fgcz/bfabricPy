@@ -96,3 +96,8 @@ using = "PEP631"
 
 [tool.pytest.ini_options]
 logot_capturer = "logot.loguru.LoguruCapturer"
+
+[tool.check-tests-structure]
+sources_path = "src/bfabric"
+tests_path = "tests/unit"
+allow_missing_tests = true
