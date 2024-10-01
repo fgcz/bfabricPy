@@ -15,6 +15,10 @@ Versioning currently follows `X.Y.Z` where
 - Entities can be compared and sorted by ID now.
 - (experimental) add initial code for a resource based application dispatch
 
+### Fixed
+
+- bfabric_read.py is a bit more robust if "name" misses and tabular output is requested.
+
 ### Changed
 
 - (internal) migrate to src layout

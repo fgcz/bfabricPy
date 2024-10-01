@@ -78,8 +78,8 @@ def _print_table_rich(
             f"[link={entry_url}]{x['id']}[/link]",
             str(x["createdby"]),
             str(x["modified"]),
-            str(x["name"]),
-            str(x.get("groupingvar", {}).get("name", "")),
+            x.get("name", ""),
+            x.get("groupingvar", {}).get("name", "") or "",
         )
     console_out.print(table)
 
@@ -87,10 +87,17 @@ def _print_table_rich(
 def _print_table_tsv(res: list[dict[str, Any]]) -> None:
     """Prints the results as a tab-separated table, using the original cols this script returned."""
     for x in res:
-        try:
-            print(f'{x["id"]}\t{x["createdby"]}\t{x["modified"]}\t{x["name"]}\t{x["groupingvar"]["name"]}')
-        except (KeyError, TypeError):
-            print(f'{x["id"]}\t{x["createdby"]}\t{x["modified"]}')
+        print(
+            "\t".join(
+                [
+                    str(x["id"]),
+                    str(x["createdby"]),
+                    str(x["modified"]),
+                    x.get("name", ""),
+                    x.get("groupingvar", {}).get("name") or "",
+                ]
+            )
+        )
 
 
 def _determine_output_format(console_out: Console, output_format: str, n_results: int) -> str:
