@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Annotated, Literal, Union
 
 import yaml
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, Discriminator
 
 # ":" are not allowed, as well as absolute paths (starting with "/")
 RelativeFilePath = Annotated[str, Field(pattern=r"^[^/][^:]*$")]
@@ -30,12 +30,12 @@ class DatasetSpec(BaseModel):
     # invalid_characters: str = ""
 
 
-InputSpecType = Union[ResourceSpec, DatasetSpec]
+InputSpecType = Annotated[Union[ResourceSpec, DatasetSpec], Discriminator("type")]
 
 
 class InputsSpec(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    inputs: list[Annotated[InputSpecType, Field(..., discriminator="type")]]
+    inputs: list[InputSpecType]
 
     @classmethod
     def read_yaml(cls, path: Path) -> list[InputSpecType]:

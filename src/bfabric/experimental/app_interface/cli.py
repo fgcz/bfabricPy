@@ -3,6 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 
 import cyclopts
+import rich
+import rich.pretty
 import yaml
 
 from bfabric import Bfabric
@@ -11,6 +13,7 @@ from bfabric.entities import Workunit
 from bfabric.experimental.app_interface.app_runner._spec import AppSpec
 from bfabric.experimental.app_interface.app_runner.runner import run_app, Runner
 from bfabric.experimental.app_interface.input_preparation import prepare_folder
+from bfabric.experimental.app_interface.input_preparation._spec import InputsSpec
 from bfabric.experimental.app_interface.input_preparation.prepare import print_input_files_list
 from bfabric.experimental.app_interface.output_registration._spec import OutputsSpec
 from bfabric.experimental.app_interface.output_registration.register import register_all
@@ -24,6 +27,8 @@ app_app = cyclopts.App("app", help="Run an app.")
 app.command(app_app)
 app_chunk = cyclopts.App("chunk", help="Run an app on a chunk. You can create the chunks with `app dispatch`.")
 app.command(app_chunk)
+app_validate = cyclopts.App("validate", help="Validate yaml files.")
+app.command(app_validate)
 
 
 @app_inputs.command()
@@ -248,6 +253,27 @@ def outputs(
         runner.run_register_outputs(
             chunk_dir=chunk_dir, workunit_ref=workunit_ref, reuse_default_resource=reuse_default_resource
         )
+
+
+@app_validate.command()
+def app_spec(yaml_file: Path) -> None:
+    """Validate an app spec file."""
+    app_spec = AppSpec.model_validate(yaml.safe_load(yaml_file.read_text()))
+    rich.pretty.pprint(app_spec)
+
+
+@app_validate.command()
+def inputs_spec(yaml_file: Path) -> None:
+    """Validate an inputs spec file."""
+    inputs_spec = InputsSpec.model_validate(yaml.safe_load(yaml_file.read_text()))
+    rich.pretty.pprint(inputs_spec)
+
+
+@app_validate.command()
+def outputs_spec(yaml_file: Path) -> None:
+    """Validate an outputs spec file."""
+    outputs_spec = OutputsSpec.model_validate(yaml.safe_load(yaml_file.read_text()))
+    rich.pretty.pprint(outputs_spec)
 
 
 if __name__ == "__main__":
