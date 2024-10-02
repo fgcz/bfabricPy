@@ -13,7 +13,8 @@ Versioning currently follows `X.Y.Z` where
 ### Added
 
 - Entities can be compared and sorted by ID now.
-- Caching for list_not_existing_storage_directories.
+- Show Python version in version info string.
+- Caching for bfabric_list_not_existing_storage_directories.py.
 - (experimental) add initial code for a resource based application dispatch
 - (experimental) new app_runner cli that integrates all commands into a single interface
 

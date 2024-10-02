@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import base64
 import importlib.metadata
+import sys
 from contextlib import AbstractContextManager
 from contextlib import contextmanager
 from datetime import datetime
@@ -257,8 +258,9 @@ class Bfabric:
         engine_name = self._engine.__class__.__name__
         base_url = self.config.base_url
         user_name = f"U={self._auth.login if self._auth else None}"
+        python_version = f"PY={sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
         return (
-            f"bfabricPy v{package_version} ({engine_name}, {base_url}, {user_name})",
+            f"bfabricPy v{package_version} ({engine_name}, {base_url}, {user_name}, {python_version})",
             f"Copyright (C) 2014-{year} Functional Genomics Center Zurich",
         )
 
