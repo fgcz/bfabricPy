@@ -14,6 +14,7 @@ Versioning currently follows `X.Y.Z` where
 
 - Entities can be compared and sorted by ID now.
 - (experimental) add initial code for a resource based application dispatch
+- (experimental) new app_runner cli that integrates all commands into a single interface
 
 ### Fixed
 

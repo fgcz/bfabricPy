@@ -4,6 +4,8 @@ import tempfile
 from pathlib import Path
 
 from loguru import logger
+from rich.console import Console
+from rich.table import Table, Column
 
 from bfabric.bfabric import Bfabric
 from bfabric.entities import Resource, Dataset
@@ -117,3 +119,25 @@ def prepare_folder(
         prepare.clean_all(specs=specs_list)
     else:
         raise ValueError(f"Unknown action: {action}")
+
+
+def print_input_files_list(
+    inputs_yaml: Path,
+    target_folder: Path,
+) -> None:
+    """Prints a list of inputs and whether they exist locally."""
+    specs_list = InputsSpec.read_yaml(inputs_yaml)
+    table = Table(
+        Column("File"),
+        Column("Input Type"),
+        Column("Exists Locally"),
+    )
+    for spec in specs_list:
+        path = target_folder / spec.filename if target_folder else Path(spec.filename)
+        table.add_row(
+            str(path),
+            "Resource" if isinstance(spec, ResourceSpec) else "Dataset",
+            "Yes" if path.exists() else "No",
+        )
+    console = Console()
+    console.print(table)
