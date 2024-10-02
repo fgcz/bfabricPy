@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import shlex
 import subprocess
 from pathlib import Path
-from venv import logger
+from loguru import logger
 
 import yaml
 from pydantic import BaseModel
@@ -21,7 +22,9 @@ class Runner:
         self._ssh_user = ssh_user
 
     def run_dispatch(self, workunit_ref: int | Path, work_dir: Path) -> None:
-        subprocess.run([*self._app_spec.commands.dispatch.to_shell(), str(workunit_ref), str(work_dir)], check=True)
+        command = [*self._app_spec.commands.dispatch.to_shell(), str(workunit_ref), str(work_dir)]
+        logger.info(f"Running dispatch command: {shlex.join(command)}")
+        subprocess.run(command, check=True)
 
     def run_prepare_input(self, chunk_dir: Path) -> None:
         prepare_folder(
@@ -29,10 +32,14 @@ class Runner:
         )
 
     def run_collect(self, workunit_ref: int | Path, chunk_dir: Path) -> None:
-        subprocess.run([*self._app_spec.commands.collect.to_shell(), str(workunit_ref), str(chunk_dir)], check=True)
+        command = [*self._app_spec.commands.collect.to_shell(), str(workunit_ref), str(chunk_dir)]
+        logger.info(f"Running collect command: {shlex.join(command)}")
+        subprocess.run(command, check=True)
 
     def run_process(self, chunk_dir: Path) -> None:
-        subprocess.run([*self._app_spec.commands.process.to_shell(), str(chunk_dir)], check=True)
+        command = [*self._app_spec.commands.process.to_shell(), str(chunk_dir)]
+        logger.info(f"Running process command: {shlex.join(command)}")
+        subprocess.run(command, check=True)
 
     def run_register_outputs(self, chunk_dir: Path, workunit_ref: int | Path, reuse_default_resource: bool) -> None:
         workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client=self._client)
