@@ -67,7 +67,10 @@ class Cache:
         max_results = 300 if "BFABRICPY_DEBUG" in os.environ else None
         logger.debug(f"Checking for new container ids since {timestamp} with limit {max_results}")
         result = client.read(
-            "container", {**self._data.query, "createdafter": timestamp}, return_id_only=True, max_results=max_results
+            endpoint="container",
+            obj={**self._data.query, "createdafter": timestamp},
+            return_id_only=True,
+            max_results=max_results,
         )
         if len(result):
             ids = result.to_polars()["id"].unique().to_list()
