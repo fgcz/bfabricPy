@@ -183,36 +183,44 @@ def run_all(
 
 @app_chunk.command()
 def inputs(
+    app_spec: Path,
     chunk_dir: Path,
     *,
     ssh_user: str | None = None,
 ) -> None:
     """Prepare the input files for a chunk.
 
+    :param app_spec: Path to the app spec file.
     :param chunk_dir: Path to the chunk directory.
     :param ssh_user: SSH user to use for downloading the input files, instead of the current user.
     """
     setup_script_logging()
     client = Bfabric.from_config()
-    runner = Runner(spec=AppSpec(), client=client, ssh_user=ssh_user)
+    app_spec_parsed = AppSpec.model_validate(yaml.safe_load(app_spec.read_text()))
+
+    runner = Runner(spec=app_spec_parsed, client=client, ssh_user=ssh_user)
     runner.run_prepare_input(chunk_dir=chunk_dir)
 
 
 @app_chunk.command()
-def process(chunk_dir: Path) -> None:
+def process(app_spec: Path, chunk_dir: Path) -> None:
     """Process a chunk.
 
     Note that the input files must be prepared before running this command.
+    :param app_spec: Path to the app spec file.
     :param chunk_dir: Path to the chunk directory.
     """
     setup_script_logging()
     client = Bfabric.from_config()
-    runner = Runner(spec=AppSpec(), client=client, ssh_user=None)
+    app_spec_parsed = AppSpec.model_validate(yaml.safe_load(app_spec.read_text()))
+
+    runner = Runner(spec=app_spec_parsed, client=client, ssh_user=None)
     runner.run_process(chunk_dir=chunk_dir)
 
 
 @app_chunk.command()
 def outputs(
+    app_spec: Path,
     chunk_dir: Path,
     workunit_ref: int | Path,
     *,
@@ -222,6 +230,7 @@ def outputs(
 ) -> None:
     """Register the output files of a chunk.
 
+    :param app_spec: Path to the app spec file.
     :param chunk_dir: Path to the chunk directory.
     :param workunit_ref: Reference to the workunit (ID or YAML file path).
     :param ssh_user: SSH user to use for downloading the input files, instead of the current user.
@@ -230,7 +239,9 @@ def outputs(
     """
     setup_script_logging()
     client = Bfabric.from_config()
-    runner = Runner(spec=AppSpec(), client=client, ssh_user=ssh_user)
+    app_spec_parsed = AppSpec.model_validate(yaml.safe_load(app_spec.read_text()))
+
+    runner = Runner(spec=app_spec_parsed, client=client, ssh_user=ssh_user)
     runner.run_collect(workunit_ref=workunit_ref, chunk_dir=chunk_dir)
     if not read_only:
         runner.run_register_outputs(
