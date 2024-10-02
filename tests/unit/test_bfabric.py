@@ -350,7 +350,7 @@ def test_upload_resource(bfabric_instance, mocker):
 def test_get_version_message(mock_config, bfabric_instance):
     mock_config.base_url = "dummy_url"
     line1, line2 = bfabric_instance._get_version_message()
-    pattern = r"bfabricPy v\d+\.\d+\.\d+ \(EngineSUDS, dummy_url, U=None\)"
+    pattern = r"bfabricPy v\d+\.\d+\.\d+ \(EngineSUDS, dummy_url, U=None, PY=\d\.\d+\.\d+\)"
     assert re.match(pattern, line1)
     year = datetime.datetime.now().year
     assert line2 == f"Copyright (C) 2014-{year} Functional Genomics Center Zurich"
