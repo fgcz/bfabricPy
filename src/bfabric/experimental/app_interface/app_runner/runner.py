@@ -66,6 +66,7 @@ def run_app(
     client: Bfabric,
     ssh_user: str | None = None,
     read_only: bool = False,
+    dispatch_active: bool = True,
 ) -> None:
     # TODO future: the workunit definition must be loaded from bfabric exactly once! this is quite inefficient right now
     workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client=client)
@@ -73,7 +74,8 @@ def run_app(
         client.save("workunit", {"id": workunit_definition.registration.workunit_id, "status": "processing"})
 
     runner = Runner(spec=app_spec, client=client, ssh_user=ssh_user)
-    runner.run_dispatch(workunit_ref=workunit_ref, work_dir=work_dir)
+    if dispatch_active:
+        runner.run_dispatch(workunit_ref=workunit_ref, work_dir=work_dir)
     chunks_file = ChunksFile.model_validate(yaml.safe_load((work_dir / "chunks.yml").read_text()))
     for chunk in chunks_file.chunks:
         logger.info(f"Processing chunk {chunk}")
