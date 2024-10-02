@@ -10,7 +10,6 @@ class CommandsSpec(BaseModel):
 
 
 class AppSpec(BaseModel):
-    version: list[str] = []
     commands: CommandsSpec
     # Note: While we use the old submitter, this is still necessary
     reuse_default_resource: bool = True
