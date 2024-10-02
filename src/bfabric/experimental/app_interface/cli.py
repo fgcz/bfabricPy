@@ -110,13 +110,14 @@ def register(
 @app_app.command()
 def run(
     app_spec: Path,
-    workunit_ref: int | Path,
     target_folder: Path,
+    workunit_ref: int | Path,
     *,
     ssh_user: str | None = None,
     read_only: bool = False,
 ) -> None:
     """Runs all stages of an app."""
+    # TODO doc
     setup_script_logging()
     client = Bfabric.from_config()
     app_spec_parsed = AppSpec.model_validate(yaml.safe_load(app_spec.read_text()))
@@ -133,14 +134,14 @@ def run(
 @app_app.command()
 def dispatch(
     app_spec: Path,
-    workunit_ref: int | Path,
     work_dir: Path,
+    workunit_ref: int | Path,
 ) -> None:
     """Create chunks, which can be processed individually.
 
     :param app_spec: Path to the app spec file.
-    :param workunit_ref: Reference to the workunit (ID or YAML file path).
     :param work_dir: Path to the work directory.
+    :param workunit_ref: Reference to the workunit (ID or YAML file path).
     """
     setup_script_logging()
     # TODO set workunit to processing? (i.e. add read-only option here)
@@ -152,8 +153,8 @@ def dispatch(
 @app_chunk.command()
 def run_all(
     app_spec: Path,
-    workunit_ref: int | Path,
     work_dir: Path,
+    workunit_ref: int | Path,
     *,
     ssh_user: str | None = None,
     read_only: bool = False,
@@ -161,8 +162,8 @@ def run_all(
     """Run all chunks, including input preparation, processing, and output registration.
 
     :param app_spec: Path to the app spec file.
-    :param workunit_ref: Reference to the workunit (ID or YAML file path).
     :param work_dir: Path to the work directory.
+    :param workunit_ref: Reference to the workunit (ID or YAML file path).
     :param ssh_user: SSH user to use for downloading the input files, instead of the current user.
     :param read_only: If True, results will not be registered and the workunit status will not be changed.
     """
