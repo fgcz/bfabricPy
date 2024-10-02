@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import shlex
 from pathlib import Path
 from typing import Literal, Annotated, Union
@@ -26,15 +27,18 @@ class CommandDocker(BaseModel):
 
     def to_shell(self, work_dir: Path | None = None) -> list[str]:
         work_dir = (work_dir or Path(".")).absolute()
+        mount_args = []
+        for host, container in self.mount_dirs_readonly:
+            mount_args.extend(
+                ["--mount", f"type=bind,source={shlex.quote(host)},target={shlex.quote(container)},readonly"]
+            )
         return [
             "docker",
             "run",
             "--rm",
-            f"--mount type=bind,source={shlex.quote(str(work_dir))},target={shlex.quote(self.work_dir_mount)}",
-            *[
-                f"--mount type=bind,source={shlex.quote(host)},target={shlex.quote(container)},readonly"
-                for host, container in self.mount_dirs_readonly
-            ],
+            "--mount",
+            f"type=bind,source={shlex.quote(str(work_dir))},target={shlex.quote(self.work_dir_mount)}",
+            *mount_args,
             self.image,
             *shlex.split(self.command),
         ]
