@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 from pytest_mock import MockerFixture
 
+from bfabric.results.result_container import ResultContainer
 from bfabric.scripts.bfabric_list_not_existing_storage_directories import list_not_existing_storage_dirs
 
 
@@ -18,10 +19,10 @@ def test_list_not_existing_storage_directories(
 
     # mock a client
     client = mocker.MagicMock()
-    client.read.return_value = [{"id": 3000}, {"id": 3050}, {"id": 3100}, {"id": 3200}, {"id": 3300}]
+    client.read.return_value = ResultContainer([{"id": 3000}, {"id": 3050}, {"id": 3100}, {"id": 3200}, {"id": 3300}])
 
     # call the function
-    list_not_existing_storage_dirs(client, tmp_path, [2, 4])
+    list_not_existing_storage_dirs(client, tmp_path, cache_path=tmp_path / "cache.json")
 
     # check output
     out, err = capfd.readouterr()
@@ -29,7 +30,10 @@ def test_list_not_existing_storage_directories(
     assert out == "3050\n3300\n"
 
     client.read.assert_called_once_with(
-        endpoint="container", obj={"technologyid": [2, 4]}, return_id_only=True, max_results=500
+        endpoint="container",
+        obj={"technologyid": [2, 4], "createdafter": "2023-12-31T00:00:00"},
+        return_id_only=True,
+        max_results=None,
     )
 
 
