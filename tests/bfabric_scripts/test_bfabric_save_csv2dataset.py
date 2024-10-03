@@ -1,7 +1,7 @@
 import pytest
 import polars as pl
 
-from bfabric.scripts.bfabric_save_csv2dataset import check_for_invalid_characters
+from bfabric_scripts.bfabric_save_csv2dataset import check_for_invalid_characters
 
 
 def test_check_for_invalid_characters_no_invalid_chars():

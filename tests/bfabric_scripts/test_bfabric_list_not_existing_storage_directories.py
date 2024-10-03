@@ -6,7 +6,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from bfabric.results.result_container import ResultContainer
-from bfabric.scripts.bfabric_list_not_existing_storage_directories import list_not_existing_storage_dirs
+from bfabric_scripts.bfabric_list_not_existing_storage_directories import list_not_existing_storage_dirs
 
 
 def test_list_not_existing_storage_directories(
