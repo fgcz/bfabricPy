@@ -20,6 +20,7 @@ jobs:
           git config --global user.email "bfabricpy-bot-noreply@fgcz.ethz.ch"
       - name: Create tag (with Python)
         run: |
+          set -euxo pipefail
           # Find the version
           VERSION=$(python3 -c "import tomllib; from pathlib import Path; print(tomllib.loads(Path('pyproject.toml').read_text())['project']['version'], end='')")
           # Check if tag exists
@@ -41,5 +42,7 @@ jobs:
           python-version: 3.12
       - name: Publish documentation
         run: |
+          set -euxo pipefail
+          git fetch --unshallow origin gh-pages
           git checkout gh-pages && git pull && git checkout -
           uv run mkdocs gh-deploy
