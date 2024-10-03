@@ -71,25 +71,25 @@ class WorkunitDefinition(BaseModel):
     registration: WorkunitRegistrationDefinition | None
 
     @classmethod
-    def from_ref(cls, workunit: Path | int, client: Bfabric) -> WorkunitDefinition:
-        """Loads the workunit definition from the provided reference,
-        which can be a path to a YAML file, or a workunit ID.
+    def from_ref(cls, workunit: Path | int, client: Bfabric, cache_file: Path | None = None) -> WorkunitDefinition:
+        """Loads the workunit definition from the provided reference, which can be a path to a YAML file,
+        or a workunit ID.
+
+        If the cache file is provided and exists, it will be loaded directly instead of resolving the reference.
+        Otherwise, the result will be cached to the provided file.
+        :param workunit: The workunit reference, which can be a path to a YAML file, or a workunit ID.
+        :param client: The B-Fabric client to use for resolving the workunit.
+        :param cache_file: The path to the cache file, if any.
         """
+        if cache_file is not None and cache_file.exists():
+            return cls.from_yaml(cache_file)
         if isinstance(workunit, Path):
-            return cls.from_yaml(workunit)
+            result = cls.from_yaml(workunit)
         else:
             workunit = Workunit.find(id=workunit, client=client)
-            return cls.from_workunit(workunit)
-
-    @classmethod
-    def from_ref_cached(cls, workunit: Path | int, file: Path, client: Bfabric) -> WorkunitDefinition:
-        """Loads the workunit definition from the provided reference, caching the result to the provided file.
-        If the cache file exists, it will be loaded directly instead of resolving the reference.
-        """
-        if file.exists():
-            return cls.from_yaml(file)
-        result = cls.from_ref(workunit=workunit, client=client)
-        result.to_yaml(file)
+            result = cls.from_workunit(workunit)
+        if cache_file is not None:
+            result.to_yaml(cache_file)
         return result
 
     @classmethod

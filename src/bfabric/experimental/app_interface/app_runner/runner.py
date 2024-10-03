@@ -3,9 +3,9 @@ from __future__ import annotations
 import shlex
 import subprocess
 from pathlib import Path
-from loguru import logger
 
 import yaml
+from loguru import logger
 from pydantic import BaseModel
 
 from bfabric import Bfabric
@@ -66,24 +66,30 @@ def run_app(
     read_only: bool = False,
     dispatch_active: bool = True,
 ) -> None:
-    # TODO future: the workunit definition must be loaded from bfabric exactly once! this is quite inefficient right now
-    workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client=client)
+    workunit_definition_file = work_dir / "workunit_definition.yml"
+    workunit_definition = WorkunitDefinition.from_ref(
+        workunit=workunit_ref, client=client, cache_file=workunit_definition_file
+    )
     if not read_only:
+        # Set the workunit status to processing
         client.save("workunit", {"id": workunit_definition.registration.workunit_id, "status": "processing"})
 
     runner = Runner(spec=app_spec, client=client, ssh_user=ssh_user)
     if dispatch_active:
-        runner.run_dispatch(workunit_ref=workunit_ref, work_dir=work_dir)
+        runner.run_dispatch(workunit_ref=workunit_definition_file, work_dir=work_dir)
     chunks_file = ChunksFile.model_validate(yaml.safe_load((work_dir / "chunks.yml").read_text()))
     for chunk in chunks_file.chunks:
         logger.info(f"Processing chunk {chunk}")
         runner.run_prepare_input(chunk_dir=chunk)
         runner.run_process(chunk_dir=chunk)
-        runner.run_collect(workunit_ref=workunit_ref, chunk_dir=chunk)
+        runner.run_collect(workunit_ref=workunit_definition_file, chunk_dir=chunk)
         if not read_only:
             runner.run_register_outputs(
-                chunk_dir=chunk, workunit_ref=workunit_ref, reuse_default_resource=app_spec.reuse_default_resource
+                chunk_dir=chunk,
+                workunit_ref=workunit_definition_file,
+                reuse_default_resource=app_spec.reuse_default_resource,
             )
 
     if not read_only:
+        # Set the workunit status to available
         client.save("workunit", {"id": workunit_definition.registration.workunit_id, "status": "available"})
