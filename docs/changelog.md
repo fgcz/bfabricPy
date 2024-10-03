@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.8\] - 2024-10-03
+
 This release contains mainly internal changes and ongoing development on the experimental app interface functionality.
 
 ### Added
