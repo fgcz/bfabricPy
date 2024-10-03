@@ -89,6 +89,7 @@ class WorkunitDefinition(BaseModel):
             workunit = Workunit.find(id=workunit, client=client)
             result = cls.from_workunit(workunit)
         if cache_file is not None:
+            cache_file.parent.mkdir(exist_ok=True, parents=True)
             result.to_yaml(cache_file)
         return result
 
