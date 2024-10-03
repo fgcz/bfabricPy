@@ -82,6 +82,17 @@ class WorkunitDefinition(BaseModel):
             return cls.from_workunit(workunit)
 
     @classmethod
+    def from_ref_cached(cls, workunit: Path | int, file: Path, client: Bfabric) -> WorkunitDefinition:
+        """Loads the workunit definition from the provided reference, caching the result to the provided file.
+        If the cache file exists, it will be loaded directly instead of resolving the reference.
+        """
+        if file.exists():
+            return cls.from_yaml(file)
+        result = cls.from_ref(workunit=workunit, client=client)
+        result.to_yaml(file)
+        return result
+
+    @classmethod
     def from_workunit(cls, workunit: Workunit) -> WorkunitDefinition:
         """Loads the workunit definition from the provided B-Fabric workunit."""
         return cls(
