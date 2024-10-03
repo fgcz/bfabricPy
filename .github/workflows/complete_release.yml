@@ -41,4 +41,5 @@ jobs:
           python-version: 3.12
       - name: Publish documentation
         run: |
+          git checkout gh-pages && git pull && git checkout -
           uv run mkdocs gh-deploy
