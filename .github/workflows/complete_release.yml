@@ -1,0 +1,40 @@
+name: Complete Release
+on:
+  push:
+    branches: [stable]
+  # TODO remove after testing
+  workflow_dispatch:
+jobs:
+  create_tag:
+    name: Create Tag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+      - name: Create tag (with Python)
+        run: |
+          # Find the version
+          VERSION=$(python3 -c "import tomllib; from pathlib import Path; print(tomllib.loads(Path('pyproject.toml').read_text())['project']['version'], end='')")
+          # Check if tag exists
+          if git rev-parse $VERSION >/dev/null 2>&1; then
+              echo "Tag $VERSION already exists"
+              exit 1
+          fi
+          # Create tag
+          git tag -a $VERSION -m "Release $VERSION"
+          # Push tag
+          git push origin $VERSION
+  publish_documentation:
+    name: Publish Docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-bfabricpy
+        with:
+          python-version: 3.12
+      - name: Publish documentation
+        run: |
+          uv run mkdocs gh-deploy
