@@ -24,6 +24,7 @@ Versioning currently follows `X.Y.Z` where
 
 ### Changed
 
+- `bfabric.scripts` has been moved into a namespace package `bfabric_scripts` so we can later split it off.
 - (internal) migrate to src layout
 - (experimental) the former `process` step of the app runner has been split into a `process` and `collect` step where,
     the collect step is responsible for generating the `output.yml` file that will then be used to register the results.
