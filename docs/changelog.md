@@ -10,6 +10,30 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.8\] - 2024-10-03
+
+This release contains mainly internal changes and ongoing development on the experimental app interface functionality.
+
+### Added
+
+- Entities can be compared and sorted by ID now.
+- Show Python version in version info string.
+- Caching for bfabric_list_not_existing_storage_directories.py.
+- (experimental) add initial code for a resource based application dispatch
+- (experimental) new app_runner cli that integrates all commands into a single interface
+
+### Fixed
+
+- bfabric_read.py is a bit more robust if "name" misses and tabular output is requested.
+
+### Changed
+
+- `bfabric.scripts` has been moved into a namespace package `bfabric_scripts` so we can later split it off.
+- (internal) migrate to src layout
+- (experimental) the former `process` step of the app runner has been split into a `process` and `collect` step where,
+    the collect step is responsible for generating the `output.yml` file that will then be used to register the results.
+- (experimental) app runner apps by default reuse the default resource
+
 ## \[1.13.7\] - 2024-09-17
 
 ### Fixed

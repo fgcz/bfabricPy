@@ -1,0 +1,35 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+import cyclopts
+import rich
+import rich.pretty
+import yaml
+
+from bfabric.experimental.app_interface.app_runner._spec import AppSpec
+from bfabric.experimental.app_interface.input_preparation._spec import InputsSpec
+from bfabric.experimental.app_interface.output_registration._spec import OutputsSpec
+
+app_validate = cyclopts.App("validate", help="Validate yaml files.")
+
+
+@app_validate.command()
+def app_spec(yaml_file: Path) -> None:
+    """Validate an app spec file."""
+    app_spec = AppSpec.model_validate(yaml.safe_load(yaml_file.read_text()))
+    rich.pretty.pprint(app_spec)
+
+
+@app_validate.command()
+def inputs_spec(yaml_file: Path) -> None:
+    """Validate an inputs spec file."""
+    inputs_spec = InputsSpec.model_validate(yaml.safe_load(yaml_file.read_text()))
+    rich.pretty.pprint(inputs_spec)
+
+
+@app_validate.command()
+def outputs_spec(yaml_file: Path) -> None:
+    """Validate an outputs spec file."""
+    outputs_spec = OutputsSpec.model_validate(yaml.safe_load(yaml_file.read_text()))
+    rich.pretty.pprint(outputs_spec)
