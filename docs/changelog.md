@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+This release contains mainly internal changes and ongoing development on the experimental app interface functionality.
+
 ### Added
 
 - Entities can be compared and sorted by ID now.
