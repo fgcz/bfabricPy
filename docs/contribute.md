@@ -33,11 +33,10 @@ mkdocs gh-deploy
 ## Release
 
 To create a release, increase the version in `pyproject.toml`, prepare `changelog.md`,
-commit everything and run `release.py`. This script will
+commit everything and create a PR to the `stable` branch.
 
-- Create a tag and push it to GitHub
-- Merge the changes to the `stable` branch and push it to GitHub
-- Build the documentation and push it to GitHub Pages
+Once this is merged a Github Action will create a tag (if the tag already exists, it will fail!) and the documentation
+will be rebuilt and published to GitHub Pages.
 
 The only manual step that remains is creating a release on GitHub.
 To do so, you can paste the changelog section of the release and create a new release on GitHub using the tag that was created.
