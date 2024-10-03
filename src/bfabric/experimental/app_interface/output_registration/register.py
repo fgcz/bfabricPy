@@ -15,7 +15,7 @@ from bfabric.experimental.app_interface.output_registration._spec import (
 )
 from bfabric.experimental.app_interface.util.checksums import md5sum
 from bfabric.experimental.app_interface.util.scp import scp
-from bfabric.scripts.bfabric_save_csv2dataset import bfabric_save_csv2dataset
+from bfabric_scripts.bfabric_save_csv2dataset import bfabric_save_csv2dataset
 
 
 def _get_output_folder(spec: CopyResourceSpec, workunit: Workunit) -> Path:
@@ -59,6 +59,8 @@ def copy_file_to_storage(spec: CopyResourceSpec, workunit: Workunit, storage: St
 
 def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit: Workunit):
     # TODO should not print to stdout in the future
+    # TODO also it should not be imported from bfabric_scripts, but rather the generic functioanlity should be available
+    #      in the main package
     bfabric_save_csv2dataset(
         client=client,
         csv_file=spec.local_path,
