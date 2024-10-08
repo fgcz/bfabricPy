@@ -47,6 +47,8 @@ class Entity:
         ids = [int(id) for id in ids]
         if len(ids) > 100:
             result = MultiQuery(client).read_multi(cls.ENDPOINT, {}, "id", ids)
+        elif not ids:
+            return {}
         else:
             result = client.read(cls.ENDPOINT, obj={"id": ids})
         results = {x["id"]: cls(x, client=client) for x in result}
