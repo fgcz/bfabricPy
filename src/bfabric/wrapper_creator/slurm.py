@@ -1,12 +1,13 @@
-#! /usr/bin/env python
+from __future__ import annotations
+
+from loguru import logger
+
 """
 Interface to the SLURM (Simple Linux Utility for Resources Management) resource manager and job scheduler
 
 2020-09-28
 Maria d'Errico
 Christian Panse
-
-$HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/bfabric/slurm.py $
 """
 
 # Copyright (C) 2011, 2012 ETH Zurich and University of Zurich. All rights reserved.
@@ -29,46 +30,39 @@ $HeadURL: http://fgcz-svn.uzh.ch/repos/scripts/trunk/linux/bfabric/apps/python/b
 # limitations under the License.
 #
 
-__docformat__ = "reStructuredText"
-# __version__ = '$Revision: 2463 $'
 
-
+from pathlib import Path
 import os
 import subprocess
 
 
 class SLURM:
+    """Wrapper for SLURM, providing a Python interface to `sbatch`.
+
+    The `slurm_root` variable will be passed as `SLURMROOT` to the environment, when submitting the script, and is an
+    important parameter which needs to be set correctly for our scripts to function properly.
     """
-    interface to Slurm sbatch
-    """
 
-    def __init__(self, user="*", SLURMROOT="/usr/"):
+    def __init__(self, slurm_root: str | Path = "/usr/") -> None:
+        self._slurm_root = Path(slurm_root)
+        self._sbatch_bin = self._slurm_root / "bin/sbatch"
+
+    def sbatch(self, script: str | Path) -> tuple[str, str] | None:
+        """Submits the script to SLURM using `sbatch`.
+        If successful, returns a tuple with the stdout and stderr of the submission.
         """
-        Set up parameters for querying Slurm.
-
-        SLURMROOT is essential.
-        """
-
-        self.user = user
-        self.sbatchbin = f"{SLURMROOT}/bin/sbatch"
-
-        os.environ["SLURM_ROOT"] = SLURMROOT
-
-    def sbatch(self, script, arguments=""):
-        """
-        todo: pass stderr and stdout file location as argument
-        """
-        sbatch_cmd = [self.sbatchbin, script, " ".join(arguments)]
-
-        if not os.path.isfile(self.sbatchbin):
-            print(f"{self.sbatchbin} can not be found.")
+        script = Path(script)
+        if not script.is_file():
+            logger.error(f"Script not found: {script}")
+            return
+        if not self._sbatch_bin.is_file():
+            logger.error(f"sbatch binary not found: {self._sbatch_bin}")
             return
 
-        if not os.path.isfile(script):
-            print(f"'{script}' - no such file.")
-            return
-
-        sbatch_process = subprocess.Popen(sbatch_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
-        result = [x.decode("utf-8") for x in sbatch_process.communicate()]
-
-        return "".join(result)
+        env = os.environ | {"SLURMROOT": self._slurm_root}
+        result = subprocess.run(
+            [self._sbatch_bin, script], env=env, check=True, shell=False, capture_output=True, encoding="utf-8"
+        )
+        # TODO the code initially had a TODO to write these two to a file, in general I think the logs of the squeue
+        #      are currently not written to a file at all.
+        return result.stdout, result.stderr

@@ -71,11 +71,11 @@ class BfabricSubmitter:
     #    resQsub = GE.qsub(script=script, arguments=arguments)
     #    self.B.logger(f"{resQsub}")
 
-    def submit_slurm(self, script: str = "/tmp/runme.bash", arguments: str = "") -> None:
-        slurm = SLURM(user=self.user, SLURMROOT=self.scheduleroot)
+    def submit_slurm(self, script: str = "/tmp/runme.bash") -> None:
+        slurm = SLURM(slurm_root=self.scheduleroot)
         logger.debug(script)
         logger.debug(type(script))
-        res_slurm_batch = slurm.sbatch(script=script, arguments=arguments)
+        res_slurm_batch = slurm.sbatch(script=script)
         logger.debug(f"{res_slurm_batch}")
 
     def compose_bash_script(self, configuration=None, configuration_parser=lambda x: yaml.safe_load(x)) -> str:
