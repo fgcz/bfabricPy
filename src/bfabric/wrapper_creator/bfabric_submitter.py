@@ -1,10 +1,14 @@
+from __future__ import annotations
+
 import base64
+from pathlib import Path
 
 import yaml
+from loguru import logger
 
-import bfabric.wrapper_creator.gridengine as gridengine
-import bfabric.wrapper_creator.slurm as slurm
-from bfabric.wrapper_creator.bfabric_external_job import BfabricExternalJob
+from bfabric.bfabric import Bfabric
+from bfabric.entities import ExternalJob, Executable
+from bfabric.wrapper_creator.slurm import SLURM
 
 
 class BfabricSubmitter:
@@ -12,12 +16,6 @@ class BfabricSubmitter:
     the class is used by the submitter which is executed by the bfabric system.
     """
 
-    (G, B) = (None, None)
-
-    workunitid = None
-    workunit = None
-    parameters = None
-    execfilelist = []
     slurm_dict = {
         "MaxQuant_textfiles_sge": {"partition": "prx", "nodelist": "fgcz-r-033", "memory": "1G"},
         "fragpipe": {"partition": "prx", "nodelist": "fgcz-r-033", "memory": "256G"},
@@ -30,91 +28,60 @@ class BfabricSubmitter:
 
     def __init__(
         self,
-        login=None,
-        password=None,
-        externaljobid=None,
-        user="*",
-        node="PRX@fgcz-r-018",
-        partition="prx",
-        nodelist="fgcz-r-028",
-        memory="10G",
-        SCHEDULEROOT="/export/bfabric/bfabric/",
-        scheduler="GridEngine",
-    ):
-        """
-        :rtype : object
-        """
-        self.B = BfabricExternalJob(login=login, password=password, externaljobid=externaljobid)
+        client: Bfabric,
+        externaljobid: int,
+        user: str = "*",
+        partition: str = "prx",
+        nodelist: str = "fgcz-r-028",
+        memory: str = "10G",
+        scheduleroot: str = "/export/bfabric/bfabric/",
+        scheduler: str = "GridEngine",
+        script_dir: Path = Path("/home/bfabric/prx"),
+    ) -> None:
+        self._client = client
+        self._executable_file_list = []
+
         self.partition = partition
         self.nodelist = nodelist
         self.memory = memory
-        self.SCHEDULEROOT = SCHEDULEROOT
-        self.user = user
+        self.scheduleroot = scheduleroot
         self.scheduler = scheduler
+        self.user = user
+        self._script_dir = script_dir
 
-        print(self.B.auth.login)
-        print(self.B.externaljobid)
+        self.external_job = ExternalJob.find(id=externaljobid, client=client)
+        self.workunit = self.external_job.workunit
+        self.parameters = self.workunit.parameter_values
+        self.application = self.workunit.application
 
-        self.workunitid = self.B.get_workunitid_of_externaljob()
+        default_config = self.slurm_dict.get(self.application["name"], {})
+        self.partition = self.parameters.get("partition", default_config.get("partition"))
+        self.nodelist = self.parameters.get("nodelist", default_config.get("nodelist"))
+        self.memory = self.parameters.get("memory", default_config.get("memory"))
 
-        try:
-            self.workunit = self.B.read_object(endpoint="workunit", obj={"id": self.workunitid})[0]
-        except:
-            print("ERROR: could not fetch workunit while calling constructor in BfabricSubmitter.")
-            raise
+        logger.debug(f"partition={self.partition}")
+        logger.debug(f"nodelist={self.nodelist}")
+        logger.debug(f"memory={self.memory}")
+        logger.debug("__init__ DONE")
 
-        try:
-            self.parameters = [
-                self.B.read_object(endpoint="parameter", obj={"id": x._id})[0] for x in self.workunit.parameter
-            ]
-        except:
-            self.parameters = list()
-            print("Warning: could not fetch parameter.")
+    # def submit_gridengine(self, script="/tmp/runme.bash", arguments=""):
+    #    GE = gridengine.GridEngine(user=self.user, queue=self.queue, GRIDENGINEROOT=self.scheduleroot)
+    #    print(script)
+    #    print(type(script))
+    #    resQsub = GE.qsub(script=script, arguments=arguments)
+    #    self.B.logger(f"{resQsub}")
 
-        partition = [x for x in self.parameters if x.key == "partition"]
-        nodelist = [x for x in self.parameters if x.key == "nodelist"]
-        memory = [x for x in self.parameters if x.key == "memory"]
-        application_name = self.B.get_application_name()
+    def submit_slurm(self, script: str = "/tmp/runme.bash", arguments: str = "") -> None:
+        slurm = SLURM(user=self.user, SLURMROOT=self.scheduleroot)
+        logger.debug(script)
+        logger.debug(type(script))
+        res_slurm_batch = slurm.sbatch(script=script, arguments=arguments)
+        logger.debug(f"{res_slurm_batch}")
 
-        if len(partition) > 0 and len(nodelist) > 0 and len(memory) > 0:
-            self.partition = partition[0].value
-            self.nodelist = nodelist[0].value
-            self.memory = memory[0].value
-        elif "queue" in [x.key for x in self.parameters] and application_name in self.slurm_dict:
-            # Temporary check for old workunit previously run with SGE
-            self.partition = self.slurm_dict[application_name]["partition"]
-            self.nodelist = self.slurm_dict[application_name]["nodelist"]
-            self.memory = self.slurm_dict[application_name]["memory"]
-        else:
-            pass
-
-        print(f"partition={self.partition}")
-        print(f"nodelist={self.nodelist}")
-        print(f"memory={self.memory}")
-        print("__init__ DONE")
-
-    def submit_gridengine(self, script="/tmp/runme.bash", arguments=""):
-        GE = gridengine.GridEngine(user=self.user, queue=self.queue, GRIDENGINEROOT=self.SCHEDULEROOT)
-
-        print(script)
-        print(type(script))
-        resQsub = GE.qsub(script=script, arguments=arguments)
-
-        self.B.logger(f"{resQsub}")
-
-    def submit_slurm(self, script="/tmp/runme.bash", arguments=""):
-        SL = slurm.SLURM(user=self.user, SLURMROOT=self.SCHEDULEROOT)
-
-        print(script)
-        print(type(script))
-        resSbatch = SL.sbatch(script=script, arguments=arguments)
-
-        self.B.logger(f"{resSbatch}")
-
-    def compose_bash_script(self, configuration=None, configuration_parser=lambda x: yaml.safe_load(x)):
+    def compose_bash_script(self, configuration=None, configuration_parser=lambda x: yaml.safe_load(x)) -> str:
         """
         composes the bash script which is executed by the submitter (sun grid engine).
-        as argument it takes a configuration file, e.g., yaml, xml, json, or whatsoever, and a parser function.
+        as an argument it takes a configuration file, e.g., yaml, xml, json, or whatsoever, and a parser function.
 
         it returns a str object containing the code.
 
@@ -122,11 +89,7 @@ class BfabricSubmitter:
         """
 
         # assert isinstance(configuration, str)
-
-        try:
-            config = configuration_parser(configuration)
-        except:
-            raise ValueError("error: parsing configuration content failed.")
+        config = configuration_parser(configuration)
 
         _cmd_template = """#!/bin/bash
 # Maria d'Errico
@@ -237,50 +200,48 @@ exit 0
             config["job_configuration"]["workunit_id"],
             self.nodelist,
             self.memory,
-            job_notification_emails=self.B.config.job_notification_emails,
+            job_notification_emails=self._client.config.job_notification_emails,
         )
 
         return _cmd_template
 
-    def submitter_yaml(self):
+    def submitter_yaml(self) -> None:
         """
         implements the default submitter
 
         the function fetches the yaml base64 configuration file linked to the external job id out of the B-Fabric
-        system. Since the file can not be stagged to the LRMS as argument, we copy the yaml file into the bash script
+        system. Since the file can not be staged to the LRMS as argument, we copy the yaml file into the bash script
         and stage it on execution the application.
 
         TODO(cp): create the output url before the application is started.
 
         return None
         """
-
-        # foreach (executable in external job):
-        for executable in self.B.get_executable_of_externaljobid():
-            self.B.logger(f"executable = {executable}")
-
-            try:
-                content = base64.b64decode(executable.base64.encode()).decode()
-            except:
-                raise ValueError("error: decoding executable.base64 failed.")
-
-            print(content)
+        executables = Executable.find_by({"workunitid": self.workunit.id}, client=self._client).values()
+        for executable in executables:
+            logger.debug(f"executable = {executable}")
+            content = base64.b64decode(executable["base64"].encode()).decode()
+            logger.debug(content)
             _cmd_template = self.compose_bash_script(
                 configuration=content, configuration_parser=lambda x: yaml.safe_load(x)
             )
 
-            _bash_script_filename = f"/home/bfabric/prx/workunitid-{self.B.get_workunitid_of_externaljob()}_externaljobid-{self.B.externaljobid}_executableid-{executable._id}.bash"
+            bash_script_file = Path(
+                self._script_dir,
+                f"workunitid-{self.workunit.id}_externaljobid-{self.external_job.id}"
+                f"_executableid-{self.external_job.executable.id}.bash",
+            )
 
-            with open(_bash_script_filename, "w") as f:
-                f.write(_cmd_template)
+            bash_script_file.write_text(_cmd_template)
 
             if self.scheduler == "GridEngine":
-                self.submit_gridengine(_bash_script_filename)
+                raise NotImplementedError
+                # self.submit_gridengine(bash_script_file)
             else:
-                self.submit_slurm(_bash_script_filename)
-            self.execfilelist.append(_bash_script_filename)
+                self.submit_slurm(str(bash_script_file))
+            self._executable_file_list.append(str(bash_script_file))
 
-        res = self.B.save_object(endpoint="externaljob", obj={"id": self.B.externaljobid, "status": "done"})
+        self._client.save("externaljob", {"id": self.external_job.id, "status": "done"})
 
-    def get_job_script(self):
-        return self.execfilelist
+    def get_job_script(self) -> list[str]:
+        return self._executable_file_list
