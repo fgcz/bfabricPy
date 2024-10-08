@@ -219,6 +219,9 @@ exit 0
         """
         executables = Executable.find_by({"workunitid": self.workunit.id}, client=self._client).values()
         for executable in executables:
+            if not executable["base64"]:
+                continue
+
             logger.debug(f"executable = {executable}")
             content = base64.b64decode(executable["base64"].encode()).decode()
             logger.debug(content)
