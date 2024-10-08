@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 import yaml
+from loguru import logger
 
 from bfabric import Bfabric
 from bfabric.bfabric_legacy import bfabricEncoder
@@ -45,6 +46,7 @@ class BfabricWrapperCreator:
 
     def create_output_resource(self) -> Resource:
         # Since we use the id of the output resource in the path, we have to save it twice.
+        logger.info("Creating output resource")
         n_input_resource = len(self._workunit.input_resources)
         resource_id = self._client.save(
             "resource",
@@ -62,10 +64,12 @@ class BfabricWrapperCreator:
         relative_path = str(output_folder / output_filename)
 
         # Save the path
+        logger.info("Saving correct path")
         result = self._client.save("resource", {"id": resource_id, "relativepath": relative_path})
         return Resource(result[0])
 
     def create_log_resource(self, variant: Literal["out", "err"], output_resource: Resource) -> Resource:
+        logger.info("Creating log resource")
         result = self._client.save(
             "resource",
             {
@@ -78,6 +82,7 @@ class BfabricWrapperCreator:
         return Resource(result[0])
 
     def get_application_section(self, output_resource: Resource) -> dict[str, Any]:
+        logger.info("Creating application section")
         output_url = f"bfabric@{self._application.storage.data_dict['host']}:{self._application.storage.data_dict['basepath']}{output_resource.data_dict['relativepath']}"
         inputs = defaultdict(list)
         for resource in Resource.find_all(self.workunit_definition.execution.resources, client=self._client).values():
@@ -94,6 +99,7 @@ class BfabricWrapperCreator:
     def get_job_configuration_section(
         self, output_resource: Resource, stdout_resource: Resource, stderr_resource: Resource
     ) -> dict[str, Any]:
+        logger.info("Creating job configuration section")
         log_resource = {}
 
         for name, resource in [("stdout", stdout_resource), ("stderr", stderr_resource)]:
@@ -143,7 +149,8 @@ class BfabricWrapperCreator:
         else:
             return ""
 
-    def write_results(self, config_serialized: str) -> None:
+    def write_results(self, config_serialized: str) -> tuple[dict[str, Any], dict[str, Any]]:
+        logger.info("Saving executable")
         yaml_workunit_executable = self._client.save(
             "executable",
             {
@@ -155,6 +162,7 @@ class BfabricWrapperCreator:
                 "version": "10",
             },
         )[0]
+        logger.info("Saving external job")
         yaml_workunit_externaljob = self._client.save(
             "externaljob",
             {
@@ -163,14 +171,17 @@ class BfabricWrapperCreator:
                 "executableid": yaml_workunit_executable["id"],
                 "action": "WORKUNIT",
             },
-        )
+        )[0]
 
         # TODO now i am a bit confused, the external_job_id that is added to the .yml file is not the original one
         #      but rather the one from the yaml_workunit_externaljob. I am not sure if we need this as it makes the
         #      code here a lot more complex
 
-        print(yaml_workunit_externaljob)
+        logger.info(yaml_workunit_externaljob)
+        logger.info("Setting external job status to 'done'")
         self._client.save("externaljob", {"id": self._external_job_id, "status": "done"})
+
+        return yaml_workunit_executable, yaml_workunit_externaljob
 
 
 class BfabricWrapperCreatorOld(BfabricExternalJob):
