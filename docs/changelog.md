@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Added
+
+- Relationship: `ExternalJob.executable`
+
 ### Fixed
 
 - `Entity.find_all` returns no values when an empty list is passed as an argument.
