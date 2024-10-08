@@ -138,7 +138,7 @@ test $? -eq 0 && scp $TEMPDIR/$$ $OUTPUT
 
 if [ $? -eq 1 ];
 then
-    echo "writting to output url failed!";
+    echo "writing to output url failed!";
     exit 1;
 fi
 
