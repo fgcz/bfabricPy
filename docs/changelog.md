@@ -12,6 +12,7 @@ Versioning currently follows `X.Y.Z` where
 
 ### Added
 
+- (experimental) EntityLookupCache that allows to cache entity lookups in a script to avoid redundant requests.
 - Relationship: `ExternalJob.executable`
 
 ### Fixed
