@@ -86,6 +86,9 @@ class EntityLookupCache:
         if not existing_cache:
             cls.__class_instance = cls(max_size=max_size)
             # TODO what to do if existing_cache and max_size mismatch?
+            # TODO another relevant use case could be selectively caching only some entities, whereas others should be
+            #      reloaded
+            # TODO finally, there is the question about persistent caches (e.g. storages do not change that often)
         try:
             yield
         finally:
