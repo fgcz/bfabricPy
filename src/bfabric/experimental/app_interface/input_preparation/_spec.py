@@ -1,13 +1,18 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Annotated, Literal, Union
+from typing import Annotated, Literal, Union, TYPE_CHECKING
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, Discriminator
 
+from bfabric.entities import Resource
+
 # ":" are not allowed, as well as absolute paths (starting with "/")
 RelativeFilePath = Annotated[str, Field(pattern=r"^[^/][^:]*$")]
+
+if TYPE_CHECKING:
+    from bfabric.bfabric import Bfabric
 
 
 class ResourceSpec(BaseModel):
@@ -18,6 +23,13 @@ class ResourceSpec(BaseModel):
     filename: RelativeFilePath | None = None
     check_checksum: bool = True
 
+    def resolve_filename(self, client: Bfabric) -> str:
+        if self.filename:
+            return self.filename
+        else:
+            resource = Resource.find(id=self.id, client=client)
+            return resource["name"]
+
 
 class DatasetSpec(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -26,8 +38,12 @@ class DatasetSpec(BaseModel):
     id: int
     filename: RelativeFilePath
     separator: Literal[",", "\t"] = ","
+
     # has_header: bool
     # invalid_characters: str = ""
+
+    def resolve_filename(self, client: Bfabric) -> str:
+        return self.filename
 
 
 InputSpecType = Annotated[Union[ResourceSpec, DatasetSpec], Discriminator("type")]

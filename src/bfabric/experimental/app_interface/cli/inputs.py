@@ -65,4 +65,5 @@ def list(
 ) -> None:
     """Lists the input files for an app."""
     setup_script_logging()
-    print_input_files_list(inputs_yaml=inputs_yaml, target_folder=target_folder)
+    client = Bfabric.from_config()
+    print_input_files_list(inputs_yaml=inputs_yaml, target_folder=target_folder, client=client)

@@ -83,8 +83,8 @@ class PrepareInputs:
                 target_path.write_text(tmp_file.read().decode())
 
     def clean_resource(self, spec: ResourceSpec) -> None:
-        name = spec.filename if spec.filename else Resource.find(id=spec.id, client=self._client)["name"]
-        path = self._working_dir / name
+        filename = spec.resolve_filename(client=self._client)
+        path = self._working_dir / filename
         if path.exists():
             logger.info(f"Removing {path}")
             path.unlink()
@@ -124,6 +124,7 @@ def prepare_folder(
 def print_input_files_list(
     inputs_yaml: Path,
     target_folder: Path,
+    client: Bfabric,
 ) -> None:
     """Prints a list of inputs and whether they exist locally."""
     specs_list = InputsSpec.read_yaml(inputs_yaml)
@@ -133,7 +134,8 @@ def print_input_files_list(
         Column("Exists Locally"),
     )
     for spec in specs_list:
-        path = target_folder / spec.filename if target_folder else Path(spec.filename)
+        filename = spec.resolve_filename(client=client)
+        path = target_folder / filename if target_folder else Path(filename)
         table.add_row(
             str(path),
             "Resource" if isinstance(spec, ResourceSpec) else "Dataset",

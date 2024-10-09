@@ -12,12 +12,13 @@ Versioning currently follows `X.Y.Z` where
 
 ### Added
 
-- (experimental) EntityLookupCache that allows to cache entity lookups in a script to avoid redundant requests.
 - Relationship: `ExternalJob.executable`
+- (experimental) EntityLookupCache that allows to cache entity lookups in a script to avoid redundant requests.
 
 ### Fixed
 
 - `Entity.find_all` returns no values when an empty list is passed as an argument.
+- (experimental) app_interface cli "inputs list" does not fail anymore if resources have no "name" field value.
 
 ## \[1.13.8\] - 2024-10-03
 
