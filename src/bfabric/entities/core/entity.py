@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
 from collections.abc import Iterable
+from typing import TYPE_CHECKING
 
 from loguru import logger
 
@@ -128,7 +128,7 @@ class Entity:
     ) -> dict[int, Self]:
         """Ensures the results are in the same order as requested and prints a warning if some results are missing."""
         results = {**results_cached, **results_fresh}
-        results = {entity_id: results[entity_id] for entity_id in ids_requested}
+        results = {entity_id: results[entity_id] for entity_id in ids_requested if entity_id in results}
         if len(results) != len(ids_requested):
             logger.warning(f"Only found {len(results)} out of {len(ids_requested)}.")
         return results
