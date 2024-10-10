@@ -50,6 +50,7 @@ def dispatch(
     :param workunit_ref: Reference to the workunit (ID or YAML file path).
     """
     setup_script_logging()
+    work_dir = work_dir.resolve()
     # TODO set workunit to processing? (i.e. add read-only option here)
     client = Bfabric.from_config()
     runner = Runner(spec=AppSpec.model_validate(yaml.safe_load(app_spec.read_text())), client=client, ssh_user=None)

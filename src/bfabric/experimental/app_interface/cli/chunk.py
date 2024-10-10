@@ -60,6 +60,7 @@ def inputs(
     """
     setup_script_logging()
     client = Bfabric.from_config()
+    chunk_dir = chunk_dir.resolve()
     app_spec_parsed = AppSpec.model_validate(yaml.safe_load(app_spec.read_text()))
 
     runner = Runner(spec=app_spec_parsed, client=client, ssh_user=ssh_user)
@@ -76,6 +77,7 @@ def process(app_spec: Path, chunk_dir: Path) -> None:
     """
     setup_script_logging()
     client = Bfabric.from_config()
+    chunk_dir = chunk_dir.resolve()
     app_spec_parsed = AppSpec.model_validate(yaml.safe_load(app_spec.read_text()))
 
     runner = Runner(spec=app_spec_parsed, client=client, ssh_user=None)
@@ -103,6 +105,7 @@ def outputs(
     """
     setup_script_logging()
     client = Bfabric.from_config()
+    chunk_dir = chunk_dir.resolve()
     app_spec_parsed = AppSpec.model_validate(yaml.safe_load(app_spec.read_text()))
 
     runner = Runner(spec=app_spec_parsed, client=client, ssh_user=ssh_user)
