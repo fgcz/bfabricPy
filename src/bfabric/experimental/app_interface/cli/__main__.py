@@ -8,7 +8,7 @@ from bfabric.experimental.app_interface.cli.inputs import app_inputs
 from bfabric.experimental.app_interface.cli.outputs import app_outputs
 from bfabric.experimental.app_interface.cli.validate import app_validate
 
-app = cyclopts.App()
+app = cyclopts.App(help="Provides an entrypoint to app execution.\n\nFunctionality/API under active development!")
 app.command(app_inputs)
 app.command(app_outputs)
 app.command(app_app)
