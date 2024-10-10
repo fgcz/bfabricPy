@@ -25,28 +25,22 @@ dependencies = [
     "polars-lts-cpu >= 0.20.25; platform_machine == 'x86_64' and platform_system == 'Darwin'",
     "polars >= 0.20.25; platform_machine != 'x86_64' or platform_system != 'Darwin'",
     "loguru>=0.7",
-    "setuptools",
-    "pydantic",
+    "pydantic>=2.9.2",
     "eval_type_backport; python_version < '3.10'",
     "python-dateutil >= 2.9.0",
-    "cyclopts",
+    "cyclopts >= 2.9.9",
     #"platformdirs >= 4.3",
 ]
 
 [project.optional-dependencies]
 dev = [
+    "bfabric[doc,test]",
     "black",
     "isort",
     "ruff",
     "licensecheck",
-    "pytest",
-    "pytest-mock",
-    "logot",
     "nox",
     "uv",
-    "mkdocs",
-    "mkdocs-material",
-    "mkdocstrings[python]",
 ]
 doc = ["mkdocs", "mkdocs-material", "mkdocstrings[python]"]
 test = ["pytest", "pytest-mock", "logot"]
