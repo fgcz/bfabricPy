@@ -48,6 +48,8 @@ dev = [
     "mkdocs-material",
     "mkdocstrings[python]",
 ]
+doc = ["mkdocs", "mkdocs-material", "mkdocstrings[python]"]
+test = ["pytest", "pytest-mock", "logot"]
 
 [project.urls]
 Homepage = "https://github.com/fgcz/bfabricPy"
