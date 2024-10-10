@@ -66,6 +66,9 @@ def run_app(
     read_only: bool = False,
     dispatch_active: bool = True,
 ) -> None:
+    work_dir = work_dir.resolve()
+    workunit_ref = workunit_ref.resolve() if isinstance(workunit_ref, Path) else workunit_ref
+
     workunit_definition_file = work_dir / "workunit_definition.yml"
     workunit_definition = WorkunitDefinition.from_ref(
         workunit=workunit_ref, client=client, cache_file=workunit_definition_file
