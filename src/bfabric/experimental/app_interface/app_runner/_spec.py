@@ -20,7 +20,7 @@ class CommandShell(BaseModel):
 
 
 class MountOptions(BaseModel):
-    work_dir_target: Path = "/work"
+    work_dir_target: Path | None = None
     read_only: list[tuple[Path, Path]] = []
     share_bfabric_config: bool = True
 
@@ -28,7 +28,10 @@ class MountOptions(BaseModel):
         mounts = []
         if self.share_bfabric_config:
             mounts.append((Path("~/.bfabricpy.yml"), Path("/home/user/.bfabricpy.yml"), True))
-        mounts.append((work_dir, self.work_dir_target, False))
+        # TODO reconsider if we ever want work_dir_target to be customizable to be different from host path
+        #      (currently things will break down if this is configured)
+        work_dir_target = work_dir if self.work_dir_target is None else self.work_dir_target
+        mounts.append((work_dir, work_dir_target, False))
         for source, target in self.read_only:
             mounts.append((source, target, True))
         return [(source.expanduser().absolute(), target, read_only) for source, target, read_only in mounts]
