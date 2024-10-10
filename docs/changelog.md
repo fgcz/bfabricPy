@@ -13,6 +13,7 @@ Versioning currently follows `X.Y.Z` where
 ### Added
 
 - Relationship: `ExternalJob.executable`
+- (experimental) Provide a script `bfabric-app-runner` to allow testing with pipx.
 - (experimental) EntityLookupCache that allows to cache entity lookups in a script to avoid redundant requests.
 
 ### Fixed
