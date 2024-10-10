@@ -21,6 +21,10 @@ Versioning currently follows `X.Y.Z` where
 - `Entity.find_all` returns no values when an empty list is passed as an argument.
 - (experimental) app_interface cli "inputs list" does not fail anymore if resources have no "name" field value.
 
+### Changed
+
+- Except for macOS x86_64 (which we assume is Rosetta emulation nowadays), we use the faster `polars` instead of `polars-lts-cpu`.
+
 ## \[1.13.8\] - 2024-10-03
 
 This release contains mainly internal changes and ongoing development on the experimental app interface functionality.
