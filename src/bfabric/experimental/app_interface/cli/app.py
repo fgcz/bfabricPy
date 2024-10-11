@@ -16,7 +16,7 @@ app_app = cyclopts.App("app", help="Run an app.")
 @app_app.command()
 def run(
     app_spec: Path,
-    target_folder: Path,
+    work_dir: Path,
     workunit_ref: int | Path,
     *,
     ssh_user: str | None = None,
@@ -30,7 +30,7 @@ def run(
     run_app(
         app_spec=app_spec_parsed,
         workunit_ref=workunit_ref,
-        work_dir=target_folder,
+        work_dir=work_dir,
         client=client,
         ssh_user=ssh_user,
         read_only=read_only,
