@@ -28,6 +28,7 @@ Versioning currently follows `X.Y.Z` where
 ### Removed
 
 - `bfabric_legacy.py` has been removed.
+- `math_helper.py` has been removed.
 
 ## \[1.13.8\] - 2024-10-03
 
