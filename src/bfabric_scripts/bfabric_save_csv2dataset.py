@@ -27,17 +27,19 @@ Description:
 Usage: bfabric_save_csv2dataset.py [-h] --csvfile CSVFILE --name NAME --containerid int [--workunitid int]
 """
 
-from __future__ import annotations
-
-import argparse
 from pathlib import Path
+from typing import Optional, Union
 
+import cyclopts
 import polars as pl
 
 from bfabric import Bfabric
+from bfabric.cli_formatting import setup_script_logging
+
+app = cyclopts.App()
 
 
-def polars_to_bfabric_type(dtype: pl.DataType) -> str | None:
+def polars_to_bfabric_type(dtype: pl.DataType) -> Optional[str]:
     """Returns the B-Fabric type for a given Polars data type, defaulting to String if no correspondence is found."""
     if str(dtype).startswith("Int"):
         return "Integer"
@@ -49,7 +51,7 @@ def polars_to_bfabric_type(dtype: pl.DataType) -> str | None:
         return "String"
 
 
-def polars_to_bfabric_dataset(data: pl.DataFrame) -> dict[str, list[dict[str, int | str | float]]]:
+def polars_to_bfabric_dataset(data: pl.DataFrame) -> dict[str, list[dict[str, Union[int, str, float]]]]:
     """Converts a Polars DataFrame to a B-Fabric dataset representation."""
     attributes = [
         {"name": col, "position": i + 1, "type": polars_to_bfabric_type(data[col].dtype)}
@@ -70,7 +72,7 @@ def bfabric_save_csv2dataset(
     csv_file: Path,
     dataset_name: str,
     container_id: int,
-    workunit_id: int | None,
+    workunit_id: Optional[int],
     sep: str,
     has_header: bool,
     invalid_characters: str,
@@ -104,36 +106,39 @@ def check_for_invalid_characters(data: pl.DataFrame, invalid_characters: str) ->
         raise RuntimeError(f"Invalid characters found in columns: {invalid_columns}")
 
 
-def main() -> None:
-    """Parses command line arguments and calls `bfabric_save_csv2dataset`."""
+@app.default
+def entrypoint(
+    csvfile: Path,
+    name: str,
+    containerid: int,
+    workunitid: Optional[int] = None,
+    sep: str = ",",
+    no_header: bool = True,
+    invalid_characters: str = ",\t",
+) -> None:
+    """Creates a dataset in B-Fabric from a csv file.
+
+    :param csvfile: the path to the csv file to be uploaded as dataset
+    :param name: dataset name as a string
+    :param containerid: container id
+    :param workunitid: workunit id (if should be associated with a workunit)
+    :param sep: the separator to use in the csv file e.g. ',' or '\t'
+    :param no_header: the csv file has no header
+    :param invalid_characters: characters which are not permitted in a cell (set to empty string to deactivate)
+    """
+    setup_script_logging()
     client = Bfabric.from_config()
-    parser = argparse.ArgumentParser(description="Create a B-Fabric dataset")
-    parser.add_argument(
-        "--csvfile", required=True, help="the path to the csv file to be uploaded as dataset", type=Path
-    )
-    parser.add_argument("--name", required=True, help="dataset name as a string")
-    parser.add_argument("--containerid", type=int, required=True, help="container id")
-    parser.add_argument("--workunitid", type=int, required=False, help="workunit id")
-    parser.add_argument("--sep", type=str, default=",", help="the separator to use in the csv file e.g. ',' or '\\t'")
-    parser.add_argument("--no-header", action="store_false", dest="has_header", help="the csv file has no header")
-    parser.add_argument(
-        "--invalid-characters",
-        type=str,
-        default=",\t",
-        help="characters which are not permitted in a cell (set to empty string to deactivate)",
-    )
-    args = parser.parse_args()
     bfabric_save_csv2dataset(
         client=client,
-        csv_file=args.csvfile,
-        dataset_name=args.name,
-        container_id=args.containerid,
-        workunit_id=args.workunitid,
-        sep=args.sep,
-        has_header=args.has_header,
-        invalid_characters=args.invalid_characters,
+        csv_file=csvfile,
+        dataset_name=name,
+        container_id=containerid,
+        workunit_id=workunitid,
+        sep=sep,
+        has_header=no_header,
+        invalid_characters=invalid_characters,
     )
 
 
 if __name__ == "__main__":
-    main()
+    app()

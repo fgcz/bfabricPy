@@ -1,11 +1,15 @@
-import argparse
 import json
-import sys
+from typing import Literal
 
+import cyclopts
 import polars as pl
 import rich
 
 from bfabric import Bfabric
+from bfabric.cli_formatting import setup_script_logging
+from bfabric.experimental import MultiQuery
+
+app = cyclopts.App()
 
 
 def bfabric_list_workunit_parameters(client: Bfabric, application_id: int, max_workunits: int, format: str) -> None:
@@ -74,16 +78,13 @@ def print_results(format: str, merged_result: pl.DataFrame) -> None:
 def get_parameter_table(client: Bfabric, workunits_table_explode: pl.DataFrame) -> pl.DataFrame:
     """Returns a wide format table for the specified parameters, with the key `workunit_id` indicating the source."""
     # load the parameters table
-    collect = []
-    for i_frame, frame in enumerate(workunits_table_explode.iter_slices(100)):
-        print(
-            f"-- Reading parameters chunk {i_frame + 1} of {len(workunits_table_explode) // 100 + 1}", file=sys.stderr
-        )
-        chunk = (
-            client.read("parameter", {"id": frame["parameter_id"].to_list()}).to_polars().rename({"id": "parameter_id"})
-        )
-        collect.append(chunk)
-    parameter_table_full = pl.concat(collect, how="align")[["parameter_id", "key", "value"]]
+    collect = MultiQuery(client=client).read_multi(
+        endpoint="parameter",
+        obj={},
+        multi_query_key="id",
+        multi_query_vals=workunits_table_explode["parameter_id"].to_list(),
+    )
+    parameter_table_full = collect.to_polars().rename({"id": "parameter_id"})[["parameter_id", "key", "value"]]
     # add workunit id to parameter table
     parameter_table_full = parameter_table_full.join(
         workunits_table_explode[["workunit_id", "parameter_id"]], on="parameter_id", how="left"
@@ -92,16 +93,18 @@ def get_parameter_table(client: Bfabric, workunits_table_explode: pl.DataFrame) 
     return parameter_table_full.pivot(values="value", index="workunit_id", columns="key")
 
 
-def main() -> None:
-    """Parses command line arguments and calls `bfabric_list_workunit_parameters`."""
+@app.default
+def entrypoint(application_id: int, max_workunits: int = 200, format: Literal["tsv", "json", "pretty"] = "tsv") -> None:
+    """Lists the parameters of recent workunits of the provided application.
+
+    :param application_id: The application ID to list the workunit parameters for.
+    :param max_workunits: The maximum number of workunits to fetch.
+    :param format: The output format to use.
+    """
+    setup_script_logging()
     client = Bfabric.from_config()
-    parser = argparse.ArgumentParser()
-    parser.add_argument("application_id", type=int, help="The application ID to list the workunit parameters for.")
-    parser.add_argument("--max-workunits", type=int, help="The maximum number of workunits to fetch.", default=200)
-    parser.add_argument("--format", choices=["tsv", "json", "pretty"], default="tsv")
-    args = vars(parser.parse_args())
-    bfabric_list_workunit_parameters(client, **args)
+    bfabric_list_workunit_parameters(client, application_id, max_workunits, format)
 
 
 if __name__ == "__main__":
-    main()
+    app()

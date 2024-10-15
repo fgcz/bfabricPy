@@ -10,11 +10,9 @@ Author:
 Licensed under GPL version 3
 """
 
-from __future__ import annotations
-
-from argparse import ArgumentParser
 from datetime import datetime, timedelta
 
+import cyclopts
 from loguru import logger
 from rich.console import Console
 from rich.table import Column, Table
@@ -22,6 +20,8 @@ from rich.table import Column, Table
 from bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
 from bfabric.entities import Parameter, Workunit, Application
+
+app = cyclopts.App()
 
 
 def render_output(workunits_by_status: dict[str, list[Workunit]], client: Bfabric) -> None:
@@ -86,15 +86,16 @@ def list_not_available_proteomics_workunits(date_cutoff: datetime) -> None:
     render_output(workunits_by_status, client=client)
 
 
-def main() -> None:
-    """Parses the command line arguments and calls `list_not_available_proteomics_workunits`."""
+@app.default
+def entrypoint(max_age: int = 14) -> None:
+    """Lists proteomics workunits that are not available on bfabric.
+
+    :param max_age: Max age of work units in days
+    """
     setup_script_logging()
-    parser = ArgumentParser(description="Lists proteomics work units that are not available on bfabric.")
-    parser.add_argument("--max-age", type=int, help="Max age of work units in days", default=14)
-    args = parser.parse_args()
-    date_cutoff = datetime.today() - timedelta(days=args.max_age)
+    date_cutoff = datetime.today() - timedelta(days=max_age)
     list_not_available_proteomics_workunits(date_cutoff)
 
 
 if __name__ == "__main__":
-    main()
+    app()
