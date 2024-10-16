@@ -440,12 +440,9 @@
 </span></code></pre></div>
 <h2 id="release">Release</h2>
 <p>To create a release, increase the version in <code>pyproject.toml</code>, prepare <code>changelog.md</code>,
-commit everything and run <code>release.py</code>. This script will</p>
-<ul>
-<li>Create a tag and push it to GitHub</li>
-<li>Merge the changes to the <code>stable</code> branch and push it to GitHub</li>
-<li>Build the documentation and push it to GitHub Pages</li>
-</ul>
+commit everything and create a PR to the <code>stable</code> branch.</p>
+<p>Once this is merged a Github Action will create a tag (if the tag already exists, it will fail!) and the documentation
+will be rebuilt and published to GitHub Pages.</p>
 <p>The only manual step that remains is creating a release on GitHub.
 To do so, you can paste the changelog section of the release and create a new release on GitHub using the tag that was created.</p>
 

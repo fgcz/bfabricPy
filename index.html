@@ -383,9 +383,17 @@
 
 
 <h1 id="home">Home</h1>
-<p>This package connects the <a href="https://fgcz-bfabric.uzh.ch/bfabric/">bfabric</a> system to the <a href="https://www.python.org/">python</a> and <a href="https://cran.r-project.org/">R</a> world while providing a JSON and REST interface using <a href="https://www.fullstackpython.com">Flask</a>.
-The <a href="https://github.com/cpanse/bfabricShiny">bfabricShiny</a> R package is an extension and provides code snippets and sample implementation for a seamless R shiny bfabric integration.
-For more advanced users the <em>bfabricPy</em> package also provides a powerful query interface on the command-line though using the provided scripts.</p>
+<p>This package implements a Python interface to the <a href="https://fgcz-bfabric.uzh.ch/bfabric/">B-Fabric</a> system.
+Several pieces of functionality are available:</p>
+<ul>
+<li>Python API:<ul>
+<li>General client for all B-Fabric web service operations (CRUD) and configuration management.</li>
+<li>A relational API for low-boilerplate read access to the B-Fabric system.</li>
+</ul>
+</li>
+<li>Scripts: Several scripts we use more or less frequently to interact with the system.</li>
+<li>A REST API: A REST API to interact with the B-Fabric system. This allows us to interact with B-Fabric from R using <a href="https://github.com/cpanse/bfabricShiny">bfabricShiny</a>.</li>
+</ul>
 <p>Please see below for how to install bfabricPy.</p>
 <h2 id="installation">Installation</h2>
 <p>The package is not available on PyPI as of now, but can be installed directly from GitHub and a <code>stable</code> branch is available for your convenience.</p>
