@@ -9,10 +9,10 @@ from loguru import logger
 from pydantic import BaseModel
 
 from bfabric import Bfabric
-from bfabric.experimental.app_interface.app_runner._spec import AppSpec
-from bfabric.experimental.app_interface.input_preparation import prepare_folder
-from bfabric.experimental.app_interface.output_registration import register_outputs
-from bfabric.experimental.app_interface.workunit.definition import WorkunitDefinition
+from app_runner.app_runner._spec import AppSpec
+from app_runner.input_preparation import prepare_folder
+from app_runner.output_registration import register_outputs
+from bfabric.experimental.workunit_definition import WorkunitDefinition
 
 
 class Runner:

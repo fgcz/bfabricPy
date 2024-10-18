@@ -7,8 +7,8 @@ import cyclopts
 from bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
 from bfabric.entities import Workunit
-from bfabric.experimental.app_interface.output_registration._spec import OutputsSpec
-from bfabric.experimental.app_interface.output_registration.register import register_all
+from app_runner.output_registration._spec import OutputsSpec
+from app_runner.output_registration.register import register_all
 
 app_outputs = cyclopts.App("outputs", help="Register output files for an app.")
 

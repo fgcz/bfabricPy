@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "app_runner"
+description = "Application runner for B-Fabric apps"
+version = "0.1.0"
+license = { text = "GPL-3.0" }
+authors = [
+    {name = "Leonardo Schwarz", email = "leonardo.schwarz@fgcz.ethz.ch"},
+]
+requires-python = ">=3.12"
+dependencies = [
+    "bfabric @ git+https://github.com/fgcz/bfabricPy.git@main",
+]
+
+[project.scripts]
+"bfabric-app-runner"="app_runner.cli.__main__:app"

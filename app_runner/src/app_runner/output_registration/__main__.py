@@ -3,7 +3,7 @@ from pathlib import Path
 
 from bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
-from bfabric.experimental.app_interface.output_registration import register_outputs
+from app_runner.output_registration import register_outputs
 
 
 def main() -> None:

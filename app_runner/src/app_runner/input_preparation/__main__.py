@@ -5,7 +5,7 @@ from pathlib import Path
 
 from bfabric.bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
-from bfabric.experimental.app_interface.input_preparation.prepare import prepare_folder
+from app_runner.input_preparation.prepare import prepare_folder
 
 
 def main() -> None:

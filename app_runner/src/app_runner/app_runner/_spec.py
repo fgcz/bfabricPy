@@ -46,7 +46,7 @@ class CommandDocker(BaseModel):
     mounts: MountOptions = MountOptions()
 
     def to_shell(self, work_dir: Path | None = None) -> list[str]:
-        work_dir = (work_dir or Path(".")).expanduser().absolute()
+        work_dir = (work_dir or Path("")).expanduser().absolute()
         mounts = self.mounts.collect(work_dir=work_dir)
         mount_args = []
         for host, container, read_only in mounts:

@@ -7,8 +7,8 @@ from rich.console import Console
 from rich.table import Table, Column
 
 from bfabric.bfabric import Bfabric
-from bfabric.experimental.app_interface.input_preparation._spec import InputSpecType
-from bfabric.experimental.app_interface.input_preparation.integrity import check_integrity, IntegrityState
+from app_runner.input_preparation._spec import InputSpecType
+from app_runner.input_preparation.integrity import check_integrity, IntegrityState
 
 
 @dataclass

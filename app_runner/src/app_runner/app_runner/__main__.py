@@ -9,8 +9,8 @@ from pydantic import TypeAdapter
 
 from bfabric.bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
-from bfabric.experimental.app_interface.app_runner._spec import AppSpec
-from bfabric.experimental.app_interface.app_runner.runner import run_app
+from app_runner.app_runner._spec import AppSpec
+from app_runner.app_runner.runner import run_app
 
 
 def main() -> None:

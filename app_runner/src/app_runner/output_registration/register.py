@@ -6,15 +6,15 @@ from loguru import logger
 
 from bfabric import Bfabric
 from bfabric.entities import Storage, Workunit
-from bfabric.experimental.app_interface.output_registration._spec import (
+from app_runner.output_registration._spec import (
     CopyResourceSpec,
     UpdateExisting,
     OutputsSpec,
     SpecType,
     SaveDatasetSpec,
 )
-from bfabric.experimental.app_interface.util.checksums import md5sum
-from bfabric.experimental.app_interface.util.scp import scp
+from app_runner.util.checksums import md5sum
+from app_runner.util.scp import scp
 from bfabric_scripts.bfabric_save_csv2dataset import bfabric_save_csv2dataset
 
 

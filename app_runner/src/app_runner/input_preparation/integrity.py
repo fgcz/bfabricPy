@@ -5,8 +5,8 @@ from pathlib import Path
 
 from bfabric.bfabric import Bfabric
 from bfabric.entities import Resource, Dataset
-from bfabric.experimental.app_interface.input_preparation._spec import InputSpecType, ResourceSpec, DatasetSpec
-from bfabric.experimental.app_interface.util.checksums import md5sum
+from app_runner.input_preparation._spec import InputSpecType, ResourceSpec, DatasetSpec
+from app_runner.util.checksums import md5sum
 
 
 class IntegrityState(Enum):

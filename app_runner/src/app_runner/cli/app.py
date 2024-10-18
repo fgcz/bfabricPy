@@ -7,8 +7,8 @@ import yaml
 
 from bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
-from bfabric.experimental.app_interface.app_runner._spec import AppSpec
-from bfabric.experimental.app_interface.app_runner.runner import run_app, Runner
+from app_runner.app_runner._spec import AppSpec
+from app_runner.app_runner.runner import run_app, Runner
 from bfabric.experimental.entity_lookup_cache import EntityLookupCache
 
 app_app = cyclopts.App("app", help="Run an app.")

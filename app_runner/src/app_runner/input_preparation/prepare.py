@@ -6,16 +6,16 @@ from loguru import logger
 
 from bfabric.bfabric import Bfabric
 from bfabric.entities import Resource, Dataset
-from bfabric.experimental.app_interface.input_preparation._spec import (
+from app_runner.input_preparation._spec import (
     ResourceSpec,
     DatasetSpec,
     InputSpecType,
     InputsSpec,
 )
-from bfabric.experimental.app_interface.input_preparation.integrity import IntegrityState
-from bfabric.experimental.app_interface.input_preparation.list_inputs import list_input_states
-from bfabric.experimental.app_interface.util.checksums import md5sum
-from bfabric.experimental.app_interface.util.scp import scp
+from app_runner.input_preparation.integrity import IntegrityState
+from app_runner.input_preparation.list_inputs import list_input_states
+from app_runner.util.checksums import md5sum
+from app_runner.util.scp import scp
 
 
 class PrepareInputs:

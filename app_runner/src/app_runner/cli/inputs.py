@@ -6,10 +6,10 @@ import cyclopts
 
 from bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
-from bfabric.experimental.app_interface.input_preparation import prepare_folder
-from bfabric.experimental.app_interface.input_preparation._spec import InputsSpec
-from bfabric.experimental.app_interface.input_preparation.integrity import IntegrityState
-from bfabric.experimental.app_interface.input_preparation.list_inputs import (
+from app_runner.input_preparation import prepare_folder
+from app_runner.input_preparation._spec import InputsSpec
+from app_runner.input_preparation.integrity import IntegrityState
+from app_runner.input_preparation.list_inputs import (
     list_input_states,
     print_input_states,
     FileState,
@@ -72,7 +72,7 @@ def get_inputs_and_print(
     client = Bfabric.from_config()
     input_states = list_input_states(
         specs=InputsSpec.read_yaml(inputs_yaml),
-        target_folder=target_folder or Path("."),
+        target_folder=target_folder or Path(""),
         client=client,
         check_files=check,
     )

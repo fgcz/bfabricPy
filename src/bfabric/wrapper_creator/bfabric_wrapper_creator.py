@@ -10,7 +10,7 @@ from loguru import logger
 
 from bfabric import Bfabric
 from bfabric.entities import Workunit, ExternalJob, Application, Resource, Storage, Order, Project
-from bfabric.experimental.app_interface.workunit.definition import WorkunitDefinition
+from bfabric.experimental.workunit_definition import WorkunitDefinition
 
 
 class BfabricWrapperCreator:

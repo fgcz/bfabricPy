@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict, model_validator
 
 from bfabric import Bfabric
 from bfabric.entities import Resource, Dataset
-from bfabric.experimental.app_interface.workunit.definition import WorkunitDefinition
+from bfabric.experimental.workunit_definition import WorkunitDefinition
 
 
 class ConfigResourceFlow(BaseModel):
