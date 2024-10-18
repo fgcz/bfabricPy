@@ -11,6 +11,9 @@ jobs:
         run: |
           bash app_runner/deploy/build.sh build-output app_runner
           ls -l build-output
+      - name: Verify
+        run: |
+          build-output/app_runner/app_runner --help
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
