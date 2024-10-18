@@ -9,6 +9,7 @@ from bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
 from bfabric.experimental.app_interface.app_runner._spec import AppSpec
 from bfabric.experimental.app_interface.app_runner.runner import run_app, Runner
+from bfabric.experimental.entity_lookup_cache import EntityLookupCache
 
 app_app = cyclopts.App("app", help="Run an app.")
 
@@ -27,14 +28,15 @@ def run(
     setup_script_logging()
     client = Bfabric.from_config()
     app_spec_parsed = AppSpec.model_validate(yaml.safe_load(app_spec.read_text()))
-    run_app(
-        app_spec=app_spec_parsed,
-        workunit_ref=workunit_ref,
-        work_dir=work_dir,
-        client=client,
-        ssh_user=ssh_user,
-        read_only=read_only,
-    )
+    with EntityLookupCache.enable():
+        run_app(
+            app_spec=app_spec_parsed,
+            workunit_ref=workunit_ref,
+            work_dir=work_dir,
+            client=client,
+            ssh_user=ssh_user,
+            read_only=read_only,
+        )
 
 
 @app_app.command()

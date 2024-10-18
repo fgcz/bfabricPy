@@ -9,6 +9,7 @@ from bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
 from bfabric.experimental.app_interface.app_runner._spec import AppSpec
 from bfabric.experimental.app_interface.app_runner.runner import run_app, Runner
+from bfabric.experimental.entity_lookup_cache import EntityLookupCache
 
 app_chunk = cyclopts.App("chunk", help="Run an app on a chunk. You can create the chunks with `app dispatch`.")
 
@@ -58,8 +59,9 @@ def process(app_spec: Path, chunk_dir: Path) -> None:
     chunk_dir = chunk_dir.resolve()
     app_spec_parsed = AppSpec.model_validate(yaml.safe_load(app_spec.read_text()))
 
-    runner = Runner(spec=app_spec_parsed, client=client, ssh_user=None)
-    runner.run_process(chunk_dir=chunk_dir)
+    with EntityLookupCache.enable():
+        runner = Runner(spec=app_spec_parsed, client=client, ssh_user=None)
+        runner.run_process(chunk_dir=chunk_dir)
 
 
 @app_chunk.command()
