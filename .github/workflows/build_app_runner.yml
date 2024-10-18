@@ -1,0 +1,17 @@
+name: Build App Runner
+on:
+  workflow_dispatch:
+jobs:
+  build_app_runner:
+    name: Build App Runner
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: |
+          bash app_runner/deploy/build.sh build-output app_runner
+          ls -l build-output
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          path: build-output
