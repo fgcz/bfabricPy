@@ -1,11 +1,8 @@
 from __future__ import annotations
 
-import tempfile
 from pathlib import Path
 
 from loguru import logger
-from rich.console import Console
-from rich.table import Table, Column
 
 from bfabric.bfabric import Bfabric
 from bfabric.entities import Resource, Dataset
@@ -15,6 +12,8 @@ from bfabric.experimental.app_interface.input_preparation._spec import (
     InputSpecType,
     InputsSpec,
 )
+from bfabric.experimental.app_interface.input_preparation.integrity import IntegrityState
+from bfabric.experimental.app_interface.input_preparation.list_inputs import list_input_states
 from bfabric.experimental.app_interface.util.checksums import md5sum
 from bfabric.experimental.app_interface.util.scp import scp
 
@@ -26,24 +25,30 @@ class PrepareInputs:
         self._ssh_user = ssh_user
 
     def prepare_all(self, specs: list[InputSpecType]) -> None:
-        for spec in specs:
-            logger.debug(f"Preparing {spec}")
-            if isinstance(spec, ResourceSpec):
+        # TODO ensure dataset is cached
+        input_states = list_input_states(
+            specs=specs, target_folder=self._working_dir, client=self._client, check_files=True
+        )
+        for spec, input_state in zip(specs, input_states):
+            if input_state.integrity == IntegrityState.Correct:
+                logger.debug(f"Skipping {spec} as it already exists and passed integrity check")
+            elif isinstance(spec, ResourceSpec):
                 self.prepare_resource(spec)
             elif isinstance(spec, DatasetSpec):
                 self.prepare_dataset(spec)
             else:
-                raise ValueError(f"Unknown spec type: {type(spec)}")
+                raise ValueError(f"Unsupported spec type: {type(spec)}")
 
     def clean_all(self, specs: list[InputSpecType]) -> None:
-        for spec in specs:
-            logger.debug(f"Cleaning {spec}")
-            if isinstance(spec, ResourceSpec):
-                self.clean_resource(spec)
-            elif isinstance(spec, DatasetSpec):
-                self.clean_dataset(spec)
+        input_states = list_input_states(
+            specs=specs, target_folder=self._working_dir, client=self._client, check_files=False
+        )
+        for spec, input_state in zip(specs, input_states):
+            if not input_state.exists:
+                logger.debug(f"Skipping {spec} as it does not exist")
             else:
-                raise ValueError(f"Unknown spec type: {type(spec)}")
+                logger.info(f"rm {input_state.path}")
+                input_state.path.unlink()
 
     def prepare_resource(self, spec: ResourceSpec) -> None:
         resource = Resource.find(id=spec.id, client=self._client)
@@ -55,32 +60,22 @@ class PrepareInputs:
         result_name = spec.filename if spec.filename else resource["name"]
         result_path = self._working_dir / result_name
 
-        # copy if necessary
-        if result_path.exists() and md5sum(result_path) == resource["filechecksum"]:
-            logger.debug(f"Skipping {resource['name']} as it already exists and has the correct checksum")
-        else:
-            scp(scp_uri, str(result_path), user=self._ssh_user)
+        # perform the copy
+        scp(scp_uri, str(result_path), user=self._ssh_user)
 
-            # verify checksum
-            if spec.check_checksum:
-                actual_checksum = md5sum(result_path)
-                logger.debug(f"Checksum: expected {resource['filechecksum']}, got {actual_checksum}")
-                if actual_checksum != resource["filechecksum"]:
-                    raise ValueError(f"Checksum mismatch: expected {resource['filechecksum']}, got {actual_checksum}")
+        # verify checksum
+        if spec.check_checksum:
+            actual_checksum = md5sum(result_path)
+            logger.debug(f"Checksum: expected {resource['filechecksum']}, got {actual_checksum}")
+            if actual_checksum != resource["filechecksum"]:
+                raise ValueError(f"Checksum mismatch: expected {resource['filechecksum']}, got {actual_checksum}")
 
     def prepare_dataset(self, spec: DatasetSpec) -> None:
         dataset = Dataset.find(id=spec.id, client=self._client)
+        # TODO use the new functionality Dataset.get_csv (or even go further in the refactoring)
         target_path = self._working_dir / spec.filename
         target_path.parent.mkdir(exist_ok=True, parents=True)
-        with tempfile.NamedTemporaryFile() as tmp_file:
-            dataset.write_csv(Path(tmp_file.name), separator=spec.separator)
-            tmp_file.flush()
-            tmp_file.seek(0)
-            if target_path.exists() and target_path.read_text() == tmp_file.read().decode():
-                logger.debug(f"Skipping {spec.filename} as it already exists and has the correct content")
-            else:
-                tmp_file.seek(0)
-                target_path.write_text(tmp_file.read().decode())
+        dataset.write_csv(path=target_path, separator=spec.separator)
 
     def clean_resource(self, spec: ResourceSpec) -> None:
         filename = spec.resolve_filename(client=self._client)
@@ -119,27 +114,3 @@ def prepare_folder(
         prepare.clean_all(specs=specs_list)
     else:
         raise ValueError(f"Unknown action: {action}")
-
-
-def print_input_files_list(
-    inputs_yaml: Path,
-    target_folder: Path,
-    client: Bfabric,
-) -> None:
-    """Prints a list of inputs and whether they exist locally."""
-    specs_list = InputsSpec.read_yaml(inputs_yaml)
-    table = Table(
-        Column("File"),
-        Column("Input Type"),
-        Column("Exists Locally"),
-    )
-    for spec in specs_list:
-        filename = spec.resolve_filename(client=client)
-        path = target_folder / filename if target_folder else Path(filename)
-        table.add_row(
-            str(path),
-            "Resource" if isinstance(spec, ResourceSpec) else "Dataset",
-            "Yes" if path.exists() else "No",
-        )
-    console = Console()
-    console.print(table)

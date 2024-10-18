@@ -46,28 +46,6 @@ def run_all(
 
 
 @app_chunk.command()
-def inputs(
-    app_spec: Path,
-    chunk_dir: Path,
-    *,
-    ssh_user: str | None = None,
-) -> None:
-    """Prepare the input files for a chunk.
-
-    :param app_spec: Path to the app spec file.
-    :param chunk_dir: Path to the chunk directory.
-    :param ssh_user: SSH user to use for downloading the input files, instead of the current user.
-    """
-    setup_script_logging()
-    client = Bfabric.from_config()
-    chunk_dir = chunk_dir.resolve()
-    app_spec_parsed = AppSpec.model_validate(yaml.safe_load(app_spec.read_text()))
-
-    runner = Runner(spec=app_spec_parsed, client=client, ssh_user=ssh_user)
-    runner.run_prepare_input(chunk_dir=chunk_dir)
-
-
-@app_chunk.command()
 def process(app_spec: Path, chunk_dir: Path) -> None:
     """Process a chunk.
 
