@@ -55,5 +55,6 @@ def dispatch(
     work_dir = work_dir.resolve()
     # TODO set workunit to processing? (i.e. add read-only option here)
     client = Bfabric.from_config()
-    runner = Runner(spec=AppSpec.model_validate(yaml.safe_load(app_spec.read_text())), client=client, ssh_user=None)
-    runner.run_dispatch(workunit_ref=workunit_ref, work_dir=work_dir)
+    with EntityLookupCache.enable():
+        runner = Runner(spec=AppSpec.model_validate(yaml.safe_load(app_spec.read_text())), client=client, ssh_user=None)
+        runner.run_dispatch(workunit_ref=workunit_ref, work_dir=work_dir)
