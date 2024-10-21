@@ -13,9 +13,9 @@ Versioning currently follows `X.Y.Z` where
 ### Added
 
 - Relationship: `ExternalJob.executable`
-- (experimental) Provide a script `bfabric-app-runner` to allow testing with pipx.
 - (experimental) EntityLookupCache that allows to cache entity lookups in a script to avoid redundant requests.
 - (experimental) app_interface cli "inputs check" to validate the local files.
+- (experimental) Create a new package `app-runner` to decouple this a bit more.
 
 ### Fixed
 
