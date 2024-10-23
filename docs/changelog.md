@@ -10,17 +10,17 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+From this release onwards, the experimental app runner is not part of the main bfabric package and
+instead a separate Python package with its individual changelog.
+
 ### Added
 
 - Relationship: `ExternalJob.executable`
 - (experimental) EntityLookupCache that allows to cache entity lookups in a script to avoid redundant requests.
-- (experimental) app_interface cli "inputs check" to validate the local files.
-- (experimental) Create a new package `app-runner` to decouple this a bit more.
 
 ### Fixed
 
 - `Entity.find_all` returns no values when an empty list is passed as an argument.
-- (experimental) app_interface cli "inputs list" does not fail anymore if resources have no "name" field value.
 
 ### Changed
 
