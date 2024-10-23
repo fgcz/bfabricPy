@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "app_runner"
 description = "Application runner for B-Fabric apps"
-version = "0.1.0"
+version = "0.0.1"
 license = { text = "GPL-3.0" }
 authors = [
     {name = "Leonardo Schwarz", email = "leonardo.schwarz@fgcz.ethz.ch"},
