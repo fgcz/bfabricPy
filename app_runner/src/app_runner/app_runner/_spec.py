@@ -42,6 +42,7 @@ class CommandDocker(BaseModel):
     type: Literal["docker"] = "docker"
     image: str
     command: str
+    entrypoint: str | None = None
     engine: str = "docker"
     mounts: MountOptions = MountOptions()
 
@@ -54,6 +55,7 @@ class CommandDocker(BaseModel):
             target = shlex.quote(str(container))
             mount_args.append("--mount")
             mount_args.append(f"type=bind,source={source},target={target}" + (",readonly" if read_only else ""))
+        entrypoint_arg = ["--entrypoint", self.entrypoint] if self.entrypoint else []
         return [
             self.engine,
             "run",
@@ -61,6 +63,7 @@ class CommandDocker(BaseModel):
             f"{os.getuid()}:{os.getgid()}",
             "--rm",
             *mount_args,
+            *entrypoint_arg,
             self.image,
             *shlex.split(self.command),
         ]
