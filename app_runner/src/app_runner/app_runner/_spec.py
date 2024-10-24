@@ -44,6 +44,7 @@ class CommandDocker(BaseModel):
     command: str
     entrypoint: str | None = None
     engine: str = "docker"
+    env: dict[str, str] = {}
     mounts: MountOptions = MountOptions()
 
     def to_shell(self, work_dir: Path | None = None) -> list[str]:
@@ -56,6 +57,11 @@ class CommandDocker(BaseModel):
             mount_args.append("--mount")
             mount_args.append(f"type=bind,source={source},target={target}" + (",readonly" if read_only else ""))
         entrypoint_arg = ["--entrypoint", self.entrypoint] if self.entrypoint else []
+        env_args = []
+        for key, value in self.env.items():
+            env_args.append("--env")
+            env_args.append(f"{key}={shlex.quote(value)}")
+
         return [
             self.engine,
             "run",
@@ -64,6 +70,7 @@ class CommandDocker(BaseModel):
             "--rm",
             *mount_args,
             *entrypoint_arg,
+            *env_args,
             self.image,
             *shlex.split(self.command),
         ]
