@@ -1,3 +1,10 @@
+```{toctree}
+:glob:
+input_specification
+changelog
+*
+```
+
 ## Install App Runner
 
 ```bash
