@@ -6,7 +6,7 @@ from loguru import logger
 
 from bfabric.bfabric import Bfabric
 from bfabric.entities import Resource, Dataset
-from app_runner.input_preparation._spec import (
+from app_runner.input_preparation.spec import (
     ResourceSpec,
     DatasetSpec,
     InputSpecType,

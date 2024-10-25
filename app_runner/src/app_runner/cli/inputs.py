@@ -7,7 +7,7 @@ import cyclopts
 from bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
 from app_runner.input_preparation import prepare_folder
-from app_runner.input_preparation._spec import InputsSpec
+from app_runner.input_preparation.spec import InputsSpec
 from app_runner.input_preparation.integrity import IntegrityState
 from app_runner.input_preparation.list_inputs import (
     list_input_states,

@@ -7,7 +7,7 @@ from rich.console import Console
 from rich.table import Table, Column
 
 from bfabric.bfabric import Bfabric
-from app_runner.input_preparation._spec import InputSpecType
+from app_runner.input_preparation.spec import InputSpecType
 from app_runner.input_preparation.integrity import check_integrity, IntegrityState
 
 

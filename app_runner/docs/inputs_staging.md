@@ -1,17 +1,21 @@
 The inputs module provides a specification schema to define the inputs required by an app.
 You can also use this functionality interactively while prototyping.
-The file is usually called `inputs.yml` and lists the different inputs, with information and how to retrieve them and the filename to save them as.
+The file is usually called `inputs.yml` and lists the different inputs, with information and how to retrieve them and
+the filename to save them as.
 
 ## Input specification
 
 ### General structure
 
-Generally the structure is a yaml file containing a key `inputs` which is a list of dictionaries, each representing an input file.
+Generally the structure is a yaml file containing a key `inputs` which is a list of dictionaries, each representing an
+input file.
 Each input has a `type` key which identifies the input type.
 This will allow us to extend this logic to different sources in the future.
 
-In general the only other input key that will be available for all types is `filename`, which is the name of the file to save the input as.
-Fields like `id` might not be relevant for all types in the future, and depending on the type more specific options might exist.
+In general the only other input key that will be available for all types is `filename`, which is the name of the file to
+save the input as.
+Fields like `id` might not be relevant for all types in the future, and depending on the type more specific options
+might exist.
 
 An example file could look like this:
 
@@ -80,9 +84,9 @@ bfabric-app-runner inputs list --check inputs.yml .
 
 ## Reference
 
-::: app_runner.input_preparation.\_spec.DatasetSpec
-options:
-heading_level: 3
-::: app_runner.input_preparation.\_spec.ResourceSpec
-options:
-heading_level: 3
+```{eval-rst}
+.. automodule:: app_runner.input_preparation.spec
+    :members:
+    :undoc-members:
+    :show-inheritance:
+```

@@ -8,7 +8,7 @@ import rich.pretty
 import yaml
 
 from app_runner.app_runner._spec import AppSpec
-from app_runner.input_preparation._spec import InputsSpec
+from app_runner.input_preparation.spec import InputsSpec
 from app_runner.output_registration._spec import OutputsSpec
 
 app_validate = cyclopts.App("validate", help="Validate yaml files.")

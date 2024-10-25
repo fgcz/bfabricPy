@@ -20,8 +20,8 @@ dependencies = [
 
 [project.optional-dependencies]
 doc = [
-    "mkdocs",
-    "mkdocs-material",
-    "mkdocstrings[python]",
-    "mkdocs-awesome-pages-plugin",
+    "sphinx",
+    "myst-parser",
+    "autodoc_pydantic",
+    "sphinx-book-theme",
 ]

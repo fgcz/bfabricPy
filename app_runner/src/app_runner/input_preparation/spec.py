@@ -20,8 +20,13 @@ class ResourceSpec(BaseModel):
     type: Literal["bfabric_resource"] = "bfabric_resource"
 
     id: int
+    """B-Fabric resource ID"""
+
     filename: RelativeFilePath | None = None
+    """Target filename to save to"""
+
     check_checksum: bool = True
+    """Whether to check the checksum of the file, after downloading"""
 
     def resolve_filename(self, client: Bfabric) -> str:
         if self.filename:
@@ -36,8 +41,13 @@ class DatasetSpec(BaseModel):
     type: Literal["bfabric_dataset"] = "bfabric_dataset"
 
     id: int
+    """B-Fabric dataset ID"""
+
     filename: RelativeFilePath
+    """Target filename to save to"""
+
     separator: Literal[",", "\t"] = ","
+    """Separator for the CSV file"""
 
     # has_header: bool
     # invalid_characters: str = ""
