@@ -24,4 +24,5 @@ doc = [
     "myst-parser",
     "autodoc_pydantic",
     "sphinx-book-theme",
+    "sphinx-autobuild",
 ]
