@@ -17,3 +17,11 @@ dependencies = [
 
 [project.scripts]
 "bfabric-app-runner"="app_runner.cli.__main__:app"
+
+[project.optional-dependencies]
+doc = [
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocstrings[python]",
+    "mkdocs-awesome-pages-plugin",
+]
