@@ -50,6 +50,8 @@ InputsSpec(
 )
 ```
 
+Here you can also see all the extra parameters which were implicitly set.
+
 ### Prepare files
 
 The prepare command downloads your files and requires two arguments.
@@ -75,3 +77,12 @@ If you also want to check whether the files are up-to-date, you can pass the `--
 ```bash
 bfabric-app-runner inputs list --check inputs.yml .
 ```
+
+## Reference
+
+::: app_runner.input_preparation.\_spec.DatasetSpec
+options:
+heading_level: 3
+::: app_runner.input_preparation.\_spec.ResourceSpec
+options:
+heading_level: 3
