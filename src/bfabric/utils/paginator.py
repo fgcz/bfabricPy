@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Generator
 
 # Single page query limit for BFabric API (as of time of writing, adapt if it changes)
 BFABRIC_QUERY_LIMIT = 100
 
 
-def page_iter(objs: list, page_size: int = BFABRIC_QUERY_LIMIT) -> list:
+def page_iter(objs: list, page_size: int = BFABRIC_QUERY_LIMIT) -> Generator[list, None, None]:
     """
     :param objs:       A list of objects to provide to bfabric as part of a query
     :param page_size:  Number of objects per page

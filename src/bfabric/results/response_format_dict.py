@@ -33,14 +33,14 @@ def _recursive_drop_empty(response_elem: list | dict) -> None:
             del response_elem[k]
 
 
-def drop_empty_elements(response: list | dict, inplace: bool = True) -> list | dict | None:
+def drop_empty_elements(response: list | dict, inplace: bool = True) -> list | dict:
     """
     Iterates over all nested lists, dictionaries and basic values. Whenever a dictionary value is encountered, that is
       either an empty list or None, the key-value pair gets deleted from the dictionary
     :param response:  A parsed query response, consisting of nested lists, dicts and basic types (int, str)
     :param inplace:   If true, will return nothing and edit the argument. Otherwise, will preserve the argument
         and return an edited copy
-    :return: Nothing, or an edited response, depending on `inplace`
+    :return: An edited response, depending on `inplace`
     """
     response_filtered = deepcopy(response) if not inplace else response
     _recursive_drop_empty(response_filtered)
