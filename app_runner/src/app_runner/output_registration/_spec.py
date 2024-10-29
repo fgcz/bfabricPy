@@ -33,7 +33,7 @@ class CopyResourceSpec(BaseModel):
 
 class SaveDatasetSpec(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    type: Literal["bfabric_save_dataset"] = "bfabric_dataset"
+    type: Literal["bfabric_dataset"] = "bfabric_dataset"
 
     local_path: Path
     separator: str
