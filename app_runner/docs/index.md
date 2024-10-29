@@ -1,6 +1,8 @@
 ```{toctree}
 :glob:
-input_specification
+specs/input_specification
+specs/output_specification
+specs/app_specification
 changelog
 *
 ```

@@ -1,9 +1,9 @@
+## Input specification
+
 The inputs module provides a specification schema to define the inputs required by an app.
 You can also use this functionality interactively while prototyping.
 The file is usually called `inputs.yml` and lists the different inputs, with information and how to retrieve them and
 the filename to save them as.
-
-## Input specification
 
 ### General structure
 
