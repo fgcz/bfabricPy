@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-from typing import TypeVar, Generic
+from typing import TypeVar
 
+from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.relationship import Relationship
 
-E = TypeVar("E")
+E = TypeVar("E", bound=Entity)
 
 
-class HasOne(Relationship, Generic[E]):
+class HasOne(Relationship[E]):
     def __init__(self, entity: str, *, bfabric_field: str, optional: bool = False) -> None:
         super().__init__(entity)
         self._bfabric_field = bfabric_field

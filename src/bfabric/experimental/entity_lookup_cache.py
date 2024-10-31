@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import defaultdict, OrderedDict
 from collections.abc import Hashable
 from contextlib import contextmanager
-from typing import Any, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING, TypeVar
 
 from loguru import logger
 
@@ -38,6 +38,9 @@ class Cache:
         return key in self._entries
 
 
+E = TypeVar("E", bound=Entity)
+
+
 class EntityLookupCache:
     """Implements the logic for caching entity lookup.
 
@@ -53,7 +56,7 @@ class EntityLookupCache:
         """Returns whether the cache contains an entity with the given type and ID."""
         return entity_id in self._caches[entity_type]
 
-    def get(self, entity_type: type[Entity], entity_id: int) -> Entity | None:
+    def get(self, entity_type: type[E], entity_id: int) -> E | None:
         """Returns the entity with the given type and ID, if it exists in the cache."""
         if self._caches[entity_type].get(entity_id):
             logger.debug(f"Cache hit for entity {entity_type} with ID {entity_id}")

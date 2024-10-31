@@ -12,7 +12,7 @@ from bfabric.entities.core.relationship import Relationship
 E = TypeVar("E", bound=Entity)
 
 
-class HasMany(Relationship, Generic[E]):
+class HasMany(Relationship[E]):
     def __init__(
         self,
         entity: str,
@@ -37,16 +37,18 @@ class HasMany(Relationship, Generic[E]):
         return getattr(obj, cache_attr)
 
     def _get_ids(self, obj) -> list[int]:
-        if (self._bfabric_field is None) == (self._ids_property is None):
-            raise ValueError("Exactly one of bfabric_field and ids_property must be set")
         if self._bfabric_field is not None:
+            if self._ids_property is not None:
+                raise ValueError("Exactly one of bfabric_field and ids_property must be set, but both are set")
             if self._optional and self._bfabric_field not in obj.data_dict:
                 return []
             return [x["id"] for x in obj.data_dict[self._bfabric_field]]
-        else:
+        elif self._ids_property is not None:
             if self._optional and not hasattr(obj, self._ids_property):
                 return []
             return getattr(obj, self._ids_property)
+        else:
+            raise ValueError("Exactly one of bfabric_field and ids_property must be set, but neither is set")
 
 
 class _HasManyProxy(Generic[E]):
@@ -54,7 +56,7 @@ class _HasManyProxy(Generic[E]):
         self._entity_type = entity_type
         self._ids = ids
         self._client = client
-        self._items = {}
+        self._items: dict[int, E] = {}
 
     @property
     def ids(self) -> list[int]:
