@@ -25,6 +25,7 @@ instead a separate Python package with its individual changelog.
 ### Changed
 
 - Except for macOS x86_64 (which we assume is Rosetta emulation nowadays), we use the faster `polars` instead of `polars-lts-cpu`.
+- `BfabricRequestError` is now a `RuntimeError` subclass.
 
 ### Removed
 
