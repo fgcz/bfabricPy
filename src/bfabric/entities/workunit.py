@@ -11,8 +11,13 @@ from bfabric.entities.core.has_many import HasMany
 from bfabric.entities.core.has_one import HasOne
 
 if TYPE_CHECKING:
-    from bfabric.entities.project import Project
+    from bfabric.entities.application import Application
+    from bfabric.entities.dataset import Dataset
+    from bfabric.entities.externaljob import ExternalJob
     from bfabric.entities.order import Order
+    from bfabric.entities.parameter import Parameter
+    from bfabric.entities.project import Project
+    from bfabric.entities.resource import Resource
 
 
 class Workunit(Entity):
@@ -25,12 +30,12 @@ class Workunit(Entity):
     def __init__(self, data_dict: dict[str, Any], client: Bfabric | None = None) -> None:
         super().__init__(data_dict=data_dict, client=client)
 
-    application = HasOne(entity="Application", bfabric_field="application")
-    parameters = HasMany(entity="Parameter", bfabric_field="parameter")
-    resources = HasMany(entity="Resource", bfabric_field="resource")
-    input_resources = HasMany(entity="Resource", bfabric_field="inputresource", optional=True)
-    input_dataset = HasOne(entity="Dataset", bfabric_field="inputdataset", optional=True)
-    external_jobs = HasMany(entity="ExternalJob", bfabric_field="externaljob", optional=True)
+    application: HasOne[Application] = HasOne(entity="Application", bfabric_field="application")
+    parameters: HasMany[Parameter] = HasMany(entity="Parameter", bfabric_field="parameter")
+    resources: HasMany[Resource] = HasMany(entity="Resource", bfabric_field="resource")
+    input_resources: HasMany[Resource] = HasMany(entity="Resource", bfabric_field="inputresource", optional=True)
+    input_dataset: HasOne[Dataset] = HasOne(entity="Dataset", bfabric_field="inputdataset", optional=True)
+    external_jobs: HasMany[ExternalJob] = HasMany(entity="ExternalJob", bfabric_field="externaljob", optional=True)
 
     @cached_property
     def parameter_values(self) -> dict[str, Any]:
@@ -41,16 +46,29 @@ class Workunit(Entity):
         from bfabric.entities.project import Project
         from bfabric.entities.order import Order
 
+        if self._client is None:
+            raise ValueError("Cannot determine the container without a client.")
+
+        result: Project | Order | None
         if self.data_dict["container"]["classname"] == Project.ENDPOINT:
-            return Project.find(id=self.data_dict["container"]["id"], client=self._client)
+            result = Project.find(id=self.data_dict["container"]["id"], client=self._client)
         elif self.data_dict["container"]["classname"] == Order.ENDPOINT:
-            return Order.find(id=self.data_dict["container"]["id"], client=self._client)
+            result = Order.find(id=self.data_dict["container"]["id"], client=self._client)
         else:
             raise ValueError(f"Unknown container classname: {self.data_dict['container']['classname']}")
+
+        if result is None:
+            raise ValueError(f"Could not find container with ID {self.data_dict['container']['id']}")
+
+        return result
 
     @cached_property
     def store_output_folder(self) -> Path:
         """Relative path in the storage for the workunit output."""
+        if self.application is None:
+            raise ValueError("Cannot determine the storage path without an application.")
+        if self.application.storage is None:
+            raise ValueError("Cannot determine the storage path without an application storage configuration.")
         date = dateutil.parser.parse(self.data_dict["created"])
         return Path(
             f"{self.application.storage['projectfolderprefix']}{self.container.id}",

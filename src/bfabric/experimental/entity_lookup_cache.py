@@ -71,7 +71,7 @@ class EntityLookupCache:
             if self.contains(entity_type, entity_id)
         }
 
-    def put(self, entity_type: type[Entity], entity_id: int, entity: Entity) -> None:
+    def put(self, entity_type: type[Entity], entity_id: int, entity: Entity | None) -> None:
         """Puts an entity with the given type and ID into the cache."""
         logger.debug(f"Caching entity {entity_type} with ID {entity_id}")
         self._caches[entity_type].put(entity_id, entity)

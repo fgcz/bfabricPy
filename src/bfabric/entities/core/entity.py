@@ -27,6 +27,9 @@ class Entity:
 
     @property
     def web_url(self) -> str:
+        if self._client is None:
+            msg = "Cannot generate a web URL without a client's config information."
+            raise ValueError(msg)
         return f"{self._client.config.base_url}/{self.ENDPOINT}/show.html?id={self.id}"
 
     @property

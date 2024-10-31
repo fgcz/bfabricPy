@@ -1,16 +1,18 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
+from typing import Generic, TypeVar
 
 from polars import DataFrame
 
 from bfabric import Bfabric
 from bfabric.entities.core.entity import Entity
-
 from bfabric.entities.core.relationship import Relationship
 
+E = TypeVar("E", bound=Entity)
 
-class HasMany(Relationship):
+
+class HasMany(Relationship, Generic[E]):
     def __init__(
         self,
         entity: str,
@@ -47,8 +49,8 @@ class HasMany(Relationship):
             return getattr(obj, self._ids_property)
 
 
-class _HasManyProxy:
-    def __init__(self, entity_type: type[Entity], ids: list[int], client: Bfabric) -> None:
+class _HasManyProxy(Generic[E]):
+    def __init__(self, entity_type: type[E], ids: list[int], client: Bfabric) -> None:
         self._entity_type = entity_type
         self._ids = ids
         self._client = client
@@ -59,7 +61,7 @@ class _HasManyProxy:
         return self._ids
 
     @property
-    def list(self) -> list[Entity]:
+    def list(self) -> list[E]:
         self._load_all()
         return sorted(self._items.values(), key=lambda x: self._items.keys())
 
@@ -68,11 +70,11 @@ class _HasManyProxy:
         self._load_all()
         return DataFrame([x.data_dict for x in self._items.values()])
 
-    def __getitem__(self, key: int) -> Entity:
+    def __getitem__(self, key: int) -> E:
         self._load_all()
         return self._items[key]
 
-    def __iter__(self) -> Iterable[Entity]:
+    def __iter__(self) -> Iterable[E]:
         self._load_all()
         return iter(sorted(self._items.values(), key=lambda x: self._items.keys()))
 
