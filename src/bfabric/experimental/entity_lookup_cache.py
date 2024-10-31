@@ -3,14 +3,15 @@ from __future__ import annotations
 from collections import defaultdict, OrderedDict
 from collections.abc import Hashable
 from contextlib import contextmanager
-from typing import Any, TYPE_CHECKING, TypeVar, Generic
+from typing import TypeVar, Generic, TYPE_CHECKING
 
 from loguru import logger
 
 if TYPE_CHECKING:
-    from bfabric.entities.core.entity import Entity
+    from bfabric.entities.core.entity import Entity  # type: ignore
 
 T = TypeVar("T")
+E = TypeVar("E", bound="Entity")
 
 
 class Cache(Generic[T]):
@@ -38,9 +39,6 @@ class Cache(Generic[T]):
     def __contains__(self, key: Hashable) -> bool:
         """Returns whether the cache contains a key."""
         return key in self._entries
-
-
-E = TypeVar("E", bound=Entity)
 
 
 class EntityLookupCache:

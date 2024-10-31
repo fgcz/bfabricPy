@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import TypeVar
 
-from bfabric.entities.core.entity import Entity
+from bfabric.entities.core.entity import Entity  # type: ignore
 from bfabric.entities.core.relationship import Relationship
 
-E = TypeVar("E", bound=Entity)
+E = TypeVar("E", bound="Entity")
 
 
 class HasOne(Relationship[E]):

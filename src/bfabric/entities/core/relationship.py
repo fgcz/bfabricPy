@@ -4,9 +4,9 @@ import importlib
 from functools import cached_property
 from typing import TypeVar, Generic
 
-from bfabric.entities.core.entity import Entity
+from bfabric.entities.core.entity import Entity  # type: ignore
 
-E = TypeVar("E", bound=Entity)
+E = TypeVar("E", bound="Entity")
 
 
 class Relationship(Generic[E]):
