@@ -32,6 +32,10 @@ class WorkunitExecutionDefinition(BaseModel):
     @classmethod
     def from_workunit(cls, workunit: Workunit) -> WorkunitExecutionDefinition:
         """Loads the workunit execution definition from the provided B-Fabric workunit."""
+        if workunit.application is None:
+            raise ValueError("Workunit does not have an application")
+        if workunit.application.executable is None:
+            raise ValueError("Workunit application does not have an executable")
         data = {
             "raw_parameters": workunit.parameter_values,
             "executable": workunit.application.executable["program"],
@@ -86,8 +90,10 @@ class WorkunitDefinition(BaseModel):
         if isinstance(workunit, Path):
             result = cls.from_yaml(workunit)
         else:
-            workunit = Workunit.find(id=workunit, client=client)
-            result = cls.from_workunit(workunit)
+            workunit_instance = Workunit.find(id=workunit, client=client)
+            if workunit_instance is None:
+                raise ValueError(f"Workunit with ID {workunit} does not exist")
+            result = cls.from_workunit(workunit=workunit_instance)
         if cache_file is not None:
             cache_file.parent.mkdir(exist_ok=True, parents=True)
             result.to_yaml(cache_file)

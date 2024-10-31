@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from collections.abc import Iterable
 from typing import Generic, TypeVar
+from collections.abc import Iterator
 
 from polars import DataFrame
 
@@ -76,7 +76,7 @@ class _HasManyProxy(Generic[E]):
         self._load_all()
         return self._items[key]
 
-    def __iter__(self) -> Iterable[E]:
+    def __iter__(self) -> Iterator[E]:
         self._load_all()
         return iter(sorted(self._items.values(), key=lambda x: self._items.keys()))
 

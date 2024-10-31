@@ -3,22 +3,24 @@ from __future__ import annotations
 from collections import defaultdict, OrderedDict
 from collections.abc import Hashable
 from contextlib import contextmanager
-from typing import Any, TYPE_CHECKING, TypeVar
+from typing import Any, TYPE_CHECKING, TypeVar, Generic
 
 from loguru import logger
 
 if TYPE_CHECKING:
     from bfabric.entities.core.entity import Entity
 
+T = TypeVar("T")
 
-class Cache:
+
+class Cache(Generic[T]):
     """A FIFO cache with a maximum size, implemented by an OrderedDict."""
 
     def __init__(self, max_size: int) -> None:
-        self._entries = OrderedDict()
+        self._entries: OrderedDict[Hashable, T] = OrderedDict()
         self._max_size = max_size
 
-    def get(self, key: Hashable) -> Any | None:
+    def get(self, key: Hashable) -> T | None:
         """Returns the value with the given key, if it exists, and marks it as used.
 
         If the key does not exist, returns None.
@@ -27,7 +29,7 @@ class Cache:
             self._entries.move_to_end(key)
             return self._entries[key]
 
-    def put(self, key: Hashable, value: Any) -> None:
+    def put(self, key: Hashable, value: T) -> None:
         """Puts a key-value pair into the cache, marking it as used."""
         if self._max_size != 0 and len(self._entries) >= self._max_size:
             self._entries.popitem(last=False)
@@ -50,7 +52,7 @@ class EntityLookupCache:
     __class_instance = None
 
     def __init__(self, max_size: int = 0) -> None:
-        self._caches = defaultdict(lambda: Cache(max_size=max_size))
+        self._caches: dict[type[Entity], Cache[Entity | None]] = defaultdict(lambda: Cache(max_size=max_size))
 
     def contains(self, entity_type: type[Entity], entity_id: int) -> bool:
         """Returns whether the cache contains an entity with the given type and ID."""
@@ -63,16 +65,14 @@ class EntityLookupCache:
             return self._caches[entity_type].get(entity_id)
         else:
             logger.debug(f"Cache miss for entity {entity_type} with ID {entity_id}")
+            return None
 
     def get_all(self, entity_type: type[Entity], entity_ids: list[int]) -> dict[int, Entity]:
         """Returns a dictionary of entities with the given type and IDs,
         containing only the entities that exist in the cache.
         """
-        return {
-            entity_id: self.get(entity_type, entity_id)
-            for entity_id in entity_ids
-            if self.contains(entity_type, entity_id)
-        }
+        results = {entity_id: self.get(entity_type, entity_id) for entity_id in entity_ids}
+        return {entity_id: result for entity_id, result in results.items() if result is not None}
 
     def put(self, entity_type: type[Entity], entity_id: int, entity: Entity | None) -> None:
         """Puts an entity with the given type and ID into the cache."""
