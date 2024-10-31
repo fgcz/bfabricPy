@@ -16,7 +16,6 @@ from __future__ import annotations
 import base64
 import importlib.metadata
 import sys
-from contextlib import AbstractContextManager
 from contextlib import contextmanager
 from datetime import datetime
 from enum import Enum
@@ -24,6 +23,7 @@ from functools import cached_property
 from pathlib import Path
 from pprint import pprint
 from typing import Literal, Any
+from collections.abc import Generator
 
 from loguru import logger
 from rich.console import Console
@@ -112,7 +112,7 @@ class Bfabric:
         return self._auth
 
     @contextmanager
-    def with_auth(self, auth: BfabricAuth) -> AbstractContextManager[Bfabric]:
+    def with_auth(self, auth: BfabricAuth) -> Generator[None, None, None]:
         """Context manager that temporarily (within the scope of the context) sets the authentication for
         the Bfabric object to the provided value. This is useful when authenticating multiple users, to avoid accidental
         use of the wrong credentials.
@@ -167,7 +167,7 @@ class Bfabric:
         logger.debug(f"Requested pages: {requested_pages}")
 
         # NOTE: Page numbering starts at 1
-        response_items = []
+        response_items: list[dict[str, Any]] = []
         errors = results.errors
         page_offset = initial_offset
         for i_iter, i_page in enumerate(requested_pages):
@@ -293,14 +293,14 @@ class Bfabric:
 
 
 def get_system_auth(
-    login: str = None,
-    password: str = None,
-    base_url: str = None,
-    config_path: str = None,
-    config_env: str = None,
+    login: str | None = None,
+    password: str | None = None,
+    base_url: str | None = None,
+    config_path: str | None = None,
+    config_env: str | None = None,
     optional_auth: bool = True,
     verbose: bool = False,
-) -> tuple[BfabricClientConfig, BfabricAuth]:
+) -> tuple[BfabricClientConfig, BfabricAuth | None]:
     """
     :param login:           Login string for overriding config file
     :param password:        Password for overriding config file
@@ -312,23 +312,21 @@ def get_system_auth(
        otherwise an exception will be raised
     :param verbose:         Verbosity (TODO: resolve potential redundancy with logger)
     """
-
-    have_config_path = config_path is not None
-    config_path = Path(config_path or "~/.bfabricpy.yml").expanduser()
+    resolved_path = Path(config_path or "~/.bfabricpy.yml").expanduser()
 
     # Use the provided config data from arguments instead of the file
-    if not config_path.is_file():
-        if have_config_path:
+    if not resolved_path.is_file():
+        if config_path:
             # NOTE: If user explicitly specifies a path to a wrong config file, this has to be an exception
-            raise OSError(f"Explicitly specified config file does not exist: {config_path}")
+            raise OSError(f"Explicitly specified config file does not exist: {resolved_path}")
         # TODO: Convert to log
-        print(f"Warning: could not find the config file in the default location: {config_path}")
+        print(f"Warning: could not find the config file in the default location: {resolved_path}")
         config = BfabricClientConfig(base_url=base_url)
-        auth = None if login is None and password is None else BfabricAuth(login=login, password=password)
+        auth = None if login is None or password is None else BfabricAuth(login=login, password=password)
 
     # Load config from file, override some of the fields with the provided ones
     else:
-        config, auth = read_config(config_path, config_env=config_env)
+        config, auth = read_config(resolved_path, config_env=config_env)
         config = config.copy_with(base_url=base_url)
         if (login is not None) and (password is not None):
             auth = BfabricAuth(login=login, password=password)
