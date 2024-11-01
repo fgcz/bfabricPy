@@ -7,12 +7,13 @@ from typing import Any
 
 import cyclopts
 import yaml
-from loguru import logger
-from rich.console import Console
-from rich.table import Table
-
 from bfabric import Bfabric, BfabricClientConfig
 from bfabric.cli_formatting import setup_script_logging
+from loguru import logger
+from pydantic import BaseModel
+from rich.console import Console
+from rich.pretty import pprint
+from rich.table import Table
 
 
 class OutputFormat(Enum):
@@ -23,6 +24,14 @@ class OutputFormat(Enum):
 
 
 app = cyclopts.App()
+
+
+class CommandRead(BaseModel):
+    format: OutputFormat
+    limit: int
+    query: dict[str, str]
+    columns: list[str] | None
+    max_columns: int
 
 
 @app.default
@@ -37,6 +46,9 @@ def bfabric_read(
 ) -> None:
     """Reads one or several items from a B-Fabric endpoint and prints them.
 
+    Example usage:
+    read workunit name "DIANN%" createdafter 2024-10-31T19:00:00
+
     :param endpoint: The endpoint to query.
     :param attributes: A list of attribute-value pairs to filter the results by.
     :param output_format: The output format to use.
@@ -48,7 +60,8 @@ def bfabric_read(
     client = Bfabric.from_config()
     console_out = Console()
 
-    results = _get_results(client=client, endpoint=endpoint, attributes=attributes or [], limit=limit)
+    query = {attribute: value for attribute, value in attributes or []}
+    results = _get_results(client=client, endpoint=endpoint, query=query, limit=limit)
     output_format = _determine_output_format(
         console_out=console_out, output_format=output_format, n_results=len(results)
     )
@@ -61,6 +74,17 @@ def bfabric_read(
     elif output_format == OutputFormat.YAML:
         print(yaml.dump(results))
     elif output_format == OutputFormat.TABLE_RICH:
+        pprint(
+            CommandRead(
+                format=output_format,
+                limit=limit,
+                query=query,
+                columns=output_columns,
+                max_columns=max_columns,
+            ),
+            console=console_out,
+        )
+        # _print_query_rich(console_out, query)
         _print_table_rich(client.config, console_out, endpoint, results, output_columns=output_columns)
     else:
         raise ValueError(f"output format {output_format} not supported")
@@ -80,9 +104,8 @@ def _determine_output_columns(
     return columns
 
 
-def _get_results(client: Bfabric, endpoint: str, attributes: list[tuple[str, str]], limit: int) -> list[dict[str, Any]]:
+def _get_results(client: Bfabric, endpoint: str, query: dict[str, str], limit: int) -> list[dict[str, Any]]:
     start_time = time.time()
-    query = {attribute: value for attribute, value in attributes}
     results = client.read(endpoint=endpoint, obj=query, max_results=limit)
     end_time = time.time()
     logger.info(f"number of query result items = {len(results)}")
@@ -94,6 +117,13 @@ def _get_results(client: Bfabric, endpoint: str, attributes: list[tuple[str, str
         logger.info(f"possible attributes = {possible_attributes}")
 
     return results
+
+
+def _print_query_rich(
+    console_out: Console,
+    query: dict[str, str],
+) -> None:
+    pprint(query, console=console_out)
 
 
 def _print_table_rich(
