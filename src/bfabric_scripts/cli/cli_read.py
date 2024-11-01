@@ -28,8 +28,7 @@ app = cyclopts.App()
 @app.default
 def bfabric_read(
     endpoint: str,
-    attribute: str | None = None,
-    value: str | None = None,
+    attributes: list[tuple[str, str]] | None = None,
     *,
     output_format: OutputFormat = OutputFormat.AUTO,
     limit: int = 100,
@@ -39,8 +38,7 @@ def bfabric_read(
     """Reads one or several items from a B-Fabric endpoint and prints them.
 
     :param endpoint: The endpoint to query.
-    :param attribute: The attribute to query for.
-    :param value: The value to query for.
+    :param attributes: A list of attribute-value pairs to filter the results by.
     :param output_format: The output format to use.
     :param limit: The maximum number of results to return.
     :param columns: The columns to return (separate arguments).
@@ -50,7 +48,7 @@ def bfabric_read(
     client = Bfabric.from_config()
     console_out = Console()
 
-    results = _get_results(client=client, endpoint=endpoint, attribute=attribute, value=value, limit=limit)
+    results = _get_results(client=client, endpoint=endpoint, attributes=attributes or [], limit=limit)
     output_format = _determine_output_format(
         console_out=console_out, output_format=output_format, n_results=len(results)
     )
@@ -82,12 +80,10 @@ def _determine_output_columns(
     return columns
 
 
-def _get_results(client: Bfabric, endpoint: str, attribute: str, value: str, limit: int) -> list[dict[str, Any]]:
-    if attribute is not None and value is None:
-        message = "value must be provided if attribute is provided"
-        raise ValueError(message)
+def _get_results(client: Bfabric, endpoint: str, attributes: list[tuple[str, str]], limit: int) -> list[dict[str, Any]]:
     start_time = time.time()
-    results = client.read(endpoint=endpoint, obj={attribute: value} if value is not None else {}, max_results=limit)
+    query = {attribute: value for attribute, value in attributes}
+    results = client.read(endpoint=endpoint, obj=query, max_results=limit)
     end_time = time.time()
     logger.info(f"number of query result items = {len(results)}")
     logger.info(f"query time = {end_time - start_time:.2f} seconds")
