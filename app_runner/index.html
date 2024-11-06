@@ -47,7 +47,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Input specification" href="specs/input_specification.html" />
+    <link rel="next" title="Workunit Definition" href="workunit_definition.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -140,10 +140,13 @@
         <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="workunit_definition.html">Workunit Definition</a></li>
 <li class="toctree-l1"><a class="reference internal" href="specs/input_specification.html">Input specification</a></li>
 
 
 <li class="toctree-l1"><a class="reference internal" href="specs/output_specification.html">Output specification</a></li>
+
+
 <li class="toctree-l1"><a class="reference internal" href="specs/app_specification.html">App specification</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 </ul>
@@ -290,6 +293,38 @@
                   
   <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="workunit_definition.html">Workunit Definition</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="workunit_definition.html#creating-workunitdefinition-instances">Creating WorkunitDefinition instances</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workunit_definition.html#module-bfabric.experimental.workunit_definition">Reference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitDefinition"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitDefinition.execution"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition.execution</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitDefinition.registration"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition.registration</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitDefinition.from_ref"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition.from_ref()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitDefinition.from_workunit"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition.from_workunit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitDefinition.from_yaml"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition.from_yaml()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitDefinition.to_yaml"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition.to_yaml()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.dataset"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.dataset</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.executable"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.executable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.raw_parameters"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.raw_parameters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.resources"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.resources</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.from_workunit"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.from_workunit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.mutually_exclusive_dataset_resources"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.mutually_exclusive_dataset_resources</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_id"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.container_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_type"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.container_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.workunit_id"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.workunit_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.from_workunit"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.from_workunit()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="specs/input_specification.html">Input specification</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="specs/input_specification.html#general-structure">General structure</a></li>
 </ul>
@@ -329,6 +364,44 @@
 <li class="toctree-l2"><a class="reference internal" href="specs/output_specification.html#general-structure">General structure</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="specs/output_specification.html#commands">Commands</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="specs/output_specification.html#validation">Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="specs/output_specification.html#register-files">Register files</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="specs/output_specification.html#module-app_runner.output_registration.spec">Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="specs/output_specification.html#app_runner.output_registration.spec.CopyResourceSpec"><code class="docutils literal notranslate"><span class="pre">CopyResourceSpec</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="specs/output_specification.html#app_runner.output_registration.spec.CopyResourceSpec.local_path"><code class="docutils literal notranslate"><span class="pre">CopyResourceSpec.local_path</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="specs/output_specification.html#app_runner.output_registration.spec.CopyResourceSpec.protocol"><code class="docutils literal notranslate"><span class="pre">CopyResourceSpec.protocol</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="specs/output_specification.html#app_runner.output_registration.spec.CopyResourceSpec.store_entry_path"><code class="docutils literal notranslate"><span class="pre">CopyResourceSpec.store_entry_path</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="specs/output_specification.html#app_runner.output_registration.spec.CopyResourceSpec.store_folder_path"><code class="docutils literal notranslate"><span class="pre">CopyResourceSpec.store_folder_path</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="specs/output_specification.html#app_runner.output_registration.spec.CopyResourceSpec.type"><code class="docutils literal notranslate"><span class="pre">CopyResourceSpec.type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="specs/output_specification.html#app_runner.output_registration.spec.CopyResourceSpec.update_existing"><code class="docutils literal notranslate"><span class="pre">CopyResourceSpec.update_existing</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="specs/output_specification.html#app_runner.output_registration.spec.OutputsSpec"><code class="docutils literal notranslate"><span class="pre">OutputsSpec</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="specs/output_specification.html#app_runner.output_registration.spec.OutputsSpec.outputs"><code class="docutils literal notranslate"><span class="pre">OutputsSpec.outputs</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="specs/output_specification.html#app_runner.output_registration.spec.OutputsSpec.read_yaml"><code class="docutils literal notranslate"><span class="pre">OutputsSpec.read_yaml()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="specs/output_specification.html#app_runner.output_registration.spec.OutputsSpec.write_yaml"><code class="docutils literal notranslate"><span class="pre">OutputsSpec.write_yaml()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="specs/output_specification.html#app_runner.output_registration.spec.SaveDatasetSpec"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="specs/output_specification.html#app_runner.output_registration.spec.SaveDatasetSpec.has_header"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.has_header</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="specs/output_specification.html#app_runner.output_registration.spec.SaveDatasetSpec.invalid_characters"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.invalid_characters</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="specs/output_specification.html#app_runner.output_registration.spec.SaveDatasetSpec.local_path"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.local_path</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="specs/output_specification.html#app_runner.output_registration.spec.SaveDatasetSpec.name"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="specs/output_specification.html#app_runner.output_registration.spec.SaveDatasetSpec.separator"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.separator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="specs/output_specification.html#app_runner.output_registration.spec.SaveDatasetSpec.type"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.type</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="specs/output_specification.html#app_runner.output_registration.spec.UpdateExisting"><code class="docutils literal notranslate"><span class="pre">UpdateExisting</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="specs/output_specification.html#app_runner.output_registration.spec.UpdateExisting.IF_EXISTS"><code class="docutils literal notranslate"><span class="pre">UpdateExisting.IF_EXISTS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="specs/output_specification.html#app_runner.output_registration.spec.UpdateExisting.NO"><code class="docutils literal notranslate"><span class="pre">UpdateExisting.NO</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="specs/output_specification.html#app_runner.output_registration.spec.UpdateExisting.REQUIRED"><code class="docutils literal notranslate"><span class="pre">UpdateExisting.REQUIRED</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="specs/app_specification.html">App specification</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#unreleased">[Unreleased]</a></li>
@@ -364,11 +437,11 @@
                   
 <div class="prev-next-area">
     <a class="right-next"
-       href="specs/input_specification.html"
+       href="workunit_definition.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Input specification</p>
+        <p class="prev-next-title">Workunit Definition</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
