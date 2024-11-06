@@ -27,6 +27,7 @@ doc = [
     "autodoc_pydantic",
     "sphinx-book-theme",
     "sphinx-autobuild",
+    "sphinxcontrib-plantuml",
 ]
 dev = [
     "app_runner[doc]",
