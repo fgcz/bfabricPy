@@ -21,4 +21,4 @@ fi
 echo "$input" | $DOCKER run --rm -i \
     --user "$(id -u):$(id -g)" \
     $IMAGE \
-    -pipe -tsvg -charset utf-8
+    "$@"
