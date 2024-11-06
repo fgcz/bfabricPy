@@ -14,6 +14,21 @@ def tests(session):
     session.run("pytest")
 
 
+@nox.session
+def test_py_typed(session):
+    """Verify py.typed is properly installed with the package."""
+    session.install(".")
+    result = session.run(
+        "python",
+        "-c",
+        "import bfabric, pathlib; p=pathlib.Path(bfabric.__file__).parent/'py.typed'; print(p.exists())",
+        silent=True,
+        stderr=None,
+    )
+    if not result or result.strip() != "True":
+        session.error("py.typed not found in installed package")
+
+
 @nox.session(default=False)
 def docs(session):
     """Builds documentation for bfabricPy and app-runner and writes to site directory."""
