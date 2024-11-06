@@ -26,6 +26,11 @@ doc = [
     "sphinx-book-theme",
     "sphinx-autobuild",
 ]
+dev = [
+    "app_runner[doc]",
+    "mypy",
+    "types-PyYAML",
+]
 
 [tool.uv]
 reinstall-package = ["app_runner"]
