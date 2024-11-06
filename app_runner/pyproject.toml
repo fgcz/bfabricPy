@@ -13,6 +13,8 @@ authors = [
 requires-python = ">=3.12"
 dependencies = [
     "bfabric @ git+https://github.com/fgcz/bfabricPy.git@main",
+    "pydantic",
+    "glom",
 ]
 
 [project.scripts]
