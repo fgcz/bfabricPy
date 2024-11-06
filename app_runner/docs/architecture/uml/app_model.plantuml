@@ -1,0 +1,41 @@
+@startuml
+
+participant BFabric
+participant Storage
+participant AppRunner
+participant App
+
+BFabric -> AppRunner: run(app)
+
+group dispatch app
+    AppRunner -> App: dispatch(app)
+    App -> BFabric: query
+    BFabric -> App: response
+    App -> AppRunner: "chunks.yml", "chunk1/input.yml", ...
+end
+
+loop for each chunk
+    group prepare inputs
+        AppRunner -> BFabric: query
+        BFabric -> AppRunner: response
+        Storage -> AppRunner: Copy Files
+    end
+
+    group process chunk
+        AppRunner -> App: process("chunk1")
+        App -> AppRunner: notify
+    end
+
+    group collect outputs
+        AppRunner -> App: collect("chunk1")
+        App -> BFabric: query
+        BFabric -> App: response
+        App -> AppRunner: "outputs.yml"
+    end
+
+    AppRunner -> Storage: Copy Files
+    AppRunner -> BFabric: Save
+
+end
+
+@enduml
