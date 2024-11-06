@@ -47,7 +47,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'workunit_definition';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Input specification" href="specs/input_specification.html" />
+    <link rel="next" title="Architecture Overview" href="architecture/overview.html" />
     <link rel="prev" title="Install App Runner" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -140,6 +140,7 @@
     <div class="bd-toc-item navbar-nav active">
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Workunit Definition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture/overview.html">Architecture Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="specs/input_specification.html">Input specification</a></li>
 
 
@@ -289,6 +290,7 @@
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-workunitdefinition-instances">Creating WorkunitDefinition instances</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#workunit-references">Workunit references</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bfabric.experimental.workunit_definition">Reference</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitDefinition"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitDefinition.execution"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition.execution</span></code></a></li>
@@ -338,6 +340,17 @@ information.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">WorkunitDefinition</span></code> class is a Pydantic model and can be created by passing a dictionary to the constructor.
 However, for convenience and easier integration into command line tools there is a constructor for both creating an
 instance from a Bfabric entity, and parsing a YAML file which contains a persisted version of the workunit</p>
+</section>
+<section id="workunit-references">
+<h2>Workunit references<a class="headerlink" href="#workunit-references" title="Link to this heading">#</a></h2>
+<p>Several functions and command line tools allow providing a “workunit reference”. This means, that either the ID or a
+path to a local YAML file can be passed to this function.
+If the input is a path, then the persisted information will be retrieved to instantiate a <code class="docutils literal notranslate"><span class="pre">WorkunitDefinition</span></code> instance,
+whereas if it is an integer, the information will be obtained by querying the B-Fabric API.</p>
+<p>Since in some workflows the workunit will be used several times, and in particular not necessarily in the same process,
+the usual entity caching mechanism might not be able to cache the requests.
+Therefore, in many cases passing a reference to a YAML file is the preferred way to provide the workunit information,
+as it will reduce the number of requests to the B-Fabric API (sometimes even to zero).</p>
 </section>
 <section id="module-bfabric.experimental.workunit_definition">
 <span id="reference"></span><h2>Reference<a class="headerlink" href="#module-bfabric.experimental.workunit_definition" title="Link to this heading">#</a></h2>
@@ -746,11 +759,11 @@ Otherwise, the result will be cached to the provided file.
       </div>
     </a>
     <a class="right-next"
-       href="specs/input_specification.html"
+       href="architecture/overview.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Input specification</p>
+        <p class="prev-next-title">Architecture Overview</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -772,6 +785,7 @@ Otherwise, the result will be cached to the provided file.
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-workunitdefinition-instances">Creating WorkunitDefinition instances</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#workunit-references">Workunit references</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bfabric.experimental.workunit_definition">Reference</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitDefinition"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitDefinition.execution"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition.execution</span></code></a></li>

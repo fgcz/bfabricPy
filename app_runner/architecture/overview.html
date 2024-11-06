@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>App specification &#8212; App Runner  documentation</title>
+    <title>Architecture Overview &#8212; App Runner  documentation</title>
   
   
   
@@ -44,11 +44,11 @@
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'specs/app_specification';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'architecture/overview';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Changelog" href="../changelog.html" />
-    <link rel="prev" title="Output specification" href="output_specification.html" />
+    <link rel="next" title="Input specification" href="../specs/input_specification.html" />
+    <link rel="prev" title="Workunit Definition" href="../workunit_definition.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -140,14 +140,14 @@
     <div class="bd-toc-item navbar-nav active">
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../workunit_definition.html">Workunit Definition</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../architecture/overview.html">Architecture Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="input_specification.html">Input specification</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Architecture Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../specs/input_specification.html">Input specification</a></li>
 
 
-<li class="toctree-l1"><a class="reference internal" href="output_specification.html">Output specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../specs/output_specification.html">Output specification</a></li>
 
 
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">App specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../specs/app_specification.html">App specification</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 </ul>
 
@@ -203,7 +203,7 @@
       
       
       
-      <li><a href="../_sources/specs/app_specification.md" target="_blank"
+      <li><a href="../_sources/architecture/overview.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -266,7 +266,9 @@
 <button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass fa-lg"></i>
 </button>
-
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
 </div></div>
       
     </div>
@@ -277,11 +279,19 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>App specification</h1>
+    <h1>Architecture Overview</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#app-runner-activity-diagram">App runner activity diagram</a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -291,10 +301,75 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="app-specification">
-<h1>App specification<a class="headerlink" href="#app-specification" title="Link to this heading">#</a></h1>
-<p>TODO: not clear if this same document should also explain the individual steps, or if it would make sense to first
-describe the app anatomy in a separate document with figures etc. and then list how to specify it</p>
+  <section id="architecture-overview">
+<h1>Architecture Overview<a class="headerlink" href="#architecture-overview" title="Link to this heading">#</a></h1>
+<section id="app-runner-activity-diagram">
+<h2>App runner activity diagram<a class="headerlink" href="#app-runner-activity-diagram" title="Link to this heading">#</a></h2>
+<p class="plantuml">
+<object data="../_images/plantuml-fb6aff3edd0b8a826bfc8985552dca9ad900a71b.svg" type="image/svg+xml" style="width:728px;height:999px;background:#FFFFFF;">
+<img src="../_images/plantuml-fb6aff3edd0b8a826bfc8985552dca9ad900a71b.png" alt="title
+  App Runner Activity Diagram
+end title
+
+start
+:workunit_ref]
+partition App Runner {
+  :Retrieve workunit and app information;
+  split
+    :workunit_definition.yml]
+  split again
+  :app_definition.yml]
+  note right
+    These are maintained in a
+    centralized repository.
+  end note
+  end split
+
+  :Set workunit processing status;
+  :&quot;&quot;app-runner app dispatch&quot;&quot;;
+  note right
+    This step is supposed to be deterministic!
+    To allow distributing the tasks in the future.
+  end note
+  split
+    :tasks.yml]
+  split again
+    :task1/inputs.yml
+    task1/params.yml]
+  split again
+    :task2/inputs.yml
+    task2/params.yml]
+  end split
+' Unclear
+'  :Precondition check;
+  :&quot;&quot;app-runner chunk process-all&quot;&quot;]
+}
+
+note right
+   The actual ordering will be decided here.
+   tasks.yml declares task dependencies.
+end note
+fork
+    :Stage inputs 1;
+    partition App {
+      :Run task 1;
+      :outputs.yml]
+    }
+    :Register outputs;
+fork again
+    :Stage inputs 2;
+    partition App {
+      :Run task 2;
+      :outputs.yml]
+    }
+    :Register outputs;
+end fork
+
+:Set workunit available status;
+stop"/>
+
+</object></p>
+</section>
 </section>
 
 
@@ -309,20 +384,20 @@ describe the app anatomy in a separate document with figures etc. and then list 
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="output_specification.html"
+       href="../workunit_definition.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Output specification</p>
+        <p class="prev-next-title">Workunit Definition</p>
       </div>
     </a>
     <a class="right-next"
-       href="../changelog.html"
+       href="../specs/input_specification.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Changelog</p>
+        <p class="prev-next-title">Input specification</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -332,6 +407,22 @@ describe the app anatomy in a separate document with figures etc. and then list 
             </div>
             
             
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#app-runner-activity-diagram">App runner activity diagram</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>

@@ -141,6 +141,7 @@
     <div class="bd-toc-item navbar-nav active">
         <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="workunit_definition.html">Workunit Definition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture/overview.html">Architecture Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="specs/input_specification.html">Input specification</a></li>
 
 
@@ -266,7 +267,9 @@
 <button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass fa-lg"></i>
 </button>
-
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
 </div></div>
       
     </div>
@@ -282,6 +285,16 @@
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Install App Runner</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#contents">Contents</a></li>
+</ul>
+
+            </nav>
         </div>
     </div>
 </div>
@@ -291,10 +304,19 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <div class="toctree-wrapper compound">
+  <section id="install-app-runner">
+<h1>Install App Runner<a class="headerlink" href="#install-app-runner" title="Link to this heading">#</a></h1>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pipx<span class="w"> </span>install<span class="w"> </span>app_runner@git+https://github.com/fgcz/bfabricPy.git@main#egg<span class="o">=</span>app_runner<span class="p">&amp;</span><span class="nv">subdirectory</span><span class="o">=</span>app_runner
+</pre></div>
+</div>
+</section>
+<section id="contents">
+<h1>Contents<a class="headerlink" href="#contents" title="Link to this heading">#</a></h1>
+<div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="workunit_definition.html">Workunit Definition</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="workunit_definition.html#creating-workunitdefinition-instances">Creating WorkunitDefinition instances</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workunit_definition.html#workunit-references">Workunit references</a></li>
 <li class="toctree-l2"><a class="reference internal" href="workunit_definition.html#module-bfabric.experimental.workunit_definition">Reference</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitDefinition"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitDefinition.execution"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition.execution</span></code></a></li>
@@ -323,6 +345,10 @@
 </li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="architecture/overview.html">Architecture Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="architecture/overview.html#app-runner-activity-diagram">App runner activity diagram</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="specs/input_specification.html">Input specification</a><ul>
@@ -418,11 +444,6 @@
 </li>
 </ul>
 </div>
-<section id="install-app-runner">
-<h1>Install App Runner<a class="headerlink" href="#install-app-runner" title="Link to this heading">#</a></h1>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pipx<span class="w"> </span>install<span class="w"> </span>app_runner@git+https://github.com/fgcz/bfabricPy.git@main#egg<span class="o">=</span>app_runner<span class="p">&amp;</span><span class="nv">subdirectory</span><span class="o">=</span>app_runner
-</pre></div>
-</div>
 </section>
 
 
@@ -451,6 +472,24 @@
             </div>
             
             
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Install App Runner</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#contents">Contents</a></li>
+</ul>
+
+  </nav></div>
+
+</div></div>
               
             
           </div>
