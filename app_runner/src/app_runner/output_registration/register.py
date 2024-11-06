@@ -16,6 +16,7 @@ from app_runner.output_registration.spec import (
 from app_runner.util.checksums import md5sum
 from app_runner.util.scp import scp
 from bfabric_scripts.bfabric_save_csv2dataset import bfabric_save_csv2dataset
+from glom import glom
 
 
 def _get_output_folder(spec: CopyResourceSpec, workunit: Workunit) -> Path:
@@ -90,7 +91,7 @@ def register_all(
     for spec in specs_list:
         logger.debug(f"Registering {spec}")
         if isinstance(spec, CopyResourceSpec):
-            storage = workunit.application.storage
+            storage = glom(workunit, "application.storage")
             copy_file_to_storage(spec, workunit=workunit, storage=storage, ssh_user=ssh_user)
             if not default_resource_was_reused:
                 resource_id = find_default_resource_id(workunit=workunit)
