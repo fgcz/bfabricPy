@@ -30,3 +30,14 @@ def docs(session):
 
         shutil.copytree(Path(tmpdir) / "build_bfabricpy", target_dir)
         shutil.copytree(Path(tmpdir) / "build_app_runner" / "html", target_dir / "app_runner")
+
+
+@nox.session(default=False)
+def publish_docs(session):
+    """Publish documentation to GitHub Pages by updating gh-pages branch."""
+    site_dir = Path("site")
+    if not site_dir.exists():
+        session.error("Site directory does not exist. Run 'nox -s docs' first.")
+
+    session.install("ghp-import")
+    session.run("ghp-import", "--force", "--no-jekyll", "--push", "site")
