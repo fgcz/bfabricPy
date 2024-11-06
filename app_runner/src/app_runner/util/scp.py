@@ -31,7 +31,7 @@ def scp(source: str | Path, target: str | Path, *, user: str | None = None, mkdi
     if mkdir:
         if target_remote:
             host, path = target.split(":", 1)
-            parent_path = str(Path(path).parent)
+            parent_path = Path(path).parent
             logger.debug(f"ssh {host} mkdir -p {parent_path}")
             subprocess.run(["ssh", host, "mkdir", "-p", parent_path], check=True)
         else:
