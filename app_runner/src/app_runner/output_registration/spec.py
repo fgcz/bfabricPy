@@ -38,6 +38,8 @@ class SaveDatasetSpec(BaseModel):
     local_path: Path
     separator: str
     name: str | None = None
+    has_header: bool = True
+    invalid_characters: str = ""
 
 
 SpecType = Union[CopyResourceSpec, SaveDatasetSpec]
