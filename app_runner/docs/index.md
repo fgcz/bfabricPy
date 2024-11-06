@@ -1,5 +1,6 @@
 ```{toctree}
 :glob:
+workunit_definition
 specs/input_specification
 specs/output_specification
 specs/app_specification

@@ -16,6 +16,7 @@ class WorkunitExecutionDefinition(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     raw_parameters: dict[str, str | None]
+    # TODO drop the execuctable
     executable: Path
     dataset: int | None = None
     resources: list[int] = []
