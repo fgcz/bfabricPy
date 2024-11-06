@@ -1,6 +1,6 @@
 [build-system]
-requires = ["flit_core >=3.2,<4"]
-build-backend = "flit_core.buildapi"
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "bfabric"
@@ -77,8 +77,11 @@ Repository = "https://github.com/fgcz/bfabricPy"
 "bfabric_save_workflowstep.py" = "bfabric_scripts.bfabric_save_workflowstep:main"
 "bfabric_slurm_queue_status.py" = "bfabric_scripts.bfabric_slurm_queue_status:main"
 
+[tool.setuptools.package-data]
+"*" = ["py.typed"]
+
 [tool.uv]
-reinstall-package = ["bfabric"]
+reinstall-package = ["bfabric", "bfabric_scripts"]
 
 [tool.black]
 line-length = 120

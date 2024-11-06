@@ -26,7 +26,7 @@ instead a separate Python package with its individual changelog.
 
 - Except for macOS x86_64 (which we assume is Rosetta emulation nowadays), we use the faster `polars` instead of `polars-lts-cpu`.
 - `BfabricRequestError` is now a `RuntimeError` subclass.
-- Use flit as build backend and add `py.typed` marker.
+- Add `py.typed` marker.
 
 ### Removed
 
