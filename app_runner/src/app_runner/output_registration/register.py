@@ -6,7 +6,7 @@ from loguru import logger
 
 from bfabric import Bfabric
 from bfabric.entities import Storage, Workunit
-from app_runner.output_registration._spec import (
+from app_runner.output_registration.spec import (
     CopyResourceSpec,
     UpdateExisting,
     OutputsSpec,
