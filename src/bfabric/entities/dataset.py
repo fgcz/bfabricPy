@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import tempfile
 from pathlib import Path
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from polars import DataFrame
 
-from bfabric import Bfabric
 from bfabric.entities.core.entity import Entity
+
+if TYPE_CHECKING:
+    from bfabric import Bfabric
 
 
 class Dataset(Entity):

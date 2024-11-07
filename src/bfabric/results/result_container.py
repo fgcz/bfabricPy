@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import logging
 from typing import Any, TYPE_CHECKING, overload
-from collections.abc import Iterator
 
 import bfabric.results.response_format_dict as formatter
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
     import polars
     from bfabric.errors import BfabricRequestError
 

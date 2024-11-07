@@ -5,12 +5,12 @@ from typing import Any, TYPE_CHECKING
 
 import dateutil.parser
 
-from bfabric import Bfabric
 from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.has_many import HasMany
 from bfabric.entities.core.has_one import HasOne
 
 if TYPE_CHECKING:
+    from bfabric import Bfabric
     from bfabric.entities.application import Application
     from bfabric.entities.dataset import Dataset
     from bfabric.entities.externaljob import ExternalJob

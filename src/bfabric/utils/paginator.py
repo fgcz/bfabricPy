@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Generator
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 # Single page query limit for BFabric API (as of time of writing, adapt if it changes)
 BFABRIC_QUERY_LIMIT = 100

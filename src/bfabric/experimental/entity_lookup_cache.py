@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 from collections import defaultdict, OrderedDict
-from collections.abc import Hashable
 from contextlib import contextmanager
 from typing import TypeVar, Generic, TYPE_CHECKING
 
 from loguru import logger
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+    from collections.abc import Hashable
     from bfabric.entities.core.entity import Entity  # type: ignore
 
 T = TypeVar("T")
@@ -79,7 +80,7 @@ class EntityLookupCache:
 
     @classmethod
     @contextmanager
-    def enable(cls, max_size: int = 0):
+    def enable(cls, max_size: int = 0) -> Generator[None, None, None]:
         """Context manager that enables the EntityLookupCache singleton instance, i.e. every entity lookup by ID
         within this context will be cached. The cache is cleared after the context exits.
         """

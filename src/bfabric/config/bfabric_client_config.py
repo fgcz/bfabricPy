@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Annotated
+from typing import Annotated, Any
 
 from pydantic import BaseModel, BeforeValidator, Field, TypeAdapter, AnyHttpUrl
 
@@ -25,7 +25,8 @@ class BfabricClientConfig(BaseModel):
     application_ids: Annotated[dict[str, int], Field(default_factory=dict)]
     job_notification_emails: Annotated[str, Field(default="")]
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
+        # TODO remove this custom constructor (note that this is currently used in some places when "None" is passed)
         super().__init__(**{key: value for key, value in kwargs.items() if value is not None})
 
     def copy_with(

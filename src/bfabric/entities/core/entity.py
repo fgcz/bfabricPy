@@ -1,15 +1,15 @@
 from __future__ import annotations
 
-from collections.abc import Iterable
 from typing import TYPE_CHECKING
 
 from loguru import logger
 
-from bfabric import Bfabric
 from bfabric.experimental import MultiQuery
 from bfabric.experimental.entity_lookup_cache import EntityLookupCache
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from bfabric import Bfabric
     from typing import Any, Self
 
 
@@ -101,7 +101,7 @@ class Entity:
     __str__ = __repr__
 
     @classmethod
-    def __check_ids_list(cls, ids) -> list[int]:
+    def __check_ids_list(cls, ids: list[int]) -> list[int]:
         """Converts the ids to a list of integers (if they are not already) and raises an error if this fails or
         there are duplicates."""
         ids_requested = [int(id) for id in ids]

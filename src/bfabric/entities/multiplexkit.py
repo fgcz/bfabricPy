@@ -3,12 +3,12 @@ import polars as pl
 from functools import cached_property
 from typing import Any, TYPE_CHECKING
 
-from bfabric import Bfabric
 from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.has_many import HasMany
 
 
 if TYPE_CHECKING:
+    from bfabric import Bfabric
     from bfabric.entities.multiplexid import MultiplexId
 
 

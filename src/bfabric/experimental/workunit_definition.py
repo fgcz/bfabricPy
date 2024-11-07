@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Literal
+from typing import Literal, TYPE_CHECKING
 
 import yaml
 from pydantic import BaseModel, ConfigDict, model_validator
 
-from bfabric import Bfabric
 from bfabric.entities import Workunit
+
+if TYPE_CHECKING:
+    from bfabric import Bfabric
 
 
 class WorkunitExecutionDefinition(BaseModel):

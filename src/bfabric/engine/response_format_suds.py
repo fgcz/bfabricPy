@@ -22,7 +22,7 @@ def convert_suds_type(item: Any) -> int | str | Any:
     return item
 
 
-def suds_asdict_recursive(d, convert_types: bool = False) -> dict[str, Value]:
+def suds_asdict_recursive(d: Any, convert_types: bool = False) -> dict[str, Value]:
     """Convert Suds object into serializable format.
     https://stackoverflow.com/a/15678861
     :param d: The input suds object

@@ -1,11 +1,15 @@
 from __future__ import annotations
 
-from typing import TypeVar
+from typing import TypeVar, TYPE_CHECKING
 
-from bfabric.entities.core.entity import Entity  # type: ignore
 from bfabric.entities.core.relationship import Relationship
 
+if TYPE_CHECKING:
+    # noinspection PyUnresolvedReferences
+    from bfabric.entities.core.entity import Entity
+
 E = TypeVar("E", bound="Entity")
+T = TypeVar("T")
 
 
 class HasOne(Relationship[E]):
@@ -14,13 +18,13 @@ class HasOne(Relationship[E]):
         self._bfabric_field = bfabric_field
         self._optional = optional
 
-    def __get__(self, obj, objtype=None) -> E | None:
+    def __get__(self, obj: T | None, objtype: type[T] | None = None) -> E | None:
         cache_attr = f"_HasOne__{self._bfabric_field}_cache"
         if not hasattr(obj, cache_attr):
             setattr(obj, cache_attr, self._load_entity(obj=obj))
         return getattr(obj, cache_attr)
 
-    def _load_entity(self, obj) -> E | None:
+    def _load_entity(self, obj: T) -> E | None:
         client = obj._client
         entity_data = obj.data_dict.get(self._bfabric_field)
         if self._optional and entity_data is None:

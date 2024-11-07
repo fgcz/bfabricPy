@@ -1,15 +1,18 @@
 from __future__ import annotations
 
-from typing import Generic, TypeVar
-from collections.abc import Iterator
-
+from typing import Generic, TypeVar, TYPE_CHECKING
+from bfabric.entities.core.relationship import Relationship
 from polars import DataFrame
 
-from bfabric import Bfabric
-from bfabric.entities.core.entity import Entity  # type: ignore
-from bfabric.entities.core.relationship import Relationship
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+    from bfabric import Bfabric
+
+    # noinspection PyUnresolvedReferences
+    from bfabric.entities.core.entity import Entity
 
 E = TypeVar("E", bound="Entity")
+T = TypeVar("T")
 
 
 class HasMany(Relationship[E]):
@@ -28,15 +31,17 @@ class HasMany(Relationship[E]):
         self._client_property = client_property
         self._optional = optional
 
-    def __get__(self, obj, objtype=None) -> _HasManyProxy:
+    def __get__(self, obj: T | None, objtype: type[T] | None = None) -> _HasManyProxy:
         cache_attr = f"_HasMany__{self._ids_property or self._bfabric_field}_cache"
+        if obj is None:
+            raise ValueError("Cannot access HasMany relationship on class")
         if not hasattr(obj, cache_attr):
             ids = self._get_ids(obj)
             client = getattr(obj, self._client_property)
             setattr(obj, cache_attr, _HasManyProxy(entity_type=self._entity_type, ids=ids, client=client))
         return getattr(obj, cache_attr)
 
-    def _get_ids(self, obj) -> list[int]:
+    def _get_ids(self, obj: T) -> list[int]:
         if self._bfabric_field is not None:
             if self._ids_property is not None:
                 raise ValueError("Exactly one of bfabric_field and ids_property must be set, but both are set")

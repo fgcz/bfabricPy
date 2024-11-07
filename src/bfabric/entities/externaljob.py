@@ -3,11 +3,11 @@ from __future__ import annotations
 from functools import cached_property
 from typing import Any, TYPE_CHECKING
 
-from bfabric import Bfabric
 from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.has_one import HasOne
 
 if TYPE_CHECKING:
+    from bfabric import Bfabric
     from bfabric.entities.workunit import Workunit
     from bfabric.entities.executable import Executable
 

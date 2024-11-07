@@ -1,7 +1,7 @@
 import importlib.metadata
 
 from bfabric.bfabric import Bfabric, BfabricAPIEngineType
-from bfabric.config import BfabricAuth, BfabricClientConfig
+from bfabric.config.bfabric_auth import BfabricAuth
 from bfabric.config.bfabric_client_config import BfabricClientConfig
 
 __all__ = [
@@ -10,6 +10,5 @@ __all__ = [
     "BfabricAuth",
     "BfabricClientConfig",
 ]
-
 
 __version__ = importlib.metadata.version("bfabric")

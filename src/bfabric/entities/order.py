@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import Any, TYPE_CHECKING
 
-from bfabric import Bfabric
 from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.has_one import HasOne
 
 if TYPE_CHECKING:
+    from bfabric import Bfabric
     from bfabric.entities.project import Project
 
 

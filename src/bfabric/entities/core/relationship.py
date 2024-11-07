@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import importlib
 from functools import cached_property
-from typing import TypeVar, Generic
+from typing import TypeVar, Generic, TYPE_CHECKING
 
-from bfabric.entities.core.entity import Entity  # type: ignore
+
+if TYPE_CHECKING:
+    from bfabric.entities.core.entity import Entity
 
 E = TypeVar("E", bound="Entity")
 

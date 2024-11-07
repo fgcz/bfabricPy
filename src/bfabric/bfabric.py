@@ -22,8 +22,7 @@ from enum import Enum
 from functools import cached_property
 from pathlib import Path
 from pprint import pprint
-from typing import Literal, Any
-from collections.abc import Generator
+from typing import Literal, Any, TYPE_CHECKING
 
 from loguru import logger
 from rich.console import Console
@@ -36,6 +35,9 @@ from bfabric.engine.engine_suds import EngineSUDS
 from bfabric.engine.engine_zeep import EngineZeep
 from bfabric.results.result_container import ResultContainer
 from bfabric.utils.paginator import compute_requested_pages, BFABRIC_QUERY_LIMIT
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 
 class BfabricAPIEngineType(Enum):
@@ -277,7 +279,7 @@ class Bfabric:
 
     __str__ = __repr__
 
-    def __getstate__(self):
+    def __getstate__(self) -> dict[str, Any]:
         return {
             "config": self._config,
             "auth": self._auth,
@@ -285,7 +287,7 @@ class Bfabric:
             "query_counter": self.query_counter,
         }
 
-    def __setstate__(self, state):
+    def __setstate__(self, state: dict[str, Any]) -> None:
         self._config = state["config"]
         self._auth = state["auth"]
         self._engine_type = state["engine_type"]
