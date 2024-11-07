@@ -31,6 +31,7 @@ doc = [
 ]
 dev = [
     "app_runner[doc]",
+    "bfabric[dev, typing]",
     "mypy",
     "types-PyYAML",
 ]
