@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Annotated, Literal, Union, TYPE_CHECKING
+from typing import Annotated, Literal, TYPE_CHECKING
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, Discriminator
@@ -12,6 +11,7 @@ from bfabric.entities import Resource
 RelativeFilePath = Annotated[str, Field(pattern=r"^[^/][^:]*$")]
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from bfabric.bfabric import Bfabric
 
 
@@ -56,7 +56,7 @@ class DatasetSpec(BaseModel):
         return self.filename
 
 
-InputSpecType = Annotated[Union[ResourceSpec, DatasetSpec], Discriminator("type")]
+InputSpecType = Annotated[ResourceSpec | DatasetSpec, Discriminator("type")]
 
 
 class InputsSpec(BaseModel):

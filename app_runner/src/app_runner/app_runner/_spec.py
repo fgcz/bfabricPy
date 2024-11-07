@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import shlex
 from pathlib import Path
-from typing import Literal, Annotated, Union
+from typing import Literal, Annotated
 
 from pydantic import BaseModel, Discriminator
 
@@ -24,7 +24,7 @@ class MountOptions(BaseModel):
     read_only: list[tuple[Path, Path]] = []
     share_bfabric_config: bool = True
 
-    def collect(self, work_dir: Path):
+    def collect(self, work_dir: Path) -> list[tuple[Path, Path, bool]]:
         mounts = []
         if self.share_bfabric_config:
             mounts.append((Path("~/.bfabricpy.yml"), Path("/home/user/.bfabricpy.yml"), True))
@@ -48,7 +48,7 @@ class CommandDocker(BaseModel):
     mounts: MountOptions = MountOptions()
 
     def to_shell(self, work_dir: Path | None = None) -> list[str]:
-        work_dir = (work_dir or Path("")).expanduser().absolute()
+        work_dir = (work_dir or Path()).expanduser().absolute()
         mounts = self.mounts.collect(work_dir=work_dir)
         mount_args = []
         for host, container, read_only in mounts:
@@ -76,7 +76,7 @@ class CommandDocker(BaseModel):
         ]
 
 
-Command = Annotated[Union[CommandShell, CommandDocker], Discriminator("type")]
+Command = Annotated[CommandShell | CommandDocker, Discriminator("type")]
 
 
 class CommandsSpec(BaseModel):

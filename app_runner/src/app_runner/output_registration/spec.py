@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import enum
-from pathlib import Path
-from typing import Literal, Union, Annotated
+from typing import Literal, Annotated, TYPE_CHECKING
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class UpdateExisting(enum.Enum):
@@ -42,7 +44,7 @@ class SaveDatasetSpec(BaseModel):
     invalid_characters: str = ""
 
 
-SpecType = Union[CopyResourceSpec, SaveDatasetSpec]
+SpecType = CopyResourceSpec | SaveDatasetSpec
 
 
 class OutputsSpec(BaseModel):

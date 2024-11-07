@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-from pathlib import Path
 
 from loguru import logger
 
-from bfabric.bfabric import Bfabric
 from bfabric.entities import Resource, Dataset
 from app_runner.input_preparation.spec import (
     ResourceSpec,
@@ -16,6 +14,11 @@ from app_runner.input_preparation.integrity import IntegrityState
 from app_runner.input_preparation.list_inputs import list_input_states
 from app_runner.util.checksums import md5sum
 from app_runner.util.scp import scp
+from typing import TYPE_CHECKING, Literal
+
+if TYPE_CHECKING:
+    from pathlib import Path
+    from bfabric.bfabric import Bfabric
 
 
 class PrepareInputs:
@@ -96,8 +99,20 @@ class PrepareInputs:
 
 
 def prepare_folder(
-    inputs_yaml: Path, target_folder: Path | None, client: Bfabric, ssh_user: str | None, action: str = "prepare"
+    inputs_yaml: Path,
+    target_folder: Path | None,
+    client: Bfabric,
+    ssh_user: str | None,
+    action: Literal["prepare", "clean"] = "prepare",
 ) -> None:
+    """Prepares the input files of a chunk folder according to the provided specs.
+
+    :param inputs_yaml: Path to the inputs.yml file.
+    :param target_folder: Path to the target folder where the input files should be downloaded.
+    :param client: Bfabric client to use for obtaining metadata about the input files.
+    :param ssh_user: SSH user to use for downloading the input files, should it be different from the current user.
+    :param action: Action to perform.
+    """
     # set defaults
     inputs_yaml = inputs_yaml.absolute()
     if target_folder is None:

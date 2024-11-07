@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
 
 import cyclopts
 import yaml
@@ -10,6 +9,10 @@ from bfabric.cli_formatting import setup_script_logging
 from app_runner.app_runner._spec import AppSpec
 from app_runner.app_runner.runner import run_app, Runner
 from bfabric.experimental.entity_lookup_cache import EntityLookupCache
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 app_app = cyclopts.App("app", help="Run an app.")
 

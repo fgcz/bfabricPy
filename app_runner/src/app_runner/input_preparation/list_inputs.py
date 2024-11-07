@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path
 
 from rich.console import Console
 from rich.table import Table, Column
 
-from bfabric.bfabric import Bfabric
-from app_runner.input_preparation.spec import InputSpecType
 from app_runner.input_preparation.integrity import check_integrity, IntegrityState
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app_runner.input_preparation.spec import InputSpecType
+    from pathlib import Path
+    from bfabric.bfabric import Bfabric
 
 
 @dataclass
@@ -26,6 +29,7 @@ def list_input_states(
     client: Bfabric,
     check_files: bool,
 ) -> list[FileState]:
+    """Returns the states of the input files, performing integrity checks if requested."""
     input_states = []
     for spec in specs:
         filename = spec.resolve_filename(client=client)
@@ -40,6 +44,7 @@ def list_input_states(
 
 
 def print_input_states(input_states: list[FileState]) -> None:
+    """Prints the states of the input files to the command line."""
     table = Table(
         Column("File"),
         Column("Input Type"),

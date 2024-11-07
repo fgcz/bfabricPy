@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-from pathlib import Path
 
 from loguru import logger
 
-from bfabric import Bfabric
 from bfabric.entities import Storage, Workunit
 from app_runner.output_registration.spec import (
     CopyResourceSpec,
@@ -17,6 +15,11 @@ from app_runner.util.checksums import md5sum
 from app_runner.util.scp import scp
 from bfabric_scripts.bfabric_save_csv2dataset import bfabric_save_csv2dataset
 from glom import glom
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
+    from bfabric import Bfabric
 
 
 def _get_output_folder(spec: CopyResourceSpec, workunit: Workunit) -> Path:
@@ -32,7 +35,8 @@ def register_file_in_workunit(
     workunit: Workunit,
     storage: Storage,
     resource_id: int | None = None,
-):
+) -> None:
+    """Registers a file in the workunit."""
     if spec.update_existing != UpdateExisting.NO:
         # TODO implement this functionality
         raise NotImplementedError("Update existing not implemented")
@@ -52,15 +56,17 @@ def register_file_in_workunit(
     client.save("resource", resource_data)
 
 
-def copy_file_to_storage(spec: CopyResourceSpec, workunit: Workunit, storage: Storage, ssh_user: str | None):
+def copy_file_to_storage(spec: CopyResourceSpec, workunit: Workunit, storage: Storage, ssh_user: str | None) -> None:
+    """Copies a file to the storage, according to the spec."""
     output_folder = _get_output_folder(spec, workunit=workunit)
     output_uri = f"{storage.scp_prefix}{output_folder / spec.store_entry_path}"
     scp(spec.local_path, output_uri, user=ssh_user)
 
 
-def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit: Workunit):
+def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit: Workunit) -> None:
+    """Saves a dataset to the bfabric."""
     # TODO should not print to stdout in the future
-    # TODO also it should not be imported from bfabric_scripts, but rather the generic functioanlity should be available
+    # TODO also it should not be imported from bfabric_scripts, but rather the generic functionality should be available
     #      in the main package
     bfabric_save_csv2dataset(
         client=client,
@@ -75,6 +81,7 @@ def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit: Workunit):
 
 
 def find_default_resource_id(workunit: Workunit) -> int | None:
+    """Finds the default resource's id for the workunit. Maybe in the future, this will be always `None`."""
     candidate_resources = [
         resource for resource in workunit.resources if resource["name"] not in ["slurm_stdout", "slurm_stderr"]
     ]
@@ -86,7 +93,8 @@ def find_default_resource_id(workunit: Workunit) -> int | None:
 
 def register_all(
     client: Bfabric, workunit: Workunit, specs_list: list[SpecType], ssh_user: str | None, reuse_default_resource: bool
-):
+) -> None:
+    """Registers all the output specs to the workunit."""
     default_resource_was_reused = not reuse_default_resource
     for spec in specs_list:
         logger.debug(f"Registering {spec}")
@@ -112,6 +120,8 @@ def register_outputs(
     ssh_user: str | None,
     reuse_default_resource: bool,
 ) -> None:
+    """Registers outputs to the workunit."""
+    # TODO it seems there is some redundancy here (i.e. there is also the implementation in runner)
     # parse the specs
     specs_list = OutputsSpec.read_yaml(outputs_yaml)
 

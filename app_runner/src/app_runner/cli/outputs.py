@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
 
 import cyclopts
 
@@ -9,6 +8,10 @@ from bfabric.cli_formatting import setup_script_logging
 from bfabric.entities import Workunit
 from app_runner.output_registration.spec import OutputsSpec
 from app_runner.output_registration.register import register_all
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 app_outputs = cyclopts.App("outputs", help="Register output files for an app.")
 

@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 from enum import Enum
-from pathlib import Path
 
-from bfabric.bfabric import Bfabric
 from bfabric.entities import Resource, Dataset
 from app_runner.input_preparation.spec import InputSpecType, ResourceSpec, DatasetSpec
 from app_runner.util.checksums import md5sum
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
+    from bfabric.bfabric import Bfabric
 
 
 class IntegrityState(Enum):

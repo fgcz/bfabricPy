@@ -1,15 +1,16 @@
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Any, Self
+from typing import Any, TYPE_CHECKING
 
 import yaml
+from bfabric.entities import Resource, Dataset
 from loguru import logger
 from pydantic import BaseModel, ConfigDict, model_validator
 
-from bfabric import Bfabric
-from bfabric.entities import Resource, Dataset
-from bfabric.experimental.workunit_definition import WorkunitDefinition
+if TYPE_CHECKING:
+    from pathlib import Path
+    from bfabric import Bfabric
+    from bfabric.experimental.workunit_definition import WorkunitDefinition
 
 
 class ConfigResourceFlow(BaseModel):
@@ -35,6 +36,13 @@ class ConfigDispatchIndividualResources(BaseModel):
 
 
 def config_msi_imzml() -> ConfigDispatchIndividualResources:
+    """Returns the configuration for dispatching MSI imzML datasets to chunks.
+
+    These apps allow both being run with a list of input `.imzML` resource files, or a dataset which contains a column
+    `Imzml` with the resource IDs and a column `PanelDataset` with the dataset IDs.
+
+    Note: In the future the specifics of this might be adapted to allow e.g. `.imzML.7z` files or similar.
+    """
     return ConfigDispatchIndividualResources(
         resource_flow=ConfigResourceFlow(filter_suffix=".imzML"),
         dataset_flow=ConfigDatasetFlow(resource_column="Imzml", param_columns=[("PanelDataset", "mass_list_id")]),

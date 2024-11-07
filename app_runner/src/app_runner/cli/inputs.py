@@ -69,10 +69,11 @@ def get_inputs_and_print(
     target_folder: Path | None,
     check: bool,
 ) -> list[FileState]:
+    """Reads the input files, performing integrity checks if requested, and prints the results."""
     client = Bfabric.from_config()
     input_states = list_input_states(
         specs=InputsSpec.read_yaml(inputs_yaml),
-        target_folder=target_folder or Path(""),
+        target_folder=target_folder or Path(),
         client=client,
         check_files=check,
     )

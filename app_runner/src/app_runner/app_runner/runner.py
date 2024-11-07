@@ -3,16 +3,19 @@ from __future__ import annotations
 import shlex
 import subprocess
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import yaml
+from bfabric.experimental.workunit_definition import WorkunitDefinition
 from loguru import logger
 from pydantic import BaseModel
 
-from bfabric import Bfabric
-from app_runner.app_runner._spec import AppSpec
 from app_runner.input_preparation import prepare_folder
 from app_runner.output_registration import register_outputs
-from bfabric.experimental.workunit_definition import WorkunitDefinition
+
+if TYPE_CHECKING:
+    from app_runner.app_runner._spec import AppSpec
+    from bfabric import Bfabric
 
 
 class Runner:
@@ -66,6 +69,8 @@ def run_app(
     read_only: bool = False,
     dispatch_active: bool = True,
 ) -> None:
+    """Executes all steps of the provided app."""
+    # TODO would it be possible, to reuse the individual steps commands so there is certainly only one definition?
     work_dir = work_dir.resolve()
     workunit_ref = workunit_ref.resolve() if isinstance(workunit_ref, Path) else workunit_ref
 
