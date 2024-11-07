@@ -7,7 +7,7 @@ from pathlib import Path
 nox.options.default_venv_backend = "uv"
 
 
-@nox.session
+@nox.session(python=["3.9", "3.13"])
 def tests(session):
     session.install(".[test]")
     session.run("uv", "pip", "list")
