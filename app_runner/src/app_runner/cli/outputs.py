@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-
 import cyclopts
 
 from bfabric import Bfabric
@@ -32,6 +31,10 @@ def register(
 
     specs_list = OutputsSpec.read_yaml(outputs_yaml)
     workunit = Workunit.find(id=workunit_id, client=client)
+    if workunit is None:
+        msg = f"Workunit with id {workunit_id} not found"
+        raise ValueError(msg)
+
     register_all(
         client=client,
         workunit=workunit,

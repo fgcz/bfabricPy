@@ -1,20 +1,20 @@
 from __future__ import annotations
 
-
-from loguru import logger
+from typing import TYPE_CHECKING, Literal
 
 from bfabric.entities import Resource, Dataset
+from loguru import logger
+
+from app_runner.input_preparation.integrity import IntegrityState
+from app_runner.input_preparation.list_inputs import list_input_states
 from app_runner.input_preparation.spec import (
     ResourceSpec,
     DatasetSpec,
     InputSpecType,
     InputsSpec,
 )
-from app_runner.input_preparation.integrity import IntegrityState
-from app_runner.input_preparation.list_inputs import list_input_states
 from app_runner.util.checksums import md5sum
 from app_runner.util.scp import scp
-from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -55,8 +55,13 @@ class PrepareInputs:
 
     def prepare_resource(self, spec: ResourceSpec) -> None:
         resource = Resource.find(id=spec.id, client=self._client)
+        if resource is None:
+            msg = f"Resource with id {spec.id} not found"
+            raise ValueError(msg)
 
         # determine path to copy from
+        # TODO as we have seen sometimes a faster approach would be to copy from the NFS mount, but this needs to be
+        #      configured or recognized somehow
         scp_uri = f"{resource.storage.scp_prefix}{resource['relativepath']}"
 
         # determine path to copy to

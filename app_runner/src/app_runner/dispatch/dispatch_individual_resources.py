@@ -107,6 +107,9 @@ class DispatchIndividualResources:
         if config is None:
             raise ValueError("dataset_flow is not configured")
         dataset = Dataset.find(id=definition.execution.dataset, client=self._client)
+        if dataset is None:
+            msg = f"Dataset with id {definition.execution.dataset} not found"
+            raise ValueError(msg)
         dataset_df = dataset.to_polars()
         resources = Resource.find_all(ids=dataset_df[config.resource_column].unique().to_list(), client=self._client)
         paths = []

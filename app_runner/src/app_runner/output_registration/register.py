@@ -127,6 +127,9 @@ def register_outputs(
 
     # register all specs
     workunit = Workunit.find(id=workunit_id, client=client)
+    if workunit is None:
+        msg = f"Workunit with id {workunit_id} not found"
+        raise ValueError(msg)
     register_all(
         client=client,
         workunit=workunit,

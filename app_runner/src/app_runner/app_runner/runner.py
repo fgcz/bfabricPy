@@ -46,9 +46,13 @@ class Runner:
 
     def run_register_outputs(self, chunk_dir: Path, workunit_ref: int | Path, reuse_default_resource: bool) -> None:
         workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client=self._client)
+        registration = workunit_definition.registration
+        if registration is None:
+            msg = "Workunit definition does not provide registration information"
+            raise ValueError(msg)
         register_outputs(
             outputs_yaml=chunk_dir / "outputs.yml",
-            workunit_id=workunit_definition.registration.workunit_id,
+            workunit_id=registration.workunit_id,
             client=self._client,
             ssh_user=self._ssh_user,
             reuse_default_resource=reuse_default_resource,
