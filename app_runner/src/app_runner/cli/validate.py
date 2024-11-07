@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 
 import cyclopts
 import rich
@@ -9,10 +10,6 @@ import yaml
 from app_runner.app_runner._spec import AppSpec
 from app_runner.input_preparation.spec import InputsSpec
 from app_runner.output_registration.spec import OutputsSpec
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 app_validate = cyclopts.App("validate", help="Validate yaml files.")
 
