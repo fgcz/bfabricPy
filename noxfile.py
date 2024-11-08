@@ -1,8 +1,8 @@
-import nox
 import shutil
-from tempfile import TemporaryDirectory
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
+import nox
 
 nox.options.default_venv_backend = "uv"
 
