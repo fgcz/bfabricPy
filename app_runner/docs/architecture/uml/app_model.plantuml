@@ -11,7 +11,7 @@ group dispatch app
     AppRunner -> App: dispatch(app)
     App -> BFabric: query
     BFabric -> App: response
-    App -> AppRunner: "chunks.yml", "chunk1/input.yml", ...
+    App -> AppRunner: "chunks.yml", "chunk1/inputs.yml", ...
 end
 
 loop for each chunk
