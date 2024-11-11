@@ -22,6 +22,7 @@ class CommandShell(BaseModel):
 class MountOptions(BaseModel):
     work_dir_target: Path | None = None
     read_only: list[tuple[Path, Path]] = []
+    writeable: list[tuple[Path, Path]] = []
     share_bfabric_config: bool = True
 
     def collect(self, work_dir: Path) -> list[tuple[Path, Path, bool]]:
@@ -34,6 +35,8 @@ class MountOptions(BaseModel):
         mounts.append((work_dir, work_dir_target, False))
         for source, target in self.read_only:
             mounts.append((source, target, True))
+        for source, target in self.writeable:
+            mounts.append((source, target, False))
         return [(source.expanduser().absolute(), target, read_only) for source, target, read_only in mounts]
 
 
