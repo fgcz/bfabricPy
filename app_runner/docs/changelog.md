@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 
 - `CommandDocker.mac_address`: allows to specify the MAC address of the container.
+- `CommandDocker.custom_args`: allows to specify arbitrary additional arguments to the `docker run` command.
 
 ## \[0.0.4\] - 2024-11-11
 

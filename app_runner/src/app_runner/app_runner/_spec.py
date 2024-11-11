@@ -50,6 +50,7 @@ class CommandDocker(BaseModel):
     env: dict[str, str] = {}
     mac_address: str | None = None
     mounts: MountOptions = MountOptions()
+    custom_args: list[str] = []
 
     def to_shell(self, work_dir: Path | None = None) -> list[str]:
         work_dir = (work_dir or Path()).expanduser().absolute()
@@ -77,6 +78,7 @@ class CommandDocker(BaseModel):
             *entrypoint_arg,
             *env_args,
             *mac_address_arg,
+            *self.custom_args,
             self.image,
             *shlex.split(self.command),
         ]
