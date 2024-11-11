@@ -48,6 +48,7 @@ class CommandDocker(BaseModel):
     entrypoint: str | None = None
     engine: str = "docker"
     env: dict[str, str] = {}
+    mac_address: str | None = None
     mounts: MountOptions = MountOptions()
 
     def to_shell(self, work_dir: Path | None = None) -> list[str]:
@@ -64,6 +65,7 @@ class CommandDocker(BaseModel):
         for key, value in self.env.items():
             env_args.append("--env")
             env_args.append(f"{key}={shlex.quote(value)}")
+        mac_address_arg = ["--mac-address", self.mac_address] if self.mac_address else []
 
         return [
             self.engine,
@@ -74,6 +76,7 @@ class CommandDocker(BaseModel):
             *mount_args,
             *entrypoint_arg,
             *env_args,
+            *mac_address_arg,
             self.image,
             *shlex.split(self.command),
         ]

@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Added
+
+- `CommandDocker.mac_address`: allows to specify the MAC address of the container.
+
 ## \[0.0.4\] - 2024-11-11
 
 ### Added
