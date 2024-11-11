@@ -4,6 +4,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Changed
+
+- The app spec is now strict and will fail parsing if there are any unknown fields in the spec. It is better to find
+    this type of error early.
+
 ## \[0.0.5\] - 2024-11-11
 
 ### Added

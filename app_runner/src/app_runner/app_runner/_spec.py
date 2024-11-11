@@ -5,13 +5,15 @@ import shlex
 from pathlib import Path
 from typing import Literal, Annotated
 
-from pydantic import BaseModel, Discriminator
+from pydantic import BaseModel, Discriminator, ConfigDict
 
 
 # TODO: This is kept very simple for now, so that it could be easily extended in the future.
 
 
 class CommandShell(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     type: Literal["shell"] = "shell"
     command: str
 
@@ -20,6 +22,8 @@ class CommandShell(BaseModel):
 
 
 class MountOptions(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     work_dir_target: Path | None = None
     read_only: list[tuple[Path, Path]] = []
     writeable: list[tuple[Path, Path]] = []
@@ -41,6 +45,8 @@ class MountOptions(BaseModel):
 
 
 class CommandDocker(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     # TODO not sure if to call this "docker", since "docker-compatible" would be appropriate
     type: Literal["docker"] = "docker"
     image: str
@@ -88,12 +94,16 @@ Command = Annotated[CommandShell | CommandDocker, Discriminator("type")]
 
 
 class CommandsSpec(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     dispatch: Command
     process: Command
     collect: Command
 
 
 class AppSpec(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     commands: CommandsSpec
     # Note: While we use the old submitter, this is still necessary
     reuse_default_resource: bool = True
