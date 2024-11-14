@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.0.6\] - 2024-11-14
+
+First version with CD that will trigger the deployment automatically.
+
 ### Changed
 
 - The app spec is now strict and will fail parsing if there are any unknown fields in the spec. It is better to find
