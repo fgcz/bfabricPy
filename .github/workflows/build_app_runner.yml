@@ -34,6 +34,11 @@ jobs:
         with:
           name: app_runner_linux_x86_64
           path: app_runner_linux_x86_64
+      - name: Zip for release
+        run: |
+          cd app_runner_linux_x86_64
+          zip -r app_runner_linux_x86_64.zip *
+          ls -l
       - name: Print folder structure
         run: |
           tree
@@ -41,6 +46,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            app_runner_linux_x86_64/*
+            app_runner_linux_x86_64/app_runner_linux_x86_64.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
