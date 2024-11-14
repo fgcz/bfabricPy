@@ -33,6 +33,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: app_runner_linux_x86_64
+          path: app_runner_linux_x86_64
+      - name: Print folder structure
+        run: |
+          tree
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v1
         with:
