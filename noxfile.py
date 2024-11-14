@@ -14,6 +14,15 @@ def tests(session):
     session.run("pytest", "tests/bfabric", "tests/bfabric_scripts")
 
 
+@nox.session(python=["3.13"])
+def test_app_runner(session):
+    # TODO this one has a problem that bfabric gets installed from `@main` (so it could break CI)
+    session.install(".")
+    session.install("./app_runner[test]")
+    session.run("uv", "pip", "list")
+    session.run("pytest", "tests/app_runner")
+
+
 @nox.session
 def test_py_typed(session):
     """Verify py.typed is properly installed with the package."""
