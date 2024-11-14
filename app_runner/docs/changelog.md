@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - The app spec is now strict and will fail parsing if there are any unknown fields in the spec. It is better to find
     this type of error early.
+- Log messages originating in `app_runner` should be printed now, they were previously muted (unintentionally).
 
 ## \[0.0.5\] - 2024-11-11
 
