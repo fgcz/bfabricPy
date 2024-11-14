@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 First version with CD that will trigger the deployment automatically.
 
+### Fixed
+
+- Output spec was broken since `Path` was moved into `if TYPE_CHECKING` block.
+
 ### Changed
 
 - The app spec is now strict and will fail parsing if there are any unknown fields in the spec. It is better to find

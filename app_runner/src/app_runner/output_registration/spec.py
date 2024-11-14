@@ -1,13 +1,11 @@
 from __future__ import annotations
 
 import enum
-from typing import Literal, Annotated, TYPE_CHECKING
+from pathlib import Path  # noqa: TCH003
+from typing import Literal, Annotated
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 class UpdateExisting(enum.Enum):
