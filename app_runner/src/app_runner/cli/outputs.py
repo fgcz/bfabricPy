@@ -5,7 +5,7 @@ from pathlib import Path
 import cyclopts
 
 from app_runner.output_registration.register import register_all
-from app_runner.output_registration.spec import OutputsSpec
+from app_runner.specs.outputs_spec import OutputsSpec
 from bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
 from bfabric.entities import Workunit

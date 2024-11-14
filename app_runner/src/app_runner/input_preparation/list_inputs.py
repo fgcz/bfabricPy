@@ -9,7 +9,7 @@ from app_runner.input_preparation.integrity import check_integrity, IntegritySta
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from app_runner.input_preparation.spec import InputSpecType
+    from app_runner.specs.inputs_spec import InputSpecType
     from pathlib import Path
     from bfabric.bfabric import Bfabric
 

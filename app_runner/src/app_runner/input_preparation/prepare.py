@@ -7,7 +7,7 @@ from loguru import logger
 
 from app_runner.input_preparation.integrity import IntegrityState
 from app_runner.input_preparation.list_inputs import list_input_states
-from app_runner.input_preparation.spec import (
+from app_runner.specs.inputs_spec import (
     ResourceSpec,
     DatasetSpec,
     InputSpecType,

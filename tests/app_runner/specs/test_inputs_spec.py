@@ -1,7 +1,7 @@
 import pytest
 import yaml
 
-from app_runner.input_preparation.spec import InputsSpec, ResourceSpec, DatasetSpec
+from app_runner.specs.inputs_spec import InputsSpec, ResourceSpec, DatasetSpec
 
 
 @pytest.fixture()

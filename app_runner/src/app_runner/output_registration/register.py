@@ -4,7 +4,7 @@ from __future__ import annotations
 from loguru import logger
 
 from bfabric.entities import Storage, Workunit
-from app_runner.output_registration.spec import (
+from app_runner.specs.outputs_spec import (
     CopyResourceSpec,
     UpdateExisting,
     OutputsSpec,

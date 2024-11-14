@@ -1,7 +1,7 @@
 import pytest
 import yaml
 
-from app_runner.app_runner._spec import AppSpec, CommandShell, CommandDocker, MountOptions, CommandsSpec
+from app_runner.specs.app_spec import AppSpec, CommandShell, CommandDocker, MountOptions, CommandsSpec
 
 
 @pytest.fixture()

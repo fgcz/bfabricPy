@@ -1,7 +1,7 @@
 import pytest
 import yaml
 
-from app_runner.output_registration.spec import OutputsSpec, CopyResourceSpec, SaveDatasetSpec
+from app_runner.specs.outputs_spec import OutputsSpec, CopyResourceSpec, SaveDatasetSpec
 
 
 @pytest.fixture()

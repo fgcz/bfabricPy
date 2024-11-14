@@ -14,7 +14,7 @@ from app_runner.input_preparation import prepare_folder
 from app_runner.output_registration import register_outputs
 
 if TYPE_CHECKING:
-    from app_runner.app_runner._spec import AppSpec
+    from app_runner.specs.app_spec import AppSpec
     from bfabric import Bfabric
 
 
