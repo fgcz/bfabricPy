@@ -1,6 +1,10 @@
 name: Build App Runner
 on:
   workflow_dispatch:
+  release:
+    types: [published]
+    tags:
+      - "app-runner/*"
 jobs:
   build_app_runner:
     name: Build App Runner
@@ -19,3 +23,20 @@ jobs:
         with:
           name: app_runner_linux_x86_64
           path: build-output
+  publish_release_artifact:
+    name: Publish Release Artifact
+    runs-on: ubuntu-latest
+    needs: build_app_runner
+    if: github.event_name == 'release'
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app_runner_linux_x86_64
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            app_runner_linux_x86_64/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
