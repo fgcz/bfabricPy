@@ -11,7 +11,7 @@ nox.options.default_venv_backend = "uv"
 def tests(session):
     session.install(".[test]")
     session.run("uv", "pip", "list")
-    session.run("pytest")
+    session.run("pytest", "tests/bfabric", "tests/bfabric_scripts")
 
 
 @nox.session
