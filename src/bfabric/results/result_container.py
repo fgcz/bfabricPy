@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Iterable
-from typing import Any, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING, overload
 
 import bfabric.results.response_format_dict as formatter
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
     import polars
     from bfabric.errors import BfabricRequestError
 
@@ -32,10 +32,16 @@ class ResultContainer:
         self._total_pages_api = total_pages_api
         self._errors = errors or []
 
-    def __getitem__(self, idx: int) -> dict[str, Any]:
+    @overload
+    def __getitem__(self, idx: int) -> dict[str, Any]: ...
+
+    @overload
+    def __getitem__(self, idx: slice) -> list[dict[str, Any]]: ...
+
+    def __getitem__(self, idx: int | slice) -> dict[str, Any] | list[dict[str, Any]]:
         return self.results[idx]
 
-    def __iter__(self) -> Iterable[dict[str, Any]]:
+    def __iter__(self) -> Iterator[dict[str, Any]]:
         return iter(self.results)
 
     def __repr__(self) -> str:

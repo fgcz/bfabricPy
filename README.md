@@ -7,7 +7,10 @@
 
 ## Documentation
 
-You can find the up-to-date documentation at [https://fgcz.github.io/bfabricPy](https://fgcz.github.io/bfabricPy).
+| Package    | Link                                                                 |
+| ---------- | -------------------------------------------------------------------- |
+| bfabricPy  | [https://fgcz.github.io/bfabricPy](https://fgcz.github.io/bfabricPy) |
+| app-runner | https://fgcz.github.io/bfabricPy/app_runner/                         |
 
 ## Introduction
 

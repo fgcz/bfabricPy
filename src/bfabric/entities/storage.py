@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from functools import cached_property
 from pathlib import Path
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
-from bfabric import Bfabric
 from bfabric.entities.core.entity import Entity
+
+if TYPE_CHECKING:
+    from bfabric import Bfabric
 
 
 class Storage(Entity):

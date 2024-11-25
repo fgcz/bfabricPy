@@ -4,11 +4,11 @@ from pathlib import Path
 
 import cyclopts
 
+from app_runner.output_registration.register import register_all
+from app_runner.specs.outputs_spec import OutputsSpec
 from bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
 from bfabric.entities import Workunit
-from app_runner.output_registration._spec import OutputsSpec
-from app_runner.output_registration.register import register_all
 
 app_outputs = cyclopts.App("outputs", help="Register output files for an app.")
 
@@ -29,6 +29,10 @@ def register(
 
     specs_list = OutputsSpec.read_yaml(outputs_yaml)
     workunit = Workunit.find(id=workunit_id, client=client)
+    if workunit is None:
+        msg = f"Workunit with id {workunit_id} not found"
+        raise ValueError(msg)
+
     register_all(
         client=client,
         workunit=workunit,

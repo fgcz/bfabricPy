@@ -85,7 +85,7 @@ bfabric-app-runner inputs list --check inputs.yml .
 ## Reference
 
 ```{eval-rst}
-.. automodule:: app_runner.input_preparation.spec
+.. automodule:: app_runner.specs.inputs_spec
     :members:
     :undoc-members:
     :show-inheritance:

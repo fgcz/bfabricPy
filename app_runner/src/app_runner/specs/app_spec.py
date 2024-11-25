@@ -3,15 +3,17 @@ from __future__ import annotations
 import os
 import shlex
 from pathlib import Path
-from typing import Literal, Annotated, Union
+from typing import Literal, Annotated
 
-from pydantic import BaseModel, Discriminator
+from pydantic import BaseModel, Discriminator, ConfigDict
 
 
 # TODO: This is kept very simple for now, so that it could be easily extended in the future.
 
 
 class CommandShell(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     type: Literal["shell"] = "shell"
     command: str
 
@@ -20,11 +22,14 @@ class CommandShell(BaseModel):
 
 
 class MountOptions(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     work_dir_target: Path | None = None
     read_only: list[tuple[Path, Path]] = []
+    writeable: list[tuple[Path, Path]] = []
     share_bfabric_config: bool = True
 
-    def collect(self, work_dir: Path):
+    def collect(self, work_dir: Path) -> list[tuple[Path, Path, bool]]:
         mounts = []
         if self.share_bfabric_config:
             mounts.append((Path("~/.bfabricpy.yml"), Path("/home/user/.bfabricpy.yml"), True))
@@ -34,10 +39,14 @@ class MountOptions(BaseModel):
         mounts.append((work_dir, work_dir_target, False))
         for source, target in self.read_only:
             mounts.append((source, target, True))
+        for source, target in self.writeable:
+            mounts.append((source, target, False))
         return [(source.expanduser().absolute(), target, read_only) for source, target, read_only in mounts]
 
 
 class CommandDocker(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     # TODO not sure if to call this "docker", since "docker-compatible" would be appropriate
     type: Literal["docker"] = "docker"
     image: str
@@ -45,10 +54,12 @@ class CommandDocker(BaseModel):
     entrypoint: str | None = None
     engine: str = "docker"
     env: dict[str, str] = {}
+    mac_address: str | None = None
     mounts: MountOptions = MountOptions()
+    custom_args: list[str] = []
 
     def to_shell(self, work_dir: Path | None = None) -> list[str]:
-        work_dir = (work_dir or Path("")).expanduser().absolute()
+        work_dir = (work_dir or Path()).expanduser().absolute()
         mounts = self.mounts.collect(work_dir=work_dir)
         mount_args = []
         for host, container, read_only in mounts:
@@ -61,6 +72,7 @@ class CommandDocker(BaseModel):
         for key, value in self.env.items():
             env_args.append("--env")
             env_args.append(f"{key}={shlex.quote(value)}")
+        mac_address_arg = ["--mac-address", self.mac_address] if self.mac_address else []
 
         return [
             self.engine,
@@ -71,21 +83,27 @@ class CommandDocker(BaseModel):
             *mount_args,
             *entrypoint_arg,
             *env_args,
+            *mac_address_arg,
+            *self.custom_args,
             self.image,
             *shlex.split(self.command),
         ]
 
 
-Command = Annotated[Union[CommandShell, CommandDocker], Discriminator("type")]
+Command = Annotated[CommandShell | CommandDocker, Discriminator("type")]
 
 
 class CommandsSpec(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     dispatch: Command
     process: Command
     collect: Command
 
 
 class AppSpec(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     commands: CommandsSpec
     # Note: While we use the old submitter, this is still necessary
     reuse_default_resource: bool = True

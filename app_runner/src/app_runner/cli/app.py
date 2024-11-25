@@ -5,10 +5,10 @@ from pathlib import Path
 import cyclopts
 import yaml
 
+from app_runner.specs.app_spec import AppSpec
+from app_runner.app_runner.runner import run_app, Runner
 from bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
-from app_runner.app_runner._spec import AppSpec
-from app_runner.app_runner.runner import run_app, Runner
 from bfabric.experimental.entity_lookup_cache import EntityLookupCache
 
 app_app = cyclopts.App("app", help="Run an app.")
@@ -28,15 +28,17 @@ def run(
     setup_script_logging()
     client = Bfabric.from_config()
     app_spec_parsed = AppSpec.model_validate(yaml.safe_load(app_spec.read_text()))
-    with EntityLookupCache.enable():
-        run_app(
-            app_spec=app_spec_parsed,
-            workunit_ref=workunit_ref,
-            work_dir=work_dir,
-            client=client,
-            ssh_user=ssh_user,
-            read_only=read_only,
-        )
+    # TODO(#107): usage of entity lookup cache was problematic -> beyond the full solution we could also consider
+    #             to deactivate the cache for the output registration
+    # with EntityLookupCache.enable():
+    run_app(
+        app_spec=app_spec_parsed,
+        workunit_ref=workunit_ref,
+        work_dir=work_dir,
+        client=client,
+        ssh_user=ssh_user,
+        read_only=read_only,
+    )
 
 
 @app_app.command()

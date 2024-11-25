@@ -3,16 +3,19 @@ from __future__ import annotations
 import shlex
 import subprocess
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import yaml
+from bfabric.experimental.workunit_definition import WorkunitDefinition
 from loguru import logger
 from pydantic import BaseModel
 
-from bfabric import Bfabric
-from app_runner.app_runner._spec import AppSpec
 from app_runner.input_preparation import prepare_folder
 from app_runner.output_registration import register_outputs
-from bfabric.experimental.workunit_definition import WorkunitDefinition
+
+if TYPE_CHECKING:
+    from app_runner.specs.app_spec import AppSpec
+    from bfabric import Bfabric
 
 
 class Runner:
@@ -43,9 +46,13 @@ class Runner:
 
     def run_register_outputs(self, chunk_dir: Path, workunit_ref: int | Path, reuse_default_resource: bool) -> None:
         workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client=self._client)
+        registration = workunit_definition.registration
+        if registration is None:
+            msg = "Workunit definition does not provide registration information"
+            raise ValueError(msg)
         register_outputs(
             outputs_yaml=chunk_dir / "outputs.yml",
-            workunit_id=workunit_definition.registration.workunit_id,
+            workunit_id=registration.workunit_id,
             client=self._client,
             ssh_user=self._ssh_user,
             reuse_default_resource=reuse_default_resource,
@@ -66,6 +73,8 @@ def run_app(
     read_only: bool = False,
     dispatch_active: bool = True,
 ) -> None:
+    """Executes all steps of the provided app."""
+    # TODO would it be possible, to reuse the individual steps commands so there is certainly only one definition?
     work_dir = work_dir.resolve()
     workunit_ref = workunit_ref.resolve() if isinstance(workunit_ref, Path) else workunit_ref
 

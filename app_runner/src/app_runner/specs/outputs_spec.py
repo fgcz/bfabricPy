@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import enum
-from pathlib import Path
-from typing import Literal, Union, Annotated
+from pathlib import Path  # noqa: TCH003
+from typing import Literal, Annotated
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field
@@ -38,9 +38,11 @@ class SaveDatasetSpec(BaseModel):
     local_path: Path
     separator: str
     name: str | None = None
+    has_header: bool = True
+    invalid_characters: str = ""
 
 
-SpecType = Union[CopyResourceSpec, SaveDatasetSpec]
+SpecType = CopyResourceSpec | SaveDatasetSpec
 
 
 class OutputsSpec(BaseModel):

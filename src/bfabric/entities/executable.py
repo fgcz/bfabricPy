@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
-from bfabric import Bfabric
 from bfabric.entities.core.entity import Entity
+
+if TYPE_CHECKING:
+    from bfabric import Bfabric
 
 
 class Executable(Entity):

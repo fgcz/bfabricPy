@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from typing import Any, overload
 
 
 def sort_dict(d: dict) -> dict:
@@ -31,6 +32,14 @@ def _recursive_drop_empty(response_elem: list | dict) -> None:
                 _recursive_drop_empty(v)
         for k in keys_to_delete:
             del response_elem[k]
+
+
+@overload
+def drop_empty_elements(response: list[dict[str, Any]], inplace: bool) -> list[dict[str, Any]]: ...
+
+
+@overload
+def drop_empty_elements(response: dict[str, Any], inplace: bool) -> dict[str, Any]: ...
 
 
 def drop_empty_elements(response: list | dict, inplace: bool = True) -> list | dict:

@@ -5,10 +5,10 @@ from pathlib import Path
 import cyclopts
 import yaml
 
+from app_runner.specs.app_spec import AppSpec
+from app_runner.app_runner.runner import run_app, Runner
 from bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
-from app_runner.app_runner._spec import AppSpec
-from app_runner.app_runner.runner import run_app, Runner
 from bfabric.experimental.entity_lookup_cache import EntityLookupCache
 
 app_chunk = cyclopts.App("chunk", help="Run an app on a chunk. You can create the chunks with `app dispatch`.")
