@@ -5,13 +5,13 @@ import io
 import json
 import shlex
 import subprocess
-import sys
 
 import polars as pl
+import sys
 from loguru import logger
 
 from bfabric import Bfabric
-from bfabric.entities import Workunit
+from bfabric.entities import Workunit, Application
 
 
 def get_slurm_jobs(partition: str, ssh_host: str | None) -> pl.DataFrame:
@@ -33,12 +33,26 @@ def get_slurm_jobs(partition: str, ssh_host: str | None) -> pl.DataFrame:
     return df.with_columns(workunit_id=pl.when(string_id_expr.is_not_null()).then(string_id_expr.cast(int)))
 
 
-def get_workunit_status(client: Bfabric, workunit_ids: list[int]) -> dict[int, str]:
-    """Returns the status of the workunits with the specified ids, by consoluting the bfabric API.
+def get_workunit_infos(client: Bfabric, workunit_ids: list[int]) -> list[dict[str, str]]:
+    """Retrieves information about the workunits with the specified ids.
     If a workunit was deleted, but it is in the slurm queue, it will be considered a zombie.
     """
+    # Find the workunits which actually exist.
     workunits = Workunit.find_all(ids=workunit_ids, client=client)
-    return {id: workunits[id].data_dict["status"] if id in workunits else "ZOMBIE" for id in workunit_ids}
+
+    # Retrieve application id -> name mapping.
+    app_ids = {wu["application"]["id"] for wu in workunits.values()}
+    apps = Application.find_all(ids=list(app_ids), client=client)
+    app_names = {app["id"]: app["name"] for app in apps.values()}
+
+    return [
+        {
+            "workunit_id": id,
+            "status": workunits[id].data_dict["status"] if id in workunits else "ZOMBIE",
+            "application_name": app_names[workunits[id]["application"]["id"]] if id in workunits else "N/A",
+        }
+        for id in workunit_ids
+    ]
 
 
 def find_zombie_jobs(client: Bfabric, partition: str, ssh_host: str | None) -> pl.DataFrame:
@@ -46,14 +60,14 @@ def find_zombie_jobs(client: Bfabric, partition: str, ssh_host: str | None) -> p
     slurm_jobs = get_slurm_jobs(partition=partition, ssh_host=ssh_host)
     if slurm_jobs.is_empty():
         return pl.DataFrame()
-    workunit_status = get_workunit_status(
-        client=client, workunit_ids=slurm_jobs["workunit_id"].drop_nulls().cast(int).to_list()
+    workunit_info_table = pl.DataFrame(
+        get_workunit_infos(client=client, workunit_ids=slurm_jobs["workunit_id"].drop_nulls().cast(int).to_list())
     )
-    workunit_status_table = pl.from_dict(dict(workunit_id=workunit_status.keys(), status=workunit_status.values()))
-    logger.info(slurm_jobs.join(workunit_status_table, on="workunit_id", how="left").sort("workunit_id"))
-    logger.info(f"Active jobs: {workunit_status_table.height}")
-    logger.info(f"Found {workunit_status_table.filter(pl.col('status') == 'ZOMBIE').height} zombie jobs.")
-    return workunit_status_table.filter(pl.col("status") == "ZOMBIE")
+    pl.Config.set_tbl_rows(100)
+    logger.info(slurm_jobs.join(workunit_info_table, on="workunit_id", how="left").sort("workunit_id"))
+    logger.info(f"Active jobs: {workunit_info_table.height}")
+    logger.info(f"Found {workunit_info_table.filter(pl.col('status') == 'ZOMBIE').height} zombie jobs.")
+    return workunit_info_table.filter(pl.col("status") == "ZOMBIE")
 
 
 def main() -> None:
