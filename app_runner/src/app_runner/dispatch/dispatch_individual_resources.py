@@ -3,9 +3,10 @@ from __future__ import annotations
 from typing import Any, TYPE_CHECKING
 
 import yaml
-from bfabric.entities import Resource, Dataset
-from loguru import logger
 from pydantic import BaseModel, ConfigDict, model_validator
+
+from app_runner.dispatch.resource_flow import get_resource_flow_input_resources
+from bfabric.entities import Resource, Dataset
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -88,19 +89,14 @@ class DispatchIndividualResources:
             yaml.safe_dump(data, f)
 
     def _dispatch_jobs_resource_flow(self, definition: WorkunitDefinition, params: dict[str, Any]) -> list[Path]:
+        """Returns the individual jobs for a resource flow workunit and returns the paths of the task folders."""
         config = self._config.resource_flow
         if config is None:
             raise ValueError("resource_flow is not configured")
-        resources = Resource.find_all(ids=definition.execution.resources, client=self._client)
-        paths = []
-        for resource in sorted(resources.values()):
-            if config.filter_suffix is not None and not resource["relativepath"].endswith(config.filter_suffix):
-                logger.info(
-                    f"Skipping resource {resource['relativepath']!r} as it does not match the extension filter."
-                )
-                continue
-            paths.append(self.dispatch_job(resource=resource, params=params))
-        return paths
+        resources = get_resource_flow_input_resources(
+            client=self._client, definition=definition, filter_suffix=config.filter_suffix
+        )
+        return [self.dispatch_job(resource=resource, params=params) for resource in resources]
 
     def _dispatch_jobs_dataset_flow(self, definition: WorkunitDefinition, params: dict[str, Any]) -> list[Path]:
         config = self._config.dataset_flow
