@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import Any, TYPE_CHECKING
 
-import yaml
 from pydantic import BaseModel, ConfigDict, model_validator
 
+from app_runner.dispatch.generic import write_workunit_definition_file, write_chunks_file
 from app_runner.dispatch.resource_flow import get_resource_flow_input_resources
 from bfabric.entities import Resource, Dataset
 
@@ -74,19 +74,8 @@ class DispatchIndividualResources:
             paths = self._dispatch_jobs_dataset_flow(definition, params)
         else:
             raise ValueError("either dataset or resources must be provided")
-        self._write_workunit_definition(definition=definition)
-        self._write_chunks(chunks=paths)
-
-    def _write_workunit_definition(self, definition: WorkunitDefinition) -> None:
-        self._out_dir.mkdir(exist_ok=True, parents=True)
-        with (self._out_dir / "workunit_definition.yml").open("w") as f:
-            yaml.safe_dump(definition.model_dump(mode="json"), f)
-
-    def _write_chunks(self, chunks: list[Path]) -> None:
-        self._out_dir.mkdir(exist_ok=True, parents=True)
-        with (self._out_dir / "chunks.yml").open("w") as f:
-            data = {"chunks": [str(chunk) for chunk in chunks]}
-            yaml.safe_dump(data, f)
+        write_workunit_definition_file(out_dir=self._out_dir, definition=definition)
+        write_chunks_file(out_dir=self._out_dir, chunks=paths)
 
     def _dispatch_jobs_resource_flow(self, definition: WorkunitDefinition, params: dict[str, Any]) -> list[Path]:
         """Returns the individual jobs for a resource flow workunit and returns the paths of the task folders."""
