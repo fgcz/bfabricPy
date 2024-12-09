@@ -44,6 +44,26 @@ from bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
 
 
+def slurm_parameters() -> list[dict[str, str]]:
+    parameters = [{"modifiable": "true", "required": "true", "type": "STRING"} for _ in range(3)]
+    parameters[0]["description"] = "Which Slurm partition should be used."
+    parameters[0]["enumeration"] = ["prx"]
+    parameters[0]["key"] = "partition"
+    parameters[0]["label"] = "partition"
+    parameters[0]["value"] = "prx"
+    parameters[1]["description"] = "Which Slurm nodelist should be used."
+    parameters[1]["enumeration"] = ["fgcz-r-033"]
+    parameters[1]["key"] = "nodelist"
+    parameters[1]["label"] = "nodelist"
+    parameters[1]["value"] = "fgcz-r-[035,028]"
+    parameters[2]["description"] = "Which Slurm memory should be used."
+    parameters[2]["enumeration"] = ["10G", "50G", "128G", "256G", "512G", "960G"]
+    parameters[2]["key"] = "memory"
+    parameters[2]["label"] = "memory"
+    parameters[2]["value"] = "10G"
+    return parameters
+
+
 def main_upload_submitter_executable(
     client: Bfabric, filename: Path, engine: str, name: str | None, description: str | None
 ) -> None:
@@ -51,11 +71,7 @@ def main_upload_submitter_executable(
 
     attr = {
         "context": "SUBMITTER",
-        "parameter": [
-            {"modifiable": "true", "required": "true", "type": "STRING"},
-            {"modifiable": "true", "required": "true", "type": "STRING"},
-            {"modifiable": "true", "required": "true", "type": "STRING"},
-        ],
+        "parameter": [],
         "masterexecutableid": 11871,
         "status": "available",
         "enabled": "true",
@@ -64,30 +80,10 @@ def main_upload_submitter_executable(
     }
 
     if engine == "slurm":
-        attr["name"] = "yaml / Slurm executable"
-        attr["parameter"][0]["description"] = "Which Slurm partition should be used."
-        attr["parameter"][0]["enumeration"] = ["prx", "maxquant", "scaffold", "mascot"]
-        attr["parameter"][0]["key"] = "partition"
-        attr["parameter"][0]["label"] = "partition"
-        attr["parameter"][0]["value"] = "prx"
-        attr["parameter"][1]["description"] = "Which Slurm nodelist should be used."
-        attr["parameter"][1]["enumeration"] = [
-            "fgcz-r-[035,028]",
-            "fgcz-r-035",
-            "fgcz-r-033",
-            "fgcz-r-028",
-            "fgcz-r-018",
-        ]
-        attr["parameter"][1]["key"] = "nodelist"
-        attr["parameter"][1]["label"] = "nodelist"
-        attr["parameter"][1]["value"] = "fgcz-r-[035,028]"
-        attr["parameter"][2]["description"] = "Which Slurm memory should be used."
-        attr["parameter"][2]["enumeration"] = ["10G", "50G", "128G", "256G", "512G", "960G"]
-        attr["parameter"][2]["key"] = "memory"
-        attr["parameter"][2]["label"] = "memory"
-        attr["parameter"][2]["value"] = "10G"
-        attr["version"] = 1.02
-        attr["description"] = "Stage the yaml config file to application using Slurm."
+        name = name or "yaml / Slurm executable"
+        description = description or "Submitter executable for the bfabric functional test using Slurm."
+        attr["version"] = "1.03"
+        attr["parameter"] = slurm_parameters()
     else:
         raise NotImplementedError
 
