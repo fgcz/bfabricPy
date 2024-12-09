@@ -100,7 +100,7 @@ class BfabricSubmitter:
 #SBATCH -e {stderr_url}
 #SBATCH -o {stdout_url}
 #SBATCH --job-name=WU{workunit_id}
-#SBATCH --workdir=/home/bfabric
+#SBATCH --chdir=/home/bfabric
 #SBATCH --export=ALL,HOME=/home/bfabric
 
 set -euxo pipefail
