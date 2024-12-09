@@ -17,16 +17,6 @@ Uploader for B-Fabric
 # Licensed under  GPL version 3
 #
 #
-# Usage: bfabric_upload_submitter_executable.py [-h] filename {slurm,gridengine}
-#
-# Arguments for new submitter executable. For more details run:
-# ./bfabric_upload_submitter_executable.py --help
-#
-# positional arguments:
-#   filename            Bash executable of the submitter
-#   {slurm,gridengine}  Valid engines for job handling are: slurm, gridengine
-#
-#
 # Example of use:
 #
 # For bfabric.__version__ < 0.10.22
@@ -42,23 +32,22 @@ Uploader for B-Fabric
 #
 # ./bfabric_upload_submitter_executable.py bfabric_executable_submitter_functionalTest.py slurm --name "Dummy_-_yaml___Slurm_executable" --description "test new submitter's parameters"
 #
+from __future__ import annotations
 
 import argparse
 import base64
+from pathlib import Path
 
 import yaml
 
 from bfabric import Bfabric
+from bfabric.cli_formatting import setup_script_logging
 
 
-def main_upload_submitter_executable(options) -> None:
-    executableFileName = options.filename
-    engine = options.engine
-
-    client = Bfabric.from_config()
-
-    with open(executableFileName) as f:
-        executable = f.read()
+def main_upload_submitter_executable(
+    client: Bfabric, filename: Path, engine: str, name: str | None, description: str | None
+) -> None:
+    executable = filename.read_text()
 
     attr = {
         "context": "SUBMITTER",
@@ -99,25 +88,13 @@ def main_upload_submitter_executable(options) -> None:
         attr["parameter"][2]["value"] = "10G"
         attr["version"] = 1.02
         attr["description"] = "Stage the yaml config file to application using Slurm."
-    elif engine == "gridengine":
-        attr["name"] = "yaml /  Grid Engine executable"
-        attr["parameter"][0]["description"] = "Which Grid Engine partition should be used."
-        attr["parameter"][0]["enumeration"] = "PRX"
-        attr["parameter"][0]["key"] = "partition"
-        attr["parameter"][0]["label"] = "partition"
-        attr["parameter"][0]["value"] = "PRX"
-        attr["parameter"][1]["description"] = "Which Grid Engine node should be used."
-        attr["parameter"][1]["enumeration"] = ["fgcz-r-033", "fgcz-r-028", "fgcz-r-018"]
-        attr["parameter"][1]["key"] = "nodelist"
-        attr["parameter"][1]["label"] = "nodelist"
-        attr["parameter"][1]["value"] = "fgcz-r-028"
-        attr["version"] = 1.00
-        attr["description"] = "Stage the yaml config file to an application using Grid Engine."
+    else:
+        raise NotImplementedError
 
-    if options.name:
-        attr["name"] = options.name
-    if options.description:
-        attr["description"] = options.description
+    if name:
+        attr["name"] = name
+    if description:
+        attr["description"] = description
 
     res = client.save("executable", attr)
     print(yaml.dump(res))
@@ -125,18 +102,20 @@ def main_upload_submitter_executable(options) -> None:
 
 def main() -> None:
     """Parses command line arguments and calls `main_upload_submitter_executable`."""
+    setup_script_logging()
+    client = Bfabric.from_config()
     parser = argparse.ArgumentParser()
-    parser.add_argument("filename", type=str, help="Bash executable of the submitter")
+    parser.add_argument("filename", type=Path, help="Bash executable of the submitter")
     parser.add_argument(
         "engine",
         type=str,
-        choices=["slurm", "gridengine"],
+        choices=["slurm"],
         help="Valid engines for job handling are: slurm, gridengine",
     )
     parser.add_argument("--name", type=str, help="Name of the submitter", required=False)
     parser.add_argument("--description", type=str, help="Description about the submitter", required=False)
     options = parser.parse_args()
-    main(options)
+    main_upload_submitter_executable(client=client, **vars(options))
 
 
 if __name__ == "__main__":
