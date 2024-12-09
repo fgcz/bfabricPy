@@ -64,13 +64,6 @@ class BfabricSubmitter:
         logger.debug(f"memory={self.memory}")
         logger.debug("__init__ DONE")
 
-    # def submit_gridengine(self, script="/tmp/runme.bash", arguments=""):
-    #    GE = gridengine.GridEngine(user=self.user, queue=self.queue, GRIDENGINEROOT=self.scheduleroot)
-    #    print(script)
-    #    print(type(script))
-    #    resQsub = GE.qsub(script=script, arguments=arguments)
-    #    self.B.logger(f"{resQsub}")
-
     def submit_slurm(self, script: str = "/tmp/runme.bash") -> None:
         slurm = SLURM(slurm_root=self.scheduleroot)
         logger.debug(script)
@@ -98,33 +91,33 @@ class BfabricSubmitter:
 # 2020-09-29
 # https://GitHub.com/fgcz/bfabricPy/
 # Slurm
-#SBATCH --partition={0}
-#SBATCH --nodelist={11}
+#SBATCH --partition={partition}
+#SBATCH --nodelist={nodelist}
 #SBATCH -n 1
 #SBATCH -N 1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem-per-cpu={12}
-#SBATCH -e {1}
-#SBATCH -o {2}
-#SBATCH --job-name=WU{10}
+#SBATCH --mem-per-cpu={memory}
+#SBATCH -e {stderr_url}
+#SBATCH -o {stdout_url}
+#SBATCH --job-name=WU{workunit_id}
 #SBATCH --workdir=/home/bfabric
 #SBATCH --export=ALL,HOME=/home/bfabric
 
 # Grid Engine Parameters
-#$ -q {0}&{11}
-#$ -e {1}
-#$ -o {2}
+#$ -q {partition}&{nodelist}
+#$ -e {stderr_url}
+#$ -o {stdout_url}
 
 
 set -e
 set -o pipefail
 
 export EMAIL="{job_notification_emails}"
-export EXTERNALJOB_ID={3}
-export RESSOURCEID_OUTPUT={4}
-export RESSOURCEID_STDOUT_STDERR="{5} {6}"
-export OUTPUT="{7}"
-export WORKUNIT_ID="{10}"
+export EXTERNALJOB_ID={external_job_id}
+export RESSOURCEID_OUTPUT={resource_id_output}
+export RESSOURCEID_STDOUT_STDERR="{resource_id_stderr} {resource_id_stdout}"
+export OUTPUT="{output_list}"
+export WORKUNIT_ID="{workunit_id}"
 STAMP=`/bin/date +%Y%m%d%H%M`.$$.$JOB_ID
 TEMPDIR="/home/bfabric/prx"
 
@@ -145,7 +138,7 @@ fi
 # job configuration set by B-Fabrics wrapper_creator executable
 # application parameter/configuration
 cat > $TEMPDIR/config_WU$WORKUNIT_ID.yaml <<EOF
-{8}
+{configuration}
 EOF
 
 
@@ -162,7 +155,7 @@ fi
 # exit 0
 
 # run the application
-test -f $TEMPDIR/config_WU$WORKUNIT_ID.yaml && {9} $TEMPDIR/config_WU$WORKUNIT_ID.yaml
+test -f $TEMPDIR/config_WU$WORKUNIT_ID.yaml && {executable} $TEMPDIR/config_WU$WORKUNIT_ID.yaml
 
 
 if [ $? -eq 0 ];
@@ -187,19 +180,19 @@ bfabric_setResourceStatus_available.py $RESSOURCEID_STDOUT_STDERR
 
 exit 0
 """.format(
-            self.partition,
-            config["job_configuration"]["stderr"]["url"],
-            config["job_configuration"]["stdout"]["url"],
-            config["job_configuration"]["external_job_id"],
-            config["job_configuration"]["output"]["resource_id"],
-            config["job_configuration"]["stderr"]["resource_id"],
-            config["job_configuration"]["stdout"]["resource_id"],
-            ",".join(config["application"]["output"]),
-            configuration,
-            config["job_configuration"]["executable"],
-            config["job_configuration"]["workunit_id"],
-            self.nodelist,
-            self.memory,
+            partition=self.partition,
+            stderr_url=config["job_configuration"]["stderr"]["url"],
+            stdout_url=config["job_configuration"]["stdout"]["url"],
+            external_job_id=config["job_configuration"]["external_job_id"],
+            resource_id_output=config["job_configuration"]["output"]["resource_id"],
+            resource_id_stderr=config["job_configuration"]["stderr"]["resource_id"],
+            resource_id_stdout=config["job_configuration"]["stdout"]["resource_id"],
+            output_list=",".join(config["application"]["output"]),
+            configuration=configuration,
+            executable=config["job_configuration"]["executable"],
+            workunit_id=config["job_configuration"]["workunit_id"],
+            nodelist=self.nodelist,
+            memory=self.memory,
             job_notification_emails=self._client.config.job_notification_emails,
         )
 
