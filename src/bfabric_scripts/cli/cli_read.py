@@ -7,13 +7,14 @@ from typing import Any
 
 import cyclopts
 import yaml
-from bfabric import Bfabric, BfabricClientConfig
-from bfabric.cli_formatting import setup_script_logging
 from loguru import logger
 from pydantic import BaseModel
 from rich.console import Console
 from rich.pretty import pprint
 from rich.table import Table
+
+from bfabric import Bfabric, BfabricClientConfig
+from bfabric.cli_formatting import setup_script_logging
 
 
 class OutputFormat(Enum):
@@ -157,10 +158,8 @@ def _determine_output_format(console_out: Console, output_format: OutputFormat, 
     """
     if output_format == OutputFormat.AUTO:
         if n_results < 2:
-            output_format = OutputFormat.JSON
-        elif console_out.is_interactive:
-            output_format = OutputFormat.TABLE_RICH
+            output_format = OutputFormat.YAML
         else:
-            output_format = OutputFormat.TABLE_TSV
+            output_format = OutputFormat.TABLE_RICH
     logger.info(f"output format = {output_format}")
     return output_format
