@@ -4,6 +4,11 @@
 Submitter for B-Fabric
 """
 
+from argparse import ArgumentParser
+
+from bfabric import Bfabric
+from bfabric.wrapper_creator.bfabric_submitter import BfabricSubmitter
+
 # Copyright (C) 2014,2015 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 # Modified to submit to the Slurm scheduler on 2020-09-28
 #
@@ -31,35 +36,13 @@ python bfabric_executable_submitter_slurm.py -j 45864
 """
 
 
-# import os
-# import sys
-from optparse import OptionParser
-from bfabric import BfabricSubmitter
-
-
 def main() -> None:
-    parser = OptionParser(usage="usage: %prog -j <externaljobid>", version="%prog 1.0")
-
-    parser.add_option(
-        "-j",
-        "--externaljobid",
-        type="int",
-        action="store",
-        dest="externaljobid",
-        default=None,
-        help="external job id is required.",
-    )
-
-    (options, args) = parser.parse_args()
-
-    if not options.externaljobid:
-        parser.error("option '-j' is required.")
-
-    bfapp = BfabricSubmitter(externaljobid=options.externaljobid, SCHEDULEROOT="/usr/", scheduler="Slurm")
-
+    parser = ArgumentParser(help="Submitter for B-Fabric")
+    parser.add_argument("-j", "--externaljobid", type=int)
+    args = parser.parse_args()
+    client = Bfabric.from_config()
+    bfapp = BfabricSubmitter(client=client, externaljobid=args.externaljobid, scheduleroot="/usr/", scheduler="Slurm")
     bfapp.submitter_yaml()
-    # TODO(cp): fix that
-    # print(bfapp.query_counter)
 
 
 if __name__ == "__main__":
