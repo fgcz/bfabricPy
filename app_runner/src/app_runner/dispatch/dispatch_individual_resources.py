@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from typing import Any, TYPE_CHECKING
 
-import yaml
-from bfabric.entities import Resource, Dataset
-from loguru import logger
 from pydantic import BaseModel, ConfigDict, model_validator
+
+from app_runner.dispatch.generic import write_workunit_definition_file, write_chunks_file
+from app_runner.dispatch.resource_flow import get_resource_flow_input_resources
+from bfabric.entities import Resource, Dataset
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -73,34 +74,18 @@ class DispatchIndividualResources:
             paths = self._dispatch_jobs_dataset_flow(definition, params)
         else:
             raise ValueError("either dataset or resources must be provided")
-        self._write_workunit_definition(definition=definition)
-        self._write_chunks(chunks=paths)
-
-    def _write_workunit_definition(self, definition: WorkunitDefinition) -> None:
-        self._out_dir.mkdir(exist_ok=True, parents=True)
-        with (self._out_dir / "workunit_definition.yml").open("w") as f:
-            yaml.safe_dump(definition.model_dump(mode="json"), f)
-
-    def _write_chunks(self, chunks: list[Path]) -> None:
-        self._out_dir.mkdir(exist_ok=True, parents=True)
-        with (self._out_dir / "chunks.yml").open("w") as f:
-            data = {"chunks": [str(chunk) for chunk in chunks]}
-            yaml.safe_dump(data, f)
+        write_workunit_definition_file(out_dir=self._out_dir, definition=definition)
+        write_chunks_file(out_dir=self._out_dir, chunks=paths)
 
     def _dispatch_jobs_resource_flow(self, definition: WorkunitDefinition, params: dict[str, Any]) -> list[Path]:
+        """Returns the individual jobs for a resource flow workunit and returns the paths of the task folders."""
         config = self._config.resource_flow
         if config is None:
             raise ValueError("resource_flow is not configured")
-        resources = Resource.find_all(ids=definition.execution.resources, client=self._client)
-        paths = []
-        for resource in sorted(resources.values()):
-            if config.filter_suffix is not None and not resource["relativepath"].endswith(config.filter_suffix):
-                logger.info(
-                    f"Skipping resource {resource['relativepath']!r} as it does not match the extension filter."
-                )
-                continue
-            paths.append(self.dispatch_job(resource=resource, params=params))
-        return paths
+        resources = get_resource_flow_input_resources(
+            client=self._client, definition=definition, filter_suffix=config.filter_suffix
+        )
+        return [self.dispatch_job(resource=resource, params=params) for resource in resources]
 
     def _dispatch_jobs_dataset_flow(self, definition: WorkunitDefinition, params: dict[str, Any]) -> list[Path]:
         config = self._config.dataset_flow
