@@ -17,6 +17,7 @@ instead a separate Python package with its individual changelog.
 
 - Relationship: `ExternalJob.executable`
 - (experimental) EntityLookupCache that allows to cache entity lookups in a script to avoid redundant requests.
+- Specific use case script: bfabric_save_resource_description.py (the functionality will be available in a future CLI).
 
 ### Fixed
 

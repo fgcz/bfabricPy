@@ -76,6 +76,7 @@ Repository = "https://github.com/fgcz/bfabricPy"
 "bfabric_save_workunit_attribute.py" = "bfabric_scripts.bfabric_save_workunit_attribute:main"
 "bfabric_save_workflowstep.py" = "bfabric_scripts.bfabric_save_workflowstep:main"
 "bfabric_slurm_queue_status.py" = "bfabric_scripts.bfabric_slurm_queue_status:main"
+"bfabric_save_resource_description.py" = "bfabric_scripts.bfabric_save_resource_description:main"
 
 [tool.setuptools.package-data]
 "*" = ["py.typed"]
