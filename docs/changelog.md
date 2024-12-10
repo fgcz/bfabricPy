@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.9\] - 2024-12-10
+
 From this release onwards, the experimental app runner is not part of the main bfabric package and
 instead a separate Python package with its individual changelog.
 
