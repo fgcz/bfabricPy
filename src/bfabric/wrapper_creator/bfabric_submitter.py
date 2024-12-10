@@ -139,11 +139,11 @@ EOF
 ## interrupt here if you want to do a semi-automatic processing
 if [ -x /usr/bin/mutt ];
 then
-    cat $0 > $TEMPDIR/$JOB_ID.bash
+    cat $0 > $TEMPDIR/$EXTERNALJOB_ID.bash
 
     (who am i; hostname; uptime; echo $0; pwd; ps;) \
-    | mutt -s "JOB_ID=$JOB_ID WORKUNIT_ID=$WORKUNIT_ID EXTERNALJOB_ID=$EXTERNALJOB_ID" $EMAIL \
-        -a $TEMPDIR/$JOB_ID.bash $TEMPDIR/config_WU$WORKUNIT_ID.yaml
+    | mutt -s "WORKUNIT_ID=$WORKUNIT_ID EXTERNALJOB_ID=$EXTERNALJOB_ID" $EMAIL \
+        -a $TEMPDIR/$EXTERNALJOB_ID.bash $TEMPDIR/config_WU$WORKUNIT_ID.yaml
 fi
 # exit 0
 
@@ -154,7 +154,7 @@ test -f $TEMPDIR/config_WU$WORKUNIT_ID.yaml && {executable} $TEMPDIR/config_WU$W
 if [ $? -eq 0 ];
 then
      ssh fgcz-r-035.uzh.ch "bfabric_setResourceStatus_available.py $RESSOURCEID_OUTPUT" \
-     | mutt -s "JOB_ID=$JOB_ID WORKUNIT_ID=$WORKUNIT_ID EXTERNALJOB_ID=$EXTERNALJOB_ID DONE" $EMAIL
+     | mutt -s "WORKUNIT_ID=$WORKUNIT_ID EXTERNALJOB_ID=$EXTERNALJOB_ID DONE" $EMAIL
 
      bfabric_save_workflowstep.py $WORKUNIT_ID
      bfabric_setExternalJobStatus_done.py $EXTERNALJOB_ID
@@ -162,7 +162,7 @@ then
     echo $?
 else
     echo "application failed"
-     mutt -s "JOB_ID=$JOB_ID WORKUNIT_ID=$WORKUNIT_ID EXTERNALJOB_ID=$EXTERNALJOB_ID failed" $EMAIL < /dev/null
+     mutt -s "WORKUNIT_ID=$WORKUNIT_ID EXTERNALJOB_ID=$EXTERNALJOB_ID failed" $EMAIL < /dev/null
      bfabric_setResourceStatus_available.py $RESSOURCEID_STDOUT_STDERR $RESSOURCEID;
     exit 1;
 fi
