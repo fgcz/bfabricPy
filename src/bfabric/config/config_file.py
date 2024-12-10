@@ -23,13 +23,15 @@ class EnvironmentConfig(BaseModel):
     @classmethod
     def gather_config(cls, values: dict[str, Any]) -> dict[str, Any]:
         """Gathers all configs into the config field."""
+        if not isinstance(values, dict):
+            return values
         values["config"] = {key: value for key, value in values.items() if key not in ["login", "password"]}
         return values
 
     @model_validator(mode="before")
     @classmethod
     def gather_auth(cls, values: dict[str, Any]) -> dict[str, Any]:
-        if "login" in values:
+        if isinstance(values, dict) and "login" in values:
             values["auth"] = BfabricAuth.model_validate(values)
         return values
 

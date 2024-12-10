@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Fixed
+
+- If `bfabricpy.yml` contains a root-level key which is not a dictionary, a correct error message is shown instead of raising an exception.
+
 ## \[1.13.9\] - 2024-12-10
 
 From this release onwards, the experimental app runner is not part of the main bfabric package and
