@@ -9,7 +9,12 @@ app = cyclopts.App()
 
 
 @app.command
-def submit(external_job_id: int, scheduler: Literal["Slurm"] = "Slurm") -> None:
+def submitter(external_job_id: int, scheduler: Literal["Slurm"] = "Slurm") -> None:
     client = Bfabric.from_config()
     submitter = BfabricSubmitter(client=client, externaljobid=external_job_id, scheduleroot="/usr/", scheduler="Slurm")
     submitter.submitter_yaml()
+
+
+@app.command
+def wrapper_creator():
+    pass
