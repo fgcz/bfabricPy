@@ -78,6 +78,8 @@ Repository = "https://github.com/fgcz/bfabricPy"
 "bfabric_slurm_queue_status.py" = "bfabric_scripts.bfabric_slurm_queue_status:main"
 "bfabric_save_resource_description.py" = "bfabric_scripts.bfabric_save_resource_description:main"
 
+"bfabric-cli" = "bfabric_scripts.cli.__main__:app"
+
 [tool.setuptools.package-data]
 "*" = ["py.typed"]
 
