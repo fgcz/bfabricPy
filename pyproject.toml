@@ -79,6 +79,8 @@ Repository = "https://github.com/fgcz/bfabricPy"
 "bfabric_save_resource_description.py" = "bfabric_scripts.bfabric_save_resource_description:main"
 "bfabric_upload_submitter_executable.py" = "bfabric_scripts.bfabric_upload_submitter_executable:main"
 
+"bfabric_cli" = "bfabric_scripts.cli.__main__:app"
+
 [tool.setuptools.package-data]
 "*" = ["py.typed"]
 
