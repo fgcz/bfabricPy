@@ -103,14 +103,7 @@ class BfabricSubmitter:
 #SBATCH --workdir=/home/bfabric
 #SBATCH --export=ALL,HOME=/home/bfabric
 
-# Grid Engine Parameters
-#$ -q {partition}&{nodelist}
-#$ -e {stderr_url}
-#$ -o {stdout_url}
-
-
-set -e
-set -o pipefail
+set -euxo pipefail
 
 export EMAIL="{job_notification_emails}"
 export EXTERNALJOB_ID={external_job_id}
