@@ -1,7 +1,8 @@
 .idea/
 __pycache__
-bfabric.egg-info/
+*.egg-info/
 bfabric/scripts/query_result.txt
 build/
 dist/
 site/
+_build/

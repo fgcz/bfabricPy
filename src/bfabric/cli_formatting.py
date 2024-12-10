@@ -18,10 +18,15 @@ DEFAULT_THEME = Theme({"bfabric.hostname": "bold red"})
 
 def setup_script_logging(debug: bool = False) -> None:
     """Sets up the logging for the command line scripts."""
+    setup_flag_key = "BFABRICPY_SCRIPT_LOGGING_SETUP"
+    if os.environ.get(setup_flag_key, "0") == "1":
+        return
     logger.remove()
+    packages = ["bfabric", "bfabric_scripts", "app_runner", "__main__"]
     if not (debug or os.environ.get("BFABRICPY_DEBUG")):
-        logger.add(sys.stderr, filter="bfabric", level="INFO", format="{level} {message}")
-        logger.add(sys.stderr, filter="__main__", level="INFO", format="{level} {message}")
+        for package in packages:
+            logger.add(sys.stderr, filter=package, level="INFO", format="{level} {message}")
     else:
-        logger.add(sys.stderr, filter="bfabric", level="DEBUG")
-        logger.add(sys.stderr, filter="__main__", level="DEBUG")
+        for package in packages:
+            logger.add(sys.stderr, filter=package, level="DEBUG")
+    os.environ[setup_flag_key] = "1"

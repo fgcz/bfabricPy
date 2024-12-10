@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+import tempfile
 from pathlib import Path
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from polars import DataFrame
 
-from bfabric import Bfabric
 from bfabric.entities.core.entity import Entity
+
+if TYPE_CHECKING:
+    from bfabric import Bfabric
 
 
 class Dataset(Entity):
@@ -31,3 +34,11 @@ class Dataset(Entity):
     def write_csv(self, path: Path, separator: str = ",") -> None:
         """Writes the dataset to a csv file at `path`, using the specified column `separator`."""
         self.to_polars().write_csv(path, separator=separator)
+
+    def get_csv(self, separator: str = ",") -> str:
+        """Returns the dataset as a csv string, using the specified column `separator`."""
+        with tempfile.NamedTemporaryFile() as tmp_file:
+            self.write_csv(Path(tmp_file.name), separator=separator)
+            tmp_file.flush()
+            tmp_file.seek(0)
+            return tmp_file.read().decode()

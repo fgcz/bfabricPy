@@ -1,0 +1,51 @@
+name: Build App Runner
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+    tags:
+      - "app-runner/*"
+jobs:
+  build_app_runner:
+    name: Build App Runner
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: |
+          bash app_runner/deploy/build.sh build-output app_runner
+          ls -l build-output
+      - name: Verify
+        run: |
+          build-output/app_runner/app_runner --help
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: app_runner_linux_x86_64
+          path: build-output
+  publish_release_artifact:
+    name: Publish Release Artifact
+    runs-on: ubuntu-latest
+    needs: build_app_runner
+    if: github.event_name == 'release'
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app_runner_linux_x86_64
+          path: app_runner_linux_x86_64
+      - name: Zip for release
+        run: |
+          cd app_runner_linux_x86_64
+          zip -r app_runner_linux_x86_64.zip *
+          ls -l
+      - name: Print folder structure
+        run: |
+          tree
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            app_runner_linux_x86_64/app_runner_linux_x86_64.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

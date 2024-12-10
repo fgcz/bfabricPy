@@ -12,7 +12,7 @@ from bfabric.config import ConfigFile
 
 def read_config(
     config_path: str | Path,
-    config_env: str = None,
+    config_env: str | None = None,
 ) -> tuple[BfabricClientConfig, BfabricAuth | None]:
     """
     Reads bfabricpy.yml file, parses it, extracting authentication and configuration data

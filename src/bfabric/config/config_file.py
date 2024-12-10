@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from typing import Annotated
+from typing import Annotated, Any
 
 from loguru import logger
 from pydantic import BaseModel, Field, model_validator
@@ -21,14 +21,14 @@ class EnvironmentConfig(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def gather_config(cls, values):
+    def gather_config(cls, values: dict[str, Any]) -> dict[str, Any]:
         """Gathers all configs into the config field."""
         values["config"] = {key: value for key, value in values.items() if key not in ["login", "password"]}
         return values
 
     @model_validator(mode="before")
     @classmethod
-    def gather_auth(cls, values):
+    def gather_auth(cls, values: dict[str, Any]) -> dict[str, Any]:
         if "login" in values:
             values["auth"] = BfabricAuth.model_validate(values)
         return values
@@ -40,7 +40,7 @@ class ConfigFile(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def gather_configs(cls, values):
+    def gather_configs(cls, values: dict[str, Any]) -> dict[str, Any]:
         """Gathers all configs into the configs field."""
         configs = {}
         for key, value in values.items():

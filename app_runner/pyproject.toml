@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "app_runner"
+description = "Application runner for B-Fabric apps"
+version = "0.0.6"
+license = { text = "GPL-3.0" }
+authors = [
+    {name = "Leonardo Schwarz", email = "leonardo.schwarz@fgcz.ethz.ch"},
+]
+requires-python = ">=3.12"
+dependencies = [
+    "bfabric @ git+https://github.com/fgcz/bfabricPy.git@main",
+    "pydantic",
+    "glom",
+]
+
+[project.scripts]
+"bfabric-app-runner"="app_runner.cli.__main__:app"
+
+[project.optional-dependencies]
+doc = [
+    "sphinx",
+    "myst-parser",
+    "autodoc_pydantic",
+    "sphinx-book-theme",
+    "sphinx-autobuild",
+    "sphinxcontrib-plantuml",
+]
+dev = [
+    "app_runner[doc]",
+    "bfabric[dev, typing]",
+    "mypy",
+    "types-PyYAML",
+]
+
+[tool.uv]
+reinstall-package = ["app_runner"]
+
+[tool.black]
+line-length = 120
+
+[tool.ruff]
+line-length = 120
+indent-width = 4
+
+[tool.ruff.lint]
+select = ["ANN", "BLE", "D103", "E", "EXE", "F", "N", "PLW", "PTH", "SIM", "TCH", "UP", "W191"]
+ignore = ["ANN101", "ANN102"]
+
+[tool.ruff.lint.per-file-ignores]
+# This is needed because of false positives in cyclopts code
+"**/app_runner/cli/**" = ["TCH001", "TCH002", "TCH003"]

@@ -69,6 +69,13 @@ def test_find_all_when_not_all_found(mocker, mock_client) -> None:
     mock_client.read.assert_called_once_with("test_endpoint", obj={"id": [1, 5]})
 
 
+def test_find_all_when_empty_list(mock_client) -> None:
+    entities = Entity.find_all([], mock_client)
+    assert entities == {}
+    mock_client.read.assert_not_called()
+    mock_client.assert_not_called()
+
+
 def test_find_by_when_found(mocker, mock_client) -> None:
     mock_client.read.return_value = [{"id": 1, "name": "Test Entity"}]
     mocker.patch.object(Entity, "ENDPOINT", new="test_endpoint")

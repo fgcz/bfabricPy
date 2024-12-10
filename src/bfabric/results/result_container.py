@@ -1,20 +1,24 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, TYPE_CHECKING
-from collections.abc import Iterable
+from typing import Any, TYPE_CHECKING, overload
 
 import bfabric.results.response_format_dict as formatter
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
     import polars
+    from bfabric.errors import BfabricRequestError
 
 
 class ResultContainer:
     """Container structure for query results."""
 
     def __init__(
-        self, results: list[dict[str, Any]], total_pages_api: int | None = None, errors: list | None = None
+        self,
+        results: list[dict[str, Any]],
+        total_pages_api: int | None = None,
+        errors: list[BfabricRequestError] | None = None,
     ) -> None:
         """
         :param results:    List of BFabric query results
@@ -28,10 +32,16 @@ class ResultContainer:
         self._total_pages_api = total_pages_api
         self._errors = errors or []
 
-    def __getitem__(self, idx: int) -> dict[str, Any]:
+    @overload
+    def __getitem__(self, idx: int) -> dict[str, Any]: ...
+
+    @overload
+    def __getitem__(self, idx: slice) -> list[dict[str, Any]]: ...
+
+    def __getitem__(self, idx: int | slice) -> dict[str, Any] | list[dict[str, Any]]:
         return self.results[idx]
 
-    def __iter__(self) -> Iterable[dict[str, Any]]:
+    def __iter__(self) -> Iterator[dict[str, Any]]:
         return iter(self.results)
 
     def __repr__(self) -> str:
@@ -61,8 +71,8 @@ class ResultContainer:
         return len(self._errors) == 0
 
     @property
-    def errors(self) -> list:
-        """List of errors that occurred during the query. An empty list means the query was successful."""
+    def errors(self) -> list[BfabricRequestError]:
+        """List of errors that occurred during the query. An empty list indicates success."""
         return self._errors
 
     def extend(self, other: ResultContainer, reset_total_pages_api: bool = False) -> None:

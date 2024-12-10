@@ -10,6 +10,32 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.9\] - 2024-12-10
+
+From this release onwards, the experimental app runner is not part of the main bfabric package and
+instead a separate Python package with its individual changelog.
+
+### Added
+
+- Relationship: `ExternalJob.executable`
+- (experimental) EntityLookupCache that allows to cache entity lookups in a script to avoid redundant requests.
+- Specific use case script: bfabric_save_resource_description.py (the functionality will be available in a future CLI).
+
+### Fixed
+
+- `Entity.find_all` returns no values when an empty list is passed as an argument.
+
+### Changed
+
+- Except for macOS x86_64 (which we assume is Rosetta emulation nowadays), we use the faster `polars` instead of `polars-lts-cpu`.
+- `BfabricRequestError` is now a `RuntimeError` subclass.
+- Add `py.typed` marker.
+
+### Removed
+
+- `bfabric_legacy.py` has been removed.
+- `math_helper.py` has been removed.
+
 ## \[1.13.8\] - 2024-10-03
 
 This release contains mainly internal changes and ongoing development on the experimental app interface functionality.
