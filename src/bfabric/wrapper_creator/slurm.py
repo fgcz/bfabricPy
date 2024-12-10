@@ -61,7 +61,12 @@ class SLURM:
 
         env = os.environ | {"SLURMROOT": self._slurm_root}
         result = subprocess.run(
-            [self._sbatch_bin, script], env=env, check=True, shell=False, capture_output=True, encoding="utf-8"
+            [str(self._sbatch_bin), str(script)],
+            env=env,
+            check=True,
+            shell=False,
+            capture_output=True,
+            encoding="utf-8",
         )
         # TODO the code initially had a TODO to write these two to a file, in general I think the logs of the squeue
         #      are currently not written to a file at all.

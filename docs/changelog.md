@@ -13,6 +13,7 @@ Versioning currently follows `X.Y.Z` where
 ### Fixed
 
 - If `bfabricpy.yml` contains a root-level key which is not a dictionary, a correct error message is shown instead of raising an exception.
+- A bug introduced while refactoring in `slurm.py` which passed `Path` objects to `subprocess` instead of strings.
 
 ## \[1.13.9\] - 2024-12-10
 
