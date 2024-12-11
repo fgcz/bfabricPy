@@ -47,12 +47,12 @@ from bfabric.cli_formatting import setup_script_logging
 def slurm_parameters() -> list[dict[str, str]]:
     parameters = [{"modifiable": "true", "required": "true", "type": "STRING"} for _ in range(3)]
     parameters[0]["description"] = "Which Slurm partition should be used."
-    parameters[0]["enumeration"] = ["prx"]
+    parameters[0]["enumeration"] = ["prx", "mascot"]
     parameters[0]["key"] = "partition"
     parameters[0]["label"] = "partition"
     parameters[0]["value"] = "prx"
     parameters[1]["description"] = "Which Slurm nodelist should be used."
-    parameters[1]["enumeration"] = ["fgcz-r-033"]
+    parameters[1]["enumeration"] = ["fgcz-r-024", "fgcz-r-033"]
     parameters[1]["key"] = "nodelist"
     parameters[1]["label"] = "nodelist"
     parameters[1]["value"] = "fgcz-r-[035,028]"
