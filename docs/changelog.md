@@ -19,6 +19,10 @@ Versioning currently follows `X.Y.Z` where
     - does not set unused `STAMP` environment variable anymore.
 - Fix `bfabric_save_workflowstep.py` bugs from refactoring.
 
+### Added
+
+- Add back `bfabric_upload_submitter_executable.py` script
+
 ## \[1.13.9\] - 2024-12-10
 
 From this release onwards, the experimental app runner is not part of the main bfabric package and

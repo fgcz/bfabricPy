@@ -77,6 +77,7 @@ Repository = "https://github.com/fgcz/bfabricPy"
 "bfabric_save_workflowstep.py" = "bfabric_scripts.bfabric_save_workflowstep:main"
 "bfabric_slurm_queue_status.py" = "bfabric_scripts.bfabric_slurm_queue_status:main"
 "bfabric_save_resource_description.py" = "bfabric_scripts.bfabric_save_resource_description:main"
+"bfabric_upload_submitter_executable.py" = "bfabric_scripts.bfabric_upload_submitter_executable:main"
 
 [tool.setuptools.package-data]
 "*" = ["py.typed"]
