@@ -4,6 +4,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.0.7\] - 2024-11-22
+
+### Fixed
+
+- When executing `app run` the experimental entity cache created incorrect behavior. The caching is temporarily disabled,
+    until the issue is resolved.
+
 ## \[0.0.6\] - 2024-11-14
 
 First version with CD that will trigger the deployment automatically.
