@@ -52,7 +52,7 @@ def slurm_parameters() -> list[dict[str, str]]:
     parameters[0]["label"] = "partition"
     parameters[0]["value"] = "prx"
     parameters[1]["description"] = "Which Slurm nodelist should be used."
-    parameters[1]["enumeration"] = ["fgcz-r-024", "fgcz-r-033"]
+    parameters[1]["enumeration"] = ["fgcz-r-024", "fgcz-r-033", "fgcz-c-072", "fgcz-c-073"]
     parameters[1]["key"] = "nodelist"
     parameters[1]["label"] = "nodelist"
     parameters[1]["value"] = "fgcz-r-[035,028]"
