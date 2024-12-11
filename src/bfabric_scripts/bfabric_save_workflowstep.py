@@ -42,8 +42,8 @@ def save_workflowstep(workunit_id: int | None = None) -> None:
     }
 
     workunit = client.read("workunit", obj={"id": workunit_id}).to_list_dict()[0]
-    application_id = workunit["application"]["_id"]
-    container_id = workunit["container"]["_id"]
+    application_id = workunit["application"]["id"]
+    container_id = workunit["container"]["id"]
 
     if application_id in workflowtemplatestep_ids and application_id in workflowtemplate_ids:
         workflows = client.read("workflow", obj={"containerid": container_id}).to_list_dict()
@@ -70,7 +70,7 @@ def save_workflowstep(workunit_id: int | None = None) -> None:
                 "workflowtemplatestepid": workflowtemplatestep_ids[application_id],
                 "workunitid": workunit_id,
             },
-        ).to_list_dict()
+        )
         print(res[0])
 
 

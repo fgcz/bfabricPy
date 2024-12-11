@@ -14,7 +14,10 @@ Versioning currently follows `X.Y.Z` where
 
 - If `bfabricpy.yml` contains a root-level key which is not a dictionary, a correct error message is shown instead of raising an exception.
 - A bug introduced while refactoring in `slurm.py` which passed `Path` objects to `subprocess` instead of strings.
-- Submitter does not use unset `JOB_ID` environment variable anymore.
+- Submitter
+    - does not use unset `JOB_ID` environment variable anymore.
+    - does not set unused `STAMP` environment variable anymore.
+- Fix `bfabric_save_workflowstep.py` bugs from refactoring.
 
 ## \[1.13.9\] - 2024-12-10
 
