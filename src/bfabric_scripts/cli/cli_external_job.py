@@ -8,6 +8,7 @@ from rich.pretty import pprint
 from bfabric import Bfabric
 from bfabric.wrapper_creator.bfabric_submitter import BfabricSubmitter
 from bfabric.wrapper_creator.bfabric_wrapper_creator import BfabricWrapperCreator
+from bfabric_scripts.cli.external_job.upload_wrapper_creator_executable import upload_wrapper_creator_executable_impl
 
 app = cyclopts.App()
 
@@ -37,3 +38,9 @@ def wrapper_creator(external_job_id: int) -> None:
     client = Bfabric.from_config()
     creator = BfabricWrapperCreator(client=client, external_job_id=external_job_id)
     pprint(creator.create())
+
+
+@app.command
+def upload_wrapper_creator_executable(filename: Path) -> None:
+    client = Bfabric.from_config()
+    upload_wrapper_creator_executable_impl(client=client, filename=filename)
