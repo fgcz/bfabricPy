@@ -72,7 +72,7 @@ class BfabricWrapperCreator:
                 "name": f"slurm_std{variant}",
                 "workunitid": self.workunit_definition.registration.workunit_id,
                 "storageid": self._log_storage.id,
-                "relativepath": f"/workunitid-{self._workunit.id}_resourceid-{output_resource.id}.{variant}",
+                "relativepath": f"workunitid-{self._workunit.id}_resourceid-{output_resource.id}.{variant}",
             },
         )
         return Resource(result[0])
