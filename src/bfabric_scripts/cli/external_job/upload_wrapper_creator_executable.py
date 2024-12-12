@@ -14,7 +14,7 @@ def upload_wrapper_creator_executable_impl(client: Bfabric, filename: Path):
         "parameter": None,
         "description": "None.",
         "masterexecutableid": 11851,
-        "base64": base64.b64encode(executable_content),
+        "base64": base64.b64encode(executable_content.encode()),
     }
     result = client.save("executable", attr)
     pprint(result)
