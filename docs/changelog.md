@@ -21,7 +21,7 @@ Versioning currently follows `X.Y.Z` where
 
 ### Added
 
-- Add back `bfabric_upload_submitter_executable.py` script
+- Several extensions to bfabric-cli.
 
 ## \[1.13.9\] - 2024-12-10
 
