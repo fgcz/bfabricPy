@@ -3,9 +3,11 @@ from pathlib import Path
 from typing import Literal
 
 import cyclopts
+from rich.pretty import pprint
 
 from bfabric import Bfabric
 from bfabric.wrapper_creator.bfabric_submitter import BfabricSubmitter
+from bfabric.wrapper_creator.bfabric_wrapper_creator import BfabricWrapperCreator
 
 app = cyclopts.App()
 
@@ -31,5 +33,7 @@ def submitter(external_job_id: int, scheduler: Literal["Slurm"] = "Slurm") -> No
 
 
 @app.command
-def wrapper_creator():
-    pass
+def wrapper_creator(external_job_id: int) -> None:
+    client = Bfabric.from_config()
+    creator = BfabricWrapperCreator(client=client, external_job_id=external_job_id)
+    pprint(creator.create())
