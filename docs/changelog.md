@@ -14,6 +14,10 @@ Versioning currently follows `X.Y.Z` where
 
 - The script `bfabric_setWorkunitStatus.py` did always set the status to `available`, instead of the specified status.
 
+### Changed
+
+- `bfabric_setResourceStatus_available.py` calls the `report_resource` function, in general this functionality has been refactored.
+
 ## \[1.13.10\] - 2024-12-13
 
 ### Fixed
