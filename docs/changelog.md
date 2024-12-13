@@ -21,7 +21,7 @@ Versioning currently follows `X.Y.Z` where
 
 ### Added
 
-- Several extensions to bfabric-cli.
+- Experimental bfabric-cli interface. Please do not use it in production yet as it will need a lot of refinement.
 
 ## \[1.13.9\] - 2024-12-10
 
