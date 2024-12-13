@@ -100,7 +100,7 @@ class BfabricSubmitter:
 #SBATCH -e {stderr_url}
 #SBATCH -o {stdout_url}
 #SBATCH --job-name=WU{workunit_id}
-#SBATCH --workdir=/home/bfabric
+#SBATCH --chdir=/home/bfabric
 #SBATCH --export=ALL,HOME=/home/bfabric
 
 set -euxo pipefail
@@ -111,7 +111,6 @@ export RESSOURCEID_OUTPUT={resource_id_output}
 export RESSOURCEID_STDOUT_STDERR="{resource_id_stderr} {resource_id_stdout}"
 export OUTPUT="{output_list}"
 export WORKUNIT_ID="{workunit_id}"
-STAMP=`/bin/date +%Y%m%d%H%M`.$$.$JOB_ID
 TEMPDIR="/home/bfabric/prx"
 
 _OUTPUT=`echo $OUTPUT | cut -d"," -f1`

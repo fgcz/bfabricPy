@@ -6,6 +6,7 @@ from functools import cached_property
 from pathlib import Path
 from typing import Any, Literal
 
+import yaml
 from loguru import logger
 
 from bfabric import Bfabric
@@ -71,7 +72,7 @@ class BfabricWrapperCreator:
                 "name": f"slurm_std{variant}",
                 "workunitid": self.workunit_definition.registration.workunit_id,
                 "storageid": self._log_storage.id,
-                "relativepath": f"/workunitid-{self._workunit.id}_resourceid-{output_resource.id}.{variant}",
+                "relativepath": f"workunitid-{self._workunit.id}_resourceid-{output_resource.id}.{variant}",
             },
         )
         return Resource(result[0])
@@ -177,3 +178,19 @@ class BfabricWrapperCreator:
         self._client.save("externaljob", {"id": self._external_job_id, "status": "done"})
 
         return yaml_workunit_executable, yaml_workunit_externaljob
+
+    def create(self) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+        """Creates the YAML file external job and resources, and registers everything in B-Fabric."""
+        output_resource = self.create_output_resource()
+        stdout_resource = self.create_log_resource(variant="out", output_resource=output_resource)
+        stderr_resource = self.create_log_resource(variant="err", output_resource=output_resource)
+
+        config_dict = {
+            "application": self.get_application_section(output_resource=output_resource),
+            "job_configuration": self.get_job_configuration_section(
+                output_resource=output_resource, stdout_resource=stdout_resource, stderr_resource=stderr_resource
+            ),
+        }
+        config_serialized = yaml.safe_dump(config_dict)
+        yaml_workunit_executable, yaml_workunit_externaljob = self.write_results(config_serialized=config_serialized)
+        return config_dict, yaml_workunit_executable, yaml_workunit_externaljob
