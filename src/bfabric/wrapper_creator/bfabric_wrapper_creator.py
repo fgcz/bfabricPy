@@ -180,6 +180,7 @@ class BfabricWrapperCreator:
         return yaml_workunit_executable, yaml_workunit_externaljob
 
     def create(self) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+        """Creates the YAML file external job and resources, and registers everything in B-Fabric."""
         output_resource = self.create_output_resource()
         stdout_resource = self.create_log_resource(variant="out", output_resource=output_resource)
         stderr_resource = self.create_log_resource(variant="err", output_resource=output_resource)
