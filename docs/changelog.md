@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Fixed
+
+- The script `bfabric_setWorkunitStatus.py` did always set the status to `available`, instead of the specified status.
+
 ## \[1.13.10\] - 2024-12-13
 
 ### Fixed
