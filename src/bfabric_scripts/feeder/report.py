@@ -14,7 +14,7 @@ def report_resource(client: Bfabric, resource_id: int) -> ResultContainer:
     resource = Resource.find(id=resource_id, client=client)
     pprint(resource, indent_guides=False)
 
-    if not hasattr(resource, "storage"):
+    if resource.storage is None:
         # TODO is this possible for a resource to not have a storage?
         logger.error("Resource does not have a storage")
         return ResultContainer([])
