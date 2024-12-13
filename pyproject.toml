@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "bfabric"
 description = "Python client for the B-Fabric WSDL API"
-version = "1.13.9"
+version = "1.13.10"
 license = { text = "GPL-3.0" }
 authors = [
     { name = "Christian Panse", email = "cp@fgcz.ethz.ch" },
@@ -77,6 +77,8 @@ Repository = "https://github.com/fgcz/bfabricPy"
 "bfabric_save_workflowstep.py" = "bfabric_scripts.bfabric_save_workflowstep:main"
 "bfabric_slurm_queue_status.py" = "bfabric_scripts.bfabric_slurm_queue_status:main"
 "bfabric_save_resource_description.py" = "bfabric_scripts.bfabric_save_resource_description:main"
+
+"bfabric-cli" = "bfabric_scripts.cli.__main__:app"
 
 [tool.setuptools.package-data]
 "*" = ["py.typed"]

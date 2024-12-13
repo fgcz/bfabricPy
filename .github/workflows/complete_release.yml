@@ -37,12 +37,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-bfabricpy
+      - uses: actions/setup-python@v5
         with:
           python-version: 3.12
+      - name: Install nox
+        run: pip install nox uv
       - name: Publish documentation
         run: |
           set -euxo pipefail
           git fetch --unshallow origin gh-pages
           git checkout gh-pages && git pull && git checkout -
-          uv run mkdocs gh-deploy
+          nox -s docs
+          nox -s publish_docs

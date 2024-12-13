@@ -23,7 +23,7 @@ def test_sbatch_when_success(mocker: MockerFixture, mock_slurm: SLURM, path: Pat
     assert stdout == "stdout"
     assert stderr == "stderr"
     mock_run.assert_called_once_with(
-        [Path("/tmp/test_slurm/bin/sbatch"), Path(path)],
+        ["/tmp/test_slurm/bin/sbatch", str(path)],
         env={"SLURMROOT": Path("/tmp/test_slurm"), "x": "y"},
         check=True,
         shell=False,
