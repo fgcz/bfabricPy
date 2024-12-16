@@ -20,6 +20,7 @@ def report_resource(client: Bfabric, resource_id: int) -> ResultContainer:
         return ResultContainer([])
 
     filename = Path(resource.storage["basepath"]) / resource["relativepath"]
+    logger.info("Testing file: {}", filename)
     if filename.is_file():
         checksum, _, filesize, _ = get_file_attributes(str(filename))
         return client.save(
