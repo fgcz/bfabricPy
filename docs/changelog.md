@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Changed
+
+- The submitter ensures that workunits always get set to `processing`.
+
 ## \[1.13.11\] - 2024-12-13
 
 ### Fixed
