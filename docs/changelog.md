@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Changed
+
+- Move `bfabric-cli read` to `bfabric-cli api read`.
+
 ### Added
 
 - Functionality to log by specifying the workunit instead of external job, which is used in some legacy scripts.
