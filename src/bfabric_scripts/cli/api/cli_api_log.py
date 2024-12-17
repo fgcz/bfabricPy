@@ -6,7 +6,7 @@ from rich.pretty import pprint
 from bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
 
-cmd = cyclopts.App(help="write log messages to workunits and external jobs")
+cmd = cyclopts.App(help="write log messages of external jobs")
 
 log_target = cyclopts.Group(
     "Log Target",
