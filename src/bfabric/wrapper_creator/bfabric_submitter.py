@@ -146,6 +146,9 @@ then
 fi
 # exit 0
 
+# Set the workunit status to processing
+bfabric_setWorkunitStatus_processing.py $WORKUNIT_ID
+
 # run the application
 test -f $TEMPDIR/config_WU$WORKUNIT_ID.yaml && {executable} $TEMPDIR/config_WU$WORKUNIT_ID.yaml
 
@@ -163,6 +166,7 @@ else
     echo "application failed"
      mutt -s "WORKUNIT_ID=$WORKUNIT_ID EXTERNALJOB_ID=$EXTERNALJOB_ID failed" $EMAIL < /dev/null
      bfabric_setResourceStatus_available.py $RESSOURCEID_STDOUT_STDERR $RESSOURCEID;
+     bfabric_setWorkunitStatus_failed.py $WORKUNIT_ID
     exit 1;
 fi
 

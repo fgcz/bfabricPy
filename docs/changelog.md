@@ -10,6 +10,17 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.12\] - 2024-12-17
+
+### Changed
+
+- The submitter ensures that workunits always get set to `processing`.
+
+### Fixed
+
+- The script `bfabric_setResourceStatus_available.py` and other uses of `report_resource`, correctly search files which
+    have a relative path starting with `/` as in the case of the legacy wrapper creator.
+
 ## \[1.13.11\] - 2024-12-13
 
 ### Fixed
