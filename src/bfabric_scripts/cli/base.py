@@ -21,12 +21,12 @@ def use_client(fn, setup_logging: bool = True):
 
     @functools.wraps(fn)
     def wrapper(*args, **kwargs):
+        if setup_logging:
+            setup_script_logging()
         if "client" in kwargs:
             client = kwargs.pop("client")
         else:
             client = Bfabric.from_config()
-        if setup_logging:
-            setup_script_logging()
         return fn(*args, **kwargs, client=client)
 
     # Update the signature of the wrapper
