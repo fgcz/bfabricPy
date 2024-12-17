@@ -13,6 +13,7 @@ Versioning currently follows `X.Y.Z` where
 ### Changed
 
 - Move `bfabric-cli read` to `bfabric-cli api read`.
+- (internal) `use_client` decorator is introduced to simplify and standardize the client usage in the new CLI code.
 
 ### Added
 
