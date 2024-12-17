@@ -19,6 +19,7 @@ Versioning currently follows `X.Y.Z` where
 
 - Functionality to log by specifying the workunit instead of external job, which is used in some legacy scripts.
 - Add logging commands to `bfabric-cli api log`.
+- Add `bfabric-cli api save`.
 
 ## \[1.13.12\] - 2024-12-17
 
