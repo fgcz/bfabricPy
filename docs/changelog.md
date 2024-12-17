@@ -10,6 +10,11 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Added
+
+- Functionality to log by specifying the workunit instead of external job, which is used in some legacy scripts.
+- Add logging commands to `bfabric-cli api log`.
+
 ## \[1.13.12\] - 2024-12-17
 
 ### Changed
