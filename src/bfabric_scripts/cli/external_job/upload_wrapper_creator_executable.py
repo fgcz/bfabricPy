@@ -4,9 +4,11 @@ from pathlib import Path
 from rich.pretty import pprint
 
 from bfabric import Bfabric
+from bfabric_scripts.cli.base import use_client
 
 
-def upload_wrapper_creator_executable_impl(client: Bfabric, filename: Path):
+@use_client
+def upload_wrapper_creator_executable(client: Bfabric, filename: Path):
     executable_content = filename.read_text()
     attr = {
         "name": "yaml 004",

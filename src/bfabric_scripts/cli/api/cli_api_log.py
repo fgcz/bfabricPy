@@ -4,7 +4,7 @@ import cyclopts
 from rich.pretty import pprint
 
 from bfabric import Bfabric
-from bfabric.cli_formatting import setup_script_logging
+from bfabric_scripts.cli.base import use_client
 
 cmd = cyclopts.App(help="write log messages of external jobs")
 
@@ -15,14 +15,14 @@ log_target = cyclopts.Group(
 
 
 @cmd.command
+@use_client
 def write(
     message: str,
     *,
+    client: Bfabric,
     workunit: Annotated[int | None, cyclopts.Parameter(group=log_target)] = None,
     externaljob: Annotated[int | None, cyclopts.Parameter(group=log_target)] = None,
 ) -> None:
-    setup_script_logging()
-    client = Bfabric.from_config()
     if workunit is not None:
         write_workunit(client=client, workunit_id=workunit, message=message)
     elif externaljob is not None:
