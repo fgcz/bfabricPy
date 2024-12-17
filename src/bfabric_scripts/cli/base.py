@@ -1,5 +1,5 @@
 import functools
-
+import inspect
 from bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
 
@@ -7,13 +7,19 @@ from bfabric.cli_formatting import setup_script_logging
 def use_client(fn, setup_logging: bool = True):
     """Decorator that injects a Bfabric client into a function.
 
-    The function must have a `client` keyword argument.
-    If the function is called without a `client` keyword argument, a client is created using the default configuration.
-    If `setup_logging` is True (default), the logging is set up using `setup_script_logging`.
+    The client is automatically created using default configuration if not provided.
+    If setup_logging is True (default), logging is set up using setup_script_logging.
     """
-    fn_for_sig = functools.partial(fn, client=None)
+    # Get the original signature
+    sig = inspect.signature(fn)
 
-    @functools.wraps(fn_for_sig)
+    # Create new parameters without the client parameter
+    params = [param for name, param in sig.parameters.items() if name != "client"]
+
+    # Create a new signature without the client parameter
+    new_sig = sig.replace(parameters=params)
+
+    @functools.wraps(fn)
     def wrapper(*args, **kwargs):
         if "client" in kwargs:
             client = kwargs.pop("client")
@@ -23,4 +29,6 @@ def use_client(fn, setup_logging: bool = True):
             setup_script_logging()
         return fn(*args, **kwargs, client=client)
 
+    # Update the signature of the wrapper
+    wrapper.__signature__ = new_sig
     return wrapper
