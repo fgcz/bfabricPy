@@ -1,10 +1,10 @@
 from typing import Annotated
 
 import cyclopts
+from rich.pretty import pprint
 
 from bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
-from rich.pretty import pprint
 
 cmd = cyclopts.App(help="write log messages to workunits and external jobs")
 
@@ -18,13 +18,15 @@ log_target = cyclopts.Group(
 def write(
     message: str,
     *,
-    workunit: Annotated[int, cyclopts.Parameter(group=log_target)] = None,
-    externaljob: Annotated[int, cyclopts.Parameter(group=log_target)] = None,
+    workunit: Annotated[int | None, cyclopts.Parameter(group=log_target)] = None,
+    externaljob: Annotated[int | None, cyclopts.Parameter(group=log_target)] = None,
 ) -> None:
-    if workunit:
+    if workunit is not None:
         write_workunit(workunit_id=workunit, message=message)
-    else:
+    elif externaljob is not None:
         write_externaljob(externaljob_id=externaljob, message=message)
+    else:
+        raise NotImplementedError("unreachable")
 
 
 def write_workunit(workunit_id: int, message: str) -> None:
