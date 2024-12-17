@@ -21,17 +21,17 @@ def write(
     workunit: Annotated[int | None, cyclopts.Parameter(group=log_target)] = None,
     externaljob: Annotated[int | None, cyclopts.Parameter(group=log_target)] = None,
 ) -> None:
+    setup_script_logging()
+    client = Bfabric.from_config()
     if workunit is not None:
-        write_workunit(workunit_id=workunit, message=message)
+        write_workunit(client=client, workunit_id=workunit, message=message)
     elif externaljob is not None:
-        write_externaljob(externaljob_id=externaljob, message=message)
+        write_externaljob(client=client, externaljob_id=externaljob, message=message)
     else:
         raise NotImplementedError("unreachable")
 
 
-def write_workunit(workunit_id: int, message: str) -> None:
-    setup_script_logging()
-    client = Bfabric.from_config()
+def write_workunit(client: Bfabric, workunit_id: int, message: str) -> None:
     external_jobs = client.read(
         endpoint="externaljob",
         obj={"cliententityid": workunit_id, "cliententityclass": "Workunit", "action": "WORKUNIT"},
@@ -43,11 +43,9 @@ def write_workunit(workunit_id: int, message: str) -> None:
             f"Expected exactly one external job for workunit {workunit_id}, but found {len(external_jobs)}"
         )
     else:
-        write_externaljob(externaljob_id=external_jobs[0]["id"], message=message)
+        write_externaljob(client=client, externaljob_id=external_jobs[0]["id"], message=message)
 
 
-def write_externaljob(externaljob_id: int, message: str) -> None:
-    setup_script_logging()
-    pprint(locals())
-    client = Bfabric.from_config()
+def write_externaljob(client: Bfabric, externaljob_id: int, message: str) -> None:
+    pprint({"externaljob_id": externaljob_id, "message": message})
     client.save("externaljob", {"id": externaljob_id, "logthis": message})
