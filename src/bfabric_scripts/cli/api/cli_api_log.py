@@ -4,7 +4,6 @@ import cyclopts
 
 from bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
-from bfabric.entities import ExternalJob
 
 cmd = cyclopts.App(help="write log messages to workunits and external jobs")
 
@@ -33,17 +32,18 @@ def write(
 def write_workunit(workunit_id: int, message: str) -> None:
     setup_script_logging()
     client = Bfabric.from_config()
-    # TODO this sort of adds noise by creating "fetched by" messages to the log
-    external_jobs = ExternalJob.find_by(
-        {"cliententityid": workunit_id, "cliententityclass": "Workunit", "action": "WORKUNIT"}, client=client
+    external_jobs = client.read(
+        endpoint="externaljob",
+        obj={"cliententityid": workunit_id, "cliententityclass": "Workunit", "action": "WORKUNIT"},
+        return_id_only=True,
     )
+    # TODO this sort of adds noise by creating "fetched by" messages to the log
     if len(external_jobs) != 1:
         raise ValueError(
             f"Expected exactly one external job for workunit {workunit_id}, but found {len(external_jobs)}"
         )
     else:
-        [external_job] = external_jobs.values()
-        write_externaljob(externaljob_id=external_job.id, message=message)
+        write_externaljob(externaljob_id=external_jobs[0]["id"], message=message)
 
 
 def write_externaljob(externaljob_id: int, message: str) -> None:
