@@ -22,6 +22,10 @@ Versioning currently follows `X.Y.Z` where
 - Add `bfabric-cli api save`.
 - Submitter script prints the id and hostname of apps, which in practice can be very useful.
 
+### Fixed
+
+- A bug in bfabric_save_workflowstep.py that crashed the script.
+
 ## \[1.13.12\] - 2024-12-17
 
 ### Changed
