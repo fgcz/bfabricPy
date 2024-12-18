@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.13\] - 2024-12-18
+
 ### Changed
 
 - Move `bfabric-cli read` to `bfabric-cli api read`.
