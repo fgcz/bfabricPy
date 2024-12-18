@@ -14,7 +14,7 @@ from rich.pretty import pprint
 from rich.table import Table
 
 from bfabric import Bfabric, BfabricClientConfig
-from bfabric.cli_formatting import setup_script_logging
+from bfabric_scripts.cli.base import use_client
 
 
 class OutputFormat(Enum):
@@ -36,10 +36,12 @@ class CommandRead(BaseModel):
 
 
 @app.default
+@use_client
 def bfabric_read(
     endpoint: str,
     attributes: list[tuple[str, str]] | None = None,
     *,
+    client: Bfabric,
     output_format: OutputFormat = OutputFormat.AUTO,
     limit: int = 100,
     columns: list[str] | None = None,
@@ -57,8 +59,6 @@ def bfabric_read(
     :param columns: The columns to return (separate arguments).
     :param max_columns: The maximum number of columns to return (only relevant if no columns are passed explicitly and a table output is chosen).
     """
-    setup_script_logging()
-    client = Bfabric.from_config()
     console_out = Console()
 
     query = {attribute: value for attribute, value in attributes or []}
