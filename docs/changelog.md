@@ -20,6 +20,7 @@ Versioning currently follows `X.Y.Z` where
 - Functionality to log by specifying the workunit instead of external job, which is used in some legacy scripts.
 - Add logging commands to `bfabric-cli api log`.
 - Add `bfabric-cli api save`.
+- Submitter script prints the id and hostname of apps, which in practice can be very useful.
 
 ## \[1.13.12\] - 2024-12-17
 

@@ -105,6 +105,10 @@ class BfabricSubmitter:
 
 set -euxo pipefail
 
+# diagnostics
+id
+hostname
+
 export EMAIL="{job_notification_emails}"
 export EXTERNALJOB_ID={external_job_id}
 export RESSOURCEID_OUTPUT={resource_id_output}
