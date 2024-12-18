@@ -6,12 +6,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import yaml
-from bfabric.experimental.workunit_definition import WorkunitDefinition
 from loguru import logger
 from pydantic import BaseModel
 
 from app_runner.input_preparation import prepare_folder
 from app_runner.output_registration import register_outputs
+from bfabric.experimental.workunit_definition import WorkunitDefinition
 
 if TYPE_CHECKING:
     from app_runner.specs.app_spec import AppSpec
@@ -52,7 +52,7 @@ class Runner:
             raise ValueError(msg)
         register_outputs(
             outputs_yaml=chunk_dir / "outputs.yml",
-            workunit_id=registration.workunit_id,
+            workunit_definition=workunit_definition,
             client=self._client,
             ssh_user=self._ssh_user,
             reuse_default_resource=reuse_default_resource,
