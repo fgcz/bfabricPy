@@ -14,6 +14,10 @@ Versioning currently follows `X.Y.Z` where
 
 - Slurm submitter prints more diagnostics about PATH variable etc.
 
+### Fixed
+
+- Some commands in bfabric-cli are broken because `__future__.annotations` is imported and this breaks cyclopts.
+
 ## \[1.13.13\] - 2024-12-18
 
 ### Changed
