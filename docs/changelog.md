@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Changed
+
+- Slurm submitter prints more diagnostics about PATH variable etc.
+
 ## \[1.13.13\] - 2024-12-18
 
 ### Changed
