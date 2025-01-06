@@ -16,8 +16,6 @@ dependencies = [
     "pydantic",
     "glom",
     "mako",
-    #TODO reconsider if necessary
-    "omegaconf",
 ]
 
 [project.scripts]
