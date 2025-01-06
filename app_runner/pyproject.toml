@@ -15,6 +15,8 @@ dependencies = [
     "bfabric @ git+https://github.com/fgcz/bfabricPy.git@main",
     "pydantic",
     "glom",
+    "mako",
+    #TODO reconsider if necessary
     "omegaconf",
 ]
 
