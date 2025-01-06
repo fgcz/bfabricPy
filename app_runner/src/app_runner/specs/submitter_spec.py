@@ -7,7 +7,8 @@ class SubmitterSlurmSpec(BaseModel):
     type: Literal["slurm22"] = "slurm22"
     n_nodes: int | tuple[int, int] = 1
     n_tasks: int = 1
-    n_cpus_per_task: int
+    n_cpus: int
+    n_cpus_scope: Literal["task", "gpu"] = "task"
     partition: str
     memory: str
     memory_scope: Literal["node", "cpu", "gpu"] = "node"
@@ -16,34 +17,48 @@ class SubmitterSlurmSpec(BaseModel):
     disk: int | None = None
     log_stdout: str | None = None
     log_stderr: str | None = None
-    custom_args: list[str] = []
+    custom_args: dict[str, str | None] = {}
 
-    def to_slurm_args(self) -> list[str]:
-        args = []
+    def get_slurm_parameters(self) -> dict[str, str | None]:
+        params = {}
         if isinstance(self.n_nodes, int):
-            args.append(f"--nodes={self.n_nodes}")
+            params["nodes"] = str(self.n_nodes)
         else:
-            args.append(f"--nodes={self.n_nodes[0]}-{self.n_nodes[1]}")
-        args.append(f"--partition={self.partition}")
-        args.append(f"--cpus-per-task={self.n_cpus_per_task}")
+            params["nodes"] = f"{self.n_nodes[0]}-{self.n_nodes[1]}"
+
+        if self.n_cpus_scope == "task":
+            params["cpus-per-task"] = str(self.n_cpus)
+        elif self.n_cpus_scope == "gpu":
+            params["cpus-per-gpu"] = str(self.n_cpus)
+
         if self.memory_scope == "node":
-            args.append(f"--mem={self.memory}")
+            params["mem"] = self.memory
         elif self.memory_scope == "cpu":
-            args.append(f"--mem-per-cpu={self.memory}")
+            params["mem-per-cpu"] = self.memory
         elif self.memory_scope == "gpu":
-            args.append(f"--mem-per-gpu={self.memory}")
+            params["mem-per-gpu"] = self.memory
+
         if self.nodelist:
-            args.append(f"--nodelist={self.nodelist}")
+            params["nodelist"] = self.nodelist
         if self.time:
-            args.append(f"--time={self.time}")
+            params["time"] = self.time
         if self.disk:
-            args.append(f"--disk={self.disk}")
+            params["disk"] = str(self.disk)
         if self.log_stdout:
-            args.append(f"--output={self.log_stdout}")
+            params["output"] = self.log_stdout
         if self.log_stderr:
-            args.append(f"--error={self.log_stderr}")
-        # TODO there should be at least some checks to avoid collision (maybe as a validator)
-        args.extend(self.custom_args)
+            params["error"] = self.log_stderr
+        return params
+
+    def to_slurm_cli_arguments(self) -> list[str]:
+        args = []
+        params = self.get_slurm_parameters()
+        for name, value in params.items():
+            if value is None:
+                args.append(f"--{name}")
+            else:
+                args.append(f"--{name}={value}")
+        # args.extend(self.custom_args)
         return args
 
 
