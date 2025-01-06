@@ -11,7 +11,7 @@ def spec_base() -> SubmitterSlurmSpec:
         "n_nodes": 1,
         "n_tasks": 1,
         "n_cpus_per_task": 1,
-        "memory_per_cpu": "1G",
+        "memory": "1G",
     }
     return SubmitterSlurmSpec.model_validate(config_data)
 
@@ -24,5 +24,5 @@ def specs_base(spec_base) -> dict[str, SubmitterSlurmSpec]:
 def test_resolve(specs_base):
     ref = SubmitterRef(name="slurm", config={"n_nodes": 2})
     resolved = ref.resolve(specs_base)
-    assert resolved.memory_per_cpu == "1G"
+    assert resolved.memory == "1G"
     assert resolved.n_nodes == 2

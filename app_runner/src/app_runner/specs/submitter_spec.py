@@ -9,7 +9,8 @@ class SubmitterSlurmSpec(BaseModel):
     n_tasks: int = 1
     n_cpus_per_task: int
     partition: str
-    memory_per_cpu: str
+    memory: str
+    memory_scope: Literal["node", "cpu", "gpu"] = "node"
     nodelist: str | None = None
     time: str | None = None
     disk: int | None = None
@@ -25,7 +26,12 @@ class SubmitterSlurmSpec(BaseModel):
             args.append(f"--nodes={self.n_nodes[0]}-{self.n_nodes[1]}")
         args.append(f"--partition={self.partition}")
         args.append(f"--cpus-per-task={self.n_cpus_per_task}")
-        args.append(f"--mem={self.memory_per_cpu}")
+        if self.memory_scope == "node":
+            args.append(f"--mem={self.memory}")
+        elif self.memory_scope == "cpu":
+            args.append(f"--mem-per-cpu={self.memory}")
+        elif self.memory_scope == "gpu":
+            args.append(f"--mem-per-gpu={self.memory}")
         if self.nodelist:
             args.append(f"--nodelist={self.nodelist}")
         if self.time:
