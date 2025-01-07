@@ -4,6 +4,10 @@
 
 - Centralized configuration for all app versions so that if necessary adaptions to the system integration can be done in one place easily.
 
+## Remarks
+
+- The app ID is not part of the app specification, since the same app specification can be used for multiple B-Fabric apps.
+
 ## Open question
 
 ## Future possibilities
