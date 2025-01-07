@@ -66,11 +66,12 @@ class AppVersionTemplate(BaseModel):
         @dataclass
         class AppData:
             version: str
+            id: str = "xxx"
 
         for version in self.version:
             version_data = self.model_dump(mode="json")
             version_data["version"] = version
-            version_data = _render_strings(version_data, variables={"app": AppData(version)})
+            version_data = _render_strings(version_data, variables={"app": AppData(version=version)})
             versions.append(AppVersion.model_validate(version_data))
         return versions
 
