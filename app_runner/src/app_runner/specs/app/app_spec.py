@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
-def _render_strings(data: Any, variables: dict[str, str]) -> Any:
+def _render_strings(data: Any, variables: dict[str, Any]) -> Any:
     """Recursively evaluates all strings in a data structure with Mako templates.
 
     This will not evaluate Mako templates in the YAML file itself, only in the individual strings.
