@@ -97,7 +97,7 @@ target-version = "py39"
 
 [tool.ruff.lint]
 select = ["ANN", "BLE", "D103", "E", "EXE", "F", "N", "PLW", "PTH", "SIM", "TCH", "UP", "W191"]
-ignore = ["ANN101", "ANN102", "ANN401"]
+ignore = ["ANN401"]
 
 [tool.ruff.lint.per-file-ignores]
 "**/bfabric_scripts/**" = ["ALL"]

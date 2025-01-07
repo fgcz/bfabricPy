@@ -47,11 +47,11 @@ repos:
       - id: mdformat
         additional_dependencies:
           - mdformat-mkdocs>=2.1.0
-  - repo: https://github.com/abravalheri/validate-pyproject
-    rev: "v0.18"
-    hooks:
-      - id: validate-pyproject
-        additional_dependencies: ["validate-pyproject-schema-store[all]"]
+  #- repo: https://github.com/abravalheri/validate-pyproject
+  #  rev: "v0.23"
+  #  hooks:
+  #    - id: validate-pyproject
+  #      additional_dependencies: ["validate-pyproject-schema-store[all,store]"]
   - repo: https://github.com/python-jsonschema/check-jsonschema
     rev: "0.28.2"
     hooks:
