@@ -8,6 +8,7 @@ from mako.template import Template
 from pydantic import BaseModel, field_validator
 
 from app_runner.specs.app.commands_spec import CommandsSpec  # noqa: TCH001
+from app_runner.specs.submitter_spec import SubmitterRef  # noqa: TCH001
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -38,6 +39,8 @@ def _render_strings(data: Any, variables: dict[str, Any]) -> Any:
 class AppVersion(BaseModel):
     version: str
     commands: CommandsSpec
+    submitter: SubmitterRef
+
     # TODO
     reuse_default_resource: bool = True
 
@@ -45,6 +48,8 @@ class AppVersion(BaseModel):
 class AppVersionTemplate(BaseModel):
     version: list[str]
     commands: CommandsSpec
+    submitter: SubmitterRef
+
     # TODO
     # Note: While we use the old submitter, this is still necessary
     reuse_default_resource: bool = True
