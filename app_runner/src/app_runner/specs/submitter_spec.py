@@ -66,11 +66,14 @@ class SubmitterSlurmSpec(BaseModel):
         return args
 
 
+SubmitterSpec = SubmitterSlurmSpec
+
+
 class SubmitterRef(BaseModel):
     name: str
     config: dict[str, Any] = {}
 
-    def resolve(self, specs: dict[str, SubmitterSlurmSpec]) -> SubmitterSlurmSpec:
+    def resolve(self, specs: dict[str, SubmitterSpec]) -> SubmitterSpec:
         base_spec = specs[self.name]
         base = base_spec.model_dump(mode="json")
         base.update(self.config)
@@ -78,4 +81,4 @@ class SubmitterRef(BaseModel):
 
 
 class SubmittersSpec(BaseModel):
-    submitters: dict[str, SubmitterSlurmSpec]
+    submitters: dict[str, SubmitterSpec]
