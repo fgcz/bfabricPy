@@ -60,6 +60,7 @@ def process(app_spec: Path, chunk_dir: Path) -> None:
     app_spec_parsed = AppVersion.model_validate(yaml.safe_load(app_spec.read_text()))
 
     with EntityLookupCache.enable():
+        # TODO NEEDS FIX
         runner = Runner(spec=app_spec_parsed, client=client, ssh_user=None)
         runner.run_process(chunk_dir=chunk_dir)
 
@@ -88,6 +89,7 @@ def outputs(
     chunk_dir = chunk_dir.resolve()
     app_spec_parsed = AppVersion.model_validate(yaml.safe_load(app_spec.read_text()))
 
+    # TODO NEEDS FIX
     runner = Runner(spec=app_spec_parsed, client=client, ssh_user=ssh_user)
     runner.run_collect(workunit_ref=workunit_ref, chunk_dir=chunk_dir)
     if not read_only:
