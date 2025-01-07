@@ -14,12 +14,12 @@ from app_runner.input_preparation import prepare_folder
 from app_runner.output_registration import register_outputs
 
 if TYPE_CHECKING:
-    from app_runner.specs.app_spec import AppSpec
+    from app_runner.specs.app.app_spec import AppVersion
     from bfabric import Bfabric
 
 
 class Runner:
-    def __init__(self, spec: AppSpec, client: Bfabric, ssh_user: str | None = None) -> None:
+    def __init__(self, spec: AppVersion, client: Bfabric, ssh_user: str | None = None) -> None:
         self._app_spec = spec
         self._client = client
         self._ssh_user = ssh_user
@@ -65,7 +65,7 @@ class ChunksFile(BaseModel):
 
 
 def run_app(
-    app_spec: AppSpec,
+    app_spec: AppVersion,
     workunit_ref: int | Path,
     work_dir: Path,
     client: Bfabric,
