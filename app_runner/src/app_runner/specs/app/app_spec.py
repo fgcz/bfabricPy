@@ -44,7 +44,7 @@ class AppVersion(BaseModel):
     # TODO
     reuse_default_resource: bool = True
 
-    def resolve_submitter(self, submitters: dict[str, SubmitterSpec], app_data: AppData) -> SubmitterSpec:
+    def resolve_submitter(self, submitters: dict[str, SubmitterSpec], app_data: _SubstituteAppData) -> SubmitterSpec:
         if self.submitter.name not in submitters:
             raise ValueError(f"Submitter {self.submitter.name} not found in submitters.")
         submitter = self.submitter.resolve(submitters)
@@ -54,7 +54,7 @@ class AppVersion(BaseModel):
 
 
 @dataclass
-class AppData:
+class _SubstituteAppData:
     version: str
     id: str
 
@@ -80,7 +80,9 @@ class AppVersionTemplate(BaseModel):
         for version in self.version:
             version_data = self.model_dump(mode="json")
             version_data["version"] = version
-            version_data = _render_strings(version_data, variables={"app": AppData(version=version, id=str(app_id))})
+            version_data = _render_strings(
+                version_data, variables={"app": _SubstituteAppData(version=version, id=str(app_id))}
+            )
             versions.append(AppVersion.model_validate(version_data))
         return versions
 
