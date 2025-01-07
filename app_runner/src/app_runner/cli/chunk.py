@@ -5,7 +5,7 @@ from pathlib import Path
 import cyclopts
 import yaml
 
-from app_runner.specs.app_spec import AppSpec
+from app_runner.specs.app.app_spec import AppVersion
 from app_runner.app_runner.runner import run_app, Runner
 from bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
@@ -33,7 +33,7 @@ def run_all(
     """
     setup_script_logging()
     client = Bfabric.from_config()
-    app_spec_parsed = AppSpec.model_validate(yaml.safe_load(app_spec.read_text()))
+    app_spec_parsed = AppVersion.model_validate(yaml.safe_load(app_spec.read_text()))
 
     run_app(
         app_spec=app_spec_parsed,
@@ -57,7 +57,7 @@ def process(app_spec: Path, chunk_dir: Path) -> None:
     setup_script_logging()
     client = Bfabric.from_config()
     chunk_dir = chunk_dir.resolve()
-    app_spec_parsed = AppSpec.model_validate(yaml.safe_load(app_spec.read_text()))
+    app_spec_parsed = AppVersion.model_validate(yaml.safe_load(app_spec.read_text()))
 
     with EntityLookupCache.enable():
         runner = Runner(spec=app_spec_parsed, client=client, ssh_user=None)
@@ -86,7 +86,7 @@ def outputs(
     setup_script_logging()
     client = Bfabric.from_config()
     chunk_dir = chunk_dir.resolve()
-    app_spec_parsed = AppSpec.model_validate(yaml.safe_load(app_spec.read_text()))
+    app_spec_parsed = AppVersion.model_validate(yaml.safe_load(app_spec.read_text()))
 
     runner = Runner(spec=app_spec_parsed, client=client, ssh_user=ssh_user)
     runner.run_collect(workunit_ref=workunit_ref, chunk_dir=chunk_dir)

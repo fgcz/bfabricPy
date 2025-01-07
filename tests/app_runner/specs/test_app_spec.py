@@ -1,12 +1,14 @@
 import pytest
 import yaml
 
-from app_runner.specs.app_spec import AppSpec, CommandShell, CommandDocker, MountOptions, CommandsSpec
+from app_runner.specs.app.app_spec import AppVersion
+from app_runner.specs.app.commands_spec import CommandShell, CommandDocker, MountOptions, CommandsSpec
 
 
 @pytest.fixture()
-def parsed() -> AppSpec:
-    return AppSpec(
+def parsed() -> AppVersion:
+    return AppVersion(
+        version="0.0.1",
         commands=CommandsSpec(
             dispatch=CommandShell(command="dispatch"),
             process=CommandDocker(
@@ -43,7 +45,8 @@ def serialized() -> str:
       work_dir_target: null
       writeable: []
     type: docker
-reuse_default_resource: true"""
+reuse_default_resource: true
+version: 0.0.1"""
 
 
 def test_serialize(parsed, serialized):
@@ -51,4 +54,4 @@ def test_serialize(parsed, serialized):
 
 
 def test_parse(parsed, serialized):
-    assert AppSpec.model_validate(yaml.safe_load(serialized)) == parsed
+    assert AppVersion.model_validate(yaml.safe_load(serialized)) == parsed
