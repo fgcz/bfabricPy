@@ -7,7 +7,7 @@ import rich
 import rich.pretty
 import yaml
 
-from app_runner.specs.app_spec import AppSpec
+from app_runner.specs.app.app_spec import AppVersion
 from app_runner.specs.inputs_spec import InputsSpec
 from app_runner.specs.outputs_spec import OutputsSpec
 
@@ -17,7 +17,7 @@ app_validate = cyclopts.App("validate", help="Validate yaml files.")
 @app_validate.command()
 def app_spec(yaml_file: Path) -> None:
     """Validate an app spec file."""
-    app_spec = AppSpec.model_validate(yaml.safe_load(yaml_file.read_text()))
+    app_spec = AppVersion.model_validate(yaml.safe_load(yaml_file.read_text()))
     rich.pretty.pprint(app_spec)
 
 
