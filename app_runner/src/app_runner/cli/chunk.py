@@ -5,11 +5,13 @@ from pathlib import Path
 import cyclopts
 import yaml
 
+from app_runner.output_registration import register_outputs
 from app_runner.specs.app_spec import AppSpec
 from app_runner.app_runner.runner import run_app, Runner
 from bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
 from bfabric.experimental.entity_lookup_cache import EntityLookupCache
+from bfabric.experimental.workunit_definition import WorkunitDefinition
 
 app_chunk = cyclopts.App("chunk", help="Run an app on a chunk. You can create the chunks with `app dispatch`.")
 
@@ -90,7 +92,13 @@ def outputs(
 
     runner = Runner(spec=app_spec_parsed, client=client, ssh_user=ssh_user)
     runner.run_collect(workunit_ref=workunit_ref, chunk_dir=chunk_dir)
+    # TODO specify cache file
+    workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client=client)
     if not read_only:
-        runner.run_register_outputs(
-            chunk_dir=chunk_dir, workunit_ref=workunit_ref, reuse_default_resource=reuse_default_resource
+        register_outputs(
+            outputs_yaml=chunk_dir / "outputs.yml",
+            workunit_definition=workunit_definition,
+            client=client,
+            ssh_user=ssh_user,
+            reuse_default_resource=reuse_default_resource,
         )

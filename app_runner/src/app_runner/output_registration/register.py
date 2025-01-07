@@ -154,11 +154,7 @@ def register_outputs(
     reuse_default_resource: bool,
 ) -> None:
     """Registers outputs to the workunit."""
-    # TODO it seems there is some redundancy here (i.e. there is also the implementation in runner)
-    # parse the specs
     specs_list = OutputsSpec.read_yaml(outputs_yaml)
-
-    # register all specs
     register_all(
         client=client,
         workunit_definition=workunit_definition,
