@@ -59,7 +59,7 @@ class AppVersionTemplate(BaseModel):
             version_data = self.model_dump(mode="json")
             version_data["version"] = version
             version_data = interpolate_config_strings(
-                version_data, variables={"app": _SubstituteAppData(version=version, id=str(app_id))}
+                version_data, variables={"app": {"version": version, "id": app_id}}
             )
             versions.append(AppVersion.model_validate(version_data))
         return versions

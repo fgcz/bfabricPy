@@ -3,9 +3,22 @@ from __future__ import annotations
 from typing import Any
 
 from mako.template import Template
+from pydantic import BaseModel
 
 
-def interpolate_config_strings(data: Any, variables: dict[str, Any]) -> Any:
+class VariablesApp(BaseModel):
+    id: str
+    version: str
+
+
+class Variables(BaseModel):
+    app: VariablesApp
+
+    def as_dict(self) -> dict[str, VariablesApp]:
+        return {"app": self.app}
+
+
+def interpolate_config_strings(data: Any, variables: Variables | dict[str, Any]) -> Any:
     """Recursively evaluates all strings in a data structure with Mako templates.
 
     This will not evaluate Mako templates in the YAML file itself, only in the individual strings.
@@ -14,14 +27,16 @@ def interpolate_config_strings(data: Any, variables: dict[str, Any]) -> Any:
     if possible.
 
     :param data: Any Python data structure (dict, list, str, etc.)
-    :param variables: Dictionary of template variables and their values
+    :param variables: Template variables and their values
     :return: The data structure with all strings evaluated
     """
+    variables = Variables.model_validate(variables) if isinstance(variables, dict) else variables
+
     if isinstance(data, dict):
         return {key: interpolate_config_strings(value, variables) for key, value in data.items()}
     elif isinstance(data, list):
         return [interpolate_config_strings(item, variables) for item in data]
     elif isinstance(data, str):
-        return str(Template(data).render(**variables))
+        return str(Template(data).render(**variables.as_dict()))
     else:
         return data
