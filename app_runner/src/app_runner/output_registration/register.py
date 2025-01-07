@@ -24,9 +24,8 @@ if TYPE_CHECKING:
 
 
 def _get_output_folder(spec: CopyResourceSpec, workunit_definition: WorkunitDefinition) -> Path:
-    # TODO check if it needs further fixes
     if not spec.store_folder_path:
-        return workunit_definition.storage_output_folder
+        return workunit_definition.registration.storage_output_folder
     else:
         return spec.store_folder_path
 
