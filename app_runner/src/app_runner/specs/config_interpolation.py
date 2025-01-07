@@ -8,6 +8,7 @@ from pydantic import BaseModel
 
 class VariablesApp(BaseModel):
     id: str
+    name: str
     version: str
 
 
