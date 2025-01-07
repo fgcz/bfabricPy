@@ -51,6 +51,12 @@ indent-width = 4
 select = ["ANN", "BLE", "D103", "E", "EXE", "F", "N", "PLW", "PTH", "SIM", "TCH", "UP", "W191"]
 ignore = ["ANN401"]
 
+[tool.ruff.lint.pep8-naming]
+classmethod-decorators = [
+    "pydantic.validator",
+    "pydantic.field_validator",
+]
+
 [tool.ruff.lint.per-file-ignores]
 # This is needed because of false positives in cyclopts code
 "**/app_runner/cli/**" = ["TCH001", "TCH002", "TCH003"]
