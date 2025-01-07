@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Added
+
+- `application_id` is now part of workunit_definition registration information.
+
 ## \[0.0.7\] - 2024-11-22
 
 ### Fixed
