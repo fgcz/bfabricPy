@@ -4,36 +4,14 @@ from dataclasses import dataclass
 from typing import Any, TYPE_CHECKING
 
 import yaml
-from mako.template import Template
 from pydantic import BaseModel, field_validator
 
 from app_runner.specs.app.commands_spec import CommandsSpec  # noqa: TCH001
+from app_runner.specs.config_interpolation import interpolate_config_strings
 from app_runner.specs.submitter_spec import SubmitterRef, SubmitterSpec  # noqa: TCH001
 
 if TYPE_CHECKING:
     from pathlib import Path
-
-
-def _render_strings(data: Any, variables: dict[str, Any]) -> Any:
-    """Recursively evaluates all strings in a data structure with Mako templates.
-
-    This will not evaluate Mako templates in the YAML file itself, only in the individual strings.
-    Since the current behavior is a subset of evaluating all strings in the YAML file, we could extend this later
-    if it becomes necessary. However, it has the risk of making the config files more complex and should be avoided
-    if possible.
-
-    :param data: Any Python data structure (dict, list, str, etc.)
-    :param variables: Dictionary of template variables and their values
-    :return: The data structure with all strings evaluated
-    """
-    if isinstance(data, dict):
-        return {key: _render_strings(value, variables) for key, value in data.items()}
-    elif isinstance(data, list):
-        return [_render_strings(item, variables) for item in data]
-    elif isinstance(data, str):
-        return str(Template(data).render(**variables))
-    else:
-        return data
 
 
 class AppVersion(BaseModel):
@@ -49,7 +27,7 @@ class AppVersion(BaseModel):
             raise ValueError(f"Submitter {self.submitter.name} not found in submitters.")
         submitter = self.submitter.resolve(submitters)
         submitter_data = submitter.model_dump(mode="json")
-        submitter_data = _render_strings(submitter_data, variables={"app": app_data})
+        submitter_data = interpolate_config_strings(submitter_data, variables={"app": app_data})
         return SubmitterSpec.model_validate(submitter_data)
 
 
@@ -80,7 +58,7 @@ class AppVersionTemplate(BaseModel):
         for version in self.version:
             version_data = self.model_dump(mode="json")
             version_data["version"] = version
-            version_data = _render_strings(
+            version_data = interpolate_config_strings(
                 version_data, variables={"app": _SubstituteAppData(version=version, id=str(app_id))}
             )
             versions.append(AppVersion.model_validate(version_data))
