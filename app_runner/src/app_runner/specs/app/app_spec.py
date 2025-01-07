@@ -13,48 +13,26 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
-def substitute_strings(data: Any, substitutions: dict[str, str]) -> Any:
-    """Recursively substitutes template variables in a data structure.
-    TODO docstring
+def _render_strings(data: Any, variables: dict[str, str]) -> Any:
+    """Recursively evaluates all strings in a data structure with Mako templates.
 
-    Args:
-        data: Any Python data structure (dict, list, str, etc.)
-        substitutions: Dictionary of template variables and their values
+    This will not evaluate Mako templates in the YAML file itself, only in the individual strings.
+    Since the current behavior is a subset of evaluating all strings in the YAML file, we could extend this later
+    if it becomes necessary. However, it has the risk of making the config files more complex and should be avoided
+    if possible.
 
-    Returns:
-        Data structure with all template strings substituted
+    :param data: Any Python data structure (dict, list, str, etc.)
+    :param variables: Dictionary of template variables and their values
+    :return: The data structure with all strings evaluated
     """
     if isinstance(data, dict):
-        return {key: substitute_strings(value, substitutions) for key, value in data.items()}
+        return {key: _render_strings(value, variables) for key, value in data.items()}
     elif isinstance(data, list):
-        return [substitute_strings(item, substitutions) for item in data]
+        return [_render_strings(item, variables) for item in data]
     elif isinstance(data, str):
-        return str(Template(data).render(**substitutions))
+        return str(Template(data).render(**variables))
     else:
         return data
-
-
-# Gclass AppVersion(BaseModel):
-#    # TODO test both cases
-#    version: list[str]
-#    commands: CommandsSpec
-#    # TODO
-#    # Note: While we use the old submitter, this is still necessary
-#    reuse_default_resource: bool = True
-#
-#    @field_validator("version", mode="before")
-#    def _version_ensure_list(cls, values):
-#        if not isinstance(values, list):
-#            return [values]
-#        return values
-#
-#
-# class AppSpec(BaseModel):
-#    versions: dict[str, AppVersion]
-#
-#
-# class AppSpecResolved(BaseModel):
-#    pass
 
 
 class AppVersion(BaseModel):
@@ -87,7 +65,7 @@ class AppVersionTemplate(BaseModel):
         for version in self.version:
             version_data = self.model_dump(mode="json")
             version_data["version"] = version
-            version_data = substitute_strings(version_data, substitutions={"app": AppData(version)})
+            version_data = _render_strings(version_data, variables={"app": AppData(version)})
             versions.append(AppVersion.model_validate(version_data))
         return versions
 
@@ -103,13 +81,12 @@ class AppVersions(BaseModel):
     def load_yaml(cls, path: Path) -> AppVersions:
         data = yaml.safe_load(path.read_text())
         model = AppVersionsTemplate.model_validate(data)
-        # versions = itertools.chain.from_iterable(version.expand() for version in model.versions)
         versions = [expanded for version in model.versions for expanded in version.expand()]
         return AppVersions.model_validate({"versions": versions})
 
     @property
     def available_versions(self) -> set[str]:
-        return set(version.version for version in self.versions)
+        return {version.version for version in self.versions}
 
     def __getitem__(self, version: str) -> AppVersion | None:
         for app_version in self.versions:
