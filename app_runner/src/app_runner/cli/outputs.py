@@ -9,25 +9,22 @@ from app_runner.output_registration.register import register_all
 from app_runner.specs.outputs_spec import OutputsSpec, CopyResourceSpec, UpdateExisting
 from bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
-from bfabric.entities import Workunit
+from bfabric.experimental.workunit_definition import WorkunitDefinition
 
 app_outputs = cyclopts.App("outputs", help="Register output files for an app.")
 
 
-def _get_workunit(client: Bfabric, workunit_id: int) -> Workunit:
+def _get_workunit_definition(client: Bfabric, workunit_ref: int | Path) -> WorkunitDefinition:
     """Get the workunit with the given id and raises an error if it is not found."""
-    workunit = Workunit.find(id=workunit_id, client=client)
-    if workunit is None:
-        msg = f"Workunit with id {workunit_id} not found"
-        raise ValueError(msg)
-    return workunit
+    workunit_ref = workunit_ref.resolve() if isinstance(workunit_ref, Path) else workunit_ref
+    # TODO can we do better and provide a cache_file even here?
+    return WorkunitDefinition.from_ref(workunit=workunit_ref, client=client, cache_file=None)
 
 
 @app_outputs.command()
 def register(
     outputs_yaml: Path,
-    # TODO we should use the workunit definition instead
-    workunit_id: int,
+    workunit_ref: int | Path,
     *,
     ssh_user: str | None = None,
     # TODO
@@ -39,7 +36,7 @@ def register(
     specs_list = OutputsSpec.read_yaml(outputs_yaml)
     register_all(
         client=client,
-        workunit=_get_workunit(client, workunit_id),
+        workunit_definition=_get_workunit_definition(client, workunit_ref),
         specs_list=specs_list,
         ssh_user=ssh_user,
         reuse_default_resource=reuse_default_resource,
@@ -50,7 +47,7 @@ def register(
 def register_single_file(
     local_path: Path,
     *,
-    workunit_id: int,
+    workunit_ref: int | Path,
     store_entry_path: Path | None = None,
     store_folder_path: Path | None = None,
     update_existing: UpdateExisting = UpdateExisting.NO,
@@ -76,7 +73,7 @@ def register_single_file(
     pprint(spec)
     register_all(
         client=client,
-        workunit=_get_workunit(client, workunit_id),
+        workunit_definition=_get_workunit_definition(client, workunit_ref),
         specs_list=[spec],
         ssh_user=ssh_user,
         reuse_default_resource=reuse_default_resource,

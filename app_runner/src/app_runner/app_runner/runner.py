@@ -6,12 +6,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import yaml
-from bfabric.experimental.workunit_definition import WorkunitDefinition
 from loguru import logger
 from pydantic import BaseModel
 
 from app_runner.input_preparation import prepare_folder
 from app_runner.output_registration import register_outputs
+from bfabric.experimental.workunit_definition import WorkunitDefinition
 
 if TYPE_CHECKING:
     from app_runner.specs.app_spec import AppSpec
@@ -43,20 +43,6 @@ class Runner:
         command = [*self._app_spec.commands.process.to_shell(), str(chunk_dir)]
         logger.info(f"Running process command: {shlex.join(command)}")
         subprocess.run(command, check=True)
-
-    def run_register_outputs(self, chunk_dir: Path, workunit_ref: int | Path, reuse_default_resource: bool) -> None:
-        workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client=self._client)
-        registration = workunit_definition.registration
-        if registration is None:
-            msg = "Workunit definition does not provide registration information"
-            raise ValueError(msg)
-        register_outputs(
-            outputs_yaml=chunk_dir / "outputs.yml",
-            workunit_id=registration.workunit_id,
-            client=self._client,
-            ssh_user=self._ssh_user,
-            reuse_default_resource=reuse_default_resource,
-        )
 
 
 class ChunksFile(BaseModel):
@@ -96,9 +82,11 @@ def run_app(
         runner.run_process(chunk_dir=chunk)
         runner.run_collect(workunit_ref=workunit_definition_file, chunk_dir=chunk)
         if not read_only:
-            runner.run_register_outputs(
-                chunk_dir=chunk,
-                workunit_ref=workunit_definition_file,
+            register_outputs(
+                outputs_yaml=chunk / "outputs.yml",
+                workunit_definition=workunit_definition,
+                client=client,
+                ssh_user=ssh_user,
                 reuse_default_resource=app_spec.reuse_default_resource,
             )
 
