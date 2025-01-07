@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Literal, Any
 
 from pydantic import BaseModel
@@ -18,6 +19,8 @@ class SubmitterSlurmSpec(BaseModel):
     log_stdout: str | None = None
     log_stderr: str | None = None
     custom_args: dict[str, str | None] = {}
+    local_script_dir: Path
+    worker_scratch_dir: Path
 
     def get_slurm_parameters(self) -> dict[str, str | None]:
         params = {}
@@ -58,6 +61,7 @@ class SubmitterSlurmSpec(BaseModel):
                 args.append(f"--{name}")
             else:
                 args.append(f"--{name}={value}")
+        # TODO reintroduce this
         # args.extend(self.custom_args)
         return args
 
