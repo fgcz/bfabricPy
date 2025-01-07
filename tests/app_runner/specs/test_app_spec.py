@@ -3,6 +3,7 @@ import yaml
 
 from app_runner.specs.app.app_spec import AppVersion
 from app_runner.specs.app.commands_spec import CommandShell, CommandDocker, MountOptions, CommandsSpec
+from app_runner.specs.submitter_spec import SubmitterRef
 
 
 @pytest.fixture()
@@ -17,6 +18,7 @@ def parsed() -> AppVersion:
             collect=CommandShell(command="collect"),
         ),
         reuse_default_resource=True,
+        submitter=SubmitterRef(name="submitter"),
     )
 
 
@@ -46,6 +48,9 @@ def serialized() -> str:
       writeable: []
     type: docker
 reuse_default_resource: true
+submitter:
+  config: {}
+  name: submitter
 version: 0.0.1"""
 
 
