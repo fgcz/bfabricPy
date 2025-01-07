@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Literal, TYPE_CHECKING
 
 import yaml
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, model_validator, Field
 
 from bfabric.entities import Workunit
 
@@ -49,7 +49,7 @@ class WorkunitRegistrationDefinition(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     application_id: int
-    application_name: str
+    application_name: str = Field(..., pattern=r"^\S+$")
     workunit_id: int
     container_id: int
     container_type: Literal["project", "order"]
