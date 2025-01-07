@@ -61,7 +61,7 @@ def save_workflowstep(workunit_id: int | None = None) -> None:
                 "workflow",
                 obj={"containerid": container_id, "workflowtemplateid": workflowtemplate_ids[application_id]},
             )
-            daw_id = daw[0]["_id"]
+            daw_id = daw[0]["id"]
 
         res = client.save(
             "workflowstep",

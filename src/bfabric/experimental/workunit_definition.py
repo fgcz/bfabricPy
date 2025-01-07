@@ -18,8 +18,6 @@ class WorkunitExecutionDefinition(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     raw_parameters: dict[str, str | None]
-    # TODO drop the execuctable
-    executable: Path
     dataset: int | None = None
     resources: list[int] = []
 
@@ -37,11 +35,8 @@ class WorkunitExecutionDefinition(BaseModel):
         """Loads the workunit execution definition from the provided B-Fabric workunit."""
         if workunit.application is None:
             raise ValueError("Workunit does not have an application")
-        if workunit.application.executable is None:
-            raise ValueError("Workunit application does not have an executable")
         data = {
             "raw_parameters": workunit.parameter_values,
-            "executable": workunit.application.executable["program"],
             "dataset": workunit.input_dataset.id if workunit.input_dataset else None,
             "resources": [r.id for r in workunit.input_resources],
         }

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from datetime import datetime, timedelta
 
 from loguru import logger
@@ -8,6 +6,7 @@ from rich.table import Column, Table
 
 from bfabric import Bfabric
 from bfabric.entities import Parameter, Workunit, Application
+from bfabric_scripts.cli.base import use_client
 
 
 def render_output(workunits_by_status: dict[str, list[Workunit]], client: Bfabric) -> None:
@@ -53,9 +52,12 @@ def render_output(workunits_by_status: dict[str, list[Workunit]], client: Bfabri
     console.print(table)
 
 
-def list_not_available_proteomics_workunits(max_age: float) -> None:
-    """Lists proteomics work units that are not available on bfabric."""
-    client = Bfabric.from_config()
+@use_client
+def list_not_available_proteomics_workunits(*, client: Bfabric, max_age: float = 14.0) -> None:
+    """Lists not available analysis work units.
+
+    :param max_age: The maximum age of work units in days.
+    """
     date_cutoff = datetime.today() - timedelta(days=max_age)
     console = Console()
     with console.capture() as capture:

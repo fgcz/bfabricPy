@@ -111,7 +111,7 @@ class BfabricWrapperCreator:
             inputs[resource.workunit.application["name"]].append({"resource_id": resource.id, "resource_url": web_url})
 
         return {
-            "executable": str(self.workunit_definition.execution.executable),
+            "executable": str(self._workunit.application.executable["program"]),
             "external_job_id": self._external_job_id,
             "fastasequence": self._fasta_sequence,
             "input": dict(inputs),

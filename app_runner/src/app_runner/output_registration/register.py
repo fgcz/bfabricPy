@@ -13,6 +13,7 @@ from app_runner.specs.outputs_spec import (
 )
 from app_runner.util.checksums import md5sum
 from app_runner.util.scp import scp
+from bfabric.entities import Resource
 from bfabric.entities import Storage, Workunit
 from bfabric_scripts.bfabric_save_csv2dataset import bfabric_save_csv2dataset
 
@@ -23,6 +24,7 @@ if TYPE_CHECKING:
 
 
 def _get_output_folder(spec: CopyResourceSpec, workunit_definition: WorkunitDefinition) -> Path:
+    # TODO check if it needs further fixes
     if not spec.store_folder_path:
         return workunit_definition.storage_output_folder
     else:
@@ -36,9 +38,10 @@ def register_file_in_workunit(
     resource_id: int | None = None,
 ) -> None:
     """Registers a file in the workunit."""
-    if spec.update_existing != UpdateExisting.NO:
-        # TODO implement this functionality
-        raise NotImplementedError("Update existing not implemented")
+    existing_id = _identify_existing_resource_id(client, spec, workunit_definition)
+    if resource_id is not None and existing_id is not None and resource_id != existing_id:
+        raise ValueError(f"Resource id {resource_id} does not match existing resource id {existing_id}")
+
     checksum = md5sum(spec.local_path)
     output_folder = _get_output_folder(spec, workunit_definition=workunit_definition)
     resource_data = {
@@ -52,7 +55,26 @@ def register_file_in_workunit(
     }
     if resource_id is not None:
         resource_data["id"] = resource_id
+    if existing_id is not None:
+        resource_data["id"] = existing_id
+
     client.save("resource", resource_data)
+
+
+def _identify_existing_resource_id(
+    client: Bfabric, spec: CopyResourceSpec, workunit_definition: WorkunitDefinition
+) -> int | None:
+    """Returns the id of the existing resource if it exists."""
+    if spec.update_existing in (UpdateExisting.IF_EXISTS, UpdateExisting.REQUIRED):
+        # TODO which are actually the unique fields that should be checked?
+        resources = Resource.find_by(
+            {"name": spec.store_entry_path.name, "workunitid": workunit_definition.id}, client=client
+        ).values()
+        if resources:
+            return list(resources)[0].id
+        elif spec.update_existing == UpdateExisting.REQUIRED:
+            raise ValueError(f"Resource {spec.store_entry_path.name} not found in workunit {workunit_definition.id}")
+    return None
 
 
 def copy_file_to_storage(

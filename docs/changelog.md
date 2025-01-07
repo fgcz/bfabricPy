@@ -12,6 +12,34 @@ Versioning currently follows `X.Y.Z` where
 
 ### Changed
 
+- Slurm submitter prints more diagnostics about PATH variable etc.
+
+### Fixed
+
+- Some commands in bfabric-cli are broken because `__future__.annotations` is imported and this breaks cyclopts.
+
+## \[1.13.13\] - 2024-12-18
+
+### Changed
+
+- Move `bfabric-cli read` to `bfabric-cli api read`.
+- (internal) `use_client` decorator is introduced to simplify and standardize the client usage in the new CLI code.
+
+### Added
+
+- Functionality to log by specifying the workunit instead of external job, which is used in some legacy scripts.
+- Add logging commands to `bfabric-cli api log`.
+- Add `bfabric-cli api save`.
+- Submitter script prints the id and hostname of apps, which in practice can be very useful.
+
+### Fixed
+
+- A bug in bfabric_save_workflowstep.py that crashed the script.
+
+## \[1.13.12\] - 2024-12-17
+
+### Changed
+
 - The submitter ensures that workunits always get set to `processing`.
 
 ### Fixed

@@ -105,6 +105,18 @@ class BfabricSubmitter:
 
 set -euxo pipefail
 
+# diagnostics
+id
+hostname
+echo "${{PATH}}"
+echo "${{LD_LIBRARY_PATH:-}}"
+echo "${{MODULEPATH:-}}"
+echo "${{LOADEDMODULES:-}}"
+echo "${{SLURM_JOB_ID:-}}"
+echo "${{TMPDIR:-}}"
+echo "${{PYTHONPATH:-}}"
+echo "${{R_LIBS:-}}"
+
 export EMAIL="{job_notification_emails}"
 export EXTERNALJOB_ID={external_job_id}
 export RESSOURCEID_OUTPUT={resource_id_output}

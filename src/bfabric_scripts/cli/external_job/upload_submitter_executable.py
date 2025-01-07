@@ -1,11 +1,11 @@
-from __future__ import annotations
-
 import base64
 from pathlib import Path
+from typing import Literal
 
 import yaml
 
 from bfabric import Bfabric
+from bfabric_scripts.cli.base import use_client
 
 
 def slurm_parameters() -> list[dict[str, str]]:
@@ -28,8 +28,14 @@ def slurm_parameters() -> list[dict[str, str]]:
     return parameters
 
 
-def upload_submitter_executable_impl(
-    client: Bfabric, filename: Path, engine: str, name: str | None, description: str | None
+@use_client
+def upload_submitter_executable(
+    filename: Path,
+    *,
+    client: Bfabric,
+    engine: Literal["slurm"] = "slurm",
+    name: str = "yaml / Slurm executable",
+    description: str = "Submitter executable for Slurm",
 ) -> None:
     executable = filename.read_text()
 
