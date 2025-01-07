@@ -49,6 +49,7 @@ class WorkunitRegistrationDefinition(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     application_id: int
+    application_name: str
     workunit_id: int
     container_id: int
     container_type: Literal["project", "order"]
@@ -57,7 +58,8 @@ class WorkunitRegistrationDefinition(BaseModel):
     def from_workunit(cls, workunit: Workunit) -> WorkunitRegistrationDefinition:
         """Loads the workunit registration definition from the provided B-Fabric workunit."""
         data = {
-            "application_id": workunit["application"]["id"],
+            "application_id": workunit.application.id,
+            "application_name": workunit.application["name"],
             "workunit_id": workunit.id,
             "container_id": workunit.container.id,
             "container_type": workunit.container.ENDPOINT,

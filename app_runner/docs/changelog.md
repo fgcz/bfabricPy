@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
-- `application_id` is now part of workunit_definition registration information.
+- `application_id` and `application_name` now part of `WorkunitRegistrationDefinition`.
 
 ## \[0.0.7\] - 2024-11-22
 
