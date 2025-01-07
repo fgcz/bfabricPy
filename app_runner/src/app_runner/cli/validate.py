@@ -10,6 +10,7 @@ import yaml
 from app_runner.specs.app.app_spec import AppVersions, AppVersionsTemplate
 from app_runner.specs.inputs_spec import InputsSpec
 from app_runner.specs.outputs_spec import OutputsSpec
+from app_runner.specs.submitter_spec import SubmittersSpec
 
 app_validate = cyclopts.App("validate", help="Validate yaml files.")
 
@@ -41,3 +42,10 @@ def outputs_spec(yaml_file: Path) -> None:
     """Validate an outputs spec file."""
     outputs_spec = OutputsSpec.model_validate(yaml.safe_load(yaml_file.read_text()))
     rich.pretty.pprint(outputs_spec)
+
+
+@app_validate.command()
+def submitters_spec(yaml_file: Path) -> None:
+    """Validate a submitters spec file."""
+    submitters_spec = SubmittersSpec.model_validate(yaml.safe_load(yaml_file.read_text()))
+    rich.pretty.pprint(submitters_spec)

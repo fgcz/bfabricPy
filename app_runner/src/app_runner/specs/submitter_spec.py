@@ -71,3 +71,7 @@ class SubmitterRef(BaseModel):
         base = base_spec.model_dump(mode="json")
         base.update(self.config)
         return type(base_spec).model_validate(base)
+
+
+class SubmittersSpec(BaseModel):
+    submitters: dict[str, SubmitterSlurmSpec]
