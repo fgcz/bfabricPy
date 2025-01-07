@@ -65,7 +65,8 @@ def _identify_existing_resource_id(
 ) -> int | None:
     """Returns the id of the existing resource if it exists."""
     if spec.update_existing in (UpdateExisting.IF_EXISTS, UpdateExisting.REQUIRED):
-        # TODO which are actually the unique fields that should be checked?
+        # TODO maybe it would be more accurate to use relativepath here, however historically it would often start
+        #      with `/` which can be confusing.
         resources = Resource.find_by(
             {"name": spec.store_entry_path.name, "workunitid": workunit_definition.registration.workunit_id},
             client=client,
