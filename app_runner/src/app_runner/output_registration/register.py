@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from loguru import logger
 
-from bfabric.entities import Storage, Workunit
+from bfabric.entities import Storage, Workunit, Resource
 from app_runner.specs.outputs_spec import (
     CopyResourceSpec,
     UpdateExisting,
@@ -37,9 +37,10 @@ def register_file_in_workunit(
     resource_id: int | None = None,
 ) -> None:
     """Registers a file in the workunit."""
-    if spec.update_existing != UpdateExisting.NO:
-        # TODO implement this functionality
-        raise NotImplementedError("Update existing not implemented")
+    existing_id = _identify_existing_resource_id(client, spec, workunit)
+    if resource_id is not None and existing_id is not None and resource_id != existing_id:
+        raise ValueError(f"Resource id {resource_id} does not match existing resource id {existing_id}")
+
     checksum = md5sum(spec.local_path)
     output_folder = _get_output_folder(spec, workunit=workunit)
     resource_data = {
@@ -53,7 +54,24 @@ def register_file_in_workunit(
     }
     if resource_id is not None:
         resource_data["id"] = resource_id
+    if existing_id is not None:
+        resource_data["id"] = existing_id
+
     client.save("resource", resource_data)
+
+
+def _identify_existing_resource_id(client: Bfabric, spec: CopyResourceSpec, workunit: Workunit) -> int | None:
+    """Returns the id of the existing resource if it exists."""
+    if spec.update_existing in (UpdateExisting.IF_EXISTS, UpdateExisting.REQUIRED):
+        # TODO which are actually the unique fields that should be checked?
+        resources = Resource.find_by(
+            {"name": spec.store_entry_path.name, "workunitid": workunit.id}, client=client
+        ).values()
+        if resources:
+            return list(resources)[0].id
+        elif spec.update_existing == UpdateExisting.REQUIRED:
+            raise ValueError(f"Resource {spec.store_entry_path.name} not found in workunit {workunit.id}")
+    return None
 
 
 def copy_file_to_storage(spec: CopyResourceSpec, workunit: Workunit, storage: Storage, ssh_user: str | None) -> None:
