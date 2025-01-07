@@ -52,6 +52,8 @@ class WorkunitRegistrationDefinition(BaseModel):
     application_name: str = Field(..., pattern=r"^\S+$")
     workunit_id: int
     container_id: int
+    storage_id: int
+    storage_output_folder: Path
     container_type: Literal["project", "order"]
 
     @classmethod
@@ -63,6 +65,8 @@ class WorkunitRegistrationDefinition(BaseModel):
             "workunit_id": workunit.id,
             "container_id": workunit.container.id,
             "container_type": workunit.container.ENDPOINT,
+            "storage_id": workunit.application.storage.id,
+            "storage_output_folder": workunit.store_output_folder,
         }
         return cls.model_validate(data)
 
