@@ -8,7 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Register single file command: `bfabric-app-runner outputs register-single-file`
 - Implement copy resource `UpdateExisting.IF_EXISTS` and `UpdateExisting.REQUIRED` support.
-- `storage_id` and `storage_output_folder` have been added to `WorkunitRegistrationDefinition`
+- The following fields have been added to `WorkunitRegistrationDefinition`:
+    - `storage_id`
+    - `storage_output_folder`
+    - `application_id`
+    - `application_name`
 
 ### Changed
 

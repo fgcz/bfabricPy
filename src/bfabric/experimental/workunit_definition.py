@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Literal, TYPE_CHECKING
 
 import yaml
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, model_validator, Field
 
 from bfabric.entities import Workunit
 
@@ -48,6 +48,8 @@ class WorkunitRegistrationDefinition(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
+    application_id: int
+    application_name: str = Field(..., pattern=r"^\S+$")
     workunit_id: int
     container_id: int
     storage_id: int
@@ -58,6 +60,8 @@ class WorkunitRegistrationDefinition(BaseModel):
     def from_workunit(cls, workunit: Workunit) -> WorkunitRegistrationDefinition:
         """Loads the workunit registration definition from the provided B-Fabric workunit."""
         data = {
+            "application_id": workunit.application.id,
+            "application_name": workunit.application["name"],
             "workunit_id": workunit.id,
             "container_id": workunit.container.id,
             "container_type": workunit.container.ENDPOINT,
