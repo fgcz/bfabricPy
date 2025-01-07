@@ -6,6 +6,7 @@ versions:
         command: echo "0.1.0"
       process:
         !!merge <<: *dispatch_010
+        command: echo "${app.id}"
       collect:
         !!merge <<: *dispatch_010
     submitter:

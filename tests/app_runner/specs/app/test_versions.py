@@ -8,7 +8,7 @@ from app_runner.specs.app.app_spec import AppVersions
 @pytest.fixture()
 def parsed():
     path = Path(__file__).parent / "test_versions.yml"
-    return AppVersions.load_yaml(path)
+    return AppVersions.load_yaml(path, app_id="xxx")
 
 
 def test_available_versions(parsed):
@@ -26,3 +26,7 @@ def test_parametric_single_variant(parsed):
 def test_parametric_multiple_variants(parsed):
     assert parsed["1.0.0"].commands.dispatch.command == 'echo "1.0.0"'
     assert parsed["1.0.1"].commands.dispatch.command == 'echo "1.0.1"'
+
+
+def test_substitute_app_id(parsed):
+    assert parsed["0.1.0"].commands.process.command == 'echo "xxx"'

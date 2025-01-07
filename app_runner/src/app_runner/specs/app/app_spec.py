@@ -60,18 +60,18 @@ class AppVersionTemplate(BaseModel):
             return [values]
         return values
 
-    def expand(self) -> list[AppVersion]:
+    def expand(self, app_id: int | str) -> list[AppVersion]:
         versions = []
 
         @dataclass
         class AppData:
             version: str
-            id: str = "xxx"
+            id: str
 
         for version in self.version:
             version_data = self.model_dump(mode="json")
             version_data["version"] = version
-            version_data = _render_strings(version_data, variables={"app": AppData(version=version)})
+            version_data = _render_strings(version_data, variables={"app": AppData(version=version, id=str(app_id))})
             versions.append(AppVersion.model_validate(version_data))
         return versions
 
@@ -84,10 +84,10 @@ class AppVersions(BaseModel):
     versions: list[AppVersion]
 
     @classmethod
-    def load_yaml(cls, path: Path) -> AppVersions:
+    def load_yaml(cls, path: Path, app_id: int | str) -> AppVersions:
         data = yaml.safe_load(path.read_text())
         model = AppVersionsTemplate.model_validate(data)
-        versions = [expanded for version in model.versions for expanded in version.expand()]
+        versions = [expanded for version in model.versions for expanded in version.expand(app_id=app_id)]
         return AppVersions.model_validate({"versions": versions})
 
     @property

@@ -33,10 +33,9 @@ def load_workunit_information(
         steps to avoid unnecessary B-Fabric lookups. (If the workunit_ref was already a path, it will be returned as is,
         otherwise the file will be created in the work directory.)
     """
-    # TODO and migrate since it will be useful for other commands as well
-    app_versions = AppVersions.load_yaml(app_spec)
     workunit_definition_file = work_dir / "workunit_definition.yml"
     workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client, cache_file=workunit_definition_file)
+    app_versions = AppVersions.load_yaml(app_spec, app_id=workunit_definition.registration.application_id)
     if isinstance(workunit_ref, int):
         workunit_ref = workunit_definition_file
     app_version = resolve_app(versions=app_versions, workunit_definition=workunit_definition)

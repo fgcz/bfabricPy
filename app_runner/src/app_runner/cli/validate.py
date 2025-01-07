@@ -16,14 +16,15 @@ app_validate = cyclopts.App("validate", help="Validate yaml files.")
 
 
 @app_validate.command()
-def app_spec(yaml_file: Path, interpolate: bool = True) -> None:
+def app_spec(yaml_file: Path, interpolate: bool = True, app_id: str = "xxx") -> None:
     """Validate an app spec file.
 
     :param yaml_file: Path to the yaml file to validate
     :param interpolate: Whether to interpolate the app versions or only load the template
+    :param app_id: the app id to use for interpolation
     """
     if interpolate:
-        app_versions = AppVersions.load_yaml(yaml_file)
+        app_versions = AppVersions.load_yaml(yaml_file, app_id=app_id)
         rich.pretty.pprint(app_versions)
     else:
         app_template = AppVersionsTemplate.model_validate(yaml.safe_load(yaml_file.read_text()))
