@@ -1,0 +1,28 @@
+versions:
+  - version: 0.1.0
+    commands:
+      dispatch: &dispatch_010
+        type: shell
+        command: echo "0.1.0"
+      process:
+        !!merge <<: *dispatch_010
+      collect:
+        !!merge <<: *dispatch_010
+  - version: [0.1.1]
+    commands:
+      dispatch: &dispatch_011
+        type: shell
+        command: echo "${app.version}"
+      process:
+        !!merge <<: *dispatch_011
+      collect:
+        !!merge <<: *dispatch_011
+  - version: [1.0.0, 1.0.1]
+    commands:
+      dispatch: &dispatch_10
+        type: shell
+        command: echo "${app.version}"
+      process:
+        !!merge <<: *dispatch_10
+      collect:
+        !!merge <<: *dispatch_10
