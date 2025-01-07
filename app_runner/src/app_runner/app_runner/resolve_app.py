@@ -34,7 +34,7 @@ def load_workunit_information(
         otherwise the file will be created in the work directory.)
     """
     # TODO and migrate since it will be useful for other commands as well
-    app_versions = AppVersion.load_yaml(app_spec)
+    app_versions = AppVersions.load_yaml(app_spec)
     workunit_definition_file = work_dir / "workunit_definition.yml"
     workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client, cache_file=workunit_definition_file)
     if isinstance(workunit_ref, int):
