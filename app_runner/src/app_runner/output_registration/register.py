@@ -104,8 +104,9 @@ def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit_definition: W
     )
 
 
-def find_default_resource_id(workunit: Workunit) -> int | None:
+def find_default_resource_id(workunit_definition: WorkunitDefinition, client: Bfabric) -> int | None:
     """Finds the default resource's id for the workunit. Maybe in the future, this will be always `None`."""
+    workunit = Workunit.find(id=workunit_definition.registration.workunit_id, client=client)
     candidate_resources = [
         resource for resource in workunit.resources if resource["name"] not in ["slurm_stdout", "slurm_stderr"]
     ]
@@ -130,11 +131,7 @@ def register_all(
             storage = Storage.find(workunit_definition.registration.storage_id, client=client)
             copy_file_to_storage(spec, workunit_definition=workunit_definition, storage=storage, ssh_user=ssh_user)
             if not default_resource_was_reused:
-                resource_id = find_default_resource_id(
-                    # TODO maybe this could be made a bit more cleanly (or i actually wonder if it should be a method
-                    #   in the WorkunitDefinition class)
-                    workunit=Workunit.find(id=workunit_definition.registration.workunit_id, client=client)
-                )
+                resource_id = find_default_resource_id(workunit_definition=workunit_definition, client=client)
                 default_resource_was_reused = True
             else:
                 resource_id = None
