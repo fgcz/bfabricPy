@@ -13,6 +13,8 @@ def spec_base_data() -> dict[str, str | int]:
         "n_cpus": 1,
         "memory": "1G",
         "custom_args": {},
+        "local_script_dir": "/home/bfabric/prx",
+        "worker_scratch_dir": "/scratch",
     }
 
 
