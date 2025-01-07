@@ -36,6 +36,7 @@ dev = [
     "mypy",
     "types-PyYAML",
 ]
+test = ["pytest", "pytest-mock", "logot"]
 
 [tool.uv]
 reinstall-package = ["app_runner"]
