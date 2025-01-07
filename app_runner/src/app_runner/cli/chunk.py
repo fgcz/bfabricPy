@@ -3,9 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 
 import cyclopts
-import yaml
 
-from app_runner.specs.app.app_spec import AppVersion
+from app_runner.app_runner.resolve_app import load_workunit_information
 from app_runner.app_runner.runner import run_app, Runner
 from bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
@@ -33,10 +32,13 @@ def run_all(
     """
     setup_script_logging()
     client = Bfabric.from_config()
-    app_spec_parsed = AppVersion.model_validate(yaml.safe_load(app_spec.read_text()))
+
+    app_version, workunit_ref = load_workunit_information(
+        app_spec=app_spec, client=client, work_dir=work_dir, workunit_ref=workunit_ref
+    )
 
     run_app(
-        app_spec=app_spec_parsed,
+        app_spec=app_version,
         workunit_ref=workunit_ref,
         work_dir=work_dir,
         client=client,
@@ -57,11 +59,15 @@ def process(app_spec: Path, chunk_dir: Path) -> None:
     setup_script_logging()
     client = Bfabric.from_config()
     chunk_dir = chunk_dir.resolve()
-    app_spec_parsed = AppVersion.model_validate(yaml.safe_load(app_spec.read_text()))
+
+    # TODO this lookup of workunit_definition is very problematic now! FIX NEEDED
+    app_version, workunit_ref = load_workunit_information(
+        app_spec=app_spec, client=client, work_dir=chunk_dir, workunit_ref=chunk_dir / ".." / "workunit_definition.yml"
+    )
 
     with EntityLookupCache.enable():
         # TODO NEEDS FIX
-        runner = Runner(spec=app_spec_parsed, client=client, ssh_user=None)
+        runner = Runner(spec=app_version, client=client, ssh_user=None)
         runner.run_process(chunk_dir=chunk_dir)
 
 
@@ -87,10 +93,12 @@ def outputs(
     setup_script_logging()
     client = Bfabric.from_config()
     chunk_dir = chunk_dir.resolve()
-    app_spec_parsed = AppVersion.model_validate(yaml.safe_load(app_spec.read_text()))
 
-    # TODO NEEDS FIX
-    runner = Runner(spec=app_spec_parsed, client=client, ssh_user=ssh_user)
+    app_version, workunit_ref = load_workunit_information(
+        app_spec=app_spec, client=client, work_dir=chunk_dir, workunit_ref=workunit_ref
+    )
+
+    runner = Runner(spec=app_version, client=client, ssh_user=ssh_user)
     runner.run_collect(workunit_ref=workunit_ref, chunk_dir=chunk_dir)
     if not read_only:
         runner.run_register_outputs(
