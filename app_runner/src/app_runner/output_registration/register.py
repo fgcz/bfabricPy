@@ -67,7 +67,8 @@ def _identify_existing_resource_id(
     if spec.update_existing in (UpdateExisting.IF_EXISTS, UpdateExisting.REQUIRED):
         # TODO which are actually the unique fields that should be checked?
         resources = Resource.find_by(
-            {"name": spec.store_entry_path.name, "workunitid": workunit_definition.id}, client=client
+            {"name": spec.store_entry_path.name, "workunitid": workunit_definition.registration.workunit_id},
+            client=client,
         ).values()
         if resources:
             return list(resources)[0].id
