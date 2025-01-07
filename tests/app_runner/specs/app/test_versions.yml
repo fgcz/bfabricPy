@@ -8,6 +8,8 @@ versions:
         !!merge <<: *dispatch_010
       collect:
         !!merge <<: *dispatch_010
+    submitter:
+      name: submitter
   - version: [0.1.1]
     commands:
       dispatch: &dispatch_011
@@ -17,6 +19,8 @@ versions:
         !!merge <<: *dispatch_011
       collect:
         !!merge <<: *dispatch_011
+    submitter:
+      name: submitter
   - version: [1.0.0, 1.0.1]
     commands:
       dispatch: &dispatch_10
@@ -26,3 +30,5 @@ versions:
         !!merge <<: *dispatch_10
       collect:
         !!merge <<: *dispatch_10
+    submitter:
+      name: submitter
