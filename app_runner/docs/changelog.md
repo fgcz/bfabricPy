@@ -4,6 +4,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Added
+
+- App specs can now define multiple versions in one file. (AppSpec = Collection of app versions and other information.)
+    - To avoid boilerplate, mako templates can be used inside of strings.
+    - Apps will resolve the version to use based on the `application_version` field.
+    - Validation functionality for the new app specification has been added.
+- App versions can define a submitter, however this information is not yet used.
+
 ## \[0.0.8\] - 2025-01-08
 
 ### Added
