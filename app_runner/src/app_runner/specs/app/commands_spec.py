@@ -22,12 +22,18 @@ class CommandShell(BaseModel):
 class MountOptions(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    # TODO this will have to be reworked later it is not flexible enough as it does not allow to specify the
+    #      flags for shared etc.
     work_dir_target: Path | None = None
     read_only: list[tuple[Path, Path]] = []
     writeable: list[tuple[Path, Path]] = []
     share_bfabric_config: bool = True
 
     def collect(self, work_dir: Path) -> list[tuple[Path, Path, bool]]:
+        """Collects all mounts that are required to run the command.
+
+        These are returned as triplets of (source, target, read_only).
+        """
         mounts = []
         if self.share_bfabric_config:
             mounts.append((Path("~/.bfabricpy.yml"), Path("/home/user/.bfabricpy.yml"), True))
