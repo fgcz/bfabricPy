@@ -15,14 +15,14 @@ app_validate = cyclopts.App("validate", help="Validate yaml files.")
 
 
 @app_validate.command()
-def app_spec_file(yaml_file: Path) -> None:
+def app_spec_template(yaml_file: Path) -> None:
     """Validate an app spec file."""
     app_spec_file = AppSpecTemplate.model_validate(yaml.safe_load(yaml_file.read_text()))
     pprint(app_spec_file)
 
 
 @app_validate.command()
-def app_versions(app_yaml: Path, app_id: str = "x", app_name: str = "y") -> None:
+def app_spc(app_yaml: Path, app_id: str = "x", app_name: str = "y") -> None:
     """Validates the app versions by expanding the relevant config info."""
     versions = AppSpec.load_yaml(app_yaml, app_id=app_id, app_name=app_name)
     pprint(versions)
