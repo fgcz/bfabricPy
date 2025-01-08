@@ -15,6 +15,11 @@ if TYPE_CHECKING:
 
 
 class AppVersion(BaseModel):
+    """A concrete app version specification.
+
+    For a better separation of concerns, the submitter will not be resolved automatically.
+    """
+
     version: str
     commands: CommandsSpec
     submitter: SubmitterRef
@@ -29,7 +34,8 @@ class AppVersionTemplate(BaseModel):
     # TODO remove when new submitter becomes available
     reuse_default_resource: bool = True
 
-    def resolve(self, app_id: str, app_name: str) -> AppVersion:
+    def evaluate(self, app_id: str, app_name: str) -> AppVersion:
+        """Evaluates the template to a concrete ``AppVersion`` instance."""
         variables_app = config_interpolation.VariablesApp(id=app_id, name=app_name, version=self.version)
         data_template = self.model_dump(mode="json")
         data = interpolate_config_strings(data_template, variables={"app": variables_app})
@@ -89,7 +95,7 @@ class AppSpecTemplates(BaseModel):
 
     def resolve(self, app_id: str, app_name: str) -> AppVersions:
         return AppVersions.model_validate(
-            {"versions": [version.resolve(app_id=app_id, app_name=app_name) for version in self.versions]}
+            {"versions": [version.evaluate(app_id=app_id, app_name=app_name) for version in self.versions]}
         )
 
 
