@@ -1,0 +1,8 @@
+submitters:
+  submitter:
+    type: "slurm22"
+    n_cpus: 1
+    partition: xyz
+    memory: 1G
+    local_script_dir: "/tmp/local_script_dir"
+    worker_scratch_dir: "/tmp/worker_scratch_dir"
