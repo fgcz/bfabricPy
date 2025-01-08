@@ -14,7 +14,7 @@ from app_runner.output_registration import register_outputs
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 
 if TYPE_CHECKING:
-    from app_runner.specs.app.app_spec import AppVersion
+    from app_runner.specs.app.app_version import AppVersion
     from bfabric import Bfabric
 
 

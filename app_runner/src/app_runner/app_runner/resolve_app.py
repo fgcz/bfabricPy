@@ -4,11 +4,12 @@ from typing import TYPE_CHECKING
 
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 
-from app_runner.specs.app.app_spec import AppVersions, AppVersion
+from app_runner.specs.app.app_spec import AppVersions
 
 if TYPE_CHECKING:
     from pathlib import Path
     from bfabric import Bfabric
+    from app_runner.specs.app.app_version import AppVersion
 
 
 def resolve_app(versions: AppVersions, workunit_definition: WorkunitDefinition) -> AppVersion:
