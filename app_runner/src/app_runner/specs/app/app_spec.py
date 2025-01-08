@@ -70,15 +70,9 @@ class AppVersionMultiTemplate(BaseModel):
 
 
 class BfabricAppSpec(BaseModel):
-    app_ids: list[int] = []
-    app_runner: str
-    """Version of the app runner to use for this app."""
+    """Contains the app specification information that is relevant to bfabric..."""
 
-    @field_validator("app_ids", mode="before")
-    def _app_ids_ensure_list(cls, values: Any) -> list[int]:
-        if not isinstance(values, list):
-            return [values]
-        return values
+    app_runner: str
 
 
 class AppSpecFile(BaseModel):
