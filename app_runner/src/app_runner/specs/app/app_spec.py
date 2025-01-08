@@ -69,16 +69,31 @@ class AppVersionMultiTemplate(BaseModel):
         return versions
 
 
+class BfabricAppSpec(BaseModel):
+    app_ids: list[int] = []
+
+    @field_validator("app_ids", mode="before")
+    def _app_ids_ensure_list(cls, values: Any) -> list[int]:
+        if not isinstance(values, list):
+            return [values]
+        return values
+
+
 class AppSpecFile(BaseModel):
+    bfabric: BfabricAppSpec = BfabricAppSpec()
     versions: list[AppVersionMultiTemplate]
 
     def expand(self) -> AppSpecTemplates:
         return AppSpecTemplates.model_validate(
-            {"versions": [expanded for version in self.versions for expanded in version.expand()]}
+            {
+                "bfabric": self.bfabric,
+                "versions": [expanded for version in self.versions for expanded in version.expand()],
+            }
         )
 
 
 class AppSpecTemplates(BaseModel):
+    bfabric: BfabricAppSpec
     versions: list[AppVersionTemplate]
 
     def resolve(self, submitters: dict[str, SubmitterSpec], app_id: str, app_name: str) -> AppVersions:
