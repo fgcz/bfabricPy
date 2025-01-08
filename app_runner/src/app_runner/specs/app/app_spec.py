@@ -8,10 +8,11 @@ from pydantic import BaseModel, field_validator
 from app_runner.specs import config_interpolation
 from app_runner.specs.app.commands_spec import CommandsSpec  # noqa: TCH001
 from app_runner.specs.config_interpolation import interpolate_config_strings
-from app_runner.specs.submitter_spec import SubmitterRef, SubmitterSpec, SubmittersSpec  # noqa: TCH001
+from app_runner.specs.submitter_spec import SubmitterSpec, SubmittersSpec  # noqa: TCH001
 
 if TYPE_CHECKING:
     from pathlib import Path
+    from app_runner.specs.submitter_ref import SubmitterRef
 
 
 class AppVersion(BaseModel):

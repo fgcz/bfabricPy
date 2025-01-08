@@ -3,7 +3,7 @@ import yaml
 
 from app_runner.specs.app.app_spec import AppVersion
 from app_runner.specs.app.commands_spec import CommandShell, CommandDocker, MountOptions, CommandsSpec
-from app_runner.specs.submitter_spec import SubmitterRef
+from app_runner.specs.submitter_ref import SubmitterRef
 
 
 @pytest.fixture()

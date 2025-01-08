@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Literal, Any
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -67,17 +67,6 @@ class SubmitterSlurmSpec(BaseModel):
 
 
 SubmitterSpec = SubmitterSlurmSpec
-
-
-class SubmitterRef(BaseModel):
-    name: str
-    config: dict[str, Any] = {}
-
-    def resolve(self, specs: dict[str, SubmitterSpec]) -> SubmitterSpec:
-        base_spec = specs[self.name]
-        base = base_spec.model_dump(mode="json")
-        base.update(self.config)
-        return type(base_spec).model_validate(base)
 
 
 class SubmittersSpec(BaseModel):

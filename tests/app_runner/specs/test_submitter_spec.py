@@ -1,6 +1,7 @@
 import pytest
 
-from app_runner.specs.submitter_spec import SubmitterSlurmSpec, SubmitterRef
+from app_runner.specs.submitter_spec import SubmitterSlurmSpec
+from app_runner.specs.submitter_ref import SubmitterRef
 
 
 @pytest.fixture
