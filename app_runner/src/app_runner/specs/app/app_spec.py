@@ -18,7 +18,7 @@ class AppVersion(BaseModel):
     version: str
     commands: CommandsSpec
     submitter: SubmitterRef
-    # TODO
+    # TODO remove when new submitter becomes available
     reuse_default_resource: bool = True
 
 
@@ -26,7 +26,7 @@ class AppVersionTemplate(BaseModel):
     version: str
     commands: CommandsSpec
     submitter: SubmitterRef
-    # TODO
+    # TODO remove when new submitter becomes available
     reuse_default_resource: bool = True
 
     def resolve(self, app_id: str, app_name: str) -> AppVersion:
@@ -41,8 +41,7 @@ class AppVersionMultiTemplate(BaseModel):
     commands: CommandsSpec
     submitter: SubmitterRef
 
-    # TODO
-    # Note: While we use the old submitter, this is still necessary
+    # TODO remove when new submitter becomes available
     reuse_default_resource: bool = True
 
     @field_validator("version", mode="before")
@@ -98,7 +97,7 @@ class ResolvedAppVersion(BaseModel):
     version: str
     commands: CommandsSpec
     submitter: SubmitterRef
-    # TODO
+    # TODO remove when new submitter becomes available
     reuse_default_resource: bool = True
 
 
