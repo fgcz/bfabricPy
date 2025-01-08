@@ -4,9 +4,8 @@ from pathlib import Path
 from typing import Literal, TYPE_CHECKING
 
 import yaml
-from pydantic import BaseModel, ConfigDict, model_validator, Field
-
 from bfabric.entities import Workunit
+from pydantic import BaseModel, ConfigDict, model_validator
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
@@ -49,7 +48,7 @@ class WorkunitRegistrationDefinition(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     application_id: int
-    application_name: str = Field(..., pattern=r"^\S+$")
+    application_name: str
     workunit_id: int
     container_id: int
     storage_id: int
