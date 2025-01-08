@@ -27,7 +27,7 @@ class AppSpecTemplate(BaseModel):
         """Evaluates the template to a concrete ``AppSpec`` instance."""
         versions_templates = [expanded for version in self.versions for expanded in version.expand_versions()]
         versions = [template.evaluate(app_id=app_id, app_name=app_name) for template in versions_templates]
-        return AppSpec.model_validate({"bfabric": self.bfabric, "versions": versions})
+        return AppSpec.model_validate({"versions": versions})
 
 
 class AppSpec(BaseModel):
