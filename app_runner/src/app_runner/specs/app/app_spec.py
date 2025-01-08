@@ -32,7 +32,9 @@ class AppVersionTemplate(BaseModel):
     def resolve(self, submitters: dict[str, SubmitterSpec], app_id: str, app_name: str) -> AppVersion:
         if self.submitter.name not in submitters:
             raise ValueError(f"Submitter {self.submitter.name} not found in submitters.")
-        variables_app = config_interpolation.VariablesApp(id=app_id, name=app_name, version=self.version)
+        variables_app = config_interpolation.VariablesApp.model_validate(
+            dict(id=app_id, name=app_name, version=self.version)
+        )
 
         data_template = self.model_dump(mode="json")
         data_template["submitter"] = self.submitter.resolve(submitters).model_dump(mode="json")
