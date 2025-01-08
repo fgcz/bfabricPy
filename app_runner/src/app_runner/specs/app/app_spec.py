@@ -39,8 +39,7 @@ class AppSpec(BaseModel):
     def load_yaml(cls, app_yaml: Path, app_id: int | str, app_name: str) -> AppSpec:
         """Loads the app versions from the provided YAML file and evaluates the templates."""
         app_spec_file = AppSpecTemplate.model_validate(yaml.safe_load(app_yaml.read_text()))
-        versions = app_spec_file.evaluate()
-        return versions.evaluate(app_id=str(app_id), app_name=str(app_name))
+        return app_spec_file.evaluate(app_id=str(app_id), app_name=str(app_name))
 
     @property
     def available_versions(self) -> set[str]:
