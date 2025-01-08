@@ -8,7 +8,6 @@ from pydantic import BaseModel, field_validator
 from app_runner.specs import config_interpolation
 from app_runner.specs.app.commands_spec import CommandsSpec  # noqa: TCH001
 from app_runner.specs.config_interpolation import interpolate_config_strings
-from app_runner.specs.submitter_spec import SubmitterSpec  # noqa: TCH001
 from app_runner.specs.submitter_ref import SubmitterRef  # noqa: TCH001
 
 if TYPE_CHECKING:
@@ -98,7 +97,7 @@ class AppSpecTemplates(BaseModel):
 class ResolvedAppVersion(BaseModel):
     version: str
     commands: CommandsSpec
-    submitter: SubmitterSpec
+    submitter: SubmitterRef
     # TODO
     reuse_default_resource: bool = True
 
@@ -116,19 +115,6 @@ class AppVersions(BaseModel):
     @property
     def available_versions(self) -> set[str]:
         return {version.version for version in self.versions}
-
-    def resolve_version(
-        self, version: str, submitters: dict[str, SubmitterSpec], variables: dict[str, Any]
-    ) -> ResolvedAppVersion:
-        app_version = self[version]
-        if app_version is None:
-            raise ValueError(f"Version {version} not found in app versions.")
-        return ResolvedAppVersion(
-            version=app_version.version,
-            commands=app_version.commands,
-            submitter=app_version.resolve_submitter(submitters=submitters, variables=variables),
-            reuse_default_resource=app_version.reuse_default_resource,
-        )
 
     def __getitem__(self, version: str) -> AppVersion | None:
         for app_version in self.versions:
