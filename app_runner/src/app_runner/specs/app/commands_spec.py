@@ -15,6 +15,7 @@ class CommandShell(BaseModel):
     command: str
 
     def to_shell(self) -> list[str]:
+        """Returns a shell command that can be used to run the specified command."""
         return shlex.split(self.command)
 
 
@@ -56,6 +57,7 @@ class CommandDocker(BaseModel):
     custom_args: list[str] = []
 
     def to_shell(self, work_dir: Path | None = None) -> list[str]:
+        """Returns a shell command that can be used to run the specified command."""
         work_dir = (work_dir or Path()).expanduser().absolute()
         mounts = self.mounts.collect(work_dir=work_dir)
         mount_args = []
@@ -91,6 +93,8 @@ Command = Annotated[CommandShell | CommandDocker, Discriminator("type")]
 
 
 class CommandsSpec(BaseModel):
+    """Defines the commands that are required to execute an app."""
+
     model_config = ConfigDict(extra="forbid")
 
     dispatch: Command
