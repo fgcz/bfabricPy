@@ -7,12 +7,19 @@ from pydantic import BaseModel
 
 
 class VariablesApp(BaseModel):
+    """App specific variables that can be used in our config templates.
+
+    They will be available as `${app.id}` etc. in the config files.
+    """
+
     id: str
     name: str
     version: str
 
 
 class Variables(BaseModel):
+    """Variables that can be used in our config templates."""
+
     app: VariablesApp
 
     def as_dict(self) -> dict[str, VariablesApp]:
