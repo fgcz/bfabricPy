@@ -4,6 +4,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.0.8\] - 2025-01-08
+
+### Added
+
+- Register single file command: `bfabric-app-runner outputs register-single-file`
+- Implement copy resource `UpdateExisting.IF_EXISTS` and `UpdateExisting.REQUIRED` support.
+- The following fields have been added to `WorkunitRegistrationDefinition`:
+    - `storage_id`
+    - `storage_output_folder`
+    - `application_id`
+    - `application_name`
+
+### Changed
+
+- App-runner code related to output staging accepts workunit-definition file like the other steps.
+
 ## \[0.0.7\] - 2024-11-22
 
 ### Fixed

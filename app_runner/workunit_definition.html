@@ -30,7 +30,7 @@
   <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
     <link rel="stylesheet" type="text/css" href="_static/autodoc_pydantic.css" />
   
@@ -309,7 +309,6 @@
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.dataset"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.dataset</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.executable"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.executable</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.raw_parameters"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.raw_parameters</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.resources"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.resources</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.from_workunit"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.from_workunit()</span></code></a></li>
@@ -317,8 +316,12 @@
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_id"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.application_id</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_name"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.application_name</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_id"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.container_id</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_type"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.container_type</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_id"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.storage_id</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_output_folder"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.storage_output_folder</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.workunit_id"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.workunit_id</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.from_workunit"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.from_workunit()</span></code></a></li>
 </ul>
@@ -406,11 +409,6 @@ loading the same from B-Fabric workunits. This abstraction ensures easier develo
 <span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Raw Parameters&quot;</span><span class="p">,</span>
 <span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;executable&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Executable&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">            </span><span class="p">},</span>
 <span class="w">            </span><span class="nt">&quot;dataset&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">               </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                  </span><span class="p">{</span>
@@ -433,8 +431,7 @@ loading the same from B-Fabric workunits. This abstraction ensures easier develo
 <span class="w">            </span><span class="p">}</span>
 <span class="w">         </span><span class="p">},</span>
 <span class="w">         </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">            </span><span class="s2">&quot;raw_parameters&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;executable&quot;</span>
+<span class="w">            </span><span class="s2">&quot;raw_parameters&quot;</span>
 <span class="w">         </span><span class="p">],</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;WorkunitExecutionDefinition&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span>
@@ -443,6 +440,14 @@ loading the same from B-Fabric workunits. This abstraction ensures easier develo
 <span class="w">         </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Defines the B-Fabric registration details of a workunit.&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;application_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Application Id&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;integer&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;application_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Application Name&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">            </span><span class="p">},</span>
 <span class="w">            </span><span class="nt">&quot;workunit_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Workunit Id&quot;</span><span class="p">,</span>
 <span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;integer&quot;</span>
@@ -450,6 +455,15 @@ loading the same from B-Fabric workunits. This abstraction ensures easier develo
 <span class="w">            </span><span class="nt">&quot;container_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Container Id&quot;</span><span class="p">,</span>
 <span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;integer&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;storage_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Storage Id&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;integer&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;storage_output_folder&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Storage Output Folder&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
 <span class="w">            </span><span class="p">},</span>
 <span class="w">            </span><span class="nt">&quot;container_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">               </span><span class="nt">&quot;enum&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
@@ -461,8 +475,12 @@ loading the same from B-Fabric workunits. This abstraction ensures easier develo
 <span class="w">            </span><span class="p">}</span>
 <span class="w">         </span><span class="p">},</span>
 <span class="w">         </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="s2">&quot;application_id&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;application_name&quot;</span><span class="p">,</span>
 <span class="w">            </span><span class="s2">&quot;workunit_id&quot;</span><span class="p">,</span>
 <span class="w">            </span><span class="s2">&quot;container_id&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;storage_id&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;storage_output_folder&quot;</span><span class="p">,</span>
 <span class="w">            </span><span class="s2">&quot;container_type&quot;</span>
 <span class="w">         </span><span class="p">],</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;WorkunitRegistrationDefinition&quot;</span><span class="p">,</span>
@@ -551,11 +569,6 @@ Otherwise, the result will be cached to the provided file.
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Raw Parameters&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span>
 <span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;executable&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Executable&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nt">&quot;dataset&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">         </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">            </span><span class="p">{</span>
@@ -579,8 +592,7 @@ Otherwise, the result will be cached to the provided file.
 <span class="w">   </span><span class="p">},</span>
 <span class="w">   </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
 <span class="w">   </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="s2">&quot;raw_parameters&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="s2">&quot;executable&quot;</span>
+<span class="w">      </span><span class="s2">&quot;raw_parameters&quot;</span>
 <span class="w">   </span><span class="p">]</span>
 <span class="p">}</span>
 </pre></div>
@@ -594,7 +606,6 @@ Otherwise, the result will be cached to the provided file.
 <dt class="field-even">Fields<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.dataset" title="bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dataset</span> <span class="pre">(int</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
-<li><p><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.executable" title="bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.executable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">executable</span> <span class="pre">(pathlib.Path)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.raw_parameters" title="bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.raw_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">raw_parameters</span> <span class="pre">(dict[str,</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None])</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.resources" title="bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resources</span> <span class="pre">(list[int])</span></code></a></p></li>
 </ul>
@@ -608,18 +619,6 @@ Otherwise, the result will be cached to the provided file.
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.dataset">
 <em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dataset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.dataset" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Validated by<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.mutually_exclusive_dataset_resources" title="bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.mutually_exclusive_dataset_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mutually_exclusive_dataset_resources</span></code></a></p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute pydantic_field">
-<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.executable">
-<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">executable</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.executable" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Validated by<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -678,6 +677,14 @@ Otherwise, the result will be cached to the provided file.
 <span class="w">   </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Defines the B-Fabric registration details of a workunit.&quot;</span><span class="p">,</span>
 <span class="w">   </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
 <span class="w">   </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;application_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Application Id&quot;</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;integer&quot;</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;application_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Application Name&quot;</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nt">&quot;workunit_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Workunit Id&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;integer&quot;</span>
@@ -685,6 +692,15 @@ Otherwise, the result will be cached to the provided file.
 <span class="w">      </span><span class="nt">&quot;container_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Container Id&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;integer&quot;</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;storage_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Storage Id&quot;</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;integer&quot;</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;storage_output_folder&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Storage Output Folder&quot;</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nt">&quot;container_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">         </span><span class="nt">&quot;enum&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
@@ -697,8 +713,12 @@ Otherwise, the result will be cached to the provided file.
 <span class="w">   </span><span class="p">},</span>
 <span class="w">   </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
 <span class="w">   </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="s2">&quot;application_id&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">&quot;application_name&quot;</span><span class="p">,</span>
 <span class="w">      </span><span class="s2">&quot;workunit_id&quot;</span><span class="p">,</span>
 <span class="w">      </span><span class="s2">&quot;container_id&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">&quot;storage_id&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">&quot;storage_output_folder&quot;</span><span class="p">,</span>
 <span class="w">      </span><span class="s2">&quot;container_type&quot;</span>
 <span class="w">   </span><span class="p">]</span>
 <span class="p">}</span>
@@ -712,12 +732,26 @@ Otherwise, the result will be cached to the provided file.
 </dd>
 <dt class="field-even">Fields<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_id" title="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">application_id</span> <span class="pre">(int)</span></code></a></p></li>
+<li><p><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_name" title="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">application_name</span> <span class="pre">(str)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_id" title="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">container_id</span> <span class="pre">(int)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_type" title="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">container_type</span> <span class="pre">(Literal['project',</span> <span class="pre">'order'])</span></code></a></p></li>
+<li><p><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_id" title="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">storage_id</span> <span class="pre">(int)</span></code></a></p></li>
+<li><p><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_output_folder" title="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_output_folder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">storage_output_folder</span> <span class="pre">(pathlib.Path)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.workunit_id" title="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.workunit_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workunit_id</span> <span class="pre">(int)</span></code></a></p></li>
 </ul>
 </dd>
 </dl>
+<dl class="py attribute pydantic_field">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_id">
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">application_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_id" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute pydantic_field">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_name">
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">application_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_name" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_id">
 <em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">container_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_id" title="Link to this definition">#</a></dt>
@@ -726,6 +760,16 @@ Otherwise, the result will be cached to the provided file.
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_type">
 <em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">container_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'project'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'order'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_type" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute pydantic_field">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_id">
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">storage_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_id" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute pydantic_field">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_output_folder">
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">storage_output_folder</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_output_folder" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute pydantic_field">
@@ -804,7 +848,6 @@ Otherwise, the result will be cached to the provided file.
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.dataset"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.dataset</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.executable"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.executable</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.raw_parameters"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.raw_parameters</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.resources"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.resources</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.from_workunit"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.from_workunit()</span></code></a></li>
@@ -812,8 +855,12 @@ Otherwise, the result will be cached to the provided file.
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_id"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.application_id</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_name"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.application_name</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_id"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.container_id</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_type"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.container_type</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_id"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.storage_id</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_output_folder"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.storage_output_folder</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.workunit_id"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.workunit_id</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.from_workunit"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.from_workunit()</span></code></a></li>
 </ul>
