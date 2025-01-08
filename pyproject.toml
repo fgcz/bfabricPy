@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "bfabric"
 description = "Python client for the B-Fabric WSDL API"
-version = "1.13.13"
+version = "1.13.14"
 license = { text = "GPL-3.0" }
 authors = [
     { name = "Christian Panse", email = "cp@fgcz.ethz.ch" },
@@ -97,7 +97,7 @@ target-version = "py39"
 
 [tool.ruff.lint]
 select = ["ANN", "BLE", "D103", "E", "EXE", "F", "N", "PLW", "PTH", "SIM", "TCH", "UP", "W191"]
-ignore = ["ANN101", "ANN102", "ANN401"]
+ignore = ["ANN401"]
 
 [tool.ruff.lint.per-file-ignores]
 "**/bfabric_scripts/**" = ["ALL"]

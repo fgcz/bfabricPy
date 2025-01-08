@@ -10,6 +10,16 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.14\] - 2025-01-08
+
+### Changed
+
+- Slurm submitter prints more diagnostics about PATH variable etc.
+
+### Fixed
+
+- Some commands in bfabric-cli are broken because `__future__.annotations` is imported and this breaks cyclopts.
+
 ## \[1.13.13\] - 2024-12-18
 
 ### Changed

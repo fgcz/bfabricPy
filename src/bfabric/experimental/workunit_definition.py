@@ -4,9 +4,8 @@ from pathlib import Path
 from typing import Literal, TYPE_CHECKING
 
 import yaml
-from pydantic import BaseModel, ConfigDict, model_validator
-
 from bfabric.entities import Workunit
+from pydantic import BaseModel, ConfigDict, model_validator
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
@@ -18,8 +17,6 @@ class WorkunitExecutionDefinition(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     raw_parameters: dict[str, str | None]
-    # TODO drop the execuctable
-    executable: Path
     dataset: int | None = None
     resources: list[int] = []
 
@@ -37,11 +34,8 @@ class WorkunitExecutionDefinition(BaseModel):
         """Loads the workunit execution definition from the provided B-Fabric workunit."""
         if workunit.application is None:
             raise ValueError("Workunit does not have an application")
-        if workunit.application.executable is None:
-            raise ValueError("Workunit application does not have an executable")
         data = {
             "raw_parameters": workunit.parameter_values,
-            "executable": workunit.application.executable["program"],
             "dataset": workunit.input_dataset.id if workunit.input_dataset else None,
             "resources": [r.id for r in workunit.input_resources],
         }
@@ -53,17 +47,25 @@ class WorkunitRegistrationDefinition(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
+    application_id: int
+    application_name: str
     workunit_id: int
     container_id: int
+    storage_id: int
+    storage_output_folder: Path
     container_type: Literal["project", "order"]
 
     @classmethod
     def from_workunit(cls, workunit: Workunit) -> WorkunitRegistrationDefinition:
         """Loads the workunit registration definition from the provided B-Fabric workunit."""
         data = {
+            "application_id": workunit.application.id,
+            "application_name": workunit.application["name"],
             "workunit_id": workunit.id,
             "container_id": workunit.container.id,
             "container_type": workunit.container.ENDPOINT,
+            "storage_id": workunit.application.storage.id,
+            "storage_output_folder": workunit.store_output_folder,
         }
         return cls.model_validate(data)
 

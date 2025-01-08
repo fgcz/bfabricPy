@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "app_runner"
 description = "Application runner for B-Fabric apps"
-version = "0.0.6"
+version = "0.0.8"
 license = { text = "GPL-3.0" }
 authors = [
     {name = "Leonardo Schwarz", email = "leonardo.schwarz@fgcz.ethz.ch"},
@@ -15,6 +15,7 @@ dependencies = [
     "bfabric @ git+https://github.com/fgcz/bfabricPy.git@main",
     "pydantic",
     "glom",
+    "mako",
 ]
 
 [project.scripts]
@@ -35,6 +36,7 @@ dev = [
     "mypy",
     "types-PyYAML",
 ]
+test = ["pytest", "pytest-mock", "logot"]
 
 [tool.uv]
 reinstall-package = ["app_runner"]
@@ -48,7 +50,13 @@ indent-width = 4
 
 [tool.ruff.lint]
 select = ["ANN", "BLE", "D103", "E", "EXE", "F", "N", "PLW", "PTH", "SIM", "TCH", "UP", "W191"]
-ignore = ["ANN101", "ANN102"]
+ignore = ["ANN401"]
+
+[tool.ruff.lint.pep8-naming]
+classmethod-decorators = [
+    "pydantic.validator",
+    "pydantic.field_validator",
+]
 
 [tool.ruff.lint.per-file-ignores]
 # This is needed because of false positives in cyclopts code
