@@ -22,7 +22,7 @@ def app_spec_template(yaml_file: Path) -> None:
 
 
 @app_validate.command()
-def app_spc(app_yaml: Path, app_id: str = "x", app_name: str = "y") -> None:
+def app_spec(app_yaml: Path, app_id: str = "x", app_name: str = "y") -> None:
     """Validates the app versions by expanding the relevant config info."""
     versions = AppSpec.load_yaml(app_yaml, app_id=app_id, app_name=app_name)
     pprint(versions)
