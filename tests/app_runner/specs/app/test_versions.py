@@ -2,13 +2,13 @@ from pathlib import Path
 
 import pytest
 
-from app_runner.specs.app.app_spec import AppVersions
+from app_runner.specs.app.app_spec import AppSpec
 
 
 @pytest.fixture()
 def parsed():
     app_yaml = Path(__file__).parent / "test_versions.yml"
-    return AppVersions.load_yaml(app_yaml=app_yaml, app_id="xxx", app_name="yyy")
+    return AppSpec.load_yaml(app_yaml=app_yaml, app_id="xxx", app_name="yyy")
 
 
 def test_available_versions(parsed):
