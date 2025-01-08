@@ -14,8 +14,10 @@ if TYPE_CHECKING:
 
 def resolve_app(versions: AppSpec, workunit_definition: WorkunitDefinition) -> AppVersion:
     """Resolves the app version to use for the provided workunit definition."""
-    # TODO this should be more generic in the future
-    # TODO logic to define "latest" version
+    # TODO this should be more generic in the future about the key for the app version (should be handled in AppSpec)
+    # TODO logic to define "latest" version (should also be handled in AppSpec)
+    if "application_version" not in workunit_definition.execution.raw_parameters:
+        raise ValueError("The workunit definition does not contain an application version.")
     app_version = workunit_definition.execution.raw_parameters["application_version"]
     # TODO graceful handling of invalid versions
     return versions[app_version]
