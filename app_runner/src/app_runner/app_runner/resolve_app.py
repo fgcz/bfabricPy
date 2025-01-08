@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from bfabric.experimental.workunit_definition import WorkunitDefinition
@@ -8,6 +7,7 @@ from bfabric.experimental.workunit_definition import WorkunitDefinition
 from app_runner.specs.app.app_spec import AppVersions, AppVersion
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from bfabric import Bfabric
 
 
@@ -34,14 +34,10 @@ def load_workunit_information(
         steps to avoid unnecessary B-Fabric lookups. (If the workunit_ref was already a path, it will be returned as is,
         otherwise the file will be created in the work directory.)
     """
-    # TODO do not hard code this (ideally fix before merge)
-    submitters_yaml = Path("~/slurmworker/bfabric/submitters.yml").expanduser()
-
     workunit_definition_file = work_dir / "workunit_definition.yml"
     workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client, cache_file=workunit_definition_file)
     app_versions = AppVersions.load_yaml(
         app_spec,
-        submitters_yaml=submitters_yaml,
         app_id=workunit_definition.registration.application_id,
         app_name=workunit_definition.registration.application_name,
     )

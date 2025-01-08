@@ -8,8 +8,7 @@ from app_runner.specs.app.app_spec import AppVersions
 @pytest.fixture()
 def parsed():
     app_yaml = Path(__file__).parent / "test_versions.yml"
-    submitters_yaml = Path(__file__).parent / "test_submitters.yml"
-    return AppVersions.load_yaml(app_yaml=app_yaml, submitters_yaml=submitters_yaml, app_id="xxx", app_name="yyy")
+    return AppVersions.load_yaml(app_yaml=app_yaml, app_id="xxx", app_name="yyy")
 
 
 def test_available_versions(parsed):
