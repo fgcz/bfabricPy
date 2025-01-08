@@ -26,7 +26,7 @@ class AppSpecFile(BaseModel):
         return AppSpecTemplates.model_validate(
             {
                 "bfabric": self.bfabric,
-                "versions": [expanded for version in self.versions for expanded in version.expand()],
+                "versions": [expanded for version in self.versions for expanded in version.expand_versions()],
             }
         )
 

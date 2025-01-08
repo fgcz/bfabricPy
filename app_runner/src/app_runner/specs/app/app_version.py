@@ -52,7 +52,7 @@ class AppVersionMultiTemplate(BaseModel):
             return [values]
         return values
 
-    def expand(self) -> list[AppVersionTemplate]:
+    def expand_versions(self) -> list[AppVersionTemplate]:
         """Returns a list of individual ``AppVersionTemplate`` instances, expanding each template of multiple versions.
         If substitutions are used they will not be expanded yet but rather when converting the template to a concrete
         AppVersion.
