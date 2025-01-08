@@ -6,8 +6,6 @@ import yaml
 from pydantic import BaseModel
 
 from app_runner.specs.app.app_version import AppVersion, AppVersionTemplate, AppVersionMultiTemplate  # noqa: TCH001
-from app_runner.specs.app.commands_spec import CommandsSpec  # noqa: TCH001
-from app_runner.specs.submitter_ref import SubmitterRef  # noqa: TCH001
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -41,14 +39,6 @@ class AppSpecTemplates(BaseModel):
         return AppVersions.model_validate(
             {"versions": [version.evaluate(app_id=app_id, app_name=app_name) for version in self.versions]}
         )
-
-
-class ResolvedAppVersion(BaseModel):
-    version: str
-    commands: CommandsSpec
-    submitter: SubmitterRef
-    # TODO remove when new submitter becomes available
-    reuse_default_resource: bool = True
 
 
 class AppVersions(BaseModel):
