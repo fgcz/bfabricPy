@@ -7,7 +7,7 @@ import rich
 import rich.pretty
 import yaml
 
-from app_runner.specs.app.app_spec import AppSpecFile
+from app_runner.specs.app.app_spec import AppSpecFile, AppVersions
 from app_runner.specs.inputs_spec import InputsSpec
 from app_runner.specs.outputs_spec import OutputsSpec
 from app_runner.specs.submitter_spec import SubmittersSpec
@@ -41,11 +41,8 @@ def app_spec_file(yaml_file: Path) -> None:
 @app_validate.command()
 def app_versions(app_yaml: Path, submitters_yaml: Path, app_id: str = "x", app_name: str = "y") -> None:
     """Validates the app versions by expanding the relevant config info."""
-    app_spec_file = AppSpecFile.model_validate(yaml.safe_load(app_yaml.read_text()))
-    submitters = SubmittersSpec.model_validate(yaml.safe_load(submitters_yaml.read_text()))
-    x = app_spec_file.expand()
-    x = x.resolve(submitters=submitters.submitters, app_id=app_id, app_name=app_name)
-    rich.pretty.pprint(x)
+    versions = AppVersions.load_yaml(app_yaml, submitters_yaml=submitters_yaml, app_id=app_id, app_name=app_name)
+    rich.pretty.pprint(versions)
 
 
 # @app_validate.command()

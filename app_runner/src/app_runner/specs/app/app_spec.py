@@ -8,7 +8,7 @@ from pydantic import BaseModel, field_validator
 from app_runner.specs import config_interpolation
 from app_runner.specs.app.commands_spec import CommandsSpec  # noqa: TCH001
 from app_runner.specs.config_interpolation import interpolate_config_strings
-from app_runner.specs.submitter_spec import SubmitterRef, SubmitterSpec  # noqa: TCH001
+from app_runner.specs.submitter_spec import SubmitterRef, SubmitterSpec, SubmittersSpec  # noqa: TCH001
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -115,11 +115,12 @@ class AppVersions(BaseModel):
     versions: list[AppVersion]
 
     @classmethod
-    def load_yaml(cls, path: Path, app_id: int | str) -> AppVersions:
-        data = yaml.safe_load(path.read_text())
-        model = AppSpecFile.model_validate(data)
-        versions = [expanded for version in model.versions for expanded in version.expand()]
-        return AppVersions.model_validate({"versions": versions})
+    def load_yaml(cls, app_yaml: Path, submitters_yaml: Path, app_id: int | str, app_name: str) -> AppVersions:
+        app_spec_file = AppSpecFile.model_validate(yaml.safe_load(app_yaml.read_text()))
+        submitters = SubmittersSpec.model_validate(yaml.safe_load(submitters_yaml.read_text()))
+        x = app_spec_file.expand()
+        x = x.resolve(submitters=submitters.submitters, app_id=app_id, app_name=app_name)
+        return x
 
     @property
     def available_versions(self) -> set[str]:
