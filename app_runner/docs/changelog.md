@@ -4,6 +4,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.0.9\] - 2025-01-09
+
 ### Added
 
 - App specs can now define multiple versions in one file. (AppSpec = Collection of app versions and other information.)
