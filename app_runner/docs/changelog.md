@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Added
+
+- `CommandDocker.hostname` so it won't have to be passed by `custom_args` in the future.
+
 ## \[0.0.9\] - 2025-01-09
 
 ### Added
