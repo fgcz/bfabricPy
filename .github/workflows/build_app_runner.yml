@@ -5,6 +5,9 @@ on:
     types: [published]
   pull_request:
     branches: [stable]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 jobs:
   check_tag:
     name: Check Tag Name
