@@ -3,31 +3,61 @@ on:
   workflow_dispatch:
   release:
     types: [published]
-    tags:
-      - "app-runner/*"
+  pull_request:
+    branches: [stable]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 jobs:
+  check_tag:
+    name: Check Tag Name
+    runs-on: ubuntu-latest
+    outputs:
+      is_valid_tag: ${{ steps.check.outputs.is_valid }}
+    steps:
+      - id: check
+        run: |
+          if [[ "${{ github.ref }}" =~ ^refs/tags/app-runner/ ]]; then
+            echo "is_valid=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_valid=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Invalid tag format. Expected tag to start with 'app-runner/'"
+          fi
   build_app_runner:
     name: Build App Runner
+    needs: check_tag
+    # Run if:
+    # - It's a PR to stable branch, or
+    # - It's a manual trigger, or
+    # - It's a release with valid tag
+    if: >
+      ${{ github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || (github.event_name == 'release' && needs.check_release_tag.outputs.is_valid_tag == 'true') }}
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build
-        run: |
-          bash app_runner/deploy/build.sh build-output app_runner
-          ls -l build-output
-      - name: Verify
-        run: |
-          build-output/app_runner/app_runner --help
-      - name: Upload
-        uses: actions/upload-artifact@v4
+      - name: Build App Runner
+        uses: ./.github/actions/build-app-runner
+        id: build
         with:
-          name: app_runner_linux_x86_64
-          path: build-output
+          output-path: build-output
+          source-path: app_runner
+      - name: Comment PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ App Runner build completed successfully!'
+            })
   publish_release_artifact:
     name: Publish Release Artifact
     runs-on: ubuntu-latest
     needs: build_app_runner
-    if: github.event_name == 'release'
+    if: ${{ github.event_name == 'release' }}
     steps:
       - name: Download Artifact
         uses: actions/download-artifact@v4
