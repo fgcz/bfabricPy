@@ -9,7 +9,7 @@ jobs:
   check_tag:
     name: Check Tag Name
     runs-on: ubuntu-latest
-    if: github.event_name == 'release'
+    if: ${{ github.event_name == 'release' }}
     outputs:
       is_valid_tag: ${{ steps.check.outputs.is_valid }}
     steps:
