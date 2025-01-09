@@ -18,7 +18,7 @@ jobs:
             echo "is_valid=true" >> "$GITHUB_OUTPUT"
           else
             echo "is_valid=false" >> "$GITHUB_OUTPUT"
-            echo "::error::Invalid tag format. Expected tag to start with 'app-runner/'"
+            echo "::notice::Invalid tag format. Expected tag to start with 'app-runner/'"
           fi
   build_app_runner:
     name: Build App Runner
