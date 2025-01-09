@@ -9,7 +9,6 @@ jobs:
   check_tag:
     name: Check Tag Name
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'release' }}
     outputs:
       is_valid_tag: ${{ steps.check.outputs.is_valid }}
     steps:
@@ -23,7 +22,7 @@ jobs:
           fi
   build_app_runner:
     name: Build App Runner
-    needs: [check_tag]
+    needs: check_tag
     # Run if:
     # - It's a PR to stable branch, or
     # - It's a manual trigger, or
