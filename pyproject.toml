@@ -41,6 +41,7 @@ dev = [
     "licensecheck",
     "nox",
     "uv",
+    "ipython",
 ]
 doc = ["mkdocs", "mkdocs-material", "mkdocstrings[python]"]
 test = ["pytest", "pytest-mock", "logot"]
