@@ -3,9 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 
 import cyclopts
-import yaml
 
-from app_runner.specs.app_spec import AppSpec
+from app_runner.app_runner.resolve_app import load_workunit_information
 from app_runner.app_runner.runner import run_app, Runner
 from bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
@@ -27,12 +26,14 @@ def run(
     # TODO doc
     setup_script_logging()
     client = Bfabric.from_config()
-    app_spec_parsed = AppSpec.model_validate(yaml.safe_load(app_spec.read_text()))
+
+    app_version, workunit_ref = load_workunit_information(app_spec, client, work_dir, workunit_ref)
+
     # TODO(#107): usage of entity lookup cache was problematic -> beyond the full solution we could also consider
     #             to deactivate the cache for the output registration
     # with EntityLookupCache.enable():
     run_app(
-        app_spec=app_spec_parsed,
+        app_spec=app_version,
         workunit_ref=workunit_ref,
         work_dir=work_dir,
         client=client,
@@ -57,6 +58,9 @@ def dispatch(
     work_dir = work_dir.resolve()
     # TODO set workunit to processing? (i.e. add read-only option here)
     client = Bfabric.from_config()
+
+    app_version, workunit_ref = load_workunit_information(app_spec, client, work_dir, workunit_ref)
+
     with EntityLookupCache.enable():
-        runner = Runner(spec=AppSpec.model_validate(yaml.safe_load(app_spec.read_text())), client=client, ssh_user=None)
+        runner = Runner(spec=app_version, client=client, ssh_user=None)
         runner.run_dispatch(workunit_ref=workunit_ref, work_dir=work_dir)

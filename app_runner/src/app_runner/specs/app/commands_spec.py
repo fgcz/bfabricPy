@@ -8,9 +8,6 @@ from typing import Literal, Annotated
 from pydantic import BaseModel, Discriminator, ConfigDict
 
 
-# TODO: This is kept very simple for now, so that it could be easily extended in the future.
-
-
 class CommandShell(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -18,18 +15,25 @@ class CommandShell(BaseModel):
     command: str
 
     def to_shell(self) -> list[str]:
+        """Returns a shell command that can be used to run the specified command."""
         return shlex.split(self.command)
 
 
 class MountOptions(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    # TODO this will have to be reworked later it is not flexible enough as it does not allow to specify the
+    #      flags for shared etc.
     work_dir_target: Path | None = None
     read_only: list[tuple[Path, Path]] = []
     writeable: list[tuple[Path, Path]] = []
     share_bfabric_config: bool = True
 
     def collect(self, work_dir: Path) -> list[tuple[Path, Path, bool]]:
+        """Collects all mounts that are required to run the command.
+
+        These are returned as triplets of (source, target, read_only).
+        """
         mounts = []
         if self.share_bfabric_config:
             mounts.append((Path("~/.bfabricpy.yml"), Path("/home/user/.bfabricpy.yml"), True))
@@ -59,6 +63,7 @@ class CommandDocker(BaseModel):
     custom_args: list[str] = []
 
     def to_shell(self, work_dir: Path | None = None) -> list[str]:
+        """Returns a shell command that can be used to run the specified command."""
         work_dir = (work_dir or Path()).expanduser().absolute()
         mounts = self.mounts.collect(work_dir=work_dir)
         mount_args = []
@@ -94,16 +99,10 @@ Command = Annotated[CommandShell | CommandDocker, Discriminator("type")]
 
 
 class CommandsSpec(BaseModel):
+    """Defines the commands that are required to execute an app."""
+
     model_config = ConfigDict(extra="forbid")
 
     dispatch: Command
     process: Command
     collect: Command
-
-
-class AppSpec(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    commands: CommandsSpec
-    # Note: While we use the old submitter, this is still necessary
-    reuse_default_resource: bool = True

@@ -5,7 +5,7 @@ from typing import Literal, TYPE_CHECKING
 
 import yaml
 from bfabric.entities import Workunit
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, model_validator
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
@@ -13,8 +13,6 @@ if TYPE_CHECKING:
 
 class WorkunitExecutionDefinition(BaseModel):
     """Defines the execution details of a workunit."""
-
-    model_config = ConfigDict(extra="forbid")
 
     raw_parameters: dict[str, str | None]
     dataset: int | None = None
@@ -44,8 +42,6 @@ class WorkunitExecutionDefinition(BaseModel):
 
 class WorkunitRegistrationDefinition(BaseModel):
     """Defines the B-Fabric registration details of a workunit."""
-
-    model_config = ConfigDict(extra="forbid")
 
     application_id: int
     application_name: str

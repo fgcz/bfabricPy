@@ -1,0 +1,37 @@
+bfabric:
+  app_runner: "0"
+versions:
+  - version: 0.1.0
+    commands:
+      dispatch: &dispatch_010
+        type: shell
+        command: echo "0.1.0"
+      process:
+        !!merge <<: *dispatch_010
+        command: echo "${app.id}"
+      collect:
+        !!merge <<: *dispatch_010
+    submitter:
+      name: submitter
+  - version: [0.1.1]
+    commands:
+      dispatch: &dispatch_011
+        type: shell
+        command: echo "${app.version}"
+      process:
+        !!merge <<: *dispatch_011
+      collect:
+        !!merge <<: *dispatch_011
+    submitter:
+      name: submitter
+  - version: [1.0.0, 1.0.1]
+    commands:
+      dispatch: &dispatch_10
+        type: shell
+        command: echo "${app.version}"
+      process:
+        !!merge <<: *dispatch_10
+      collect:
+        !!merge <<: *dispatch_10
+    submitter:
+      name: submitter
