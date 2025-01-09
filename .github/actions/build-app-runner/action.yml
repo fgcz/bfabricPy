@@ -1,0 +1,35 @@
+name: 'Build App Runner'
+description: 'Builds the app runner binary'
+inputs:
+  output-path:
+    description: 'Path where build output will be stored'
+    required: false
+    default: 'build-output'
+  source-path:
+    description: 'Path to app runner source code'
+    required: false
+    default: 'app_runner'
+outputs:
+  artifact-name:
+    description: 'Name of the uploaded artifact'
+    value: ${{ steps.set-output.outputs.artifact-name }}
+runs:
+  using: "composite"
+  steps:
+    - name: Build
+      shell: bash
+      run: |
+        bash ${{ inputs.source-path }}/deploy/build.sh ${{ inputs.output-path }} ${{ inputs.source-path }}
+        ls -l ${{ inputs.output-path }}
+    - name: Verify
+      shell: bash
+      run: |
+        ${{ inputs.output-path }}/${{ inputs.source-path }}/app_runner --help
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: app_runner_linux_x86_64
+        path: ${{ inputs.output-path }}
+    - id: set-output
+      shell: bash
+      run: echo "artifact-name=app_runner_linux_x86_64" >> "$GITHUB_OUTPUT"
