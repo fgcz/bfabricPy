@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Fixed
+
+- Fix bug in `bfabric_save_fasta.py`.
+
 ## \[1.13.14\] - 2025-01-08
 
 ### Changed
