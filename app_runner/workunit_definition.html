@@ -392,7 +392,6 @@ loading the same from B-Fabric workunits. This abstraction ensures easier develo
 <span class="w">   </span><span class="p">},</span>
 <span class="w">   </span><span class="nt">&quot;$defs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nt">&quot;WorkunitExecutionDefinition&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Defines the execution details of a workunit.&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="nt">&quot;raw_parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -437,7 +436,6 @@ loading the same from B-Fabric workunits. This abstraction ensures easier develo
 <span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nt">&quot;WorkunitRegistrationDefinition&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Defines the B-Fabric registration details of a workunit.&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="nt">&quot;application_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -590,7 +588,6 @@ Otherwise, the result will be cached to the provided file.
 <span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">   </span><span class="p">},</span>
-<span class="w">   </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
 <span class="w">   </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">      </span><span class="s2">&quot;raw_parameters&quot;</span>
 <span class="w">   </span><span class="p">]</span>
@@ -598,20 +595,15 @@ Otherwise, the result will be cached to the provided file.
 </pre></div>
 </div>
 </details></p><dl class="field-list simple">
-<dt class="field-odd">Config<span class="colon">:</span></dt>
+<dt class="field-odd">Fields<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>extra</strong>: <em>str = forbid</em></p></li>
-</ul>
-</dd>
-<dt class="field-even">Fields<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
 <li><p><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.dataset" title="bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dataset</span> <span class="pre">(int</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.raw_parameters" title="bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.raw_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">raw_parameters</span> <span class="pre">(dict[str,</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None])</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.resources" title="bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resources</span> <span class="pre">(list[int])</span></code></a></p></li>
 </ul>
 </dd>
-<dt class="field-odd">Validators<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-even">Validators<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
 <li><p><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.mutually_exclusive_dataset_resources" title="bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.mutually_exclusive_dataset_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mutually_exclusive_dataset_resources</span></code></a> » <code class="xref py py-obj docutils literal notranslate"><span class="pre">all</span> <span class="pre">fields</span></code></p></li>
 </ul>
 </dd>
@@ -711,7 +703,6 @@ Otherwise, the result will be cached to the provided file.
 <span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">   </span><span class="p">},</span>
-<span class="w">   </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
 <span class="w">   </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">      </span><span class="s2">&quot;application_id&quot;</span><span class="p">,</span>
 <span class="w">      </span><span class="s2">&quot;application_name&quot;</span><span class="p">,</span>
@@ -725,13 +716,8 @@ Otherwise, the result will be cached to the provided file.
 </pre></div>
 </div>
 </details></p><dl class="field-list simple">
-<dt class="field-odd">Config<span class="colon">:</span></dt>
+<dt class="field-odd">Fields<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>extra</strong>: <em>str = forbid</em></p></li>
-</ul>
-</dd>
-<dt class="field-even">Fields<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
 <li><p><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_id" title="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">application_id</span> <span class="pre">(int)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_name" title="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">application_name</span> <span class="pre">(str)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_id" title="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">container_id</span> <span class="pre">(int)</span></code></a></p></li>

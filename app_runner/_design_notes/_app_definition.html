@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>App specification &#8212; App Runner  documentation</title>
+    <title>App Definition Design &#8212; App Runner  documentation</title>
   
   
   
@@ -44,11 +44,9 @@
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'specs/app_specification';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_design_notes/_app_definition';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Changelog" href="../changelog.html" />
-    <link rel="prev" title="Output specification" href="output_specification.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -100,6 +98,8 @@
       
       
       
+        
+      
       <dialog id="pst-primary-sidebar-modal"></dialog>
       <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
@@ -138,16 +138,16 @@
 </button></div>
         <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
-        <ul class="current nav bd-sidenav">
+        <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../workunit_definition.html">Workunit Definition</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../architecture/overview.html">Architecture Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="input_specification.html">Input specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../specs/input_specification.html">Input specification</a></li>
 
 
-<li class="toctree-l1"><a class="reference internal" href="output_specification.html">Output specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../specs/output_specification.html">Output specification</a></li>
 
 
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">App specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../specs/app_specification.html">App specification</a></li>
 
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 </ul>
@@ -209,7 +209,7 @@
       
       
       
-      <li><a href="../_sources/specs/app_specification.md" target="_blank"
+      <li><a href="../_sources/_design_notes/_app_definition.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -285,7 +285,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>App specification</h1>
+    <h1>App Definition Design</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -295,10 +295,11 @@
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">App specification</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#reference">Reference</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#goals">Goals</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#remarks">Remarks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#open-question">Open question</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#future-possibilities">Future possibilities</a></li>
 </ul>
-
             </nav>
         </div>
     </div>
@@ -309,13 +310,32 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="app-specification">
-<h1>App specification<a class="headerlink" href="#app-specification" title="Link to this heading">#</a></h1>
-<p>TODO: not clear if this same document should also explain the individual steps, or if it would make sense to first
-describe the app anatomy in a separate document with figures etc. and then list how to specify it</p>
+  <section id="app-definition-design">
+<h1>App Definition Design<a class="headerlink" href="#app-definition-design" title="Link to this heading">#</a></h1>
+<section id="goals">
+<h2>Goals<a class="headerlink" href="#goals" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Centralized configuration for all app versions so that if necessary adaptions to the system integration can be done in one place easily.</p></li>
+</ul>
 </section>
-<section id="reference">
-<h1>Reference<a class="headerlink" href="#reference" title="Link to this heading">#</a></h1>
+<section id="remarks">
+<h2>Remarks<a class="headerlink" href="#remarks" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The app ID is not part of the app specification, since the same app specification can be used for multiple B-Fabric apps.</p></li>
+</ul>
+</section>
+<section id="open-question">
+<h2>Open question<a class="headerlink" href="#open-question" title="Link to this heading">#</a></h2>
+</section>
+<section id="future-possibilities">
+<h2>Future possibilities<a class="headerlink" href="#future-possibilities" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Version ranges: Maybe we could use semver, but it would need to be a standardized flavor thereof.</p></li>
+<li><p>Allow to provide a folder (or set of YAML files) with multiple app definitions, to be pooled together.
+If there are any version conflicts an error should be raised.
+There probably should be a tool to check the available versions easily.</p></li>
+</ul>
+</section>
 </section>
 
 
@@ -329,24 +349,6 @@ describe the app anatomy in a separate document with figures etc. and then list 
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="output_specification.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Output specification</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="../changelog.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Changelog</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
 </div>
                 </footer>
               
@@ -364,10 +366,11 @@ describe the app anatomy in a separate document with figures etc. and then list 
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">App specification</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#reference">Reference</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#goals">Goals</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#remarks">Remarks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#open-question">Open question</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#future-possibilities">Future possibilities</a></li>
 </ul>
-
   </nav></div>
 
 </div></div>
