@@ -10,6 +10,11 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Added
+
+- Entity `Sample`.
+- Extract logic for container resolution into `HasContainerMixin` which is right now shared between `Sample` and `Workunit`.
+
 ### Fixed
 
 - Fix bug in `bfabric_save_fasta.py`.

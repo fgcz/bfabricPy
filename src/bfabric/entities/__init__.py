@@ -8,6 +8,7 @@ from .order import Order
 from .parameter import Parameter
 from .project import Project
 from .resource import Resource
+from .sample import Sample
 from .storage import Storage
 from .workunit import Workunit
 
@@ -22,6 +23,7 @@ __all__ = [
     "Parameter",
     "Project",
     "Resource",
+    "Sample",
     "Storage",
     "Workunit",
 ]
