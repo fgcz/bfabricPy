@@ -15,16 +15,10 @@ Please see below for how to install bfabricPy.
 
 The package is not available on PyPI as of now, but can be installed directly from GitHub and a `stable` branch is available for your convenience.
 
-If you are only interested in running the command line scripts, installation with `pipx` is recommended as it will create a separate virtual environment for bfabricPy and make it possible to upgrade your installation later easily.
+If you are only interested in running the command line scripts, installation with `uv tool` is recommended as it will create a separate virtual environment for bfabricPy and make it possible to upgrade your installation later easily.
 
 ```bash
-pipx install "git+https://github.com/fgcz/bfabricPy.git@stable"
-```
-
-Note that `pipx` is also useful in scripts, if you want to run a particular version without forcing the global installation of that version (simply replace "stable" with a tag of your chosing):
-
-```bash
-pipx run --spec "git+https://github.com/fgcz/bfabricPy.git@stable" bfabric_read.py --help
+uv tool install "git+https://github.com/fgcz/bfabricPy.git@stable"
 ```
 
 If you want to add it to a `pyproject.toml` the syntax for specifying a git dependency is as follows:
@@ -38,10 +32,10 @@ dependencies = [
 
 ## Updating
 
-If you installed with `pipx`, you can update the package to the most recent release with the following command:
+If you installed with `uv`, you can update the package to the most recent release with the following command:
 
 ```bash
-pipx upgrade bfabric
+uv tool upgrade bfabric
 ```
 
 ## Configuration

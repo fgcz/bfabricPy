@@ -60,6 +60,7 @@ class CommandDocker(BaseModel):
     env: dict[str, str] = {}
     mac_address: str | None = None
     mounts: MountOptions = MountOptions()
+    hostname: str | None = None
     custom_args: list[str] = []
 
     def to_shell(self, work_dir: Path | None = None) -> list[str]:
@@ -78,6 +79,7 @@ class CommandDocker(BaseModel):
             env_args.append("--env")
             env_args.append(f"{key}={shlex.quote(value)}")
         mac_address_arg = ["--mac-address", self.mac_address] if self.mac_address else []
+        hostname_arg = ["--hostname", self.hostname] if self.hostname else []
 
         return [
             self.engine,
@@ -90,6 +92,7 @@ class CommandDocker(BaseModel):
             *env_args,
             *mac_address_arg,
             *self.custom_args,
+            *hostname_arg,
             self.image,
             *shlex.split(self.command),
         ]
