@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from bfabric import Bfabric
     from bfabric.entities.storage import Storage
     from bfabric.entities.workunit import Workunit
+    from bfabric.entities import Sample
 
 
 class Resource(Entity):
@@ -19,3 +20,4 @@ class Resource(Entity):
 
     storage: HasOne[Storage] = HasOne("Storage", bfabric_field="storage")
     workunit: HasOne[Workunit] = HasOne("Workunit", bfabric_field="workunit")
+    sample: HasOne[Sample] = HasOne("Sample", bfabric_field="sample", optional=True)

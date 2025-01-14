@@ -12,7 +12,8 @@ Versioning currently follows `X.Y.Z` where
 
 ### Added
 
-- Entity `Sample`.
+- Entity `Sample`
+- Relationship `Resource.sample`.
 - Extract logic for container resolution into `HasContainerMixin` which is right now shared between `Sample` and `Workunit`.
 
 ### Fixed
