@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- `FileScpSpec` to copy a file from a remote server to the local filesystem, without using B-Fabric information.
 - `CommandDocker.hostname` so it won't have to be passed by `custom_args` in the future.
 
 ## \[0.0.9\] - 2025-01-09

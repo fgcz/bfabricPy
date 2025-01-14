@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal
 
-from bfabric.entities import Resource, Dataset
 from loguru import logger
 
 from app_runner.input_preparation.integrity import IntegrityState
@@ -12,9 +11,11 @@ from app_runner.specs.inputs_spec import (
     DatasetSpec,
     InputSpecType,
     InputsSpec,
+    FileScpSpec,
 )
 from app_runner.util.checksums import md5sum
 from app_runner.util.scp import scp
+from bfabric.entities import Resource, Dataset
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -37,6 +38,8 @@ class PrepareInputs:
                 logger.debug(f"Skipping {spec} as it already exists and passed integrity check")
             elif isinstance(spec, ResourceSpec):
                 self.prepare_resource(spec)
+            elif isinstance(spec, FileScpSpec):
+                self.prepare_file_scp(spec)
             elif isinstance(spec, DatasetSpec):
                 self.prepare_dataset(spec)
             else:
@@ -78,29 +81,18 @@ class PrepareInputs:
             if actual_checksum != resource["filechecksum"]:
                 raise ValueError(f"Checksum mismatch: expected {resource['filechecksum']}, got {actual_checksum}")
 
+    def prepare_file_scp(self, spec: FileScpSpec) -> None:
+        scp_uri = f"{spec.host}:{spec.absolute_path}"
+        result_name = spec.resolve_filename(client=self._client)
+        result_path = self._working_dir / result_name
+        scp(scp_uri, str(result_path), user=self._ssh_user)
+
     def prepare_dataset(self, spec: DatasetSpec) -> None:
         dataset = Dataset.find(id=spec.id, client=self._client)
         # TODO use the new functionality Dataset.get_csv (or even go further in the refactoring)
         target_path = self._working_dir / spec.filename
         target_path.parent.mkdir(exist_ok=True, parents=True)
         dataset.write_csv(path=target_path, separator=spec.separator)
-
-    def clean_resource(self, spec: ResourceSpec) -> None:
-        filename = spec.resolve_filename(client=self._client)
-        path = self._working_dir / filename
-        if path.exists():
-            logger.info(f"Removing {path}")
-            path.unlink()
-        else:
-            logger.debug(f"Resource {path} does not exist")
-
-    def clean_dataset(self, spec: DatasetSpec) -> None:
-        path = self._working_dir / spec.filename
-        if path.exists():
-            logger.info(f"Removing {path}")
-            path.unlink()
-        else:
-            logger.debug(f"Dataset {path} does not exist")
 
 
 def prepare_folder(

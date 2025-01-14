@@ -36,6 +36,17 @@ class ResourceSpec(BaseModel):
             return resource["name"]
 
 
+class FileScpSpec(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    type: Literal["file_scp"] = "file_scp"
+    host: str
+    absolute_path: str
+    filename: RelativeFilePath | None = None
+
+    def resolve_filename(self, client: Bfabric) -> str:
+        return self.filename if self.filename else self.absolute_path.split("/")[-1]
+
+
 class DatasetSpec(BaseModel):
     model_config = ConfigDict(extra="forbid")
     type: Literal["bfabric_dataset"] = "bfabric_dataset"
@@ -56,7 +67,7 @@ class DatasetSpec(BaseModel):
         return self.filename
 
 
-InputSpecType = Annotated[ResourceSpec | DatasetSpec, Discriminator("type")]
+InputSpecType = Annotated[ResourceSpec | FileScpSpec | DatasetSpec, Discriminator("type")]
 
 
 class InputsSpec(BaseModel):
