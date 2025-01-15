@@ -28,6 +28,7 @@ def collect_resource_sample_annotation(spec: BfabricAnnotationResourceSampleSpec
 
 def prepare_annotation(spec: BfabricAnnotationSpec, client: Bfabric) -> None:
     """Prepares the annotation specified by the spec and writes it to the specified location."""
+    Path(spec.filename).parent.mkdir(parents=True, exist_ok=True)
     match spec.annotation:
         case "resource_sample":
             collect_resource_sample_annotation(spec, client=client, path=spec.filename)
