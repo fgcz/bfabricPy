@@ -5,7 +5,7 @@ from typing import Annotated, Literal, TYPE_CHECKING
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, Discriminator
 
-from bfabric.entities import Resource
+from app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
 
 # ":" are not allowed, as well as absolute paths (starting with "/")
 RelativeFilePath = Annotated[str, Field(pattern=r"^[^/][^:]*$")]
@@ -13,27 +13,6 @@ RelativeFilePath = Annotated[str, Field(pattern=r"^[^/][^:]*$")]
 if TYPE_CHECKING:
     from pathlib import Path
     from bfabric.bfabric import Bfabric
-
-
-class ResourceSpec(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    type: Literal["bfabric_resource"] = "bfabric_resource"
-
-    id: int
-    """B-Fabric resource ID"""
-
-    filename: RelativeFilePath | None = None
-    """Target filename to save to"""
-
-    check_checksum: bool = True
-    """Whether to check the checksum of the file, after downloading"""
-
-    def resolve_filename(self, client: Bfabric) -> str:
-        if self.filename:
-            return self.filename
-        else:
-            resource = Resource.find(id=self.id, client=client)
-            return resource["name"]
 
 
 class FileScpSpec(BaseModel):
@@ -67,7 +46,7 @@ class DatasetSpec(BaseModel):
         return self.filename
 
 
-InputSpecType = Annotated[ResourceSpec | FileScpSpec | DatasetSpec, Discriminator("type")]
+InputSpecType = Annotated[BfabricResourceSpec | FileScpSpec | DatasetSpec, Discriminator("type")]
 
 
 class InputsSpec(BaseModel):

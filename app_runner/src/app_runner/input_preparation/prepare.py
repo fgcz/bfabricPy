@@ -7,12 +7,12 @@ from loguru import logger
 from app_runner.input_preparation.integrity import IntegrityState
 from app_runner.input_preparation.list_inputs import list_input_states
 from app_runner.specs.inputs_spec import (
-    ResourceSpec,
     DatasetSpec,
     InputSpecType,
     InputsSpec,
     FileScpSpec,
 )
+from app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
 from app_runner.util.checksums import md5sum
 from app_runner.util.scp import scp
 from bfabric.entities import Resource, Dataset
@@ -36,7 +36,7 @@ class PrepareInputs:
         for spec, input_state in zip(specs, input_states):
             if input_state.integrity == IntegrityState.Correct:
                 logger.debug(f"Skipping {spec} as it already exists and passed integrity check")
-            elif isinstance(spec, ResourceSpec):
+            elif isinstance(spec, BfabricResourceSpec):
                 self.prepare_resource(spec)
             elif isinstance(spec, FileScpSpec):
                 self.prepare_file_scp(spec)
@@ -56,7 +56,7 @@ class PrepareInputs:
                 logger.info(f"rm {input_state.path}")
                 input_state.path.unlink()
 
-    def prepare_resource(self, spec: ResourceSpec) -> None:
+    def prepare_resource(self, spec: BfabricResourceSpec) -> None:
         resource = Resource.find(id=spec.id, client=self._client)
         if resource is None:
             msg = f"Resource with id {spec.id} not found"
