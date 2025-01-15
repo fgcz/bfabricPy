@@ -1,7 +1,8 @@
 import pytest
 import yaml
 
-from app_runner.specs.inputs_spec import InputsSpec, DatasetSpec
+from app_runner.specs.inputs_spec import InputsSpec
+from app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
 from app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
 
 
@@ -14,7 +15,7 @@ def parsed() -> InputsSpec:
                 filename="filename",
                 check_checksum=True,
             ),
-            DatasetSpec(
+            BfabricDatasetSpec(
                 id=2,
                 filename="filename",
                 separator=",",

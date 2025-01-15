@@ -3,14 +3,15 @@ from __future__ import annotations
 from enum import Enum
 
 from bfabric.entities import Resource, Dataset
-from app_runner.specs.inputs_spec import InputSpecType, DatasetSpec
-from app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
+from app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec  # noqa: TC001
+from app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec  # noqa: TC001
 from app_runner.util.checksums import md5sum
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pathlib import Path
     from bfabric.bfabric import Bfabric
+    from app_runner.specs.inputs_spec import InputSpecType
 
 
 class IntegrityState(Enum):
@@ -34,7 +35,7 @@ def check_integrity(spec: InputSpecType, local_path: Path, client: Bfabric) -> I
 
     if isinstance(spec, BfabricResourceSpec):
         return _check_resource_spec(spec, local_path, client)
-    elif isinstance(spec, DatasetSpec):
+    elif isinstance(spec, BfabricDatasetSpec):
         return _check_dataset_spec(spec, local_path, client)
     else:
         raise ValueError(f"Unsupported spec type: {type(spec)}")
@@ -48,7 +49,7 @@ def _check_resource_spec(spec: BfabricResourceSpec, local_path: Path, client: Bf
         return IntegrityState.Incorrect
 
 
-def _check_dataset_spec(spec: DatasetSpec, local_path: Path, client: Bfabric) -> IntegrityState:
+def _check_dataset_spec(spec: BfabricDatasetSpec, local_path: Path, client: Bfabric) -> IntegrityState:
     dataset = Dataset.find(id=spec.id, client=client)
     is_identical = local_path.read_text().strip() == dataset.get_csv(separator=spec.separator).strip()
     return IntegrityState.Correct if is_identical else IntegrityState.Incorrect

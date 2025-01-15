@@ -7,11 +7,11 @@ from loguru import logger
 from app_runner.input_preparation.integrity import IntegrityState
 from app_runner.input_preparation.list_inputs import list_input_states
 from app_runner.specs.inputs_spec import (
-    DatasetSpec,
     InputSpecType,
     InputsSpec,
-    FileScpSpec,
 )
+from app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
+from app_runner.specs.inputs.file_scp_spec import FileScpSpec
 from app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
 from app_runner.util.checksums import md5sum
 from app_runner.util.scp import scp
@@ -40,7 +40,7 @@ class PrepareInputs:
                 self.prepare_resource(spec)
             elif isinstance(spec, FileScpSpec):
                 self.prepare_file_scp(spec)
-            elif isinstance(spec, DatasetSpec):
+            elif isinstance(spec, BfabricDatasetSpec):
                 self.prepare_dataset(spec)
             else:
                 raise ValueError(f"Unsupported spec type: {type(spec)}")
@@ -87,7 +87,7 @@ class PrepareInputs:
         result_path = self._working_dir / result_name
         scp(scp_uri, str(result_path), user=self._ssh_user)
 
-    def prepare_dataset(self, spec: DatasetSpec) -> None:
+    def prepare_dataset(self, spec: BfabricDatasetSpec) -> None:
         dataset = Dataset.find(id=spec.id, client=self._client)
         # TODO use the new functionality Dataset.get_csv (or even go further in the refactoring)
         target_path = self._working_dir / spec.filename
