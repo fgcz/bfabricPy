@@ -4,6 +4,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.0.10\] - 2025-01-15
+
 ### Added
 
 - `FileScpSpec` to copy a file from a remote server to the local filesystem, without using B-Fabric information.
