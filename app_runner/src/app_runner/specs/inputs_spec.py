@@ -5,6 +5,7 @@ from typing import Annotated, TYPE_CHECKING
 import yaml
 from pydantic import BaseModel, ConfigDict, Discriminator
 
+from app_runner.specs.inputs.bfabric_annotation_spec import BfabricAnnotationSpec
 from app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
 from app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
 from app_runner.specs.inputs.file_scp_spec import FileScpSpec
@@ -12,7 +13,9 @@ from app_runner.specs.inputs.file_scp_spec import FileScpSpec
 if TYPE_CHECKING:
     from pathlib import Path
 
-InputSpecType = Annotated[BfabricResourceSpec | FileScpSpec | BfabricDatasetSpec, Discriminator("type")]
+InputSpecType = Annotated[
+    BfabricResourceSpec | FileScpSpec | BfabricDatasetSpec | BfabricAnnotationSpec, Discriminator("type")
+]
 
 
 class InputsSpec(BaseModel):

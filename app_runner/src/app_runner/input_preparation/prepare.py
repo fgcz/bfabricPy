@@ -4,8 +4,10 @@ from typing import TYPE_CHECKING, Literal
 
 from loguru import logger
 
+from app_runner.input_preparation.collect_annotation import prepare_annotation
 from app_runner.input_preparation.integrity import IntegrityState
 from app_runner.input_preparation.list_inputs import list_input_states
+from app_runner.specs.inputs.bfabric_annotation_spec import BfabricAnnotationSpec
 from app_runner.specs.inputs_spec import (
     InputSpecType,
     InputsSpec,
@@ -42,6 +44,8 @@ class PrepareInputs:
                 self.prepare_file_scp(spec)
             elif isinstance(spec, BfabricDatasetSpec):
                 self.prepare_dataset(spec)
+            elif isinstance(spec, BfabricAnnotationSpec):
+                prepare_annotation(spec, client=self._client)
             else:
                 raise ValueError(f"Unsupported spec type: {type(spec)}")
 
