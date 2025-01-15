@@ -4,10 +4,10 @@ from bfabric.entities import Resource
 from bfabric.utils.polars_utils import flatten_relations
 import polars as pl
 
-from app_runner.specs.inputs.bfabric_annotation_spec import BfabricResourceSampleAnnotationSpec, BfabricAnnotationSpec
+from app_runner.specs.inputs.bfabric_annotation_spec import BfabricAnnotationResourceSampleSpec, BfabricAnnotationSpec
 
 
-def collect_resource_sample_annotation(spec: BfabricResourceSampleAnnotationSpec, client: Bfabric, path: Path) -> None:
+def collect_resource_sample_annotation(spec: BfabricAnnotationResourceSampleSpec, client: Bfabric, path: Path) -> None:
     """Collects the resource sample annotation and writes it to a CSV file."""
     # load entities
     resources = list(Resource.find_all(spec.resource_ids, client).values())
@@ -29,7 +29,7 @@ def collect_resource_sample_annotation(spec: BfabricResourceSampleAnnotationSpec
 def prepare_annotation(spec: BfabricAnnotationSpec, client: Bfabric) -> None:
     """Prepares the annotation specified by the spec and writes it to the specified location."""
     match spec.annotation:
-        case BfabricResourceSampleAnnotationSpec() as annotation_spec:
-            collect_resource_sample_annotation(annotation_spec, client=client, path=spec.filename)
+        case "resource_sample":
+            collect_resource_sample_annotation(spec, client=client, path=spec.filename)
         case _:
             raise ValueError(f"Unsupported annotation type: {spec.annotation}")

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Annotated, TYPE_CHECKING
 
 import yaml
-from pydantic import BaseModel, ConfigDict, Discriminator
+from pydantic import BaseModel, ConfigDict, Field
 
 from app_runner.specs.inputs.bfabric_annotation_spec import BfabricAnnotationSpec
 from app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 InputSpecType = Annotated[
-    BfabricResourceSpec | FileScpSpec | BfabricDatasetSpec | BfabricAnnotationSpec, Discriminator("type")
+    BfabricResourceSpec | FileScpSpec | BfabricDatasetSpec | BfabricAnnotationSpec, Field(discriminator="type")
 ]
 
 
