@@ -314,6 +314,14 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.DatasetSpec.resolve_filename"><code class="docutils literal notranslate"><span class="pre">DatasetSpec.resolve_filename()</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.FileScpSpec"><code class="docutils literal notranslate"><span class="pre">FileScpSpec</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.FileScpSpec.absolute_path"><code class="docutils literal notranslate"><span class="pre">FileScpSpec.absolute_path</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.FileScpSpec.filename"><code class="docutils literal notranslate"><span class="pre">FileScpSpec.filename</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.FileScpSpec.host"><code class="docutils literal notranslate"><span class="pre">FileScpSpec.host</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.FileScpSpec.type"><code class="docutils literal notranslate"><span class="pre">FileScpSpec.type</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.FileScpSpec.resolve_filename"><code class="docutils literal notranslate"><span class="pre">FileScpSpec.resolve_filename()</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.InputsSpec"><code class="docutils literal notranslate"><span class="pre">InputsSpec</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.InputsSpec.inputs"><code class="docutils literal notranslate"><span class="pre">InputsSpec.inputs</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.InputsSpec.read_yaml"><code class="docutils literal notranslate"><span class="pre">InputsSpec.read_yaml()</span></code></a></li>
@@ -511,6 +519,93 @@ In general to download to the current directory simply use <code class="docutils
 </dd></dl>
 
 <dl class="py class pydantic_model">
+<dt class="sig sig-object py" id="app_runner.specs.inputs_spec.FileScpSpec">
+<em class="property"><span class="pre">pydantic</span> <span class="pre">model</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">app_runner.specs.inputs_spec.</span></span><span class="sig-name descname"><span class="pre">FileScpSpec</span></span><a class="headerlink" href="#app_runner.specs.inputs_spec.FileScpSpec" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p><details  class="autodoc_pydantic_collapsable_json">
+<summary>Show JSON schema</summary><div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">   </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;FileScpSpec&quot;</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;const&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;file_scp&quot;</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;file_scp&quot;</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Type&quot;</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;host&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Host&quot;</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;absolute_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Absolute Path&quot;</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;filename&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;pattern&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^[^/][^:]*$&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;null&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">         </span><span class="p">],</span>
+<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Filename&quot;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">   </span><span class="p">},</span>
+<span class="w">   </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="s2">&quot;host&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">&quot;absolute_path&quot;</span>
+<span class="w">   </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</details></p><dl class="field-list simple">
+<dt class="field-odd">Config<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>extra</strong>: <em>str = forbid</em></p></li>
+</ul>
+</dd>
+<dt class="field-even">Fields<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="#app_runner.specs.inputs_spec.FileScpSpec.absolute_path" title="app_runner.specs.inputs_spec.FileScpSpec.absolute_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">absolute_path</span> <span class="pre">(str)</span></code></a></p></li>
+<li><p><a class="reference internal" href="#app_runner.specs.inputs_spec.FileScpSpec.filename" title="app_runner.specs.inputs_spec.FileScpSpec.filename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filename</span> <span class="pre">(str</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
+<li><p><a class="reference internal" href="#app_runner.specs.inputs_spec.FileScpSpec.host" title="app_runner.specs.inputs_spec.FileScpSpec.host"><code class="xref py py-obj docutils literal notranslate"><span class="pre">host</span> <span class="pre">(str)</span></code></a></p></li>
+<li><p><a class="reference internal" href="#app_runner.specs.inputs_spec.FileScpSpec.type" title="app_runner.specs.inputs_spec.FileScpSpec.type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">type</span> <span class="pre">(Literal['file_scp'])</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute pydantic_field">
+<dt class="sig sig-object py" id="app_runner.specs.inputs_spec.FileScpSpec.absolute_path">
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">absolute_path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#app_runner.specs.inputs_spec.FileScpSpec.absolute_path" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute pydantic_field">
+<dt class="sig sig-object py" id="app_runner.specs.inputs_spec.FileScpSpec.filename">
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">filename</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">RelativeFilePath</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#app_runner.specs.inputs_spec.FileScpSpec.filename" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute pydantic_field">
+<dt class="sig sig-object py" id="app_runner.specs.inputs_spec.FileScpSpec.host">
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">host</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#app_runner.specs.inputs_spec.FileScpSpec.host" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute pydantic_field">
+<dt class="sig sig-object py" id="app_runner.specs.inputs_spec.FileScpSpec.type">
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'file_scp'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'file_scp'</span></em><a class="headerlink" href="#app_runner.specs.inputs_spec.FileScpSpec.type" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_runner.specs.inputs_spec.FileScpSpec.resolve_filename">
+<span class="sig-name descname"><span class="pre">resolve_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bfabric</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#app_runner.specs.inputs_spec.FileScpSpec.resolve_filename" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class pydantic_model">
 <dt class="sig sig-object py" id="app_runner.specs.inputs_spec.InputsSpec">
 <em class="property"><span class="pre">pydantic</span> <span class="pre">model</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">app_runner.specs.inputs_spec.</span></span><span class="sig-name descname"><span class="pre">InputsSpec</span></span><a class="headerlink" href="#app_runner.specs.inputs_spec.InputsSpec" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
@@ -524,13 +619,17 @@ In general to download to the current directory simply use <code class="docutils
 <span class="w">            </span><span class="nt">&quot;discriminator&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">               </span><span class="nt">&quot;mapping&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                  </span><span class="nt">&quot;bfabric_dataset&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/DatasetSpec&quot;</span><span class="p">,</span>
-<span class="w">                  </span><span class="nt">&quot;bfabric_resource&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/ResourceSpec&quot;</span>
+<span class="w">                  </span><span class="nt">&quot;bfabric_resource&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/ResourceSpec&quot;</span><span class="p">,</span>
+<span class="w">                  </span><span class="nt">&quot;file_scp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/FileScpSpec&quot;</span>
 <span class="w">               </span><span class="p">},</span>
 <span class="w">               </span><span class="nt">&quot;propertyName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;type&quot;</span>
 <span class="w">            </span><span class="p">},</span>
 <span class="w">            </span><span class="nt">&quot;oneOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">               </span><span class="p">{</span>
 <span class="w">                  </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/ResourceSpec&quot;</span>
+<span class="w">               </span><span class="p">},</span>
+<span class="w">               </span><span class="p">{</span>
+<span class="w">                  </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/FileScpSpec&quot;</span>
 <span class="w">               </span><span class="p">},</span>
 <span class="w">               </span><span class="p">{</span>
 <span class="w">                  </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/DatasetSpec&quot;</span>
@@ -575,6 +674,44 @@ In general to download to the current directory simply use <code class="docutils
 <span class="w">            </span><span class="s2">&quot;filename&quot;</span>
 <span class="w">         </span><span class="p">],</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DatasetSpec&quot;</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;FileScpSpec&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;const&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;file_scp&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;file_scp&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Type&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;host&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Host&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;absolute_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Absolute Path&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;filename&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                  </span><span class="p">{</span>
+<span class="w">                     </span><span class="nt">&quot;pattern&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^[^/][^:]*$&quot;</span><span class="p">,</span>
+<span class="w">                     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">                  </span><span class="p">},</span>
+<span class="w">                  </span><span class="p">{</span>
+<span class="w">                     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;null&quot;</span>
+<span class="w">                  </span><span class="p">}</span>
+<span class="w">               </span><span class="p">],</span>
+<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Filename&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">         </span><span class="p">},</span>
+<span class="w">         </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="s2">&quot;host&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;absolute_path&quot;</span>
+<span class="w">         </span><span class="p">],</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;FileScpSpec&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nt">&quot;ResourceSpec&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -631,7 +768,7 @@ In general to download to the current directory simply use <code class="docutils
 </dd>
 <dt class="field-even">Fields<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference internal" href="#app_runner.specs.inputs_spec.InputsSpec.inputs" title="app_runner.specs.inputs_spec.InputsSpec.inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inputs</span> <span class="pre">(list[app_runner.specs.inputs_spec.ResourceSpec</span> <span class="pre">|</span> <span class="pre">app_runner.specs.inputs_spec.DatasetSpec])</span></code></a></p></li>
+<li><p><a class="reference internal" href="#app_runner.specs.inputs_spec.InputsSpec.inputs" title="app_runner.specs.inputs_spec.InputsSpec.inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inputs</span> <span class="pre">(list[app_runner.specs.inputs_spec.ResourceSpec</span> <span class="pre">|</span> <span class="pre">app_runner.specs.inputs_spec.FileScpSpec</span> <span class="pre">|</span> <span class="pre">app_runner.specs.inputs_spec.DatasetSpec])</span></code></a></p></li>
 </ul>
 </dd>
 </dl>
@@ -807,6 +944,14 @@ In general to download to the current directory simply use <code class="docutils
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.DatasetSpec.separator"><code class="docutils literal notranslate"><span class="pre">DatasetSpec.separator</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.DatasetSpec.type"><code class="docutils literal notranslate"><span class="pre">DatasetSpec.type</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.DatasetSpec.resolve_filename"><code class="docutils literal notranslate"><span class="pre">DatasetSpec.resolve_filename()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.FileScpSpec"><code class="docutils literal notranslate"><span class="pre">FileScpSpec</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.FileScpSpec.absolute_path"><code class="docutils literal notranslate"><span class="pre">FileScpSpec.absolute_path</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.FileScpSpec.filename"><code class="docutils literal notranslate"><span class="pre">FileScpSpec.filename</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.FileScpSpec.host"><code class="docutils literal notranslate"><span class="pre">FileScpSpec.host</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.FileScpSpec.type"><code class="docutils literal notranslate"><span class="pre">FileScpSpec.type</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.FileScpSpec.resolve_filename"><code class="docutils literal notranslate"><span class="pre">FileScpSpec.resolve_filename()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.InputsSpec"><code class="docutils literal notranslate"><span class="pre">InputsSpec</span></code></a><ul class="nav section-nav flex-column">
