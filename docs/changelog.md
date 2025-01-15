@@ -10,6 +10,18 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.15\] - 2025-01-15
+
+### Added
+
+- Entity `Sample`
+- Relationship `Resource.sample`.
+- Extract logic for container resolution into `HasContainerMixin` which is right now shared between `Sample` and `Workunit`.
+
+### Fixed
+
+- Fix bug in `bfabric_save_fasta.py`.
+
 ## \[1.13.14\] - 2025-01-08
 
 ### Changed

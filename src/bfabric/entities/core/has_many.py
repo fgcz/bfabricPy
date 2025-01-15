@@ -78,6 +78,7 @@ class _HasManyProxy(Generic[E]):
         return DataFrame([x.data_dict for x in self._items.values()])
 
     def __getitem__(self, key: int) -> E:
+        # TODO should key=0 map to first element etc instead? this can be a bit confusing at times
         self._load_all()
         return self._items[key]
 

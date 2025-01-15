@@ -114,6 +114,7 @@ def test_command_docker_with_options(tmp_path):
         env={"DEBUG": "1", "PATH": "/usr/local/bin"},
         mac_address="00:00:00:00:00:00",
         custom_args=["--network=host"],
+        hostname="myhost",
         mounts=MountOptions(share_bfabric_config=False),  # Disable bfabric mount for simpler testing
     )
 
@@ -138,6 +139,8 @@ def test_command_docker_with_options(tmp_path):
         "--mac-address",
         "00:00:00:00:00:00",
         "--network=host",
+        "--hostname",
+        "myhost",
         "ubuntu:latest",
         "echo",
         "hello",

@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-
-# TODO this file was refactored without testing anything
-# TODO this file was refactored without testing anything
 import argparse
 import hashlib
 import json
@@ -64,7 +61,7 @@ def save_fasta(container_id: int, fasta_file: Path) -> None:
     resource = client.save(endpoint="resource", obj=obj).to_list_dict()
     print(json.dumps(resource, indent=2))
 
-    workunit = client.save(endpoint="workunit", obj={"id": workunit[0]._id, "status": "available"}).to_list_dict()
+    workunit = client.save(endpoint="workunit", obj={"id": workunit[0]["id"], "status": "available"}).to_list_dict()
     print(json.dumps(workunit, indent=2))
 
 
