@@ -4,7 +4,7 @@ from typing import Literal, TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict
 
-from app_runner.specs.inputs_spec import RelativeFilePath  # noqa
+from app_runner.specs.common_types import RelativeFilePath  # noqa: TC001
 from bfabric.entities import Resource
 
 if TYPE_CHECKING:

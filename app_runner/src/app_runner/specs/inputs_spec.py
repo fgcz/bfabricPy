@@ -3,12 +3,10 @@ from __future__ import annotations
 from typing import Annotated, Literal, TYPE_CHECKING
 
 import yaml
-from pydantic import BaseModel, ConfigDict, Field, Discriminator
+from pydantic import BaseModel, ConfigDict, Discriminator
 
+from app_runner.specs.common_types import RelativeFilePath  # noqa: TC001
 from app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
-
-# ":" are not allowed, as well as absolute paths (starting with "/")
-RelativeFilePath = Annotated[str, Field(pattern=r"^[^/][^:]*$")]
 
 if TYPE_CHECKING:
     from pathlib import Path
