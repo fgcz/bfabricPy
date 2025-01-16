@@ -117,8 +117,10 @@ class PrepareInputs:
         # Write the result into the file
         result_name = self._working_dir / spec.filename
         result_name.parent.mkdir(exist_ok=True, parents=True)
-        with result_name.open("w") as f:
-            f.write(order.data_dict.get("fastasequence", ""))
+        fasta_content = order.data_dict.get("fastasequence", "")
+        if fasta_content and fasta_content[-1] != "\n":
+            fasta_content += "\n"
+        result_name.write_text(fasta_content)
 
 
 def prepare_folder(
