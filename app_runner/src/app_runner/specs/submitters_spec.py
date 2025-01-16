@@ -1,14 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from pathlib import Path
+from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, constr
 
 from app_runner.specs.config_interpolation import Variables, interpolate_config_strings
-
-if TYPE_CHECKING:
-    from pathlib import Path
-    from typing import Literal
 
 
 class SubmitterSlurmConfig(BaseModel):
@@ -20,7 +17,7 @@ class SubmitterSlurm(BaseModel):
     model_config = ConfigDict(coerce_numbers_to_str=True)
 
     type: Literal["slurm"]
-    params: dict[str, str | None]
+    params: dict[constr(pattern="^--.*"), str | None]
     config: SubmitterSlurmConfig
 
 
