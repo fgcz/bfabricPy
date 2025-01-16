@@ -4,10 +4,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
-## Added
+## \[0.0.11\] - 2025-01-18
+
+### Added
 
 - New input type `BfabricAnnotationSpec`.
-    - For now, it only supports one type of annotation, which is "resource_sample".
+    - For now, it only supports one type of annotation, which is `"resource_sample"`.
 
 ## \[0.0.10\] - 2025-01-15
 
