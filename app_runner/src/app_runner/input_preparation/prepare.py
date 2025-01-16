@@ -4,15 +4,16 @@ from typing import TYPE_CHECKING, Literal
 
 from loguru import logger
 
+from app_runner.input_preparation.collect_annotation import prepare_annotation
 from app_runner.input_preparation.integrity import IntegrityState
 from app_runner.input_preparation.list_inputs import list_input_states
 from app_runner.specs.inputs_spec import (
-    ResourceSpec,
-    DatasetSpec,
     InputSpecType,
     InputsSpec,
-    FileScpSpec,
 )
+from app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
+from app_runner.specs.inputs.file_scp_spec import FileScpSpec
+from app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
 from app_runner.util.checksums import md5sum
 from app_runner.util.scp import scp
 from bfabric.entities import Resource, Dataset
@@ -36,12 +37,14 @@ class PrepareInputs:
         for spec, input_state in zip(specs, input_states):
             if input_state.integrity == IntegrityState.Correct:
                 logger.debug(f"Skipping {spec} as it already exists and passed integrity check")
-            elif isinstance(spec, ResourceSpec):
+            elif isinstance(spec, BfabricResourceSpec):
                 self.prepare_resource(spec)
             elif isinstance(spec, FileScpSpec):
                 self.prepare_file_scp(spec)
-            elif isinstance(spec, DatasetSpec):
+            elif isinstance(spec, BfabricDatasetSpec):
                 self.prepare_dataset(spec)
+            elif spec.type == "bfabric_annotation":
+                prepare_annotation(spec, client=self._client, working_dir=self._working_dir)
             else:
                 raise ValueError(f"Unsupported spec type: {type(spec)}")
 
@@ -56,7 +59,7 @@ class PrepareInputs:
                 logger.info(f"rm {input_state.path}")
                 input_state.path.unlink()
 
-    def prepare_resource(self, spec: ResourceSpec) -> None:
+    def prepare_resource(self, spec: BfabricResourceSpec) -> None:
         resource = Resource.find(id=spec.id, client=self._client)
         if resource is None:
             msg = f"Resource with id {spec.id} not found"
@@ -87,7 +90,7 @@ class PrepareInputs:
         result_path = self._working_dir / result_name
         scp(scp_uri, str(result_path), user=self._ssh_user)
 
-    def prepare_dataset(self, spec: DatasetSpec) -> None:
+    def prepare_dataset(self, spec: BfabricDatasetSpec) -> None:
         dataset = Dataset.find(id=spec.id, client=self._client)
         # TODO use the new functionality Dataset.get_csv (or even go further in the refactoring)
         target_path = self._working_dir / spec.filename

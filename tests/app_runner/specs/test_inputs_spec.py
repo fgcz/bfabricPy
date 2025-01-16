@@ -1,19 +1,21 @@
 import pytest
 import yaml
 
-from app_runner.specs.inputs_spec import InputsSpec, ResourceSpec, DatasetSpec
+from app_runner.specs.inputs_spec import InputsSpec
+from app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
+from app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
 
 
 @pytest.fixture()
 def parsed() -> InputsSpec:
     return InputsSpec(
         inputs=[
-            ResourceSpec(
+            BfabricResourceSpec(
                 id=1,
                 filename="filename",
                 check_checksum=True,
             ),
-            DatasetSpec(
+            BfabricDatasetSpec(
                 id=2,
                 filename="filename",
                 separator=",",

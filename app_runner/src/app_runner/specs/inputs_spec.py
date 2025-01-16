@@ -1,73 +1,21 @@
 from __future__ import annotations
 
-from typing import Annotated, Literal, TYPE_CHECKING
+from typing import Annotated, TYPE_CHECKING
 
 import yaml
-from pydantic import BaseModel, ConfigDict, Field, Discriminator
+from pydantic import BaseModel, ConfigDict, Field
 
-from bfabric.entities import Resource
-
-# ":" are not allowed, as well as absolute paths (starting with "/")
-RelativeFilePath = Annotated[str, Field(pattern=r"^[^/][^:]*$")]
+from app_runner.specs.inputs.bfabric_annotation_spec import BfabricAnnotationSpec
+from app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
+from app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
+from app_runner.specs.inputs.file_scp_spec import FileScpSpec
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from bfabric.bfabric import Bfabric
 
-
-class ResourceSpec(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    type: Literal["bfabric_resource"] = "bfabric_resource"
-
-    id: int
-    """B-Fabric resource ID"""
-
-    filename: RelativeFilePath | None = None
-    """Target filename to save to"""
-
-    check_checksum: bool = True
-    """Whether to check the checksum of the file, after downloading"""
-
-    def resolve_filename(self, client: Bfabric) -> str:
-        if self.filename:
-            return self.filename
-        else:
-            resource = Resource.find(id=self.id, client=client)
-            return resource["name"]
-
-
-class FileScpSpec(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    type: Literal["file_scp"] = "file_scp"
-    host: str
-    absolute_path: str
-    filename: RelativeFilePath | None = None
-
-    def resolve_filename(self, client: Bfabric) -> str:
-        return self.filename if self.filename else self.absolute_path.split("/")[-1]
-
-
-class DatasetSpec(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    type: Literal["bfabric_dataset"] = "bfabric_dataset"
-
-    id: int
-    """B-Fabric dataset ID"""
-
-    filename: RelativeFilePath
-    """Target filename to save to"""
-
-    separator: Literal[",", "\t"] = ","
-    """Separator for the CSV file"""
-
-    # has_header: bool
-    # invalid_characters: str = ""
-
-    def resolve_filename(self, client: Bfabric) -> str:
-        return self.filename
-
-
-InputSpecType = Annotated[ResourceSpec | FileScpSpec | DatasetSpec, Discriminator("type")]
+InputSpecType = Annotated[
+    BfabricResourceSpec | FileScpSpec | BfabricDatasetSpec | BfabricAnnotationSpec, Field(discriminator="type")
+]
 
 
 class InputsSpec(BaseModel):

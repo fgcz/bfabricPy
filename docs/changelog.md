@@ -10,6 +10,14 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Added
+
+- `polars_utils.py` which contains functionality to normalize relational fields in tables
+
+### Fixed
+
+- `Order.project` is optional
+
 ## \[1.13.15\] - 2025-01-15
 
 ### Added

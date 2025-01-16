@@ -2,14 +2,17 @@ from __future__ import annotations
 
 from enum import Enum
 
+from app_runner.specs.inputs.file_scp_spec import FileScpSpec
 from bfabric.entities import Resource, Dataset
-from app_runner.specs.inputs_spec import InputSpecType, ResourceSpec, DatasetSpec
+from app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec  # noqa: TC001
+from app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec  # noqa: TC001
 from app_runner.util.checksums import md5sum
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pathlib import Path
     from bfabric.bfabric import Bfabric
+    from app_runner.specs.inputs_spec import InputSpecType
 
 
 class IntegrityState(Enum):
@@ -31,15 +34,17 @@ def check_integrity(spec: InputSpecType, local_path: Path, client: Bfabric) -> I
     if not local_path.exists():
         return IntegrityState.Missing
 
-    if isinstance(spec, ResourceSpec):
+    if isinstance(spec, BfabricResourceSpec):
         return _check_resource_spec(spec, local_path, client)
-    elif isinstance(spec, DatasetSpec):
+    elif isinstance(spec, BfabricDatasetSpec):
         return _check_dataset_spec(spec, local_path, client)
+    elif isinstance(spec, FileScpSpec) or spec.type == "bfabric_annotation":
+        return IntegrityState.NotChecked
     else:
         raise ValueError(f"Unsupported spec type: {type(spec)}")
 
 
-def _check_resource_spec(spec: ResourceSpec, local_path: Path, client: Bfabric) -> IntegrityState:
+def _check_resource_spec(spec: BfabricResourceSpec, local_path: Path, client: Bfabric) -> IntegrityState:
     expected_checksum = Resource.find(id=spec.id, client=client)["filechecksum"]
     if expected_checksum == md5sum(local_path):
         return IntegrityState.Correct
@@ -47,7 +52,7 @@ def _check_resource_spec(spec: ResourceSpec, local_path: Path, client: Bfabric) 
         return IntegrityState.Incorrect
 
 
-def _check_dataset_spec(spec: DatasetSpec, local_path: Path, client: Bfabric) -> IntegrityState:
+def _check_dataset_spec(spec: BfabricDatasetSpec, local_path: Path, client: Bfabric) -> IntegrityState:
     dataset = Dataset.find(id=spec.id, client=client)
     is_identical = local_path.read_text().strip() == dataset.get_csv(separator=spec.separator).strip()
     return IntegrityState.Correct if is_identical else IntegrityState.Incorrect
