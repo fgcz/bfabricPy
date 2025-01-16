@@ -128,6 +128,7 @@ def prepare_folder(
     target_folder: Path | None,
     client: Bfabric,
     ssh_user: str | None,
+    filter: str | None,
     action: Literal["prepare", "clean"] = "prepare",
 ) -> None:
     """Prepares the input files of a chunk folder according to the provided specs.
@@ -136,6 +137,7 @@ def prepare_folder(
     :param target_folder: Path to the target folder where the input files should be downloaded.
     :param client: Bfabric client to use for obtaining metadata about the input files.
     :param ssh_user: SSH user to use for downloading the input files, should it be different from the current user.
+    :param filter: only this input file will be prepared.
     :param action: Action to perform.
     """
     # set defaults
@@ -144,13 +146,18 @@ def prepare_folder(
         target_folder = inputs_yaml.parent
 
     # parse the specs
-    specs_list = InputsSpec.read_yaml(inputs_yaml)
+    inputs_spec = InputsSpec.read_yaml(inputs_yaml)
+
+    if filter:
+        inputs_spec = inputs_spec.apply_filter(filter, client=client)
+        if not inputs_spec.inputs:
+            raise ValueError(f"Filter {filter} did not match any input files")
 
     # prepare the folder
     prepare = PrepareInputs(client=client, working_dir=target_folder, ssh_user=ssh_user)
     if action == "prepare":
-        prepare.prepare_all(specs=specs_list)
+        prepare.prepare_all(specs=inputs_spec.inputs)
     elif action == "clean":
-        prepare.clean_all(specs=specs_list)
+        prepare.clean_all(specs=inputs_spec.inputs)
     else:
         raise ValueError(f"Unknown action: {action}")
