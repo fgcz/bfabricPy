@@ -8,21 +8,21 @@ from pydantic import BaseModel, ConfigDict, Field, constr
 from app_runner.specs.config_interpolation import Variables, interpolate_config_strings
 
 
-class SubmitterSlurmConfig(BaseModel):
+class SubmitterSlurmConfigSpec(BaseModel):
     local_script_dir: Path = Field(alias="local-script-dir")
     worker_scratch_dir: Path = Field(alias="worker-scratch-dir")
 
 
-class SubmitterSlurm(BaseModel):
+class SubmitterSlurmSpec(BaseModel):
     model_config = ConfigDict(coerce_numbers_to_str=True)
 
     type: Literal["slurm"]
     params: dict[constr(pattern="^--.*"), str | None]
-    config: SubmitterSlurmConfig
+    config: SubmitterSlurmConfigSpec
 
 
 class SubmittersSpecTemplate(BaseModel):
-    submitters: dict[str, SubmitterSlurm]
+    submitters: dict[str, SubmitterSlurmSpec]
 
     def evaluate(self, variables: Variables) -> SubmittersSpec:
         data_template = self.model_dump(mode="json")
@@ -31,4 +31,4 @@ class SubmittersSpecTemplate(BaseModel):
 
 
 class SubmittersSpec(BaseModel):
-    submitters: dict[str, SubmitterSlurm]
+    submitters: dict[str, SubmitterSlurmSpec]
