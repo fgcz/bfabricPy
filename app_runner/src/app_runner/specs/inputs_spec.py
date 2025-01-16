@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from app_runner.specs.inputs.bfabric_annotation_spec import BfabricAnnotationSpec
 from app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
+from app_runner.specs.inputs.bfabric_order_fasta_spec import BfabricOrderFastaSpec
 from app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
 from app_runner.specs.inputs.file_scp_spec import FileScpSpec
 
@@ -14,7 +15,8 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 InputSpecType = Annotated[
-    BfabricResourceSpec | FileScpSpec | BfabricDatasetSpec | BfabricAnnotationSpec, Field(discriminator="type")
+    BfabricResourceSpec | FileScpSpec | BfabricDatasetSpec | BfabricOrderFastaSpec | BfabricAnnotationSpec,
+    Field(discriminator="type"),
 ]
 
 

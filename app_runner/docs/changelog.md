@@ -4,6 +4,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## Added
+
+- New input type `bfabric_order_fasta` which will place an order fasta file to the specified path, or create an empty
+    file if there is no order fasta available.
+
 ## \[0.0.11\] - 2025-01-16
 
 ### Added
