@@ -44,7 +44,7 @@ class PrepareInputs:
             elif isinstance(spec, BfabricDatasetSpec):
                 self.prepare_dataset(spec)
             elif spec.type == "bfabric_annotation":
-                prepare_annotation(spec, client=self._client)
+                prepare_annotation(spec, client=self._client, working_dir=self._working_dir)
             else:
                 raise ValueError(f"Unsupported spec type: {type(spec)}")
 
