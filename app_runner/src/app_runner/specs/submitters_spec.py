@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Annotated
 
-from pydantic import BaseModel, ConfigDict, Field, constr
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
 from app_runner.specs.config_interpolation import Variables, interpolate_config_strings
 
@@ -18,7 +18,7 @@ class SubmitterSlurmSpec(BaseModel):
     model_config = ConfigDict(coerce_numbers_to_str=True)
 
     type: Literal["slurm"]
-    params: dict[constr(pattern="^--.*"), str | None]
+    params: dict[Annotated[str, StringConstraints(pattern="^--.*")], str | None]
     config: SubmitterSlurmConfigSpec
 
 
