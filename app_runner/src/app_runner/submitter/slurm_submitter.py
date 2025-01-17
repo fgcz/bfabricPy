@@ -1,8 +1,36 @@
+from __future__ import annotations
+
 import os
 import subprocess
+from enum import Enum
+from typing import TYPE_CHECKING
 
-from app_runner.specs.submitters_spec import SubmitterSlurmSpec
-from bfabric.entities import ExternalJob
+from pydantic import BaseModel
+
+
+if TYPE_CHECKING:
+    from app_runner.specs.submitters_spec import SubmitterSlurmSpec
+    from bfabric.entities import ExternalJob
+
+
+class SlurmSubmitterSpecialStrings(Enum):
+    default = "[default]"
+    auto = "[auto]"
+
+    @classmethod
+    def parse(cls, string: str) -> SlurmSubmitterSpecialStrings | None:
+        if string == cls.default.value:
+            return cls.default
+        elif string == cls.auto.value:
+            return cls.auto
+        else:
+            return None
+
+
+class SlurmSubmitterUserParams(BaseModel):
+    partition: str
+    nodeslist: str
+    memory: str
 
 
 class SlurmSubmitter:
