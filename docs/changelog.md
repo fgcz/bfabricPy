@@ -14,6 +14,7 @@ Versioning currently follows `X.Y.Z` where
 
 - Add missing `Entity.__contains__` implementation to check if a key is present in an entity.
 - `polars_utils.py` which contains functionality to normalize relational fields in tables
+- Add `bfabric-cli executable inspect` command to inspect executables registered in B-Fabric.
 
 ### Fixed
 
