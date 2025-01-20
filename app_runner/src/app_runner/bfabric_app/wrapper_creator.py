@@ -62,6 +62,7 @@ class WrapperCreator:
             "base64": base64.b64encode(yaml_data.encode()).decode(),
         }
         self._client.save("executable", executable_data)
+        # TODO detect and store errors
         self._client.save("externaljob", {"id": self._external_job.id, "status": "available"})
 
 

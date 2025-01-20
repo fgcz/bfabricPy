@@ -1,5 +1,6 @@
 import argparse
 import base64
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import yaml
@@ -51,10 +52,12 @@ class Submitter:
 def app(*, client: Bfabric) -> None:
     """CLI interface for slurm submitter."""
     parser = argparse.ArgumentParser()
+    parser.add_argument("--submitters-yml", type=Path)
     parser.add_argument("-j", type=int)
     args = parser.parse_args()
     external_job = ExternalJob.find(id=args.j, client=client)
-    submitter = Submitter(client=client, external_job=external_job)
+    submitters_spec = SubmittersSpec.model_validate(yaml.safe_load(args.submitters_yml.read_text()))
+    submitter = Submitter(client=client, external_job=external_job, submitters_spec=submitters_spec)
     submitter.run()
 
 
