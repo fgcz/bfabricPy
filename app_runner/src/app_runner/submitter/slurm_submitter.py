@@ -33,6 +33,19 @@ class SlurmSubmitterUserParams(BaseModel):
     memory: str
 
 
+_MAIN_BASH_TEMPLATE = """
+tee app_version.yml <<YAML
+{app_version_yml}
+YAML
+
+tee workunit_definition.yml <<'YAML'
+{workunit_definition_yml}
+YAML
+
+bfabric-app-runner app run --app-version app_version.yml --workunit-ref workunit_definition.yml --work-dir "$(pwd)"
+"""
+
+
 class SlurmSubmitter:
     def __init__(self, default_config: SubmitterSlurmSpec) -> None:
         self._default_config = default_config
@@ -49,6 +62,11 @@ class SlurmSubmitter:
         script_header = self._compose_script_header(concrete_params)
         return f"{script_header}\n\n{main_command}"
 
+    def _interpolate_main(self, app_version_yml: str, workunit_definition_yml: str) -> str:
+        return _MAIN_BASH_TEMPLATE.format(
+            app_version_yml=app_version_yml, workunit_definition_yml=workunit_definition_yml
+        )
+
     def submit(self, external_job: ExternalJob, specific_params: dict[str, str | None]) -> None:
         # Determine the script path
         executable = external_job.executable
@@ -58,8 +76,11 @@ class SlurmSubmitter:
             / f"workunitid-{workunit_id}_externaljobid-{external_job.id}_executableid-{executable.id}.bash"
         )
 
+        # TODO missing args
+        main_command = self._interpolate_main()
+
         # Generate the script
-        script = self._compose_script(main_command=executable["program"], specific_params=specific_params)
+        script = self._compose_script(main_command=main_command, specific_params=specific_params)
         script_path.write_text(script)
 
         # Execute sbatch
