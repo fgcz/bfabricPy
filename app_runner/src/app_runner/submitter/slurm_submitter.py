@@ -43,8 +43,10 @@ tee workunit_definition.yml <<YAML
 {workunit_definition_yml}
 YAML
 
-bfabric-app-runner app run --app-spec app_version.yml --workunit-ref workunit_definition.yml --work-dir "$(pwd)"
-"""
+set -euxo pipefail
+app_runner="uv run --with app_runner@git+https://github.com/fgcz/bfabricPy.git@{app_runner_version}#egg=app_runner&subdirectory=app_runner bfabric-app-runner"
+$app_runner app run --app-spec app_version.yml --workunit-ref workunit_definition.yml --work-dir "$(pwd)"
+"""  # noqa: E501
 
 
 class SlurmSubmitter:
@@ -63,15 +65,22 @@ class SlurmSubmitter:
         script_header = self._compose_script_header(concrete_params)
         return f"{script_header}\n\n{main_command}"
 
-    def _interpolate_main(self, app_version_yml: str, workunit_definition_yml: str) -> str:
+    def _interpolate_main(self, app_version_yml: str, workunit_definition_yml: str, app_runner_version: str) -> str:
         return _MAIN_BASH_TEMPLATE.format(
-            app_version_yml=app_version_yml, workunit_definition_yml=workunit_definition_yml
+            app_version_yml=app_version_yml,
+            workunit_definition_yml=workunit_definition_yml,
+            app_runner_version=app_runner_version,
         )
 
     def _get_main_command(self, workunit_wrapper_data: WorkunitWrapperData) -> str:
         app_version_yml = yaml.safe_dump(workunit_wrapper_data.app_version.model_dump(mode="json"))
         workunit_definition_yml = yaml.safe_dump(workunit_wrapper_data.workunit_definition.model_dump(mode="json"))
-        return self._interpolate_main(app_version_yml=app_version_yml, workunit_definition_yml=workunit_definition_yml)
+        app_runner_version = workunit_wrapper_data.app_runner_version
+        return self._interpolate_main(
+            app_version_yml=app_version_yml,
+            workunit_definition_yml=workunit_definition_yml,
+            app_runner_version=app_runner_version,
+        )
 
     def submit(self, workunit_wrapper_data: WorkunitWrapperData, specific_params: dict[str, str | None]) -> None:
         # Determine the script path

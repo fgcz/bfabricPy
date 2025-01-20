@@ -9,3 +9,4 @@ from bfabric.experimental.workunit_definition import WorkunitDefinition  # noqa:
 class WorkunitWrapperData(BaseModel):
     workunit_definition: WorkunitDefinition
     app_version: AppVersion
+    app_runner_version: str

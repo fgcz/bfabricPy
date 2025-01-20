@@ -48,7 +48,10 @@ class WrapperCreator:
         app = self._workunit.application
         app_spec = app_spec_template.evaluate(app_id=str(app.id), app_name=app["name"])
         app_version = resolve_app(versions=app_spec, workunit_definition=workunit_definition)
-        return WorkunitWrapperData(workunit_definition=workunit_definition, app_version=app_version)
+        app_runner_version = app_spec.bfabric.app_runner
+        return WorkunitWrapperData(
+            workunit_definition=workunit_definition, app_version=app_version, app_runner_version=app_runner_version
+        )
 
     def run(self) -> None:
         data = self.get_data()

@@ -19,20 +19,21 @@ class BfabricAppSpec(BaseModel):
 
 
 class AppSpecTemplate(BaseModel):
-    # TODO consider whether to reintroduce
-    # bfabric: BfabricAppSpec
+    bfabric: BfabricAppSpec
     versions: list[AppVersionMultiTemplate]
 
     def evaluate(self, app_id: str, app_name: str) -> AppSpec:
         """Evaluates the template to a concrete ``AppSpec`` instance."""
         versions_templates = [expanded for version in self.versions for expanded in version.expand_versions()]
         versions = [template.evaluate(app_id=app_id, app_name=app_name) for template in versions_templates]
-        return AppSpec.model_validate({"versions": versions})
+        # TODO add interpolation for bfabric config
+        return AppSpec.model_validate({"versions": versions, "bfabric": self.bfabric})
 
 
 class AppSpec(BaseModel):
     """Parsed app versions from the app spec file."""
 
+    bfabric: BfabricAppSpec
     versions: list[AppVersion]
 
     @classmethod
