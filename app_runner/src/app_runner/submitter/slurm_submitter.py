@@ -6,6 +6,7 @@ from enum import Enum
 from typing import TYPE_CHECKING
 
 import yaml
+from loguru import logger
 from pydantic import BaseModel
 
 if TYPE_CHECKING:
@@ -81,12 +82,12 @@ class SlurmSubmitter:
         main_command = self._get_main_command(workunit_wrapper_data=workunit_wrapper_data)
         script = self._compose_script(main_command=main_command, specific_params=specific_params)
         script_path.write_text(script)
+        script_path.chmod(0o755)
 
         # Execute sbatch
         sbatch_bin = self._default_config.config.slurm_root / "bin" / "sbatch"
         env = os.environ | {"SLURMROOT": self._default_config.config.slurm_root}
-        # TODO remove after debug
-        print(script_path)
+        logger.info("Script written to {}", script_path)
         # TODO remove after debug
         1 / 0
         subprocess.run([str(sbatch_bin), str(script_path)], env=env, check=True)
