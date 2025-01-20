@@ -29,7 +29,7 @@ class Submitter:
         # executables = Executable.find_by({"workunitid": self._workunit.id,
         #     "context": "WORKUNIT"}, client=self._client)
         executables = Executable.find_by({"workunitid": self._workunit}, client=self._client)
-        executables = {key: value for key, value in executables if value["context"] == "WORKUNIT"}
+        executables = {key: value for key, value in executables.items() if value["context"] == "WORKUNIT"}
         if len(executables) != 1:
             msg = f"Expected exactly one WORKUNIT executable, found executables: {sorted(executables.keys())}"
             raise ValueError(msg)
