@@ -80,6 +80,10 @@ class Entity:
         result = client.read(cls.ENDPOINT, obj=obj, max_results=max_results)
         return {x["id"]: cls(x, client=client) for x in result}
 
+    def __contains__(self, key: str) -> Any:
+        """Checks if a key is present in the data dictionary."""
+        return key in self.__data_dict
+
     def __getitem__(self, key: str) -> Any:
         """Returns the value of a key in the data dictionary."""
         return self.__data_dict[key]
