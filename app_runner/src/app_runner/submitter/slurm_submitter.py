@@ -68,8 +68,8 @@ class SlurmSubmitter:
         )
 
     def _get_main_command(self, workunit_wrapper_data: WorkunitWrapperData) -> str:
-        app_version_yml = yaml.safe_dump(workunit_wrapper_data.app_version)
-        workunit_definition_yml = yaml.safe_dump(workunit_wrapper_data.workunit_definition)
+        app_version_yml = yaml.safe_dump(workunit_wrapper_data.app_version.model_dump(mode="json"))
+        workunit_definition_yml = yaml.safe_dump(workunit_wrapper_data.workunit_definition.model_dump(mode="json"))
         return self._interpolate_main(app_version_yml=app_version_yml, workunit_definition_yml=workunit_definition_yml)
 
     def submit(self, workunit_wrapper_data: WorkunitWrapperData, specific_params: dict[str, str | None]) -> None:
