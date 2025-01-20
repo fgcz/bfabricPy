@@ -61,3 +61,4 @@ classmethod-decorators = [
 [tool.ruff.lint.per-file-ignores]
 # This is needed because of false positives in cyclopts code
 "**/app_runner/cli/**" = ["TCH001", "TCH002", "TCH003"]
+"**/app_runner/specs/**" = ["TCH001", "TCH002", "TCH003"]
