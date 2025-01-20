@@ -42,7 +42,7 @@ class WrapperCreator:
         """Returns the data to be written to WORKUNIT context executable."""
         workunit_definition = WorkunitDefinition.from_workunit(workunit=self._workunit)
         # TODO could this be made more robust in the future, e.g. by specifying the root path somehow?
-        path = Path(self._workunit.application["program"])
+        path = Path(self._workunit.application.executable["program"])
         application_definition = AppSpecTemplate.model_validate(yaml.safe_load(path.read_text()))
         return WorkunitWrapperData(workunit=workunit_definition, app=application_definition)
 
