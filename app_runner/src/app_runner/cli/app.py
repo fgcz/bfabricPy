@@ -26,7 +26,6 @@ def run(
     # TODO doc
     setup_script_logging()
     client = Bfabric.from_config()
-
     app_version, workunit_ref = load_workunit_information(app_spec, client, work_dir, workunit_ref)
 
     # TODO(#107): usage of entity lookup cache was problematic -> beyond the full solution we could also consider
