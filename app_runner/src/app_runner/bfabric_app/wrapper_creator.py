@@ -1,19 +1,19 @@
 from __future__ import annotations
 
+import argparse
 import base64
 from pathlib import Path
-from typing import TYPE_CHECKING, Annotated
+from typing import TYPE_CHECKING
 
-import cyclopts
 import yaml
-from cyclopts import Parameter
 from loguru import logger
 
 from app_runner.bfabric_app.workunit_wrapper_data import WorkunitWrapperData
 from app_runner.specs.app.app_spec import AppSpecTemplate
-from bfabric import Bfabric
+from bfabric import Bfabric  # noqa: TC002
 from bfabric.entities import ExternalJob
 from bfabric.experimental.workunit_definition import WorkunitDefinition
+from bfabric_scripts.cli.base import use_client
 
 if TYPE_CHECKING:
     from bfabric.entities import Workunit
@@ -59,22 +59,38 @@ class WrapperCreator:
         self._client.save("executable", executable_data)
 
 
-# TODO move this if necessary, it's here for testing right now
-
-app = cyclopts.App()
-
-
-@app.default
-# @use_client
-# def interface(job_id: Annotated[int, Parameter(name=["--job-id", "-j"])], *, client: Bfabric) -> None:
-def interface(job_id: Annotated[int, Parameter(name=["--job-id", "-j"])]) -> None:
+@use_client
+def app(client: Bfabric) -> None:
     """Wrapper creator CLI."""
-    # TODO there was a bug in use_client conflicting with cyclopts here
-    client = Bfabric.from_config()
-    external_job = ExternalJob.find(id=job_id, client=client)
-    wrapper_creator = WrapperCreator(external_job=external_job)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-j", type=int)
+    args = parser.parse_args()
+    external_job = ExternalJob.find(id=args.j, client=client)
+    wrapper_creator = WrapperCreator(client=client, external_job=external_job)
     wrapper_creator.run()
 
 
 if __name__ == "__main__":
     app()
+
+
+## TODO use argparse here instead becasue this is currently broken
+#
+## TODO move this if necessary, it's here for testing right now
+# app = cyclopts.App()
+#
+# @app.default
+## @use_client
+## def interface(job_id: Annotated[int, Parameter(name=["--job-id", "-j"])], *, client: Bfabric) -> None:
+# def interface(*, job_id: Annotated[int, Parameter(name=["-j"])]) -> None:
+#    """Wrapper creator CLI."""
+#    # TODO there was a bug in use_client conflicting with cyclopts here
+#    client = Bfabric.from_config()
+#    external_job = ExternalJob.find(id=job_id, client=client)
+#    wrapper_creator = WrapperCreator(external_job=external_job)
+#    wrapper_creator.run()
+#
+#
+# if __name__ == "__main__":
+#    app()
+#
