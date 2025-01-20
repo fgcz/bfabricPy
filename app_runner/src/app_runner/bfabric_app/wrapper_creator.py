@@ -53,6 +53,7 @@ class WrapperCreator:
         executable_data = {
             "context": "WORKUNIT",
             "status": "available",
+            "workunitid": self._workunit.id,
             "base64": base64.b64encode(yaml_data.encode()).decode(),
         }
         self._client.save("executable", executable_data)
