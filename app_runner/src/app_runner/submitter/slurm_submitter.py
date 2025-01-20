@@ -65,4 +65,8 @@ class SlurmSubmitter:
         # Execute sbatch
         sbatch_bin = self._default_config.config.slurm_root / "bin" / "sbatch"
         env = os.environ | {"SLURMROOT": self._default_config.config.slurm_root}
+        # TODO remove after debug
+        print(script_path)
+        # TODO remove after debug
+        1 / 0
         subprocess.run([str(sbatch_bin), str(script_path)], env=env, check=True)
