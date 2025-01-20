@@ -83,25 +83,3 @@ def app(client: Bfabric) -> None:
 
 if __name__ == "__main__":
     app()
-
-
-## TODO use argparse here instead becasue this is currently broken
-#
-## TODO move this if necessary, it's here for testing right now
-# app = cyclopts.App()
-#
-# @app.default
-## @use_client
-## def interface(job_id: Annotated[int, Parameter(name=["--job-id", "-j"])], *, client: Bfabric) -> None:
-# def interface(*, job_id: Annotated[int, Parameter(name=["-j"])]) -> None:
-#    """Wrapper creator CLI."""
-#    # TODO there was a bug in use_client conflicting with cyclopts here
-#    client = Bfabric.from_config()
-#    external_job = ExternalJob.find(id=job_id, client=client)
-#    wrapper_creator = WrapperCreator(external_job=external_job)
-#    wrapper_creator.run()
-#
-#
-# if __name__ == "__main__":
-#    app()
-#
