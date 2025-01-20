@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import base64
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated
 
 import cyclopts
 import yaml
+from cyclopts import Parameter
 from loguru import logger
 
 from app_runner.bfabric_app.workunit_wrapper_data import WorkunitWrapperData
@@ -66,7 +67,7 @@ app = cyclopts.App()
 
 @app.default
 @use_client
-def interface(j: int, *, client: Bfabric) -> None:
+def interface(j: Annotated[int, Parameter(name="-j")], *, client: Bfabric) -> None:
     """Wrapper creator CLI."""
     external_job = ExternalJob.find(id=j, client=client)
     wrapper_creator = WrapperCreator(external_job=external_job)
