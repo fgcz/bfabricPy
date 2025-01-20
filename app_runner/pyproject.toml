@@ -22,6 +22,7 @@ dependencies = [
 "bfabric-app-runner"="app_runner.cli.__main__:app"
 #TODO
 "bfabric-app-runner-wrapper-creator"="app_runner.bfabric_app.wrapper_creator:app"
+"bfabric-app-runner-submitter-slurm"="app_runner.bfabric_app.submitter_slurm:app"
 
 [project.optional-dependencies]
 doc = [
