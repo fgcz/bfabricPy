@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 import yaml
 from loguru import logger
 
+from app_runner.app_runner.resolve_app import resolve_app
 from app_runner.bfabric_app.workunit_wrapper_data import WorkunitWrapperData
 from app_runner.specs.app.app_spec import AppSpecTemplate
 from bfabric import Bfabric  # noqa: TC002
@@ -43,8 +44,11 @@ class WrapperCreator:
         workunit_definition = WorkunitDefinition.from_workunit(workunit=self._workunit)
         # TODO could this be made more robust in the future, e.g. by specifying the root path somehow?
         path = Path(self._workunit.application.executable["program"])
-        application_definition = AppSpecTemplate.model_validate(yaml.safe_load(path.read_text()))
-        return WorkunitWrapperData(workunit=workunit_definition, app=application_definition)
+        app_spec_template = AppSpecTemplate.model_validate(yaml.safe_load(path.read_text()))
+        app = self._workunit.application
+        app_spec = app_spec_template.evaluate(app_id=str(app.id), app_name=app["name"])
+        app_version = resolve_app(versions=app_spec, workunit_definition=workunit_definition)
+        return WorkunitWrapperData(workunit_definition=workunit_definition, app_version=app_version)
 
     def run(self) -> None:
         data = self.get_data()
