@@ -43,7 +43,7 @@ class Submitter:
         workunit_wrapper_data = self.get_workunit_wrapper_data()
         submitter_ref: SubmitterRef = workunit_wrapper_data.app_version.submitter
         submitter_name = submitter_ref.name
-        submitter_spec = self._submitters_spec.get(submitter_name)
+        submitter_spec = self._submitters_spec.submitters.get(submitter_name)
         if submitter_spec is None:
             raise ValueError(f"Submitter '{submitter_name}' not found in submitters spec.")
         if submitter_spec.type != "slurm":
