@@ -1,0 +1,12 @@
+executable:
+  context: WRAPPERCREATOR
+  description: experimental new wrapper creator
+  enabled: 'true'
+  name: app_runner_wrapper_creator
+  # TODO the refactor-submitter branch is hardcoded for now!
+  program: >
+    uv run --with app_runner@git+https://github.com/fgcz/bfabricPy.git@refactor-submitter#egg=app_runner&subdirectory=app_runner bfabric-app-runner-wrapper-creator
+
+  status: available
+  valid: 'true'
+  version: '0.1'
