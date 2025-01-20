@@ -49,7 +49,7 @@ class WrapperCreator:
     def run(self) -> None:
         data = self.get_data()
         yaml_data = yaml.safe_dump(data.model_dump(mode="json"))
-        logger.info("YAML data: {}", yaml_data)
+        logger.info("YAML data:\n{}", yaml_data)
         executable_data = {
             "context": "WORKUNIT",
             "name": "workunit_wrapper_data.yml",
