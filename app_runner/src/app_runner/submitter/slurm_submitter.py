@@ -39,7 +39,7 @@ tee app_version.yml <<YAML
 {app_version_yml}
 YAML
 
-tee workunit_definition.yml <<'YAML'
+tee workunit_definition.yml <<YAML
 {workunit_definition_yml}
 YAML
 
@@ -88,6 +88,7 @@ class SlurmSubmitter:
         sbatch_bin = self._default_config.config.slurm_root / "bin" / "sbatch"
         env = os.environ | {"SLURMROOT": self._default_config.config.slurm_root}
         logger.info("Script written to {}", script_path)
+        # TODO correct working directory logic
         # TODO remove after debug
         1 / 0
         subprocess.run([str(sbatch_bin), str(script_path)], env=env, check=True)
