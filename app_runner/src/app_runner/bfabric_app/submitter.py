@@ -25,7 +25,11 @@ class Submitter:
 
     def get_workunit_wrapper_data(self) -> WorkunitWrapperData:
         # find the executable
-        executables = Executable.find_by({"workunitid": self._workunit.id, "context": "WORKUNIT"}, client=self._client)
+        # TODO why not available
+        # executables = Executable.find_by({"workunitid": self._workunit.id,
+        #     "context": "WORKUNIT"}, client=self._client)
+        executables = Executable.find_by({"workunitid": self._workunit}, client=self._client)
+        executables = {key: value for key, value in executables if value["context"] == "WORKUNIT"}
         if len(executables) != 1:
             msg = f"Expected exactly one WORKUNIT executable, found executables: {sorted(executables.keys())}"
             raise ValueError(msg)
