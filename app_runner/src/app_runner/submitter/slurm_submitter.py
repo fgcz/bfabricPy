@@ -39,7 +39,7 @@ class SlurmSubmitter:
 
     def _get_concrete_params(self, specific_params: dict[str, str | None]) -> dict[str, str]:
         merged = {**self._default_config.params, **specific_params}
-        return {key: value for key, value in merged if value is not None}
+        return {key: value for key, value in merged.items() if value is not None}
 
     def _compose_script_header(self, concrete_params: dict[str, str]) -> str:
         return "\n".join(["#!/bin/bash"] + [f"#SBATCH {key}={value}" for key, value in concrete_params.items()])
