@@ -42,7 +42,7 @@ tee workunit_definition.yml <<'YAML'
 {workunit_definition_yml}
 YAML
 
-bfabric-app-runner app run --app-version app_version.yml --workunit-ref workunit_definition.yml --work-dir "$(pwd)"
+bfabric-app-runner app run --app-spec app_version.yml --workunit-ref workunit_definition.yml --work-dir "$(pwd)"
 """
 
 
