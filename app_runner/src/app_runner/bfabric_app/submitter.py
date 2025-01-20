@@ -49,7 +49,7 @@ class Submitter:
         if submitter_spec.type != "slurm":
             raise ValueError(f"Submitter '{submitter_name}' is not of type 'slurm'.")
         submitter = SlurmSubmitter(default_config=submitter_spec)
-        submitter.submit(external_job=self._external_job, specific_params=submitter_ref.params)
+        submitter.submit(workunit_wrapper_data=workunit_wrapper_data, specific_params=submitter_ref.params)
 
 
 @use_client

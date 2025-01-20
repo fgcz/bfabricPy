@@ -5,12 +5,12 @@ import subprocess
 from enum import Enum
 from typing import TYPE_CHECKING
 
+import yaml
 from pydantic import BaseModel
-
 
 if TYPE_CHECKING:
     from app_runner.specs.submitters_spec import SubmitterSlurmSpec
-    from bfabric.entities import ExternalJob
+    from app_runner.bfabric_app.workunit_wrapper_data import WorkunitWrapperData
 
 
 class SlurmSubmitterSpecialStrings(Enum):
@@ -67,19 +67,18 @@ class SlurmSubmitter:
             app_version_yml=app_version_yml, workunit_definition_yml=workunit_definition_yml
         )
 
-    def submit(self, external_job: ExternalJob, specific_params: dict[str, str | None]) -> None:
-        # Determine the script path
-        executable = external_job.executable
-        workunit_id = external_job.workunit.id
-        script_path = (
-            self._default_config.config.local_script_dir
-            / f"workunitid-{workunit_id}_externaljobid-{external_job.id}_executableid-{executable.id}.bash"
-        )
+    def _get_main_command(self, workunit_wrapper_data: WorkunitWrapperData) -> str:
+        app_version_yml = yaml.safe_dump(workunit_wrapper_data.app_version)
+        workunit_definition_yml = yaml.safe_dump(workunit_wrapper_data.workunit_definition)
+        return self._interpolate_main(app_version_yml=app_version_yml, workunit_definition_yml=workunit_definition_yml)
 
-        # TODO missing args
-        main_command = self._interpolate_main()
+    def submit(self, workunit_wrapper_data: WorkunitWrapperData, specific_params: dict[str, str | None]) -> None:
+        # Determine the script path
+        workunit_id = workunit_wrapper_data.workunit_definition.registration.workunit_id
+        script_path = self._default_config.config.local_script_dir / f"workunitid-{workunit_id}_run.bash"
 
         # Generate the script
+        main_command = self._get_main_command(workunit_wrapper_data=workunit_wrapper_data)
         script = self._compose_script(main_command=main_command, specific_params=specific_params)
         script_path.write_text(script)
 
