@@ -52,6 +52,7 @@ class WrapperCreator:
         logger.info("YAML data: {}", yaml_data)
         executable_data = {
             "context": "WORKUNIT",
+            "name": "workunit_wrapper_data.yml",
             "status": "available",
             "workunitid": self._workunit.id,
             "base64": base64.b64encode(yaml_data.encode()).decode(),
