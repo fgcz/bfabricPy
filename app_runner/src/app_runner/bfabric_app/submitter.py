@@ -1,20 +1,26 @@
-# noqa: TC001, TC002, TC003
 import argparse
 import base64
+from typing import TYPE_CHECKING
 
 import yaml
 
 from app_runner.bfabric_app.workunit_wrapper_data import WorkunitWrapperData
+from app_runner.specs.submitters_spec import SubmittersSpec
+from app_runner.submitter.slurm_submitter import SlurmSubmitter
 from bfabric import Bfabric
 from bfabric.entities import ExternalJob, Executable
 from bfabric_scripts.cli.base import use_client
 
+if TYPE_CHECKING:
+    from app_runner.specs.submitter_ref import SubmitterRef
 
-class SubmitterSlurm:
-    def __init__(self, client: Bfabric, external_job: ExternalJob) -> None:
+
+class Submitter:
+    def __init__(self, client: Bfabric, external_job: ExternalJob, submitters_spec: SubmittersSpec) -> None:
         self._client = client
         self._external_job = external_job
         self._workunit = external_job.workunit
+        self._submitters_spec = submitters_spec
 
     def get_workunit_wrapper_data(self) -> WorkunitWrapperData:
         # find the executable
@@ -29,8 +35,16 @@ class SubmitterSlurm:
         return WorkunitWrapperData.model_validate(yaml.safe_load(yaml_data))
 
     def run(self) -> None:
-        _workunit_wrapper_data = self.get_workunit_wrapper_data()
-        # TODO so far it's not even slurm specific
+        workunit_wrapper_data = self.get_workunit_wrapper_data()
+        submitter_ref: SubmitterRef = workunit_wrapper_data.app_version.submitter
+        submitter_name = submitter_ref.name
+        submitter_spec = self._submitters_spec.get(submitter_name)
+        if submitter_spec is None:
+            raise ValueError(f"Submitter '{submitter_name}' not found in submitters spec.")
+        if submitter_spec.type != "slurm":
+            raise ValueError(f"Submitter '{submitter_name}' is not of type 'slurm'.")
+        submitter = SlurmSubmitter(default_config=submitter_spec)
+        submitter.submit(external_job=self._external_job, specific_params=submitter_ref.params)
 
 
 @use_client
@@ -40,7 +54,7 @@ def app(*, client: Bfabric) -> None:
     parser.add_argument("-j", type=int)
     args = parser.parse_args()
     external_job = ExternalJob.find(id=args.j, client=client)
-    submitter = SubmitterSlurm(client=client, external_job=external_job)
+    submitter = Submitter(client=client, external_job=external_job)
     submitter.run()
 
 
