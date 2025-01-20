@@ -11,12 +11,11 @@ from loguru import logger
 
 from app_runner.bfabric_app.workunit_wrapper_data import WorkunitWrapperData
 from app_runner.specs.app.app_spec import AppSpecTemplate
+from bfabric import Bfabric
 from bfabric.entities import ExternalJob
 from bfabric.experimental.workunit_definition import WorkunitDefinition
-from bfabric_scripts.cli.base import use_client
 
 if TYPE_CHECKING:
-    from bfabric import Bfabric
     from bfabric.entities import Workunit
 
 
@@ -66,10 +65,13 @@ app = cyclopts.App()
 
 
 @app.default
-@use_client
-def interface(j: Annotated[int, Parameter(name="-j")], *, client: Bfabric) -> None:
+# @use_client
+# def interface(job_id: Annotated[int, Parameter(name=["--job-id", "-j"])], *, client: Bfabric) -> None:
+def interface(job_id: Annotated[int, Parameter(name=["--job-id", "-j"])]) -> None:
     """Wrapper creator CLI."""
-    external_job = ExternalJob.find(id=j, client=client)
+    # TODO there was a bug in use_client conflicting with cyclopts here
+    client = Bfabric.from_config()
+    external_job = ExternalJob.find(id=job_id, client=client)
     wrapper_creator = WrapperCreator(external_job=external_job)
     wrapper_creator.run()
 
