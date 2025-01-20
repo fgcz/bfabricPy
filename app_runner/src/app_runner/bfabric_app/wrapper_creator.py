@@ -52,7 +52,6 @@ class WrapperCreator:
         logger.info("YAML data: {}", yaml_data)
         executable_data = {
             "context": "WORKUNIT",
-            "parameters": [],
             "status": "available",
             "base64": base64.b64encode(yaml_data.encode()).decode(),
         }
