@@ -4,9 +4,14 @@ executable:
   enabled: 'true'
   name: app_runner_submitter
   # TODO the refactor-submitter branch is hardcoded for now!
+  # TODO the bfabric path is hardcoded now too
   program: >
-    uv run --no-config --no-project --with app_runner@git+https://github.com/fgcz/bfabricPy.git@refactor-submitter#egg=app_runner&subdirectory=app_runner bfabric-app-runner-submitter --submitters-yml /home/bfabric/slurmworker/bfabric/submitters.yml
-
+    uv run
+    --no-config --no-project
+    --with
+    app_runner@git+https://github.com/fgcz/bfabricPy.git@refactor-submitter#egg=app_runner&subdirectory=app_runner
+    bfabric-app-runner-submitter
+    --submitters-yml /home/bfabric/slurmworker/bfabric/submitters.yml
   status: available
   valid: 'true'
   version: '0.1'

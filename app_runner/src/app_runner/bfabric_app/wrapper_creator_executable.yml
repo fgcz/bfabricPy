@@ -6,8 +6,11 @@ executable:
   masterexecutableid: 11851
   # TODO the refactor-submitter branch is hardcoded for now!
   program: >
-    uv run --no-config --no-project --with app_runner@git+https://github.com/fgcz/bfabricPy.git@refactor-submitter#egg=app_runner&subdirectory=app_runner bfabric-app-runner-wrapper-creator
-
+    uv run
+    --no-config --no-project
+    --with
+    app_runner@git+https://github.com/fgcz/bfabricPy.git@refactor-submitter#egg=app_runner&subdirectory=app_runner
+    bfabric-app-runner-wrapper-creator
   status: available
   valid: 'true'
   version: '0.1'
