@@ -19,7 +19,7 @@ class SlurmConfig(_SlurmConfigBase):
     @cached_property
     def sbatch_params(self) -> dict[str, str]:
         # TODO consistent naming (params vs config)
-        merged = {**self.submitter_config.params, **self.app_version, **self.workunit_config.as_dict()}
+        merged = {**self.submitter_config.params, **self.app_version.submitter.params, **self.workunit_config.as_dict()}
         return {key: value for key, value in merged.items() if value is not None}
 
     def get_scratch_dir(self) -> str:
