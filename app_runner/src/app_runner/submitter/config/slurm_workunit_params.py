@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from enum import Enum
+from typing import Annotated
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, Field, AliasChoices
 
 
 class SlurmWorkunitSpecialStrings(Enum):
@@ -20,12 +21,15 @@ class SlurmWorkunitSpecialStrings(Enum):
 
 
 class SlurmWorkunitParams(BaseModel):
-    # TODO maybe we could actually just make it so these names are already used as param
-    #      (i.e. --partition, --nodeslist, --mem)
-    #      especially as the memory could be confusing
-    partition: SlurmWorkunitSpecialStrings | str = SlurmWorkunitSpecialStrings.default
-    nodeslist: SlurmWorkunitSpecialStrings | str = SlurmWorkunitSpecialStrings.default
-    memory: SlurmWorkunitSpecialStrings | str = SlurmWorkunitSpecialStrings.default
+    partition: SlurmWorkunitSpecialStrings | str = Annotated[
+        SlurmWorkunitSpecialStrings.default, Field(validation_alias=AliasChoices("partition", "--partition"))
+    ]
+    nodeslist: SlurmWorkunitSpecialStrings | str = Annotated[
+        SlurmWorkunitSpecialStrings.default, Field(validation_alias=AliasChoices("nodeslist", "--nodeslist"))
+    ]
+    mem: SlurmWorkunitSpecialStrings | str = Annotated[
+        SlurmWorkunitSpecialStrings.default, Field(validation_alias=AliasChoices("mem", "--mem"))
+    ]
 
     @classmethod
     def _parse_string(cls, value: str | SlurmWorkunitSpecialStrings) -> SlurmWorkunitSpecialStrings | str:
@@ -36,7 +40,7 @@ class SlurmWorkunitParams(BaseModel):
             return parsed
         return value
 
-    @field_validator("partition", "nodeslist", "memory", mode="before")
+    @field_validator("partition", "nodeslist", "mem", mode="before")
     def validate_special_string(cls, value: SlurmWorkunitSpecialStrings | str) -> SlurmWorkunitSpecialStrings | str:
         return cls._parse_string(value)
 
@@ -60,8 +64,8 @@ class SlurmWorkunitParams(BaseModel):
         if nodeslist is not None:
             values["--nodeslist"] = nodeslist
 
-        memory = self._get_field("memory")
-        if memory is not None:
-            values["--mem"] = memory
+        mem = self._get_field("mem")
+        if mem is not None:
+            values["--mem"] = mem
 
         return values

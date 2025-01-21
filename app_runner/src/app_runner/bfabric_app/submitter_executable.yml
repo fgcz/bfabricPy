@@ -28,8 +28,8 @@ executable:
         - 256G
         - 512G
         - 960G
-      key: memory
-      label: memory
+      key: --mem
+      label: --mem
       modifiable: 'true'
       required: 'true'
       type: STRING
@@ -44,8 +44,8 @@ executable:
         - fgcz-c-073
         - fgcz-c-[072,073]
         - fgcz-r-033,fgcz-c-[072,073]
-      key: nodelist
-      label: nodelist
+      key: --nodelist
+      label: --nodelist
       modifiable: 'true'
       required: 'true'
       type: STRING
@@ -55,8 +55,8 @@ executable:
         - '[default]'
         - prx
         - mascot
-      key: partition
-      label: partition
+      key: --partition
+      label: --partition
       modifiable: 'true'
       required: 'true'
       type: STRING
