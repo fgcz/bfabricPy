@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Literal, Annotated
 
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, AliasChoices
 
 from app_runner.specs.config_interpolation import Variables, interpolate_config_strings
 
@@ -13,9 +13,9 @@ from app_runner.specs.config_interpolation import Variables, interpolate_config_
 
 
 class SubmitterSlurmConfigSpec(BaseModel):
-    slurm_root: Path = Field(validation_alias="slurm-root")
-    local_script_dir: Path = Field(validation_alias="local-script-dir")
-    worker_scratch_dir: Path = Field(validation_alias="worker-scratch-dir")
+    slurm_root: Path = Field(validation_alias=AliasChoices("slurm_root", "slurm-root"))
+    local_script_dir: Path = Field(validation_alias=AliasChoices("local_script_dir", "local-script-dir"))
+    worker_scratch_dir: Path = Field(validation_alias=AliasChoices("worker_scratch_dir", "worker-scratch-dir"))
 
 
 class SubmitterSlurmSpec(BaseModel):
