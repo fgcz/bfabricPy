@@ -51,10 +51,6 @@ class SlurmSubmitter:
             working_directory=working_directory,
         )
 
-    # TODO -> how to implement this cleanly
-    # def get_scratch_dir(self, workunit_wrapper_data: WorkunitWrapperData, submitter_params: SlurmSubmitterParams):
-    #    return mako.template.Template(template).render(app={"app": TODO})
-
     def submit(self, workunit_wrapper_data: WorkunitWrapperData, slurm_config: SlurmConfig) -> None:
         # Determine the script path
         workunit_id = workunit_wrapper_data.workunit_definition.registration.workunit_id
@@ -67,7 +63,6 @@ class SlurmSubmitter:
         main_command = self._get_main_command(
             workunit_wrapper_data=workunit_wrapper_data, working_directory=working_directory
         )
-        # TODO config should be merged in a standard way
         script = self._compose_script(main_command=main_command, slurm_config=slurm_config)
         script_path.write_text(script)
         script_path.chmod(0o755)
