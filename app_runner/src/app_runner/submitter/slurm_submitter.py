@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import shlex
 import subprocess
 from typing import TYPE_CHECKING
 
@@ -85,6 +86,6 @@ class SlurmSubmitter:
         sbatch_bin = slurm_config.submitter_config.config.slurm_root / "bin" / "sbatch"
         env = os.environ | {"SLURMROOT": slurm_config.submitter_config.config.slurm_root}
         logger.info("Script written to {}", script_path)
-        # TODO remove after debug
-        1 / 0
-        subprocess.run([str(sbatch_bin), str(script_path)], env=env, check=True)
+        cmd = [str(sbatch_bin), str(script_path)]
+        logger.info("Running {}", shlex.join(cmd))
+        subprocess.run(cmd, env=env, check=True)
