@@ -7,6 +7,8 @@ import yaml
 
 from app_runner.bfabric_app.workunit_wrapper_data import WorkunitWrapperData
 from app_runner.specs.submitters_spec import SubmittersSpec
+from app_runner.submitter.config.slurm_config_template import SlurmConfigTemplate
+from app_runner.submitter.config.slurm_workunit_params import SlurmWorkunitParams
 from app_runner.submitter.slurm_submitter import SlurmSubmitter
 from bfabric import Bfabric
 from bfabric.entities import ExternalJob, Executable
@@ -48,8 +50,16 @@ class Submitter:
             raise ValueError(f"Submitter '{submitter_name}' not found in submitters spec.")
         if submitter_spec.type != "slurm":
             raise ValueError(f"Submitter '{submitter_name}' is not of type 'slurm'.")
-        submitter = SlurmSubmitter(default_config=submitter_spec)
-        submitter.submit(workunit_wrapper_data=workunit_wrapper_data, specific_params=submitter_ref.params)
+        workunit_config = SlurmWorkunitParams.model_validate(
+            workunit_wrapper_data.workunit_definition.execution.raw_parameters
+        )
+        slurm_config_template = SlurmConfigTemplate(
+            submitter_config=submitter_spec,
+            app_version=workunit_wrapper_data.app_version,
+            workunit_config=workunit_config,
+        )
+        submitter = SlurmSubmitter(slurm_config_template)
+        submitter.submit(workunit_wrapper_data=workunit_wrapper_data)
 
 
 @use_client

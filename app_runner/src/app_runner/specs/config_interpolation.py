@@ -12,7 +12,7 @@ class VariablesApp(BaseModel):
     They will be available as `${app.id}` etc. in the config files.
     """
 
-    id: str
+    id: int
     name: str
     version: str
 
