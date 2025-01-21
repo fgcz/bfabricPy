@@ -30,7 +30,7 @@ class Variables(BaseModel):
     workunit: VariablesWorkunit | None = None
 
     def as_dict(self) -> dict[str, VariablesApp]:
-        return {"app": self.app}
+        return {"app": self.app, "workunit": self.workunit}
 
 
 def interpolate_config_strings(data: Any, variables: Variables | dict[str, Any]) -> Any:
