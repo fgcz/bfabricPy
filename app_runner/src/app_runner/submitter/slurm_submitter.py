@@ -88,5 +88,4 @@ class SlurmSubmitter:
         logger.info("Script written to {}", script_path)
         cmd = [str(sbatch_bin), str(script_path)]
         logger.info("Running {}", shlex.join(cmd))
-        # TODO if this fixes the problem, try to find a more robust solution than shell=True
-        subprocess.run(cmd, env=env, check=True, shell=True)
+        subprocess.run(cmd, env=env, check=True)
