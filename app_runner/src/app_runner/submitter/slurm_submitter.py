@@ -21,6 +21,8 @@ mkdir -p "{working_directory}"
 cd "{working_directory}"
 
 set +x
+id
+hostname
 tee app_version.yml <<YAML
 {app_version_yml}
 YAML
