@@ -7,9 +7,11 @@ from typing import TYPE_CHECKING
 import yaml
 from loguru import logger
 
+from app_runner.specs.config_interpolation import VariablesApp, VariablesWorkunit
+
 if TYPE_CHECKING:
     from app_runner.submitter.config.slurm_config import SlurmConfig
-    from app_runner.specs.submitters_spec import SubmitterSlurmSpec
+    from app_runner.submitter.config.slurm_config_template import SlurmConfigTemplate
     from app_runner.bfabric_app.workunit_wrapper_data import WorkunitWrapperData
 
 _MAIN_BASH_TEMPLATE = """
@@ -30,8 +32,8 @@ $app_runner app run --app-spec app_version.yml --workunit-ref workunit_definitio
 
 
 class SlurmSubmitter:
-    def __init__(self, default_config: SubmitterSlurmSpec) -> None:
-        self._default_config = default_config
+    def __init__(self, config_template: SlurmConfigTemplate) -> None:
+        self._config_template = config_template
 
     def _compose_script_header(self, concrete_params: dict[str, str]) -> str:
         return "\n".join(["#!/bin/bash"] + [f"#SBATCH {key}={value}" for key, value in concrete_params.items()])
@@ -51,10 +53,22 @@ class SlurmSubmitter:
             working_directory=working_directory,
         )
 
-    def submit(self, workunit_wrapper_data: WorkunitWrapperData, slurm_config: SlurmConfig) -> None:
+    def evaluate_config(self, workunit_wrapper_data: WorkunitWrapperData) -> SlurmConfig:
+        app = VariablesApp(
+            id=workunit_wrapper_data.workunit_definition.registration.application_id,
+            name=workunit_wrapper_data.workunit_definition.registration.application_name,
+            version=workunit_wrapper_data.app_version.version,
+        )
+        workunit = VariablesWorkunit(id=workunit_wrapper_data.workunit_definition.registration.workunit_id)
+        return self._config_template.evaluate(app=app, workunit=workunit)
+
+    def submit(self, workunit_wrapper_data: WorkunitWrapperData) -> None:
+        # Evaluate the config
+        slurm_config = self.evaluate_config(workunit_wrapper_data=workunit_wrapper_data)
+
         # Determine the script path
         workunit_id = workunit_wrapper_data.workunit_definition.registration.workunit_id
-        script_path = self._default_config.config.local_script_dir / f"workunitid-{workunit_id}_run.bash"
+        script_path = slurm_config.submitter_config.config.local_script_dir / f"workunitid-{workunit_id}_run.bash"
 
         # Determine the working directory.
         working_directory = slurm_config.get_scratch_dir()
@@ -68,8 +82,8 @@ class SlurmSubmitter:
         script_path.chmod(0o755)
 
         # Execute sbatch
-        sbatch_bin = self._default_config.config.slurm_root / "bin" / "sbatch"
-        env = os.environ | {"SLURMROOT": self._default_config.config.slurm_root}
+        sbatch_bin = slurm_config.submitter_config.config.slurm_root / "bin" / "sbatch"
+        env = os.environ | {"SLURMROOT": slurm_config.submitter_config.config.slurm_root}
         logger.info("Script written to {}", script_path)
         # TODO remove after debug
         1 / 0
