@@ -15,7 +15,7 @@ class VariablesApp(BaseModel):
 
     id: int
     name: str
-    version: str
+    version: str | None
 
     @field_validator("name", mode="before")
     def validate_safe_name(cls, value: str) -> str:
