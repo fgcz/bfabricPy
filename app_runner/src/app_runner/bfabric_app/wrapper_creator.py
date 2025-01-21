@@ -20,9 +20,6 @@ if TYPE_CHECKING:
     from bfabric.entities import Workunit
 
 
-# TODO error handling
-
-
 class WrapperCreator:
     """The wrapper creator is given the ID of an external job (WRAPPERCREATOR context) referencing a workunit.
 
