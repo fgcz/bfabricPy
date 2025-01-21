@@ -24,8 +24,8 @@ class SlurmWorkunitParams(BaseModel):
     partition: Annotated[
         SlurmWorkunitSpecialStrings | str, Field(validation_alias=AliasChoices("partition", "--partition"))
     ] = SlurmWorkunitSpecialStrings.default
-    nodeslist: Annotated[
-        SlurmWorkunitSpecialStrings | str, Field(validation_alias=AliasChoices("nodeslist", "--nodeslist"))
+    nodelist: Annotated[
+        SlurmWorkunitSpecialStrings | str, Field(validation_alias=AliasChoices("nodelist", "--nodelist"))
     ] = SlurmWorkunitSpecialStrings.default
     mem: Annotated[SlurmWorkunitSpecialStrings | str, Field(validation_alias=AliasChoices("mem", "--mem"))] = (
         SlurmWorkunitSpecialStrings.default
@@ -40,7 +40,7 @@ class SlurmWorkunitParams(BaseModel):
             return parsed
         return value
 
-    @field_validator("partition", "nodeslist", "mem", mode="before")
+    @field_validator("partition", "nodelist", "mem", mode="before")
     def validate_special_string(cls, value: SlurmWorkunitSpecialStrings | str) -> SlurmWorkunitSpecialStrings | str:
         return cls._parse_string(value)
 
@@ -60,9 +60,9 @@ class SlurmWorkunitParams(BaseModel):
         if partition is not None:
             values["--partition"] = partition
 
-        nodeslist = self._get_field("nodeslist")
-        if nodeslist is not None:
-            values["--nodeslist"] = nodeslist
+        nodelist = self._get_field("nodelist")
+        if nodelist is not None:
+            values["--nodelist"] = nodelist
 
         mem = self._get_field("mem")
         if mem is not None:
