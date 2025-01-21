@@ -16,6 +16,11 @@ if TYPE_CHECKING:
     from app_runner.bfabric_app.workunit_wrapper_data import WorkunitWrapperData
 
 _MAIN_BASH_TEMPLATE = """
+set -euxo pipefail
+mkdir -p "{working_directory}"
+cd "{working_directory}"
+
+set +x
 tee app_version.yml <<YAML
 {app_version_yml}
 YAML
@@ -24,9 +29,7 @@ tee workunit_definition.yml <<YAML
 {workunit_definition_yml}
 YAML
 
-set -euxo pipefail
-mkdir -p "{working_directory}"
-cd "{working_directory}"
+set -x
 app_runner="uv run --with app_runner@git+https://github.com/fgcz/bfabricPy.git@{app_runner_version}#egg=app_runner&subdirectory=app_runner bfabric-app-runner"
 $app_runner app run --app-spec app_version.yml --workunit-ref workunit_definition.yml --work-dir "$(pwd)"
 """  # noqa: E501
