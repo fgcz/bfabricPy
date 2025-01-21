@@ -23,5 +23,5 @@ class SlurmConfig(_SlurmConfigBase):
         return {key: value for key, value in merged.items() if value is not None}
 
     def get_scratch_dir(self) -> str:
-        # TODO ensure it's a str
-        return self._submitter_config.config.worker_scratch_dir
+        # TODO check if cast is necessary later
+        return str(self.submitter_config.config.worker_scratch_dir)
