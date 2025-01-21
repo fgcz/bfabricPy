@@ -21,15 +21,15 @@ class SlurmWorkunitSpecialStrings(Enum):
 
 
 class SlurmWorkunitParams(BaseModel):
-    partition: SlurmWorkunitSpecialStrings | str = Annotated[
-        SlurmWorkunitSpecialStrings.default, Field(validation_alias=AliasChoices("partition", "--partition"))
-    ]
-    nodeslist: SlurmWorkunitSpecialStrings | str = Annotated[
-        SlurmWorkunitSpecialStrings.default, Field(validation_alias=AliasChoices("nodeslist", "--nodeslist"))
-    ]
-    mem: SlurmWorkunitSpecialStrings | str = Annotated[
-        SlurmWorkunitSpecialStrings.default, Field(validation_alias=AliasChoices("mem", "--mem"))
-    ]
+    partition: Annotated[
+        SlurmWorkunitSpecialStrings | str, Field(validation_alias=AliasChoices("partition", "--partition"))
+    ] = SlurmWorkunitSpecialStrings.default
+    nodeslist: Annotated[
+        SlurmWorkunitSpecialStrings | str, Field(validation_alias=AliasChoices("nodeslist", "--nodeslist"))
+    ] = SlurmWorkunitSpecialStrings.default
+    mem: Annotated[SlurmWorkunitSpecialStrings | str, Field(validation_alias=AliasChoices("mem", "--mem"))] = (
+        SlurmWorkunitSpecialStrings.default
+    )
 
     @classmethod
     def _parse_string(cls, value: str | SlurmWorkunitSpecialStrings) -> SlurmWorkunitSpecialStrings | str:
