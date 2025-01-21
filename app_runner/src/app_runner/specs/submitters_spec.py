@@ -13,9 +13,9 @@ from app_runner.specs.config_interpolation import Variables, interpolate_config_
 
 
 class SubmitterSlurmConfigSpec(BaseModel):
-    slurm_root: Path = Field(alias="slurm-root")
-    local_script_dir: Path = Field(alias="local-script-dir")
-    worker_scratch_dir: Path = Field(alias="worker-scratch-dir")
+    slurm_root: Path = Field(validation_alias="slurm-root")
+    local_script_dir: Path = Field(validation_alias="local-script-dir")
+    worker_scratch_dir: Path = Field(validation_alias="worker-scratch-dir")
 
 
 class SubmitterSlurmSpec(BaseModel):
