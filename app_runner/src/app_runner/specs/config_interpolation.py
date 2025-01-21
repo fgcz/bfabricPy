@@ -17,6 +17,10 @@ class VariablesApp(BaseModel):
     version: str
 
 
+class VariablesWorkunit(BaseModel):
+    id: int
+
+
 class Variables(BaseModel):
     """Variables that can be used in our config templates."""
 
