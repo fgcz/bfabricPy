@@ -15,3 +15,49 @@ executable:
   status: available
   valid: 'true'
   version: '0.1'
+  parameter:
+    - description: Memory to request for the job.
+      enumeration:
+        - '[default]'
+        - '[auto]'
+        - 5G
+        - 10G
+        - 32G
+        - 64G
+        - 128G
+        - 256G
+        - 512G
+        - 960G
+      key: memory
+      label: memory
+      modifiable: 'true'
+      required: 'true'
+      type: STRING
+      value: '[default]'
+    - description: Nodelist to request for the job.
+      enumeration:
+        - '[default]'
+        - '[auto]'
+        - fgcz-r-024
+        - fgcz-r-033
+        - fgcz-c-072
+        - fgcz-c-073
+        - fgcz-c-[072,073]
+        - fgcz-r-033,fgcz-c-[072,073]
+      key: nodelist
+      label: nodelist
+      modifiable: 'true'
+      required: 'true'
+      type: STRING
+      value: '[default]'
+    - description: Partition to request for the job.
+      enumeration:
+        - '[default]'
+        - prx
+        - mascot
+      key: partition
+      label: partition
+      modifiable: 'true'
+      required: 'true'
+      type: STRING
+      value: '[default]'
