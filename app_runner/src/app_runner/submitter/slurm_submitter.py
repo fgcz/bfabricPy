@@ -69,6 +69,7 @@ class SlurmSubmitter:
     def submit(self, workunit_wrapper_data: WorkunitWrapperData) -> None:
         # Evaluate the config
         slurm_config = self.evaluate_config(workunit_wrapper_data=workunit_wrapper_data)
+        logger.info("Slurm Config: {}", slurm_config)
 
         # Determine the script path
         workunit_id = workunit_wrapper_data.workunit_definition.registration.workunit_id
