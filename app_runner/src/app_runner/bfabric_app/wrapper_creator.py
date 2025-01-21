@@ -64,9 +64,6 @@ class WrapperCreator:
         result = self._client.save("executable", executable_data)
         logger.info("Executable registered: {}", result[0])
         # TODO detect and store errors
-        self._client.save(
-            "externaljob", {"workunitid": self._workunit.id, "action": "WORKUNIT", "executableid": result[0]["id"]}
-        )
         self._client.save("externaljob", {"id": self._external_job.id, "status": "done"})
 
 
