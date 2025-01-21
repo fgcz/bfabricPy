@@ -5,12 +5,12 @@ from enum import Enum
 from pydantic import BaseModel, field_validator
 
 
-class SlurmSubmitterSpecialStrings(Enum):
+class SlurmWorkunitSpecialStrings(Enum):
     default = "[default]"
     auto = "[auto]"
 
     @classmethod
-    def parse(cls, string: str) -> SlurmSubmitterSpecialStrings | None:
+    def parse(cls, string: str) -> SlurmWorkunitSpecialStrings | None:
         if string == cls.default.value:
             return cls.default
         elif string == cls.auto.value:
@@ -19,32 +19,32 @@ class SlurmSubmitterSpecialStrings(Enum):
             return None
 
 
-class SlurmSubmitterWorkunitParams(BaseModel):
+class SlurmWorkunitParams(BaseModel):
     # TODO maybe we could actually just make it so these names are already used as param
     #      (i.e. --partition, --nodeslist, --mem)
     #      especially as the memory could be confusing
-    partition: SlurmSubmitterSpecialStrings | str = SlurmSubmitterSpecialStrings.default
-    nodeslist: SlurmSubmitterSpecialStrings | str = SlurmSubmitterSpecialStrings.default
-    memory: SlurmSubmitterSpecialStrings | str = SlurmSubmitterSpecialStrings.default
+    partition: SlurmWorkunitSpecialStrings | str = SlurmWorkunitSpecialStrings.default
+    nodeslist: SlurmWorkunitSpecialStrings | str = SlurmWorkunitSpecialStrings.default
+    memory: SlurmWorkunitSpecialStrings | str = SlurmWorkunitSpecialStrings.default
 
     @classmethod
-    def _parse_string(cls, value: str | SlurmSubmitterSpecialStrings) -> SlurmSubmitterSpecialStrings | str:
-        if isinstance(value, SlurmSubmitterSpecialStrings):
+    def _parse_string(cls, value: str | SlurmWorkunitSpecialStrings) -> SlurmWorkunitSpecialStrings | str:
+        if isinstance(value, SlurmWorkunitSpecialStrings):
             return value
-        parsed = SlurmSubmitterSpecialStrings.parse(value)
+        parsed = SlurmWorkunitSpecialStrings.parse(value)
         if parsed is not None:
             return parsed
         return value
 
     @field_validator("partition", "nodeslist", "memory", mode="before")
-    def validate_special_string(cls, value: SlurmSubmitterSpecialStrings | str) -> SlurmSubmitterSpecialStrings | str:
+    def validate_special_string(cls, value: SlurmWorkunitSpecialStrings | str) -> SlurmWorkunitSpecialStrings | str:
         return cls._parse_string(value)
 
     def _get_field(self, field_name: str) -> str | None:
         value = getattr(self, field_name)
         if isinstance(value, str):
             return value
-        if value == SlurmSubmitterSpecialStrings.default:
+        if value == SlurmWorkunitSpecialStrings.default:
             return None
         else:
             raise NotImplementedError(f"Currently unsupported value for {field_name}: {value}")
