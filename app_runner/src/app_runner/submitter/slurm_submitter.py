@@ -64,6 +64,11 @@ class SlurmSubmitter:
         workunit_id = workunit_wrapper_data.workunit_definition.registration.workunit_id
         script_path = self._default_config.config.local_script_dir / f"workunitid-{workunit_id}_run.bash"
 
+        # Determine the working directory.
+        # TODO
+        working_directory = submitter_params.get_scratch_dir()
+        _ = working_directory
+
         # Generate the script
         main_command = self._get_main_command(workunit_wrapper_data=workunit_wrapper_data)
         # TODO config should be merged in a standard way
