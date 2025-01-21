@@ -20,7 +20,7 @@ class VariablesApp(BaseModel):
 
     @field_validator("name", mode="before")
     def validate_safe_name(cls, value: str) -> str:
-        characters = re.compile(r"^[a-zA-Z0-9_-]+$")
+        characters = re.compile(r"[^a-zA-Z0-9_-]+")
         return characters.sub("_", value)
 
 
