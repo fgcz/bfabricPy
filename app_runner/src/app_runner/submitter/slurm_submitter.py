@@ -22,6 +22,8 @@ tee workunit_definition.yml <<YAML
 YAML
 
 set -euxo pipefail
+mkdir -p "{working_directory}"
+cd "{working_directory}"
 app_runner="uv run --with app_runner@git+https://github.com/fgcz/bfabricPy.git@{app_runner_version}#egg=app_runner&subdirectory=app_runner bfabric-app-runner"
 $app_runner app run --app-spec app_version.yml --workunit-ref workunit_definition.yml --work-dir "$(pwd)"
 """  # noqa: E501
@@ -38,21 +40,15 @@ class SlurmSubmitter:
         script_header = self._compose_script_header(slurm_config.sbatch_params)
         return f"{script_header}\n\n{main_command}"
 
-    def _interpolate_main(self, app_version_yml: str, workunit_definition_yml: str, app_runner_version: str) -> str:
+    def _get_main_command(self, workunit_wrapper_data: WorkunitWrapperData, working_directory: str) -> str:
+        app_version_yml = yaml.safe_dump(workunit_wrapper_data.app_version.model_dump(mode="json"))
+        workunit_definition_yml = yaml.safe_dump(workunit_wrapper_data.workunit_definition.model_dump(mode="json"))
+        app_runner_version = workunit_wrapper_data.app_runner_version
         return _MAIN_BASH_TEMPLATE.format(
             app_version_yml=app_version_yml,
             workunit_definition_yml=workunit_definition_yml,
             app_runner_version=app_runner_version,
-        )
-
-    def _get_main_command(self, workunit_wrapper_data: WorkunitWrapperData) -> str:
-        app_version_yml = yaml.safe_dump(workunit_wrapper_data.app_version.model_dump(mode="json"))
-        workunit_definition_yml = yaml.safe_dump(workunit_wrapper_data.workunit_definition.model_dump(mode="json"))
-        app_runner_version = workunit_wrapper_data.app_runner_version
-        return self._interpolate_main(
-            app_version_yml=app_version_yml,
-            workunit_definition_yml=workunit_definition_yml,
-            app_runner_version=app_runner_version,
+            working_directory=working_directory,
         )
 
     # TODO -> how to implement this cleanly
@@ -65,12 +61,12 @@ class SlurmSubmitter:
         script_path = self._default_config.config.local_script_dir / f"workunitid-{workunit_id}_run.bash"
 
         # Determine the working directory.
-        # TODO
         working_directory = slurm_config.get_scratch_dir()
-        _ = working_directory
 
         # Generate the script
-        main_command = self._get_main_command(workunit_wrapper_data=workunit_wrapper_data)
+        main_command = self._get_main_command(
+            workunit_wrapper_data=workunit_wrapper_data, working_directory=working_directory
+        )
         # TODO config should be merged in a standard way
         script = self._compose_script(main_command=main_command, slurm_config=slurm_config)
         script_path.write_text(script)
@@ -80,7 +76,6 @@ class SlurmSubmitter:
         sbatch_bin = self._default_config.config.slurm_root / "bin" / "sbatch"
         env = os.environ | {"SLURMROOT": self._default_config.config.slurm_root}
         logger.info("Script written to {}", script_path)
-        # TODO correct working directory logic
         # TODO remove after debug
         1 / 0
         subprocess.run([str(sbatch_bin), str(script_path)], env=env, check=True)

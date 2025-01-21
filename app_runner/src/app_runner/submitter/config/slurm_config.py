@@ -22,7 +22,6 @@ class SlurmConfig(_SlurmConfigBase):
         merged = {**self.submitter_config.params, **self.app_version, **self.workunit_config.as_dict()}
         return {key: value for key, value in merged.items() if value is not None}
 
-    # @property
-    # def get_scratch_dir(self) -> str:
-    #    # TODO ensure it's a str
-    #    return self._submitter_config.config.worker_scratch_dir
+    def get_scratch_dir(self) -> str:
+        # TODO ensure it's a str
+        return self._submitter_config.config.worker_scratch_dir
