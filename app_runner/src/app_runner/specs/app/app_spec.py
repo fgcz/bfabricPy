@@ -15,7 +15,6 @@ if TYPE_CHECKING:
 class BfabricAppSpec(BaseModel):
     """Contains the app specification information that is relevant to bfabric..."""
 
-    # TODO unclear if it should be kept
     app_runner: str
 
 
