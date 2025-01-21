@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, re
 
 from loguru import logger
 from mako.template import Template
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 
 class VariablesApp(BaseModel):
@@ -16,6 +16,11 @@ class VariablesApp(BaseModel):
     id: int
     name: str
     version: str
+
+    @field_validator("name")
+    def validate_safe_name(cls, value: str) -> str:
+        characters = re.compile(r"^[a-zA-Z0-9_-]+$")
+        return characters.sub("_", value)
 
 
 class VariablesWorkunit(BaseModel):
