@@ -8,6 +8,10 @@ from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 from app_runner.specs.config_interpolation import Variables, interpolate_config_strings
 
 
+# TODO these are not yet paths, they need to be substituted before they become paths!
+#      ->  however not changing right now yet, since we also have to adjust the code below
+
+
 class SubmitterSlurmConfigSpec(BaseModel):
     slurm_root: Path = Field(alias="slurm-root")
     local_script_dir: Path = Field(alias="local-script-dir")
