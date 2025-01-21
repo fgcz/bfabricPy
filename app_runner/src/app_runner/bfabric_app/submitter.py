@@ -26,10 +26,7 @@ class Submitter:
         self._submitters_spec = submitters_spec
 
     def get_workunit_wrapper_data(self) -> WorkunitWrapperData:
-        # find the executable
-        # TODO why not available
-        # executables = Executable.find_by({"workunitid": self._workunit.id,
-        #     "context": "WORKUNIT"}, client=self._client)
+        # Find the executable
         executables = Executable.find_by({"workunitid": self._workunit.id}, client=self._client)
         executables = {key: value for key, value in executables.items() if value["context"] == "WORKUNIT"}
         if len(executables) != 1:
@@ -37,7 +34,7 @@ class Submitter:
             raise ValueError(msg)
         executable = list(executables.values())[0]
 
-        # read the wrapper data
+        # Read the wrapper data
         yaml_data = base64.b64decode(executable["base64"].encode()).decode()
         return WorkunitWrapperData.model_validate(yaml.safe_load(yaml_data))
 
