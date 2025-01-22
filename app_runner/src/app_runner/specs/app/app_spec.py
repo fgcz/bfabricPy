@@ -24,9 +24,11 @@ class AppSpecTemplate(BaseModel):
 
     def evaluate(self, app_id: int, app_name: str) -> AppSpec:
         """Evaluates the template to a concrete ``AppSpec`` instance."""
-        versions_templates = [expanded for version in self.versions for expanded in version.expand_versions()]
-        variables_app = VariablesApp(id=app_id, name=app_name, version=None)
-        versions = [template.evaluate(variables_app=variables_app) for template in versions_templates]
+        version_templates = [expanded for version in self.versions for expanded in version.expand_versions()]
+        versions = []
+        for version_template in version_templates:
+            variables_app = VariablesApp(id=app_id, name=app_name, version=version_template.version)
+            versions.append(version_template.evaluate(variables_app=variables_app))
         # TODO add interpolation for bfabric config
         return AppSpec.model_validate({"versions": versions, "bfabric": self.bfabric})
 
