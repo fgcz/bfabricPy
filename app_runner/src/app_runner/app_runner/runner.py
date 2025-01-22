@@ -31,7 +31,11 @@ class Runner:
 
     def run_prepare_input(self, chunk_dir: Path) -> None:
         prepare_folder(
-            inputs_yaml=chunk_dir / "inputs.yml", target_folder=chunk_dir, client=self._client, ssh_user=self._ssh_user
+            inputs_yaml=chunk_dir / "inputs.yml",
+            target_folder=chunk_dir,
+            client=self._client,
+            ssh_user=self._ssh_user,
+            filter=None,
         )
 
     def run_collect(self, workunit_ref: int | Path, chunk_dir: Path) -> None:

@@ -24,12 +24,14 @@ def prepare(
     target_folder: Path | None = None,
     *,
     ssh_user: str | None = None,
+    filter: str | None = None,
 ) -> None:
-    """Prepare the input files by downloading them (if necessary).
+    """Prepare the input files by downloading and generating them (if necessary).
 
     :param inputs_yaml: Path to the inputs.yml file.
     :param target_folder: Path to the target folder where the input files should be downloaded.
     :param ssh_user: SSH user to use for downloading the input files, instead of the current user.
+    :param filter: only this input file will be prepared.
     """
     setup_script_logging()
     client = Bfabric.from_config()
@@ -39,6 +41,7 @@ def prepare(
         ssh_user=ssh_user,
         client=client,
         action="prepare",
+        filter=filter,
     )
 
 
@@ -46,11 +49,14 @@ def prepare(
 def clean(
     inputs_yaml: Path,
     target_folder: Path | None = None,
+    *,
+    filter: str | None = None,
 ) -> None:
     """Removes all local copies of input files.
 
     :param inputs_yaml: Path to the inputs.yml file.
     :param target_folder: Path to the target folder where the input files should be removed.
+    :param filter: only this input file will be removed.
     """
     setup_script_logging()
     client = Bfabric.from_config()
@@ -59,8 +65,9 @@ def clean(
         inputs_yaml=inputs_yaml,
         target_folder=target_folder,
         ssh_user=None,
-        action="clean",
         client=client,
+        action="clean",
+        filter=filter,
     )
 
 
@@ -72,7 +79,7 @@ def get_inputs_and_print(
     """Reads the input files, performing integrity checks if requested, and prints the results."""
     client = Bfabric.from_config()
     input_states = list_input_states(
-        specs=InputsSpec.read_yaml(inputs_yaml),
+        specs=InputsSpec.read_yaml_old(inputs_yaml),
         target_folder=target_folder or Path(),
         client=client,
         check_files=check,

@@ -1,22 +1,23 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, assert_never
 
 from loguru import logger
 
 from app_runner.input_preparation.collect_annotation import prepare_annotation
 from app_runner.input_preparation.integrity import IntegrityState
 from app_runner.input_preparation.list_inputs import list_input_states
+from app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
+from app_runner.specs.inputs.bfabric_order_fasta_spec import BfabricOrderFastaSpec
+from app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
+from app_runner.specs.inputs.file_scp_spec import FileScpSpec
 from app_runner.specs.inputs_spec import (
     InputSpecType,
     InputsSpec,
 )
-from app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
-from app_runner.specs.inputs.file_scp_spec import FileScpSpec
-from app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
 from app_runner.util.checksums import md5sum
 from app_runner.util.scp import scp
-from bfabric.entities import Resource, Dataset
+from bfabric.entities import Resource, Dataset, Workunit, Order
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -45,6 +46,8 @@ class PrepareInputs:
                 self.prepare_dataset(spec)
             elif spec.type == "bfabric_annotation":
                 prepare_annotation(spec, client=self._client, working_dir=self._working_dir)
+            elif isinstance(spec, BfabricOrderFastaSpec):
+                self.prepare_order_fasta(spec)
             else:
                 raise ValueError(f"Unsupported spec type: {type(spec)}")
 
@@ -93,9 +96,31 @@ class PrepareInputs:
     def prepare_dataset(self, spec: BfabricDatasetSpec) -> None:
         dataset = Dataset.find(id=spec.id, client=self._client)
         # TODO use the new functionality Dataset.get_csv (or even go further in the refactoring)
+
         target_path = self._working_dir / spec.filename
         target_path.parent.mkdir(exist_ok=True, parents=True)
         dataset.write_csv(path=target_path, separator=spec.separator)
+
+    def prepare_order_fasta(self, spec: BfabricOrderFastaSpec) -> None:
+        # Find the order.
+        match spec.entity:
+            case "workunit":
+                workunit = Workunit.find(id=spec.id, client=self._client)
+                if not isinstance(workunit.container, Order):
+                    raise ValueError(f"Workunit {workunit.id} is not associated with an order")
+                order = workunit.container
+            case "order":
+                order = Order.find(id=spec.id, client=self._client)
+            case _:
+                assert_never(spec.entity)
+
+        # Write the result into the file
+        result_name = self._working_dir / spec.filename
+        result_name.parent.mkdir(exist_ok=True, parents=True)
+        fasta_content = order.data_dict.get("fastasequence", "")
+        if fasta_content and fasta_content[-1] != "\n":
+            fasta_content += "\n"
+        result_name.write_text(fasta_content)
 
 
 def prepare_folder(
@@ -103,6 +128,7 @@ def prepare_folder(
     target_folder: Path | None,
     client: Bfabric,
     ssh_user: str | None,
+    filter: str | None,
     action: Literal["prepare", "clean"] = "prepare",
 ) -> None:
     """Prepares the input files of a chunk folder according to the provided specs.
@@ -111,6 +137,7 @@ def prepare_folder(
     :param target_folder: Path to the target folder where the input files should be downloaded.
     :param client: Bfabric client to use for obtaining metadata about the input files.
     :param ssh_user: SSH user to use for downloading the input files, should it be different from the current user.
+    :param filter: only this input file will be prepared.
     :param action: Action to perform.
     """
     # set defaults
@@ -119,13 +146,18 @@ def prepare_folder(
         target_folder = inputs_yaml.parent
 
     # parse the specs
-    specs_list = InputsSpec.read_yaml(inputs_yaml)
+    inputs_spec = InputsSpec.read_yaml(inputs_yaml)
+
+    if filter:
+        inputs_spec = inputs_spec.apply_filter(filter, client=client)
+        if not inputs_spec.inputs:
+            raise ValueError(f"Filter {filter} did not match any input files")
 
     # prepare the folder
     prepare = PrepareInputs(client=client, working_dir=target_folder, ssh_user=ssh_user)
     if action == "prepare":
-        prepare.prepare_all(specs=specs_list)
+        prepare.prepare_all(specs=inputs_spec.inputs)
     elif action == "clean":
-        prepare.clean_all(specs=specs_list)
+        prepare.clean_all(specs=inputs_spec.inputs)
     else:
         raise ValueError(f"Unknown action: {action}")

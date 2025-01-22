@@ -10,9 +10,14 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.16\] - 2025-01-22
+
 ### Added
 
+- Add missing `Entity.__contains__` implementation to check if a key is present in an entity.
 - `polars_utils.py` which contains functionality to normalize relational fields in tables
+- Add `bfabric-cli executable inspect` command to inspect executables registered in B-Fabric.
+- Add `bfabric-cli executable upload` command to upload executables to B-Fabric.
 
 ### Fixed
 

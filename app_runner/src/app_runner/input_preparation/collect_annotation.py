@@ -1,8 +1,9 @@
 from pathlib import Path
+
+import polars as pl
 from bfabric import Bfabric
 from bfabric.entities import Resource
 from bfabric.utils.polars_utils import flatten_relations
-import polars as pl
 
 from app_runner.specs.inputs.bfabric_annotation_spec import BfabricAnnotationResourceSampleSpec, BfabricAnnotationSpec
 
