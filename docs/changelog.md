@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Added
+
+- `bfabric-cli workunit export-definition` to export `workunit_definition.yml` files
+
 ### Fixed
 
 - `Workunit.parameters` and `Workunit.resources` are optional
