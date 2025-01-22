@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Fixed
+
+- `Workunit.parameters` and `Workunit.resources` are optional
+
 ## \[1.13.16\] - 2025-01-22
 
 ### Added
