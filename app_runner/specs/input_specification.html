@@ -308,7 +308,9 @@
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#module-app_runner.specs.inputs_spec">Reference</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.InputsSpec"><code class="docutils literal notranslate"><span class="pre">InputsSpec</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.InputsSpec.inputs"><code class="docutils literal notranslate"><span class="pre">InputsSpec.inputs</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.InputsSpec.apply_filter"><code class="docutils literal notranslate"><span class="pre">InputsSpec.apply_filter()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.InputsSpec.read_yaml"><code class="docutils literal notranslate"><span class="pre">InputsSpec.read_yaml()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.InputsSpec.read_yaml_old"><code class="docutils literal notranslate"><span class="pre">InputsSpec.read_yaml_old()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.InputsSpec.write_yaml"><code class="docutils literal notranslate"><span class="pre">InputsSpec.write_yaml()</span></code></a></li>
 </ul>
 </li>
@@ -427,6 +429,7 @@ In general to download to the current directory simply use <code class="docutils
 <span class="w">                     </span><span class="p">]</span>
 <span class="w">                  </span><span class="p">},</span>
 <span class="w">                  </span><span class="nt">&quot;bfabric_dataset&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/BfabricDatasetSpec&quot;</span><span class="p">,</span>
+<span class="w">                  </span><span class="nt">&quot;bfabric_order_fasta&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/BfabricOrderFastaSpec&quot;</span><span class="p">,</span>
 <span class="w">                  </span><span class="nt">&quot;bfabric_resource&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/BfabricResourceSpec&quot;</span><span class="p">,</span>
 <span class="w">                  </span><span class="nt">&quot;file_scp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/FileScpSpec&quot;</span>
 <span class="w">               </span><span class="p">},</span>
@@ -441,6 +444,9 @@ In general to download to the current directory simply use <code class="docutils
 <span class="w">               </span><span class="p">},</span>
 <span class="w">               </span><span class="p">{</span>
 <span class="w">                  </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/BfabricDatasetSpec&quot;</span>
+<span class="w">               </span><span class="p">},</span>
+<span class="w">               </span><span class="p">{</span>
+<span class="w">                  </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/BfabricOrderFastaSpec&quot;</span>
 <span class="w">               </span><span class="p">},</span>
 <span class="w">               </span><span class="p">{</span>
 <span class="w">                  </span><span class="nt">&quot;discriminator&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -536,6 +542,41 @@ In general to download to the current directory simply use <code class="docutils
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;BfabricDatasetSpec&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span>
 <span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;BfabricOrderFastaSpec&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;const&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bfabric_order_fasta&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bfabric_order_fasta&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Type&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Id&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;integer&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;entity&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;enum&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                  </span><span class="s2">&quot;workunit&quot;</span><span class="p">,</span>
+<span class="w">                  </span><span class="s2">&quot;order&quot;</span>
+<span class="w">               </span><span class="p">],</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Entity&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;filename&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;pattern&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^[^/][^:]*$&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Filename&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">         </span><span class="p">},</span>
+<span class="w">         </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="s2">&quot;id&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;entity&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;filename&quot;</span>
+<span class="w">         </span><span class="p">],</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;BfabricOrderFastaSpec&quot;</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span>
+<span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nt">&quot;BfabricResourceSpec&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">         </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -628,7 +669,7 @@ In general to download to the current directory simply use <code class="docutils
 </dd>
 <dt class="field-even">Fields<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference internal" href="#app_runner.specs.inputs_spec.InputsSpec.inputs" title="app_runner.specs.inputs_spec.InputsSpec.inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inputs</span> <span class="pre">(list[app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec</span> <span class="pre">|</span> <span class="pre">app_runner.specs.inputs.file_scp_spec.FileScpSpec</span> <span class="pre">|</span> <span class="pre">app_runner.specs.inputs.bfabric_dataset_spec.BfabricDatasetSpec</span> <span class="pre">|</span> <span class="pre">app_runner.specs.inputs.bfabric_annotation_spec.BfabricAnnotationResourceSampleSpec])</span></code></a></p></li>
+<li><p><a class="reference internal" href="#app_runner.specs.inputs_spec.InputsSpec.inputs" title="app_runner.specs.inputs_spec.InputsSpec.inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inputs</span> <span class="pre">(list[app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec</span> <span class="pre">|</span> <span class="pre">app_runner.specs.inputs.file_scp_spec.FileScpSpec</span> <span class="pre">|</span> <span class="pre">app_runner.specs.inputs.bfabric_dataset_spec.BfabricDatasetSpec</span> <span class="pre">|</span> <span class="pre">app_runner.specs.inputs.bfabric_order_fasta_spec.BfabricOrderFastaSpec</span> <span class="pre">|</span> <span class="pre">app_runner.specs.inputs.bfabric_annotation_spec.BfabricAnnotationResourceSampleSpec])</span></code></a></p></li>
 </ul>
 </dd>
 </dl>
@@ -638,8 +679,18 @@ In general to download to the current directory simply use <code class="docutils
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="app_runner.specs.inputs_spec.InputsSpec.apply_filter">
+<span class="sig-name descname"><span class="pre">apply_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bfabric</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#app_runner.specs.inputs_spec.InputsSpec" title="app_runner.specs.inputs_spec.InputsSpec"><span class="pre">InputsSpec</span></a></span></span><a class="headerlink" href="#app_runner.specs.inputs_spec.InputsSpec.apply_filter" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="app_runner.specs.inputs_spec.InputsSpec.read_yaml">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">InputSpecType</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#app_runner.specs.inputs_spec.InputsSpec.read_yaml" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#app_runner.specs.inputs_spec.InputsSpec" title="app_runner.specs.inputs_spec.InputsSpec"><span class="pre">InputsSpec</span></a></span></span><a class="headerlink" href="#app_runner.specs.inputs_spec.InputsSpec.read_yaml" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app_runner.specs.inputs_spec.InputsSpec.read_yaml_old">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_yaml_old</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">InputSpecType</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#app_runner.specs.inputs_spec.InputsSpec.read_yaml_old" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -710,7 +761,9 @@ In general to download to the current directory simply use <code class="docutils
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#module-app_runner.specs.inputs_spec">Reference</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.InputsSpec"><code class="docutils literal notranslate"><span class="pre">InputsSpec</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.InputsSpec.inputs"><code class="docutils literal notranslate"><span class="pre">InputsSpec.inputs</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.InputsSpec.apply_filter"><code class="docutils literal notranslate"><span class="pre">InputsSpec.apply_filter()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.InputsSpec.read_yaml"><code class="docutils literal notranslate"><span class="pre">InputsSpec.read_yaml()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.InputsSpec.read_yaml_old"><code class="docutils literal notranslate"><span class="pre">InputsSpec.read_yaml_old()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app_runner.specs.inputs_spec.InputsSpec.write_yaml"><code class="docutils literal notranslate"><span class="pre">InputsSpec.write_yaml()</span></code></a></li>
 </ul>
 </li>

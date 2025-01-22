@@ -4,6 +4,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.0.12\] - 2025-01-22
+
+## Added
+
+- New input type `bfabric_order_fasta` which will place an order fasta file to the specified path, or create an empty
+    file if there is no order fasta available.
+- `--filter` flag has been added to `inputs prepare` and `inputs clean` commands.
+- The `app-runner app` commands now support passing a `AppVersion` yaml file instead of just a `AppSpec` yaml file.
+
 ## \[0.0.11\] - 2025-01-16
 
 ### Added
