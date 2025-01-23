@@ -20,12 +20,12 @@ if TYPE_CHECKING:
 
 class Runner:
     def __init__(self, spec: AppVersion, client: Bfabric, ssh_user: str | None = None) -> None:
-        self._app_spec = spec
+        self._app_version = spec
         self._client = client
         self._ssh_user = ssh_user
 
     def run_dispatch(self, workunit_ref: int | Path, work_dir: Path) -> None:
-        command = [*self._app_spec.commands.dispatch.to_shell(), str(workunit_ref), str(work_dir)]
+        command = [*self._app_version.commands.dispatch.to_shell(), str(workunit_ref), str(work_dir)]
         logger.info(f"Running dispatch command: {shlex.join(command)}")
         subprocess.run(command, check=True)
 
@@ -39,12 +39,12 @@ class Runner:
         )
 
     def run_collect(self, workunit_ref: int | Path, chunk_dir: Path) -> None:
-        command = [*self._app_spec.commands.collect.to_shell(), str(workunit_ref), str(chunk_dir)]
+        command = [*self._app_version.commands.collect.to_shell(), str(workunit_ref), str(chunk_dir)]
         logger.info(f"Running collect command: {shlex.join(command)}")
         subprocess.run(command, check=True)
 
     def run_process(self, chunk_dir: Path) -> None:
-        command = [*self._app_spec.commands.process.to_shell(), str(chunk_dir)]
+        command = [*self._app_version.commands.process.to_shell(), str(chunk_dir)]
         logger.info(f"Running process command: {shlex.join(command)}")
         subprocess.run(command, check=True)
 

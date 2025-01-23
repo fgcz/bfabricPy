@@ -17,7 +17,7 @@ jobs:
       - name: Install nox
         run: pip install nox uv
       - name: Run unit tests
-        run: nox -s tests
+        run: nox
   code_style:
     name: Code Style
     runs-on: ubuntu-latest

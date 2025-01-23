@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "bfabric"
 description = "Python client for the B-Fabric WSDL API"
-version = "1.13.16"
+version = "1.13.17"
 license = { text = "GPL-3.0" }
 authors = [
     { name = "Christian Panse", email = "cp@fgcz.ethz.ch" },
@@ -84,7 +84,7 @@ Repository = "https://github.com/fgcz/bfabricPy"
 "*" = ["py.typed"]
 
 [tool.uv]
-reinstall-package = ["bfabric", "bfabric_scripts"]
+reinstall-package = ["bfabric", "bfabric_scripts", "app_runner"]
 
 [tool.black]
 line-length = 120

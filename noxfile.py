@@ -11,7 +11,7 @@ nox.options.default_venv_backend = "uv"
 def tests(session):
     session.install(".[test]")
     session.run("uv", "pip", "list")
-    session.run("pytest", "tests/bfabric", "tests/bfabric_scripts")
+    session.run("pytest", "tests/bfabric", "tests/bfabric_scripts", "tests/bfabric_cli")
 
 
 @nox.session(python=["3.13"])
@@ -19,6 +19,7 @@ def test_app_runner(session):
     # TODO this one has a problem that bfabric gets installed from `@main` (so it could break CI)
     session.install(".")
     session.install("./app_runner[test]")
+    session.install("--upgrade", ".")
     session.run("uv", "pip", "list")
     session.run("pytest", "tests/app_runner")
 

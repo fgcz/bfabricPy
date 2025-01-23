@@ -37,6 +37,7 @@ def serialized() -> str:
     engine: docker
     entrypoint: null
     env: {}
+    hostname: null
     image: image
     mac_address: null
     mounts:

@@ -10,6 +10,18 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.17\] - 2025-01-23
+
+### Added
+
+- `bfabric-cli workunit export-definition` to export `workunit_definition.yml` files
+- `Executable.storage` relationship
+
+### Fixed
+
+- `Workunit.parameters` and `Workunit.resources` are optional
+- `bfabric-cli` had unmet dependencies, that were not caught by the tests either
+
 ## \[1.13.16\] - 2025-01-22
 
 ### Added
