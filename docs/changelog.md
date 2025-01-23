@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.17\] - 2025-01-23
+
 ### Added
 
 - `bfabric-cli workunit export-definition` to export `workunit_definition.yml` files
