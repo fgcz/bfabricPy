@@ -13,6 +13,7 @@ Versioning currently follows `X.Y.Z` where
 ### Added
 
 - `bfabric-cli workunit export-definition` to export `workunit_definition.yml` files
+- `Executable.storage` relationship
 
 ### Fixed
 
