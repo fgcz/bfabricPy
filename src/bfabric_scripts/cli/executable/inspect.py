@@ -1,5 +1,3 @@
-import rich
-from glom import glom
 from rich.console import Console
 from rich.panel import Panel
 from rich.pretty import pprint
@@ -21,7 +19,7 @@ def inspect_executable(executable_id: int, *, client: Bfabric) -> None:
     console = Console()
     executable = Executable.find(executable_id, client=client)
     metadata = {key: executable.get(key) for key in ("id", "name", "description", "relativepath", "context", "program")}
-    metadata["storage"] = get_storage_info(glom(executable, "storage.id", default=None), client)
+    metadata["storage"] = get_storage_info(executable.storage.id if executable.storage else None, client)
 
     console.print(Panel("Executable Metadata"))
     pprint(metadata)
