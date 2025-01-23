@@ -25,7 +25,7 @@ class MockAppVersion(BaseModel):
 
 
 @pytest.fixture
-def mock_app_spec():
+def mock_app_version():
     """Fixture providing a mock app specification"""
     return MockAppVersion()
 
@@ -68,18 +68,20 @@ def setup_work_dir(tmp_path):
     return work_dir
 
 
-def test_runner_initialization(mock_app_spec, mock_bfabric):
+def test_runner_initialization(mock_app_version, mock_bfabric):
     """Test Runner initialization"""
-    runner = Runner(spec=mock_app_spec, client=mock_bfabric, ssh_user="test_user")
-    assert runner._app_spec == mock_app_spec
+    runner = Runner(spec=mock_app_version, client=mock_bfabric, ssh_user="test_user")
+    print(runner)
+    print(runner.__dict__)
+    assert runner._app_version == mock_app_version
     assert runner._client == mock_bfabric
     assert runner._ssh_user == "test_user"
 
 
-def test_runner_run_dispatch(mocker, mock_app_spec, mock_bfabric, tmp_path):
+def test_runner_run_dispatch(mocker, mock_app_version, mock_bfabric, tmp_path):
     """Test Runner.run_dispatch method"""
     mock_run = mocker.patch("subprocess.run")
-    runner = Runner(spec=mock_app_spec, client=mock_bfabric)
+    runner = Runner(spec=mock_app_version, client=mock_bfabric)
     workunit_ref = 123
     work_dir = tmp_path / "work"
 
@@ -88,10 +90,10 @@ def test_runner_run_dispatch(mocker, mock_app_spec, mock_bfabric, tmp_path):
     mock_run.assert_called_once_with(["mock-command", str(workunit_ref), str(work_dir)], check=True)
 
 
-def test_runner_run_prepare_input(mocker, mock_app_spec, mock_bfabric, tmp_path):
+def test_runner_run_prepare_input(mocker, mock_app_version, mock_bfabric, tmp_path):
     """Test Runner.run_prepare_input method"""
-    mock_prepare = mocker.patch("app_runner.input_preparation.prepare_folder")
-    runner = Runner(spec=mock_app_spec, client=mock_bfabric, ssh_user="test_user")
+    mock_prepare = mocker.patch("app_runner.app_runner.runner.prepare_folder")
+    runner = Runner(spec=mock_app_version, client=mock_bfabric, ssh_user="test_user")
     chunk_dir = tmp_path / "chunk"
     chunk_dir.mkdir()
     (chunk_dir / "inputs.yml").touch()
@@ -99,14 +101,18 @@ def test_runner_run_prepare_input(mocker, mock_app_spec, mock_bfabric, tmp_path)
     runner.run_prepare_input(chunk_dir)
 
     mock_prepare.assert_called_once_with(
-        inputs_yaml=chunk_dir / "inputs.yml", target_folder=chunk_dir, client=mock_bfabric, ssh_user="test_user"
+        inputs_yaml=chunk_dir / "inputs.yml",
+        target_folder=chunk_dir,
+        client=mock_bfabric,
+        ssh_user="test_user",
+        filter=None,
     )
 
 
-def test_runner_run_process(mocker, mock_app_spec, mock_bfabric, tmp_path):
+def test_runner_run_process(mocker, mock_app_version, mock_bfabric, tmp_path):
     """Test Runner.run_process method"""
     mock_run = mocker.patch("subprocess.run")
-    runner = Runner(spec=mock_app_spec, client=mock_bfabric)
+    runner = Runner(spec=mock_app_version, client=mock_bfabric)
     chunk_dir = tmp_path / "chunk"
 
     runner.run_process(chunk_dir)
@@ -114,19 +120,19 @@ def test_runner_run_process(mocker, mock_app_spec, mock_bfabric, tmp_path):
     mock_run.assert_called_once_with(["mock-command", str(chunk_dir)], check=True)
 
 
-def test_run_app_full_workflow(mocker, mock_app_spec, mock_bfabric, mock_workunit_definition, setup_work_dir):
+def test_run_app_full_workflow(mocker, mock_app_version, mock_bfabric, mock_workunit_definition, setup_work_dir):
     """Test complete run_app workflow"""
     # Setup mocks
     mocker.patch(
         "bfabric.experimental.workunit_definition.WorkunitDefinition.from_ref", return_value=mock_workunit_definition
     )
     mock_run = mocker.patch("subprocess.run")
-    mock_prepare = mocker.patch("app_runner.input_preparation.prepare_folder")
-    mock_register = mocker.patch("app_runner.output_registration.register_outputs")
+    mock_prepare = mocker.patch("app_runner.app_runner.runner.prepare_folder")
+    mock_register = mocker.patch("app_runner.app_runner.runner.register_outputs")
 
     # Run the app
     run_app(
-        app_spec=mock_app_spec, workunit_ref=123, work_dir=setup_work_dir, client=mock_bfabric, ssh_user="test_user"
+        app_spec=mock_app_version, workunit_ref=123, work_dir=setup_work_dir, client=mock_bfabric, ssh_user="test_user"
     )
 
     # Verify workflow steps
@@ -138,24 +144,28 @@ def test_run_app_full_workflow(mocker, mock_app_spec, mock_bfabric, mock_workuni
 
 @pytest.mark.parametrize("read_only", [True, False])
 def test_run_app_read_only_mode(
-    mocker, read_only, mock_app_spec, mock_bfabric, mock_workunit_definition, setup_work_dir
+    mocker, read_only, mock_app_version, mock_bfabric, mock_workunit_definition, setup_work_dir
 ):
     """Test run_app behavior in read-only mode"""
     mocker.patch(
         "bfabric.experimental.workunit_definition.WorkunitDefinition.from_ref", return_value=mock_workunit_definition
     )
     mocker.patch("subprocess.run")
-    mocker.patch("app_runner.input_preparation.prepare_folder")
-    mocker.patch("app_runner.output_registration.register_outputs")
+    mocker.patch("app_runner.app_runner.runner.prepare_folder")
+    mocker.patch("app_runner.app_runner.runner.register_outputs")
 
-    run_app(app_spec=mock_app_spec, workunit_ref=123, work_dir=setup_work_dir, client=mock_bfabric, read_only=read_only)
+    run_app(
+        app_spec=mock_app_version, workunit_ref=123, work_dir=setup_work_dir, client=mock_bfabric, read_only=read_only
+    )
 
     # Verify status updates based on read_only mode
     expected_calls = 0 if read_only else 2
     assert mock_bfabric.save.call_count == expected_calls
 
 
-def test_run_app_with_path_workunit_ref(mocker, mock_app_spec, mock_bfabric, mock_workunit_definition, setup_work_dir):
+def test_run_app_with_path_workunit_ref(
+    mocker, mock_app_version, mock_bfabric, mock_workunit_definition, setup_work_dir
+):
     """Test run_app with Path workunit_ref instead of int"""
     workunit_path = setup_work_dir / "workunit.yml"
     workunit_path.touch()
@@ -164,10 +174,10 @@ def test_run_app_with_path_workunit_ref(mocker, mock_app_spec, mock_bfabric, moc
         "bfabric.experimental.workunit_definition.WorkunitDefinition.from_ref", return_value=mock_workunit_definition
     )
     mocker.patch("subprocess.run")
-    mocker.patch("app_runner.input_preparation.prepare_folder")
-    mocker.patch("app_runner.output_registration.register_outputs")
+    mocker.patch("app_runner.app_runner.runner.prepare_folder")
+    mocker.patch("app_runner.app_runner.runner.register_outputs")
 
-    run_app(app_spec=mock_app_spec, workunit_ref=workunit_path, work_dir=setup_work_dir, client=mock_bfabric)
+    run_app(app_spec=mock_app_version, workunit_ref=workunit_path, work_dir=setup_work_dir, client=mock_bfabric)
 
     # Verify workunit_ref was resolved
     mock_from_ref.assert_called_once()
