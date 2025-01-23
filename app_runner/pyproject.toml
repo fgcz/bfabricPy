@@ -39,7 +39,7 @@ dev = [
 test = ["pytest", "pytest-mock", "logot"]
 
 [tool.uv]
-reinstall-package = ["app_runner"]
+reinstall-package = ["bfabric", "bfabric_scripts", "app_runner"]
 
 [tool.black]
 line-length = 120

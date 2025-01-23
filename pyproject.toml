@@ -84,7 +84,7 @@ Repository = "https://github.com/fgcz/bfabricPy"
 "*" = ["py.typed"]
 
 [tool.uv]
-reinstall-package = ["bfabric", "bfabric_scripts"]
+reinstall-package = ["bfabric", "bfabric_scripts", "app_runner"]
 
 [tool.black]
 line-length = 120
