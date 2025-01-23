@@ -1,9 +1,11 @@
 import shlex
 import subprocess
+import sys
 
 import pytest
 
 
+@pytest.mark.skipif(sys.version_info < (3, 10), reason="requires python3.10 or higher")
 @pytest.mark.parametrize(
     "command",
     [
