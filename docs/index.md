@@ -18,7 +18,7 @@ The package is not available on PyPI as of now, but can be installed directly fr
 If you are only interested in running the command line scripts, installation with `uv tool` is recommended as it will create a separate virtual environment for bfabricPy and make it possible to upgrade your installation later easily.
 
 ```bash
-uv tool install "git+https://github.com/fgcz/bfabricPy.git@stable"
+uv tool install -p 3.13 "git+https://github.com/fgcz/bfabricPy.git@stable"
 ```
 
 If you want to add it to a `pyproject.toml` the syntax for specifying a git dependency is as follows:
