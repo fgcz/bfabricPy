@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Changed
+
+- `bfabric_upload_resource.py` does not print a list anymore, but rather only the dict of the uploaded resource.
+
 ## \[1.13.17\] - 2025-01-23
 
 ### Added
