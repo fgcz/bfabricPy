@@ -14,6 +14,10 @@ Versioning currently follows `X.Y.Z` where
 
 - `bfabric_upload_resource.py` does not print a list anymore, but rather only the dict of the uploaded resource.
 
+### Fixed
+
+- Some scripts were not Python 3.9 compatible, which is restored now. However, we can consider increasing the Python requirement soon.
+
 ## \[1.13.17\] - 2025-01-23
 
 ### Added
