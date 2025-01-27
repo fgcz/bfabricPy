@@ -1,5 +1,5 @@
-import pytest
 import polars as pl
+import pytest
 
 from bfabric_scripts.bfabric_save_csv2dataset import check_for_invalid_characters
 
@@ -54,6 +54,18 @@ def test_check_for_invalid_characters_non_string_columns():
 
     # Should not raise an exception
     check_for_invalid_characters(data, invalid_characters)
+
+
+def test_check_for_invalid_characters_when_good():
+    example = pl.DataFrame({"col": ["good", "good", "good"], "numeric": [1, 2, 3]})
+    check_for_invalid_characters(example, invalid_characters="+*")
+
+
+def test_check_for_invalid_characters_when_bad():
+    example = pl.DataFrame({"col": ["good", "bad*", "good"], "numeric": [1, 2, 3]})
+    with pytest.raises(RuntimeError) as error:
+        check_for_invalid_characters(example, invalid_characters="+*")
+    assert "Invalid characters" in str(error.value)
 
 
 if __name__ == "__main__":
