@@ -30,5 +30,5 @@ import pytest
         "validate outputs-spec --help",
     ],
 )
-def test_command_runs(command):
+def test_help(command):
     subprocess.run(["bfabric-app-runner"] + shlex.split(command), check=True)

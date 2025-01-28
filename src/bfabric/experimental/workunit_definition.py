@@ -46,6 +46,7 @@ class WorkunitRegistrationDefinition(BaseModel):
     application_id: int
     application_name: str
     workunit_id: int
+    workunit_name: str
     container_id: int
     storage_id: int
     storage_output_folder: Path
@@ -58,6 +59,7 @@ class WorkunitRegistrationDefinition(BaseModel):
             "application_id": workunit.application.id,
             "application_name": workunit.application["name"],
             "workunit_id": workunit.id,
+            "workunit_name": workunit["name"],
             "container_id": workunit.container.id,
             "container_type": workunit.container.ENDPOINT,
             "storage_id": workunit.application.storage.id,

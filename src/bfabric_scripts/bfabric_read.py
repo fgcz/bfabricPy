@@ -18,16 +18,16 @@ from __future__ import annotations
 
 import argparse
 import json
-import time
 from typing import Any
 
+import time
 import yaml
 from loguru import logger
 from rich.console import Console
 from rich.table import Table
 
 from bfabric import Bfabric, BfabricClientConfig
-from bfabric.cli_formatting import setup_script_logging
+from bfabric_scripts.cli.base import use_client
 
 
 def bfabric_read(client: Bfabric, endpoint: str, attribute: str | None, value: str | None, output_format: str) -> None:
@@ -114,10 +114,9 @@ def _determine_output_format(console_out: Console, output_format: str, n_results
     return output_format
 
 
-def main() -> None:
+@use_client
+def main(client: Bfabric) -> None:
     """Parses command line arguments and calls `bfabric_read`."""
-    setup_script_logging()
-    client = Bfabric.from_config()
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--format",

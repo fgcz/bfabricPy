@@ -35,6 +35,7 @@ from pathlib import Path
 import polars as pl
 
 from bfabric import Bfabric
+from bfabric_scripts.cli.base import use_client
 
 
 def polars_to_bfabric_type(dtype: pl.DataType) -> str | None:
@@ -104,9 +105,9 @@ def check_for_invalid_characters(data: pl.DataFrame, invalid_characters: str) ->
         raise RuntimeError(f"Invalid characters found in columns: {invalid_columns}")
 
 
-def main() -> None:
+@use_client
+def main(*, client: Bfabric) -> None:
     """Parses command line arguments and calls `bfabric_save_csv2dataset`."""
-    client = Bfabric.from_config()
     parser = argparse.ArgumentParser(description="Create a B-Fabric dataset")
     parser.add_argument(
         "--csvfile", required=True, help="the path to the csv file to be uploaded as dataset", type=Path

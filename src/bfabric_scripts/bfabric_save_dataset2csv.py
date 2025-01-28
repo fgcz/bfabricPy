@@ -21,6 +21,7 @@ from pathlib import Path
 
 from bfabric import Bfabric
 from bfabric.entities.dataset import Dataset
+from bfabric_scripts.cli.base import use_client
 
 
 def bfabric_save_dataset2csv(client: Bfabric, dataset_id: int, out_dir: Path, out_filename: Path, sep: str) -> None:
@@ -38,9 +39,9 @@ def bfabric_save_dataset2csv(client: Bfabric, dataset_id: int, out_dir: Path, ou
         raise
 
 
-def main() -> None:
+@use_client
+def main(*, client: Bfabric) -> None:
     """Parses arguments and calls `bfabric_save_dataset2csv`."""
-    client = Bfabric.from_config()
     parser = argparse.ArgumentParser(description="Save a B-Fabric dataset to a csv file")
     parser.add_argument("--id", metavar="int", required=True, help="dataset id", type=int)
     parser.add_argument(
