@@ -11,7 +11,7 @@ nox.options.default_venv_backend = "uv"
 def tests(session):
     session.install(".[test]")
     session.run("uv", "pip", "list")
-    session.run("pytest", "tests/bfabric", "tests/bfabric_scripts", "tests/bfabric_cli")
+    session.run("pytest", "--durations=50", "tests/bfabric", "tests/bfabric_scripts", "tests/bfabric_cli")
 
 
 @nox.session(python=["3.13"])
@@ -21,7 +21,7 @@ def test_app_runner(session):
     session.install("./app_runner[test]")
     session.install("--upgrade", ".")
     session.run("uv", "pip", "list")
-    session.run("pytest", "tests/app_runner")
+    session.run("pytest", "--durations=50", "tests/app_runner")
 
 
 @nox.session
