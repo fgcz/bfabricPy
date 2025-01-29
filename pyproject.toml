@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools >= 61.0"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "bfabric"
@@ -41,6 +41,7 @@ dev = [
     "licensecheck",
     "nox",
     "uv",
+    "ipython",
 ]
 doc = ["mkdocs", "mkdocs-material", "mkdocstrings[python]"]
 test = ["pytest", "pytest-mock", "logot"]
@@ -80,8 +81,8 @@ Repository = "https://github.com/fgcz/bfabricPy"
 
 "bfabric-cli" = "bfabric_scripts.cli.__main__:app"
 
-[tool.setuptools.package-data]
-"*" = ["py.typed"]
+#[tool.setuptools.package-data]
+#"*" = ["py.typed"]
 
 [tool.uv]
 reinstall-package = ["bfabric", "bfabric_scripts", "app_runner"]
