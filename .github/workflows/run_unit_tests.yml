@@ -16,7 +16,7 @@ jobs:
           python-version: 3.9
       - name: Install nox
         run: pip install nox uv
-      - name: Run unit tests
+      - name: Run checks
         run: nox
   code_style:
     name: Code Style
