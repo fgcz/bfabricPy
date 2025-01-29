@@ -15,7 +15,7 @@ from app_runner.util.checksums import md5sum
 from app_runner.util.scp import scp
 from bfabric.entities import Resource
 from bfabric.entities import Storage, Workunit
-from bfabric_scripts.bfabric_save_csv2dataset import bfabric_save_csv2dataset
+from bfabric.experimental.upload_dataset import bfabric_save_csv2dataset
 
 if TYPE_CHECKING:
     from pathlib import Path
