@@ -47,7 +47,7 @@ jobs:
         id: set-repo-url
         run: |
           if [ "${{ github.event.inputs.environment }}" == "production" ] || [ "${{ github.event_name }}" == "push" ]; then
-            echo "PYPI_REPOSITORY_URL=https://pypi.org/legacy/" >> $GITHUB_ENV
+            echo "PYPI_REPOSITORY_URL=https://upload.pypi.org/legacy/" >> $GITHUB_ENV
           else
             echo "PYPI_REPOSITORY_URL=https://test.pypi.org/legacy/" >> $GITHUB_ENV
           fi
