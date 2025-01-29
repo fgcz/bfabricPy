@@ -4,12 +4,13 @@ from tempfile import TemporaryDirectory
 
 import nox
 
+# TODO check the problem
 nox.options.default_venv_backend = "uv"
 
 
 @nox.session(python=["3.9", "3.13"])
 def tests(session):
-    session.install(".[test]")
+    session.install(".[test]", "-e", "./bfabric_scripts")
     session.run("uv", "pip", "list")
     session.run("pytest", "--durations=50", "tests/bfabric", "tests/bfabric_scripts", "tests/bfabric_cli")
 
