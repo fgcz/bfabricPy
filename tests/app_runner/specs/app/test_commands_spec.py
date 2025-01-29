@@ -14,7 +14,11 @@ def test_mount_options_default_behavior(tmp_path):
 
     # Should have 2 default mounts: bfabric config and work dir
     assert len(mounts) == 2
-    assert mounts[0] == (Path("~/.bfabricpy.yml").expanduser().absolute(), Path("/home/user/.bfabricpy.yml"), True)
+    assert mounts[0] == (
+        Path("~/.bfabricpy.yml").expanduser().absolute(),
+        Path("/home/user/.bfabricpy.yml"),
+        True,
+    )
     assert mounts[1] == (work_dir.absolute(), work_dir, False)
 
 
@@ -47,7 +51,10 @@ def test_mount_options_with_custom_mounts(tmp_path):
 
 def test_mount_options_path_expansion():
     """Test that paths are properly expanded"""
-    options = MountOptions(read_only=[(Path("~/data"), Path("/container/data"))], share_bfabric_config=False)
+    options = MountOptions(
+        read_only=[(Path("~/data"), Path("/container/data"))],
+        share_bfabric_config=False,
+    )
     work_dir = Path("/work")
 
     mounts = options.collect(work_dir)
@@ -74,9 +81,16 @@ def test_command_shell_with_quotes():
 
 def test_command_shell_complex_command():
     """Test complex shell command with multiple arguments and quotes"""
-    cmd = CommandShell(command="python3 -c \"import sys; print('Hello from Python')\" --verbose")
+    cmd = CommandShell(
+        command="python3 -c \"import sys; print('Hello from Python')\" --verbose"
+    )
     result = cmd.to_shell()
-    assert result == ["python3", "-c", "import sys; print('Hello from Python')", "--verbose"]
+    assert result == [
+        "python3",
+        "-c",
+        "import sys; print('Hello from Python')",
+        "--verbose",
+    ]
 
 
 def test_command_docker_basic():
@@ -94,7 +108,7 @@ def test_command_docker_basic():
         "--mount",
         "type=bind,source=/home/user/.bfabricpy.yml,target=/home/user/.bfabricpy.yml,readonly",
         "--mount",
-        f"type=bind,source=/work,target=/work",
+        "type=bind,source=/work,target=/work",
         "python:3.9",
         "python",
         "script.py",
@@ -115,7 +129,9 @@ def test_command_docker_with_options(tmp_path):
         mac_address="00:00:00:00:00:00",
         custom_args=["--network=host"],
         hostname="myhost",
-        mounts=MountOptions(share_bfabric_config=False),  # Disable bfabric mount for simpler testing
+        mounts=MountOptions(
+            share_bfabric_config=False
+        ),  # Disable bfabric mount for simpler testing
     )
 
     work_dir = tmp_path / "work"

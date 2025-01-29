@@ -17,10 +17,14 @@ import json
 from bfabric import Bfabric
 
 
-def bfabric_save_workunit_attribute(workunit_id: int, attribute: str, value: str) -> None:
+def bfabric_save_workunit_attribute(
+    workunit_id: int, attribute: str, value: str
+) -> None:
     """Sets the specified attribute to the specified value for the specified workunit."""
     client = Bfabric.from_config()
-    result = client.save(endpoint="workunit", obj={"id": workunit_id, attribute: value}).to_list_dict()
+    result = client.save(
+        endpoint="workunit", obj={"id": workunit_id, attribute: value}
+    ).to_list_dict()
     print(json.dumps(result[0], indent=2))
 
 

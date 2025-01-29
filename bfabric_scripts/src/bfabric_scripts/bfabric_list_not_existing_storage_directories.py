@@ -27,7 +27,10 @@ class CacheData(BaseModel):
 
     container_ids: set[int] = set()
     checked_at: datetime.datetime = datetime.datetime(2024, 1, 1)
-    query: dict[str, int | str | list[str | int]] = {"technologyid": [2, 4], "createdafter": "2024-01-01"}
+    query: dict[str, int | str | list[str | int]] = {
+        "technologyid": [2, 4],
+        "createdafter": "2024-01-01",
+    }
 
 
 class Cache:
@@ -65,7 +68,9 @@ class Cache:
         # add some buffer to deal e.g. with miss-configured clocks
         timestamp = (self._data.checked_at - datetime.timedelta(days=1)).isoformat()
         max_results = 300 if "BFABRICPY_DEBUG" in os.environ else None
-        logger.debug(f"Checking for new container ids since {timestamp} with limit {max_results}")
+        logger.debug(
+            f"Checking for new container ids since {timestamp} with limit {max_results}"
+        )
         result = client.read(
             endpoint="container",
             obj={**self._data.query, "createdafter": timestamp},
@@ -78,7 +83,9 @@ class Cache:
         self._data.checked_at = now
 
 
-def list_not_existing_storage_dirs(client: Bfabric, root_dir: Path, cache_path: Path) -> None:
+def list_not_existing_storage_dirs(
+    client: Bfabric, root_dir: Path, cache_path: Path
+) -> None:
     """Lists not existing storage directories for a given technology id."""
     cache = Cache.load(path=cache_path)
     cache.update(client=client)
@@ -94,7 +101,9 @@ def main() -> None:
     client = Bfabric.from_config()
     root_dir = Path("/srv/www/htdocs/")
     cache_path = Path("cache.json")
-    list_not_existing_storage_dirs(client=client, root_dir=root_dir, cache_path=cache_path)
+    list_not_existing_storage_dirs(
+        client=client, root_dir=root_dir, cache_path=cache_path
+    )
 
 
 if __name__ == "__main__":

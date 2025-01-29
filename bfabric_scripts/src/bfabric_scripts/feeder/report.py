@@ -33,7 +33,13 @@ def report_resource(client: Bfabric, resource_id: int) -> ResultContainer:
     if filename.is_file():
         checksum, _, filesize, _ = get_file_attributes(str(filename))
         return client.save(
-            "resource", {"id": resource_id, "size": filesize, "status": "available", "filechecksum": checksum}
+            "resource",
+            {
+                "id": resource_id,
+                "size": filesize,
+                "status": "available",
+                "filechecksum": checksum,
+            },
         )
     else:
         return client.save("resource", {"id": resource_id, "status": "failed"})

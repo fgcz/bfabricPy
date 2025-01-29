@@ -25,12 +25,17 @@ def save_fasta(container_id: int, fasta_file: Path) -> None:
     with fasta_file.open("rb") as f:
         md5 = hashlib.md5(f.read()).hexdigest()
 
-    resources = client.read(endpoint="resource", obj={"filechecksum": md5}).to_list_dict()
+    resources = client.read(
+        endpoint="resource", obj={"filechecksum": md5}
+    ).to_list_dict()
     if resources:
         print("resource(s) already exist.")
         # TODO this logic was mostly carried over from before, does it still make sense?
         try:
-            resources = client.save(endpoint="resource", obj={"id": resources[0]["id"], "description": description})
+            resources = client.save(
+                endpoint="resource",
+                obj={"id": resources[0]["id"], "description": description},
+            )
             print(json.dumps(resources.to_list_dict(), indent=2))
             return
         except Exception:
@@ -61,7 +66,9 @@ def save_fasta(container_id: int, fasta_file: Path) -> None:
     resource = client.save(endpoint="resource", obj=obj).to_list_dict()
     print(json.dumps(resource, indent=2))
 
-    workunit = client.save(endpoint="workunit", obj={"id": workunit[0]["id"], "status": "available"}).to_list_dict()
+    workunit = client.save(
+        endpoint="workunit", obj={"id": workunit[0]["id"], "status": "available"}
+    ).to_list_dict()
     print(json.dumps(workunit, indent=2))
 
 

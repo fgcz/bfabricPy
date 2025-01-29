@@ -41,7 +41,12 @@ def main() -> None:
     parser.add_argument("-j", "--externaljobid", type=int)
     args = parser.parse_args()
     client = Bfabric.from_config()
-    bfapp = BfabricSubmitter(client=client, externaljobid=args.externaljobid, scheduleroot="/usr/", scheduler="Slurm")
+    bfapp = BfabricSubmitter(
+        client=client,
+        externaljobid=args.externaljobid,
+        scheduleroot="/usr/",
+        scheduler="Slurm",
+    )
     bfapp.submitter_yaml()
 
 

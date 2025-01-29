@@ -50,7 +50,8 @@ try:
         "Read {len} data items from {name} using {size:.1f} GBytes.".format(
             len=len(DB),
             name=DBfilename,
-            size=sum(map(lambda x: int(x["resource"]["size"]), DB.values())) / (1024 * 1024 * 1024),
+            size=sum(map(lambda x: int(x["resource"]["size"]), DB.values()))
+            / (1024 * 1024 * 1024),
         )
     )
 except OSError:
@@ -66,7 +67,9 @@ def query_mascot_result(file_path: str) -> bool:
         print("\thit")
         wu = DB[file_path]
         if "workunitid" in wu:
-            print(f"\tdat file {file_path} already registered as workunit id {wu['workunitid']}. continue ...")
+            print(
+                f"\tdat file {file_path} already registered as workunit id {wu['workunitid']}. continue ..."
+            )
             return
         else:
             print("\tno workunitid found")
@@ -79,7 +82,9 @@ def query_mascot_result(file_path: str) -> bool:
 
     if len(wu["inputresource"]) > 0:
         if re.search("autoQC4L", wu["name"]) or re.search("autoQC01", wu["name"]):
-            print(f"WARNING This script ignores autoQC based mascot dat file {file_path}.")
+            print(
+                f"WARNING This script ignores autoQC based mascot dat file {file_path}."
+            )
             return
 
         print("\tquerying bfabric ...")
@@ -181,11 +186,18 @@ def parse_mascot_result_file(file_path: str) -> dict[str, Any]:
         "^(FILE|COM|release|USERNAME|USERID|TOL|TOLU|ITOL|ITOLU|MODS|IT_MODS|CHARGE|INSTRUMENT|QUANTITATION|DECOY)=(.+)$"
     )
 
-    control_chars = "".join(map(chr, itertools.chain(range(0x00, 0x20), range(0x7F, 0xA0))))
+    control_chars = "".join(
+        map(chr, itertools.chain(range(0x00, 0x20), range(0x7F, 0xA0)))
+    )
     control_char_re = re.compile(f"[{re.escape(control_chars)}]")
 
     line_count = 0
-    meta_data_dict = dict(COM="", FILE="", release="", relativepath=file_path.replace("/usr/local/mascot/", ""))
+    meta_data_dict = dict(
+        COM="",
+        FILE="",
+        release="",
+        relativepath=file_path.replace("/usr/local/mascot/", ""),
+    )
     inputresourceHitHash = dict()
     inputresourceList = list()
     md5 = hashlib.md5()
@@ -197,10 +209,16 @@ def parse_mascot_result_file(file_path: str) -> dict[str, Any]:
             md5.update(line.encode())
             # check if the first character of the line is a 't' for title to save regex time
             if line[0] == "t":
-                result = regex0.match(urllib.parse.unquote(line.strip()).replace("\\", "/").replace("//", "/"))
+                result = regex0.match(
+                    urllib.parse.unquote(line.strip())
+                    .replace("\\", "/")
+                    .replace("//", "/")
+                )
                 if result and result.group(1) not in inputresourceHitHash:
                     inputresourceHitHash[result.group(1)] = result.group(2)
-                    inputresourceList.append(dict(storageid=2, relativepath=result.group(1)))
+                    inputresourceList.append(
+                        dict(storageid=2, relativepath=result.group(1))
+                    )
                     project = result.group(2)
                 else:
                     # nothing as do be done since the input_resource is already recorded
@@ -214,7 +232,11 @@ def parse_mascot_result_file(file_path: str) -> dict[str, Any]:
                     meta_data_dict[result.group(1)] = result.group(2)
 
     desc = desc.encode("ascii", errors="ignore")
-    name = f"{meta_data_dict['COM']}; {os.path.basename(meta_data_dict['relativepath'])}"[:255]
+    name = (
+        f"{meta_data_dict['COM']}; {os.path.basename(meta_data_dict['relativepath'])}"[
+            :255
+        ]
+    )
     rv = dict(
         applicationid=19,
         containerid=project,
@@ -254,7 +276,8 @@ def print_statistics() -> None:
     print_project_frequency(map(lambda x: x["containerid"], DB.values()))
     print(
         "file size\t=\t{} GBytes".format(
-            sum(map(lambda x: int(x["resource"]["size"]), DB.values())) / (1024 * 1024 * 1024)
+            sum(map(lambda x: int(x["resource"]["size"]), DB.values()))
+            / (1024 * 1024 * 1024)
         )
     )
 
@@ -263,7 +286,9 @@ def main() -> None:
     """Parses the CLI arguments and calls the appropriate functions."""
     parser = argparse.ArgumentParser()
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("--stdin", action="store_true", help="read file names from stdin")
+    group.add_argument(
+        "--stdin", action="store_true", help="read file names from stdin"
+    )
     group.add_argument("--file", type=str, help="processes the provided file")
     parser.add_argument("--statistics", action="store_true", help="print statistics")
 

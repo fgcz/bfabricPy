@@ -7,7 +7,12 @@ from bfabric.utils.polars_utils import flatten_relations
 
 
 def test_flatten_relations():
-    df = pl.DataFrame({"a": [1, 2, 3], "b": [{"x": 10, "y": 11}, {"x": 20, "y": 21}, {"x": 30, "y": 31}]})
+    df = pl.DataFrame(
+        {
+            "a": [1, 2, 3],
+            "b": [{"x": 10, "y": 11}, {"x": 20, "y": 21}, {"x": 30, "y": 31}],
+        }
+    )
     flatten_relations(df)
     expected_df = pl.DataFrame(
         {

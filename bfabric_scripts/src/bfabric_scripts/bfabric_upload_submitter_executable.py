@@ -39,7 +39,9 @@ from pathlib import Path
 
 from bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
-from bfabric_scripts.cli.external_job.upload_submitter_executable import upload_submitter_executable
+from bfabric_scripts.cli.external_job.upload_submitter_executable import (
+    upload_submitter_executable,
+)
 
 
 def main() -> None:
@@ -54,8 +56,15 @@ def main() -> None:
         choices=["slurm"],
         help="Valid engines for job handling are: slurm, gridengine",
     )
-    parser.add_argument("--name", type=str, help="Name of the submitter", required=False)
-    parser.add_argument("--description", type=str, help="Description about the submitter", required=False)
+    parser.add_argument(
+        "--name", type=str, help="Name of the submitter", required=False
+    )
+    parser.add_argument(
+        "--description",
+        type=str,
+        help="Description about the submitter",
+        required=False,
+    )
     options = parser.parse_args()
     upload_submitter_executable(client=client, **vars(options))
 

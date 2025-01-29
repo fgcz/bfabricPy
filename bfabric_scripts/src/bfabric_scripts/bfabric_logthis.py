@@ -13,7 +13,12 @@ from bfabric_scripts.cli.api.cli_api_log import write_externaljob, write_workuni
 from bfabric_scripts.cli.base import use_client
 
 
-def bfabric_logthis(entity: Literal["externaljob", "workunit"], entity_id: int, message: str, client: Bfabric) -> None:
+def bfabric_logthis(
+    entity: Literal["externaljob", "workunit"],
+    entity_id: int,
+    message: str,
+    client: Bfabric,
+) -> None:
     """Logs a message for an external job."""
     if entity == "externaljob":
         write_externaljob(client=client, externaljob_id=entity_id, message=message)
@@ -28,7 +33,11 @@ def main(*, client: Bfabric) -> None:
     parser.add_argument("entity_id", type=int, help="entity id")
     parser.add_argument("message", type=str, help="message")
     parser.add_argument(
-        "--entity", type=str, choices=["externaljob", "workunit"], default="externaljob", help="entity type"
+        "--entity",
+        type=str,
+        choices=["externaljob", "workunit"],
+        default="externaljob",
+        help="entity type",
     )
     args = vars(parser.parse_args())
     bfabric_logthis(**args, client=client)

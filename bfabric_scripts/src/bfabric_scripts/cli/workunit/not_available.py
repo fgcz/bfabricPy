@@ -9,7 +9,9 @@ from bfabric.entities import Parameter, Workunit, Application
 from bfabric_scripts.cli.base import use_client
 
 
-def render_output(workunits_by_status: dict[str, list[Workunit]], client: Bfabric) -> None:
+def render_output(
+    workunits_by_status: dict[str, list[Workunit]], client: Bfabric
+) -> None:
     """Renders the output as a table."""
     table = Table(
         Column("Application", no_wrap=False),
@@ -22,14 +24,24 @@ def render_output(workunits_by_status: dict[str, list[Workunit]], client: Bfabri
     )
 
     workunit_ids = [wu.id for wu_list in workunits_by_status.values() for wu in wu_list]
-    app_ids = {wu["application"]["id"] for wu_list in workunits_by_status.values() for wu in wu_list}
+    app_ids = {
+        wu["application"]["id"]
+        for wu_list in workunits_by_status.values()
+        for wu in wu_list
+    }
 
-    nodelist_params = Parameter.find_by({"workunitid": workunit_ids, "key": "nodelist"}, client)
-    nodelist_values = {param["workunit"]["id"]: param.value for param in nodelist_params.values()}
+    nodelist_params = Parameter.find_by(
+        {"workunitid": workunit_ids, "key": "nodelist"}, client
+    )
+    nodelist_values = {
+        param["workunit"]["id"]: param.value for param in nodelist_params.values()
+    }
     application_values = Application.find_all(ids=sorted(app_ids), client=client)
 
     for status, workunits_all in workunits_by_status.items():
-        workunits = [x for x in workunits_all if x["createdby"] not in ["gfeeder", "itfeeder"]]
+        workunits = [
+            x for x in workunits_all if x["createdby"] not in ["gfeeder", "itfeeder"]
+        ]
         status_color = {
             "Pending": "yellow",
             "Processing": "blue",
@@ -53,7 +65,9 @@ def render_output(workunits_by_status: dict[str, list[Workunit]], client: Bfabri
 
 
 @use_client
-def list_not_available_proteomics_workunits(*, client: Bfabric, max_age: float = 14.0) -> None:
+def list_not_available_proteomics_workunits(
+    *, client: Bfabric, max_age: float = 14.0
+) -> None:
     """Lists not available analysis work units.
 
     :param max_age: The maximum age of work units in days.
@@ -62,7 +76,9 @@ def list_not_available_proteomics_workunits(*, client: Bfabric, max_age: float =
     console = Console()
     with console.capture() as capture:
         console.print(
-            f"listing not available proteomics work units created after {date_cutoff}", style="bright_yellow", end=""
+            f"listing not available proteomics work units created after {date_cutoff}",
+            style="bright_yellow",
+            end="",
         )
     logger.info(capture.get())
 

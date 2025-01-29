@@ -9,8 +9,12 @@ from bfabric import Bfabric
 from bfabric.wrapper_creator.bfabric_submitter import BfabricSubmitter
 from bfabric.wrapper_creator.bfabric_wrapper_creator import BfabricWrapperCreator
 from bfabric_scripts.cli.base import use_client
-from bfabric_scripts.cli.external_job.upload_submitter_executable import upload_submitter_executable
-from bfabric_scripts.cli.external_job.upload_wrapper_creator_executable import upload_wrapper_creator_executable
+from bfabric_scripts.cli.external_job.upload_submitter_executable import (
+    upload_submitter_executable,
+)
+from bfabric_scripts.cli.external_job.upload_wrapper_creator_executable import (
+    upload_wrapper_creator_executable,
+)
 
 app = cyclopts.App()
 
@@ -25,12 +29,17 @@ def find_slurm_root() -> str:
 
 @app.command
 @use_client
-def submitter(external_job_id: int, scheduler: Literal["Slurm"] = "Slurm", *, client: Bfabric) -> None:
+def submitter(
+    external_job_id: int, scheduler: Literal["Slurm"] = "Slurm", *, client: Bfabric
+) -> None:
     if scheduler != "Slurm":
         raise NotImplementedError(f"Unsupported scheduler: {scheduler}")
     slurm_root = find_slurm_root()
     submitter = BfabricSubmitter(
-        client=client, externaljobid=external_job_id, scheduleroot=slurm_root, scheduler="Slurm"
+        client=client,
+        externaljobid=external_job_id,
+        scheduleroot=slurm_root,
+        scheduler="Slurm",
     )
     submitter.submitter_yaml()
 

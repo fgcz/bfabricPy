@@ -42,13 +42,26 @@ def main(*, client: Bfabric) -> None:
     """Parses command line arguments and calls `bfabric_save_csv2dataset`."""
     parser = argparse.ArgumentParser(description="Create a B-Fabric dataset")
     parser.add_argument(
-        "--csvfile", required=True, help="the path to the csv file to be uploaded as dataset", type=Path
+        "--csvfile",
+        required=True,
+        help="the path to the csv file to be uploaded as dataset",
+        type=Path,
     )
     parser.add_argument("--name", required=True, help="dataset name as a string")
     parser.add_argument("--containerid", type=int, required=True, help="container id")
     parser.add_argument("--workunitid", type=int, required=False, help="workunit id")
-    parser.add_argument("--sep", type=str, default=",", help="the separator to use in the csv file e.g. ',' or '\\t'")
-    parser.add_argument("--no-header", action="store_false", dest="has_header", help="the csv file has no header")
+    parser.add_argument(
+        "--sep",
+        type=str,
+        default=",",
+        help="the separator to use in the csv file e.g. ',' or '\\t'",
+    )
+    parser.add_argument(
+        "--no-header",
+        action="store_false",
+        dest="has_header",
+        help="the csv file has no header",
+    )
     parser.add_argument(
         "--invalid-characters",
         type=str,

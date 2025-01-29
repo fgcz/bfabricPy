@@ -30,7 +30,13 @@ from bfabric import Bfabric, BfabricClientConfig
 from bfabric_scripts.cli.base import use_client
 
 
-def bfabric_read(client: Bfabric, endpoint: str, attribute: str | None, value: str | None, output_format: str) -> None:
+def bfabric_read(
+    client: Bfabric,
+    endpoint: str,
+    attribute: str | None,
+    value: str | None,
+    output_format: str,
+) -> None:
     """Reads one or several items from a B-Fabric endpoint and prints them."""
     if attribute is not None and value is None:
         message = "value must be provided if attribute is provided"
@@ -49,7 +55,9 @@ def bfabric_read(client: Bfabric, endpoint: str, attribute: str | None, value: s
         possible_attributes = sorted(set(res[0].keys()))
         logger.info(f"possible attributes = {possible_attributes}")
 
-    output_format = _determine_output_format(console_out=console_out, output_format=output_format, n_results=len(res))
+    output_format = _determine_output_format(
+        console_out=console_out, output_format=output_format, n_results=len(res)
+    )
     logger.info(f"output format = {output_format}")
 
     if output_format == "json":
@@ -68,7 +76,10 @@ def bfabric_read(client: Bfabric, endpoint: str, attribute: str | None, value: s
 
 
 def _print_table_rich(
-    config: BfabricClientConfig, console_out: Console, endpoint: str, res: list[dict[str, Any]]
+    config: BfabricClientConfig,
+    console_out: Console,
+    endpoint: str,
+    res: list[dict[str, Any]],
 ) -> None:
     """Prints the results as a rich table to the console."""
     table = Table("Id", "Created By", "Modified", "Name", "Grouping Var")
@@ -100,7 +111,9 @@ def _print_table_tsv(res: list[dict[str, Any]]) -> None:
         )
 
 
-def _determine_output_format(console_out: Console, output_format: str, n_results: int) -> str:
+def _determine_output_format(
+    console_out: Console, output_format: str, n_results: int
+) -> str:
     """Returns the format to use, based on the number of results, and whether the output is an interactive console.
     If the format is already set to a concrete value instead of "auto", it will be returned unchanged.
     """

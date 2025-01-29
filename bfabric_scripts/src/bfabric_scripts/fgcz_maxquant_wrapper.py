@@ -41,7 +41,9 @@ class FgczMaxQuantConfig:
     def __init__(self, config=None, scratch="/scratch/MAXQUANT/") -> None:
         if config:
             self.config = config
-            self.scratchdir = Path(f"{scratch}/WU{self.config['job_configuration']['workunit_id']}")
+            self.scratchdir = Path(
+                f"{scratch}/WU{self.config['job_configuration']['workunit_id']}"
+            )
 
             if not os.path.isdir(self.scratchdir):
                 print(f"no scratch dir '{self.scratchdir}'.")
@@ -97,7 +99,9 @@ class FgczMaxQuantConfig:
                     raise TypeError
 
                 estring = etree.Element("string")
-                estring.text = f"{os.path.basename(input).replace('.raw', '').replace('.RAW', '')}"
+                estring.text = (
+                    f"{os.path.basename(input).replace('.raw', '').replace('.RAW', '')}"
+                )
                 ecount += 1
                 element.extend(estring)
 
@@ -475,10 +479,18 @@ mqpar_templ_xml = """<MaxQuantParams xmlns:xsd="http://www.w3.org/2001/XMLSchema
 """
 
 if __name__ == "__main__":
-    parser = OptionParser(usage="usage: %prog -y <yaml formated config file>", version="%prog 1.0")
+    parser = OptionParser(
+        usage="usage: %prog -y <yaml formated config file>", version="%prog 1.0"
+    )
 
     parser.add_option(
-        "-y", "--yaml", type="string", action="store", dest="yaml_filename", default=None, help="config file.yaml"
+        "-y",
+        "--yaml",
+        type="string",
+        action="store",
+        dest="yaml_filename",
+        default=None,
+        help="config file.yaml",
     )
 
     parser.add_option(

@@ -46,7 +46,9 @@ class AutoQC:
         :return: SID
         """
         try:
-            res = self.client.read(endpoint="sample", obj={"containerid": projectid, "name": name}).to_list_dict()
+            res = self.client.read(
+                endpoint="sample", obj={"containerid": projectid, "name": name}
+            ).to_list_dict()
         except Exception:
             print(res)
             raise
@@ -86,11 +88,17 @@ class AutoQC:
 
         if not res:
             if name == "autoQC4L":
-                res = self.client.save(endpoint="sample", obj=query_autoQC4L).to_list_dict()
+                res = self.client.save(
+                    endpoint="sample", obj=query_autoQC4L
+                ).to_list_dict()
             elif name == "autoQC01":
-                res = self.client.save(endpoint="sample", obj=query_autoQC01).to_list_dict()
+                res = self.client.save(
+                    endpoint="sample", obj=query_autoQC01
+                ).to_list_dict()
             elif name == "lipidQC01":
-                res = self.client.save(endpoint="sample", obj=query_lipidQC01).to_list_dict()
+                res = self.client.save(
+                    endpoint="sample", obj=query_lipidQC01
+                ).to_list_dict()
 
         print(res)
         print(res[0])
@@ -148,7 +156,17 @@ listed below.
 
         return res[0]["id"]
 
-    def resource_check(self, projectid: int, name: str, workunitid: int, filename: str, filedate, size, md5, sampleid):
+    def resource_check(
+        self,
+        projectid: int,
+        name: str,
+        workunitid: int,
+        filename: str,
+        filedate,
+        size,
+        md5,
+        sampleid,
+    ):
         """
         checks wether a R exists or not. if not the R is created.
         :param projectid:
@@ -205,7 +223,8 @@ listed below.
 
         try:
             m = re.search(
-                r"p([0-9]+)\/((Metabolomics|Proteomics)\/[A-Z]+_[1-9])\/.*(autoQC01|autoQC4L|lipidQC01).+raw$", filename
+                r"p([0-9]+)\/((Metabolomics|Proteomics)\/[A-Z]+_[1-9])\/.*(autoQC01|autoQC4L|lipidQC01).+raw$",
+                filename,
             )
 
             projectid = m.group(1)
@@ -222,7 +241,9 @@ listed below.
             sampleid = self.sample_check(projectid, name=autoQCType)
             sys.exit(0)
             # print sampleid
-            workunitid = self.workunit_check(projectid, name=autoQCType, applicationid=applicationid)
+            workunitid = self.workunit_check(
+                projectid, name=autoQCType, applicationid=applicationid
+            )
             # print "WUID={}".format(workunitid)
 
             resourceid = self.resource_check(
@@ -237,7 +258,9 @@ listed below.
             )
 
             # sampleid=0
-            print(f"p{projectid}\tA{applicationid}\t{filename}\tS{sampleid}\tWU{workunitid}\tR{resourceid}")
+            print(
+                f"p{projectid}\tA{applicationid}\t{filename}\tS{sampleid}\tWU{workunitid}\tR{resourceid}"
+            )
         except Exception as err:
             print(f"# Failed to register to bfabric: {err}")
 
