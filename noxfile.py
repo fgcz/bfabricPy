@@ -83,6 +83,12 @@ def publish_docs(session):
     session.run("ghp-import", "--force", "--no-jekyll", "--push", "site")
 
 
+@nox.session(default=False)
+def code_style(session):
+    session.install("ruff")
+    session.run("ruff", "check", "bfabric")
+
+
 @nox.session
 def licensecheck(session) -> None:
     """Runs the license check."""

@@ -23,11 +23,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-bfabricpy
+      - uses: actions/setup-python@v5
         with:
           python-version: 3.9
+      - name: Install nox
+        run: pip install nox uv
       - name: Check code with ruff
-        run: ruff bfabric || true
+        run: nox -s code_style
   list_todos:
     name: List TODOs
     runs-on: ubuntu-latest
