@@ -37,13 +37,3 @@ jobs:
         name: Install ripgrep
       - run: rg -n TODO .
         name: List TODOs
-  license_check:
-    name: License Check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-bfabricpy
-        with:
-          python-version: 3.9
-      - name: Check licenses
-        run: licensecheck

@@ -81,3 +81,11 @@ def publish_docs(session):
 
     session.install("ghp-import")
     session.run("ghp-import", "--force", "--no-jekyll", "--push", "site")
+
+
+@nox.session
+def licensecheck(session) -> None:
+    """Runs the license check."""
+    # TODO is there a better way
+    session.install("licensecheck")
+    session.run("sh", "-c", "cd bfabric && licensecheck")
