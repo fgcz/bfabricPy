@@ -15,7 +15,7 @@ from app_runner.util.checksums import md5sum
 from app_runner.util.scp import scp
 from bfabric.entities import Resource
 from bfabric.entities import Storage, Workunit
-from bfabric_scripts.bfabric_save_csv2dataset import bfabric_save_csv2dataset
+from bfabric.experimental.upload_dataset import bfabric_save_csv2dataset
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -23,7 +23,9 @@ if TYPE_CHECKING:
     from bfabric.experimental.workunit_definition import WorkunitDefinition
 
 
-def _get_output_folder(spec: CopyResourceSpec, workunit_definition: WorkunitDefinition) -> Path:
+def _get_output_folder(
+    spec: CopyResourceSpec, workunit_definition: WorkunitDefinition
+) -> Path:
     if not spec.store_folder_path:
         return workunit_definition.registration.storage_output_folder
     else:
@@ -38,8 +40,14 @@ def register_file_in_workunit(
 ) -> None:
     """Registers a file in the workunit."""
     existing_id = _identify_existing_resource_id(client, spec, workunit_definition)
-    if resource_id is not None and existing_id is not None and resource_id != existing_id:
-        raise ValueError(f"Resource id {resource_id} does not match existing resource id {existing_id}")
+    if (
+        resource_id is not None
+        and existing_id is not None
+        and resource_id != existing_id
+    ):
+        raise ValueError(
+            f"Resource id {resource_id} does not match existing resource id {existing_id}"
+        )
 
     checksum = md5sum(spec.local_path)
     output_folder = _get_output_folder(spec, workunit_definition=workunit_definition)
@@ -68,18 +76,26 @@ def _identify_existing_resource_id(
         # TODO maybe it would be more accurate to use relativepath here, however historically it would often start
         #      with `/` which can be confusing.
         resources = Resource.find_by(
-            {"name": spec.store_entry_path.name, "workunitid": workunit_definition.registration.workunit_id},
+            {
+                "name": spec.store_entry_path.name,
+                "workunitid": workunit_definition.registration.workunit_id,
+            },
             client=client,
         ).values()
         if resources:
             return list(resources)[0].id
         elif spec.update_existing == UpdateExisting.REQUIRED:
-            raise ValueError(f"Resource {spec.store_entry_path.name} not found in workunit {workunit_definition.id}")
+            raise ValueError(
+                f"Resource {spec.store_entry_path.name} not found in workunit {workunit_definition.id}"
+            )
     return None
 
 
 def copy_file_to_storage(
-    spec: CopyResourceSpec, workunit_definition: WorkunitDefinition, storage: Storage, ssh_user: str | None
+    spec: CopyResourceSpec,
+    workunit_definition: WorkunitDefinition,
+    storage: Storage,
+    ssh_user: str | None,
 ) -> None:
     """Copies a file to the storage, according to the spec."""
     # TODO here some direct uses of storage could still be optimized away
@@ -88,7 +104,9 @@ def copy_file_to_storage(
     scp(spec.local_path, output_uri, user=ssh_user)
 
 
-def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit_definition: WorkunitDefinition) -> None:
+def _save_dataset(
+    spec: SaveDatasetSpec, client: Bfabric, workunit_definition: WorkunitDefinition
+) -> None:
     """Saves a dataset to the bfabric."""
     # TODO should not print to stdout in the future
     # TODO also it should not be imported from bfabric_scripts, but rather the generic functionality should be available
@@ -105,11 +123,17 @@ def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit_definition: W
     )
 
 
-def find_default_resource_id(workunit_definition: WorkunitDefinition, client: Bfabric) -> int | None:
+def find_default_resource_id(
+    workunit_definition: WorkunitDefinition, client: Bfabric
+) -> int | None:
     """Finds the default resource's id for the workunit. Maybe in the future, this will be always `None`."""
-    workunit = Workunit.find(id=workunit_definition.registration.workunit_id, client=client)
+    workunit = Workunit.find(
+        id=workunit_definition.registration.workunit_id, client=client
+    )
     candidate_resources = [
-        resource for resource in workunit.resources if resource["name"] not in ["slurm_stdout", "slurm_stderr"]
+        resource
+        for resource in workunit.resources
+        if resource["name"] not in ["slurm_stdout", "slurm_stderr"]
     ]
     # We also check that the resource is pending, as else we might re-use a resource that was created by the app...
     if len(candidate_resources) == 1 and candidate_resources[0]["status"] == "pending":
@@ -129,15 +153,27 @@ def register_all(
     for spec in specs_list:
         logger.debug(f"Registering {spec}")
         if isinstance(spec, CopyResourceSpec):
-            storage = Storage.find(workunit_definition.registration.storage_id, client=client)
-            copy_file_to_storage(spec, workunit_definition=workunit_definition, storage=storage, ssh_user=ssh_user)
+            storage = Storage.find(
+                workunit_definition.registration.storage_id, client=client
+            )
+            copy_file_to_storage(
+                spec,
+                workunit_definition=workunit_definition,
+                storage=storage,
+                ssh_user=ssh_user,
+            )
             if not default_resource_was_reused:
-                resource_id = find_default_resource_id(workunit_definition=workunit_definition, client=client)
+                resource_id = find_default_resource_id(
+                    workunit_definition=workunit_definition, client=client
+                )
                 default_resource_was_reused = True
             else:
                 resource_id = None
             register_file_in_workunit(
-                spec, client=client, workunit_definition=workunit_definition, resource_id=resource_id
+                spec,
+                client=client,
+                workunit_definition=workunit_definition,
+                resource_id=resource_id,
             )
         elif isinstance(spec, SaveDatasetSpec):
             _save_dataset(spec, client, workunit_definition=workunit_definition)

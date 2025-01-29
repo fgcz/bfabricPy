@@ -1,0 +1,81 @@
+name: Publish Release
+on:
+  push:
+    branches:
+      - release_bfabric
+      - release_bfabric_scripts
+      - release_app_runner
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'Package to release'
+        type: choice
+        options:
+          - bfabric
+          - bfabric_scripts
+          - app_runner
+        default: bfabric
+      environment:
+        description: 'Target PyPI'
+        type: choice
+        options:
+          - test
+          - production
+        default: test
+        required: true
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      # Step: Determine the package that is being built
+      - name: Set package variable
+        id: set-package
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "PACKAGE=${{ github.event.inputs.package }}" >> $GITHUB_ENV
+          else
+            # Extract package name from branch name by removing 'release_' prefix
+            BRANCH_NAME="${{ github.ref_name }}"
+            PACKAGE=${BRANCH_NAME#release_}
+            echo "PACKAGE=$PACKAGE" >> $GITHUB_ENV
+          fi
+      # Step: Set the PyPI repository URL based on environment
+      - name: Set PyPI repository URL
+        id: set-repo-url
+        run: |
+          if [ "${{ github.event.inputs.environment }}" == "production" ] || [ "${{ github.event_name }}" == "push" ]; then
+            echo "PYPI_REPOSITORY_URL=https://pypi.org/legacy/" >> $GITHUB_ENV
+          else
+            echo "PYPI_REPOSITORY_URL=https://test.pypi.org/legacy/" >> $GITHUB_ENV
+          fi
+      - name: Debug variables
+        run: |
+          echo "Selected package: ${{ env.PACKAGE }}"
+          echo "Target PyPI repository: ${{ env.PYPI_REPOSITORY_URL }}"
+      # Step: Build the package
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install hatch
+        run: pip install hatch
+      - name: Build package
+        run: |
+          cd ${{ env.PACKAGE }}
+          hatch build
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: ${{ env.PYPI_REPOSITORY_URL }}
+          packages-dir: ${{ env.PACKAGE }}/dist
+      - name: Debug package info
+        run: |
+          echo "Built and published package: ${{ env.PACKAGE }}"
+          if [ "${{ env.PYPI_REPOSITORY_URL }}" == "https://pypi.org/legacy/" ]; then
+            echo "Check it at: https://pypi.org/project/${{ env.PACKAGE }}/"
+          else
+            echo "Check it at: https://test.pypi.org/project/${{ env.PACKAGE }}/"
+          fi

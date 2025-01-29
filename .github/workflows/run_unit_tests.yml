@@ -16,18 +16,20 @@ jobs:
           python-version: 3.9
       - name: Install nox
         run: pip install nox uv
-      - name: Run unit tests
+      - name: Run checks
         run: nox
   code_style:
     name: Code Style
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-bfabricpy
+      - uses: actions/setup-python@v5
         with:
           python-version: 3.9
+      - name: Install nox
+        run: pip install nox uv
       - name: Check code with ruff
-        run: ruff bfabric || true
+        run: nox -s code_style
   list_todos:
     name: List TODOs
     runs-on: ubuntu-latest
@@ -37,13 +39,3 @@ jobs:
         name: Install ripgrep
       - run: rg -n TODO .
         name: List TODOs
-  license_check:
-    name: License Check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-bfabricpy
-        with:
-          python-version: 3.9
-      - name: Check licenses
-        run: licensecheck

@@ -2,12 +2,18 @@ import pytest
 from mako.exceptions import MakoException
 from pydantic import ValidationError
 
-from app_runner.specs.config_interpolation import Variables, VariablesApp, interpolate_config_strings
+from app_runner.specs.config_interpolation import (
+    Variables,
+    VariablesApp,
+    interpolate_config_strings,
+)
 
 
 @pytest.fixture
 def basic_variables():
-    return Variables(app=VariablesApp(id="test-app", name="Test Application", version="1.0.0"))
+    return Variables(
+        app=VariablesApp(id="test-app", name="Test Application", version="1.0.0")
+    )
 
 
 def test_variables_app_model():
@@ -39,9 +45,15 @@ def test_interpolate_simple_string(basic_variables):
 
 
 def test_interpolate_dict(basic_variables):
-    data = {"name": "${app.name}", "metadata": {"id": "${app.id}", "version": "${app.version}"}}
+    data = {
+        "name": "${app.name}",
+        "metadata": {"id": "${app.id}", "version": "${app.version}"},
+    }
     result = interpolate_config_strings(data, basic_variables)
-    assert result == {"name": "Test Application", "metadata": {"id": "test-app", "version": "1.0.0"}}
+    assert result == {
+        "name": "Test Application",
+        "metadata": {"id": "test-app", "version": "1.0.0"},
+    }
 
 
 def test_interpolate_list(basic_variables):
@@ -51,9 +63,19 @@ def test_interpolate_list(basic_variables):
 
 
 def test_interpolate_non_string_values(basic_variables):
-    data = {"number": 42, "boolean": True, "none": None, "mixed": ["${app.id}", 123, True]}
+    data = {
+        "number": 42,
+        "boolean": True,
+        "none": None,
+        "mixed": ["${app.id}", 123, True],
+    }
     result = interpolate_config_strings(data, basic_variables)
-    assert result == {"number": 42, "boolean": True, "none": None, "mixed": ["test-app", 123, True]}
+    assert result == {
+        "number": 42,
+        "boolean": True,
+        "none": None,
+        "mixed": ["test-app", 123, True],
+    }
 
 
 def test_interpolate_with_dict_variables():
@@ -71,7 +93,9 @@ def test_invalid_template_syntax(basic_variables):
 
 def test_missing_variable(basic_variables):
     template = "${app.missing}"
-    with pytest.raises(Exception):  # Could be more specific depending on Mako's behavior
+    with pytest.raises(
+        Exception
+    ):  # Could be more specific depending on Mako's behavior
         interpolate_config_strings(template, basic_variables)
 
 

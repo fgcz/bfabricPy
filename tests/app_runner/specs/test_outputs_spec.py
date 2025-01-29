@@ -16,7 +16,11 @@ def parsed() -> OutputsSpec:
                 protocol="scp",
             ),
             SaveDatasetSpec(
-                local_path="local_path", separator="separator", name=None, has_header=True, invalid_characters=""
+                local_path="local_path",
+                separator="separator",
+                name=None,
+                has_header=True,
+                invalid_characters="",
             ),
         ]
     )

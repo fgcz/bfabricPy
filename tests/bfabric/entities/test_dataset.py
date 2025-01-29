@@ -71,11 +71,17 @@ def test_write_csv(mocker: MockFixture, mock_dataset: Dataset) -> None:
 
 
 def test_repr(mock_empty_dataset: Dataset) -> None:
-    assert repr(mock_empty_dataset) == "Dataset({'id': 1234, 'attribute': [], 'item': []}, client=None)"
+    assert (
+        repr(mock_empty_dataset)
+        == "Dataset({'id': 1234, 'attribute': [], 'item': []}, client=None)"
+    )
 
 
 def test_str(mock_empty_dataset: Dataset) -> None:
-    assert str(mock_empty_dataset) == "Dataset({'id': 1234, 'attribute': [], 'item': []}, client=None)"
+    assert (
+        str(mock_empty_dataset)
+        == "Dataset({'id': 1234, 'attribute': [], 'item': []}, client=None)"
+    )
 
 
 if __name__ == "__main__":

@@ -6,7 +6,9 @@ import pytest
 from pytest_mock import MockerFixture
 
 from bfabric.results.result_container import ResultContainer
-from bfabric_scripts.bfabric_list_not_existing_storage_directories import list_not_existing_storage_dirs
+from bfabric_scripts.bfabric_list_not_existing_storage_directories import (
+    list_not_existing_storage_dirs,
+)
 
 
 def test_list_not_existing_storage_directories(
@@ -19,7 +21,9 @@ def test_list_not_existing_storage_directories(
 
     # mock a client
     client = mocker.MagicMock()
-    client.read.return_value = ResultContainer([{"id": 3000}, {"id": 3050}, {"id": 3100}, {"id": 3200}, {"id": 3300}])
+    client.read.return_value = ResultContainer(
+        [{"id": 3000}, {"id": 3050}, {"id": 3100}, {"id": 3200}, {"id": 3300}]
+    )
 
     # call the function
     list_not_existing_storage_dirs(client, tmp_path, cache_path=tmp_path / "cache.json")

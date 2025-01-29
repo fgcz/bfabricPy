@@ -69,7 +69,10 @@ def test_config_file_when_auth(data_with_auth):
     assert len(config.environments) == 1
     assert config.environments["PRODUCTION"].config.base_url == "https://example.com/"
     assert config.environments["PRODUCTION"].auth.login == "test-dummy"
-    assert config.environments["PRODUCTION"].auth.password == "00000000001111111111222222222233"
+    assert (
+        config.environments["PRODUCTION"].auth.password
+        == "00000000001111111111222222222233"
+    )
 
 
 def test_config_file_when_no_auth(data_no_auth):
@@ -88,7 +91,9 @@ def test_config_file_when_multiple(data_multiple):
     assert config.environments["PRODUCTION"].auth is None
     assert config.environments["TEST"].config.base_url == "https://test.example.com/"
     assert config.environments["TEST"].auth.login == "test-dummy"
-    assert config.environments["TEST"].auth.password == "00000000001111111111222222222233"
+    assert (
+        config.environments["TEST"].auth.password == "00000000001111111111222222222233"
+    )
 
 
 def test_config_file_when_non_existent_default(data_no_auth):
@@ -112,8 +117,13 @@ def test_get_selected_config_env_when_default(config_with_auth, monkeypatch):
 
 
 def test_get_selected_config(config_with_auth, mocker):
-    mock_get_config_env = mocker.patch.object(ConfigFile, "get_selected_config_env", return_value="PRODUCTION")
-    assert config_with_auth.get_selected_config() == config_with_auth.environments["PRODUCTION"]
+    mock_get_config_env = mocker.patch.object(
+        ConfigFile, "get_selected_config_env", return_value="PRODUCTION"
+    )
+    assert (
+        config_with_auth.get_selected_config()
+        == config_with_auth.environments["PRODUCTION"]
+    )
     mock_get_config_env.assert_called_once_with(explicit_config_env=None)
 
 

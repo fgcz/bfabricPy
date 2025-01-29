@@ -32,7 +32,9 @@ def mock_client(mock_suds_service):
 
 
 def test_read(engine_suds, mock_auth, mock_suds_service, mocker):
-    mocker.patch.object(engine_suds, "_get_suds_service", return_value=mock_suds_service)
+    mocker.patch.object(
+        engine_suds, "_get_suds_service", return_value=mock_suds_service
+    )
     mock_convert = mocker.patch.object(engine_suds, "_convert_results")
 
     obj = {"field1": "value1"}
@@ -50,27 +52,40 @@ def test_read(engine_suds, mock_auth, mock_suds_service, mocker):
 
 
 def test_save(engine_suds, mock_auth, mock_suds_service, mocker):
-    mocker.patch.object(engine_suds, "_get_suds_service", return_value=mock_suds_service)
+    mocker.patch.object(
+        engine_suds, "_get_suds_service", return_value=mock_suds_service
+    )
     mock_convert = mocker.patch.object(engine_suds, "_convert_results")
 
     obj = {"field1": "value1"}
     engine_suds.save("sample", obj, mock_auth)
 
-    expected_query = {"login": "test_user", "password": "test_pass", "sample": {"field1": "value1"}}
+    expected_query = {
+        "login": "test_user",
+        "password": "test_pass",
+        "sample": {"field1": "value1"},
+    }
     mock_suds_service.save.assert_called_once_with(expected_query)
     mock_convert.assert_called_once()
 
 
 def test_save_method_not_found(engine_suds, mock_auth, mock_suds_service, mocker):
-    mocker.patch.object(engine_suds, "_get_suds_service", return_value=mock_suds_service)
+    mocker.patch.object(
+        engine_suds, "_get_suds_service", return_value=mock_suds_service
+    )
     mock_suds_service.save.side_effect = MethodNotFound("save")
 
-    with pytest.raises(BfabricRequestError, match="SUDS failed to find save method for the sample endpoint."):
+    with pytest.raises(
+        BfabricRequestError,
+        match="SUDS failed to find save method for the sample endpoint.",
+    ):
         engine_suds.save("sample", {}, mock_auth)
 
 
 def test_delete(engine_suds, mock_auth, mock_suds_service, mocker):
-    mocker.patch.object(engine_suds, "_get_suds_service", return_value=mock_suds_service)
+    mocker.patch.object(
+        engine_suds, "_get_suds_service", return_value=mock_suds_service
+    )
     mock_convert = mocker.patch.object(engine_suds, "_convert_results")
 
     engine_suds.delete("sample", 123, mock_auth)
@@ -81,7 +96,9 @@ def test_delete(engine_suds, mock_auth, mock_suds_service, mocker):
 
 
 def test_delete_empty_list(engine_suds, mock_auth, mock_suds_service, mocker):
-    mocker.patch.object(engine_suds, "_get_suds_service", return_value=mock_suds_service)
+    mocker.patch.object(
+        engine_suds, "_get_suds_service", return_value=mock_suds_service
+    )
 
     result = engine_suds.delete("sample", [], mock_auth)
 
@@ -92,12 +109,16 @@ def test_delete_empty_list(engine_suds, mock_auth, mock_suds_service, mocker):
 
 
 def test_get_suds_service(engine_suds, mock_client, mocker):
-    mock_client_init = mocker.patch("bfabric.engine.engine_suds.Client", return_value=mock_client)
+    mock_client_init = mocker.patch(
+        "bfabric.engine.engine_suds.Client", return_value=mock_client
+    )
 
     service = engine_suds._get_suds_service("sample")
 
     assert service == mock_client.service
-    mock_client_init.assert_called_once_with("http://example.com/api/sample?wsdl", cache=None)
+    mock_client_init.assert_called_once_with(
+        "http://example.com/api/sample?wsdl", cache=None
+    )
 
     # Test caching
     service2 = engine_suds._get_suds_service("sample")
@@ -111,7 +132,10 @@ def test_convert_results(engine_suds, mocker):
 
     mock_response = MagicMock()
     mock_response.sample = [MagicMock(), MagicMock()]
-    mock_response.__getitem__.side_effect = {"sample": mock_response.sample, "numberofpages": 2}.__getitem__
+    mock_response.__getitem__.side_effect = {
+        "sample": mock_response.sample,
+        "numberofpages": 2,
+    }.__getitem__
 
     mock_suds_asdict.side_effect = [{"result1": "value1"}, {"result2": "value2"}]
     mock_clean_result.side_effect = lambda x, **kwargs: x

@@ -1,0 +1,87 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "bfabric"
+description = "Python client for the B-Fabric API"
+version = "1.13.18"
+license = { text = "GPL-3.0" }
+authors = [
+    { name = "Christian Panse", email = "cp@fgcz.ethz.ch" },
+    { name = "Leonardo Schwarz", email = "leonardo.schwarz@fgcz.ethz.ch" },
+    { name = "Aleksejs Fomins" },
+    { name = "Marco Schmidt" },
+    { name = "Maria d'Errico" },
+    { name = "Witold Eryk Wolski" },
+]
+requires-python = ">=3.9"
+dependencies = [
+    "suds >= 1.1.2",
+    "PyYAML >= 6.0",
+    "Flask >= 3.0.3",
+    "rich >= 13.7.1",
+    "zeep >= 4.2.1",
+    "polars-lts-cpu >= 0.20.25; platform_machine == 'x86_64' and platform_system == 'Darwin'",
+    "polars >= 0.20.25; platform_machine != 'x86_64' or platform_system != 'Darwin'",
+    "loguru>=0.7",
+    "pydantic>=2.9.2",
+    "eval_type_backport; python_version < '3.10'",
+    "python-dateutil >= 2.9.0",
+    "cyclopts >= 2.9.9",
+    #"platformdirs >= 4.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "bfabric[doc,test]",
+    "black",
+    "isort",
+    "ruff",
+    "licensecheck",
+    "nox",
+    "uv",
+    "ipython",
+]
+doc = ["mkdocs", "mkdocs-material", "mkdocstrings[python]"]
+test = ["pytest", "pytest-mock", "logot[pytest,loguru]"]
+typing = ["mypy", "types-requests", "lxml-stubs", "pandas-stubs", "types-python-dateutil"]
+
+[project.urls]
+Homepage = "https://github.com/fgcz/bfabricPy"
+Repository = "https://github.com/fgcz/bfabricPy"
+
+
+[tool.uv]
+reinstall-package = ["bfabric", "bfabric_scripts", "app_runner"]
+
+[tool.black]
+line-length = 120
+target-version = ["py39"]
+
+[tool.ruff]
+line-length = 120
+indent-width = 4
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["ANN", "BLE", "D103", "E", "EXE", "F", "N", "PLW", "PTH", "SIM", "TCH", "UP", "W191"]
+ignore = ["ANN401"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/bfabric_scripts/**" = ["ALL"]
+"**/wrapper_creator/**" = ["ALL"]
+"**/examples/**" = ["ALL"]
+"**/tests/**" = ["ALL"]
+"noxfile.py" = ["ALL"]
+
+[tool.licensecheck]
+using = "PEP631"
+
+#[tool.pytest.ini_options]
+#logot_capturer = "logot.loguru.LoguruCapturer"
+
+#[tool.check-tests-structure]
+#sources_path = "src/bfabric"
+#tests_path = "tests/unit"
+#allow_missing_tests = true

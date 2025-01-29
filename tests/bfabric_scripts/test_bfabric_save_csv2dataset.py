@@ -1,7 +1,7 @@
 import polars as pl
 import pytest
 
-from bfabric_scripts.bfabric_save_csv2dataset import check_for_invalid_characters
+from bfabric.experimental.upload_dataset import check_for_invalid_characters
 
 
 def test_check_for_invalid_characters_no_invalid_chars():
@@ -23,7 +23,13 @@ def test_check_for_invalid_characters_with_invalid_chars():
 
 
 def test_check_for_invalid_characters_multiple_columns():
-    data = pl.DataFrame({"col1": ["abc", "d!ef", "ghi"], "col2": ["123", "45@6", "789"], "col3": ["xyz", "uvw", "rst"]})
+    data = pl.DataFrame(
+        {
+            "col1": ["abc", "d!ef", "ghi"],
+            "col2": ["123", "45@6", "789"],
+            "col3": ["xyz", "uvw", "rst"],
+        }
+    )
     invalid_characters = "!@#"
 
     with pytest.raises(RuntimeError) as excinfo:
@@ -49,7 +55,9 @@ def test_check_for_invalid_characters_empty_dataframe():
 
 
 def test_check_for_invalid_characters_non_string_columns():
-    data = pl.DataFrame({"col1": [1, 2, 3], "col2": [4.5, 5.6, 6.7], "col3": ["abc", "def", "ghi"]})
+    data = pl.DataFrame(
+        {"col1": [1, 2, 3], "col2": [4.5, 5.6, 6.7], "col3": ["abc", "def", "ghi"]}
+    )
     invalid_characters = "!@#"
 
     # Should not raise an exception

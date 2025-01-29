@@ -2,7 +2,12 @@ import pytest
 import yaml
 
 from app_runner.specs.app.app_version import AppVersion
-from app_runner.specs.app.commands_spec import CommandShell, CommandDocker, MountOptions, CommandsSpec
+from app_runner.specs.app.commands_spec import (
+    CommandShell,
+    CommandDocker,
+    MountOptions,
+    CommandsSpec,
+)
 from app_runner.specs.submitter_ref import SubmitterRef
 
 
@@ -13,7 +18,9 @@ def parsed() -> AppVersion:
         commands=CommandsSpec(
             dispatch=CommandShell(command="dispatch"),
             process=CommandDocker(
-                image="image", command="command", mounts=MountOptions(read_only=[("/host", "/container")])
+                image="image",
+                command="command",
+                mounts=MountOptions(read_only=[("/host", "/container")]),
             ),
             collect=CommandShell(command="collect"),
         ),
