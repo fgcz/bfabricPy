@@ -7,7 +7,9 @@ name = "bfabric_scripts"
 description = "Python command line scripts for the B-Fabric API"
 version = "1.13.18"
 
-dependencies = []
+dependencies = [
+    "bfabric"
+]
 
 [project.scripts]
 "bfabric_flask.py" = "bfabric_scripts.bfabric_flask:main"
