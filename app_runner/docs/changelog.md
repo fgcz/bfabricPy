@@ -4,9 +4,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.0.14\] - 2025-01-30
+
+### Fixed
+
+- Correctly consume bfabricPy from PyPI.
+
 ## \[0.0.13\] - 2025-01-28
 
-## Added
+### Added
 
 - `WorkunitDefinition.registration.workunit_name` field.
 
