@@ -31,4 +31,4 @@ import pytest
     ],
 )
 def test_help(command):
-    subprocess.run(["app-runner"] + shlex.split(command), check=True)
+    subprocess.run(["bfabric-app-runner"] + shlex.split(command), check=True)
