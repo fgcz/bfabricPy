@@ -19,7 +19,7 @@ dependencies = [
 ]
 
 [project.scripts]
-"bfabric-app-runner"="app_runner.cli.__main__:app"
+"app-runner"="app_runner.cli.__main__:app"
 
 [project.optional-dependencies]
 doc = [
