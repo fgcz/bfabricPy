@@ -1,6 +1,6 @@
-# TODO This is actually the unit test
 from pathlib import Path
 from shutil import SameFileError
+from subprocess import CalledProcessError
 
 import pytest
 from logot import Logot, logged
@@ -10,6 +10,7 @@ from app_runner.input_preparation.prepare_file_spec import (
     _operation_copy_rsync,
     _operation_copy_cp,
     _operation_link_symbolic,
+    _operation_copy_scp,
 )
 from app_runner.specs.inputs.file_copy_spec import FileSpec
 from bfabric import Bfabric
@@ -127,9 +128,26 @@ def test_operation_copy_rsync_ssh_custom_user(mock_subprocess, logot: Logot):
     assert result
 
 
-def test_operation_copy_scp():
-    # TODO not fully clear if i want to test this one again ->since it requires mocking my own scp
-    pass
+def test_operation_copy_scp(mocker):
+    mock_scp = mocker.patch("app_runner.input_preparation.prepare_file_spec.scp")
+    spec = FileSpec.model_validate(
+        {"source": {"ssh": {"host": "host", "path": "/source.txt"}}, "filename": "destination.txt"}
+    )
+    result = _operation_copy_scp(spec=spec, output_path=Path("mock_output.txt"), ssh_user="user")
+    mock_scp.assert_called_once_with(source="host:/source.txt", target=Path("mock_output.txt"), user="user")
+    assert result
+
+
+def test_operation_copy_scp_when_error(mocker):
+    mock_scp = mocker.patch(
+        "app_runner.input_preparation.prepare_file_spec.scp", side_effect=CalledProcessError(1, "scp")
+    )
+    spec = FileSpec.model_validate(
+        {"source": {"ssh": {"host": "host", "path": "/source.txt"}}, "filename": "destination.txt"}
+    )
+    result = _operation_copy_scp(spec=spec, output_path=Path("mock_output.txt"), ssh_user="user")
+    mock_scp.assert_called_once_with(source="host:/source.txt", target=Path("mock_output.txt"), user="user")
+    assert not result
 
 
 def test_operation_copy_cp(mock_shutil_copyfile, logot: Logot):
