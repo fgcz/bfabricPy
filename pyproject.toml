@@ -10,7 +10,7 @@ logot_capturer = "logot.loguru.LoguruCapturer"
 
 [tool.black]
 line-length = 120
-target-version = ["py39"]
+target-version = ["py311"]
 
 [tool.ruff]
 line-length = 120

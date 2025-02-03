@@ -55,9 +55,7 @@ def test_from_config_when_explicit_auth(mocker):
     assert isinstance(client, Bfabric)
     assert client.config == mock_config
     assert client.auth == mock_auth
-    mock_get_system_auth.assert_called_once_with(
-        config_env="TestingEnv", config_path=None
-    )
+    mock_get_system_auth.assert_called_once_with(config_env="TestingEnv", config_path=None)
 
 
 def test_from_config_when_none_auth(mocker):
@@ -74,9 +72,7 @@ def test_from_config_when_none_auth(mocker):
     assert client.config == mock_config
     with pytest.raises(ValueError, match="Authentication not available"):
         _ = client.auth
-    mock_get_system_auth.assert_called_once_with(
-        config_env="TestingEnv", config_path=None
-    )
+    mock_get_system_auth.assert_called_once_with(config_env="TestingEnv", config_path=None)
 
 
 def test_from_config_when_engine_suds(mocker):
@@ -130,9 +126,7 @@ def test_auth_when_missing(bfabric_instance):
 
 def test_auth_when_provided(mock_config, mock_engine):
     mock_auth = MagicMock(name="mock_auth")
-    bfabric_instance = Bfabric(
-        config=mock_config, auth=mock_auth, engine=BfabricAPIEngineType.SUDS
-    )
+    bfabric_instance = Bfabric(config=mock_config, auth=mock_auth, engine=BfabricAPIEngineType.SUDS)
     assert bfabric_instance.auth == mock_auth
 
 
@@ -164,9 +158,7 @@ def test_read_when_no_pages_available_and_check(bfabric_instance, mocker):
     bfabric_instance._auth = mock_auth
 
     mock_engine = mocker.patch.object(bfabric_instance, "_engine")
-    mock_result = MagicMock(
-        name="mock_result", total_pages_api=0, assert_success=MagicMock()
-    )
+    mock_result = MagicMock(name="mock_result", total_pages_api=0, assert_success=MagicMock())
     mock_engine.read.return_value = mock_result
 
     result = bfabric_instance.read(endpoint="mock_endpoint", obj="mock_obj")
@@ -187,9 +179,7 @@ def test_read_when_pages_available_and_check(bfabric_instance, mocker):
     mock_auth = MagicMock(name="mock_auth")
     bfabric_instance._auth = mock_auth
 
-    mock_compute_requested_pages = mocker.patch(
-        "bfabric.bfabric.compute_requested_pages"
-    )
+    mock_compute_requested_pages = mocker.patch("bfabric.bfabric.compute_requested_pages")
     mock_engine = mocker.patch.object(bfabric_instance, "_engine")
 
     mock_page_results = [
@@ -205,9 +195,7 @@ def test_read_when_pages_available_and_check(bfabric_instance, mocker):
     mock_page_results[1].__getitem__.side_effect = lambda i: [6, 7, 8, 9, 10][i]
     mock_page_results[2].__getitem__.side_effect = lambda i: [11, 12, 13, 14, 15][i]
 
-    mock_engine.read.side_effect = lambda **kwargs: mock_page_results[
-        kwargs["page"] - 1
-    ]
+    mock_engine.read.side_effect = lambda **kwargs: mock_page_results[kwargs["page"] - 1]
     mock_compute_requested_pages.return_value = ([1, 2], 4)
 
     result = bfabric_instance.read(endpoint="mock_endpoint", obj="mock_obj")
@@ -301,9 +289,7 @@ def test_delete_when_auth_and_check_false(bfabric_instance, mocker):
 
     assert result == mock_engine.delete.return_value
     method_assert_success.assert_not_called()
-    mock_engine.delete.assert_called_once_with(
-        endpoint="test_endpoint", id=10, auth=mock_auth
-    )
+    mock_engine.delete.assert_called_once_with(endpoint="test_endpoint", id=10, auth=mock_auth)
 
 
 def test_delete_when_auth_and_check_true(bfabric_instance, mocker):
@@ -318,9 +304,7 @@ def test_delete_when_auth_and_check_true(bfabric_instance, mocker):
 
     assert result == mock_engine.delete.return_value
     method_assert_success.assert_called_once()
-    mock_engine.delete.assert_called_once_with(
-        endpoint="test_endpoint", id=10, auth=mock_auth
-    )
+    mock_engine.delete.assert_called_once_with(endpoint="test_endpoint", id=10, auth=mock_auth)
 
 
 def test_exists_when_true(bfabric_instance, mocker):
@@ -363,9 +347,7 @@ def test_exists_when_false(bfabric_instance, mocker):
     mock_read = mocker.patch.object(Bfabric, "read")
     mock_read.return_value.__len__.return_value = 0
 
-    assert not bfabric_instance.exists(
-        endpoint="test_endpoint", key="key", value="value"
-    )
+    assert not bfabric_instance.exists(endpoint="test_endpoint", key="key", value="value")
 
     mock_read.assert_called_once_with(
         endpoint="test_endpoint",
@@ -401,18 +383,14 @@ def test_upload_resource(bfabric_instance, mocker):
 def test_get_version_message(mock_config, bfabric_instance):
     mock_config.base_url = "dummy_url"
     line1, line2 = bfabric_instance._get_version_message()
-    pattern = (
-        r"bfabricPy v\d+\.\d+\.\d+ \(EngineSUDS, dummy_url, U=None, PY=\d\.\d+\.\d+\)"
-    )
+    pattern = r"bfabricPy v\d+\.\d+\.\d+ \(EngineSUDS, dummy_url, U=None, PY=\d\.\d+\.\d+\)"
     assert re.match(pattern, line1)
     year = datetime.datetime.now().year
     assert line2 == f"Copyright (C) 2014-{year} Functional Genomics Center Zurich"
 
 
 def test_log_version_message(mocker, bfabric_instance):
-    mocker.patch.object(
-        Bfabric, "_get_version_message", return_value=("line1", "line2")
-    )
+    mocker.patch.object(Bfabric, "_get_version_message", return_value=("line1", "line2"))
     mock_logger = mocker.patch("bfabric.bfabric.logger")
     bfabric_instance._log_version_message()
     assert mock_logger.info.mock_calls == [call("line1"), call("line2")]

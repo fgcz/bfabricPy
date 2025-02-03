@@ -101,13 +101,8 @@ def test_store_output_folder(mocker, mock_workunit) -> None:
         "name": "my app",
     }.__getitem__
     mocker.patch.object(mock_workunit, "application", mock_application)
-    mocker.patch.object(
-        Workunit, "container", mocker.PropertyMock(return_value=mocker.MagicMock(id=12))
-    )
-    assert (
-        Path("xyz12/bfabric/tech/my_app/2024/2024-01/2024-01-02/workunit_30000")
-        == mock_workunit.store_output_folder
-    )
+    mocker.patch.object(Workunit, "container", mocker.PropertyMock(return_value=mocker.MagicMock(id=12)))
+    assert Path("xyz12/bfabric/tech/my_app/2024/2024-01/2024-01-02/workunit_30000") == mock_workunit.store_output_folder
 
 
 def test_repr() -> None:
