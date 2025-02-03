@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from bfabric import Bfabric
 
 
+# TODO(leo): deprecate later
 class FileScpSpec(BaseModel):
     model_config = ConfigDict(extra="forbid")
     type: Literal["file_scp"] = "file_scp"

@@ -4,11 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
-## \[0.0.15\] - 2025-02-03
+### Added
 
-### Changed
-
-- Prepare for PyPI release, major rename.
+- New input type `file` which replaces `file_scp` and preserves timestamps whenever possible and allows to create
+    symlinks instead of copying the file, as needed.
 
 ## \[0.0.14\] - 2025-01-30
 

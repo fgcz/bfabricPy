@@ -7,9 +7,11 @@ from loguru import logger
 from bfabric_app_runner.input_preparation.collect_annotation import prepare_annotation
 from bfabric_app_runner.input_preparation.integrity import IntegrityState
 from bfabric_app_runner.input_preparation.list_inputs import list_input_states
+from bfabric_app_runner.input_preparation.prepare_file_spec import prepare_file_spec
 from bfabric_app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
 from bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec import BfabricOrderFastaSpec
 from bfabric_app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
+from bfabric_app_runner.specs.inputs.file_copy_spec import FileSpec
 from bfabric_app_runner.specs.inputs.file_scp_spec import FileScpSpec
 from bfabric_app_runner.specs.inputs_spec import (
     InputSpecType,
@@ -40,6 +42,8 @@ class PrepareInputs:
                 logger.debug(f"Skipping {spec} as it already exists and passed integrity check")
             elif isinstance(spec, BfabricResourceSpec):
                 self.prepare_resource(spec)
+            elif isinstance(spec, FileSpec):
+                self.prepare_file_spec(spec)
             elif isinstance(spec, FileScpSpec):
                 self.prepare_file_scp(spec)
             elif isinstance(spec, BfabricDatasetSpec):
@@ -86,6 +90,9 @@ class PrepareInputs:
             logger.debug(f"Checksum: expected {resource['filechecksum']}, got {actual_checksum}")
             if actual_checksum != resource["filechecksum"]:
                 raise ValueError(f"Checksum mismatch: expected {resource['filechecksum']}, got {actual_checksum}")
+
+    def prepare_file_spec(self, spec: FileSpec) -> None:
+        return prepare_file_spec(spec=spec, client=self._client, working_dir=self._working_dir, ssh_user=self._ssh_user)
 
     def prepare_file_scp(self, spec: FileScpSpec) -> None:
         scp_uri = f"{spec.host}:{spec.absolute_path}"
