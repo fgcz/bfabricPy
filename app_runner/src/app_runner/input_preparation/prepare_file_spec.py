@@ -52,12 +52,13 @@ def _operation_copy_rsync(spec: FileSpec, output_path: Path, ssh_user: str | Non
 
 
 def _operation_copy(spec: FileSpec, output_path: Path, ssh_user: str | None) -> bool:
-    if isinstance(spec.source, FileSourceLocal):
-        return _operation_copy_cp(spec, output_path)
-    elif isinstance(spec.source, FileSourceSsh):
-        return _operation_copy_scp(spec, output_path, ssh_user)
-    else:
-        assert_never(spec.source)
+    match spec.source:
+        case FileSourceLocal():
+            return _operation_copy_cp(spec, output_path)
+        case FileSourceSsh():
+            return _operation_copy_scp(spec, output_path, ssh_user)
+        case _:
+            assert_never(spec.source)
 
 
 def _operation_copy_scp(spec: FileSpec, output_path: Path, ssh_user: str | None) -> bool:
