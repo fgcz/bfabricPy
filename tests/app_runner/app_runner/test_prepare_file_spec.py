@@ -149,13 +149,18 @@ def test_operation_copy_cp_when_error(mock_shutil_copyfile, logot: Logot):
     assert not result
 
 
-def test_operation_link_symbolic(mock_subprocess, logot: Logot):
-    source_path = Path("/E/source.txt")
-    dest_path = Path("/E/somewhere/destination.txt")
-    spec = FileSpec.model_validate(
-        {"source": {"local": str(source_path)}, "filename": "destination.txt", "link": "link"}
-    )
+@pytest.mark.parametrize(
+    "source,dest,expected_target",
+    [
+        ("/E/source.txt", "/E/dir/destination.txt", "../source.txt"),
+        ("/X/source.txt", "/E/dir/destination.txt", "../../X/source.txt"),
+        ("/work/source.txt", "/work/destination.txt", "source.txt"),
+    ],
+)
+def test_operation_link_symbolic(mock_subprocess, logot: Logot, source, dest, expected_target):
+    spec = FileSpec.model_validate({"source": {"local": source}, "filename": "IGNORED", "link": "link"})
     mock_subprocess.return_value.returncode = 0
-    result = _operation_link_symbolic(spec=spec, output_path=dest_path)
-    mock_subprocess.assert_called_once_with(["ln", "-s", "../source.txt", str(dest_path)], check=False)
+    result = _operation_link_symbolic(spec=spec, output_path=Path(dest))
+    mock_subprocess.assert_called_once_with(["ln", "-s", expected_target, str(dest)], check=False)
+    logot.assert_logged(logged.info(f"ln -s {expected_target} {dest}"))
     assert result
