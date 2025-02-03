@@ -2,6 +2,7 @@ import shlex
 import shutil
 import subprocess
 from pathlib import Path
+from shutil import SameFileError
 from subprocess import CalledProcessError
 from typing import assert_never
 
@@ -41,7 +42,7 @@ def _operation_copy_rsync(spec: FileSpec, output_path: Path, ssh_user: str | Non
     match spec.source:
         case FileSourceLocal(local=local):
             source_str = str(Path(local).resolve())
-        case FileSourceSsh(FileSourceSshValue(host=host, path=path)):
+        case FileSourceSsh(ssh=FileSourceSshValue(host=host, path=path)):
             source_str = f"{ssh_user}@{host}:{path}" if ssh_user else f"{host}:{path}"
         case _:
             assert_never(spec.source)
@@ -72,15 +73,17 @@ def _operation_copy_scp(spec: FileSpec, output_path: Path, ssh_user: str | None)
 
 def _operation_copy_cp(spec: FileSpec, output_path: Path) -> bool:
     cmd = [str(Path(spec.source.local).resolve()), str(output_path)]
-    logger.info(shlex.join(["cp"] + cmd))
-    shutil.copyfile(*cmd)
-    result = subprocess.run(cmd, check=False)
-    return result.returncode == 0
+    logger.info(shlex.join(["cp", *cmd]))
+    try:
+        shutil.copyfile(*cmd)
+    except (OSError, SameFileError):
+        return False
+    return True
 
 
 def _operation_link_symbolic(spec: FileSpec, output_path: Path) -> bool:
     # the link is created relative to the output file, so it should be more portable across apptainer images etc
-    source_path = Path(spec.source.local).resolve().relative_to(output_path.parent)
+    source_path = Path(spec.source.local).resolve().relative_to(output_path.resolve().parent)
     cmd = ["ln", "-s", str(source_path), str(output_path)]
     logger.info(shlex.join(cmd))
     result = subprocess.run(cmd, check=False)
