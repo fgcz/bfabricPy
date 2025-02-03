@@ -65,15 +65,11 @@ class EngineZeep:
         )
 
         client = self._get_client(endpoint)
-        with client.settings(
-            strict=False, xml_huge_tree=True, xsd_ignore_sequence_order=True
-        ):
+        with client.settings(strict=False, xml_huge_tree=True, xsd_ignore_sequence_order=True):
             response = client.service.read(full_query)
         return self._convert_results(response=response, endpoint=endpoint)
 
-    def save(
-        self, endpoint: str, obj: dict, auth: BfabricAuth, method: str = "save"
-    ) -> ResultContainer:
+    def save(self, endpoint: str, obj: dict, auth: BfabricAuth, method: str = "save") -> ResultContainer:
         """Saves the provided object to the specified endpoint.
         :param endpoint: the endpoint to save to, e.g. "sample"
         :param obj: the object to save
@@ -97,15 +93,11 @@ class EngineZeep:
                 response = getattr(client.service, method)(full_query)
         except AttributeError as e:
             if e.args[0] == "Service has no operation 'save'":
-                raise BfabricRequestError(
-                    f"ZEEP failed to find save method for the {endpoint} endpoint."
-                ) from e
+                raise BfabricRequestError(f"ZEEP failed to find save method for the {endpoint} endpoint.") from e
             raise e
         return self._convert_results(response=response, endpoint=endpoint)
 
-    def delete(
-        self, endpoint: str, id: int | list[int], auth: BfabricAuth
-    ) -> ResultContainer:
+    def delete(self, endpoint: str, id: int | list[int], auth: BfabricAuth) -> ResultContainer:
         """Deletes the object with the specified ID from the specified endpoint.
         :param endpoint: the endpoint to delete from, e.g. "sample"
         :param id: the ID of the object to delete
@@ -151,9 +143,7 @@ class EngineZeep:
                 sort_keys=True,
             )
             results += [results_parsed]
-        return ResultContainer(
-            results=results, total_pages_api=n_available_pages, errors=errors
-        )
+        return ResultContainer(results=results, total_pages_api=n_available_pages, errors=errors)
 
 
 # TODO: The reason why Zeep requires to explicitly skip certain values remains unclear
@@ -161,9 +151,7 @@ class EngineZeep:
 #      formatting they appear to zeep as compulsory. The current solution is envisioned by developers of Zeep, but
 #      it is a hack, and should ideally be handled internally by Zeep.
 #    If developers of Zeep ever resume its maintenance, it would make sense to revisit
-def _zeep_query_append_skipped(
-    query: dict, skipped_keys: list, inplace: bool = False, overwrite: bool = False
-) -> dict:
+def _zeep_query_append_skipped(query: dict, skipped_keys: list, inplace: bool = False, overwrite: bool = False) -> dict:
     """
     This function is used to fix a buggy behaviour of Zeep/BFabric. Specifically, Zeep does not return correct
     query results if some of the optional parameters are not mentioned in the query.

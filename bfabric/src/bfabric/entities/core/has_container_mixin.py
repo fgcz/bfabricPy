@@ -29,21 +29,13 @@ class HasContainerMixin:
 
         result: Project | Order | None
         if self.data_dict["container"]["classname"] == Project.ENDPOINT:
-            result = Project.find(
-                id=self.data_dict["container"]["id"], client=self._client
-            )
+            result = Project.find(id=self.data_dict["container"]["id"], client=self._client)
         elif self.data_dict["container"]["classname"] == Order.ENDPOINT:
-            result = Order.find(
-                id=self.data_dict["container"]["id"], client=self._client
-            )
+            result = Order.find(id=self.data_dict["container"]["id"], client=self._client)
         else:
-            raise ValueError(
-                f"Unknown container classname: {self.data_dict['container']['classname']}"
-            )
+            raise ValueError(f"Unknown container classname: {self.data_dict['container']['classname']}")
 
         if result is None:
-            raise ValueError(
-                f"Could not find container with ID {self.data_dict['container']['id']}"
-            )
+            raise ValueError(f"Could not find container with ID {self.data_dict['container']['id']}")
 
         return result

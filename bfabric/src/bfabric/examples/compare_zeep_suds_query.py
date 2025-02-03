@@ -48,9 +48,7 @@ def read_suds(wsdl, fullQuery, raw=True):
         return suds_asdict_recursive(ret, convert_types=True)
 
 
-def full_query(
-    auth: BfabricAuth, query: dict, includedeletableupdateable: bool = False
-) -> dict:
+def full_query(auth: BfabricAuth, query: dict, includedeletableupdateable: bool = False) -> dict:
     thisQuery = deepcopy(query)
     thisQuery["includedeletableupdateable"] = includedeletableupdateable
 
@@ -142,15 +140,11 @@ def recursive_comparison(generic_container1, generic_container2, prefix: list) -
                 print(prefix, "Not in 2: ", k, "=", generic_container1[k])
                 matched = False
             else:
-                matched_recursive = recursive_comparison(
-                    generic_container1[k], generic_container2[k], prefix + [k]
-                )
+                matched_recursive = recursive_comparison(generic_container1[k], generic_container2[k], prefix + [k])
                 matched = matched and matched_recursive
     elif isinstance(generic_container1, list):
         if len(generic_container1) != len(generic_container2):
-            print(
-                prefix, "length", len(generic_container1), "!=", len(generic_container2)
-            )
+            print(prefix, "length", len(generic_container1), "!=", len(generic_container2))
             matched = False
         else:
             for i, (el1, el2) in enumerate(zip(generic_container1, generic_container2)):

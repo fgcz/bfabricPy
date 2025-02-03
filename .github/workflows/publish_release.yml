@@ -13,7 +13,7 @@ on:
         options:
           - bfabric
           - bfabric_scripts
-          - app_runner
+          - bfabric_app_runner
         default: bfabric
       environment:
         description: 'Target PyPI'

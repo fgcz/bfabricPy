@@ -27,29 +27,15 @@ class Workunit(Entity, HasContainerMixin):
 
     ENDPOINT = "workunit"
 
-    def __init__(
-        self, data_dict: dict[str, Any], client: Bfabric | None = None
-    ) -> None:
+    def __init__(self, data_dict: dict[str, Any], client: Bfabric | None = None) -> None:
         super().__init__(data_dict=data_dict, client=client)
 
-    application: HasOne[Application] = HasOne(
-        entity="Application", bfabric_field="application"
-    )
-    parameters: HasMany[Parameter] = HasMany(
-        entity="Parameter", bfabric_field="parameter", optional=True
-    )
-    resources: HasMany[Resource] = HasMany(
-        entity="Resource", bfabric_field="resource", optional=True
-    )
-    input_resources: HasMany[Resource] = HasMany(
-        entity="Resource", bfabric_field="inputresource", optional=True
-    )
-    input_dataset: HasOne[Dataset] = HasOne(
-        entity="Dataset", bfabric_field="inputdataset", optional=True
-    )
-    external_jobs: HasMany[ExternalJob] = HasMany(
-        entity="ExternalJob", bfabric_field="externaljob", optional=True
-    )
+    application: HasOne[Application] = HasOne(entity="Application", bfabric_field="application")
+    parameters: HasMany[Parameter] = HasMany(entity="Parameter", bfabric_field="parameter", optional=True)
+    resources: HasMany[Resource] = HasMany(entity="Resource", bfabric_field="resource", optional=True)
+    input_resources: HasMany[Resource] = HasMany(entity="Resource", bfabric_field="inputresource", optional=True)
+    input_dataset: HasOne[Dataset] = HasOne(entity="Dataset", bfabric_field="inputdataset", optional=True)
+    external_jobs: HasMany[ExternalJob] = HasMany(entity="ExternalJob", bfabric_field="externaljob", optional=True)
 
     @cached_property
     def parameter_values(self) -> dict[str, Any]:
@@ -59,13 +45,9 @@ class Workunit(Entity, HasContainerMixin):
     def store_output_folder(self) -> Path:
         """Relative path in the storage for the workunit output."""
         if self.application is None:
-            raise ValueError(
-                "Cannot determine the storage path without an application."
-            )
+            raise ValueError("Cannot determine the storage path without an application.")
         if self.application.storage is None:
-            raise ValueError(
-                "Cannot determine the storage path without an application storage configuration."
-            )
+            raise ValueError("Cannot determine the storage path without an application storage configuration.")
         date = dateutil.parser.parse(self.data_dict["created"])
         return Path(
             f"{self.application.storage['projectfolderprefix']}{self.container.id}",

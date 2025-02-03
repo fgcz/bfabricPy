@@ -37,9 +37,7 @@ def _calc_query(config, auth, engine, endpoint):
         return_id_only=False,
         includedeletableupdateable=True,
     )
-    response_dict = response_class.to_list_dict(
-        drop_empty=True, have_sort_responses=True
-    )
+    response_dict = response_class.to_list_dict(drop_empty=True, have_sort_responses=True)
     return list_dict_to_df(response_dict)
 
 
@@ -58,9 +56,7 @@ def _set_partition_test(a, b) -> bool:
     return (len(unique1) == 0) and (len(unique2) == 0)
 
 
-def dataframe_pagination_test(
-    config, auth, endpoint, use_cached: bool = False, store_cached: bool = True
-):
+def dataframe_pagination_test(config, auth, endpoint, use_cached: bool = False, store_cached: bool = True):
     pwd_zeep = "tmp_zeep_" + endpoint + ".csv"
     pwd_suds = "tmp_suds_" + endpoint + ".csv"
 
@@ -101,7 +97,5 @@ def dataframe_pagination_test(
 
 config, auth = get_system_auth(config_env="TEST")
 
-result = dataframe_pagination_test(
-    config, auth, "user", use_cached=False, store_cached=True
-)
+result = dataframe_pagination_test(config, auth, "user", use_cached=False, store_cached=True)
 report_test_result(result, "pagination")

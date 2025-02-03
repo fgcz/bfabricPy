@@ -18,9 +18,7 @@ Intermediate conclusions:
 """
 
 
-def full_query(
-    auth: BfabricAuth, query: dict, includedeletableupdateable: bool = False
-) -> dict:
+def full_query(auth: BfabricAuth, query: dict, includedeletableupdateable: bool = False) -> dict:
     thisQuery = deepcopy(query)
     thisQuery["includedeletableupdateable"] = includedeletableupdateable
 

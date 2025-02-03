@@ -37,9 +37,7 @@ def suds_asdict_recursive(d: Any, convert_types: bool = False) -> dict[str, Valu
             items: list[Value] = []
             for item in v:
                 if hasattr(item, "__keylist__"):
-                    items.append(
-                        suds_asdict_recursive(item, convert_types=convert_types)
-                    )
+                    items.append(suds_asdict_recursive(item, convert_types=convert_types))
                 else:
                     items.append(convert_suds_type(item) if convert_types else item)
             out[k] = items

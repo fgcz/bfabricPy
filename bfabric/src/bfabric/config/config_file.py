@@ -25,11 +25,7 @@ class EnvironmentConfig(BaseModel):
         """Gathers all configs into the config field."""
         if not isinstance(values, dict):
             return values
-        values["config"] = {
-            key: value
-            for key, value in values.items()
-            if key not in ["login", "password"]
-        }
+        values["config"] = {key: value for key, value in values.items() if key not in ["login", "password"]}
         return values
 
     @model_validator(mode="before")
@@ -78,21 +74,13 @@ class ConfigFile(BaseModel):
         if explicit_config_env:
             return explicit_config_env
         elif "BFABRICPY_CONFIG_ENV" in os.environ:
-            logger.debug(
-                f"found BFABRICPY_CONFIG_ENV = {os.environ['BFABRICPY_CONFIG_ENV']}"
-            )
+            logger.debug(f"found BFABRICPY_CONFIG_ENV = {os.environ['BFABRICPY_CONFIG_ENV']}")
             return os.environ["BFABRICPY_CONFIG_ENV"]
         else:
-            logger.debug(
-                f"BFABRICPY_CONFIG_ENV not found, using default environment {self.general.default_config}"
-            )
+            logger.debug(f"BFABRICPY_CONFIG_ENV not found, using default environment {self.general.default_config}")
             return self.general.default_config
 
-    def get_selected_config(
-        self, explicit_config_env: str | None = None
-    ) -> EnvironmentConfig:
+    def get_selected_config(self, explicit_config_env: str | None = None) -> EnvironmentConfig:
         """Returns the selected configuration, by checking the hierarchy of config_env definitions.
         See selected_config_env for details."""
-        return self.environments[
-            self.get_selected_config_env(explicit_config_env=explicit_config_env)
-        ]
+        return self.environments[self.get_selected_config_env(explicit_config_env=explicit_config_env)]

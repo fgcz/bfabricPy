@@ -77,9 +77,7 @@ def test_save(engine_zeep, mock_auth, mock_zeep_client, mocker):
 
 def test_save_method_not_found(engine_zeep, mock_auth, mock_zeep_client, mocker):
     mocker.patch.object(engine_zeep, "_get_client", return_value=mock_zeep_client)
-    mock_zeep_client.service.save.side_effect = AttributeError(
-        "Service has no operation 'save'"
-    )
+    mock_zeep_client.service.save.side_effect = AttributeError("Service has no operation 'save'")
 
     with pytest.raises(
         BfabricRequestError,
@@ -111,9 +109,7 @@ def test_delete_empty_list(engine_zeep, mock_auth, mock_zeep_client, mocker):
 
 
 def test_get_client(engine_zeep, mocker):
-    mock_zeep_client = mocker.patch(
-        "zeep.Client", return_value=MagicMock(spec=zeep.Client)
-    )
+    mock_zeep_client = mocker.patch("zeep.Client", return_value=MagicMock(spec=zeep.Client))
 
     client = engine_zeep._get_client("sample")
 
@@ -186,9 +182,7 @@ def test_zeep_query_append_skipped():
     result_no_overwrite = _zeep_query_append_skipped(query_with_existing, skipped_keys)
     assert result_no_overwrite == query_with_existing
 
-    result_overwrite = _zeep_query_append_skipped(
-        query_with_existing, skipped_keys, overwrite=True
-    )
+    result_overwrite = _zeep_query_append_skipped(query_with_existing, skipped_keys, overwrite=True)
     assert result_overwrite == {"key1": zeep.xsd.SkipValue, "key2": zeep.xsd.SkipValue}
 
 

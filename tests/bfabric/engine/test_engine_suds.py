@@ -32,9 +32,7 @@ def mock_client(mock_suds_service):
 
 
 def test_read(engine_suds, mock_auth, mock_suds_service, mocker):
-    mocker.patch.object(
-        engine_suds, "_get_suds_service", return_value=mock_suds_service
-    )
+    mocker.patch.object(engine_suds, "_get_suds_service", return_value=mock_suds_service)
     mock_convert = mocker.patch.object(engine_suds, "_convert_results")
 
     obj = {"field1": "value1"}
@@ -52,9 +50,7 @@ def test_read(engine_suds, mock_auth, mock_suds_service, mocker):
 
 
 def test_save(engine_suds, mock_auth, mock_suds_service, mocker):
-    mocker.patch.object(
-        engine_suds, "_get_suds_service", return_value=mock_suds_service
-    )
+    mocker.patch.object(engine_suds, "_get_suds_service", return_value=mock_suds_service)
     mock_convert = mocker.patch.object(engine_suds, "_convert_results")
 
     obj = {"field1": "value1"}
@@ -70,9 +66,7 @@ def test_save(engine_suds, mock_auth, mock_suds_service, mocker):
 
 
 def test_save_method_not_found(engine_suds, mock_auth, mock_suds_service, mocker):
-    mocker.patch.object(
-        engine_suds, "_get_suds_service", return_value=mock_suds_service
-    )
+    mocker.patch.object(engine_suds, "_get_suds_service", return_value=mock_suds_service)
     mock_suds_service.save.side_effect = MethodNotFound("save")
 
     with pytest.raises(
@@ -83,9 +77,7 @@ def test_save_method_not_found(engine_suds, mock_auth, mock_suds_service, mocker
 
 
 def test_delete(engine_suds, mock_auth, mock_suds_service, mocker):
-    mocker.patch.object(
-        engine_suds, "_get_suds_service", return_value=mock_suds_service
-    )
+    mocker.patch.object(engine_suds, "_get_suds_service", return_value=mock_suds_service)
     mock_convert = mocker.patch.object(engine_suds, "_convert_results")
 
     engine_suds.delete("sample", 123, mock_auth)
@@ -96,9 +88,7 @@ def test_delete(engine_suds, mock_auth, mock_suds_service, mocker):
 
 
 def test_delete_empty_list(engine_suds, mock_auth, mock_suds_service, mocker):
-    mocker.patch.object(
-        engine_suds, "_get_suds_service", return_value=mock_suds_service
-    )
+    mocker.patch.object(engine_suds, "_get_suds_service", return_value=mock_suds_service)
 
     result = engine_suds.delete("sample", [], mock_auth)
 
@@ -109,16 +99,12 @@ def test_delete_empty_list(engine_suds, mock_auth, mock_suds_service, mocker):
 
 
 def test_get_suds_service(engine_suds, mock_client, mocker):
-    mock_client_init = mocker.patch(
-        "bfabric.engine.engine_suds.Client", return_value=mock_client
-    )
+    mock_client_init = mocker.patch("bfabric.engine.engine_suds.Client", return_value=mock_client)
 
     service = engine_suds._get_suds_service("sample")
 
     assert service == mock_client.service
-    mock_client_init.assert_called_once_with(
-        "http://example.com/api/sample?wsdl", cache=None
-    )
+    mock_client_init.assert_called_once_with("http://example.com/api/sample?wsdl", cache=None)
 
     # Test caching
     service2 = engine_suds._get_suds_service("sample")

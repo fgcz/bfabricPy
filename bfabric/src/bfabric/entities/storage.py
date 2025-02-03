@@ -22,8 +22,4 @@ class Storage(Entity):
     def scp_prefix(self) -> str | None:
         """SCP prefix with storage base path included."""
         protocol = self.data_dict["protocol"]
-        return (
-            f"{self.data_dict['host']}:{self.data_dict['basepath']}"
-            if protocol == "scp"
-            else None
-        )
+        return f"{self.data_dict['host']}:{self.data_dict['basepath']}" if protocol == "scp" else None

@@ -51,9 +51,7 @@ class EntityLookupCache:
     __class_instance = None
 
     def __init__(self, max_size: int = 0) -> None:
-        self._caches: dict[type[Entity], Cache[Entity | None]] = defaultdict(
-            lambda: Cache(max_size=max_size)
-        )
+        self._caches: dict[type[Entity], Cache[Entity | None]] = defaultdict(lambda: Cache(max_size=max_size))
 
     def contains(self, entity_type: type[Entity], entity_id: int) -> bool:
         """Returns whether the cache contains an entity with the given type and ID."""
@@ -68,24 +66,14 @@ class EntityLookupCache:
             logger.debug(f"Cache miss for entity {entity_type} with ID {entity_id}")
             return None
 
-    def get_all(
-        self, entity_type: type[Entity], entity_ids: list[int]
-    ) -> dict[int, Entity]:
+    def get_all(self, entity_type: type[Entity], entity_ids: list[int]) -> dict[int, Entity]:
         """Returns a dictionary of entities with the given type and IDs,
         containing only the entities that exist in the cache.
         """
-        results = {
-            entity_id: self.get(entity_type, entity_id) for entity_id in entity_ids
-        }
-        return {
-            entity_id: result
-            for entity_id, result in results.items()
-            if result is not None
-        }
+        results = {entity_id: self.get(entity_type, entity_id) for entity_id in entity_ids}
+        return {entity_id: result for entity_id, result in results.items() if result is not None}
 
-    def put(
-        self, entity_type: type[Entity], entity_id: int, entity: Entity | None
-    ) -> None:
+    def put(self, entity_type: type[Entity], entity_id: int, entity: Entity | None) -> None:
         """Puts an entity with the given type and ID into the cache."""
         logger.debug(f"Caching entity {entity_type} with ID {entity_id}")
         self._caches[entity_type].put(entity_id, entity)

@@ -76,9 +76,7 @@ class Entity:
         return cls.__ensure_results_order(ids_requested, results_cached, results_fresh)
 
     @classmethod
-    def find_by(
-        cls, obj: dict[str, Any], client: Bfabric, max_results: int | None = 100
-    ) -> dict[int, Self]:
+    def find_by(cls, obj: dict[str, Any], client: Bfabric, max_results: int | None = 100) -> dict[int, Self]:
         """Returns a dictionary of entities that match the given query."""
         result = client.read(cls.ENDPOINT, obj=obj, max_results=max_results)
         return {x["id"]: cls(x, client=client) for x in result}
@@ -113,9 +111,7 @@ class Entity:
         there are duplicates."""
         ids_requested = [int(id) for id in ids]
         if len(ids_requested) != len(set(ids_requested)):
-            duplicates = [
-                item for item in set(ids_requested) if ids_requested.count(item) > 1
-            ]
+            duplicates = [item for item in set(ids_requested) if ids_requested.count(item) > 1]
             raise ValueError(f"Duplicate IDs are not allowed, duplicates: {duplicates}")
         return ids_requested
 
@@ -143,11 +139,7 @@ class Entity:
     ) -> dict[int, Self]:
         """Ensures the results are in the same order as requested and prints a warning if some results are missing."""
         results = {**results_cached, **results_fresh}
-        results = {
-            entity_id: results[entity_id]
-            for entity_id in ids_requested
-            if entity_id in results
-        }
+        results = {entity_id: results[entity_id] for entity_id in ids_requested if entity_id in results}
         if len(results) != len(ids_requested):
             logger.warning(f"Only found {len(results)} out of {len(ids_requested)}.")
         return results

@@ -27,9 +27,7 @@ class BfabricClientConfig(BaseModel):
 
     def __init__(self, **kwargs: Any) -> None:
         # TODO remove this custom constructor (note that this is currently used in some places when "None" is passed)
-        super().__init__(
-            **{key: value for key, value in kwargs.items() if value is not None}
-        )
+        super().__init__(**{key: value for key, value in kwargs.items() if value is not None})
 
     def copy_with(
         self,
@@ -39,9 +37,7 @@ class BfabricClientConfig(BaseModel):
         """Returns a copy of the configuration with new values applied, if they are not None."""
         return BfabricClientConfig(
             base_url=base_url if base_url is not None else self.base_url,
-            application_ids=(
-                application_ids if application_ids is not None else self.application_ids
-            ),
+            application_ids=(application_ids if application_ids is not None else self.application_ids),
             job_notification_emails=self.job_notification_emails,
         )
 

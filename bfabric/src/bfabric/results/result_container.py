@@ -79,9 +79,7 @@ class ResultContainer:
         """List of errors that occurred during the query. An empty list indicates success."""
         return self._errors
 
-    def extend(
-        self, other: ResultContainer, reset_total_pages_api: bool = False
-    ) -> None:
+    def extend(self, other: ResultContainer, reset_total_pages_api: bool = False) -> None:
         """Merges the results of `other` into this container.
         :param other: The container whose elements to append to the end of this container
         :param reset_total_pages_api: If True, the total_pages_api attribute will be reset to None

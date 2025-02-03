@@ -18,9 +18,7 @@ class ExternalJob(Entity):
     def __init__(self, data_dict: dict[str, Any], client: Bfabric | None) -> None:
         super().__init__(data_dict=data_dict, client=client)
 
-    executable: HasOne[Executable] = HasOne(
-        entity="Executable", bfabric_field="executable"
-    )
+    executable: HasOne[Executable] = HasOne(entity="Executable", bfabric_field="executable")
 
     @cached_property
     def workunit(self) -> Workunit | None:
@@ -30,8 +28,6 @@ class ExternalJob(Entity):
             if self._client is None:
                 raise ValueError("Client must be set to resolve Workunit")
 
-            return Workunit.find(
-                id=self.data_dict["cliententityid"], client=self._client
-            )
+            return Workunit.find(id=self.data_dict["cliententityid"], client=self._client)
         else:
             return None

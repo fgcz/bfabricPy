@@ -18,9 +18,7 @@ class MultiplexKit(Entity):
     def __init__(self, data_dict: dict[str, Any], client: Bfabric | None) -> None:
         super().__init__(data_dict=data_dict, client=client)
 
-    multiplex_ids: HasMany[MultiplexId] = HasMany(
-        "MultiplexId", bfabric_field="multiplexid"
-    )
+    multiplex_ids: HasMany[MultiplexId] = HasMany("MultiplexId", bfabric_field="multiplexid")
 
     @cached_property
     def ids(self) -> pl.DataFrame:

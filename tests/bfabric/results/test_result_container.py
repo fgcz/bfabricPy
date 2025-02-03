@@ -10,9 +10,7 @@ class BfabricTestResultContainer(unittest.TestCase):
     def setUp(self):
         self.res1 = ResultContainer([1, 2, 3], total_pages_api=1)
         self.res2 = ResultContainer([4, 5], total_pages_api=1)
-        self.res_with_empty = ResultContainer(
-            [{"a": None, "b": 1, "c": []}, {"a": 2, "b": 3, "c": None}]
-        )
+        self.res_with_empty = ResultContainer([{"a": None, "b": 1, "c": []}, {"a": 2, "b": 3, "c": None}])
 
     def test_str(self):
         self.assertEqual("[1, 2, 3]", str(self.res1))
@@ -56,9 +54,7 @@ class BfabricTestResultContainer(unittest.TestCase):
         self.res1.errors.append("MockedError")
         with self.assertRaises(RuntimeError) as error:
             self.res1.assert_success()
-        self.assertEqual(
-            "('Query was not successful', ['MockedError'])", str(error.exception)
-        )
+        self.assertEqual("('Query was not successful', ['MockedError'])", str(error.exception))
 
     def test_extend_when_same_lengths(self):
         res1 = ResultContainer([{"a": 1}, {"a": 2}], total_pages_api=5)
@@ -79,31 +75,23 @@ class BfabricTestResultContainer(unittest.TestCase):
         self.assertEqual(203, len(res3))
         self.assertEqual(list(range(200, 400)) + [1, 2, 3], res3.results)
         self.assertEqual(2, res3.total_pages_api)
-        self.assertIn(
-            "Results observed with different total pages counts: 2 != 1", str(error)
-        )
+        self.assertIn("Results observed with different total pages counts: 2 != 1", str(error))
 
     def test_to_list_dict_when_not_drop_empty(self):
         expected = [{"a": None, "b": 1, "c": []}, {"a": 2, "b": 3, "c": None}]
         with self.subTest(case="default"):
             self.assertListEqual(expected, self.res_with_empty.to_list_dict())
         with self.subTest(case="explicit"):
-            self.assertListEqual(
-                expected, self.res_with_empty.to_list_dict(drop_empty=False)
-            )
+            self.assertListEqual(expected, self.res_with_empty.to_list_dict(drop_empty=False))
 
     def test_to_list_dict_when_drop_empty(self):
         expected = [{"b": 1}, {"a": 2, "b": 3}]
-        self.assertListEqual(
-            expected, self.res_with_empty.to_list_dict(drop_empty=True)
-        )
+        self.assertListEqual(expected, self.res_with_empty.to_list_dict(drop_empty=True))
 
     def test_to_polars(self):
         res = ResultContainer([{"a": 1, "b": 2}, {"a": 3, "b": 4}])
         df = res.to_polars()
-        polars.testing.assert_frame_equal(
-            polars.DataFrame({"a": [1, 3], "b": [2, 4]}), df
-        )
+        polars.testing.assert_frame_equal(polars.DataFrame({"a": [1, 3], "b": [2, 4]}), df)
 
 
 if __name__ == "__main__":
