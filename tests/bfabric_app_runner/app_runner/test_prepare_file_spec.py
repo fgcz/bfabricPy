@@ -77,7 +77,7 @@ def test_prepare_local_copy_when_fallback_success(mock_client, operation_copy_rs
 
 
 def test_prepare_local_link_when_success(mock_client, operation_link_symbolic):
-    spec = FileSpec.model_validate({"source": {"local": "/source.txt"}, "filename": "destination.txt", "link": "link"})
+    spec = FileSpec.model_validate({"source": {"local": "/source.txt"}, "filename": "destination.txt", "link": True})
     operation_link_symbolic.return_value = True
     prepare_file_spec(spec=spec, client=mock_client, working_dir=Path("../integration/working_dir"), ssh_user=None)
     operation_link_symbolic.assert_called_once_with(spec, Path("../integration/working_dir") / "destination.txt")
@@ -182,7 +182,7 @@ def test_operation_copy_cp_when_error(mock_shutil_copyfile, logot: Logot):
     ],
 )
 def test_operation_link_symbolic(mock_subprocess, logot: Logot, source, dest, expected_target):
-    spec = FileSpec.model_validate({"source": {"local": source}, "filename": "IGNORED", "link": "link"})
+    spec = FileSpec.model_validate({"source": {"local": source}, "filename": "IGNORED", "link": True})
     mock_subprocess.return_value.returncode = 0
     result = _operation_link_symbolic(spec=spec, output_path=Path(dest))
     mock_subprocess.assert_called_once_with(["ln", "-s", expected_target, str(dest)], check=False)

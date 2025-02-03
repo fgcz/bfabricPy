@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import enum
 from typing import Literal, TYPE_CHECKING, Self
 
 from pydantic import BaseModel, model_validator
@@ -24,21 +23,16 @@ class FileSourceSsh(BaseModel):
     ssh: FileSourceSshValue
 
 
-class LinkingMode(str, enum.Enum):
-    copy = "copy"
-    link = "link"
-
-
 class FileSpec(BaseModel):
     type: Literal["file"] = "file"
     source: FileSourceSsh | FileSourceLocal
     # TODO none case is not implemented yet
     filename: RelativeFilePath | None = None
-    link: LinkingMode = LinkingMode.copy
+    link: bool = False
 
     @model_validator(mode="after")
     def validate_no_link_ssh(self) -> Self:
-        if isinstance(self.source, FileSourceSsh) and self.link != LinkingMode.copy:
+        if isinstance(self.source, FileSourceSsh) and self.link:
             raise ValueError("Cannot link to a remote file.")
         return self
 

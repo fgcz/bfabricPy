@@ -8,15 +8,14 @@ from typing import assert_never
 
 from loguru import logger
 
+from bfabric import Bfabric
 from bfabric_app_runner.specs.inputs.file_copy_spec import (
     FileSpec,
     FileSourceSsh,
     FileSourceLocal,
     FileSourceSshValue,
-    LinkingMode,
 )
 from bfabric_app_runner.util.scp import scp
-from bfabric import Bfabric
 
 
 def prepare_file_spec(spec: FileSpec, client: Bfabric, working_dir: Path, ssh_user: str | None) -> None:
@@ -24,16 +23,12 @@ def prepare_file_spec(spec: FileSpec, client: Bfabric, working_dir: Path, ssh_us
     output_path = working_dir / spec.resolve_filename(client=client)
     output_path.parent.mkdir(exist_ok=True, parents=True)
 
-    success = False
-    match spec.link:
-        case LinkingMode.copy:
-            success = _operation_copy_rsync(spec, output_path, ssh_user)
-            if not success:
-                success = _operation_copy(spec, output_path, ssh_user)
-        case LinkingMode.link:
-            success = _operation_link_symbolic(spec, output_path)
-        case _:
-            assert_never(spec.link)
+    if not spec.link:
+        success = _operation_copy_rsync(spec, output_path, ssh_user)
+        if not success:
+            success = _operation_copy(spec, output_path, ssh_user)
+    else:
+        success = _operation_link_symbolic(spec, output_path)
     if not success:
         raise RuntimeError(f"Failed to copy file: {spec}")
 
