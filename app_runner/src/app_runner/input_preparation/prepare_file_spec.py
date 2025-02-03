@@ -39,9 +39,9 @@ def prepare_file_spec(spec: FileSpec, client: Bfabric, working_dir: Path, ssh_us
 
 def _operation_copy_rsync(spec: FileSpec, output_path: Path, ssh_user: str | None) -> bool:
     match spec.source:
-        case FileSourceLocal(local):
+        case FileSourceLocal(local=local):
             source_str = str(Path(local).resolve())
-        case FileSourceSsh(FileSourceSshValue(host, path)):
+        case FileSourceSsh(FileSourceSshValue(host=host, path=path)):
             source_str = f"{ssh_user}@{host}:{path}" if ssh_user else f"{host}:{path}"
         case _:
             assert_never(spec.source)
