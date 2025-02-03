@@ -42,7 +42,7 @@ def render_output(workunits: list[Workunit], client: Bfabric) -> None:
             f"[link={app.web_url}]A{wu['application']['id']:3} {app['name']}[/link]",
             f"[link={wu.web_url}&tab=details]WU{wu['id']}[/link]",
             wu["created"],
-            f"[{status_color}]{wu["status"]}[/{status_color}]",
+            f"[{status_color}]{wu['status']}[/{status_color}]",
             wu["createdby"],
             wu["name"],
             nodelist_values.get(wu.id, "N/A"),
