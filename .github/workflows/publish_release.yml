@@ -4,7 +4,7 @@ on:
     branches:
       - release_bfabric
       - release_bfabric_scripts
-      - release_app_runner
+      - release_bfabric_app_runner
   workflow_dispatch:
     inputs:
       package:
