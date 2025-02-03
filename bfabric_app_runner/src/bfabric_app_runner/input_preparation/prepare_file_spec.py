@@ -79,6 +79,18 @@ def _operation_copy_cp(spec: FileSpec, output_path: Path) -> bool:
 def _operation_link_symbolic(spec: FileSpec, output_path: Path) -> bool:
     # the link is created relative to the output file, so it should be more portable across apptainer images etc
     source_path = Path(spec.source.local).resolve().relative_to(output_path.resolve().parent, walk_up=True)
+
+    # if the file exists, and only if it is a link as well
+    if output_path.is_symlink():
+        # check if it points to the same file, in which case we don't need to do anything
+        if output_path.resolve() == source_path.resolve():
+            logger.info("Link already exists and points to the correct file")
+            return True
+        else:
+            logger.info(f"rm {output_path}")
+            output_path.unlink()
+    elif output_path.exists():
+        raise RuntimeError(f"Output path already exists and is not a symlink: {output_path}")
     cmd = ["ln", "-s", str(source_path), str(output_path)]
     logger.info(shlex.join(cmd))
     result = subprocess.run(cmd, check=False)
