@@ -36,10 +36,6 @@ def render_output(workunits: list[Workunit], client: Bfabric) -> None:
     }
 
     for wu in workunits:
-        # TODO check if we can just use negated query instead, also should it be configurable
-        if wu["createdby"] in ["gfeeder", "itfeeder"]:
-            continue
-
         status_color = status_colors.get(wu["status"], "black")
         app = application_values[wu["application"]["id"]]
         table.add_row(
@@ -70,13 +66,31 @@ def sort_workunits_by(workunits: Iterable[Workunit], key: str) -> list[Workunit]
         return list(workunits)
 
 
+def filter_workunits_by_user(workunits: list[Workunit], exclude_user: list[str] | None) -> list[Workunit]:
+    if exclude_user:
+        return [wu for wu in workunits if wu["createdby"] not in exclude_user]
+    return workunits
+
+
 @use_client
-def list_not_available_proteomics_workunits(*, client: Bfabric, max_age: float = 14.0, sort_by: str = "status") -> None:
+def list_not_available_proteomics_workunits(
+    *,
+    client: Bfabric,
+    max_age: float = 14.0,
+    sort_by: str = "status",
+    exclude_user: list[str] | None = None,
+    include_user: list[str] | None = None,
+) -> None:
     """Lists not available analysis work units.
 
     :param max_age: The maximum age of work units in days.
     :param sort_by: The field to sort the output by.
+    :param exclude_user: List of users to exclude from the output (implicit default: gfeeder, itfeeder)
+    :param include_user: List of users to include in the output
     """
+    if exclude_user and include_user:
+        raise ValueError("Cannot provide both include and exclude users")
+
     date_cutoff = datetime.today() - timedelta(days=max_age)
     console = Console()
     with console.capture() as capture:
@@ -87,14 +101,19 @@ def list_not_available_proteomics_workunits(*, client: Bfabric, max_age: float =
         )
     logger.info(capture.get())
 
-    # for status in ["Pending", "Processing", "Failed"]:
+    extra_query = {}
+    if include_user:
+        extra_query["createdby"] = include_user
     workunits = Workunit.find_by(
         {
             "status": ["Pending", "Processing", "Failed"],
             "createdafter": date_cutoff.isoformat(),
+            **extra_query,
         },
         client=client,
     ).values()
     workunits = sort_workunits_by(workunits, sort_by)
-
+    if not include_user and not exclude_user:
+        exclude_user = ["gfeeder", "itfeeder"]
+    workunits = filter_workunits_by_user(workunits, exclude_user)
     render_output(workunits, client=client)

@@ -12,7 +12,9 @@ Versioning currently follows `X.Y.Z` where
 
 ### Added
 
-- `bfabric-cli workunit not-available` allows sorting by arbitrary fields, e.g. application id
+- `bfabric-cli workunit not-available`:
+    - allows sorting by arbitrary fields, e.g. application id
+    - allows filtering inclusive or exclusive by user
 
 ## \[1.13.19\] - 2025-01-29
 
