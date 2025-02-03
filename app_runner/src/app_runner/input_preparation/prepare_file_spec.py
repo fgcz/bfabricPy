@@ -31,6 +31,8 @@ def prepare_file_spec(spec: FileSpec, client: Bfabric, working_dir: Path, ssh_us
                 success = _operation_copy(spec, output_path, ssh_user)
         case LinkingMode.link:
             success = _operation_link_symbolic(spec, output_path)
+        case _:
+            assert_never(spec.link)
     if not success:
         raise RuntimeError(f"Failed to copy file: {spec}")
 
