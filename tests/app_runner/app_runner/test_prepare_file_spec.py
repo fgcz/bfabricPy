@@ -150,13 +150,12 @@ def test_operation_copy_cp_when_error(mock_shutil_copyfile, logot: Logot):
 
 
 def test_operation_link_symbolic(mock_subprocess, logot: Logot):
-    # TODO this one needs more extensive testing as i just found out that there was a problem and having a test
-    #      use CWD is generally quite bad i would say
+    source_path = Path("/E/source.txt")
+    dest_path = Path("/E/somewhere/destination.txt")
     spec = FileSpec.model_validate(
-        {"source": {"local": str(Path(__file__).parent / "source.txt")}, "filename": "destination.txt"}
+        {"source": {"local": str(source_path)}, "filename": "destination.txt", "link": "link"}
     )
     mock_subprocess.return_value.returncode = 0
-    result = _operation_link_symbolic(spec=spec, output_path=Path("mock_output.txt"))
-    mock_subprocess.assert_called_once_with(["ln", "-s", "source.txt", "mock_output.txt"], check=False)
-    logot.assert_logged(logged.info("ln -s source.txt mock_output.txt"))
+    result = _operation_link_symbolic(spec=spec, output_path=dest_path)
+    mock_subprocess.assert_called_once_with(["ln", "-s", "../source.txt", str(dest_path)], check=False)
     assert result

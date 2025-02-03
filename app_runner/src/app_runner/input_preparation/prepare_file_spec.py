@@ -83,7 +83,7 @@ def _operation_copy_cp(spec: FileSpec, output_path: Path) -> bool:
 
 def _operation_link_symbolic(spec: FileSpec, output_path: Path) -> bool:
     # the link is created relative to the output file, so it should be more portable across apptainer images etc
-    source_path = Path(spec.source.local).resolve().relative_to(output_path.resolve().parent)
+    source_path = Path(spec.source.local).resolve().relative_to(output_path.resolve().parent, walk_up=True)
     cmd = ["ln", "-s", str(source_path), str(output_path)]
     logger.info(shlex.join(cmd))
     result = subprocess.run(cmd, check=False)
