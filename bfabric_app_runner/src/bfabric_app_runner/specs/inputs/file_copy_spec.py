@@ -13,6 +13,9 @@ if TYPE_CHECKING:
 class FileSourceLocal(BaseModel):
     local: AbsoluteFilePath
 
+    def get_filename(self) -> str:
+        return self.local.split("/")[-1]
+
 
 class FileSourceSshValue(BaseModel):
     host: str
@@ -22,11 +25,13 @@ class FileSourceSshValue(BaseModel):
 class FileSourceSsh(BaseModel):
     ssh: FileSourceSshValue
 
+    def get_filename(self) -> str:
+        return self.ssh.path.split("/")[-1]
+
 
 class FileSpec(BaseModel):
     type: Literal["file"] = "file"
     source: FileSourceSsh | FileSourceLocal
-    # TODO none case is not implemented yet
     filename: RelativeFilePath | None = None
     link: bool = False
 
@@ -37,4 +42,4 @@ class FileSpec(BaseModel):
         return self
 
     def resolve_filename(self, client: Bfabric) -> str:
-        return self.filename if self.filename else self.absolute_path.split("/")[-1]
+        return self.filename if self.filename else self.source.get_filename()
