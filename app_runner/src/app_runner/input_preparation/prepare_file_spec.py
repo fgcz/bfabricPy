@@ -12,7 +12,7 @@ from app_runner.specs.inputs.file_copy_spec import (
     FileSourceSsh,
     FileSourceLocal,
     FileSourceSshValue,
-    FileMode,
+    LinkingMode,
 )
 from app_runner.util.scp import scp
 from bfabric import Bfabric
@@ -22,16 +22,17 @@ def prepare_file_spec(spec: FileSpec, client: Bfabric, working_dir: Path, ssh_us
     """Prepares the file specified by the spec."""
     output_path = working_dir / spec.resolve_filename(client=client)
     output_path.parent.mkdir(exist_ok=True, parents=True)
-    operations_mapping = {
-        FileMode.try_rsync: ["copy_rsync", "copy_cp"],
-        FileMode.force_rsync: ["copy_rsync"],
-        FileMode.force_scp: ["copy_scp"],
-        FileMode.force_cp: ["copy_cp"],
-    }
-    operations = operations_mapping[spec.mode]
-    for operation in operations:
-        logger.debug("Trying to copy file using operation: {}", operation)
-        raise NotImplementedError
+
+    success = False
+    match spec.link:
+        case LinkingMode.copy:
+            success = _operation_copy_rsync(spec, output_path, ssh_user)
+            if not success:
+                success = _operation_copy(spec, output_path, ssh_user)
+        case LinkingMode.link:
+            success = _operation_link_symbolic(spec, output_path)
+    if not success:
+        raise RuntimeError(f"Failed to copy file: {spec}")
 
 
 def _operation_copy_rsync(spec: FileSpec, output_path: Path, ssh_user: str | None) -> bool:
@@ -46,6 +47,15 @@ def _operation_copy_rsync(spec: FileSpec, output_path: Path, ssh_user: str | Non
     logger.info(shlex.join(cmd))
     result = subprocess.run(cmd, check=False)
     return result.returncode == 0
+
+
+def _operation_copy(spec: FileSpec, output_path: Path, ssh_user: str | None) -> bool:
+    if isinstance(spec.source, FileSourceLocal):
+        return _operation_copy_cp(spec, output_path)
+    elif isinstance(spec.source, FileSourceSsh):
+        return _operation_copy_scp(spec, output_path, ssh_user)
+    else:
+        assert_never(spec.source)
 
 
 def _operation_copy_scp(spec: FileSpec, output_path: Path, ssh_user: str | None) -> bool:
@@ -66,4 +76,9 @@ def _operation_copy_cp(spec: FileSpec, output_path: Path) -> bool:
 
 
 def _operation_link_symbolic(spec: FileSpec, output_path: Path) -> bool:
-    pass
+    # the link is created relative to the output file, so it should be more portable across apptainer images etc
+    source_path = Path(spec.source.local).resolve().relative_to(output_path.parent)
+    cmd = ["ln", "-s", str(source_path), str(output_path)]
+    logger.info(shlex.join(cmd))
+    result = subprocess.run(cmd, check=False)
+    return result.returncode == 0
