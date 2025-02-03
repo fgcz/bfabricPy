@@ -32,6 +32,7 @@ class LinkingMode(str, enum.Enum):
 class FileSpec(BaseModel):
     type: Literal["file"] = "file"
     source: FileSourceSsh | FileSourceLocal
+    # TODO none case is not implemented yet
     filename: RelativeFilePath | None = None
     link: LinkingMode = LinkingMode.copy
 
