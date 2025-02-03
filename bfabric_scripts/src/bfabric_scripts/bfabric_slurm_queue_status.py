@@ -12,6 +12,7 @@ from loguru import logger
 
 from bfabric import Bfabric
 from bfabric.entities import Workunit, Application
+from bfabric_scripts.cli.base import use_client
 
 
 def get_slurm_jobs(partition: str, ssh_host: str | None) -> pl.DataFrame:
@@ -28,7 +29,7 @@ def get_slurm_jobs(partition: str, ssh_host: str | None) -> pl.DataFrame:
             "bash -l -c " + shlex.quote(" ".join(shlex.quote(arg) for arg in target_command)),
         ]
 
-    logger.info(f"Running command: {' '.join(command)}")
+    logger.info(f"Running command: {shlex.join(command)}")
     output = subprocess.run(command, stdout=subprocess.PIPE, text=True, check=True)
     stringio = io.StringIO(output.stdout)
     df = pl.read_csv(stringio, separator="\t")
@@ -77,13 +78,13 @@ def find_zombie_jobs(client: Bfabric, partition: str, ssh_host: str | None) -> p
     return workunit_info_table.filter(pl.col("status") == "ZOMBIE")
 
 
-def main() -> None:
+@use_client
+def main(*, client: Bfabric) -> None:
     """Checks the status of the slurm jobs in the specified partition, and reports if there are any zombies."""
     parser = argparse.ArgumentParser()
     parser.add_argument("--partition", type=str, default="prx")
     parser.add_argument("--ssh", type=str, default=None, help="SSH into the given node to obtain list.")
     args = parser.parse_args()
-    client = Bfabric.from_config()
     zombie_jobs = find_zombie_jobs(client, partition=args.partition, ssh_host=args.ssh)
     if zombie_jobs.is_empty():
         print(json.dumps([]))
