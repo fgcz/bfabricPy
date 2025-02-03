@@ -92,7 +92,7 @@ class PrepareInputs:
                 raise ValueError(f"Checksum mismatch: expected {resource['filechecksum']}, got {actual_checksum}")
 
     def prepare_file_spec(self, spec: FileSpec) -> None:
-        return prepare_file_spec(spec=spec, working_dir=self._working_dir, ssh_user=self._ssh_user)
+        return prepare_file_spec(spec=spec, client=self._client, working_dir=self._working_dir, ssh_user=self._ssh_user)
 
     def prepare_file_scp(self, spec: FileScpSpec) -> None:
         scp_uri = f"{spec.host}:{spec.absolute_path}"
