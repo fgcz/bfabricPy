@@ -91,7 +91,7 @@ class PrepareInputs:
             if actual_checksum != resource["filechecksum"]:
                 raise ValueError(f"Checksum mismatch: expected {resource['filechecksum']}, got {actual_checksum}")
 
-    def prepare_file(self, spec: FileSpec) -> None:
+    def prepare_file_spec(self, spec: FileSpec) -> None:
         return prepare_file_spec(spec=spec, working_dir=self._working_dir, ssh_user=self._ssh_user)
 
     def prepare_file_scp(self, spec: FileScpSpec) -> None:
