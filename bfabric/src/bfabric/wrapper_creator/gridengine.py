@@ -85,9 +85,7 @@ class GridEngine:
             return
 
         try:
-            qsub_process = subprocess.Popen(
-                qsub_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False
-            )
+            qsub_process = subprocess.Popen(qsub_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
             stdout, stderr = qsub_process.communicate()
 
             return stdout

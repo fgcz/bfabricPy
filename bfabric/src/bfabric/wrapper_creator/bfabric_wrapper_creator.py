@@ -64,21 +64,15 @@ class BfabricWrapperCreator:
 
         # Determine the correct path
         output_folder = self._workunit.store_output_folder
-        output_filename = (
-            f"{resource_id}.{self._application.data_dict['outputfileformat']}"
-        )
+        output_filename = f"{resource_id}.{self._application.data_dict['outputfileformat']}"
         relative_path = str(output_folder / output_filename)
 
         # Save the path
         logger.info("Saving correct path")
-        result = self._client.save(
-            "resource", {"id": resource_id, "relativepath": relative_path}
-        )
+        result = self._client.save("resource", {"id": resource_id, "relativepath": relative_path})
         return Resource(result[0])
 
-    def create_log_resource(
-        self, variant: Literal["out", "err"], output_resource: Resource
-    ) -> Resource:
+    def create_log_resource(self, variant: Literal["out", "err"], output_resource: Resource) -> Resource:
         logger.info("Creating log resource")
         result = self._client.save(
             "resource",
@@ -95,9 +89,7 @@ class BfabricWrapperCreator:
         logger.info("Creating application section")
         output_url = f"bfabric@{self._application.storage.data_dict['host']}:{self._application.storage.data_dict['basepath']}{output_resource.data_dict['relativepath']}"
         inputs = defaultdict(list)
-        for resource in Resource.find_all(
-            self.workunit_definition.execution.resources, client=self._client
-        ).values():
+        for resource in Resource.find_all(self.workunit_definition.execution.resources, client=self._client).values():
             inputs[resource.workunit.application["name"]].append(
                 f"bfabric@{resource.storage.scp_prefix}{resource.data_dict['relativepath']}"
             )
@@ -133,13 +125,9 @@ class BfabricWrapperCreator:
             }
 
         inputs = defaultdict(list)
-        for resource in Resource.find_all(
-            self.workunit_definition.execution.resources, client=self._client
-        ).values():
+        for resource in Resource.find_all(self.workunit_definition.execution.resources, client=self._client).values():
             web_url = Resource({"id": resource.id}, client=self._client).web_url
-            inputs[resource.workunit.application["name"]].append(
-                {"resource_id": resource.id, "resource_url": web_url}
-            )
+            inputs[resource.workunit.application["name"]].append({"resource_id": resource.id, "resource_url": web_url})
 
         return {
             "executable": str(self._workunit.application.executable["program"]),
@@ -163,35 +151,20 @@ class BfabricWrapperCreator:
 
     @cached_property
     def _order(self) -> Order | None:
-        return (
-            self._workunit.container
-            if isinstance(self._workunit.container, Order)
-            else None
-        )
+        return self._workunit.container if isinstance(self._workunit.container, Order) else None
 
     @cached_property
     def _project(self) -> Project | None:
-        return (
-            self._workunit.container
-            if isinstance(self._workunit.container, Project)
-            else self._order.project
-        )
+        return self._workunit.container if isinstance(self._workunit.container, Project) else self._order.project
 
     @cached_property
     def _fasta_sequence(self) -> str:
         if self._order is not None and "fastasequence" in self._order.data_dict:
-            return "\n".join(
-                [
-                    x.strip()
-                    for x in str(self._order.data_dict["fastasequence"]).split("\r")
-                ]
-            )
+            return "\n".join([x.strip() for x in str(self._order.data_dict["fastasequence"]).split("\r")])
         else:
             return ""
 
-    def write_results(
-        self, config_serialized: str
-    ) -> tuple[dict[str, Any], dict[str, Any]]:
+    def write_results(self, config_serialized: str) -> tuple[dict[str, Any], dict[str, Any]]:
         logger.info("Saving executable")
         yaml_workunit_executable = self._client.save(
             "executable",
@@ -221,26 +194,18 @@ class BfabricWrapperCreator:
 
         logger.info(yaml_workunit_externaljob)
         logger.info("Setting external job status to 'done'")
-        self._client.save(
-            "externaljob", {"id": self._external_job_id, "status": "done"}
-        )
+        self._client.save("externaljob", {"id": self._external_job_id, "status": "done"})
 
         return yaml_workunit_executable, yaml_workunit_externaljob
 
     def create(self) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
         """Creates the YAML file external job and resources, and registers everything in B-Fabric."""
         output_resource = self.create_output_resource()
-        stdout_resource = self.create_log_resource(
-            variant="out", output_resource=output_resource
-        )
-        stderr_resource = self.create_log_resource(
-            variant="err", output_resource=output_resource
-        )
+        stdout_resource = self.create_log_resource(variant="out", output_resource=output_resource)
+        stderr_resource = self.create_log_resource(variant="err", output_resource=output_resource)
 
         config_dict = {
-            "application": self.get_application_section(
-                output_resource=output_resource
-            ),
+            "application": self.get_application_section(output_resource=output_resource),
             "job_configuration": self.get_job_configuration_section(
                 output_resource=output_resource,
                 stdout_resource=stdout_resource,
@@ -248,7 +213,5 @@ class BfabricWrapperCreator:
             ),
         }
         config_serialized = yaml.safe_dump(config_dict)
-        yaml_workunit_executable, yaml_workunit_externaljob = self.write_results(
-            config_serialized=config_serialized
-        )
+        yaml_workunit_executable, yaml_workunit_externaljob = self.write_results(config_serialized=config_serialized)
         return config_dict, yaml_workunit_executable, yaml_workunit_externaljob

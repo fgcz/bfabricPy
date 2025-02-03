@@ -9,11 +9,6 @@ def flatten_relations(df: pl.DataFrame) -> pl.DataFrame:
     All non-struct fields will be kept as is.
     If there are conflicts this raises an error.
     """
-    struct_cols = [
-        col for col, dtype in zip(df.columns, df.dtypes) if isinstance(dtype, pl.Struct)
-    ]
+    struct_cols = [col for col, dtype in zip(df.columns, df.dtypes) if isinstance(dtype, pl.Struct)]
     flat_cols = [col for col in df.columns if col not in struct_cols]
-    return df.select(
-        flat_cols
-        + [pl.col(col).struct.unnest().name.prefix(f"{col}_") for col in struct_cols]
-    )
+    return df.select(flat_cols + [pl.col(col).struct.unnest().name.prefix(f"{col}_") for col in struct_cols])

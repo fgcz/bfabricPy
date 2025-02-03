@@ -42,9 +42,7 @@ class MultiQuery:
         """
         # TODO add `check` parameter
         response_tot = ResultContainer([], total_pages_api=0)
-        obj_extended = deepcopy(
-            obj
-        )  # Make a copy of the query, not to make edits to the argument
+        obj_extended = deepcopy(obj)  # Make a copy of the query, not to make edits to the argument
 
         # Iterate over request chunks that fit into a single API page
         for page_vals in page_iter(multi_query_vals):
@@ -59,9 +57,7 @@ class MultiQuery:
             #   exceptions to this? -> yes, when not reading by id but for instance matching a pattern, one might not
             #   be aware that they might accidentally pull the whole db, so it's better to have max_results here as well
             #   but it is not completely trivial to implement
-            response_this = self._client.read(
-                endpoint, obj_extended, max_results=None, return_id_only=return_id_only
-            )
+            response_this = self._client.read(endpoint, obj_extended, max_results=None, return_id_only=return_id_only)
             response_tot.extend(response_this, reset_total_pages_api=True)
 
         return response_tot
@@ -96,9 +92,7 @@ class MultiQuery:
 
         return response_tot
 
-    def exists_multi(
-        self, endpoint: str, key: str, value: list[int | str] | int | str
-    ) -> bool | list[bool]:
+    def exists_multi(self, endpoint: str, key: str, value: list[int | str] | int | str) -> bool | list[bool]:
         """
         :param endpoint:  endpoint
         :param key:       A key for the query (e.g. id or name)
@@ -108,9 +102,7 @@ class MultiQuery:
         """
         is_scalar = isinstance(value, (int, str))
         if is_scalar:
-            return self._client.exists(
-                endpoint=endpoint, key=key, value=value, check=True
-            )
+            return self._client.exists(endpoint=endpoint, key=key, value=value, check=True)
         elif not isinstance(value, list):
             raise ValueError("Unexpected data type", type(value))
 

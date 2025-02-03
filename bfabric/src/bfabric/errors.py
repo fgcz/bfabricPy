@@ -30,10 +30,6 @@ def get_response_errors(response: Any, endpoint: str) -> list[BfabricRequestErro
     if getattr(response, "errorreport", None):
         return [BfabricRequestError(response.errorreport)]
     elif endpoint in response:
-        return [
-            BfabricRequestError(r.errorreport)
-            for r in response[endpoint]
-            if getattr(r, "errorreport", None)
-        ]
+        return [BfabricRequestError(r.errorreport) for r in response[endpoint] if getattr(r, "errorreport", None)]
     else:
         return []

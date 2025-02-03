@@ -10,9 +10,7 @@ if TYPE_CHECKING:
 BFABRIC_QUERY_LIMIT = 100
 
 
-def page_iter(
-    objs: list, page_size: int = BFABRIC_QUERY_LIMIT
-) -> Generator[list, None, None]:
+def page_iter(objs: list, page_size: int = BFABRIC_QUERY_LIMIT) -> Generator[list, None, None]:
     """
     :param objs:       A list of objects to provide to bfabric as part of a query
     :param page_size:  Number of objects per page
@@ -48,12 +46,7 @@ def compute_requested_pages(
 
     # Determine the page indices to request
     idx_max_return = math.ceil((n_item_return_max + n_item_offset) / n_item_per_page)
-    idx_arr = [
-        idx + index_start
-        for idx in range(
-            n_item_offset // n_item_per_page, min(n_page_total, idx_max_return)
-        )
-    ]
+    idx_arr = [idx + index_start for idx in range(n_item_offset // n_item_per_page, min(n_page_total, idx_max_return))]
 
     # Determine the initial offset on the first page
     initial_offset = min(n_item_offset, n_item_return_max) % n_item_per_page
