@@ -65,7 +65,7 @@ def docs(session):
             shutil.rmtree(target_dir)
 
         shutil.copytree(Path(tmpdir) / "build_bfabricpy", target_dir)
-        shutil.copytree(Path(tmpdir) / "build_app_runner" / "html", target_dir / "bfabric_app_runner")
+        shutil.copytree(Path(tmpdir) / "build_app_runner" / "html", target_dir / "app_runner")
 
 
 @nox.session(default=False)
