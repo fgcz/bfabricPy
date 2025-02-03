@@ -9,18 +9,14 @@ from bfabric.cli_formatting import setup_script_logging
 from bfabric.experimental import MultiQuery
 
 
-def bfabric_list_workunit_parameters(
-    client: Bfabric, application_id: int, max_workunits: int, format: str
-) -> None:
+def bfabric_list_workunit_parameters(client: Bfabric, application_id: int, max_workunits: int, format: str) -> None:
     """Lists the workunit parameters of the provided application.
     :param client: The Bfabric client to use.
     :param application_id: The application ID to list the workunit parameters for.
     :param max_workunits: The maximum number of workunits to fetch.
     :param format: The output format to use.
     """
-    workunits_table_full = get_workunits_table_full(
-        application_id, client, max_workunits
-    )
+    workunits_table_full = get_workunits_table_full(application_id, client, max_workunits)
     workunits_table_explode = workunits_table_full.explode("parameter").with_columns(
         parameter_id=pl.col("parameter").struct[1]
     )
@@ -41,15 +37,11 @@ def bfabric_list_workunit_parameters(
     print_results(format, merged_result)
 
 
-def get_workunits_table_full(
-    application_id: int, client: Bfabric, max_workunits: int
-) -> pl.DataFrame:
+def get_workunits_table_full(application_id: int, client: Bfabric, max_workunits: int) -> pl.DataFrame:
     """Returns a table with the workunits for the specified application."""
     # read the workunit data
     workunits_table_full = (
-        client.read(
-            "workunit", {"applicationid": application_id}, max_results=max_workunits
-        )
+        client.read("workunit", {"applicationid": application_id}, max_results=max_workunits)
         .to_polars()
         .rename({"id": "workunit_id"})
     )
@@ -65,9 +57,7 @@ def get_workunits_table_full(
             inputdataset_id=pl.col("inputdataset").struct[1],
         )
     else:
-        workunits_table_full = workunits_table_full.with_columns(
-            inputdataset_id=pl.lit(None)
-        )
+        workunits_table_full = workunits_table_full.with_columns(inputdataset_id=pl.lit(None))
     return workunits_table_full
 
 
@@ -90,9 +80,7 @@ def print_results(format: str, merged_result: pl.DataFrame) -> None:
         raise ValueError("Unsupported format")
 
 
-def get_parameter_table(
-    client: Bfabric, workunits_table_explode: pl.DataFrame
-) -> pl.DataFrame:
+def get_parameter_table(client: Bfabric, workunits_table_explode: pl.DataFrame) -> pl.DataFrame:
     """Returns a wide format table for the specified parameters, with the key `workunit_id` indicating the source."""
     # load the parameters table
     collect = MultiQuery(client=client).read_multi(
@@ -101,9 +89,7 @@ def get_parameter_table(
         multi_query_key="id",
         multi_query_vals=workunits_table_explode["parameter_id"].to_list(),
     )
-    parameter_table_full = collect.to_polars().rename({"id": "parameter_id"})[
-        ["parameter_id", "key", "value"]
-    ]
+    parameter_table_full = collect.to_polars().rename({"id": "parameter_id"})[["parameter_id", "key", "value"]]
     # add workunit id to parameter table
     parameter_table_full = parameter_table_full.join(
         workunits_table_explode[["workunit_id", "parameter_id"]],
@@ -111,9 +97,7 @@ def get_parameter_table(
         how="left",
     )
     # convert to wide format
-    return parameter_table_full.pivot(
-        values="value", index="workunit_id", columns="key"
-    )
+    return parameter_table_full.pivot(values="value", index="workunit_id", columns="key")
 
 
 def main() -> None:

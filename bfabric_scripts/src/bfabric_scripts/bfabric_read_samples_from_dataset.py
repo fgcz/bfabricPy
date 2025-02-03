@@ -19,16 +19,10 @@ import argparse
 from bfabric import Bfabric
 
 
-def get_table_row(
-    client: Bfabric, relative_path: str
-) -> tuple[str, int, str, str, str]:
+def get_table_row(client: Bfabric, relative_path: str) -> tuple[str, int, str, str, str]:
     """Returns the row of the table with the information of the resource with the given relative path."""
-    resource = client.read(
-        endpoint="resource", obj={"relativepath": relative_path}
-    ).to_list_dict()[0]
-    sample = client.read(
-        endpoint="sample", obj={"id": resource["sample"]["id"]}
-    ).to_list_dict()[0]
+    resource = client.read(endpoint="resource", obj={"relativepath": relative_path}).to_list_dict()[0]
+    sample = client.read(endpoint="sample", obj={"id": resource["sample"]["id"]}).to_list_dict()[0]
     groupingvar = (sample.get("groupingvar") or {}).get("name") or ""
     return (
         resource["workunit"]["id"],
@@ -45,13 +39,9 @@ def bfabric_read_samples_from_dataset(dataset_id: int) -> None:
     client = Bfabric.from_config()
     dataset = client.read(endpoint="dataset", obj={"id": dataset_id}).to_list_dict()[0]
 
-    positions = [
-        a["position"] for a in dataset["attribute"] if a["name"] == "Relative Path"
-    ]
+    positions = [a["position"] for a in dataset["attribute"] if a["name"] == "Relative Path"]
     if not positions:
-        raise ValueError(
-            f"No 'Relative Path' attribute found in the dataset {dataset_id}"
-        )
+        raise ValueError(f"No 'Relative Path' attribute found in the dataset {dataset_id}")
     relative_path_position = positions[0]
 
     print(
@@ -67,16 +57,10 @@ def bfabric_read_samples_from_dataset(dataset_id: int) -> None:
     )
     for item in dataset["item"]:
         relative_path = [
-            field["value"]
-            for field in item["field"]
-            if field["attributeposition"] == relative_path_position
+            field["value"] for field in item["field"] if field["attributeposition"] == relative_path_position
         ][0]
-        workunitid, resourceid, resourcename, samplename, groupingvar = get_table_row(
-            client, relative_path
-        )
-        print(
-            f"{workunitid}\t{resourceid}\t{resourcename}\t{samplename}\t{groupingvar}"
-        )
+        workunitid, resourceid, resourcename, samplename, groupingvar = get_table_row(client, relative_path)
+        print(f"{workunitid}\t{resourceid}\t{resourcename}\t{samplename}\t{groupingvar}")
 
 
 def main() -> None:

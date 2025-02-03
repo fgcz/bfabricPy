@@ -25,8 +25,7 @@ def get_slurm_jobs(partition: str, ssh_host: str | None) -> pl.DataFrame:
         command = [
             "ssh",
             ssh_host,
-            "bash -l -c "
-            + shlex.quote(" ".join(shlex.quote(arg) for arg in target_command)),
+            "bash -l -c " + shlex.quote(" ".join(shlex.quote(arg) for arg in target_command)),
         ]
 
     logger.info(f"Running command: {' '.join(command)}")
@@ -35,14 +34,10 @@ def get_slurm_jobs(partition: str, ssh_host: str | None) -> pl.DataFrame:
     df = pl.read_csv(stringio, separator="\t")
     df = df.rename({"JOBID": "job_id", "NAME": "name", "NODELIST": "node_list"})
     string_id_expr = pl.col("name").str.extract(r"WU(\d+)")
-    return df.with_columns(
-        workunit_id=pl.when(string_id_expr.is_not_null()).then(string_id_expr.cast(int))
-    )
+    return df.with_columns(workunit_id=pl.when(string_id_expr.is_not_null()).then(string_id_expr.cast(int)))
 
 
-def get_workunit_infos(
-    client: Bfabric, workunit_ids: list[int]
-) -> list[dict[str, str]]:
+def get_workunit_infos(client: Bfabric, workunit_ids: list[int]) -> list[dict[str, str]]:
     """Retrieves information about the workunits with the specified ids.
     If a workunit was deleted, but it is in the slurm queue, it will be considered a zombie.
     """
@@ -57,22 +52,14 @@ def get_workunit_infos(
     return [
         {
             "workunit_id": id,
-            "status": (
-                workunits[id].data_dict["status"] if id in workunits else "ZOMBIE"
-            ),
-            "application_name": (
-                app_names[workunits[id]["application"]["id"]]
-                if id in workunits
-                else "N/A"
-            ),
+            "status": (workunits[id].data_dict["status"] if id in workunits else "ZOMBIE"),
+            "application_name": (app_names[workunits[id]["application"]["id"]] if id in workunits else "N/A"),
         }
         for id in workunit_ids
     ]
 
 
-def find_zombie_jobs(
-    client: Bfabric, partition: str, ssh_host: str | None
-) -> pl.DataFrame:
+def find_zombie_jobs(client: Bfabric, partition: str, ssh_host: str | None) -> pl.DataFrame:
     """Checks the status of the slurm jobs in the specified partition, and returns the ones that are zombies."""
     slurm_jobs = get_slurm_jobs(partition=partition, ssh_host=ssh_host)
     if slurm_jobs.is_empty():
@@ -84,15 +71,9 @@ def find_zombie_jobs(
         )
     )
     pl.Config.set_tbl_rows(100)
-    logger.info(
-        slurm_jobs.join(workunit_info_table, on="workunit_id", how="left").sort(
-            "workunit_id"
-        )
-    )
+    logger.info(slurm_jobs.join(workunit_info_table, on="workunit_id", how="left").sort("workunit_id"))
     logger.info(f"Active jobs: {workunit_info_table.height}")
-    logger.info(
-        f"Found {workunit_info_table.filter(pl.col('status') == 'ZOMBIE').height} zombie jobs."
-    )
+    logger.info(f"Found {workunit_info_table.filter(pl.col('status') == 'ZOMBIE').height} zombie jobs.")
     return workunit_info_table.filter(pl.col("status") == "ZOMBIE")
 
 
@@ -100,9 +81,7 @@ def main() -> None:
     """Checks the status of the slurm jobs in the specified partition, and reports if there are any zombies."""
     parser = argparse.ArgumentParser()
     parser.add_argument("--partition", type=str, default="prx")
-    parser.add_argument(
-        "--ssh", type=str, default=None, help="SSH into the given node to obtain list."
-    )
+    parser.add_argument("--ssh", type=str, default=None, help="SSH into the given node to obtain list.")
     args = parser.parse_args()
     client = Bfabric.from_config()
     zombie_jobs = find_zombie_jobs(client, partition=args.partition, ssh_host=args.ssh)

@@ -66,9 +66,7 @@ def create_importresource_dict(
     file_date = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(file_unix_timestamp))
     bfabric_application_ids = config.application_ids
     if not bfabric_application_ids:
-        raise RuntimeError(
-            "No bfabric_application_ids configured. check '~/.bfabricpy.yml' file!"
-        )
+        raise RuntimeError("No bfabric_application_ids configured. check '~/.bfabricpy.yml' file!")
     bfabric_application_id, bfabric_projectid = get_bfabric_application_and_project_id(
         bfabric_application_ids, file_path
     )
@@ -99,9 +97,7 @@ def get_sample_id_from_path(file_path: str) -> int | None:
         return int(match.group(3))
 
 
-def get_bfabric_application_and_project_id(
-    bfabric_application_ids: dict[str, int], file_path: str
-) -> tuple[int, int]:
+def get_bfabric_application_and_project_id(bfabric_application_ids: dict[str, int], file_path: str) -> tuple[int, int]:
     """Returns the bfabric application id and project id for a given file path."""
     # linear search through dictionary. first hit counts!
     bfabric_applicationid = -1

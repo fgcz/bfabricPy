@@ -56,9 +56,7 @@ def main() -> None:
         choices=["slurm"],
         help="Valid engines for job handling are: slurm, gridengine",
     )
-    parser.add_argument(
-        "--name", type=str, help="Name of the submitter", required=False
-    )
+    parser.add_argument("--name", type=str, help="Name of the submitter", required=False)
     parser.add_argument(
         "--description",
         type=str,

@@ -29,9 +29,7 @@ def find_slurm_root() -> str:
 
 @app.command
 @use_client
-def submitter(
-    external_job_id: int, scheduler: Literal["Slurm"] = "Slurm", *, client: Bfabric
-) -> None:
+def submitter(external_job_id: int, scheduler: Literal["Slurm"] = "Slurm", *, client: Bfabric) -> None:
     if scheduler != "Slurm":
         raise NotImplementedError(f"Unsupported scheduler: {scheduler}")
     slurm_root = find_slurm_root()

@@ -17,9 +17,7 @@ from bfabric import Bfabric
 
 def main_generic(result_status: str) -> None:
     """Main function for setting workunit status to `result_status`."""
-    parser = argparse.ArgumentParser(
-        description=f"Sets workunit status to '{result_status}'"
-    )
+    parser = argparse.ArgumentParser(description=f"Sets workunit status to '{result_status}'")
     parser.add_argument("workunit_id", type=int, help="workunit id")
     args = parser.parse_args()
     client = Bfabric.from_config()

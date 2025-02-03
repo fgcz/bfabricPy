@@ -36,9 +36,7 @@ def main(*, client: Bfabric) -> None:
     parser.add_argument("filename", help="filename", type=Path)
     parser.add_argument("workunitid", help="workunitid", type=int)
     args = parser.parse_args()
-    bfabric_upload_resource(
-        client=client, filename=args.filename, workunit_id=args.workunitid
-    )
+    bfabric_upload_resource(client=client, filename=args.filename, workunit_id=args.workunitid)
 
 
 if __name__ == "__main__":

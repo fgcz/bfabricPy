@@ -25,12 +25,8 @@ def render_output(workunits: list[Workunit], client: Bfabric) -> None:
     workunit_ids = [wu.id for wu in workunits]
     app_ids = {wu["application"]["id"] for wu in workunits}
 
-    nodelist_params = Parameter.find_by(
-        {"workunitid": workunit_ids, "key": "nodelist"}, client
-    )
-    nodelist_values = {
-        param["workunit"]["id"]: param.value for param in nodelist_params.values()
-    }
+    nodelist_params = Parameter.find_by({"workunitid": workunit_ids, "key": "nodelist"}, client)
+    nodelist_values = {param["workunit"]["id"]: param.value for param in nodelist_params.values()}
     application_values = Application.find_all(ids=sorted(app_ids), client=client)
 
     status_colors = {
@@ -75,9 +71,7 @@ def sort_workunits_by(workunits: Iterable[Workunit], key: str) -> list[Workunit]
 
 
 @use_client
-def list_not_available_proteomics_workunits(
-    *, client: Bfabric, max_age: float = 14.0, sort_by: str = "status"
-) -> None:
+def list_not_available_proteomics_workunits(*, client: Bfabric, max_age: float = 14.0, sort_by: str = "status") -> None:
     """Lists not available analysis work units.
 
     :param max_age: The maximum age of work units in days.
