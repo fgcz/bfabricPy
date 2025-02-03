@@ -4,6 +4,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.0.15\] - 2025-02-03
+
+### Changed
+
+- Prepare for PyPI release, major rename.
+
 ## \[0.0.14\] - 2025-01-30
 
 ### Fixed
