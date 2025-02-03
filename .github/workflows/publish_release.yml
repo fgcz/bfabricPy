@@ -95,3 +95,4 @@ jobs:
           else
             echo "Check it at: https://test.pypi.org/project/${{ env.PACKAGE }}/"
           fi
+        if: always()
