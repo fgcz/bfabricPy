@@ -109,12 +109,22 @@ class PrepareInputs:
         dataset.write_csv(path=target_path, separator=spec.separator)
 
     def prepare_order_fasta(self, spec: BfabricOrderFastaSpec) -> None:
+        # Determine the result file.
+        result_name = self._working_dir / spec.filename
+        result_name.parent.mkdir(exist_ok=True, parents=True)
+
         # Find the order.
         match spec.entity:
             case "workunit":
                 workunit = Workunit.find(id=spec.id, client=self._client)
                 if not isinstance(workunit.container, Order):
-                    raise ValueError(f"Workunit {workunit.id} is not associated with an order")
+                    msg = f"Workunit {workunit.id} is not associated with an order"
+                    if spec.required:
+                        raise ValueError(msg)
+                    else:
+                        logger.warning(msg)
+                        result_name.write_text("")
+                        return
                 order = workunit.container
             case "order":
                 order = Order.find(id=spec.id, client=self._client)
@@ -122,8 +132,6 @@ class PrepareInputs:
                 assert_never(spec.entity)
 
         # Write the result into the file
-        result_name = self._working_dir / spec.filename
-        result_name.parent.mkdir(exist_ok=True, parents=True)
         fasta_content = order.data_dict.get("fastasequence", "")
         if fasta_content and fasta_content[-1] != "\n":
             fasta_content += "\n"

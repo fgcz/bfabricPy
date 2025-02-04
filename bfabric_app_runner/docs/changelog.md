@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - New input type `file` which replaces `file_scp` and preserves timestamps whenever possible and allows to create
     symlinks instead of copying the file, as needed.
+- `BfabricOrderFastaSpec.required` which allows specifying whether the order fasta is required or not
 
 ## \[0.0.14\] - 2025-01-30
 

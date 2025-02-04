@@ -16,6 +16,7 @@ class BfabricOrderFastaSpec(BaseModel):
     id: int
     entity: Literal["workunit", "order"]
     filename: RelativeFilePath
+    required: bool = False
 
     def resolve_filename(self, client: Bfabric) -> str:
         return self.filename
