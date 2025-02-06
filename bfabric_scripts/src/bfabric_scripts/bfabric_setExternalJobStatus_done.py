@@ -24,9 +24,7 @@ def set_external_job_status_done(client: Bfabric, external_job_id: list[int]) ->
     """Sets the status of the specified external jobs to 'done'."""
     for job_id in external_job_id:
         try:
-            res = client.save(
-                "externaljob", {"id": job_id, "status": "done"}
-            ).to_list_dict()
+            res = client.save("externaljob", {"id": job_id, "status": "done"}).to_list_dict()
             print(res)
         except Exception:
             print(f"failed to set externaljob with id={job_id} 'available'.")

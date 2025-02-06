@@ -48,9 +48,7 @@ class HasMany(Relationship[E]):
     def _get_ids(self, obj: T) -> list[int]:
         if self._bfabric_field is not None:
             if self._ids_property is not None:
-                raise ValueError(
-                    "Exactly one of bfabric_field and ids_property must be set, but both are set"
-                )
+                raise ValueError("Exactly one of bfabric_field and ids_property must be set, but both are set")
             if self._optional and self._bfabric_field not in obj.data_dict:
                 return []
             return [x["id"] for x in obj.data_dict[self._bfabric_field]]
@@ -59,9 +57,7 @@ class HasMany(Relationship[E]):
                 return []
             return getattr(obj, self._ids_property)
         else:
-            raise ValueError(
-                "Exactly one of bfabric_field and ids_property must be set, but neither is set"
-            )
+            raise ValueError("Exactly one of bfabric_field and ids_property must be set, but neither is set")
 
 
 class _HasManyProxy(Generic[E]):

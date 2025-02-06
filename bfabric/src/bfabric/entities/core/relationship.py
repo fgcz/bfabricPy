@@ -17,6 +17,6 @@ class Relationship(Generic[E]):
 
     @cached_property
     def _entity_type(self) -> type[E]:
-        return importlib.import_module(
-            f"bfabric.entities.{self._entity_type_name.lower()}"
-        ).__dict__[self._entity_type_name]
+        return importlib.import_module(f"bfabric.entities.{self._entity_type_name.lower()}").__dict__[
+            self._entity_type_name
+        ]

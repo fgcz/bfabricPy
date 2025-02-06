@@ -75,9 +75,7 @@ class BfabricSubmitter:
         self.application = self.workunit.application
 
         default_config = self.slurm_dict.get(self.application["name"], {})
-        self.partition = self.parameters.get(
-            "partition", default_config.get("partition")
-        )
+        self.partition = self.parameters.get("partition", default_config.get("partition"))
         self.nodelist = self.parameters.get("nodelist", default_config.get("nodelist"))
         self.memory = self.parameters.get("memory", default_config.get("memory"))
 
@@ -93,9 +91,7 @@ class BfabricSubmitter:
         res_slurm_batch = slurm.sbatch(script=script)
         logger.debug(f"{res_slurm_batch}")
 
-    def compose_bash_script(
-        self, configuration=None, configuration_parser=lambda x: yaml.safe_load(x)
-    ) -> str:
+    def compose_bash_script(self, configuration=None, configuration_parser=lambda x: yaml.safe_load(x)) -> str:
         """
         composes the bash script which is executed by the submitter (sun grid engine).
         as an argument it takes a configuration file, e.g., yaml, xml, json, or whatsoever, and a parser function.
@@ -242,9 +238,7 @@ exit 0
 
         return None
         """
-        executables = Executable.find_by(
-            {"workunitid": self.workunit.id}, client=self._client
-        ).values()
+        executables = Executable.find_by({"workunitid": self.workunit.id}, client=self._client).values()
         for executable in executables:
             if not executable["base64"]:
                 continue

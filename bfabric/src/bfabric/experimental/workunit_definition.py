@@ -78,9 +78,7 @@ class WorkunitDefinition(BaseModel):
     registration: WorkunitRegistrationDefinition | None
 
     @classmethod
-    def from_ref(
-        cls, workunit: Path | int, client: Bfabric, cache_file: Path | None = None
-    ) -> WorkunitDefinition:
+    def from_ref(cls, workunit: Path | int, client: Bfabric, cache_file: Path | None = None) -> WorkunitDefinition:
         """Loads the workunit definition from the provided reference, which can be a path to a YAML file,
         or a workunit ID.
 

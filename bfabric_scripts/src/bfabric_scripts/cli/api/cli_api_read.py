@@ -87,9 +87,7 @@ def bfabric_read(
             console=console_out,
         )
         # _print_query_rich(console_out, query)
-        _print_table_rich(
-            client.config, console_out, endpoint, results, output_columns=output_columns
-        )
+        _print_table_rich(client.config, console_out, endpoint, results, output_columns=output_columns)
     else:
         raise ValueError(f"output format {output_format} not supported")
 
@@ -111,9 +109,7 @@ def _determine_output_columns(
     return columns
 
 
-def _get_results(
-    client: Bfabric, endpoint: str, query: dict[str, str], limit: int
-) -> list[dict[str, Any]]:
+def _get_results(client: Bfabric, endpoint: str, query: dict[str, str], limit: int) -> list[dict[str, Any]]:
     start_time = time.time()
     results = client.read(endpoint=endpoint, obj=query, max_results=limit)
     end_time = time.time()
@@ -160,9 +156,7 @@ def _print_table_rich(
     console_out.print(table)
 
 
-def _determine_output_format(
-    console_out: Console, output_format: OutputFormat, n_results: int
-) -> OutputFormat:
+def _determine_output_format(console_out: Console, output_format: OutputFormat, n_results: int) -> OutputFormat:
     """Returns the format to use, based on the number of results, and whether the output is an interactive console.
     If the format is already set to a concrete value instead of "auto", it will be returned unchanged.
     """

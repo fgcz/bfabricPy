@@ -55,9 +55,7 @@ def test_check_for_invalid_characters_empty_dataframe():
 
 
 def test_check_for_invalid_characters_non_string_columns():
-    data = pl.DataFrame(
-        {"col1": [1, 2, 3], "col2": [4.5, 5.6, 6.7], "col3": ["abc", "def", "ghi"]}
-    )
+    data = pl.DataFrame({"col1": [1, 2, 3], "col2": [4.5, 5.6, 6.7], "col3": ["abc", "def", "ghi"]})
     invalid_characters = "!@#"
 
     # Should not raise an exception

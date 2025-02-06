@@ -10,6 +10,12 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.19\] - 2025-02-06
+
+### Fixed
+
+- Config: Log messages of app runner are shown by default again.
+
 ## \[1.13.18\] - 2025-01-28
 
 ### Changed

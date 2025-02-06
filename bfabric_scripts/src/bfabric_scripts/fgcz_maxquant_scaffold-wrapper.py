@@ -46,18 +46,12 @@ class FgczMaxQuantScaffold:
 
         try:
             self.fasta = os.path.basename(
-                self.config["application"]["parameters"][
-                    "/fastaFiles/FastaFileInfo/fastaFilePath"
-                ]
+                self.config["application"]["parameters"]["/fastaFiles/FastaFileInfo/fastaFilePath"]
             )
         except:
             raise
 
-        L = [
-            value
-            for values in self.config["application"]["input"].values()
-            for value in values
-        ]
+        L = [value for values in self.config["application"]["input"].values() for value in values]
 
         self.samples = list(map(lambda x: os.path.basename(x).replace(".raw", ""), L))
 
@@ -129,9 +123,7 @@ class FgczMaxQuantScaffold:
         eFastaDatabase.attrib["path"] = f"{os.getcwd()}/{self.fasta}"
 
         for s in self.samples:
-            eExperiment.extend(
-                self.getBiologicalSample(category=s, InputFile=self.zipfilename)
-            )
+            eExperiment.extend(self.getBiologicalSample(category=s, InputFile=self.zipfilename))
 
         xml.write(
             "/dev/stdout",
@@ -169,7 +161,5 @@ if __name__ == "__main__":
     )
 
     (options, args) = parser.parse_args()
-    driver = FgczMaxQuantScaffold(
-        yamlfilename=options.yaml_filename, zipfilename=options.zip_filename
-    )
+    driver = FgczMaxQuantScaffold(yamlfilename=options.yaml_filename, zipfilename=options.zip_filename)
     driver.run()

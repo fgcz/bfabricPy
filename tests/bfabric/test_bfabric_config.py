@@ -19,9 +19,7 @@ def test_read_yml_bypath_all_fields(example_config_path: Path) -> None:
         "Proteomics/DUCK_666": 12,
     }
 
-    job_notification_emails_ground_truth = (
-        "john.snow@fgcz.uzh.ch billy.the.kid@fgcz.ethz.ch"
-    )
+    job_notification_emails_ground_truth = "john.snow@fgcz.uzh.ch billy.the.kid@fgcz.ethz.ch"
 
     assert auth.login == "my_epic_test_login"
     assert auth.password == "012345678901234567890123456789ff"
@@ -36,11 +34,7 @@ def test_read_yml_when_empty_optional(example_config_path: Path, logot: Logot) -
     assert config.base_url == "https://standby-server.uzh.ch/mystandby"
     assert config.application_ids == {}
     assert config.job_notification_emails == ""
-    logot.assert_logged(
-        logged.debug(
-            f"Reading configuration from: {str(example_config_path.absolute())}"
-        )
-    )
+    logot.assert_logged(logged.debug(f"Reading configuration from: {str(example_config_path.absolute())}"))
 
 
 if __name__ == "__main__":

@@ -48,9 +48,7 @@ def write_workunit(client: Bfabric, workunit_id: int, message: str) -> None:
             f"Expected exactly one external job for workunit {workunit_id}, but found {len(external_jobs)}"
         )
     else:
-        write_externaljob(
-            client=client, externaljob_id=external_jobs[0]["id"], message=message
-        )
+        write_externaljob(client=client, externaljob_id=external_jobs[0]["id"], message=message)
 
 
 def write_externaljob(client: Bfabric, externaljob_id: int, message: str) -> None:

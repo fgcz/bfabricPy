@@ -46,9 +46,7 @@ class AutoQC:
         :return: SID
         """
         try:
-            res = self.client.read(
-                endpoint="sample", obj={"containerid": projectid, "name": name}
-            ).to_list_dict()
+            res = self.client.read(endpoint="sample", obj={"containerid": projectid, "name": name}).to_list_dict()
         except Exception:
             print(res)
             raise
@@ -88,17 +86,11 @@ class AutoQC:
 
         if not res:
             if name == "autoQC4L":
-                res = self.client.save(
-                    endpoint="sample", obj=query_autoQC4L
-                ).to_list_dict()
+                res = self.client.save(endpoint="sample", obj=query_autoQC4L).to_list_dict()
             elif name == "autoQC01":
-                res = self.client.save(
-                    endpoint="sample", obj=query_autoQC01
-                ).to_list_dict()
+                res = self.client.save(endpoint="sample", obj=query_autoQC01).to_list_dict()
             elif name == "lipidQC01":
-                res = self.client.save(
-                    endpoint="sample", obj=query_lipidQC01
-                ).to_list_dict()
+                res = self.client.save(endpoint="sample", obj=query_lipidQC01).to_list_dict()
 
         print(res)
         print(res[0])
@@ -241,9 +233,7 @@ listed below.
             sampleid = self.sample_check(projectid, name=autoQCType)
             sys.exit(0)
             # print sampleid
-            workunitid = self.workunit_check(
-                projectid, name=autoQCType, applicationid=applicationid
-            )
+            workunitid = self.workunit_check(projectid, name=autoQCType, applicationid=applicationid)
             # print "WUID={}".format(workunitid)
 
             resourceid = self.resource_check(
@@ -258,9 +248,7 @@ listed below.
             )
 
             # sampleid=0
-            print(
-                f"p{projectid}\tA{applicationid}\t{filename}\tS{sampleid}\tWU{workunitid}\tR{resourceid}"
-            )
+            print(f"p{projectid}\tA{applicationid}\t{filename}\tS{sampleid}\tWU{workunitid}\tR{resourceid}")
         except Exception as err:
             print(f"# Failed to register to bfabric: {err}")
 

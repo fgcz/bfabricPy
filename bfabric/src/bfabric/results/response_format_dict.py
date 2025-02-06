@@ -24,9 +24,7 @@ def _recursive_drop_empty(response_elem: list | dict) -> None:
         for el in response_elem:
             _recursive_drop_empty(el)
     elif isinstance(response_elem, dict):
-        keys_to_delete = (
-            []
-        )  # NOTE: Avoid deleting keys inside iterator, may break iterator
+        keys_to_delete = []  # NOTE: Avoid deleting keys inside iterator, may break iterator
         for k, v in response_elem.items():
             if (v is None) or (isinstance(v, list) and len(v) == 0):
                 keys_to_delete += [k]
@@ -37,9 +35,7 @@ def _recursive_drop_empty(response_elem: list | dict) -> None:
 
 
 @overload
-def drop_empty_elements(
-    response: list[dict[str, Any]], inplace: bool
-) -> list[dict[str, Any]]: ...
+def drop_empty_elements(response: list[dict[str, Any]], inplace: bool) -> list[dict[str, Any]]: ...
 
 
 @overload
@@ -72,9 +68,7 @@ def _recursive_map_keys(response_elem: list | dict, keymap: dict) -> None:
         for el in response_elem:
             _recursive_map_keys(el, keymap)
     elif isinstance(response_elem, dict):
-        keys_to_delete = (
-            []
-        )  # NOTE: Avoid deleting keys inside iterator, may break iterator
+        keys_to_delete = []  # NOTE: Avoid deleting keys inside iterator, may break iterator
         for k, v in response_elem.items():
             _recursive_map_keys(v, keymap)
             if k in keymap:
@@ -85,9 +79,7 @@ def _recursive_map_keys(response_elem: list | dict, keymap: dict) -> None:
             del response_elem[k]  # Delete old key
 
 
-def map_element_keys(
-    response: list | dict, keymap: dict, inplace: bool = True
-) -> list | dict:
+def map_element_keys(response: list | dict, keymap: dict, inplace: bool = True) -> list | dict:
     """
     Iterates over all nested lists, dictionaries and basic values. Whenever a dictionary key is found for which
        the mapping is requested, that the key is renamed to the corresponding mapped one
@@ -121,9 +113,7 @@ def _recursive_sort_dicts_by_key(response_elem: list | dict) -> None:
             _recursive_sort_dicts_by_key(v)
 
 
-def sort_dicts_by_key(
-    response: list | dict, inplace: bool = True
-) -> list | dict | None:
+def sort_dicts_by_key(response: list | dict, inplace: bool = True) -> list | dict | None:
     """
     Iterates over all nested lists, dictionaries and basic values. Whenever a nested dictionary is found, it is sorted
        by key by converting into OrderedDict and back
@@ -137,9 +127,7 @@ def sort_dicts_by_key(
     return response_filtered
 
 
-def clean_result(
-    result: dict, drop_underscores_suds: bool = True, sort_keys: bool = False
-) -> dict:
+def clean_result(result: dict, drop_underscores_suds: bool = True, sort_keys: bool = False) -> dict:
     """
     :param result: the response dictionary to clean
     :param drop_underscores_suds: if True, the keys of the dictionaries in the response will have leading

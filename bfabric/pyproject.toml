@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "bfabric"
 description = "Python client for the B-Fabric API"
-version = "1.13.18"
+version = "1.13.19"
 license = { text = "GPL-3.0" }
 authors = [
     { name = "Christian Panse", email = "cp@fgcz.ethz.ch" },
@@ -53,7 +53,7 @@ Repository = "https://github.com/fgcz/bfabricPy"
 
 
 [tool.uv]
-reinstall-package = ["bfabric", "bfabric_scripts", "app_runner"]
+reinstall-package = ["bfabric", "bfabric_scripts", "bfabric_app_runner"]
 
 [tool.black]
 line-length = 120

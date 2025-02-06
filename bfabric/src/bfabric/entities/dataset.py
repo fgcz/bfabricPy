@@ -19,9 +19,7 @@ class Dataset(Entity):
 
     ENDPOINT: str = "dataset"
 
-    def __init__(
-        self, data_dict: dict[str, Any], client: Bfabric | None = None
-    ) -> None:
+    def __init__(self, data_dict: dict[str, Any], client: Bfabric | None = None) -> None:
         super().__init__(data_dict=data_dict, client=client)
 
     def to_polars(self) -> DataFrame:

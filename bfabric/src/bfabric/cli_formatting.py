@@ -22,12 +22,10 @@ def setup_script_logging(debug: bool = False) -> None:
     if os.environ.get(setup_flag_key, "0") == "1":
         return
     logger.remove()
-    packages = ["bfabric", "bfabric_scripts", "app_runner", "__main__"]
+    packages = ["bfabric", "bfabric_scripts", "bfabric_app_runner", "__main__"]
     if not (debug or os.environ.get("BFABRICPY_DEBUG")):
         for package in packages:
-            logger.add(
-                sys.stderr, filter=package, level="INFO", format="{level} {message}"
-            )
+            logger.add(sys.stderr, filter=package, level="INFO", format="{level} {message}")
     else:
         for package in packages:
             logger.add(sys.stderr, filter=package, level="DEBUG")
