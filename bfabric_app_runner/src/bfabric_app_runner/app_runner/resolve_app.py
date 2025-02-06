@@ -23,7 +23,7 @@ def resolve_app(versions: AppSpec, workunit_definition: WorkunitDefinition) -> A
     app_version = workunit_definition.execution.raw_parameters["application_version"]
     # TODO graceful handling of invalid versions
     if app_version in versions and versions[app_version] is not None:
-        return app_version
+        return versions[app_version]
     else:
         msg = (
             f"application_version '{app_version}' is not defined in the app spec,\n"
