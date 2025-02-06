@@ -7,9 +7,11 @@ from loguru import logger
 from bfabric_app_runner.input_preparation.collect_annotation import prepare_annotation
 from bfabric_app_runner.input_preparation.integrity import IntegrityState
 from bfabric_app_runner.input_preparation.list_inputs import list_input_states
+from bfabric_app_runner.input_preparation.prepare_file_spec import prepare_file_spec
 from bfabric_app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
 from bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec import BfabricOrderFastaSpec
 from bfabric_app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
+from bfabric_app_runner.specs.inputs.file_copy_spec import FileSpec
 from bfabric_app_runner.specs.inputs.file_scp_spec import FileScpSpec
 from bfabric_app_runner.specs.inputs_spec import (
     InputSpecType,
@@ -40,6 +42,8 @@ class PrepareInputs:
                 logger.debug(f"Skipping {spec} as it already exists and passed integrity check")
             elif isinstance(spec, BfabricResourceSpec):
                 self.prepare_resource(spec)
+            elif isinstance(spec, FileSpec):
+                self.prepare_file_spec(spec)
             elif isinstance(spec, FileScpSpec):
                 self.prepare_file_scp(spec)
             elif isinstance(spec, BfabricDatasetSpec):
@@ -87,6 +91,9 @@ class PrepareInputs:
             if actual_checksum != resource["filechecksum"]:
                 raise ValueError(f"Checksum mismatch: expected {resource['filechecksum']}, got {actual_checksum}")
 
+    def prepare_file_spec(self, spec: FileSpec) -> None:
+        return prepare_file_spec(spec=spec, client=self._client, working_dir=self._working_dir, ssh_user=self._ssh_user)
+
     def prepare_file_scp(self, spec: FileScpSpec) -> None:
         scp_uri = f"{spec.host}:{spec.absolute_path}"
         result_name = spec.resolve_filename(client=self._client)
@@ -102,12 +109,22 @@ class PrepareInputs:
         dataset.write_csv(path=target_path, separator=spec.separator)
 
     def prepare_order_fasta(self, spec: BfabricOrderFastaSpec) -> None:
+        # Determine the result file.
+        result_name = self._working_dir / spec.filename
+        result_name.parent.mkdir(exist_ok=True, parents=True)
+
         # Find the order.
         match spec.entity:
             case "workunit":
                 workunit = Workunit.find(id=spec.id, client=self._client)
                 if not isinstance(workunit.container, Order):
-                    raise ValueError(f"Workunit {workunit.id} is not associated with an order")
+                    msg = f"Workunit {workunit.id} is not associated with an order"
+                    if spec.required:
+                        raise ValueError(msg)
+                    else:
+                        logger.warning(msg)
+                        result_name.write_text("")
+                        return
                 order = workunit.container
             case "order":
                 order = Order.find(id=spec.id, client=self._client)
@@ -115,8 +132,6 @@ class PrepareInputs:
                 assert_never(spec.entity)
 
         # Write the result into the file
-        result_name = self._working_dir / spec.filename
-        result_name.parent.mkdir(exist_ok=True, parents=True)
         fasta_content = order.data_dict.get("fastasequence", "")
         if fasta_content and fasta_content[-1] != "\n":
             fasta_content += "\n"

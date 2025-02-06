@@ -32,7 +32,7 @@ uv tool install -p 3.13 bfabric-scripts
 You can upgrade this installation to the most recent version later with:
 
 ```bash
-uv tool upgraed bfabric-scripts
+uv tool upgrade bfabric-scripts
 ```
 
 ### Declaring a package dependency

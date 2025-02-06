@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import shlex
 import subprocess
 from pathlib import Path
 
@@ -38,8 +39,9 @@ def scp(source: str | Path, target: str | Path, *, user: str | None = None, mkdi
             parent_path = Path(target).parent
             parent_path.mkdir(parents=True, exist_ok=True)
 
-    logger.info(f"scp {source} {target}")
-    subprocess.run(["scp", source, target], check=True)
+    cmd = ["scp", source, target]
+    logger.info(shlex.join(cmd))
+    subprocess.run(cmd, check=True)
 
 
 def _is_remote(path: str | Path) -> bool:

@@ -23,8 +23,8 @@ def tests(session):
 
 @nox.session(python=["3.13"])
 def test_app_runner(session):
+    session.install("-e", "./bfabric")
     session.install("./bfabric_app_runner[test]")
-    session.install("--upgrade", "./bfabric")
     session.run("uv", "pip", "list")
     session.run("pytest", "--durations=50", "tests/bfabric_app_runner")
 
@@ -65,7 +65,7 @@ def docs(session):
             shutil.rmtree(target_dir)
 
         shutil.copytree(Path(tmpdir) / "build_bfabricpy", target_dir)
-        shutil.copytree(Path(tmpdir) / "build_app_runner" / "html", target_dir / "bfabric_app_runner")
+        shutil.copytree(Path(tmpdir) / "build_app_runner" / "html", target_dir / "app_runner")
 
 
 @nox.session(default=False)
