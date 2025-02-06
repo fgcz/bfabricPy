@@ -46,6 +46,9 @@ class AppSpec(BaseModel):
         """The available versions of the app."""
         return {version.version for version in self.versions}
 
+    def __contains__(self, version: str) -> bool:
+        return version in self.available_versions
+
     def __getitem__(self, version: str) -> AppVersion | None:
         """Returns the app version with the provided version number or None if it does not exist."""
         for app_version in self.versions:
