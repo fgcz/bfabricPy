@@ -22,6 +22,14 @@ def resolve_app(versions: AppSpec, workunit_definition: WorkunitDefinition) -> A
         raise ValueError("The workunit definition does not contain an application version.")
     app_version = workunit_definition.execution.raw_parameters["application_version"]
     # TODO graceful handling of invalid versions
+    if app_version in versions and versions[app_version] is not None:
+        return app_version
+    else:
+        msg = (
+            f"application_version '{app_version}' is not defined in the app spec,\n"
+            f" available versions: {sorted(versions.keys())}"
+        )
+        raise ValueError(msg)
     return versions[app_version]
 
 

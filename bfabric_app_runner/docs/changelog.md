@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
     symlinks instead of copying the file, as needed.
 - `BfabricOrderFastaSpec.required` which allows specifying whether the order fasta is required or not
 
+### Changed
+
+- Better error when app version is not found.
+
 ## \[0.0.14\] - 2025-01-30
 
 ### Fixed
