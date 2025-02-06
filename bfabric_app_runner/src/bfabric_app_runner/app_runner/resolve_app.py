@@ -27,7 +27,7 @@ def resolve_app(versions: AppSpec, workunit_definition: WorkunitDefinition) -> A
     else:
         msg = (
             f"application_version '{app_version}' is not defined in the app spec,\n"
-            f" available versions: {sorted(versions.keys())}"
+            f" available versions: {sorted(versions.available_versions)}"
         )
         raise ValueError(msg)
     return versions[app_version]
