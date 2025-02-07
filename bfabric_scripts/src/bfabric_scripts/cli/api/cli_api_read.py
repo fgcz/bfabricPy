@@ -5,8 +5,10 @@ from pathlib import Path
 from typing import Any, Annotated
 
 import cyclopts
+import polars as pl
 import yaml
 from bfabric import Bfabric, BfabricClientConfig
+from bfabric.utils.polars_utils import flatten_relations
 from bfabric_scripts.cli.base import use_client
 from loguru import logger
 from pydantic import BaseModel
@@ -20,8 +22,8 @@ app = cyclopts.App()
 class OutputFormat(Enum):
     JSON = "json"
     YAML = "yaml"
+    TSV = "tsv"
     TABLE_RICH = "table_rich"
-    TABLE_TSV = "table_tsv"
 
 
 class Params(BaseModel):
@@ -73,6 +75,8 @@ def render_output(results: list[dict[str, Any]], params: Params, client: Bfabric
         return json.dumps(results, indent=2)
     elif params.format == OutputFormat.YAML:
         return yaml.dump(results)
+    elif params.format == OutputFormat.TSV:
+        return flatten_relations(pl.DataFrame(results)).write_csv(separator="\t")
     elif params.format == OutputFormat.TABLE_RICH:
         output_columns = _determine_output_columns(
             results=results,
@@ -88,8 +92,8 @@ def render_output(results: list[dict[str, Any]], params: Params, client: Bfabric
 
 @app.default
 @use_client
-@logger.catch
-def read(command: Annotated[Params, cyclopts.Parameter(name="*")], *, client: Bfabric) -> None:
+@logger.catch()
+def read(command: Annotated[Params, cyclopts.Parameter(name="*")], *, client: Bfabric) -> None | int:
     """Reads one type of entity from B-Fabric."""
     console_user = Console(stderr=True)
     console_user.print(command)
@@ -101,10 +105,17 @@ def read(command: Annotated[Params, cyclopts.Parameter(name="*")], *, client: Bf
     results = sorted(results, key=lambda x: x["id"])
     console_out = Console()
     output = render_output(results, params=command, client=client, console=console_out)
+    if output is not None:
+        if command.format == OutputFormat.TSV:
+            print(output)
+        else:
+            console_out.print(output)
     if command.file:
         if output is None:
-            raise ValueError("File output is not supported for the specified output format.")
+            logger.error("File output is not supported for the specified output format.")
+            return 1
         command.file.write_text(output)
+        logger.info(f"Results written to {command.file} (size: {command.file.stat().st_size} bytes)")
 
 
 def _determine_output_columns(
