@@ -1,74 +1,78 @@
 import json
-import time
+from collections import defaultdict
 from enum import Enum
-from typing import Any
+from pathlib import Path
+from typing import Any, Annotated
 
 import cyclopts
+import rich.pretty
 import yaml
+from bfabric import Bfabric, BfabricClientConfig
+from bfabric_scripts.cli.base import use_client
 from loguru import logger
 from pydantic import BaseModel
 from rich.console import Console
 from rich.pretty import pprint
+from rich.syntax import Syntax
 from rich.table import Table
 
-from bfabric import Bfabric, BfabricClientConfig
-from bfabric_scripts.cli.base import use_client
+app = cyclopts.App()
 
 
 class OutputFormat(Enum):
     JSON = "json"
     YAML = "yaml"
     TABLE_RICH = "table_rich"
+    TABLE_TSV = "table_tsv"
     AUTO = "auto"
 
 
-app = cyclopts.App()
+class Params(BaseModel):
+    endpoint: str
+    """Endpoint to query, e.g. 'resource'."""
+    query: list[tuple[str, str]] = []
+    """List of attribute-value pairs to filter the results by."""
+    format: OutputFormat = OutputFormat.TABLE_RICH
+    """Output format."""
+    limit: int = 100
+    """Maximum number of results."""
+    columns: list[str] | None = None
+    """Selection of columns to return."""
+    max_columns: int | None = None
+    # TODO max columns is problematic
 
+    file: Path | None = None
+    """File to write the output to."""
 
-class CommandRead(BaseModel):
-    format: OutputFormat
-    limit: int
-    query: dict[str, str]
-    columns: list[str] | None
-    max_columns: int
+    def extract_query(self) -> dict[str, str | list[str]]:
+        """Returns the query as a dictionary which can be passed to the client."""
+        query = defaultdict(list)
+        for key, value in self.query:
+            query[key].append(value)
+        return {k: v[0] if len(v) == 1 else v for k, v in query.items()}
 
 
 @app.default
 @use_client
-def bfabric_read(
-    endpoint: str,
-    attributes: list[tuple[str, str]] | None = None,
-    *,
-    client: Bfabric,
-    output_format: OutputFormat = OutputFormat.AUTO,
-    limit: int = 100,
-    columns: list[str] | None = None,
-    max_columns: int = 7,
-) -> None:
-    """Reads one or several items from a B-Fabric endpoint and prints them.
+@logger.catch
+def read(command: Annotated[Params, cyclopts.Parameter(name="*")], *, client: Bfabric) -> None:
+    """Reads one type of entity from B-Fabric."""
+    rich.pretty.pprint(command)
 
-    Example usage:
-    read workunit name "DIANN%" createdafter 2024-10-31T19:00:00
+    query = command.extract_query()
+    query_stmt = f"client.read(endpoint={command.endpoint!r}, obj={query!r}, max_results={command.limit!r})"
+    results = eval(query_stmt)
 
-    :param endpoint: The endpoint to query.
-    :param attributes: A list of attribute-value pairs to filter the results by.
-    :param output_format: The output format to use.
-    :param limit: The maximum number of results to return.
-    :param columns: The columns to return (separate arguments).
-    :param max_columns: The maximum number of columns to return (only relevant if no columns are passed explicitly and a table output is chosen).
-    """
     console_out = Console()
-
-    query = {attribute: value for attribute, value in attributes or []}
-    results = _get_results(client=client, endpoint=endpoint, query=query, limit=limit)
-    output_format = _determine_output_format(
-        console_out=console_out, output_format=output_format, n_results=len(results)
+    python_code = (
+        f"results = {query_stmt}\n"
+        f"len(results) # {len(results)}\n"
+        f"sorted(results.to_polars().columns) # {sorted(results.to_polars().columns)}"
     )
-    output_columns = _determine_output_columns(
-        results=results,
-        columns=columns,
-        max_columns=max_columns,
-        output_format=output_format,
+    results = sorted(results, key=lambda x: x["id"])
+    console_out.print(Syntax(python_code, "python", theme="solarized-dark", background_color="default", word_wrap=True))
+    output_format = _determine_output_format(
+        console_out=console_out, output_format=command.format, n_results=len(results)
     )
 
     if output_format == OutputFormat.JSON:
@@ -76,8 +80,14 @@ def bfabric_read(
     elif output_format == OutputFormat.YAML:
         print(yaml.dump(results))
     elif output_format == OutputFormat.TABLE_RICH:
+        output_columns = _determine_output_columns(
+            results=results,
+            columns=columns,
+            max_columns=max_columns,
+            output_format=output_format,
+        )
         pprint(
-            CommandRead(
+            Params(
                 format=output_format,
                 limit=limit,
                 query=query,
@@ -109,26 +119,19 @@ def _determine_output_columns(
     return columns
 
 
-def _get_results(client: Bfabric, endpoint: str, query: dict[str, str], limit: int) -> list[dict[str, Any]]:
-    start_time = time.time()
-    results = client.read(endpoint=endpoint, obj=query, max_results=limit)
-    end_time = time.time()
-    logger.info(f"number of query result items = {len(results)}")
-    logger.info(f"query time = {end_time - start_time:.2f} seconds")
-
-    results = sorted(results.to_list_dict(drop_empty=False), key=lambda x: x["id"])
-    if results:
-        possible_attributes = sorted(set(results[0].keys()))
-        logger.info(f"possible attributes = {possible_attributes}")
-
-    return results
-
-
-def _print_query_rich(
-    console_out: Console,
-    query: dict[str, str],
-) -> None:
-    pprint(query, console=console_out)
+# def _get_results(client: Bfabric, endpoint: str, query: dict[str, str], limit: int) -> list[dict[str, Any]]:
+#    # TODO move timing into the client
+#    #start_time = time.time()
+#    results = client.read(endpoint=endpoint, obj=query, max_results=limit)
+#    #end_time = time.time()
+#    #logger.debug(f"query time = {end_time - start_time:.2f} seconds")
+#
+#    results = sorted(results.to_list_dict(drop_empty=False), key=lambda x: x["id"])
+#    if results:
+#        possible_attributes = sorted(set(results[0].keys()))
+#        logger.info(f"possible attributes = {possible_attributes}")
+#
+#    return results
 
 
 def _print_table_rich(
