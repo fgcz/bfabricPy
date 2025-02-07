@@ -6,7 +6,7 @@ describe the app anatomy in a separate document with figures etc. and then list 
 ## Reference
 
 ```{eval-rst}
-.. automodule:: app_runner.specs.app_spec
+.. automodule:: bfabric_app_runner.specs.app_spec
     :members:
     :undoc-members:
     :show-inheritance:
