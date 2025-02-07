@@ -93,29 +93,29 @@ def render_output(results: list[dict[str, Any]], params: Params, client: Bfabric
 @app.default
 @use_client
 @logger.catch()
-def read(command: Annotated[Params, cyclopts.Parameter(name="*")], *, client: Bfabric) -> None | int:
+def read(params: Annotated[Params, cyclopts.Parameter(name="*")], *, client: Bfabric) -> None | int:
     """Reads one type of entity from B-Fabric."""
     console_user = Console(stderr=True)
-    console_user.print(command)
+    console_user.print(params)
 
     # Perform the query
-    results = perform_query(params=command, client=client, console_user=console_user)
+    results = perform_query(params=params, client=client, console_user=console_user)
 
     # Print/export output
     results = sorted(results, key=lambda x: x["id"])
     console_out = Console()
-    output = render_output(results, params=command, client=client, console=console_out)
+    output = render_output(results, params=params, client=client, console=console_out)
     if output is not None:
-        if command.format == OutputFormat.TSV:
+        if params.format == OutputFormat.TSV:
             print(output)
         else:
             console_out.print(output)
-    if command.file:
+    if params.file:
         if output is None:
             logger.error("File output is not supported for the specified output format.")
             return 1
-        command.file.write_text(output)
-        logger.info(f"Results written to {command.file} (size: {command.file.stat().st_size} bytes)")
+        params.file.write_text(output)
+        logger.info(f"Results written to {params.file} (size: {params.file.stat().st_size} bytes)")
 
 
 def _determine_output_columns(
