@@ -49,17 +49,10 @@ class Params(BaseModel):
         return {k: v[0] if len(v) == 1 else v for k, v in query.items()}
 
 
-@app.default
-@use_client
-@logger.catch
-def read(command: Annotated[Params, cyclopts.Parameter(name="*")], *, client: Bfabric) -> None:
-    """Reads one type of entity from B-Fabric."""
-    console_user = Console(stderr=True)
-    console_user.print(command)
-
-    # Perform query
-    query = command.extract_query()
-    query_stmt = f"client.read(endpoint={command.endpoint!r}, obj={query!r}, max_results={command.limit!r})"
+def perform_query(params: Params, client: Bfabric, console_user: Console) -> list[dict[str, Any]]:
+    """Performs the query and returns the results."""
+    query = params.extract_query()
+    query_stmt = f"client.read(endpoint={params.endpoint!r}, obj={query!r}, max_results={params.limit!r})"
     results = eval(query_stmt)
 
     # Log query and results meta information
@@ -71,25 +64,44 @@ def read(command: Annotated[Params, cyclopts.Parameter(name="*")], *, client: Bf
     console_user.print(
         Syntax(python_code, "python", theme="solarized-dark", background_color="default", word_wrap=True)
     )
+    return results
+
+
+def render_output(results: list[dict[str, Any]], params: Params, client: Bfabric, console: Console) -> str:
+    """Renders the results in the specified output format."""
+    if params.format == OutputFormat.JSON:
+        return json.dumps(results, indent=2)
+    elif params.format == OutputFormat.YAML:
+        return yaml.dump(results)
+    elif params.format == OutputFormat.TABLE_RICH:
+        output_columns = _determine_output_columns(
+            results=results,
+            columns=params.columns,
+            max_columns=params.cli_max_columns,
+            output_format=params.format,
+        )
+        _print_table_rich(client.config, console, params.endpoint, results, output_columns=output_columns)
+    else:
+        raise ValueError(f"output format {params.format} not supported")
+
+
+@app.default
+@use_client
+@logger.catch
+def read(command: Annotated[Params, cyclopts.Parameter(name="*")], *, client: Bfabric) -> None:
+    """Reads one type of entity from B-Fabric."""
+    console_user = Console(stderr=True)
+    console_user.print(command)
+
+    # Perform the query
+    results = perform_query(params=command, client=client, console_user=console_user)
 
     # Print/export output
     results = sorted(results, key=lambda x: x["id"])
-    output_format = command.format
-
-    if output_format == OutputFormat.JSON:
-        print(json.dumps(results, indent=2))
-    elif output_format == OutputFormat.YAML:
-        print(yaml.dump(results))
-    elif output_format == OutputFormat.TABLE_RICH:
-        output_columns = _determine_output_columns(
-            results=results,
-            columns=command.columns,
-            max_columns=command.cli_max_columns,
-            output_format=output_format,
-        )
-        _print_table_rich(client.config, console_user, command.endpoint, results, output_columns=output_columns)
-    else:
-        raise ValueError(f"output format {output_format} not supported")
+    console_out = Console()
+    output = render_output(results, params=command, client=client, console=console_out)
+    if command.file:
+        command.file.write_text(output)
 
 
 def _determine_output_columns(
