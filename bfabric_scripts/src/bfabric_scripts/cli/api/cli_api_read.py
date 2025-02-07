@@ -67,7 +67,7 @@ def perform_query(params: Params, client: Bfabric, console_user: Console) -> lis
     return results
 
 
-def render_output(results: list[dict[str, Any]], params: Params, client: Bfabric, console: Console) -> str:
+def render_output(results: list[dict[str, Any]], params: Params, client: Bfabric, console: Console) -> str | None:
     """Renders the results in the specified output format."""
     if params.format == OutputFormat.JSON:
         return json.dumps(results, indent=2)
@@ -81,6 +81,7 @@ def render_output(results: list[dict[str, Any]], params: Params, client: Bfabric
             output_format=params.format,
         )
         _print_table_rich(client.config, console, params.endpoint, results, output_columns=output_columns)
+        return None
     else:
         raise ValueError(f"output format {params.format} not supported")
 
@@ -101,6 +102,8 @@ def read(command: Annotated[Params, cyclopts.Parameter(name="*")], *, client: Bf
     console_out = Console()
     output = render_output(results, params=command, client=client, console=console_out)
     if command.file:
+        if output is None:
+            raise ValueError("File output is not supported for the specified output format.")
         command.file.write_text(output)
 
 
