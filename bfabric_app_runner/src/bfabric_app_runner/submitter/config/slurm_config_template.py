@@ -1,5 +1,5 @@
-from app_runner.specs.config_interpolation import VariablesApp, interpolate_config_strings, VariablesWorkunit
-from app_runner.submitter.config.slurm_config import _SlurmConfigBase, SlurmConfig
+from bfabric_app_runner.specs.config_interpolation import VariablesApp, interpolate_config_strings, VariablesWorkunit
+from bfabric_app_runner.submitter.config.slurm_config import _SlurmConfigBase, SlurmConfig
 
 
 class SlurmConfigTemplate(_SlurmConfigBase):

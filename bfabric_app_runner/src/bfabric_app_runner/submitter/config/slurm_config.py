@@ -2,11 +2,10 @@ from __future__ import annotations
 
 from functools import cached_property
 
+from bfabric_app_runner.specs.app.app_version import AppVersion  # noqa: TC001
+from bfabric_app_runner.specs.submitters_spec import SubmitterSlurmSpec  # noqa: TC001
+from bfabric_app_runner.submitter.config.slurm_workunit_params import SlurmWorkunitParams  # noqa: TC001
 from pydantic import BaseModel
-
-from app_runner.specs.app.app_version import AppVersion  # noqa: TC001
-from app_runner.specs.submitters_spec import SubmitterSlurmSpec  # noqa: TC001
-from app_runner.submitter.config.slurm_workunit_params import SlurmWorkunitParams  # noqa: TC001
 
 
 class _SlurmConfigBase(BaseModel):

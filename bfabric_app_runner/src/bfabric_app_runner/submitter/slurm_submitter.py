@@ -6,14 +6,13 @@ import subprocess
 from typing import TYPE_CHECKING
 
 import yaml
+from bfabric_app_runner.specs.config_interpolation import VariablesApp, VariablesWorkunit
 from loguru import logger
 
-from app_runner.specs.config_interpolation import VariablesApp, VariablesWorkunit
-
 if TYPE_CHECKING:
-    from app_runner.submitter.config.slurm_config import SlurmConfig
-    from app_runner.submitter.config.slurm_config_template import SlurmConfigTemplate
-    from app_runner.bfabric_app.workunit_wrapper_data import WorkunitWrapperData
+    from bfabric_app_runner.submitter.config.slurm_config import SlurmConfig
+    from bfabric_app_runner.submitter.config.slurm_config_template import SlurmConfigTemplate
+    from bfabric_app_runner.bfabric_app.workunit_wrapper_data import WorkunitWrapperData
 
 _MAIN_BASH_TEMPLATE = """
 set -euxo pipefail
