@@ -6,6 +6,7 @@ from typing import Any, Annotated
 
 import cyclopts
 import polars as pl
+import pydantic
 import yaml
 from bfabric import Bfabric, BfabricClientConfig
 from bfabric.utils.polars_utils import flatten_relations
@@ -35,13 +36,17 @@ class Params(BaseModel):
     """Output format."""
     limit: int = 100
     """Maximum number of results."""
-    columns: list[str] | None = None
-    """Selection of columns to return."""
+    columns: list[str]
+    """Selection of columns to return, comma separated list."""
     cli_max_columns: int | None = 7
     """When showing the results as a table in the console (table-rich), the maximum number of columns to show."""
 
     file: Path | None = None
     """File to write the output to."""
+
+    @pydantic.field_validator("columns", mode="before")
+    def convert_str_to_list(cls, value: list[str]) -> list[str]:
+        return value[0].split(",") if (len(value) == 1 and "," in value[0]) else value
 
     def extract_query(self) -> dict[str, str | list[str]]:
         """Returns the query as a dictionary which can be passed to the client."""
@@ -71,13 +76,7 @@ def perform_query(params: Params, client: Bfabric, console_user: Console) -> lis
 
 def render_output(results: list[dict[str, Any]], params: Params, client: Bfabric, console: Console) -> str | None:
     """Renders the results in the specified output format."""
-    if params.format == OutputFormat.JSON:
-        return json.dumps(results, indent=2)
-    elif params.format == OutputFormat.YAML:
-        return yaml.dump(results)
-    elif params.format == OutputFormat.TSV:
-        return flatten_relations(pl.DataFrame(results)).write_csv(separator="\t")
-    elif params.format == OutputFormat.TABLE_RICH:
+    if params.format == OutputFormat.TABLE_RICH:
         output_columns = _determine_output_columns(
             results=results,
             columns=params.columns,
@@ -87,7 +86,17 @@ def render_output(results: list[dict[str, Any]], params: Params, client: Bfabric
         _print_table_rich(client.config, console, params.endpoint, results, output_columns=output_columns)
         return None
     else:
-        raise ValueError(f"output format {params.format} not supported")
+        if params.columns:
+            results = [{k: x.get(k) for k in params.columns} for x in results]
+
+        if params.format == OutputFormat.JSON:
+            return json.dumps(results, indent=2)
+        elif params.format == OutputFormat.YAML:
+            return yaml.dump(results)
+        elif params.format == OutputFormat.TSV:
+            return flatten_relations(pl.DataFrame(results)).write_csv(separator="\t")
+        else:
+            raise ValueError(f"output format {params.format} not supported")
 
 
 @app.default
