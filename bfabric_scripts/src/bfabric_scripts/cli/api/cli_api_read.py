@@ -5,14 +5,12 @@ from pathlib import Path
 from typing import Any, Annotated
 
 import cyclopts
-import rich.pretty
 import yaml
 from bfabric import Bfabric, BfabricClientConfig
 from bfabric_scripts.cli.base import use_client
 from loguru import logger
 from pydantic import BaseModel
 from rich.console import Console
-from rich.pretty import pprint
 from rich.syntax import Syntax
 from rich.table import Table
 
@@ -24,7 +22,6 @@ class OutputFormat(Enum):
     YAML = "yaml"
     TABLE_RICH = "table_rich"
     TABLE_TSV = "table_tsv"
-    AUTO = "auto"
 
 
 class Params(BaseModel):
@@ -38,8 +35,8 @@ class Params(BaseModel):
     """Maximum number of results."""
     columns: list[str] | None = None
     """Selection of columns to return."""
-    max_columns: int | None = None
-    # TODO max columns is problematic
+    cli_max_columns: int | None = 7
+    """When showing the results as a table in the console (table-rich), the maximum number of columns to show."""
 
     file: Path | None = None
     """File to write the output to."""
@@ -57,23 +54,27 @@ class Params(BaseModel):
 @logger.catch
 def read(command: Annotated[Params, cyclopts.Parameter(name="*")], *, client: Bfabric) -> None:
     """Reads one type of entity from B-Fabric."""
-    rich.pretty.pprint(command)
+    console_user = Console(stderr=True)
+    console_user.print(command)
 
+    # Perform query
     query = command.extract_query()
     query_stmt = f"client.read(endpoint={command.endpoint!r}, obj={query!r}, max_results={command.limit!r})"
     results = eval(query_stmt)
 
-    console_out = Console()
+    # Log query and results meta information
     python_code = (
         f"results = {query_stmt}\n"
         f"len(results) # {len(results)}\n"
         f"sorted(results.to_polars().columns) # {sorted(results.to_polars().columns)}"
     )
-    results = sorted(results, key=lambda x: x["id"])
-    console_out.print(Syntax(python_code, "python", theme="solarized-dark", background_color="default", word_wrap=True))
-    output_format = _determine_output_format(
-        console_out=console_out, output_format=command.format, n_results=len(results)
+    console_user.print(
+        Syntax(python_code, "python", theme="solarized-dark", background_color="default", word_wrap=True)
     )
+
+    # Print/export output
+    results = sorted(results, key=lambda x: x["id"])
+    output_format = command.format
 
     if output_format == OutputFormat.JSON:
         print(json.dumps(results, indent=2))
@@ -82,22 +83,11 @@ def read(command: Annotated[Params, cyclopts.Parameter(name="*")], *, client: Bf
     elif output_format == OutputFormat.TABLE_RICH:
         output_columns = _determine_output_columns(
             results=results,
-            columns=columns,
-            max_columns=max_columns,
+            columns=command.columns,
+            max_columns=command.cli_max_columns,
             output_format=output_format,
         )
-        pprint(
-            Params(
-                format=output_format,
-                limit=limit,
-                query=query,
-                columns=output_columns,
-                max_columns=max_columns,
-            ),
-            console=console_out,
-        )
-        # _print_query_rich(console_out, query)
-        _print_table_rich(client.config, console_out, endpoint, results, output_columns=output_columns)
+        _print_table_rich(client.config, console_user, command.endpoint, results, output_columns=output_columns)
     else:
         raise ValueError(f"output format {output_format} not supported")
 
@@ -115,23 +105,7 @@ def _determine_output_columns(
         available_columns = sorted(set(results[0].keys()) - {"id"})
         columns += available_columns[:max_columns]
 
-    logger.info(f"columns = {columns}")
     return columns
-
-
-# def _get_results(client: Bfabric, endpoint: str, query: dict[str, str], limit: int) -> list[dict[str, Any]]:
-#    # TODO move timing into the client
-#    #start_time = time.time()
-#    results = client.read(endpoint=endpoint, obj=query, max_results=limit)
-#    #end_time = time.time()
-#    #logger.debug(f"query time = {end_time - start_time:.2f} seconds")
-#
-#    results = sorted(results.to_list_dict(drop_empty=False), key=lambda x: x["id"])
-#    if results:
-#        possible_attributes = sorted(set(results[0].keys()))
-#        logger.info(f"possible attributes = {possible_attributes}")
-#
-#    return results
 
 
 def _print_table_rich(
@@ -157,16 +131,3 @@ def _print_table_rich(
                 values.append(str(x.get(column, "")))
         table.add_row(*values)
     console_out.print(table)
-
-
-def _determine_output_format(console_out: Console, output_format: OutputFormat, n_results: int) -> OutputFormat:
-    """Returns the format to use, based on the number of results, and whether the output is an interactive console.
-    If the format is already set to a concrete value instead of "auto", it will be returned unchanged.
-    """
-    if output_format == OutputFormat.AUTO:
-        if n_results < 2:
-            output_format = OutputFormat.YAML
-        else:
-            output_format = OutputFormat.TABLE_RICH
-    logger.info(f"output format = {output_format}")
-    return output_format
