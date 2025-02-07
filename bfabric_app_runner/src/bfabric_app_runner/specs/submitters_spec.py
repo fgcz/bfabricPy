@@ -5,7 +5,7 @@ from typing import Literal, Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, AliasChoices
 
-from app_runner.specs.config_interpolation import Variables, interpolate_config_strings
+from bfabric_app_runner.specs.config_interpolation import Variables, interpolate_config_strings
 
 
 # TODO these are not yet paths, they need to be substituted before they become paths!
