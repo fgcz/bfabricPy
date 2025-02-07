@@ -17,7 +17,12 @@ class MockEntity(Entity):
 @pytest.fixture(autouse=True)
 def mock_entity_resolution(mocker):
     """Mocks the resolution of the MockEntity class, since it is not actually defined in the bfabric.entities module."""
-    mocker.patch.object(HasMany, "_entity_type", new_callable=mocker.PropertyMock, return_value=MockEntity)
+    mocker.patch.object(
+        HasMany,
+        "_entity_type",
+        new_callable=mocker.PropertyMock,
+        return_value=MockEntity,
+    )
 
 
 @pytest.fixture()

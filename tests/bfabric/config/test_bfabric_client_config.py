@@ -47,7 +47,9 @@ def test_bfabric_config_copy_with_overrides(mock_config: BfabricClientConfig) ->
     assert mock_config.application_ids == {"app": 1}
 
 
-def test_bfabric_config_copy_with_replaced_when_none(mock_config: BfabricClientConfig) -> None:
+def test_bfabric_config_copy_with_replaced_when_none(
+    mock_config: BfabricClientConfig,
+) -> None:
     new_config = mock_config.copy_with(base_url=None, application_ids=None)
     assert new_config.base_url == "https://example.com/"
     assert new_config.application_ids == {"app": 1}
@@ -55,7 +57,9 @@ def test_bfabric_config_copy_with_replaced_when_none(mock_config: BfabricClientC
     assert mock_config.application_ids == {"app": 1}
 
 
-def test_bfabric_config_copy_with_replaced_when_invalid(mock_config: BfabricClientConfig) -> None:
+def test_bfabric_config_copy_with_replaced_when_invalid(
+    mock_config: BfabricClientConfig,
+) -> None:
     with pytest.raises(ValueError):
         mock_config.copy_with(base_url="not a url")
 

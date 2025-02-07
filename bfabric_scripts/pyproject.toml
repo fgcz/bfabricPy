@@ -1,0 +1,42 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "bfabric_scripts"
+description = "Python command line scripts for the B-Fabric API"
+version = "1.13.19"
+
+dependencies = [
+    "bfabric"
+]
+
+[project.scripts]
+"bfabric_flask.py" = "bfabric_scripts.bfabric_flask:main"
+#bfabric_feeder_resource_autoQC="bfabric_scripts.bfabric_feeder_resource_autoQC:main"
+"bfabric_list_not_existing_storage_directories.py" = "bfabric_scripts.bfabric_list_not_existing_storage_directories:main"
+"bfabric_list_not_available_proteomics_workunits.py" = "bfabric_scripts.bfabric_list_not_available_proteomics_workunits:main"
+"bfabric_list_workunit_parameters.py" = "bfabric_scripts.bfabric_list_workunit_parameters:main"
+"bfabric_upload_resource.py" = "bfabric_scripts.bfabric_upload_resource:main"
+"bfabric_logthis.py" = "bfabric_scripts.bfabric_logthis:main"
+"bfabric_setResourceStatus_available.py" = "bfabric_scripts.bfabric_setResourceStatus_available:main"
+"bfabric_setExternalJobStatus_done.py" = "bfabric_scripts.bfabric_setExternalJobStatus_done:main"
+"bfabric_setWorkunitStatus_available.py" = "bfabric_scripts.bfabric_setWorkunitStatus:main_available"
+"bfabric_setWorkunitStatus_processing.py" = "bfabric_scripts.bfabric_setWorkunitStatus:main_processing"
+"bfabric_setWorkunitStatus_failed.py" = "bfabric_scripts.bfabric_setWorkunitStatus:main_failed"
+"bfabric_delete.py" = "bfabric_scripts.bfabric_delete:main"
+"bfabric_read.py" = "bfabric_scripts.bfabric_read:main"
+"bfabric_read_samples_of_workunit.py" = "bfabric_scripts.bfabric_read_samples_of_workunit:main"
+"bfabric_read_samples_from_dataset.py" = "bfabric_scripts.bfabric_read_samples_from_dataset:main"
+"bfabric_save_csv2dataset.py" = "bfabric_scripts.bfabric_save_csv2dataset:main"
+"bfabric_save_dataset2csv.py" = "bfabric_scripts.bfabric_save_dataset2csv:main"
+"bfabric_save_fasta.py" = "bfabric_scripts.bfabric_save_fasta:main"
+"bfabric_save_importresource_sample.py" = "bfabric_scripts.bfabric_save_importresource_sample:main"
+"bfabric_save_link_to_workunit.py" = "bfabric_scripts.bfabric_save_link_to_workunit:main"
+#bfabric_save_resource="bfabric_scripts.bfabric_save_resource:main"
+"bfabric_save_workunit_attribute.py" = "bfabric_scripts.bfabric_save_workunit_attribute:main"
+"bfabric_save_workflowstep.py" = "bfabric_scripts.bfabric_save_workflowstep:main"
+"bfabric_slurm_queue_status.py" = "bfabric_scripts.bfabric_slurm_queue_status:main"
+"bfabric_save_resource_description.py" = "bfabric_scripts.bfabric_save_resource_description:main"
+
+"bfabric-cli" = "bfabric_scripts.cli.__main__:app"

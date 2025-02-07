@@ -41,7 +41,7 @@ jobs:
         id: build
         with:
           output-path: build-output
-          source-path: app_runner
+          source-path: bfabric_app_runner
       - name: Comment PR
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7

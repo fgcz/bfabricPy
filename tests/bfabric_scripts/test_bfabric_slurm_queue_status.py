@@ -3,7 +3,10 @@ import polars.testing
 import pytest
 
 from bfabric.entities import Workunit, Application
-from bfabric_scripts.bfabric_slurm_queue_status import get_slurm_jobs, get_workunit_infos
+from bfabric_scripts.bfabric_slurm_queue_status import (
+    get_slurm_jobs,
+    get_workunit_infos,
+)
 
 
 @pytest.fixture

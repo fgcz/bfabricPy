@@ -56,7 +56,11 @@ def test_save(engine_suds, mock_auth, mock_suds_service, mocker):
     obj = {"field1": "value1"}
     engine_suds.save("sample", obj, mock_auth)
 
-    expected_query = {"login": "test_user", "password": "test_pass", "sample": {"field1": "value1"}}
+    expected_query = {
+        "login": "test_user",
+        "password": "test_pass",
+        "sample": {"field1": "value1"},
+    }
     mock_suds_service.save.assert_called_once_with(expected_query)
     mock_convert.assert_called_once()
 
@@ -65,7 +69,10 @@ def test_save_method_not_found(engine_suds, mock_auth, mock_suds_service, mocker
     mocker.patch.object(engine_suds, "_get_suds_service", return_value=mock_suds_service)
     mock_suds_service.save.side_effect = MethodNotFound("save")
 
-    with pytest.raises(BfabricRequestError, match="SUDS failed to find save method for the sample endpoint."):
+    with pytest.raises(
+        BfabricRequestError,
+        match="SUDS failed to find save method for the sample endpoint.",
+    ):
         engine_suds.save("sample", {}, mock_auth)
 
 
@@ -111,7 +118,10 @@ def test_convert_results(engine_suds, mocker):
 
     mock_response = MagicMock()
     mock_response.sample = [MagicMock(), MagicMock()]
-    mock_response.__getitem__.side_effect = {"sample": mock_response.sample, "numberofpages": 2}.__getitem__
+    mock_response.__getitem__.side_effect = {
+        "sample": mock_response.sample,
+        "numberofpages": 2,
+    }.__getitem__
 
     mock_suds_asdict.side_effect = [{"result1": "value1"}, {"result2": "value2"}]
     mock_clean_result.side_effect = lambda x, **kwargs: x

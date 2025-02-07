@@ -79,7 +79,10 @@ def test_save_method_not_found(engine_zeep, mock_auth, mock_zeep_client, mocker)
     mocker.patch.object(engine_zeep, "_get_client", return_value=mock_zeep_client)
     mock_zeep_client.service.save.side_effect = AttributeError("Service has no operation 'save'")
 
-    with pytest.raises(BfabricRequestError, match="ZEEP failed to find save method for the sample endpoint."):
+    with pytest.raises(
+        BfabricRequestError,
+        match="ZEEP failed to find save method for the sample endpoint.",
+    ):
         engine_zeep.save("sample", {}, mock_auth)
 
 
@@ -125,7 +128,10 @@ def test_convert_results(engine_zeep, mocker):
 
     mock_response = MagicMock()
     mock_response.sample = [MagicMock(), MagicMock()]
-    mock_response.__getitem__.side_effect = {"sample": mock_response.sample, "numberofpages": 2}.__getitem__
+    mock_response.__getitem__.side_effect = {
+        "sample": mock_response.sample,
+        "numberofpages": 2,
+    }.__getitem__
 
     mock_serialize_object.side_effect = [{"result1": "value1"}, {"result2": "value2"}]
     mock_clean_result.side_effect = lambda x, **kwargs: x
@@ -157,11 +163,19 @@ def test_zeep_query_append_skipped():
 
     result = _zeep_query_append_skipped(query, skipped_keys)
 
-    assert result == {"existing": "value", "key1": zeep.xsd.SkipValue, "key2": zeep.xsd.SkipValue}
+    assert result == {
+        "existing": "value",
+        "key1": zeep.xsd.SkipValue,
+        "key2": zeep.xsd.SkipValue,
+    }
     assert query == {"existing": "value"}  # Original query should be unchanged
 
     result_inplace = _zeep_query_append_skipped(query, skipped_keys, inplace=True)
-    assert result_inplace == {"existing": "value", "key1": zeep.xsd.SkipValue, "key2": zeep.xsd.SkipValue}
+    assert result_inplace == {
+        "existing": "value",
+        "key1": zeep.xsd.SkipValue,
+        "key2": zeep.xsd.SkipValue,
+    }
     assert query == result_inplace  # Original query should be changed
 
     query_with_existing = {"key1": "value1", "key2": "value2"}

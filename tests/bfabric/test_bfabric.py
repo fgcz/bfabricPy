@@ -165,7 +165,11 @@ def test_read_when_no_pages_available_and_check(bfabric_instance, mocker):
 
     assert result == mock_result.get_first_n_results.return_value
     mock_engine.read.assert_called_once_with(
-        endpoint="mock_endpoint", obj="mock_obj", auth=mock_auth, page=1, return_id_only=False
+        endpoint="mock_endpoint",
+        obj="mock_obj",
+        auth=mock_auth,
+        page=1,
+        return_id_only=False,
     )
     mock_result.assert_success.assert_called_once()
     mock_result.get_first_n_results.assert_called_once_with(100)
@@ -179,7 +183,12 @@ def test_read_when_pages_available_and_check(bfabric_instance, mocker):
     mock_engine = mocker.patch.object(bfabric_instance, "_engine")
 
     mock_page_results = [
-        MagicMock(name=f"mock_page_result_{i}", assert_success=MagicMock(), total_pages_api=3, errors=[])
+        MagicMock(
+            name=f"mock_page_result_{i}",
+            assert_success=MagicMock(),
+            total_pages_api=3,
+            errors=[],
+        )
         for i in range(1, 4)
     ]
     mock_page_results[0].__getitem__.side_effect = lambda i: [1, 2, 3, 4, 5][i]
@@ -196,8 +205,20 @@ def test_read_when_pages_available_and_check(bfabric_instance, mocker):
     )
     assert result.errors == []
     assert mock_engine.mock_calls == [
-        call.read(endpoint="mock_endpoint", obj="mock_obj", auth=mock_auth, page=1, return_id_only=False),
-        call.read(endpoint="mock_endpoint", obj="mock_obj", auth=mock_auth, page=2, return_id_only=False),
+        call.read(
+            endpoint="mock_endpoint",
+            obj="mock_obj",
+            auth=mock_auth,
+            page=1,
+            return_id_only=False,
+        ),
+        call.read(
+            endpoint="mock_endpoint",
+            obj="mock_obj",
+            auth=mock_auth,
+            page=2,
+            return_id_only=False,
+        ),
     ]
     assert len(result) == 6
     assert result[0] == 5
@@ -293,7 +314,11 @@ def test_exists_when_true(bfabric_instance, mocker):
     assert bfabric_instance.exists(endpoint="test_endpoint", key="key", value="value")
 
     mock_read.assert_called_once_with(
-        endpoint="test_endpoint", obj={"key": "value"}, max_results=1, check=True, return_id_only=True
+        endpoint="test_endpoint",
+        obj={"key": "value"},
+        max_results=1,
+        check=True,
+        return_id_only=True,
     )
 
 
@@ -302,7 +327,11 @@ def test_exists_when_true_and_extra_args(bfabric_instance, mocker):
     mock_read.return_value.__len__.return_value = 1
 
     assert bfabric_instance.exists(
-        endpoint="test_endpoint", key="key", value="value", query={"extra": "arg"}, check=False
+        endpoint="test_endpoint",
+        key="key",
+        value="value",
+        query={"extra": "arg"},
+        check=False,
     )
 
     mock_read.assert_called_once_with(
@@ -321,7 +350,11 @@ def test_exists_when_false(bfabric_instance, mocker):
     assert not bfabric_instance.exists(endpoint="test_endpoint", key="key", value="value")
 
     mock_read.assert_called_once_with(
-        endpoint="test_endpoint", obj={"key": "value"}, max_results=1, check=True, return_id_only=True
+        endpoint="test_endpoint",
+        obj={"key": "value"},
+        max_results=1,
+        check=True,
+        return_id_only=True,
     )
 
 

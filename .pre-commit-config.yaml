@@ -3,7 +3,7 @@ ci:
   autofix_commit_msg: "style: pre-commit fixes"
 repos:
   - repo: https://github.com/psf/black
-    rev: "24.8.0"
+    rev: "25.1.0"
     hooks:
       - id: black
   - repo: https://github.com/adamchainz/blacken-docs
@@ -14,7 +14,6 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: "v0.8.6"
     hooks:
-      - id: ruff-format
       - id: ruff
         args: ["--fix", "--show-fixes"]
   - repo: https://github.com/pre-commit/pre-commit-hooks

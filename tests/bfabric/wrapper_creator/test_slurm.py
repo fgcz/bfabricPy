@@ -18,7 +18,10 @@ def mock_slurm() -> SLURM:
 def test_sbatch_when_success(mocker: MockerFixture, mock_slurm: SLURM, path: Path | str) -> None:
     mock_is_file = mocker.patch.object(Path, "is_file", return_value=True)
     mocker.patch("os.environ", new={"x": "y"})
-    mock_run = mocker.patch("subprocess.run", return_value=mocker.MagicMock(stdout="stdout", stderr="stderr"))
+    mock_run = mocker.patch(
+        "subprocess.run",
+        return_value=mocker.MagicMock(stdout="stdout", stderr="stderr"),
+    )
     stdout, stderr = mock_slurm.sbatch(script=path)
     assert stdout == "stdout"
     assert stderr == "stderr"

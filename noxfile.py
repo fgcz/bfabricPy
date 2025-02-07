@@ -4,30 +4,35 @@ from tempfile import TemporaryDirectory
 
 import nox
 
+# TODO check the problem
 nox.options.default_venv_backend = "uv"
 
 
 @nox.session(python=["3.9", "3.13"])
 def tests(session):
-    session.install(".[test]")
+    session.install("./bfabric[test]", "-e", "./bfabric_scripts")
     session.run("uv", "pip", "list")
-    session.run("pytest", "tests/bfabric", "tests/bfabric_scripts", "tests/bfabric_cli")
+    session.run(
+        "pytest",
+        "--durations=50",
+        "tests/bfabric",
+        "tests/bfabric_scripts",
+        "tests/bfabric_cli",
+    )
 
 
 @nox.session(python=["3.13"])
 def test_app_runner(session):
-    # TODO this one has a problem that bfabric gets installed from `@main` (so it could break CI)
-    session.install(".")
-    session.install("./app_runner[test]")
-    session.install("--upgrade", ".")
+    session.install("-e", "./bfabric")
+    session.install("./bfabric_app_runner[test]")
     session.run("uv", "pip", "list")
-    session.run("pytest", "tests/app_runner")
+    session.run("pytest", "--durations=50", "tests/bfabric_app_runner")
 
 
 @nox.session
 def test_py_typed(session):
     """Verify py.typed is properly installed with the package."""
-    session.install(".")
+    session.install("./bfabric")
     result = session.run(
         "python",
         "-c",
@@ -43,11 +48,17 @@ def test_py_typed(session):
 def docs(session):
     """Builds documentation for bfabricPy and app-runner and writes to site directory."""
     with TemporaryDirectory() as tmpdir:
-        session.install(".[doc]")
+        session.install("./bfabric[doc]")
         session.run("mkdocs", "build", "-d", Path(tmpdir) / "build_bfabricpy")
 
-        session.install("./app_runner[doc]")
-        session.run("sphinx-build", "-M", "html", "app_runner/docs", Path(tmpdir) / "build_app_runner")
+        session.install("./bfabric_app_runner[doc]")
+        session.run(
+            "sphinx-build",
+            "-M",
+            "html",
+            "bfabric_app_runner/docs",
+            Path(tmpdir) / "build_app_runner",
+        )
 
         target_dir = Path("site")
         if target_dir.exists():
@@ -66,3 +77,17 @@ def publish_docs(session):
 
     session.install("ghp-import")
     session.run("ghp-import", "--force", "--no-jekyll", "--push", "site")
+
+
+@nox.session(default=False)
+def code_style(session):
+    session.install("ruff")
+    session.run("ruff", "check", "bfabric")
+
+
+@nox.session
+def licensecheck(session) -> None:
+    """Runs the license check."""
+    # TODO is there a better way
+    session.install("licensecheck")
+    session.run("sh", "-c", "cd bfabric && licensecheck")
