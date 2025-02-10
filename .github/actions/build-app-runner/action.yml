@@ -8,7 +8,7 @@ inputs:
   source-path:
     description: 'Path to app runner source code'
     required: false
-    default: 'app_runner'
+    default: 'bfabric_app_runner'
 outputs:
   artifact-name:
     description: 'Name of the uploaded artifact'

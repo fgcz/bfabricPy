@@ -7,10 +7,10 @@
 
 ## Documentation
 
-| Package    | Link                                                                 |
-| ---------- | -------------------------------------------------------------------- |
-| bfabricPy  | [https://fgcz.github.io/bfabricPy](https://fgcz.github.io/bfabricPy) |
-| app-runner | https://fgcz.github.io/bfabricPy/app_runner/                         |
+| Package                      | Link                                                                 |
+| ---------------------------- | -------------------------------------------------------------------- |
+| bfabric,<br/>bfabric-scripts | [https://fgcz.github.io/bfabricPy](https://fgcz.github.io/bfabricPy) |
+| bfabric-app-runner           | https://fgcz.github.io/bfabricPy/app_runner/                         |
 
 ## Introduction
 

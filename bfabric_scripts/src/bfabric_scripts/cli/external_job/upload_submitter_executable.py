@@ -5,13 +5,11 @@ from typing import Literal
 import yaml
 
 from bfabric import Bfabric
-from bfabric_scripts.cli.base import use_client
+from bfabric.utils.cli_integration import use_client
 
 
 def slurm_parameters() -> list[dict[str, str]]:
-    parameters = [
-        {"modifiable": "true", "required": "true", "type": "STRING"} for _ in range(3)
-    ]
+    parameters = [{"modifiable": "true", "required": "true", "type": "STRING"} for _ in range(3)]
     parameters[0]["description"] = "Which Slurm partition should be used."
     parameters[0]["enumeration"] = ["prx", "mascot"]
     parameters[0]["key"] = "partition"
@@ -58,10 +56,7 @@ def upload_submitter_executable(
 
     if engine == "slurm":
         name = name or "yaml / Slurm executable"
-        description = (
-            description
-            or "Submitter executable for the bfabric functional test using Slurm."
-        )
+        description = description or "Submitter executable for the bfabric functional test using Slurm."
         attr["version"] = "1.03"
         attr["parameter"] = slurm_parameters()
     else:

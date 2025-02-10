@@ -28,7 +28,7 @@ from loguru import logger
 from rich.console import Console
 
 from bfabric.bfabric_config import read_config
-from bfabric.cli_formatting import HostnameHighlighter, DEFAULT_THEME
+from bfabric.utils.cli_integration import DEFAULT_THEME, HostnameHighlighter
 from bfabric.config import BfabricAuth
 from bfabric.config import BfabricClientConfig
 from bfabric.engine.engine_suds import EngineSUDS
@@ -95,9 +95,7 @@ class Bfabric:
             If it is set to None, no authentication will be used.
         :param engine: Engine to use for the API. Default is SUDS.
         """
-        config, auth_config = get_system_auth(
-            config_env=config_env, config_path=config_path
-        )
+        config, auth_config = get_system_auth(config_env=config_env, config_path=config_path)
         auth_used: BfabricAuth | None = auth_config if auth == "config" else auth
         return cls(config, auth_used, engine=engine)
 
@@ -195,9 +193,7 @@ class Bfabric:
             response_items += results[page_offset:]
             page_offset = 0
 
-        result = ResultContainer(
-            response_items, total_pages_api=n_available_pages, errors=errors
-        )
+        result = ResultContainer(response_items, total_pages_api=n_available_pages, errors=errors)
         if check:
             result.assert_success()
         return result.get_first_n_results(max_results)
@@ -217,16 +213,12 @@ class Bfabric:
             appropriate to be used instead.
         :return a ResultContainer describing the saved object if successful
         """
-        results = self._engine.save(
-            endpoint=endpoint, obj=obj, auth=self.auth, method=method
-        )
+        results = self._engine.save(endpoint=endpoint, obj=obj, auth=self.auth, method=method)
         if check:
             results.assert_success()
         return results
 
-    def delete(
-        self, endpoint: str, id: int | list[int], check: bool = True
-    ) -> ResultContainer:
+    def delete(self, endpoint: str, id: int | list[int], check: bool = True) -> ResultContainer:
         """Deletes the object with the specified ID from the specified endpoint.
         :param endpoint: the endpoint to delete from, e.g. "sample"
         :param id: the ID of the object to delete
@@ -353,19 +345,11 @@ def get_system_auth(
     if not resolved_path.is_file():
         if config_path:
             # NOTE: If user explicitly specifies a path to a wrong config file, this has to be an exception
-            raise OSError(
-                f"Explicitly specified config file does not exist: {resolved_path}"
-            )
+            raise OSError(f"Explicitly specified config file does not exist: {resolved_path}")
         # TODO: Convert to log
-        print(
-            f"Warning: could not find the config file in the default location: {resolved_path}"
-        )
+        print(f"Warning: could not find the config file in the default location: {resolved_path}")
         config = BfabricClientConfig(base_url=base_url)
-        auth = (
-            None
-            if login is None or password is None
-            else BfabricAuth(login=login, password=password)
-        )
+        auth = None if login is None or password is None else BfabricAuth(login=login, password=password)
 
     # Load config from file, override some of the fields with the provided ones
     else:

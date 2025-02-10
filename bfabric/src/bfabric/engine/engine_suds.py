@@ -57,9 +57,7 @@ class EngineSUDS:
         response = service.read(full_query)
         return self._convert_results(response=response, endpoint=endpoint)
 
-    def save(
-        self, endpoint: str, obj: dict, auth: BfabricAuth, method: str = "save"
-    ) -> ResultContainer:
+    def save(self, endpoint: str, obj: dict, auth: BfabricAuth, method: str = "save") -> ResultContainer:
         """Saves the provided object to the specified endpoint.
         :param endpoint: the endpoint to save to, e.g. "sample"
         :param obj: the object to save
@@ -72,14 +70,10 @@ class EngineSUDS:
         try:
             response = getattr(service, method)(query)
         except MethodNotFound as e:
-            raise BfabricRequestError(
-                f"SUDS failed to find save method for the {endpoint} endpoint."
-            ) from e
+            raise BfabricRequestError(f"SUDS failed to find save method for the {endpoint} endpoint.") from e
         return self._convert_results(response=response, endpoint=endpoint)
 
-    def delete(
-        self, endpoint: str, id: int | list[int], auth: BfabricAuth
-    ) -> ResultContainer:
+    def delete(self, endpoint: str, id: int | list[int], auth: BfabricAuth) -> ResultContainer:
         """Deletes the object with the specified ID from the specified endpoint.
         :param endpoint: the endpoint to delete from, e.g. "sample"
         :param id: the ID of the object to delete
@@ -99,9 +93,7 @@ class EngineSUDS:
         """Returns a SUDS service for the given endpoint. Reuses existing instances when possible."""
         if endpoint not in self._cl:
             try:
-                self._cl[endpoint] = Client(
-                    f"{self._base_url}/{endpoint}?wsdl", cache=None
-                )
+                self._cl[endpoint] = Client(f"{self._base_url}/{endpoint}?wsdl", cache=None)
             except suds.transport.TransportError as error:
                 if error.httpcode == 404:
                     msg = f"Non-existent endpoint {repr(endpoint)} or the configured B-Fabric instance was not found."
@@ -127,6 +119,4 @@ class EngineSUDS:
                 sort_keys=True,
             )
             results += [result_parsed]
-        return ResultContainer(
-            results=results, total_pages_api=n_available_pages, errors=errors
-        )
+        return ResultContainer(results=results, total_pages_api=n_available_pages, errors=errors)

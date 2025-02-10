@@ -13,9 +13,7 @@ T = TypeVar("T")
 
 
 class HasOne(Relationship[E]):
-    def __init__(
-        self, entity: str, *, bfabric_field: str, optional: bool = False
-    ) -> None:
+    def __init__(self, entity: str, *, bfabric_field: str, optional: bool = False) -> None:
         super().__init__(entity)
         self._bfabric_field = bfabric_field
         self._optional = optional

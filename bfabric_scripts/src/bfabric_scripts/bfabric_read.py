@@ -27,7 +27,7 @@ from rich.console import Console
 from rich.table import Table
 
 from bfabric import Bfabric, BfabricClientConfig
-from bfabric_scripts.cli.base import use_client
+from bfabric.utils.cli_integration import use_client
 
 
 def bfabric_read(
@@ -55,9 +55,7 @@ def bfabric_read(
         possible_attributes = sorted(set(res[0].keys()))
         logger.info(f"possible attributes = {possible_attributes}")
 
-    output_format = _determine_output_format(
-        console_out=console_out, output_format=output_format, n_results=len(res)
-    )
+    output_format = _determine_output_format(console_out=console_out, output_format=output_format, n_results=len(res))
     logger.info(f"output format = {output_format}")
 
     if output_format == "json":
@@ -111,9 +109,7 @@ def _print_table_tsv(res: list[dict[str, Any]]) -> None:
         )
 
 
-def _determine_output_format(
-    console_out: Console, output_format: str, n_results: int
-) -> str:
+def _determine_output_format(console_out: Console, output_format: str, n_results: int) -> str:
     """Returns the format to use, based on the number of results, and whether the output is an interactive console.
     If the format is already set to a concrete value instead of "auto", it will be returned unchanged.
     """

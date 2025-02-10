@@ -4,7 +4,7 @@ on:
     branches:
       - release_bfabric
       - release_bfabric_scripts
-      - release_app_runner
+      - release_bfabric_app_runner
   workflow_dispatch:
     inputs:
       package:
@@ -13,7 +13,7 @@ on:
         options:
           - bfabric
           - bfabric_scripts
-          - app_runner
+          - bfabric_app_runner
         default: bfabric
       environment:
         description: 'Target PyPI'
@@ -28,6 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
+      contents: write # permission to create tags
     steps:
       - uses: actions/checkout@v4
       # Step: Determine the package that is being built
@@ -57,11 +58,18 @@ jobs:
           echo "Target PyPI repository: ${{ env.PYPI_REPOSITORY_URL }}"
       # Step: Build the package
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - name: Install hatch
         run: pip install hatch
+      - name: Get package version
+        id: get-version
+        run: |
+          cd ${{ env.PACKAGE }}
+          VERSION=$(hatch version)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Package version: $VERSION"
       - name: Build package
         run: |
           cd ${{ env.PACKAGE }}
@@ -71,11 +79,20 @@ jobs:
         with:
           repository-url: ${{ env.PYPI_REPOSITORY_URL }}
           packages-dir: ${{ env.PACKAGE }}/dist
+      - name: Create and push tag
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          TAG_NAME="${{ env.PACKAGE }}/${{ env.VERSION }}"
+          git tag -a "$TAG_NAME" -m "Release ${{ env.PACKAGE }} version ${{ env.VERSION }}"
+          git push origin "$TAG_NAME"
       - name: Debug package info
         run: |
           echo "Built and published package: ${{ env.PACKAGE }}"
+          echo "Created tag: ${{ env.PACKAGE }}/${{ env.VERSION }}"
           if [ "${{ env.PYPI_REPOSITORY_URL }}" == "https://pypi.org/legacy/" ]; then
             echo "Check it at: https://pypi.org/project/${{ env.PACKAGE }}/"
           else
             echo "Check it at: https://test.pypi.org/project/${{ env.PACKAGE }}/"
           fi
+        if: always()

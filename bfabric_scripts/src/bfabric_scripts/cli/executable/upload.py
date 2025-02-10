@@ -6,13 +6,11 @@ from rich.console import Console
 
 from bfabric import Bfabric
 from bfabric.entities import Executable
-from bfabric_scripts.cli.base import use_client
+from bfabric.utils.cli_integration import use_client
 
 
 @use_client
-def upload_executable(
-    executable_yaml: Path, *, upload: Path | None = None, client: Bfabric
-) -> None:
+def upload_executable(executable_yaml: Path, *, upload: Path | None = None, client: Bfabric) -> None:
     """Uploads an executable defined in the specified YAML to bfabric.
 
     :param executable_yaml: Path to the YAML file containing the executable data.
@@ -28,9 +26,7 @@ def upload_executable(
         raise ValueError(msg)
     executable_data = executable_data["executable"]
     if upload is not None:
-        executable_data["base64"] = base64.encodebytes(upload.read_bytes()).decode(
-            "utf-8"
-        )
+        executable_data["base64"] = base64.encodebytes(upload.read_bytes()).decode("utf-8")
 
     # Ensure id is not set
     if "id" in executable_data:
@@ -46,6 +42,4 @@ def upload_executable(
 
     console.print("Executable uploaded successfully.")
     console.print("Executable ID:", executable_id)
-    console.print(
-        "Executable URL:", Executable({"id": executable_id}, client=client).web_url
-    )
+    console.print("Executable URL:", Executable({"id": executable_id}, client=client).web_url)

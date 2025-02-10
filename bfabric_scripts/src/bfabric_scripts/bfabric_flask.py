@@ -85,9 +85,7 @@ def handle_invalid_request_content(e: InvalidRequestContent) -> Response:
     return jsonify({"error": f"invalid request content: {e}"})
 
 
-def get_fields(
-    required_fields: list[str], optional_fields: dict[str, Any]
-) -> dict[str, Any]:
+def get_fields(required_fields: list[str], optional_fields: dict[str, Any]) -> dict[str, Any]:
     """Extracts fields from a JSON request body. All `required_fields` must be present, or an error will be raised
     indicating the missing fields. The optional fields are filled with the default values if not present.
     :param required_fields: list of required fields
@@ -100,10 +98,7 @@ def get_fields(
         raise InvalidRequestContent(sorted(missing_fields))
     else:
         required_values = {field: request.json[field] for field in required_fields}
-        optional_values = {
-            field: request.json.get(field, default)
-            for field, default in optional_fields.items()
-        }
+        optional_values = {field: request.json.get(field, default) for field, default in optional_fields.items()}
         return {**required_values, **optional_values}
 
 

@@ -10,6 +10,27 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Added
+
+- `Entity.load_yaml` and `Entity.dump_yaml`
+
+## \[1.13.20\] - 2025-02-10
+
+### Breaking
+
+- the old `bfabric.cli_formatting` and `bfabric.bfabric2` modules have been deleted
+
+### Changed
+
+- move `use_client` to `bfabric.utils.cli_integration`: this will allow reuse between bfabric-scripts and bfabric-app-runner
+- move functionality from `bfabric.cli_formatting` to `bfabric.utils.cli_integration`
+
+## \[1.13.19\] - 2025-02-06
+
+### Fixed
+
+- Config: Log messages of app runner are shown by default again.
+
 ## \[1.13.18\] - 2025-01-28
 
 ### Changed

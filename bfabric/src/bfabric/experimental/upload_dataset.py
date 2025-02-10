@@ -35,10 +35,7 @@ def polars_to_bfabric_dataset(
     ]
     items = [
         {
-            "field": [
-                {"attributeposition": i_field + 1, "value": value}
-                for i_field, value in enumerate(row)
-            ],
+            "field": [{"attributeposition": i_field + 1, "value": value} for i_field, value in enumerate(row)],
             "position": i_row + 1,
         }
         for i_row, row in enumerate(data.iter_rows())
@@ -57,9 +54,7 @@ def bfabric_save_csv2dataset(
     invalid_characters: str,
 ) -> None:
     """Creates a dataset in B-Fabric from a csv file."""
-    data = pl.read_csv(
-        csv_file, separator=sep, has_header=has_header, infer_schema_length=None
-    )
+    data = pl.read_csv(csv_file, separator=sep, has_header=has_header, infer_schema_length=None)
     check_for_invalid_characters(data=data, invalid_characters=invalid_characters)
     obj = polars_to_bfabric_dataset(data)
     obj["name"] = dataset_name
@@ -75,9 +70,7 @@ def check_for_invalid_characters(data: pl.DataFrame, invalid_characters: str) ->
     """Raises a RuntimeError if any cell in the DataFrame contains an invalid character."""
     if not invalid_characters:
         return
-    invalid_columns_df = data.select(
-        pl.col(pl.String).str.contains_any(list(invalid_characters)).any()
-    )
+    invalid_columns_df = data.select(pl.col(pl.String).str.contains_any(list(invalid_characters)).any())
     if invalid_columns_df.is_empty():
         return
     invalid_columns = (

@@ -4,12 +4,10 @@ from rich.pretty import pprint
 
 from bfabric import Bfabric
 from bfabric.entities import Executable, Storage
-from bfabric_scripts.cli.base import use_client
+from bfabric.utils.cli_integration import use_client
 
 
-def get_storage_info(
-    storage_id: int | None, client: Bfabric
-) -> dict[str, str | int] | None:
+def get_storage_info(storage_id: int | None, client: Bfabric) -> dict[str, str | int] | None:
     if storage_id is None:
         return None
     storage_info = Storage.find(storage_id, client=client)
@@ -20,13 +18,8 @@ def get_storage_info(
 def inspect_executable(executable_id: int, *, client: Bfabric) -> None:
     console = Console()
     executable = Executable.find(executable_id, client=client)
-    metadata = {
-        key: executable.get(key)
-        for key in ("id", "name", "description", "relativepath", "context", "program")
-    }
-    metadata["storage"] = get_storage_info(
-        executable.storage.id if executable.storage else None, client
-    )
+    metadata = {key: executable.get(key) for key in ("id", "name", "description", "relativepath", "context", "program")}
+    metadata["storage"] = get_storage_info(executable.storage.id if executable.storage else None, client)
 
     console.print(Panel("Executable Metadata"))
     pprint(metadata)

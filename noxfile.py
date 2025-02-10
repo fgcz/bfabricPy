@@ -8,27 +8,22 @@ import nox
 nox.options.default_venv_backend = "uv"
 
 
-@nox.session(python=["3.9", "3.13"])
+@nox.session(python=["3.9", "3.11", "3.13"])
 def tests(session):
     session.install("./bfabric[test]", "-e", "./bfabric_scripts")
     session.run("uv", "pip", "list")
-    session.run(
-        "pytest",
-        "--durations=50",
-        "tests/bfabric",
-        "tests/bfabric_scripts",
-        "tests/bfabric_cli",
-    )
+    packages = ["tests/bfabric", "tests/bfabric_scripts"]
+    if session.python.split(".")[0] == "3" and int(session.python.split(".")[1]) >= 11:
+        packages.append("tests/bfabric_cli")
+    session.run("pytest", "--durations=50", *packages)
 
 
 @nox.session(python=["3.13"])
 def test_app_runner(session):
-    # TODO this one has a problem that bfabric gets installed from `@main` (so it could break CI)
-    session.install("./bfabric")
-    session.install("./app_runner[test]")
-    session.install("--upgrade", "./bfabric")
+    session.install("-e", "./bfabric")
+    session.install("./bfabric_app_runner[test]")
     session.run("uv", "pip", "list")
-    session.run("pytest", "--durations=50", "tests/app_runner")
+    session.run("pytest", "--durations=50", "tests/bfabric_app_runner")
 
 
 @nox.session
@@ -53,12 +48,12 @@ def docs(session):
         session.install("./bfabric[doc]")
         session.run("mkdocs", "build", "-d", Path(tmpdir) / "build_bfabricpy")
 
-        session.install("./app_runner[doc]")
+        session.install("./bfabric_app_runner[doc]")
         session.run(
             "sphinx-build",
             "-M",
             "html",
-            "app_runner/docs",
+            "bfabric_app_runner/docs",
             Path(tmpdir) / "build_app_runner",
         )
 
@@ -67,9 +62,7 @@ def docs(session):
             shutil.rmtree(target_dir)
 
         shutil.copytree(Path(tmpdir) / "build_bfabricpy", target_dir)
-        shutil.copytree(
-            Path(tmpdir) / "build_app_runner" / "html", target_dir / "app_runner"
-        )
+        shutil.copytree(Path(tmpdir) / "build_app_runner" / "html", target_dir / "app_runner")
 
 
 @nox.session(default=False)

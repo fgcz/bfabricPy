@@ -27,22 +27,13 @@ def bfabric_read_samples_of_workunit(workunit_id: int) -> None:
     client = Bfabric.from_config()
 
     start_time = time.time()
-    res_workunit = client.read(
-        endpoint="workunit", obj={"id": workunit_id}
-    ).to_list_dict()[0]
+    res_workunit = client.read(endpoint="workunit", obj={"id": workunit_id}).to_list_dict()[0]
     input_resource_ids = [x["id"] for x in res_workunit.get("inputresource", [])]
-    input_resources = client.read(
-        endpoint="resource", obj={"id": input_resource_ids}
-    ).to_list_dict()
+    input_resources = client.read(endpoint="resource", obj={"id": input_resource_ids}).to_list_dict()
     input_resources_name = [(r["id"], r["name"]) for r in input_resources]
 
-    samples = client.read(
-        endpoint="sample", obj={"id": [x["sample"]["id"] for x in input_resources]}
-    ).to_list_dict()
-    groupingvars = [
-        (s["id"], s["name"], (s.get("groupingvar") or {}).get("name", "NA"))
-        for s in samples
-    ]
+    samples = client.read(endpoint="sample", obj={"id": [x["sample"]["id"] for x in input_resources]}).to_list_dict()
+    groupingvars = [(s["id"], s["name"], (s.get("groupingvar") or {}).get("name", "NA")) for s in samples]
 
     print(
         "\t".join(
