@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 import shlex
 import subprocess
 from typing import TYPE_CHECKING
@@ -31,7 +32,7 @@ tee workunit_definition.yml <<YAML
 YAML
 
 set -x
-app_runner="uv run --with app_runner@git+https://github.com/fgcz/bfabricPy.git@{app_runner_version}#egg=app_runner&subdirectory=app_runner bfabric-app-runner"
+app_runner="{app_runner_command}"
 $app_runner app run --app-spec app_version.yml --workunit-ref workunit_definition.yml --work-dir "$(pwd)"
 """  # noqa: E501
 
@@ -54,9 +55,23 @@ class SlurmSubmitter:
         return _MAIN_BASH_TEMPLATE.format(
             app_version_yml=app_version_yml,
             workunit_definition_yml=workunit_definition_yml,
-            app_runner_version=app_runner_version,
+            app_runner_command=self._get_app_runner_command(version=app_runner_version),
             working_directory=working_directory,
         )
+
+    @staticmethod
+    def _get_app_runner_command(version: str) -> str:
+        # TODO revisit this case distinction later
+        is_pypi_version = re.match(r"^\d+\.\d+\.\d+$", version)
+        if is_pypi_version:
+            logger.info("Using PyPI version of bfabric_app_runner: {}", version)
+            return f"uv run --with 'bfabric_app_runner@{version}' bfabric-app-runner"
+        else:
+            logger.info("Using GitHub version of bfabric_app_runner: {}", version)
+            return (
+                f"uv run --with 'bfabric_app_runner@git+https://github.com/fgcz/bfabricPy.git@{version}"
+                "#egg=bfabric_app_runner&subdirectory=bfabric_app_runner' bfabric-app-runner"
+            )
 
     def evaluate_config(self, workunit_wrapper_data: WorkunitWrapperData) -> SlurmConfig:
         app = VariablesApp(
