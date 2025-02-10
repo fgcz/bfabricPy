@@ -38,7 +38,6 @@ class WrapperCreator:
     def get_data(self) -> WorkunitWrapperData:
         """Returns the data to be written to WORKUNIT context executable."""
         workunit_definition = WorkunitDefinition.from_workunit(workunit=self._workunit)
-        # TODO could this be made more robust in the future, e.g. by specifying the root path somehow?
         path = Path(self._workunit.application.executable["program"])
         app_spec_template = AppSpecTemplate.model_validate(yaml.safe_load(path.read_text()))
         app = self._workunit.application
@@ -62,7 +61,6 @@ class WrapperCreator:
         }
         result = self._client.save("executable", executable_data)
         logger.info("Executable registered: {}", result[0])
-        # TODO detect and store errors
         self._client.save("externaljob", {"id": self._external_job.id, "status": "done"})
 
 
