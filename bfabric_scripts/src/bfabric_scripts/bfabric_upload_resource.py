@@ -16,7 +16,7 @@ import json
 from pathlib import Path
 
 from bfabric import Bfabric
-from bfabric_scripts.cli.base import use_client
+from bfabric.utils.cli_integration import use_client
 
 
 def bfabric_upload_resource(client: Bfabric, filename: Path, workunit_id: int) -> None:

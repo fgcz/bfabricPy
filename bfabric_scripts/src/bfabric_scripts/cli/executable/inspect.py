@@ -4,7 +4,7 @@ from rich.pretty import pprint
 
 from bfabric import Bfabric
 from bfabric.entities import Executable, Storage
-from bfabric_scripts.cli.base import use_client
+from bfabric.utils.cli_integration import use_client
 
 
 def get_storage_info(storage_id: int | None, client: Bfabric) -> dict[str, str | int] | None:

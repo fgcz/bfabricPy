@@ -8,7 +8,7 @@ from rich.pretty import pprint
 from bfabric import Bfabric
 from bfabric.wrapper_creator.bfabric_submitter import BfabricSubmitter
 from bfabric.wrapper_creator.bfabric_wrapper_creator import BfabricWrapperCreator
-from bfabric_scripts.cli.base import use_client
+from bfabric.utils.cli_integration import use_client
 from bfabric_scripts.cli.external_job.upload_submitter_executable import (
     upload_submitter_executable,
 )
