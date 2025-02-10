@@ -32,11 +32,11 @@ tee workunit_definition.yml <<YAML
 {workunit_definition_yml}
 YAML
 
-ts() {
+ts() {{
     while IFS= read -r line; do
         printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$line"
     done
-}
+}}
 
 set -x
 setup_logging
@@ -75,7 +75,7 @@ class SlurmSubmitter:
             working_directory=working_directory,
             force_storage_flags=force_storage_flags,
         )
-        logger.debug("Render args: {}", render_args)
+        logger.info("Render args: {}", render_args)
         return _MAIN_BASH_TEMPLATE.format(**render_args)
 
     @staticmethod
