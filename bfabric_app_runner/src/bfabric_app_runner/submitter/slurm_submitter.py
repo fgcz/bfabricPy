@@ -6,10 +6,12 @@ import subprocess
 from typing import TYPE_CHECKING
 
 import yaml
-from bfabric_app_runner.specs.config_interpolation import VariablesApp, VariablesWorkunit
 from loguru import logger
 
+from bfabric_app_runner.specs.config_interpolation import VariablesApp, VariablesWorkunit
+
 if TYPE_CHECKING:
+    from bfabric_app_runner.specs.submitters_spec import SubmitterSlurmSpec
     from bfabric_app_runner.submitter.config.slurm_config import SlurmConfig
     from bfabric_app_runner.submitter.config.slurm_config_template import SlurmConfigTemplate
     from bfabric_app_runner.bfabric_app.workunit_wrapper_data import WorkunitWrapperData
@@ -32,7 +34,7 @@ YAML
 
 set -x
 app_runner="{app_runner_command}"
-$app_runner app run --app-spec app_version.yml --workunit-ref workunit_definition.yml --work-dir "$(pwd)"
+$app_runner app run --app-spec app_version.yml --workunit-ref workunit_definition.yml {force_storage_flags} --work-dir "$(pwd)"
 """  # noqa: E501
 
 
@@ -47,15 +49,23 @@ class SlurmSubmitter:
         script_header = self._compose_script_header(slurm_config.sbatch_params)
         return f"{script_header}\n\n{main_command}"
 
-    def _get_main_command(self, workunit_wrapper_data: WorkunitWrapperData, working_directory: str) -> str:
+    def _get_main_command(
+        self, workunit_wrapper_data: WorkunitWrapperData, working_directory: str, submitter_config: SubmitterSlurmSpec
+    ) -> str:
         app_version_yml = yaml.safe_dump(workunit_wrapper_data.app_version.model_dump(mode="json"))
         workunit_definition_yml = yaml.safe_dump(workunit_wrapper_data.workunit_definition.model_dump(mode="json"))
         app_runner_version = workunit_wrapper_data.app_runner_version
+        force_storage_flags = (
+            ""
+            if not submitter_config.config.force_storage
+            else f"--force-storage {submitter_config.config.force_storage}"
+        )
         return _MAIN_BASH_TEMPLATE.format(
             app_version_yml=app_version_yml,
             workunit_definition_yml=workunit_definition_yml,
             app_runner_command=self._get_app_runner_command(version=app_runner_version),
             working_directory=working_directory,
+            force_storage_flags=force_storage_flags,
         )
 
     @staticmethod
@@ -86,7 +96,9 @@ class SlurmSubmitter:
 
         # Generate the script
         main_command = self._get_main_command(
-            workunit_wrapper_data=workunit_wrapper_data, working_directory=working_directory
+            workunit_wrapper_data=workunit_wrapper_data,
+            working_directory=working_directory,
+            submitter_config=slurm_config.submitter_config,
         )
         script = self._compose_script(main_command=main_command, slurm_config=slurm_config)
         script_path.write_text(script)

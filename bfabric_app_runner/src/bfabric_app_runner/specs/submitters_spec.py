@@ -13,6 +13,7 @@ class SubmitterSlurmConfigSpec(BaseModel):
     local_script_dir: Path = Field(validation_alias=AliasChoices("local_script_dir", "local-script-dir"))
     worker_scratch_dir: Path = Field(validation_alias=AliasChoices("worker_scratch_dir", "worker-scratch-dir"))
     log_viewer_url: Path = Field(validation_alias=AliasChoices("log_viewer_url", "log-viewer-url"))
+    force_storage: Path | None = Field(validation_alias=AliasChoices("force_storage", "force-storage"), default=None)
 
 
 class SubmitterSlurmSpec(BaseModel):
