@@ -35,7 +35,7 @@ YAML
 trap 'code=$?; [ $code -ne 0 ] && bfabric-cli api save workunit {workunit_id} status failed; exit $code' EXIT
 
 ts() {{
-    while IFS= read -r line; do
+    while IFS= read -r line || [[ -n "$line" ]]; do
         printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$line"
     done
 }}
