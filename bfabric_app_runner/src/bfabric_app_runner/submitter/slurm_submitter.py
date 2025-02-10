@@ -60,7 +60,8 @@ class SlurmSubmitter:
 
     @staticmethod
     def _get_app_runner_command(version: str) -> str:
-        return f"uv run --with 'bfabric_app_runner@{version}' bfabric-app-runner"
+        spec = f"@{version}" if "git" in version else "=={version}"
+        return f"uv run --with bfabric_app_runner{spec} bfabric-app-runner"
 
     def evaluate_config(self, workunit_wrapper_data: WorkunitWrapperData) -> SlurmConfig:
         app = VariablesApp(
