@@ -10,7 +10,7 @@ import pydantic
 import yaml
 from bfabric import Bfabric, BfabricClientConfig
 from bfabric.utils.polars_utils import flatten_relations
-from bfabric_scripts.cli.base import use_client
+from bfabric.utils.cli_integration import use_client
 from loguru import logger
 from pydantic import BaseModel
 from rich.console import Console

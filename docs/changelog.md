@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Changed
+
+- move `use_client` to `bfabric.utils.cli_integration`: this will allow reuse between bfabric-scripts and bfabric-app-runner
+
 ## \[1.13.19\] - 2025-02-06
 
 ### Fixed

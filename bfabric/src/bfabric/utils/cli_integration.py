@@ -1,10 +1,12 @@
 import functools
 import inspect
+from typing import Any
+
 from bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
 
 
-def use_client(fn, setup_logging: bool = True):
+def use_client(fn: Any, setup_logging: bool = True) -> Any:
     """Decorator that injects a Bfabric client into a function.
 
     The client is automatically created using default configuration if not provided.
@@ -20,13 +22,10 @@ def use_client(fn, setup_logging: bool = True):
     new_sig = sig.replace(parameters=params)
 
     @functools.wraps(fn)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         if setup_logging:
             setup_script_logging()
-        if "client" in kwargs:
-            client = kwargs.pop("client")
-        else:
-            client = Bfabric.from_config()
+        client = kwargs.pop("client") if "client" in kwargs else Bfabric.from_config()
         return fn(*args, **kwargs, client=client)
 
     # Update the signature of the wrapper
