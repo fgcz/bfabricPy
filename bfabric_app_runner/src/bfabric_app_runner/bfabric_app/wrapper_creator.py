@@ -22,9 +22,8 @@ if TYPE_CHECKING:
 class WrapperCreator:
     """The wrapper creator is given the ID of an external job (WRAPPERCREATOR context) referencing a workunit.
 
-    What this script is responsible for is to obtain the `app_definition.yml` and the `workunit_definition.yml`, and
-    register these in B-Fabric as a WORKUNIT context executable which will then be picked up by the submitter in the
-    next step.
+    It generates the `app_definition.yml` and `workunit_definition.yml` structures and puts them into the WORKUNIT
+    context executable, which will then be picked up by the submitter in the next step.
     """
 
     def __init__(self, client: Bfabric, external_job: ExternalJob) -> None:
