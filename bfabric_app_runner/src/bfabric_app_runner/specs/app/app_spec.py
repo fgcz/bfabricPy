@@ -22,6 +22,7 @@ class AppSpecTemplate(BaseModel):
     bfabric: BfabricAppSpec
     versions: list[AppVersionMultiTemplate]
 
+    # TODO this should take the variables as param instead
     def evaluate(self, app_id: int, app_name: str) -> AppSpec:
         """Evaluates the template to a concrete ``AppSpec`` instance."""
         version_templates = [expanded for version in self.versions for expanded in version.expand_versions()]

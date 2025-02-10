@@ -5,9 +5,7 @@ from typing import Literal, Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, AliasChoices
 
-
-# TODO these are not yet paths, they need to be substituted before they become paths!
-#      ->  however not changing right now yet, since we also have to adjust the code below
+from bfabric_app_runner.specs.config_interpolation import Variables, interpolate_config_strings
 
 
 class SubmitterSlurmConfigSpec(BaseModel):
@@ -26,3 +24,13 @@ class SubmitterSlurmSpec(BaseModel):
 
 class SubmittersSpec(BaseModel):
     submitters: dict[str, SubmitterSlurmSpec]
+
+
+class SubmittersSpecTemplate(BaseModel):
+    submitters: dict[str, SubmitterSlurmSpec]
+
+    def evaluate(self, variables: Variables) -> SubmittersSpec:
+        """Evaluates the template to a concrete ``SubmittersSpec`` instance."""
+        template_data = self.model_dump(mode="json")
+        data = interpolate_config_strings(data=template_data, variables=variables)
+        return SubmittersSpec.model_validate(data)

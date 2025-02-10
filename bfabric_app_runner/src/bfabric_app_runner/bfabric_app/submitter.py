@@ -7,7 +7,8 @@ import yaml
 from bfabric import Bfabric
 from bfabric.entities import ExternalJob, Executable
 from bfabric_app_runner.bfabric_app.workunit_wrapper_data import WorkunitWrapperData
-from bfabric_app_runner.specs.submitters_spec import SubmittersSpec
+from bfabric_app_runner.specs.config_interpolation import Variables, VariablesApp, VariablesWorkunit
+from bfabric_app_runner.specs.submitters_spec import SubmittersSpecTemplate, SubmitterSlurmSpec
 from bfabric_app_runner.submitter.config.slurm_config_template import SlurmConfigTemplate
 from bfabric_app_runner.submitter.config.slurm_workunit_params import SlurmWorkunitParams
 from bfabric_app_runner.submitter.slurm_submitter import SlurmSubmitter
@@ -18,11 +19,11 @@ if TYPE_CHECKING:
 
 
 class Submitter:
-    def __init__(self, client: Bfabric, external_job: ExternalJob, submitters_spec: SubmittersSpec) -> None:
+    def __init__(self, client: Bfabric, external_job: ExternalJob, submitters_spec: SubmittersSpecTemplate) -> None:
         self._client = client
         self._external_job = external_job
         self._workunit = external_job.workunit
-        self._submitters_spec = submitters_spec
+        self._submitters_spec_template = submitters_spec
 
     def get_workunit_wrapper_data(self) -> WorkunitWrapperData:
         # Find the executable
@@ -37,18 +38,41 @@ class Submitter:
         yaml_data = base64.b64decode(executable["base64"].encode()).decode()
         return WorkunitWrapperData.model_validate(yaml.safe_load(yaml_data))
 
-    def run(self) -> None:
-        workunit_wrapper_data = self.get_workunit_wrapper_data()
+    def get_submitter_spec(self, workunit_wrapper_data: WorkunitWrapperData) -> SubmitterSlurmSpec:
+        """Retrieves the submitter spec for the workunit."""
+        # Get information on the submitter
         submitter_ref: SubmitterRef = workunit_wrapper_data.app_version.submitter
         submitter_name = submitter_ref.name
-        submitter_spec = self._submitters_spec.submitters.get(submitter_name)
+
+        # Construct the interpolation variables
+        variables = Variables(
+            app=VariablesApp(
+                id=self._workunit.application.id,
+                name=self._workunit.application["name"],
+                version=workunit_wrapper_data.app_version.version,
+            ),
+            workunit=VariablesWorkunit(id=self._workunit.id),
+        )
+
+        # Evaluate the submitters spec
+        submitters_spec = self._submitters_spec_template.evaluate(variables=variables)
+        submitter_spec = submitters_spec.submitters.get(submitter_name)
+
         if submitter_spec is None:
-            raise ValueError(f"Submitter '{submitter_name}' not found in submitters spec.")
-        if submitter_spec.type != "slurm":
-            raise ValueError(f"Submitter '{submitter_name}' is not of type 'slurm'.")
+            msg = f"Submitter '{submitter_name}' not found in submitters spec."
+            raise ValueError(msg)
+        if not isinstance(submitter_spec, SubmitterSlurmSpec):
+            msg = f"Submitter '{submitter_name}' is not a Slurm submitter."
+            raise ValueError(msg)
+
+        return submitter_spec
+
+    def run(self) -> None:
+        workunit_wrapper_data = self.get_workunit_wrapper_data()
         workunit_config = SlurmWorkunitParams.model_validate(
             workunit_wrapper_data.workunit_definition.execution.raw_parameters
         )
+        submitter_spec = self.get_submitter_spec(workunit_wrapper_data=workunit_wrapper_data)
         slurm_config_template = SlurmConfigTemplate(
             submitter_config=submitter_spec,
             app_version=workunit_wrapper_data.app_version,
@@ -66,7 +90,7 @@ def app(*, client: Bfabric) -> None:
     parser.add_argument("-j", type=int)
     args = parser.parse_args()
     external_job = ExternalJob.find(id=args.j, client=client)
-    submitters_spec = SubmittersSpec.model_validate(yaml.safe_load(args.submitters_yml.read_text()))
+    submitters_spec = SubmittersSpecTemplate.model_validate(yaml.safe_load(args.submitters_yml.read_text()))
     submitter = Submitter(client=client, external_job=external_job, submitters_spec=submitters_spec)
     submitter.run()
 
