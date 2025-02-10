@@ -40,8 +40,6 @@ ts() {{
     done
 }}
 
-trap
-
 set -x
 {app_runner_command} \\
   app run --app-spec app_version.yml --workunit-ref workunit_definition.yml {force_storage_flags} --work-dir "$(pwd)" \\
