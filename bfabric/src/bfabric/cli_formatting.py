@@ -2,14 +2,6 @@ import os
 import sys
 
 from loguru import logger
-from rich.highlighter import RegexHighlighter
-
-
-class HostnameHighlighter(RegexHighlighter):
-    """Highlights hostnames in URLs."""
-
-    base_style = "bfabric."
-    highlights = [r"https://(?P<hostname>[^.]+)"]
 
 
 def setup_script_logging(debug: bool = False) -> None:

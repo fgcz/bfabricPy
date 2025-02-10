@@ -2,6 +2,7 @@ import functools
 import inspect
 from typing import Any
 
+from rich.highlighter import RegexHighlighter
 from rich.theme import Theme
 
 from bfabric import Bfabric
@@ -36,3 +37,10 @@ def use_client(fn: Any, setup_logging: bool = True) -> Any:
 
 
 DEFAULT_THEME = Theme({"bfabric.hostname": "bold red"})
+
+
+class HostnameHighlighter(RegexHighlighter):
+    """Highlights hostnames in URLs."""
+
+    base_style = "bfabric."
+    highlights = [r"https://(?P<hostname>[^.]+)"]
