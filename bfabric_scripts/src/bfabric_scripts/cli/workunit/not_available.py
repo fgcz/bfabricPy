@@ -8,7 +8,7 @@ from rich.table import Column, Table
 
 from bfabric import Bfabric
 from bfabric.entities import Parameter, Workunit, Application
-from bfabric_scripts.cli.base import use_client
+from bfabric.utils.cli_integration import use_client
 
 
 def render_output(workunits: list[Workunit], client: Bfabric) -> None:

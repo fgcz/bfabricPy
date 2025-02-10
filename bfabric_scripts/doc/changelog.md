@@ -16,6 +16,16 @@ Versioning currently follows `X.Y.Z` where
     - allows sorting by arbitrary fields, e.g. application id
     - allows filtering inclusive or exclusive by user
 
+### Changed
+
+- `bfabric-cli api read`
+    - Removes the automatic output type logic
+    - Multiple values can be submitted for the same key (just specify it multiple times)
+    - The actual query will be printed as a line of bfabricPy code
+    - `--file` parameter to write the output to a specific file
+    - Argument parsing is handled with pydantic now
+    - Added tsv support
+
 ## \[1.13.19\] - 2025-01-29
 
 Initial release of standalone bfabric_scripts package.

@@ -13,7 +13,7 @@ from bfabric_app_runner.input_preparation.list_inputs import (
 )
 from bfabric_app_runner.specs.inputs_spec import InputsSpec
 from bfabric import Bfabric
-from bfabric.cli_formatting import setup_script_logging
+from bfabric.utils.cli_integration import setup_script_logging
 
 app_inputs = cyclopts.App("inputs", help="Prepare input files for an app.")
 

@@ -10,7 +10,7 @@ from typing import Literal
 
 from bfabric import Bfabric
 from bfabric_scripts.cli.api.cli_api_log import write_externaljob, write_workunit
-from bfabric_scripts.cli.base import use_client
+from bfabric.utils.cli_integration import use_client
 
 
 def bfabric_logthis(

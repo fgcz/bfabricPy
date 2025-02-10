@@ -12,7 +12,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "bfabric>=1.13.19",
+    "bfabric==1.13.20",
     "pydantic",
     "glom",
     "mako",
@@ -63,3 +63,4 @@ classmethod-decorators = [
 [tool.ruff.lint.per-file-ignores]
 # This is needed because of false positives in cyclopts code
 "**/bfabric_app_runner/cli/**" = ["TCH001", "TCH002", "TCH003"]
+"**/bfabric_app_runner/specs/**" = ["TCH001", "TCH002", "TCH003"]

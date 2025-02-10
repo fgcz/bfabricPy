@@ -6,7 +6,7 @@ from rich.console import Console
 
 from bfabric import Bfabric
 from bfabric.entities import Executable
-from bfabric_scripts.cli.base import use_client
+from bfabric.utils.cli_integration import use_client
 
 
 @use_client

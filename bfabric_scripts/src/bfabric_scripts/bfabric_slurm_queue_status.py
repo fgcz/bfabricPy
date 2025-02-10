@@ -12,7 +12,7 @@ from loguru import logger
 
 from bfabric import Bfabric
 from bfabric.entities import Workunit, Application
-from bfabric_scripts.cli.base import use_client
+from bfabric.utils.cli_integration import use_client
 
 
 def get_slurm_jobs(partition: str, ssh_host: str | None) -> pl.DataFrame:

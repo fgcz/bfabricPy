@@ -7,7 +7,7 @@ import cyclopts
 from bfabric_app_runner.app_runner.resolve_app import load_workunit_information
 from bfabric_app_runner.app_runner.runner import run_app, Runner
 from bfabric import Bfabric
-from bfabric.cli_formatting import setup_script_logging
+from bfabric.utils.cli_integration import setup_script_logging
 from bfabric.experimental.entity_lookup_cache import EntityLookupCache
 
 app_app = cyclopts.App("app", help="Run an app.")

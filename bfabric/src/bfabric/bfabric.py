@@ -28,7 +28,7 @@ from loguru import logger
 from rich.console import Console
 
 from bfabric.bfabric_config import read_config
-from bfabric.cli_formatting import HostnameHighlighter, DEFAULT_THEME
+from bfabric.utils.cli_integration import DEFAULT_THEME, HostnameHighlighter
 from bfabric.config import BfabricAuth
 from bfabric.config import BfabricClientConfig
 from bfabric.engine.engine_suds import EngineSUDS
