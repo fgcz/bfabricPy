@@ -4,15 +4,16 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import yaml
+
 from bfabric import Bfabric
 from bfabric.entities import ExternalJob, Executable
+from bfabric.utils.cli_integration import use_client
 from bfabric_app_runner.bfabric_app.workunit_wrapper_data import WorkunitWrapperData
 from bfabric_app_runner.specs.config_interpolation import Variables, VariablesApp, VariablesWorkunit
 from bfabric_app_runner.specs.submitters_spec import SubmittersSpecTemplate, SubmitterSlurmSpec
 from bfabric_app_runner.submitter.config.slurm_config_template import SlurmConfigTemplate
 from bfabric_app_runner.submitter.config.slurm_workunit_params import SlurmWorkunitParams
 from bfabric_app_runner.submitter.slurm_submitter import SlurmSubmitter
-from bfabric_scripts.cli.base import use_client
 
 if TYPE_CHECKING:
     from bfabric_app_runner.specs.submitter_ref import SubmitterRef

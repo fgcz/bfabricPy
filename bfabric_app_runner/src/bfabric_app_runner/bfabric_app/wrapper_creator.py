@@ -9,10 +9,10 @@ import yaml
 from bfabric import Bfabric  # noqa: TC002
 from bfabric.entities import ExternalJob
 from bfabric.experimental.workunit_definition import WorkunitDefinition
+from bfabric.utils.cli_integration import use_client
 from bfabric_app_runner.app_runner.resolve_app import resolve_app
 from bfabric_app_runner.bfabric_app.workunit_wrapper_data import WorkunitWrapperData
 from bfabric_app_runner.specs.app.app_spec import AppSpecTemplate
-from bfabric_scripts.cli.base import use_client
 from loguru import logger
 
 if TYPE_CHECKING:
