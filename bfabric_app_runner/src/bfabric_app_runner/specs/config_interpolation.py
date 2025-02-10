@@ -32,8 +32,7 @@ class Variables(BaseModel):
     """Variables that can be used in our config templates."""
 
     app: VariablesApp
-    # TODO remove None?
-    workunit: VariablesWorkunit | None = None
+    workunit: VariablesWorkunit | None
 
     def as_dict(self) -> dict[str, VariablesApp]:
         return {"app": self.app, "workunit": self.workunit}

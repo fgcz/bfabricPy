@@ -32,7 +32,7 @@ class AppVersionTemplate(BaseModel):
     def evaluate(self, variables_app: VariablesApp) -> AppVersion:
         """Evaluates the template to a concrete ``AppVersion`` instance."""
         data_template = self.model_dump(mode="json")
-        data = interpolate_config_strings(data_template, variables={"app": variables_app})
+        data = interpolate_config_strings(data_template, variables={"app": variables_app, "workunit": None})
         return AppVersion.model_validate(data)
 
 
