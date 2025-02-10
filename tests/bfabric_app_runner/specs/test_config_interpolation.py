@@ -1,45 +1,37 @@
 import pytest
-from mako.exceptions import MakoException
-from pydantic import ValidationError
-
 from bfabric_app_runner.specs.config_interpolation import (
     Variables,
     VariablesApp,
     interpolate_config_strings,
 )
+from mako.exceptions import MakoException
 
 
 @pytest.fixture
 def basic_variables():
-    return Variables(app=VariablesApp(id="test-app", name="Test Application", version="1.0.0"))
+    return Variables(app=VariablesApp(id=1000, name="Test Application", version="1.0.0"))
 
 
 def test_variables_app_model():
-    # Test valid initialization
-    app = VariablesApp(id="test", name="Test", version="1.0")
-    assert app.id == "test"
+    app = VariablesApp(id=2000, name="Test", version="1.0")
+    assert app.id == 2000
     assert app.name == "Test"
     assert app.version == "1.0"
 
-    # Test invalid initialization
-    with pytest.raises(ValidationError):
-        VariablesApp(id=123, name="Test", version="1.0")  # type: ignore
-
 
 def test_variables_model(basic_variables):
-    # Test as_dict method
     result = basic_variables.as_dict()
     assert isinstance(result, dict)
     assert "app" in result
-    assert result["app"].id == "test-app"
-    assert result["app"].name == "Test Application"
+    assert result["app"].id == 1000
+    assert result["app"].name == "Test_Application"
     assert result["app"].version == "1.0.0"
 
 
 def test_interpolate_simple_string(basic_variables):
     template = "App ${app.name} (${app.id}) version ${app.version}"
     result = interpolate_config_strings(template, basic_variables)
-    assert result == "App Test Application (test-app) version 1.0.0"
+    assert result == "App Test_Application (1000) version 1.0.0"
 
 
 def test_interpolate_dict(basic_variables):
@@ -49,15 +41,15 @@ def test_interpolate_dict(basic_variables):
     }
     result = interpolate_config_strings(data, basic_variables)
     assert result == {
-        "name": "Test Application",
-        "metadata": {"id": "test-app", "version": "1.0.0"},
+        "name": "Test_Application",
+        "metadata": {"id": "1000", "version": "1.0.0"},
     }
 
 
 def test_interpolate_list(basic_variables):
     data = ["${app.name}", {"id": "${app.id}"}, ["${app.version}"]]
     result = interpolate_config_strings(data, basic_variables)
-    assert result == ["Test Application", {"id": "test-app"}, ["1.0.0"]]
+    assert result == ["Test_Application", {"id": "1000"}, ["1.0.0"]]
 
 
 def test_interpolate_non_string_values(basic_variables):
@@ -72,15 +64,15 @@ def test_interpolate_non_string_values(basic_variables):
         "number": 42,
         "boolean": True,
         "none": None,
-        "mixed": ["test-app", 123, True],
+        "mixed": ["1000", 123, True],
     }
 
 
 def test_interpolate_with_dict_variables():
-    variables = {"app": {"id": "dict-app", "name": "Dict App", "version": "2.0.0"}}
+    variables = {"app": {"id": "2000", "name": "Dict App", "version": "2.0.0"}}
     template = "${app.name} ${app.version}"
     result = interpolate_config_strings(template, variables)
-    assert result == "Dict App 2.0.0"
+    assert result == "Dict_App 2.0.0"
 
 
 def test_invalid_template_syntax(basic_variables):
@@ -116,13 +108,13 @@ def test_complex_nested_structure(basic_variables):
     expected = {
         "app_info": {
             "details": [
-                {"name": "Test Application"},
-                ["test-app", {"version": "1.0.0"}],
+                {"name": "Test_Application"},
+                ["1000", {"version": "1.0.0"}],
                 123,
-                "Test Application v1.0.0",
+                "Test_Application v1.0.0",
             ]
         },
-        "metadata": "test-app",
+        "metadata": "1000",
         "constants": [True, None, 42],
     }
 
