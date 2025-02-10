@@ -8,7 +8,7 @@ description = "Python command line scripts for the B-Fabric API"
 version = "1.13.20"
 
 dependencies = [
-    "bfabric"
+    "bfabric==1.13.20"
 ]
 
 [project.scripts]
