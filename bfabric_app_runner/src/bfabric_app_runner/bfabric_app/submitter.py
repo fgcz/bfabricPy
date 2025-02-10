@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import yaml
+from loguru import logger
 
 from bfabric import Bfabric
 from bfabric.entities import ExternalJob, Executable
@@ -84,6 +85,7 @@ class Submitter:
 
 
 @use_client
+@logger.catch
 def app(*, client: Bfabric) -> None:
     """CLI interface for slurm submitter."""
     parser = argparse.ArgumentParser()
