@@ -22,6 +22,7 @@ def run_all(
     workunit_ref: int | Path,
     *,
     ssh_user: str | None = None,
+    force_storage: Path | None = None,
     read_only: bool = False,
 ) -> None:
     """Run all chunks, including input preparation, processing, and output registration.
@@ -30,6 +31,7 @@ def run_all(
     :param work_dir: Path to the work directory.
     :param workunit_ref: Reference to the workunit (ID or YAML file path).
     :param ssh_user: SSH user to use for downloading the input files, instead of the current user.
+    :param force_storage: Path to the storage.yml for the output files instead of where it should go (for testing).
     :param read_only: If True, results will not be registered and the workunit status will not be changed.
     """
     setup_script_logging()
@@ -47,6 +49,7 @@ def run_all(
         ssh_user=ssh_user,
         read_only=read_only,
         dispatch_active=False,
+        force_storage=force_storage,
     )
 
 

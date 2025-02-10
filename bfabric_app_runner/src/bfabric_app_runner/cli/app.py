@@ -20,6 +20,7 @@ def run(
     workunit_ref: int | Path,
     *,
     ssh_user: str | None = None,
+    force_storage: Path | None = None,
     read_only: bool = False,
 ) -> None:
     """Runs all stages of an app."""
@@ -38,6 +39,7 @@ def run(
         client=client,
         ssh_user=ssh_user,
         read_only=read_only,
+        force_storage=force_storage,
     )
 
 
