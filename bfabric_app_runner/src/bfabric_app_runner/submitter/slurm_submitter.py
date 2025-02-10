@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import re
 import shlex
 import subprocess
 from typing import TYPE_CHECKING
@@ -61,17 +60,7 @@ class SlurmSubmitter:
 
     @staticmethod
     def _get_app_runner_command(version: str) -> str:
-        # TODO revisit this case distinction later
-        is_pypi_version = re.match(r"^\d+\.\d+\.\d+$", version)
-        if is_pypi_version:
-            logger.info("Using PyPI version of bfabric_app_runner: {}", version)
-            return f"uv run --with 'bfabric_app_runner@{version}' bfabric-app-runner"
-        else:
-            logger.info("Using GitHub version of bfabric_app_runner: {}", version)
-            return (
-                f"uv run --with 'bfabric_app_runner@git+https://github.com/fgcz/bfabricPy.git@{version}"
-                "#egg=bfabric_app_runner&subdirectory=bfabric_app_runner' bfabric-app-runner"
-            )
+        return f"uv run --with 'bfabric_app_runner@{version}' bfabric-app-runner"
 
     def evaluate_config(self, workunit_wrapper_data: WorkunitWrapperData) -> SlurmConfig:
         app = VariablesApp(
