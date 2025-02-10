@@ -11,6 +11,7 @@ from loguru import logger
 from bfabric_app_runner.specs.config_interpolation import VariablesApp, VariablesWorkunit
 
 if TYPE_CHECKING:
+    from bfabric import Bfabric
     from bfabric_app_runner.specs.submitters_spec import SubmitterSlurmSpec
     from bfabric_app_runner.submitter.config.slurm_config import SlurmConfig
     from bfabric_app_runner.submitter.config.slurm_config_template import SlurmConfigTemplate
@@ -79,6 +80,19 @@ class SlurmSubmitter:
     def _get_app_runner_command(version: str) -> str:
         spec = f"@{version}" if "git" in version else f"=={version}"
         return f'uv run -p 3.13 --with "bfabric_app_runner{spec}" bfabric-app-runner'
+
+    def _add_link_to_logs(
+        self, client: Bfabric, workunit_wrapper_data: WorkunitWrapperData, submitter_config: SubmitterSlurmSpec
+    ) -> None:
+        if submitter_config.config.log_viewer_url:
+            workunit_id = workunit_wrapper_data.workunit_definition.registration.workunit_id
+            obj = {
+                "name": f"WU{workunit_id} Logs",
+                "parentclassname": "workunit",
+                "parentid": workunit_id,
+                "url": submitter_config.config.log_viewer_url,
+            }
+            client.save("link", obj)
 
     def evaluate_config(self, workunit_wrapper_data: WorkunitWrapperData) -> SlurmConfig:
         app = VariablesApp(
