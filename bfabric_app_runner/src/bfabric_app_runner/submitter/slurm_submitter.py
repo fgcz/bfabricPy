@@ -125,6 +125,13 @@ class SlurmSubmitter:
         script_path.write_text(script)
         script_path.chmod(0o755)
 
+        # Add link to logs
+        self._add_link_to_logs(
+            client=workunit_wrapper_data.client,
+            workunit_wrapper_data=workunit_wrapper_data,
+            submitter_config=slurm_config.submitter_config,
+        )
+
         # Execute sbatch
         sbatch_bin = slurm_config.submitter_config.config.slurm_root / "bin" / "sbatch"
         env = os.environ | {"SLURMROOT": slurm_config.submitter_config.config.slurm_root}
