@@ -32,14 +32,17 @@ tee workunit_definition.yml <<YAML
 {workunit_definition_yml}
 YAML
 
+trap 'code=$?; [ $code -ne 0 ] && bfabric-cli api save workunit {workunit_id} status failed; exit $code' EXIT
+
 ts() {{
     while IFS= read -r line; do
         printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$line"
     done
 }}
 
+trap
+
 set -x
-setup_logging
 {app_runner_command} \\
   app run --app-spec app_version.yml --workunit-ref workunit_definition.yml {force_storage_flags} --work-dir "$(pwd)" \\
   2>&1 | ts
@@ -74,6 +77,7 @@ class SlurmSubmitter:
             app_runner_command=self._get_app_runner_command(version=app_runner_version),
             working_directory=working_directory,
             force_storage_flags=force_storage_flags,
+            workunit_id=workunit_wrapper_data.workunit_definition.registration.workunit_id,
         )
         logger.info("Render args: {}", render_args)
         return _MAIN_BASH_TEMPLATE.format(**render_args)
