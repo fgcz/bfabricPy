@@ -38,6 +38,7 @@ class WrapperCreator:
         """Returns the data to be written to WORKUNIT context executable."""
         workunit_definition = WorkunitDefinition.from_workunit(workunit=self._workunit)
         path = Path(self._workunit.application.executable["program"])
+        logger.info("Reading app spec from: {}", path)
         app_spec_template = AppSpecTemplate.model_validate(yaml.safe_load(path.read_text()))
         app = self._workunit.application
         app_spec = app_spec_template.evaluate(app_id=app.id, app_name=app["name"])
