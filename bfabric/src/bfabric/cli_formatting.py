@@ -3,7 +3,6 @@ import sys
 
 from loguru import logger
 from rich.highlighter import RegexHighlighter
-from rich.theme import Theme
 
 
 class HostnameHighlighter(RegexHighlighter):
@@ -11,9 +10,6 @@ class HostnameHighlighter(RegexHighlighter):
 
     base_style = "bfabric."
     highlights = [r"https://(?P<hostname>[^.]+)"]
-
-
-DEFAULT_THEME = Theme({"bfabric.hostname": "bold red"})
 
 
 def setup_script_logging(debug: bool = False) -> None:

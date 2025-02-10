@@ -2,6 +2,8 @@ import functools
 import inspect
 from typing import Any
 
+from rich.theme import Theme
+
 from bfabric import Bfabric
 from bfabric.cli_formatting import setup_script_logging
 
@@ -31,3 +33,6 @@ def use_client(fn: Any, setup_logging: bool = True) -> Any:
     # Update the signature of the wrapper
     wrapper.__signature__ = new_sig
     return wrapper
+
+
+DEFAULT_THEME = Theme({"bfabric.hostname": "bold red"})
