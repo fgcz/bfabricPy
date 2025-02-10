@@ -38,7 +38,7 @@ set -x
 {{
 {app_runner_command} \\
   app run --app-spec app_version.yml --workunit-ref workunit_definition.yml {force_storage_flags} --work-dir "$(pwd)"
-}} 2>&1 | ts
+}} 2>&1 | ts '[%Y-%m-%d %H:%M:%S]'
 """  # noqa: E501
 
 
