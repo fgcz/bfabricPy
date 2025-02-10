@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.20\] - 2025-02-10
+
 ### Added
 
 - `bfabric-cli workunit not-available`:
@@ -18,6 +20,7 @@ Versioning currently follows `X.Y.Z` where
 
 ### Changed
 
+- Pin bfabricPy version to avoid future headaches.
 - `bfabric-cli api read`
     - Removes the automatic output type logic
     - Multiple values can be submitted for the same key (just specify it multiple times)
