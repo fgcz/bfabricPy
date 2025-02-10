@@ -53,7 +53,7 @@ Please note:
 ## Reference
 
 ```{eval-rst}
-.. automodule:: app_runner.specs.outputs_spec
+.. automodule:: bfabric_app_runner.specs.outputs_spec
     :members:
     :undoc-members:
     :show-inheritance:

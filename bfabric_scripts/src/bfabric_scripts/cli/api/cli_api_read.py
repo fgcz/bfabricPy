@@ -1,95 +1,130 @@
 import json
-import time
+from collections import defaultdict
 from enum import Enum
-from typing import Any
+from pathlib import Path
+from typing import Any, Annotated
 
 import cyclopts
+import polars as pl
+import pydantic
 import yaml
+from bfabric import Bfabric, BfabricClientConfig
+from bfabric.utils.polars_utils import flatten_relations
+from bfabric_scripts.cli.base import use_client
 from loguru import logger
 from pydantic import BaseModel
 from rich.console import Console
-from rich.pretty import pprint
+from rich.syntax import Syntax
 from rich.table import Table
 
-from bfabric import Bfabric, BfabricClientConfig
-from bfabric_scripts.cli.base import use_client
+app = cyclopts.App()
 
 
 class OutputFormat(Enum):
     JSON = "json"
     YAML = "yaml"
+    TSV = "tsv"
     TABLE_RICH = "table_rich"
-    AUTO = "auto"
 
 
-app = cyclopts.App()
+class Params(BaseModel):
+    endpoint: str
+    """Endpoint to query, e.g. 'resource'."""
+    query: list[tuple[str, str]] = []
+    """List of attribute-value pairs to filter the results by."""
+    format: OutputFormat = OutputFormat.TABLE_RICH
+    """Output format."""
+    limit: int = 100
+    """Maximum number of results."""
+    columns: list[str]
+    """Selection of columns to return, comma separated list."""
+    cli_max_columns: int | None = 7
+    """When showing the results as a table in the console (table-rich), the maximum number of columns to show."""
+
+    file: Path | None = None
+    """File to write the output to."""
+
+    @pydantic.field_validator("columns", mode="before")
+    def convert_str_to_list(cls, value: list[str]) -> list[str]:
+        return value[0].split(",") if (len(value) == 1 and "," in value[0]) else value
+
+    def extract_query(self) -> dict[str, str | list[str]]:
+        """Returns the query as a dictionary which can be passed to the client."""
+        query = defaultdict(list)
+        for key, value in self.query:
+            query[key].append(value)
+        return {k: v[0] if len(v) == 1 else v for k, v in query.items()}
 
 
-class CommandRead(BaseModel):
-    format: OutputFormat
-    limit: int
-    query: dict[str, str]
-    columns: list[str] | None
-    max_columns: int
+def perform_query(params: Params, client: Bfabric, console_user: Console) -> list[dict[str, Any]]:
+    """Performs the query and returns the results."""
+    query = params.extract_query()
+    query_stmt = f"client.read(endpoint={params.endpoint!r}, obj={query!r}, max_results={params.limit!r})"
+    results = eval(query_stmt)
+
+    # Log query and results meta information
+    python_code = (
+        f"results = {query_stmt}\n"
+        f"len(results) # {len(results)}\n"
+        f"sorted(results.to_polars().columns) # {sorted(results.to_polars().columns)}"
+    )
+    console_user.print(
+        Syntax(python_code, "python", theme="solarized-dark", background_color="default", word_wrap=True)
+    )
+    return results
+
+
+def render_output(results: list[dict[str, Any]], params: Params, client: Bfabric, console: Console) -> str | None:
+    """Renders the results in the specified output format."""
+    if params.format == OutputFormat.TABLE_RICH:
+        output_columns = _determine_output_columns(
+            results=results,
+            columns=params.columns,
+            max_columns=params.cli_max_columns,
+            output_format=params.format,
+        )
+        _print_table_rich(client.config, console, params.endpoint, results, output_columns=output_columns)
+        return None
+    else:
+        if params.columns:
+            results = [{k: x.get(k) for k in params.columns} for x in results]
+
+        if params.format == OutputFormat.JSON:
+            return json.dumps(results, indent=2)
+        elif params.format == OutputFormat.YAML:
+            return yaml.dump(results)
+        elif params.format == OutputFormat.TSV:
+            return flatten_relations(pl.DataFrame(results)).write_csv(separator="\t")
+        else:
+            raise ValueError(f"output format {params.format} not supported")
 
 
 @app.default
 @use_client
-def bfabric_read(
-    endpoint: str,
-    attributes: list[tuple[str, str]] | None = None,
-    *,
-    client: Bfabric,
-    output_format: OutputFormat = OutputFormat.AUTO,
-    limit: int = 100,
-    columns: list[str] | None = None,
-    max_columns: int = 7,
-) -> None:
-    """Reads one or several items from a B-Fabric endpoint and prints them.
+@logger.catch()
+def read(params: Annotated[Params, cyclopts.Parameter(name="*")], *, client: Bfabric) -> None | int:
+    """Reads one type of entity from B-Fabric."""
+    console_user = Console(stderr=True)
+    console_user.print(params)
 
-    Example usage:
-    read workunit name "DIANN%" createdafter 2024-10-31T19:00:00
+    # Perform the query
+    results = perform_query(params=params, client=client, console_user=console_user)
 
-    :param endpoint: The endpoint to query.
-    :param attributes: A list of attribute-value pairs to filter the results by.
-    :param output_format: The output format to use.
-    :param limit: The maximum number of results to return.
-    :param columns: The columns to return (separate arguments).
-    :param max_columns: The maximum number of columns to return (only relevant if no columns are passed explicitly and a table output is chosen).
-    """
+    # Print/export output
+    results = sorted(results, key=lambda x: x["id"])
     console_out = Console()
-
-    query = {attribute: value for attribute, value in attributes or []}
-    results = _get_results(client=client, endpoint=endpoint, query=query, limit=limit)
-    output_format = _determine_output_format(
-        console_out=console_out, output_format=output_format, n_results=len(results)
-    )
-    output_columns = _determine_output_columns(
-        results=results,
-        columns=columns,
-        max_columns=max_columns,
-        output_format=output_format,
-    )
-
-    if output_format == OutputFormat.JSON:
-        print(json.dumps(results, indent=2))
-    elif output_format == OutputFormat.YAML:
-        print(yaml.dump(results))
-    elif output_format == OutputFormat.TABLE_RICH:
-        pprint(
-            CommandRead(
-                format=output_format,
-                limit=limit,
-                query=query,
-                columns=output_columns,
-                max_columns=max_columns,
-            ),
-            console=console_out,
-        )
-        # _print_query_rich(console_out, query)
-        _print_table_rich(client.config, console_out, endpoint, results, output_columns=output_columns)
-    else:
-        raise ValueError(f"output format {output_format} not supported")
+    output = render_output(results, params=params, client=client, console=console_out)
+    if output is not None:
+        if params.format == OutputFormat.TSV:
+            print(output)
+        else:
+            console_out.print(output)
+    if params.file:
+        if output is None:
+            logger.error("File output is not supported for the specified output format.")
+            return 1
+        params.file.write_text(output)
+        logger.info(f"Results written to {params.file} (size: {params.file.stat().st_size} bytes)")
 
 
 def _determine_output_columns(
@@ -105,30 +140,7 @@ def _determine_output_columns(
         available_columns = sorted(set(results[0].keys()) - {"id"})
         columns += available_columns[:max_columns]
 
-    logger.info(f"columns = {columns}")
     return columns
-
-
-def _get_results(client: Bfabric, endpoint: str, query: dict[str, str], limit: int) -> list[dict[str, Any]]:
-    start_time = time.time()
-    results = client.read(endpoint=endpoint, obj=query, max_results=limit)
-    end_time = time.time()
-    logger.info(f"number of query result items = {len(results)}")
-    logger.info(f"query time = {end_time - start_time:.2f} seconds")
-
-    results = sorted(results.to_list_dict(drop_empty=False), key=lambda x: x["id"])
-    if results:
-        possible_attributes = sorted(set(results[0].keys()))
-        logger.info(f"possible attributes = {possible_attributes}")
-
-    return results
-
-
-def _print_query_rich(
-    console_out: Console,
-    query: dict[str, str],
-) -> None:
-    pprint(query, console=console_out)
 
 
 def _print_table_rich(
@@ -154,16 +166,3 @@ def _print_table_rich(
                 values.append(str(x.get(column, "")))
         table.add_row(*values)
     console_out.print(table)
-
-
-def _determine_output_format(console_out: Console, output_format: OutputFormat, n_results: int) -> OutputFormat:
-    """Returns the format to use, based on the number of results, and whether the output is an interactive console.
-    If the format is already set to a concrete value instead of "auto", it will be returned unchanged.
-    """
-    if output_format == OutputFormat.AUTO:
-        if n_results < 2:
-            output_format = OutputFormat.YAML
-        else:
-            output_format = OutputFormat.TABLE_RICH
-    logger.info(f"output format = {output_format}")
-    return output_format
