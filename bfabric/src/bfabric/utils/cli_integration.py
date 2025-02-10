@@ -8,8 +8,6 @@ from loguru import logger
 from rich.highlighter import RegexHighlighter
 from rich.theme import Theme
 
-from bfabric import Bfabric
-
 
 def use_client(fn: Any, setup_logging: bool = True) -> Any:
     """Decorator that injects a Bfabric client into a function.
@@ -17,6 +15,8 @@ def use_client(fn: Any, setup_logging: bool = True) -> Any:
     The client is automatically created using default configuration if not provided.
     If setup_logging is True (default), logging is set up using setup_script_logging.
     """
+    from bfabric import Bfabric
+
     # Get the original signature
     sig = inspect.signature(fn)
 
