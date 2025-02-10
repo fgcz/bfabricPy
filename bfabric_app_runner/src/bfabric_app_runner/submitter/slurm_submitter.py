@@ -32,15 +32,17 @@ tee workunit_definition.yml <<YAML
 {workunit_definition_yml}
 YAML
 
-setup_logging() {
-    exec 1> >(while read line; do echo "[$(date '+%Y-%m-%d %H:%M:%S')] $line"; done)
-    exec 2>&1
+ts() {
+    while IFS= read -r line; do
+        printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$line"
+    done
 }
 
 set -x
 setup_logging
-{app_runner_command} \
-  app run --app-spec app_version.yml --workunit-ref workunit_definition.yml {force_storage_flags} --work-dir "$(pwd)"
+{app_runner_command} \\
+  app run --app-spec app_version.yml --workunit-ref workunit_definition.yml {force_storage_flags} --work-dir "$(pwd)" \\
+  2>&1 | ts
 """  # noqa: E501
 
 
