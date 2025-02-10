@@ -5,7 +5,7 @@ from typing import Literal
 import yaml
 
 from bfabric import Bfabric
-from bfabric_scripts.cli.base import use_client
+from bfabric.utils.cli_integration import use_client
 
 
 def slurm_parameters() -> list[dict[str, str]]:

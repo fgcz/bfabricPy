@@ -5,8 +5,8 @@ import polars as pl
 import rich
 
 from bfabric import Bfabric
-from bfabric.cli_formatting import setup_script_logging
 from bfabric.experimental import MultiQuery
+from bfabric.utils.cli_integration import use_client
 
 
 def bfabric_list_workunit_parameters(client: Bfabric, application_id: int, max_workunits: int, format: str) -> None:
@@ -100,10 +100,9 @@ def get_parameter_table(client: Bfabric, workunits_table_explode: pl.DataFrame) 
     return parameter_table_full.pivot(values="value", index="workunit_id", columns="key")
 
 
-def main() -> None:
+@use_client
+def main(*, client: Bfabric) -> None:
     """Parses command line arguments and calls `bfabric_list_workunit_parameters`."""
-    setup_script_logging()
-    client = Bfabric.from_config()
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "application_id",

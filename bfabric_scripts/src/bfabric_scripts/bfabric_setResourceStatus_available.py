@@ -6,12 +6,12 @@ set status of a resource of a given resource id
 from __future__ import annotations
 
 import argparse
-import time
 
+import time
 from rich.pretty import pprint
 
 from bfabric import Bfabric
-from bfabric.cli_formatting import setup_script_logging
+from bfabric.utils.cli_integration import use_client
 from bfabric_scripts.feeder.report import report_resource
 
 
@@ -37,13 +37,12 @@ def set_resource_status_available(client: Bfabric, resource_id: list[int]) -> No
             raise
 
 
-def main() -> None:
+@use_client
+def main(*, client: Bfabric) -> None:
     """Parses command line arguments and calls `set_resource_status_available`."""
-    setup_script_logging()
     parser = argparse.ArgumentParser()
     parser.add_argument("resource_id", type=int, help="resource id", nargs="+")
     args = parser.parse_args()
-    client = Bfabric.from_config()
     set_resource_status_available(client, args.resource_id)
 
 

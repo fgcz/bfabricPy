@@ -27,7 +27,7 @@ from rich.console import Console
 from rich.table import Table
 
 from bfabric import Bfabric, BfabricClientConfig
-from bfabric_scripts.cli.base import use_client
+from bfabric.utils.cli_integration import use_client
 
 
 def bfabric_read(

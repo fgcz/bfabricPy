@@ -38,16 +38,15 @@ import argparse
 from pathlib import Path
 
 from bfabric import Bfabric
-from bfabric.cli_formatting import setup_script_logging
+from bfabric.utils.cli_integration import use_client
 from bfabric_scripts.cli.external_job.upload_submitter_executable import (
     upload_submitter_executable,
 )
 
 
-def main() -> None:
+@use_client
+def main(*, client: Bfabric) -> None:
     """Parses command line arguments and calls `main_upload_submitter_executable`."""
-    setup_script_logging()
-    client = Bfabric.from_config()
     parser = argparse.ArgumentParser()
     parser.add_argument("filename", type=Path, help="Bash executable of the submitter")
     parser.add_argument(
