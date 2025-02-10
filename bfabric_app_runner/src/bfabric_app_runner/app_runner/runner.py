@@ -60,6 +60,7 @@ def run_app(
     work_dir: Path,
     client: Bfabric,
     ssh_user: str | None = None,
+    force_storage: Path | None = None,
     read_only: bool = False,
     dispatch_active: bool = True,
 ) -> None:
@@ -92,6 +93,7 @@ def run_app(
                 client=client,
                 ssh_user=ssh_user,
                 reuse_default_resource=app_spec.reuse_default_resource,
+                force_storage=force_storage,
             )
 
     if not read_only:

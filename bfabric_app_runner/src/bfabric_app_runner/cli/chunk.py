@@ -79,6 +79,7 @@ def outputs(
     workunit_ref: int | Path,
     *,
     ssh_user: str | None = None,
+    force_storage: Path | None = None,
     read_only: bool = False,
     reuse_default_resource: bool = True,
 ) -> None:
@@ -91,6 +92,7 @@ def outputs(
     :param read_only: If True, the workunit will not be set to processing.
     :param reuse_default_resource: If True, the default resource will be reused for the output files. (recommended)
     """
+    # TODO redundant with "outputs register"
     setup_script_logging()
     client = Bfabric.from_config()
     chunk_dir = chunk_dir.resolve()
@@ -109,5 +111,6 @@ def outputs(
             workunit_definition=workunit_definition,
             client=client,
             ssh_user=ssh_user,
+            force_storage=force_storage,
             reuse_default_resource=reuse_default_resource,
         )

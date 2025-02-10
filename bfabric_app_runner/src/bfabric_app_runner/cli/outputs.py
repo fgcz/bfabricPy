@@ -27,6 +27,7 @@ def register(
     workunit_ref: int | Path,
     *,
     ssh_user: str | None = None,
+    force_storage: Path | None = None,
     # TODO
     reuse_default_resource: bool = True,
 ) -> None:
@@ -40,6 +41,7 @@ def register(
         specs_list=specs_list,
         ssh_user=ssh_user,
         reuse_default_resource=reuse_default_resource,
+        force_storage=force_storage,
     )
 
 
@@ -52,6 +54,7 @@ def register_single_file(
     store_folder_path: Path | None = None,
     update_existing: UpdateExisting = UpdateExisting.NO,
     ssh_user: str | None = None,
+    force_storage: Path | None = None,
     reuse_default_resource: bool = False,
 ) -> None:
     """Register a single file in the workunit.
@@ -77,4 +80,5 @@ def register_single_file(
         specs_list=[spec],
         ssh_user=ssh_user,
         reuse_default_resource=reuse_default_resource,
+        force_storage=force_storage,
     )
