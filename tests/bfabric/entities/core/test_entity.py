@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 from bfabric import Bfabric
@@ -92,6 +94,27 @@ def test_find_by_when_not_found(mocker, mock_client) -> None:
     entities = Entity.find_by({"id": 1}, mock_client)
     assert len(entities) == 0
     mock_client.read.assert_called_once_with("test_endpoint", obj={"id": 1}, max_results=100)
+
+
+def test_dump_yaml(mocker, mock_entity) -> None:
+    mock_yaml_dump = mocker.patch("yaml.safe_dump")
+    mock_path = mocker.MagicMock(spec=Path)
+    mock_entity.dump_yaml(mock_path)
+    mock_path.open.assert_called_once_with("w")
+    mock_yaml_dump.assert_called_once_with(mock_entity.data_dict, mock_path.open.return_value.__enter__.return_value)
+
+
+def test_load_yaml(mocker) -> None:
+    mock_yaml_load = mocker.patch("yaml.safe_load", return_value={"key": "value"})
+    mock_path = mocker.MagicMock(spec=Path)
+    mock_client = mocker.MagicMock()
+
+    entity = Entity.load_yaml(mock_path, client=mock_client)
+
+    mock_path.open.assert_called_once_with("r")
+    mock_yaml_load.assert_called_once_with(mock_path.open.return_value.__enter__.return_value)
+    assert entity.data_dict == {"key": "value"}
+    assert isinstance(entity, Entity)
 
 
 def test_get_item(mock_entity) -> None:

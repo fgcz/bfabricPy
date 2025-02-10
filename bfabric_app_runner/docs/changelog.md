@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Added
+
+- Implement `--force-storage` to pass a yaml to a forced storage instead of the real one.
+
 ## \[0.0.15\] - 2025-02-06
 
 ### Added
