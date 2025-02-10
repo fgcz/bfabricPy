@@ -8,7 +8,7 @@ from rich.pretty import pprint
 from bfabric_app_runner.output_registration.register import register_all
 from bfabric_app_runner.specs.outputs_spec import OutputsSpec, CopyResourceSpec, UpdateExisting
 from bfabric import Bfabric
-from bfabric.cli_formatting import setup_script_logging
+from bfabric.utils.cli_integration import setup_script_logging
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 
 app_outputs = cyclopts.App("outputs", help="Register output files for an app.")

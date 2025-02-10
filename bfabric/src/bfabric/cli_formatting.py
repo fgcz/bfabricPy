@@ -1,20 +1,7 @@
-import os
-import sys
+import warnings
 
-from loguru import logger
+from bfabric.utils.cli_integration import setup_script_logging
 
+warnings.warn("This module is a compat-shim and will be deleted soon", DeprecationWarning)
 
-def setup_script_logging(debug: bool = False) -> None:
-    """Sets up the logging for the command line scripts."""
-    setup_flag_key = "BFABRICPY_SCRIPT_LOGGING_SETUP"
-    if os.environ.get(setup_flag_key, "0") == "1":
-        return
-    logger.remove()
-    packages = ["bfabric", "bfabric_scripts", "bfabric_app_runner", "__main__"]
-    if not (debug or os.environ.get("BFABRICPY_DEBUG")):
-        for package in packages:
-            logger.add(sys.stderr, filter=package, level="INFO", format="{level} {message}")
-    else:
-        for package in packages:
-            logger.add(sys.stderr, filter=package, level="DEBUG")
-    os.environ[setup_flag_key] = "1"
+_ = setup_script_logging

@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 
-from bfabric.cli_formatting import setup_script_logging
+from bfabric.utils.cli_integration import setup_script_logging
 from bfabric_scripts.cli.workunit.not_available import (
     list_not_available_proteomics_workunits,
 )
