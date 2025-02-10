@@ -65,7 +65,7 @@ class WrapperCreator:
 
 
 @use_client
-@logger.catch
+@logger.catch(reraise=True)
 def app(client: Bfabric) -> None:
     """Wrapper creator CLI."""
     parser = argparse.ArgumentParser()

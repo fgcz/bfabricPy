@@ -85,7 +85,7 @@ class Submitter:
 
 
 @use_client
-@logger.catch
+@logger.catch(reraise=True)
 def app(*, client: Bfabric) -> None:
     """CLI interface for slurm submitter."""
     parser = argparse.ArgumentParser()
