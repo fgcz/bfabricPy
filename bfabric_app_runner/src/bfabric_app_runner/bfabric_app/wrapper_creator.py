@@ -41,7 +41,7 @@ class WrapperCreator:
         path = Path(self._workunit.application.executable["program"])
         app_spec_template = AppSpecTemplate.model_validate(yaml.safe_load(path.read_text()))
         app = self._workunit.application
-        app_spec = app_spec_template.evaluate(app_id=str(app.id), app_name=app["name"])
+        app_spec = app_spec_template.evaluate(app_id=app.id, app_name=app["name"])
         app_version = resolve_app(versions=app_spec, workunit_definition=workunit_definition)
         app_runner_version = app_spec.bfabric.app_runner
         return WorkunitWrapperData(
