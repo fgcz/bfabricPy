@@ -66,15 +66,17 @@ class SlurmSubmitter:
         force_storage_flags = (
             ""
             if not submitter_config.config.force_storage
-            else f"--force-storage {submitter_config.config.force_storage}"
+            else f"--force-storage {str(submitter_config.config.force_storage)}"
         )
-        return _MAIN_BASH_TEMPLATE.format(
+        render_args = dict(
             app_version_yml=app_version_yml,
             workunit_definition_yml=workunit_definition_yml,
             app_runner_command=self._get_app_runner_command(version=app_runner_version),
             working_directory=working_directory,
             force_storage_flags=force_storage_flags,
         )
+        logger.debug("Render args: {}", render_args)
+        return _MAIN_BASH_TEMPLATE.format(**render_args)
 
     @staticmethod
     def _get_app_runner_command(version: str) -> str:
