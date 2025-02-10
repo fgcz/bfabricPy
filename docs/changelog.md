@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Added
+
+- `Entity.load_yaml` and `Entity.dump_yaml`
+
 ## \[1.13.20\] - 2025-02-10
 
 ### Breaking
