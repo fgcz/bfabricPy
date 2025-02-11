@@ -21,11 +21,13 @@ if TYPE_CHECKING:
 
 
 class Submitter:
-    def __init__(self, client: Bfabric, external_job: ExternalJob, submitters_spec: SubmittersSpecTemplate) -> None:
+    def __init__(
+        self, client: Bfabric, external_job: ExternalJob, submitters_spec_template: SubmittersSpecTemplate
+    ) -> None:
         self._client = client
         self._external_job = external_job
         self._workunit = external_job.workunit
-        self._submitters_spec_template = submitters_spec
+        self._submitters_spec_template = submitters_spec_template
 
     def get_workunit_wrapper_data(self) -> WorkunitWrapperData:
         # Find the executable
@@ -94,8 +96,8 @@ def app(*, client: Bfabric) -> None:
     parser.add_argument("-j", type=int)
     args = parser.parse_args()
     external_job = ExternalJob.find(id=args.j, client=client)
-    submitters_spec = SubmittersSpecTemplate.model_validate(yaml.safe_load(args.submitters_yml.read_text()))
-    submitter = Submitter(client=client, external_job=external_job, submitters_spec=submitters_spec)
+    submitters_spec_template = SubmittersSpecTemplate.model_validate(yaml.safe_load(args.submitters_yml.read_text()))
+    submitter = Submitter(client=client, external_job=external_job, submitters_spec_template=submitters_spec_template)
     submitter.run()
 
 
