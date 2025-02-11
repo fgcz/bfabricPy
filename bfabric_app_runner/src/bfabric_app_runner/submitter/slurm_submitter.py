@@ -85,6 +85,7 @@ class SlurmSubmitter:
         self, client: Bfabric, workunit_wrapper_data: WorkunitWrapperData, submitter_config: SubmitterSlurmSpec
     ) -> None:
         if submitter_config.config.log_viewer_url:
+            # TODO only add if not there already
             workunit_id = workunit_wrapper_data.workunit_definition.registration.workunit_id
             obj = {
                 "name": f"WU{workunit_id} Logs",
@@ -125,13 +126,6 @@ class SlurmSubmitter:
         script_path.write_text(script)
         script_path.chmod(0o755)
 
-        # Add link to logs
-        self._add_link_to_logs(
-            client=workunit_wrapper_data.client,
-            workunit_wrapper_data=workunit_wrapper_data,
-            submitter_config=slurm_config.submitter_config,
-        )
-
         # Execute sbatch
         sbatch_bin = slurm_config.submitter_config.config.slurm_root / "bin" / "sbatch"
         env = os.environ | {"SLURMROOT": slurm_config.submitter_config.config.slurm_root}
@@ -139,3 +133,9 @@ class SlurmSubmitter:
         cmd = [str(sbatch_bin), str(script_path)]
         logger.info("Running {}", shlex.join(cmd))
         subprocess.run(cmd, env=env, check=True)
+
+    def create_monitor_links(self, workunit_wrapper_data: WorkunitWrapperData, client: Bfabric) -> None:
+        config = self.evaluate_config(workunit_wrapper_data=workunit_wrapper_data)
+        self._add_link_to_logs(
+            client=client, workunit_wrapper_data=workunit_wrapper_data, submitter_config=config.submitter_config
+        )

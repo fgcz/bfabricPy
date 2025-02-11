@@ -82,6 +82,7 @@ class Submitter:
         )
         submitter = SlurmSubmitter(slurm_config_template)
         submitter.submit(workunit_wrapper_data=workunit_wrapper_data)
+        submitter.create_monitor_links(workunit_wrapper_data=workunit_wrapper_data, client=self._client)
 
 
 @use_client
