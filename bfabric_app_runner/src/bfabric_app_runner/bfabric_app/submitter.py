@@ -1,5 +1,6 @@
 import argparse
 import base64
+from functools import cached_property
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -26,12 +27,17 @@ class Submitter:
     ) -> None:
         self._client = client
         self._external_job = external_job
-        self._workunit = external_job.workunit
         self._submitters_spec_template = submitters_spec_template
+
+    @cached_property
+    def _workunit_id(self) -> int:
+        # TODO this should be lazy and only return the id
+        #  (do we add workunit_id or implement something like a lazy getter)
+        return self._external_job.workunit.id
 
     def get_workunit_wrapper_data(self) -> WorkunitWrapperData:
         # Find the executable
-        executables = Executable.find_by({"workunitid": self._workunit.id}, client=self._client)
+        executables = Executable.find_by({"workunitid": self._workunit_id}, client=self._client)
         executables = {key: value for key, value in executables.items() if value["context"] == "WORKUNIT"}
         if len(executables) != 1:
             msg = f"Expected exactly one WORKUNIT executable, found executables: {sorted(executables.keys())}"
@@ -51,11 +57,11 @@ class Submitter:
         # Construct the interpolation variables
         variables = Variables(
             app=VariablesApp(
-                id=self._workunit.application.id,
-                name=self._workunit.application["name"],
+                id=workunit_wrapper_data.workunit_definition.registration.application_id,
+                name=workunit_wrapper_data.workunit_definition.registration.application_name,
                 version=workunit_wrapper_data.app_version.version,
             ),
-            workunit=VariablesWorkunit(id=self._workunit.id),
+            workunit=VariablesWorkunit(id=workunit_wrapper_data.workunit_definition.registration.workunit_id),
         )
 
         # Evaluate the submitters spec

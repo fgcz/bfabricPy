@@ -1,0 +1,40 @@
+from pathlib import Path
+
+import pytest
+import yaml
+from pydantic import BaseModel
+
+
+def yaml_fixture[T: BaseModel](model_class: type[T], fixture_name: str):
+    """Create a pytest fixture that loads a YAML file into a Pydantic model.
+
+    :param model_class: The Pydantic model class to parse the YAML into
+    :type model_class: Type[T]
+    :param fixture_name: Name of the YAML file (without extension)
+    :type fixture_name: str
+    :return: A pytest fixture function that returns the parsed model
+    :rtype: pytest.fixture
+
+    :Example:
+
+    .. code-block:: python
+
+        class User(BaseModel):
+            name: str
+            email: str
+
+
+        # Will load from tests/fixtures/test_user.yml
+        user = yaml_fixture(User, "test_user")
+    """
+
+    @pytest.fixture
+    def _fixture(request) -> T:
+        fixtures_dir = Path(request.module.__file__).parent / "fixtures"
+        fixture_path = fixtures_dir / f"{fixture_name}.yml"
+
+        with fixture_path.open() as f:
+            data = yaml.safe_load(f)
+        return model_class.model_validate(data)
+
+    return _fixture

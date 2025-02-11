@@ -1,0 +1,15 @@
+execution:
+  raw_parameters:
+    cpus: "4"
+    memory: "8G"
+    time: "1:00:00"
+  dataset: -1
+registration:
+  application_id: -1
+  application_name: Testing App
+  workunit_id: -1
+  workunit_name: Testing WU
+  container_id: -1
+  storage_id: -1
+  storage_output_folder: /dev/null/
+  container_type: project
