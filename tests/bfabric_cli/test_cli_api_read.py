@@ -39,14 +39,14 @@ def sample_results():
 class TestPerformQuery:
     def test_perform_query_basic(self, mock_client, mock_console):
         # Arrange
-        params = Params(endpoint="resource", query=[("status", "active")], columns=["id", "name"], limit=10)
+        params = Params(endpoint="resource", query=[("status", "active")])
         mock_client.read.return_value = ResultContainer([{"id": 1, "name": "Test"}])
 
         # Act
         results = perform_query(params, mock_client, mock_console)
 
         # Assert
-        mock_client.read.assert_called_once_with(endpoint="resource", obj={"status": "active"}, max_results=10)
+        mock_client.read.assert_called_once_with(endpoint="resource", obj={"status": "active"}, max_results=100)
         assert len(results) == 1
         assert results[0]["id"] == 1
 
