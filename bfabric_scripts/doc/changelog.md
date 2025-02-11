@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.21\] - 2025-02-11
+
 ### Fixed
 
 - Add missing default value for columns in `bfabric-cli api read`
