@@ -36,7 +36,7 @@ class Params(BaseModel):
     """Output format."""
     limit: int = 100
     """Maximum number of results."""
-    columns: list[str]
+    columns: list[str] = []
     """Selection of columns to return, comma separated list."""
     cli_max_columns: int | None = 7
     """When showing the results as a table in the console (table-rich), the maximum number of columns to show."""
