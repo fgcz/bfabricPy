@@ -93,6 +93,7 @@ class SlurmSubmitter:
                 "parentid": workunit_id,
                 "url": submitter_config.config.log_viewer_url,
             }
+            logger.info("Adding link to logs: {}", obj)
             client.save("link", obj)
 
     def evaluate_config(self, workunit_wrapper_data: WorkunitWrapperData) -> SlurmConfig:
