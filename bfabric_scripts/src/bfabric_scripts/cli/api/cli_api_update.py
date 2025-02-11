@@ -39,6 +39,7 @@ def update(params: Params, *, client: Bfabric) -> None:
             return
 
     result = client.save(params.endpoint, {"id": params.entity_id, **attributes_dict})
+    logger.info(f"Entity with ID {params.entity_id} updated successfully.")
     pprint(result)
 
 
