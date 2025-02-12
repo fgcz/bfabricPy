@@ -43,7 +43,7 @@ class SlurmWorkunitParams(BaseModel):
             return parsed
         return value
 
-    @field_validator("partition", "nodelist", "mem", mode="before")
+    @field_validator("partition", "nodelist", "mem", "time", mode="before")
     def validate_special_string(cls, value: SlurmWorkunitSpecialStrings | str) -> SlurmWorkunitSpecialStrings | str:
         return cls._parse_string(value)
 
