@@ -1,16 +1,16 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import yaml
 from pydantic import ValidationError
 
+from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric_app_runner.specs.app.app_spec import AppSpec
 from bfabric_app_runner.specs.app.app_version import AppVersion
-from bfabric.experimental.workunit_definition import WorkunitDefinition
 
 if TYPE_CHECKING:
-    from pathlib import Path
     from bfabric import Bfabric
 
 
@@ -57,6 +57,8 @@ def load_workunit_information(
         steps to avoid unnecessary B-Fabric lookups. (If the workunit_ref was already a path, it will be returned as is,
         otherwise the file will be created in the work directory.)
     """
+    if isinstance(workunit_ref, Path):
+        workunit_ref = workunit_ref.resolve()
     workunit_definition_file = work_dir / "workunit_definition.yml"
     workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client, cache_file=workunit_definition_file)
     app_parsed = _load_spec(
