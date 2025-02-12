@@ -30,6 +30,9 @@ class SlurmWorkunitParams(BaseModel):
     mem: Annotated[SlurmWorkunitSpecialStrings | str, Field(validation_alias=AliasChoices("mem", "--mem"))] = (
         SlurmWorkunitSpecialStrings.default
     )
+    time: Annotated[SlurmWorkunitSpecialStrings | str, Field(validation_alias=AliasChoices("time", "--time"))] = (
+        SlurmWorkunitSpecialStrings.default
+    )
 
     @classmethod
     def _parse_string(cls, value: str | SlurmWorkunitSpecialStrings) -> SlurmWorkunitSpecialStrings | str:
@@ -45,6 +48,7 @@ class SlurmWorkunitParams(BaseModel):
         return cls._parse_string(value)
 
     def _get_field(self, field_name: str) -> str | None:
+        """Returns the value to be used for the field, or None if the default should be used (when merging configs)."""
         value = getattr(self, field_name)
         if isinstance(value, str):
             return value
@@ -54,18 +58,18 @@ class SlurmWorkunitParams(BaseModel):
             raise NotImplementedError(f"Currently unsupported value for {field_name}: {value}")
 
     def as_dict(self) -> dict[str, str | None]:
+        """Returns a dictionary with the values that should be passed to sbatch."""
+        field_mapping = {
+            "partition": "--partition",
+            "nodelist": "--nodelist",
+            "mem": "--mem",
+            "time": "--time",
+        }
+
         values = {}
-
-        partition = self._get_field("partition")
-        if partition is not None:
-            values["--partition"] = partition
-
-        nodelist = self._get_field("nodelist")
-        if nodelist is not None:
-            values["--nodelist"] = nodelist
-
-        mem = self._get_field("mem")
-        if mem is not None:
-            values["--mem"] = mem
+        for field_name, flag in field_mapping.items():
+            value = self._get_field(field_name)
+            if value is not None:
+                values[flag] = value
 
         return values
