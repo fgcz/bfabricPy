@@ -1,11 +1,15 @@
 from pathlib import Path
+from typing import TypeVar
 
 import pytest
 import yaml
 from pydantic import BaseModel
 
 
-def yaml_fixture[T: BaseModel](model_class: type[T], fixture_name: str):
+T = TypeVar("T", bound=BaseModel)
+
+
+def yaml_fixture(model_class: type[T], fixture_name: str):
     """Create a pytest fixture that loads a YAML file into a Pydantic model.
 
     :param model_class: The Pydantic model class to parse the YAML into
