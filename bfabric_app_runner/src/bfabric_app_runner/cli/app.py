@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import importlib.metadata
 from pathlib import Path
 
 import cyclopts
+from loguru import logger
 
 from bfabric_app_runner.app_runner.resolve_app import load_workunit_information
 from bfabric_app_runner.app_runner.runner import run_app, Runner
@@ -27,6 +29,8 @@ def run(
     setup_script_logging()
     client = Bfabric.from_config()
     app_version, workunit_ref = load_workunit_information(app_spec, client, work_dir, workunit_ref)
+
+    copy_dev_makefile(work_dir=work_dir)
 
     # TODO(#107): usage of entity lookup cache was problematic -> beyond the full solution we could also consider
     #             to deactivate the cache for the output registration
@@ -63,3 +67,19 @@ def dispatch(
     with EntityLookupCache.enable():
         runner = Runner(spec=app_version, client=client, ssh_user=None)
         runner.run_dispatch(workunit_ref=workunit_ref, work_dir=work_dir)
+
+
+def copy_dev_makefile(work_dir: Path) -> None:
+    """Copies the workunit.mk file to the work directory, and sets the version of the app runner."""
+    source_path = Path(__file__).parents[1] / "resources" / "workunit.mk"
+    target_path = work_dir / "Makefile"
+
+    makefile_template = target_path.read_text()
+    app_runner_version = importlib.metadata.version("bfabric_app_runner")
+    makefile = makefile_template.replace("@RUNNER_VERSION@", app_runner_version)
+
+    if target_path.exists():
+        logger.info("Renaming existing Makefile to Makefile.bak")
+        target_path.rename(work_dir / "Makefile.bak")
+    logger.info(f"Copying Makefile from {source_path} to {target_path}")
+    target_path.write_text(makefile)
