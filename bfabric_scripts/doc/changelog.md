@@ -19,6 +19,7 @@ Versioning currently follows `X.Y.Z` where
 ### Added
 
 - `bfabric-cli api update` command to update an existing entity
+- `bfabric-cli api create` command to create a new entity
 - `bfabric-cli api delete` command to delete an existing entity
 
 ## \[1.13.20\] - 2025-02-10
