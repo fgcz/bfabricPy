@@ -101,9 +101,9 @@ def render_output(results: list[dict[str, Any]], params: Params, client: Bfabric
 
 @app.default
 @use_client
-@logger.catch()
+@logger.catch(reraise=True)
 def read(params: Annotated[Params, cyclopts.Parameter(name="*")], *, client: Bfabric) -> None | int:
-    """Reads one type of entity from B-Fabric."""
+    """Reads entities from B-Fabric."""
     console_user = Console(stderr=True)
     console_user.print(params)
 
