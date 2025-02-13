@@ -84,4 +84,5 @@ def copy_dev_makefile(work_dir: Path) -> None:
         logger.info("Renaming existing Makefile to Makefile.bak")
         target_path.rename(work_dir / "Makefile.bak")
     logger.info(f"Copying Makefile from {source_path} to {target_path}")
+    target_path.parent.mkdir(exist_ok=True, parents=True)
     target_path.write_text(makefile)
