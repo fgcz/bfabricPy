@@ -5,7 +5,7 @@ from rich.pretty import pprint
 from bfabric import Bfabric
 from bfabric.utils.cli_integration import use_client
 
-app = cyclopts.App()
+app = cyclopts.App(help="DEPRECATED")
 
 
 @app.default
