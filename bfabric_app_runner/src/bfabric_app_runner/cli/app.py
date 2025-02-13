@@ -75,7 +75,7 @@ def copy_dev_makefile(work_dir: Path) -> None:
     with importlib.resources.path("bfabric_app_runner", "resources/workunit.mk") as source_path:
         target_path = work_dir / "Makefile"
 
-        makefile_template = target_path.read_text()
+        makefile_template = source_path.read_text()
         app_runner_version = importlib.metadata.version("bfabric_app_runner")
         makefile = makefile_template.replace("@RUNNER_VERSION@", app_runner_version)
 
