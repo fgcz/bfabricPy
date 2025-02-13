@@ -1,16 +1,17 @@
 from __future__ import annotations
 
 import importlib.metadata
+import importlib.resources
 from pathlib import Path
 
 import cyclopts
 from loguru import logger
 
+from bfabric import Bfabric
+from bfabric.experimental.entity_lookup_cache import EntityLookupCache
+from bfabric.utils.cli_integration import setup_script_logging
 from bfabric_app_runner.app_runner.resolve_app import load_workunit_information
 from bfabric_app_runner.app_runner.runner import run_app, Runner
-from bfabric import Bfabric
-from bfabric.utils.cli_integration import setup_script_logging
-from bfabric.experimental.entity_lookup_cache import EntityLookupCache
 
 app_app = cyclopts.App("app", help="Run an app.")
 
@@ -71,16 +72,16 @@ def dispatch(
 
 def copy_dev_makefile(work_dir: Path) -> None:
     """Copies the workunit.mk file to the work directory, and sets the version of the app runner."""
-    source_path = Path(__file__).parents[1] / "resources" / "workunit.mk"
-    target_path = work_dir / "Makefile"
+    with importlib.resources.path("bfabric_app_runner", "resources/workunit.mk") as source_path:
+        target_path = work_dir / "Makefile"
 
-    makefile_template = target_path.read_text()
-    app_runner_version = importlib.metadata.version("bfabric_app_runner")
-    makefile = makefile_template.replace("@RUNNER_VERSION@", app_runner_version)
+        makefile_template = target_path.read_text()
+        app_runner_version = importlib.metadata.version("bfabric_app_runner")
+        makefile = makefile_template.replace("@RUNNER_VERSION@", app_runner_version)
 
-    if target_path.exists():
-        logger.info("Renaming existing Makefile to Makefile.bak")
-        target_path.rename(work_dir / "Makefile.bak")
-    logger.info(f"Copying Makefile from {source_path} to {target_path}")
-    target_path.parent.mkdir(exist_ok=True, parents=True)
-    target_path.write_text(makefile)
+        if target_path.exists():
+            logger.info("Renaming existing Makefile to Makefile.bak")
+            target_path.rename(work_dir / "Makefile.bak")
+        logger.info(f"Copying Makefile from {source_path} to {target_path}")
+        target_path.parent.mkdir(exist_ok=True, parents=True)
+        target_path.write_text(makefile)
