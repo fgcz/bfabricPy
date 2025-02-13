@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "bfabric_scripts"
 description = "Python command line scripts for the B-Fabric API"
-version = "1.13.20"
+version = "1.13.21"
 
 dependencies = [
     "bfabric==1.13.20"

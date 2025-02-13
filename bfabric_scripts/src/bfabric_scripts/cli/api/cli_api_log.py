@@ -7,7 +7,7 @@ from rich.pretty import pprint
 from bfabric import Bfabric
 from bfabric.utils.cli_integration import use_client
 
-cmd = cyclopts.App(help="write log messages of external jobs")
+cmd = cyclopts.App(help="DEPRECATED")
 
 log_target = cyclopts.Group(
     "Log Target",
