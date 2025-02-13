@@ -1,8 +1,8 @@
 import cyclopts
 
-from bfabric_scripts.cli.dataset.download_dataset import download_dataset
-from bfabric_scripts.cli.dataset.upload_dataset import upload_dataset
+from bfabric_scripts.cli.dataset.download import cmd_dataset_download
+from bfabric_scripts.cli.dataset.upload import cmd_dataset_upload
 
 app = cyclopts.App()
-app.command(upload_dataset, name="upload")
-app.command(download_dataset, name="download")
+app.command(cmd_dataset_upload, name="upload")
+app.command(cmd_dataset_download, name="download")

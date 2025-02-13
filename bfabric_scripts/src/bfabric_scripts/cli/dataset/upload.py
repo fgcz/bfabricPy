@@ -32,7 +32,7 @@ class Params(BaseModel):
 
 
 @use_client
-def upload_dataset(params: Params, *, client: Bfabric) -> None:
+def cmd_dataset_upload(params: Params, *, client: Bfabric) -> None:
     # TODO this is a bit more complex:
     #  - parquet: straightforward, just import the data, maybe check for invalid characters too
     #  - csv: we need "has_header"/"skip_lines", "separator"

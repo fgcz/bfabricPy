@@ -28,7 +28,7 @@ class Params(BaseModel):
 
 
 @use_client
-def download_dataset(params: Params, *, client: Bfabric) -> None:
+def cmd_dataset_download(params: Params, *, client: Bfabric) -> None:
     # Find the dataset
     dataset = Dataset.find(id=params.dataset_id, client=client)
     if not dataset:
