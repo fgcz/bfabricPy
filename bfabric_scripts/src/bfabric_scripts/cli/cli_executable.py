@@ -1,8 +1,8 @@
 import cyclopts
 
-from bfabric_scripts.cli.executable.inspect import inspect_executable
-from bfabric_scripts.cli.executable.upload import upload_executable
+from bfabric_scripts.cli.executable.show import cmd_executable_show
+from bfabric_scripts.cli.executable.upload import cmd_executable_upload
 
 app = cyclopts.App()
-app.command(inspect_executable, name="inspect")
-app.command(upload_executable, name="upload")
+app.command(cmd_executable_show, name="show")
+app.command(cmd_executable_upload, name="upload")

@@ -33,5 +33,5 @@ def create(params: Params, *, client: Bfabric) -> None:
     """Creates a new entity in B-Fabric."""
     attributes_dict = {attribute: value for attribute, value in params.attributes}
     result = client.save(params.endpoint, attributes_dict)
-    logger.info(f"{params.endpoint} entity with ID {result[0]["id"]} created successfully.")
+    logger.info(f"{params.endpoint} entity with ID {result[0]['id']} created successfully.")
     pprint(result)
