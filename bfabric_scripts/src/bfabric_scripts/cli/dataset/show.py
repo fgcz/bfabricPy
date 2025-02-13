@@ -1,10 +1,8 @@
-import json
 from enum import Enum
 
 import polars as pl
 import rich
 import yaml
-from rich.json import JSON
 from rich.table import Table
 
 from bfabric import Bfabric
