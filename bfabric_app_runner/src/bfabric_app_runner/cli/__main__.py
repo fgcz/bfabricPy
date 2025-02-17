@@ -6,7 +6,7 @@ import cyclopts
 
 from bfabric_app_runner.cli.app import cmd_app_run, cmd_app_dispatch
 from bfabric_app_runner.cli.chunk import cmd_chunk_run_all, cmd_chunk_outputs, cmd_chunk_process
-from bfabric_app_runner.cli.inputs import cmd_inputs_prepare, cmd_inputs_clean, cmd_inputs_list
+from bfabric_app_runner.cli.inputs import cmd_inputs_prepare, cmd_inputs_clean, cmd_inputs_list, cmd_inputs_check
 from bfabric_app_runner.cli.outputs import cmd_outputs_register, cmd_outputs_register_single_file
 from bfabric_app_runner.cli.validate import (
     cmd_validate_inputs_spec,
@@ -28,6 +28,7 @@ cmd_app.command(cmd_app_run, name="run")
 app.command(cmd_app)
 
 cmd_inputs = cyclopts.App("inputs", help="Prepare input files for an app.")
+cmd_inputs.command(cmd_inputs_check, name="check")
 cmd_inputs.command(cmd_inputs_clean, name="clean")
 cmd_inputs.command(cmd_inputs_list, name="list")
 cmd_inputs.command(cmd_inputs_prepare, name="prepare")

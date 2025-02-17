@@ -100,7 +100,7 @@ def cmd_inputs_list(
 
 
 @use_client
-def check(
+def cmd_inputs_check(
     inputs_yaml: Path,
     target_folder: Path | None = None,
     *,
