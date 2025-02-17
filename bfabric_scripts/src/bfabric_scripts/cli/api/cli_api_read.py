@@ -90,13 +90,17 @@ def render_output(results: list[dict[str, Any]], params: Params, client: Bfabric
             results = [{k: x.get(k) for k in params.columns} for x in results]
 
         if params.format == OutputFormat.JSON:
-            return json.dumps(results, indent=2)
+            result = json.dumps(results, indent=2)
         elif params.format == OutputFormat.YAML:
-            return yaml.dump(results)
+            result = yaml.dump(results)
         elif params.format == OutputFormat.TSV:
-            return flatten_relations(pl.DataFrame(results)).write_csv(separator="\t")
+            result = flatten_relations(pl.DataFrame(results)).write_csv(separator="\t")
         else:
             raise ValueError(f"output format {params.format} not supported")
+
+        # TODO check if we can add back colors (but it broke some stuff, because of forced line breaks, so be careful)
+        print(result)
+        return result
 
 
 @app.default
@@ -114,11 +118,6 @@ def read(params: Annotated[Params, cyclopts.Parameter(name="*")], *, client: Bfa
     results = sorted(results, key=lambda x: x["id"])
     console_out = Console()
     output = render_output(results, params=params, client=client, console=console_out)
-    if output is not None:
-        if params.format == OutputFormat.TSV:
-            print(output)
-        else:
-            console_out.print(output)
     if params.file:
         if output is None:
             logger.error("File output is not supported for the specified output format.")

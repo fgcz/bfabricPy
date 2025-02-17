@@ -59,7 +59,7 @@ class EngineZeep:
         full_query = dict(
             login=auth.login,
             page=page,
-            password=auth.password,
+            password=auth.password.get_secret_value(),
             query=query,
             idonly=return_id_only,
         )
@@ -84,7 +84,7 @@ class EngineZeep:
             excl_keys = ["name", "sampleid", "storageid", "workunitid", "relativepath"]
             _zeep_query_append_skipped(query, excl_keys, inplace=True, overwrite=False)
 
-        full_query = {"login": auth.login, "password": auth.password, endpoint: query}
+        full_query = {"login": auth.login, "password": auth.password.get_secret_value(), endpoint: query}
 
         client = self._get_client(endpoint)
 
@@ -108,7 +108,7 @@ class EngineZeep:
             # TODO maybe use error here (and make sure it's consistent)
             return ResultContainer([], total_pages_api=0)
 
-        query = {"login": auth.login, "password": auth.password, "id": id}
+        query = {"login": auth.login, "password": auth.password.get_secret_value(), "id": id}
 
         client = self._get_client(endpoint)
         response = client.service.delete(query)

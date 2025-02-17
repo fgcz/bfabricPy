@@ -10,6 +10,16 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Added
+
+- `bfabric-cli dataset {upload, download, show}` to replace the old dataset-related scripts.
+
+## \[1.13.22\] - 2025-02-17
+
+### Fixed
+
+- Fix printing of YAML for parsing with shyaml, previously line breaks could have been introduced.
+
 ## \[1.13.21\] - 2025-02-11
 
 ### Fixed
