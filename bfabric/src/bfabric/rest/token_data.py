@@ -1,9 +1,10 @@
 from __future__ import annotations
+
 from datetime import datetime
 from typing import TYPE_CHECKING
 
 import requests
-from pydantic import BaseModel, Field, SecretStr
+from pydantic import BaseModel, Field, SecretStr, ConfigDict
 
 if TYPE_CHECKING:
     from bfabric import BfabricClientConfig
@@ -11,6 +12,10 @@ if TYPE_CHECKING:
 
 class TokenData(BaseModel):
     """Parsed token data from the B-Fabric token validation endpoint."""
+
+    model_config = ConfigDict(
+        populate_by_name=True, str_strip_whitespace=True, json_encoders={datetime: lambda v: v.isoformat()}
+    )
 
     job_id: int = Field(alias="jobId")
     application_id: int = Field(alias="applicationId")
@@ -23,11 +28,6 @@ class TokenData(BaseModel):
 
     token_expires: datetime = Field(alias="expiryDateTime")
     environment: str
-
-    class Config:
-        populate_by_name = True
-        str_strip_whitespace = True
-        json_encoders = {datetime: lambda v: v.isoformat()}
 
 
 def get_token_data(client_config: BfabricClientConfig, token: str) -> TokenData:

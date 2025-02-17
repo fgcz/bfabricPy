@@ -1,7 +1,7 @@
 import cyclopts
 from cyclopts import Parameter
 from loguru import logger
-from pydantic import BaseModel, field_validator, Field, ValidationError
+from pydantic import BaseModel, field_validator, Field
 from rich.pretty import pprint
 
 from bfabric import Bfabric
@@ -29,7 +29,7 @@ class Params(BaseModel):
 @app.default
 @use_client
 @logger.catch(reraise=True)
-def create(params: Params, *, client: Bfabric) -> None:
+def cmd_api_create(params: Params, *, client: Bfabric) -> None:
     """Creates a new entity in B-Fabric."""
     attributes_dict = {attribute: value for attribute, value in params.attributes}
     result = client.save(params.endpoint, attributes_dict)

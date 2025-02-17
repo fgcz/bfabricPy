@@ -74,7 +74,7 @@ def filter_workunits_by_user(workunits: list[Workunit], exclude_user: list[str] 
 
 
 @use_client
-def list_not_available_proteomics_workunits(
+def cmd_workunit_not_available(
     *,
     client: Bfabric,
     max_age: float = 14.0,

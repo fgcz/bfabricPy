@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import cyclopts
-
+from bfabric import Bfabric
+from bfabric.utils.cli_integration import use_client
 from bfabric_app_runner.input_preparation import prepare_folder
 from bfabric_app_runner.input_preparation.integrity import IntegrityState
 from bfabric_app_runner.input_preparation.list_inputs import (
@@ -12,19 +12,16 @@ from bfabric_app_runner.input_preparation.list_inputs import (
     FileState,
 )
 from bfabric_app_runner.specs.inputs_spec import InputsSpec
-from bfabric import Bfabric
-from bfabric.utils.cli_integration import setup_script_logging
-
-app_inputs = cyclopts.App("inputs", help="Prepare input files for an app.")
 
 
-@app_inputs.command()
-def prepare(
+@use_client
+def cmd_inputs_prepare(
     inputs_yaml: Path,
     target_folder: Path | None = None,
     *,
     ssh_user: str | None = None,
     filter: str | None = None,
+    client: Bfabric,
 ) -> None:
     """Prepare the input files by downloading and generating them (if necessary).
 
@@ -33,8 +30,6 @@ def prepare(
     :param ssh_user: SSH user to use for downloading the input files, instead of the current user.
     :param filter: only this input file will be prepared.
     """
-    setup_script_logging()
-    client = Bfabric.from_config()
     prepare_folder(
         inputs_yaml=inputs_yaml,
         target_folder=target_folder,
@@ -45,12 +40,13 @@ def prepare(
     )
 
 
-@app_inputs.command()
-def clean(
+@use_client
+def cmd_inputs_clean(
     inputs_yaml: Path,
     target_folder: Path | None = None,
     *,
     filter: str | None = None,
+    client: Bfabric,
 ) -> None:
     """Removes all local copies of input files.
 
@@ -58,8 +54,6 @@ def clean(
     :param target_folder: Path to the target folder where the input files should be removed.
     :param filter: only this input file will be removed.
     """
-    setup_script_logging()
-    client = Bfabric.from_config()
     # TODO clean shouldn't even need all these arguments, this could be refactored later
     prepare_folder(
         inputs_yaml=inputs_yaml,
@@ -75,9 +69,9 @@ def get_inputs_and_print(
     inputs_yaml: Path,
     target_folder: Path | None,
     check: bool,
+    client: Bfabric,
 ) -> list[FileState]:
     """Reads the input files, performing integrity checks if requested, and prints the results."""
-    client = Bfabric.from_config()
     input_states = list_input_states(
         specs=InputsSpec.read_yaml_old(inputs_yaml),
         target_folder=target_folder or Path(),
@@ -88,11 +82,13 @@ def get_inputs_and_print(
     return input_states
 
 
-@app_inputs.command(name="list")
-def list_(
+@use_client
+def cmd_inputs_list(
     inputs_yaml: Path,
     target_folder: Path | None = None,
     check: bool = False,
+    *,
+    client: Bfabric,
 ) -> None:
     """Lists the input files for an app.
 
@@ -100,14 +96,15 @@ def list_(
     :param target_folder: Path to the target folder where the input files should be located, if different from the
         file containing the inputs.yml file.
     """
-    setup_script_logging()
-    get_inputs_and_print(inputs_yaml=inputs_yaml, target_folder=target_folder, check=check)
+    get_inputs_and_print(inputs_yaml=inputs_yaml, target_folder=target_folder, check=check, client=client)
 
 
-@app_inputs.command()
-def check(
+@use_client
+def cmd_inputs_check(
     inputs_yaml: Path,
     target_folder: Path | None = None,
+    *,
+    client: Bfabric,
 ) -> None:
     """Checks if the input files are present and have the correct content.
 
@@ -117,8 +114,7 @@ def check(
     :param target_folder: Path to the target folder where the input files should be located, if different from the
         file containing the inputs.yml file.
     """
-    setup_script_logging()
-    input_states = get_inputs_and_print(inputs_yaml=inputs_yaml, target_folder=target_folder, check=True)
+    input_states = get_inputs_and_print(inputs_yaml=inputs_yaml, target_folder=target_folder, check=True, client=client)
     invalid_states = {state.integrity for state in input_states if state.integrity != IntegrityState.Correct}
     if invalid_states:
         print(f"Encountered invalid input states: {invalid_states}")

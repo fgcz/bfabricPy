@@ -2,21 +2,17 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import cyclopts
-
+from bfabric import Bfabric
+from bfabric.experimental.entity_lookup_cache import EntityLookupCache
+from bfabric.experimental.workunit_definition import WorkunitDefinition
+from bfabric.utils.cli_integration import use_client
 from bfabric_app_runner.app_runner.resolve_app import load_workunit_information
 from bfabric_app_runner.app_runner.runner import run_app, Runner
 from bfabric_app_runner.output_registration import register_outputs
-from bfabric import Bfabric
-from bfabric.utils.cli_integration import setup_script_logging
-from bfabric.experimental.entity_lookup_cache import EntityLookupCache
-from bfabric.experimental.workunit_definition import WorkunitDefinition
-
-app_chunk = cyclopts.App("chunk", help="Run an app on a chunk. You can create the chunks with `app dispatch`.")
 
 
-@app_chunk.command()
-def run_all(
+@use_client
+def cmd_chunk_run_all(
     app_spec: Path,
     work_dir: Path,
     workunit_ref: int | Path,
@@ -24,6 +20,7 @@ def run_all(
     ssh_user: str | None = None,
     force_storage: Path | None = None,
     read_only: bool = False,
+    client: Bfabric,
 ) -> None:
     """Run all chunks, including input preparation, processing, and output registration.
 
@@ -34,9 +31,6 @@ def run_all(
     :param force_storage: Path to the storage.yml for the output files instead of where it should go (for testing).
     :param read_only: If True, results will not be registered and the workunit status will not be changed.
     """
-    setup_script_logging()
-    client = Bfabric.from_config()
-
     app_version, workunit_ref = load_workunit_information(
         app_spec=app_spec, client=client, work_dir=work_dir, workunit_ref=workunit_ref
     )
@@ -53,16 +47,14 @@ def run_all(
     )
 
 
-@app_chunk.command()
-def process(app_spec: Path, chunk_dir: Path) -> None:
+@use_client
+def cmd_chunk_process(app_spec: Path, chunk_dir: Path, *, client: Bfabric) -> None:
     """Process a chunk.
 
     Note that the input files must be prepared before running this command.
     :param app_spec: Path to the app spec file.
     :param chunk_dir: Path to the chunk directory.
     """
-    setup_script_logging()
-    client = Bfabric.from_config()
     chunk_dir = chunk_dir.resolve()
 
     # TODO this lookup of workunit_definition is very problematic now! FIX NEEDED
@@ -75,8 +67,8 @@ def process(app_spec: Path, chunk_dir: Path) -> None:
         runner.run_process(chunk_dir=chunk_dir)
 
 
-@app_chunk.command()
-def outputs(
+@use_client
+def cmd_chunk_outputs(
     app_spec: Path,
     chunk_dir: Path,
     workunit_ref: int | Path,
@@ -85,6 +77,7 @@ def outputs(
     force_storage: Path | None = None,
     read_only: bool = False,
     reuse_default_resource: bool = True,
+    client: Bfabric,
 ) -> None:
     """Register the output files of a chunk.
 
@@ -95,9 +88,7 @@ def outputs(
     :param read_only: If True, the workunit will not be set to processing.
     :param reuse_default_resource: If True, the default resource will be reused for the output files. (recommended)
     """
-    # TODO redundant with "outputs register"
-    setup_script_logging()
-    client = Bfabric.from_config()
+    # TODO redundant functionality with "outputs register"
     chunk_dir = chunk_dir.resolve()
 
     app_version, workunit_ref = load_workunit_information(
