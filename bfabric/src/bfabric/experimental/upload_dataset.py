@@ -15,8 +15,8 @@ def polars_to_bfabric_type(dtype: pl.DataType) -> str | None:
         return "Integer"
     elif str(dtype).startswith("String"):
         return "String"
-    elif str(dtype).startswith("Float"):
-        return "Float"
+    # elif str(dtype).startswith("Float"):
+    #    return "Float"
     else:
         return "String"
 
