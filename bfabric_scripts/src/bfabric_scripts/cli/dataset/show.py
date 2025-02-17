@@ -43,6 +43,7 @@ def _print_yaml(dataframe: pl.DataFrame) -> None:
 
 @use_client
 def cmd_dataset_show(dataset_id: int, format: OutputFormat = OutputFormat.TABLE, *, client: Bfabric) -> None:
+    """Show a dataset in the console."""
     dataset = Dataset.find(id=dataset_id, client=client)
     types = dataset.types
     dataframe = dataset.to_polars()

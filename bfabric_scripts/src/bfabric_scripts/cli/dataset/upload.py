@@ -38,12 +38,13 @@ class CsvParams(Params):
     """The separator to use in the CSV file."""
 
 
-cmd_dataset_upload = cyclopts.App(help="upload a dataset to B-Fabric")
+cmd_dataset_upload = cyclopts.App(help="Upload a dataset to B-Fabric.")
 
 
 @cmd_dataset_upload.command
 @use_client
 def csv(params: CsvParams, *, client: Bfabric) -> None:
+    """Upload a CSV file as a B-Fabric dataset."""
     params.separator = "," if params.separator is None else params.separator
     table = pl.read_csv(params.file, separator=params.separator, has_header=params.has_header)
     upload_table(table=table, params=params, client=client)
@@ -52,6 +53,7 @@ def csv(params: CsvParams, *, client: Bfabric) -> None:
 @cmd_dataset_upload.command
 @use_client
 def tsv(params: CsvParams, *, client: Bfabric) -> None:
+    """Upload a TSV file as a B-Fabric dataset."""
     params.separator = "\t" if params.separator is None else params.separator
     # Defer to the CSV command
     csv(params, client=client)
@@ -60,6 +62,7 @@ def tsv(params: CsvParams, *, client: Bfabric) -> None:
 @cmd_dataset_upload.command
 @use_client
 def parquet(params: Params, *, client: Bfabric) -> None:
+    """Upload a Parquet file as a B-Fabric dataset."""
     table = pl.read_parquet(params.file)
     upload_table(table=table, params=params, client=client)
 
