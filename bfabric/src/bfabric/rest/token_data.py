@@ -1,6 +1,5 @@
 from __future__ import annotations
 from datetime import datetime
-from enum import Enum
 from typing import TYPE_CHECKING
 
 import requests
@@ -8,11 +7,6 @@ from pydantic import BaseModel, Field, SecretStr
 
 if TYPE_CHECKING:
     from bfabric import BfabricClientConfig
-
-
-class Environment(Enum):
-    Test = "Test"
-    Production = "Production"
 
 
 class TokenData(BaseModel):
@@ -28,7 +22,7 @@ class TokenData(BaseModel):
     user_ws_password: SecretStr = Field(alias="userWsPassword")
 
     token_expires: datetime = Field(alias="expiryDateTime")
-    environment: Environment
+    environment: str
 
     class Config:
         populate_by_name = True
