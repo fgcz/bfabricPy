@@ -29,6 +29,7 @@ dependencies = [
     "eval_type_backport; python_version < '3.10'",
     "python-dateutil >= 2.9.0",
     "cyclopts >= 2.9.9",
+    "requests >= 2.26.0",
     #"platformdirs >= 4.3",
 ]
 

@@ -11,11 +11,14 @@ def example_config_path() -> Path:
 
 
 def test_bfabric_auth_repr() -> None:
-    assert repr(BfabricAuth(login="login", password="x" * 32)) == "BfabricAuth(login='login', password=...)"
+    assert (
+        repr(BfabricAuth(login="login", password="x" * 32))
+        == "BfabricAuth(login='login', password=SecretStr('**********'))"
+    )
 
 
 def test_bfabric_auth_str() -> None:
-    assert str(BfabricAuth(login="login", password="x" * 32)) == "BfabricAuth(login='login', password=...)"
+    assert str(BfabricAuth(login="login", password="x" * 32)) == "login='login' password=SecretStr('**********')"
 
 
 if __name__ == "__main__":
