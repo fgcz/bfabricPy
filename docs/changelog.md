@@ -13,6 +13,8 @@ Versioning currently follows `X.Y.Z` where
 ### Added
 
 - `Entity.load_yaml` and `Entity.dump_yaml`
+- `Bfabric.from_token` to create a `Bfabric` instance from a token
+- `bfabric.rest.token_data` to get token data from the REST API, low-level functionality
 
 ## \[1.13.20\] - 2025-02-10
 
