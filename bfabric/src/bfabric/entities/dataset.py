@@ -31,6 +31,11 @@ class Dataset(Entity):
             data.append(dict(zip(column_names, row_values)))
         return DataFrame(data)
 
+    @property
+    def types(self) -> dict[str, str]:
+        """Returns a dictionary mapping column names to their data types."""
+        return {x["name"]: x["type"] for x in self.data_dict["attribute"]}
+
     def write_csv(self, path: Path, separator: str = ",") -> None:
         """Writes the dataset to a csv file at `path`, using the specified column `separator`."""
         self.to_polars().write_csv(path, separator=separator)
