@@ -4,31 +4,27 @@ import importlib.metadata
 import importlib.resources
 from pathlib import Path
 
-import cyclopts
 from loguru import logger
 
 from bfabric import Bfabric
 from bfabric.experimental.entity_lookup_cache import EntityLookupCache
-from bfabric.utils.cli_integration import setup_script_logging
+from bfabric.utils.cli_integration import use_client
 from bfabric_app_runner.app_runner.resolve_app import load_workunit_information
 from bfabric_app_runner.app_runner.runner import run_app, Runner
 
-app_app = cyclopts.App("app", help="Run an app.")
 
-
-@app_app.command()
-def run(
+@use_client
+def cmd_app_run(
     app_spec: Path,
     work_dir: Path,
     workunit_ref: int | Path,
     *,
     ssh_user: str | None = None,
     read_only: bool = False,
+    client: Bfabric,
 ) -> None:
     """Runs all stages of an app."""
     # TODO doc
-    setup_script_logging()
-    client = Bfabric.from_config()
     app_version, workunit_ref = load_workunit_information(app_spec, client, work_dir, workunit_ref)
 
     copy_dev_makefile(work_dir=work_dir)
@@ -46,11 +42,13 @@ def run(
     )
 
 
-@app_app.command()
-def dispatch(
+@use_client
+def cmd_app_dispatch(
     app_spec: Path,
     work_dir: Path,
     workunit_ref: int | Path,
+    *,
+    client: Bfabric,
 ) -> None:
     """Create chunks, which can be processed individually.
 
@@ -58,10 +56,8 @@ def dispatch(
     :param work_dir: Path to the work directory.
     :param workunit_ref: Reference to the workunit (ID or YAML file path).
     """
-    setup_script_logging()
     work_dir = work_dir.resolve()
     # TODO set workunit to processing? (i.e. add read-only option here)
-    client = Bfabric.from_config()
 
     app_version, workunit_ref = load_workunit_information(app_spec, client, work_dir, workunit_ref)
 
