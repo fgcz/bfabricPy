@@ -1,12 +1,13 @@
 from enum import Enum
 from pathlib import Path
-from typing import Self
-import polars as pl
+
 import cyclopts
-from pydantic import BaseModel, model_validator
+import polars as pl
+from pydantic import BaseModel
 from rich.pretty import pprint
 
 from bfabric import Bfabric
+from bfabric.experimental.upload_dataset import check_for_invalid_characters, polars_to_bfabric_dataset
 from bfabric.utils.cli_integration import use_client
 
 
@@ -25,38 +26,53 @@ class Params(BaseModel):
     """If set, the dataset will be given this name, otherwise it will default to the file name without the extension."""
     workunit_id: int | None = None
     """Register the dataset to have been created-by a workunit."""
-
-    format: InputFormat = InputFormat.CSV
-    """The format of the input file."""
-    has_header: bool = True
-    """Whether the input file has a header (not relevant for Parquet)."""
-    separator: str = ","
-    """The separator to use in the CSV file (not relevant for Parquet)."""
-    forbidden_chars: str = ",\t"
+    forbidden_chars: str | None = ",\t"
     """Characters which are not permitted in a cell (set to empty string to deactivate)."""
 
-    @model_validator(mode="after")
-    def ensure_no_weird_parquet_options(self) -> Self:
-        if self.format != InputFormat.PARQUET:
-            return self
-        if self.has_header:
-            raise ValueError("Parquet files do not support has_header (as it makes no sense)")
 
-
-def read_data(params: Params) -> pl.DataFrame:
-    if params.format == InputFormat.CSV:
-        return pl.read_csv(params.file, separator=, has_header=params.has_header)
-
+@cyclopts.Parameter(name="*")
+class CsvParams(Params):
+    has_header: bool = True
+    """Whether the input file has a header."""
+    separator: str | None = None
+    """The separator to use in the CSV file."""
 
 
 cmd_dataset_upload = cyclopts.App(help="upload a dataset to B-Fabric")
 
-# TODO subcommands: csv, tsv, parquet (but csv and tvs are the same iwth a different default separator, tho both should allow to customize it)
 
-
+@cmd_dataset_upload.command
 @use_client
-def cmd_dataset_upload(params: Params, *, client: Bfabric) -> None:
-    # TODO this is a bit more complex:
-    #  - parquet: straightforward, just import the data, maybe check for invalid characters too
-    #  - csv: we need "has_header"/"skip_lines", "separator"
-    pprint(params)
+def csv(params: CsvParams, *, client: Bfabric) -> None:
+    params.separator = "," if params.separator is None else params.separator
+    table = pl.read_csv(params.file, separator=params.separator, has_header=params.has_header)
+    upload_table(table=table, params=params, client=client)
+
+
+@cmd_dataset_upload.command
+@use_client
+def tsv(params: CsvParams, *, client: Bfabric) -> None:
+    params.separator = "\t" if params.separator is None else params.separator
+    # Defer to the CSV command
+    csv(params, client=client)
+
+
+@cmd_dataset_upload.command
+@use_client
+def parquet(params: Params, *, client: Bfabric) -> None:
+    table = pl.read_parquet(params.file)
+    upload_table(table=table, params=params, client=client)
+
+
+def upload_table(table: pl.DataFrame, params: Params, client: Bfabric) -> None:
+    if params.forbidden_chars:
+        check_for_invalid_characters(data=table, invalid_characters=params.forbidden_chars)
+
+    obj = polars_to_bfabric_dataset(table)
+    obj["name"] = params.dataset_name or params.file.stem
+    obj["containerid"] = params.container_id
+    if params.workunit_id is not None:
+        obj["workunitid"] = params.workunit_id
+    endpoint = "dataset"
+    res = client.save(endpoint=endpoint, obj=obj)
+    pprint(res[0])
