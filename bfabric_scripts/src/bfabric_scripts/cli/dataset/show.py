@@ -1,3 +1,5 @@
+import bfabric.entities
+import inspect
 from enum import Enum
 
 import polars as pl
@@ -15,10 +17,23 @@ class OutputFormat(Enum):
     YAML = "YAML"
 
 
-def _print_table(dataframe: pl.DataFrame) -> None:
+def get_defined_entities():
+    return {name: klass for name, klass in inspect.getmembers(bfabric.entities, inspect.isclass)}
+
+
+def _print_table(dataframe: pl.DataFrame, types: dict[str, str], client: Bfabric) -> None:
     table = Table(*dataframe.columns)
+    defined_entities = get_defined_entities()
     for row in dataframe.rows():
-        table.add_row(*row)
+        out_row = []
+        for col, col_value in zip(dataframe.columns, row):
+            entity_class = defined_entities.get(types.get(col))
+            if entity_class is not None:
+                url = entity_class({"id": col_value}, client=client).web_url
+                out_row.append(f"[link={url}]{col_value}[/link]")
+            else:
+                out_row.append(col_value)
+        table.add_row(*out_row)
     rich.print(table)
 
 
@@ -29,9 +44,10 @@ def _print_yaml(dataframe: pl.DataFrame) -> None:
 @use_client
 def cmd_dataset_show(dataset_id: int, format: OutputFormat = OutputFormat.TABLE, *, client: Bfabric) -> None:
     dataset = Dataset.find(id=dataset_id, client=client)
+    types = dataset.types
     dataframe = dataset.to_polars()
 
     if format == OutputFormat.TABLE:
-        _print_table(dataframe)
+        _print_table(dataframe, types, client)
     elif format == OutputFormat.YAML:
         _print_yaml(dataframe)
