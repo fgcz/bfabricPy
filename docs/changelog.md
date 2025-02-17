@@ -16,6 +16,10 @@ Versioning currently follows `X.Y.Z` where
 - `Bfabric.from_token` to create a `Bfabric` instance from a token
 - `bfabric.rest.token_data` to get token data from the REST API, low-level functionality
 
+### Changed
+
+- Internally, the user password is now in a `pydantic.SecretStr` until we construct the API call. This should prevent some logging related accidents.
+
 ## \[1.13.20\] - 2025-02-10
 
 ### Breaking

@@ -2,6 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 import zeep
+from pydantic import SecretStr
 
 from bfabric.engine.engine_zeep import EngineZeep, _zeep_query_append_skipped
 from bfabric.errors import BfabricRequestError
@@ -15,7 +16,7 @@ def engine_zeep():
 
 @pytest.fixture
 def mock_auth():
-    return MagicMock(login="test_user", password="test_pass")
+    return MagicMock(login="test_user", password=SecretStr("test_pass"))
 
 
 @pytest.fixture

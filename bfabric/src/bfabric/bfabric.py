@@ -118,7 +118,7 @@ class Bfabric:
         """
         config, _ = get_system_auth(config_env=config_env, config_path=config_path)
         token_data = get_token_data(client_config=config, token=token)
-        auth = BfabricAuth(login=token_data.user, password=token_data.user_ws_password.get_secret_value())
+        auth = BfabricAuth(login=token_data.user, password=token_data.user_ws_password)
         return cls(config, auth, engine=engine)
 
     @property
