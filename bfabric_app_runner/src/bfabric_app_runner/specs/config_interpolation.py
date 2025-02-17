@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import re
+import secrets
 from typing import Any
 
 from loguru import logger
 from mako.template import Template
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, Field
 
 
 class VariablesApp(BaseModel):
@@ -26,6 +27,7 @@ class VariablesApp(BaseModel):
 
 class VariablesWorkunit(BaseModel):
     id: int
+    file_token: str = Field(default_factory=lambda: secrets.token_hex(32))
 
 
 class Variables(BaseModel):
