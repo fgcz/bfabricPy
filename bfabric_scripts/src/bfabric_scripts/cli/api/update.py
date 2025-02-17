@@ -1,4 +1,3 @@
-import cyclopts
 import rich
 import rich.prompt
 from cyclopts import Parameter
@@ -9,8 +8,6 @@ from rich.pretty import Pretty, pprint
 
 from bfabric import Bfabric
 from bfabric.utils.cli_integration import use_client
-
-app = cyclopts.App()
 
 
 @Parameter(name="*")
@@ -25,10 +22,9 @@ class Params(BaseModel):
     """If set, the update will be performed without asking for confirmation."""
 
 
-@app.default
 @use_client
 @logger.catch(reraise=True)
-def update(params: Params, *, client: Bfabric) -> None:
+def cmd_api_update(params: Params, *, client: Bfabric) -> None:
     """Updates an existing entity in B-Fabric."""
     attributes_dict = _sanitize_attributes(params.attributes, params.entity_id)
     if not attributes_dict:

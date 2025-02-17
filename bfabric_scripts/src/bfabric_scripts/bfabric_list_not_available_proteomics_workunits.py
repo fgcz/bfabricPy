@@ -16,7 +16,7 @@ from argparse import ArgumentParser
 
 from bfabric.utils.cli_integration import setup_script_logging
 from bfabric_scripts.cli.workunit.not_available import (
-    list_not_available_proteomics_workunits,
+    cmd_workunit_not_available,
 )
 
 
@@ -26,7 +26,7 @@ def main() -> None:
     parser = ArgumentParser(description="Lists proteomics work units that are not available on bfabric.")
     parser.add_argument("--max-age", type=int, help="Max age of work units in days", default=14)
     args = parser.parse_args()
-    list_not_available_proteomics_workunits(max_age=args.max_age)
+    cmd_workunit_not_available(max_age=args.max_age)
 
 
 if __name__ == "__main__":

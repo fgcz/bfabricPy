@@ -9,8 +9,6 @@ from rich.prompt import Confirm
 from bfabric import Bfabric
 from bfabric.utils.cli_integration import use_client
 
-app = cyclopts.App()
-
 
 @cyclopts.Parameter(name="*")
 class Params(BaseModel):
@@ -30,10 +28,9 @@ def _perform_delete(client: Bfabric, endpoint: str, id: list[int]) -> None:
     logger.info(f"Entity with ID(s) {id} deleted successfully.")
 
 
-@app.default
 @logger.catch(reraise=True)
 @use_client
-def cli_api_delete(params: Params, *, client: Bfabric) -> None:
+def cmd_api_delete(params: Params, *, client: Bfabric) -> None:
     """Deletes entities from B-Fabric by id."""
     if params.no_confirm:
         _perform_delete(client=client, endpoint=params.endpoint, id=params.id)

@@ -5,7 +5,7 @@ import pytest
 import yaml
 from bfabric import Bfabric
 from bfabric.results.result_container import ResultContainer
-from bfabric_scripts.cli.api.cli_api_read import (
+from bfabric_scripts.cli.api.read import (
     Params,
     OutputFormat,
     perform_query,
