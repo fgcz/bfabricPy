@@ -1,4 +1,7 @@
+import os
 import shutil
+from collections.abc import Generator
+from contextlib import contextmanager
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -6,6 +9,17 @@ import nox
 
 # TODO check the problem
 nox.options.default_venv_backend = "uv"
+
+
+@contextmanager
+def chdir(path: Path) -> Generator[None, None, None]:
+    """Context manager to change directory."""
+    cwd = Path.cwd()
+    os.chdir(path)
+    try:
+        yield
+    finally:
+        os.chdir(cwd)
 
 
 @nox.session(python=["3.9", "3.11", "3.13"])
@@ -46,7 +60,8 @@ def docs(session):
     """Builds documentation for bfabricPy and app-runner and writes to site directory."""
     with TemporaryDirectory() as tmpdir:
         session.install("./bfabric[doc]")
-        session.run("mkdocs", "build", "-d", Path(tmpdir) / "build_bfabricpy")
+        with chdir("bfabric"):
+            session.run("mkdocs", "build", "-d", Path(tmpdir) / "build_bfabricpy")
 
         session.install("./bfabric_app_runner[doc]")
         session.run(
