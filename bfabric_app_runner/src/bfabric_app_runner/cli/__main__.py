@@ -16,7 +16,6 @@ from bfabric_app_runner.cli.validate import (
 )
 
 package_version = importlib.metadata.version("bfabric_app_runner")
-
 app = cyclopts.App(
     help="Provides an entrypoint to app execution.\n\nFunctionality/API under active development!",
     version=package_version,
