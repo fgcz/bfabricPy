@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.23\] - 2025-02-19
+
 ### Added
 
 - `bfabric-cli dataset {upload, download, show}` to replace the old dataset-related scripts.
