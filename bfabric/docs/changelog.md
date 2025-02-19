@@ -8,6 +8,18 @@ Versioning currently follows `X.Y.Z` where
 - `Y` should be the current bfabric release
 - `Z` is increased for feature releases, that should not break the API
 
+## \[Unreleased\]
+
+## \[1.13.22\] - 2025-02-19
+
+### Fixed
+
+- Correctly read datasets, if columns were swapped in B-Fabric.
+
+### Changed
+
+- `Dataset.types` was renamed to `Dataset.column_types`, since there is only 1 usage and it is recent, this is not considered breaking.
+
 ## \[1.13.21\] - 2025-02-19
 
 ### Added
