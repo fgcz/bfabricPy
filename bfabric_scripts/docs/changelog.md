@@ -10,6 +10,12 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.24\] - 2025-02-19
+
+### Fixed
+
+- Update `bfabric` to 1.13.22 for dataset fix.
+
 ## \[1.13.23\] - 2025-02-19
 
 ### Added
