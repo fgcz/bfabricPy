@@ -11,6 +11,9 @@ dependencies = [
     "bfabric==1.13.20"
 ]
 
+[project.optional-dependencies]
+test = ["pytest", "pytest-mock", "logot[pytest,loguru]"]
+
 [project.scripts]
 "bfabric_flask.py" = "bfabric_scripts.bfabric_flask:main"
 #bfabric_feeder_resource_autoQC="bfabric_scripts.bfabric_feeder_resource_autoQC:main"

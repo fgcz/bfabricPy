@@ -23,17 +23,24 @@ def chdir(path: Path) -> Generator[None, None, None]:
 
 
 @nox.session(python=["3.9", "3.11", "3.13"])
-def tests(session):
-    session.install("./bfabric[test]", "-e", "./bfabric_scripts")
+def test_bfabric(session):
+    session.install("./bfabric[test]")
     session.run("uv", "pip", "list")
-    packages = ["tests/bfabric", "tests/bfabric_scripts"]
+    session.run("pytest", "--durations=50", "tests/bfabric")
+
+
+@nox.session(python=["3.9", "3.11", "3.13"])
+def test_bfabric_scripts(session):
+    session.install("-e", "./bfabric_scripts[test]")
+    session.run("uv", "pip", "list")
+    packages = ["tests/bfabric_scripts"]
     if session.python.split(".")[0] == "3" and int(session.python.split(".")[1]) >= 11:
         packages.append("tests/bfabric_cli")
     session.run("pytest", "--durations=50", *packages)
 
 
 @nox.session(python=["3.13"])
-def test_app_runner(session):
+def test_bfabric_app_runner(session):
     session.install("-e", "./bfabric")
     session.install("./bfabric_app_runner[test]")
     session.run("uv", "pip", "list")
