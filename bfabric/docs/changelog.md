@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.22\] - 2025-02-19
+
 ### Fixed
 
 - Correctly read datasets, if columns were swapped in B-Fabric.
