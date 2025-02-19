@@ -8,7 +8,7 @@ Versioning currently follows `X.Y.Z` where
 - `Y` should be the current bfabric release
 - `Z` is increased for feature releases, that should not break the API
 
-## \[Unreleased\]
+## \[1.13.21\] - 2025-02-19
 
 ### Added
 
