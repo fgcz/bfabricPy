@@ -18,6 +18,7 @@ def cmd_app_run(
     workunit_ref: int | Path,
     *,
     ssh_user: str | None = None,
+    force_storage: Path | None = None,
     read_only: bool = False,
     client: Bfabric,
 ) -> None:
@@ -37,6 +38,7 @@ def cmd_app_run(
         client=client,
         ssh_user=ssh_user,
         read_only=read_only,
+        force_storage=force_storage,
     )
 
 
