@@ -1,5 +1,7 @@
 import os
+import re
 import shutil
+import tomllib
 from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
@@ -110,3 +112,52 @@ def licensecheck(session) -> None:
     # TODO is there a better way
     session.install("licensecheck")
     session.run("sh", "-c", "cd bfabric && licensecheck")
+
+
+def verify_changelog_version(session: nox.Session, package_dir: str) -> None:
+    """
+    Verify that the changelog contains an entry for the current version.
+
+    Args:
+        session: The nox session
+        package_dir: The package directory to check (e.g., 'bfabric', 'bfabric_scripts')
+
+    Raises:
+        nox.CommandFailed: If the changelog doesn't contain the current version
+    """
+    package_path = Path(package_dir)
+
+    # Read version from pyproject.toml
+    try:
+        with open(package_path / "pyproject.toml", "rb") as f:
+            pyproject = tomllib.load(f)
+            current_version = pyproject["project"]["version"]
+    except (FileNotFoundError, KeyError) as e:
+        session.error(f"Failed to read version from pyproject.toml: {e}")
+
+    # Read and check changelog
+    changelog_path = package_path / "docs" / "changelog.md"
+    try:
+        changelog_content = changelog_path.read_text()
+    except FileNotFoundError:
+        session.error(f"Changelog not found at {changelog_path}")
+
+    # Look for version header with escaped brackets
+    version_pattern = rf"## \\\[{re.escape(current_version)}\\\]"
+    if not re.search(version_pattern, changelog_content):
+        session.error(
+            f"{changelog_path} does not contain entry for version {current_version}.\n"
+            f"Expected to find a section starting with: ## \\[{current_version}\\]"
+        )
+
+    session.log(f"✓ {changelog_path} contains entry for version {current_version}")
+
+
+@nox.session
+def check_changelog(session: nox.Session):
+    """Check that changelog contains current version for all packages being released."""
+    # List of packages to check - could be made configurable
+    packages = ["bfabric", "bfabric_scripts", "bfabric_app_runner"]
+
+    for package in packages:
+        verify_changelog_version(session, package)
