@@ -15,12 +15,27 @@ def mock_data_dict() -> dict[str, Any]:
     return {
         "id": 1234,
         "attribute": [
-            {"name": "Color"},
-            {"name": "Shape"},
+            {"name": "Color", "position": "1"},
+            {"name": "Shape", "position": "2"},
         ],
         "item": [
-            {"field": [{"value": "Red"}, {"value": "Square"}]},
-            {"field": [{"value": "Blue"}, {"value": "Circle"}]},
+            {"field": [{"value": "Red", "attributeposition": "1"}, {"value": "Square", "attributeposition": "2"}]},
+            {"field": [{"value": "Blue", "attributeposition": "1"}, {"value": "Circle", "attributeposition": "2"}]},
+        ],
+    }
+
+
+@pytest.fixture()
+def mock_data_dict_rearranged() -> dict[str, Any]:
+    return {
+        "id": 1234,
+        "attribute": [
+            {"name": "Color", "position": "1"},
+            {"name": "Shape", "position": "2"},
+        ],
+        "item": [
+            {"field": [{"value": "Square", "attributeposition": "2"}, {"value": "Red", "attributeposition": "1"}]},
+            {"field": [{"value": "Circle", "attributeposition": "2"}, {"value": "Blue", "attributeposition": "1"}]},
         ],
     }
 
@@ -45,7 +60,10 @@ def test_data_dict(mock_dataset: Dataset, mock_data_dict: dict[str, Any]) -> Non
     assert mock_dataset.data_dict is not mock_data_dict
 
 
-def test_to_polars(mock_dataset: Dataset) -> None:
+@pytest.mark.parametrize("rearranged_data_dict", [True, False])
+def test_to_polars(request, rearranged_data_dict: bool) -> None:
+    data_dict = request.getfixturevalue("mock_data_dict_rearranged" if rearranged_data_dict else "mock_data_dict")
+    mock_dataset = Dataset(data_dict, client=None)
     df = mock_dataset.to_polars()
     pl.testing.assert_frame_equal(
         df,
