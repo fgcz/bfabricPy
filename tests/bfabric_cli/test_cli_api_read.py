@@ -5,11 +5,11 @@ import pytest
 import yaml
 from bfabric import Bfabric
 from bfabric.results.result_container import ResultContainer
-from bfabric_scripts.cli.api.cli_api_read import (
+from bfabric_scripts.cli.api.read import (
     Params,
     OutputFormat,
     perform_query,
-    read,
+    cmd_api_read,
     render_output,
     _determine_output_columns,
 )
@@ -39,14 +39,14 @@ def sample_results():
 class TestPerformQuery:
     def test_perform_query_basic(self, mock_client, mock_console):
         # Arrange
-        params = Params(endpoint="resource", query=[("status", "active")], columns=["id", "name"], limit=10)
+        params = Params(endpoint="resource", query=[("status", "active")])
         mock_client.read.return_value = ResultContainer([{"id": 1, "name": "Test"}])
 
         # Act
         results = perform_query(params, mock_client, mock_console)
 
         # Assert
-        mock_client.read.assert_called_once_with(endpoint="resource", obj={"status": "active"}, max_results=10)
+        mock_client.read.assert_called_once_with(endpoint="resource", obj={"status": "active"}, max_results=100)
         assert len(results) == 1
         assert results[0]["id"] == 1
 
@@ -95,7 +95,7 @@ class TestRenderOutput:
     def test_render_tsv_output(self, sample_results, mocker):
         # Arrange
         params = Params(endpoint="resource", columns=["id", "name"], format=OutputFormat.TSV)
-        mock_flatten = mocker.patch("bfabric_scripts.cli.api.cli_api_read.flatten_relations")
+        mock_flatten = mocker.patch("bfabric_scripts.cli.api.read.flatten_relations")
         mock_df = mocker.Mock()
         mock_flatten.return_value = mock_df
 
@@ -148,7 +148,7 @@ class TestDetermineOutputColumns:
 class TestReadFunction:
     def test_read_json_output(self, mock_client, mock_console, sample_results, mocker):
         # Arrange
-        mock_perform_query = mocker.patch("bfabric_scripts.cli.api.cli_api_read.perform_query")
+        mock_perform_query = mocker.patch("bfabric_scripts.cli.api.read.perform_query")
         mock_perform_query.return_value = sample_results
 
         params = Params(
@@ -156,7 +156,7 @@ class TestReadFunction:
         )
 
         # Act
-        result = read(params, client=mock_client)
+        result = cmd_api_read(params, client=mock_client)
 
         # Assert
         mock_perform_query.assert_called_once_with(params=params, client=mock_client, console_user=mocker.ANY)
@@ -165,7 +165,7 @@ class TestReadFunction:
     def test_read_with_file_output(self, mock_client, mock_console, sample_results, mocker, tmp_path):
         # Arrange
         output_file = tmp_path / "test_output.json"
-        mock_perform_query = mocker.patch("bfabric_scripts.cli.api.cli_api_read.perform_query")
+        mock_perform_query = mocker.patch("bfabric_scripts.cli.api.read.perform_query")
         mock_perform_query.return_value = sample_results
 
         params = Params(
@@ -177,7 +177,7 @@ class TestReadFunction:
         )
 
         # Act
-        result = read(params, client=mock_client)
+        result = cmd_api_read(params, client=mock_client)
 
         # Assert
         assert result is None
@@ -189,9 +189,9 @@ class TestReadFunction:
 
     def test_read_with_tsv_format(self, mock_client, mock_console, sample_results, mocker):
         # Arrange
-        mock_perform_query = mocker.patch("bfabric_scripts.cli.api.cli_api_read.perform_query")
+        mock_perform_query = mocker.patch("bfabric_scripts.cli.api.read.perform_query")
         mock_perform_query.return_value = sample_results
-        mock_flatten = mocker.patch("bfabric_scripts.cli.api.cli_api_read.flatten_relations")
+        mock_flatten = mocker.patch("bfabric_scripts.cli.api.read.flatten_relations")
         mock_df = mocker.Mock()
         mock_df.write_csv.return_value = "mocked,csv,content"
         mock_flatten.return_value = mock_df
@@ -201,7 +201,7 @@ class TestReadFunction:
         )
 
         # Act
-        result = read(params, client=mock_client)
+        result = cmd_api_read(params, client=mock_client)
 
         # Assert
         mock_perform_query.assert_called_once()
@@ -211,7 +211,7 @@ class TestReadFunction:
 
     def test_read_with_invalid_file_output(self, mock_client, mock_console, sample_results, mocker):
         # Arrange
-        mock_perform_query = mocker.patch("bfabric_scripts.cli.api.cli_api_read.perform_query")
+        mock_perform_query = mocker.patch("bfabric_scripts.cli.api.read.perform_query")
         mock_perform_query.return_value = sample_results
 
         # Using TABLE_RICH format which doesn't support file output
@@ -224,7 +224,7 @@ class TestReadFunction:
         )
 
         # Act
-        result = read(params, client=mock_client)
+        result = cmd_api_read(params, client=mock_client)
 
         # Assert
         assert result == 1  # Should return error code 1

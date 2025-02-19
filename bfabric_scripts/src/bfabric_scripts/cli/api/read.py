@@ -8,16 +8,15 @@ import cyclopts
 import polars as pl
 import pydantic
 import yaml
-from bfabric import Bfabric, BfabricClientConfig
-from bfabric.utils.polars_utils import flatten_relations
-from bfabric.utils.cli_integration import use_client
 from loguru import logger
 from pydantic import BaseModel
 from rich.console import Console
 from rich.syntax import Syntax
 from rich.table import Table
 
-app = cyclopts.App()
+from bfabric import Bfabric, BfabricClientConfig
+from bfabric.utils.cli_integration import use_client
+from bfabric.utils.polars_utils import flatten_relations
 
 
 class OutputFormat(Enum):
@@ -36,7 +35,7 @@ class Params(BaseModel):
     """Output format."""
     limit: int = 100
     """Maximum number of results."""
-    columns: list[str]
+    columns: list[str] = []
     """Selection of columns to return, comma separated list."""
     cli_max_columns: int | None = 7
     """When showing the results as a table in the console (table-rich), the maximum number of columns to show."""
@@ -90,20 +89,23 @@ def render_output(results: list[dict[str, Any]], params: Params, client: Bfabric
             results = [{k: x.get(k) for k in params.columns} for x in results]
 
         if params.format == OutputFormat.JSON:
-            return json.dumps(results, indent=2)
+            result = json.dumps(results, indent=2)
         elif params.format == OutputFormat.YAML:
-            return yaml.dump(results)
+            result = yaml.dump(results)
         elif params.format == OutputFormat.TSV:
-            return flatten_relations(pl.DataFrame(results)).write_csv(separator="\t")
+            result = flatten_relations(pl.DataFrame(results)).write_csv(separator="\t")
         else:
             raise ValueError(f"output format {params.format} not supported")
 
+        # TODO check if we can add back colors (but it broke some stuff, because of forced line breaks, so be careful)
+        print(result)
+        return result
 
-@app.default
+
 @use_client
-@logger.catch()
-def read(params: Annotated[Params, cyclopts.Parameter(name="*")], *, client: Bfabric) -> None | int:
-    """Reads one type of entity from B-Fabric."""
+@logger.catch(reraise=True)
+def cmd_api_read(params: Annotated[Params, cyclopts.Parameter(name="*")], *, client: Bfabric) -> None | int:
+    """Reads entities from B-Fabric."""
     console_user = Console(stderr=True)
     console_user.print(params)
 
@@ -114,11 +116,6 @@ def read(params: Annotated[Params, cyclopts.Parameter(name="*")], *, client: Bfa
     results = sorted(results, key=lambda x: x["id"])
     console_out = Console()
     output = render_output(results, params=params, client=client, console=console_out)
-    if output is not None:
-        if params.format == OutputFormat.TSV:
-            print(output)
-        else:
-            console_out.print(output)
     if params.file:
         if output is None:
             logger.error("File output is not supported for the specified output format.")

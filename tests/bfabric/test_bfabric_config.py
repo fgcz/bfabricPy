@@ -22,7 +22,7 @@ def test_read_yml_bypath_all_fields(example_config_path: Path) -> None:
     job_notification_emails_ground_truth = "john.snow@fgcz.uzh.ch billy.the.kid@fgcz.ethz.ch"
 
     assert auth.login == "my_epic_test_login"
-    assert auth.password == "012345678901234567890123456789ff"
+    assert auth.password.get_secret_value() == "012345678901234567890123456789ff"
     assert config.base_url == "https://mega-test-server.uzh.ch/mytest"
     assert config.application_ids == applications_dict_ground_truth
     assert config.job_notification_emails == job_notification_emails_ground_truth

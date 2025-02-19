@@ -1,4 +1,7 @@
+import os
 import shutil
+from collections.abc import Generator
+from contextlib import contextmanager
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -8,18 +11,36 @@ import nox
 nox.options.default_venv_backend = "uv"
 
 
+@contextmanager
+def chdir(path: Path) -> Generator[None, None, None]:
+    """Context manager to change directory."""
+    cwd = Path.cwd()
+    os.chdir(path)
+    try:
+        yield
+    finally:
+        os.chdir(cwd)
+
+
 @nox.session(python=["3.9", "3.11", "3.13"])
-def tests(session):
-    session.install("./bfabric[test]", "-e", "./bfabric_scripts")
+def test_bfabric(session):
+    session.install("./bfabric[test]")
     session.run("uv", "pip", "list")
-    packages = ["tests/bfabric", "tests/bfabric_scripts"]
+    session.run("pytest", "--durations=50", "tests/bfabric")
+
+
+@nox.session(python=["3.9", "3.11", "3.13"])
+def test_bfabric_scripts(session):
+    session.install("-e", "./bfabric_scripts[test]")
+    session.run("uv", "pip", "list")
+    packages = ["tests/bfabric_scripts"]
     if session.python.split(".")[0] == "3" and int(session.python.split(".")[1]) >= 11:
         packages.append("tests/bfabric_cli")
     session.run("pytest", "--durations=50", *packages)
 
 
 @nox.session(python=["3.13"])
-def test_app_runner(session):
+def test_bfabric_app_runner(session):
     session.install("-e", "./bfabric")
     session.install("./bfabric_app_runner[test]")
     session.run("uv", "pip", "list")
@@ -46,7 +67,8 @@ def docs(session):
     """Builds documentation for bfabricPy and app-runner and writes to site directory."""
     with TemporaryDirectory() as tmpdir:
         session.install("./bfabric[doc]")
-        session.run("mkdocs", "build", "-d", Path(tmpdir) / "build_bfabricpy")
+        with chdir("bfabric"):
+            session.run("mkdocs", "build", "-d", Path(tmpdir) / "build_bfabricpy")
 
         session.install("./bfabric_app_runner[doc]")
         session.run(

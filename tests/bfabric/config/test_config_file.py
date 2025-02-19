@@ -54,7 +54,7 @@ def test_environment_config_when_auth(data_with_auth):
     config = EnvironmentConfig.model_validate(data_with_auth["PRODUCTION"])
     assert config.config.base_url == "https://example.com/"
     assert config.auth.login == "test-dummy"
-    assert config.auth.password == "00000000001111111111222222222233"
+    assert config.auth.password.get_secret_value() == "00000000001111111111222222222233"
 
 
 def test_environment_config_when_no_auth(data_no_auth):
@@ -69,7 +69,7 @@ def test_config_file_when_auth(data_with_auth):
     assert len(config.environments) == 1
     assert config.environments["PRODUCTION"].config.base_url == "https://example.com/"
     assert config.environments["PRODUCTION"].auth.login == "test-dummy"
-    assert config.environments["PRODUCTION"].auth.password == "00000000001111111111222222222233"
+    assert config.environments["PRODUCTION"].auth.password.get_secret_value() == "00000000001111111111222222222233"
 
 
 def test_config_file_when_no_auth(data_no_auth):
@@ -88,7 +88,7 @@ def test_config_file_when_multiple(data_multiple):
     assert config.environments["PRODUCTION"].auth is None
     assert config.environments["TEST"].config.base_url == "https://test.example.com/"
     assert config.environments["TEST"].auth.login == "test-dummy"
-    assert config.environments["TEST"].auth.password == "00000000001111111111222222222233"
+    assert config.environments["TEST"].auth.password.get_secret_value() == "00000000001111111111222222222233"
 
 
 def test_config_file_when_non_existent_default(data_no_auth):
