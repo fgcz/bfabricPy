@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import base64
 import importlib.metadata
-import sys
 from contextlib import contextmanager
 from datetime import datetime
 from enum import Enum
@@ -24,16 +23,18 @@ from pathlib import Path
 from pprint import pprint
 from typing import Literal, Any, TYPE_CHECKING
 
+import sys
 from loguru import logger
 from rich.console import Console
 
 from bfabric.bfabric_config import read_config
-from bfabric.cli_formatting import HostnameHighlighter, DEFAULT_THEME
 from bfabric.config import BfabricAuth
 from bfabric.config import BfabricClientConfig
 from bfabric.engine.engine_suds import EngineSUDS
 from bfabric.engine.engine_zeep import EngineZeep
+from bfabric.rest.token_data import get_token_data
 from bfabric.results.result_container import ResultContainer
+from bfabric.utils.cli_integration import DEFAULT_THEME, HostnameHighlighter
 from bfabric.utils.paginator import compute_requested_pages, BFABRIC_QUERY_LIMIT
 
 if TYPE_CHECKING:
@@ -93,11 +94,32 @@ class Bfabric:
         :param config_path: Path to the config file, in case it is different from default
         :param auth: Authentication to use. If "config" is given, the authentication will be read from the config file.
             If it is set to None, no authentication will be used.
-        :param engine: Engine to use for the API. Default is SUDS.
+        :param engine: Engine to use for the API.
         """
         config, auth_config = get_system_auth(config_env=config_env, config_path=config_path)
         auth_used: BfabricAuth | None = auth_config if auth == "config" else auth
         return cls(config, auth_used, engine=engine)
+
+    @classmethod
+    def from_token(
+        cls,
+        token: str,
+        config_env: str | None = None,
+        config_path: str | None = None,
+        engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS,
+    ) -> Bfabric:
+        """Returns a new Bfabric instance, configured with the user configuration file and the provided token.
+        Any authentication in the configuration file will be ignored, but it will be used to determine the correct
+        B-Fabric instance.
+        :param token: the token to use for authentication
+        :param config_env: the config environment to use (if not specified, see `from_config`)
+        :param config_path: the path to the config file (if not specified, see `from_config`)
+        :param engine: the engine to use for the API.
+        """
+        config, _ = get_system_auth(config_env=config_env, config_path=config_path)
+        token_data = get_token_data(client_config=config, token=token)
+        auth = BfabricAuth(login=token_data.user, password=token_data.user_ws_password)
+        return cls(config, auth, engine=engine)
 
     @property
     def config(self) -> BfabricClientConfig:

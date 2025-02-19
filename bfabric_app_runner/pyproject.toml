@@ -5,17 +5,24 @@ build-backend = "hatchling.build"
 [project]
 name = "bfabric_app_runner"
 description = "Application runner for B-Fabric apps"
-version = "0.0.15"
+version = "0.0.16"
 license = { text = "GPL-3.0" }
 authors = [
     {name = "Leonardo Schwarz", email = "leonardo.schwarz@fgcz.ethz.ch"},
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "bfabric==1.13.19",
+    "bfabric==1.13.21",
     "pydantic",
     "glom",
     "mako",
+]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/bfabric_app_runner/**/*.py",
+    "src/bfabric_app_runner/py.typed",
+    "src/bfabric_app_runner/resources/*.mk"
 ]
 
 [project.scripts]
@@ -63,3 +70,4 @@ classmethod-decorators = [
 [tool.ruff.lint.per-file-ignores]
 # This is needed because of false positives in cyclopts code
 "**/bfabric_app_runner/cli/**" = ["TCH001", "TCH002", "TCH003"]
+"**/bfabric_app_runner/specs/**" = ["TCH001", "TCH002", "TCH003"]

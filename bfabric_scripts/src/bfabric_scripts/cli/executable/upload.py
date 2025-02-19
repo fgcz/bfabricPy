@@ -6,11 +6,11 @@ from rich.console import Console
 
 from bfabric import Bfabric
 from bfabric.entities import Executable
-from bfabric_scripts.cli.base import use_client
+from bfabric.utils.cli_integration import use_client
 
 
 @use_client
-def upload_executable(executable_yaml: Path, *, upload: Path | None = None, client: Bfabric) -> None:
+def cmd_executable_upload(executable_yaml: Path, *, upload: Path | None = None, client: Bfabric) -> None:
     """Uploads an executable defined in the specified YAML to bfabric.
 
     :param executable_yaml: Path to the YAML file containing the executable data.

@@ -2,8 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import yaml
 from loguru import logger
 
+from bfabric.entities import Resource
+from bfabric.entities import Storage, Workunit
+from bfabric.experimental.upload_dataset import bfabric_save_csv2dataset
 from bfabric_app_runner.specs.outputs_spec import (
     CopyResourceSpec,
     UpdateExisting,
@@ -13,9 +17,6 @@ from bfabric_app_runner.specs.outputs_spec import (
 )
 from bfabric_app_runner.util.checksums import md5sum
 from bfabric_app_runner.util.scp import scp
-from bfabric.entities import Resource
-from bfabric.entities import Storage, Workunit
-from bfabric.experimental.upload_dataset import bfabric_save_csv2dataset
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -129,13 +130,17 @@ def register_all(
     specs_list: list[SpecType],
     ssh_user: str | None,
     reuse_default_resource: bool,
+    force_storage: Path | None,
 ) -> None:
     """Registers all the output specs to the workunit."""
     default_resource_was_reused = not reuse_default_resource
+
+    storage = _get_storage(client, force_storage, specs_list, workunit_definition)
+    logger.info(f"Using storage: {storage}")
+
     for spec in specs_list:
         logger.debug(f"Registering {spec}")
         if isinstance(spec, CopyResourceSpec):
-            storage = Storage.find(workunit_definition.registration.storage_id, client=client)
             copy_file_to_storage(
                 spec,
                 workunit_definition=workunit_definition,
@@ -159,12 +164,26 @@ def register_all(
             raise ValueError(f"Unknown spec type: {type(spec)}")
 
 
+def _get_storage(
+    client: Bfabric, force_storage: Path | None, specs_list: list[SpecType], workunit_definition: WorkunitDefinition
+) -> Storage | None:
+    if any(isinstance(spec, CopyResourceSpec) for spec in specs_list):
+        if force_storage is None:
+            return Storage.find(workunit_definition.registration.storage_id, client=client)
+        else:
+            return Storage(yaml.safe_load(force_storage.read_text()), client=client)
+            # TODO replace this later (to avoid versioning issues, i hardcode the above)
+            # return Storage.load_yaml(force_storage, client=client)
+    return None
+
+
 def register_outputs(
     outputs_yaml: Path,
     workunit_definition: WorkunitDefinition,
     client: Bfabric,
     ssh_user: str | None,
     reuse_default_resource: bool,
+    force_storage: Path | None,
 ) -> None:
     """Registers outputs to the workunit."""
     specs_list = OutputsSpec.read_yaml(outputs_yaml)
@@ -174,4 +193,5 @@ def register_outputs(
         specs_list=specs_list,
         ssh_user=ssh_user,
         reuse_default_resource=reuse_default_resource,
+        force_storage=force_storage,
     )

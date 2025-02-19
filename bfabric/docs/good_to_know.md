@@ -45,7 +45,7 @@ Alternatively, you can set the environment variable `LOGURU_LEVEL`, e.g. `LOGURU
 Generally, to achieve a consistent output in our scripts, we initialize the logger by the following function:
 
 ```python
-from bfabric.cli_formatting import setup_script_logging
+from bfabric.utils.cli_integration import setup_script_logging
 
 setup_script_logging()
 ```

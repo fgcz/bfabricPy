@@ -49,7 +49,7 @@ class EngineSUDS:
         full_query = dict(
             login=auth.login,
             page=page,
-            password=auth.password,
+            password=auth.password.get_secret_value(),
             query=query,
             idonly=return_id_only,
         )
@@ -65,7 +65,7 @@ class EngineSUDS:
         :param method: the method to use for saving, generally "save", but in some cases e.g. "checkandinsert" is more
             appropriate to be used instead.
         """
-        query = {"login": auth.login, "password": auth.password, endpoint: obj}
+        query = {"login": auth.login, "password": auth.password.get_secret_value(), endpoint: obj}
         service = self._get_suds_service(endpoint)
         try:
             response = getattr(service, method)(query)
@@ -84,7 +84,7 @@ class EngineSUDS:
             # TODO maybe use error here (and make sure it's consistent)
             return ResultContainer([], total_pages_api=0)
 
-        query = {"login": auth.login, "password": auth.password, "id": id}
+        query = {"login": auth.login, "password": auth.password.get_secret_value(), "id": id}
         service = self._get_suds_service(endpoint)
         response = service.delete(query)
         return self._convert_results(response=response, endpoint=endpoint)

@@ -33,7 +33,7 @@ import argparse
 from pathlib import Path
 
 from bfabric import Bfabric
-from bfabric_scripts.cli.base import use_client
+from bfabric.utils.cli_integration import use_client
 from bfabric.experimental.upload_dataset import bfabric_save_csv2dataset
 
 

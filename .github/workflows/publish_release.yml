@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
-      contents: write # permission to create tags
+      contents: write # permission to create tags and releases
     steps:
       - uses: actions/checkout@v4
       # Step: Determine the package that is being built
@@ -58,7 +58,7 @@ jobs:
           echo "Target PyPI repository: ${{ env.PYPI_REPOSITORY_URL }}"
       # Step: Build the package
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - name: Install hatch
@@ -86,6 +86,48 @@ jobs:
           TAG_NAME="${{ env.PACKAGE }}/${{ env.VERSION }}"
           git tag -a "$TAG_NAME" -m "Release ${{ env.PACKAGE }} version ${{ env.VERSION }}"
           git push origin "$TAG_NAME"
+      - name: Extract changelog and create release
+        run: |
+          set -x
+          CHANGELOG_PATH="${{ env.PACKAGE }}/docs/changelog.md"
+          TAG_NAME="${{ env.PACKAGE }}/${{ env.VERSION }}"
+
+          if [ -f "$CHANGELOG_PATH" ]; then
+            # Extract the changelog section for the current version
+            # This assumes the changelog follows the keep-a-changelog format
+            CHANGELOG_CONTENT=$(awk -v ver="${{ env.VERSION }}" '
+            BEGIN { found=0; }
+            $0 ~ "^## \\\\[" ver "\\\\]" { found=1; next }
+            found && $0 ~ "^## \\\\[" { exit }
+            found { print }
+            ' "$CHANGELOG_PATH")
+
+            if [ -n "$CHANGELOG_CONTENT" ]; then
+              # Create GitHub release
+              gh release create "$TAG_NAME" \
+                --title "Release ${{ env.PACKAGE }} ${{ env.VERSION }}" \
+                --notes "$CHANGELOG_CONTENT" \
+                --target ${{ github.sha }} \
+                --draft
+            else
+              # Create release with basic notes if no changelog section is found
+              gh release create "$TAG_NAME" \
+                --title "Release ${{ env.PACKAGE }} ${{ env.VERSION }}" \
+                --notes "Release of ${{ env.PACKAGE }} version ${{ env.VERSION }}" \
+                --target ${{ github.sha }} \
+                --draft
+            fi
+          else
+            echo "Warning: Changelog file not found at $CHANGELOG_PATH"
+            # Create release with basic notes
+            gh release create "$TAG_NAME" \
+              --title "Release ${{ env.PACKAGE }} ${{ env.VERSION }}" \
+              --notes "Release of ${{ env.PACKAGE }} version ${{ env.VERSION }}" \
+              --target ${{ github.sha }} \
+              --draft
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Debug package info
         run: |
           echo "Built and published package: ${{ env.PACKAGE }}"

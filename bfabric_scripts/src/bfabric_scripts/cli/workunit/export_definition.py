@@ -4,11 +4,11 @@ import yaml
 
 from bfabric import Bfabric
 from bfabric.experimental.workunit_definition import WorkunitDefinition
-from bfabric_scripts.cli.base import use_client
+from bfabric.utils.cli_integration import use_client
 
 
 @use_client
-def export_definition(workunit_id: int, target_path: Path | None = None, *, client: Bfabric) -> None:
+def cmd_workunit_export_definition(workunit_id: int, target_path: Path | None = None, *, client: Bfabric) -> None:
     """Exports a workunit_definition.yml file for the specified workunit.
 
     :param workunit_id: the workunit ID

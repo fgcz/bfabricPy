@@ -4,7 +4,7 @@ from rich.pretty import pprint
 
 from bfabric import Bfabric
 from bfabric.entities import Executable, Storage
-from bfabric_scripts.cli.base import use_client
+from bfabric.utils.cli_integration import use_client
 
 
 def get_storage_info(storage_id: int | None, client: Bfabric) -> dict[str, str | int] | None:
@@ -15,7 +15,8 @@ def get_storage_info(storage_id: int | None, client: Bfabric) -> dict[str, str |
 
 
 @use_client
-def inspect_executable(executable_id: int, *, client: Bfabric) -> None:
+def cmd_executable_show(executable_id: int, *, client: Bfabric) -> None:
+    """Show metadata and encoded program for an executable."""
     console = Console()
     executable = Executable.find(executable_id, client=client)
     metadata = {key: executable.get(key) for key in ("id", "name", "description", "relativepath", "context", "program")}

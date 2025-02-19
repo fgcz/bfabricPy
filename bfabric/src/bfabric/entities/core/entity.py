@@ -2,12 +2,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import yaml
 from loguru import logger
 
 from bfabric.experimental import MultiQuery
 from bfabric.experimental.entity_lookup_cache import EntityLookupCache
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from collections.abc import Iterable
     from bfabric import Bfabric
     from typing import Any, Self
@@ -80,6 +82,18 @@ class Entity:
         """Returns a dictionary of entities that match the given query."""
         result = client.read(cls.ENDPOINT, obj=obj, max_results=max_results)
         return {x["id"]: cls(x, client=client) for x in result}
+
+    def dump_yaml(self, path: Path) -> None:
+        """Writes the entity's data dictionary to a YAML file."""
+        with path.open("w") as file:
+            yaml.safe_dump(self.__data_dict, file)
+
+    @classmethod
+    def load_yaml(cls, path: Path, client: Bfabric | None) -> Self:
+        """Loads an entity from a YAML file."""
+        with path.open("r") as file:
+            data = yaml.safe_load(file)
+        return cls(data, client=client)
 
     def __contains__(self, key: str) -> Any:
         """Checks if a key is present in the data dictionary."""
