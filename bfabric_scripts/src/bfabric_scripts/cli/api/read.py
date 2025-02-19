@@ -8,16 +8,15 @@ import cyclopts
 import polars as pl
 import pydantic
 import yaml
-from bfabric import Bfabric, BfabricClientConfig
-from bfabric.utils.polars_utils import flatten_relations
-from bfabric.utils.cli_integration import use_client
 from loguru import logger
 from pydantic import BaseModel
 from rich.console import Console
 from rich.syntax import Syntax
 from rich.table import Table
 
-app = cyclopts.App()
+from bfabric import Bfabric, BfabricClientConfig
+from bfabric.utils.cli_integration import use_client
+from bfabric.utils.polars_utils import flatten_relations
 
 
 class OutputFormat(Enum):
@@ -103,11 +102,10 @@ def render_output(results: list[dict[str, Any]], params: Params, client: Bfabric
         return result
 
 
-@app.default
 @use_client
-@logger.catch()
-def read(params: Annotated[Params, cyclopts.Parameter(name="*")], *, client: Bfabric) -> None | int:
-    """Reads one type of entity from B-Fabric."""
+@logger.catch(reraise=True)
+def cmd_api_read(params: Annotated[Params, cyclopts.Parameter(name="*")], *, client: Bfabric) -> None | int:
+    """Reads entities from B-Fabric."""
     console_user = Console(stderr=True)
     console_user.print(params)
 

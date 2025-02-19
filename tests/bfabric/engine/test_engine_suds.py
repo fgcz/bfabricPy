@@ -1,6 +1,7 @@
 from unittest.mock import MagicMock
 
 import pytest
+from pydantic import SecretStr
 from suds import MethodNotFound
 from suds.client import Client
 
@@ -16,7 +17,7 @@ def engine_suds():
 
 @pytest.fixture
 def mock_auth():
-    return MagicMock(login="test_user", password="test_pass")
+    return MagicMock(login="test_user", password=SecretStr("test_pass"))
 
 
 @pytest.fixture

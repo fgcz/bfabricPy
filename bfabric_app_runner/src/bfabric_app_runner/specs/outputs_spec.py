@@ -27,7 +27,9 @@ class CopyResourceSpec(BaseModel):
     store_folder_path: Path | None = None
     """The storage folder will be determined by the default rule, but can be specified if needed."""
 
-    update_existing: UpdateExisting = UpdateExisting.NO
+    # TODO these need to be implemented properly (e.g. do not scp too early), and tested in integration tests
+    update_existing: UpdateExisting = UpdateExisting.IF_EXISTS
+
     protocol: Literal["scp"] = "scp"
 
 
@@ -35,6 +37,7 @@ class SaveDatasetSpec(BaseModel):
     model_config = ConfigDict(extra="forbid")
     type: Literal["bfabric_dataset"] = "bfabric_dataset"
 
+    # TODO this will currently fail if the workunit already has an output dataset -> needs to be handled as well
     local_path: Path
     separator: str
     name: str | None = None

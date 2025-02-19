@@ -1,17 +1,12 @@
-from __future__ import annotations
-
 from pathlib import Path
 
-import cyclopts
 from rich.pretty import pprint
 
+from bfabric import Bfabric
+from bfabric.experimental.workunit_definition import WorkunitDefinition
+from bfabric.utils.cli_integration import use_client
 from bfabric_app_runner.output_registration.register import register_all
 from bfabric_app_runner.specs.outputs_spec import OutputsSpec, CopyResourceSpec, UpdateExisting
-from bfabric import Bfabric
-from bfabric.utils.cli_integration import setup_script_logging
-from bfabric.experimental.workunit_definition import WorkunitDefinition
-
-app_outputs = cyclopts.App("outputs", help="Register output files for an app.")
 
 
 def _get_workunit_definition(client: Bfabric, workunit_ref: int | Path) -> WorkunitDefinition:
@@ -21,19 +16,18 @@ def _get_workunit_definition(client: Bfabric, workunit_ref: int | Path) -> Worku
     return WorkunitDefinition.from_ref(workunit=workunit_ref, client=client, cache_file=None)
 
 
-@app_outputs.command()
-def register(
+@use_client
+def cmd_outputs_register(
     outputs_yaml: Path,
     workunit_ref: int | Path,
     *,
     ssh_user: str | None = None,
     force_storage: Path | None = None,
+    client: Bfabric,
     # TODO
     reuse_default_resource: bool = True,
 ) -> None:
     """Register the output files of a workunit."""
-    setup_script_logging()
-    client = Bfabric.from_config()
     specs_list = OutputsSpec.read_yaml(outputs_yaml)
     register_all(
         client=client,
@@ -45,8 +39,8 @@ def register(
     )
 
 
-@app_outputs.command()
-def register_single_file(
+@use_client
+def cmd_outputs_register_single_file(
     local_path: Path,
     *,
     workunit_ref: int | Path,
@@ -56,14 +50,12 @@ def register_single_file(
     ssh_user: str | None = None,
     force_storage: Path | None = None,
     reuse_default_resource: bool = False,
+    client: Bfabric,
 ) -> None:
     """Register a single file in the workunit.
 
     In general, it is recommended to use the `register` command instead of this one and declare files using YAML.
     """
-    setup_script_logging()
-    client = Bfabric.from_config()
-
     if store_entry_path is None:
         store_entry_path = local_path.name
 

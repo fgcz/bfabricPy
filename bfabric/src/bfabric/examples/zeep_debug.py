@@ -22,7 +22,7 @@ def full_query(auth: BfabricAuth, query: dict, includedeletableupdateable: bool 
     thisQuery = deepcopy(query)
     thisQuery["includedeletableupdateable"] = includedeletableupdateable
 
-    return {"login": auth.login, "password": auth.password, "query": thisQuery}
+    return {"login": auth.login, "password": auth.password.get_secret_value(), "query": thisQuery}
 
 
 def read_zeep(wsdl, fullQuery, raw=True):
