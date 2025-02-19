@@ -88,6 +88,7 @@ jobs:
           git push origin "$TAG_NAME"
       - name: Extract changelog and create release
         run: |
+          set -x
           CHANGELOG_PATH="${{ env.PACKAGE }}/docs/changelog.md"
           TAG_NAME="${{ env.PACKAGE }}/${{ env.VERSION }}"
 
@@ -95,10 +96,10 @@ jobs:
             # Extract the changelog section for the current version
             # This assumes the changelog follows the keep-a-changelog format
             CHANGELOG_CONTENT=$(awk -v ver="${{ env.VERSION }}" '
-              BEGIN { found=0; }
-              $0 ~ "^## \\[" ver "\\]" { found=1; next }
-              found && $0 ~ "^## \\[" { exit }
-              found { print }
+            BEGIN { found=0; }
+            $0 ~ "^## \\\\[" ver "\\\\]" { found=1; next }
+            found && $0 ~ "^## \\\\[" { exit }
+            found { print }
             ' "$CHANGELOG_PATH")
 
             if [ -n "$CHANGELOG_CONTENT" ]; then
