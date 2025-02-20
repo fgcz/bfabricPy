@@ -45,6 +45,18 @@ class SaveDatasetSpec(BaseModel):
     invalid_characters: str = ""
 
 
+class SaveLinkSpec(BaseModel):
+    """Saves a link to the entity of type entity_type with id entity_id."""
+
+    model_config = ConfigDict(extra="forbid")
+    type: Literal["bfabric_link"] = "bfabric_link"
+    name: str
+    url: str
+    entity_type: str
+    entity_id: int
+    update_existing: UpdateExisting = UpdateExisting.IF_EXISTS
+
+
 SpecType = CopyResourceSpec | SaveDatasetSpec
 
 
