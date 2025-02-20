@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import os
 import shlex
 from pathlib import Path
@@ -11,8 +9,12 @@ from pydantic import BaseModel, Discriminator, ConfigDict
 class CommandShell(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    # TODO: proposal, this should be renamed, and then we could introduce e.g. "bash" to be less confusing.
     type: Literal["shell"] = "shell"
+    """Identifies the command type."""
+
     command: str
+    """The command to run, will be split by spaces and is not an actual shell script."""
 
     def to_shell(self) -> list[str]:
         """Returns a shell command that can be used to run the specified command."""
@@ -53,15 +55,25 @@ class CommandDocker(BaseModel):
 
     # TODO not sure if to call this "docker", since "docker-compatible" would be appropriate
     type: Literal["docker"] = "docker"
+    """Identifies the command type."""
     image: str
+    """The container image to run."""
     command: str
+    """The command to execute in the container."""
     entrypoint: str | None = None
-    engine: str = "docker"
+    """The entrypoint to use for the container (instead of the image's default)."""
+    engine: Literal["docker", "podman"] = "docker"
+    """The container engine to use."""
     env: dict[str, str] = {}
+    """Environment variables to set in the container."""
     mac_address: str | None = None
+    """The MAC address to use for the container (instead of Docker's default assignment)."""
     mounts: MountOptions = MountOptions()
+    """Mount options for the container."""
     hostname: str | None = None
+    """The hostname to use for the container (instead of Docker's default assignment)."""
     custom_args: list[str] = []
+    """Any custom CLI arguments to pass to the container engine."""
 
     def to_shell(self, work_dir: Path | None = None) -> list[str]:
         """Returns a shell command that can be used to run the specified command."""
@@ -104,8 +116,22 @@ Command = Annotated[CommandShell | CommandDocker, Discriminator("type")]
 class CommandsSpec(BaseModel):
     """Defines the commands that are required to execute an app."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
     dispatch: Command
+    """The app dispatch command.
+
+    It will be called with arguments: `$workunit_ref` `$work_dir`.
+    """
+
     process: Command
+    """The app process command.
+
+    It will be called with arguments: `$chunk_dir`.
+    """
+
     collect: Command | None = None
+    """The app collect command, can be omitted if your process command already creates an `outputs.yml` file.
+
+    It will be called with arguments: `$workunit_ref` `$chunk_dir`.
+    """
