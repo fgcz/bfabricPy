@@ -108,4 +108,4 @@ class CommandsSpec(BaseModel):
 
     dispatch: Command
     process: Command
-    collect: Command
+    collect: Command | None = None
