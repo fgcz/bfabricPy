@@ -4,6 +4,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Added
+
+- App Definition now supports omitting the collect step.
+
+## \[0.0.17\] - 2025-02-19
+
+### Fixed
+
+- Update `bfabric` to 1.13.22 for dataset fix.
+
+## \[0.0.16\] - 2025-02-19
+
+### Added
+
+- Implement `--force-storage` to pass a yaml to a forced storage instead of the real one.
+- A Makefile will be created in the app folder for easier interaction with the app-runner (it uses uv and PyPI).
+
+### Changed
+
+- CopyResourceSpec.update_existing now defaults to `if_exists`.
+- Resolve workunit_ref to absolute path if it is a Path instance for CLI.
+
 ## \[0.0.15\] - 2025-02-06
 
 ### Added
