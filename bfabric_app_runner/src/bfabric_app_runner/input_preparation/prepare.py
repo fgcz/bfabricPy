@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, assert_never
 
+import yaml
 from loguru import logger
 
 from bfabric_app_runner.input_preparation.collect_annotation import prepare_annotation
@@ -13,6 +14,7 @@ from bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec import BfabricOrde
 from bfabric_app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
 from bfabric_app_runner.specs.inputs.file_copy_spec import FileSpec
 from bfabric_app_runner.specs.inputs.file_scp_spec import FileScpSpec
+from bfabric_app_runner.specs.inputs.static_yaml import StaticYamlSpec
 from bfabric_app_runner.specs.inputs_spec import (
     InputSpecType,
     InputsSpec,
@@ -48,6 +50,8 @@ class PrepareInputs:
                 self.prepare_file_scp(spec)
             elif isinstance(spec, BfabricDatasetSpec):
                 self.prepare_dataset(spec)
+            elif isinstance(spec, StaticYamlSpec):
+                self.prepare_static_yaml(spec)
             elif spec.type == "bfabric_annotation":
                 prepare_annotation(spec, client=self._client, working_dir=self._working_dir)
             elif isinstance(spec, BfabricOrderFastaSpec):
@@ -107,6 +111,11 @@ class PrepareInputs:
         target_path = self._working_dir / spec.filename
         target_path.parent.mkdir(exist_ok=True, parents=True)
         dataset.write_csv(path=target_path, separator=spec.separator)
+
+    def prepare_static_yaml(self, spec: StaticYamlSpec) -> None:
+        result_name = self._working_dir / spec.filename
+        result_name.parent.mkdir(exist_ok=True, parents=True)
+        result_name.write_text(yaml.safe_dump(spec.data))
 
     def prepare_order_fasta(self, spec: BfabricOrderFastaSpec) -> None:
         # Determine the result file.

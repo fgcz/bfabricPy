@@ -11,13 +11,20 @@ from bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec import BfabricOrde
 from bfabric_app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
 from bfabric_app_runner.specs.inputs.file_copy_spec import FileSpec
 from bfabric_app_runner.specs.inputs.file_scp_spec import FileScpSpec
+from bfabric_app_runner.specs.inputs.static_yaml import StaticYamlSpec
 
 if TYPE_CHECKING:
     from pathlib import Path
     from bfabric import Bfabric
 
 InputSpecType = Annotated[
-    BfabricResourceSpec | FileSpec | FileScpSpec | BfabricDatasetSpec | BfabricOrderFastaSpec | BfabricAnnotationSpec,
+    BfabricResourceSpec
+    | FileSpec
+    | FileScpSpec
+    | BfabricDatasetSpec
+    | BfabricOrderFastaSpec
+    | BfabricAnnotationSpec
+    | StaticYamlSpec,
     Field(discriminator="type"),
 ]
 
