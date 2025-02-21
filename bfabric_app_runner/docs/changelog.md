@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- `dispatch.dispatch_resource_flow` implements a generic solution for dispatching resource flow workunits without
+    having to perform entity look up in many cases yourself.
 - App Definition now supports omitting the collect step.
 
 ### Changed
