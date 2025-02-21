@@ -62,12 +62,12 @@ class SaveLinkSpec(BaseModel):
     """Behavior, if a link with the same name already exists."""
 
 
-SpecType = CopyResourceSpec | SaveDatasetSpec
+SpecType = Annotated[CopyResourceSpec | SaveDatasetSpec | SaveLinkSpec, Field(discriminator="type")]
 
 
 class OutputsSpec(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    outputs: list[Annotated[SpecType, Field(..., discriminator="type")]]
+    outputs: list[SpecType]
 
     @classmethod
     def read_yaml(cls, path: Path) -> list[SpecType]:
