@@ -8,6 +8,7 @@ from bfabric_app_runner.specs.inputs.file_scp_spec import FileScpSpec
 from bfabric.entities import Resource, Dataset
 from bfabric_app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec  # noqa: TC001
 from bfabric_app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec  # noqa: TC001
+from bfabric_app_runner.specs.inputs.static_yaml import StaticYamlSpec
 from bfabric_app_runner.util.checksums import md5sum
 from typing import TYPE_CHECKING
 
@@ -41,9 +42,8 @@ def check_integrity(spec: InputSpecType, local_path: Path, client: Bfabric) -> I
     elif isinstance(spec, BfabricDatasetSpec):
         return _check_dataset_spec(spec, local_path, client)
     elif (
-        isinstance(spec, FileSpec | FileScpSpec)
+        isinstance(spec, FileSpec | FileScpSpec | BfabricOrderFastaSpec | StaticYamlSpec)
         or spec.type == "bfabric_annotation"
-        or isinstance(spec, BfabricOrderFastaSpec)
     ):
         return IntegrityState.NotChecked
     else:
