@@ -27,7 +27,7 @@ class OutputTable(pa.DataFrameModel):
 
     resource_id: int
     filename: str
-    task: str = Field(default=pl.lit("work"), str_matches="^\\w+$")
+    task: str = Field(default=pl.lit("work"), str_matches=r"^\w+$")
 
 
 class DispatchResource(Protocol):
