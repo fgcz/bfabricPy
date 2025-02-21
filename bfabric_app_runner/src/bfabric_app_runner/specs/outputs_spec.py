@@ -45,12 +45,29 @@ class SaveDatasetSpec(BaseModel):
     invalid_characters: str = ""
 
 
-SpecType = CopyResourceSpec | SaveDatasetSpec
+class SaveLinkSpec(BaseModel):
+    """Saves a link to the entity of type entity_type with id entity_id."""
+
+    model_config = ConfigDict(extra="forbid")
+    type: Literal["bfabric_link"] = "bfabric_link"
+    name: str
+    """The name of the link."""
+    url: str
+    """The URL of the link."""
+    entity_type: str
+    """The type of the entity that will be linked."""
+    entity_id: int
+    """The ID of the entity that will be linked."""
+    update_existing: UpdateExisting = UpdateExisting.IF_EXISTS
+    """Behavior, if a link with the same name already exists."""
+
+
+SpecType = Annotated[CopyResourceSpec | SaveDatasetSpec | SaveLinkSpec, Field(discriminator="type")]
 
 
 class OutputsSpec(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    outputs: list[Annotated[SpecType, Field(..., discriminator="type")]]
+    outputs: list[SpecType]
 
     @classmethod
     def read_yaml(cls, path: Path) -> list[SpecType]:
