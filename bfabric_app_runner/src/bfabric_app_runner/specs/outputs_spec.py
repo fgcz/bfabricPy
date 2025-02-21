@@ -51,10 +51,15 @@ class SaveLinkSpec(BaseModel):
     model_config = ConfigDict(extra="forbid")
     type: Literal["bfabric_link"] = "bfabric_link"
     name: str
+    """The name of the link."""
     url: str
+    """The URL of the link."""
     entity_type: str
+    """The type of the entity that will be linked."""
     entity_id: int
+    """The ID of the entity that will be linked."""
     update_existing: UpdateExisting = UpdateExisting.IF_EXISTS
+    """Behavior, if a link with the same name already exists."""
 
 
 SpecType = CopyResourceSpec | SaveDatasetSpec
