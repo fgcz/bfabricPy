@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Protocol, Any
 
+import cyclopts
 import pandera.polars as pa
 import polars as pl
 import yaml
@@ -10,6 +11,7 @@ from pandera.typing import DataFrame
 from bfabric import Bfabric
 from bfabric.entities import Resource
 from bfabric.experimental.workunit_definition import WorkunitDefinition
+from bfabric.utils.cli_integration import use_client
 
 
 class InputTable(pa.DataFrameModel):
@@ -145,3 +147,26 @@ class ResourceDispatcher:
         inputs_spec["inputs"].extend(extra_inputs)
         with (task_dir / "inputs.yml").open("w") as f:
             yaml.safe_dump(inputs_spec, f)
+
+
+class ResourceDispatcherCLI:
+    """A CLI interface for dispatching resources to workunits."""
+
+    def __init__(self, resource_strategy: DispatchResource) -> None:
+        self._resource_strategy = resource_strategy
+        self._app = cyclopts.App()
+        self._app.default(self.main)
+
+    def run(self) -> None:
+        self._app()
+
+    @use_client
+    def main(self, workunit_ref: Path | int, out_dir: Path, *, client: Bfabric) -> None:
+        workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client=client)
+        dispatcher = ResourceDispatcher()
+        dispatcher.dispatch(
+            workunit_definition=workunit_definition,
+            work_dir=out_dir,
+            resource_strategy=self._resource_strategy,
+            client=client,
+        )
