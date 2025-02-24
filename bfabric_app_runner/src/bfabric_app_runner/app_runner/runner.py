@@ -39,9 +39,12 @@ class Runner:
         )
 
     def run_collect(self, workunit_ref: int | Path, chunk_dir: Path) -> None:
-        command = [*self._app_version.commands.collect.to_shell(), str(workunit_ref), str(chunk_dir)]
-        logger.info(f"Running collect command: {shlex.join(command)}")
-        subprocess.run(command, check=True)
+        if self._app_version.commands.collect is not None:
+            command = [*self._app_version.commands.collect.to_shell(), str(workunit_ref), str(chunk_dir)]
+            logger.info(f"Running collect command: {shlex.join(command)}")
+            subprocess.run(command, check=True)
+        else:
+            logger.info("App does not have a collect step.")
 
     def run_process(self, chunk_dir: Path) -> None:
         command = [*self._app_version.commands.process.to_shell(), str(chunk_dir)]

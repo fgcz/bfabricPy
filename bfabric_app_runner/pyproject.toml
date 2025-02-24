@@ -16,6 +16,7 @@ dependencies = [
     "pydantic",
     "glom",
     "mako",
+    "pandera[polars]"
 ]
 
 [tool.hatch.build.targets.sdist]
@@ -46,7 +47,7 @@ dev = [
     "mypy",
     "types-PyYAML",
 ]
-test = ["pytest", "pytest-mock", "logot"]
+test = ["pytest", "pytest-mock", "logot", "pyfakefs"]
 
 [tool.uv]
 reinstall-package = ["bfabric", "bfabric_scripts", "bfabric_app_runner"]

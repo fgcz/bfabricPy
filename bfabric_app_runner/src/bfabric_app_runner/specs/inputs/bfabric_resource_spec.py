@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Literal, TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict
@@ -29,4 +30,4 @@ class BfabricResourceSpec(BaseModel):
             return self.filename
         else:
             resource = Resource.find(id=self.id, client=client)
-            return resource["name"]
+            return Path(resource["relativepath"]).name

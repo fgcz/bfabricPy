@@ -16,3 +16,6 @@ target-version = ["py311"]
 line-length = 120
 indent-width = 4
 target-version = "py39"
+
+[tool.uv]
+reinstall-package = ["bfabric", "bfabric_scripts", "bfabric_app_runner"]
