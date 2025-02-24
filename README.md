@@ -9,9 +9,9 @@
 
 | Package            | Link                                                                 | Change Log                                                                                                               |
 | ------------------ | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| bfabric            | [https://fgcz.github.io/bfabricPy](https://fgcz.github.io/bfabricPy) | [https://github.com/fgcz/bfabricPy/blob/main/bfabric/docs/changelog.md](bfabric/docs/changelog.md)                       |
-| bfabric-scripts    | [https://fgcz.github.io/bfabricPy](https://fgcz.github.io/bfabricPy) | [https://github.com/fgcz/bfabricPy/blob/main/bfabric_scripts/docs/changelog.md](bfabric_scripts/docs/changelog.md)       |
-| bfabric-app-runner | https://fgcz.github.io/bfabricPy/app_runner/                         | [https://github.com/fgcz/bfabricPy/blob/main/bfabric_app_runner/docs/changelog.md](bfabric_app_runner/docs/changelog.md) |
+| bfabric            | [https://fgcz.github.io/bfabricPy](https://fgcz.github.io/bfabricPy) | [bfabric/docs/changelog.md](https://github.com/fgcz/bfabricPy/blob/main/bfabric/docs/changelog.md)                       |
+| bfabric-scripts    | [https://fgcz.github.io/bfabricPy](https://fgcz.github.io/bfabricPy) | [bfabric_scripts/docs/changelog.md](https://github.com/fgcz/bfabricPy/blob/main/bfabric_scripts/docs/changelog.md)       |
+| bfabric-app-runner | https://fgcz.github.io/bfabricPy/app_runner/                         | [bfabric_app_runner/docs/changelog.md](https://github.com/fgcz/bfabricPy/blob/main/bfabric_app_runner/docs/changelog.md) |
 
 ## Introduction
 
