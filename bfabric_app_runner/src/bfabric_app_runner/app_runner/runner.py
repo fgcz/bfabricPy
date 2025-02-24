@@ -62,8 +62,8 @@ def run_app(
     workunit_ref: int | Path,
     work_dir: Path,
     client: Bfabric,
+    force_storage: Path | None,
     ssh_user: str | None = None,
-    force_storage: Path | None = None,
     read_only: bool = False,
     dispatch_active: bool = True,
 ) -> None:
