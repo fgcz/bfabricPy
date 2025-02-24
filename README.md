@@ -7,10 +7,11 @@
 
 ## Documentation
 
-| Package                      | Link                                                                 |
-| ---------------------------- | -------------------------------------------------------------------- |
-| bfabric,<br/>bfabric-scripts | [https://fgcz.github.io/bfabricPy](https://fgcz.github.io/bfabricPy) |
-| bfabric-app-runner           | https://fgcz.github.io/bfabricPy/app_runner/                         |
+| Package            | Link                                                                 | Change Log                                                                                                               |
+| ------------------ | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| bfabric            | [https://fgcz.github.io/bfabricPy](https://fgcz.github.io/bfabricPy) | [https://github.com/fgcz/bfabricPy/blob/main/bfabric/docs/changelog.md](bfabric/docs/changelog.md)                       |
+| bfabric-scripts    | [https://fgcz.github.io/bfabricPy](https://fgcz.github.io/bfabricPy) | [https://github.com/fgcz/bfabricPy/blob/main/bfabric_scripts/docs/changelog.md](bfabric_scripts/docs/changelog.md)       |
+| bfabric-app-runner | https://fgcz.github.io/bfabricPy/app_runner/                         | [https://github.com/fgcz/bfabricPy/blob/main/bfabric_app_runner/docs/changelog.md](bfabric_app_runner/docs/changelog.md) |
 
 ## Introduction
 
@@ -21,7 +22,8 @@ Several pieces of functionality are available:
     - General client for all B-Fabric web service operations (CRUD) and configuration management.
     - A relational API for low-boilerplate read access to the B-Fabric system.
 - Scripts: Several scripts we use more or less frequently to interact with the system.
-- A REST API: A REST API to interact with the B-Fabric system. This allows us to interact with B-Fabric from R using [bfabricShiny](https://github.com/cpanse/bfabricShiny).
+- A REST API: A REST API to interact with the B-Fabric system. This allows us to interact with B-Fabric from R
+    using [bfabricShiny](https://github.com/cpanse/bfabricShiny).
 
 ## Howto cite?
 
