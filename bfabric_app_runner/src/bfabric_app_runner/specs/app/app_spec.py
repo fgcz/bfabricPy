@@ -12,13 +12,24 @@ if TYPE_CHECKING:
 
 
 class BfabricAppSpec(BaseModel):
-    """Contains the app specification information that is relevant to bfabric..."""
+    """Contains the app specification information that is relevant to bfabric, and not exactly the app itself."""
 
-    # TODO unclear if it should be kept
     app_runner: str
+    """Specifies the app runner version to use for the app.
+
+    We support both a PyPI version (e.g. `0.0.17`) as well as a git reference, which is a string in the
+    format `git+https://github.com/fgcz/bfabricPy@main#subdirectory=bfabric_app_runner` where you can specify
+    any git reference instead of `main` as needed.
+    """
 
 
 class AppSpecTemplate(BaseModel):
+    """This model defines the app_spec definition in a file.
+
+    As the name suggests, this is a template that can be expanded to a concrete ``AppSpec`` instance.
+    The main difference is that this may contain usages of `Variables`. TODO
+    """
+
     # TODO consider whether to reintroduce
     # bfabric: BfabricAppSpec
     versions: list[AppVersionMultiTemplate]
