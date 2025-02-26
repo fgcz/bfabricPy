@@ -1,0 +1,558 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.5">
+    
+    
+      
+        <title>Introduction - bfabricPy docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.8608ea7d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#introduction" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="bfabricPy docs" class="md-header__button md-logo" aria-label="bfabricPy docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            bfabricPy docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Introduction
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="bfabricPy docs" class="md-nav__button md-logo" aria-label="bfabricPy docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    bfabricPy docs
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../entities/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Entities
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../good_to_know/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Good to Know
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contribute/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Contributing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../changelog/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Changelog
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Installation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-help" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting Help
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="introduction">Introduction</h1>
+<p>The different bfabricPy packages are currently maintained in a single mono-repo at <a href="https://github.com/fgcz/bfabricPy">github.com/fgcz/bfabricPy</a>.</p>
+<p>You can find changelogs and the updated documentation there.</p>
+<h2 id="installation">Installation</h2>
+<p><code>bfabric-cli</code> is available as part of the <a href="https://pypi.org/project/bfabric-scripts/">bfabric-scripts PyPI package</a> and can be installed using your Python package manager of choice.</p>
+<p>To avoid issues on deployments on machines with old Python versions, we recommend using a tool like <code>uv</code> to install the package,
+as it manages Python for you and will ensure that users have an appropriate version of Python installed:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span>-p<span class="w"> </span><span class="m">3</span>.13<span class="w"> </span>bfabric-scripts
+</span></code></pre></div>
+<p>Older versions may be supported as well (as of 2025-02-25 the oldest supported version is Python 3.11).</p>
+<h2 id="configuration">Configuration</h2>
+<p>To configure bfabricPy you need to obtain your webservicpassword and create a file <code>~/.bfabricpy.yml</code> with the following structure:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nt">GENERAL</span><span class="p">:</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="c1"># Normally, we would write PRODUCTION here, but,</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="c1"># for the sake of the tutorial we are defaulting to TEST as a fail-safe guard.</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nt">default_config</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TEST</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="nt">PRODUCTION</span><span class="p">:</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span><span class="nt">login</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yourBfabricLogin</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">  </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yourBfabricWebPassword</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">  </span><span class="nt">base_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://fgcz-bfabric.uzh.ch/bfabric</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="nt">TEST</span><span class="p">:</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">  </span><span class="nt">login</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yourBfabricLogin</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">  </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yourBfabricWebPassword</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">  </span><span class="nt">base_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://fgcz-bfabric-test.uzh.ch/bfabric</span>
+</span></code></pre></div>
+<p>You can add more configurations, e.g. if you have a system user that you want to use only in some scenarios.</p>
+<p>In the rest of this tutorial, always make sure to set the <code>BFABRICPY_CONFIG_ENV=TEST</code> environment variable, as follows:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">BFABRICPY_CONFIG_ENV</span><span class="o">=</span>TEST
+</span></code></pre></div>
+<p>Because this is a jupyter notebook, I also make sure to set it for the current Python process:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;BFABRICPY_CONFIG_ENV&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;TEST&quot;</span>
+</span></code></pre></div>
+<h2 id="getting-help">Getting Help</h2>
+<p>The interface of bfabric-cli is currently being developed, however you can explore the commands by calling <code>--help</code> on an arbitrary subcommand,
+for instance:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="err">!</span><span class="n">bfabric</span><span class="o">-</span><span class="n">cli</span> <span class="o">--</span><span class="n">help</span>
+</span></code></pre></div>
+<p>The commands are organized in a hierarchy, and you can call <code>--help</code> on any subcommand in the tree to check if it has further subcommands, or, 
+what its parameters are.</p>
+<p>While the documentation of parameters is comprehensive the only current limitation is that we do not get a nice "usage" line showing
+exactly how the parameters are supposed to be used.</p>
+<p>In general, if possible it makes sense to use the parameters with their name, as not all parameters may remain available forever.
+How to version/stabilize these CLI APIs is still an open question.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="err">!</span><span class="n">bfabric</span><span class="o">-</span><span class="n">cli</span> <span class="n">api</span> <span class="n">create</span> <span class="o">--</span><span class="n">help</span>
+</span></code></pre></div>
+<p>Please note that this documentation is autogenerated from the code using <a href="https://github.com/BrianPugh/cyclopts">cyclopts</a>
+and you should ideally provide as many parameters by name rather than position. Especially sequences are not really clearly documented, which hopefully will be resolved later.</p>
+<h1 id="generic-entity-api">Generic entity API</h1>
+<h2 id="reading-entities">Reading entities</h2>
+<p>Generic functionality to read entities is available in <code>bfabric-cli api read</code>.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="err">!</span><span class="n">bfabric</span><span class="o">-</span><span class="n">cli</span> <span class="n">api</span> <span class="n">read</span> <span class="o">--</span><span class="n">help</span>
+</span></code></pre></div>
+<p>As you can see, we first need to provide the endpoint, and a query, we can specify the format as well there are some additional fields.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>resource<span class="w"> </span>--limit<span class="w"> </span><span class="m">10</span>
+</span></code></pre></div>
+<p>The default table is not rendering correctly in Jupyter as of now (2025-02-25), so we execute this in a shell.</p>
+<p>We can control the columns displayed:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>resource<span class="w"> </span>--limit<span class="w"> </span><span class="m">10</span><span class="w"> </span>--columns<span class="w"> </span>id,name,relativepath,description,filechecksum
+</span></code></pre></div>
+<p>In addition to the interactive table format, we also support <code>json</code> and <code>yaml</code> outputs.
+For instance to get the results in JSON format (restricting the columns to the same subset as before):</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>resource<span class="w"> </span>--limit<span class="w"> </span><span class="m">10</span><span class="w"> </span>--columns<span class="w"> </span>id,name,relativepath,description,filechecksum<span class="w"> </span>--format<span class="w"> </span>json
+</span></code></pre></div>
+<p>For instance to read all resources created by <code>pfeeder</code> between 2024-05-01 and 2024-05-02 (exclusive) we can execute the following command.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>resource<span class="w"> </span>createdby<span class="w"> </span>pfeeder<span class="w"> </span>createdafter<span class="w"> </span><span class="m">2024</span>-05-01<span class="w"> </span>createdbefore<span class="w"> </span><span class="m">2024</span>-05-02<span class="w"> </span>--columns<span class="w"> </span>id,relativepath,createdby
+</span></code></pre></div>
+<p>A small gimmick, is that it also prints the bfabricPy query, e.g. in this case we can perform the same operation in Python:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">from_config</span><span class="p">()</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s1">&#39;resource&#39;</span><span class="p">,</span> 
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    <span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;createdby&#39;</span><span class="p">:</span> <span class="s1">&#39;pfeeder&#39;</span><span class="p">,</span> <span class="s1">&#39;createdafter&#39;</span><span class="p">:</span> <span class="s1">&#39;2024-05-01&#39;</span><span class="p">,</span> <span class="s1">&#39;createdbefore&#39;</span><span class="p">:</span> <span class="s1">&#39;2024-05-02&#39;</span><span class="p">},</span> <span class="n">max_results</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span></code></pre></div>
+<p>One useful feature, is being able to supply multiple values for the same key.<br />
+The way this is done is you repeat the key-value pair for each additional value.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>resource<span class="w"> </span>id<span class="w"> </span><span class="m">2784586</span><span class="w"> </span>id<span class="w"> </span><span class="m">2784576</span><span class="w"> </span>id<span class="w"> </span><span class="m">2784573</span>
+</span></code></pre></div>
+<p>Everything but the main output will be printed to standard error, so it's easier to pipe the main output.
+However, if you want to persist the output to a file it's recommended to use the <code>--file</code> argument instead.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="err">!</span><span class="n">bfabric</span><span class="o">-</span><span class="n">cli</span> <span class="n">api</span> <span class="n">read</span> <span class="n">resource</span> <span class="n">createdby</span> <span class="n">pfeeder</span> <span class="n">createdafter</span> <span class="mi">2024</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">01</span> <span class="n">createdbefore</span> <span class="mi">2024</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">02</span> \
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    <span class="o">--</span><span class="nb">format</span> <span class="n">yaml</span> <span class="o">--</span><span class="n">file</span> <span class="n">result</span><span class="o">.</span><span class="n">yml</span> 
+</span></code></pre></div>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="err">!</span><span class="n">ls</span> <span class="o">-</span><span class="n">lh</span> <span class="n">result</span><span class="o">.</span><span class="n">yml</span>
+</span></code></pre></div>
+<h2 id="creating-entities">Creating entities</h2>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="err">!</span><span class="n">bfabric</span><span class="o">-</span><span class="n">cli</span> <span class="n">api</span> <span class="n">create</span> <span class="o">--</span><span class="n">help</span>
+</span></code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>bfabric-cli<span class="w"> </span>api<span class="w"> </span>create<span class="w"> </span>resource<span class="w"> </span>name<span class="w"> </span><span class="s2">&quot;hello_world_</span><span class="k">$(</span>date<span class="w"> </span>-Iseconds<span class="k">)</span><span class="s2">.txt&quot;</span><span class="w"> </span>workunitid<span class="w"> </span><span class="m">321802</span><span class="w"> </span>base64<span class="w"> </span><span class="nv">aGVsbG8gd29ybGQ</span><span class="o">=</span>
+</span></code></pre></div>
+<p>We can check the result here: https://fgcz-bfabric-test.uzh.ch/bfabric/workunit/show.html?id=321802&amp;tab=resources</p>
+<p>Or, we perform a further call.</p>
+<p>Since we don't want it to remain there we delete it again: (adjust the ID and <strong>verify</strong> operation before deleting)</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>bfabric-cli<span class="w"> </span>api<span class="w"> </span>delete<span class="w"> </span>resource<span class="w"> </span><span class="m">2805634</span>
+</span></code></pre></div>
+<h2 id="updating-entities">Updating entities</h2>
+<p>The main difference between <code>bfabric-cli api update</code> and <code>bfabric-cli api create</code> is that <code>update</code> requires an id to be passed.
+While this distinction is implied in the API the command line tools make this explicit to prevent user errors.</p>
+<p>Hence, the <code>bfabric-cli api update</code> command in addition to a sequence of attribute value pairs needs to be told about the id of the entity you want to update.</p>
+<p>The second difference, is that while create will always be performed without a prompt, the update is considered destructive and hence you will first be presented with a display of the current entity with a prompt to confirm the update.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="err">!</span><span class="n">bfabric</span><span class="o">-</span><span class="n">cli</span> <span class="n">api</span> <span class="n">update</span> <span class="o">--</span><span class="n">help</span>
+</span></code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>bfabric-cli<span class="w"> </span>api<span class="w"> </span>update<span class="w"> </span>workunit<span class="w"> </span><span class="m">321802</span><span class="w"> </span>description<span class="w"> </span><span class="s2">&quot;We are testing some things today&quot;</span>
+</span></code></pre></div>
+<h2 id="deleting-entities">Deleting entities</h2>
+<p>We are using yes, so this always deletes the entity for the purpose of the sample, but before doing the deletion you should revise whether it really is the entity that you want to delete.</p>
+<p>If you need to perform this operation programmatically, make sure you are deleting <strong>the correct</strong> entities, and then set <code>--no-confirm</code> to the command.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="err">!</span><span class="n">bfabric</span><span class="o">-</span><span class="n">cli</span> <span class="n">api</span> <span class="n">delete</span> <span class="o">--</span><span class="n">help</span>
+</span></code></pre></div>
+<h1 id="executable-specific-functionality">Executable-specific functionality</h1>
+<p>When working with bfabric apps it can be useful to check the contents of encoded executables, and, upload executables directly.
+While originally a XML export is imported with the web app, the CLI supports import of yaml files.</p>
+<h2 id="show-executable">Show executable</h2>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="err">!</span><span class="n">bfabric</span><span class="o">-</span><span class="n">cli</span> <span class="n">executable</span> <span class="n">show</span> <span class="o">--</span><span class="n">help</span>
+</span></code></pre></div>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="err">!</span><span class="n">bfabric</span><span class="o">-</span><span class="n">cli</span> <span class="n">executable</span> <span class="n">show</span> <span class="mi">32859</span>
+</span></code></pre></div>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="err">!</span><span class="n">bfabric</span><span class="o">-</span><span class="n">cli</span> <span class="n">executable</span> <span class="n">show</span> <span class="mi">33469</span> 
+</span></code></pre></div>
+<h2 id="upload-executable">Upload executable</h2>
+<p>For B-Fabric application developers you can upload executables from a YAML (this command is experimental):</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="err">!</span><span class="n">bfabric</span><span class="o">-</span><span class="n">cli</span> <span class="n">executable</span> <span class="n">upload</span> <span class="o">--</span><span class="n">help</span>
+</span></code></pre></div>
+<h1 id="dataset-specific-functionality">Dataset-specific functionality</h1>
+<p>Dataset-specific functionality is available through the <code>bfabric-cli dataset</code> subcommand.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="err">!</span><span class="n">bfabric</span><span class="o">-</span><span class="n">cli</span> <span class="n">dataset</span> <span class="o">--</span><span class="n">help</span>
+</span></code></pre></div>
+<h2 id="show-dataset-directly">Show dataset directly</h2>
+<p>We can show an existing dataset:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="err">!</span><span class="n">bfabric</span><span class="o">-</span><span class="n">cli</span> <span class="n">dataset</span> <span class="n">show</span> <span class="o">--</span><span class="n">help</span>
+</span></code></pre></div>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="err">!</span><span class="n">bfabric</span><span class="o">-</span><span class="n">cli</span> <span class="n">dataset</span> <span class="n">show</span> <span class="mi">53706</span>
+</span></code></pre></div>
+<p>You can also show this as YAML if there is a problem with the rendering (e.g. too many columns for your console):</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="err">!</span><span class="n">bfabric</span><span class="o">-</span><span class="n">cli</span> <span class="n">dataset</span> <span class="n">show</span> <span class="mi">53706</span> <span class="o">--</span><span class="nb">format</span> <span class="n">yaml</span>
+</span></code></pre></div>
+<h2 id="download-datasets">Download datasets</h2>
+<p>To download this dataset to a file we can use <code>bfabric-cli dataset download</code>:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="err">!</span><span class="n">bfabric</span><span class="o">-</span><span class="n">cli</span> <span class="n">dataset</span> <span class="n">download</span> <span class="o">--</span><span class="n">help</span>
+</span></code></pre></div>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="err">!</span><span class="n">bfabric</span><span class="o">-</span><span class="n">cli</span> <span class="n">dataset</span> <span class="n">download</span> <span class="mi">53706</span> <span class="n">test_data</span><span class="o">.</span><span class="n">parquet</span> <span class="o">--</span><span class="nb">format</span> <span class="n">parquet</span>
+</span></code></pre></div>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">polars</span>
+</span><span id="__span-31-2"><a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a><span class="n">polars</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s1">&#39;test_data.parquet&#39;</span><span class="p">)</span>
+</span></code></pre></div>
+<h2 id="upload-datasets">Upload datasets</h2>
+<p>The upload commands are structured into several subcommands, since they do have different parameters between parquet and csv/tsv.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="err">!</span><span class="n">bfabric</span><span class="o">-</span><span class="n">cli</span> <span class="n">dataset</span> <span class="n">upload</span> <span class="o">--</span><span class="n">help</span>
+</span></code></pre></div>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="err">!</span><span class="n">bfabric</span><span class="o">-</span><span class="n">cli</span> <span class="n">dataset</span> <span class="n">upload</span> <span class="n">csv</span> <span class="o">--</span><span class="n">help</span>
+</span></code></pre></div>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="err">!</span><span class="n">bfabric</span><span class="o">-</span><span class="n">cli</span> <span class="n">dataset</span> <span class="n">upload</span> <span class="n">parquet</span> <span class="o">--</span><span class="n">help</span>
+</span></code></pre></div>
+<p>To upload the parquet file we just wrote:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-35-1"><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="err">!</span><span class="n">bfabric</span><span class="o">-</span><span class="n">cli</span> <span class="n">dataset</span> <span class="n">upload</span> <span class="n">parquet</span> <span class="n">test_data</span><span class="o">.</span><span class="n">parquet</span> <span class="o">--</span><span class="n">container</span><span class="o">-</span><span class="nb">id</span> <span class="mi">3000</span>
+</span></code></pre></div>
+<p>You should be able to find the <code>test_data</code> dataset here now:</p>
+<p>https://fgcz-bfabric-test.uzh.ch/bfabric/project/show.html?id=3000&amp;tab=datasets</p>
+<h1 id="workunit-specific-functionality">Workunit-specific functionality</h1>
+<h2 id="pending-workunits">Pending workunits</h2>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-36-1"><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="err">!</span><span class="n">bfabric</span><span class="o">-</span><span class="n">cli</span> <span class="n">workunit</span> <span class="ow">not</span><span class="o">-</span><span class="n">available</span> <span class="o">--</span><span class="n">help</span>
+</span></code></pre></div>
+<p>We usually run this find compMS workunits that failed:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-37-1"><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="nv">BFABRICPY_CONFIG_ENV</span><span class="o">=</span>PRODUCTION<span class="w"> </span>bfabric-cli<span class="w"> </span>workunit<span class="w"> </span>not-available
+</span></code></pre></div>
+<h2 id="workunit-definition-export">Workunit definition export</h2>
+<p>When working with bfabric-app-runner it can be useful to export the app definition to a file first.
+This functionality is available in <code>bfabric-cli workunit export-definition</code> which is very simple to use, by default it will write the <code>workunit_definition.yml</code> file if you just give the script a workunit ID.
+Of course, you can customize the filename as well.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-38-1"><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a><span class="err">!</span><span class="n">bfabric</span><span class="o">-</span><span class="n">cli</span> <span class="n">workunit</span> <span class="n">export</span><span class="o">-</span><span class="n">definition</span> <span class="o">--</span><span class="n">help</span>
+</span></code></pre></div>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-39-1"><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a><span class="err">!</span><span class="n">bfabric</span><span class="o">-</span><span class="n">cli</span> <span class="n">workunit</span> <span class="n">export</span><span class="o">-</span><span class="n">definition</span> <span class="mi">316119</span>
+</span></code></pre></div>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-40-1"><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a><span class="err">!</span><span class="n">cat</span> <span class="n">workunit_definition</span><span class="o">.</span><span class="n">yml</span>
+</span></code></pre></div>
+<p>For parsing, a pydantic model is available in the <code>bfabric</code> Python package:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-41-1"><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric.experimental.workunit_definition</span><span class="w"> </span><span class="kn">import</span> <span class="n">WorkunitDefinition</span>
+</span><span id="__span-41-2"><a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+</span><span id="__span-41-3"><a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">rich.pretty</span><span class="w"> </span><span class="kn">import</span> <span class="n">pprint</span>
+</span><span id="__span-41-4"><a id="__codelineno-41-4" name="__codelineno-41-4" href="#__codelineno-41-4"></a><span class="n">pprint</span><span class="p">(</span><span class="n">WorkunitDefinition</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;workunit_definition.yml&#39;</span><span class="p">)))</span>
+</span></code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.sections", "navigation.instant", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.f1b6f286.min.js"></script>
+      
+    
+  </body>
+</html>
