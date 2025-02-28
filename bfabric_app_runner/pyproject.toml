@@ -23,7 +23,8 @@ dependencies = [
 include = [
     "src/bfabric_app_runner/**/*.py",
     "src/bfabric_app_runner/py.typed",
-    "src/bfabric_app_runner/resources/*.mk"
+    "src/bfabric_app_runner/resources/*.mk",
+    "src/bfabric_app_runner/**/*.mako",
 ]
 
 [project.scripts]
