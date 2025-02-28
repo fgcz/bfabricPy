@@ -86,48 +86,27 @@ jobs:
           TAG_NAME="${{ env.PACKAGE }}/${{ env.VERSION }}"
           git tag -a "$TAG_NAME" -m "Release ${{ env.PACKAGE }} version ${{ env.VERSION }}"
           git push origin "$TAG_NAME"
-      - name: Extract changelog and create release
+      - name: Create GitHub Release
+        shell: bash
         run: |
-          set -x
-          CHANGELOG_PATH="${{ env.PACKAGE }}/docs/changelog.md"
-          TAG_NAME="${{ env.PACKAGE }}/${{ env.VERSION }}"
+          set -e
 
-          if [ -f "$CHANGELOG_PATH" ]; then
-            # Extract the changelog section for the current version
-            # This assumes the changelog follows the keep-a-changelog format
-            CHANGELOG_CONTENT=$(python3 -c '
-            import re,sys
-            print(re.search(
-                rf"^## \\\[{re.escape(sys.argv[1])}\\\].*?(?=^## \\\[|\Z)",
-                open(sys.argv[2]).read(),
-                re.M|re.S
-            ).group(0).strip())' "${VERSION}" "$CHANGELOG_PATH")
+          CHANGELOG_PATH="${PACKAGE}/docs/changelog.md"
+          TAG_NAME="${PACKAGE}/${VERSION}"
+          CHANGELOG_CONTENT=""
 
-            if [ -n "$CHANGELOG_CONTENT" ]; then
-              # Create GitHub release
-              gh release create "$TAG_NAME" \
-                --title "Release ${{ env.PACKAGE }} ${{ env.VERSION }}" \
-                --notes "$CHANGELOG_CONTENT" \
-                --target ${{ github.sha }} \
-                --draft
-            else
-              # Create release with basic notes if no changelog section is found
-              gh release create "$TAG_NAME" \
-                --title "Release ${{ env.PACKAGE }} ${{ env.VERSION }}" \
-                --notes "Release of ${{ env.PACKAGE }} version ${{ env.VERSION }}" \
-                --target ${{ github.sha }} \
-                --draft
-            fi
+          # Extract changelog if file exists (ultra-compact one-liner)
+          [ -f "$CHANGELOG_PATH" ] && CHANGELOG_CONTENT=$(python3 -c "import re,sys; print(re.search(r'^## \\[' + re.escape('$VERSION') + r'\\].*?(?=^## \\[|\\Z)', open('$CHANGELOG_PATH').read(), re.M|re.S).group(0).strip() if re.search(r'^## \\[' + re.escape('$VERSION') + r'\\].*?(?=^## \\[|\\Z)', open('$CHANGELOG_PATH').read(), re.M|re.S) else '')" 2>/dev/null || echo "")
+
+          # Create release
+          if [ -n "$CHANGELOG_CONTENT" ]; then
+            gh release create "$TAG_NAME" --title "Release $PACKAGE $VERSION" --notes "$CHANGELOG_CONTENT" --target "$GITHUB_SHA" --draft || true
           else
-            echo "Warning: Changelog file not found at $CHANGELOG_PATH"
-            # Create release with basic notes
-            gh release create "$TAG_NAME" \
-              --title "Release ${{ env.PACKAGE }} ${{ env.VERSION }}" \
-              --notes "Release of ${{ env.PACKAGE }} version ${{ env.VERSION }}" \
-              --target ${{ github.sha }} \
-              --draft
+            gh release create "$TAG_NAME" --title "Release $PACKAGE $VERSION" --notes "Release of $PACKAGE version $VERSION" --target "$GITHUB_SHA" --draft || true
           fi
         env:
+          PACKAGE: ${{ env.PACKAGE }}
+          VERSION: ${{ env.VERSION }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Debug package info
         run: |
