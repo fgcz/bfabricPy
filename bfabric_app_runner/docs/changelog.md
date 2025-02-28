@@ -4,9 +4,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.0.19\] -2025-02-28
+
 ## Added
 
 - `dispatch_resource_flow` output table allows null filename
+- `--force-storage` is available in more commands now
+
+## Changed
+
+- The `workunit.mk` Makefile now specifies Python 3.13 in the uv venv, so it is more reliable.
 
 ## \[0.0.18\] - 2025-02-25
 
