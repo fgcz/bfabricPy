@@ -18,7 +18,7 @@ ${workunit_definition_yml}
 YAML
 trap 'code=$?; [ $code -ne 0 ] && bfabric-cli api update workunit ${workunit_id} status failed --no-confirm; exit $code' EXIT
 
-set +x
+set -x
 bfabric-cli api update workunit ${workunit_id} status processing --no-confirm
 % if logging_resource_id is not None:
 bfabric-cli api update resource ${logging_resource_id} status available --no-confirm
