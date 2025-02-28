@@ -64,7 +64,7 @@ class SlurmSubmitter:
         return client.save(
             "resource",
             {
-                "name": f"Developer Log WU{workunit_id}",
+                "name": config.submitter_config.config.log_storage_resource_name,
                 "relativepath": config.submitter_config.config.log_storage_filename,
                 "storageid": config.submitter_config.config.log_storage_id,
                 "workunitid": workunit_id,

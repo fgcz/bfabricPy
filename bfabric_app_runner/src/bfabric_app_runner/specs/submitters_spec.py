@@ -13,6 +13,9 @@ class SubmitterSlurmConfigSpec(BaseModel):
     local_script_dir: Path = Field(validation_alias=AliasChoices("local_script_dir", "local-script-dir"))
     worker_scratch_dir: Path = Field(validation_alias=AliasChoices("worker_scratch_dir", "worker-scratch-dir"))
     log_storage_id: int | None = Field(validation_alias=AliasChoices("log_storage_id", "log-storage-id"), default=None)
+    log_storage_resource_name: str | None = Field(
+        validation_alias=AliasChoices("log_storage_resource_name", "log-storage-resource-name"), default=None
+    )
     log_storage_filename: str | None = Field(
         validation_alias=AliasChoices("log_storage_filename", "log-storage-filename"), default=None
     )
@@ -20,9 +23,15 @@ class SubmitterSlurmConfigSpec(BaseModel):
 
     @model_validator(mode="after")
     def either_full_or_no_log_config(self) -> SubmitterSlurmConfigSpec:
-        if (self.log_storage_id is None) != (self.log_storage_filename is None):
-            raise ValueError("Either both log_storage_id and log_storage_filename must be set or neither.")
-        return self
+        if self.log_storage_id is None and self.log_storage_filename is None and self.log_storage_resource_name is None:
+            return self
+        if (
+            self.log_storage_id is not None
+            and self.log_storage_resource_name is not None
+            and self.log_storage_filename is not None
+        ):
+            return self
+        raise ValueError("Either all log storage parameters must be provided, or none of them")
 
 
 class SubmitterSlurmSpec(BaseModel):
