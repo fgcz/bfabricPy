@@ -27,7 +27,7 @@ class VariablesApp(BaseModel):
 
 class VariablesWorkunit(BaseModel):
     id: int
-    file_token: str = Field(default_factory=lambda: secrets.token_hex(32))
+    file_token: str = Field(default_factory=lambda: secrets.token_hex(16))
 
 
 class Variables(BaseModel):
