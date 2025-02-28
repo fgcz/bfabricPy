@@ -34,7 +34,7 @@ class SlurmSubmitter:
         self.generate_script(
             target_path=script_path,
             slurm_config=slurm_config,
-            wrapper_data=workunit_id,
+            wrapper_data=workunit_wrapper_data,
             log_resource_id=log_resource_id,
         )
 
