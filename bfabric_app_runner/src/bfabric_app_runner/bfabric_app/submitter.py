@@ -1,5 +1,4 @@
 import argparse
-import base64
 from functools import cached_property
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -8,13 +7,14 @@ import yaml
 from loguru import logger
 
 from bfabric import Bfabric
-from bfabric.entities import ExternalJob, Executable
+from bfabric.entities import ExternalJob
 from bfabric.utils.cli_integration import use_client
 from bfabric_app_runner.bfabric_app.workunit_wrapper_data import WorkunitWrapperData
+from bfabric_app_runner.bfabric_app.wrapper_creator import WrapperCreator
 from bfabric_app_runner.specs.config_interpolation import Variables, VariablesApp, VariablesWorkunit
 from bfabric_app_runner.specs.submitters_spec import SubmittersSpecTemplate, SubmitterSlurmSpec
-from bfabric_app_runner.submitter.config.slurm_config_template import SlurmConfigTemplate
-from bfabric_app_runner.submitter.config.slurm_workunit_params import SlurmWorkunitParams
+from bfabric_app_runner.bfabric_app.slurm_submitter.config import SlurmConfigTemplate
+from bfabric_app_runner.bfabric_app.slurm_submitter.config import SlurmWorkunitParams
 from bfabric_app_runner.submitter.slurm_submitter import SlurmSubmitter
 
 if TYPE_CHECKING:
@@ -36,17 +36,7 @@ class Submitter:
         return self._external_job.workunit.id
 
     def get_workunit_wrapper_data(self) -> WorkunitWrapperData:
-        # Find the executable
-        executables = Executable.find_by({"workunitid": self._workunit_id}, client=self._client)
-        executables = {key: value for key, value in executables.items() if value["context"] == "WORKUNIT"}
-        if len(executables) != 1:
-            msg = f"Expected exactly one WORKUNIT executable, found executables: {sorted(executables.keys())}"
-            raise ValueError(msg)
-        executable = list(executables.values())[0]
-
-        # Read the wrapper data
-        yaml_data = base64.b64decode(executable["base64"].encode()).decode()
-        return WorkunitWrapperData.model_validate(yaml.safe_load(yaml_data))
+        return WrapperCreator(client=self._client, external_job=self._external_job).get_data()
 
     def get_submitter_spec(self, workunit_wrapper_data: WorkunitWrapperData) -> SubmitterSlurmSpec:
         """Retrieves the submitter spec for the workunit."""

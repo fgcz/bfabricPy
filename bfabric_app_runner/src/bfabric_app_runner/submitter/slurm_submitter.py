@@ -13,8 +13,8 @@ from bfabric_app_runner.specs.config_interpolation import VariablesApp, Variable
 if TYPE_CHECKING:
     from bfabric import Bfabric
     from bfabric_app_runner.specs.submitters_spec import SubmitterSlurmSpec
-    from bfabric_app_runner.submitter.config.slurm_config import SlurmConfig
-    from bfabric_app_runner.submitter.config.slurm_config_template import SlurmConfigTemplate
+    from bfabric_app_runner.bfabric_app.slurm_submitter.config.slurm_config import SlurmConfig
+    from bfabric_app_runner.bfabric_app.slurm_submitter.config import SlurmConfigTemplate
     from bfabric_app_runner.bfabric_app.workunit_wrapper_data import WorkunitWrapperData
 
 _MAIN_BASH_TEMPLATE = """

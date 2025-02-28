@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import base64
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -47,21 +46,6 @@ class WrapperCreator:
         return WorkunitWrapperData(
             workunit_definition=workunit_definition, app_version=app_version, app_runner_version=app_runner_version
         )
-
-    def run(self) -> None:
-        data = self.get_data()
-        yaml_data = yaml.safe_dump(data.model_dump(mode="json"))
-        logger.info("YAML data:\n{}", yaml_data)
-        executable_data = {
-            "context": "WORKUNIT",
-            "name": "workunit_wrapper_data.yml",
-            "status": "available",
-            "workunitid": self._workunit.id,
-            "base64": base64.b64encode(yaml_data.encode()).decode(),
-        }
-        result = self._client.save("executable", executable_data)
-        logger.info("Executable registered: {}", result[0])
-        self._client.save("externaljob", {"id": self._external_job.id, "status": "done"})
 
 
 @use_client
