@@ -23,6 +23,7 @@ hostname
 id
 mkdir -p "{working_directory}"
 cd "{working_directory}"
+bfabric-cli api save workunit {workunit_id} status processing
 {activate_log_resource}
 
 set +x
