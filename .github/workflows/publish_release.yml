@@ -96,14 +96,11 @@ jobs:
           CHANGELOG_CONTENT=""
 
           # Extract changelog if file exists (ultra-compact one-liner)
-          [ -f "$CHANGELOG_PATH" ] && CHANGELOG_CONTENT=$(python3 -c "import re,sys; print(re.search(r'^## \\[' + re.escape('$VERSION') + r'\\].*?(?=^## \\[|\\Z)', open('$CHANGELOG_PATH').read(), re.M|re.S).group(0).strip() if re.search(r'^## \\[' + re.escape('$VERSION') + r'\\].*?(?=^## \\[|\\Z)', open('$CHANGELOG_PATH').read(), re.M|re.S) else '')" 2>/dev/null || echo "")
+          [ -f "$CHANGELOG_PATH" ] && CHANGELOG_CONTENT=$(python3 -c "import re; m=re.search(r'^## \\[$VERSION\\].*?(?=^## \\[|\\Z)', open('$CHANGELOG_PATH').read(), re.M|re.S); print(m.group(0).strip() if m else '')" 2>/dev/null || echo "")
 
           # Create release
-          if [ -n "$CHANGELOG_CONTENT" ]; then
-            gh release create "$TAG_NAME" --title "Release $PACKAGE $VERSION" --notes "$CHANGELOG_CONTENT" --target "$GITHUB_SHA" --draft || true
-          else
-            gh release create "$TAG_NAME" --title "Release $PACKAGE $VERSION" --notes "Release of $PACKAGE version $VERSION" --target "$GITHUB_SHA" --draft || true
-          fi
+          NOTES="${CHANGELOG_CONTENT:-Release of $PACKAGE version $VERSION}"
+          gh release create "$TAG_NAME" --title "Release $PACKAGE $VERSION" --notes "$NOTES" --target "$GITHUB_SHA" --draft
         env:
           PACKAGE: ${{ env.PACKAGE }}
           VERSION: ${{ env.VERSION }}
