@@ -30,7 +30,7 @@ class SlurmJobTemplate:
 
     @classmethod
     def for_params(cls, **params: Any) -> SlurmJobTemplate:
-        path = Path(__file__).parent / "wrapper_template.bash.mako"
+        path = Path(__file__).parent / "slurm_job_template.bash.mako"
         return cls(params=Params.model_validate(params), path=path)
 
     def render(self, target_file: io.TextIOBase) -> None:
