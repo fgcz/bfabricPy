@@ -1,3 +1,4 @@
+from __future__ import annotations
 import argparse
 from functools import cached_property
 from pathlib import Path
@@ -5,8 +6,8 @@ from typing import TYPE_CHECKING
 
 import yaml
 from loguru import logger
+from pydantic import BaseModel
 
-from bfabric import Bfabric
 from bfabric.entities import ExternalJob, Workunit
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric.utils.cli_integration import use_client
@@ -14,13 +15,13 @@ from bfabric_app_runner.app_runner.resolve_app import resolve_app
 from bfabric_app_runner.bfabric_app.slurm_submitter.config.slurm_config_template import SlurmConfigTemplate
 from bfabric_app_runner.bfabric_app.slurm_submitter.config.slurm_workunit_params import SlurmWorkunitParams
 from bfabric_app_runner.bfabric_app.slurm_submitter.slurm_submitter import SlurmSubmitter
-from bfabric_app_runner.bfabric_app.workunit_wrapper_data import WorkunitWrapperData
 from bfabric_app_runner.specs.app.app_spec import AppSpecTemplate
+from bfabric_app_runner.specs.app.app_version import AppVersion  # noqa: TC001
 from bfabric_app_runner.specs.config_interpolation import Variables, VariablesApp, VariablesWorkunit
 from bfabric_app_runner.specs.submitters_spec import SubmittersSpecTemplate, SubmitterSlurmSpec
 
-
 if TYPE_CHECKING:
+    from bfabric import Bfabric
     from bfabric_app_runner.specs.submitter_ref import SubmitterRef
 
 
@@ -83,6 +84,12 @@ class Submitter:
         )
         submitter = SlurmSubmitter(slurm_config_template)
         submitter.submit(workunit_wrapper_data=workunit_wrapper_data, client=self._client)
+
+
+class WorkunitWrapperData(BaseModel):
+    workunit_definition: WorkunitDefinition
+    app_version: AppVersion
+    app_runner_version: str
 
 
 def get_data(workunit: Workunit) -> WorkunitWrapperData:

@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from bfabric import Bfabric
     from pathlib import Path
     from bfabric_app_runner.bfabric_app.slurm_submitter.config.slurm_config import SlurmConfig
-    from bfabric_app_runner.bfabric_app.workunit_wrapper_data import WorkunitWrapperData
+    from bfabric_app_runner.bfabric_app.submitter import WorkunitWrapperData
     from bfabric_app_runner.bfabric_app.slurm_submitter.config.slurm_config_template import SlurmConfigTemplate
 
 

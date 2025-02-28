@@ -10,7 +10,7 @@ from bfabric import Bfabric
 from bfabric.entities import Workunit, ExternalJob
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric_app_runner.bfabric_app.submitter import Submitter
-from bfabric_app_runner.bfabric_app.workunit_wrapper_data import WorkunitWrapperData
+from bfabric_app_runner.bfabric_app.submitter import WorkunitWrapperData
 from bfabric_app_runner.specs.app.app_version import AppVersion
 from bfabric_app_runner.specs.submitters_spec import SubmittersSpecTemplate, SubmitterSlurmSpec
 from tests.conftest import yaml_fixture
