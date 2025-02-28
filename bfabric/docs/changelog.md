@@ -10,6 +10,14 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Fixed
+
+- Handle problematic characters in `Workunit.store_output_folder`.
+
+### Added
+
+- Generic functionality in `bfabric.utils.path_safe_name` to validate names for use in paths.
+
 ## \[1.13.22\] - 2025-02-19
 
 ### Fixed
