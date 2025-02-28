@@ -9,12 +9,12 @@ from loguru import logger
 from bfabric import Bfabric
 from bfabric.entities import ExternalJob
 from bfabric.utils.cli_integration import use_client
+from bfabric_app_runner.bfabric_app.slurm_submitter.config.slurm_config_template import SlurmConfigTemplate
+from bfabric_app_runner.bfabric_app.slurm_submitter.config.slurm_workunit_params import SlurmWorkunitParams
 from bfabric_app_runner.bfabric_app.workunit_wrapper_data import WorkunitWrapperData
 from bfabric_app_runner.bfabric_app.wrapper_creator import WrapperCreator
 from bfabric_app_runner.specs.config_interpolation import Variables, VariablesApp, VariablesWorkunit
 from bfabric_app_runner.specs.submitters_spec import SubmittersSpecTemplate, SubmitterSlurmSpec
-from bfabric_app_runner.bfabric_app.slurm_submitter.config import SlurmConfigTemplate
-from bfabric_app_runner.bfabric_app.slurm_submitter.config import SlurmWorkunitParams
 from bfabric_app_runner.submitter.slurm_submitter import SlurmSubmitter
 
 if TYPE_CHECKING:
