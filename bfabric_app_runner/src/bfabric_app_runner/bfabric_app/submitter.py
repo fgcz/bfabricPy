@@ -89,8 +89,7 @@ class Submitter:
             workunit_config=workunit_config,
         )
         submitter = SlurmSubmitter(slurm_config_template)
-        submitter.submit(workunit_wrapper_data=workunit_wrapper_data)
-        submitter.create_log_resource(workunit_wrapper_data=workunit_wrapper_data, client=self._client)
+        submitter.submit(workunit_wrapper_data=workunit_wrapper_data, client=self._client)
 
 
 @use_client

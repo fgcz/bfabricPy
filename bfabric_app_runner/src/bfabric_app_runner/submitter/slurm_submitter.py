@@ -23,6 +23,7 @@ hostname
 id
 mkdir -p "{working_directory}"
 cd "{working_directory}"
+{activate_log_resource}
 
 set +x
 tee app_version.yml <<YAML
@@ -55,7 +56,11 @@ class SlurmSubmitter:
         return f"{script_header}\n\n{main_command}"
 
     def _get_main_command(
-        self, workunit_wrapper_data: WorkunitWrapperData, working_directory: str, submitter_config: SubmitterSlurmSpec
+        self,
+        workunit_wrapper_data: WorkunitWrapperData,
+        working_directory: str,
+        submitter_config: SubmitterSlurmSpec,
+        log_resource_id: int | None,
     ) -> str:
         app_version_yml = yaml.safe_dump(workunit_wrapper_data.app_version.model_dump(mode="json"))
         workunit_definition_yml = yaml.safe_dump(workunit_wrapper_data.workunit_definition.model_dump(mode="json"))
@@ -65,6 +70,10 @@ class SlurmSubmitter:
             if not submitter_config.config.force_storage
             else f"--force-storage {str(submitter_config.config.force_storage)}"
         )
+        if log_resource_id is not None:
+            activate_log_resource = f"bfabric-cli api save resource {log_resource_id} status available"
+        else:
+            activate_log_resource = ""
         render_args = dict(
             app_version_yml=app_version_yml,
             workunit_definition_yml=workunit_definition_yml,
@@ -72,6 +81,7 @@ class SlurmSubmitter:
             working_directory=working_directory,
             force_storage_flags=force_storage_flags,
             workunit_id=workunit_wrapper_data.workunit_definition.registration.workunit_id,
+            activate_log_resource=activate_log_resource,
         )
         logger.info("Render args: {}", render_args)
         return _MAIN_BASH_TEMPLATE.format(**render_args)
@@ -90,7 +100,7 @@ class SlurmSubmitter:
         workunit = VariablesWorkunit(id=workunit_wrapper_data.workunit_definition.registration.workunit_id)
         return self._config_template.evaluate(app=app, workunit=workunit)
 
-    def submit(self, workunit_wrapper_data: WorkunitWrapperData) -> None:
+    def submit(self, workunit_wrapper_data: WorkunitWrapperData, client: Bfabric) -> None:
         # Evaluate the config
         slurm_config = self.evaluate_config(workunit_wrapper_data=workunit_wrapper_data)
         logger.info("Slurm Config: {}", slurm_config)
@@ -98,6 +108,9 @@ class SlurmSubmitter:
         # Determine the script path
         workunit_id = workunit_wrapper_data.workunit_definition.registration.workunit_id
         script_path = slurm_config.submitter_config.config.local_script_dir / f"workunitid-{workunit_id}_run.bash"
+
+        # Create the log resource
+        log_resource_id = self._create_log_resource(config=slurm_config, workunit_id=workunit_id, client=client)
 
         # Determine the working directory.
         working_directory = slurm_config.get_scratch_dir()
@@ -107,6 +120,7 @@ class SlurmSubmitter:
             workunit_wrapper_data=workunit_wrapper_data,
             working_directory=working_directory,
             submitter_config=slurm_config.submitter_config,
+            log_resource_id=log_resource_id,
         )
         script = self._compose_script(main_command=main_command, slurm_config=slurm_config)
         script_path.write_text(script)
@@ -120,20 +134,19 @@ class SlurmSubmitter:
         logger.info("Running {}", shlex.join(cmd))
         subprocess.run(cmd, env=env, check=True)
 
-    def create_log_resource(self, workunit_wrapper_data: WorkunitWrapperData, client: Bfabric) -> None:
-        config = self.evaluate_config(workunit_wrapper_data=workunit_wrapper_data)
+    def _create_log_resource(self, config: SlurmConfig, workunit_id: int, client: Bfabric) -> int | None:
+        """Creates the log resource and returns its id, or if no log storage ID is provided, returns None."""
         if config.submitter_config.config.log_storage_id is None:
             logger.info("No log storage ID provided, skipping log resource creation")
-            return
+            return None
 
-        workunit_id = workunit_wrapper_data.workunit_definition.registration.workunit_id
-        client.save(
+        return client.save(
             "resource",
             {
                 "name": f"Developer Log WU{workunit_id}",
                 "relativepath": config.submitter_config.config.log_storage_filename,
                 "storageid": config.submitter_config.config.log_storage_id,
                 "workunitid": workunit_id,
-                "status": "available",
+                "status": "pending",
             },
-        )
+        )[0]["id"]
