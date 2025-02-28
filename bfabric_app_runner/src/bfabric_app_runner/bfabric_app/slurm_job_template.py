@@ -8,10 +8,10 @@ import yaml
 from loguru import logger
 from pydantic import BaseModel
 from bfabric_app_runner.specs.app.app_version import AppVersion  # noqa: TC001
+from bfabric.experimental.workunit_definition import WorkunitDefinition  # noqa: TC002
 
 if TYPE_CHECKING:
     import io
-    from bfabric.experimental.workunit_definition import WorkunitDefinition
 
 
 class Params(BaseModel):
