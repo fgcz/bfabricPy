@@ -13,11 +13,12 @@ from bfabric.utils.cli_integration import use_client
 from bfabric_app_runner.app_runner.resolve_app import resolve_app
 from bfabric_app_runner.bfabric_app.slurm_submitter.config.slurm_config_template import SlurmConfigTemplate
 from bfabric_app_runner.bfabric_app.slurm_submitter.config.slurm_workunit_params import SlurmWorkunitParams
+from bfabric_app_runner.bfabric_app.slurm_submitter.slurm_submitter import SlurmSubmitter
 from bfabric_app_runner.bfabric_app.workunit_wrapper_data import WorkunitWrapperData
 from bfabric_app_runner.specs.app.app_spec import AppSpecTemplate
 from bfabric_app_runner.specs.config_interpolation import Variables, VariablesApp, VariablesWorkunit
 from bfabric_app_runner.specs.submitters_spec import SubmittersSpecTemplate, SubmitterSlurmSpec
-from bfabric_app_runner.submitter.slurm_submitter import SlurmSubmitter
+
 
 if TYPE_CHECKING:
     from bfabric_app_runner.specs.submitter_ref import SubmitterRef

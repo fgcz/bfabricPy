@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import os
+import shlex
+import subprocess
 from typing import TYPE_CHECKING
 
 from loguru import logger
@@ -18,6 +21,30 @@ if TYPE_CHECKING:
 class SlurmSubmitter:
     def __init__(self, config_template: SlurmConfigTemplate) -> None:
         self._config_template = config_template
+
+    def submit(self, workunit_wrapper_data: WorkunitWrapperData, client: Bfabric) -> None:
+        slurm_config = self.evaluate_config(workunit_wrapper_data)
+
+        # Determine the script path
+        workunit_id = workunit_wrapper_data.workunit_definition.registration.workunit_id
+        script_path = slurm_config.submitter_config.config.local_script_dir / f"workunitid-{workunit_id}_run.bash"
+
+        # Generate the script
+        log_resource_id = self._create_log_resource(config=slurm_config, workunit_id=workunit_id, client=client)
+        self.generate_script(
+            target_path=script_path,
+            slurm_config=slurm_config,
+            wrapper_data=workunit_id,
+            log_resource_id=log_resource_id,
+        )
+
+        # Submit the script
+        sbatch_bin = slurm_config.submitter_config.config.slurm_root / "bin" / "sbatch"
+        env = os.environ | {"SLURMROOT": slurm_config.submitter_config.config.slurm_root}
+        logger.info("Script written to {}", script_path)
+        cmd = [str(sbatch_bin), str(script_path)]
+        logger.info("Running {}", shlex.join(cmd))
+        subprocess.run(cmd, env=env, check=True)
 
     def evaluate_config(self, workunit_wrapper_data: WorkunitWrapperData) -> SlurmConfig:
         app = VariablesApp(
@@ -46,9 +73,12 @@ class SlurmSubmitter:
         )[0]["id"]
 
     def generate_script(
-        self, target_path: Path, wrapper_data: WorkunitWrapperData, log_resource_id: int | None
+        self,
+        target_path: Path,
+        slurm_config: SlurmConfig,
+        wrapper_data: WorkunitWrapperData,
+        log_resource_id: int | None,
     ) -> None:
-        slurm_config = self.evaluate_config(wrapper_data)
         main_command = self._get_main_command(
             slurm_config=slurm_config, app_runner_version=wrapper_data.app_runner_version
         )
