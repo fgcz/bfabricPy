@@ -81,21 +81,6 @@ class SlurmSubmitter:
         spec = f"@{version}" if "git" in version else f"=={version}"
         return f'uv run -p 3.13 --with "bfabric_app_runner{spec}" bfabric-app-runner'
 
-    def _add_link_to_logs(
-        self, client: Bfabric, workunit_wrapper_data: WorkunitWrapperData, submitter_config: SubmitterSlurmSpec
-    ) -> None:
-        if submitter_config.config.log_viewer_url:
-            # TODO only add if not there already
-            workunit_id = workunit_wrapper_data.workunit_definition.registration.workunit_id
-            obj = {
-                "name": f"WU{workunit_id} Logs",
-                "parentclassname": "workunit",
-                "parentid": workunit_id,
-                "url": submitter_config.config.log_viewer_url,
-            }
-            logger.info("Adding link to logs: {}", obj)
-            client.save("link", obj)
-
     def evaluate_config(self, workunit_wrapper_data: WorkunitWrapperData) -> SlurmConfig:
         app = VariablesApp(
             id=workunit_wrapper_data.workunit_definition.registration.application_id,
@@ -135,8 +120,18 @@ class SlurmSubmitter:
         logger.info("Running {}", shlex.join(cmd))
         subprocess.run(cmd, env=env, check=True)
 
-    def create_monitor_links(self, workunit_wrapper_data: WorkunitWrapperData, client: Bfabric) -> None:
+    def create_log_resource(self, workunit_wrapper_data: WorkunitWrapperData, client: Bfabric) -> None:
         config = self.evaluate_config(workunit_wrapper_data=workunit_wrapper_data)
-        self._add_link_to_logs(
-            client=client, workunit_wrapper_data=workunit_wrapper_data, submitter_config=config.submitter_config
+        if config.submitter_config.config.log_storage_id is None:
+            logger.info("No log storage ID provided, skipping log resource creation")
+            return
+
+        client.save(
+            "resource",
+            {
+                "name": f"Developer Log WU{workunit_wrapper_data.workunit_definition.registration.workunit_id}",
+                "relativepath": config.submitter_config.config.log_storage_filename,
+                "storageid": config.submitter_config.config.log_storage_id,
+                "status": "available",
+            },
         )

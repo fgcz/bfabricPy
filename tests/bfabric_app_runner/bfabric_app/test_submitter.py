@@ -144,6 +144,6 @@ def test_run(
 
     # Verify
     mock_slurm_submitter.submit.assert_called_once_with(workunit_wrapper_data=mock_workunit_wrapper_data)
-    mock_slurm_submitter.create_monitor_links.assert_called_once_with(
+    mock_slurm_submitter.create_log_resource.assert_called_once_with(
         workunit_wrapper_data=mock_workunit_wrapper_data, client=mock_client
     )
