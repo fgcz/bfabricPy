@@ -93,11 +93,11 @@ class SlurmSubmitter:
         with target_path.open("w") as target_file:
             slurm_job_template.render(target_file=target_file)
 
-    def _get_force_storage_flag(self, slurm_config: SlurmConfig) -> str:
+    def _get_force_storage_flag(self, slurm_config: SlurmConfig) -> list[str]:
         return (
-            ""
+            []
             if not slurm_config.submitter_config.config.force_storage
-            else f"--force-storage {str(slurm_config.submitter_config.config.force_storage)}"
+            else ["--force-storage", str(slurm_config.submitter_config.config.force_storage)]
         )
 
     def _get_main_command(self, slurm_config: SlurmConfig, app_runner_version: str) -> list[str]:
