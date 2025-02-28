@@ -1,21 +1,21 @@
 from __future__ import annotations
 
-import argparse
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import yaml
+from loguru import logger
+
 from bfabric import Bfabric  # noqa: TC002
-from bfabric.entities import ExternalJob
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric.utils.cli_integration import use_client
 from bfabric_app_runner.app_runner.resolve_app import resolve_app
 from bfabric_app_runner.bfabric_app.workunit_wrapper_data import WorkunitWrapperData
 from bfabric_app_runner.specs.app.app_spec import AppSpecTemplate
-from loguru import logger
 
 if TYPE_CHECKING:
     from bfabric.entities import Workunit
+    from bfabric.entities import ExternalJob
 
 
 class WrapperCreator:
@@ -52,12 +52,11 @@ class WrapperCreator:
 @logger.catch(reraise=True)
 def app(client: Bfabric) -> None:
     """Wrapper creator CLI."""
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-j", type=int)
-    args = parser.parse_args()
-    external_job = ExternalJob.find(id=args.j, client=client)
-    wrapper_creator = WrapperCreator(client=client, external_job=external_job)
-    wrapper_creator.run()
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument("-j", type=int)
+    # args = parser.parse_args()
+    # external_job = ExternalJob.find(id=args.j, client=client)
+    # wrapper_creator = WrapperCreator(client=client, external_job=external_job)
 
 
 if __name__ == "__main__":
