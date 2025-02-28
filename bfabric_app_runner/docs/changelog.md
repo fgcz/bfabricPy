@@ -4,6 +4,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## Added
+
+- `dispatch_resource_flow` output table allows null filename
+
+## \[0.0.18\] - 2025-02-25
+
 ### Added
 
 - `static_yaml` input type to write parameters etc.

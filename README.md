@@ -4,6 +4,9 @@
 [![Nightly Integration Tests](https://github.com/fgcz/bfabricPy-tests/actions/workflows/nightly_tests.yml/badge.svg)](https://github.com/fgcz/bfabricPy-tests/actions/workflows/nightly_tests.yml)
 [![EDBT'10](https://img.shields.io/badge/EDBT-10.1145%2F1739041.1739135-brightgreen)](https://doi.org/10.1145/1739041.1739135)
 [![JIB](https://img.shields.io/badge/JIB-10.1515%2Fjib.2022.0031-brightgreen)](https://doi.org/10.1515/jib-2022-0031)
+[![PyPI - bfabric](https://img.shields.io/pypi/v/bfabric?label=bfabric&logo=python&logoColor=white)](https://pypi.org/project/bfabric/)
+[![PyPI - bfabric-scripts](https://img.shields.io/pypi/v/bfabric-scripts?label=bfabric-scripts&logo=python&logoColor=white)](https://pypi.org/project/bfabric-scripts/)
+[![PyPI - bfabric-app-runner](https://img.shields.io/pypi/v/bfabric-app-runner?label=bfabric-app-runner&logo=python&logoColor=white)](https://pypi.org/project/bfabric-app-runner/)
 
 ## Documentation
 

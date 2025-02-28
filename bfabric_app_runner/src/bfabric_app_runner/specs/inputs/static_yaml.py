@@ -6,7 +6,7 @@ from bfabric import Bfabric
 
 
 class StaticYamlSpec(BaseModel):
-    type: Literal["static_yaml"]
+    type: Literal["static_yaml"] = "static_yaml"
 
     data: dict | list
     """The YAML document content to write."""

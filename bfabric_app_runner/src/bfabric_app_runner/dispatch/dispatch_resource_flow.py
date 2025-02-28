@@ -26,7 +26,7 @@ class OutputTable(pa.DataFrameModel):
         add_missing_columns = True
 
     resource_id: int
-    filename: str
+    filename: str = Field(nullable=True)
     task: str = Field(default=pl.lit("work"), str_matches=r"^\w+$")
 
 
