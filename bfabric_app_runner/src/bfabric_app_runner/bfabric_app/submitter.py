@@ -7,12 +7,14 @@ import yaml
 from loguru import logger
 
 from bfabric import Bfabric
-from bfabric.entities import ExternalJob
+from bfabric.entities import ExternalJob, Workunit
+from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric.utils.cli_integration import use_client
+from bfabric_app_runner.app_runner.resolve_app import resolve_app
 from bfabric_app_runner.bfabric_app.slurm_submitter.config.slurm_config_template import SlurmConfigTemplate
 from bfabric_app_runner.bfabric_app.slurm_submitter.config.slurm_workunit_params import SlurmWorkunitParams
 from bfabric_app_runner.bfabric_app.workunit_wrapper_data import WorkunitWrapperData
-from bfabric_app_runner.bfabric_app.wrapper_creator import WrapperCreator
+from bfabric_app_runner.specs.app.app_spec import AppSpecTemplate
 from bfabric_app_runner.specs.config_interpolation import Variables, VariablesApp, VariablesWorkunit
 from bfabric_app_runner.specs.submitters_spec import SubmittersSpecTemplate, SubmitterSlurmSpec
 from bfabric_app_runner.submitter.slurm_submitter import SlurmSubmitter
@@ -36,7 +38,7 @@ class Submitter:
         return self._external_job.workunit.id
 
     def get_workunit_wrapper_data(self) -> WorkunitWrapperData:
-        return WrapperCreator(client=self._client, external_job=self._external_job).get_data()
+        return get_data(workunit=self._external_job.workunit)
 
     def get_submitter_spec(self, workunit_wrapper_data: WorkunitWrapperData) -> SubmitterSlurmSpec:
         """Retrieves the submitter spec for the workunit."""
@@ -80,6 +82,23 @@ class Submitter:
         )
         submitter = SlurmSubmitter(slurm_config_template)
         submitter.submit(workunit_wrapper_data=workunit_wrapper_data, client=self._client)
+
+
+def get_data(workunit: Workunit) -> WorkunitWrapperData:
+    """Returns the data to be written to WORKUNIT context executable."""
+    workunit_definition = WorkunitDefinition.from_workunit(workunit=workunit)
+    path = Path(workunit.application.executable["program"])
+    logger.info("Reading app spec from: {}", path)
+    app_spec_template = AppSpecTemplate.model_validate(yaml.safe_load(path.read_text()))
+    app_spec = app_spec_template.evaluate(
+        app_id=workunit_definition.registration.application_id,
+        app_name=workunit_definition.registration.application_name,
+    )
+    app_version = resolve_app(versions=app_spec, workunit_definition=workunit_definition)
+    app_runner_version = app_spec.bfabric.app_runner
+    return WorkunitWrapperData(
+        workunit_definition=workunit_definition, app_version=app_version, app_runner_version=app_runner_version
+    )
 
 
 @use_client
