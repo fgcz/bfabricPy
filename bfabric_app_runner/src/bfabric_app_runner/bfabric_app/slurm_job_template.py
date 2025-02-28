@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING
-
+from typing import TYPE_CHECKING, Any
+import shlex
 import mako.template
+import yaml
 from loguru import logger
 from pydantic import BaseModel
 
@@ -13,29 +14,34 @@ if TYPE_CHECKING:
     from bfabric_app_runner.specs.app.app_version import AppVersion
 
 
-class WrapperTemplateParams(BaseModel):
+class Params(BaseModel):
     app_version: AppVersion
     workunit_definition: WorkunitDefinition
-    log_resource_id: int | None
+    working_directory: Path
+    logging_resource_id: int | None
     command: list[str]
+    sbatch_params: dict[str, str]
 
 
-class WrapperTemplate:
-    def __init__(self, params: WrapperTemplateParams, path: Path) -> None:
+class SlurmJobTemplate:
+    def __init__(self, params: Params, path: Path) -> None:
         self._params = params
         self._path = path
 
     @classmethod
-    def for_params(cls, params: WrapperTemplateParams) -> WrapperTemplate:
+    def for_params(cls, **params: Any) -> SlurmJobTemplate:
         path = Path(__file__).parent / "wrapper_template.bash.mak"
-        return cls(params=params, path=path)
+        return cls(params=Params.model_validate(params), path=path)
 
     def render(self, target_file: io.TextIOBase) -> None:
         params = {
-            "app_version": self._params.app_version.model_dump(mode="json"),
-            "workunit_definition": self._params.workunit_definition.model_dump(mode="json"),
+            "app_version_yml": yaml.safe_dump(self._params.app_version.model_dump(mode="json")),
+            "workunit_definition_yml": yaml.safe_dump(self._params.workunit_definition.model_dump(mode="json")),
             "workunit_id": self._params.workunit_definition.registration.workunit_id,
-            "log_resource_id": self._params.log_resource_id,
+            "working_directory": str(self._params.working_directory),
+            "logging_resource_id": self._params.logging_resource_id,
+            "command": shlex.join(self._params.command),
+            "sbatch_params": self._params.sbatch_params,
         }
         logger.debug("Rendering {} with params: {}", self._path, params)
         template = mako.template.Template(filename=str(self._path))
