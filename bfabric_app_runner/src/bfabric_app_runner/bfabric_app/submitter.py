@@ -86,6 +86,7 @@ class Submitter:
 
 def get_data(workunit: Workunit) -> WorkunitWrapperData:
     """Returns the data to be written to WORKUNIT context executable."""
+    # TODO this can certainly be cleaned up further, it's an interim refactoring state
     workunit_definition = WorkunitDefinition.from_workunit(workunit=workunit)
     path = Path(workunit.application.executable["program"])
     logger.info("Reading app spec from: {}", path)
