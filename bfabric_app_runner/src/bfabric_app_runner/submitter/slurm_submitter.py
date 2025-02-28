@@ -126,12 +126,14 @@ class SlurmSubmitter:
             logger.info("No log storage ID provided, skipping log resource creation")
             return
 
+        workunit_id = workunit_wrapper_data.workunit_definition.registration.workunit_id
         client.save(
             "resource",
             {
-                "name": f"Developer Log WU{workunit_wrapper_data.workunit_definition.registration.workunit_id}",
+                "name": f"Developer Log WU{workunit_id}",
                 "relativepath": config.submitter_config.config.log_storage_filename,
                 "storageid": config.submitter_config.config.log_storage_id,
+                "workunitid": workunit_id,
                 "status": "available",
             },
         )
