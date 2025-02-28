@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from loguru import logger
 
-from bfabric_app_runner.bfabric_app.slurm_job_template import SlurmJobTemplate
+from bfabric_app_runner.bfabric_app.slurm_submitter.slurm_job_template import SlurmJobTemplate
 from bfabric_app_runner.specs.config_interpolation import VariablesApp, VariablesWorkunit
 
 if TYPE_CHECKING:
