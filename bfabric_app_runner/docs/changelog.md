@@ -4,14 +4,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Added
+
+- input `FileSpec` introduces a `"protocol"` field to make it more future proof (but is optional for now)
+
 ## \[0.0.19\] -2025-02-28
 
-## Added
+### Added
 
 - `dispatch_resource_flow` output table allows null filename
 - `--force-storage` is available in more commands now
 
-## Changed
+### Changed
 
 - The `workunit.mk` Makefile now specifies Python 3.13 in the uv venv, so it is more reliable.
 

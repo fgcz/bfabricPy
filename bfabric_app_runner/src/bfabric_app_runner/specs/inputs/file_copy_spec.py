@@ -12,6 +12,7 @@ if TYPE_CHECKING:
 
 class FileSourceLocal(BaseModel):
     local: AbsoluteFilePath
+    protocol: Literal["local"] = "local"
 
     def get_filename(self) -> str:
         return self.local.split("/")[-1]
@@ -20,6 +21,7 @@ class FileSourceLocal(BaseModel):
 class FileSourceSshValue(BaseModel):
     host: str
     path: AbsoluteFilePath
+    protocol: Literal["ssh"] = "ssh"
 
 
 class FileSourceSsh(BaseModel):
