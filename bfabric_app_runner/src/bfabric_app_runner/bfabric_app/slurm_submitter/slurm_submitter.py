@@ -119,5 +119,5 @@ class SlurmSubmitter:
             "workunit_definition.yml",
             *force_storage_flags,
             "--work-dir",
-            "$(pwd)",
+            ".",
         ]
