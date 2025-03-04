@@ -14,6 +14,10 @@ Versioning currently follows `X.Y.Z` where
 
 - Handle problematic characters in `Workunit.store_output_folder`.
 
+### Changed
+
+- `WorkunitDefinition` uses `PathSafeStr` to normalize app and workunit names.
+
 ### Added
 
 - Generic functionality in `bfabric.utils.path_safe_name` to validate names for use in paths.
