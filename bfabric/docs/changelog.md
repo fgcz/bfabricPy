@@ -13,6 +13,7 @@ Versioning currently follows `X.Y.Z` where
 ### Fixed
 
 - Handle problematic characters in `Workunit.store_output_folder`.
+- `BfabricRequestError` did not properly subclass RuntimeError.
 
 ### Changed
 
