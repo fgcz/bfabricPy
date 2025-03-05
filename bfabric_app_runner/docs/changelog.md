@@ -4,10 +4,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
-### Added
-
-- input `FileSpec` introduces a `"protocol"` field to make it more future proof (but is optional for now)
-
 ### Fixed
 
 - `workunit.mk` correctly chooses between `app_version.yml` and `app_definition.yml` depending on availability

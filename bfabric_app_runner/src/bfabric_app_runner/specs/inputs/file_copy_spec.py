@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from typing import Literal, TYPE_CHECKING, Self
 
-from pydantic import BaseModel, model_validator
-
 from bfabric_app_runner.specs.common_types import RelativeFilePath, AbsoluteFilePath  # noqa: TC001
+from pydantic import BaseModel, model_validator
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
@@ -12,7 +11,6 @@ if TYPE_CHECKING:
 
 class FileSourceLocal(BaseModel):
     local: AbsoluteFilePath
-    protocol: Literal["local"] = "local"
 
     def get_filename(self) -> str:
         return self.local.split("/")[-1]
@@ -21,7 +19,6 @@ class FileSourceLocal(BaseModel):
 class FileSourceSshValue(BaseModel):
     host: str
     path: AbsoluteFilePath
-    protocol: Literal["ssh"] = "ssh"
 
 
 class FileSourceSsh(BaseModel):
