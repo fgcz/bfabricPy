@@ -38,6 +38,8 @@ def check_integrity(spec: InputSpecType, local_path: Path, client: Bfabric) -> I
 
     if isinstance(spec, BfabricResourceSpec):
         return _check_resource_spec(spec, local_path, client)
+    elif isinstance(spec, FileSpec):
+        return _check_file_spec(spec, local_path, client)
     elif isinstance(spec, BfabricDatasetSpec):
         return _check_dataset_spec(spec, local_path, client)
     elif isinstance(spec, FileSpec | BfabricOrderFastaSpec | StaticYamlSpec) or spec.type == "bfabric_annotation":
@@ -49,6 +51,15 @@ def check_integrity(spec: InputSpecType, local_path: Path, client: Bfabric) -> I
 def _check_resource_spec(spec: BfabricResourceSpec, local_path: Path, client: Bfabric) -> IntegrityState:
     expected_checksum = Resource.find(id=spec.id, client=client)["filechecksum"]
     if expected_checksum == md5sum(local_path):
+        return IntegrityState.Correct
+    else:
+        return IntegrityState.Incorrect
+
+
+def _check_file_spec(spec: FileSpec, local_path: Path, client: Bfabric) -> IntegrityState:
+    if spec.checksum is None:
+        return IntegrityState.NotChecked
+    elif spec.checksum == md5sum(local_path):
         return IntegrityState.Correct
     else:
         return IntegrityState.Incorrect
