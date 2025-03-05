@@ -33,6 +33,7 @@ class FileSpec(BaseModel):
     source: FileSourceSsh | FileSourceLocal
     filename: RelativeFilePath | None = None
     link: bool = False
+    checksum: str | None = None
 
     @model_validator(mode="after")
     def validate_no_link_ssh(self) -> Self:
