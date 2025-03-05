@@ -6,6 +6,7 @@ from pydantic import SecretStr
 
 from bfabric.engine.engine_zeep import EngineZeep, _zeep_query_append_skipped
 from bfabric.errors import BfabricRequestError
+from bfabric.results.response_delete import ResponseDelete
 from bfabric.results.result_container import ResultContainer
 
 
@@ -88,14 +89,17 @@ def test_save_method_not_found(engine_zeep, mock_auth, mock_zeep_client, mocker)
 
 
 def test_delete(engine_zeep, mock_auth, mock_zeep_client, mocker):
+    mock_construct_response = mocker.patch.object(ResponseDelete, "from_zeep")
     mocker.patch.object(engine_zeep, "_get_client", return_value=mock_zeep_client)
-    mock_convert = mocker.patch.object(engine_zeep, "_convert_results")
 
-    engine_zeep.delete("sample", 123, mock_auth)
+    result = engine_zeep.delete("sample", 123, mock_auth)
 
     expected_query = {"login": "test_user", "password": "test_pass", "id": 123}
     mock_zeep_client.service.delete.assert_called_once_with(expected_query)
-    mock_convert.assert_called_once()
+    mock_construct_response.assert_called_once_with(
+        zeep_response=mock_zeep_client.service.delete.return_value, endpoint="sample"
+    )
+    assert result == mock_construct_response.return_value
 
 
 def test_delete_empty_list(engine_zeep, mock_auth, mock_zeep_client, mocker):
