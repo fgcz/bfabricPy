@@ -9,7 +9,7 @@ from typing import assert_never
 from loguru import logger
 
 from bfabric import Bfabric
-from bfabric_app_runner.specs.inputs.file_copy_spec import (
+from bfabric_app_runner.specs.inputs.file_spec import (
     FileSpec,
     FileSourceSsh,
     FileSourceLocal,

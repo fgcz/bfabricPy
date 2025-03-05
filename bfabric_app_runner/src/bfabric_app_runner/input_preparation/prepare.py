@@ -3,8 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Literal, assert_never
 
 import yaml
-from loguru import logger
-
 from bfabric_app_runner.input_preparation.collect_annotation import prepare_annotation
 from bfabric_app_runner.input_preparation.integrity import IntegrityState
 from bfabric_app_runner.input_preparation.list_inputs import list_input_states
@@ -12,8 +10,7 @@ from bfabric_app_runner.input_preparation.prepare_file_spec import prepare_file_
 from bfabric_app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
 from bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec import BfabricOrderFastaSpec
 from bfabric_app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
-from bfabric_app_runner.specs.inputs.file_copy_spec import FileSpec
-from bfabric_app_runner.specs.inputs.file_scp_spec import FileScpSpec
+from bfabric_app_runner.specs.inputs.file_spec import FileSpec
 from bfabric_app_runner.specs.inputs.static_yaml import StaticYamlSpec
 from bfabric_app_runner.specs.inputs_spec import (
     InputSpecType,
@@ -21,6 +18,8 @@ from bfabric_app_runner.specs.inputs_spec import (
 )
 from bfabric_app_runner.util.checksums import md5sum
 from bfabric_app_runner.util.scp import scp
+from loguru import logger
+
 from bfabric.entities import Resource, Dataset, Workunit, Order
 
 if TYPE_CHECKING:
@@ -46,8 +45,6 @@ class PrepareInputs:
                 self.prepare_resource(spec)
             elif isinstance(spec, FileSpec):
                 self.prepare_file_spec(spec)
-            elif isinstance(spec, FileScpSpec):
-                self.prepare_file_scp(spec)
             elif isinstance(spec, BfabricDatasetSpec):
                 self.prepare_dataset(spec)
             elif isinstance(spec, StaticYamlSpec):
@@ -97,12 +94,6 @@ class PrepareInputs:
 
     def prepare_file_spec(self, spec: FileSpec) -> None:
         return prepare_file_spec(spec=spec, client=self._client, working_dir=self._working_dir, ssh_user=self._ssh_user)
-
-    def prepare_file_scp(self, spec: FileScpSpec) -> None:
-        scp_uri = f"{spec.host}:{spec.absolute_path}"
-        result_name = spec.resolve_filename(client=self._client)
-        result_path = self._working_dir / result_name
-        scp(scp_uri, str(result_path), user=self._ssh_user)
 
     def prepare_dataset(self, spec: BfabricDatasetSpec) -> None:
         dataset = Dataset.find(id=spec.id, client=self._client)

@@ -3,8 +3,7 @@ from __future__ import annotations
 from enum import Enum
 
 from bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec import BfabricOrderFastaSpec
-from bfabric_app_runner.specs.inputs.file_copy_spec import FileSpec
-from bfabric_app_runner.specs.inputs.file_scp_spec import FileScpSpec
+from bfabric_app_runner.specs.inputs.file_spec import FileSpec
 from bfabric.entities import Resource, Dataset
 from bfabric_app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec  # noqa: TC001
 from bfabric_app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec  # noqa: TC001
@@ -41,10 +40,7 @@ def check_integrity(spec: InputSpecType, local_path: Path, client: Bfabric) -> I
         return _check_resource_spec(spec, local_path, client)
     elif isinstance(spec, BfabricDatasetSpec):
         return _check_dataset_spec(spec, local_path, client)
-    elif (
-        isinstance(spec, FileSpec | FileScpSpec | BfabricOrderFastaSpec | StaticYamlSpec)
-        or spec.type == "bfabric_annotation"
-    ):
+    elif isinstance(spec, FileSpec | BfabricOrderFastaSpec | StaticYamlSpec) or spec.type == "bfabric_annotation":
         return IntegrityState.NotChecked
     else:
         raise ValueError(f"Unsupported spec type: {type(spec)}")

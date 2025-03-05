@@ -9,8 +9,7 @@ from bfabric_app_runner.specs.inputs.bfabric_annotation_spec import BfabricAnnot
 from bfabric_app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
 from bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec import BfabricOrderFastaSpec
 from bfabric_app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
-from bfabric_app_runner.specs.inputs.file_copy_spec import FileSpec
-from bfabric_app_runner.specs.inputs.file_scp_spec import FileScpSpec
+from bfabric_app_runner.specs.inputs.file_spec import FileSpec
 from bfabric_app_runner.specs.inputs.static_yaml import StaticYamlSpec
 
 if TYPE_CHECKING:
@@ -20,7 +19,6 @@ if TYPE_CHECKING:
 InputSpecType = Annotated[
     BfabricResourceSpec
     | FileSpec
-    | FileScpSpec
     | BfabricDatasetSpec
     | BfabricOrderFastaSpec
     | BfabricAnnotationSpec

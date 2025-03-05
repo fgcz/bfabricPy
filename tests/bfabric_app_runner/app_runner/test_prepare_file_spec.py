@@ -12,7 +12,7 @@ from bfabric_app_runner.input_preparation.prepare_file_spec import (
     _operation_link_symbolic,
     _operation_copy_scp,
 )
-from bfabric_app_runner.specs.inputs.file_copy_spec import FileSpec
+from bfabric_app_runner.specs.inputs.file_spec import FileSpec
 from bfabric import Bfabric
 
 

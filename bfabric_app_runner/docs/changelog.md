@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - `workunit.mk` correctly chooses between `app_version.yml` and `app_definition.yml` depending on availability
 
+### Removed
+
+- `file_scp` spec has been removed, one should use `file` instead (`FileSpec`)
+
 ## \[0.0.19\] -2025-02-28
 
 ### Added
