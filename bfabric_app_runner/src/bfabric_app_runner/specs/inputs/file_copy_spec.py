@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from typing import Literal, TYPE_CHECKING, Self
 
-from pydantic import BaseModel, model_validator
-
 from bfabric_app_runner.specs.common_types import RelativeFilePath, AbsoluteFilePath  # noqa: TC001
+from pydantic import BaseModel, model_validator
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
