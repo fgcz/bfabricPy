@@ -7,7 +7,7 @@ from bfabric_app_runner.specs.inputs.file_spec import FileSpec
 from bfabric.entities import Resource, Dataset
 from bfabric_app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec  # noqa: TC001
 from bfabric_app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec  # noqa: TC001
-from bfabric_app_runner.specs.inputs.static_yaml import StaticYamlSpec
+from bfabric_app_runner.specs.inputs.static_yaml_spec import StaticYamlSpec
 from bfabric_app_runner.util.checksums import md5sum
 from typing import TYPE_CHECKING
 

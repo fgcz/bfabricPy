@@ -11,7 +11,7 @@ from bfabric_app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetS
 from bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec import BfabricOrderFastaSpec
 from bfabric_app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
 from bfabric_app_runner.specs.inputs.file_spec import FileSpec
-from bfabric_app_runner.specs.inputs.static_yaml import StaticYamlSpec
+from bfabric_app_runner.specs.inputs.static_yaml_spec import StaticYamlSpec
 from bfabric_app_runner.specs.inputs_spec import (
     InputSpecType,
     InputsSpec,
