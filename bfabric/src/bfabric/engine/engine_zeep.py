@@ -7,6 +7,7 @@ import zeep
 from zeep.helpers import serialize_object
 
 from bfabric.errors import BfabricRequestError, get_response_errors
+from bfabric.results.response_delete import ResponseDelete
 from bfabric.results.result_container import ResultContainer
 from bfabric.results.response_format_dict import clean_result
 
@@ -104,15 +105,12 @@ class EngineZeep:
         :param auth: the authentication handle of the user performing the request
         """
         if isinstance(id, list) and len(id) == 0:
-            print("Warning, attempted to delete an empty list, ignoring")
-            # TODO maybe use error here (and make sure it's consistent)
-            return ResultContainer([], total_pages_api=0)
+            return ResponseDelete.from_empty_request()
 
         query = {"login": auth.login, "password": auth.password.get_secret_value(), "id": id}
-
         client = self._get_client(endpoint)
         response = client.service.delete(query)
-        return self._convert_results(response=response, endpoint=endpoint)
+        return ResponseDelete.from_zeep(zeep_response=response, endpoint=endpoint)
 
     def _get_client(self, endpoint: str) -> zeep.Client:
         if endpoint not in self._cl:

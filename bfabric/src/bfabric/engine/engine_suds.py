@@ -9,8 +9,9 @@ from suds.client import Client
 
 from bfabric.engine.response_format_suds import suds_asdict_recursive
 from bfabric.errors import BfabricRequestError, get_response_errors
-from bfabric.results.result_container import ResultContainer
+from bfabric.results.response_delete import ResponseDelete
 from bfabric.results.response_format_dict import clean_result
+from bfabric.results.result_container import ResultContainer
 
 if TYPE_CHECKING:
     from suds.serviceproxy import ServiceProxy
@@ -46,13 +47,13 @@ class EngineSUDS:
         query = copy.deepcopy(obj)
         query["includedeletableupdateable"] = include_deletable_and_updatable_fields
 
-        full_query = dict(
-            login=auth.login,
-            page=page,
-            password=auth.password.get_secret_value(),
-            query=query,
-            idonly=return_id_only,
-        )
+        full_query = {
+            "login": auth.login,
+            "page": page,
+            "password": auth.password.get_secret_value(),
+            "query": query,
+            "idonly": return_id_only,
+        }
         service = self._get_suds_service(endpoint)
         response = service.read(full_query)
         return self._convert_results(response=response, endpoint=endpoint)
@@ -80,14 +81,11 @@ class EngineSUDS:
         :param auth: the authentication handle of the user performing the request
         """
         if isinstance(id, list) and len(id) == 0:
-            print("Warning, attempted to delete an empty list, ignoring")
-            # TODO maybe use error here (and make sure it's consistent)
-            return ResultContainer([], total_pages_api=0)
-
+            return ResponseDelete.from_empty_request()
         query = {"login": auth.login, "password": auth.password.get_secret_value(), "id": id}
         service = self._get_suds_service(endpoint)
         response = service.delete(query)
-        return self._convert_results(response=response, endpoint=endpoint)
+        return ResponseDelete.from_suds(suds_response=response, endpoint=endpoint)
 
     def _get_suds_service(self, endpoint: str) -> ServiceProxy:
         """Returns a SUDS service for the given endpoint. Reuses existing instances when possible."""

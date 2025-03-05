@@ -12,6 +12,7 @@ Versioning currently follows `X.Y.Z` where
 
 ### Fixed
 
+- Unsuccessful deletions are detected by checking the B-Fabric response.
 - Handle problematic characters in `Workunit.store_output_folder`.
 - `BfabricRequestError` did not properly subclass RuntimeError.
 
