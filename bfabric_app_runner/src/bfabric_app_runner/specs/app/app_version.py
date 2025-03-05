@@ -4,9 +4,8 @@ from typing import Any
 
 from pydantic import BaseModel, field_validator
 
-from bfabric_app_runner.specs import config_interpolation
 from bfabric_app_runner.specs.app.commands_spec import CommandsSpec  # noqa: TCH001
-from bfabric_app_runner.specs.config_interpolation import interpolate_config_strings
+from bfabric_app_runner.specs.config_interpolation import interpolate_config_strings, VariablesApp
 from bfabric_app_runner.specs.submitter_ref import SubmitterRef  # noqa: TCH001
 
 
@@ -30,11 +29,10 @@ class AppVersionTemplate(BaseModel):
     # TODO remove when new submitter becomes available
     reuse_default_resource: bool = True
 
-    def evaluate(self, app_id: str, app_name: str) -> AppVersion:
+    def evaluate(self, variables_app: VariablesApp) -> AppVersion:
         """Evaluates the template to a concrete ``AppVersion`` instance."""
-        variables_app = config_interpolation.VariablesApp(id=app_id, name=app_name, version=self.version)
         data_template = self.model_dump(mode="json")
-        data = interpolate_config_strings(data_template, variables={"app": variables_app})
+        data = interpolate_config_strings(data_template, variables={"app": variables_app, "workunit": None})
         return AppVersion.model_validate(data)
 
 

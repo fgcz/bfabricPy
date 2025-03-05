@@ -1,0 +1,8 @@
+type: slurm
+params:
+  --nodes: 2
+  --partition: compute
+config:
+  slurm-root: /test/slurm-root
+  local-script-dir: /test/local-script-dir
+  worker-scratch-dir: /test/worker-scratch-dir/${app.id}_${app.name}/${workunit.id}
