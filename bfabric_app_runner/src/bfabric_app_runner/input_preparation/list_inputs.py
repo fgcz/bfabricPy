@@ -29,7 +29,14 @@ def list_input_states(
     client: Bfabric,
     check_files: bool,
 ) -> list[FileState]:
-    """Returns the states of the input files, performing integrity checks if requested."""
+    """Returns the states of the input files, performing integrity checks if requested.
+
+    :param specs: List of input specs to consider
+    :param target_folder: The target folder where the files should be stored
+    :param client: A B-Fabric client
+    :param check_files: If this is `True`, in addition to listing the files, their integrity states will be computed,
+        otherwise the value is always `NotChecked`.
+    """
     input_states = []
     for spec in specs:
         filename = spec.resolve_filename(client=client)
