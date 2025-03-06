@@ -53,7 +53,9 @@ class Resolver:
                 files.extend(self._resolve_bfabric_annotation_specs(specs_list))
             else:
                 assert_never(spec_type)
+        import rich.pretty
 
+        rich.pretty.pprint(files)
         return ResolvedInputs(files=files)
 
     @staticmethod
