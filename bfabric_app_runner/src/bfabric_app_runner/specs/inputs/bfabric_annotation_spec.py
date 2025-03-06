@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from typing import Literal, TYPE_CHECKING, Annotated
 
-from pydantic import BaseModel, Field
-
 from bfabric_app_runner.specs.common_types import RelativeFilePath  # noqa: TC001
+from pydantic import BaseModel, Field
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
@@ -25,4 +24,5 @@ class BfabricAnnotationResourceSampleSpec(_AnnotationSpec):
     format: Literal["csv"] = "csv"
 
 
-BfabricAnnotationSpec = Annotated[BfabricAnnotationResourceSampleSpec, Field(discriminator="annotation")]
+BfabricAnnotationSpec = BfabricAnnotationResourceSampleSpec
+BfabricAnnotationSpecField = Annotated[BfabricAnnotationSpec, Field(discriminator="annotation")]
