@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, assert_never
 
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_annotation_specs import ResolveBfabricAnnotationSpecs
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_dataset_specs import ResolveBfabricDatasetSpecs
@@ -49,7 +49,7 @@ class Resolver:
                 case BfabricAnnotationSpec():
                     files.extend(self._resolve_bfabric_annotation_specs(specs_list))
                 case _:
-                    raise ValueError(f"Unsupported specification type: {spec_type.__name__}")
+                    assert_never(spec_type)
 
         return ResolvedInputs(files=files)
 
