@@ -1,5 +1,8 @@
 import pytest
-from bfabric_app_runner.inputs.resolve._resolve_bfabric_annotation_specs import ResolveBfabricAnnotationSpecs
+from bfabric_app_runner.inputs.resolve._resolve_bfabric_annotation_specs import (
+    ResolveBfabricAnnotationSpecs,
+    get_annotation,
+)
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedStaticFile
 
 
@@ -34,7 +37,6 @@ def test_call(resolver, mocker, mock_client):
     assert result[0].content == "annotation content"
 
     # Verify the correct methods were called
-    from bfabric_app_runner.inputs.resolve._resolve_bfabric_annotation_specs import get_annotation
 
     get_annotation.assert_called_once_with(spec=mock_spec, client=mock_client)
 
