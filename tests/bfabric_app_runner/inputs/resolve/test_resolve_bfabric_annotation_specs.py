@@ -1,8 +1,5 @@
 import pytest
-from bfabric_app_runner.inputs.resolve._resolve_bfabric_annotation_specs import (
-    ResolveBfabricAnnotationSpecs,
-    get_annotation,
-)
+from bfabric_app_runner.inputs.resolve._resolve_bfabric_annotation_specs import ResolveBfabricAnnotationSpecs
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedStaticFile
 
 
