@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal, assert_never
+from typing import TYPE_CHECKING, Literal
 
 import yaml
 from bfabric_app_runner.input_preparation.collect_annotation import prepare_annotation
@@ -20,7 +20,7 @@ from bfabric_app_runner.util.checksums import md5sum
 from bfabric_app_runner.util.scp import scp
 from loguru import logger
 
-from bfabric.entities import Resource, Dataset, Workunit, Order
+from bfabric.entities import Resource, Dataset
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -109,34 +109,34 @@ class PrepareInputs:
         result_name.parent.mkdir(exist_ok=True, parents=True)
         result_name.write_text(yaml.safe_dump(spec.data))
 
-    def prepare_order_fasta(self, spec: BfabricOrderFastaSpec) -> None:
-        # Determine the result file.
-        result_name = self._working_dir / spec.filename
-        result_name.parent.mkdir(exist_ok=True, parents=True)
+    # def prepare_order_fasta(self, spec: BfabricOrderFastaSpec) -> None:
+    #    # Determine the result file.
+    #    result_name = self._working_dir / spec.filename
+    #    result_name.parent.mkdir(exist_ok=True, parents=True)
 
-        # Find the order.
-        match spec.entity:
-            case "workunit":
-                workunit = Workunit.find(id=spec.id, client=self._client)
-                if not isinstance(workunit.container, Order):
-                    msg = f"Workunit {workunit.id} is not associated with an order"
-                    if spec.required:
-                        raise ValueError(msg)
-                    else:
-                        logger.warning(msg)
-                        result_name.write_text("")
-                        return
-                order = workunit.container
-            case "order":
-                order = Order.find(id=spec.id, client=self._client)
-            case _:
-                assert_never(spec.entity)
+    #    # Find the order.
+    #    match spec.entity:
+    #        case "workunit":
+    #            workunit = Workunit.find(id=spec.id, client=self._client)
+    #            if not isinstance(workunit.container, Order):
+    #                msg = f"Workunit {workunit.id} is not associated with an order"
+    #                if spec.required:
+    #                    raise ValueError(msg)
+    #                else:
+    #                    logger.warning(msg)
+    #                    result_name.write_text("")
+    #                    return
+    #            order = workunit.container
+    #        case "order":
+    #            order = Order.find(id=spec.id, client=self._client)
+    #        case _:
+    #            assert_never(spec.entity)
 
-        # Write the result into the file
-        fasta_content = order.data_dict.get("fastasequence", "")
-        if fasta_content and fasta_content[-1] != "\n":
-            fasta_content += "\n"
-        result_name.write_text(fasta_content)
+    #    # Write the result into the file
+    #    fasta_content = order.data_dict.get("fastasequence", "")
+    #    if fasta_content and fasta_content[-1] != "\n":
+    #        fasta_content += "\n"
+    #    result_name.write_text(fasta_content)
 
 
 def prepare_folder(

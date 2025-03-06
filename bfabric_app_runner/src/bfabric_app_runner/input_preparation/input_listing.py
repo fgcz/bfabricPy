@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 from pathlib import Path  # noqa: TC001
-from typing import Annotated, TYPE_CHECKING
+from typing import Annotated, TYPE_CHECKING, assert_never
 
 import yaml
 from bfabric_app_runner.specs.inputs.file_spec import FileSpec, FileSourceSsh, FileSourceSshValue
+from loguru import logger
 from pydantic import BaseModel, Field
 
-from bfabric.entities import Resource, Storage, Dataset
+from bfabric.entities import Resource, Storage, Dataset, Workunit, Order
 from bfabric_app_runner.specs.inputs.static_file_spec import StaticFileSpec
 
 if TYPE_CHECKING:
@@ -96,8 +97,8 @@ def transform_bfabric_order_fasta_spec(specs: list[BfabricOrderFastaSpec], clien
     """Transforms a list of BfabricOrderFastaSpecs into a list of StaticFileSpecs."""
     transformed = []
     for spec in specs:
-        # TODO should be easy to reuse the existing functionality
-        raise NotImplementedError
+        fasta_content = _get_order_fasta(spec, client)
+        transformed.append(StaticFileSpec(content=fasta_content, filename=spec.filename))
     return transformed
 
 
@@ -108,3 +109,25 @@ def transform_bfabric_annotation_spec(specs: list[BfabricAnnotationSpec], client
         # TODO should be easy to reuse the existing functionality
         raise NotImplementedError
     return transformed
+
+
+def _get_order_fasta(spec: BfabricOrderFastaSpec, client: Bfabric) -> str:
+    # Find the order.
+    match spec.entity:
+        case "workunit":
+            workunit = Workunit.find(id=spec.id, client=client)
+            if not isinstance(workunit.container, Order):
+                msg = f"Workunit {workunit.id} is not associated with an order"
+                if spec.required:
+                    raise ValueError(msg)
+                else:
+                    logger.warning(msg)
+                    return ""
+            order = workunit.container
+        case "order":
+            order = Order.find(id=spec.id, client=client)
+        case _:
+            assert_never(spec.entity)
+
+    # Write the result into the file
+    return order.data_dict.get("fastasequence", "")
