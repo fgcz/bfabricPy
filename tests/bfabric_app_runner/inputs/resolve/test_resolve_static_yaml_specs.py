@@ -8,7 +8,7 @@ def resolver():
     return ResolveStaticYamlSpecs()
 
 
-def test_resolve_static_yaml_specs(resolver):
+def test_call(resolver):
     spec = StaticYamlSpec(data={"key": "value"}, filename="test.yaml")
     result = resolver([spec, spec])
     assert len(result) == 2
