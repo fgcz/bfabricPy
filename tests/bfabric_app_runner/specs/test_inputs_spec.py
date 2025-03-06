@@ -1,6 +1,8 @@
+from pathlib import Path
+from tempfile import NamedTemporaryFile
+
 import pytest
 import yaml
-
 from bfabric_app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
 from bfabric_app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
 from bfabric_app_runner.specs.inputs_spec import InputsSpec
@@ -37,9 +39,16 @@ def serialized() -> str:
   type: bfabric_dataset"""
 
 
-def test_serialize(parsed, serialized):
-    assert yaml.safe_dump(parsed.model_dump(mode="json")).strip() == serialized.strip()
+def test_write_yaml(parsed):
+    with NamedTemporaryFile() as file:
+        InputsSpec.write_yaml(parsed.inputs, Path(file.name))
+        file.seek(0)
+        serialized = file.read()
+    assert yaml.safe_load(serialized) == parsed.model_dump(mode="json")
 
 
-def test_parse(parsed, serialized):
-    assert InputsSpec.model_validate(yaml.safe_load(serialized)) == parsed
+def test_read_yaml(parsed, serialized):
+    with NamedTemporaryFile() as file:
+        file.write(serialized.encode())
+        file.seek(0)
+        assert InputsSpec.read_yaml(Path(file.name)) == parsed

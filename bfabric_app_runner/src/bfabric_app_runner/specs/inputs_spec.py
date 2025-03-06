@@ -35,6 +35,6 @@ class InputsSpec(BaseModel):
         return cls.model_validate(yaml.safe_load(path.read_text()))
 
     @classmethod
-    def write_yaml(cls, specs: list[InputSpecType], path: Path) -> None:
-        model = cls.model_validate(dict(specs=specs))
+    def write_yaml(cls, inputs: list[InputSpecType], path: Path) -> None:
+        model = cls(inputs=inputs)
         path.write_text(yaml.dump(model.model_dump(mode="json")))
