@@ -19,9 +19,7 @@ from bfabric_app_runner.specs.inputs.static_yaml_spec import StaticYamlSpec
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
-    from bfabric_app_runner.specs.inputs.static_file_spec import StaticFileSpec
     from bfabric_app_runner.specs.inputs_spec import InputSpecType
-    from bfabric_app_runner.specs.inputs.file_spec import FileSpec
 
 
 class Resolver:
@@ -38,7 +36,7 @@ class Resolver:
     def resolve(self, specs: list[InputSpecType]) -> ResolvedInputs:
         """Convert input specifications to resolved file specifications."""
         grouped_specs = self._group_specs_by_type(specs=specs)
-        files: list[FileSpec | StaticFileSpec] = []
+        files = []
 
         for spec_type, specs_list in grouped_specs.items():
             if issubclass(spec_type, StaticYamlSpec):
