@@ -2,7 +2,7 @@ from pathlib import Path
 
 from bfabric import Bfabric
 from bfabric.utils.cli_integration import use_client
-from bfabric_app_runner.input_preparation import prepare_folder
+from bfabric_app_runner.input_preparation.prepare import prepare_folder
 from bfabric_app_runner.input_preparation.integrity import IntegrityState
 from bfabric_app_runner.input_preparation.list_inputs import (
     list_input_states,

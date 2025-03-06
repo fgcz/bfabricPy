@@ -6,11 +6,11 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import yaml
+from bfabric_app_runner.input_preparation.prepare import prepare_folder
+from bfabric_app_runner.output_registration import register_outputs
 from loguru import logger
 from pydantic import BaseModel
 
-from bfabric_app_runner.input_preparation import prepare_folder
-from bfabric_app_runner.output_registration import register_outputs
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 
 if TYPE_CHECKING:
