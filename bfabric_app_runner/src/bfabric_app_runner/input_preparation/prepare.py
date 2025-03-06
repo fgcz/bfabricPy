@@ -1,27 +1,27 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, assert_never
 
 from bfabric_app_runner.input_preparation.integrity import IntegrityState
 from bfabric_app_runner.input_preparation.list_inputs import list_input_states
-from bfabric_app_runner.input_preparation.prepare_file_spec import prepare_file_spec
+from bfabric_app_runner.inputs.prepare.prepare_resolved_file import prepare_resolved_file
+from bfabric_app_runner.inputs.prepare.prepare_resolved_static_file import prepare_resolved_static_file
 from bfabric_app_runner.inputs.resolve.resolver import Resolver
 from bfabric_app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
 from bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec import BfabricOrderFastaSpec
 from bfabric_app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
 from bfabric_app_runner.specs.inputs.file_spec import FileSpec
-from bfabric_app_runner.specs.inputs.static_file_spec import StaticFileSpec
 from bfabric_app_runner.specs.inputs.static_yaml_spec import StaticYamlSpec
 from bfabric_app_runner.specs.inputs_spec import (
     InputSpecType,
     InputsSpec,
 )
 from loguru import logger
+from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedInputs, ResolvedFile, ResolvedStaticFile
 
 if TYPE_CHECKING:
     from pathlib import Path
     from bfabric.bfabric import Bfabric
-    from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedInputs
 
 
 class PrepareInputs:
@@ -115,34 +115,9 @@ def prepare_input_files(input_files: ResolvedInputs, working_dir: Path, ssh_user
     """Prepares the input files in the working directory according to the provided specs."""
     for input_file in input_files.files:
         match input_file:
-            case FileSpec() as file_spec:
-                prepare_file_spec(spec=file_spec, working_dir=working_dir, ssh_user=ssh_user)
-            case StaticFileSpec(content=content, filename=filename):
-                _write_file_if_changed(content=content, path=working_dir / filename)
-
-
-def _prepare_file_spec(spec: FileSpec, path: Path, ssh_user: str | None) -> None:
-    raise NotImplementedError
-
-
-def _write_file_if_changed(content: str | bytes, path: Path) -> None:
-    binary_flag = "b" if isinstance(content, bytes) else ""
-
-    # ensure dir exists
-    path.parent.mkdir(exist_ok=True, parents=True)
-
-    # check if the file exists
-    if path.exists():
-        if not path.is_file():
-            msg = f"Path {path} exists but is not a file"
-            raise ValueError(msg)
-        with path.open(f"r{binary_flag}") as f:
-            existing_content = f.read()
-        if existing_content == content:
-            logger.debug(f"Skipping {path} as it already exists and has the same content")
-            return
-
-    # write the file
-    with path.open(f"w{binary_flag}") as f:
-        f.write(content)
-    logger.info(f"Writen to {path}")
+            case ResolvedFile():
+                prepare_resolved_file(file=input_file, working_dir=working_dir, ssh_user=ssh_user)
+            case ResolvedStaticFile():
+                prepare_resolved_static_file(file=input_file, working_dir=working_dir)
+            case _:
+                assert_never(input_file)
