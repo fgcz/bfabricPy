@@ -47,6 +47,10 @@ class Dataset(Entity):
         """Writes the dataset to a csv file at `path`, using the specified column `separator`."""
         self.to_polars().write_csv(path, separator=separator)
 
+    def write_parquet(self, path: Path) -> None:
+        """Writes the dataset to a parquet file at `path`."""
+        self.to_polars().write_parquet(path)
+
     def get_csv(self, separator: str = ",") -> str:
         """Returns the dataset as a csv string, using the specified column `separator`."""
         with tempfile.NamedTemporaryFile() as tmp_file:
@@ -54,3 +58,11 @@ class Dataset(Entity):
             tmp_file.flush()
             tmp_file.seek(0)
             return tmp_file.read().decode()
+
+    def get_parquet(self) -> bytes:
+        """Returns the dataset as a parquet bytes object."""
+        with tempfile.NamedTemporaryFile() as tmp_file:
+            self.write_parquet(Path(tmp_file.name))
+            tmp_file.flush()
+            tmp_file.seek(0)
+            return tmp_file.read()
