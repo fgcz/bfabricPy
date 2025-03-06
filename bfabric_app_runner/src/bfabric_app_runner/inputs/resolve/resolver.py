@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from collections import defaultdict
 from pathlib import Path
-from typing import TYPE_CHECKING, assert_never
+from typing import TYPE_CHECKING
 
 import yaml
 from bfabric_app_runner.input_preparation.collect_annotation import get_annotation
+from bfabric_app_runner.inputs.resolve._resolve_bfabric_dataset_specs import ResolveBfabricDatasetSpecs
 from bfabric_app_runner.inputs.resolve.get_order_fasta import get_order_fasta
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedInputs
 from bfabric_app_runner.specs.inputs.bfabric_annotation_spec import BfabricAnnotationSpec
@@ -16,7 +17,7 @@ from bfabric_app_runner.specs.inputs.file_spec import FileSpec, FileSourceSsh, F
 from bfabric_app_runner.specs.inputs.static_file_spec import StaticFileSpec
 from bfabric_app_runner.specs.inputs.static_yaml_spec import StaticYamlSpec
 
-from bfabric.entities import Resource, Storage, Dataset
+from bfabric.entities import Resource, Storage
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
@@ -28,6 +29,7 @@ class Resolver:
 
     def __init__(self, client: Bfabric) -> None:
         self._client = client
+        self._resolve_bfabric_dataset_specs = ResolveBfabricDatasetSpecs(client=client)
 
     def resolve(self, specs: list[InputSpecType]) -> ResolvedInputs:
         """Convert input specifications to resolved file specifications."""
@@ -99,34 +101,6 @@ class Resolver:
                     checksum=resource["filechecksum"] if spec.check_checksum else None,
                 )
             )
-
-        return result
-
-    def _resolve_bfabric_dataset_specs(self, specs: list[BfabricDatasetSpec]) -> list[StaticFileSpec]:
-        """Convert dataset specifications to file specifications."""
-        if not specs:
-            return []
-
-        # Fetch all datasets in bulk
-        dataset_ids = [spec.id for spec in specs]
-        datasets = Dataset.find_all(ids=dataset_ids, client=self._client)
-
-        result = []
-        for spec in specs:
-            dataset = datasets.get(spec.id)
-            if not dataset:
-                msg = f"Dataset {spec.id} not found"
-                raise ValueError(msg)
-
-            # Get content based on format
-            if spec.format == "csv":
-                content = dataset.get_csv(separator=spec.separator)
-            elif spec.format == "parquet":
-                content = dataset.get_parquet()
-            else:
-                assert_never(spec.format)
-
-            result.append(StaticFileSpec(content=content, filename=spec.filename))
 
         return result
 
