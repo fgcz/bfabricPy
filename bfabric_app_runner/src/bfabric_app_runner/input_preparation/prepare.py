@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Literal
 
 import yaml
-from bfabric_app_runner.input_preparation.collect_annotation import prepare_annotation
 from bfabric_app_runner.input_preparation.integrity import IntegrityState
 from bfabric_app_runner.input_preparation.list_inputs import list_input_states
 from bfabric_app_runner.input_preparation.prepare_file_spec import prepare_file_spec
@@ -50,7 +49,8 @@ class PrepareInputs:
             elif isinstance(spec, StaticYamlSpec):
                 self.prepare_static_yaml(spec)
             elif spec.type == "bfabric_annotation":
-                prepare_annotation(spec, client=self._client, working_dir=self._working_dir)
+                raise NotImplementedError
+                # prepare_annotation(spec, client=self._client, working_dir=self._working_dir)
             elif isinstance(spec, BfabricOrderFastaSpec):
                 self.prepare_order_fasta(spec)
             else:
