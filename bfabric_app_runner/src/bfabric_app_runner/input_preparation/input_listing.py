@@ -20,9 +20,6 @@ if TYPE_CHECKING:
     from bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec import BfabricOrderFastaSpec
     from bfabric_app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
 
-# TODO The current logic will simply put all "StaticFile" content into RAM, which is generally fine for now,
-#      but if we ever need to change this i guess we will want to have some type of off-loading into a tmp file that
-#      can be referenced, maybe with an additional ResolvedSpecType
 
 ResolvedSpecType = Annotated[FileSpec | StaticFileSpec, Field(discriminator="type")]
 
