@@ -4,11 +4,12 @@ from typing import TYPE_CHECKING, Literal, assert_never
 
 from bfabric_app_runner.inputs.prepare.prepare_resolved_file import prepare_resolved_file
 from bfabric_app_runner.inputs.prepare.prepare_resolved_static_file import prepare_resolved_static_file
+from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedInputs, ResolvedFile, ResolvedStaticFile
 from bfabric_app_runner.inputs.resolve.resolver import Resolver
 from bfabric_app_runner.specs.inputs_spec import (
     InputsSpec,
 )
-from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedInputs, ResolvedFile, ResolvedStaticFile
+from loguru import logger
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -55,7 +56,7 @@ def prepare_folder(
     if action == "prepare":
         prepare_input_files(input_files=input_files, working_dir=target_folder, ssh_user=ssh_user)
     elif action == "clean":
-        raise NotImplementedError
+        clean_input_files(input_files=input_files, working_dir=target_folder)
     else:
         raise ValueError(f"Unknown action: {action}")
 
@@ -70,3 +71,12 @@ def prepare_input_files(input_files: ResolvedInputs, working_dir: Path, ssh_user
                 prepare_resolved_static_file(file=input_file, working_dir=working_dir)
             case _:
                 assert_never(input_file)
+
+
+def clean_input_files(input_files: ResolvedInputs, working_dir: Path) -> None:
+    """Removes the specified files from working_dir, if they exist."""
+    for input_file in input_files.files:
+        path = working_dir / input_file.filename
+        if path.exists():
+            path.unlink()
+            logger.info(f"Removed {path}")
