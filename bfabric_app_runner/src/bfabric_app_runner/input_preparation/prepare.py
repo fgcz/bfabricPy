@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Literal
 
 from bfabric_app_runner.input_preparation.integrity import IntegrityState
 from bfabric_app_runner.input_preparation.list_inputs import list_input_states
+from bfabric_app_runner.input_preparation.prepare_file_spec import prepare_file_spec
 from bfabric_app_runner.inputs.resolve.resolver import Resolver
 from bfabric_app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
 from bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec import BfabricOrderFastaSpec
@@ -102,7 +103,6 @@ def prepare_folder(
     input_files = resolver.resolve(specs=inputs_spec.inputs)
 
     # prepare the folder
-    # prepare = PrepareInputs(client=client, working_dir=target_folder, ssh_user=ssh_user)
     if action == "prepare":
         prepare_input_files(input_files=input_files, working_dir=target_folder, ssh_user=ssh_user)
     elif action == "clean":
@@ -116,7 +116,7 @@ def prepare_input_files(input_files: ResolvedInputs, working_dir: Path, ssh_user
     for input_file in input_files.files:
         match input_file:
             case FileSpec() as file_spec:
-                _prepare_file_spec(spec=file_spec, path=working_dir, ssh_user=ssh_user)
+                prepare_file_spec(spec=file_spec, working_dir=working_dir, ssh_user=ssh_user)
             case StaticFileSpec(content=content, filename=filename):
                 _write_file_if_changed(content=content, path=working_dir / filename)
 

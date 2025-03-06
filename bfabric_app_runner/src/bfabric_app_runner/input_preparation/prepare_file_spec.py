@@ -8,7 +8,6 @@ from typing import assert_never
 
 from loguru import logger
 
-from bfabric import Bfabric
 from bfabric_app_runner.specs.inputs.file_spec import (
     FileSpec,
     FileSourceSsh,
@@ -18,9 +17,9 @@ from bfabric_app_runner.specs.inputs.file_spec import (
 from bfabric_app_runner.util.scp import scp
 
 
-def prepare_file_spec(spec: FileSpec, client: Bfabric, working_dir: Path, ssh_user: str | None) -> None:
+def prepare_file_spec(spec: FileSpec, working_dir: Path, ssh_user: str | None) -> None:
     """Prepares the file specified by the spec."""
-    output_path = working_dir / spec.resolve_filename(client=client)
+    output_path = working_dir / spec.filename
     output_path.parent.mkdir(exist_ok=True, parents=True)
 
     if not spec.link:

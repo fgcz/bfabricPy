@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import assert_never, TYPE_CHECKING
 
-from bfabric_app_runner.specs.inputs.static_file_spec import StaticFileSpec
+from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedStaticFile
 from loguru import logger
 
 from bfabric.entities import Workunit, Order
@@ -16,11 +16,11 @@ class ResolveBfabricOrderFastaSpecs:
     def __init__(self, client: Bfabric) -> None:
         self._client = client
 
-    def __call__(self, specs: list[BfabricOrderFastaSpec]) -> list[StaticFileSpec]:
+    def __call__(self, specs: list[BfabricOrderFastaSpec]) -> list[ResolvedStaticFile]:
         """Convert order FASTA specifications to file specifications."""
         # Note: This approach is not efficient if there are multiple entries, but usually we only have one so it is
         #       not optimized yet.
-        return [StaticFileSpec(content=self._get_order_fasta(spec=spec), filename=spec.filename) for spec in specs]
+        return [ResolvedStaticFile(content=self._get_order_fasta(spec=spec), filename=spec.filename) for spec in specs]
 
     def _get_order_fasta(self, spec: BfabricOrderFastaSpec) -> str:
         """Extract FASTA sequence from an order or workunit."""

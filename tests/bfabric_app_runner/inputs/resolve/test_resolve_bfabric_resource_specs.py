@@ -1,6 +1,6 @@
 import pytest
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_resource_specs import ResolveBfabricResourceSpecs
-from bfabric_app_runner.specs.inputs.file_spec import FileSpec
+from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedFile
 
 from bfabric.entities import Resource, Storage
 
@@ -38,7 +38,7 @@ def test_call(resolver, mocker, mock_client):
 
     # Assert the results
     assert len(result) == 1
-    assert isinstance(result[0], FileSpec)
+    assert isinstance(result[0], ResolvedFile)
     assert result[0].filename == "renamed_file.txt"
     assert result[0].link is False
     assert result[0].checksum == "abc123"
@@ -116,7 +116,7 @@ def test_get_file_spec(resolver, mocker):
     result = resolver._get_file_spec(spec=mock_spec, resource=mock_resource, storage=mock_storage)
 
     # Assert the result
-    assert isinstance(result, FileSpec)
+    assert isinstance(result, ResolvedFile)
     assert result.filename == "custom_name.txt"
     assert result.link is False
     assert result.checksum == "abc123"

@@ -3,7 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from bfabric_app_runner.specs.inputs.file_spec import FileSpec, FileSourceSsh, FileSourceSshValue
+from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedFile
+from bfabric_app_runner.specs.inputs.file_spec import FileSourceSsh, FileSourceSshValue
 
 from bfabric.entities import Resource, Storage
 
@@ -16,7 +17,7 @@ class ResolveBfabricResourceSpecs:
     def __init__(self, client: Bfabric) -> None:
         self._client = client
 
-    def __call__(self, specs: list[BfabricResourceSpec]) -> list[FileSpec]:
+    def __call__(self, specs: list[BfabricResourceSpec]) -> list[ResolvedFile]:
         """Convert resource specifications to file specifications."""
         if not specs:
             return []
@@ -36,8 +37,8 @@ class ResolveBfabricResourceSpecs:
 
         return result
 
-    def _get_file_spec(self, spec: BfabricResourceSpec, resource: Resource, storage: Storage) -> FileSpec:
-        return FileSpec(
+    def _get_file_spec(self, spec: BfabricResourceSpec, resource: Resource, storage: Storage) -> ResolvedFile:
+        return ResolvedFile(
             source=FileSourceSsh(
                 ssh=FileSourceSshValue(host=storage["host"], path=f"{storage['basepath']}{resource['relativepath']}")
             ),

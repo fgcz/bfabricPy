@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, assert_never
 
-from bfabric_app_runner.specs.inputs.static_file_spec import StaticFileSpec
+from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedStaticFile
 
 from bfabric.entities import Dataset
 
@@ -15,7 +15,7 @@ class ResolveBfabricDatasetSpecs:
     def __init__(self, client: Bfabric) -> None:
         self._client = client
 
-    def __call__(self, specs: list[BfabricDatasetSpec]) -> list[StaticFileSpec]:
+    def __call__(self, specs: list[BfabricDatasetSpec]) -> list[ResolvedStaticFile]:
         """Convert dataset specifications to file specifications."""
         if not specs:
             return []
@@ -26,7 +26,9 @@ class ResolveBfabricDatasetSpecs:
 
         # Resolve each dataset specification to its serialized content
         return [
-            StaticFileSpec(content=self._get_content(dataset=datasets[dataset_id], spec=spec), filename=spec.filename)
+            ResolvedStaticFile(
+                content=self._get_content(dataset=datasets[dataset_id], spec=spec), filename=spec.filename
+            )
             for dataset_id, spec in zip(dataset_ids, specs)
         ]
 

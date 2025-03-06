@@ -1,6 +1,6 @@
 import pytest
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_annotation_specs import ResolveBfabricAnnotationSpecs
-from bfabric_app_runner.specs.inputs.static_file_spec import StaticFileSpec
+from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedStaticFile
 
 
 @pytest.fixture
@@ -29,7 +29,7 @@ def test_call(resolver, mocker, mock_client):
 
     # Assert the results
     assert len(result) == 1
-    assert isinstance(result[0], StaticFileSpec)
+    assert isinstance(result[0], ResolvedStaticFile)
     assert result[0].filename == "annotation.gff"
     assert result[0].content == "annotation content"
 
