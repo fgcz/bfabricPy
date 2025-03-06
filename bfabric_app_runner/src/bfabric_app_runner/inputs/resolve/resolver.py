@@ -132,6 +132,8 @@ class Resolver:
 
     def _resolve_bfabric_order_fasta_specs(self, specs: list[BfabricOrderFastaSpec]) -> list[StaticFileSpec]:
         """Convert order FASTA specifications to file specifications."""
+        # Note: This approach is not efficient if there are multiple entries, but usually we only have one so it is
+        #       not optimized yet.
         return [
             StaticFileSpec(content=get_order_fasta(spec=spec, client=self._client), filename=spec.filename)
             for spec in specs
@@ -139,6 +141,8 @@ class Resolver:
 
     def _resolve_bfabric_annotation_specs(self, specs: list[BfabricAnnotationSpec]) -> list[StaticFileSpec]:
         """Convert annotation specifications to file specifications."""
+        # Note: This approach is not efficient if there are multiple entries, but usually we only have one so it is
+        #       not optimized yet.
         return [
             StaticFileSpec(content=get_annotation(spec=spec, client=self._client), filename=spec.filename)
             for spec in specs
