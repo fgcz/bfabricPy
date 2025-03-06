@@ -2,68 +2,17 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, assert_never
 
-from bfabric_app_runner.input_preparation.integrity import IntegrityState
-from bfabric_app_runner.input_preparation.list_inputs import list_input_states
 from bfabric_app_runner.inputs.prepare.prepare_resolved_file import prepare_resolved_file
 from bfabric_app_runner.inputs.prepare.prepare_resolved_static_file import prepare_resolved_static_file
 from bfabric_app_runner.inputs.resolve.resolver import Resolver
-from bfabric_app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
-from bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec import BfabricOrderFastaSpec
-from bfabric_app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
-from bfabric_app_runner.specs.inputs.file_spec import FileSpec
-from bfabric_app_runner.specs.inputs.static_yaml_spec import StaticYamlSpec
 from bfabric_app_runner.specs.inputs_spec import (
-    InputSpecType,
     InputsSpec,
 )
-from loguru import logger
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedInputs, ResolvedFile, ResolvedStaticFile
 
 if TYPE_CHECKING:
     from pathlib import Path
     from bfabric.bfabric import Bfabric
-
-
-class PrepareInputs:
-    def __init__(self, client: Bfabric, working_dir: Path, ssh_user: str | None) -> None:
-        self._client = client
-        self._working_dir = working_dir
-        self._ssh_user = ssh_user
-
-    def prepare_all(self, specs: list[InputSpecType]) -> None:
-        # TODO ensure dataset is cached
-        input_states = list_input_states(
-            specs=specs, target_folder=self._working_dir, client=self._client, check_files=True
-        )
-        for spec, input_state in zip(specs, input_states):
-            if input_state.integrity == IntegrityState.Correct:
-                logger.debug(f"Skipping {spec} as it already exists and passed integrity check")
-            elif isinstance(spec, BfabricResourceSpec):
-                self.prepare_resource(spec)
-            elif isinstance(spec, FileSpec):
-                self.prepare_file_spec(spec)
-            elif isinstance(spec, BfabricDatasetSpec):
-                self.prepare_dataset(spec)
-            elif isinstance(spec, StaticYamlSpec):
-                self.prepare_static_yaml(spec)
-            elif spec.type == "bfabric_annotation":
-                raise NotImplementedError
-                # prepare_annotation(spec, client=self._client, working_dir=self._working_dir)
-            elif isinstance(spec, BfabricOrderFastaSpec):
-                self.prepare_order_fasta(spec)
-            else:
-                raise ValueError(f"Unsupported spec type: {type(spec)}")
-
-    def clean_all(self, specs: list[InputSpecType]) -> None:
-        input_states = list_input_states(
-            specs=specs, target_folder=self._working_dir, client=self._client, check_files=False
-        )
-        for spec, input_state in zip(specs, input_states):
-            if not input_state.exists:
-                logger.debug(f"Skipping {spec} as it does not exist")
-            else:
-                logger.info(f"rm {input_state.path}")
-                input_state.path.unlink()
 
 
 def prepare_folder(
