@@ -1,20 +1,14 @@
 from __future__ import annotations
 
 from enum import Enum
+from typing import TYPE_CHECKING, assert_never
 
-from bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec import BfabricOrderFastaSpec
-from bfabric_app_runner.specs.inputs.file_spec import FileSpec
-from bfabric.entities import Resource, Dataset
-from bfabric_app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec  # noqa: TC001
-from bfabric_app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec  # noqa: TC001
-from bfabric_app_runner.specs.inputs.static_yaml_spec import StaticYamlSpec
+from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedInput, ResolvedFile, ResolvedStaticFile
 from bfabric_app_runner.util.checksums import md5sum
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pathlib import Path
     from bfabric.bfabric import Bfabric
-    from bfabric_app_runner.specs.inputs_spec import InputSpecType
 
 
 class IntegrityState(Enum):
@@ -31,41 +25,19 @@ class IntegrityState(Enum):
         return self != IntegrityState.Missing
 
 
-def check_integrity(spec: InputSpecType, local_path: Path, client: Bfabric) -> IntegrityState:
+def check_integrity(file: ResolvedInput, local_path: Path, client: Bfabric) -> IntegrityState:
     """Checks the integrity of a local file against the spec."""
     if not local_path.exists():
         return IntegrityState.Missing
 
-    if isinstance(spec, BfabricResourceSpec):
-        return _check_resource_spec(spec, local_path, client)
-    elif isinstance(spec, FileSpec):
-        return _check_file_spec(spec, local_path, client)
-    elif isinstance(spec, BfabricDatasetSpec):
-        return _check_dataset_spec(spec, local_path, client)
-    elif isinstance(spec, FileSpec | BfabricOrderFastaSpec | StaticYamlSpec) or spec.type == "bfabric_annotation":
-        return IntegrityState.NotChecked
+    if isinstance(file, ResolvedFile):
+        if file.checksum is None:
+            return IntegrityState.NotChecked
+        else:
+            return IntegrityState.Correct if file.checksum == md5sum(local_path) else IntegrityState.Incorrect
+    elif isinstance(file, ResolvedStaticFile):
+        bytes_flag = "b" if isinstance(file.content, bytes) else ""
+        with local_path.open(f"r{bytes_flag}") as f:
+            return IntegrityState.Correct if f.read() == file.content else IntegrityState.Incorrect
     else:
-        raise ValueError(f"Unsupported spec type: {type(spec)}")
-
-
-def _check_resource_spec(spec: BfabricResourceSpec, local_path: Path, client: Bfabric) -> IntegrityState:
-    expected_checksum = Resource.find(id=spec.id, client=client)["filechecksum"]
-    if expected_checksum == md5sum(local_path):
-        return IntegrityState.Correct
-    else:
-        return IntegrityState.Incorrect
-
-
-def _check_file_spec(spec: FileSpec, local_path: Path, client: Bfabric) -> IntegrityState:
-    if spec.checksum is None:
-        return IntegrityState.NotChecked
-    elif spec.checksum == md5sum(local_path):
-        return IntegrityState.Correct
-    else:
-        return IntegrityState.Incorrect
-
-
-def _check_dataset_spec(spec: BfabricDatasetSpec, local_path: Path, client: Bfabric) -> IntegrityState:
-    dataset = Dataset.find(id=spec.id, client=client)
-    is_identical = local_path.read_text().strip() == dataset.get_csv(separator=spec.separator).strip()
-    return IntegrityState.Correct if is_identical else IntegrityState.Incorrect
+        assert_never(file)
