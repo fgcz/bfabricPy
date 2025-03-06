@@ -2,10 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal
 
-import yaml
 from bfabric_app_runner.input_preparation.integrity import IntegrityState
 from bfabric_app_runner.input_preparation.list_inputs import list_input_states
-from bfabric_app_runner.input_preparation.prepare_file_spec import prepare_file_spec
 from bfabric_app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
 from bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec import BfabricOrderFastaSpec
 from bfabric_app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
@@ -15,11 +13,8 @@ from bfabric_app_runner.specs.inputs_spec import (
     InputSpecType,
     InputsSpec,
 )
-from bfabric_app_runner.util.checksums import md5sum
-from bfabric_app_runner.util.scp import scp
 from loguru import logger
 
-from bfabric.entities import Resource, Dataset
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -66,77 +61,6 @@ class PrepareInputs:
             else:
                 logger.info(f"rm {input_state.path}")
                 input_state.path.unlink()
-
-    def prepare_resource(self, spec: BfabricResourceSpec) -> None:
-        resource = Resource.find(id=spec.id, client=self._client)
-        if resource is None:
-            msg = f"Resource with id {spec.id} not found"
-            raise ValueError(msg)
-
-        # determine path to copy from
-        # TODO as we have seen sometimes a faster approach would be to copy from the NFS mount, but this needs to be
-        #      configured or recognized somehow
-        scp_uri = f"{resource.storage.scp_prefix}{resource['relativepath']}"
-
-        # determine path to copy to
-        result_name = spec.filename if spec.filename else resource["name"]
-        result_path = self._working_dir / result_name
-
-        # perform the copy
-        scp(scp_uri, str(result_path), user=self._ssh_user)
-
-        # verify checksum
-        # TODO this logic should be delegate to `integrity.py` to avoid duplication
-        if spec.check_checksum:
-            actual_checksum = md5sum(result_path)
-            logger.debug(f"Checksum: expected {resource['filechecksum']}, got {actual_checksum}")
-            if actual_checksum != resource["filechecksum"]:
-                raise ValueError(f"Checksum mismatch: expected {resource['filechecksum']}, got {actual_checksum}")
-
-    def prepare_file_spec(self, spec: FileSpec) -> None:
-        return prepare_file_spec(spec=spec, client=self._client, working_dir=self._working_dir, ssh_user=self._ssh_user)
-
-    def prepare_dataset(self, spec: BfabricDatasetSpec) -> None:
-        dataset = Dataset.find(id=spec.id, client=self._client)
-        # TODO use the new functionality Dataset.get_csv (or even go further in the refactoring)
-
-        target_path = self._working_dir / spec.filename
-        target_path.parent.mkdir(exist_ok=True, parents=True)
-        dataset.write_csv(path=target_path, separator=spec.separator)
-
-    def prepare_static_yaml(self, spec: StaticYamlSpec) -> None:
-        result_name = self._working_dir / spec.filename
-        result_name.parent.mkdir(exist_ok=True, parents=True)
-        result_name.write_text(yaml.safe_dump(spec.data))
-
-    # def prepare_order_fasta(self, spec: BfabricOrderFastaSpec) -> None:
-    #    # Determine the result file.
-    #    result_name = self._working_dir / spec.filename
-    #    result_name.parent.mkdir(exist_ok=True, parents=True)
-
-    #    # Find the order.
-    #    match spec.entity:
-    #        case "workunit":
-    #            workunit = Workunit.find(id=spec.id, client=self._client)
-    #            if not isinstance(workunit.container, Order):
-    #                msg = f"Workunit {workunit.id} is not associated with an order"
-    #                if spec.required:
-    #                    raise ValueError(msg)
-    #                else:
-    #                    logger.warning(msg)
-    #                    result_name.write_text("")
-    #                    return
-    #            order = workunit.container
-    #        case "order":
-    #            order = Order.find(id=spec.id, client=self._client)
-    #        case _:
-    #            assert_never(spec.entity)
-
-    #    # Write the result into the file
-    #    fasta_content = order.data_dict.get("fastasequence", "")
-    #    if fasta_content and fasta_content[-1] != "\n":
-    #        fasta_content += "\n"
-    #    result_name.write_text(fasta_content)
 
 
 def prepare_folder(
