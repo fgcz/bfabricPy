@@ -37,3 +37,7 @@ class ResolvedInputs(BaseModel):
             msg = f"Duplicate filenames in resolved inputs: {', '.join(unique_duplicates)}"
             raise ValueError(msg)
         return self
+
+    def apply_filter(self, filter_files: list[str]) -> Self:
+        """Returns a new instance with only the files that are in the filter_files list."""
+        return type(self)(files=[file for file in self.files if file.filename in filter_files])

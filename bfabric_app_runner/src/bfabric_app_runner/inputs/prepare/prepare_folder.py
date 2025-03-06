@@ -41,16 +41,16 @@ def prepare_folder(
     # parse the specs
     inputs_spec = InputsSpec.read_yaml(inputs_yaml)
 
-    if filter:
-        # TODO this will require filenames which we only have once its resolved
-        raise NotImplementedError
-        # inputs_spec = inputs_spec.apply_filter(filter, client=client)
-        # if not inputs_spec.inputs:
-        #    raise ValueError(f"Filter {filter} did not match any input files")
-
     # resolve the specs
     resolver = Resolver(client=client)
     input_files = resolver.resolve(specs=inputs_spec.inputs)
+
+    # Note: In some cases, this will be very inefficient to do after resolving compared to doing it before, but in
+    #       general not all filenames will be known upfront.
+    if filter is not None:
+        input_files = input_files.apply_filter(filter_files=[filter])
+        if not input_files.files:
+            raise ValueError(f"Filter {filter} did not match any input files")
 
     # prepare the folder
     if action == "prepare":
