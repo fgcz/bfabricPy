@@ -18,7 +18,7 @@ def resolver(mock_client):
 
 def test_call(resolver, mocker, mock_client):
     # Mock the get_annotation function
-    mocker.patch(
+    get_annotation = mocker.patch(
         "bfabric_app_runner.inputs.resolve._resolve_bfabric_annotation_specs.get_annotation",
         return_value="annotation content",
     )
