@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
-from bfabric_app_runner.input_preparation.collect_annotation import get_annotation
+from bfabric_app_runner.inputs.resolve._resolve_bfabric_annotation_specs import ResolveBfabricAnnotationSpecs
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_dataset_specs import ResolveBfabricDatasetSpecs
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_order_fasta_specs import ResolveBfabricOrderFastaSpecs
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_resource_specs import ResolveBfabricResourceSpecs
@@ -13,7 +13,6 @@ from bfabric_app_runner.specs.inputs.bfabric_annotation_spec import BfabricAnnot
 from bfabric_app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
 from bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec import BfabricOrderFastaSpec
 from bfabric_app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
-from bfabric_app_runner.specs.inputs.static_file_spec import StaticFileSpec
 from bfabric_app_runner.specs.inputs.static_yaml_spec import StaticYamlSpec
 
 if TYPE_CHECKING:
@@ -30,6 +29,7 @@ class Resolver:
         self._resolve_bfabric_resource_specs = ResolveBfabricResourceSpecs(client=client)
         self._resolve_static_yaml_specs = ResolveStaticYamlSpecs()
         self._resolve_bfabric_order_fasta_specs = ResolveBfabricOrderFastaSpecs(client=client)
+        self._resolve_bfabric_annotation_specs = ResolveBfabricAnnotationSpecs(client=client)
 
     def resolve(self, specs: list[InputSpecType]) -> ResolvedInputs:
         """Convert input specifications to resolved file specifications."""
@@ -60,12 +60,3 @@ class Resolver:
         for spec in specs:
             grouped[type(spec)].append(spec)
         return grouped
-
-    def _resolve_bfabric_annotation_specs(self, specs: list[BfabricAnnotationSpec]) -> list[StaticFileSpec]:
-        """Convert annotation specifications to file specifications."""
-        # Note: This approach is not efficient if there are multiple entries, but usually we only have one so it is
-        #       not optimized yet.
-        return [
-            StaticFileSpec(content=get_annotation(spec=spec, client=self._client), filename=spec.filename)
-            for spec in specs
-        ]
