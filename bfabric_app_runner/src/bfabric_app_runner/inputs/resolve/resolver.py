@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, assert_never
 
 import yaml
 from bfabric_app_runner.input_preparation.collect_annotation import get_annotation
-from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedSpecType, ResolvedInputs
+from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedInputs
 from bfabric_app_runner.specs.inputs.file_spec import FileSpec, FileSourceSsh, FileSourceSshValue
 from bfabric_app_runner.specs.inputs.static_file_spec import StaticFileSpec
 from loguru import logger
@@ -30,22 +30,21 @@ class Resolver:
 
     def resolve(self, specs: list[InputSpecType]) -> ResolvedInputs:
         grouped = self._group_specs_by_type(specs)
-        resolved = []
+        files = []
         for spec_type, specs in grouped.items():
             match spec_type:
                 case StaticYamlSpec():
-                    resolved.extend(self._resolve_static_yaml_specs(specs))
+                    files.extend(self._resolve_static_yaml_specs(specs))
                 case BfabricResourceSpec():
-                    resolved.extend(self._resolve_bfabric_resource_specs(specs))
+                    files.extend(self._resolve_bfabric_resource_specs(specs))
                 case BfabricDatasetSpec():
-                    resolved.extend(self._resolve_bfabric_dataset_specs(specs))
+                    files.extend(self._resolve_bfabric_dataset_specs(specs))
                 case BfabricOrderFastaSpec():
-                    resolved.extend(self._resolve_bfabric_order_fasta_spec(specs))
+                    files.extend(self._resolve_bfabric_order_fasta_spec(specs))
                 case BfabricAnnotationSpec():
-                    resolved.extend(self._resolve_bfabric_annotation_spec(specs))
+                    files.extend(self._resolve_bfabric_annotation_spec(specs))
                 case _:
                     assert_never(spec_type)
-        files = [ResolvedSpecType(spec=spec, filename=Path(spec.filename)) for spec in resolved]
         return ResolvedInputs(files=files)
 
     @staticmethod
