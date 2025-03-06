@@ -38,7 +38,7 @@ class Resolver:
     def resolve(self, specs: list[InputSpecType]) -> ResolvedInputs:
         """Convert input specifications to resolved file specifications."""
         grouped_specs = self._group_specs_by_type(specs=specs)
-        files: list[FileSpec, StaticFileSpec] = []
+        files: list[FileSpec | StaticFileSpec] = []
 
         for spec_type, specs_list in grouped_specs.items():
             if issubclass(spec_type, StaticYamlSpec):
