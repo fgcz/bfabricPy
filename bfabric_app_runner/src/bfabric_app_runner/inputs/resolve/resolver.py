@@ -3,10 +3,10 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
-import yaml
 from bfabric_app_runner.input_preparation.collect_annotation import get_annotation
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_dataset_specs import ResolveBfabricDatasetSpecs
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_resource_specs import ResolveBfabricResourceSpecs
+from bfabric_app_runner.inputs.resolve._resolve_static_yaml_specs import ResolveStaticYamlSpecs
 from bfabric_app_runner.inputs.resolve.get_order_fasta import get_order_fasta
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedInputs
 from bfabric_app_runner.specs.inputs.bfabric_annotation_spec import BfabricAnnotationSpec
@@ -15,7 +15,6 @@ from bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec import BfabricOrde
 from bfabric_app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
 from bfabric_app_runner.specs.inputs.static_file_spec import StaticFileSpec
 from bfabric_app_runner.specs.inputs.static_yaml_spec import StaticYamlSpec
-
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
@@ -29,6 +28,7 @@ class Resolver:
         self._client = client
         self._resolve_bfabric_dataset_specs = ResolveBfabricDatasetSpecs(client=client)
         self._resolve_bfabric_resource_specs = ResolveBfabricResourceSpecs(client=client)
+        self._resolve_static_yaml_specs = ResolveStaticYamlSpecs()
 
     def resolve(self, specs: list[InputSpecType]) -> ResolvedInputs:
         """Convert input specifications to resolved file specifications."""
@@ -59,11 +59,6 @@ class Resolver:
         for spec in specs:
             grouped[type(spec)].append(spec)
         return grouped
-
-    @staticmethod
-    def _resolve_static_yaml_specs(specs: list[StaticYamlSpec]) -> list[StaticFileSpec]:
-        """Convert YAML specifications to file specifications."""
-        return [StaticFileSpec(content=yaml.safe_dump(spec.data), filename=spec.filename) for spec in specs]
 
     def _resolve_bfabric_order_fasta_specs(self, specs: list[BfabricOrderFastaSpec]) -> list[StaticFileSpec]:
         """Convert order FASTA specifications to file specifications."""
