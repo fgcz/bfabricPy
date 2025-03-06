@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-from typing import Annotated, Literal, TYPE_CHECKING
+from typing import Annotated, Literal
 
 from bfabric_app_runner.specs.common_types import RelativeFilePath  # noqa: TC001
 from pydantic import BaseModel, Field
-
-
-if TYPE_CHECKING:
-    from bfabric_app_runner.specs.inputs.file_spec import FileSourceSsh, FileSourceLocal
+from bfabric_app_runner.specs.inputs.file_spec import FileSourceSsh, FileSourceLocal  # noqa: TC001
 
 
 class ResolvedFile(BaseModel):
