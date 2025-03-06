@@ -54,14 +54,14 @@ def prepare_folder(
 
     # prepare the folder
     if action == "prepare":
-        prepare_input_files(input_files=input_files, working_dir=target_folder, ssh_user=ssh_user)
+        _prepare_input_files(input_files=input_files, working_dir=target_folder, ssh_user=ssh_user)
     elif action == "clean":
-        clean_input_files(input_files=input_files, working_dir=target_folder)
+        _clean_input_files(input_files=input_files, working_dir=target_folder)
     else:
         raise ValueError(f"Unknown action: {action}")
 
 
-def prepare_input_files(input_files: ResolvedInputs, working_dir: Path, ssh_user: str | None) -> None:
+def _prepare_input_files(input_files: ResolvedInputs, working_dir: Path, ssh_user: str | None) -> None:
     """Prepares the input files in the working directory according to the provided specs."""
     for input_file in input_files.files:
         match input_file:
@@ -73,7 +73,7 @@ def prepare_input_files(input_files: ResolvedInputs, working_dir: Path, ssh_user
                 assert_never(input_file)
 
 
-def clean_input_files(input_files: ResolvedInputs, working_dir: Path) -> None:
+def _clean_input_files(input_files: ResolvedInputs, working_dir: Path) -> None:
     """Removes the specified files from working_dir, if they exist."""
     for input_file in input_files.files:
         path = working_dir / input_file.filename

@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import yaml
-from bfabric_app_runner.input_preparation.prepare import prepare_folder
+from bfabric_app_runner.inputs.prepare.prepare_folder import prepare_folder
 from bfabric_app_runner.output_registration import register_outputs
 from loguru import logger
 from pydantic import BaseModel
