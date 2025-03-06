@@ -1,23 +1,22 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from pathlib import Path  # noqa: TC003
+from pathlib import Path
 from typing import TYPE_CHECKING, assert_never
 
 import yaml
 from bfabric_app_runner.input_preparation.collect_annotation import get_annotation
+from bfabric_app_runner.inputs.resolve.get_order_fasta import get_order_fasta
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedInputs
+from bfabric_app_runner.specs.inputs.bfabric_annotation_spec import BfabricAnnotationSpec
+from bfabric_app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
+from bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec import BfabricOrderFastaSpec
+from bfabric_app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
 from bfabric_app_runner.specs.inputs.file_spec import FileSpec, FileSourceSsh, FileSourceSshValue
 from bfabric_app_runner.specs.inputs.static_file_spec import StaticFileSpec
-from loguru import logger
-
-from bfabric.entities import Resource, Storage, Dataset, Workunit, Order
-
 from bfabric_app_runner.specs.inputs.static_yaml_spec import StaticYamlSpec
-from bfabric_app_runner.specs.inputs.bfabric_annotation_spec import BfabricAnnotationSpec
-from bfabric_app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
-from bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec import BfabricOrderFastaSpec
-from bfabric_app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
+
+from bfabric.entities import Resource, Storage, Dataset
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
@@ -25,117 +24,122 @@ if TYPE_CHECKING:
 
 
 class Resolver:
+    """Resolves input specifications into standardized file specifications."""
+
     def __init__(self, client: Bfabric) -> None:
         self._client = client
 
     def resolve(self, specs: list[InputSpecType]) -> ResolvedInputs:
-        grouped = self._group_specs_by_type(specs)
+        """Convert input specifications to resolved file specifications."""
+        grouped_specs = self._group_specs_by_type(specs)
         files = []
-        for spec_type, specs in grouped.items():
+
+        for spec_type, specs_list in grouped_specs.items():
             match spec_type:
                 case StaticYamlSpec():
-                    files.extend(self._resolve_static_yaml_specs(specs))
+                    files.extend(self._resolve_static_yaml_specs(specs_list))
                 case BfabricResourceSpec():
-                    files.extend(self._resolve_bfabric_resource_specs(specs))
+                    files.extend(self._resolve_bfabric_resource_specs(specs_list))
                 case BfabricDatasetSpec():
-                    files.extend(self._resolve_bfabric_dataset_specs(specs))
+                    files.extend(self._resolve_bfabric_dataset_specs(specs_list))
                 case BfabricOrderFastaSpec():
-                    files.extend(self._resolve_bfabric_order_fasta_spec(specs))
+                    files.extend(self._resolve_bfabric_order_fasta_specs(specs_list))
                 case BfabricAnnotationSpec():
-                    files.extend(self._resolve_bfabric_annotation_spec(specs))
+                    files.extend(self._resolve_bfabric_annotation_specs(specs_list))
                 case _:
-                    assert_never(spec_type)
+                    raise ValueError(f"Unsupported specification type: {spec_type.__name__}")
+
         return ResolvedInputs(files=files)
 
     @staticmethod
-    def _group_specs_by_type(specs: list[InputSpecType]) -> dict[type[InputSpecType], list[InputSpecType]]:
-        """Returns the specs grouped by their type."""
-        result = defaultdict(list)
+    def _group_specs_by_type(specs: list[InputSpecType]) -> dict[type, list]:
+        """Group specifications by their type."""
+        grouped = defaultdict(list)
         for spec in specs:
-            result[type(spec)].append(spec)
-        return dict(result)
+            grouped[type(spec)].append(spec)
+        return grouped
 
     @staticmethod
     def _resolve_static_yaml_specs(specs: list[StaticYamlSpec]) -> list[StaticFileSpec]:
-        """Transforms a list of StaticYamlSpecs into a list of StaticFileSpecs."""
+        """Convert YAML specifications to file specifications."""
         return [StaticFileSpec(content=yaml.safe_dump(spec.data), filename=spec.filename) for spec in specs]
 
     def _resolve_bfabric_resource_specs(self, specs: list[BfabricResourceSpec]) -> list[FileSpec]:
-        """Transforms a list of BfabricResourceSpecs into a list of FileSpecs."""
+        """Convert resource specifications to file specifications."""
+        if not specs:
+            return []
+
+        # Fetch all resources and their storage information in bulk
         resource_ids = [spec.id for spec in specs]
         resources = Resource.find_all(ids=resource_ids, client=self._client)
-        # TODO we could use .storage.id but i want to ensure it does not trigger a new request first
-        storage_ids = [resource["storage"]["id"] for resource in resources]
+
+        storage_ids = [resource["storage"]["id"] for resource in resources.values()]
         storages = Storage.find_all(ids=storage_ids, client=self._client)
 
-        transformed = []
-        # TODO simplify?
-        for spec, resource_id in zip(specs, resource_ids):
-            # get loaded entities
-            resource = resources[resource_id]
-            # TODO see above .storage.id
-            storage = storages[resource["storage"]["id"]]
+        # Create file specs
+        result = []
+        for spec in specs:
+            resource = resources.get(spec.id)
+            if not resource:
+                msg = f"Resource {spec.id} not found"
+                raise ValueError(msg)
 
-            # determine metadata
-            filename = spec.filename if spec.filename is not None else Path(resource["relativepath"]).name
-            checksum = resource["filechecksum"] if spec.check_checksum else None
+            storage_id = resource["storage"]["id"]
+            storage = storages[storage_id]
 
-            # determine ssh information
-            ssh_host = storage["host"]
-            ssh_path = f"{storage['basepath']}{resource['relativepath']}"
+            result.append(
+                FileSpec(
+                    source=FileSourceSsh(
+                        ssh=FileSourceSshValue(
+                            host=storage["host"], path=f"{storage['basepath']}{resource['relativepath']}"
+                        )
+                    ),
+                    filename=spec.filename or Path(resource["relativepath"]).name,
+                    link=False,
+                    checksum=resource["filechecksum"] if spec.check_checksum else None,
+                )
+            )
 
-            # put it all together into a FileSpec
-            spec_source = FileSourceSsh(ssh=FileSourceSshValue(host=ssh_host, path=ssh_path))
-            transformed.append(FileSpec(source=spec_source, filename=filename, link=False, checksum=checksum))
-
-        return transformed
+        return result
 
     def _resolve_bfabric_dataset_specs(self, specs: list[BfabricDatasetSpec]) -> list[StaticFileSpec]:
-        """Transforms a list of BfabricDatasetSpecs into a list of StaticFileSpecs."""
+        """Convert dataset specifications to file specifications."""
+        if not specs:
+            return []
+
+        # Fetch all datasets in bulk
         dataset_ids = [spec.id for spec in specs]
         datasets = Dataset.find_all(ids=dataset_ids, client=self._client)
-        transformed = []
-        for spec, dataset_id in zip(specs, dataset_ids):
-            dataset = datasets[dataset_id]
+
+        result = []
+        for spec in specs:
+            dataset = datasets.get(spec.id)
+            if not dataset:
+                msg = f"Dataset {spec.id} not found"
+                raise ValueError(msg)
+
+            # Get content based on format
             if spec.format == "csv":
-                dataset_content = dataset.get_csv(separator=spec.separator)
+                content = dataset.get_csv(separator=spec.separator)
             elif spec.format == "parquet":
-                dataset_content = dataset.get_parquet()
+                content = dataset.get_parquet()
             else:
                 assert_never(spec.format)
 
-            transformed.append(StaticFileSpec(content=dataset_content, filename=spec.filename))
-        return transformed
+            result.append(StaticFileSpec(content=content, filename=spec.filename))
 
-    def _resolve_bfabric_order_fasta_spec(self, specs: list[BfabricOrderFastaSpec]) -> list[StaticFileSpec]:
-        """Transforms a list of BfabricOrderFastaSpecs into a list of StaticFileSpecs."""
-        return [StaticFileSpec(content=_get_order_fasta(spec, self._client), filename=spec.filename) for spec in specs]
+        return result
 
-    def _resolve_bfabric_annotation_spec(self, specs: list[BfabricAnnotationSpec]) -> list[StaticFileSpec]:
-        """Transforms a list of BfabricAnnotationSpecs into a list of StaticFileSpecs."""
+    def _resolve_bfabric_order_fasta_specs(self, specs: list[BfabricOrderFastaSpec]) -> list[StaticFileSpec]:
+        """Convert order FASTA specifications to file specifications."""
+        return [
+            StaticFileSpec(content=get_order_fasta(spec=spec, client=self._client), filename=spec.filename)
+            for spec in specs
+        ]
+
+    def _resolve_bfabric_annotation_specs(self, specs: list[BfabricAnnotationSpec]) -> list[StaticFileSpec]:
+        """Convert annotation specifications to file specifications."""
         return [
             StaticFileSpec(content=get_annotation(spec=spec, client=self._client), filename=spec.filename)
             for spec in specs
         ]
-
-
-def _get_order_fasta(spec: BfabricOrderFastaSpec, client: Bfabric) -> str:
-    # Find the order.
-    match spec.entity:
-        case "workunit":
-            workunit = Workunit.find(id=spec.id, client=client)
-            if not isinstance(workunit.container, Order):
-                msg = f"Workunit {workunit.id} is not associated with an order"
-                if spec.required:
-                    raise ValueError(msg)
-                else:
-                    logger.warning(msg)
-                    return ""
-            order = workunit.container
-        case "order":
-            order = Order.find(id=spec.id, client=client)
-        case _:
-            assert_never(spec.entity)
-
-    # Write the result into the file
-    return order.data_dict.get("fastasequence", "")
