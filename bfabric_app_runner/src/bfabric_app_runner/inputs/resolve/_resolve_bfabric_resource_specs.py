@@ -25,7 +25,7 @@ class ResolveBfabricResourceSpecs:
         # Fetch all resources and their storage information in bulk
         resource_ids = [spec.id for spec in specs]
         resources = Resource.find_all(ids=resource_ids, client=self._client)
-        storage_ids = [resource["storage"]["id"] for resource in resources.values()]
+        storage_ids = sorted({resource["storage"]["id"] for resource in resources.values()})
         storages = Storage.find_all(ids=storage_ids, client=self._client)
 
         # Create the file specs
