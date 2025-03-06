@@ -1,18 +1,19 @@
-from pathlib import Path
+import io
+from typing import assert_never
 
 import polars as pl
-from bfabric import Bfabric
-from bfabric.entities import Resource
-from bfabric.utils.polars_utils import flatten_relations
-
 from bfabric_app_runner.specs.inputs.bfabric_annotation_spec import (
     BfabricAnnotationResourceSampleSpec,
     BfabricAnnotationSpec,
 )
 
+from bfabric import Bfabric
+from bfabric.entities import Resource
+from bfabric.utils.polars_utils import flatten_relations
 
-def collect_resource_sample_annotation(spec: BfabricAnnotationResourceSampleSpec, client: Bfabric, path: Path) -> None:
-    """Collects the resource sample annotation and writes it to a CSV file."""
+
+def get_resource_sample_annotation(spec: BfabricAnnotationResourceSampleSpec, client: Bfabric) -> pl.DataFrame:
+    """Returns the annotation content for the resource_sample annotation type."""
     # load entities
     resources = list(Resource.find_all(spec.resource_ids, client).values())
     samples = [resource.sample for resource in resources]
@@ -24,18 +25,21 @@ def collect_resource_sample_annotation(spec: BfabricAnnotationResourceSampleSpec
     samples_df = flatten_relations(
         pl.DataFrame([sample.data_dict for sample in samples]).select(pl.all().name.prefix("sample_"))
     )
-    result = resources_df.join(samples_df, left_on="resource_sample_id", right_on="sample_id", how="left")
-
-    # export the result
-    result.write_csv(path, separator=spec.separator)
+    return resources_df.join(samples_df, left_on="resource_sample_id", right_on="sample_id", how="left")
 
 
-def prepare_annotation(spec: BfabricAnnotationSpec, client: Bfabric, working_dir: Path) -> None:
-    """Prepares the annotation specified by the spec and writes it to the specified location."""
-    path = working_dir / spec.filename
-    path.parent.mkdir(parents=True, exist_ok=True)
+def get_annotation(spec: BfabricAnnotationSpec, client: Bfabric) -> str | bytes:
+    """Returns the annotation content specified by the spec."""
     match spec.annotation:
         case "resource_sample":
-            collect_resource_sample_annotation(spec, client=client, path=path)
+            annotation_df = get_resource_sample_annotation(spec, client=client)
         case _:
             raise ValueError(f"Unsupported annotation type: {spec.annotation}")
+    if spec.format == "csv":
+        return annotation_df.write_csv(separator=spec.separator)
+    elif spec.format == "parquet":
+        bytes_io = io.BytesIO()
+        annotation_df.write_parquet(bytes_io)
+        return bytes_io.getvalue()
+    else:
+        assert_never(spec.format)

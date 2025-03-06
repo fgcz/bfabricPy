@@ -22,6 +22,7 @@ class BfabricAnnotationResourceSampleSpec(_AnnotationSpec):
     annotation: Literal["resource_sample"] = "resource_sample"
     separator: str
     resource_ids: list[int]
+    format: Literal["csv"] = "csv"
 
 
 BfabricAnnotationSpec = Annotated[BfabricAnnotationResourceSampleSpec, Field(discriminator="annotation")]

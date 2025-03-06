@@ -4,12 +4,13 @@ from pathlib import Path  # noqa: TC001
 from typing import Annotated, TYPE_CHECKING, assert_never
 
 import yaml
+from bfabric_app_runner.input_preparation.collect_annotation import get_annotation
 from bfabric_app_runner.specs.inputs.file_spec import FileSpec, FileSourceSsh, FileSourceSshValue
+from bfabric_app_runner.specs.inputs.static_file_spec import StaticFileSpec
 from loguru import logger
 from pydantic import BaseModel, Field
 
 from bfabric.entities import Resource, Storage, Dataset, Workunit, Order
-from bfabric_app_runner.specs.inputs.static_file_spec import StaticFileSpec
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
@@ -87,7 +88,7 @@ def transform_bfabric_dataset_specs(specs: list[BfabricDatasetSpec], client: Bfa
         elif spec.format == "parquet":
             dataset_content = dataset.get_parquet()
         else:
-            raise NotImplementedError(f"Unsupported dataset format: {spec.format}")
+            assert_never(spec.format)
 
         transformed.append(StaticFileSpec(content=dataset_content, filename=spec.filename))
     return transformed
@@ -95,20 +96,12 @@ def transform_bfabric_dataset_specs(specs: list[BfabricDatasetSpec], client: Bfa
 
 def transform_bfabric_order_fasta_spec(specs: list[BfabricOrderFastaSpec], client: Bfabric) -> list[StaticFileSpec]:
     """Transforms a list of BfabricOrderFastaSpecs into a list of StaticFileSpecs."""
-    transformed = []
-    for spec in specs:
-        fasta_content = _get_order_fasta(spec, client)
-        transformed.append(StaticFileSpec(content=fasta_content, filename=spec.filename))
-    return transformed
+    return [StaticFileSpec(content=_get_order_fasta(spec, client), filename=spec.filename) for spec in specs]
 
 
 def transform_bfabric_annotation_spec(specs: list[BfabricAnnotationSpec], client: Bfabric) -> list[StaticFileSpec]:
     """Transforms a list of BfabricAnnotationSpecs into a list of StaticFileSpecs."""
-    transformed = []
-    for spec in specs:
-        # TODO should be easy to reuse the existing functionality
-        raise NotImplementedError
-    return transformed
+    return [StaticFileSpec(content=get_annotation(spec=spec, client=client), filename=spec.filename) for spec in specs]
 
 
 def _get_order_fasta(spec: BfabricOrderFastaSpec, client: Bfabric) -> str:
