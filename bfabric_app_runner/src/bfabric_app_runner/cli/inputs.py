@@ -3,8 +3,8 @@ from pathlib import Path
 from bfabric import Bfabric
 from bfabric.utils.cli_integration import use_client
 from bfabric_app_runner.inputs.prepare.prepare_folder import prepare_folder
-from bfabric_app_runner.input_preparation.integrity import IntegrityState
-from bfabric_app_runner.input_preparation.list_inputs import (
+from bfabric_app_runner.inputs.list_inputs import IntegrityState
+from bfabric_app_runner.inputs.list_inputs.list_inputs import (
     list_input_states,
     print_input_states,
     FileState,

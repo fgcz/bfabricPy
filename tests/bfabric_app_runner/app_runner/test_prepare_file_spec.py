@@ -5,7 +5,7 @@ from subprocess import CalledProcessError
 import pytest
 from logot import Logot, logged
 
-from bfabric_app_runner.input_preparation.prepare_file_spec import (
+from bfabric_app_runner.inputs.list_inputs import (
     prepare_file_spec,
     _operation_copy_rsync,
     _operation_copy_cp,

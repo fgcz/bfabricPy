@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from bfabric_app_runner.input_preparation.integrity import check_integrity, IntegrityState
+from bfabric_app_runner.inputs.list_inputs.integrity import check_integrity, IntegrityState
 from bfabric_app_runner.inputs.resolve.resolver import Resolver
 from rich.console import Console
 from rich.table import Table, Column
