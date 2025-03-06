@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Self
 
 from bfabric_app_runner.specs.common_types import RelativeFilePath  # noqa: TC001
-from pydantic import BaseModel, Field
 from bfabric_app_runner.specs.inputs.file_spec import FileSourceSsh, FileSourceLocal  # noqa: TC001
+from pydantic import BaseModel, Field, model_validator
 
 
 class ResolvedFile(BaseModel):
@@ -27,3 +27,13 @@ ResolvedInput = ResolvedFile | ResolvedStaticFile
 
 class ResolvedInputs(BaseModel):
     files: list[Annotated[ResolvedInput, Field(discriminator="type")]]
+
+    @model_validator(mode="after")
+    def no_duplicates(self) -> Self:
+        filenames = [file.filename for file in self.files]
+        if len(filenames) != len(set(filenames)):
+            duplicates = [name for name in filenames if filenames.count(name) > 1]
+            unique_duplicates = sorted(set(duplicates))
+            msg = f"Duplicate filenames in resolved inputs: {', '.join(unique_duplicates)}"
+            raise ValueError(msg)
+        return self
