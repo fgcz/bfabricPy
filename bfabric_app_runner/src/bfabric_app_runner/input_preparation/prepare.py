@@ -86,6 +86,7 @@ class PrepareInputs:
         scp(scp_uri, str(result_path), user=self._ssh_user)
 
         # verify checksum
+        # TODO this logic should be delegate to `integrity.py` to avoid duplication
         if spec.check_checksum:
             actual_checksum = md5sum(result_path)
             logger.debug(f"Checksum: expected {resource['filechecksum']}, got {actual_checksum}")
