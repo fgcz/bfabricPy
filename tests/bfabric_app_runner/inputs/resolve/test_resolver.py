@@ -1,10 +1,6 @@
 import pytest
-from unittest.mock import MagicMock, call
-from collections import defaultdict
-from pytest_mock import MockerFixture
-
-from bfabric_app_runner.inputs.resolve.resolver import Resolver
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedInputs
+from bfabric_app_runner.inputs.resolve.resolver import Resolver
 from bfabric_app_runner.specs.inputs.bfabric_annotation_spec import (
     BfabricAnnotationSpec,
     BfabricAnnotationResourceSampleSpec,
@@ -13,16 +9,12 @@ from bfabric_app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetS
 from bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec import BfabricOrderFastaSpec
 from bfabric_app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
 from bfabric_app_runner.specs.inputs.static_yaml_spec import StaticYamlSpec
-from bfabric_app_runner.inputs.resolve._resolve_bfabric_dataset_specs import ResolveBfabricDatasetSpecs
-from bfabric_app_runner.inputs.resolve._resolve_bfabric_resource_specs import ResolveBfabricResourceSpecs
-from bfabric_app_runner.inputs.resolve._resolve_static_yaml_specs import ResolveStaticYamlSpecs
-from bfabric_app_runner.inputs.resolve._resolve_bfabric_order_fasta_specs import ResolveBfabricOrderFastaSpecs
-from bfabric_app_runner.inputs.resolve._resolve_bfabric_annotation_specs import ResolveBfabricAnnotationSpecs
+from pytest_mock import MockerFixture
 
 
 @pytest.fixture
-def mock_bfabric():
-    return MagicMock(name="mock_bfabric_client")
+def mock_bfabric(mocker):
+    return mocker.MagicMock(name="mock_bfabric_client")
 
 
 @pytest.fixture
@@ -71,6 +63,13 @@ def resolver(
     return Resolver(client=mock_bfabric)
 
 
+@pytest.fixture
+def mock_resolved_inputs(mocker):
+    return mocker.patch(
+        "bfabric_app_runner.inputs.resolve.resolver.ResolvedInputs", side_effect=lambda files: mocker.Mock(files=files)
+    )
+
+
 def test_resolver_initialization(
     mock_bfabric,
     resolver,
@@ -88,12 +87,12 @@ def test_resolver_initialization(
     assert resolver._resolve_bfabric_annotation_specs == mock_annotation_resolver
 
 
-def test_group_specs_by_type() -> None:
+def test_group_specs_by_type(mocker) -> None:
     """Test the _group_specs_by_type static method."""
     # Mock specs
-    yaml_spec = MagicMock(spec=StaticYamlSpec, name="yaml_spec")
-    resource_spec = MagicMock(spec=BfabricResourceSpec, name="resource_spec")
-    dataset_spec = MagicMock(spec=BfabricDatasetSpec, name="dataset_spec")
+    yaml_spec = mocker.MagicMock(spec=StaticYamlSpec, name="yaml_spec")
+    resource_spec = mocker.MagicMock(spec=BfabricResourceSpec, name="resource_spec")
+    dataset_spec = mocker.MagicMock(spec=BfabricDatasetSpec, name="dataset_spec")
 
     # Call the method with a list of specs
     specs = [yaml_spec, resource_spec, dataset_spec, yaml_spec]
@@ -114,17 +113,15 @@ def test_resolve_with_all_spec_types(
     mock_yaml_resolver,
     mock_order_fasta_resolver,
     mock_annotation_resolver,
+    mock_resolved_inputs,
 ):
     """Test that resolve method routes each spec type to the correct implementation."""
     # Create mock specs of each type
-    yaml_spec = MagicMock(spec=StaticYamlSpec, name="yaml_spec")
-    resource_spec = MagicMock(spec=BfabricResourceSpec, name="resource_spec")
-    dataset_spec = MagicMock(spec=BfabricDatasetSpec, name="dataset_spec")
-    order_fasta_spec = MagicMock(spec=BfabricOrderFastaSpec, name="order_fasta_spec")
-    annotation_spec = MagicMock(spec=BfabricAnnotationSpec, name="annotation_spec")
-    mocker.patch(
-        "bfabric_app_runner.inputs.resolve.resolver.ResolvedInputs", side_effect=lambda files: mocker.Mock(files=files)
-    )
+    yaml_spec = mocker.MagicMock(spec=StaticYamlSpec, name="yaml_spec")
+    resource_spec = mocker.MagicMock(spec=BfabricResourceSpec, name="resource_spec")
+    dataset_spec = mocker.MagicMock(spec=BfabricDatasetSpec, name="dataset_spec")
+    order_fasta_spec = mocker.MagicMock(spec=BfabricOrderFastaSpec, name="order_fasta_spec")
+    annotation_spec = mocker.MagicMock(spec=BfabricAnnotationSpec, name="annotation_spec")
 
     grouped_specs = {
         StaticYamlSpec: [yaml_spec, yaml_spec],
@@ -169,6 +166,7 @@ def test_resolve_with_all_spec_types(
         "annotation_file",
     }
     assert set(result.files) == expected_files
+    mock_resolved_inputs.assert_called_once()
 
 
 def test_resolve_with_empty_specs(resolver):
@@ -178,174 +176,119 @@ def test_resolve_with_empty_specs(resolver):
     assert len(result.files) == 0
 
 
-# TODO
-# def test_resolve_static_yaml_specs(
-#    resolver,
-#    mock_yaml_resolver,
-#    mock_resource_resolver,
-#    mock_dataset_resolver,
-#    mock_order_fasta_resolver,
-#    mock_annotation_resolver,
-#    mocker: MockerFixture,
-# ):
-#    """Test resolving only StaticYamlSpec specs."""
-#    yaml_spec1 = MagicMock(spec=StaticYamlSpec)
-#    yaml_spec2 = MagicMock(spec=StaticYamlSpec)
-#
-#    # Setup the return value
-#    mock_yaml_resolver.return_value = [MagicMock(name="yaml_file")]
-#
-#    # Mock the type function
-#    mocker.patch("builtins.type", return_value=StaticYamlSpec)
-#
-#    # Call the resolve method
-#    specs = [yaml_spec1, yaml_spec2]
-#    result = resolver.resolve(specs)
-#
-#    # Verify that only the yaml resolver was called
-#    mock_yaml_resolver.assert_called_once()
-#    mock_resource_resolver.assert_not_called()
-#    mock_dataset_resolver.assert_not_called()
-#    mock_order_fasta_resolver.assert_not_called()
-#    mock_annotation_resolver.assert_not_called()
-#
-#    # Verify the result contains the expected files
-#    assert isinstance(result, ResolvedInputs)
-#    assert result.files == mock_yaml_resolver.return_value
-#
-#
-# def test_resolve_bfabric_resource_specs(
-#    resolver,
-#    mock_yaml_resolver,
-#    mock_resource_resolver,
-#    mock_dataset_resolver,
-#    mock_order_fasta_resolver,
-#    mock_annotation_resolver,
-#    mocker: MockerFixture,
-# ):
-#    """Test resolving only BfabricResourceSpec specs."""
-#    resource_spec = MagicMock(spec=BfabricResourceSpec)
-#
-#    # Setup the return value
-#    mock_resource_resolver.return_value = [MagicMock(name="resource_file")]
-#
-#    # Mock the type function
-#    mocker.patch("builtins.type", return_value=BfabricResourceSpec)
-#
-#    # Call the resolve method
-#    specs = [resource_spec]
-#    result = resolver.resolve(specs)
-#
-#    # Verify that only the resource resolver was called
-#    mock_resource_resolver.assert_called_once()
-#    mock_yaml_resolver.assert_not_called()
-#    mock_dataset_resolver.assert_not_called()
-#    mock_order_fasta_resolver.assert_not_called()
-#    mock_annotation_resolver.assert_not_called()
-#
-#    # Verify the result contains the expected files
-#    assert isinstance(result, ResolvedInputs)
-#    assert result.files == mock_resource_resolver.return_value
-#
-#
-# def test_resolve_bfabric_dataset_specs(
-#    resolver,
-#    mock_yaml_resolver,
-#    mock_resource_resolver,
-#    mock_dataset_resolver,
-#    mock_order_fasta_resolver,
-#    mock_annotation_resolver,
-#    mocker: MockerFixture,
-# ):
-#    """Test resolving only BfabricDatasetSpec specs."""
-#    dataset_spec = MagicMock(spec=BfabricDatasetSpec)
-#
-#    # Setup the return value
-#    mock_dataset_resolver.return_value = [MagicMock(name="dataset_file")]
-#
-#    # Mock the type function
-#    mocker.patch("builtins.type", return_value=BfabricDatasetSpec)
-#
-#    # Call the resolve method
-#    specs = [dataset_spec]
-#    result = resolver.resolve(specs)
-#
-#    # Verify that only the dataset resolver was called
-#    mock_dataset_resolver.assert_called_once()
-#    mock_yaml_resolver.assert_not_called()
-#    mock_resource_resolver.assert_not_called()
-#    mock_order_fasta_resolver.assert_not_called()
-#    mock_annotation_resolver.assert_not_called()
-#
-#    # Verify the result contains the expected files
-#    assert isinstance(result, ResolvedInputs)
-#    assert result.files == mock_dataset_resolver.return_value
-#
-#
-# def test_resolve_bfabric_order_fasta_specs(
-#    resolver,
-#    mock_yaml_resolver,
-#    mock_resource_resolver,
-#    mock_dataset_resolver,
-#    mock_order_fasta_resolver,
-#    mock_annotation_resolver,
-#    mocker: MockerFixture,
-# ):
-#    """Test resolving only BfabricOrderFastaSpec specs."""
-#    order_fasta_spec = MagicMock(spec=BfabricOrderFastaSpec)
-#
-#    # Setup the return value
-#    mock_order_fasta_resolver.return_value = [MagicMock(name="order_fasta_file")]
-#
-#    # Mock the type function
-#    mocker.patch("builtins.type", return_value=BfabricOrderFastaSpec)
-#
-#    # Call the resolve method
-#    specs = [order_fasta_spec]
-#    result = resolver.resolve(specs)
-#
-#    # Verify that only the order fasta resolver was called
-#    mock_order_fasta_resolver.assert_called_once()
-#    mock_yaml_resolver.assert_not_called()
-#    mock_resource_resolver.assert_not_called()
-#    mock_dataset_resolver.assert_not_called()
-#    mock_annotation_resolver.assert_not_called()
-#
-#    # Verify the result contains the expected files
-#    assert isinstance(result, ResolvedInputs)
-#    assert result.files == mock_order_fasta_resolver.return_value
-#
-#
-# def test_resolve_bfabric_annotation_specs(
-#    resolver,
-#    mock_yaml_resolver,
-#    mock_resource_resolver,
-#    mock_dataset_resolver,
-#    mock_order_fasta_resolver,
-#    mock_annotation_resolver,
-#    mocker: MockerFixture,
-# ):
-#    """Test resolving only BfabricAnnotationSpec specs."""
-#    annotation_spec = MagicMock(spec=BfabricAnnotationSpec)
-#
-#    # Setup the return value
-#    mock_annotation_resolver.return_value = [MagicMock(name="annotation_file")]
-#
-#    # Mock the type function
-#    mocker.patch("builtins.type", return_value=BfabricAnnotationSpec)
-#
-#    # Call the resolve method
-#    specs = [annotation_spec]
-#    result = resolver.resolve(specs)
-#
-#    # Verify that only the annotation resolver was called
-#    mock_annotation_resolver.assert_called_once()
-#    mock_yaml_resolver.assert_not_called()
-#    mock_resource_resolver.assert_not_called()
-#    mock_dataset_resolver.assert_not_called()
-#    mock_order_fasta_resolver.assert_not_called()
-#
-#    # Verify the result contains the expected files
-#    assert isinstance(result, ResolvedInputs)
-#    assert result.files == mock_annotation_resolver.return_value
-#
+def test_resolve_static_yaml_specs(
+    resolver,
+    mock_yaml_resolver,
+    mocker: MockerFixture,
+    mock_resolved_inputs,
+):
+    """Test resolving only StaticYamlSpec specs."""
+    yaml_spec1 = mocker.MagicMock(spec=StaticYamlSpec)
+    yaml_spec2 = mocker.MagicMock(spec=StaticYamlSpec)
+    mocker.patch.object(resolver, "_group_specs_by_type", return_value={StaticYamlSpec: [yaml_spec1, yaml_spec2]})
+    mock_yaml_resolver.return_value = [mocker.MagicMock(name="yaml_file", type="static_file")]
+
+    # Call the resolve method
+    specs = [yaml_spec1, yaml_spec2]
+    result = resolver.resolve(specs)
+
+    # Verify results
+    mock_yaml_resolver.assert_called_once()
+    assert result.files == mock_yaml_resolver.return_value
+    mock_resolved_inputs.assert_called_once()
+
+
+def test_resolve_bfabric_resource_specs(
+    resolver,
+    mock_resource_resolver,
+    mocker: MockerFixture,
+    mock_resolved_inputs,
+):
+    """Test resolving only BfabricResourceSpec specs."""
+    resource_spec1 = mocker.MagicMock(spec=BfabricResourceSpec)
+    resource_spec2 = mocker.MagicMock(spec=BfabricResourceSpec)
+    mocker.patch.object(
+        resolver, "_group_specs_by_type", return_value={BfabricResourceSpec: [resource_spec1, resource_spec2]}
+    )
+    mock_resource_resolver.return_value = [mocker.MagicMock(name="resource_file", type="resource_file")]
+
+    # Call the resolve method
+    specs = [resource_spec1, resource_spec2]
+    result = resolver.resolve(specs)
+
+    # Verify results
+    mock_resource_resolver.assert_called_once()
+    assert result.files == mock_resource_resolver.return_value
+    mock_resolved_inputs.assert_called_once()
+
+
+def test_resolve_bfabric_dataset_specs(
+    resolver,
+    mock_dataset_resolver,
+    mocker: MockerFixture,
+    mock_resolved_inputs,
+):
+    """Test resolving only BfabricDatasetSpec specs."""
+    dataset_spec1 = mocker.MagicMock(spec=BfabricDatasetSpec)
+    dataset_spec2 = mocker.MagicMock(spec=BfabricDatasetSpec)
+    mocker.patch.object(
+        resolver, "_group_specs_by_type", return_value={BfabricDatasetSpec: [dataset_spec1, dataset_spec2]}
+    )
+    mock_dataset_resolver.return_value = [mocker.MagicMock(name="dataset_file", type="dataset_file")]
+
+    # Call the resolve method
+    specs = [dataset_spec1, dataset_spec2]
+    result = resolver.resolve(specs)
+
+    # Verify results
+    mock_dataset_resolver.assert_called_once()
+    assert result.files == mock_dataset_resolver.return_value
+    mock_resolved_inputs.assert_called_once()
+
+
+def test_resolve_bfabric_order_fasta_specs(
+    resolver,
+    mock_order_fasta_resolver,
+    mocker: MockerFixture,
+    mock_resolved_inputs,
+):
+    """Test resolving only BfabricOrderFastaSpec specs."""
+    order_fasta_spec1 = mocker.MagicMock(spec=BfabricOrderFastaSpec)
+    order_fasta_spec2 = mocker.MagicMock(spec=BfabricOrderFastaSpec)
+    mocker.patch.object(
+        resolver, "_group_specs_by_type", return_value={BfabricOrderFastaSpec: [order_fasta_spec1, order_fasta_spec2]}
+    )
+    mock_order_fasta_resolver.return_value = [mocker.MagicMock(name="order_fasta_file", type="order_fasta_file")]
+
+    # Call the resolve method
+    specs = [order_fasta_spec1, order_fasta_spec2]
+    result = resolver.resolve(specs)
+
+    # Verify results
+    mock_order_fasta_resolver.assert_called_once()
+    assert result.files == mock_order_fasta_resolver.return_value
+    mock_resolved_inputs.assert_called_once()
+
+
+def test_resolve_bfabric_annotation_specs(
+    resolver,
+    mock_annotation_resolver,
+    mocker: MockerFixture,
+    mock_resolved_inputs,
+):
+    """Test resolving only BfabricAnnotationSpec specs."""
+    annotation_spec1 = mocker.MagicMock(spec=BfabricAnnotationSpec)
+    annotation_spec2 = mocker.MagicMock(spec=BfabricAnnotationSpec)
+    mocker.patch.object(
+        resolver, "_group_specs_by_type", return_value={BfabricAnnotationSpec: [annotation_spec1, annotation_spec2]}
+    )
+    mock_annotation_resolver.return_value = [mocker.MagicMock(name="annotation_file", type="annotation_file")]
+
+    # Call the resolve method
+    specs = [annotation_spec1, annotation_spec2]
+    result = resolver.resolve(specs)
+
+    # Verify results
+    mock_annotation_resolver.assert_called_once()
+    assert result.files == mock_annotation_resolver.return_value
+    mock_resolved_inputs.assert_called_once()
