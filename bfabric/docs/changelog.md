@@ -23,6 +23,7 @@ Versioning currently follows `X.Y.Z` where
 ### Added
 
 - Generic functionality in `bfabric.utils.path_safe_name` to validate names for use in paths.
+- `bfabric.entities.Dataset.{write_parquet, get_parquet}` methods for writing parquet
 
 ## \[1.13.22\] - 2025-02-19
 

@@ -15,8 +15,8 @@ def mock_data_dict() -> dict[str, Any]:
     return {
         "id": 1234,
         "attribute": [
-            {"name": "Color", "position": "1"},
-            {"name": "Shape", "position": "2"},
+            {"name": "Color", "position": "1", "type": "String"},
+            {"name": "Shape", "position": "2", "type": "String"},
         ],
         "item": [
             {"field": [{"value": "Red", "attributeposition": "1"}, {"value": "Square", "attributeposition": "2"}]},
@@ -60,6 +60,14 @@ def test_data_dict(mock_dataset: Dataset, mock_data_dict: dict[str, Any]) -> Non
     assert mock_dataset.data_dict is not mock_data_dict
 
 
+def test_column_names(mock_dataset: Dataset) -> None:
+    assert mock_dataset.column_names == ["Color", "Shape"]
+
+
+def test_column_types(mock_dataset: Dataset) -> None:
+    assert mock_dataset.column_types == {"Color": "String", "Shape": "String"}
+
+
 @pytest.mark.parametrize("rearranged_data_dict", [True, False])
 def test_to_polars(request, rearranged_data_dict: bool) -> None:
     data_dict = request.getfixturevalue("mock_data_dict_rearranged" if rearranged_data_dict else "mock_data_dict")
@@ -82,10 +90,27 @@ def test_write_csv(mocker: MockFixture, mock_dataset: Dataset) -> None:
     mock_to_polars.return_value = mock_df
     mock_path = mocker.MagicMock(name="mock_path")
     mock_sep = mocker.MagicMock(name="mock_sep")
-
     mock_dataset.write_csv(mock_path, separator=mock_sep)
-
     mock_df.write_csv.assert_called_once_with(mock_path, separator=mock_sep)
+
+
+def test_get_csv(mock_dataset: Dataset) -> None:
+    csv = mock_dataset.get_csv()
+    assert csv == "Color,Shape\nRed,Square\nBlue,Circle\n"
+
+
+def test_get_parquet(mock_dataset: Dataset) -> None:
+    parquet_bytes = mock_dataset.get_parquet()
+    df = pl.read_parquet(parquet_bytes)
+    pl.testing.assert_frame_equal(
+        df,
+        pl.DataFrame(
+            {
+                "Color": ["Red", "Blue"],
+                "Shape": ["Square", "Circle"],
+            }
+        ),
+    )
 
 
 def test_repr(mock_empty_dataset: Dataset) -> None:
