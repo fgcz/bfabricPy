@@ -1,23 +1,21 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 import yaml
 from bfabric_app_runner.input_preparation.collect_annotation import get_annotation
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_dataset_specs import ResolveBfabricDatasetSpecs
+from bfabric_app_runner.inputs.resolve._resolve_bfabric_resource_specs import ResolveBfabricResourceSpecs
 from bfabric_app_runner.inputs.resolve.get_order_fasta import get_order_fasta
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedInputs
 from bfabric_app_runner.specs.inputs.bfabric_annotation_spec import BfabricAnnotationSpec
 from bfabric_app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
 from bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec import BfabricOrderFastaSpec
 from bfabric_app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
-from bfabric_app_runner.specs.inputs.file_spec import FileSpec, FileSourceSsh, FileSourceSshValue
 from bfabric_app_runner.specs.inputs.static_file_spec import StaticFileSpec
 from bfabric_app_runner.specs.inputs.static_yaml_spec import StaticYamlSpec
 
-from bfabric.entities import Resource, Storage
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
@@ -30,6 +28,7 @@ class Resolver:
     def __init__(self, client: Bfabric) -> None:
         self._client = client
         self._resolve_bfabric_dataset_specs = ResolveBfabricDatasetSpecs(client=client)
+        self._resolve_bfabric_resource_specs = ResolveBfabricResourceSpecs(client=client)
 
     def resolve(self, specs: list[InputSpecType]) -> ResolvedInputs:
         """Convert input specifications to resolved file specifications."""
@@ -65,44 +64,6 @@ class Resolver:
     def _resolve_static_yaml_specs(specs: list[StaticYamlSpec]) -> list[StaticFileSpec]:
         """Convert YAML specifications to file specifications."""
         return [StaticFileSpec(content=yaml.safe_dump(spec.data), filename=spec.filename) for spec in specs]
-
-    def _resolve_bfabric_resource_specs(self, specs: list[BfabricResourceSpec]) -> list[FileSpec]:
-        """Convert resource specifications to file specifications."""
-        if not specs:
-            return []
-
-        # Fetch all resources and their storage information in bulk
-        resource_ids = [spec.id for spec in specs]
-        resources = Resource.find_all(ids=resource_ids, client=self._client)
-
-        storage_ids = [resource["storage"]["id"] for resource in resources.values()]
-        storages = Storage.find_all(ids=storage_ids, client=self._client)
-
-        # Create file specs
-        result = []
-        for spec in specs:
-            resource = resources.get(spec.id)
-            if not resource:
-                msg = f"Resource {spec.id} not found"
-                raise ValueError(msg)
-
-            storage_id = resource["storage"]["id"]
-            storage = storages[storage_id]
-
-            result.append(
-                FileSpec(
-                    source=FileSourceSsh(
-                        ssh=FileSourceSshValue(
-                            host=storage["host"], path=f"{storage['basepath']}{resource['relativepath']}"
-                        )
-                    ),
-                    filename=spec.filename or Path(resource["relativepath"]).name,
-                    link=False,
-                    checksum=resource["filechecksum"] if spec.check_checksum else None,
-                )
-            )
-
-        return result
 
     def _resolve_bfabric_order_fasta_specs(self, specs: list[BfabricOrderFastaSpec]) -> list[StaticFileSpec]:
         """Convert order FASTA specifications to file specifications."""
