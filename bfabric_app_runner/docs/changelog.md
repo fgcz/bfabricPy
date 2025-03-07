@@ -15,6 +15,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Multiple inputs with the same output filename, will yield an error now.
 - File timestamps will not be modified anymore, if the file is already up-to-date.
 
+### Added
+
+- `SaveLinkSpec` to save a B-Fabric link e.g. to a workunit.
+
 ### Removed
 
 - `file_scp` spec has been removed, one should use `file` instead (`FileSpec`)
