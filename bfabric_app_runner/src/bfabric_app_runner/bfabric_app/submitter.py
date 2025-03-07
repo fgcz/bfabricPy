@@ -1,16 +1,11 @@
 from __future__ import annotations
+
 import argparse
 from functools import cached_property
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import yaml
-from loguru import logger
-from pydantic import BaseModel
-
-from bfabric.entities import ExternalJob, Workunit
-from bfabric.experimental.workunit_definition import WorkunitDefinition
-from bfabric.utils.cli_integration import use_client
 from bfabric_app_runner.app_runner.resolve_app import resolve_app
 from bfabric_app_runner.bfabric_app.slurm_submitter.config.slurm_config_template import SlurmConfigTemplate
 from bfabric_app_runner.bfabric_app.slurm_submitter.config.slurm_workunit_params import SlurmWorkunitParams
@@ -19,6 +14,12 @@ from bfabric_app_runner.specs.app.app_spec import AppSpecTemplate
 from bfabric_app_runner.specs.app.app_version import AppVersion  # noqa: TC001
 from bfabric_app_runner.specs.config_interpolation import Variables, VariablesApp, VariablesWorkunit
 from bfabric_app_runner.specs.submitters_spec import SubmittersSpecTemplate, SubmitterSlurmSpec
+from loguru import logger
+from pydantic import BaseModel
+
+from bfabric.entities import ExternalJob, Workunit, Executable
+from bfabric.experimental.workunit_definition import WorkunitDefinition
+from bfabric.utils.cli_integration import use_client
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
@@ -92,11 +93,21 @@ class WorkunitWrapperData(BaseModel):
     app_runner_version: str
 
 
+def get_application_yaml_path(executable: Executable) -> Path:
+    """Returns the path to the application YAML file."""
+    # TODO for now this is hardcoded, but a better solution might be considered later
+    program_str = executable["program"]
+    if "fgcz_slurm_app_runner_compat.bash" in program_str:
+        return program_str.split()[-1]
+    else:
+        return program_str
+
+
 def get_data(workunit: Workunit) -> WorkunitWrapperData:
     """Returns the data to be written to WORKUNIT context executable."""
     # TODO this can certainly be cleaned up further, it's an interim refactoring state
     workunit_definition = WorkunitDefinition.from_workunit(workunit=workunit)
-    path = Path(workunit.application.executable["program"])
+    path = get_application_yaml_path(workunit.application.executable)
     logger.info("Reading app spec from: {}", path)
     app_spec_template = AppSpecTemplate.model_validate(yaml.safe_load(path.read_text()))
     app_spec = app_spec_template.evaluate(
