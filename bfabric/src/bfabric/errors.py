@@ -7,10 +7,20 @@ class BfabricRequestError(RuntimeError):
     """An error that is returned by the server in response to a full request."""
 
     def __init__(self, message: str) -> None:
+        # Call parent class constructor to properly initialize RuntimeError
+        super().__init__(message)
         self.message = message
 
     def __repr__(self) -> str:
-        return f"RequestError(message={repr(self.message)})"
+        return f"BfabricRequestError(message={repr(self.message)})"
+
+    def __str__(self) -> str:
+        return self.message
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, BfabricRequestError):
+            return False
+        return self.message == other.message
 
 
 class BfabricConfigError(RuntimeError):

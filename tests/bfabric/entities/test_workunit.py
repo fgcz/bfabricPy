@@ -105,6 +105,20 @@ def test_store_output_folder(mocker, mock_workunit) -> None:
     assert Path("xyz12/bfabric/tech/my_app/2024/2024-01/2024-01-02/workunit_30000") == mock_workunit.store_output_folder
 
 
+def test_store_output_folder_when_unsafe_chars(mocker, mock_workunit) -> None:
+    mock_application = mocker.MagicMock(storage={"projectfolderprefix": "xyz"})
+    mock_application.__getitem__.side_effect = {
+        "technology": "tech & tech",
+        "name": "my app (:",
+    }.__getitem__
+    mocker.patch.object(mock_workunit, "application", mock_application)
+    mocker.patch.object(Workunit, "container", mocker.PropertyMock(return_value=mocker.MagicMock(id=12)))
+    assert (
+        Path("xyz12/bfabric/tech_tech/my_app_/2024/2024-01/2024-01-02/workunit_30000")
+        == mock_workunit.store_output_folder
+    )
+
+
 def test_repr() -> None:
     workunit = Workunit({"id": 30000}, client=None)
     assert repr(workunit) == "Workunit({'id': 30000}, client=None)"
