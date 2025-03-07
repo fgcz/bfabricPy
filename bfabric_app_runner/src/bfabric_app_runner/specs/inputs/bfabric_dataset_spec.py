@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-from typing import Literal, TYPE_CHECKING
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
 from bfabric_app_runner.specs.common_types import RelativeFilePath  # noqa: TC001
-
-if TYPE_CHECKING:
-    from bfabric import Bfabric
 
 
 class BfabricDatasetSpec(BaseModel):
@@ -21,10 +18,6 @@ class BfabricDatasetSpec(BaseModel):
     """Target filename to save to"""
 
     separator: Literal[",", "\t"] = ","
-    """Separator for the CSV file"""
+    """Separator for the CSV file (not relevant for Parquet)"""
 
-    # has_header: bool
-    # invalid_characters: str = ""
-
-    def resolve_filename(self, client: Bfabric) -> str:
-        return self.filename
+    format: Literal["csv", "parquet"] = "csv"
