@@ -24,6 +24,7 @@ bfabric-cli api update workunit ${workunit_id} status processing --no-confirm
 bfabric-cli api update resource ${logging_resource_id} status available --no-confirm
 % endif
 
+export PYTHONUNBUFFERED=1
 {
 ${command}
 } 2>&1 | ts '[%Y-%m-%d %H:%M:%S]'
