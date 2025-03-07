@@ -31,8 +31,9 @@ class FileSourceSsh(BaseModel):
 class FileSpec(BaseModel):
     type: Literal["file"] = "file"
     source: FileSourceSsh | FileSourceLocal
-    filename: RelativeFilePath | None = None
+    filename: RelativeFilePath | None = None  # TODO we cannot reuse the same type
     link: bool = False
+    checksum: str | None = None
 
     @model_validator(mode="after")
     def validate_no_link_ssh(self) -> Self:
