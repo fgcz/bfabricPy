@@ -1,0 +1,95 @@
+import base64
+from pathlib import Path
+from typing import Any
+
+import pytest
+import yaml
+from pytest_mock import MockerFixture
+
+from bfabric import Bfabric
+from bfabric.entities import Workunit, ExternalJob
+from bfabric.experimental.workunit_definition import WorkunitDefinition
+from bfabric_app_runner.bfabric_app.submitter import Submitter
+from bfabric_app_runner.bfabric_app.submitter import WorkunitWrapperData
+from bfabric_app_runner.specs.app.app_version import AppVersion
+from bfabric_app_runner.specs.submitters_spec import SubmittersSpecTemplate, SubmitterSlurmSpec
+from tests.conftest import yaml_fixture
+
+WORKUNIT_ID = 500
+
+
+@pytest.fixture
+def mock_client(mocker: MockerFixture) -> Bfabric:
+    return mocker.MagicMock()
+
+
+@pytest.fixture
+def mock_workunit(mocker: MockerFixture) -> Workunit:
+    return mocker.MagicMock(id=WORKUNIT_ID)
+
+
+@pytest.fixture
+def mock_external_job(mocker: MockerFixture, mock_workunit: Workunit) -> ExternalJob:
+    return mocker.MagicMock(workunit=mock_workunit)
+
+
+@pytest.fixture
+def mock_submitters_spec_template(mock_submitter_slurm_spec) -> SubmittersSpecTemplate:
+    return SubmittersSpecTemplate(submitters={"test_submitter": mock_submitter_slurm_spec})
+
+
+@pytest.fixture
+def mock_submitter(
+    mock_client: Bfabric, mock_external_job: ExternalJob, mock_submitters_spec_template: SubmittersSpecTemplate
+) -> Submitter:
+    return Submitter(
+        client=mock_client, external_job=mock_external_job, submitters_spec_template=mock_submitters_spec_template
+    )
+
+
+mock_app_version = yaml_fixture(AppVersion, "app_version")
+mock_workunit_definition = yaml_fixture(WorkunitDefinition, "workunit_definition")
+mock_submitter_slurm_spec = yaml_fixture(SubmitterSlurmSpec, "submitter_slurm_spec")
+
+
+@pytest.fixture
+def mock_workunit_wrapper_data(
+    mock_app_version: AppVersion, mock_workunit_definition: WorkunitDefinition
+) -> WorkunitWrapperData:
+    return WorkunitWrapperData(
+        workunit_definition=mock_workunit_definition, app_version=mock_app_version, app_runner_version="1.0.0"
+    )
+
+
+@pytest.fixture
+def mock_executable_data(mock_workunit_wrapper_data: WorkunitWrapperData) -> dict[str, Any]:
+    yaml_str = yaml.safe_dump(mock_workunit_wrapper_data.model_dump(mode="json"))
+    base64_str = base64.b64encode(yaml_str.encode()).decode()
+    return {"1": {"context": "WORKUNIT", "base64": base64_str}}
+
+
+def test_get_submitter_spec(
+    mock_submitter: Submitter,
+    mock_submitters_spec_template: SubmittersSpecTemplate,
+    mock_workunit_wrapper_data: WorkunitWrapperData,
+) -> None:
+    # Execute
+    result = mock_submitter.get_submitter_spec(mock_workunit_wrapper_data)
+
+    # Verify
+    assert isinstance(result, SubmitterSlurmSpec)
+    assert result.params["--partition"] == "compute"
+    assert result.config.worker_scratch_dir == Path("/test/worker-scratch-dir/-1_Testing_App/-1")
+
+
+def test_get_submitter_spec_not_found(
+    mock_submitter: Submitter,
+    mock_submitters_spec_template: SubmittersSpecTemplate,
+    mock_workunit_wrapper_data: WorkunitWrapperData,
+) -> None:
+    # Setup
+    mock_workunit_wrapper_data.app_version.submitter.name = "nonexistent_submitter"
+
+    # Execute and verify
+    with pytest.raises(ValueError, match="Submitter 'nonexistent_submitter' not found"):
+        mock_submitter.get_submitter_spec(mock_workunit_wrapper_data)
