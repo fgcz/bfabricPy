@@ -98,9 +98,9 @@ def get_application_yaml_path(executable: Executable) -> Path:
     # TODO for now this is hardcoded, but a better solution might be considered later
     program_str = executable["program"]
     if "fgcz_slurm_app_runner_compat.bash" in program_str:
-        return program_str.split()[-1]
+        return Path(program_str.split()[-1])
     else:
-        return program_str
+        return Path(program_str)
 
 
 def get_data(workunit: Workunit) -> WorkunitWrapperData:
