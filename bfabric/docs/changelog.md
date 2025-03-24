@@ -19,6 +19,7 @@ Versioning currently follows `X.Y.Z` where
 ### Changed
 
 - `WorkunitDefinition` uses `PathSafeStr` to normalize app and workunit names.
+- Internal: `ResultContainer` has no optional constructor arguments anymore to avoid confusion.
 
 ### Added
 

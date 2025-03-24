@@ -41,7 +41,7 @@ class MultiQuery:
         NOTE: It is assumed that there is only 1 response for each value.
         """
         # TODO add `check` parameter
-        response_tot = ResultContainer([], total_pages_api=0)
+        response_tot = ResultContainer([], total_pages_api=0, errors=[])
         obj_extended = deepcopy(obj)  # Make a copy of the query, not to make edits to the argument
 
         # Iterate over request chunks that fit into a single API page
@@ -79,7 +79,7 @@ class MultiQuery:
         """Deletes multiple objects from `endpoint` by their ids."""
         # TODO document and test error handling
         # TODO add `check` parameter
-        response_tot = ResultContainer([], total_pages_api=0)
+        response_tot = ResultContainer([], total_pages_api=0, errors=[])
 
         if not id_list:
             print("Warning, empty list provided for deletion, ignoring")
