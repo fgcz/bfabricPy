@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import re
+import secrets
 from typing import Any
 
 from loguru import logger
 from mako.template import Template
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, Field
 
 
 class VariablesApp(BaseModel):
@@ -24,13 +25,19 @@ class VariablesApp(BaseModel):
         return characters.sub("_", value)
 
 
+class VariablesWorkunit(BaseModel):
+    id: int
+    file_token: str = Field(default_factory=lambda: secrets.token_hex(16))
+
+
 class Variables(BaseModel):
     """Variables that can be used in our config templates."""
 
     app: VariablesApp
+    workunit: VariablesWorkunit | None
 
     def as_dict(self) -> dict[str, VariablesApp]:
-        return {"app": self.app}
+        return {"app": self.app, "workunit": self.workunit}
 
 
 def interpolate_config_strings(data: Any, variables: Variables | dict[str, Any]) -> Any:
