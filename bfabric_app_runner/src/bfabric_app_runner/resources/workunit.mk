@@ -21,10 +21,10 @@
 
 # Configuration
 RUNNER_VERSION := @RUNNER_VERSION@
-RUNNER_CMD := uv run --with "bfabric-app-runner==$(RUNNER_VERSION)" bfabric-app-runner
+RUNNER_CMD := uv run -p 3.13 --with "bfabric-app-runner==$(RUNNER_VERSION)" bfabric-app-runner
 
 # Input files
-APP_DEF := $(realpath app_version.yml)
+APP_DEF := $(if $(wildcard app_version.yml),$(realpath app_version.yml),$(realpath app_definition.yml))
 WORKUNIT_DEF := $(realpath workunit_definition.yml)
 CURRENT_DIR := $(shell pwd)
 

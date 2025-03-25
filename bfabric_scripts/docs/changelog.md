@@ -10,6 +10,16 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Removed
+
+- Remove `bfabric-cli api save` -> use `bfabric-cli api create` and `bfabric-cli api update` instead.
+
+## \[1.13.24\] - 2025-02-19
+
+### Fixed
+
+- Update `bfabric` to 1.13.22 for dataset fix.
+
 ## \[1.13.23\] - 2025-02-19
 
 ### Added

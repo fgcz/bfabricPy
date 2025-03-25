@@ -1,14 +1,10 @@
 from __future__ import annotations
 
-from typing import Literal, TYPE_CHECKING
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
 from bfabric_app_runner.specs.common_types import RelativeFilePath  # noqa: TC001
-from bfabric.entities import Resource
-
-if TYPE_CHECKING:
-    from bfabric import Bfabric
 
 
 class BfabricResourceSpec(BaseModel):
@@ -23,10 +19,3 @@ class BfabricResourceSpec(BaseModel):
 
     check_checksum: bool = True
     """Whether to check the checksum of the file, after downloading"""
-
-    def resolve_filename(self, client: Bfabric) -> str:
-        if self.filename:
-            return self.filename
-        else:
-            resource = Resource.find(id=self.id, client=client)
-            return resource["name"]

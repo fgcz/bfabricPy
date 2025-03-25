@@ -10,6 +10,7 @@ from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.has_container_mixin import HasContainerMixin
 from bfabric.entities.core.has_many import HasMany
 from bfabric.entities.core.has_one import HasOne
+from bfabric.utils.path_safe_name import path_safe_name
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
@@ -52,8 +53,8 @@ class Workunit(Entity, HasContainerMixin):
         return Path(
             f"{self.application.storage['projectfolderprefix']}{self.container.id}",
             "bfabric",
-            self.application["technology"].replace(" ", "_"),
-            self.application["name"].replace(" ", "_"),
+            path_safe_name(self.application["technology"]),
+            path_safe_name(self.application["name"]),
             date.strftime("%Y/%Y-%m/%Y-%m-%d/"),
             f"workunit_{self.id}",
         )

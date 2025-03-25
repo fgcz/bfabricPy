@@ -14,6 +14,7 @@ from bfabric_app_runner.specs.outputs_spec import (
     OutputsSpec,
     SpecType,
     SaveDatasetSpec,
+    SaveLinkSpec,
 )
 from bfabric_app_runner.util.checksums import md5sum
 from bfabric_app_runner.util.scp import scp
@@ -112,6 +113,32 @@ def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit_definition: W
     )
 
 
+def _save_link(spec: SaveLinkSpec, client: Bfabric, workunit_definition: WorkunitDefinition) -> None:
+    # Check if the link already exists
+    res = client.read("link", {"name": spec.name, "parentid": spec.entity_id, "parentclassname": spec.entity_type})
+    existing_link_id = res[0]["id"] if len(res) > 0 else None
+    # TODO maybe some of this logic could be extracted generically (i.e. UPDATE_EXISTING logic)
+    if existing_link_id is not None and spec.update_existing == UpdateExisting.NO:
+        msg = (
+            f"Link {spec.name} already exists for entity {spec.entity_type} with id {spec.entity_id}, "
+            f"but existing links should not be updated."
+        )
+        raise ValueError(msg)
+    elif existing_link_id is None and spec.update_existing == UpdateExisting.REQUIRED:
+        msg = (
+            f"Link {spec.name} does not exist for entity {spec.entity_type} with id {spec.entity_id}, "
+            f"but existing links is expected to be updated."
+        )
+        raise ValueError(msg)
+
+    # Create or update the link
+    link_data = {"name": spec.name, "url": spec.url, "parentid": spec.entity_id, "parentclassname": spec.entity_type}
+    if existing_link_id is not None:
+        link_data["id"] = existing_link_id
+    res = client.save("link", link_data)
+    logger.info(f"Link {spec.name} saved with id {res['id']} for entity {spec.entity_type} with id {spec.entity_id}")
+
+
 def find_default_resource_id(workunit_definition: WorkunitDefinition, client: Bfabric) -> int | None:
     """Finds the default resource's id for the workunit. Maybe in the future, this will be always `None`."""
     workunit = Workunit.find(id=workunit_definition.registration.workunit_id, client=client)
@@ -160,6 +187,8 @@ def register_all(
             )
         elif isinstance(spec, SaveDatasetSpec):
             _save_dataset(spec, client, workunit_definition=workunit_definition)
+        elif isinstance(spec, SaveLinkSpec):
+            _save_link(spec, client, workunit_definition=workunit_definition)
         else:
             raise ValueError(f"Unknown spec type: {type(spec)}")
 

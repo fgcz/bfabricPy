@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from typing import Literal, TYPE_CHECKING, Self
 
-from pydantic import BaseModel, model_validator
-
 from bfabric_app_runner.specs.common_types import RelativeFilePath, AbsoluteFilePath  # noqa: TC001
+from pydantic import BaseModel, model_validator
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
@@ -32,8 +31,9 @@ class FileSourceSsh(BaseModel):
 class FileSpec(BaseModel):
     type: Literal["file"] = "file"
     source: FileSourceSsh | FileSourceLocal
-    filename: RelativeFilePath | None = None
+    filename: RelativeFilePath | None = None  # TODO we cannot reuse the same type
     link: bool = False
+    checksum: str | None = None
 
     @model_validator(mode="after")
     def validate_no_link_ssh(self) -> Self:

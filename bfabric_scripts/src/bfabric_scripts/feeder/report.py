@@ -25,7 +25,8 @@ def report_resource(client: Bfabric, resource_id: int) -> ResultContainer:
     if resource.storage is None:
         # TODO is this possible for a resource to not have a storage?
         logger.error("Resource does not have a storage")
-        return ResultContainer([])
+        # TODO add the error?
+        return ResultContainer([], total_pages_api=None, errors=[])
 
     relative_path = _make_relative(resource["relativepath"])
     filename = Path(resource.storage["basepath"]) / relative_path

@@ -10,6 +10,24 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.23\] - 2025-03-25
+
+### Fixed
+
+- Unsuccessful deletions are detected by checking the B-Fabric response.
+- Handle problematic characters in `Workunit.store_output_folder`.
+- `BfabricRequestError` did not properly subclass RuntimeError.
+
+### Changed
+
+- `WorkunitDefinition` uses `PathSafeStr` to normalize app and workunit names.
+- Internal: `ResultContainer` has no optional constructor arguments anymore to avoid confusion.
+
+### Added
+
+- Generic functionality in `bfabric.utils.path_safe_name` to validate names for use in paths.
+- `bfabric.entities.Dataset.{write_parquet, get_parquet}` methods for writing parquet
+
 ## \[1.13.22\] - 2025-02-19
 
 ### Fixed
