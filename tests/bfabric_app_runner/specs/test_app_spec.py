@@ -57,8 +57,8 @@ def serialized() -> str:
     type: docker
 reuse_default_resource: true
 submitter:
-  config: {}
   name: submitter
+  params: {}
 version: 0.0.1"""
 
 

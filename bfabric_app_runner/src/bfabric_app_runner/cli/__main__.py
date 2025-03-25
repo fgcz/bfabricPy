@@ -13,6 +13,7 @@ from bfabric_app_runner.cli.validate import (
     cmd_validate_outputs_spec,
     cmd_validate_app_spec,
     cmd_validate_app_spec_template,
+    cmd_validate_submitters_spec_template,
 )
 
 package_version = importlib.metadata.version("bfabric_app_runner")
@@ -21,10 +22,10 @@ app = cyclopts.App(
     version=package_version,
 )
 
-cmd_app = cyclopts.App("app", help="Run an app.")
+cmd_app = cyclopts.App(help="Run an app.")
 cmd_app.command(cmd_app_dispatch, name="dispatch")
 cmd_app.command(cmd_app_run, name="run")
-app.command(cmd_app)
+app.command(cmd_app, name="app")
 
 cmd_inputs = cyclopts.App("inputs", help="Prepare input files for an app.")
 cmd_inputs.command(cmd_inputs_check, name="check")
@@ -49,7 +50,7 @@ cmd_validate.command(cmd_validate_app_spec, name="app-spec")
 cmd_validate.command(cmd_validate_app_spec_template, name="app-spec-template")
 cmd_validate.command(cmd_validate_inputs_spec, name="inputs-spec")
 cmd_validate.command(cmd_validate_outputs_spec, name="outputs-spec")
-
+cmd_validate.command(cmd_validate_submitters_spec_template, name="submitters-spec-template")
 app.command(cmd_validate)
 
 if __name__ == "__main__":
