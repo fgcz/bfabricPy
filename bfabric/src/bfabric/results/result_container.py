@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import logging
 from typing import Any, TYPE_CHECKING, overload
+
+from loguru import logger
 
 import bfabric.results.response_format_dict as formatter
 
@@ -17,8 +18,8 @@ class ResultContainer:
     def __init__(
         self,
         results: list[dict[str, Any]],
-        total_pages_api: int | None = None,
-        errors: list[BfabricRequestError] | None = None,
+        total_pages_api: int | None,
+        errors: list[BfabricRequestError],
     ) -> None:
         """
         :param results:    List of BFabric query results
@@ -30,7 +31,7 @@ class ResultContainer:
         """
         self.results = results
         self._total_pages_api = total_pages_api
-        self._errors = errors or []
+        self._errors = errors
 
     @overload
     def __getitem__(self, idx: int) -> dict[str, Any]: ...
@@ -89,7 +90,7 @@ class ResultContainer:
         if reset_total_pages_api:
             self._total_pages_api = None
         elif self._total_pages_api != other.total_pages_api:
-            logging.warning(
+            logger.warning(
                 f"Results observed with different total pages counts: "
                 f"{self._total_pages_api} != {other.total_pages_api}"
             )

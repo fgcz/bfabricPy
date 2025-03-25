@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.23\] - 2025-03-25
+
 ### Fixed
 
 - Unsuccessful deletions are detected by checking the B-Fabric response.
@@ -19,6 +21,7 @@ Versioning currently follows `X.Y.Z` where
 ### Changed
 
 - `WorkunitDefinition` uses `PathSafeStr` to normalize app and workunit names.
+- Internal: `ResultContainer` has no optional constructor arguments anymore to avoid confusion.
 
 ### Added
 

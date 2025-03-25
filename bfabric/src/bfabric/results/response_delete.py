@@ -12,7 +12,7 @@ from bfabric.results.result_container import ResultContainer
 
 
 class ResponseDelete(ResultContainer):
-    """An response to a `delete` request.
+    """A response to a `delete` request.
 
     Any errors will be contained in errors, whereas the result will be a list of dictionaries with `id` of only the
     successfully deleted entities.
