@@ -6,6 +6,7 @@ from typing import Literal, TYPE_CHECKING
 import yaml
 from bfabric.entities import Workunit
 from pydantic import BaseModel, model_validator
+from bfabric.utils.path_safe_name import PathSafeStr  # noqa: TC001
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
@@ -61,11 +62,11 @@ class WorkunitRegistrationDefinition(BaseModel):
 
     application_id: int
     """The ID of the executing application."""
-    application_name: str
+    application_name: PathSafeStr
     """The name of the executing application."""
     workunit_id: int
     """The ID of the workunit."""
-    workunit_name: str
+    workunit_name: PathSafeStr
     """The name of the workunit."""
     container_id: int
     """The ID of the container."""

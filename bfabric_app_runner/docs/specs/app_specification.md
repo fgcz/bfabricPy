@@ -98,7 +98,7 @@ The `interpolate_config_strings` function processes all string values in the con
 
 ```python
 from pathlib import Path
-from bfabric_app_runner.specs.app_spec import AppSpec
+from bfabric_app_runner.specs.app.app_spec import AppSpec
 
 # Load from YAML
 app_spec = AppSpec.load_yaml(Path("./app_spec.yaml"), app_id="123", app_name="MyApp")
@@ -111,7 +111,7 @@ if "1.0.0" in app_spec:
 ## Reference
 
 ```{eval-rst}
-.. automodule:: bfabric_app_runner.specs.app_spec
+.. automodule:: bfabric_app_runner.specs.app.app_spec
     :members:
     :undoc-members:
     :show-inheritance:

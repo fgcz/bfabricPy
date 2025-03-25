@@ -1,98 +1,115 @@
-import logging
-import unittest
-
 import polars.testing
+import pytest
+from logot import logged
 
 from bfabric.results.result_container import ResultContainer
 
 
-class BfabricTestResultContainer(unittest.TestCase):
-    def setUp(self):
-        self.res1 = ResultContainer([1, 2, 3], total_pages_api=1)
-        self.res2 = ResultContainer([4, 5], total_pages_api=1)
-        self.res_with_empty = ResultContainer([{"a": None, "b": 1, "c": []}, {"a": 2, "b": 3, "c": None}])
-
-    def test_str(self):
-        self.assertEqual("[1, 2, 3]", str(self.res1))
-        self.assertEqual("[4, 5]", str(self.res2))
-
-    def test_repr(self):
-        self.assertEqual("[1, 2, 3]", repr(self.res1))
-        self.assertEqual("[4, 5]", repr(self.res2))
-
-    def test_iter(self):
-        items = list(iter(self.res1))
-        self.assertListEqual([1, 2, 3], items)
-
-    def test_len(self):
-        self.assertEqual(3, len(self.res1))
-        self.assertEqual(2, len(self.res2))
-
-    def test_getitem(self):
-        self.assertEqual(3, self.res1[2])
-        self.assertEqual(4, self.res2[0])
-
-    def test_get_first_n_results_when_available(self):
-        res3 = self.res1.get_first_n_results(2)
-        self.assertEqual(2, len(res3))
-        self.assertEqual([1, 2], res3.results)
-
-    def test_get_first_n_results_when_not_available(self):
-        res3 = self.res1.get_first_n_results(4)
-        self.assertEqual(3, len(res3))
-        self.assertEqual([1, 2, 3], res3.results)
-
-    def test_get_first_n_results_when_none(self):
-        res3 = self.res1.get_first_n_results(None)
-        self.assertEqual(3, len(res3))
-        self.assertEqual([1, 2, 3], res3.results)
-
-    def test_assert_success_when_success(self):
-        self.res1.assert_success()
-
-    def test_assert_success_when_error(self):
-        self.res1.errors.append("MockedError")
-        with self.assertRaises(RuntimeError) as error:
-            self.res1.assert_success()
-        self.assertEqual("('Query was not successful', ['MockedError'])", str(error.exception))
-
-    def test_extend_when_same_lengths(self):
-        res1 = ResultContainer([{"a": 1}, {"a": 2}], total_pages_api=5)
-        res2 = ResultContainer([{"b": 3}, {"b": 4}], total_pages_api=5)
-        res1.extend(res2)
-        self.assertEqual(4, len(res1))
-        self.assertEqual([{"a": 1}, {"a": 2}, {"b": 3}, {"b": 4}], res1.results)
-        self.assertEqual(5, res1.total_pages_api)
-
-    def test_extend_when_different_lengths(self):
-        res3 = ResultContainer(
-            list(range(200, 400)),
-            total_pages_api=2,
-        )
-        with self.assertLogs(level=logging.WARNING) as error:
-            res3.extend(self.res1)
-
-        self.assertEqual(203, len(res3))
-        self.assertEqual(list(range(200, 400)) + [1, 2, 3], res3.results)
-        self.assertEqual(2, res3.total_pages_api)
-        self.assertIn("Results observed with different total pages counts: 2 != 1", str(error))
-
-    def test_to_list_dict_when_not_drop_empty(self):
-        expected = [{"a": None, "b": 1, "c": []}, {"a": 2, "b": 3, "c": None}]
-        with self.subTest(case="default"):
-            self.assertListEqual(expected, self.res_with_empty.to_list_dict())
-        with self.subTest(case="explicit"):
-            self.assertListEqual(expected, self.res_with_empty.to_list_dict(drop_empty=False))
-
-    def test_to_list_dict_when_drop_empty(self):
-        expected = [{"b": 1}, {"a": 2, "b": 3}]
-        self.assertListEqual(expected, self.res_with_empty.to_list_dict(drop_empty=True))
-
-    def test_to_polars(self):
-        res = ResultContainer([{"a": 1, "b": 2}, {"a": 3, "b": 4}])
-        df = res.to_polars()
-        polars.testing.assert_frame_equal(polars.DataFrame({"a": [1, 3], "b": [2, 4]}), df)
+@pytest.fixture
+def res1() -> ResultContainer:
+    return ResultContainer([1, 2, 3], total_pages_api=1, errors=[])
 
 
-if __name__ == "__main__":
-    unittest.main(verbosity=2)
+@pytest.fixture
+def res2() -> ResultContainer:
+    return ResultContainer([4, 5], total_pages_api=1, errors=[])
+
+
+@pytest.fixture
+def res_with_empty() -> ResultContainer:
+    return ResultContainer([{"a": None, "b": 1, "c": []}, {"a": 2, "b": 3, "c": None}], total_pages_api=None, errors=[])
+
+
+def test_str(res1, res2):
+    assert str(res1) == "[1, 2, 3]"
+    assert str(res2) == "[4, 5]"
+
+
+def test_repr(res1, res2):
+    assert repr(res1) == "[1, 2, 3]"
+    assert repr(res2) == "[4, 5]"
+
+
+def test_iter(res1):
+    items = list(iter(res1))
+    assert items == [1, 2, 3]
+
+
+def test_len(res1, res2):
+    assert len(res1) == 3
+    assert len(res2) == 2
+
+
+def test_getitem(res1, res2):
+    assert res1[0] == 1
+    assert res1[1] == 2
+    assert res1[2] == 3
+    assert res2[0] == 4
+
+
+def test_get_first_n_results_when_available(res1):
+    res3 = res1.get_first_n_results(2)
+    assert len(res3) == 2
+    assert res3.results == [1, 2]
+
+
+def test_get_first_n_results_when_not_available(res1):
+    res3 = res1.get_first_n_results(4)
+    assert len(res3) == 3
+    assert res3.results == [1, 2, 3]
+
+
+def test_get_first_n_results_when_none(res1):
+    res3 = res1.get_first_n_results(None)
+    assert len(res3) == 3
+    assert res3.results == [1, 2, 3]
+
+
+def test_assert_success_when_success(res1):
+    res1.assert_success()
+
+
+def test_assert_success_when_error(res1):
+    res1.errors.append("MockedError")
+    with pytest.raises(RuntimeError) as error:
+        res1.assert_success()
+    assert "Query was not successful" in str(error.value)
+
+
+def test_extend_when_same_lengths():
+    res_a = ResultContainer([{"a": 1}, {"a": 2}], total_pages_api=5, errors=[])
+    res_b = ResultContainer([{"b": 3}, {"b": 4}], total_pages_api=5, errors=[])
+    res_a.extend(res_b)
+    assert len(res_a) == 4
+    assert res_a.results == [{"a": 1}, {"a": 2}, {"b": 3}, {"b": 4}]
+    assert res_a.total_pages_api == 5
+
+
+def test_extend_when_different_lengths(res1, logot):
+    res3 = ResultContainer(list(range(200, 400)), total_pages_api=2, errors=[])
+    res3.extend(res1)
+
+    assert len(res3) == 203
+    assert res3.results == list(range(200, 400)) + [1, 2, 3]
+    assert res3.total_pages_api == 2
+
+    logot.assert_logged(logged.warning("Results observed with different total pages counts: 2 != 1"))
+
+
+@pytest.mark.parametrize("case", ["default", "explicit"])
+def test_to_list_dict_when_not_drop_empty(res_with_empty, case):
+    expected = [{"a": None, "b": 1, "c": []}, {"a": 2, "b": 3, "c": None}]
+    if case == "default":
+        assert expected == res_with_empty.to_list_dict()
+    if case == "explicit":
+        assert expected == res_with_empty.to_list_dict(drop_empty=False)
+
+
+def test_to_list_dict_when_drop_empty(res_with_empty):
+    expected = [{"b": 1}, {"a": 2, "b": 3}]
+    assert expected == res_with_empty.to_list_dict(drop_empty=True)
+
+
+def test_to_polars(res1):
+    df = res1.to_polars()
+    polars.testing.assert_series_equal(polars.Series("column_0", [1, 2, 3]), df["column_0"])

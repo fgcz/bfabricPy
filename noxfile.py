@@ -109,8 +109,8 @@ def code_style(session):
 @nox.session
 def licensecheck(session) -> None:
     """Runs the license check."""
-    # TODO is there a better way
-    session.install("licensecheck")
+    # TODO revert the upper constraint after https://github.com/FHPythonUtils/LicenseCheck/issues/111 is fixed
+    session.install("licensecheck<2025")
     session.run("sh", "-c", "cd bfabric && licensecheck")
 
 

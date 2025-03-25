@@ -40,7 +40,7 @@ class TestPerformQuery:
     def test_perform_query_basic(self, mock_client, mock_console):
         # Arrange
         params = Params(endpoint="resource", query=[("status", "active")])
-        mock_client.read.return_value = ResultContainer([{"id": 1, "name": "Test"}])
+        mock_client.read.return_value = ResultContainer([{"id": 1, "name": "Test"}], total_pages_api=1, errors=[])
 
         # Act
         results = perform_query(params, mock_client, mock_console)
@@ -55,7 +55,9 @@ class TestPerformQuery:
         params = Params(
             endpoint="resource", query=[("status", "active"), ("status", "pending")], columns=["id"], limit=10
         )
-        mock_client.read.return_value = ResultContainer([{"id": 1, "status": "active"}, {"id": 2, "status": "pending"}])
+        mock_client.read.return_value = ResultContainer(
+            [{"id": 1, "status": "active"}, {"id": 2, "status": "pending"}], total_pages_api=1, errors=[]
+        )
 
         # Act
         results = perform_query(params, mock_client, mock_console)

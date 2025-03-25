@@ -4,14 +4,37 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
-## \[0.0.19\] -2025-02-28
+## \[0.0.20\] - 2025-03-25
 
-## Added
+### Changed
+
+- Input staging is now more efficient for large numbers of similar input types,
+    by batching the transformation into resolved operations.
+
+### Fixed
+
+- `workunit.mk` correctly chooses between `app_version.yml` and `app_definition.yml` depending on availability
+- Multiple inputs with the same output filename, will yield an error now.
+- File timestamps will not be modified anymore, if the file is already up-to-date.
+
+### Added
+
+- `SaveLinkSpec` to save a B-Fabric link e.g. to a workunit.
+
+### Removed
+
+- `file_scp` spec has been removed, one should use `file` instead (`FileSpec`)
+- A lot of the old input handling code has been removed, it should not cause any problems, but mentioning this in case
+    it shows up after the release.
+
+## \[0.0.19\] - 2025-02-28
+
+### Added
 
 - `dispatch_resource_flow` output table allows null filename
 - `--force-storage` is available in more commands now
 
-## Changed
+### Changed
 
 - The `workunit.mk` Makefile now specifies Python 3.13 in the uv venv, so it is more reliable.
 
