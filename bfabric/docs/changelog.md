@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Removed
+
+- `cyclopts` is not a dependency of `bfabric` anymore, but rather of `bfabric-scripts` and `bfabric-app-runner`.
+
 ## \[1.13.22\] - 2025-02-19
 
 ### Fixed
