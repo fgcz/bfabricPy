@@ -94,14 +94,7 @@ jobs:
 
           if [ -f "$CHANGELOG_PATH" ]; then
             # Extract the changelog section for the current version
-            # This assumes the changelog follows the keep-a-changelog format
-            CHANGELOG_CONTENT=$(python3 -c '
-            import re,sys
-            print(re.search(
-                rf"^## \\\[{re.escape(sys.argv[1])}\\\].*?(?=^## \\\[|\Z)",
-                open(sys.argv[2]).read(),
-                re.M|re.S
-            ).group(0).strip())' "${VERSION}" "$CHANGELOG_PATH")
+            CHANGELOG_CONTENT=$(python3 .github/scripts/extract_changelog.py "${VERSION}" "$CHANGELOG_PATH")
 
             if [ -n "$CHANGELOG_CONTENT" ]; then
               # Create GitHub release
