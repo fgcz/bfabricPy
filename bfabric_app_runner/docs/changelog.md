@@ -13,6 +13,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Submitter params in app definition, use key `params` rather than `config` to be more explicit.
 
+### Fixed
+
+- Temporary workaround for https://github.com/fgcz/bfabricPy/issues/168.
+
 ## \[0.0.20\] - 2025-03-25
 
 ### Changed
