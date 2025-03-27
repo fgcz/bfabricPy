@@ -39,16 +39,14 @@ class Query(RootModel):
 
     def to_dict(self, duplicates: Literal["drop", "error", "collect"]) -> dict[str, str] | dict[str, list[str]]:
         """Convert the query to a dictionary."""
-        if duplicates == "drop":
-            return dict(self.root)
-        collect: dict[str, list[str]] = defaultdict(list)
-        for key, value in self.root:
-            collect[key].append(value)
-        if duplicates == "collect":
-            return dict(collect)
-        # raise error on duplicates
-        if len(collect) != len(self.root):
-            duplicate_keys = [key for key, values in collect.items() if len(values) > 1]
-            msg = f"Duplicate keys found in query: {duplicate_keys}"
-            raise ValueError(msg)
+        if duplicates == "collect" or duplicates == "reject":
+            collect: dict[str, list[str]] = defaultdict(list)
+            for key, value in self.root:
+                collect[key].append(value)
+            if duplicates == "collect":
+                return dict(collect)
+            if duplicates == "reject" and len(collect) != len(self.root):
+                duplicate_keys = [key for key, values in collect.items() if len(values) > 1]
+                msg = f"Duplicate keys found in query: {duplicate_keys}"
+                raise ValueError(msg)
         return dict(self.root)
