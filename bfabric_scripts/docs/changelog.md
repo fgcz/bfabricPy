@@ -14,6 +14,12 @@ Versioning currently follows `X.Y.Z` where
 
 - Remove `bfabric-cli api save` -> use `bfabric-cli api create` and `bfabric-cli api update` instead.
 
+## \[1.13.25\] - 2025-03-27
+
+### Fixed
+
+- Temporary workaround for https://github.com/fgcz/bfabricPy/issues/168.
+
 ## \[1.13.24\] - 2025-02-19
 
 ### Fixed

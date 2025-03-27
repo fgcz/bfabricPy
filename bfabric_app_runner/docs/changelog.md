@@ -4,6 +4,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.0.21\] - 2025-03-27
+
+### Added
+
+- `workunit` can now be interpolated in config files.
+- `SubmittersSpec` to define a slurm submitter.
+
+### Changed
+
+- Submitter params in app definition, use key `params` rather than `config` to be more explicit.
+
+### Fixed
+
+- Temporary workaround for https://github.com/fgcz/bfabricPy/issues/168.
+
 ## \[0.0.20\] - 2025-03-25
 
 ### Changed

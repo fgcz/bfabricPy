@@ -1,9 +1,9 @@
 name: PR Checks
 on:
   push:
-    branches: [main, stable]
+    branches: [main, stable, release_*]
   pull_request:
-    branches: [main, stable]
+    branches: [main, stable, release_*]
   workflow_dispatch:
 jobs:
   unit_tests:
