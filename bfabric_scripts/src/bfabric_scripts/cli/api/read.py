@@ -51,7 +51,7 @@ class Params(BaseModel):
 
 def perform_query(params: Params, client: Bfabric, console_user: Console) -> list[dict[str, Any]]:
     """Performs the query and returns the results."""
-    query = params.query.to_dict()
+    query = params.query.to_dict(duplicates="collect")
     query_stmt = f"client.read(endpoint={params.endpoint!r}, obj={query!r}, max_results={params.limit!r})"
     results = eval(query_stmt)
 
