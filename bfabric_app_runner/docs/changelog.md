@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Added
+
+- The `static_file` input spec type has been integrated properly.
+
 ## \[0.0.21\] - 2025-03-27
 
 ### Added
