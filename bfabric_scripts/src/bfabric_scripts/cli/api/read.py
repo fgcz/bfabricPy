@@ -1,5 +1,4 @@
 import json
-from collections import defaultdict
 from enum import Enum
 from pathlib import Path
 from typing import Any, Annotated
