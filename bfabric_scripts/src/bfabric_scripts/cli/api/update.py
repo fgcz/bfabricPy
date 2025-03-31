@@ -1,8 +1,9 @@
 import rich
 import rich.prompt
+from bfabric_scripts.cli.api.query_repr import Query
 from cyclopts import Parameter
 from loguru import logger
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 from rich.panel import Panel
 from rich.pretty import Pretty, pprint
 
@@ -16,18 +17,30 @@ class Params(BaseModel):
     """Endpoint to update, e.g. 'resource'."""
     entity_id: int
     """ID of the entity to update."""
-    attributes: list[tuple[str, str]] | None = None
+    attributes: Query | None = None
     """List of attribute-value pairs to update the entity with."""
     no_confirm: bool = False
     """If set, the update will be performed without asking for confirmation."""
+
+    @model_validator(mode="after")
+    def entity_id_not_in_attributes(self) -> "Params":
+        attrs = self.attributes.to_dict(duplicates="collect")
+        if attrs.get("id") == self.entity_id:
+            logger.warning("Attribute 'id' is not allowed in the attributes, removing it.")
+            self.attributes.drop_key_inplace("id")
+        elif attrs.get("id") is not None:
+            msg = f"Attribute `id` is already specified, and does not match the entity_id {self.entity_id}"
+            raise ValueError(msg)
+        return self
 
 
 @use_client
 @logger.catch(reraise=True)
 def cmd_api_update(params: Params, *, client: Bfabric) -> None:
     """Updates an existing entity in B-Fabric."""
-    attributes_dict = _sanitize_attributes(params.attributes, params.entity_id)
+    attributes_dict = params.attributes.to_dict(duplicates="error")
     if not attributes_dict:
+        logger.warning("No attributes provided, doing nothing.")
         return
 
     if not params.no_confirm:
@@ -50,18 +63,3 @@ def _confirm_action(attributes_dict: dict[str, str], client: Bfabric, endpoint: 
         logger.info("Update cancelled by user.")
         return False
     return True
-
-
-def _sanitize_attributes(attributes: list[tuple[str, str]] | None, entity_id: int) -> dict[str, str] | None:
-    if not attributes:
-        logger.warning("No attributes provided, doing nothing.")
-        return None
-
-    attributes_dict = {attribute: value for attribute, value in attributes}
-    if "id" in attributes_dict:
-        if int(attributes_dict["id"]) == entity_id:
-            logger.warning("Attribute 'id' is not allowed in the attributes, removing it.")
-            del attributes_dict["id"]
-        else:
-            raise ValueError("Attribute 'id' must match the entity_id")
-    return attributes_dict
