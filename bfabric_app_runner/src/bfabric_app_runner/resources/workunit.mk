@@ -20,8 +20,9 @@
 # Use `make help` to see all available commands
 
 # Configuration
-RUNNER_VERSION := @RUNNER_VERSION@
-RUNNER_CMD := uv run -p 3.13 --with "bfabric-app-runner==$(RUNNER_VERSION)" bfabric-app-runner
+RUNNER_CMD := uv run -p 3.13 --with "bfabric-app-runner==@RUNNER_VERSION@" bfabric-app-runner
+# To use GitHub main branch instead uncomment the following line (and adapt as needed):
+# RUNNER_CMD := uv run -p 3.13 --with "bfabric-app-runner@git+https://github.com/fgcz/bfabricPy@main\#subdirectory=bfabric_app_runner" bfabric-app-runner
 
 # Input files
 APP_DEF := $(if $(wildcard app_version.yml),$(realpath app_version.yml),$(realpath app_definition.yml))
