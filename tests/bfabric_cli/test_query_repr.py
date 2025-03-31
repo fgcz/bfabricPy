@@ -34,3 +34,9 @@ def test_to_dict_when_duplicates_error(input_with_duplicates):
     with pytest.raises(ValueError) as error:
         query.to_dict("error")
     assert "Duplicate keys found in query: ['a']" in str(error.value)
+
+
+def test_drop_key_inplace(input_without_duplicates):
+    query = Query(input_without_duplicates)
+    query.drop_key_inplace("b")
+    assert query.root == [("a", "x"), ("c", "z")]

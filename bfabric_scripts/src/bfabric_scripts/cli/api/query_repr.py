@@ -28,6 +28,10 @@ class Query(RootModel):
             return [(value[i], value[i + 1]) for i in range(0, len(value), 2)]
         return value
 
+    def drop_key_inplace(self, key: str) -> None:
+        """Remove all instances of the specified key."""
+        self.root = [(k, v) for k, v in self.root if k != key]
+
     @overload
     def to_dict(self, duplicates: Literal["drop"]) -> dict[str, str]: ...
 
