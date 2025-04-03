@@ -17,7 +17,6 @@ import base64
 import importlib.metadata
 from contextlib import contextmanager
 from datetime import datetime
-from enum import Enum
 from functools import cached_property
 from pathlib import Path
 from pprint import pprint
@@ -30,6 +29,7 @@ from rich.console import Console
 from bfabric.bfabric_config import read_config
 from bfabric.config import BfabricAuth
 from bfabric.config import BfabricClientConfig
+from bfabric.config.bfabric_client_config import BfabricAPIEngineType
 from bfabric.engine.engine_suds import EngineSUDS
 from bfabric.engine.engine_zeep import EngineZeep
 from bfabric.rest.token_data import get_token_data
@@ -41,41 +41,31 @@ if TYPE_CHECKING:
     from collections.abc import Generator
 
 
-class BfabricAPIEngineType(Enum):
-    """Choice of engine to use."""
-
-    SUDS = 1
-    ZEEP = 2
-
-
 class Bfabric:
     """Bfabric client class, providing general functionality for interaction with the B-Fabric API.
     Use `Bfabric.from_config` to create a new instance.
     :param config: Configuration object
     :param auth: Authentication object (if `None`, it has to be provided using the `with_auth` context manager)
-    :param engine: Engine type to use for the API. Default is `BfabricAPIEngineType.SUDS`.
     """
 
     def __init__(
         self,
         config: BfabricClientConfig,
         auth: BfabricAuth | None,
-        engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS,
     ) -> None:
         self.query_counter = 0
         self._config = config
         self._auth = auth
-        self._engine_type = engine
         self._log_version_message()
 
     @cached_property
     def _engine(self) -> EngineSUDS | EngineZeep:
-        if self._engine_type == BfabricAPIEngineType.SUDS:
+        if self.config.engine == BfabricAPIEngineType.SUDS:
             return EngineSUDS(base_url=self._config.base_url)
-        elif self._engine_type == BfabricAPIEngineType.ZEEP:
+        elif self.config.engine == BfabricAPIEngineType.ZEEP:
             return EngineZeep(base_url=self._config.base_url)
         else:
-            raise ValueError(f"Unexpected engine type: {self._engine_type}")
+            raise ValueError(f"Unexpected engine type: {self.config.engine}")
 
     @classmethod
     def from_config(
@@ -83,7 +73,7 @@ class Bfabric:
         config_env: str | None = None,
         config_path: str | None = None,
         auth: BfabricAuth | Literal["config"] | None = "config",
-        engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS,
+        engine: BfabricAPIEngineType | None = None,
     ) -> Bfabric:
         """Returns a new Bfabric instance, configured with the user configuration file.
         If the `config_env` is specified then it will be used, if it is not specified the default environment will be
@@ -98,7 +88,9 @@ class Bfabric:
         """
         config, auth_config = get_system_auth(config_env=config_env, config_path=config_path)
         auth_used: BfabricAuth | None = auth_config if auth == "config" else auth
-        return cls(config, auth_used, engine=engine)
+        if engine is not None:
+            config = config.copy_with(engine=engine)
+        return cls(config, auth_used)
 
     @classmethod
     def from_token(
@@ -117,9 +109,11 @@ class Bfabric:
         :param engine: the engine to use for the API.
         """
         config, _ = get_system_auth(config_env=config_env, config_path=config_path)
+        if engine is not None:
+            config = config.copy_with(engine=engine)
         token_data = get_token_data(client_config=config, token=token)
         auth = BfabricAuth(login=token_data.user, password=token_data.user_ws_password)
-        return cls(config, auth, engine=engine)
+        return cls(config, auth)
 
     @property
     def config(self) -> BfabricClientConfig:
