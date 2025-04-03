@@ -88,8 +88,9 @@ class Bfabric:
         """
         config, auth_config = get_system_auth(config_env=config_env, config_path=config_path)
         auth_used: BfabricAuth | None = auth_config if auth == "config" else auth
-        if engine is not None:
-            config = config.copy_with(engine=engine)
+        # TODO https://github.com/fgcz/bfabricPy/issues/164
+        # if engine is not None:
+        #    config = config.copy_with(engine=engine)
         return cls(config, auth_used)
 
     @classmethod
@@ -109,8 +110,9 @@ class Bfabric:
         :param engine: the engine to use for the API.
         """
         config, _ = get_system_auth(config_env=config_env, config_path=config_path)
-        if engine is not None:
-            config = config.copy_with(engine=engine)
+        # TODO https://github.com/fgcz/bfabricPy/issues/164
+        # if engine is not None:
+        #    config = config.copy_with(engine=engine)
         token_data = get_token_data(client_config=config, token=token)
         auth = BfabricAuth(login=token_data.user, password=token_data.user_ws_password)
         return cls(config, auth)
