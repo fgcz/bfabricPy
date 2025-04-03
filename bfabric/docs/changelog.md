@@ -14,6 +14,12 @@ Versioning currently follows `X.Y.Z` where
 
 - `cyclopts` is not a dependency of `bfabric` anymore, but rather of `bfabric-scripts` and `bfabric-app-runner`.
 
+### Changed
+
+- `Bfabric` client now does not take `engine` argument anymore, but rather this information comes from `ClientConfig`.
+    For compatibility reasons, the `engine` argument is still accepted in `Bfabric.from_config` and
+    `Bfabric.from_token`.
+
 ## \[1.13.23\] - 2025-03-25
 
 ### Fixed
