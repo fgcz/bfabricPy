@@ -324,14 +324,12 @@ class Bfabric:
         return {
             "config": self._config,
             "auth": self._auth,
-            "engine_type": self._engine_type,
             "query_counter": self.query_counter,
         }
 
     def __setstate__(self, state: dict[str, Any]) -> None:
         self._config = state["config"]
         self._auth = state["auth"]
-        self._engine_type = state["engine_type"]
         self.query_counter = state["query_counter"]
 
 
