@@ -9,8 +9,7 @@ version = "1.13.25"
 
 dependencies = [
     "bfabric==1.13.22",
-    # TODO(leo): https://github.com/fgcz/bfabricPy/issues/168
-    "cyclopts >= 3.8.0,<3.11.0",
+    "cyclopts >= 3.8.0",
 ]
 
 [project.optional-dependencies]
