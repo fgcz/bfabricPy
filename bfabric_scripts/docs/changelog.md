@@ -14,6 +14,10 @@ Versioning currently follows `X.Y.Z` where
 
 - Remove `bfabric-cli api save` -> use `bfabric-cli api create` and `bfabric-cli api update` instead.
 
+### Fixed
+
+- Use most recent cyclopts version again, i.e. [issue 168](https://github.com/fgcz/bfabricPy/issues/168) is fixed.
+
 ## \[1.13.25\] - 2025-03-27
 
 ### Fixed
