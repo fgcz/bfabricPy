@@ -221,7 +221,7 @@ class TestReadFunction:
             endpoint="resource",
             columns=["id", "name"],
             format=OutputFormat.TABLE_RICH,
-            query=[("status", "active")],
+            query=["status", "active"],
             file=Path("test_output.txt"),
         )
 

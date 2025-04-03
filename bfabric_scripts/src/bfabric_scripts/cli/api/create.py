@@ -6,6 +6,7 @@ from rich.pretty import pprint
 
 from bfabric import Bfabric
 from bfabric.utils.cli_integration import use_client
+from bfabric_scripts.cli.api.query_repr import Query
 
 app = cyclopts.App()
 
@@ -14,7 +15,7 @@ app = cyclopts.App()
 class Params(BaseModel):
     endpoint: str
     """Endpoint to update, e.g. 'resource'."""
-    attributes: list[tuple[str, str]] | None = Field(min_length=1)
+    attributes: Query | None = Field(min_length=1)
     """List of attribute-value pairs to update the entity with."""
 
     @field_validator("attributes")
@@ -31,7 +32,7 @@ class Params(BaseModel):
 @logger.catch(reraise=True)
 def cmd_api_create(params: Params, *, client: Bfabric) -> None:
     """Creates a new entity in B-Fabric."""
-    attributes_dict = {attribute: value for attribute, value in params.attributes}
+    attributes_dict = params.attributes.to_dict(duplicates="error")
     result = client.save(params.endpoint, attributes_dict)
     logger.info(f"{params.endpoint} entity with ID {result[0]['id']} created successfully.")
     pprint(result)
