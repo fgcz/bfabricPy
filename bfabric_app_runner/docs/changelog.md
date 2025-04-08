@@ -4,6 +4,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Added
+
+- The `static_file` input spec type has been integrated properly.
+- The workunit makefile now directly shows how to use the GitHub app runner version instead, which is sometimes required
+    while debugging.
+
+## \[0.0.21\] - 2025-03-27
+
+### Added
+
+- `workunit` can now be interpolated in config files.
+- `SubmittersSpec` to define a slurm submitter.
+
+### Changed
+
+- Submitter params in app definition, use key `params` rather than `config` to be more explicit.
+
+### Fixed
+
+- Temporary workaround for https://github.com/fgcz/bfabricPy/issues/168.
+
+## \[0.0.20\] - 2025-03-25
+
 ### Changed
 
 - Input staging is now more efficient for large numbers of similar input types,
@@ -25,7 +48,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - A lot of the old input handling code has been removed, it should not cause any problems, but mentioning this in case
     it shows up after the release.
 
-## \[0.0.19\] -2025-02-28
+## \[0.0.19\] - 2025-02-28
 
 ### Added
 

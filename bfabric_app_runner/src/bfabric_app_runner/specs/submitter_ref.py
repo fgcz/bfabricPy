@@ -1,10 +1,10 @@
-from typing import Any
+from typing import Annotated
 
-from pydantic import BaseModel
+from pydantic import BaseModel, StringConstraints
 
 
 class SubmitterRef(BaseModel):
     """Reference of a submitter and potential configuration overrides."""
 
     name: str
-    config: dict[str, Any] = {}
+    params: dict[Annotated[str, StringConstraints(pattern="^--.*")], str | None] = {}

@@ -9,7 +9,7 @@ from mako.exceptions import MakoException
 
 @pytest.fixture
 def basic_variables():
-    return Variables(app=VariablesApp(id=1000, name="Test Application", version="1.0.0"))
+    return Variables(app=VariablesApp(id=1000, name="Test Application", version="1.0.0"), workunit=None)
 
 
 def test_variables_app_model():
@@ -69,7 +69,7 @@ def test_interpolate_non_string_values(basic_variables):
 
 
 def test_interpolate_with_dict_variables():
-    variables = {"app": {"id": "2000", "name": "Dict App", "version": "2.0.0"}}
+    variables = {"app": {"id": "2000", "name": "Dict App", "version": "2.0.0"}, "workunit": None}
     template = "${app.name} ${app.version}"
     result = interpolate_config_strings(template, variables)
     assert result == "Dict_App 2.0.0"

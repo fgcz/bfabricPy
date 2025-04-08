@@ -9,7 +9,7 @@ from zeep.helpers import serialize_object
 from bfabric.errors import BfabricRequestError, get_response_errors
 from bfabric.results.response_delete import ResponseDelete
 from bfabric.results.result_container import ResultContainer
-from bfabric.results.response_format_dict import clean_result
+from bfabric.results.response_format_dict import clean_result, drop_empty_elements
 
 if TYPE_CHECKING:
     from bfabric.config import BfabricAuth
@@ -140,6 +140,7 @@ class EngineZeep:
                 drop_underscores_suds=False,  # NOTE: Underscore problem specific to SUDS
                 sort_keys=True,
             )
+            results_parsed = drop_empty_elements(results_parsed)
             results += [results_parsed]
         return ResultContainer(results=results, total_pages_api=n_available_pages, errors=errors)
 
