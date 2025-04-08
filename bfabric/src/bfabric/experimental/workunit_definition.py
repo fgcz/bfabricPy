@@ -6,17 +6,34 @@ from typing import Literal, TYPE_CHECKING
 import yaml
 from bfabric.entities import Workunit
 from pydantic import BaseModel, model_validator
+from bfabric.utils.path_safe_name import PathSafeStr  # noqa: TC001
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
 
 
 class WorkunitExecutionDefinition(BaseModel):
-    """Defines the execution details of a workunit."""
+    """Defines the execution details of a workunit, i.e. the inputs necessary to compute the results,
+    but not the final details on how to register the results in B-Fabric.
+    """
 
     raw_parameters: dict[str, str | None]
+    """The parameters passed to the workunit, in their raw form, i.e. everything is a string or None."""
+
     dataset: int | None = None
+    """Input dataset (for dataset-flow applications)"""
+
     resources: list[int] = []
+    """Input resources (for resource-flow applications"""
+
+    @model_validator(mode="after")
+    def either_dataset_or_resources(self) -> WorkunitExecutionDefinition:
+        """Validates that either dataset or resources are provided."""
+        if self.dataset is not None and self.resources:
+            raise ValueError("dataset and resources are mutually exclusive")
+        if self.dataset is None and not self.resources:
+            raise ValueError("either dataset or resources must be provided")
+        return self
 
     @model_validator(mode="after")
     def mutually_exclusive_dataset_resources(self) -> WorkunitExecutionDefinition:
@@ -44,13 +61,21 @@ class WorkunitRegistrationDefinition(BaseModel):
     """Defines the B-Fabric registration details of a workunit."""
 
     application_id: int
-    application_name: str
+    """The ID of the executing application."""
+    application_name: PathSafeStr
+    """The name of the executing application."""
     workunit_id: int
-    workunit_name: str
+    """The ID of the workunit."""
+    workunit_name: PathSafeStr
+    """The name of the workunit."""
     container_id: int
-    storage_id: int
-    storage_output_folder: Path
+    """The ID of the container."""
     container_type: Literal["project", "order"]
+    """The type of the container."""
+    storage_id: int
+    """The ID of the storage."""
+    storage_output_folder: Path
+    """The output folder in the storage."""
 
     @classmethod
     def from_workunit(cls, workunit: Workunit) -> WorkunitRegistrationDefinition:
@@ -75,7 +100,9 @@ class WorkunitDefinition(BaseModel):
     """
 
     execution: WorkunitExecutionDefinition
+    """Execution details of the workunit."""
     registration: WorkunitRegistrationDefinition | None
+    """Registration details of the workunit."""
 
     @classmethod
     def from_ref(cls, workunit: Path | int, client: Bfabric, cache_file: Path | None = None) -> WorkunitDefinition:

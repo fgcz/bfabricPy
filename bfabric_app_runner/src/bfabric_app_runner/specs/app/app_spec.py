@@ -6,40 +6,57 @@ import yaml
 from pydantic import BaseModel
 
 from bfabric_app_runner.specs.app.app_version import AppVersion, AppVersionMultiTemplate  # noqa: TCH001
+from bfabric_app_runner.specs.config_interpolation import VariablesApp
 
 if TYPE_CHECKING:
     from pathlib import Path
 
 
 class BfabricAppSpec(BaseModel):
-    """Contains the app specification information that is relevant to bfabric..."""
+    """Contains the app specification information that is relevant to bfabric, and not exactly the app itself."""
 
-    # TODO unclear if it should be kept
     app_runner: str
+    """Specifies the app runner version to use for the app.
+
+    We support both a PyPI version (e.g. `0.0.17`) as well as a git reference, which is a string in the
+    format `git+https://github.com/fgcz/bfabricPy@main#subdirectory=bfabric_app_runner` where you can specify
+    any git reference instead of `main` as needed.
+    """
 
 
 class AppSpecTemplate(BaseModel):
-    # TODO consider whether to reintroduce
-    # bfabric: BfabricAppSpec
+    """This model defines the app_spec definition in a file.
+
+    As the name suggests, this is a template that can be expanded to a concrete ``AppSpec`` instance.
+    The main difference is that this may contain usages of `Variables`. TODO
+    """
+
+    bfabric: BfabricAppSpec
     versions: list[AppVersionMultiTemplate]
 
-    def evaluate(self, app_id: str, app_name: str) -> AppSpec:
+    # TODO this should take the variables as param instead
+    def evaluate(self, app_id: int, app_name: str) -> AppSpec:
         """Evaluates the template to a concrete ``AppSpec`` instance."""
-        versions_templates = [expanded for version in self.versions for expanded in version.expand_versions()]
-        versions = [template.evaluate(app_id=app_id, app_name=app_name) for template in versions_templates]
-        return AppSpec.model_validate({"versions": versions})
+        version_templates = [expanded for version in self.versions for expanded in version.expand_versions()]
+        versions = []
+        for version_template in version_templates:
+            variables_app = VariablesApp(id=app_id, name=app_name, version=version_template.version)
+            versions.append(version_template.evaluate(variables_app=variables_app))
+        # TODO add interpolation for bfabric config for consistency
+        return AppSpec.model_validate({"versions": versions, "bfabric": self.bfabric})
 
 
 class AppSpec(BaseModel):
     """Parsed app versions from the app spec file."""
 
+    bfabric: BfabricAppSpec
     versions: list[AppVersion]
 
     @classmethod
     def load_yaml(cls, app_yaml: Path, app_id: int | str, app_name: str) -> AppSpec:
         """Loads the app versions from the provided YAML file and evaluates the templates."""
         app_spec_file = AppSpecTemplate.model_validate(yaml.safe_load(app_yaml.read_text()))
-        return app_spec_file.evaluate(app_id=str(app_id), app_name=str(app_name))
+        return app_spec_file.evaluate(app_id=int(app_id), app_name=str(app_name))
 
     @property
     def available_versions(self) -> set[str]:

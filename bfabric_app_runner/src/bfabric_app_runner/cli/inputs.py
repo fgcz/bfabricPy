@@ -2,12 +2,12 @@ from pathlib import Path
 
 from bfabric import Bfabric
 from bfabric.utils.cli_integration import use_client
-from bfabric_app_runner.input_preparation import prepare_folder
-from bfabric_app_runner.input_preparation.integrity import IntegrityState
-from bfabric_app_runner.input_preparation.list_inputs import (
+from bfabric_app_runner.inputs.prepare.prepare_folder import prepare_folder
+from bfabric_app_runner.inputs.list_inputs.list_inputs import (
     list_input_states,
     print_input_states,
     FileState,
+    IntegrityState,
 )
 from bfabric_app_runner.specs.inputs_spec import InputsSpec
 
@@ -71,7 +71,7 @@ def get_inputs_and_print(
 ) -> list[FileState]:
     """Reads the input files, performing integrity checks if requested, and prints the results."""
     input_states = list_input_states(
-        specs=InputsSpec.read_yaml_old(inputs_yaml),
+        specs=InputsSpec.read_yaml(inputs_yaml).inputs,
         target_folder=target_folder or Path(),
         client=client,
         check_files=check,

@@ -6,11 +6,11 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import yaml
+from bfabric_app_runner.inputs.prepare.prepare_folder import prepare_folder
+from bfabric_app_runner.output_registration import register_outputs
 from loguru import logger
 from pydantic import BaseModel
 
-from bfabric_app_runner.input_preparation import prepare_folder
-from bfabric_app_runner.output_registration import register_outputs
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 
 if TYPE_CHECKING:
@@ -39,9 +39,12 @@ class Runner:
         )
 
     def run_collect(self, workunit_ref: int | Path, chunk_dir: Path) -> None:
-        command = [*self._app_version.commands.collect.to_shell(), str(workunit_ref), str(chunk_dir)]
-        logger.info(f"Running collect command: {shlex.join(command)}")
-        subprocess.run(command, check=True)
+        if self._app_version.commands.collect is not None:
+            command = [*self._app_version.commands.collect.to_shell(), str(workunit_ref), str(chunk_dir)]
+            logger.info(f"Running collect command: {shlex.join(command)}")
+            subprocess.run(command, check=True)
+        else:
+            logger.info("App does not have a collect step.")
 
     def run_process(self, chunk_dir: Path) -> None:
         command = [*self._app_version.commands.process.to_shell(), str(chunk_dir)]
@@ -59,8 +62,8 @@ def run_app(
     workunit_ref: int | Path,
     work_dir: Path,
     client: Bfabric,
+    force_storage: Path | None,
     ssh_user: str | None = None,
-    force_storage: Path | None = None,
     read_only: bool = False,
     dispatch_active: bool = True,
 ) -> None:

@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-import tempfile
-from pathlib import Path
-from typing import Any, TYPE_CHECKING
+import io
+from typing import TYPE_CHECKING, Any
 
 from polars import DataFrame
 
 from bfabric.entities.core.entity import Entity
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from bfabric import Bfabric
 
 
@@ -49,8 +49,14 @@ class Dataset(Entity):
 
     def get_csv(self, separator: str = ",") -> str:
         """Returns the dataset as a csv string, using the specified column `separator`."""
-        with tempfile.NamedTemporaryFile() as tmp_file:
-            self.write_csv(Path(tmp_file.name), separator=separator)
-            tmp_file.flush()
-            tmp_file.seek(0)
-            return tmp_file.read().decode()
+        return self.to_polars().write_csv(separator=separator)
+
+    def write_parquet(self, path: Path) -> None:
+        """Writes the dataset to a parquet file at `path`."""
+        self.to_polars().write_parquet(path)
+
+    def get_parquet(self) -> bytes:
+        """Returns the dataset as a parquet bytes object."""
+        bytes_io = io.BytesIO()
+        self.to_polars().write_parquet(bytes_io)
+        return bytes_io.getvalue()

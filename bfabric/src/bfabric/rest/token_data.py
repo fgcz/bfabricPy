@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import requests
 from pydantic import BaseModel, Field, SecretStr, ConfigDict
@@ -13,9 +13,7 @@ if TYPE_CHECKING:
 class TokenData(BaseModel):
     """Parsed token data from the B-Fabric token validation endpoint."""
 
-    model_config = ConfigDict(
-        populate_by_name=True, str_strip_whitespace=True, json_encoders={datetime: lambda v: v.isoformat()}
-    )
+    model_config = ConfigDict(populate_by_name=True, str_strip_whitespace=True)
 
     job_id: int = Field(alias="jobId")
     application_id: int = Field(alias="applicationId")
@@ -28,6 +26,14 @@ class TokenData(BaseModel):
 
     token_expires: datetime = Field(alias="expiryDateTime")
     environment: str
+
+    # Define a custom serializer method for model_dump
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        data = super().model_dump(**kwargs)
+        # Convert datetime to ISO format
+        if "token_expires" in data and isinstance(data["token_expires"], datetime):
+            data["token_expires"] = data["token_expires"].isoformat()
+        return data
 
 
 def get_token_data(client_config: BfabricClientConfig, token: str) -> TokenData:

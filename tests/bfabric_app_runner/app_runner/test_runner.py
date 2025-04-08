@@ -138,6 +138,7 @@ def test_run_app_full_workflow(mocker, mock_app_version, mock_bfabric, mock_work
         work_dir=setup_work_dir,
         client=mock_bfabric,
         ssh_user="test_user",
+        force_storage=None,
     )
 
     # Verify workflow steps
@@ -171,6 +172,7 @@ def test_run_app_read_only_mode(
         work_dir=setup_work_dir,
         client=mock_bfabric,
         read_only=read_only,
+        force_storage=None,
     )
 
     # Verify status updates based on read_only mode
@@ -198,6 +200,7 @@ def test_run_app_with_path_workunit_ref(
         workunit_ref=workunit_path,
         work_dir=setup_work_dir,
         client=mock_bfabric,
+        force_storage=None,
     )
 
     # Verify workunit_ref was resolved
