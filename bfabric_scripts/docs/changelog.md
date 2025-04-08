@@ -14,7 +14,7 @@ Versioning currently follows `X.Y.Z` where
 
 ### Changed
 
--Update `bfabric` to 1.13.24.
+- Update `bfabric` to 1.13.24.
 
 ### Removed
 
