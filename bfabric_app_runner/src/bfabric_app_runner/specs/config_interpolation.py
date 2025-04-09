@@ -53,7 +53,7 @@ def interpolate_config_strings(data: Any, variables: Variables | dict[str, Any])
     :return: The data structure with all strings evaluated
     """
     variables = Variables.model_validate(variables) if isinstance(variables, dict) else variables
-    logger.info(f"Interpolating config strings with variables: {variables}")
+    logger.debug(f"Interpolating config strings with variables: {variables}")
 
     if isinstance(data, dict):
         return {key: interpolate_config_strings(value, variables) for key, value in data.items()}

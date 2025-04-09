@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - The workunit makefile now directly shows how to use the GitHub app runner version instead, which is sometimes required
     while debugging.
 
+### Changed
+
+- Silence interpolate_config_strings log messages.
+
 ## \[0.0.21\] - 2025-03-27
 
 ### Added
