@@ -12,7 +12,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "bfabric==1.13.23",
+    "bfabric==1.13.24",
     # TODO(leo): https://github.com/fgcz/bfabricPy/issues/168
     "cyclopts >= 3.8.0,<3.11.0",
     "pydantic",
