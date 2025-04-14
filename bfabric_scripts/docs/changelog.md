@@ -10,6 +10,11 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Changed
+
+- `bfabric-cli dataset upload` will print warnings when trailing whitespace is detected and not print the whole
+    response anymore, but rather the important information only.
+
 ## \[1.13.26\] - 2025-04-08
 
 ### Changed

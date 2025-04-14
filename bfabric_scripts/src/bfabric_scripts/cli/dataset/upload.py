@@ -3,8 +3,8 @@ from pathlib import Path
 
 import cyclopts
 import polars as pl
+from loguru import logger
 from pydantic import BaseModel
-from rich.pretty import pprint
 
 from bfabric import Bfabric
 from bfabric.experimental.upload_dataset import check_for_invalid_characters, polars_to_bfabric_dataset
@@ -28,6 +28,8 @@ class Params(BaseModel):
     """Register the dataset to have been created-by a workunit."""
     forbidden_chars: str | None = ",\t"
     """Characters which are not permitted in a cell (set to empty string to deactivate)."""
+    warn_trailing_spaces: bool = True
+    """Whether to warn about trailing whitespace in the dataset."""
 
 
 @cyclopts.Parameter(name="*")
@@ -71,6 +73,11 @@ def upload_table(table: pl.DataFrame, params: Params, client: Bfabric) -> None:
     if params.forbidden_chars:
         check_for_invalid_characters(data=table, invalid_characters=params.forbidden_chars)
 
+    if params.warn_trailing_spaces:
+        for column in table.columns:
+            if table[column].str.contains(r"\s+$").any():
+                print(f"Warning: Column '{column}' contains trailing spaces.")
+
     obj = polars_to_bfabric_dataset(table)
     obj["name"] = params.dataset_name or params.file.stem
     obj["containerid"] = params.container_id
@@ -78,4 +85,7 @@ def upload_table(table: pl.DataFrame, params: Params, client: Bfabric) -> None:
         obj["workunitid"] = params.workunit_id
     endpoint = "dataset"
     res = client.save(endpoint=endpoint, obj=obj)
-    pprint(res[0])
+    logger.success(
+        f"Dataset {res[0]['id']} with name {res[0]['name']} in container {res[0]['container']['id']}"
+        f" has been created successfully."
+    )
