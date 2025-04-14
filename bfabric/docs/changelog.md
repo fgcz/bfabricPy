@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Added
+
+- `bfabric.experimental.upload_dataset.warn_on_trailing_spaces` function used by `bfabric-scripts` to validate
+
 ## \[1.13.24\] - 2025-04-08
 
 ### Removed
