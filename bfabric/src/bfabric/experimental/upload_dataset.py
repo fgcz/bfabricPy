@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import polars as pl
+from loguru import logger
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -78,3 +79,12 @@ def check_for_invalid_characters(data: pl.DataFrame, invalid_characters: str) ->
     )
     if invalid_columns:
         raise RuntimeError(f"Invalid characters found in columns: {invalid_columns}")
+
+
+def warn_on_trailing_spaces(table: pl.DataFrame) -> None:
+    """Logs warnings when trailing spaces are detected in any of the string columns of the provided table."""
+    for column in table.columns:
+        if not isinstance(table[column].dtype, pl.String):
+            continue
+        if table[column].str.contains(r"\s+$").any():
+            logger.warning(f"Warning: Column '{column}' contains trailing spaces.")

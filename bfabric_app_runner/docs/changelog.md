@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - The workunit makefile now directly shows how to use the GitHub app runner version instead, which is sometimes required
     while debugging.
 
+### Changed
+
+- Silence interpolate_config_strings log messages.
+- Update `bfabric` dependency to 1.13.24.
+
 ### Fixed
 
 - Use most recent cyclopts version again, i.e. [issue 168](https://github.com/fgcz/bfabricPy/issues/168) is fixed.

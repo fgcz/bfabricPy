@@ -10,6 +10,17 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Breaking
+
+- `Bfabric.from_token` returns the `TokenData` in addition to the client instance. While this is breaking, I'm not aware
+    of any existing users of this API and I noticed that this information is going to be needed in this context often.
+
+### Added
+
+- `bfabric.experimental.upload_dataset.warn_on_trailing_spaces` function used by `bfabric-scripts` to validate
+
+## \[1.13.24\] - 2025-04-08
+
 ### Removed
 
 - `cyclopts` is not a dependency of `bfabric` anymore, but rather of `bfabric-scripts` and `bfabric-app-runner`.
