@@ -5,6 +5,7 @@ from unittest.mock import MagicMock
 from unittest.mock import call
 
 import pytest
+from pydantic import SecretStr
 
 from bfabric import Bfabric, BfabricAPIEngineType
 from bfabric.engine.engine_suds import EngineSUDS
@@ -106,6 +107,24 @@ def test_from_config_when_engine_zeep(mocker):
     assert client._engine == mock_engine_zeep.return_value
     mock_get_system_auth.assert_called_once_with(config_env=None, config_path=None)
     mock_engine_zeep.assert_called_once_with(base_url=mock_config.base_url)
+
+
+def test_from_token(mocker):
+    mock_config = MagicMock(name="mock_config", spec=[])
+    mock_get_system_auth = mocker.patch("bfabric.bfabric.get_system_auth", return_value=(mock_config, None))
+    mock_get_token_data = mocker.patch(
+        "bfabric.bfabric.get_token_data", return_value=mocker.MagicMock(user="test_user", user_ws_password="x" * 32)
+    )
+    mocker.patch.object(Bfabric, "_log_version_message")
+
+    client, data = Bfabric.from_token(token="test_token")
+
+    assert client.auth.login == "test_user"
+    assert client.auth.password == SecretStr("x" * 32)
+    assert data == mock_get_token_data.return_value
+
+    mock_get_token_data.assert_called_once_with(client_config=mock_config, token="test_token")
+    mock_get_system_auth.assert_called_once_with(config_env=None, config_path=None)
 
 
 def test_query_counter(bfabric_instance):
