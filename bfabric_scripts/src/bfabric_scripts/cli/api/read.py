@@ -29,7 +29,7 @@ class OutputFormat(Enum):
 class Params(BaseModel):
     endpoint: str
     """Endpoint to query, e.g. 'resource'."""
-    query: Query = []
+    query: Query = Query()
     """List of attribute-value pairs to filter the results by."""
     format: OutputFormat = OutputFormat.TABLE_RICH
     """Output format."""
