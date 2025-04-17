@@ -17,7 +17,7 @@ class Params(BaseModel):
     """Endpoint to update, e.g. 'resource'."""
     entity_id: int
     """ID of the entity to update."""
-    attributes: Query | None = None
+    attributes: Query
     """List of attribute-value pairs to update the entity with."""
     no_confirm: bool = False
     """If set, the update will be performed without asking for confirmation."""

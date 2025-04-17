@@ -1,7 +1,7 @@
 import cyclopts
 from cyclopts import Parameter
 from loguru import logger
-from pydantic import BaseModel, field_validator, Field
+from pydantic import BaseModel, field_validator
 from rich.pretty import pprint
 
 from bfabric import Bfabric
@@ -15,7 +15,7 @@ app = cyclopts.App()
 class Params(BaseModel):
     endpoint: str
     """Endpoint to update, e.g. 'resource'."""
-    attributes: Query | None = Field(min_length=1)
+    attributes: Query
     """List of attribute-value pairs to update the entity with."""
 
     @field_validator("attributes")
