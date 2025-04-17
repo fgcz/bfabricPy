@@ -1,103 +1,121 @@
 #!/usr/bin/env python3
 """
-Test suite for check_versions.py
+Test suite for check_versions.py using pytest
 """
 
 import sys
-import unittest
+import pytest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 
 # Add parent directory to path to import the script
 sys.path.append(str(Path(__file__).parents[1]))
 from check_versions import get_local_version, check_pypi_version, sort_packages, check_packages
 
 
-class TestCheckVersions(unittest.TestCase):
+def test_get_local_version_existing_dir(mocker):
+    """Test get_local_version with existing directory"""
+    # Setup
+    mocker.patch("subprocess.check_output", return_value="1.0.0\n")
+    mocker.patch("os.path.isdir", return_value=True)
+    mocker.patch("os.chdir")  # Mock os.chdir to prevent actual directory change
 
-    @patch("subprocess.check_output")
-    def test_get_local_version(self, mock_check_output):
-        # Setup
-        mock_check_output.return_value = "1.0.0\n"
-
-        # Test with existing directory
-        with patch("os.path.isdir", return_value=True):
-            with patch("os.chdir"):  # Mock os.chdir to prevent actual directory change
-                result = get_local_version("test_package")
-                self.assertEqual(result, "1.0.0")
-
-        # Test with non-existent directory
-        with patch("os.path.isdir", return_value=False):
-            result = get_local_version("non_existent_package")
-            self.assertIsNone(result)
-
-        # Test with subprocess error
-        mock_check_output.side_effect = Exception("Command failed")
-        with patch("os.path.isdir", return_value=True):
-            with patch("os.chdir"):
-                result = get_local_version("error_package")
-                self.assertIsNone(result)
-
-    @patch("requests.get")
-    def test_check_pypi_version(self, mock_get):
-        # Setup mock response for existing version
-        mock_response_exists = MagicMock()
-        mock_response_exists.status_code = 200
-        mock_response_exists.json.return_value = {"releases": {"1.0.0": [], "1.1.0": []}}
-
-        # Setup mock response for non-existing version
-        mock_response_not_exists = MagicMock()
-        mock_response_not_exists.status_code = 200
-        mock_response_not_exists.json.return_value = {"releases": {"1.0.0": []}}
-
-        # Setup mock response for package not found
-        mock_response_not_found = MagicMock()
-        mock_response_not_found.status_code = 404
-
-        # Test existing version
-        mock_get.return_value = mock_response_exists
-        result = check_pypi_version("test_package", "1.0.0")
-        self.assertFalse(result)  # Should not need release
-
-        # Test non-existing version
-        mock_get.return_value = mock_response_not_exists
-        result = check_pypi_version("test_package", "1.1.0")
-        self.assertFalse(result)  # Should need release
-
-        # Test package not found
-        mock_get.return_value = mock_response_not_found
-        result = check_pypi_version("non_existent_package", "1.0.0")
-        self.assertTrue(result)  # Should need release
-
-    def test_sort_packages(self):
-        # Setup
-        packages = ["bfabric_app_runner", "bfabric", "bfabric_scripts"]
-        priority_order = ["bfabric", "bfabric_scripts", "bfabric_app_runner"]
-
-        # Test sorting
-        result = sort_packages(packages, priority_order)
-        self.assertEqual(result, ["bfabric", "bfabric_scripts", "bfabric_app_runner"])
-
-        # Test with missing package
-        packages = ["bfabric_app_runner", "bfabric"]
-        result = sort_packages(packages, priority_order)
-        self.assertEqual(result, ["bfabric", "bfabric_app_runner"])
-
-    @patch("check_versions.get_local_version")
-    @patch("check_versions.check_pypi_version")
-    def test_check_packages(self, mock_check_pypi, mock_get_local):
-        # Setup
-        mock_get_local.side_effect = lambda pkg: {"bfabric": "1.0.0", "bfabric_scripts": "2.0.0"}.get(pkg)
-        mock_check_pypi.side_effect = lambda pkg, ver, url: pkg == "bfabric"  # Only bfabric needs release
-
-        # Test normal check
-        result = check_packages(["bfabric", "bfabric_scripts"])
-        self.assertEqual(result, ["bfabric"])
-
-        # Test force release
-        result = check_packages(["bfabric", "bfabric_scripts"], force_packages=["bfabric_scripts"])
-        self.assertEqual(result, ["bfabric_scripts"])
+    # Test
+    result = get_local_version("test_package")
+    assert result == "1.0.0"
 
 
-if __name__ == "__main__":
-    unittest.main()
+def test_get_local_version_nonexistent_dir(mocker):
+    """Test get_local_version with non-existent directory"""
+    # Setup
+    mocker.patch("os.path.isdir", return_value=False)
+
+    # Test
+    result = get_local_version("non_existent_package")
+    assert result is None
+
+
+def test_get_local_version_subprocess_error(mocker):
+    """Test get_local_version with subprocess error"""
+    # Setup
+    mocker.patch("subprocess.check_output", side_effect=Exception("Command failed"))
+    mocker.patch("os.path.isdir", return_value=True)
+    mocker.patch("os.chdir")
+
+    # Test
+    result = get_local_version("error_package")
+    assert result is None
+
+
+@pytest.mark.parametrize(
+    "response_status,releases,version,expected",
+    [
+        # Version exists on PyPI, no release needed
+        (200, {"1.0.0": [], "1.1.0": []}, "1.0.0", False),
+        # Version doesn't exist on PyPI, release needed
+        (200, {"1.0.0": []}, "1.1.0", True),
+        # Package doesn't exist on PyPI, release needed
+        (404, {}, "1.0.0", True),
+    ],
+)
+def test_check_pypi_version(mocker, response_status, releases, version, expected):
+    """Test check_pypi_version with various scenarios"""
+    # Setup mock response
+    mock_response = mocker.MagicMock()
+    mock_response.status_code = response_status
+    mock_response.json.return_value = {"releases": releases}
+
+    # Mock requests.get
+    mocker.patch("requests.get", return_value=mock_response)
+
+    # Test
+    result = check_pypi_version("test_package", version)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "packages,priority_order,expected",
+    [
+        # Normal case with all packages
+        (
+            ["bfabric_app_runner", "bfabric", "bfabric_scripts"],
+            ["bfabric", "bfabric_scripts", "bfabric_app_runner"],
+            ["bfabric", "bfabric_scripts", "bfabric_app_runner"],
+        ),
+        # Case with missing package
+        (
+            ["bfabric_app_runner", "bfabric"],
+            ["bfabric", "bfabric_scripts", "bfabric_app_runner"],
+            ["bfabric", "bfabric_app_runner"],
+        ),
+    ],
+)
+def test_sort_packages(packages, priority_order, expected):
+    """Test sort_packages with different package lists"""
+    result = sort_packages(packages, priority_order)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "packages,force_packages,expected",
+    [
+        # Normal check, only bfabric needs release
+        (["bfabric", "bfabric_scripts"], [], ["bfabric"]),
+        # Force release for bfabric_scripts
+        (["bfabric", "bfabric_scripts"], ["bfabric_scripts"], ["bfabric_scripts"]),
+    ],
+)
+def test_check_packages(mocker, packages, force_packages, expected):
+    """Test check_packages with different scenarios"""
+    # Setup
+    mocker.patch(
+        "check_versions.get_local_version",
+        side_effect=lambda pkg: {"bfabric": "1.0.0", "bfabric_scripts": "2.0.0"}.get(pkg),
+    )
+    mocker.patch(
+        "check_versions.check_pypi_version",
+        side_effect=lambda pkg, ver, url: pkg == "bfabric",  # Only bfabric needs release
+    )
+
+    # Test
+    result = check_packages(packages, force_packages=force_packages)
+    assert result == expected

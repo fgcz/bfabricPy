@@ -31,14 +31,16 @@ def get_local_version(package_dir: str) -> str | None:
         # Change to package directory and run hatch version
         orig_dir = os.getcwd()
         os.chdir(package_dir)
-        version = subprocess.check_output(["hatch", "version"], text=True).strip()
-        os.chdir(orig_dir)
-        return version
-    except subprocess.CalledProcessError as e:
-        print(f"Error getting version for {package_dir}: {e}")
-        return None
-    except FileNotFoundError:
-        print("Error: hatch command not found. Please install hatch.")
+        try:
+            version = subprocess.check_output(["hatch", "version"], text=True).strip()
+            return version
+        except Exception as e:
+            print(f"Error getting version for {package_dir}: {e}")
+            return None
+        finally:
+            os.chdir(orig_dir)
+    except Exception as e:
+        print(f"Error accessing directory {package_dir}: {e}")
         return None
 
 
@@ -102,7 +104,7 @@ def sort_packages(packages_to_release: list[str], priority_order: list[str]) -> 
 
 
 def check_packages(
-    packages: list[str], pypi_url: str = "https://pypi.org", force_packages: list[str] | None = None
+    packages: list[str], pypi_url: str = "https://pypi.org", force_packages: list[str] = None
 ) -> list[str]:
     """
     Check which packages need to be released.
