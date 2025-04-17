@@ -9,7 +9,7 @@ version = "1.13.26"
 
 dependencies = [
     "bfabric==1.13.24",
-    "cyclopts>=3.11.0",
+    "cyclopts>=3.13.0",
 ]
 
 [project.optional-dependencies]
