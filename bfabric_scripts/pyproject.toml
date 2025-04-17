@@ -15,6 +15,7 @@ dependencies = [
 
 [project.optional-dependencies]
 test = ["pytest", "pytest-mock", "logot[pytest,loguru]"]
+excel = ["fastexcel"]
 
 [project.scripts]
 "bfabric_flask.py" = "bfabric_scripts.bfabric_flask:main"
