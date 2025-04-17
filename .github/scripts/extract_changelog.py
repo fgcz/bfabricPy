@@ -33,7 +33,8 @@ def extract_changelog_entry(changelog_path: str, version: str) -> str:
 
         # Regular expression to extract the section for the specific version
         # This matches from the heading for the specified version until the next heading or end of file
-        pattern = rf"^## \[{re.escape(version)}\].*?(?=^## \[|\Z)"
+        # Updated to handle escaped brackets: \[ and \]
+        pattern = rf"^## \\?\[{re.escape(version)}\\?\].*?(?=^## \\?\[|\Z)"
         match = re.search(pattern, content, re.MULTILINE | re.DOTALL)
 
         if match:
