@@ -15,6 +15,10 @@ Versioning currently follows `X.Y.Z` where
 - `bfabric-cli dataset upload` will print warnings when trailing whitespace is detected and not print the whole
     response anymore, but rather the important information only.
 
+### Added
+
+- Optional support for uploading xlsx
+
 ## \[1.13.26\] - 2025-04-08
 
 ### Changed

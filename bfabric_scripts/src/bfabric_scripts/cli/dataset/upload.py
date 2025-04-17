@@ -63,6 +63,14 @@ def tsv(params: CsvParams, *, client: Bfabric) -> None:
 
 @cmd_dataset_upload.command
 @use_client
+def xlsx(params: Params, *, client: Bfabric) -> None:
+    """Upload an Excel file as a B-Fabric dataset."""
+    table = pl.read_excel(params.file)
+    upload_table(table=table, params=params, client=client)
+
+
+@cmd_dataset_upload.command
+@use_client
 def parquet(params: Params, *, client: Bfabric) -> None:
     """Upload a Parquet file as a B-Fabric dataset."""
     table = pl.read_parquet(params.file)
