@@ -19,7 +19,7 @@ def mock_config() -> BfabricClientConfig:
 
 @pytest.fixture
 def example_config_path() -> Path:
-    return Path(__file__).parents[1] / "example_config.yml"
+    return Path(__file__).parent / "example_config.yml"
 
 
 def test_bfabric_config_default_params_when_omitted() -> None:
