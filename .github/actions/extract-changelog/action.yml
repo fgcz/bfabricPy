@@ -1,0 +1,41 @@
+name: 'Extract Changelog Entry'
+description: 'Extract changelog entry for a specific version from a markdown changelog file'
+inputs:
+  changelog-path:
+    description: 'Path to the changelog file'
+    required: true
+  version:
+    description: 'Version to extract the changelog for'
+    required: true
+  default-message:
+    description: 'Default message if no changelog entry is found'
+    required: false
+    default: 'Release of {package} version {version}'
+  package:
+    description: 'Package name for default message'
+    required: false
+    default: ''
+outputs:
+  changelog-entry:
+    description: 'Extracted changelog entry'
+    value: ${{ steps.extract-changelog.outputs.changelog_entry }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Extract changelog entry
+      id: extract-changelog
+      shell: bash
+      run: |
+        DEFAULT_MSG="${{ inputs.default-message }}"
+        DEFAULT_MSG="${DEFAULT_MSG/\{package\}/${{ inputs.package }}}"
+        DEFAULT_MSG="${DEFAULT_MSG/\{version\}/${{ inputs.version }}}"
+
+        python ${{ github.action_path }}/extract_changelog.py \
+          --changelog "${{ inputs.changelog-path }}" \
+          --version "${{ inputs.version }}" \
+          --default-message "$DEFAULT_MSG" \
+          --github-output $GITHUB_OUTPUT

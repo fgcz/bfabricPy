@@ -5,6 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "bfabric_app_runner"
 description = "Application runner for B-Fabric apps"
+readme = "README.md"
 version = "0.0.21"
 license = { text = "GPL-3.0" }
 authors = [
