@@ -16,7 +16,8 @@ from pathlib import Path
 import pytest
 
 # Add parent directory to path to import the scripts
-sys.path.append(str(Path(__file__).parents[1]))
+sys.path.append(str(Path(__file__).parents[1] / "actions" / "check-package-versions"))
+sys.path.append(str(Path(__file__).parents[1] / "actions" / "extract-changelog"))
 import check_versions
 import extract_changelog
 

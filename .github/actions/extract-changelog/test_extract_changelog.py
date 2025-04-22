@@ -3,11 +3,6 @@
 Test suite for extract_changelog.py using pytest
 """
 
-import sys
-from pathlib import Path
-
-# Add parent directory to path to import the script
-sys.path.append(str(Path(__file__).parents[1]))
 from extract_changelog import extract_changelog_entry
 
 

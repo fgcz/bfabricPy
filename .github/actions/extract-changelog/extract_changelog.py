@@ -33,9 +33,8 @@ def extract_changelog_entry(changelog_path: str, version: str) -> str:
 
         # Regular expression to extract the section for the specific version
         # This matches from the heading for the specified version until the next heading or end of file
-        # Updated to handle escaped brackets: \[ and \]
-        pattern = rf"^## \\?\[{re.escape(version)}\\?\].*?(?=^## \\?\[|\Z)"
-        match = re.search(pattern, content, re.MULTILINE | re.DOTALL)
+        pattern = rf"^## \\?\[{re.escape(version)}\\?\][\s\S]*?(?=^## \\?\[|\Z)"
+        match = re.search(pattern, content, re.MULTILINE)
 
         if match:
             return match.group(0).strip()
@@ -75,9 +74,8 @@ def main():
     # Set GitHub Actions output if requested
     if args.github_output:
         with open(args.github_output, "a") as f:
-            # Escape multiline output for GitHub Actions
-            escaped_entry = changelog_entry.replace("%", "%25").replace("\n", "%0A").replace("\r", "%0D")
-            f.write(f"changelog_entry={escaped_entry}\n")
+            # Use heredoc syntax for multiline output in GitHub Actions
+            f.write(f"changelog_entry<<EOF\n{changelog_entry}\nEOF\n")
 
     return 0
 

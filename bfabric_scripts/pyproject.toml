@@ -5,6 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "bfabric_scripts"
 description = "Python command line scripts for the B-Fabric API"
+readme = "../README.md"
 version = "1.13.26"
 
 dependencies = [
@@ -12,8 +13,11 @@ dependencies = [
     "cyclopts>=3.13.0",
 ]
 
+python_requires = ">=3.10"
+
 [project.optional-dependencies]
 test = ["pytest", "pytest-mock", "logot[pytest,loguru]"]
+excel = ["fastexcel"]
 
 [project.scripts]
 "bfabric_flask.py" = "bfabric_scripts.bfabric_flask:main"

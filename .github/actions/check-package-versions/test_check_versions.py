@@ -3,12 +3,8 @@
 Test suite for check_versions.py using pytest
 """
 
-import sys
 import pytest
-from pathlib import Path
 
-# Add parent directory to path to import the script
-sys.path.append(str(Path(__file__).parents[1]))
 from check_versions import get_local_version, check_pypi_version, sort_packages, check_packages
 
 

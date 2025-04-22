@@ -1,4 +1,4 @@
-name: Unified Package Release
+name: Release Packages
 on:
   push:
     branches:
@@ -70,7 +70,6 @@ jobs:
           else
             echo "PYPI_REPOSITORY_URL=https://test.pypi.org/legacy/" >> $GITHUB_ENV
           fi
-          echo "Target PyPI repository: ${{ env.PYPI_REPOSITORY_URL }}"
       - name: Get package version
         id: get-version
         run: |
@@ -78,15 +77,11 @@ jobs:
           VERSION=$(hatch version)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "Package ${{ matrix.package }} version: $VERSION"
+          echo "Target PyPI repository: ${{ env.PYPI_REPOSITORY_URL }}"
       - name: Build package
         run: |
           cd ${{ matrix.package }}
           hatch build
-      - name: Publish package to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository-url: ${{ env.PYPI_REPOSITORY_URL }}
-          packages-dir: ${{ matrix.package }}/dist
       - name: Create and push tag
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
@@ -94,6 +89,11 @@ jobs:
           TAG_NAME="${{ matrix.package }}/${{ env.VERSION }}"
           git tag -a "$TAG_NAME" -m "Release ${{ matrix.package }} version ${{ env.VERSION }}"
           git push origin "$TAG_NAME"
+      - name: Publish package to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: ${{ env.PYPI_REPOSITORY_URL }}
+          packages-dir: ${{ matrix.package }}/dist
       - name: Extract changelog
         id: extract-changelog
         uses: ./.github/actions/extract-changelog
@@ -101,21 +101,25 @@ jobs:
           changelog-path: ${{ matrix.package }}/docs/changelog.md
           version: ${{ env.VERSION }}
           package: ${{ matrix.package }}
-      - name: Create GitHub Release
-        shell: bash
+      - name: Save changelog to file
         run: |
-          set -e
-
-          NOTES="${{ steps.extract-changelog.outputs.changelog-entry }}"
-          TAG_NAME="${{ matrix.package }}/${{ env.VERSION }}"
-
-          gh release create "$TAG_NAME" \
-            --title "Release ${{ matrix.package }} ${{ env.VERSION }}" \
-            --notes "$NOTES" \
-            --target "$GITHUB_SHA" \
-            --draft
+          # Write changelog directly to file using printf to avoid shell interpretation
+          printf '%s' "${{ steps.extract-changelog.outputs.changelog-entry }}" > release_notes.md
+          # Display the content to verify
+          echo "--- Content of release_notes.md ---"
+          cat release_notes.md
+          echo "--- End of content ---"
+      - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG_NAME="${{ matrix.package }}/${{ env.VERSION }}"
+
+          # Create GitHub release using the file
+          gh release create "$TAG_NAME" \
+            --notes-file release_notes.md \
+            --target "$GITHUB_SHA" \
+            --draft
       - name: Debug package info
         run: |
           echo "Built and published package: ${{ matrix.package }}"
