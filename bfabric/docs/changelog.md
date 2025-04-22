@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.25\] - 2025-04-22
+
 ### Breaking
 
 - `Bfabric.from_token` returns the `TokenData` in addition to the client instance. While this is breaking, I'm not aware
