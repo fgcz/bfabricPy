@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.27\] - 2025-04-22
+
 ### Changed
 
 - `bfabric-cli dataset upload` will print warnings when trailing whitespace is detected and not print the whole
@@ -17,7 +19,7 @@ Versioning currently follows `X.Y.Z` where
 
 ### Added
 
-- Optional support for uploading xlsx
+- Optional support for uploading xlsx (currently behind `excel` optional feature).
 
 ## \[1.13.26\] - 2025-04-08
 

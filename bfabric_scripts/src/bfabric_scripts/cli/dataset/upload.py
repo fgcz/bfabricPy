@@ -7,7 +7,11 @@ from loguru import logger
 from pydantic import BaseModel, model_validator
 
 from bfabric import Bfabric
-from bfabric.experimental.upload_dataset import check_for_invalid_characters, polars_to_bfabric_dataset
+from bfabric.experimental.upload_dataset import (
+    check_for_invalid_characters,
+    polars_to_bfabric_dataset,
+    warn_on_trailing_spaces,
+)
 from bfabric.utils.cli_integration import use_client
 from bfabric_scripts.optional_features import decorate_if_excel
 
@@ -100,17 +104,6 @@ def parquet(params: Params, *, client: Bfabric) -> None:
     """Upload a Parquet file as a B-Fabric dataset."""
     table = pl.read_parquet(params.file)
     upload_table(table=table, params=params, client=client)
-
-
-def warn_on_trailing_spaces(table: pl.DataFrame) -> None:
-    """Logs warnings when trailing spaces are detected in any of the string columns of the provided table."""
-    # TODO duplicated with `upload_dataset.py` for release compatibility, to be removed later
-    #      -> please keep this in sync with the code there (and don't make edits only here!)
-    for column in table.columns:
-        if not isinstance(table[column].dtype, pl.String):
-            continue
-        if table[column].str.contains(r"\s+$").any():
-            logger.warning(f"Warning: Column '{column}' contains trailing spaces.")
 
 
 def upload_table(table: pl.DataFrame, params: Params, client: Bfabric) -> None:
