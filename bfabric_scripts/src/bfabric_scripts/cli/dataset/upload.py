@@ -4,7 +4,7 @@ from pathlib import Path
 import cyclopts
 import polars as pl
 from loguru import logger
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
 from bfabric import Bfabric
 from bfabric.experimental.upload_dataset import check_for_invalid_characters, polars_to_bfabric_dataset
@@ -40,6 +40,27 @@ class CsvParams(Params):
     """The separator to use in the CSV file."""
 
 
+@cyclopts.Parameter(name="*")
+class XlsxParams(Params):
+    sheet_id: int | None = None
+    """Index of the sheet to read (first sheet is 1)."""
+    sheet_name: str | None = None
+    """Name of the sheet to read."""
+
+    @model_validator(mode="after")
+    def either_sheet_id_or_name_or_neither(self):
+        if self.sheet_id is None and self.sheet_name is None:
+            # This is the default behavior, so we don't need to do anything
+            return self
+        if self.sheet_id is not None and self.sheet_name is not None:
+            raise ValueError("You can only specify one of sheet_id or sheet_name.")
+        if self.sheet_id is not None and self.sheet_id < 1:
+            raise ValueError("sheet_id must be greater than or equal to 1.")
+        if self.sheet_name is not None and self.sheet_name == "":
+            raise ValueError("sheet_name must not be empty.")
+        return self
+
+
 cmd_dataset_upload = cyclopts.App(help="Upload a dataset to B-Fabric.")
 
 
@@ -63,9 +84,12 @@ def tsv(params: CsvParams, *, client: Bfabric) -> None:
 
 @cmd_dataset_upload.command
 @use_client
-def xlsx(params: Params, *, client: Bfabric) -> None:
-    """Upload an Excel file as a B-Fabric dataset."""
-    table = pl.read_excel(params.file)
+def xlsx(params: XlsxParams, *, client: Bfabric) -> None:
+    """Upload an Excel file as a B-Fabric dataset.
+
+    You can specify the sheet to read, but by default sheet 1 will be read automatically.
+    """
+    table = pl.read_excel(params.file, sheet_id=params.sheet_id, sheet_name=params.sheet_name)
     upload_table(table=table, params=params, client=client)
 
 
