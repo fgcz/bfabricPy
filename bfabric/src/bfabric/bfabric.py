@@ -26,7 +26,7 @@ import sys
 from loguru import logger
 from rich.console import Console
 
-from bfabric.bfabric_config import read_config
+from bfabric.config.config_file import read_config
 from bfabric.config import BfabricAuth
 from bfabric.config import BfabricClientConfig
 from bfabric.config.bfabric_client_config import BfabricAPIEngineType

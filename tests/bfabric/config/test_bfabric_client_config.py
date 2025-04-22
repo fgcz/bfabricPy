@@ -5,8 +5,8 @@ import pytest
 from logot import Logot, logged
 from pytest_mock import MockerFixture
 
-from bfabric.bfabric_config import read_config
 from bfabric.config import BfabricClientConfig
+from bfabric.config.config_file import read_config
 
 
 @pytest.fixture
