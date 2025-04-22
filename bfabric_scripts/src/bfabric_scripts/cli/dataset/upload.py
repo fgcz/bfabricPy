@@ -9,6 +9,7 @@ from pydantic import BaseModel, model_validator
 from bfabric import Bfabric
 from bfabric.experimental.upload_dataset import check_for_invalid_characters, polars_to_bfabric_dataset
 from bfabric.utils.cli_integration import use_client
+from bfabric_scripts.optional_features import decorate_if_excel
 
 
 class InputFormat(Enum):
@@ -82,7 +83,7 @@ def tsv(params: CsvParams, *, client: Bfabric) -> None:
     csv(params, client=client)
 
 
-@cmd_dataset_upload.command
+@decorate_if_excel(cmd_dataset_upload.command)
 @use_client
 def xlsx(params: XlsxParams, *, client: Bfabric) -> None:
     """Upload an Excel file as a B-Fabric dataset.
