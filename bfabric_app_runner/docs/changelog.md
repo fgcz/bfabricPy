@@ -6,12 +6,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- The `static_file` input spec type has been integrated properly.
+- The workunit makefile now directly shows how to use the GitHub app runner version instead, which is sometimes required
+    while debugging.
+
+### Changed
+
+- Silence interpolate_config_strings log messages.
+- Update `bfabric` dependency to 1.13.24.
+
+### Fixed
+
+- Use most recent cyclopts version again, i.e. [issue 168](https://github.com/fgcz/bfabricPy/issues/168) is fixed.
+
+## \[0.0.21\] - 2025-03-27
+
+### Added
+
 - `workunit` can now be interpolated in config files.
 - `SubmittersSpec` to define a slurm submitter.
 
 ### Changed
 
 - Submitter params in app definition, use key `params` rather than `config` to be more explicit.
+
+### Fixed
+
+- Temporary workaround for https://github.com/fgcz/bfabricPy/issues/168.
 
 ## \[0.0.20\] - 2025-03-25
 

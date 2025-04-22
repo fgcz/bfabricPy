@@ -1,0 +1,41 @@
+name: 'Check Package Versions'
+description: 'Check which packages need to be released by comparing local versions with PyPI'
+inputs:
+  packages:
+    description: 'Comma-separated list of packages to check'
+    required: true
+  pypi-url:
+    description: 'Base URL of the PyPI repository'
+    required: false
+    default: 'https://pypi.org'
+  force-packages:
+    description: 'Comma-separated list of packages to force release'
+    required: false
+  priority-order:
+    description: 'Comma-separated list of packages in priority order'
+    required: false
+    default: 'bfabric,bfabric_scripts,bfabric_app_runner'
+outputs:
+  packages-to-release:
+    description: 'JSON array of packages that need to be released'
+    value: ${{ steps.check-versions.outputs.packages_to_release }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Install dependencies
+      shell: bash
+      run: pip install requests
+    - name: Check which packages need to be released
+      id: check-versions
+      shell: bash
+      run: |
+        python ${{ github.action_path }}/check_versions.py \
+          --packages "${{ inputs.packages }}" \
+          --pypi-url "${{ inputs.pypi-url }}" \
+          ${{ inputs.force-packages != '' && format('--force "{0}"', inputs.force-packages) || '' }} \
+          --priority "${{ inputs.priority-order }}" \
+          --github-output $GITHUB_OUTPUT

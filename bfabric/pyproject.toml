@@ -5,7 +5,8 @@ build-backend = "hatchling.build"
 [project]
 name = "bfabric"
 description = "Python client for the B-Fabric API"
-version = "1.13.23"
+readme = "../README.md"
+version = "1.13.25"
 license = { text = "GPL-3.0" }
 authors = [
     { name = "Christian Panse", email = "cp@fgcz.ethz.ch" },
@@ -28,7 +29,6 @@ dependencies = [
     "pydantic>=2.9.2",
     "eval_type_backport; python_version < '3.10'",
     "python-dateutil >= 2.9.0",
-    "cyclopts >= 2.9.9",
     "requests >= 2.26.0",
     #"platformdirs >= 4.3",
 ]
@@ -46,7 +46,7 @@ dev = [
 ]
 doc = ["mkdocs", "mkdocs-material", "mkdocstrings[python]"]
 test = ["pytest", "pytest-mock", "logot[pytest,loguru]"]
-typing = ["mypy", "types-requests", "lxml-stubs", "pandas-stubs", "types-python-dateutil", "types-PyYAML"]
+typing = ["mypy", "types-requests", "lxml-stubs", "types-python-dateutil", "types-PyYAML"]
 
 [project.urls]
 Homepage = "https://github.com/fgcz/bfabricPy"

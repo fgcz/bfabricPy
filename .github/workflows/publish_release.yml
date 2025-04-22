@@ -1,20 +1,10 @@
-name: Publish Release
+name: Release Packages
 on:
   push:
     branches:
-      - release_bfabric
-      - release_bfabric_scripts
-      - release_bfabric_app_runner
+      - release
   workflow_dispatch:
     inputs:
-      package:
-        description: 'Package to release'
-        type: choice
-        options:
-          - bfabric
-          - bfabric_scripts
-          - bfabric_app_runner
-        default: bfabric
       environment:
         description: 'Target PyPI'
         type: choice
@@ -23,95 +13,118 @@ on:
           - production
         default: test
         required: true
+      force_packages:
+        description: 'Force release of specific packages (comma separated, leave empty to auto-detect)'
+        type: string
+        required: false
 jobs:
-  publish:
+  check-packages:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: write # permission to create tags and releases
+    outputs:
+      packages_to_release: ${{ steps.check-versions.outputs.packages-to-release }}
     steps:
       - uses: actions/checkout@v4
-      # Step: Determine the package that is being built
-      - name: Set package variable
-        id: set-package
-        run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "PACKAGE=${{ github.event.inputs.package }}" >> $GITHUB_ENV
-          else
-            # Extract package name from branch name by removing 'release_' prefix
-            BRANCH_NAME="${{ github.ref_name }}"
-            PACKAGE=${BRANCH_NAME#release_}
-            echo "PACKAGE=$PACKAGE" >> $GITHUB_ENV
-          fi
-      # Step: Set the PyPI repository URL based on environment
       - name: Set PyPI repository URL
         id: set-repo-url
         run: |
           if [ "${{ github.event.inputs.environment }}" == "production" ] || [ "${{ github.event_name }}" == "push" ]; then
-            echo "PYPI_REPOSITORY_URL=https://upload.pypi.org/legacy/" >> $GITHUB_ENV
+            echo "PYPI_REPOSITORY_URL=https://pypi.org" >> $GITHUB_ENV
           else
-            echo "PYPI_REPOSITORY_URL=https://test.pypi.org/legacy/" >> $GITHUB_ENV
+            echo "PYPI_REPOSITORY_URL=https://test.pypi.org" >> $GITHUB_ENV
           fi
-      - name: Debug variables
-        run: |
-          echo "Selected package: ${{ env.PACKAGE }}"
-          echo "Target PyPI repository: ${{ env.PYPI_REPOSITORY_URL }}"
-      # Step: Build the package
+          echo "PyPI repository URL: ${{ env.PYPI_REPOSITORY_URL }}"
+      - name: Install hatch
+        run: pip install hatch
+      - name: Check which packages need to be released
+        id: check-versions
+        uses: ./.github/actions/check-package-versions
+        with:
+          packages: "bfabric,bfabric_scripts,bfabric_app_runner"
+          pypi-url: ${{ env.PYPI_REPOSITORY_URL }}
+          force-packages: ${{ github.event.inputs.force_packages }}
+          priority-order: "bfabric,bfabric_scripts,bfabric_app_runner"
+  release-packages:
+    needs: check-packages
+    if: ${{ needs.check-packages.outputs.packages_to_release != '[]' }}
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write # permission to create tags and releases
+    strategy:
+      matrix:
+        package: ${{ fromJson(needs.check-packages.outputs.packages_to_release) }}
+      # Run sequentially to ensure proper order of releases
+      max-parallel: 1
+    steps:
+      - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - name: Install hatch
         run: pip install hatch
+      - name: Set PyPI repository URL
+        run: |
+          if [ "${{ github.event.inputs.environment }}" == "production" ] || [ "${{ github.event_name }}" == "push" ]; then
+            echo "PYPI_REPOSITORY_URL=https://upload.pypi.org/legacy/" >> $GITHUB_ENV
+          else
+            echo "PYPI_REPOSITORY_URL=https://test.pypi.org/legacy/" >> $GITHUB_ENV
+          fi
       - name: Get package version
         id: get-version
         run: |
-          cd ${{ env.PACKAGE }}
+          cd ${{ matrix.package }}
           VERSION=$(hatch version)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "Package version: $VERSION"
+          echo "Package ${{ matrix.package }} version: $VERSION"
+          echo "Target PyPI repository: ${{ env.PYPI_REPOSITORY_URL }}"
       - name: Build package
         run: |
-          cd ${{ env.PACKAGE }}
+          cd ${{ matrix.package }}
           hatch build
-      - name: Publish package distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository-url: ${{ env.PYPI_REPOSITORY_URL }}
-          packages-dir: ${{ env.PACKAGE }}/dist
       - name: Create and push tag
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
-          TAG_NAME="${{ env.PACKAGE }}/${{ env.VERSION }}"
-          git tag -a "$TAG_NAME" -m "Release ${{ env.PACKAGE }} version ${{ env.VERSION }}"
+          TAG_NAME="${{ matrix.package }}/${{ env.VERSION }}"
+          git tag -a "$TAG_NAME" -m "Release ${{ matrix.package }} version ${{ env.VERSION }}"
           git push origin "$TAG_NAME"
-      - name: Create GitHub Release
-        shell: bash
+      - name: Publish package to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: ${{ env.PYPI_REPOSITORY_URL }}
+          packages-dir: ${{ matrix.package }}/dist
+      - name: Extract changelog
+        id: extract-changelog
+        uses: ./.github/actions/extract-changelog
+        with:
+          changelog-path: ${{ matrix.package }}/docs/changelog.md
+          version: ${{ env.VERSION }}
+          package: ${{ matrix.package }}
+      - name: Save changelog to file
         run: |
-          set -e
-
-          CHANGELOG_PATH="${PACKAGE}/docs/changelog.md"
-          TAG_NAME="${PACKAGE}/${VERSION}"
-          CHANGELOG_CONTENT=""
-
-          # Extract changelog if file exists (ultra-compact one-liner)
-          [ -f "$CHANGELOG_PATH" ] && CHANGELOG_CONTENT=$(python3 -c "import re; m=re.search(r'^## \\[$VERSION\\].*?(?=^## \\[|\\Z)', open('$CHANGELOG_PATH').read(), re.M|re.S); print(m.group(0).strip() if m else '')" 2>/dev/null || echo "")
-
-          # Create release
-          NOTES="${CHANGELOG_CONTENT:-Release of $PACKAGE version $VERSION}"
-          gh release create "$TAG_NAME" --title "Release $PACKAGE $VERSION" --notes "$NOTES" --target "$GITHUB_SHA" --draft
+          echo '${{ steps.extract-changelog.outputs.changelog-entry }}' > release_notes.md
+          # Display the content to verify
+          echo "--- Content of release_notes.md ---"
+          cat release_notes.md
+          echo "--- End of content ---"
+      - name: Create GitHub Release
         env:
-          PACKAGE: ${{ env.PACKAGE }}
-          VERSION: ${{ env.VERSION }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG_NAME="${{ matrix.package }}/${{ env.VERSION }}"
+
+          # Create GitHub release using the file
+          gh release create "$TAG_NAME" \
+            --notes-file release_notes.md \
+            --target "$GITHUB_SHA" \
+            --draft
       - name: Debug package info
         run: |
-          echo "Built and published package: ${{ env.PACKAGE }}"
-          echo "Created tag: ${{ env.PACKAGE }}/${{ env.VERSION }}"
-          if [ "${{ env.PYPI_REPOSITORY_URL }}" == "https://pypi.org/legacy/" ]; then
-            echo "Check it at: https://pypi.org/project/${{ env.PACKAGE }}/"
+          echo "Built and published package: ${{ matrix.package }}"
+          echo "Created tag: ${{ matrix.package }}/${{ env.VERSION }}"
+          if [ "${{ env.PYPI_REPOSITORY_URL }}" == "https://upload.pypi.org/legacy/" ]; then
+            echo "Check it at: https://pypi.org/project/${{ matrix.package }}/"
           else
-            echo "Check it at: https://test.pypi.org/project/${{ env.PACKAGE }}/"
+            echo "Check it at: https://test.pypi.org/project/${{ matrix.package }}/"
           fi
-        if: always()

@@ -1,5 +1,4 @@
 import json
-from collections import defaultdict
 from enum import Enum
 from pathlib import Path
 from typing import Any, Annotated
@@ -17,6 +16,7 @@ from rich.table import Table
 from bfabric import Bfabric, BfabricClientConfig
 from bfabric.utils.cli_integration import use_client
 from bfabric.utils.polars_utils import flatten_relations
+from bfabric_scripts.cli.api.query_repr import Query
 
 
 class OutputFormat(Enum):
@@ -29,7 +29,7 @@ class OutputFormat(Enum):
 class Params(BaseModel):
     endpoint: str
     """Endpoint to query, e.g. 'resource'."""
-    query: list[tuple[str, str]] = []
+    query: Query = Query()
     """List of attribute-value pairs to filter the results by."""
     format: OutputFormat = OutputFormat.TABLE_RICH
     """Output format."""
@@ -47,17 +47,10 @@ class Params(BaseModel):
     def convert_str_to_list(cls, value: list[str]) -> list[str]:
         return value[0].split(",") if (len(value) == 1 and "," in value[0]) else value
 
-    def extract_query(self) -> dict[str, str | list[str]]:
-        """Returns the query as a dictionary which can be passed to the client."""
-        query = defaultdict(list)
-        for key, value in self.query:
-            query[key].append(value)
-        return {k: v[0] if len(v) == 1 else v for k, v in query.items()}
-
 
 def perform_query(params: Params, client: Bfabric, console_user: Console) -> list[dict[str, Any]]:
     """Performs the query and returns the results."""
-    query = params.extract_query()
+    query = params.query.to_dict(duplicates="collect")
     query_stmt = f"client.read(endpoint={params.endpoint!r}, obj={query!r}, max_results={params.limit!r})"
     results = eval(query_stmt)
 

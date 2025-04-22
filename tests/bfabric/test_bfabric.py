@@ -5,6 +5,7 @@ from unittest.mock import MagicMock
 from unittest.mock import call
 
 import pytest
+from pydantic import SecretStr
 
 from bfabric import Bfabric, BfabricAPIEngineType
 from bfabric.engine.engine_suds import EngineSUDS
@@ -12,7 +13,7 @@ from bfabric.engine.engine_suds import EngineSUDS
 
 @pytest.fixture
 def mock_config():
-    return MagicMock(name="mock_config", spec=["base_url"])
+    return MagicMock(name="mock_config", engine=BfabricAPIEngineType.SUDS, spec=["base_url"])
 
 
 @pytest.fixture
@@ -22,14 +23,13 @@ def mock_engine():
 
 @pytest.fixture
 def bfabric_instance(mock_config, mock_engine):
-    return Bfabric(config=mock_config, auth=None, engine=BfabricAPIEngineType.SUDS)
+    return Bfabric(config=mock_config, auth=None)
 
 
-def test_from_config_when_no_args(mocker):
+def test_from_config_when_no_args(mocker, mock_config):
     mock_get_system_auth = mocker.patch("bfabric.bfabric.get_system_auth")
     mock_engine_suds = mocker.patch("bfabric.bfabric.EngineSUDS")
 
-    mock_config = MagicMock(name="mock_config")
     mock_auth = MagicMock(name="mock_auth")
     mock_get_system_auth.return_value = (mock_config, mock_auth)
 
@@ -41,11 +41,10 @@ def test_from_config_when_no_args(mocker):
     mock_get_system_auth.assert_called_once_with(config_env=None, config_path=None)
 
 
-def test_from_config_when_explicit_auth(mocker):
+def test_from_config_when_explicit_auth(mocker, mock_config):
     mock_get_system_auth = mocker.patch("bfabric.bfabric.get_system_auth")
     mock_engine_suds = mocker.patch("bfabric.bfabric.EngineSUDS")
 
-    mock_config = MagicMock(name="mock_config")
     mock_auth = MagicMock(name="mock_auth")
     mock_config_auth = MagicMock(name="mock_config_auth")
     mock_get_system_auth.return_value = (mock_config, mock_config_auth)
@@ -58,11 +57,10 @@ def test_from_config_when_explicit_auth(mocker):
     mock_get_system_auth.assert_called_once_with(config_env="TestingEnv", config_path=None)
 
 
-def test_from_config_when_none_auth(mocker):
+def test_from_config_when_none_auth(mocker, mock_config):
     mock_get_system_auth = mocker.patch("bfabric.bfabric.get_system_auth")
     mock_engine_suds = mocker.patch("bfabric.bfabric.EngineSUDS")
 
-    mock_config = MagicMock(name="mock_config")
     mock_auth = MagicMock(name="mock_auth")
     mock_get_system_auth.return_value = (mock_config, mock_auth)
 
@@ -79,11 +77,11 @@ def test_from_config_when_engine_suds(mocker):
     mock_get_system_auth = mocker.patch("bfabric.bfabric.get_system_auth")
     mock_engine_suds = mocker.patch("bfabric.bfabric.EngineSUDS")
 
-    mock_config = MagicMock(name="mock_config")
+    mock_config = MagicMock(name="mock_config", engine=BfabricAPIEngineType.SUDS)
     mock_auth = MagicMock(name="mock_auth")
     mock_get_system_auth.return_value = (mock_config, mock_auth)
 
-    client = Bfabric.from_config(engine=BfabricAPIEngineType.SUDS)
+    client = Bfabric.from_config()
 
     assert isinstance(client, Bfabric)
     assert client.config == mock_config
@@ -97,11 +95,11 @@ def test_from_config_when_engine_zeep(mocker):
     mock_get_system_auth = mocker.patch("bfabric.bfabric.get_system_auth")
     mock_engine_zeep = mocker.patch("bfabric.bfabric.EngineZeep")
 
-    mock_config = MagicMock(name="mock_config")
+    mock_config = MagicMock(name="mock_config", engine=BfabricAPIEngineType.ZEEP)
     mock_auth = MagicMock(name="mock_auth")
     mock_get_system_auth.return_value = (mock_config, mock_auth)
 
-    client = Bfabric.from_config(engine=BfabricAPIEngineType.ZEEP)
+    client = Bfabric.from_config()
 
     assert isinstance(client, Bfabric)
     assert client.config == mock_config
@@ -109,6 +107,24 @@ def test_from_config_when_engine_zeep(mocker):
     assert client._engine == mock_engine_zeep.return_value
     mock_get_system_auth.assert_called_once_with(config_env=None, config_path=None)
     mock_engine_zeep.assert_called_once_with(base_url=mock_config.base_url)
+
+
+def test_from_token(mocker):
+    mock_config = MagicMock(name="mock_config", spec=[])
+    mock_get_system_auth = mocker.patch("bfabric.bfabric.get_system_auth", return_value=(mock_config, None))
+    mock_get_token_data = mocker.patch(
+        "bfabric.bfabric.get_token_data", return_value=mocker.MagicMock(user="test_user", user_ws_password="x" * 32)
+    )
+    mocker.patch.object(Bfabric, "_log_version_message")
+
+    client, data = Bfabric.from_token(token="test_token")
+
+    assert client.auth.login == "test_user"
+    assert client.auth.password == SecretStr("x" * 32)
+    assert data == mock_get_token_data.return_value
+
+    mock_get_token_data.assert_called_once_with(client_config=mock_config, token="test_token")
+    mock_get_system_auth.assert_called_once_with(config_env=None, config_path=None)
 
 
 def test_query_counter(bfabric_instance):
@@ -126,7 +142,7 @@ def test_auth_when_missing(bfabric_instance):
 
 def test_auth_when_provided(mock_config, mock_engine):
     mock_auth = MagicMock(name="mock_auth")
-    bfabric_instance = Bfabric(config=mock_config, auth=mock_auth, engine=BfabricAPIEngineType.SUDS)
+    bfabric_instance = Bfabric(config=mock_config, auth=mock_auth)
     assert bfabric_instance.auth == mock_auth
 
 

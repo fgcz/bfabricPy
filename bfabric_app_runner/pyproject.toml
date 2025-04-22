@@ -5,14 +5,16 @@ build-backend = "hatchling.build"
 [project]
 name = "bfabric_app_runner"
 description = "Application runner for B-Fabric apps"
-version = "0.0.20"
+readme = "README.md"
+version = "0.0.21"
 license = { text = "GPL-3.0" }
 authors = [
     {name = "Leonardo Schwarz", email = "leonardo.schwarz@fgcz.ethz.ch"},
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "bfabric==1.13.23",
+    "bfabric==1.13.24",
+    "cyclopts>=3.13.0",
     "pydantic",
     "glom",
     "mako",

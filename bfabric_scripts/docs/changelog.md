@@ -10,9 +10,36 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.27\] - 2025-04-22
+
+### Changed
+
+- `bfabric-cli dataset upload` will print warnings when trailing whitespace is detected and not print the whole
+    response anymore, but rather the important information only.
+
+### Added
+
+- Optional support for uploading xlsx (currently behind `excel` optional feature).
+
+## \[1.13.26\] - 2025-04-08
+
+### Changed
+
+- Update `bfabric` to 1.13.24.
+
 ### Removed
 
 - Remove `bfabric-cli api save` -> use `bfabric-cli api create` and `bfabric-cli api update` instead.
+
+### Fixed
+
+- Use most recent cyclopts version again, i.e. [issue 168](https://github.com/fgcz/bfabricPy/issues/168) is fixed.
+
+## \[1.13.25\] - 2025-03-27
+
+### Fixed
+
+- Temporary workaround for https://github.com/fgcz/bfabricPy/issues/168.
 
 ## \[1.13.24\] - 2025-02-19
 
