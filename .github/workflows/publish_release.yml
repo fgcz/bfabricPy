@@ -103,8 +103,7 @@ jobs:
           package: ${{ matrix.package }}
       - name: Save changelog to file
         run: |
-          # Write changelog directly to file using printf to avoid shell interpretation
-          printf '%s' "${{ steps.extract-changelog.outputs.changelog-entry }}" > release_notes.md
+          echo '${{ steps.extract-changelog.outputs.changelog-entry }}' > release_notes.md
           # Display the content to verify
           echo "--- Content of release_notes.md ---"
           cat release_notes.md
