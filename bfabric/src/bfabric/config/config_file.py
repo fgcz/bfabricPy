@@ -6,7 +6,7 @@ from typing import Annotated, Any
 
 import yaml
 from loguru import logger
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, field_validator
 from pydantic_core import PydanticCustomError
 
 from bfabric.config import BfabricAuth
@@ -66,6 +66,15 @@ class ConfigFile(BaseModel):
                 },
             )
         return self
+
+    @field_validator("environments", mode="after")
+    @classmethod
+    def reject_env_name_default(cls, value: dict[str, EnvironmentConfig]) -> dict[str, EnvironmentConfig]:
+        if "default" in value:
+            raise ValueError(
+                "Environment name 'default' is reserved. Please use a different name for your environment."
+            )
+        return value
 
     def get_selected_config_env(self, explicit_config_env: str | None) -> str:
         """Returns the name of the selected configuration, by checking the hierarchy of config_env definitions.

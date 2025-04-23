@@ -120,6 +120,13 @@ def test_get_selected_config(config_with_auth, mocker):
     mock_get_config_env.assert_called_once_with(explicit_config_env=None)
 
 
+def test_reject_env_name_default(mocker, data_no_auth):
+    data_no_auth["default"] = {"base_url": "https://example.com"}
+    with pytest.raises(ValueError) as error:
+        ConfigFile.model_validate(data_no_auth)
+    assert "Environment name 'default' is reserved." in str(error.value)
+
+
 class TestReadConfig:
     @pytest.fixture
     def example_config_path(self) -> Path:
