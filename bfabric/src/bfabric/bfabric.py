@@ -69,18 +69,23 @@ class Bfabric:
         cls,
         *,
         config_file_path: Path | str = Path("~/.bfabricpy.yml"),
-        config_file_env: str | None = None,
+        config_file_env: str | Literal["default"] | None = "default",
         include_auth: bool = True,
     ) -> Bfabric:
         """Returns a new Bfabric instance.
 
         If a `BFABRICPY_CONFIG_DATA` environment variable is set, all configuration will originate from it.
-        If it's not present, your config file (`~/.bfabricpy.yml` by default) will be used.
-        If you specify `config_file_env`, or (lower priority) `BFABRICPY_CONFIG_ENV`, when reading the file this
-        environment will be used instead of the default one.
+
+        If it's not present, and `config_file_env` is not `None`, your config file (`~/.bfabricpy.yml` by default) will
+        be used instead.
+        If `config_file_env` is `"default"`, then if available the environment according to env variable
+        `BFABRICPY_CONFIG_ENV` will be used, otherwise the default environment in the config file will be used.
+        Otherwise, `config_file_env` specifies the name of the environment.
 
         :param config_file_path: a non-standard configuration file to use, if config file is selected as a config source
-        :param config_file_env: explicit environment to use, if config file is selected as a config source
+        :param config_file_env: name of environment to use, if config file is selected as a config source.
+            if `"default"` is specified, the default environment will be used.
+            if `None` is specified, the file will not be used as a config source.
         :param include_auth: whether auth information should be included (for servers, setting this to False is useful)
         """
         config_data = load_config_data(

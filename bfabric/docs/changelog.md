@@ -10,6 +10,14 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+This release brings a new way to configure the `Bfabric` client through an environment variable completely.
+This is because it will allow round-trip passing of the configuration to subprocesses in the future.
+
+### Added
+
+- New API for configuring the `Bfabric` client which **replaces** the existing `Bfabric.from_config`, which is
+    deprecated now.
+
 ## \[1.13.25\] - 2025-04-22
 
 ### Breaking

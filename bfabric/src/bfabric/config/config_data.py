@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -19,7 +20,7 @@ class ConfigData(BaseModel):
         return ConfigData(client=self.client, auth=None)
 
 
-def _read_config_file(config_path: Path | str, fallback_config_env: str | None) -> ConfigData:
+def _read_config_file(config_path: Path | str, force_config_env: str | None) -> ConfigData:
     """Reads the config file and returns the config data."""
     config_file_path = Path(config_path).expanduser()
     if not config_file_path.is_file():
@@ -27,19 +28,23 @@ def _read_config_file(config_path: Path | str, fallback_config_env: str | None) 
         raise OSError(msg)
 
     config, auth = read_config(
-        config_path=config_file_path, config_env=fallback_config_env or os.environ.get("BFABRICPY_CONFIG_ENV")
+        config_path=config_file_path, config_env=force_config_env or os.environ.get("BFABRICPY_CONFIG_ENV")
     )
     return ConfigData(client=config, auth=auth)
 
 
 def load_config_data(
-    config_file_path: Path | str, include_auth: bool, config_file_env: str | None = None
+    config_file_path: Path | str, include_auth: bool, config_file_env: str | Literal["default"] | None
 ) -> ConfigData:
     """Loads the configuration data."""
     if "BFABRICPY_CONFIG_DATA" in os.environ:
         config_data = ConfigData.model_validate_json(os.environ["BFABRICPY_CONFIG_DATA"])
+    elif config_file_env is not None:
+        config_file_env = os.environ.get("BFABRICPY_CONFIG_ENV") if config_file_env == "default" else config_file_env
+        config_data = _read_config_file(config_path=config_file_path, force_config_env=config_file_env)
     else:
-        config_data = _read_config_file(config_path=config_file_path, fallback_config_env=config_file_env)
+        msg = "No configuration was found and config_file_env is set to None."
+        raise ValueError(msg)
     return config_data if include_auth else config_data.drop_auth()
 
 
