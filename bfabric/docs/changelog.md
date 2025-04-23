@@ -16,6 +16,7 @@ This is because it will allow round-trip passing of the configuration to subproc
 ### Breaking
 
 - `default` is forbidden as an environment config name now.
+- `Bfabric.from_token` signature is changed, but no known users of this API so it shouldn't be too breaking.
 
 ### Added
 
