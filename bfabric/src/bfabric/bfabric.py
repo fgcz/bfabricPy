@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import base64
 import importlib.metadata
+import sys
 from contextlib import contextmanager
 from datetime import datetime
 from functools import cached_property
@@ -22,14 +23,14 @@ from pathlib import Path
 from pprint import pprint
 from typing import Literal, Any, TYPE_CHECKING
 
-import sys
 from loguru import logger
 from rich.console import Console
 
-from bfabric.config.config_file import read_config
 from bfabric.config import BfabricAuth
 from bfabric.config import BfabricClientConfig
 from bfabric.config.bfabric_client_config import BfabricAPIEngineType
+from bfabric.config.config_data import ConfigData
+from bfabric.config.config_file import read_config
 from bfabric.engine.engine_suds import EngineSUDS
 from bfabric.engine.engine_zeep import EngineZeep
 from bfabric.rest.token_data import get_token_data, TokenData
@@ -48,14 +49,10 @@ class Bfabric:
     :param auth: Authentication object (if `None`, it has to be provided using the `with_auth` context manager)
     """
 
-    def __init__(
-        self,
-        config: BfabricClientConfig,
-        auth: BfabricAuth | None,
-    ) -> None:
+    def __init__(self, config_data: ConfigData) -> None:
         self.query_counter = 0
-        self._config = config
-        self._auth = auth
+        self._config = config_data.client
+        self._auth = config_data.auth
         self._log_version_message()
 
     @cached_property
@@ -91,7 +88,7 @@ class Bfabric:
         # TODO https://github.com/fgcz/bfabricPy/issues/164
         # if engine is not None:
         #    config = config.copy_with(engine=engine)
-        return cls(config, auth_used)
+        return cls(ConfigData(client=config, auth=auth_used))
 
     @classmethod
     def from_token(
@@ -117,7 +114,7 @@ class Bfabric:
         #    config = config.copy_with(engine=engine)
         token_data = get_token_data(client_config=config, token=token)
         auth = BfabricAuth(login=token_data.user, password=token_data.user_ws_password)
-        return cls(config, auth), token_data
+        return cls(ConfigData(client=config, auth=auth)), token_data
 
     @property
     def config(self) -> BfabricClientConfig:
