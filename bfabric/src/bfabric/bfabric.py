@@ -68,11 +68,19 @@ class Bfabric:
     def connect(
         cls,
         *,
-        config_path: Path | str | None = None,
+        config_file_path: Path | str | None = None,
+        config_file_env: str | None = None,
         include_auth: bool = True,
     ) -> Bfabric:
-        """
-        :param config_path: a non-standard configuration file to use, if config file is selected as a config source
+        """Returns a new Bfabric instance.
+
+        If a `BFABRICPY_CONFIG_DATA` environment variable is set, all configuration will originate from it.
+        If it's not present, your config file (`~/.bfabricpy.yml` by default) will be used.
+        If you specify `config_file_env`, or (lower priority) `BFABRICPY_CONFIG_ENV`, when reading the file this
+        environment will be used instead of the default one.
+
+        :param config_file_path: a non-standard configuration file to use, if config file is selected as a config source
+        :param config_file_env: explicit environment to use, if config file is selected as a config source
         :param include_auth: whether auth information should be included (for servers, setting this to False is useful)
         """
         pass
