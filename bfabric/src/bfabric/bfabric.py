@@ -124,27 +124,28 @@ class Bfabric:
     def from_token(
         cls,
         token: str,
-        config_env: str | None = None,
-        config_path: str | None = None,
-        engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS,
+        *,
+        config_file_path: Path | str = Path("~/.bfabricpy.yml"),
+        config_file_env: str | Literal["default"] | None = "default",
     ) -> tuple[Bfabric, TokenData]:
         """Returns a new Bfabric instance, configured with the user configuration file and the provided token.
 
         Any authentication in the configuration file will be ignored, but it will be used to determine the correct
         B-Fabric instance.
         :param token: the token to use for authentication
-        :param config_env: the config environment to use (if not specified, see `from_config`)
-        :param config_path: the path to the config file (if not specified, see `from_config`)
-        :param engine: the engine to use for the API.
+        :param config_file_path: a non-standard configuration file to use, if config file is selected as a config source
+        :param config_file_env: name of environment to use, if config file is selected as a config source.
+            if `"default"` is specified, the default environment will be used.
+            if `None` is specified, the file will not be used as a config source.
         :return: a tuple of the Bfabric instance and the token data
         """
-        config, _ = _internal__get_system_auth(config_env=config_env, config_path=config_path)
-        # TODO https://github.com/fgcz/bfabricPy/issues/164
-        # if engine is not None:
-        #    config = config.copy_with(engine=engine)
-        token_data = get_token_data(client_config=config, token=token)
+        config_data = load_config_data(
+            config_file_path=config_file_path, include_auth=False, config_file_env=config_file_env
+        )
+        client_config = config_data.client
+        token_data = get_token_data(client_config=client_config, token=token)
         auth = BfabricAuth(login=token_data.user, password=token_data.user_ws_password)
-        return cls(ConfigData(client=config, auth=auth)), token_data
+        return cls(config_data.with_auth(auth)), token_data
 
     @property
     def config(self) -> BfabricClientConfig:

@@ -15,9 +15,9 @@ class ConfigData(BaseModel):
     client: BfabricClientConfig
     auth: BfabricAuth | None
 
-    def drop_auth(self) -> ConfigData:
-        """Returns a shallow copy of self with the auth field set to None."""
-        return ConfigData(client=self.client, auth=None)
+    def with_auth(self, auth: BfabricAuth | None) -> ConfigData:
+        """Returns a shallow copy of self with the auth field set to the specified value."""
+        return ConfigData(client=self.client, auth=auth)
 
 
 def _read_config_file(config_path: Path | str, force_config_env: str | None) -> ConfigData:
@@ -47,7 +47,7 @@ def load_config_data(
     else:
         msg = "No configuration was found and config_file_env is set to None."
         raise ValueError(msg)
-    return config_data if include_auth else config_data.drop_auth()
+    return config_data if include_auth else config_data.with_auth(None)
 
 
 def export_config_data(config_data: ConfigData) -> str:
