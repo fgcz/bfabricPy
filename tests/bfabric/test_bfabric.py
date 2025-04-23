@@ -1,5 +1,6 @@
 import datetime
 import re
+from pathlib import Path
 
 import pytest
 from pydantic import SecretStr
@@ -106,7 +107,9 @@ def test_from_config_when_engine_zeep(mocker, mock_auth):
 
 
 def test_from_token(mocker, mock_config):
-    mock_get_system_auth = mocker.patch("bfabric.bfabric._internal__get_system_auth", return_value=(mock_config, None))
+    mock_load_config_data = mocker.patch(
+        "bfabric.bfabric.load_config_data", return_value=ConfigData(client=mock_config, auth=None)
+    )
     mock_get_token_data = mocker.patch(
         "bfabric.bfabric.get_token_data", return_value=mocker.MagicMock(user="test_user", user_ws_password="x" * 32)
     )
@@ -119,7 +122,9 @@ def test_from_token(mocker, mock_config):
     assert data == mock_get_token_data.return_value
 
     mock_get_token_data.assert_called_once_with(client_config=mock_config, token="test_token")
-    mock_get_system_auth.assert_called_once_with(config_env=None, config_path=None)
+    mock_load_config_data.assert_called_once_with(
+        config_file_env="default", config_file_path=Path("~/.bfabricpy.yml"), include_auth=False
+    )
 
 
 def test_query_counter(bfabric_instance):
