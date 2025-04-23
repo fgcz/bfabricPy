@@ -16,6 +16,7 @@ from __future__ import annotations
 import base64
 import importlib.metadata
 import sys
+import warnings
 from contextlib import contextmanager
 from datetime import datetime
 from functools import cached_property
@@ -64,6 +65,19 @@ class Bfabric:
             raise ValueError(f"Unexpected engine type: {self.config.engine}")
 
     @classmethod
+    def connect(
+        cls,
+        *,
+        config_path: Path | str | None = None,
+        include_auth: bool = True,
+    ) -> Bfabric:
+        """
+        :param config_path: a non-standard configuration file to use, if config file is selected as a config source
+        :param include_auth: whether auth information should be included (for servers, setting this to False is useful)
+        """
+        pass
+
+    @classmethod
     def from_config(
         cls,
         config_env: str | None = None,
@@ -82,7 +96,7 @@ class Bfabric:
             If it is set to None, no authentication will be used.
         :param engine: Engine to use for the API.
         """
-        config, auth_config = get_system_auth(config_env=config_env, config_path=config_path)
+        config, auth_config = _internal__get_system_auth(config_env=config_env, config_path=config_path)
         auth_used: BfabricAuth | None = auth_config if auth == "config" else auth
         # TODO https://github.com/fgcz/bfabricPy/issues/164
         # if engine is not None:
@@ -107,7 +121,7 @@ class Bfabric:
         :param engine: the engine to use for the API.
         :return: a tuple of the Bfabric instance and the token data
         """
-        config, _ = get_system_auth(config_env=config_env, config_path=config_path)
+        config, _ = _internal__get_system_auth(config_env=config_env, config_path=config_path)
         # TODO https://github.com/fgcz/bfabricPy/issues/164
         # if engine is not None:
         #    config = config.copy_with(engine=engine)
@@ -333,7 +347,15 @@ class Bfabric:
         self.query_counter = state["query_counter"]
 
 
-def get_system_auth(
+def get_system_auth(*args: Any, **kwargs: Any) -> Any:
+    """deprecated"""
+    warnings.warn(
+        "get_system_auth is deprecated, use Bfabric.connect or Bfabric.from_token instead", DeprecationWarning
+    )
+    return _internal__get_system_auth(*args, **kwargs)
+
+
+def _internal__get_system_auth(
     login: str | None = None,
     password: str | None = None,
     base_url: str | None = None,

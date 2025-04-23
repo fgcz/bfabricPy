@@ -1,6 +1,7 @@
 site_name: bfabricPy docs
 nav:
   - index.md
+  - client.md
   - entities.md
   - good_to_know.md
   - contribute.md
