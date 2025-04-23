@@ -147,7 +147,9 @@ class TestReadConfig:
         assert config.base_url == "https://standby-server.uzh.ch/mystandby"
         assert config.application_ids == {}
         assert config.job_notification_emails == ""
-        logot.assert_logged(logged.debug(f"Reading configuration from: {str(example_config_path.absolute())}"))
+        logot.assert_logged(
+            logged.debug(f"Reading configuration from: {str(example_config_path.absolute())} config_env='STANDBY'")
+        )
 
 
 if __name__ == "__main__":
