@@ -30,7 +30,7 @@ from rich.console import Console
 from bfabric.config import BfabricAuth
 from bfabric.config import BfabricClientConfig
 from bfabric.config.bfabric_client_config import BfabricAPIEngineType
-from bfabric.config.config_data import ConfigData
+from bfabric.config.config_data import ConfigData, load_config_data
 from bfabric.config.config_file import read_config
 from bfabric.engine.engine_suds import EngineSUDS
 from bfabric.engine.engine_zeep import EngineZeep
@@ -68,7 +68,7 @@ class Bfabric:
     def connect(
         cls,
         *,
-        config_file_path: Path | str | None = None,
+        config_file_path: Path | str = Path("~/.bfabricpy.yml"),
         config_file_env: str | None = None,
         include_auth: bool = True,
     ) -> Bfabric:
@@ -83,7 +83,10 @@ class Bfabric:
         :param config_file_env: explicit environment to use, if config file is selected as a config source
         :param include_auth: whether auth information should be included (for servers, setting this to False is useful)
         """
-        pass
+        config_data = load_config_data(
+            config_file_path=config_file_path, include_auth=include_auth, config_file_env=config_file_env
+        )
+        return cls(config_data=config_data)
 
     @classmethod
     def from_config(

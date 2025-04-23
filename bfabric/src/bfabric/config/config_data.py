@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 import json
 import os
 from pathlib import Path
 
 from pydantic import BaseModel
 
-from bfabric.config import BfabricClientConfig, BfabricAuth
+from bfabric.config import BfabricClientConfig, BfabricAuth  # noqa
 from bfabric.config.config_file import read_config
 
 
@@ -12,9 +14,14 @@ class ConfigData(BaseModel):
     client: BfabricClientConfig
     auth: BfabricAuth | None
 
+    def drop_auth(self) -> ConfigData:
+        """Returns a shallow copy of self with the auth field set to None."""
+        return ConfigData(client=self.client, auth=None)
 
-def _read_config_file(config_path: Path | str | None, fallback_config_env: str | None) -> ConfigData:
-    config_file_path = Path(config_path or "~/.bfabricpy.yml").expanduser()
+
+def _read_config_file(config_path: Path | str, fallback_config_env: str | None) -> ConfigData:
+    """Reads the config file and returns the config data."""
+    config_file_path = Path(config_path).expanduser()
     if not config_file_path.is_file():
         msg = f"No explicit config provided, and no config file found at {config_file_path}"
         raise OSError(msg)
@@ -25,12 +32,15 @@ def _read_config_file(config_path: Path | str | None, fallback_config_env: str |
     return ConfigData(client=config, auth=auth)
 
 
-def load_config_data(config_path: Path | str | None = None, fallback_config_env: str | None = None) -> ConfigData:
+def load_config_data(
+    config_file_path: Path | str, include_auth: bool, config_file_env: str | None = None
+) -> ConfigData:
     """Loads the configuration data."""
     if "BFABRICPY_CONFIG_DATA" in os.environ:
-        return ConfigData.model_validate_json(os.environ["BFABRICPY_CONFIG_DATA"])
+        config_data = ConfigData.model_validate_json(os.environ["BFABRICPY_CONFIG_DATA"])
     else:
-        return _read_config_file(config_path=config_path, fallback_config_env=fallback_config_env)
+        config_data = _read_config_file(config_path=config_file_path, fallback_config_env=config_file_env)
+    return config_data if include_auth else config_data.drop_auth()
 
 
 def export_config_data(config_data: ConfigData) -> str:
