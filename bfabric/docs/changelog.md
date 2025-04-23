@@ -16,12 +16,11 @@ This is because it will allow round-trip passing of the configuration to subproc
 ### Breaking
 
 - `default` is forbidden as an environment config name now.
-- `Bfabric.from_token` signature is changed, but no known users of this API so it shouldn't be too breaking.
+- `Bfabric.from_token` is renamed to `Bfabric.connect_webapp()`, but no known users of this API so it shouldn't be too breaking.
 
 ### Added
 
-- New API for configuring the `Bfabric` client which **replaces** the existing `Bfabric.from_config`, which is
-    deprecated now.
+- `Bfabric.connect()` which **replaces** the existing `Bfabric.from_config`, which is deprecated now.
 
 ## \[1.13.25\] - 2025-04-22
 

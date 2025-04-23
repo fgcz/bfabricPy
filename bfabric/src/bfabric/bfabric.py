@@ -121,7 +121,7 @@ class Bfabric:
         return cls(ConfigData(client=config, auth=auth_used))
 
     @classmethod
-    def from_token(
+    def connect_webapp(
         cls,
         token: str,
         *,

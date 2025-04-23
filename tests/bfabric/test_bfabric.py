@@ -115,7 +115,7 @@ def test_from_token(mocker, mock_config):
     )
     mocker.patch.object(Bfabric, "_log_version_message")
 
-    client, data = Bfabric.from_token(token="test_token")
+    client, data = Bfabric.connect_webapp(token="test_token")
 
     assert client.auth.login == "test_user"
     assert client.auth.password == SecretStr("x" * 32)
