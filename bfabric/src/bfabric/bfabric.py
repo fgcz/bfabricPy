@@ -44,9 +44,8 @@ if TYPE_CHECKING:
 
 class Bfabric:
     """Bfabric client class, providing general functionality for interaction with the B-Fabric API.
-    Use `Bfabric.from_config` to create a new instance.
-    :param config: Configuration object
-    :param auth: Authentication object (if `None`, it has to be provided using the `with_auth` context manager)
+
+    Use `Bfabric.from_config` to create a new instance. (TODO will need updating)
     """
 
     def __init__(self, config_data: ConfigData) -> None:
