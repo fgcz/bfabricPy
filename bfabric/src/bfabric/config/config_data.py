@@ -34,7 +34,9 @@ def _read_config_file(config_path: Path | str, force_config_env: str | None) -> 
 
 
 def load_config_data(
-    config_file_path: Path | str, include_auth: bool, config_file_env: str | Literal["default"] | None
+    config_file_path: Path | str,
+    config_file_env: str | Literal["default"] | None,
+    include_auth: bool,
 ) -> ConfigData:
     """Loads the configuration data."""
     if "BFABRICPY_CONFIG_DATA" in os.environ:

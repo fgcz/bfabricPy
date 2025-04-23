@@ -23,7 +23,7 @@ def config_data(client_config, auth_config):
 
 def test_load_config_from_env(mocker, config_data):
     mocker.patch.dict(os.environ, {"BFABRICPY_CONFIG_DATA": export_config_data(config_data)})
-    loaded_config = load_config_data(config_file_path="~/bfabricpy.yml", include_auth=True)
+    loaded_config = load_config_data(config_file_path="~/bfabricpy.yml", config_file_env="default", include_auth=True)
     assert loaded_config == config_data
 
 
