@@ -10,8 +10,18 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
-This release brings a new way to configure the `Bfabric` client through an environment variable completely.
-This is because it will allow round-trip passing of the configuration to subprocesses in the future.
+### Summary
+
+This release introduces an environment variable `BFABRICPY_CONFIG_DATA` to configure the `Bfabric` client completely,
+along with a new method for creating an instance of the `Bfabric` client, `Bfabric.connect()`.
+This will allow us to propagate any configuration to subprocesses reliably. `BFABRICPY_CONFIG_ENV` remains available
+with the same semantics, but lower priority to `BFABRICPY_CONFIG_DATA`.
+
+One limitation is that the content of this environment variable may not be compatible across bfabricPy versions, but
+failures to validate.
+
+Hacking this functionality into the existing `Bfabric.from_config` method would have too many risky side effects,
+so this is provided as a new method and the old one is deprecated.
 
 ### Breaking
 
