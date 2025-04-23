@@ -46,7 +46,7 @@ if TYPE_CHECKING:
 class Bfabric:
     """Bfabric client class, providing general functionality for interaction with the B-Fabric API.
 
-    Use `Bfabric.connect()` or `Bfabric.from_token` to create a new instance, and check out their docstrings for
+    Use `Bfabric.connect()` or `Bfabric.connect_webapp` to create a new instance, and check out their docstrings for
     more details on how to use.
     """
 

@@ -106,7 +106,7 @@ def test_from_config_when_engine_zeep(mocker, mock_auth):
     mock_get_system_auth.assert_called_once_with(config_env=None, config_path=None)
 
 
-def test_from_token(mocker, mock_config):
+def test_connect_webapp(mocker, mock_config):
     mock_load_config_data = mocker.patch(
         "bfabric.bfabric.load_config_data", return_value=ConfigData(client=mock_config, auth=None)
     )
