@@ -407,7 +407,3 @@ def test_log_version_message(mocker, bfabric_instance):
     mock_logger = mocker.patch("bfabric.bfabric.logger")
     bfabric_instance._log_version_message()
     assert mock_logger.info.mock_calls == [call("line1"), call("line2")]
-
-
-if __name__ == "__main__":
-    unittest.main()
