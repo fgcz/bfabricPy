@@ -46,7 +46,8 @@ if TYPE_CHECKING:
 class Bfabric:
     """Bfabric client class, providing general functionality for interaction with the B-Fabric API.
 
-    Use `Bfabric.from_config` to create a new instance. (TODO will need updating)
+    Use `Bfabric.connect()` or `Bfabric.from_token` to create a new instance, and check out their docstrings for
+    more details on how to use.
     """
 
     def __init__(self, config_data: ConfigData) -> None:
