@@ -15,22 +15,24 @@ Versioning currently follows `X.Y.Z` where
 This release introduces an environment variable `BFABRICPY_CONFIG_OVERRIDE` to configure the `Bfabric` client completely,
 along with a new method for creating an instance of the `Bfabric` client, `Bfabric.connect()`.
 This will allow us to propagate any configuration to subprocesses reliably. `BFABRICPY_CONFIG_ENV` remains available
-with the same semantics, but lower priority to `BFABRICPY_CONFIG_OVERRIDE`.
+with the same semantics, but lower priority than `BFABRICPY_CONFIG_OVERRIDE`.
 
-One limitation is that the content of this environment variable may not be compatible across bfabricPy versions, but
-failures to validate.
-
-Hacking this functionality into the existing `Bfabric.from_config` method would have too many risky side effects,
-so this is provided as a new method and the old one is deprecated.
-
-### Breaking
-
-- `default` is forbidden as an environment config name now.
-- `Bfabric.from_token` is renamed to `Bfabric.connect_webapp()`, but no known users of this API so it shouldn't be too breaking.
+This also simplifies the logic that was present in `Bfabric.from_config` which is why this introduced with a new API
+to prevent configuration mix-ups.
 
 ### Added
 
-- `Bfabric.connect()` which **replaces** the existing `Bfabric.from_config`, which is deprecated now.
+- New environment variable `BFABRICPY_CONFIG_OVERRIDE` to configure the `Bfabric` client completely
+- New method `Bfabric.connect()` for creating an instance of the `Bfabric` client
+
+### Changed
+
+- Renamed `Bfabric.from_token` to `Bfabric.connect_webapp()` (along with some changes, no known users of this API yet)
+- Disallowed `default` as an environment config name
+
+### Deprecated
+
+- `Bfabric.from_config` is now deprecated in favor of `Bfabric.connect()`
 
 ## \[1.13.25\] - 2025-04-22
 
