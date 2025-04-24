@@ -13,6 +13,7 @@ Versioning currently follows `X.Y.Z` where
 ### Removed
 
 - Removed `bfabric_delete.py`. Use `bfabric-cli api delete` instead.
+- Removed `bfabric_list_not_available_proteomics_workunits.py`. Use `bfabric-cli workunit not-available` instead.
 
 ## \[1.13.27\] - 2025-04-22
 
