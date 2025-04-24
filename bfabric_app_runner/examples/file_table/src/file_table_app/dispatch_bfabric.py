@@ -51,7 +51,7 @@ def dispatch(workunit_definition_path: Path, work_dir: Path, *, client: Bfabric)
     _write_yaml_file(work_dir / "chunks.yml", {"chunks": [str(chunk_dir)]})
 
 
-def _clean_input_dataframe(df: pl.DataFrame) -> pl.Dataframe:
+def _clean_input_dataframe(df: pl.DataFrame) -> pl.DataFrame:
     return df.clean_names(remove_special=True).select(pl.col("resource"), pl.col("relative_path"))
 
 
