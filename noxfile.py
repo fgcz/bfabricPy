@@ -161,3 +161,18 @@ def check_changelog(session: nox.Session):
 
     for package in packages:
         verify_changelog_version(session, package)
+
+
+@nox.session
+def check_test_inits(session):
+    """Fail if __init__.py files exist in tests directory"""
+    # Use pathlib to find all __init__.py files in the tests directory
+    tests_dir = Path("tests")
+    init_files = list(tests_dir.glob("**/__init__.py"))
+
+    if init_files:
+        # __init__.py files were found
+        session.error("❌ __init__.py files detected in tests directory")
+    else:
+        # No __init__.py files found
+        session.log("✓ No __init__.py files found in tests directory")
