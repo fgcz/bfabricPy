@@ -30,7 +30,7 @@ def use_client(fn: Any, setup_logging: bool = True) -> Any:
     def wrapper(*args: Any, **kwargs: Any) -> Any:
         if setup_logging:
             setup_script_logging()
-        client = kwargs.pop("client") if "client" in kwargs else Bfabric.from_config()
+        client = kwargs.pop("client") if "client" in kwargs else Bfabric.connect()
         return fn(*args, **kwargs, client=client)
 
     # Update the signature of the wrapper
