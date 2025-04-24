@@ -101,6 +101,12 @@ def test_auth_when_provided(mock_config, mock_engine, mock_auth):
     assert bfabric_instance.auth == mock_auth
 
 
+def test_config_data(mock_config, mock_auth):
+    config_data = ConfigData(client=mock_config, auth=mock_auth)
+    bfabric_instance = Bfabric(config_data)
+    assert bfabric_instance.config_data == config_data
+
+
 def test_with_auth(mocker, bfabric_instance):
     mock_old_auth = mocker.MagicMock(name="mock_old_auth")
     mock_new_auth = mocker.MagicMock(name="mock_new_auth")

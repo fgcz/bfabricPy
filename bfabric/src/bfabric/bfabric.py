@@ -161,6 +161,11 @@ class Bfabric:
             raise ValueError("Authentication not available")
         return self._auth
 
+    @property
+    def config_data(self) -> ConfigData:
+        """Returns the config data object."""
+        return ConfigData(client=self._config, auth=self._auth)
+
     @contextmanager
     def with_auth(self, auth: BfabricAuth) -> Generator[None, None, None]:
         """Context manager that temporarily (within the scope of the context) sets the authentication for
