@@ -36,7 +36,7 @@ class Variables(BaseModel):
     app: VariablesApp
     workunit: VariablesWorkunit | None
 
-    def as_dict(self) -> dict[str, VariablesApp]:
+    def as_dict(self) -> dict[str, VariablesApp | VariablesWorkunit | None]:
         return {"app": self.app, "workunit": self.workunit}
 
 
