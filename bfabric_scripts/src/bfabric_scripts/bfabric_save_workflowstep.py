@@ -25,7 +25,7 @@ from bfabric import Bfabric
 
 def save_workflowstep(workunit_id: int | None = None) -> None:
     """Creates an analysis workflow step for a given workunit id."""
-    client = Bfabric.from_config()
+    client = Bfabric.connect()
     workflowtemplatestep_ids = {
         224: 247,  # MaxQuant
         # 295: 248, # FragPipe-RESOURCE
