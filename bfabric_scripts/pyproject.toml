@@ -32,7 +32,6 @@ excel = ["fastexcel"]
 "bfabric_setWorkunitStatus_available.py" = "bfabric_scripts.bfabric_setWorkunitStatus:main_available"
 "bfabric_setWorkunitStatus_processing.py" = "bfabric_scripts.bfabric_setWorkunitStatus:main_processing"
 "bfabric_setWorkunitStatus_failed.py" = "bfabric_scripts.bfabric_setWorkunitStatus:main_failed"
-"bfabric_delete.py" = "bfabric_scripts.bfabric_delete:main"
 "bfabric_read.py" = "bfabric_scripts.bfabric_read:main"
 "bfabric_read_samples_of_workunit.py" = "bfabric_scripts.bfabric_read_samples_of_workunit:main"
 "bfabric_read_samples_from_dataset.py" = "bfabric_scripts.bfabric_read_samples_from_dataset:main"
