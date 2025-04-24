@@ -9,10 +9,10 @@ versions:
       dispatch:
         type: shell
         command: |
-          uv run --locked --project /Users/leo/code/bfabricPy/bfabric_app_runner/examples/file_table
+          uv run --locked --project /scratch/leo/code/bfabricPy/bfabric_app_runner/examples/file_table
           -m file_table.dispatch
       process:
         type: shell
         command: |
-          uv run --locked --project /Users/leo/code/bfabricPy/bfabric_app_runner/examples/file_table
+          uv run --locked --project /scratch/leo/code/bfabricPy/bfabric_app_runner/examples/file_table
           snakemake
