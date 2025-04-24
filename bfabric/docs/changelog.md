@@ -10,7 +10,7 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
-### Summary
+## \[1.13.26\] - 2025-04-26
 
 This release introduces an environment variable `BFABRICPY_CONFIG_OVERRIDE` to configure the `Bfabric` client completely,
 along with a new method for creating an instance of the `Bfabric` client, `Bfabric.connect()`.
