@@ -1,18 +1,16 @@
-# TODO we need better means to handle the path to the app? or at least like a way to make the path relative to the
-#      yaml available as a make template arg, maybe then we could already handle most of the issues
 bfabric:
-  app_runner: refactor-submitter
+  app_runner: 'git+https://github.com/fgcz/bfabricPy@refactor-submitter#subdirectory=bfabric_app_runner'
 versions:
   - version:
       - 0.1.0
     commands:
       dispatch:
         type: shell
-        command: |
+        command: >
           uv run --locked --project /scratch/leo/code/bfabricPy/bfabric_app_runner/examples/file_table
-          -m file_table.dispatch
+          -m file_table_app.dispatch_bfabric
       process:
         type: shell
-        command: |
-          uv run --locked --project /scratch/leo/code/bfabricPy/bfabric_app_runner/examples/file_table
-          snakemake
+        command: bash /scratch/leo/code/bfabricPy/bfabric_app_runner/examples/file_table/process.bash
+    submitter:
+      name: slurm
