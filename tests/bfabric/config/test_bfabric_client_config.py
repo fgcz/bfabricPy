@@ -96,20 +96,12 @@ def test_bfabric_config_read_yml_bypath_environment_variable(
     logot.assert_logged(logged.debug("found BFABRICPY_CONFIG_ENV = TEST"))
 
 
-def test_repr(mock_config: BfabricClientConfig) -> None:
-    rep = repr(mock_config)
+@pytest.mark.parametrize("variant", [repr, str])
+def test_repr(mock_config: BfabricClientConfig, variant) -> None:
+    rep = variant(mock_config)
     assert rep == (
         "BfabricClientConfig(base_url='https://example.com/', application_ids={'app': 1}, job_notification_emails='',"
-        " engine=<BfabricAPIEngineType.SUDS: 'SUDS'>)"
-    )
-
-
-def test_str(mock_config: BfabricClientConfig) -> None:
-    rep = str(mock_config)
-    print(rep)
-    assert rep == (
-        "BfabricClientConfig(base_url='https://example.com/', application_ids={'app': 1}, job_notification_emails='',"
-        " engine=<BfabricAPIEngineType.SUDS: 'SUDS'>)"
+        " engine=BfabricAPIEngineType.SUDS)"
     )
 
 
