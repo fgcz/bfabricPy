@@ -1,7 +1,7 @@
 # TODO we need better means to handle the path to the app? or at least like a way to make the path relative to the
 #      yaml available as a make template arg, maybe then we could already handle most of the issues
 bfabric:
-  app_runner: main
+  app_runner: demo-app
 versions:
   - version:
       - 0.1.0
