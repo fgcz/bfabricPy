@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Added
+
+- Attribute `Bfabric.config_data` to obtain a `ConfigData` object directly.
+
 ## \[1.13.26\] - 2025-04-26
 
 This release introduces an environment variable `BFABRICPY_CONFIG_OVERRIDE` to configure the `Bfabric` client completely,
