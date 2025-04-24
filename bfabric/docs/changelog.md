@@ -29,6 +29,7 @@ to prevent configuration mix-ups.
 
 - Renamed `Bfabric.from_token` to `Bfabric.connect_webapp()` (along with some changes, no known users of this API yet)
 - Disallowed `default` as an environment config name
+- `bfabric.cli_integration.utils.use_client` uses `Bfabric.connect()` instead of `Bfabric.from_config()`
 
 ### Deprecated
 
