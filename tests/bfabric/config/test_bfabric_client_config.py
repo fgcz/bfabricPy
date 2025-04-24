@@ -6,7 +6,7 @@ from logot import Logot, logged
 from pytest_mock import MockerFixture
 
 from bfabric.config import BfabricClientConfig
-from bfabric.config.config_file import read_config
+from bfabric.config.config_file import read_config_file
 
 
 @pytest.fixture
@@ -68,7 +68,7 @@ def test_bfabric_config_read_yml_bypath_default(mocker: MockerFixture, example_c
     # Ensure environment variable is not available, and the default is environment is loaded
     mocker.patch.dict(os.environ, {}, clear=True)
 
-    config, auth = read_config(example_config_path)
+    config, auth = read_config_file(example_config_path)
     assert auth.login == "my_epic_production_login"
     assert auth.password.get_secret_value() == "01234567890123456789012345678901"
     assert config.base_url == "https://mega-production-server.uzh.ch/myprod"
@@ -85,7 +85,7 @@ def test_bfabric_config_read_yml_bypath_environment_variable(
     # Explicitly set the environment variable for this process
     mocker.patch.dict(os.environ, {"BFABRICPY_CONFIG_ENV": "TEST"}, clear=True)
 
-    config, auth = read_config(example_config_path)
+    config, auth = read_config_file(example_config_path)
     assert auth.login == "my_epic_test_login"
     assert auth.password.get_secret_value() == "012345678901234567890123456789ff"
     assert config.base_url == "https://mega-test-server.uzh.ch/mytest"

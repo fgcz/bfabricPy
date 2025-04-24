@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from logot import logged, Logot
 
-from bfabric.config.config_file import ConfigFile, GeneralConfig, EnvironmentConfig, read_config
+from bfabric.config.config_file import ConfigFile, GeneralConfig, EnvironmentConfig, read_config_file
 
 
 @pytest.fixture()
@@ -133,7 +133,7 @@ class TestReadConfig:
         return Path(__file__).parent / "example_config.yml"
 
     def test_bypath_all_fields(self, example_config_path: Path) -> None:
-        config, auth = read_config(example_config_path, config_env="TEST")
+        config, auth = read_config_file(example_config_path, config_env="TEST")
         applications_dict_ground_truth = {
             "Proteomics/CAT_123": 7,
             "Proteomics/DOG_552": 6,
@@ -149,7 +149,7 @@ class TestReadConfig:
         assert config.job_notification_emails == job_notification_emails_ground_truth
 
     def test_when_empty_optional(self, example_config_path: Path, logot: Logot) -> None:
-        config, auth = read_config(example_config_path, config_env="STANDBY")
+        config, auth = read_config_file(example_config_path, config_env="STANDBY")
         assert auth is None
         assert config.base_url == "https://standby-server.uzh.ch/mystandby"
         assert config.application_ids == {}

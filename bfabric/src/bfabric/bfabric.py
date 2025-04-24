@@ -31,7 +31,7 @@ from bfabric.config import BfabricAuth
 from bfabric.config import BfabricClientConfig
 from bfabric.config.bfabric_client_config import BfabricAPIEngineType
 from bfabric.config.config_data import ConfigData, load_config_data
-from bfabric.config.config_file import read_config
+from bfabric.config.config_file import read_config_file
 from bfabric.engine.engine_suds import EngineSUDS
 from bfabric.engine.engine_zeep import EngineZeep
 from bfabric.rest.token_data import get_token_data, TokenData
@@ -404,7 +404,7 @@ def get_system_auth(
 
     # Load config from file, override some of the fields with the provided ones
     else:
-        config, auth = read_config(resolved_path, config_env=config_env)
+        config, auth = read_config_file(resolved_path, config_env=config_env)
         config = config.copy_with(base_url=base_url)
         if (login is not None) and (password is not None):
             auth = BfabricAuth(login=login, password=password)

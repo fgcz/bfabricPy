@@ -97,7 +97,7 @@ class ConfigFile(BaseModel):
         return self.environments[self.get_selected_config_env(explicit_config_env=explicit_config_env)]
 
 
-def read_config(
+def read_config_file(
     config_path: str | Path,
     config_env: str | None = None,
 ) -> tuple[BfabricClientConfig, BfabricAuth | None]:
