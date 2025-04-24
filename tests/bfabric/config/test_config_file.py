@@ -1,6 +1,9 @@
-import pytest
+from pathlib import Path
 
-from bfabric.config.config_file import ConfigFile, GeneralConfig, EnvironmentConfig
+import pytest
+from logot import logged, Logot
+
+from bfabric.config.config_file import ConfigFile, GeneralConfig, EnvironmentConfig, read_config_file
 
 
 @pytest.fixture()
@@ -115,6 +118,45 @@ def test_get_selected_config(config_with_auth, mocker):
     mock_get_config_env = mocker.patch.object(ConfigFile, "get_selected_config_env", return_value="PRODUCTION")
     assert config_with_auth.get_selected_config() == config_with_auth.environments["PRODUCTION"]
     mock_get_config_env.assert_called_once_with(explicit_config_env=None)
+
+
+def test_reject_env_name_default(mocker, data_no_auth):
+    data_no_auth["default"] = {"base_url": "https://example.com"}
+    with pytest.raises(ValueError) as error:
+        ConfigFile.model_validate(data_no_auth)
+    assert "Environment name 'default' is reserved." in str(error.value)
+
+
+class TestReadConfig:
+    @pytest.fixture
+    def example_config_path(self) -> Path:
+        return Path(__file__).parent / "example_config.yml"
+
+    def test_bypath_all_fields(self, example_config_path: Path) -> None:
+        config, auth = read_config_file(example_config_path, config_env="TEST")
+        applications_dict_ground_truth = {
+            "Proteomics/CAT_123": 7,
+            "Proteomics/DOG_552": 6,
+            "Proteomics/DUCK_666": 12,
+        }
+
+        job_notification_emails_ground_truth = "john.snow@fgcz.uzh.ch billy.the.kid@fgcz.ethz.ch"
+
+        assert auth.login == "my_epic_test_login"
+        assert auth.password.get_secret_value() == "012345678901234567890123456789ff"
+        assert config.base_url == "https://mega-test-server.uzh.ch/mytest"
+        assert config.application_ids == applications_dict_ground_truth
+        assert config.job_notification_emails == job_notification_emails_ground_truth
+
+    def test_when_empty_optional(self, example_config_path: Path, logot: Logot) -> None:
+        config, auth = read_config_file(example_config_path, config_env="STANDBY")
+        assert auth is None
+        assert config.base_url == "https://standby-server.uzh.ch/mystandby"
+        assert config.application_ids == {}
+        assert config.job_notification_emails == ""
+        logot.assert_logged(
+            logged.debug(f"Reading configuration from: {str(example_config_path.absolute())} config_env='STANDBY'")
+        )
 
 
 if __name__ == "__main__":
