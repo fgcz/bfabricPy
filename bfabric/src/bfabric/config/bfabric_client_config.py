@@ -14,6 +14,9 @@ class BfabricAPIEngineType(str, Enum):
     SUDS = "SUDS"
     ZEEP = "ZEEP"
 
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}.{self.name}"
+
 
 class BfabricClientConfig(BaseModel):
     """Holds the configuration for the B-Fabric client for connecting to particular instance of B-Fabric.

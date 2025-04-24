@@ -3,11 +3,11 @@ import re
 from pathlib import Path
 
 import pytest
+from bfabric.config.config_data import ConfigData
+from bfabric.engine.engine_suds import EngineSUDS
 from pydantic import SecretStr
 
 from bfabric import Bfabric, BfabricAPIEngineType, BfabricClientConfig, BfabricAuth
-from bfabric.config.config_data import ConfigData
-from bfabric.engine.engine_suds import EngineSUDS
 
 
 @pytest.fixture
@@ -409,3 +409,12 @@ def test_log_version_message(mocker, bfabric_instance):
     mock_logger = mocker.patch("bfabric.bfabric.logger")
     bfabric_instance._log_version_message()
     assert mock_logger.info.mock_calls == [mocker.call("line1"), mocker.call("line2")]
+
+
+@pytest.mark.parametrize("variant", [repr, str])
+def test_repr(bfabric_instance, variant):
+    assert (
+        variant(bfabric_instance) == "Bfabric(config_data=ConfigData("
+        "client=BfabricClientConfig(base_url='https://example.com/api/', application_ids={}, "
+        "job_notification_emails='', engine=BfabricAPIEngineType.SUDS), auth=None))"
+    )

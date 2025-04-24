@@ -348,7 +348,8 @@ class Bfabric:
             logger.info(capture.get())
 
     def __repr__(self) -> str:
-        return f"Bfabric(config={repr(self.config)}, auth={repr(self.auth)}, engine={self._engine})"
+        config_data = ConfigData(client=self._config, auth=self._auth)
+        return f"Bfabric({config_data=})"
 
     __str__ = __repr__
 
