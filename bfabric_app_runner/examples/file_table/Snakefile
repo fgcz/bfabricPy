@@ -2,6 +2,7 @@ from file_table_app.compute_file_info import write_file_info_yaml
 from file_table_app.collect_info import write_index_markdown
 from pathlib import Path
 from zipfile import ZipFile
+import yaml
 
 input_file_paths = sorted(Path("input").glob("*"))
 input_file_names = [p.name for p in input_file_paths]
@@ -41,8 +42,11 @@ rule outputs_yml:
     run:
         content = {
             "outputs": [
-                "type": "bfabric_copy_resource",
-                "local_path": str(Path(input.zip).resolve()),
-                "store_enrty_path": "file_info.zip",
+                {
+                    "type": "bfabric_copy_resource",
+                    "local_path": str(Path(input.zip).resolve()),
+                    "store_entry_path": "file_info.zip",
+                }
             ]
         }
+        Path(output.yml).write_text(yaml.safe_dump(content))
