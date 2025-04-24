@@ -20,7 +20,12 @@ test = ["pytest", "pytest-mock", "logot[pytest,loguru]"]
 excel = ["fastexcel"]
 
 [project.scripts]
+"bfabric-cli" = "bfabric_scripts.cli.__main__:app"
+
+# TODO this should become a separate package
 "bfabric_flask.py" = "bfabric_scripts.bfabric_flask:main"
+
+# TODO Legacy CLI interfaces
 #bfabric_feeder_resource_autoQC="bfabric_scripts.bfabric_feeder_resource_autoQC:main"
 "bfabric_list_not_existing_storage_directories.py" = "bfabric_scripts.bfabric_list_not_existing_storage_directories:main"
 "bfabric_list_not_available_proteomics_workunits.py" = "bfabric_scripts.bfabric_list_not_available_proteomics_workunits:main"
@@ -45,5 +50,3 @@ excel = ["fastexcel"]
 "bfabric_save_workflowstep.py" = "bfabric_scripts.bfabric_save_workflowstep:main"
 "bfabric_slurm_queue_status.py" = "bfabric_scripts.bfabric_slurm_queue_status:main"
 "bfabric_save_resource_description.py" = "bfabric_scripts.bfabric_save_resource_description:main"
-
-"bfabric-cli" = "bfabric_scripts.cli.__main__:app"
