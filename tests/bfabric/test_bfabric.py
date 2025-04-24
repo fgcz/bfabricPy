@@ -30,6 +30,38 @@ def bfabric_instance(mock_config, mock_engine):
     return Bfabric(config_data=ConfigData(client=mock_config, auth=None))
 
 
+def test_connect_when_no_args(mocker):
+    mock_load_config_data = mocker.patch("bfabric.bfabric.load_config_data")
+    mock_log_version_message = mocker.patch.object(Bfabric, "_log_version_message")
+    client = Bfabric.connect()
+    assert client._config == mock_load_config_data.return_value.client
+    assert client._auth == mock_load_config_data.return_value.auth
+    mock_load_config_data.assert_called_once_with(
+        config_file_path=Path("~/.bfabricpy.yml"),
+        include_auth=True,
+        config_file_env="default",
+    )
+    mock_log_version_message.assert_called_once_with()
+
+
+def test_connect_with_custom_args(mocker):
+    mock_load_config_data = mocker.patch("bfabric.bfabric.load_config_data")
+    mock_log_version_message = mocker.patch.object(Bfabric, "_log_version_message")
+    client = Bfabric.connect(
+        config_file_path="mypath",
+        config_file_env=None,
+        include_auth=False,
+    )
+    assert client._config == mock_load_config_data.return_value.client
+    assert client._auth == mock_load_config_data.return_value.auth
+    mock_load_config_data.assert_called_once_with(
+        config_file_path="mypath",
+        include_auth=False,
+        config_file_env=None,
+    )
+    mock_log_version_message.assert_called_once_with()
+
+
 def test_from_config_when_no_args(mocker, mock_config, mock_auth):
     mock_get_system_auth = mocker.patch("bfabric.bfabric.get_system_auth")
     mock_engine_suds = mocker.patch("bfabric.bfabric.EngineSUDS")
