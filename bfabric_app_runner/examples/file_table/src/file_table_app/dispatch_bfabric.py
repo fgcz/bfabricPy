@@ -9,6 +9,7 @@ from bfabric.entities import Dataset
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric.utils.cli_integration import use_client
 from loguru import logger
+import janitor.polars  # noqa
 
 app = cyclopts.App()
 
