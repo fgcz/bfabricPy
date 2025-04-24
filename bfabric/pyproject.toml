@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "bfabric"
 description = "Python client for the B-Fabric API"
 readme = "../README.md"
-version = "1.13.25"
+version = "1.13.26"
 license = { text = "GPL-3.0" }
 authors = [
     { name = "Christian Panse", email = "cp@fgcz.ethz.ch" },
@@ -45,7 +45,7 @@ dev = [
     "ipython",
 ]
 doc = ["mkdocs", "mkdocs-material", "mkdocstrings[python]"]
-test = ["pytest", "pytest-mock", "logot[pytest,loguru]"]
+test = ["pytest", "pytest-mock", "logot[pytest,loguru]", "coverage"]
 typing = ["mypy", "types-requests", "lxml-stubs", "types-python-dateutil", "types-PyYAML"]
 
 [project.urls]

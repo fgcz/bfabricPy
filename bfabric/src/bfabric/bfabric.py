@@ -15,6 +15,8 @@ from __future__ import annotations
 
 import base64
 import importlib.metadata
+import sys
+import warnings
 from contextlib import contextmanager
 from datetime import datetime
 from functools import cached_property
@@ -22,14 +24,14 @@ from pathlib import Path
 from pprint import pprint
 from typing import Literal, Any, TYPE_CHECKING
 
-import sys
 from loguru import logger
 from rich.console import Console
 
-from bfabric.bfabric_config import read_config
 from bfabric.config import BfabricAuth
 from bfabric.config import BfabricClientConfig
 from bfabric.config.bfabric_client_config import BfabricAPIEngineType
+from bfabric.config.config_data import ConfigData, load_config_data
+from bfabric.config.config_file import read_config_file
 from bfabric.engine.engine_suds import EngineSUDS
 from bfabric.engine.engine_zeep import EngineZeep
 from bfabric.rest.token_data import get_token_data, TokenData
@@ -43,19 +45,15 @@ if TYPE_CHECKING:
 
 class Bfabric:
     """Bfabric client class, providing general functionality for interaction with the B-Fabric API.
-    Use `Bfabric.from_config` to create a new instance.
-    :param config: Configuration object
-    :param auth: Authentication object (if `None`, it has to be provided using the `with_auth` context manager)
+
+    Use `Bfabric.connect()` or `Bfabric.connect_webapp` to create a new instance, and check out their docstrings for
+    more details on how to use.
     """
 
-    def __init__(
-        self,
-        config: BfabricClientConfig,
-        auth: BfabricAuth | None,
-    ) -> None:
+    def __init__(self, config_data: ConfigData) -> None:
         self.query_counter = 0
-        self._config = config
-        self._auth = auth
+        self._config = config_data.client
+        self._auth = config_data.auth
         self._log_version_message()
 
     @cached_property
@@ -66,6 +64,35 @@ class Bfabric:
             return EngineZeep(base_url=self._config.base_url)
         else:
             raise ValueError(f"Unexpected engine type: {self.config.engine}")
+
+    @classmethod
+    def connect(
+        cls,
+        *,
+        config_file_path: Path | str = Path("~/.bfabricpy.yml"),
+        config_file_env: str | Literal["default"] | None = "default",
+        include_auth: bool = True,
+    ) -> Bfabric:
+        """Returns a new Bfabric instance.
+
+        If a `BFABRICPY_CONFIG_OVERRIDE` environment variable is set, all configuration will originate from it.
+
+        If it's not present, and `config_file_env` is not `None`, your config file (`~/.bfabricpy.yml` by default) will
+        be used instead.
+        If `config_file_env` is `"default"`, then if available the environment according to env variable
+        `BFABRICPY_CONFIG_ENV` will be used, otherwise the default environment in the config file will be used.
+        Otherwise, `config_file_env` specifies the name of the environment.
+
+        :param config_file_path: a non-standard configuration file to use, if config file is selected as a config source
+        :param config_file_env: name of environment to use, if config file is selected as a config source.
+            if `"default"` is specified, the default environment will be used.
+            if `None` is specified, the file will not be used as a config source.
+        :param include_auth: whether auth information should be included (for servers, setting this to False is useful)
+        """
+        config_data = load_config_data(
+            config_file_path=config_file_path, include_auth=include_auth, config_file_env=config_file_env
+        )
+        return cls(config_data=config_data)
 
     @classmethod
     def from_config(
@@ -91,33 +118,34 @@ class Bfabric:
         # TODO https://github.com/fgcz/bfabricPy/issues/164
         # if engine is not None:
         #    config = config.copy_with(engine=engine)
-        return cls(config, auth_used)
+        return cls(ConfigData(client=config, auth=auth_used))
 
     @classmethod
-    def from_token(
+    def connect_webapp(
         cls,
         token: str,
-        config_env: str | None = None,
-        config_path: str | None = None,
-        engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS,
+        *,
+        config_file_path: Path | str = Path("~/.bfabricpy.yml"),
+        config_file_env: str | Literal["default"] | None = "default",
     ) -> tuple[Bfabric, TokenData]:
         """Returns a new Bfabric instance, configured with the user configuration file and the provided token.
 
         Any authentication in the configuration file will be ignored, but it will be used to determine the correct
         B-Fabric instance.
         :param token: the token to use for authentication
-        :param config_env: the config environment to use (if not specified, see `from_config`)
-        :param config_path: the path to the config file (if not specified, see `from_config`)
-        :param engine: the engine to use for the API.
+        :param config_file_path: a non-standard configuration file to use, if config file is selected as a config source
+        :param config_file_env: name of environment to use, if config file is selected as a config source.
+            if `"default"` is specified, the default environment will be used.
+            if `None` is specified, the file will not be used as a config source.
         :return: a tuple of the Bfabric instance and the token data
         """
-        config, _ = get_system_auth(config_env=config_env, config_path=config_path)
-        # TODO https://github.com/fgcz/bfabricPy/issues/164
-        # if engine is not None:
-        #    config = config.copy_with(engine=engine)
-        token_data = get_token_data(client_config=config, token=token)
+        config_data = load_config_data(
+            config_file_path=config_file_path, include_auth=False, config_file_env=config_file_env
+        )
+        client_config = config_data.client
+        token_data = get_token_data(client_config=client_config, token=token)
         auth = BfabricAuth(login=token_data.user, password=token_data.user_ws_password)
-        return cls(config, auth), token_data
+        return cls(config_data.with_auth(auth)), token_data
 
     @property
     def config(self) -> BfabricClientConfig:
@@ -320,7 +348,8 @@ class Bfabric:
             logger.info(capture.get())
 
     def __repr__(self) -> str:
-        return f"Bfabric(config={repr(self.config)}, auth={repr(self.auth)}, engine={self._engine})"
+        config_data = ConfigData(client=self._config, auth=self._auth)
+        return f"Bfabric({config_data=})"
 
     __str__ = __repr__
 
@@ -357,6 +386,10 @@ def get_system_auth(
        otherwise an exception will be raised
     :param verbose:         Verbosity (TODO: resolve potential redundancy with logger)
     """
+    warnings.warn(
+        "get_system_auth is deprecated, use Bfabric.connect or Bfabric.from_token instead", DeprecationWarning
+    )
+
     resolved_path = Path(config_path or "~/.bfabricpy.yml").expanduser()
 
     # Use the provided config data from arguments instead of the file
@@ -371,7 +404,7 @@ def get_system_auth(
 
     # Load config from file, override some of the fields with the provided ones
     else:
-        config, auth = read_config(resolved_path, config_env=config_env)
+        config, auth = read_config_file(resolved_path, config_env=config_env)
         config = config.copy_with(base_url=base_url)
         if (login is not None) and (password is not None):
             auth = BfabricAuth(login=login, password=password)
