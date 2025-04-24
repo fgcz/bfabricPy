@@ -5,8 +5,8 @@ import pytest
 from logot import Logot, logged
 from pytest_mock import MockerFixture
 
-from bfabric.bfabric_config import read_config
 from bfabric.config import BfabricClientConfig
+from bfabric.config.config_file import read_config_file
 
 
 @pytest.fixture
@@ -19,7 +19,7 @@ def mock_config() -> BfabricClientConfig:
 
 @pytest.fixture
 def example_config_path() -> Path:
-    return Path(__file__).parents[1] / "example_config.yml"
+    return Path(__file__).parent / "example_config.yml"
 
 
 def test_bfabric_config_default_params_when_omitted() -> None:
@@ -68,12 +68,14 @@ def test_bfabric_config_read_yml_bypath_default(mocker: MockerFixture, example_c
     # Ensure environment variable is not available, and the default is environment is loaded
     mocker.patch.dict(os.environ, {}, clear=True)
 
-    config, auth = read_config(example_config_path)
+    config, auth = read_config_file(example_config_path)
     assert auth.login == "my_epic_production_login"
     assert auth.password.get_secret_value() == "01234567890123456789012345678901"
     assert config.base_url == "https://mega-production-server.uzh.ch/myprod"
 
-    logot.assert_logged(logged.debug(f"Reading configuration from: {str(example_config_path.absolute())}"))
+    logot.assert_logged(
+        logged.debug(f"Reading configuration from: {str(example_config_path.absolute())} config_env=None")
+    )
     logot.assert_logged(logged.debug("BFABRICPY_CONFIG_ENV not found, using default environment PRODUCTION"))
 
 
@@ -83,29 +85,23 @@ def test_bfabric_config_read_yml_bypath_environment_variable(
     # Explicitly set the environment variable for this process
     mocker.patch.dict(os.environ, {"BFABRICPY_CONFIG_ENV": "TEST"}, clear=True)
 
-    config, auth = read_config(example_config_path)
+    config, auth = read_config_file(example_config_path)
     assert auth.login == "my_epic_test_login"
     assert auth.password.get_secret_value() == "012345678901234567890123456789ff"
     assert config.base_url == "https://mega-test-server.uzh.ch/mytest"
 
-    logot.assert_logged(logged.debug(f"Reading configuration from: {str(example_config_path.absolute())}"))
+    logot.assert_logged(
+        logged.debug(f"Reading configuration from: {str(example_config_path.absolute())} config_env=None")
+    )
     logot.assert_logged(logged.debug("found BFABRICPY_CONFIG_ENV = TEST"))
 
 
-def test_repr(mock_config: BfabricClientConfig) -> None:
-    rep = repr(mock_config)
+@pytest.mark.parametrize("variant", [repr, str])
+def test_repr(mock_config: BfabricClientConfig, variant) -> None:
+    rep = variant(mock_config)
     assert rep == (
         "BfabricClientConfig(base_url='https://example.com/', application_ids={'app': 1}, job_notification_emails='',"
-        " engine=<BfabricAPIEngineType.SUDS: 'SUDS'>)"
-    )
-
-
-def test_str(mock_config: BfabricClientConfig) -> None:
-    rep = str(mock_config)
-    print(rep)
-    assert rep == (
-        "BfabricClientConfig(base_url='https://example.com/', application_ids={'app': 1}, job_notification_emails='',"
-        " engine=<BfabricAPIEngineType.SUDS: 'SUDS'>)"
+        " engine=BfabricAPIEngineType.SUDS)"
     )
 
 
