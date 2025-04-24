@@ -39,8 +39,8 @@ def load_config_data(
     include_auth: bool,
 ) -> ConfigData:
     """Loads the configuration data."""
-    if "BFABRICPY_CONFIG_DATA" in os.environ:
-        config_data = ConfigData.model_validate_json(os.environ["BFABRICPY_CONFIG_DATA"])
+    if "BFABRICPY_CONFIG_OVERRIDE" in os.environ:
+        config_data = ConfigData.model_validate_json(os.environ["BFABRICPY_CONFIG_OVERRIDE"])
     elif config_file_env is not None:
         config_file_env = os.environ.get("BFABRICPY_CONFIG_ENV") if config_file_env == "default" else config_file_env
         config_data = _read_config_file(config_path=config_file_path, force_config_env=config_file_env)

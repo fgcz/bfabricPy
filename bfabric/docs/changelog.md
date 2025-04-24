@@ -12,10 +12,10 @@ Versioning currently follows `X.Y.Z` where
 
 ### Summary
 
-This release introduces an environment variable `BFABRICPY_CONFIG_DATA` to configure the `Bfabric` client completely,
+This release introduces an environment variable `BFABRICPY_CONFIG_OVERRIDE` to configure the `Bfabric` client completely,
 along with a new method for creating an instance of the `Bfabric` client, `Bfabric.connect()`.
 This will allow us to propagate any configuration to subprocesses reliably. `BFABRICPY_CONFIG_ENV` remains available
-with the same semantics, but lower priority to `BFABRICPY_CONFIG_DATA`.
+with the same semantics, but lower priority to `BFABRICPY_CONFIG_OVERRIDE`.
 
 One limitation is that the content of this environment variable may not be compatible across bfabricPy versions, but
 failures to validate.

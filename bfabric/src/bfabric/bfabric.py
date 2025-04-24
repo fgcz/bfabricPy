@@ -75,7 +75,7 @@ class Bfabric:
     ) -> Bfabric:
         """Returns a new Bfabric instance.
 
-        If a `BFABRICPY_CONFIG_DATA` environment variable is set, all configuration will originate from it.
+        If a `BFABRICPY_CONFIG_OVERRIDE` environment variable is set, all configuration will originate from it.
 
         If it's not present, and `config_file_env` is not `None`, your config file (`~/.bfabricpy.yml` by default) will
         be used instead.

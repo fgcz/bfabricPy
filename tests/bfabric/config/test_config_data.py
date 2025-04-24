@@ -40,7 +40,7 @@ class TestLoadConfigData:
         return Path(__file__).parent / "example_config.yml"
 
     def test_from_env(self, mocker, config_data, config_data_value):
-        mocker.patch.dict(os.environ, {"BFABRICPY_CONFIG_DATA": config_data_value})
+        mocker.patch.dict(os.environ, {"BFABRICPY_CONFIG_OVERRIDE": config_data_value})
         loaded_config = load_config_data(
             config_file_path="~/bfabricpy.yml", config_file_env="default", include_auth=True
         )
@@ -49,7 +49,7 @@ class TestLoadConfigData:
     @pytest.mark.parametrize("include_auth", [True, False])
     def test_from_file_when_default(self, mocker, example_config_path, include_auth):
         mock_env = mocker.patch.dict(os.environ)
-        mock_env.pop("BFABRICPY_CONFIG_DATA", None)
+        mock_env.pop("BFABRICPY_CONFIG_OVERRIDE", None)
         mock_env.pop("BFABRICPY_CONFIG_ENV", None)
         loaded_config = load_config_data(
             config_file_path=example_config_path, config_file_env="default", include_auth=include_auth
@@ -63,7 +63,7 @@ class TestLoadConfigData:
     @pytest.mark.parametrize("include_auth", [True, False])
     def test_from_file_when_default_and_env(self, mocker, example_config_path, include_auth):
         mock_env = mocker.patch.dict(os.environ)
-        mock_env.pop("BFABRICPY_CONFIG_DATA", None)
+        mock_env.pop("BFABRICPY_CONFIG_OVERRIDE", None)
         mock_env["BFABRICPY_CONFIG_ENV"] = "TEST"
         loaded_config = load_config_data(
             config_file_path=example_config_path, config_file_env="default", include_auth=include_auth
@@ -77,7 +77,7 @@ class TestLoadConfigData:
     @pytest.mark.parametrize("include_auth", [True, False])
     def test_from_file_when_default_and_override(self, mocker, example_config_path, include_auth):
         mock_env = mocker.patch.dict(os.environ)
-        mock_env.pop("BFABRICPY_CONFIG_DATA", None)
+        mock_env.pop("BFABRICPY_CONFIG_OVERRIDE", None)
         mock_env["BFABRICPY_CONFIG_ENV"] = "PRODUCTION"
         loaded_config = load_config_data(
             config_file_path=example_config_path, config_file_env="TEST", include_auth=include_auth
@@ -90,14 +90,14 @@ class TestLoadConfigData:
 
     def test_from_file_not_allowed(self, mocker, example_config_path):
         mock_env = mocker.patch.dict(os.environ)
-        mock_env.pop("BFABRICPY_CONFIG_DATA", None)
+        mock_env.pop("BFABRICPY_CONFIG_OVERRIDE", None)
         mock_env["BFABRICPY_CONFIG_ENV"] = "TEST"
         with pytest.raises(ValueError, match="No configuration was found and config_file_env is set to None."):
             load_config_data(config_file_path=example_config_path, config_file_env=None, include_auth=True)
 
     def test_from_file_and_file_does_not_exist(self, mocker):
         mock_env = mocker.patch.dict(os.environ)
-        mock_env.pop("BFABRICPY_CONFIG_DATA", None)
+        mock_env.pop("BFABRICPY_CONFIG_OVERRIDE", None)
         mock_env["BFABRICPY_CONFIG_ENV"] = "TEST"
         with pytest.raises(OSError, match="No explicit config provided, and no config file found at"):
             load_config_data(config_file_path="/dev/null", config_file_env="TEST", include_auth=True)
