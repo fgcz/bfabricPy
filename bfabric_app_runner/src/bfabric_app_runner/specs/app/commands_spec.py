@@ -16,12 +16,6 @@ class CommandShell(BaseModel):
     command: str
     """The command to run, will be split by spaces and is not an actual shell script."""
 
-    env: dict[str, str] = {}
-    """Environment variables to set before executing the command."""
-
-    prepend_paths: list[Path] = []
-    """A list of paths to prepend to the PATH variable before executing the command."""
-
     def to_shell(self) -> list[str]:
         """Returns a shell command that can be used to run the specified command."""
         return shlex.split(self.command)
