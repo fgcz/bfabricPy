@@ -4,9 +4,69 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
-## Added
+### Added
+
+- The `static_file` input spec type has been integrated properly.
+- The workunit makefile now directly shows how to use the GitHub app runner version instead, which is sometimes required
+    while debugging.
+
+### Changed
+
+- Silence interpolate_config_strings log messages.
+- Update `bfabric` dependency to 1.13.24.
+
+### Fixed
+
+- Use most recent cyclopts version again, i.e. [issue 168](https://github.com/fgcz/bfabricPy/issues/168) is fixed.
+
+## \[0.0.21\] - 2025-03-27
+
+### Added
+
+- `workunit` can now be interpolated in config files.
+- `SubmittersSpec` to define a slurm submitter.
+
+### Changed
+
+- Submitter params in app definition, use key `params` rather than `config` to be more explicit.
+
+### Fixed
+
+- Temporary workaround for https://github.com/fgcz/bfabricPy/issues/168.
+
+## \[0.0.20\] - 2025-03-25
+
+### Changed
+
+- Input staging is now more efficient for large numbers of similar input types,
+    by batching the transformation into resolved operations.
+
+### Fixed
+
+- `workunit.mk` correctly chooses between `app_version.yml` and `app_definition.yml` depending on availability
+- Multiple inputs with the same output filename, will yield an error now.
+- File timestamps will not be modified anymore, if the file is already up-to-date.
+
+### Added
+
+- `SaveLinkSpec` to save a B-Fabric link e.g. to a workunit.
+
+### Removed
+
+- `file_scp` spec has been removed, one should use `file` instead (`FileSpec`)
+- A lot of the old input handling code has been removed, it should not cause any problems, but mentioning this in case
+    it shows up after the release.
+
+## \[0.0.19\] - 2025-02-28
+
+### Added
 
 - `dispatch_resource_flow` output table allows null filename
+- `--force-storage` is available in more commands now
+
+### Changed
+
+- The `workunit.mk` Makefile now specifies Python 3.13 in the uv venv, so it is more reliable.
 
 ## \[0.0.18\] - 2025-02-25
 

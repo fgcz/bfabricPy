@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../client/">
+        <link rel="prev" href="..">
       
       
-        <link rel="next" href="../good_to_know/">
+        <link rel="next" href="../entities/">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Entities - bfabricPy docs</title>
+        <title>Creating a Client - bfabricPy docs</title>
       
     
     
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#high-level-bfabricentities-api" class="md-skip">
+        <a href="#creating-a-client" class="md-skip">
           Skip to content
         </a>
       
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Entities
+              Creating a Client
             
           </span>
         </div>
@@ -175,28 +175,6 @@
       
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../client/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Creating a Client
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
     
   
   
@@ -206,13 +184,15 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
           
   
   
   <span class="md-ellipsis">
-    Entities
+    Creating a Client
     
   </span>
   
@@ -225,7 +205,7 @@
   
   
   <span class="md-ellipsis">
-    Entities
+    Creating a Client
     
   </span>
   
@@ -238,6 +218,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -246,44 +228,29 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#high-level-bfabricentities-api" class="md-nav__link">
+  <a href="#configuration-hierarchy" class="md-nav__link">
     <span class="md-ellipsis">
-      High-level bfabric.entities API
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="High-level bfabric.entities API">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#key-features" class="md-nav__link">
-    <span class="md-ellipsis">
-      Key Features
+      Configuration Hierarchy
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#entity" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#bfabricconnect" class="md-nav__link">
     <span class="md-ellipsis">
-      Entity
+      Bfabric.connect()
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#relationships" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#bfabricconnect_webapp" class="md-nav__link">
     <span class="md-ellipsis">
-      Relationships
+      Bfabric.connect_webapp()
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -291,6 +258,28 @@
   
 </nav>
       
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../entities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Entities
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -378,6 +367,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -386,44 +377,29 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#high-level-bfabricentities-api" class="md-nav__link">
+  <a href="#configuration-hierarchy" class="md-nav__link">
     <span class="md-ellipsis">
-      High-level bfabric.entities API
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="High-level bfabric.entities API">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#key-features" class="md-nav__link">
-    <span class="md-ellipsis">
-      Key Features
+      Configuration Hierarchy
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#entity" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#bfabricconnect" class="md-nav__link">
     <span class="md-ellipsis">
-      Entity
+      Bfabric.connect()
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#relationships" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#bfabricconnect_webapp" class="md-nav__link">
     <span class="md-ellipsis">
-      Relationships
+      Bfabric.connect_webapp()
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -443,35 +419,47 @@
 
 
 
-  <h1>Entities</h1>
-
-<h2 id="high-level-bfabricentities-api">High-level <code>bfabric.entities</code> API</h2>
-<p>The <code>bfabric.entities</code> module offers a high-level, <strong>read-only</strong> API for retrieval of entities in the B-Fabric system.</p>
-<p>This API is designed to simplify entity access by providing lazy-loading capabilities for associated entities. Entities within this module can maintain a reference to a B-Fabric client instance, enabling seamless integration and data retrieval.</p>
-<h3 id="key-features">Key Features</h3>
+<h1 id="creating-a-client">Creating a Client</h1>
+<p>The <code>Bfabric</code> class, commonly referred to as the client, provides the main interface in the package to interact
+with the B-Fabric system.</p>
+<p>In general <code>Bfabric.connect()</code> provides a convenient way to create a client instance.
+For B-Fabric web apps, there is <code>Bfabric.connect_webapp()</code> which parses the webapp token flow.</p>
+<h2 id="configuration-hierarchy">Configuration Hierarchy</h2>
 <ul>
-<li><strong>Read-Only Access</strong>: This module is strictly for read-only operations. None of the classes or methods should be used to modify the database.</li>
-<li><strong>Lazy-Loading</strong>: Entities are initialized with basic data as returned by a .read operation on its endpoint. However, associated entities are not loaded until explicitly requested, enhancing performance and reducing unnecessary data processing.</li>
-<li><strong>Modular Design</strong>: Only include generic functionality within this module. Avoid adding highly specific logic to ensure the module remains maintainable over time.</li>
-<li><strong>No Circular Imports</strong>: Ensure there are no circular dependencies between entities by deferring imports of other entities inside modules until all relevant modules are processed.</li>
+<li>If the <code>BFABRIC_CONFIG_DATA</code> environment variable is set, it will be used.</li>
+<li>Optionally: Config file (can be disabled with <code>config_file_env=None</code>).<ul>
+<li>Explicitly, in Python, specified environment name (e.g. <code>PRODUCTION</code>).</li>
+<li>Explicitly, in environment variable <code>BFABRICPY_CONFIG_ENV</code>, specified environment name (e.g. <code>PRODUCTION</code>).</li>
+<li>Default environment according to the config section</li>
 </ul>
-<h3 id="entity">Entity</h3>
-<p>Each entity has to provide the name of its B-Fabric entity classname as <code>ENDPOINT</code>.
-An entity is defined uniquely by its <code>classname</code> and <code>id</code>.</p>
-<p>Entities are initialized with the full result structure obtained from a <code>read</code> operation on its particular endpoint.
-A <code>return_id_only</code> result is generally not supposed to be used to initialize an entity instance and behavior is undefined as of now.
-In cases where it makes sense to operate on the ids, it's better to directly call the <code>Bfabric</code> client methods.</p>
-<p>Entities can be retrieved with the methods <code>Entity.find</code>, <code>Entity.find_all</code> and <code>Entity.find_by</code>.
-When loading multiple entities of the same type, <code>Entity.find_all</code> and <code>Entity.find_by</code> should be preferred.
-These two methods return a dictionary mapping entity ID to instance and this often helps avoid redundant API calls when expanding relationships over multiple entities.</p>
-<h3 id="relationships">Relationships</h3>
-<p>Custom descriptors are available which are used to represent relationships and enable lazy-loading of data.
-Currently the following descriptors are available:</p>
-<ul>
-<li><code>HasOne</code>: Defines a one-to-one relationship between entities.</li>
-<li><code>HasMany</code>: Defines a one-to-many relationship between entities.</li>
+</li>
 </ul>
-<p>Both support setting an additional argument <code>optional=True</code> which will ensure <code>None</code> (in the case of <code>HasOne</code>) and an empty collection (in the case of <code>HasMany</code>) are returned when there is no field at all in the result returned by the API.</p>
+<h2 id="bfabricconnect"><code>Bfabric.connect()</code></h2>
+<p>The most basic way to create a client is to use the <code>Bfabric.connect()</code> method:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+</span></code></pre></div>
+<p>If you set <code>BFABRIC_CONFIG_DATA</code> it will be respected.
+By default, the value of <code>config_file_env</code> is set to <code>"default"</code>, which means that if no <code>BFABRIC_CONFIG_DATA</code> is set,
+then <code>BFABRICPY_CONFIG_ENV</code> or the default from the <code>~/.bfabricpy.yml</code> file will be used.</p>
+<p>If you do not want to have this fallback, you should set this option to <code>None</code> which is recommended e.g. for tests.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">config_file_env</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span></code></pre></div>
+<p>Of course, you can also specify a name of an environment.
+This will take precedence over the <code>BFABRICPY_CONFIG_ENV</code> environment variable.
+However, if <code>BFABRIC_CONFIG_DATA</code> is set, that will be used instead.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">config_file_env</span><span class="o">=</span><span class="s2">&quot;PRODUCTION&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+<h2 id="bfabricconnect_webapp"><code>Bfabric.connect_webapp()</code></h2>
+<p>Please check the docstring of the method.
+In general, you have to pass the <code>token</code> received from the webapp request and this factory method
+will create a tuple of a <code>Bfabric</code> client and <code>TokenData</code> which you can process further to e.g. identify the
+entity on which the app was launched in B-Fabric.</p>
 
 
 
