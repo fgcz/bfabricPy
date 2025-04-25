@@ -1,7 +1,9 @@
 import os
 from pathlib import Path
 
-from bfabric_app_runner.specs.app.commands_spec import MountOptions, CommandDocker, CommandShell
+import pytest
+
+from bfabric_app_runner.specs.app.commands_spec import MountOptions, CommandDocker, CommandShell, CommandExec
 
 
 class TestMountOptions:
@@ -87,6 +89,37 @@ class TestCommandShell:
             "import sys; print('Hello from Python')",
             "--verbose",
         ]
+
+
+class TestCommandExec:
+    @pytest.fixture
+    def command_minimal(self):
+        return CommandExec(command="echo 'hello world'")
+
+    @pytest.fixture
+    def command_full(self):
+        return CommandExec(
+            command='bash -c \'echo "hello $NAME" && echo "$PATH"\'',
+            env={"NAME": "sun"},
+            prepend_paths=[Path("/usr/local/bin"), Path("~/bin")],
+        )
+
+    def test_minimal(self, command_minimal):
+        assert command_minimal.to_shell() == ["echo", "hello world"]
+        assert command_minimal.to_shell_env({}) == {}
+        assert command_minimal.to_shell_env({"NAME": "world"}) == {"NAME": "world"}
+
+    def test_full(self, mocker, command_full):
+        mocker.patch.dict("os.environ", {"HOME": "/home/user"})
+        assert command_full.to_shell() == ["bash", "-c", 'echo "hello $NAME" && echo "$PATH"']
+        assert command_full.to_shell_env({}) == {
+            "NAME": "sun",
+            "PATH": "/usr/local/bin:/home/user/bin:",
+        }
+        assert command_full.to_shell_env({"NAME": "world"}) == {
+            "NAME": "sun",
+            "PATH": "/usr/local/bin:/home/user/bin:",
+        }
 
 
 class TestCommandDocker:

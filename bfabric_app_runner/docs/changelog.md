@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - The `static_file` input spec type has been integrated properly.
 - The workunit makefile now directly shows how to use the GitHub app runner version instead, which is sometimes required
     while debugging.
+- `CommandExec` allows prepending paths to `PATH` and setting environment variables and is less ambiguous than `shell`.
 
 ### Changed
 
