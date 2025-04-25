@@ -12,6 +12,9 @@ class MockCommand(BaseModel):
     def to_shell(self) -> list[str]:
         return ["mock-command"]
 
+    def to_shell_env(self, environ=None) -> dict[str, str]:
+        return {"MOCK_ENV_VAR": "mock_value"}
+
 
 class MockCommands(BaseModel):
     dispatch: MockCommand = MockCommand()
@@ -87,7 +90,9 @@ def test_runner_run_dispatch(mocker, mock_app_version, mock_bfabric, tmp_path):
 
     runner.run_dispatch(workunit_ref, work_dir)
 
-    mock_run.assert_called_once_with(["mock-command", str(workunit_ref), str(work_dir)], check=True)
+    mock_run.assert_called_once_with(
+        ["mock-command", str(workunit_ref), str(work_dir)], check=True, env={"MOCK_ENV_VAR": "mock_value"}
+    )
 
 
 def test_runner_run_prepare_input(mocker, mock_app_version, mock_bfabric, tmp_path):
@@ -117,7 +122,7 @@ def test_runner_run_process(mocker, mock_app_version, mock_bfabric, tmp_path):
 
     runner.run_process(chunk_dir)
 
-    mock_run.assert_called_once_with(["mock-command", str(chunk_dir)], check=True)
+    mock_run.assert_called_once_with(["mock-command", str(chunk_dir)], check=True, env={"MOCK_ENV_VAR": "mock_value"})
 
 
 def test_run_app_full_workflow(mocker, mock_app_version, mock_bfabric, mock_workunit_definition, setup_work_dir):
