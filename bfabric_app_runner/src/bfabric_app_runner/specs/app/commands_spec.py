@@ -38,7 +38,10 @@ class CommandExec(BaseModel):
     """Environment variables to set before executing the command."""
 
     prepend_paths: list[Path] = []
-    """A list of paths to prepend to the PATH variable before executing the command."""
+    """A list of paths to prepend to the PATH variable before executing the command.
+
+    If multiple paths are specified, the first one will be the first in PATH, etc.
+    """
 
     def to_shell(self) -> list[str]:
         """Returns a shell command that can be used to run the specified command."""
