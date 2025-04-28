@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import shlex
 import subprocess
 from pathlib import Path
@@ -26,7 +27,7 @@ class Runner:
 
     def run_dispatch(self, workunit_ref: int | Path, work_dir: Path) -> None:
         command = [*self._app_version.commands.dispatch.to_shell(), str(workunit_ref), str(work_dir)]
-        env = self._app_version.commands.dispatch.to_shell_env()
+        env = self._app_version.commands.dispatch.to_shell_env(environ=os.environ)
         logger.info(f"Running dispatch command: {shlex.join(command)}")
         subprocess.run(command, check=True, env=env)
 
@@ -42,7 +43,7 @@ class Runner:
     def run_collect(self, workunit_ref: int | Path, chunk_dir: Path) -> None:
         if self._app_version.commands.collect is not None:
             command = [*self._app_version.commands.collect.to_shell(), str(workunit_ref), str(chunk_dir)]
-            env = self._app_version.commands.collect.to_shell_env()
+            env = self._app_version.commands.collect.to_shell_env(environ=os.environ)
             logger.info(f"Running collect command: {shlex.join(command)}")
             subprocess.run(command, check=True, env=env)
         else:
@@ -50,7 +51,7 @@ class Runner:
 
     def run_process(self, chunk_dir: Path) -> None:
         command = [*self._app_version.commands.process.to_shell(), str(chunk_dir)]
-        env = self._app_version.commands.process.to_shell_env()
+        env = self._app_version.commands.process.to_shell_env(environ=os.environ)
         logger.info(f"Running process command: {shlex.join(command)}")
         subprocess.run(command, check=True, env=env)
 

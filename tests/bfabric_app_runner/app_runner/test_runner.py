@@ -12,7 +12,7 @@ class MockCommand(BaseModel):
     def to_shell(self) -> list[str]:
         return ["mock-command"]
 
-    def to_shell_env(self, environ=None) -> dict[str, str]:
+    def to_shell_env(self, environ) -> dict[str, str]:
         return {"MOCK_ENV_VAR": "mock_value"}
 
 
