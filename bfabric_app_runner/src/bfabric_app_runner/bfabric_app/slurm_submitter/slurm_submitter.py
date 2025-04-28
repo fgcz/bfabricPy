@@ -101,7 +101,7 @@ class SlurmSubmitter:
         )
 
     def _get_main_command(self, slurm_config: SlurmConfig, app_runner_version: str) -> list[str]:
-        spec = f"=={app_runner_version}"
+        spec = f"@{app_runner_version}" if "git" in app_runner_version else f"=={app_runner_version}"
         force_storage_flags = self._get_force_storage_flag(slurm_config)
         return [
             "uv",
