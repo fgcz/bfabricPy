@@ -13,7 +13,7 @@ from bfabric_app_runner.bfabric_app.submitter import Submitter
 from bfabric_app_runner.bfabric_app.submitter import WorkunitWrapperData
 from bfabric_app_runner.specs.app.app_version import AppVersion
 from bfabric_app_runner.specs.submitters_spec import SubmittersSpecTemplate, SubmitterSlurmSpec
-from tests.conftest import yaml_fixture
+from bfabric_app_runner.util.utils_for_testing import yaml_fixture
 
 WORKUNIT_ID = 500
 

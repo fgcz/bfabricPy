@@ -1,15 +1,17 @@
+# TODO this should be moved later
+from collections.abc import Generator
 from pathlib import Path
 from typing import TypeVar
 
 import pytest
 import yaml
+from _pytest.fixtures import FixtureRequest
 from pydantic import BaseModel
-
 
 T = TypeVar("T", bound=BaseModel)
 
 
-def yaml_fixture(model_class: type[T], fixture_name: str):
+def yaml_fixture(model_class: type[T], fixture_name: str) -> Generator[T, None, None]:
     """Create a pytest fixture that loads a YAML file into a Pydantic model.
 
     :param model_class: The Pydantic model class to parse the YAML into
@@ -33,7 +35,7 @@ def yaml_fixture(model_class: type[T], fixture_name: str):
     """
 
     @pytest.fixture
-    def _fixture(request) -> T:
+    def _fixture(request: FixtureRequest) -> T:
         fixtures_dir = Path(request.module.__file__).parent / "fixtures"
         fixture_path = fixtures_dir / f"{fixture_name}.yml"
 
