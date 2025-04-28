@@ -29,6 +29,7 @@ class Runner:
         command = [*self._app_version.commands.dispatch.to_shell(), str(workunit_ref), str(work_dir)]
         env = self._app_version.commands.dispatch.to_shell_env(environ=os.environ)
         logger.info(f"Running dispatch command: {shlex.join(command)}")
+        logger.debug(f"Split command: {command!r}")
         subprocess.run(command, check=True, env=env)
 
     def run_prepare_input(self, chunk_dir: Path) -> None:
@@ -45,6 +46,7 @@ class Runner:
             command = [*self._app_version.commands.collect.to_shell(), str(workunit_ref), str(chunk_dir)]
             env = self._app_version.commands.collect.to_shell_env(environ=os.environ)
             logger.info(f"Running collect command: {shlex.join(command)}")
+            logger.debug(f"Split command: {command!r}")
             subprocess.run(command, check=True, env=env)
         else:
             logger.info("App does not have a collect step.")
@@ -53,6 +55,7 @@ class Runner:
         command = [*self._app_version.commands.process.to_shell(), str(chunk_dir)]
         env = self._app_version.commands.process.to_shell_env(environ=os.environ)
         logger.info(f"Running process command: {shlex.join(command)}")
+        logger.debug(f"Split command: {command!r}")
         subprocess.run(command, check=True, env=env)
 
 
