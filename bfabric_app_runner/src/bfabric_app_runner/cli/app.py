@@ -1,6 +1,8 @@
 import importlib.metadata
 import importlib.resources
+import os
 import shlex
+import sys
 from pathlib import Path
 
 from loguru import logger
@@ -101,5 +103,15 @@ def copy_dev_makefile(work_dir: Path, config_data: ConfigData, create_env_file: 
             logger.info("Renaming existing .env file to .env.bak")
             env_file_path.rename(work_dir / ".env.bak")
         logger.info(f"Creating .env file at {env_file_path}")
-        env_file_path.write_text(env_file_content)
-        env_file_path.chmod(0o600)
+        _write_file_chmod(path=env_file_path, text=env_file_content, mode=0o600)
+
+
+def _write_file_chmod(path: Path, text: str, mode: int) -> None:
+    if sys.platform == "win32":
+        msg = f"Platform {sys.platform} does not support chmod, if this is a deployment it may be insecure."
+        logger.warning(msg)
+        path.write_text(text)
+    else:
+        fd = os.open(str(path), os.O_WRONLY | os.O_CREAT, mode)
+        with os.fdopen(fd, "w") as file:
+            file.write(text)
