@@ -19,6 +19,11 @@
 #
 # Use `make help` to see all available commands
 
+ifneq (,$(wildcard .env))
+    include .env
+    export BFABRICPY_CONFIG_OVERRIDE
+endif
+
 # Configuration
 RUNNER_CMD := uv run -p 3.13 --with "bfabric-app-runner==@RUNNER_VERSION@" bfabric-app-runner
 # To use GitHub main branch instead uncomment the following line (and adapt as needed):
