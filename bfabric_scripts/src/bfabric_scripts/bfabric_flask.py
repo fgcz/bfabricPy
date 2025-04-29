@@ -47,7 +47,7 @@ if "BFABRICPY_CONFIG_ENV" not in os.environ:
 
 
 app = Flask(__name__)
-client = Bfabric.from_config(auth=None)
+client = Bfabric.connect(include_auth=False)
 
 
 def get_request_auth(request_data: dict[str, Any]) -> BfabricAuth:

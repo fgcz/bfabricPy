@@ -36,7 +36,7 @@ def get_table_row(client: Bfabric, relative_path: str) -> tuple[str, int, str, s
 def bfabric_read_samples_from_dataset(dataset_id: int) -> None:
     """Prints the workunit id, inputresource id, inputresource name, sample name and groupingvar name for each resource
     in the dataset with the given id."""
-    client = Bfabric.from_config()
+    client = Bfabric.connect()
     dataset = client.read(endpoint="dataset", obj={"id": dataset_id}).to_list_dict()[0]
 
     positions = [a["position"] for a in dataset["attribute"] if a["name"] == "Relative Path"]

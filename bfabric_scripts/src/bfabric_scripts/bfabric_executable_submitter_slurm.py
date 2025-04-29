@@ -40,7 +40,7 @@ def main() -> None:
     parser = ArgumentParser(help="Submitter for B-Fabric")
     parser.add_argument("-j", "--externaljobid", type=int)
     args = parser.parse_args()
-    client = Bfabric.from_config()
+    client = Bfabric.connect()
     bfapp = BfabricSubmitter(
         client=client,
         externaljobid=args.externaljobid,
