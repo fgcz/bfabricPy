@@ -1,7 +1,6 @@
 import importlib.metadata
 import importlib.resources
 import os
-import shlex
 import sys
 from pathlib import Path
 
@@ -97,7 +96,8 @@ def copy_dev_makefile(work_dir: Path, config_data: ConfigData, create_env_file: 
         target_path.write_text(makefile)
 
     if create_env_file:
-        env_file_content = f"BFABRICPY_CONFIG_OVERRIDE={shlex.quote(export_config_data(config_data))}\n"
+        json_string = export_config_data(config_data)
+        env_file_content = f'BFABRICPY_CONFIG_OVERRIDE="{json_string.replace('"', '\\"')}"\n'
         env_file_path = work_dir / ".env"
         if env_file_path.exists():
             logger.info("Renaming existing .env file to .env.bak")
