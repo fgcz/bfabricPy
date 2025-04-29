@@ -19,11 +19,6 @@
 #
 # Use `make help` to see all available commands
 
-ifneq (,$(wildcard .env))
-    include .env
-    export BFABRICPY_CONFIG_OVERRIDE
-endif
-
 # Configuration
 RUNNER_CMD := uv run -p 3.13 --with "bfabric-app-runner==@RUNNER_VERSION@" bfabric-app-runner
 # To use GitHub main branch instead uncomment the following line (and adapt as needed):
@@ -60,30 +55,35 @@ help:
 # Step 1: Initial dispatch
 dispatch:
 	@echo "Step 1/4: Running initial dispatch..."
+	set -a && . .env && set +a && \
 	$(RUNNER_CMD) app dispatch "$(APP_DEF)" "$(CURRENT_DIR)" "$(WORKUNIT_DEF)"
 	@echo "✓ Dispatch completed - chunks.yml created"
 
 # Step 2: Prepare inputs
 inputs:
 	@echo "Step 2/4: Preparing inputs in directory '$(WORK_DIR)'..."
+	set -a && . .env && set +a && \
 	$(RUNNER_CMD) inputs prepare "$(WORK_DIR)/inputs.yml"
 	@echo "✓ Inputs prepared for '$(WORK_DIR)'"
 
 # Step 3: Process chunks
 process:
 	@echo "Step 3/4: Processing chunks in directory '$(WORK_DIR)'..."
+	set -a && . .env && set +a && \
 	$(RUNNER_CMD) chunk process "$(APP_DEF)" "$(WORK_DIR)"
 	@echo "✓ Processing completed for '$(WORK_DIR)'"
 
 # Step 4: Stage results
 stage:
 	@echo "Step 4/4: Staging results from directory '$(WORK_DIR)'..."
+	set -a && . .env && set +a && \
 	$(RUNNER_CMD) chunk outputs "$(APP_DEF)" "$(WORK_DIR)" "$(WORKUNIT_DEF)"
 	@echo "✓ Results staged for '$(WORK_DIR)'"
 
 # Run all steps in one command
 run-all:
 	@echo "Running all steps in a single command..."
+	set -a && . .env && set +a && \
 	$(RUNNER_CMD) app run "$(APP_DEF)" "." "$(WORKUNIT_DEF)"
 	@echo "✓ All steps completed"
 
