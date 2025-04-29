@@ -19,6 +19,8 @@
 #
 # Use `make help` to see all available commands
 
+SHELL := /bin/bash
+
 # Configuration
 RUNNER_CMD := uv run -p 3.13 --with "bfabric-app-runner==@RUNNER_VERSION@" bfabric-app-runner
 # To use GitHub main branch instead uncomment the following line (and adapt as needed):
