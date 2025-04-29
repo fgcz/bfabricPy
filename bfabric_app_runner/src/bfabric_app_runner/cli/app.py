@@ -22,6 +22,7 @@ def cmd_app_run(
     ssh_user: str | None = None,
     force_storage: Path | None = None,
     read_only: bool = False,
+    create_env_file: bool = True,
     client: Bfabric,
 ) -> None:
     """Runs all stages of an app."""
@@ -29,7 +30,11 @@ def cmd_app_run(
     app_version, workunit_ref = load_workunit_information(app_spec, client, work_dir, workunit_ref)
 
     # TODO use client.config_data (once 1.13.27 is released)
-    copy_dev_makefile(work_dir=work_dir, config_data=ConfigData(client=client.config, auth=client._auth))
+    copy_dev_makefile(
+        work_dir=work_dir,
+        config_data=ConfigData(client=client.config, auth=client._auth),
+        create_env_file=create_env_file,
+    )
 
     # TODO(#107): usage of entity lookup cache was problematic -> beyond the full solution we could also consider
     #             to deactivate the cache for the output registration
@@ -69,7 +74,7 @@ def cmd_app_dispatch(
         runner.run_dispatch(workunit_ref=workunit_ref, work_dir=work_dir)
 
 
-def copy_dev_makefile(work_dir: Path, config_data: ConfigData) -> None:
+def copy_dev_makefile(work_dir: Path, config_data: ConfigData, create_env_file: bool) -> None:
     """Copies the workunit.mk file to the work directory, and sets the version of the app runner.
 
     It also creates a .env file containing the BFABRICPY_CONFIG_OVERRIDE environment variable containing the configured
@@ -89,11 +94,12 @@ def copy_dev_makefile(work_dir: Path, config_data: ConfigData) -> None:
         target_path.parent.mkdir(exist_ok=True, parents=True)
         target_path.write_text(makefile)
 
-    env_file_content = f"BFABRICPY_CONFIG_OVERRIDE={shlex.quote(export_config_data(config_data))}\n"
-    env_file_path = work_dir / ".env"
-    if env_file_path.exists():
-        logger.info("Renaming existing .env file to .env.bak")
-        env_file_path.rename(work_dir / ".env.bak")
-    logger.info(f"Creating .env file at {env_file_path}")
-    env_file_path.write_text(env_file_content)
-    env_file_path.chmod(0o600)
+    if create_env_file:
+        env_file_content = f"BFABRICPY_CONFIG_OVERRIDE={shlex.quote(export_config_data(config_data))}\n"
+        env_file_path = work_dir / ".env"
+        if env_file_path.exists():
+            logger.info("Renaming existing .env file to .env.bak")
+            env_file_path.rename(work_dir / ".env.bak")
+        logger.info(f"Creating .env file at {env_file_path}")
+        env_file_path.write_text(env_file_content)
+        env_file_path.chmod(0o600)
