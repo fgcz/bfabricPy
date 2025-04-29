@@ -19,7 +19,10 @@
 #
 # Use `make help` to see all available commands
 
-include .env
+ifneq (,$(wildcard .env))
+    include .env
+    export BFABRICPY_CONFIG_OVERRIDE
+endif
 
 # Configuration
 RUNNER_CMD := uv run -p 3.13 --with "bfabric-app-runner==@RUNNER_VERSION@" bfabric-app-runner
