@@ -94,7 +94,7 @@ def list_not_existing_storage_dirs(client: Bfabric, root_dir: Path, cache_path: 
 
 def main() -> None:
     """Calls `list_not_existing_storage_dirs`."""
-    client = Bfabric.from_config()
+    client = Bfabric.connect()
     root_dir = Path("/srv/www/htdocs/")
     cache_path = Path("cache.json")
     list_not_existing_storage_dirs(client=client, root_dir=root_dir, cache_path=cache_path)

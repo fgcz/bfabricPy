@@ -9,7 +9,7 @@ readme = "../README.md"
 version = "1.13.27"
 
 dependencies = [
-    "bfabric==1.13.25",
+    "bfabric==1.13.26",
     "cyclopts>=3.13.0",
 ]
 
@@ -20,10 +20,14 @@ test = ["pytest", "pytest-mock", "logot[pytest,loguru]"]
 excel = ["fastexcel"]
 
 [project.scripts]
+"bfabric-cli" = "bfabric_scripts.cli.__main__:app"
+
+# TODO this should become a separate package
 "bfabric_flask.py" = "bfabric_scripts.bfabric_flask:main"
+
+# TODO Legacy CLI interfaces
 #bfabric_feeder_resource_autoQC="bfabric_scripts.bfabric_feeder_resource_autoQC:main"
 "bfabric_list_not_existing_storage_directories.py" = "bfabric_scripts.bfabric_list_not_existing_storage_directories:main"
-"bfabric_list_not_available_proteomics_workunits.py" = "bfabric_scripts.bfabric_list_not_available_proteomics_workunits:main"
 "bfabric_list_workunit_parameters.py" = "bfabric_scripts.bfabric_list_workunit_parameters:main"
 "bfabric_upload_resource.py" = "bfabric_scripts.bfabric_upload_resource:main"
 "bfabric_logthis.py" = "bfabric_scripts.bfabric_logthis:main"
@@ -32,7 +36,6 @@ excel = ["fastexcel"]
 "bfabric_setWorkunitStatus_available.py" = "bfabric_scripts.bfabric_setWorkunitStatus:main_available"
 "bfabric_setWorkunitStatus_processing.py" = "bfabric_scripts.bfabric_setWorkunitStatus:main_processing"
 "bfabric_setWorkunitStatus_failed.py" = "bfabric_scripts.bfabric_setWorkunitStatus:main_failed"
-"bfabric_delete.py" = "bfabric_scripts.bfabric_delete:main"
 "bfabric_read.py" = "bfabric_scripts.bfabric_read:main"
 "bfabric_read_samples_of_workunit.py" = "bfabric_scripts.bfabric_read_samples_of_workunit:main"
 "bfabric_read_samples_from_dataset.py" = "bfabric_scripts.bfabric_read_samples_from_dataset:main"
@@ -46,5 +49,3 @@ excel = ["fastexcel"]
 "bfabric_save_workflowstep.py" = "bfabric_scripts.bfabric_save_workflowstep:main"
 "bfabric_slurm_queue_status.py" = "bfabric_scripts.bfabric_slurm_queue_status:main"
 "bfabric_save_resource_description.py" = "bfabric_scripts.bfabric_save_resource_description:main"
-
-"bfabric-cli" = "bfabric_scripts.cli.__main__:app"
