@@ -32,19 +32,19 @@ Commands are discriminated by their `type` field.
 .. autopydantic_model:: bfabric_app_runner.specs.app.commands_spec.CommandsSpec
 ```
 
-### Shell Commands
+### Direct commands
 
 ```yaml
 commands:
   dispatch:
-    type: "shell"
+    type: "exec"
     command: "python prepare_data.py"
 ```
 
 The command string is split by spaces using `shlex.split()`.
 
 ```{eval-rst}
-.. autopydantic_model:: bfabric_app_runner.specs.app.commands_spec.CommandShell
+.. autopydantic_model:: bfabric_app_runner.specs.app.commands_spec.CommandExec
 ```
 
 ### Docker Commands

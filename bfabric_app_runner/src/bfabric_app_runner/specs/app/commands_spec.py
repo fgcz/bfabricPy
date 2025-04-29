@@ -9,7 +9,7 @@ from pydantic import BaseModel, Discriminator, ConfigDict
 class CommandShell(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    # TODO: proposal, this should be renamed, and then we could introduce e.g. "bash" to be less confusing.
+    # TODO: Now deprecated by exec type - we can add a "bash" type later, if needed
     type: Literal["shell"] = "shell"
     """Identifies the command type."""
 
@@ -19,6 +19,51 @@ class CommandShell(BaseModel):
     def to_shell(self) -> list[str]:
         """Returns a shell command that can be used to run the specified command."""
         return shlex.split(self.command)
+
+    def to_shell_env(self, environ: dict[str, str] | None) -> dict[str, str]:
+        """Returns the shell environment variables to set before executing the command."""
+        return environ if environ is not None else os.environ.copy()
+
+
+class CommandExec(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    type: Literal["exec"] = "exec"
+    """Identifies the command type."""
+
+    command: str
+    """The command to run, will be split by `shlex.split` and is not an actual shell script."""
+
+    env: dict[str, str] = {}
+    """Environment variables to set before executing the command."""
+
+    prepend_paths: list[Path] = []
+    """A list of paths to prepend to the PATH variable before executing the command.
+
+    If multiple paths are specified, the first one will be the first in PATH, etc.
+    """
+
+    def to_shell(self) -> list[str]:
+        """Returns a shell command that can be used to run the specified command."""
+        return shlex.split(self.command)
+
+    def to_shell_env(self, environ: dict[str, str] | None) -> dict[str, str]:
+        """Returns the shell environment variables to set before executing the command."""
+        if environ is None:
+            environ = os.environ.copy()
+
+        if self.prepend_paths:
+            # Ensure environ['PATH'] is set
+            environ["PATH"] = environ.get("PATH", "")
+            # Prepend paths
+            for path in reversed(self.prepend_paths):
+                resolved_path = path.expanduser().absolute()
+                environ["PATH"] = f"{resolved_path}:{environ['PATH']}"
+
+        for key, value in self.env.items():
+            environ[key] = value
+
+        return environ
 
 
 class MountOptions(BaseModel):
@@ -109,8 +154,12 @@ class CommandDocker(BaseModel):
             *shlex.split(self.command),
         ]
 
+    def to_shell_env(self, environ: dict[str, str] | None = None) -> dict[str, str]:
+        """Returns the shell environment variables to set before executing the command."""
+        return environ if environ is not None else os.environ.copy()
 
-Command = Annotated[CommandShell | CommandDocker, Discriminator("type")]
+
+Command = Annotated[CommandShell | CommandExec | CommandDocker, Discriminator("type")]
 
 
 class CommandsSpec(BaseModel):
