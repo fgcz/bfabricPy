@@ -10,6 +10,7 @@ from loguru import logger
 from bfabric import Bfabric
 from bfabric.config.config_data import ConfigData, export_config_data
 from bfabric.experimental.entity_lookup_cache import EntityLookupCache
+from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric.utils.cli_integration import use_client
 from bfabric_app_runner.app_runner.resolve_app import load_workunit_information
 from bfabric_app_runner.app_runner.runner import run_app, Runner
@@ -75,9 +76,14 @@ def cmd_app_dispatch(
         app_version = AppVersion.model_validate(
             yaml.safe_load(importlib.resources.read_text(f"{app_spec}.integrations.bfabric", "app.yml"))
         )
+
+        workunit_definition_file = work_dir / "workunit_definition.yml"
+        # TODO clenaer
+        _ = WorkunitDefinition.from_ref(workunit_ref, client, cache_file=workunit_definition_file)
+
         with EntityLookupCache.enable():
             runner = Runner(spec=app_version, client=client, ssh_user=None)
-            runner.run_dispatch(workunit_ref=workunit_ref, work_dir=work_dir)
+            runner.run_dispatch(workunit_ref=workunit_definition_file, work_dir=work_dir)
     else:
         app_version, workunit_ref = load_workunit_information(app_spec, client, work_dir, workunit_ref)
         with EntityLookupCache.enable():
