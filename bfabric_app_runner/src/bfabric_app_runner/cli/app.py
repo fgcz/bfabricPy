@@ -16,7 +16,7 @@ from bfabric_app_runner.app_runner.runner import run_app, Runner
 
 @use_client
 def cmd_app_run(
-    app_spec: Path,
+    app_spec: Path | str,
     work_dir: Path,
     workunit_ref: int | Path,
     *,
