@@ -1,6 +1,7 @@
 import importlib.metadata
 import importlib.resources
 import os
+import shlex
 import sys
 from pathlib import Path
 
@@ -9,9 +10,19 @@ from loguru import logger
 from bfabric.config.config_data import ConfigData, export_config_data
 
 
+def _get_runner_cmd(wheel_path: str | None = None) -> str:
+    if wheel_path is None:
+        app_runner_version = importlib.metadata.version("bfabric_app_runner")
+        cmd = ["uv", "run", "-p", "3.13", "--with", f"bfabric-app-runner=={app_runner_version}", "bfabric-app-runner"]
+    else:
+        # TODO chicken-egg problem -> where do you get this info from?
+        cmd = ["uv", "run", "-p", "3.13", "--with", wheel_path, "--refresh", "bfabric-app-runner"]
+    return shlex.join(cmd)
+
+
 def _render_makefile(app_def: Path | str) -> str:
     template_variables = {
-        "RUNNER_VERSION": importlib.metadata.version("bfabric_app_runner"),
+        "RUNNER_CMD": _get_runner_cmd(),
         "APP_DEF": str(app_def),
     }
 

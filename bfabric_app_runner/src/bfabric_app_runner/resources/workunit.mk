@@ -22,8 +22,8 @@
 SHELL := /bin/bash
 
 # Configuration (encoded by bfabric-app-runner)
-RUNNER_CMD := uv run -p 3.13 --with "bfabric-app-runner==@RUNNER_VERSION@" bfabric-app-runner
-# To use GitHub main branch instead uncomment the following line (and adapt as needed):
+RUNNER_CMD := @RUNNER_CMD@
+# To use GitHub main branch instead uncomment the following line (and adapt as needed): (TODO this may be a bit outdated when using packaged apps)
 # RUNNER_CMD := uv run -p 3.13 --with "bfabric-app-runner@git+https://github.com/fgcz/bfabricPy@main\#subdirectory=bfabric_app_runner" bfabric-app-runner
 
 # Input files
