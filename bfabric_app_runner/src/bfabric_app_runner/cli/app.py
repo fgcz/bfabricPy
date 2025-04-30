@@ -57,6 +57,7 @@ def cmd_app_dispatch(
     work_dir: Path,
     workunit_ref: int | Path,
     *,
+    create_makefile: bool = False,
     create_env_file: bool = True,
     client: Bfabric,
 ) -> None:
@@ -65,6 +66,8 @@ def cmd_app_dispatch(
     :param app_spec: Path to the app spec file or module.
     :param work_dir: Path to the work directory.
     :param workunit_ref: Reference to the workunit (ID or YAML file path).
+    :param create_makefile: If True, a Makefile will be created in the app directory.
+    :param create_env_file: If True, and `create_makefile` is True, a .env file will be created in the app directory.
     """
 
     work_dir = work_dir.resolve()
@@ -75,12 +78,13 @@ def cmd_app_dispatch(
         runner = Runner(spec=app_version, client=client, ssh_user=None)
         runner.run_dispatch(workunit_ref=workunit_ref, work_dir=work_dir)
 
-    # TODO use client.config_data (once 1.13.27 is released)
-    copy_dev_makefile(
-        work_dir=work_dir,
-        config_data=ConfigData(client=client.config, auth=client._auth),
-        create_env_file=create_env_file,
-    )
+    if create_makefile:
+        # TODO use client.config_data (once 1.13.27 is released)
+        copy_dev_makefile(
+            work_dir=work_dir,
+            config_data=ConfigData(client=client.config, auth=client._auth),
+            create_env_file=create_env_file,
+        )
 
 
 def copy_dev_makefile(work_dir: Path, config_data: ConfigData, create_env_file: bool) -> None:
