@@ -28,6 +28,10 @@ class Runner:
     def run_dispatch(self, workunit_ref: int | Path, work_dir: Path) -> None:
         command = [*self._app_version.commands.dispatch.to_shell(), str(workunit_ref), str(work_dir)]
         env = self._app_version.commands.dispatch.to_shell_env(environ=os.environ)
+        logger.info(f"Writing app definition to {work_dir}")
+        with (work_dir / "app_definition.yml").open("w") as f:
+            yaml.safe_dump(self._app_version.model_dump(mode="json"), f)
+
         logger.info(f"Running dispatch command: {shlex.join(command)}")
         logger.debug(f"Split command: {command!r}")
         subprocess.run(command, check=True, env=env)
