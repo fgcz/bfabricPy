@@ -4,6 +4,7 @@ import os
 import sys
 from pathlib import Path
 
+import yaml
 from loguru import logger
 
 from bfabric import Bfabric
@@ -12,6 +13,7 @@ from bfabric.experimental.entity_lookup_cache import EntityLookupCache
 from bfabric.utils.cli_integration import use_client
 from bfabric_app_runner.app_runner.resolve_app import load_workunit_information
 from bfabric_app_runner.app_runner.runner import run_app, Runner
+from bfabric_app_runner.specs.app.app_version import AppVersion
 
 
 @use_client
@@ -69,16 +71,13 @@ def cmd_app_dispatch(
     work_dir = work_dir.resolve()
     # TODO set workunit to processing? (i.e. add read-only option here)
 
-    # def _inner(app_spec: Path, workunit_ref: int | Path) -> None:
-    #    app_version, workunit_ref = load_workunit_information(app_spec, client, work_dir, workunit_ref)
-    #    with EntityLookupCache.enable():
-    #        runner = Runner(spec=app_version, client=client, ssh_user=None)
-    #        runner.run_dispatch(workunit_ref=workunit_ref, work_dir=work_dir)
-
     if not (isinstance(app_spec, Path) and app_spec.exists()):
-        # with importlib.resources.path(f"{app_spec}.integrations.bfabric", "app.yml") as app_spec:
-        #    _inner(app_spec, workunit_ref)
-        pass
+        app_version = AppVersion.model_validate(
+            yaml.safe_load(importlib.resources.read_text(f"{app_spec}.integrations.bfabric", "app.yml"))
+        )
+        with EntityLookupCache.enable():
+            runner = Runner(spec=app_version, client=client, ssh_user=None)
+            runner.run_dispatch(workunit_ref=workunit_ref, work_dir=work_dir)
     else:
         app_version, workunit_ref = load_workunit_information(app_spec, client, work_dir, workunit_ref)
         with EntityLookupCache.enable():
