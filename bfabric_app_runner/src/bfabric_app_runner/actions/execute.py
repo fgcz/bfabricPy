@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import assert_never
 
 from bfabric import Bfabric
-from bfabric.utils.cli_integration import use_client
+from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric_app_runner.actions.types import (
     ActionDispatch,
     ActionInputs,
@@ -13,37 +13,38 @@ from bfabric_app_runner.actions.types import (
 )
 from bfabric_app_runner.app_runner.runner import ChunksFile
 from bfabric_app_runner.inputs.prepare.prepare_folder import prepare_folder
+from bfabric_app_runner.output_registration.register import register_all
+from bfabric_app_runner.specs.outputs_spec import OutputsSpec
 
 
-def execute(action: ActionGeneric) -> None:
+def execute(action: ActionGeneric, client: Bfabric) -> None:
     """Executes any action."""
     match action:
         case ActionDispatch():
-            execute_dispatch(action)
+            execute_dispatch(action=action, client=client)
         case ActionRun():
-            execute_run(action)
+            execute_run(action=action, client=client)
         case ActionInputs():
-            execute_inputs(action)
+            execute_inputs(action=action, client=client)
         case ActionProcess():
-            execute_process(action)
+            execute_process(action=action, client=client)
         case ActionOutputs():
-            execute_outputs(action)
+            execute_outputs(action=action, client=client)
         case _:
             assert_never(action)
 
 
-def execute_dispatch(action: ActionDispatch) -> None:
+def execute_dispatch(action: ActionDispatch, client: Bfabric) -> None:
     """Executes a dispatch action."""
     pass
 
 
-def execute_run(action: ActionRun) -> None:
+def execute_run(action: ActionRun, client: Bfabric) -> None:
     """Executes a run action."""
     pass
 
 
-@use_client
-def execute_inputs(action: ActionInputs, *, client: Bfabric) -> None:
+def execute_inputs(action: ActionInputs, client: Bfabric) -> None:
     """Executes an inputs action."""
     chunk_paths = _validate_chunks_list(action.work_dir, action.chunk)
     for chunk_path in chunk_paths:
@@ -57,14 +58,27 @@ def execute_inputs(action: ActionInputs, *, client: Bfabric) -> None:
         )
 
 
-def execute_process(action: ActionProcess) -> None:
+def execute_process(action: ActionProcess, client: Bfabric) -> None:
     """Executes a process action."""
     pass
 
 
-def execute_outputs(action: ActionOutputs) -> None:
+def execute_outputs(action: ActionOutputs, client: Bfabric) -> None:
     """Executes an outputs action."""
-    pass
+    chunk_paths = _validate_chunks_list(action.work_dir, action.chunk)
+    for chunk_path in chunk_paths:
+        specs_list = OutputsSpec.read_yaml(chunk_path / "outputs.yml")
+        register_all(
+            client=client,
+            # TODO (cache etc)
+            workunit_definition=WorkunitDefinition.from_ref(workunit=action.workunit_ref, client=client),
+            specs_list=specs_list,
+            ssh_user=action.ssh_user,
+            # TODO
+            # reuse_default_resource=reuse_default_resource,
+            reuse_default_resource=True,
+            force_storage=action.force_storage,
+        )
 
 
 def _validate_chunks_list(work_dir: Path, chunk: str | None) -> list[Path]:

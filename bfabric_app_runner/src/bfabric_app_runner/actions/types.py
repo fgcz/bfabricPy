@@ -13,6 +13,10 @@ class Action(str, Enum):
     outputs = "outputs"
 
 
+# TODO we are missing app reference
+# TODO we are missing workunit_reference
+
+
 class ActionDispatch(BaseModel):
     action: Literal[Action.dispatch] = Action.dispatch
     work_dir: Path
@@ -44,6 +48,7 @@ class ActionProcess(BaseModel):
 class ActionOutputs(BaseModel):
     action: Literal[Action.outputs] = Action.outputs
     work_dir: Path
+    workunit_ref: int | Path
     chunk: str | None = None
     ssh_user: str | None = None
     force_storage: Path | None = None
