@@ -32,6 +32,7 @@ def cmd_app_run(
     # TODO use client.config_data (once 1.13.27 is released)
     copy_dev_makefile(
         work_dir=work_dir,
+        app_definition=app_spec,
         config_data=ConfigData(client=client.config, auth=client._auth),
         create_env_file=create_env_file,
     )
@@ -81,6 +82,7 @@ def cmd_app_dispatch(
         # TODO use client.config_data (once 1.13.27 is released)
         copy_dev_makefile(
             work_dir=work_dir,
+            app_definition=app_spec,
             config_data=ConfigData(client=client.config, auth=client._auth),
             create_env_file=create_env_file,
         )
