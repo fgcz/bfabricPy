@@ -13,10 +13,6 @@ class Action(str, Enum):
     outputs = "outputs"
 
 
-# TODO we are missing app reference
-# TODO we are missing workunit_reference
-
-
 class ActionDispatch(BaseModel):
     action: Literal[Action.dispatch] = Action.dispatch
     work_dir: Path
@@ -24,11 +20,11 @@ class ActionDispatch(BaseModel):
 
 class ActionRun(BaseModel):
     action: Literal[Action.run] = Action.run
-    work_dir: Path
-    chunk: str | None = None
-    ssh_user: str | None = None
-    filter: str | None = None
-    force_storage: Path | None = None
+    work_dir: Path  # generic function
+    chunk: str | None = None  # generic function -> script
+    ssh_user: str | None = None  # generic param -> env/config file
+    filter: str | None = None  # specific
+    force_storage: Path | None = None  # generic param -> env/config file
 
 
 class ActionInputs(BaseModel):
