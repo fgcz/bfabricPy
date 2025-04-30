@@ -51,8 +51,12 @@ help:
 	@echo "  make clean [WORK_DIR=dir]    - Remove specified work directory"
 	@echo "  make help                    - Show this help message"
 	@echo ""
-	@echo "Current settings:"
+	@echo "Current settings (modifiable):"
 	@echo "  WORK_DIR = $(WORK_DIR) (default: work)"
+	@echo ""
+	@echo "Inferred settings:"
+	@echo "  APP_DEF = $(APP_DEF)"
+	@echo "  WORKUNIT_DEF = $(WORKUNIT_DEF)"
 
 # Step 1: Initial dispatch
 dispatch:
