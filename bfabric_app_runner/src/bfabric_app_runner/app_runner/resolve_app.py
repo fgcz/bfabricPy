@@ -58,17 +58,12 @@ def load_workunit_information(
         steps to avoid unnecessary B-Fabric lookups. (If the workunit_ref was already a path, it will be returned as is,
         otherwise the file will be created in the work directory.)
     """
-    # Handle workunit definition
-    workunit_definition_file = work_dir / "workunit_definition.yml"
-    workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client, cache_file=workunit_definition_file)
-    if isinstance(workunit_ref, Path):
-        workunit_ref = workunit_ref.resolve()
-    elif isinstance(workunit_ref, int):
-        workunit_ref = workunit_definition_file
-    else:
-        raise ValueError("workunit_ref must be either a Path or an int.")
+    workunit_definition, workunit_ref = _validate_workunit_definition(client, work_dir, workunit_ref)
+    app_version = _validate_app_version(app_spec, workunit_definition)
+    return app_version, workunit_ref
 
-    # Handle app spec
+
+def _validate_app_version(app_spec: Path | str, workunit_definition: WorkunitDefinition) -> AppVersion:
     if isinstance(app_spec, Path) and app_spec.exists():
         app_parsed = _load_spec(
             app_spec, workunit_definition.registration.application_id, workunit_definition.registration.application_name
@@ -82,4 +77,18 @@ def load_workunit_information(
         app_version = app_parsed
     else:
         app_version = resolve_app(versions=app_parsed, workunit_definition=workunit_definition)
-    return app_version, workunit_ref
+    return app_version
+
+
+def _validate_workunit_definition(
+    client: Bfabric, work_dir: Path, workunit_ref: int | Path
+) -> tuple[WorkunitDefinition, Path]:
+    workunit_definition_file = work_dir / "workunit_definition.yml"
+    workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client, cache_file=workunit_definition_file)
+    if isinstance(workunit_ref, Path):
+        workunit_ref = workunit_ref.resolve()
+    elif isinstance(workunit_ref, int):
+        workunit_ref = workunit_definition_file
+    else:
+        raise ValueError("workunit_ref must be either a Path or an int.")
+    return workunit_definition, workunit_ref
