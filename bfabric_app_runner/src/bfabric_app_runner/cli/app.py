@@ -53,7 +53,7 @@ def cmd_app_run(
 
 @use_client
 def cmd_app_dispatch(
-    app_spec: Path,
+    app_spec: Path | str,
     work_dir: Path,
     workunit_ref: int | Path,
     *,
@@ -61,18 +61,25 @@ def cmd_app_dispatch(
 ) -> None:
     """Create chunks, which can be processed individually.
 
-    :param app_spec: Path to the app spec file.
+    :param app_spec: Path to the app spec file or module.
     :param work_dir: Path to the work directory.
     :param workunit_ref: Reference to the workunit (ID or YAML file path).
     """
+
     work_dir = work_dir.resolve()
     # TODO set workunit to processing? (i.e. add read-only option here)
 
-    app_version, workunit_ref = load_workunit_information(app_spec, client, work_dir, workunit_ref)
+    def _inner(app_spec: Path, workunit_ref: int | Path) -> None:
+        app_version, workunit_ref = load_workunit_information(app_spec, client, work_dir, workunit_ref)
+        with EntityLookupCache.enable():
+            runner = Runner(spec=app_version, client=client, ssh_user=None)
+            runner.run_dispatch(workunit_ref=workunit_ref, work_dir=work_dir)
 
-    with EntityLookupCache.enable():
-        runner = Runner(spec=app_version, client=client, ssh_user=None)
-        runner.run_dispatch(workunit_ref=workunit_ref, work_dir=work_dir)
+    if not (isinstance(app_spec, Path) and app_spec.exists()):
+        with importlib.resources.path(f"{app_spec}.integrations.bfabric", "app.yml") as app_spec:
+            _inner(app_spec, workunit_ref)
+    else:
+        _inner(app_spec, workunit_ref)
 
 
 def copy_dev_makefile(work_dir: Path, config_data: ConfigData, create_env_file: bool) -> None:
