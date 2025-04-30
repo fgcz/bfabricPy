@@ -48,8 +48,8 @@ class TestLoadWorkunitInformation:
         unmocked_read_text = importlib.resources.read_text
 
         def mocked_read_text(*args, **kwargs):
-            if kwargs.get("package", "") == "_mocked_package.integrations.bfabric":
-                if kwargs["resource"] == "app.yml":
+            if args[0] == "_mocked_package.integrations.bfabric":
+                if args[1] == "app.yml":
                     return app_version_yaml
                 else:
                     raise NotImplementedError
