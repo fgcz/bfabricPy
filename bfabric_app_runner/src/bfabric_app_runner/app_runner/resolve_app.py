@@ -70,7 +70,9 @@ def _validate_app_version(app_spec: Path | str, workunit_definition: WorkunitDef
         )
     else:
         app_parsed = AppVersion.model_validate(
-            yaml.safe_load(importlib.resources.read_text(f"{app_spec}.integrations.bfabric", "app.yml"))
+            yaml.safe_load(
+                importlib.resources.read_text(package=f"{app_spec}.integrations.bfabric", resource="app.yml")
+            )
         )
         # TODO app version makes less sense in this case and we would want to have some sort of interpolation
     if isinstance(app_parsed, AppVersion):
