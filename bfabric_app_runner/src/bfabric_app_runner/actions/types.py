@@ -42,6 +42,7 @@ class ActionInputs(BaseModel):
 class ActionProcess(BaseModel):
     action: Literal[Action.process] = Action.process
     work_dir: Path
+    app_ref: Path | str
     chunk: str | None = None
 
 

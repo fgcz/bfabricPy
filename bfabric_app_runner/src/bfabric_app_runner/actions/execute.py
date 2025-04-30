@@ -12,6 +12,7 @@ from bfabric_app_runner.actions.types import (
     ActionGeneric,
 )
 from bfabric_app_runner.app_runner.runner import ChunksFile
+from bfabric_app_runner.cli.chunk import cmd_chunk_process
 from bfabric_app_runner.inputs.prepare.prepare_folder import prepare_folder
 from bfabric_app_runner.output_registration.register import register_all
 from bfabric_app_runner.specs.outputs_spec import OutputsSpec
@@ -60,7 +61,11 @@ def execute_inputs(action: ActionInputs, client: Bfabric) -> None:
 
 def execute_process(action: ActionProcess, client: Bfabric) -> None:
     """Executes a process action."""
-    pass
+    chunk_paths = _validate_chunks_list(action.work_dir, action.chunk)
+
+    # TODO to be cleaned later
+    for chunk in chunk_paths:
+        cmd_chunk_process(app_spec=action.app_ref, chunk_dir=chunk, client=client)
 
 
 def execute_outputs(action: ActionOutputs, client: Bfabric) -> None:
@@ -86,8 +91,9 @@ def _validate_chunks_list(work_dir: Path, chunk: str | None) -> list[Path]:
 
     If it is None, all chunks from the chunks.yml file are returned.
     If it is specified, it is converted to a list with one element.
-    All paths will be resolved to the work_dir.
+    All paths will be resolved to the work_dir and into absolute paths.
     """
+    work_dir = work_dir.resolve()
     if chunk is None:
         return [work_dir / p for p in ChunksFile.read(work_dir=work_dir).chunks]
     else:
