@@ -8,25 +8,30 @@ from bfabric.config.config_data import ConfigData, export_config_data
 from bfabric_app_runner.cli.app import _write_file_chmod
 
 
+def _render_makefile() -> str:
+    with importlib.resources.path("bfabric_app_runner", "resources/workunit.mk") as source_path:
+        logger.info(f"Rendering Makefile template from {source_path}")
+        makefile_template = source_path.read_text()
+        app_runner_version = importlib.metadata.version("bfabric_app_runner")
+        makefile = makefile_template.replace("@RUNNER_VERSION@", app_runner_version)
+        return makefile
+
+
 def copy_dev_makefile(work_dir: Path, config_data: ConfigData, create_env_file: bool) -> None:
     """Copies the workunit.mk file to the work directory, and sets the version of the app runner.
 
     It also creates a .env file containing the BFABRICPY_CONFIG_OVERRIDE environment variable containing the configured
     connection. For security reasons it will be chmod 600.
     """
-    with importlib.resources.path("bfabric_app_runner", "resources/workunit.mk") as source_path:
-        target_path = work_dir / "Makefile"
+    makefile = _render_makefile()
 
-        makefile_template = source_path.read_text()
-        app_runner_version = importlib.metadata.version("bfabric_app_runner")
-        makefile = makefile_template.replace("@RUNNER_VERSION@", app_runner_version)
-
-        if target_path.exists():
-            logger.info("Renaming existing Makefile to Makefile.bak")
-            target_path.rename(work_dir / "Makefile.bak")
-        logger.info(f"Copying Makefile from {source_path} to {target_path}")
-        target_path.parent.mkdir(exist_ok=True, parents=True)
-        target_path.write_text(makefile)
+    target_path = work_dir / "Makefile"
+    if target_path.exists():
+        logger.info("Renaming existing Makefile to Makefile.bak")
+        target_path.rename(work_dir / "Makefile.bak")
+    logger.info(f"Writing rendered Makefile to {target_path}")
+    target_path.parent.mkdir(exist_ok=True, parents=True)
+    target_path.write_text(makefile)
 
     if create_env_file:
         json_string = export_config_data(config_data)
