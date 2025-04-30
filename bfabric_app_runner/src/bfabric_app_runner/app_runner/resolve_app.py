@@ -69,7 +69,7 @@ def load_workunit_information(
         raise ValueError("workunit_ref must be either a Path or an int.")
 
     # Handle app spec
-    if not (isinstance(app_spec, Path) and app_spec.exists()):
+    if isinstance(app_spec, Path) and app_spec.exists():
         app_parsed = _load_spec(
             app_spec, workunit_definition.registration.application_id, workunit_definition.registration.application_name
         )
