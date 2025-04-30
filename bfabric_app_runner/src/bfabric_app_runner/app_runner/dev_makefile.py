@@ -9,11 +9,15 @@ from bfabric_app_runner.cli.app import _write_file_chmod
 
 
 def _render_makefile() -> str:
+    template_variables = {
+        "RUNNER_VERSION": importlib.metadata.version("bfabric_app_runner"),
+    }
+
     with importlib.resources.path("bfabric_app_runner", "resources/workunit.mk") as source_path:
-        logger.info(f"Rendering Makefile template from {source_path}")
-        makefile_template = source_path.read_text()
-        app_runner_version = importlib.metadata.version("bfabric_app_runner")
-        makefile = makefile_template.replace("@RUNNER_VERSION@", app_runner_version)
+        logger.info(f"Rendering Makefile template from {source_path} with variables: {template_variables!r}")
+        makefile = source_path.read_text()
+        for key, value in template_variables.items():
+            makefile = makefile.replace(f"@{key}@", value)
         return makefile
 
 
