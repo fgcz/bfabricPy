@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.resources
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -44,11 +45,11 @@ def _load_spec(spec_path: Path, app_id: int, app_name: str) -> AppVersion | AppS
 
 
 def load_workunit_information(
-    app_spec: Path, client: Bfabric, work_dir: Path, workunit_ref: int | Path
+    app_spec: Path | str, client: Bfabric, work_dir: Path, workunit_ref: int | Path
 ) -> tuple[AppVersion, Path]:
     """Loads the app version and workunit definition from the provided app spec and workunit reference.
 
-    :param app_spec: Path to the app spec file.
+    :param app_spec: Path to the app spec Python module or file.
     :param client: The B-Fabric client to use for resolving the workunit.
     :param work_dir: Path to the work directory.
     :param workunit_ref: Reference to the workunit (ID or YAML file path).
@@ -57,16 +58,26 @@ def load_workunit_information(
         steps to avoid unnecessary B-Fabric lookups. (If the workunit_ref was already a path, it will be returned as is,
         otherwise the file will be created in the work directory.)
     """
-    if isinstance(workunit_ref, Path):
-        workunit_ref = workunit_ref.resolve()
+    # Handle workunit definition
     workunit_definition_file = work_dir / "workunit_definition.yml"
     workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client, cache_file=workunit_definition_file)
-    app_parsed = _load_spec(
-        app_spec, workunit_definition.registration.application_id, workunit_definition.registration.application_name
-    )
-
-    if isinstance(workunit_ref, int):
+    if isinstance(workunit_ref, Path):
+        workunit_ref = workunit_ref.resolve()
+    elif isinstance(workunit_ref, int):
         workunit_ref = workunit_definition_file
+    else:
+        raise ValueError("workunit_ref must be either a Path or an int.")
+
+    # Handle app spec
+    if not (isinstance(app_spec, Path) and app_spec.exists()):
+        app_parsed = _load_spec(
+            app_spec, workunit_definition.registration.application_id, workunit_definition.registration.application_name
+        )
+    else:
+        app_parsed = AppVersion.model_validate(
+            yaml.safe_load(importlib.resources.read_text(f"{app_spec}.integrations.bfabric", "app.yml"))
+        )
+        # TODO app version makes less sense in this case and we would want to have some sort of interpolation
     if isinstance(app_parsed, AppVersion):
         app_version = app_parsed
     else:
