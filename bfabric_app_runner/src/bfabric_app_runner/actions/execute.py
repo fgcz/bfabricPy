@@ -43,6 +43,7 @@ def execute_dispatch(action: ActionDispatch, client: Bfabric) -> None:
 def execute_run(action: ActionRun, client: Bfabric) -> None:
     """Executes a run action."""
     chunks = _validate_chunks_list(action.work_dir, action.chunk)
+    # TODO shouldn't this one also call dispatch as needed
     for chunk in chunks:
         execute_inputs(action=ActionInputs.model_validate(action.model_dump() | {"chunk": chunk}), client=client)
         execute_process(action=ActionProcess.model_validate(action.model_dump() | {"chunk": chunk}), client=client)
