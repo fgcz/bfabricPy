@@ -60,6 +60,7 @@ def cmd_app_dispatch(
     work_dir: Path,
     workunit_ref: int | Path,
     *,
+    create_env_file: bool = True,
     client: Bfabric,
 ) -> None:
     """Create chunks, which can be processed individually.
@@ -89,6 +90,13 @@ def cmd_app_dispatch(
         with EntityLookupCache.enable():
             runner = Runner(spec=app_version, client=client, ssh_user=None)
             runner.run_dispatch(workunit_ref=workunit_ref, work_dir=work_dir)
+
+    # TODO use client.config_data (once 1.13.27 is released)
+    copy_dev_makefile(
+        work_dir=work_dir,
+        config_data=ConfigData(client=client.config, auth=client._auth),
+        create_env_file=create_env_file,
+    )
 
 
 def copy_dev_makefile(work_dir: Path, config_data: ConfigData, create_env_file: bool) -> None:
