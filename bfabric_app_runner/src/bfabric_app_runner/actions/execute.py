@@ -44,7 +44,10 @@ def execute_run(action: ActionRun, client: Bfabric) -> None:
     """Executes a run action."""
     chunks = _validate_chunks_list(action.work_dir, action.chunk)
     for chunk in chunks:
-        raise NotImplementedError
+        execute_inputs(action=ActionInputs.model_validate(action.model_dump() | {"chunk": chunk}), client=client)
+        execute_process(action=ActionProcess.model_validate(action.model_dump() | {"chunk": chunk}), client=client)
+        # TODO collect step
+        execute_outputs(action=ActionOutputs.model_validate(action.model_dump() | {"chunk": chunk}), client=client)
 
 
 def execute_inputs(action: ActionInputs, client: Bfabric) -> None:
