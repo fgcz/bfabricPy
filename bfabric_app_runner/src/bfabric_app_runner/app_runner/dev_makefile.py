@@ -1,11 +1,12 @@
 import importlib.metadata
 import importlib.resources
+import os
+import sys
 from pathlib import Path
 
 from loguru import logger
 
 from bfabric.config.config_data import ConfigData, export_config_data
-from bfabric_app_runner.cli.app import _write_file_chmod
 
 
 def _render_makefile(app_def: Path | str) -> str:
@@ -53,3 +54,14 @@ def copy_dev_makefile(
             env_file_path.rename(work_dir / ".env.bak")
         logger.info(f"Creating .env file at {env_file_path}")
         _write_file_chmod(path=env_file_path, text=env_file_content, mode=0o600)
+
+
+def _write_file_chmod(path: Path, text: str, mode: int) -> None:
+    if sys.platform == "win32":
+        msg = f"Platform {sys.platform} does not support chmod, if this is a deployment it may be insecure."
+        logger.warning(msg)
+        path.write_text(text)
+    else:
+        fd = os.open(str(path), os.O_WRONLY | os.O_CREAT, mode)
+        with os.fdopen(fd, "w") as file:
+            file.write(text)

@@ -1,8 +1,4 @@
-import os
-import sys
 from pathlib import Path
-
-from loguru import logger
 
 from bfabric import Bfabric
 from bfabric.config.config_data import ConfigData
@@ -86,14 +82,3 @@ def cmd_app_dispatch(
             config_data=ConfigData(client=client.config, auth=client._auth),
             create_env_file=create_env_file,
         )
-
-
-def _write_file_chmod(path: Path, text: str, mode: int) -> None:
-    if sys.platform == "win32":
-        msg = f"Platform {sys.platform} does not support chmod, if this is a deployment it may be insecure."
-        logger.warning(msg)
-        path.write_text(text)
-    else:
-        fd = os.open(str(path), os.O_WRONLY | os.O_CREAT, mode)
-        with os.fdopen(fd, "w") as file:
-            file.write(text)
