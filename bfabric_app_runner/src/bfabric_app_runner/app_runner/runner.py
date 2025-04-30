@@ -69,6 +69,11 @@ class ChunksFile(BaseModel):
     # TODO move to better location
     chunks: list[Path]
 
+    @classmethod
+    def read(cls, work_dir: Path) -> ChunksFile:
+        """Reads the chunks.yml file from the specified work directory."""
+        return ChunksFile.model_validate(yaml.safe_load((work_dir / "chunks.yml").read_text()))
+
 
 def run_app(
     app_spec: AppVersion,
@@ -96,7 +101,7 @@ def run_app(
     runner = Runner(spec=app_spec, client=client, ssh_user=ssh_user)
     if dispatch_active:
         runner.run_dispatch(workunit_ref=workunit_definition_file, work_dir=work_dir)
-    chunks_file = ChunksFile.model_validate(yaml.safe_load((work_dir / "chunks.yml").read_text()))
+    chunks_file = ChunksFile.read(work_dir=work_dir)
     for chunk in chunks_file.chunks:
         logger.info(f"Processing chunk {chunk}")
         runner.run_prepare_input(chunk_dir=chunk)
