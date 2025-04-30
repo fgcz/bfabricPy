@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from bfabric import Bfabric
 
 
-def resolve_app(versions: AppSpec, workunit_definition: WorkunitDefinition) -> AppVersion:
+def _resolve_app(versions: AppSpec, workunit_definition: WorkunitDefinition) -> AppVersion:
     """Resolves the app version to use for the provided workunit definition."""
     # TODO this should be more generic in the future about the key for the app version (should be handled in AppSpec)
     # TODO logic to define "latest" version (should also be handled in AppSpec)
@@ -76,7 +76,7 @@ def _validate_app_version(app_spec: Path | str, workunit_definition: WorkunitDef
     if isinstance(app_parsed, AppVersion):
         app_version = app_parsed
     else:
-        app_version = resolve_app(versions=app_parsed, workunit_definition=workunit_definition)
+        app_version = _resolve_app(versions=app_parsed, workunit_definition=workunit_definition)
     return app_version
 
 
