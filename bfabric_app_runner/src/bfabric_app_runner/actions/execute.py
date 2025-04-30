@@ -37,12 +37,14 @@ def execute(action: ActionGeneric, client: Bfabric) -> None:
 
 def execute_dispatch(action: ActionDispatch, client: Bfabric) -> None:
     """Executes a dispatch action."""
-    pass
+    raise NotImplementedError
 
 
 def execute_run(action: ActionRun, client: Bfabric) -> None:
     """Executes a run action."""
-    pass
+    chunks = _validate_chunks_list(action.work_dir, action.chunk)
+    for chunk in chunks:
+        raise NotImplementedError
 
 
 def execute_inputs(action: ActionInputs, client: Bfabric) -> None:
