@@ -21,18 +21,20 @@
 
 SHELL := /bin/bash
 
-# Configuration
-RUNNER_CMD := uv run -p 3.13 --with "bfabric-app-runner==@RUNNER_VERSION@" bfabric-app-runner
-# To use GitHub main branch instead uncomment the following line (and adapt as needed):
+# Configuration (encoded by bfabric-app-runner)
+RUNNER_CMD := @RUNNER_CMD@
+# To use GitHub main branch instead uncomment the following line (and adapt as needed): (TODO this may be a bit outdated when using packaged apps)
 # RUNNER_CMD := uv run -p 3.13 --with "bfabric-app-runner@git+https://github.com/fgcz/bfabricPy@main\#subdirectory=bfabric_app_runner" bfabric-app-runner
 
 # Input files
-APP_DEF := $(if $(wildcard app_version.yml),$(realpath app_version.yml),$(realpath app_definition.yml))
-WORKUNIT_DEF := $(realpath workunit_definition.yml)
+APP_DEF_DEFAULT := @APP_DEF@
+WORKUNIT_DEF_DEFAULT := $(realpath workunit_definition.yml)
 CURRENT_DIR := $(shell pwd)
 
 # Default work directory (can be overridden via command line)
 WORK_DIR ?= work
+APP_DEF ?= $(APP_DEF_DEFAULT)
+WORKUNIT_DEF ?= $(WORKUNIT_DEF_DEFAULT)
 
 .PHONY: help dispatch inputs process stage run-all clean
 
@@ -53,6 +55,8 @@ help:
 	@echo ""
 	@echo "Current settings:"
 	@echo "  WORK_DIR = $(WORK_DIR) (default: work)"
+	@echo "  APP_DEF = $(APP_DEF) (default: $(APP_DEF_DEFAULT))"
+	@echo "  WORKUNIT_DEF = $(WORKUNIT_DEF) (default: $(WORKUNIT_DEF_DEFAULT))"
 
 # Step 1: Initial dispatch
 dispatch:

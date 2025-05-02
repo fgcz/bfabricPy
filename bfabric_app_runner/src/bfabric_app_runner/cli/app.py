@@ -1,15 +1,10 @@
-import importlib.metadata
-import importlib.resources
-import os
-import sys
 from pathlib import Path
 
-from loguru import logger
-
 from bfabric import Bfabric
-from bfabric.config.config_data import ConfigData, export_config_data
+from bfabric.config.config_data import ConfigData
 from bfabric.experimental.entity_lookup_cache import EntityLookupCache
 from bfabric.utils.cli_integration import use_client
+from bfabric_app_runner.app_runner.dev_makefile import copy_dev_makefile
 from bfabric_app_runner.app_runner.resolve_app import load_workunit_information
 from bfabric_app_runner.app_runner.runner import run_app, Runner
 
@@ -87,44 +82,3 @@ def cmd_app_dispatch(
             config_data=ConfigData(client=client.config, auth=client._auth),
             create_env_file=create_env_file,
         )
-
-
-def copy_dev_makefile(work_dir: Path, config_data: ConfigData, create_env_file: bool) -> None:
-    """Copies the workunit.mk file to the work directory, and sets the version of the app runner.
-    It also creates a .env file containing the BFABRICPY_CONFIG_OVERRIDE environment variable containing the configured
-    connection. For security reasons it will be chmod 600.
-    """
-    with importlib.resources.path("bfabric_app_runner", "resources/workunit.mk") as source_path:
-        target_path = work_dir / "Makefile"
-
-        makefile_template = source_path.read_text()
-        app_runner_version = importlib.metadata.version("bfabric_app_runner")
-        makefile = makefile_template.replace("@RUNNER_VERSION@", app_runner_version)
-
-        if target_path.exists():
-            logger.info("Renaming existing Makefile to Makefile.bak")
-            target_path.rename(work_dir / "Makefile.bak")
-        logger.info(f"Copying Makefile from {source_path} to {target_path}")
-        target_path.parent.mkdir(exist_ok=True, parents=True)
-        target_path.write_text(makefile)
-
-    if create_env_file:
-        json_string = export_config_data(config_data)
-        env_file_content = f'BFABRICPY_CONFIG_OVERRIDE="{json_string.replace('"', '\\"')}"\n'
-        env_file_path = work_dir / ".env"
-        if env_file_path.exists():
-            logger.info("Renaming existing .env file to .env.bak")
-            env_file_path.rename(work_dir / ".env.bak")
-        logger.info(f"Creating .env file at {env_file_path}")
-        _write_file_chmod(path=env_file_path, text=env_file_content, mode=0o600)
-
-
-def _write_file_chmod(path: Path, text: str, mode: int) -> None:
-    if sys.platform == "win32":
-        msg = f"Platform {sys.platform} does not support chmod, if this is a deployment it may be insecure."
-        logger.warning(msg)
-        path.write_text(text)
-    else:
-        fd = os.open(str(path), os.O_WRONLY | os.O_CREAT, mode)
-        with os.fdopen(fd, "w") as file:
-            file.write(text)

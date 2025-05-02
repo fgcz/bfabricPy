@@ -30,6 +30,9 @@ include = [
 
 [project.scripts]
 "bfabric-app-runner"="bfabric_app_runner.cli.__main__:app"
+#"bfabric-app-run-wheel"="bfabric_app_runner.cli.cmd_wheel:app"
+"bfabric-app-runner-uv"="bfabric_app_runner.cli_uv.__main__:app"
+
 
 [project.optional-dependencies]
 doc = [
