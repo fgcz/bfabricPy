@@ -16,6 +16,8 @@ class Action(str, Enum):
 class ActionDispatch(BaseModel):
     action: Literal[Action.dispatch] = Action.dispatch
     work_dir: Path
+    app_ref: Path | str
+    workunit_ref: int | Path
 
 
 class ActionRun(BaseModel):

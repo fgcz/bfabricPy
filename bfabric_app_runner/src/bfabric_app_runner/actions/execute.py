@@ -11,6 +11,7 @@ from bfabric_app_runner.actions.types import (
     ActionGeneric,
 )
 from bfabric_app_runner.app_runner.runner import ChunksFile
+from bfabric_app_runner.cli.app import cmd_app_dispatch
 from bfabric_app_runner.cli.chunk import cmd_chunk_process, cmd_chunk_outputs
 from bfabric_app_runner.inputs.prepare.prepare_folder import prepare_folder
 
@@ -34,7 +35,14 @@ def execute(action: ActionGeneric, client: Bfabric) -> None:
 
 def execute_dispatch(action: ActionDispatch, client: Bfabric) -> None:
     """Executes a dispatch action."""
-    raise NotImplementedError
+    cmd_app_dispatch(
+        app_spec=action.app_ref,
+        work_dir=action.work_dir,
+        workunit_ref=action.workunit_ref,
+        create_makefile=False,
+        create_env_file=False,
+        client=client,
+    )
 
 
 def execute_run(action: ActionRun, client: Bfabric) -> None:
