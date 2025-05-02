@@ -2,7 +2,6 @@ from pathlib import Path
 from typing import assert_never
 
 from bfabric import Bfabric
-from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric_app_runner.actions.types import (
     ActionDispatch,
     ActionInputs,
@@ -12,10 +11,8 @@ from bfabric_app_runner.actions.types import (
     ActionGeneric,
 )
 from bfabric_app_runner.app_runner.runner import ChunksFile
-from bfabric_app_runner.cli.chunk import cmd_chunk_process
+from bfabric_app_runner.cli.chunk import cmd_chunk_process, cmd_chunk_outputs
 from bfabric_app_runner.inputs.prepare.prepare_folder import prepare_folder
-from bfabric_app_runner.output_registration.register import register_all
-from bfabric_app_runner.specs.outputs_spec import OutputsSpec
 
 
 def execute(action: ActionGeneric, client: Bfabric) -> None:
@@ -43,11 +40,9 @@ def execute_dispatch(action: ActionDispatch, client: Bfabric) -> None:
 def execute_run(action: ActionRun, client: Bfabric) -> None:
     """Executes a run action."""
     chunks = _validate_chunks_list(action.work_dir, action.chunk)
-    # TODO shouldn't this one also call dispatch as needed
     for chunk in chunks:
         execute_inputs(action=ActionInputs.model_validate(action.model_dump() | {"chunk": chunk}), client=client)
         execute_process(action=ActionProcess.model_validate(action.model_dump() | {"chunk": chunk}), client=client)
-        # TODO collect step
         execute_outputs(action=ActionOutputs.model_validate(action.model_dump() | {"chunk": chunk}), client=client)
 
 
@@ -77,18 +72,22 @@ def execute_process(action: ActionProcess, client: Bfabric) -> None:
 def execute_outputs(action: ActionOutputs, client: Bfabric) -> None:
     """Executes an outputs action."""
     chunk_paths = _validate_chunks_list(action.work_dir, action.chunk)
+
+    # TODO to bo cleaned later
     for chunk_path in chunk_paths:
-        specs_list = OutputsSpec.read_yaml(chunk_path / "outputs.yml")
-        register_all(
-            client=client,
-            # TODO (cache etc)
-            workunit_definition=WorkunitDefinition.from_ref(workunit=action.workunit_ref, client=client),
-            specs_list=specs_list,
+        # this includes the legacy collect step
+        cmd_chunk_outputs(
+            app_spec=action.app_ref,
+            chunk_dir=chunk_path,
+            workunit_ref=action.workunit_ref,
             ssh_user=action.ssh_user,
-            # TODO
-            # reuse_default_resource=reuse_default_resource,
-            reuse_default_resource=True,
             force_storage=action.force_storage,
+            # TODO expose read only?
+            read_only=False,
+            # TODO
+            # reuse_default_resource=action.reuse_default_resource,
+            reuse_default_resource=True,
+            client=client,
         )
 
 

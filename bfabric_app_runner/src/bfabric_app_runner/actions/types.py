@@ -47,6 +47,7 @@ class ActionOutputs(BaseModel):
     action: Literal[Action.outputs] = Action.outputs
     work_dir: Path
     workunit_ref: int | Path
+    app_ref: Path | str
     chunk: str | None = None
     ssh_user: str | None = None
     force_storage: Path | None = None
