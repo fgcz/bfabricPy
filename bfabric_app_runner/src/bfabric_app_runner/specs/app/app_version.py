@@ -15,7 +15,7 @@ class AppVersion(BaseModel):
     For a better separation of concerns, the submitter will not be resolved automatically.
     """
 
-    version: str
+    version: str = "latest"
     commands: CommandsSpec
     submitter: SubmitterRef
     # TODO remove when new submitter becomes available

@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Apps can now be referred to by module path rather than just file paths. This is going to be a primary building block
+    to very simple package-based deployment of apps.
 - The `static_file` input spec type has been integrated properly.
 - The workunit makefile now directly shows how to use the GitHub app runner version instead, which is sometimes required
     while debugging.
@@ -17,6 +19,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Silence interpolate_config_strings log messages.
 - Update `bfabric` dependency to 1.13.26.
+- App versions do not always require a version key as it will default to "latest", but only one version can have a
+    particular version key per app definition.
 
 ### Fixed
 

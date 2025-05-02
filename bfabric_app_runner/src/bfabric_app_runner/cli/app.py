@@ -16,7 +16,7 @@ from bfabric_app_runner.app_runner.runner import run_app, Runner
 
 @use_client
 def cmd_app_run(
-    app_spec: Path,
+    app_spec: Path | str,
     work_dir: Path,
     workunit_ref: int | Path,
     *,
@@ -33,6 +33,7 @@ def cmd_app_run(
     # TODO use client.config_data (once 1.13.27 is released)
     copy_dev_makefile(
         work_dir=work_dir,
+        app_definition=app_spec,
         config_data=ConfigData(client=client.config, auth=client._auth),
         create_env_file=create_env_file,
     )
@@ -53,31 +54,43 @@ def cmd_app_run(
 
 @use_client
 def cmd_app_dispatch(
-    app_spec: Path,
+    app_spec: Path | str,
     work_dir: Path,
     workunit_ref: int | Path,
     *,
+    create_makefile: bool = False,
+    create_env_file: bool = True,
     client: Bfabric,
 ) -> None:
     """Create chunks, which can be processed individually.
 
-    :param app_spec: Path to the app spec file.
+    :param app_spec: Path to the app spec file or module.
     :param work_dir: Path to the work directory.
     :param workunit_ref: Reference to the workunit (ID or YAML file path).
+    :param create_makefile: If True, a Makefile will be created in the app directory.
+    :param create_env_file: If True, and `create_makefile` is True, a .env file will be created in the app directory.
     """
+
     work_dir = work_dir.resolve()
     # TODO set workunit to processing? (i.e. add read-only option here)
 
     app_version, workunit_ref = load_workunit_information(app_spec, client, work_dir, workunit_ref)
-
     with EntityLookupCache.enable():
         runner = Runner(spec=app_version, client=client, ssh_user=None)
         runner.run_dispatch(workunit_ref=workunit_ref, work_dir=work_dir)
 
+    if create_makefile:
+        # TODO use client.config_data (once 1.13.27 is released)
+        copy_dev_makefile(
+            work_dir=work_dir,
+            app_definition=app_spec,
+            config_data=ConfigData(client=client.config, auth=client._auth),
+            create_env_file=create_env_file,
+        )
+
 
 def copy_dev_makefile(work_dir: Path, config_data: ConfigData, create_env_file: bool) -> None:
     """Copies the workunit.mk file to the work directory, and sets the version of the app runner.
-
     It also creates a .env file containing the BFABRICPY_CONFIG_OVERRIDE environment variable containing the configured
     connection. For security reasons it will be chmod 600.
     """

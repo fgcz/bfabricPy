@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.resources
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -14,7 +15,7 @@ if TYPE_CHECKING:
     from bfabric import Bfabric
 
 
-def resolve_app(versions: AppSpec, workunit_definition: WorkunitDefinition) -> AppVersion:
+def _resolve_app(versions: AppSpec, workunit_definition: WorkunitDefinition) -> AppVersion:
     """Resolves the app version to use for the provided workunit definition."""
     # TODO this should be more generic in the future about the key for the app version (should be handled in AppSpec)
     # TODO logic to define "latest" version (should also be handled in AppSpec)
@@ -44,11 +45,15 @@ def _load_spec(spec_path: Path, app_id: int, app_name: str) -> AppVersion | AppS
 
 
 def load_workunit_information(
-    app_spec: Path, client: Bfabric, work_dir: Path, workunit_ref: int | Path
+    app_spec: Path | str, client: Bfabric, work_dir: Path, workunit_ref: int | Path
 ) -> tuple[AppVersion, Path]:
     """Loads the app version and workunit definition from the provided app spec and workunit reference.
 
-    :param app_spec: Path to the app spec file.
+    Syntax for app_spec when it is a string is either:
+    - `my.package` which implies the `app.yml` is available at `my/package/integrations/bfabric/app.yml`
+    - `my.package.integrations.bfabric:app.yml` which implies the `app.yml` is available at the same location as before
+
+    :param app_spec: Path to the app spec Python module or file.
     :param client: The B-Fabric client to use for resolving the workunit.
     :param work_dir: Path to the work directory.
     :param workunit_ref: Reference to the workunit (ID or YAML file path).
@@ -57,18 +62,39 @@ def load_workunit_information(
         steps to avoid unnecessary B-Fabric lookups. (If the workunit_ref was already a path, it will be returned as is,
         otherwise the file will be created in the work directory.)
     """
-    if isinstance(workunit_ref, Path):
-        workunit_ref = workunit_ref.resolve()
-    workunit_definition_file = work_dir / "workunit_definition.yml"
-    workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client, cache_file=workunit_definition_file)
-    app_parsed = _load_spec(
-        app_spec, workunit_definition.registration.application_id, workunit_definition.registration.application_name
-    )
+    workunit_definition, workunit_ref = _resolve_workunit_definition(client, work_dir, workunit_ref)
+    app_version = _resolve_app_version(app_spec, workunit_definition)
+    return app_version, workunit_ref
 
-    if isinstance(workunit_ref, int):
-        workunit_ref = workunit_definition_file
+
+def _resolve_app_version(app_spec: Path | str, workunit_definition: WorkunitDefinition) -> AppVersion:
+    if isinstance(app_spec, Path) and app_spec.exists():
+        app_parsed = _load_spec(
+            app_spec, workunit_definition.registration.application_id, workunit_definition.registration.application_name
+        )
+    else:
+        if ":" in app_spec:
+            yaml_module, yaml_file = app_spec.split(":")
+        else:
+            yaml_module = f"{app_spec}.integrations.bfabric"
+            yaml_file = "app.yml"
+        app_parsed = AppVersion.model_validate(yaml.safe_load(importlib.resources.read_text(yaml_module, yaml_file)))
+        # TODO app version makes less sense in this case and we would want to have some sort of interpolation
     if isinstance(app_parsed, AppVersion):
         app_version = app_parsed
     else:
-        app_version = resolve_app(versions=app_parsed, workunit_definition=workunit_definition)
-    return app_version, workunit_ref
+        app_version = _resolve_app(versions=app_parsed, workunit_definition=workunit_definition)
+    return app_version
+
+
+def _resolve_workunit_definition(
+    client: Bfabric, work_dir: Path, workunit_ref: int | Path
+) -> tuple[WorkunitDefinition, Path]:
+    """Given a workunit reference (ID or YAML file path), loads the workunit definition and returns it.
+
+    You get both the workunit definition and the path to the workunit definition file, which will be created if it
+    did not exist before in `work_dir`.
+    """
+    workunit_definition_file = work_dir / "workunit_definition.yml"
+    workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client, cache_file=workunit_definition_file)
+    return workunit_definition, workunit_definition_file
