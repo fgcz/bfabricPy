@@ -88,10 +88,21 @@ class TestLoadWorkunitInformation:
         fs.create_file(path, contents=workunit_definition_yaml)
         return path
 
-    def test_from_module(self, mocker, app_spec_module, workunit_definition_path, app_version):
+    def test_from_module_when_default(self, mocker, app_spec_module, workunit_definition_path, app_version):
         mock_client = mocker.Mock(name="mock_client")
         return_app_version, return_workunit_ref = load_workunit_information(
             app_spec=app_spec_module,
+            client=mock_client,
+            work_dir=Path("/fake/work"),
+            workunit_ref=workunit_definition_path,
+        )
+        assert return_app_version == app_version
+        assert return_workunit_ref == workunit_definition_path
+
+    def test_from_module_when_explicit(self, mocker, app_spec_module, workunit_definition_path, app_version):
+        mock_client = mocker.Mock(name="mock_client")
+        return_app_version, return_workunit_ref = load_workunit_information(
+            app_spec=f"{app_spec_module}.integrations.bfabric:app.yml",
             client=mock_client,
             work_dir=Path("/fake/work"),
             workunit_ref=workunit_definition_path,

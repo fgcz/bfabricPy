@@ -49,6 +49,10 @@ def load_workunit_information(
 ) -> tuple[AppVersion, Path]:
     """Loads the app version and workunit definition from the provided app spec and workunit reference.
 
+    Syntax for app_spec when it is a string is either:
+    - `my.package` which implies the `app.yml` is available at `my/package/integrations/bfabric/app.yml`
+    - `my.package.integrations.bfabric:app.yml` which implies the `app.yml` is available at the same location as before
+
     :param app_spec: Path to the app spec Python module or file.
     :param client: The B-Fabric client to use for resolving the workunit.
     :param work_dir: Path to the work directory.
@@ -69,9 +73,12 @@ def _resolve_app_version(app_spec: Path | str, workunit_definition: WorkunitDefi
             app_spec, workunit_definition.registration.application_id, workunit_definition.registration.application_name
         )
     else:
-        app_parsed = AppVersion.model_validate(
-            yaml.safe_load(importlib.resources.read_text(f"{app_spec}.integrations.bfabric", "app.yml"))
-        )
+        if ":" in app_spec:
+            yaml_module, yaml_file = app_spec.split(":")
+        else:
+            yaml_module = f"{app_spec}.integrations.bfabric"
+            yaml_file = "app.yml"
+        app_parsed = AppVersion.model_validate(yaml.safe_load(importlib.resources.read_text(yaml_module, yaml_file)))
         # TODO app version makes less sense in this case and we would want to have some sort of interpolation
     if isinstance(app_parsed, AppVersion):
         app_version = app_parsed
