@@ -28,12 +28,6 @@ class Runner:
     def run_dispatch(self, workunit_ref: int | Path, work_dir: Path) -> None:
         command = [*self._app_version.commands.dispatch.to_shell(), str(workunit_ref), str(work_dir)]
         env = self._app_version.commands.dispatch.to_shell_env(environ=os.environ)
-        # TODO this is conceptionally an issue, if the version originates from a package, then it should also
-        #      only be read from the package to avoid the question "where does it come from"
-        # app_version_dump_path = work_dir / "app_version.yml"
-        # logger.info(f"Writing app version to {app_version_dump_path}")
-        # with app_version_dump_path.open("w") as f:
-        #    yaml.safe_dump(self._app_version.model_dump(mode="json"), f)
         logger.info(f"Running dispatch command: {shlex.join(command)}")
         logger.debug(f"Split command: {command!r}")
         subprocess.run(command, check=True, env=env)
