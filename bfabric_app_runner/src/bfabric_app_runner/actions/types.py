@@ -24,6 +24,7 @@ class ActionRun(BaseModel):
     chunk: str | None = None  # generic function -> script
     ssh_user: str | None = None  # generic param -> env/config file
     filter: str | None = None  # specific
+    app_ref: Path | str
     force_storage: Path | None = None  # generic param -> env/config file
 
 
