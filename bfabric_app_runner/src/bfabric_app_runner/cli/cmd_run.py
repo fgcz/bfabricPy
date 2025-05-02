@@ -19,7 +19,7 @@ def cmd_run_dispatch(*, action: Annotated[ActionDispatch, Parameter(name="*")], 
 
 @use_client
 def cmd_run_(*, action: Annotated[ActionRun, Parameter(name="*")], client: Bfabric) -> None:
-    """Runs all stages of an app."""
+    """Runs all stages of an app that has been dispatched."""
     execute(action, client=client)
 
 
