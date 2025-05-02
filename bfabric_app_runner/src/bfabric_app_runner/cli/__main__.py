@@ -6,6 +6,7 @@ import cyclopts
 
 from bfabric_app_runner.cli.app import cmd_app_run, cmd_app_dispatch
 from bfabric_app_runner.cli.chunk import cmd_chunk_run_all, cmd_chunk_outputs, cmd_chunk_process
+from bfabric_app_runner.cli.cmd_run import cmd_run_inputs, cmd_run_outputs, cmd_run_process, cmd_run_, cmd_run_dispatch
 from bfabric_app_runner.cli.inputs import cmd_inputs_prepare, cmd_inputs_clean, cmd_inputs_list, cmd_inputs_check
 from bfabric_app_runner.cli.outputs import cmd_outputs_register, cmd_outputs_register_single_file
 from bfabric_app_runner.cli.validate import (
@@ -52,6 +53,14 @@ cmd_validate.command(cmd_validate_inputs_spec, name="inputs-spec")
 cmd_validate.command(cmd_validate_outputs_spec, name="outputs-spec")
 cmd_validate.command(cmd_validate_submitters_spec_template, name="submitters-spec-template")
 app.command(cmd_validate)
+
+cmd_run = cyclopts.App("run", config=cyclopts.config.Env("APP_RUNNER_", command=False))
+cmd_run.default(cmd_run_)
+cmd_run.command(cmd_run_dispatch, name="dispatch")
+cmd_run.command(cmd_run_inputs, name="inputs")
+cmd_run.command(cmd_run_process, name="process")
+cmd_run.command(cmd_run_outputs, name="outputs")
+app.command(cmd_run)
 
 if __name__ == "__main__":
     app()
