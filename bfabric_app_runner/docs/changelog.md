@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `CommandExec` allows prepending paths to `PATH` and setting environment variables and is less ambiguous than `shell`.
 - `.env` is created when executing the app with `bfabric-app-runner app run` command, which sets the
     `BFABRICPY_CONFIG_OVERRIDE` environment variable to ensure the correct config is used for future use.
+- `bfabric-app-runner run` interface which standardizes the various actions of running app steps.
 
 ### Changed
 
