@@ -59,11 +59,11 @@ def load_workunit_information(
         otherwise the file will be created in the work directory.)
     """
     workunit_definition, workunit_ref = _resolve_workunit_definition(client, work_dir, workunit_ref)
-    app_version = _validate_app_version(app_spec, workunit_definition)
+    app_version = _resolve_app_version(app_spec, workunit_definition)
     return app_version, workunit_ref
 
 
-def _validate_app_version(app_spec: Path | str, workunit_definition: WorkunitDefinition) -> AppVersion:
+def _resolve_app_version(app_spec: Path | str, workunit_definition: WorkunitDefinition) -> AppVersion:
     if isinstance(app_spec, Path) and app_spec.exists():
         app_parsed = _load_spec(
             app_spec, workunit_definition.registration.application_id, workunit_definition.registration.application_name
