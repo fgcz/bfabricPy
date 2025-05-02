@@ -22,12 +22,12 @@ class ActionDispatch(BaseModel):
 
 class ActionRun(BaseModel):
     action: Literal[Action.run] = Action.run
-    work_dir: Path  # generic function
-    chunk: str | None = None  # generic function -> script
-    ssh_user: str | None = None  # generic param -> env/config file
-    filter: str | None = None  # specific
+    work_dir: Path
+    chunk: str | None = None
+    ssh_user: str | None = None
+    filter: str | None = None
     app_ref: Path | str
-    force_storage: Path | None = None  # generic param -> env/config file
+    force_storage: Path | None = None
 
 
 class ActionInputs(BaseModel):
