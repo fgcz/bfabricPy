@@ -30,3 +30,10 @@ def test_parametric_multiple_variants(parsed):
 
 def test_substitute_app_id(parsed):
     assert parsed["0.1.0"].commands.process.command == 'echo "1000"'
+
+
+def test_reject_duplicates(parsed):
+    version = parsed["0.1.0"]
+    with pytest.raises(ValueError) as e:
+        AppSpec(bfabric=parsed.bfabric, versions=[version, version])
+    assert "Duplicate versions found" in str(e.value)

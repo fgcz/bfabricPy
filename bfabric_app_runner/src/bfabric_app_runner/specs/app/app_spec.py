@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from collections import Counter
 
 import yaml
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from bfabric_app_runner.specs.app.app_version import AppVersion, AppVersionMultiTemplate  # noqa: TCH001
 from bfabric_app_runner.specs.config_interpolation import VariablesApp
@@ -51,6 +52,15 @@ class AppSpec(BaseModel):
 
     bfabric: BfabricAppSpec
     versions: list[AppVersion]
+
+    @field_validator("versions", mode="after")
+    def no_duplicate_versions(cls, values: list[AppVersion]) -> list[AppVersion]:
+        """Validates that there are no duplicate versions in the app spec."""
+        counts = Counter([v.version for v in values])
+        duplicates = [version for version, count in counts.items() if count > 1]
+        if duplicates:
+            raise ValueError(f"Duplicate versions found: {duplicates}")
+        return values
 
     @classmethod
     def load_yaml(cls, app_yaml: Path, app_id: int | str, app_name: str) -> AppSpec:
