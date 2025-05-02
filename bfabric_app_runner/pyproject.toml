@@ -18,7 +18,8 @@ dependencies = [
     "pydantic",
     "glom",
     "mako",
-    "pandera[polars]"
+    "pandera[polars]",
+    "wheel-filename",
 ]
 
 [tool.hatch.build.targets.sdist]
@@ -30,9 +31,7 @@ include = [
 
 [project.scripts]
 "bfabric-app-runner"="bfabric_app_runner.cli.__main__:app"
-#"bfabric-app-run-wheel"="bfabric_app_runner.cli.cmd_wheel:app"
-"bfabric-app-runner-uv"="bfabric_app_runner.cli_uv.__main__:app"
-
+"bfabric-app-runner-uv"="bfabric_app_runner.cli_uv.__main__:main"
 
 [project.optional-dependencies]
 doc = [
