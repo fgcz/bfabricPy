@@ -85,10 +85,4 @@ def _validate_workunit_definition(
 ) -> tuple[WorkunitDefinition, Path]:
     workunit_definition_file = work_dir / "workunit_definition.yml"
     workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client, cache_file=workunit_definition_file)
-    if isinstance(workunit_ref, Path):
-        workunit_ref = workunit_ref.resolve()
-    elif isinstance(workunit_ref, int):
-        workunit_ref = workunit_definition_file
-    else:
-        raise ValueError("workunit_ref must be either a Path or an int.")
-    return workunit_definition, workunit_ref
+    return workunit_definition, workunit_definition_file
