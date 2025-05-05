@@ -35,6 +35,7 @@ def _render_makefile(app_def: Path | str) -> str:
 
 
 def _render_env_file(config_data: ConfigData) -> str:
+    # TODO MOVED
     json_string = export_config_data(config_data)
     env_file_content = f'BFABRICPY_CONFIG_OVERRIDE="{json_string.replace('"', '\\"')}"\n'
     return env_file_content

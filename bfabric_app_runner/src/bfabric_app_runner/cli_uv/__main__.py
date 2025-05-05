@@ -4,7 +4,10 @@ from loguru import logger
 import cyclopts
 
 from bfabric import Bfabric
+from bfabric.config.config_data import ConfigData
+from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric.utils.cli_integration import use_client
+from bfabric_app_runner.cli_uv.environment import write_env_data
 from bfabric_app_runner.cli_uv.wheel_info import infer_app_module_from_wheel, is_wheel_reference
 
 cli_app = cyclopts.App()
@@ -16,10 +19,26 @@ def _setup_env(
     app: Path | str,
     workunit: Path | int,
     client: Bfabric,
+    *,
+    write_config_data: bool = True,
 ) -> None:
-    # TODO to be implemented
+    work_dir.mkdir(parents=True, exist_ok=True)
 
-    pass
+    # write the workunit definition
+    workunit_def_path = work_dir / "workunit_definition.yml"
+    workunit_def = WorkunitDefinition.from_ref(workunit=workunit, client=client)
+    workunit_def.to_yaml(workunit_def_path)
+
+    # write the env data
+    # TODO this can be added after `bfabric` release
+    # client = client.config_data
+    config_data = ConfigData(client=client.config, auth=client._auth)
+    if not write_config_data:
+        config_data = None
+    write_env_data(config_data=config_data, work_dir=work_dir, app=app, workunit=workunit_def_path, uv_bin=uv_bin)
+
+    # write the Makefile
+    # TODO
 
 
 @cli_app.command
