@@ -1,17 +1,19 @@
+import shlex
 import shutil
+import subprocess
 from pathlib import Path
 from typing import Literal
 
+import cyclopts
 import yaml
 from loguru import logger
-import cyclopts
 
 from bfabric import Bfabric
 from bfabric.config.config_data import ConfigData
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric.utils.cli_integration import use_client
 from bfabric_app_runner.cli_uv.dev_makefile import write_dev_makefile, format_env_data
-from bfabric_app_runner.cli_uv.environment import write_env_data
+from bfabric_app_runner.cli_uv.environment import write_env_data, ENV_KEY_PYTHON_VERSION, ENV_KEY_DEPS_STRING
 from bfabric_app_runner.cli_uv.wheel_info import infer_app_module_from_wheel, is_wheel_reference
 
 cli_app = cyclopts.App()
@@ -94,13 +96,30 @@ def cmd_dispatch(
 
 
 @cli_app.command(name="exec")
-def cmd_exec(work_dir: Path, *app_runner_cmd: list[str]) -> None:
+def cmd_exec(work_dir: Path, *app_runner_cmd: str) -> None:
     """Executes a command in the managed environment for you.
 
     :param work_dir: The working directory to operate in, which was dispatched with `dispatch`.
     :param app_runner_cmd: The app-runner command to execute in the managed environment.
     """
-    pass
+    env_path = work_dir / "env.yml"
+    env = yaml.safe_load(env_path.read_text())
+    print(env)
+    cmd = [
+        "uv",
+        "run",
+        "-p",
+        env[ENV_KEY_PYTHON_VERSION],
+        "--isolated",
+        "--no-project",
+        "--with",
+        env[ENV_KEY_DEPS_STRING],
+        "bfabric-app-runner",
+        *app_runner_cmd,
+    ]
+    print(cmd)
+    logger.info(f"Executing command: {shlex.join(cmd)}")
+    subprocess.run(cmd, check=False)
 
 
 @cli_app.command(name="print-env-vars")
@@ -108,68 +127,6 @@ def cmd_print_env_vars(work_dir: Path, format: Literal["bash", "fish", "makefile
     """Prints the environment variables for the managed environment."""
     env_data = yaml.safe_load((work_dir / "env.yml").read_text())
     print(format_env_data(env_data=env_data, format=format))
-
-
-# @app.command
-# def wheel(
-#    *args: str,
-#    with_: Path,
-# ):
-#    if with_.count(",") == 0 and with_.endswith(".whl"):
-#        # extract the app ref from it.
-#        pass
-#
-#    python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
-#    command = [
-#        "uv",
-#        "run",
-#        "-p",
-#        python_version,
-#        "--isolated",
-#        "--no-project",
-#        "--with",
-#        str(with_),
-#        "bfabric-app-runner",
-#        *args,
-#        # TODO infer the package name and bind it -> this will require making it possible to inject it optionally
-#        #  at top level,,
-#        #  alternatively we could hack it at the end depending on the command (make it toggleable maybe)
-#    ]
-#
-
-
-# app_dispatch = cyclopts.App(name="bfabric-app-runner-uv dispatch")
-#
-#
-#
-# def handle_run(argv: list[str]) -> None:
-#    """Handles the main run commands, which will be executed in the managed bfabric-app-runner environment."""
-#    pass
-#
-#
-# def handle_cli(argv: list[str]) -> None:
-#    """Handles the command line interface for the bfabric-app-runner-uv CLI.
-#
-#    Since we want to dispatch the command to the managed `bfabric-app-runner` in some cases, this function
-#    performs some direct handling of the command line arguments. This is kind of restrictive compared
-#    to other commands, but gives us the most flexibility for now.
-#
-#    TODO this might be reconsidered later. maybe it could be done cleaner with cyclopts too
-#    """
-#    argv = argv[1:]
-#
-#    if argv[0] == "run":
-#        # send the command ot the bfabric-app-runner env
-#        handle_run(argv[1:])
-#    elif argv[0] == "dispatch":
-#        app_dispatch(argv[1:])
-#    else:
-#        raise ValueError(f"Unknown command: {argv[0]}")
-#
-#
-# def main() -> None:
-#    """Main entry point for the `bfabric-app-runner-uv` CLI."""
-#    handle_cli(sys.argv)
 
 
 if __name__ == "__main__":

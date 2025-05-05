@@ -11,6 +11,10 @@ from loguru import logger
 from bfabric.config.config_data import ConfigData, export_config_data
 
 
+ENV_KEY_PYTHON_VERSION = "APP_RUNNER_UV_PYTHON_VERSION"
+ENV_KEY_DEPS_STRING = "APP_RUNNER_UV_DEPS_STRING"
+
+
 def _export_env_data(
     config_data: ConfigData | None,
     app_spec: Path | str,
@@ -25,8 +29,8 @@ def _export_env_data(
         "APP_RUNNER_APP_SPEC": app_spec_str,
         "APP_RUNNER_WORKUNIT_REF": str(workunit_ref.resolve()),
         "APP_RUNNER_UV_BIN": str(uv_bin.resolve()),
-        "APP_RUNNER_UV_DEPS_STRING": deps_string,
-        "APP_RUNNER_UV_PYTHON_VERSION": python_version,
+        ENV_KEY_DEPS_STRING: deps_string,
+        ENV_KEY_PYTHON_VERSION: python_version,
     }
     if config_data is not None:
         config_data_json = export_config_data(config_data)
