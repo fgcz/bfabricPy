@@ -7,6 +7,7 @@ from bfabric import Bfabric
 from bfabric.config.config_data import ConfigData
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric.utils.cli_integration import use_client
+from bfabric_app_runner.cli_uv.dev_makefile import write_dev_makefile
 from bfabric_app_runner.cli_uv.environment import write_env_data
 from bfabric_app_runner.cli_uv.wheel_info import infer_app_module_from_wheel, is_wheel_reference
 
@@ -21,6 +22,7 @@ def _setup_env(
     client: Bfabric,
     *,
     write_config_data: bool = True,
+    python_version: str = "3.13",
 ) -> None:
     work_dir.mkdir(parents=True, exist_ok=True)
 
@@ -35,10 +37,17 @@ def _setup_env(
     config_data = ConfigData(client=client.config, auth=client._auth)
     if not write_config_data:
         config_data = None
-    write_env_data(config_data=config_data, work_dir=work_dir, app=app, workunit=workunit_def_path, uv_bin=uv_bin)
+    env_data = write_env_data(
+        config_data=config_data,
+        work_dir=work_dir,
+        app=app,
+        workunit=workunit_def_path,
+        uv_bin=uv_bin,
+        python_version=python_version,
+    )
 
     # write the Makefile
-    # TODO
+    write_dev_makefile(work_dir=work_dir, env_data=env_data)
 
 
 @cli_app.command
