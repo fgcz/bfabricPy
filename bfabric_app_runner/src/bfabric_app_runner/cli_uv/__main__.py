@@ -1,13 +1,73 @@
-import sys
+import shutil
 from pathlib import Path
-
+from loguru import logger
 import cyclopts
 
-from bfabric_app_runner.cli_uv.wheel_info import infer_app_module_from_wheel
+from bfabric import Bfabric
+from bfabric.utils.cli_integration import use_client
+from bfabric_app_runner.cli_uv.wheel_info import infer_app_module_from_wheel, is_wheel_reference
 
-# @app.default
-# def dispatch():
-#    pass
+cli_app = cyclopts.App()
+
+
+def _setup_env(
+    uv_bin: Path,
+    work_dir: Path,
+    app: Path | str,
+    workunit: Path | int,
+    client: Bfabric,
+) -> None:
+    # TODO to be implemented
+
+    pass
+
+
+@cli_app.command
+@use_client
+def cmd_dispatch(
+    deps_string: str,
+    *,
+    work_dir: Path,
+    workunit: int | Path,
+    app: Path | str | None = None,
+    uv_bin: Path | None = None,
+    client: Bfabric,
+) -> None:
+    """
+    :param deps_string: The dependencies to load to execute the app. This can be any valid `uv run --with` argument,
+        but if possible it is recommended to supply a wheel file path as that will also configure the app_ref for you.
+    :param work_dir: The working directory where app data and files will be created, this should be specific for this
+        workunit and not shared.
+    :param workunit: Workunit ID or WorkunitDefinition YAML file path.
+    :param app: Required if `deps_string` is not a wheel file path, or, if the app.yml is not at the expected location.
+        You can specify the module or the path to the app.yml file here. (TODO this should be explained more thoroughly
+        later.)
+    :param uv_bin: Optionally, you can provide an alternative path to the uv binary.
+    """
+    # Resolve the requested environment information
+    is_wheel = is_wheel_reference(deps_string=deps_string)
+    if app is None:
+        if is_wheel:
+            app = infer_app_module_from_wheel(Path(deps_string))
+        else:
+            msg = "If the deps is not a wheel file, you need to provide the app module or path to the app.yml file."
+            raise ValueError(msg)
+    logger.info(f"Dispatching app with {deps_string=} and {app=}")
+
+    # Actually dispatch the environment
+    if uv_bin is None:
+        uv_bin = Path(shutil.which("uv"))
+    _setup_env(uv_bin=uv_bin, work_dir=work_dir, app=app, workunit=workunit, client=client)
+
+
+@cli_app.command
+def cmd_exec(work_dir: Path, *app_runner_cmd: list[str]) -> None:
+    """Executes a command in the managed environment for you.
+
+    :param work_dir: The working directory to operate in, which was dispatched with `dispatch`.
+    :param app_runner_cmd: The app-runner command to execute in the managed environment.
+    """
+    pass
 
 
 # @app.command
@@ -38,52 +98,39 @@ from bfabric_app_runner.cli_uv.wheel_info import infer_app_module_from_wheel
 #
 
 
-app_dispatch = cyclopts.App(name="bfabric-app-runner-uv dispatch")
-
-
-@app_dispatch.default()
-def cmd_dispatch(
-    app_pkg: Path,
-    work_dir: Path,
-    workunit_ref: int | Path,
-    app_module: str | None = None,
-) -> None:
-    """Dispatches a bfabric-app-runner environment for the provided package."""
-    if app_module is None:
-        app_module = infer_app_module_from_wheel(app_pkg)
-
-    pass
-
-
-def handle_run(argv: list[str]) -> None:
-    """Handles the main run commands, which will be executed in the managed bfabric-app-runner environment."""
-    pass
-
-
-def handle_cli(argv: list[str]) -> None:
-    """Handles the command line interface for the bfabric-app-runner-uv CLI.
-
-    Since we want to dispatch the command to the managed `bfabric-app-runner` in some cases, this function
-    performs some direct handling of the command line arguments. This is kind of restrictive compared
-    to other commands, but gives us the most flexibility for now.
-
-    TODO this might be reconsidered later. maybe it could be done cleaner with cyclopts too
-    """
-    argv = argv[1:]
-
-    if argv[0] == "run":
-        # send the command ot the bfabric-app-runner env
-        handle_run(argv[1:])
-    elif argv[0] == "dispatch":
-        app_dispatch(argv[1:])
-    else:
-        raise ValueError(f"Unknown command: {argv[0]}")
-
-
-def main() -> None:
-    """Main entry point for the `bfabric-app-runner-uv` CLI."""
-    handle_cli(sys.argv)
+# app_dispatch = cyclopts.App(name="bfabric-app-runner-uv dispatch")
+#
+#
+#
+# def handle_run(argv: list[str]) -> None:
+#    """Handles the main run commands, which will be executed in the managed bfabric-app-runner environment."""
+#    pass
+#
+#
+# def handle_cli(argv: list[str]) -> None:
+#    """Handles the command line interface for the bfabric-app-runner-uv CLI.
+#
+#    Since we want to dispatch the command to the managed `bfabric-app-runner` in some cases, this function
+#    performs some direct handling of the command line arguments. This is kind of restrictive compared
+#    to other commands, but gives us the most flexibility for now.
+#
+#    TODO this might be reconsidered later. maybe it could be done cleaner with cyclopts too
+#    """
+#    argv = argv[1:]
+#
+#    if argv[0] == "run":
+#        # send the command ot the bfabric-app-runner env
+#        handle_run(argv[1:])
+#    elif argv[0] == "dispatch":
+#        app_dispatch(argv[1:])
+#    else:
+#        raise ValueError(f"Unknown command: {argv[0]}")
+#
+#
+# def main() -> None:
+#    """Main entry point for the `bfabric-app-runner-uv` CLI."""
+#    handle_cli(sys.argv)
 
 
 if __name__ == "__main__":
-    main()
+    cli_app()
