@@ -1,6 +1,7 @@
 import os
 import sys
 import typing
+from contextlib import contextmanager
 from pathlib import Path
 from collections.abc import Generator
 
@@ -16,6 +17,7 @@ def _export_env_data(
     workunit_ref: Path,
     uv_bin: Path,
     python_version: str,
+    deps_string: str,
 ) -> dict[str, str]:
     """Renders the environment variables as they should be exported to the .env file."""
     app_spec_str = app_spec if isinstance(app_spec, str) else str(app_spec.resolve())
@@ -23,11 +25,13 @@ def _export_env_data(
         "APP_RUNNER_APP_SPEC": app_spec_str,
         "APP_RUNNER_WORKUNIT_REF": str(workunit_ref.resolve()),
         "APP_RUNNER_UV_BIN": str(uv_bin.resolve()),
-        "PYTHON_VERSION": python_version,
+        "APP_RUNNER_UV_DEPS_STRING": deps_string,
+        "APP_RUNNER_UV_PYTHON_VERSION": python_version,
     }
     if config_data is not None:
         config_data_json = export_config_data(config_data)
         data["BFABRICPY_CONFIG_OVERRIDE"] = config_data_json.replace('"', '\\"')
+    return data
 
 
 def _write_dot_env_file(file: Path, env_data: dict[str, str]) -> None:
@@ -42,11 +46,22 @@ def _write_env_yaml_file(file: Path, env_data: dict[str, str]) -> None:
 
 
 def write_env_data(
-    work_dir: Path, config_data: ConfigData, app: Path | str, workunit: Path, uv_bin: Path, python_version: str
+    work_dir: Path,
+    config_data: ConfigData,
+    app: Path | str,
+    workunit: Path,
+    uv_bin: Path,
+    python_version: str,
+    deps_string: str,
 ) -> dict[str, str]:
     """Writes environment data for `work_dir` and returns it."""
     env_data = _export_env_data(
-        config_data=config_data, app_spec=app, workunit_ref=workunit, uv_bin=uv_bin, python_version=python_version
+        config_data=config_data,
+        app_spec=app,
+        workunit_ref=workunit,
+        uv_bin=uv_bin,
+        python_version=python_version,
+        deps_string=deps_string,
     )
     # TODO in a second step we can harmonize and simplify this, e.g. we could make a python script which prints bash
     #    exports for the config in the yaml directly. But the main reason I won't implement it just now is that it's not
@@ -56,6 +71,7 @@ def write_env_data(
     return env_data
 
 
+@contextmanager
 def _open_scope_limited_write_file(path: Path, *, chmod_value: int = 0o600) -> Generator[typing.TextIO, None, None]:
     if sys.platform == "win32":
         msg = f"Platform {sys.platform} does not support chmod, if this is a deployment it may be insecure."

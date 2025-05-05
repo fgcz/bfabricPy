@@ -1,5 +1,8 @@
 import shutil
 from pathlib import Path
+from typing import Literal
+
+import yaml
 from loguru import logger
 import cyclopts
 
@@ -7,7 +10,7 @@ from bfabric import Bfabric
 from bfabric.config.config_data import ConfigData
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric.utils.cli_integration import use_client
-from bfabric_app_runner.cli_uv.dev_makefile import write_dev_makefile
+from bfabric_app_runner.cli_uv.dev_makefile import write_dev_makefile, format_env_data
 from bfabric_app_runner.cli_uv.environment import write_env_data
 from bfabric_app_runner.cli_uv.wheel_info import infer_app_module_from_wheel, is_wheel_reference
 
@@ -21,6 +24,7 @@ def _setup_env(
     workunit: Path | int,
     client: Bfabric,
     *,
+    deps_string: str,
     write_config_data: bool = True,
     python_version: str = "3.13",
 ) -> None:
@@ -44,13 +48,14 @@ def _setup_env(
         workunit=workunit_def_path,
         uv_bin=uv_bin,
         python_version=python_version,
+        deps_string=deps_string,
     )
 
     # write the Makefile
     write_dev_makefile(work_dir=work_dir, env_data=env_data)
 
 
-@cli_app.command
+@cli_app.command(name="dispatch")
 @use_client
 def cmd_dispatch(
     deps_string: str,
@@ -85,10 +90,10 @@ def cmd_dispatch(
     # Actually dispatch the environment
     if uv_bin is None:
         uv_bin = Path(shutil.which("uv"))
-    _setup_env(uv_bin=uv_bin, work_dir=work_dir, app=app, workunit=workunit, client=client)
+    _setup_env(uv_bin=uv_bin, work_dir=work_dir, app=app, workunit=workunit, client=client, deps_string=deps_string)
 
 
-@cli_app.command
+@cli_app.command(name="exec")
 def cmd_exec(work_dir: Path, *app_runner_cmd: list[str]) -> None:
     """Executes a command in the managed environment for you.
 
@@ -96,6 +101,13 @@ def cmd_exec(work_dir: Path, *app_runner_cmd: list[str]) -> None:
     :param app_runner_cmd: The app-runner command to execute in the managed environment.
     """
     pass
+
+
+@cli_app.command(name="print-env-vars")
+def cmd_print_env_vars(work_dir: Path, format: Literal["bash", "fish", "makefile"]) -> None:
+    """Prints the environment variables for the managed environment."""
+    env_data = yaml.safe_load((work_dir / "env.yml").read_text())
+    print(format_env_data(env_data=env_data, format=format))
 
 
 # @app.command
