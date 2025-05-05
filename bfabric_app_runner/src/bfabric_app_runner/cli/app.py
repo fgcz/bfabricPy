@@ -12,6 +12,7 @@ from bfabric.experimental.entity_lookup_cache import EntityLookupCache
 from bfabric.utils.cli_integration import use_client
 from bfabric_app_runner.app_runner.resolve_app import load_workunit_information
 from bfabric_app_runner.app_runner.runner import run_app, Runner
+from bfabric_app_runner.specs.app.app_version import AppVersion
 
 
 @use_client
@@ -89,7 +90,9 @@ def cmd_app_dispatch(
         )
 
 
-def copy_dev_makefile(work_dir: Path, config_data: ConfigData, create_env_file: bool) -> None:
+def copy_dev_makefile(
+    work_dir: Path, app_definition: AppVersion, config_data: ConfigData, create_env_file: bool
+) -> None:
     """Copies the workunit.mk file to the work directory, and sets the version of the app runner.
     It also creates a .env file containing the BFABRICPY_CONFIG_OVERRIDE environment variable containing the configured
     connection. For security reasons it will be chmod 600.
