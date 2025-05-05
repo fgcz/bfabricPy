@@ -96,13 +96,11 @@ def cmd_dispatch(
 
 
 @cli_app.command(name="exec")
-def cmd_exec(work_dir: Path, *app_runner_cmd: str) -> None:
+def cmd_exec(*app_runner_cmd: str) -> None:
     """Executes a command in the managed environment for you.
-
-    :param work_dir: The working directory to operate in, which was dispatched with `dispatch`.
     :param app_runner_cmd: The app-runner command to execute in the managed environment.
     """
-    env_path = work_dir / "env.yml"
+    env_path = Path("env.yml")
     env = yaml.safe_load(env_path.read_text())
     print(env)
     cmd = [
