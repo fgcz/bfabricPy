@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from bfabric_app_runner.cli_uv.wheel import infer_app_module_from_wheel
+from bfabric_app_runner.cli_uv.wheel_info import infer_app_module_from_wheel
 
 
 def test_infer_app_module_from_wheel():

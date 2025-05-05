@@ -3,7 +3,7 @@ from pathlib import Path
 
 import cyclopts
 
-from bfabric_app_runner.cli_uv.wheel import infer_app_module_from_wheel
+from bfabric_app_runner.cli_uv.wheel_info import infer_app_module_from_wheel
 
 # @app.default
 # def dispatch():
