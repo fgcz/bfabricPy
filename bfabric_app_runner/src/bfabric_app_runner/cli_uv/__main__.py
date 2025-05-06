@@ -95,6 +95,11 @@ def cmd_dispatch(
     _setup_env(uv_bin=uv_bin, work_dir=work_dir, app=app, workunit=workunit, client=client, deps_string=deps_string)
 
 
+# TODO after all doing this with cyclopts is problematic and we will have to parse manually
+#  -> use cyclopts for the commands which are ok on a per-command basis, and handle this one manually as it is special
+#  (i.e. we don't want help on this command either as it should be dispatched)
+
+
 @cli_app.command(name="exec")
 def cmd_exec(*app_runner_cmd: str) -> None:
     """Executes a command in the managed environment for you.
