@@ -7,7 +7,7 @@ from loguru import logger
 from bfabric import Bfabric
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric.utils.cli_integration import use_client
-from bfabric_app_runner.actions.types import ActionConfig
+from bfabric_app_runner.actions.config_file import ActionConfig
 
 
 @use_client
