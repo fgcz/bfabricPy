@@ -22,8 +22,7 @@ CONFIG_FILE := app_env.yml
 
 # Default target
 help:
-	@set -a && . .env && set +a && \
-	  printf "Available commands:\n" && \
+	@printf "Available commands:\n" && \
 	  printf "  make run-all                 - Run all steps in a single command (recommended for most cases)\n" && \
 	  printf "\n" && \
 	  printf "Step-by-step execution:\n" && \
