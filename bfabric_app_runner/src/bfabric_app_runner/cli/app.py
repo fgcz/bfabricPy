@@ -7,12 +7,10 @@ from pathlib import Path
 from loguru import logger
 
 from bfabric import Bfabric
-from bfabric.config.config_data import ConfigData, export_config_data
 from bfabric.experimental.entity_lookup_cache import EntityLookupCache
 from bfabric.utils.cli_integration import use_client
 from bfabric_app_runner.app_runner.resolve_app import load_workunit_information
 from bfabric_app_runner.app_runner.runner import run_app, Runner
-from bfabric_app_runner.specs.app.app_version import AppVersion
 
 
 @use_client
@@ -24,20 +22,13 @@ def cmd_app_run(
     ssh_user: str | None = None,
     force_storage: Path | None = None,
     read_only: bool = False,
-    create_env_file: bool = True,
     client: Bfabric,
 ) -> None:
     """Runs all stages of an app."""
     # TODO doc
     app_version, workunit_ref = load_workunit_information(app_spec, client, work_dir, workunit_ref)
 
-    # TODO use client.config_data (once 1.13.27 is released)
-    copy_dev_makefile(
-        work_dir=work_dir,
-        app_definition=app_spec,
-        config_data=ConfigData(client=client.config, auth=client._auth),
-        create_env_file=create_env_file,
-    )
+    copy_dev_makefile(work_dir=work_dir)
 
     # TODO(#107): usage of entity lookup cache was problematic -> beyond the full solution we could also consider
     #             to deactivate the cache for the output registration
@@ -60,7 +51,6 @@ def cmd_app_dispatch(
     workunit_ref: int | Path,
     *,
     create_makefile: bool = False,
-    create_env_file: bool = True,
     client: Bfabric,
 ) -> None:
     """Create chunks, which can be processed individually.
@@ -69,7 +59,6 @@ def cmd_app_dispatch(
     :param work_dir: Path to the work directory.
     :param workunit_ref: Reference to the workunit (ID or YAML file path).
     :param create_makefile: If True, a Makefile will be created in the app directory.
-    :param create_env_file: If True, and `create_makefile` is True, a .env file will be created in the app directory.
     """
 
     work_dir = work_dir.resolve()
@@ -81,18 +70,10 @@ def cmd_app_dispatch(
         runner.run_dispatch(workunit_ref=workunit_ref, work_dir=work_dir)
 
     if create_makefile:
-        # TODO use client.config_data (once 1.13.27 is released)
-        copy_dev_makefile(
-            work_dir=work_dir,
-            app_definition=app_spec,
-            config_data=ConfigData(client=client.config, auth=client._auth),
-            create_env_file=create_env_file,
-        )
+        copy_dev_makefile(work_dir=work_dir)
 
 
-def copy_dev_makefile(
-    work_dir: Path, app_definition: AppVersion, config_data: ConfigData, create_env_file: bool
-) -> None:
+def copy_dev_makefile(work_dir: Path) -> None:
     """Copies the workunit.mk file to the work directory, and sets the version of the app runner.
     It also creates a .env file containing the BFABRICPY_CONFIG_OVERRIDE environment variable containing the configured
     connection. For security reasons it will be chmod 600.
@@ -111,15 +92,15 @@ def copy_dev_makefile(
         target_path.parent.mkdir(exist_ok=True, parents=True)
         target_path.write_text(makefile)
 
-    if create_env_file:
-        json_string = export_config_data(config_data)
-        env_file_content = f'BFABRICPY_CONFIG_OVERRIDE="{json_string.replace('"', '\\"')}"\n'
-        env_file_path = work_dir / ".env"
-        if env_file_path.exists():
-            logger.info("Renaming existing .env file to .env.bak")
-            env_file_path.rename(work_dir / ".env.bak")
-        logger.info(f"Creating .env file at {env_file_path}")
-        _write_file_chmod(path=env_file_path, text=env_file_content, mode=0o600)
+    # if create_env_file:
+    #    json_string = export_config_data(config_data)
+    #    env_file_content = f'BFABRICPY_CONFIG_OVERRIDE="{json_string.replace('"', '\\"')}"\n'
+    #    env_file_path = work_dir / ".env"
+    #    if env_file_path.exists():
+    #        logger.info("Renaming existing .env file to .env.bak")
+    #        env_file_path.rename(work_dir / ".env.bak")
+    #    logger.info(f"Creating .env file at {env_file_path}")
+    #    _write_file_chmod(path=env_file_path, text=env_file_content, mode=0o600)
 
 
 def _write_file_chmod(path: Path, text: str, mode: int) -> None:
