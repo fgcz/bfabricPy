@@ -28,12 +28,12 @@ help:
 	  printf "\n" && \
 	  printf "Step-by-step execution:\n" && \
 	  printf "  make dispatch                - Step 1: Initial step (creates chunks.yml)\n" && \
-	  printf "  make inputs [WORK_DIR=dir]   - Step 2: Prepare input files\n" && \
-	  printf "  make process [WORK_DIR=dir]  - Step 3: Process chunks in specified directory\n" && \
-	  printf "  make stage [WORK_DIR=dir]    - Step 4: Stage results to server/storage\n" && \
+	  printf "  make inputs                  - Step 2: Prepare input files\n" && \
+	  printf "  make process                 - Step 3: Process chunks in specified directory\n" && \
+	  printf "  make stage                   - Step 4: Stage results to server/storage\n" && \
 	  printf "\n" && \
 	  printf "Other commands:\n" && \
-	  printf "  make clean [WORK_DIR=dir]    - Remove specified work directory\n" && \
+	  printf "  make clean                   - Remove specified work directory\n" && \
 	  printf "  make help                    - Show this help message\n" && \
 	  printf "\n" && \
 	  printf "Current settings:\n" && \
