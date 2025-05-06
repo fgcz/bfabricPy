@@ -30,7 +30,7 @@ def cmd_prepare_workunit(
     _write_app_env_file(
         path=work_dir / "app_env.yml",
         # TODO previously we sometimes copied it but now it will not always be supported (could be added later)
-        app_spec=app_spec,
+        app_ref=app_spec,
         workunit_ref=workunit_definition_path,
         ssh_user=ssh_user,
         force_storage=force_storage,
@@ -51,7 +51,7 @@ def _write_workunit_makefile(path: Path) -> None:
 
 def _write_app_env_file(
     path: Path,
-    app_spec: Path | str,
+    app_ref: Path | str,
     workunit_ref: Path,
     ssh_user: str | None,
     force_storage: Path | None,
@@ -62,12 +62,13 @@ def _write_app_env_file(
     data = {
         "bfabric_app_runner": {
             "action": {
-                "app_spec": str(app_spec),
+                "app_ref": str(app_ref),
                 "workunit_ref": str(workunit_ref),
                 "ssh_user": ssh_user,
                 "force_storage": str(force_storage) if force_storage else None,
                 "read_only": read_only,
                 "create_env_file": create_env_file,
+                "work_dir": str(path.parent.resolve()),
             }
         }
     }
