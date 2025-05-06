@@ -7,6 +7,7 @@ from loguru import logger
 from bfabric import Bfabric
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric.utils.cli_integration import use_client
+from bfabric_app_runner.actions.types import ActionConfig
 
 
 @use_client
@@ -18,7 +19,6 @@ def cmd_prepare_workunit(
     ssh_user: str | None = None,
     force_storage: Path | None = None,
     read_only: bool = False,
-    create_env_file: bool = True,
     client: Bfabric,
 ) -> None:
     """Prepares a workunit for processing."""
@@ -35,7 +35,6 @@ def cmd_prepare_workunit(
         ssh_user=ssh_user,
         force_storage=force_storage,
         read_only=read_only,
-        create_env_file=create_env_file,
     )
     _write_workunit_makefile(path=work_dir / "Makefile")
 
@@ -56,21 +55,18 @@ def _write_app_env_file(
     ssh_user: str | None,
     force_storage: Path | None,
     read_only: bool,
-    create_env_file: bool,
 ) -> None:
     # TODO this handles everything except the BFABRIPY_CONFIG_OVERRIDE
-    data = {
-        "bfabric_app_runner": {
-            "action": {
-                "app_ref": str(app_ref),
-                "workunit_ref": str(workunit_ref),
-                "ssh_user": ssh_user,
-                "force_storage": str(force_storage) if force_storage else None,
-                "read_only": read_only,
-                "create_env_file": create_env_file,
-                "work_dir": str(path.parent.resolve()),
-            }
-        }
-    }
+
+    action_config = ActionConfig(
+        work_dir=path.parent.resolve(),
+        app_ref=app_ref,
+        workunit_ref=workunit_ref,
+        ssh_user=ssh_user,
+        force_storage=force_storage,
+        read_only=read_only,
+    )
+
+    data = {"bfabric_app_runner": {"action": action_config.model_dump(mode="json")}}
     with path.open("w") as fh:
         yaml.safe_dump(data, fh)

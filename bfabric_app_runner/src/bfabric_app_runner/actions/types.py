@@ -25,6 +25,8 @@ class ActionConfig(BaseModel):
     ssh_user: str | None = None
     filter: str | None = None
     force_storage: Path | None = None
+    # TODO this is not really handled right now?
+    read_only: bool | None = None
 
     @field_validator("app_ref", mode="after")
     @classmethod
