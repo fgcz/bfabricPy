@@ -15,7 +15,7 @@
 
 SHELL := /bin/bash
 
-RUNNER_CMD := bfabric-app-runner-uv exec --work-dir .
+RUNNER_CMD := bfabric-app-runner
 
 .PHONY: help dispatch inputs process stage run-all clean
 
@@ -41,36 +41,31 @@ help:
 # Step 1: Initial dispatch
 dispatch:
 	@echo "Step 1/4: Running initial dispatch..."
-	set -a && . .env && set +a && \
-	$(RUNNER_CMD) run dispatch
+	$(RUNNER_CMD) action dispatch
 	@echo "✓ Dispatch completed - chunks.yml created"
 
 # Step 2: Prepare inputs
 inputs:
 	@echo "Step 2/4: Preparing inputs in directory '$(WORK_DIR)'..."
-	set -a && . .env && set +a && \
-	$(RUNNER_CMD) run inputs
+	$(RUNNER_CMD) action inputs
 	@echo "✓ Inputs prepared for '$(WORK_DIR)'"
 
 # Step 3: Process chunks
 process:
 	@echo "Step 3/4: Processing chunks in directory '$(WORK_DIR)'..."
-	set -a && . .env && set +a && \
-	$(RUNNER_CMD) run process
+	$(RUNNER_CMD) action process
 	@echo "✓ Processing completed for '$(WORK_DIR)'"
 
 # Step 4: Stage results
 stage:
 	@echo "Step 4/4: Staging results from directory '$(WORK_DIR)'..."
-	set -a && . .env && set +a && \
-	$(RUNNER_CMD) run outputs
+	$(RUNNER_CMD) action outputs
 	@echo "✓ Results staged for '$(WORK_DIR)'"
 
 # Run all steps in one command
 run-all:
 	@echo "Running all steps in a single command..."
-	set -a && . .env && set +a && \
-	$(RUNNER_CMD) run run
+	$(RUNNER_CMD) action run-all
 	@echo "✓ All steps completed"
 
 # Clean generated files
