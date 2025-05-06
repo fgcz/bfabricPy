@@ -65,7 +65,6 @@ app.command(cmd_validate)
 # cmd_run = cyclopts.App("run", config=cyclopts.config.Env("APP_RUNNER_", command=False))
 cmd_action = cyclopts.App(
     "action",
-    config=cyclopts.config.Yaml("app_env.yml", use_commands_as_keys=False, root_keys=["bfabric_app_runner", "action"]),
     help="Executes an action of a prepared workunit",
 )
 cmd_action.command(cmd_action_run_all, name="run-all")

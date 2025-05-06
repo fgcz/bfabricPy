@@ -16,6 +16,7 @@
 SHELL := /bin/bash
 
 RUNNER_CMD := bfabric-app-runner
+CONFIG_FILE := app_env.yml
 
 .PHONY: help dispatch inputs process stage run-all clean
 
@@ -41,31 +42,31 @@ help:
 # Step 1: Initial dispatch
 dispatch:
 	@echo "Step 1/4: Running initial dispatch..."
-	$(RUNNER_CMD) action dispatch
+	$(RUNNER_CMD) action dispatch --config "$(CONFIG_FILE)"
 	@echo "✓ Dispatch completed - chunks.yml created"
 
 # Step 2: Prepare inputs
 inputs:
 	@echo "Step 2/4: Preparing inputs in directory '$(WORK_DIR)'..."
-	$(RUNNER_CMD) action inputs
+	$(RUNNER_CMD) action inputs --config "$(CONFIG_FILE)"
 	@echo "✓ Inputs prepared for '$(WORK_DIR)'"
 
 # Step 3: Process chunks
 process:
 	@echo "Step 3/4: Processing chunks in directory '$(WORK_DIR)'..."
-	$(RUNNER_CMD) action process
+	$(RUNNER_CMD) action process --config "$(CONFIG_FILE)"
 	@echo "✓ Processing completed for '$(WORK_DIR)'"
 
 # Step 4: Stage results
 stage:
 	@echo "Step 4/4: Staging results from directory '$(WORK_DIR)'..."
-	$(RUNNER_CMD) action outputs
+	$(RUNNER_CMD) action outputs --config "$(CONFIG_FILE)"
 	@echo "✓ Results staged for '$(WORK_DIR)'"
 
 # Run all steps in one command
 run-all:
 	@echo "Running all steps in a single command..."
-	$(RUNNER_CMD) action run-all
+	$(RUNNER_CMD) action run-all --config "$(CONFIG_FILE)"
 	@echo "✓ All steps completed"
 
 # Clean generated files
