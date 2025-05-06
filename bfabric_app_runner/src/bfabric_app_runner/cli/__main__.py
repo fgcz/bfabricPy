@@ -54,7 +54,12 @@ cmd_validate.command(cmd_validate_outputs_spec, name="outputs-spec")
 cmd_validate.command(cmd_validate_submitters_spec_template, name="submitters-spec-template")
 app.command(cmd_validate)
 
-cmd_run = cyclopts.App("run", config=cyclopts.config.Env("APP_RUNNER_", command=False))
+# TODO check if we want to support both env and config file later
+# cmd_run = cyclopts.App("run", config=cyclopts.config.Env("APP_RUNNER_", command=False))
+cmd_run = cyclopts.App(
+    "run",
+    config=cyclopts.config.Yaml("app_env.yml", use_commands_as_keys=False, root_keys=["bfabric_app_runner", "run"]),
+)
 cmd_run.default(cmd_run_)
 cmd_run.command(cmd_run_dispatch, name="dispatch")
 cmd_run.command(cmd_run_inputs, name="inputs")
