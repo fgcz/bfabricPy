@@ -6,7 +6,13 @@ import cyclopts
 
 from bfabric_app_runner.cli.app import cmd_app_run, cmd_app_dispatch
 from bfabric_app_runner.cli.chunk import cmd_chunk_run_all, cmd_chunk_outputs, cmd_chunk_process
-from bfabric_app_runner.cli.cmd_run import cmd_run_inputs, cmd_run_outputs, cmd_run_process, cmd_run_, cmd_run_dispatch
+from bfabric_app_runner.cli.cmd_action import (
+    cmd_action_inputs,
+    cmd_action_outputs,
+    cmd_action_process,
+    cmd_action_run,
+    cmd_action_dispatch,
+)
 from bfabric_app_runner.cli.inputs import cmd_inputs_prepare, cmd_inputs_clean, cmd_inputs_list, cmd_inputs_check
 from bfabric_app_runner.cli.outputs import cmd_outputs_register, cmd_outputs_register_single_file
 from bfabric_app_runner.cli.validate import (
@@ -56,16 +62,16 @@ app.command(cmd_validate)
 
 # TODO check if we want to support both env and config file later
 # cmd_run = cyclopts.App("run", config=cyclopts.config.Env("APP_RUNNER_", command=False))
-cmd_run = cyclopts.App(
-    "run",
-    config=cyclopts.config.Yaml("app_env.yml", use_commands_as_keys=False, root_keys=["bfabric_app_runner", "run"]),
+cmd_action = cyclopts.App(
+    "action",
+    config=cyclopts.config.Yaml("app_env.yml", use_commands_as_keys=False, root_keys=["bfabric_app_runner", "action"]),
 )
-cmd_run.default(cmd_run_)
-cmd_run.command(cmd_run_dispatch, name="dispatch")
-cmd_run.command(cmd_run_inputs, name="inputs")
-cmd_run.command(cmd_run_process, name="process")
-cmd_run.command(cmd_run_outputs, name="outputs")
-app.command(cmd_run)
+cmd_action.command(cmd_action_run, name="run")
+cmd_action.command(cmd_action_dispatch, name="dispatch")
+cmd_action.command(cmd_action_inputs, name="inputs")
+cmd_action.command(cmd_action_process, name="process")
+cmd_action.command(cmd_action_outputs, name="outputs")
+app.command(cmd_action)
 
 if __name__ == "__main__":
     app()
