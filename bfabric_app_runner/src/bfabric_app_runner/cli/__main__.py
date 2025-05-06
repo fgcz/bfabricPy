@@ -63,10 +63,7 @@ app.command(cmd_validate)
 
 # TODO check if we want to support both env and config file later
 # cmd_run = cyclopts.App("run", config=cyclopts.config.Env("APP_RUNNER_", command=False))
-cmd_action = cyclopts.App(
-    "action",
-    help="Executes an action of a prepared workunit",
-)
+cmd_action = cyclopts.App("action", help="Executes an action of a prepared workunit")
 cmd_action.command(cmd_action_run_all, name="run-all")
 cmd_action.command(cmd_action_dispatch, name="dispatch")
 cmd_action.command(cmd_action_inputs, name="inputs")
