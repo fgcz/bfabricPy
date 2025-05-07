@@ -38,11 +38,7 @@ class FromConfigFile(BaseModel):
             logger.debug(f"Parsing config file: {values['config']}")
             with Path(values["config"]).open("r") as config_file:
                 config_data = yaml.safe_load(config_file)
-
-            # TODO make safer (glom?)
             config_entry = glom(config_data, "bfabric_app_runner.action")
-
-            # TODO test this scenario
             data = ActionConfig.model_validate(config_entry)
 
             # update all values which are not provided explicitly with the values from config_parsed
