@@ -93,16 +93,6 @@ def copy_dev_makefile(work_dir: Path) -> None:
         target_path.parent.mkdir(exist_ok=True, parents=True)
         target_path.write_text(makefile)
 
-    # if create_env_file:
-    #    json_string = export_config_data(config_data)
-    #    env_file_content = f'BFABRICPY_CONFIG_OVERRIDE="{json_string.replace('"', '\\"')}"\n'
-    #    env_file_path = work_dir / ".env"
-    #    if env_file_path.exists():
-    #        logger.info("Renaming existing .env file to .env.bak")
-    #        env_file_path.rename(work_dir / ".env.bak")
-    #    logger.info(f"Creating .env file at {env_file_path}")
-    #    _write_file_chmod(path=env_file_path, text=env_file_content, mode=0o600)
-
 
 def _write_file_chmod(path: Path, text: str, mode: int) -> None:
     if sys.platform == "win32":
