@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import assert_never
 
 from bfabric import Bfabric
+from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric_app_runner.actions.types import (
     ActionDispatch,
     ActionInputs,
@@ -43,6 +44,11 @@ def execute_dispatch(action: ActionDispatch, client: Bfabric) -> None:
         create_env_file=False,
         client=client,
     )
+
+    if not action.read_only:
+        # Set the workunit status to processing
+        workunit_definition = WorkunitDefinition.from_yaml(action.work_dir / "workunit_definition.yml")
+        client.save("workunit", {"id": workunit_definition.registration.workunit_id, "status": "processing"})
 
 
 def execute_run(action: ActionRun, client: Bfabric) -> None:
@@ -90,8 +96,7 @@ def execute_outputs(action: ActionOutputs, client: Bfabric) -> None:
             workunit_ref=action.workunit_ref,
             ssh_user=action.ssh_user,
             force_storage=action.force_storage,
-            # TODO expose read only?
-            read_only=False,
+            read_only=action.read_only,
             # TODO
             # reuse_default_resource=action.reuse_default_resource,
             reuse_default_resource=True,

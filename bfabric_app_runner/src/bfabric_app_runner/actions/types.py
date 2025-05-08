@@ -20,6 +20,7 @@ class ActionDispatch(FromConfigFile):
     work_dir: Path
     app_ref: Path | str
     workunit_ref: int | Path
+    read_only: bool = False
 
 
 class ActionRun(FromConfigFile):
@@ -55,6 +56,7 @@ class ActionOutputs(FromConfigFile):
     chunk: str | None = None
     ssh_user: str | None = None
     force_storage: Path | None = None
+    read_only: bool = False
 
 
 ActionGeneric = Annotated[

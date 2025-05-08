@@ -52,6 +52,7 @@ def cmd_app_dispatch(
     *,
     create_makefile: bool = False,
     client: Bfabric,
+    read_only: bool = True,
 ) -> None:
     """Create chunks, which can be processed individually.
 
