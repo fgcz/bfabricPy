@@ -15,7 +15,7 @@
 
 SHELL := /bin/bash
 
-RUNNER_CMD := bfabric-app-runner
+RUNNER_CMD := @APP_RUNNER_CMD@
 CONFIG_FILE := app_env.yml
 
 .PHONY: help dispatch inputs process stage run-all clean

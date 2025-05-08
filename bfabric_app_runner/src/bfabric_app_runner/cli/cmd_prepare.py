@@ -1,4 +1,5 @@
 import importlib.resources
+import os
 from pathlib import Path
 
 import yaml
@@ -41,6 +42,11 @@ def cmd_prepare_workunit(
 
 def _write_workunit_makefile(path: Path) -> None:
     makefile = importlib.resources.read_text("bfabric_app_runner", "resources/workunit.mk")
+
+    # TODO this should be improved (using env variable isn't reliable)
+    app_runner_cmd = os.environ.get("APP_RUNNER_CMD") or "bfabric-app-runner"
+    makefile = makefile.replace("@APP_RUNNER_CMD@", app_runner_cmd)
+
     if path.exists():
         logger.info("Renaming existing Makefile to Makefile.bak")
         path.rename(path.parent / "Makefile.bak")
