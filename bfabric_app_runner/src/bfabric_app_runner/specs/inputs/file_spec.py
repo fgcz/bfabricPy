@@ -41,5 +41,10 @@ class FileSpec(BaseModel):
             raise ValueError("Cannot link to a remote file.")
         return self
 
-    def resolve_filename(self, client: Bfabric) -> str:
+    def get_filename(self) -> str:
+        """Returns the filename, extracting it from the source if it was omitted."""
         return self.filename if self.filename else self.source.get_filename()
+
+    def resolve_filename(self, client: Bfabric) -> str:
+        # TODO delete
+        return self.get_filename()

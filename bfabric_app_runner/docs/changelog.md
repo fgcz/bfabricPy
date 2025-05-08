@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Apps can now be referred to by module path rather than just file paths. This is going to be a primary building block
     to very simple package-based deployment of apps.
 - The `static_file` input spec type has been integrated properly.
+- Missing integration for `file` input spec type has been added.
 - The workunit makefile now directly shows how to use the GitHub app runner version instead, which is sometimes required
     while debugging.
 - `CommandExec` allows prepending paths to `PATH` and setting environment variables and is less ambiguous than `shell`.
