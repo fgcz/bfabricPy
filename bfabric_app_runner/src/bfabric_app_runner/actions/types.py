@@ -2,7 +2,9 @@ from enum import Enum
 from pathlib import Path
 from typing import Literal, Annotated
 
-from pydantic import BaseModel, Field
+from pydantic import Field
+
+from bfabric_app_runner.actions.config_file import FromConfigFile
 
 
 class Action(str, Enum):
@@ -13,14 +15,15 @@ class Action(str, Enum):
     outputs = "outputs"
 
 
-class ActionDispatch(BaseModel):
+class ActionDispatch(FromConfigFile):
     action: Literal[Action.dispatch] = Action.dispatch
     work_dir: Path
     app_ref: Path | str
     workunit_ref: int | Path
+    read_only: bool = False
 
 
-class ActionRun(BaseModel):
+class ActionRun(FromConfigFile):
     action: Literal[Action.run] = Action.run
     work_dir: Path
     chunk: str | None = None
@@ -30,7 +33,7 @@ class ActionRun(BaseModel):
     force_storage: Path | None = None
 
 
-class ActionInputs(BaseModel):
+class ActionInputs(FromConfigFile):
     action: Literal[Action.inputs] = Action.inputs
     work_dir: Path
     chunk: str | None = None
@@ -38,14 +41,14 @@ class ActionInputs(BaseModel):
     filter: str | None = None
 
 
-class ActionProcess(BaseModel):
+class ActionProcess(FromConfigFile):
     action: Literal[Action.process] = Action.process
     work_dir: Path
     app_ref: Path | str
     chunk: str | None = None
 
 
-class ActionOutputs(BaseModel):
+class ActionOutputs(FromConfigFile):
     action: Literal[Action.outputs] = Action.outputs
     work_dir: Path
     workunit_ref: int | Path
@@ -53,6 +56,7 @@ class ActionOutputs(BaseModel):
     chunk: str | None = None
     ssh_user: str | None = None
     force_storage: Path | None = None
+    read_only: bool = False
 
 
 ActionGeneric = Annotated[
