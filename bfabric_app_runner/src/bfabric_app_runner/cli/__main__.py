@@ -6,6 +6,14 @@ import cyclopts
 
 from bfabric_app_runner.cli.app import cmd_app_run, cmd_app_dispatch
 from bfabric_app_runner.cli.chunk import cmd_chunk_run_all, cmd_chunk_outputs, cmd_chunk_process
+from bfabric_app_runner.cli.cmd_action import (
+    cmd_action_inputs,
+    cmd_action_outputs,
+    cmd_action_process,
+    cmd_action_run_all,
+    cmd_action_dispatch,
+)
+from bfabric_app_runner.cli.cmd_prepare import cmd_prepare_workunit
 from bfabric_app_runner.cli.inputs import cmd_inputs_prepare, cmd_inputs_clean, cmd_inputs_list, cmd_inputs_check
 from bfabric_app_runner.cli.outputs import cmd_outputs_register, cmd_outputs_register_single_file
 from bfabric_app_runner.cli.validate import (
@@ -52,6 +60,19 @@ cmd_validate.command(cmd_validate_inputs_spec, name="inputs-spec")
 cmd_validate.command(cmd_validate_outputs_spec, name="outputs-spec")
 cmd_validate.command(cmd_validate_submitters_spec_template, name="submitters-spec-template")
 app.command(cmd_validate)
+
+cmd_action = cyclopts.App("action", help="Executes an action of a prepared workunit")
+cmd_action.command(cmd_action_run_all, name="run-all")
+cmd_action.command(cmd_action_dispatch, name="dispatch")
+cmd_action.command(cmd_action_inputs, name="inputs")
+cmd_action.command(cmd_action_process, name="process")
+cmd_action.command(cmd_action_outputs, name="outputs")
+app.command(cmd_action)
+
+cmd_prepare = cyclopts.App(name="prepare")
+cmd_prepare.command(cmd_prepare_workunit, name="workunit")
+app.command(cmd_prepare)
+
 
 if __name__ == "__main__":
     app()
