@@ -41,7 +41,6 @@ def execute_dispatch(action: ActionDispatch, client: Bfabric) -> None:
         work_dir=action.work_dir,
         workunit_ref=action.workunit_ref,
         create_makefile=False,
-        create_env_file=False,
         client=client,
     )
 
