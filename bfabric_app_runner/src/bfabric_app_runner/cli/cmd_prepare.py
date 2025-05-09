@@ -45,6 +45,8 @@ def _write_workunit_makefile(path: Path) -> None:
 
     # TODO this should be improved (using env variable isn't reliable)
     app_runner_cmd = os.environ.get("APP_RUNNER_COMMAND") or "bfabric-app-runner"
+    # For makefile escaping of URIs containing `#` character
+    app_runner_cmd = app_runner_cmd.replace(r"#", r"\#")
     makefile = makefile.replace("@APP_RUNNER_CMD@", app_runner_cmd)
 
     if path.exists():
