@@ -18,6 +18,7 @@ Versioning currently follows `X.Y.Z` where
 ### Changed
 
 - Update `bfabric` to 1.13.26.
+- `bfabric-cli api delete` will use the type of the entity in CLI messages.
 
 ## \[1.13.27\] - 2025-04-22
 

@@ -24,8 +24,8 @@ class Params(BaseModel):
 
 def _perform_delete(client: Bfabric, endpoint: str, id: list[int]) -> None:
     """Deletes the entity with the given id from the given endpoint."""
-    result = client.delete(endpoint=endpoint, id=id).to_list_dict()
-    logger.info(f"Entity with ID(s) {id} deleted successfully.")
+    client.delete(endpoint=endpoint, id=id)
+    logger.info(f"{endpoint.capitalize()} with ID(s) {id} deleted successfully.")
 
 
 @logger.catch(reraise=True)
@@ -48,5 +48,5 @@ def cmd_api_delete(params: Params, *, client: Bfabric) -> None:
                     Pretty(existing_entity, expand_all=False), title=f"{params.endpoint.capitalize()} with ID {id}"
                 )
             )
-            if Confirm.ask(f"Delete entity with ID {id}?"):
+            if Confirm.ask(f"Delete {params.endpoint} with ID {id}?"):
                 _perform_delete(client=client, endpoint=params.endpoint, id=[id])
