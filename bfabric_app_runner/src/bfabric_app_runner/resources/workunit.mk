@@ -40,11 +40,12 @@ help:
 
 # Step 1: Initial dispatch
 dispatch:
-	@echo "Step 1/4: Running initial dispatch..."
-	$(RUNNER_CMD) action dispatch --config "$(CONFIG_FILE)"
-	@echo "✓ Dispatch completed for '$(WORK_DIR)'."
+	@$(MAKE) --always-make chunks.yml
 
-chunks.yml: dispatch
+chunks.yml:
+	@echo "step 1/4: running initial dispatch..."
+	$(runner_cmd) action dispatch --config "$(config_file)"
+	@echo "✓ dispatch completed for '$(work_dir)'."
 
 # Step 2: Prepare inputs
 inputs: chunks.yml
