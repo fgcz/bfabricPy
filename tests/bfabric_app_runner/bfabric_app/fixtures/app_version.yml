@@ -1,0 +1,13 @@
+version: "1.0.0"
+submitter:
+  name: "test_submitter"
+commands:
+  dispatch:
+    type: shell
+    command: echo "Dispatching"
+  process:
+    type: shell
+    command: echo "Processing"
+  collect:
+    type: shell
+    command: echo "Collecting"

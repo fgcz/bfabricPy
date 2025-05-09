@@ -25,11 +25,15 @@ dependencies = [
 include = [
     "src/bfabric_app_runner/**/*.py",
     "src/bfabric_app_runner/py.typed",
-    "src/bfabric_app_runner/resources/*.mk"
+    "src/bfabric_app_runner/resources/*.mk",
+    "src/bfabric_app_runner/**/*.mako",
 ]
 
 [project.scripts]
 "bfabric-app-runner"="bfabric_app_runner.cli.__main__:app"
+#TODO
+"bfabric-app-runner-wrapper-creator"="bfabric_app_runner.bfabric_app.wrapper_creator:app"
+"bfabric-app-runner-submitter"="bfabric_app_runner.bfabric_app.submitter:app"
 
 [project.optional-dependencies]
 doc = [
