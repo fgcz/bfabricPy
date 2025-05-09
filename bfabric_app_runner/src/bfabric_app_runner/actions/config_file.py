@@ -33,7 +33,7 @@ class FromConfigFile(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def parse_config_file(cls, values: Any) -> Any:
-        if isinstance(values, dict) and "config" in values:
+        if isinstance(values, dict) and "config" in values and values["config"] is not None:
             logger.debug(f"Parsing config file: {values['config']}")
             with Path(values["config"]).open("r") as config_file:
                 config_data = yaml.safe_load(config_file)

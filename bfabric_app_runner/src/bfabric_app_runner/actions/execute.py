@@ -54,9 +54,9 @@ def execute_run(action: ActionRun, client: Bfabric) -> None:
     """Executes a run action."""
     chunks = _validate_chunks_list(action.work_dir, action.chunk)
     for chunk in chunks:
-        execute_inputs(action=ActionInputs.model_validate(action.model_dump() | {"chunk": chunk}), client=client)
-        execute_process(action=ActionProcess.model_validate(action.model_dump() | {"chunk": chunk}), client=client)
-        execute_outputs(action=ActionOutputs.model_validate(action.model_dump() | {"chunk": chunk}), client=client)
+        execute_inputs(action=ActionInputs.from_action_run(action, chunk=str(chunk)), client=client)
+        execute_process(action=ActionProcess.from_action_run(action, chunk=str(chunk)), client=client)
+        execute_outputs(action=ActionOutputs.from_action_run(action, chunk=str(chunk)), client=client)
 
 
 def execute_inputs(action: ActionInputs, client: Bfabric) -> None:
