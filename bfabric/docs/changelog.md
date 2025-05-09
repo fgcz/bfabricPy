@@ -13,6 +13,8 @@ Versioning currently follows `X.Y.Z` where
 ### Added
 
 - Attribute `Bfabric.config_data` to obtain a `ConfigData` object directly.
+- `TokenData.load_entity` convenience method to load an entity from the token data.
+- Entities `Instrument`, `Plate`, `Run` were added (but with no extra functionality).
 
 ## \[1.13.26\] - 2025-04-26
 
