@@ -44,7 +44,7 @@ dispatch:
 
 chunks.yml:
 	@echo "step 1/4: running initial dispatch..."
-	$(runner_cmd) action dispatch --config "$(config_file)"
+	$(RUNNER_CMD) action dispatch --config "$(config_file)"
 	@echo "✓ dispatch completed for '$(work_dir)'."
 
 # Step 2: Prepare inputs
