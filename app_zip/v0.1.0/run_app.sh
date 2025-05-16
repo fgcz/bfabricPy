@@ -7,9 +7,7 @@ is_newer() {
   local DIR="$2"
 
   # If directory doesn't exist, zip is "newer"
-  if [ ! -d "$DIR" ]; then
-    return 0  # True (0 in bash)
-  fi
+  [ ! -d "$DIR" ] && return 0
 
   # Compare modification times (works on Linux and macOS)
   if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -37,7 +35,7 @@ run_app() {
   if is_newer "$APP_ZIP" "$APP_DIR"; then
     mkdir -p "$DEST_DIR"
 
-    # Safe removal: check that APP_DIR is not empty and contains expected path
+    # Safe removal of app directory
     if [[ -n "$APP_DIR" && "$APP_DIR" == *".app_tmp/app" ]]; then
       rm -rf "$APP_DIR"
     else
@@ -46,6 +44,19 @@ run_app() {
     fi
 
     unzip -q "$APP_ZIP" -d "$DEST_DIR"
+  fi
+
+  # Check app_zip_version.txt
+  local VERSION_FILE="$APP_DIR/app_zip_version.txt"
+  if [ ! -f "$VERSION_FILE" ]; then
+    echo "Error: app_zip_version.txt not found"
+    return 1
+  fi
+
+  local VERSION=$(tr -d '[:space:]' < "$VERSION_FILE")
+  if [ "$VERSION" != "0.1.0" ]; then
+    echo "Error: Incompatible app zip version: $VERSION (expected 0.1.0)"
+    return 1
   fi
 
   cd "$APP_DIR"
