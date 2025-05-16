@@ -53,7 +53,7 @@ class Workunit(Entity, HasContainerMixin):
         return Path(
             f"{self.application.storage['projectfolderprefix']}{self.container.id}",
             "bfabric",
-            path_safe_name(self.application["technology"]),
+            self.application.technology_folder_name,
             path_safe_name(self.application["name"]),
             date.strftime("%Y/%Y-%m/%Y-%m-%d/"),
             f"workunit_{self.id}",

@@ -16,6 +16,11 @@ Versioning currently follows `X.Y.Z` where
 - `TokenData.load_entity` convenience method to load an entity from the token data.
 - Entities `Instrument`, `Plate`, `Run` were added (but with no extra functionality).
 
+### Fixed
+
+- Compatibility with upcoming change that `Application` can have multiple `technology` values.
+- Compatibility with pandera 0.24.0 was restored.
+
 ## \[1.13.26\] - 2025-04-26
 
 This release introduces an environment variable `BFABRICPY_CONFIG_OVERRIDE` to configure the `Bfabric` client completely,
