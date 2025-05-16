@@ -2,7 +2,7 @@
 """
 App Zip Tool
 ------------
-Tool for validating and running applications packaged in App Zip Format 0.1.0
+Tool for validating, running, and creating applications packaged in App Zip Format 0.1.0
 """
 import os
 import shlex
@@ -28,6 +28,60 @@ def validate(zip_path: Path) -> None:
 
 
 @app.command()
+def create(
+    output_path: Path,
+    wheel_path: Path,
+    pylock_path: Path,
+    app_yml_path: Path,
+    python_version: str = "3.13",
+) -> None:
+    """
+    Create an App Zip file from pre-built components
+
+    Args:
+        output_path: Path where the app zip will be created
+        wheel_path: Path to the wheel file (.whl)
+        pylock_path: Path to the pylock.toml file
+        app_yml_path: Path to the app.yml configuration file
+        python_version: Python version to use (default: 3.13)
+    """
+    # Ensure parent directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Verify input files exist
+    for path, name in [(wheel_path, "wheel file"), (pylock_path, "pylock.toml file"), (app_yml_path, "app.yml file")]:
+        if not path.exists():
+            print(f"Error: {name} not found at {path}")
+            sys.exit(1)
+
+    # Create the zip file
+    print(f"Creating app zip: {output_path}")
+    with zipfile.ZipFile(output_path, "w") as app_zip:
+        # Write the app zip version
+        app_zip.writestr("app/app_zip_version.txt", "0.1.0")
+
+        # Add the pylock.toml file
+        app_zip.write(pylock_path, arcname="app/pylock.toml")
+
+        # Add the wheel file
+        app_zip.write(wheel_path, arcname=f"app/package/{wheel_path.name}")
+
+        # Add the app.yml file
+        app_zip.write(app_yml_path, arcname="app/config/app.yml")
+
+        # Write the python version
+        app_zip.writestr("app/config/python_version.txt", python_version)
+
+    print(f"✅ Successfully created app zip: {output_path}")
+
+    # Validate the created zip
+    result = validate_app_zip(output_path)
+    if not result["valid"]:
+        print("Warning: Created zip file failed validation!")
+        sys.exit(1)
+
+
+@app.command()
 def run(zip_path: Path, command: str) -> None:
     """
     Run a command from an app zip file
@@ -38,6 +92,7 @@ def run(zip_path: Path, command: str) -> None:
     """
     # Parse the command string into a list of arguments
     command_args = shlex.split(command)
+
     # Setup paths
     dest_dir = Path("./.app_tmp")
     app_dir = dest_dir / "app"
