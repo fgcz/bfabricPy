@@ -1,9 +1,4 @@
 #!/usr/bin/env python3
-"""
-App Zip Validator
-----------------
-Validates Python application zip files according to App Zip Format 0.1.0
-"""
 import sys
 import zipfile
 from pathlib import Path
