@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+"""
+App Zip Tool
+------------
+Tool for validating and running applications packaged in App Zip Format 0.1.0
+"""
+import os
+import shutil
+import subprocess
 import sys
 import zipfile
 from pathlib import Path
@@ -7,7 +15,7 @@ from typing import Dict, List, Optional, Union
 import cyclopts
 from pydantic import BaseModel, Field
 
-app = cyclopts.App(help="Validate App Zip Format 0.1.0 packages")
+app = cyclopts.App(help="App Zip Format 0.1.0 tool")
 
 
 @app.command()
@@ -16,6 +24,68 @@ def validate(zip_path: Path) -> None:
     result = validate_app_zip(zip_path)
     if not result["valid"]:
         sys.exit(1)
+
+
+@app.command()
+def run(zip_path: Path, command: List[str]) -> None:
+    """
+    Run a command from an app zip file
+
+    Args:
+        zip_path: Path to the app zip file
+        command: Command and arguments to run in the app environment
+    """
+    # Setup paths
+    dest_dir = Path("./.app_tmp")
+    app_dir = dest_dir / "app"
+
+    # Extract if zip is newer than directory
+    if is_newer(zip_path, app_dir):
+        print(f"Extracting {zip_path}...")
+        dest_dir.mkdir(exist_ok=True)
+
+        # Safe removal of app directory
+        if app_dir.exists() and ".app_tmp/app" in str(app_dir):
+            shutil.rmtree(app_dir)
+        elif app_dir.exists():
+            print(f"Error: Unexpected app directory path: {app_dir}")
+            sys.exit(1)
+
+        # Extract the zip
+        with zipfile.ZipFile(zip_path, "r") as zip_file:
+            zip_file.extractall(dest_dir)
+
+    # Validate the app zip
+    result = validate_app_dir(app_dir)
+    if not result["valid"]:
+        print_validation_result(zip_path, result)
+        sys.exit(1)
+
+    # Setup environment
+    python_version = (app_dir / "config" / "python_version.txt").read_text().strip()
+    venv_path = app_dir / ".venv"
+
+    # Change to app directory
+    os.chdir(app_dir)
+
+    # Create virtual environment if it doesn't exist
+    if not venv_path.exists():
+        print(f"Creating Python {python_version} virtual environment...")
+        subprocess.run(["uv", "venv", "-p", python_version, str(venv_path)], check=True)
+
+        # Install dependencies
+        print("Installing dependencies...")
+        activate_venv_and_run(
+            venv_path,
+            [
+                ["uv", "pip", "install", "--requirement", "pylock.toml"],
+                ["uv", "pip", "install", "--offline", "--no-deps"] + list(Path("package").glob("*.whl")),
+            ],
+        )
+
+    # Run the command in the virtual environment
+    print(f"Running: {' '.join(command)}")
+    activate_venv_and_run(venv_path, [command])
 
 
 class AppZipValidator(BaseModel):
@@ -87,6 +157,40 @@ def validate_app_zip(zip_path: Path) -> Dict[str, Union[bool, List[str]]]:
     return result
 
 
+def validate_app_dir(app_dir: Path) -> Dict[str, Union[bool, List[str]]]:
+    """Validate an extracted app directory"""
+    result = {"valid": False, "errors": []}
+
+    try:
+        # Check app_zip_version.txt
+        version_file = app_dir / "app_zip_version.txt"
+        version = "unknown"
+        if version_file.exists():
+            version = version_file.read_text().strip()
+
+        # Check python version
+        python_version = None
+        python_version_file = app_dir / "config" / "python_version.txt"
+        if python_version_file.exists():
+            python_version = python_version_file.read_text().strip()
+
+        # Build validator
+        validator = AppZipValidator(
+            version=version,
+            has_pylock=(app_dir / "pylock.toml").exists(),
+            wheel_files=[str(p) for p in app_dir.glob("package/*.whl")],
+            python_version=python_version,
+            has_app_config=(app_dir / "config" / "app.yml").exists(),
+        )
+
+        result["valid"] = validator.is_valid
+        result["errors"] = validator.get_validation_errors()
+    except Exception as e:
+        result["errors"] = [f"Error validating directory: {str(e)}"]
+
+    return result
+
+
 def extract_zip_info(zip_file: zipfile.ZipFile, file_list: List[str]) -> AppZipValidator:
     """Extract relevant information from zip contents"""
     # Check version
@@ -126,6 +230,44 @@ def print_validation_result(zip_path: Path, result: Dict[str, Union[bool, List[s
                 print(f"  {i}. {error}")
             print()
         print("The zip file does not conform to App Zip Format 0.1.0 specification.")
+
+
+def is_newer(zip_path: Path, dir_path: Path) -> bool:
+    """Check if zip file is newer than directory"""
+    # If directory doesn't exist, zip is "newer"
+    if not dir_path.exists():
+        return True
+
+    # Compare modification times
+    return zip_path.stat().st_mtime > dir_path.stat().st_mtime
+
+
+def activate_venv_and_run(venv_path: Path, commands_list: List[List[str]]) -> None:
+    """Activate virtual environment and run commands"""
+    # Determine the activation script based on platform
+    if sys.platform == "win32":
+        activate_script = venv_path / "Scripts" / "activate.bat"
+        activate_cmd = f"call {activate_script}"
+        shell = True
+    else:
+        activate_script = venv_path / "bin" / "activate"
+        activate_cmd = f"source {activate_script}"
+        shell = True
+
+    # Run each command in the activated environment
+    for cmd_args in commands_list:
+        if isinstance(cmd_args[0], Path):
+            cmd_args[0] = str(cmd_args[0])
+
+        cmd_str = " ".join(str(arg) for arg in cmd_args)
+        full_cmd = f"{activate_cmd} && {cmd_str}"
+
+        try:
+            subprocess.run(full_cmd, shell=shell, check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"Error executing command: {cmd_str}")
+            print(f"Return code: {e.returncode}")
+            sys.exit(e.returncode)
 
 
 if __name__ == "__main__":
