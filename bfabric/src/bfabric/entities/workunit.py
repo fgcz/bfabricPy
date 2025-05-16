@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from functools import cached_property
 from pathlib import Path
 from typing import Any, TYPE_CHECKING
@@ -50,6 +51,12 @@ class Workunit(Entity, HasContainerMixin):
 
     @cached_property
     def parameter_values(self) -> dict[str, Any]:
+        # Deprecated
+        warnings.warn(
+            "The parameter_values property is deprecated and will be removed in a future version. "
+            "Use application_parameters or submitter_parameters instead.",
+            DeprecationWarning,
+        )
         return {p.key: p.value for p in self.parameters.list}
 
     @cached_property
