@@ -96,6 +96,9 @@ def cmd_app_zip_create_uv(
 
     app_zip_path = output_folder / f"{helper.package_name}-{helper.version}.zip"
     with ZipFile(app_zip_path, "w") as app_zip:
+        # Write the app zip version
+        app_zip.writestr("app/app_zip_version.txt", "0.1.0")
+
         # Copy the lockfile
         app_zip.write(project_path / "pylock.toml", arcname="app/pylock.toml")
 
