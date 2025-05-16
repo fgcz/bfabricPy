@@ -10,7 +10,7 @@ def test_workunit_definition_from_workunit(mocker):
         __getitem__=lambda self, k: {"name": "workunit (mocked)"}[k],
         input_dataset=None,
         input_resources=[mocker.Mock(id=3), mocker.Mock(id=4)],
-        parameter_values={"param1": "value1", "param2": "value2"},
+        application_parameters={"param1": "value1", "param2": "value2"},
         container=mocker.Mock(id=5, ENDPOINT="project"),
         store_output_folder="output_folder",
     )
