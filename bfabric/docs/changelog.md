@@ -15,12 +15,16 @@ Versioning currently follows `X.Y.Z` where
 - Attribute `Bfabric.config_data` to obtain a `ConfigData` object directly.
 - `TokenData.load_entity` convenience method to load an entity from the token data.
 - Entities `Instrument`, `Plate`, `Run` were added (but with no extra functionality).
-- `Workunit.{application_parameters, submitter_parameters}` which will replace `Workunit.parameters` in the future.
+- `Workunit.{application_parameters, submitter_parameters}` to access parameter values.
 
 ### Fixed
 
 - Compatibility with upcoming change that `Application` can have multiple `technology` values.
 - Compatibility with pandera 0.24.0 was restored.
+
+### Deprecated
+
+- `Workunit.parameter_values` will be removed in favor of `Workunit.application_parameters` and `Workunit.submitter_parameters` in a future version.
 
 ## \[1.13.26\] - 2025-04-26
 
