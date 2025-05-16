@@ -1,6 +1,5 @@
 from pathlib import Path
 from typing import Any
-from unittest.mock import mock_open, patch
 
 import polars as pl
 import polars.testing

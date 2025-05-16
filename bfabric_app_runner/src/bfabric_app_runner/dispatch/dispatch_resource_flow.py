@@ -6,7 +6,7 @@ import pandera.polars as pa
 import polars as pl
 import yaml
 from pandera import Field
-from pandera.typing import DataFrame
+from pandera.typing.polars import DataFrame
 
 from bfabric import Bfabric
 from bfabric.entities import Resource
