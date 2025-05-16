@@ -30,9 +30,9 @@ def validate(zip_path: Path) -> None:
 @app.command()
 def create(
     output_path: Path,
-    wheel_path: Path,
+    wheel_paths: List[Path],
     pylock_path: Path,
-    app_yml_path: Path,
+    app_yml_path: Optional[Path] = None,
     python_version: str = "3.13",
 ) -> None:
     """
@@ -40,19 +40,33 @@ def create(
 
     Args:
         output_path: Path where the app zip will be created
-        wheel_path: Path to the wheel file (.whl)
+        wheel_paths: List of paths to wheel files (.whl)
         pylock_path: Path to the pylock.toml file
-        app_yml_path: Path to the app.yml configuration file
+        app_yml_path: Path to the app.yml configuration file (optional)
         python_version: Python version to use (default: 3.13)
     """
     # Ensure parent directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Verify input files exist
-    for path, name in [(wheel_path, "wheel file"), (pylock_path, "pylock.toml file"), (app_yml_path, "app.yml file")]:
-        if not path.exists():
-            print(f"Error: {name} not found at {path}")
+    # Verify pylock.toml exists
+    if not pylock_path.exists():
+        print(f"Error: pylock.toml file not found at {pylock_path}")
+        sys.exit(1)
+
+    # Verify wheel files exist
+    if not wheel_paths:
+        print("Error: No wheel files specified")
+        sys.exit(1)
+
+    for wheel_path in wheel_paths:
+        if not wheel_path.exists():
+            print(f"Error: Wheel file not found at {wheel_path}")
             sys.exit(1)
+
+    # Verify app.yml exists if provided
+    if app_yml_path and not app_yml_path.exists():
+        print(f"Error: app.yml file not found at {app_yml_path}")
+        sys.exit(1)
 
     # Create the zip file
     print(f"Creating app zip: {output_path}")
@@ -63,11 +77,13 @@ def create(
         # Add the pylock.toml file
         app_zip.write(pylock_path, arcname="app/pylock.toml")
 
-        # Add the wheel file
-        app_zip.write(wheel_path, arcname=f"app/package/{wheel_path.name}")
+        # Add the wheel files
+        for wheel_path in wheel_paths:
+            app_zip.write(wheel_path, arcname=f"app/package/{wheel_path.name}")
 
-        # Add the app.yml file
-        app_zip.write(app_yml_path, arcname="app/config/app.yml")
+        # Add the app.yml file if provided
+        if app_yml_path:
+            app_zip.write(app_yml_path, arcname="app/config/app.yml")
 
         # Write the python version
         app_zip.writestr("app/config/python_version.txt", python_version)
@@ -158,13 +174,14 @@ class AppZipValidator(BaseModel):
     @property
     def is_valid(self) -> bool:
         """Check if zip structure is valid"""
-        return (
-            self.version == "0.1.0"
-            and self.has_pylock
-            and len(self.wheel_files) > 0
-            and self.python_version is not None
-            and self.has_app_config
-        )
+        valid_version = self.version == "0.1.0"
+        valid_pylock = self.has_pylock
+        valid_wheels = len(self.wheel_files) > 0
+        valid_python = self.python_version is not None
+
+        # app.yml is not required if we're just validating
+        # (it's only required for certain functionality)
+        return valid_version and valid_pylock and valid_wheels and valid_python
 
     def get_validation_errors(self) -> List[str]:
         """Generate human-readable error messages"""
@@ -177,8 +194,9 @@ class AppZipValidator(BaseModel):
             errors.append("No wheel files found in package directory")
         if self.python_version is None:
             errors.append("Missing python_version.txt")
+        # Only warn about missing app.yml, as it's not strictly required for validation
         if not self.has_app_config:
-            errors.append("Missing app.yml configuration file")
+            errors.append("Warning: Missing app.yml configuration file (not required for validation)")
         return errors
 
 
