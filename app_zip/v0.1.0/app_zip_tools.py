@@ -5,6 +5,7 @@ App Zip Tool
 Tool for validating and running applications packaged in App Zip Format 0.1.0
 """
 import os
+import shlex
 import shutil
 import subprocess
 import sys
@@ -27,14 +28,16 @@ def validate(zip_path: Path) -> None:
 
 
 @app.command()
-def run(zip_path: Path, command: List[str]) -> None:
+def run(zip_path: Path, command: str) -> None:
     """
     Run a command from an app zip file
 
     Args:
         zip_path: Path to the app zip file
-        command: Command and arguments to run in the app environment
+        command: Command string to run in the app environment (will be parsed with shlex)
     """
+    # Parse the command string into a list of arguments
+    command_args = shlex.split(command)
     # Setup paths
     dest_dir = Path("./.app_tmp")
     app_dir = dest_dir / "app"
@@ -84,8 +87,8 @@ def run(zip_path: Path, command: List[str]) -> None:
         )
 
     # Run the command in the virtual environment
-    print(f"Running: {' '.join(command)}")
-    activate_venv_and_run(venv_path, [command])
+    print(f"Running: {command}")
+    activate_venv_and_run(venv_path, [command_args])
 
 
 class AppZipValidator(BaseModel):
