@@ -50,7 +50,7 @@ class WorkunitExecutionDefinition(BaseModel):
         if workunit.application is None:
             raise ValueError("Workunit does not have an application")
         data = {
-            "raw_parameters": workunit.parameter_values,
+            "raw_parameters": workunit.application_parameters,
             "dataset": workunit.input_dataset.id if workunit.input_dataset else None,
             "resources": [r.id for r in workunit.input_resources],
         }

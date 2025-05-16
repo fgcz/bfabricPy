@@ -17,6 +17,10 @@ Versioning currently follows `X.Y.Z` where
 - Entities `Instrument`, `Plate`, `Run` were added (but with no extra functionality).
 - `Workunit.{application_parameters, submitter_parameters}` to access parameter values.
 
+### Changed
+
+- Submitter parameters will not be written any longer to `WorkunitExecution` parameters.
+
 ### Fixed
 
 - Compatibility with upcoming change that `Application` can have multiple `technology` values.
