@@ -15,6 +15,7 @@ Versioning currently follows `X.Y.Z` where
 - Attribute `Bfabric.config_data` to obtain a `ConfigData` object directly.
 - `TokenData.load_entity` convenience method to load an entity from the token data.
 - Entities `Instrument`, `Plate`, `Run` were added (but with no extra functionality).
+- `Workunit.{application_parameters, submitter_parameters}` which will replace `Workunit.parameters` in the future.
 
 ### Fixed
 

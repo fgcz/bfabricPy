@@ -39,6 +39,16 @@ class Workunit(Entity, HasContainerMixin):
     external_jobs: HasMany[ExternalJob] = HasMany(entity="ExternalJob", bfabric_field="externaljob", optional=True)
 
     @cached_property
+    def application_parameters(self) -> dict[str, str]:
+        """Dictionary of application context parameters."""
+        return {p.key: p.value for p in self.parameters if p["context"] == "APPLICATION"}
+
+    @cached_property
+    def submitter_parameters(self) -> dict[str, str]:
+        """Dictionary of submitter context parameters."""
+        return {p.key: p.value for p in self.parameters if p["context"] == "SUBMITTER"}
+
+    @cached_property
     def parameter_values(self) -> dict[str, Any]:
         return {p.key: p.value for p in self.parameters.list}
 
