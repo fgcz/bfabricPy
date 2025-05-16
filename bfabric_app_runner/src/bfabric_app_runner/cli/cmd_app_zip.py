@@ -49,7 +49,7 @@ class UvAppZipHelper:
         return wheel_dir / file_name
 
     def export_pylock_toml(self) -> None:
-        cmd = ["uv", "export", "--format", "pylock.toml", "--locked", "-o", "pylock.toml"]
+        cmd = ["uv", "export", "--format", "pylock.toml", "--locked", "-o", "pylock.toml", "--no-emit-project"]
         logger.info(f"Executing command: {shlex.join(cmd)}")
         subprocess.run(cmd, cwd=self._project_path, check=True, text=True, capture_output=True)
 
@@ -78,6 +78,7 @@ def cmd_app_zip_create_uv(
     output_folder: Path | None = None,
     app_yml_path: Path | None = None,
     allow_dirty: bool = False,
+    python_version: str = "3.13",
 ) -> None:
     """Creates an app.zip from the current Python project."""
     if project_path is None:
@@ -91,6 +92,7 @@ def cmd_app_zip_create_uv(
         app_yml_path = helper.discover_app_yml()
     helper.check_dirty(allow_dirty=allow_dirty)
     helper.build_wheel()
+    helper.export_pylock_toml()
 
     app_zip_path = output_folder / f"{helper.package_name}-{helper.version}.zip"
     with ZipFile(app_zip_path, "w") as app_zip:
@@ -103,5 +105,8 @@ def cmd_app_zip_create_uv(
 
         # Copy the app.yml
         app_zip.write(app_yml_path, arcname="app/config/app.yml")
+
+        # Write the python version
+        app_zip.writestr("app/config/python_version.txt", python_version)
 
     logger.success(f"Successfully created app zip: {app_zip_path}")
