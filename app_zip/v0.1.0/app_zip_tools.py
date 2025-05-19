@@ -70,55 +70,103 @@ class AppZipManager:
         return hash_sha256.hexdigest()
 
     @staticmethod
-    def validate_app_zip(zip_path: Path) -> dict[str, bool | list[str]]:
-        """Validate if a zip file follows the App Zip Format specification."""
+    def validate(source: Path) -> dict[str, bool | list[str]]:
+        """Validate if a zip file or directory follows the App Zip Format specification.
+
+        Args:
+            source: Path to a zip file or directory to validate
+
+        Returns:
+            Dictionary with validation results
+        """
         result = {"valid": False, "errors": []}
 
         try:
-            with zipfile.ZipFile(zip_path, "r") as zip_file:
-                file_list = zip_file.namelist()
-                validator = AppZipManager._extract_zip_info(zip_file, file_list)
-                result["valid"] = validator.is_valid
-                result["errors"] = validator.get_validation_errors()
-                AppZipManager._print_validation_result(zip_path, result)
+            if source.is_file() and source.suffix == ".zip":
+                # Validate zip file
+                with zipfile.ZipFile(source, "r") as zip_file:
+                    file_list = zip_file.namelist()
+                    validator = AppZipManager._extract_app_info(zip_file=zip_file, file_list=file_list)
+            elif source.is_dir():
+                # Validate directory
+                validator = AppZipManager._extract_app_info(app_dir=source)
+            else:
+                result["errors"] = ["Invalid source: must be a zip file or directory"]
+                return result
+
+            result["valid"] = validator.is_valid
+            result["errors"] = validator.get_validation_errors()
+
+            if source.is_file():  # Only print for zip files
+                AppZipManager._print_validation_result(source, result)
+
         except zipfile.BadZipFile:
             result["errors"] = ["Not a valid zip file"]
-            AppZipManager._print_validation_result(zip_path, result)
+            if source.is_file():
+                AppZipManager._print_validation_result(source, result)
         except Exception as e:
-            result["errors"] = [f"Error validating zip: {e!s}"]
-            AppZipManager._print_validation_result(zip_path, result)
+            result["errors"] = [f"Error validating source: {e!s}"]
+            if source.is_file():
+                AppZipManager._print_validation_result(source, result)
 
         return result
 
     @staticmethod
+    def _extract_app_info(zip_file=None, file_list=None, app_dir=None) -> AppZipValidator:
+        """Extract app info from either a zip file or directory."""
+        version = "unknown"
+        python_version = None
+        has_pylock = False
+        wheel_files = []
+        has_app_config = False
+
+        if zip_file and file_list:
+            # Extract from zip file
+            version_file = "app/app_zip_version.txt"
+            if version_file in file_list:
+                with zip_file.open(version_file) as f:
+                    version = f.read().decode("utf-8").strip()
+
+            python_version_file = "app/python_version.txt"
+            if python_version_file in file_list:
+                with zip_file.open(python_version_file) as f:
+                    python_version = f.read().decode("utf-8").strip()
+
+            has_pylock = "app/pylock.toml" in file_list
+            wheel_files = [f for f in file_list if f.startswith("app/package/") and f.endswith(".whl")]
+            has_app_config = "app/config/app.yml" in file_list
+
+        elif app_dir:
+            # Extract from directory
+            version_file = app_dir / "app_zip_version.txt"
+            if version_file.exists():
+                version = version_file.read_text().strip()
+
+            python_version_file = app_dir / "python_version.txt"
+            if python_version_file.exists():
+                python_version = python_version_file.read_text().strip()
+
+            has_pylock = (app_dir / "pylock.toml").exists()
+            wheel_files = [f"package/{p.name}" for p in app_dir.glob("package/*.whl")]
+            has_app_config = (app_dir / "config" / "app.yml").exists()
+
+        return AppZipValidator(
+            version=version,
+            has_pylock=has_pylock,
+            wheel_files=wheel_files,
+            python_version=python_version,
+            has_app_config=has_app_config,
+        )
+
+    @staticmethod
+    def validate_app_zip(zip_path: Path) -> dict[str, bool | list[str]]:
+        """Validate if a zip file follows the App Zip Format specification."""
+        return AppZipManager.validate(zip_path)
+
+    @staticmethod
     def validate_app_dir(app_dir: Path) -> dict[str, bool | list[str]]:
         """Validate an extracted app directory."""
-        result = {"valid": False, "errors": []}
-
-        try:
-            # Check app_zip_version.txt
-            version_file = app_dir / "app_zip_version.txt"
-            version = version_file.read_text().strip() if version_file.exists() else "unknown"
-
-            # Check python version
-            python_version_file = app_dir / "python_version.txt"
-            python_version = python_version_file.read_text().strip() if python_version_file.exists() else None
-
-            # Build validator
-            validator = AppZipValidator(
-                version=version,
-                has_pylock=(app_dir / "pylock.toml").exists(),
-                wheel_files=[str(p) for p in app_dir.glob("package/*.whl")],
-                python_version=python_version,
-                has_app_config=(app_dir / "config" / "app.yml").exists(),
-            )
-
-            result["valid"] = validator.is_valid
-            result["errors"] = validator.get_validation_errors()
-        except Exception as e:
-            result["errors"] = [f"Error validating directory: {e!s}"]
-
-        return result
+        return AppZipManager.validate(app_dir)
 
     @staticmethod
     def create_app_zip(
@@ -167,7 +215,7 @@ class AppZipManager:
         print(f"✅ Successfully created app zip: {output_path}")
 
         # Validate the created zip
-        result = AppZipManager.validate_app_zip(output_path)
+        result = AppZipManager.validate(output_path)
         if not result["valid"]:
             print("Warning: Created zip file failed validation!")
             sys.exit(1)
@@ -201,7 +249,7 @@ class AppZipManager:
             AppZipManager._verify_checksums(app_dir)
 
         # Validate the app zip
-        result = AppZipManager.validate_app_dir(app_dir)
+        result = AppZipManager.validate(app_dir)
         if not result["valid"]:
             AppZipManager._print_validation_result(zip_path, result)
             sys.exit(1)
@@ -238,31 +286,6 @@ class AppZipManager:
             os.chdir(original_dir)
 
     # Private helper methods
-    @staticmethod
-    def _extract_zip_info(zip_file: zipfile.ZipFile, file_list: list[str]) -> AppZipValidator:
-        """Extract relevant information from zip contents."""
-        # Check version
-        version = "unknown"
-        version_file = "app/app_zip_version.txt"
-        if version_file in file_list:
-            with zip_file.open(version_file) as f:
-                version = f.read().decode("utf-8").strip()
-
-        # Check python version
-        python_version = None
-        python_version_file = "app/python_version.txt"
-        if python_version_file in file_list:
-            with zip_file.open(python_version_file) as f:
-                python_version = f.read().decode("utf-8").strip()
-
-        return AppZipValidator(
-            version=version,
-            has_pylock="app/pylock.toml" in file_list,
-            wheel_files=[f for f in file_list if f.startswith("app/package/") and f.endswith(".whl")],
-            python_version=python_version,
-            has_app_config="app/config/app.yml" in file_list,
-        )
-
     @staticmethod
     def _verify_checksums(app_dir: Path) -> None:
         """Verify checksums of wheel files."""
@@ -377,7 +400,7 @@ app = cyclopts.App(help="App Zip Format 0.1.0 tool")
 @app.command()
 def validate(zip_path: Path) -> None:
     """Validate an App Zip file against the 0.1.0 specification."""
-    result = AppZipManager.validate_app_zip(zip_path)
+    result = AppZipManager.validate(zip_path)
     if not result["valid"]:
         sys.exit(1)
 
