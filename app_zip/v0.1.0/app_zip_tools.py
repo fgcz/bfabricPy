@@ -101,7 +101,7 @@ class AppZipManager:
             version = version_file.read_text().strip() if version_file.exists() else "unknown"
 
             # Check python version
-            python_version_file = app_dir / "config" / "python_version.txt"
+            python_version_file = app_dir / "python_version.txt"
             python_version = python_version_file.read_text().strip() if python_version_file.exists() else None
 
             # Build validator
@@ -158,7 +158,7 @@ class AppZipManager:
                 app_zip.write(app_yml_path, arcname="app/config/app.yml")
 
             # Write the python version
-            app_zip.writestr("app/config/python_version.txt", python_version)
+            app_zip.writestr("app/python_version.txt", python_version)
 
             # Write checksums
             checksum_content = "\n".join([f"{hash} {name}" for name, hash in checksums.items()])
@@ -207,7 +207,7 @@ class AppZipManager:
             sys.exit(1)
 
         # Setup environment
-        python_version = (app_dir / "config" / "python_version.txt").read_text().strip()
+        python_version = (app_dir / "python_version.txt").read_text().strip()
         venv_path = app_dir / ".venv"
 
         # Change to app directory
@@ -250,7 +250,7 @@ class AppZipManager:
 
         # Check python version
         python_version = None
-        python_version_file = "app/config/python_version.txt"
+        python_version_file = "app/python_version.txt"
         if python_version_file in file_list:
             with zip_file.open(python_version_file) as f:
                 python_version = f.read().decode("utf-8").strip()
