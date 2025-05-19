@@ -3,71 +3,185 @@
 ## Overview
 
 The App Zip format describes a structure for packaging Python applications with their dependencies for easy and reproducible deployments.
+This specification defines the required structure, validation rules, and deployment process.
 
 ## Structure
 
-The app zip file is a zip file, containing the following structure:
+The app zip file is a standard ZIP archive, containing the following structure:
 
 ```
 app/
 ├── app_zip_version.txt                 # Version of the app zip format (e.g., "0.1.0")
 ├── pylock.toml                         # Dependency lock file (PEP-751)
+├── python_version.txt                  # Python version to use (e.g., "3.13")
 ├── package/
-│   └── myapp-1.0.0-py3-none-any.whl    # Python wheel package
+│   ├── myapp-1.0.0-py3-none-any.whl    # Primary application wheel package (optional)
+│   └── dep1-2.0.0-py3-none-any.whl     # Optional additional wheels
 └── config/
-    ├── app.yml                         # Application configuration (e.g. for bfabric-app-runner)
-    └── python_version.txt              # Python version to use (e.g., "3.13")
+    └── app.yml                         # Application configuration (optional)
 ```
 
-The following files are currently required:
+### Required Components
 
-- `app/app_zip_version.txt`
-- `app/pylock.toml`
-- `app/python_version.txt`
+For a valid App Zip file, the following components are mandatory:
 
-For an app runner application we additionally require:
+- `app/app_zip_version.txt` - Must contain exactly the string "0.1.0" for this version
+- `app/pylock.toml` - Must be a valid PEP-751 compliant lock file
+- `app/python_version.txt` - Must contain a valid Python version string
 
-- `app/config/app.yml`
+### Optional Components
 
-## Details
+- `app/package/` - Directory for wheel files (.whl)
+- `app/config/app.yml` - Required for app runner applications; optional otherwise
 
-### Root Directory `/app`
+### Path Requirements
 
-All paths must be prefixed within the zip by `/app`.
-Other structures within the zip are not allowed.
+- All files MUST be contained within the `app/` directory
+- No files or directories are permitted outside the `app/` directory (TODO)
+- Directory structure must match exactly as specified (no additional directories)
 
-### Lock File `/app/pylock.toml`
+## Component Details
 
-The lock file is a [PEP 751](https://peps.python.org/pep-0751/) compliant lock file.
+### Version File (`app/app_zip_version.txt`)
 
-### Python version `/app/python_version.txt`
+- Must contain the exact string "0.1.0" (for this specification version)
+- Whitespace trimming is permitted (leading/trailing spaces, newlines)
+- No other content is allowed
 
-A text file containing a string of the exact Python version to use (e.g., "3.13").
+### Python Version File (`app/python_version.txt`)
 
-### Package directory `/app/package`
+- Must contain a valid Python version string that follows PEP 440
+- Exact versions only (e.g., "3.13", "3.12.1") are supported
+- Version ranges or comparison operators are not supported
+- Implementation must use exactly this Python version for the virtual environment
 
-- Wheel naming follows [PEP 427](https://peps.python.org/pep-0427/) (e.g., `myanalysis-1.0.0-py3-none-any.whl`)
-- Installed after dependencies to avoid conflicts, but without resolving additional dependencies.
+### Lock File (`app/pylock.toml`)
 
-### Configuration Directory `/app/config`
+- Must comply with [PEP 751](https://peps.python.org/pep-0751/)
+- Must contain all dependencies required by the application
+- May reference external dependencies or direct references to wheel files in the package directory
 
-For app runner apps there should be a file `/app/config/app.yml` that contains the configuration for the app runner.
+### Package Directory (`app/package/`)
 
-## Implementation
+- Optional directory for wheel files
+- May contain wheel files following [PEP 427](https://peps.python.org/pep-0427/) naming conventions
+- All included wheel files must be valid and installable
+- Files that are not valid wheel files (.whl) should be ignored
 
-### Deployment Process
+### Configuration Directory (`app/config/`)
 
-1. Extract zip if needed (or if zip is newer than extracted directory)
-2. Read Python version from `python_version.txt`
-3. Create virtual environment with specified Python version
-4. Install dependencies from `pylock.toml`
-5. Install wheel package without re-resolving dependencies
-6. Run desired application command in the activated environment
+- Optional for standard applications, required for app runner applications
+- `app/config/app.yml` must be a valid app specification if provided
 
-### Example implementation (uv)
+## Validation Rules
 
-Some notes for our current example implementation:
+1. **Structure Validation:**
 
-- Installed with `uv pip install --requirement pylock.toml`
-- Must be installed before the wheel package (TODO this will need to be specified more precisely in the future)
-- Installed with `uv pip install --offline --no-deps package/*.whl`
+    - All required files and directories must be present
+    - All files must be within the `app/` directory
+    - No extraneous directories or files outside the specified structure
+
+2. **Version Validation:**
+
+    - `app_zip_version.txt` must contain "0.1.0"
+    - `python_version.txt` must contain a valid Python version string
+
+3. **Content Validation:**
+
+    - `pylock.toml` must be a syntactically valid TOML file
+    - If `app/config/app.yml` is present, it must be a valid YAML file
+    - If wheel files are present, they must be valid according to PEP 427
+
+## Deployment Process
+
+An implementation of the App Zip format must follow these steps:
+
+1. **Validation:**
+
+    - Validate the structure and contents of the app zip file
+    - If validation fails, exit with a non-zero status code and error message
+
+2. **Extraction:**
+
+    - Extract the zip file if needed
+    - If the zip file is newer than the extracted directory, re-extract
+    - Rely on the ZIP format for integrity verification
+
+3. **Environment Creation:**
+
+    - Read Python version from `python_version.txt`
+    - Create a virtual environment with the exact specified Python version
+    - If the specified Python version is not available, abort with error
+
+4. **Dependency Installation:**
+
+    - Install dependencies from `pylock.toml` first
+    - If wheel files exist in the package directory, install them:
+        - Use `--offline` mode to prevent network access
+        - Use `--no-deps` to prevent resolving dependencies again
+
+5. **Execution:**
+
+    - Activate the virtual environment
+    - Run the specified command within the activated environment
+
+## Error Handling
+
+Implementations should follow these error handling guidelines:
+
+1. **Exit Codes:**
+
+    - 0: Success
+    - 1: General error
+    - 2: Validation error
+    - 3: Python version error
+    - 4: Dependency installation error
+
+2. **Error Messages:**
+
+    - Error messages should be clear and descriptive
+    - For validation errors, specify exactly which requirements failed
+    - Include suggestions for resolution when possible
+
+## Forward Compatibility
+
+Future versions of the App Zip format will adhere to these compatibility guidelines:
+
+1. The directory structure may be extended but not changed incompatibly
+2. New required files will only be introduced in major version increments
+3. Implementations should ignore unknown files within the `app/` directory
+4. Future versions will use a new version string in `app_zip_version.txt`
+
+## Implementation Notes
+
+### Using `uv` Package Manager
+
+For implementations using the `uv` package manager:
+
+1. Create virtual environment:
+
+    ```bash
+    uv venv -p <python_version> .venv
+    ```
+
+2. Install dependencies:
+
+    ```bash
+    uv pip install --requirement pylock.toml
+    ```
+
+3. Install wheel files (if present):
+
+    ```bash
+    uv pip install --offline --no-deps package/*.whl
+    ```
+
+## Appendix: Changelog
+
+### Version 0.1.0
+
+- Initial specification
+
+## Appendix: Example Implementation
+
+See the `app_zip_tool.py` script for a reference implementation.
