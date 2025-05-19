@@ -125,32 +125,9 @@ An implementation of the App Zip format must follow these steps:
     - Activate the virtual environment
     - Run the specified command within the activated environment
 
-## Error Handling
-
-Implementations should follow these error handling guidelines:
-
-1. **Exit Codes:**
-
-    - 0: Success
-    - 1: General error
-    - 2: Validation error
-    - 3: Python version error
-    - 4: Dependency installation error
-
-2. **Error Messages:**
-
-    - Error messages should be clear and descriptive
-    - For validation errors, specify exactly which requirements failed
-    - Include suggestions for resolution when possible
-
 ## Forward Compatibility
 
-Future versions of the App Zip format will adhere to these compatibility guidelines:
-
-1. The directory structure may be extended but not changed incompatibly
-2. New required files will only be introduced in major version increments
-3. Implementations should ignore unknown files within the `app/` directory
-4. Future versions will use a new version string in `app_zip_version.txt`
+Future versions will use a new version string in `app_zip_version.txt`
 
 ## Implementation Notes
 
