@@ -2,9 +2,11 @@
 
 ## Overview
 
-The App Zip format is a standardized structure for packaging Python applications with their dependencies for easy and reproducible deployments.
+The App Zip format describes a structure for packaging Python applications with their dependencies for easy and reproducible deployments.
 
 ## Structure
+
+The app zip file is a zip file, containing the following structure:
 
 ```
 app/
@@ -21,46 +23,51 @@ The following files are currently required:
 
 - `app/app_zip_version.txt`
 - `app/pylock.toml`
-- `app/config/python_version.txt`
+- `app/python_version.txt`
 
 For an app runner application we additionally require:
 
 - `app/config/app.yml`
 
-## Component Semantics
+## Details
 
-### Root Directory
+### Root Directory `/app`
 
-- `app/`: Fixed name to provide consistent deployment paths
+All paths must be prefixed within the zip by `/app`.
+Other structures within the zip are not allowed.
 
-### Lock File
+### Lock File `/app/pylock.toml`
 
-- `pylock.toml`: PEP-751 compliant lock file containing all dependencies
-- Installed with `uv pip install --requirement pylock.toml`
-- Must be installed before the wheel package (TODO this will need to be specified more precisely in the future)
+The lock file is a [PEP 751](https://peps.python.org/pep-0751/) compliant lock file.
 
-### Package Directory
+### Python version `/app/python_version.txt`
 
-- `package/`: Contains the wheel file(s) for the application
-- Wheel naming follows standard Python conventions (e.g., `myanalysis-1.0.0-py3-none-any.whl`)
-- Installed with `uv pip install --offline --no-deps package/*.whl`
-- Installed after dependencies to avoid conflicts
+A text file containing a string of the exact Python version to use (e.g., "3.13").
 
-### Configuration Directory
+### Package directory `/app/package`
 
-- `config/`: Contains configuration files needed for the application
-- `python_version.txt`: Simple text file containing the exact Python version to use (e.g., "3.13")
+- Wheel naming follows [PEP 427](https://peps.python.org/pep-0427/) (e.g., `myanalysis-1.0.0-py3-none-any.whl`)
+- Installed after dependencies to avoid conflicts, but without resolving additional dependencies.
 
-## Deployment Process
+### Configuration Directory `/app/config`
+
+For app runner apps there should be a file `/app/config/app.yml` that contains the configuration for the app runner.
+
+## Implementation
+
+### Deployment Process
 
 1. Extract zip if needed (or if zip is newer than extracted directory)
-2. Read Python version from `config/python_version.txt`
+2. Read Python version from `python_version.txt`
 3. Create virtual environment with specified Python version
 4. Install dependencies from `pylock.toml`
 5. Install wheel package without re-resolving dependencies
 6. Run desired application command in the activated environment
 
-## Version Semantics
+### Example implementation (uv)
 
-- Python version is specified as a simple version string without constraints
-- Wheel version follows PEP-440 versioning
+Some notes for our current example implementation:
+
+- Installed with `uv pip install --requirement pylock.toml`
+- Must be installed before the wheel package (TODO this will need to be specified more precisely in the future)
+- Installed with `uv pip install --offline --no-deps package/*.whl`
