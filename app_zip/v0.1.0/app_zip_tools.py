@@ -3,7 +3,6 @@
 ------------
 Tool for validating, running, and creating applications packaged in App Zip Format 0.1.0
 """
-import hashlib
 import os
 import shlex
 import shutil
@@ -33,12 +32,7 @@ class AppZipValidator(BaseModel):
     @property
     def is_valid(self) -> bool:
         """Check if zip structure is valid."""
-        return (
-            self.version == APP_ZIP_VERSION
-            and self.has_pylock
-            and len(self.wheel_files) > 0
-            and self.python_version is not None
-        )
+        return self.version == APP_ZIP_VERSION and self.has_pylock and self.python_version is not None
 
     def get_validation_errors(self) -> list[str]:
         """Generate human-readable error messages."""
@@ -47,8 +41,6 @@ class AppZipValidator(BaseModel):
             errors.append(f"Invalid version: {self.version} (expected {APP_ZIP_VERSION})")
         if not self.has_pylock:
             errors.append("Missing pylock.toml file")
-        if not self.wheel_files:
-            errors.append("No wheel files found in package directory")
         if self.python_version is None:
             errors.append("Missing python_version.txt")
         # Only warn about missing app.yml, as it's not strictly required for validation
@@ -59,15 +51,6 @@ class AppZipValidator(BaseModel):
 
 class AppZipManager:
     """Manager for App Zip operations."""
-
-    @staticmethod
-    def calculate_checksum(file_path: Path) -> str:
-        """Calculate SHA-256 checksum of a file."""
-        hash_sha256 = hashlib.sha256()
-        with open(file_path, "rb") as f:
-            for chunk in iter(lambda: f.read(4096), b""):
-                hash_sha256.update(chunk)
-        return hash_sha256.hexdigest()
 
     @staticmethod
     def validate(source: Path) -> dict[str, bool | list[str]]:
@@ -138,6 +121,7 @@ class AppZipManager:
 
         elif app_dir:
             # Extract from directory
+            # According to spec, all files should be in the app/ directory structure
             version_file = app_dir / "app_zip_version.txt"
             if version_file.exists():
                 version = version_file.read_text().strip()
@@ -147,7 +131,8 @@ class AppZipManager:
                 python_version = python_version_file.read_text().strip()
 
             has_pylock = (app_dir / "pylock.toml").exists()
-            wheel_files = [f"package/{p.name}" for p in app_dir.glob("package/*.whl")]
+            # Use consistent path format with zip validation
+            wheel_files = [f"app/package/{p.name}" for p in app_dir.glob("package/*.whl")]
             has_app_config = (app_dir / "config" / "app.yml").exists()
 
         return AppZipValidator(
@@ -183,11 +168,6 @@ class AppZipManager:
         # Verify files exist
         AppZipManager._verify_input_files(pylock_path, wheel_paths, app_yml_path)
 
-        # Calculate checksums for wheels
-        checksums = {}
-        for wheel_path in wheel_paths:
-            checksums[wheel_path.name] = AppZipManager.calculate_checksum(wheel_path)
-
         # Create the zip file
         print(f"Creating app zip: {output_path}")
         with zipfile.ZipFile(output_path, "w") as app_zip:
@@ -207,10 +187,6 @@ class AppZipManager:
 
             # Write the python version
             app_zip.writestr("app/python_version.txt", python_version)
-
-            # Write checksums
-            checksum_content = "\n".join([f"{hash} {name}" for name, hash in checksums.items()])
-            app_zip.writestr("app/checksum.sha256", checksum_content)
 
         print(f"✅ Successfully created app zip: {output_path}")
 
@@ -245,9 +221,6 @@ class AppZipManager:
             with zipfile.ZipFile(zip_path, "r") as zip_file:
                 zip_file.extractall(TEMP_DIR)
 
-            # Verify checksums
-            AppZipManager._verify_checksums(app_dir)
-
         # Validate the app zip
         result = AppZipManager.validate(app_dir)
         if not result["valid"]:
@@ -270,13 +243,16 @@ class AppZipManager:
 
                 # Install dependencies
                 print("Installing dependencies...")
-                AppZipManager._activate_venv_and_run(
-                    venv_path,
-                    [
-                        ["uv", "pip", "install", "--requirement", "pylock.toml"],
-                        ["uv", "pip", "install", "--offline", "--no-deps", *list(Path("package").glob("*.whl"))],
-                    ],
-                )
+                commands = [["uv", "pip", "install", "--requirement", "pylock.toml"]]
+
+                # Add wheel installation command if wheel files exist
+                package_dir = Path("package")
+                if package_dir.exists() and list(package_dir.glob("*.whl")):
+                    commands.append(
+                        ["uv", "pip", "install", "--offline", "--no-deps", *list(package_dir.glob("*.whl"))]
+                    )
+
+                AppZipManager._activate_venv_and_run(venv_path, commands)
 
             # Run the command in the virtual environment
             print(f"Running: {command}")
@@ -284,37 +260,6 @@ class AppZipManager:
         finally:
             # Always return to original directory
             os.chdir(original_dir)
-
-    # Private helper methods
-    @staticmethod
-    def _verify_checksums(app_dir: Path) -> None:
-        """Verify checksums of wheel files."""
-        checksum_file = app_dir / "checksum.sha256"
-
-        if not checksum_file.exists():
-            return
-
-        # Parse checksum file
-        expected_checksums = {}
-        for line in checksum_file.read_text().strip().split("\n"):
-            if not line.strip():
-                continue
-            parts = line.split(" ", 1)
-            if len(parts) == 2:
-                expected_checksums[parts[1].strip()] = parts[0].strip()
-
-        # Verify each wheel file
-        wheel_dir = app_dir / "package"
-        if not wheel_dir.exists():
-            return
-
-        for wheel_file in wheel_dir.glob("*.whl"):
-            if wheel_file.name in expected_checksums:
-                calculated = AppZipManager.calculate_checksum(wheel_file)
-                expected = expected_checksums[wheel_file.name]
-                if calculated != expected:
-                    print(f"Checksum mismatch for {wheel_file.name}")
-                    sys.exit(1)
 
     @staticmethod
     def _verify_input_files(pylock_path: Path, wheel_paths: list[Path], app_yml_path: Path | None) -> None:
