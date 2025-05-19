@@ -37,7 +37,6 @@ For a valid App Zip file, the following components are mandatory:
 ### Path Requirements
 
 - All files MUST be contained within the `app/` directory
-- No files or directories are permitted outside the `app/` directory (TODO)
 - Directory structure must match exactly as specified (no additional directories)
 
 ## Component Details
