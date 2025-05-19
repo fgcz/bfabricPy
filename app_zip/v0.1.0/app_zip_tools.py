@@ -18,7 +18,7 @@ from pydantic import BaseModel, Field
 
 # Constants
 APP_ZIP_VERSION = "0.1.0"
-TEMP_DIR = Path("./.app_tmp")
+TEMP_DIR = Path(".app_tmp")
 
 
 class AppZipValidator(BaseModel):
