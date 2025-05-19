@@ -2,7 +2,7 @@
 
 ## Overview
 
-The App Zip format is a standardized structure for packaging Python applications with their dependencies for easy deployment in LIMS environments.
+The App Zip format is a standardized structure for packaging Python applications with their dependencies for easy and reproducible deployments.
 
 ## Structure
 
@@ -17,6 +17,16 @@ app/
     └── python_version.txt              # Python version to use (e.g., "3.13")
 ```
 
+The following files are currently required:
+
+- `app/app_zip_version.txt`
+- `app/pylock.toml`
+- `app/config/python_version.txt`
+
+For an app runner application we additionally require:
+
+- `app/config/app.yml`
+
 ## Component Semantics
 
 ### Root Directory
@@ -27,7 +37,7 @@ app/
 
 - `pylock.toml`: PEP-751 compliant lock file containing all dependencies
 - Installed with `uv pip install --requirement pylock.toml`
-- Must be installed before the wheel package
+- Must be installed before the wheel package (TODO this will need to be specified more precisely in the future)
 
 ### Package Directory
 
