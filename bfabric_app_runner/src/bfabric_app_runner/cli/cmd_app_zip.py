@@ -110,6 +110,6 @@ def cmd_app_zip_create_uv(
         app_zip.write(app_yml_path, arcname="app/config/app.yml")
 
         # Write the python version
-        app_zip.writestr("app/config/python_version.txt", python_version)
+        app_zip.writestr("app/python_version.txt", python_version)
 
     logger.success(f"Successfully created app zip: {app_zip_path}")
