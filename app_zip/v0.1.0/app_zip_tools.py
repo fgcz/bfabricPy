@@ -69,8 +69,7 @@ class AppZipManager:
             if source.is_file() and source.suffix == ".zip":
                 # Validate zip file
                 with zipfile.ZipFile(source, "r") as zip_file:
-                    file_list = zip_file.namelist()
-                    validator = AppZipManager._extract_app_info(zip_file=zip_file, file_list=file_list)
+                    validator = AppZipManager._extract_app_info(zip_file=zip_file)
             elif source.is_dir():
                 # Validate directory
                 validator = AppZipManager._extract_app_info(app_dir=source)
@@ -115,8 +114,9 @@ class AppZipManager:
         return default
 
     @classmethod
-    def _extract_from_zip(cls, zip_file, file_list) -> AppZipValidator:
+    def _extract_from_zip(cls, zip_file) -> AppZipValidator:
         """Extract app info from a zip file."""
+        file_list = zip_file.namelist()
         return AppZipValidator(
             version=cls._read_zip_file(zip_file, "app/app_zip_version.txt", "unknown"),
             python_version=cls._read_zip_file(zip_file, "app/python_version.txt"),

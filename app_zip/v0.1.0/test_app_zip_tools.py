@@ -1,6 +1,7 @@
 import zipfile
 from pathlib import Path
 from unittest.mock import MagicMock, patch
+import io
 
 import pytest
 from pyfakefs.fake_filesystem_unittest import Patcher
@@ -44,6 +45,35 @@ def invalid_validator():
 
 
 @pytest.fixture
+def valid_app_dir(fs) -> Path:
+    app_dir = Path(".app_tmp/app")
+    fs.create_dir(app_dir)
+    fs.create_file(app_dir / "app_zip_version.txt", contents=APP_ZIP_VERSION)
+    fs.create_file(app_dir / "pylock.toml", contents="dependencies = []")
+    fs.create_dir(app_dir / "package")
+    fs.create_file(app_dir / "package/test-1.0.0-py3-none-any.whl", contents="wheel data")
+    fs.create_dir(app_dir / "config")
+    fs.create_file(app_dir / "python_version.txt", contents="3.13")
+    fs.create_file(app_dir / "config/app.yml", contents="name: TestApp")
+    return app_dir
+
+
+@pytest.fixture
+def valid_app_zip(fs, valid_app_dir) -> Path:
+    app_zip = Path("app.zip")
+    zip_buffer = io.BytesIO()
+    base_dir = valid_app_dir.parent
+
+    with zipfile.ZipFile(zip_buffer, "w") as zip_file:
+        for file_path in valid_app_dir.rglob("*"):
+            if file_path.is_file():
+                zip_file.write(file_path, arcname=str(file_path.relative_to(base_dir)))
+
+    fs.create_file(app_zip, contents=zip_buffer.getvalue())
+    return app_zip
+
+
+@pytest.fixture
 def fs():
     """Setup and teardown a fake filesystem"""
     with Patcher() as patcher:
@@ -60,29 +90,6 @@ def fs():
         fs.create_file("app.yml", contents="name: TestApp")
 
         yield fs
-
-
-@pytest.fixture
-def mock_zipfile():
-    """Setup mock zipfile"""
-    with patch("zipfile.ZipFile") as mock_zip:
-        mock_zip_instance = MagicMock()
-        mock_zip.return_value.__enter__.return_value = mock_zip_instance
-        mock_zip_instance.namelist.return_value = [
-            "app/app_zip_version.txt",
-            "app/pylock.toml",
-            "app/python_version.txt",
-            "app/package/example-1.0.0-py3-none-any.whl",
-            "app/config/app.yml",
-        ]
-
-        # Setup mock file opens
-        mock_zip_instance.open.return_value.__enter__.return_value.read.side_effect = [
-            APP_ZIP_VERSION.encode("utf-8"),  # app_zip_version.txt
-            "3.13".encode("utf-8"),  # python_version.txt
-        ]
-
-        yield mock_zip_instance
 
 
 # Tests for AppZipValidator
@@ -106,12 +113,12 @@ def test_validator_get_validation_errors(valid_validator, invalid_validator):
     assert any("Warning" in error for error in errors)  # app.yml warning
 
 
-def test_validate_app_zip(mock_zipfile):
+def test_validate_app_zip(mocker, valid_app_zip):
     """Test validation of an app zip file"""
-    with patch.object(AppZipManager, "_print_validation_result"):
-        result = AppZipManager.validate_app_zip(Path("test.zip"))
-        assert result["errors"] == []
-        assert result["valid"] is True
+    mocker.patch.object(AppZipManager, "_print_validation_result")
+    result = AppZipManager.validate_app_zip(valid_app_zip)
+    assert result["errors"] == []
+    assert result["valid"] is True
 
 
 def test_validate_app_zip_bad_zip():
@@ -125,33 +132,18 @@ def test_validate_app_zip_bad_zip():
         assert "Not a valid zip file" in result["errors"]
 
 
-def test_validate_app_dir(fs):
+def test_validate_app_dir(valid_app_dir):
     """Test validation of an extracted app directory"""
-    app_dir = Path(".app_tmp/app")
-    fs.create_dir(app_dir)
-
-    # Create files needed for a valid app
-    fs.create_file(app_dir / "app_zip_version.txt", contents=APP_ZIP_VERSION)
-    fs.create_file(app_dir / "pylock.toml", contents="dependencies = []")
-    fs.create_dir(app_dir / "package")
-    fs.create_file(app_dir / "package/test-1.0.0-py3-none-any.whl", contents="wheel data")
-    fs.create_dir(app_dir / "config")
-    fs.create_file(app_dir / "config/python_version.txt", contents="3.13")
-    fs.create_file(app_dir / "config/app.yml", contents="name: TestApp")
-
-    result = AppZipManager.validate_app_dir(app_dir)
+    result = AppZipManager.validate_app_dir(valid_app_dir)
+    assert result["errors"] == []
     assert result["valid"] is True
-    assert len(result["errors"]) == 0
 
 
 def test_validate_app_dir_invalid(fs):
     """Test validation of an invalid app directory"""
     app_dir = Path(".app_tmp/app")
     fs.create_dir(app_dir)
-
-    # Missing files and wrong version
     fs.create_file(app_dir / "app_zip_version.txt", contents="0.0.0")
-
     result = AppZipManager.validate_app_dir(app_dir)
     assert result["valid"] is False
     assert len(result["errors"]) > 0
