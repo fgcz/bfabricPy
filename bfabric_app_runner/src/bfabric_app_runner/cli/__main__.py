@@ -13,7 +13,7 @@ from bfabric_app_runner.cli.cmd_action import (
     cmd_action_run_all,
     cmd_action_dispatch,
 )
-from bfabric_app_runner.cli.cmd_app_zip import cmd_app_zip_create_uv
+from bfabric_app_runner.cli.cmd_deploy import cmd_deploy_build_app_zip
 from bfabric_app_runner.cli.cmd_prepare import cmd_prepare_workunit
 from bfabric_app_runner.cli.inputs import cmd_inputs_prepare, cmd_inputs_clean, cmd_inputs_list, cmd_inputs_check
 from bfabric_app_runner.cli.outputs import cmd_outputs_register, cmd_outputs_register_single_file
@@ -74,9 +74,9 @@ cmd_prepare = cyclopts.App(name="prepare")
 cmd_prepare.command(cmd_prepare_workunit, name="workunit")
 app.command(cmd_prepare)
 
-cmd_app_zip = cyclopts.App(name="app-zip")
-cmd_app_zip.command(cmd_app_zip_create_uv, name="create-uv")
-app.command(cmd_app_zip)
+cmd_deploy = cyclopts.App(name="deploy", help="Utilities for deploying apps")
+cmd_deploy.command(cmd_deploy_build_app_zip, name="build-app-zip")
+app.command(cmd_deploy)
 
 
 if __name__ == "__main__":
