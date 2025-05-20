@@ -4,7 +4,6 @@ from unittest.mock import MagicMock, patch
 import io
 
 import pytest
-from pyfakefs.fake_filesystem_unittest import Patcher
 
 import sys
 
@@ -71,25 +70,6 @@ def valid_app_zip(fs, valid_app_dir) -> Path:
 
     fs.create_file(app_zip, contents=zip_buffer.getvalue())
     return app_zip
-
-
-@pytest.fixture
-def fs():
-    """Setup and teardown a fake filesystem"""
-    with Patcher() as patcher:
-        # Setup basic directory structure
-        fs = patcher.fs
-
-        # Create temp directory
-        fs.create_dir(".app_tmp")
-
-        # Create dummy files for testing
-        fs.create_file("test.zip", contents="")
-        fs.create_file("pylock.toml", contents="dependencies = []")
-        fs.create_file("wheel_file.whl", contents="wheel content")
-        fs.create_file("app.yml", contents="name: TestApp")
-
-        yield fs
 
 
 # Tests for AppZipValidator
