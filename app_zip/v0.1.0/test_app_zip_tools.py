@@ -62,10 +62,6 @@ class TestValidatorValid:
         )
 
     @staticmethod
-    def test_is_valid(validator):
-        assert validator.is_valid is True
-
-    @staticmethod
     def test_get_validation_errors(validator):
         assert validator.get_validation_errors() == ([], [])
 
@@ -81,10 +77,6 @@ class TestValidatorInvalid:
             python_version=None,  # No Python version
             has_app_config=False,  # No app config
         )
-
-    @staticmethod
-    def test_is_valid(validator):
-        assert validator.is_valid is False
 
     @staticmethod
     def test_validator_get_validation_errors(validator):

@@ -29,11 +29,6 @@ class AppZipValidator(BaseModel):
     python_version: str | None = None
     has_app_config: bool = False
 
-    @property
-    def is_valid(self) -> bool:
-        """Check if zip structure is valid."""
-        return self.version == APP_ZIP_VERSION and self.has_pylock and self.python_version is not None
-
     def get_validation_errors(self) -> tuple[list[str], list[str]]:
         """Generate human-readable error messages."""
         errors = []
