@@ -15,6 +15,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `CommandExec` allows prepending paths to `PATH` and setting environment variables and is less ambiguous than `shell`.
 - `bfabric-app-runner action` interface which standardizes the various actions of running app steps.
 - `bfabric-app-runner prepare workunit` to prepare a workunit execution and sets up a `app_env.yml` and `Makefile`.
+- `bfabric-app-runner deploy build-app-zip` experimental command to build an app zip file which can be deployed, for a
+    particular Python application.
 
 ### Changed
 
