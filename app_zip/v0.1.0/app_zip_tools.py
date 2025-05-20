@@ -44,6 +44,7 @@ class AppZipValidator(BaseModel):
             errors.append("Missing pylock.toml file")
         if self.python_version is None:
             errors.append("Missing python_version.txt")
+        # TODO this is probably not correctly implemented yet
         # Only warn about missing app.yml, as it's not strictly required for validation
         if not self.has_app_config:
             errors.append("Warning: Missing app.yml configuration file (not required for validation)")
@@ -53,8 +54,8 @@ class AppZipValidator(BaseModel):
 class AppZipManager:
     """Manager for App Zip operations."""
 
-    @staticmethod
-    def validate(source: Path) -> dict[str, bool | list[str]]:
+    @classmethod
+    def validate(cls, source: Path) -> dict[str, bool | list[str]]:
         """Validate if a zip file or directory follows the App Zip Format specification.
 
         Args:
@@ -67,12 +68,10 @@ class AppZipManager:
 
         try:
             if source.is_file() and source.suffix == ".zip":
-                # Validate zip file
                 with zipfile.ZipFile(source, "r") as zip_file:
-                    validator = AppZipManager._extract_app_info(zip_file=zip_file)
+                    validator = cls._extract_from_zip(zip_file)
             elif source.is_dir():
-                # Validate directory
-                validator = AppZipManager._extract_app_info(app_dir=source)
+                validator = cls._extract_from_directory(source)
             else:
                 result["errors"] = ["Invalid source: must be a zip file or directory"]
                 return result
@@ -93,18 +92,6 @@ class AppZipManager:
                 AppZipManager._print_validation_result(source, result)
 
         return result
-
-    @classmethod
-    def _extract_app_info(cls, zip_file: ZipFile | None = None, app_dir: Path | None = None) -> AppZipValidator:
-        """Extract app info from either a zip file or directory."""
-        if zip_file is not None and app_dir is not None:
-            raise ValueError("Only one of zip_file or app_dir should be provided")
-        if zip_file is None and app_dir is None:
-            raise ValueError("Either zip_file or app_dir must be provided")
-        if zip_file:
-            return cls._extract_from_zip(zip_file)
-        else:
-            return cls._extract_from_directory(app_dir)
 
     @staticmethod
     def _read_zip_file(zip_file: ZipFile, path: str, default: str | None = None) -> str | None:
@@ -139,16 +126,6 @@ class AppZipManager:
             wheel_files=[f"app/package/{p.name}" for p in app_dir.glob("package/*.whl")],
             has_app_config=(app_dir / "config" / "app.yml").exists(),
         )
-
-    @staticmethod
-    def validate_app_zip(zip_path: Path) -> dict[str, bool | list[str]]:
-        """Validate if a zip file follows the App Zip Format specification."""
-        return AppZipManager.validate(zip_path)
-
-    @staticmethod
-    def validate_app_dir(app_dir: Path) -> dict[str, bool | list[str]]:
-        """Validate an extracted app directory."""
-        return AppZipManager.validate(app_dir)
 
     @staticmethod
     def create_app_zip(

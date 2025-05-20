@@ -101,15 +101,13 @@ def test_validate_app_zip(mocker, valid_app_zip):
     assert result["valid"] is True
 
 
-def test_validate_app_zip_bad_zip():
+def test_validate_app_zip_bad_zip(mocker):
     """Test validation of an invalid zip file"""
-    with (
-        patch("zipfile.ZipFile", side_effect=zipfile.BadZipFile),
-        patch.object(AppZipManager, "_print_validation_result"),
-    ):
-        result = AppZipManager.validate_app_zip(Path("bad.zip"))
-        assert result["valid"] is False
-        assert "Not a valid zip file" in result["errors"]
+    mocker.patch("zipfile.ZipFile", side_effect=zipfile.BadZipFile)
+    mocker.patch.object(AppZipManager, "_print_validation_result")
+    result = AppZipManager.validate(Path("bad.zip"))
+    assert result["valid"] is False
+    assert "Not a valid zip file" in result["errors"]
 
 
 def test_validate_app_dir(valid_app_dir):
@@ -124,7 +122,7 @@ def test_validate_app_dir_invalid(fs):
     app_dir = Path(".app_tmp/app")
     fs.create_dir(app_dir)
     fs.create_file(app_dir / "app_zip_version.txt", contents="0.0.0")
-    result = AppZipManager.validate_app_dir(app_dir)
+    result = AppZipManager.validate(app_dir)
     assert result["valid"] is False
     assert len(result["errors"]) > 0
 
