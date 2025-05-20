@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import sys
 import zipfile
+from zipfile import ZipFile
 from pathlib import Path
 
 import cyclopts
@@ -94,53 +95,49 @@ class AppZipManager:
 
         return result
 
-    @staticmethod
-    def _extract_app_info(zip_file=None, file_list=None, app_dir=None) -> AppZipValidator:
+    @classmethod
+    def _extract_app_info(cls, zip_file: ZipFile | None = None, app_dir: Path | None = None) -> AppZipValidator:
         """Extract app info from either a zip file or directory."""
-        version = "unknown"
-        python_version = None
-        has_pylock = False
-        wheel_files = []
-        has_app_config = False
+        if zip_file is not None and app_dir is not None:
+            raise ValueError("Only one of zip_file or app_dir should be provided")
+        if zip_file is None and app_dir is None:
+            raise ValueError("Either zip_file or app_dir must be provided")
+        if zip_file:
+            return cls._extract_from_zip(zip_file)
+        else:
+            return cls._extract_from_directory(app_dir)
 
-        if zip_file and file_list:
-            # Extract from zip file
-            version_file = "app/app_zip_version.txt"
-            if version_file in file_list:
-                with zip_file.open(version_file) as f:
-                    version = f.read().decode("utf-8").strip()
+    @staticmethod
+    def _read_zip_file(zip_file: ZipFile, path: str, default: str | None = None) -> str | None:
+        if path in zip_file.namelist():
+            with zip_file.open(path) as f:
+                return f.read().decode("utf-8").strip()
+        return default
 
-            python_version_file = "app/python_version.txt"
-            if python_version_file in file_list:
-                with zip_file.open(python_version_file) as f:
-                    python_version = f.read().decode("utf-8").strip()
-
-            has_pylock = "app/pylock.toml" in file_list
-            wheel_files = [f for f in file_list if f.startswith("app/package/") and f.endswith(".whl")]
-            has_app_config = "app/config/app.yml" in file_list
-
-        elif app_dir:
-            # Extract from directory
-            # According to spec, all files should be in the app/ directory structure
-            version_file = app_dir / "app_zip_version.txt"
-            if version_file.exists():
-                version = version_file.read_text().strip()
-
-            python_version_file = app_dir / "python_version.txt"
-            if python_version_file.exists():
-                python_version = python_version_file.read_text().strip()
-
-            has_pylock = (app_dir / "pylock.toml").exists()
-            # Use consistent path format with zip validation
-            wheel_files = [f"app/package/{p.name}" for p in app_dir.glob("package/*.whl")]
-            has_app_config = (app_dir / "config" / "app.yml").exists()
-
+    @classmethod
+    def _extract_from_zip(cls, zip_file, file_list) -> AppZipValidator:
+        """Extract app info from a zip file."""
         return AppZipValidator(
-            version=version,
-            has_pylock=has_pylock,
-            wheel_files=wheel_files,
-            python_version=python_version,
-            has_app_config=has_app_config,
+            version=cls._read_zip_file(zip_file, "app/app_zip_version.txt", "unknown"),
+            python_version=cls._read_zip_file(zip_file, "app/python_version.txt"),
+            has_pylock="app/pylock.toml" in file_list,
+            wheel_files=[f for f in file_list if f.startswith("app/package/") and f.endswith(".whl")],
+            has_app_config="app/config/app.yml" in file_list,
+        )
+
+    @staticmethod
+    def _read_file(path: Path, default: str | None = None) -> str | None:
+        return path.read_text().strip() if path.exists() else default
+
+    @classmethod
+    def _extract_from_directory(cls, app_dir) -> AppZipValidator:
+        """Extract app info from a directory."""
+        return AppZipValidator(
+            version=cls._read_file(app_dir / "app_zip_version.txt", "unknown"),
+            python_version=cls._read_file(app_dir / "python_version.txt"),
+            has_pylock=(app_dir / "pylock.toml").exists(),
+            wheel_files=[f"app/package/{p.name}" for p in app_dir.glob("package/*.whl")],
+            has_app_config=(app_dir / "config" / "app.yml").exists(),
         )
 
     @staticmethod

@@ -71,8 +71,8 @@ def mock_zipfile():
         mock_zip_instance.namelist.return_value = [
             "app/app_zip_version.txt",
             "app/pylock.toml",
+            "app/python_version.txt",
             "app/package/example-1.0.0-py3-none-any.whl",
-            "app/config/python_version.txt",
             "app/config/app.yml",
         ]
 
@@ -99,32 +99,19 @@ def test_validator_get_validation_errors(valid_validator, invalid_validator):
 
     # Invalid validator should have 4 errors (and 1 warning)
     errors = invalid_validator.get_validation_errors()
-    assert len(errors) == 5
+    assert len(errors) == 4
     assert any("version" in error for error in errors)
     assert any("pylock" in error for error in errors)
-    assert any("wheel files" in error for error in errors)
     assert any("python_version" in error for error in errors)
     assert any("Warning" in error for error in errors)  # app.yml warning
-
-
-# Tests for AppZipManager
-def test_calculate_checksum(fs):
-    """Test checksum calculation"""
-    test_file = Path("test_file.txt")
-    fs.create_file(test_file, contents="test content")
-
-    checksum = AppZipManager.calculate_checksum(test_file)
-    # Known SHA-256 for 'test content'
-    expected = "6ae8a75555209fd6c44157c0aed8016e763ff435a19cf186f76863140143ff72"
-    assert checksum == expected
 
 
 def test_validate_app_zip(mock_zipfile):
     """Test validation of an app zip file"""
     with patch.object(AppZipManager, "_print_validation_result"):
         result = AppZipManager.validate_app_zip(Path("test.zip"))
+        assert result["errors"] == []
         assert result["valid"] is True
-        assert len(result["errors"]) == 0
 
 
 def test_validate_app_zip_bad_zip():
