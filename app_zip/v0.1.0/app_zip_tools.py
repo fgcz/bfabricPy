@@ -16,6 +16,7 @@ from zipfile import ZipFile
 
 import cyclopts
 from pydantic import BaseModel, Field
+from loguru import logger
 
 # Constants
 APP_ZIP_VERSION = "0.1.0"
@@ -202,30 +203,19 @@ class AppZipManager:
 
     @classmethod
     def _extract_app_to_cache(cls, zip_path: Path, app_cache_dir: Path, cache_base_dir: Path) -> None:
-        print(f"Extracting {zip_path} to {app_cache_dir}...")
-        # Create a temporary directory for extraction
-        with tempfile.TemporaryDirectory(dir=cache_base_dir) as temp_dir_name:
-            temp_dir = Path(temp_dir_name)
+        logger.info(f"Extracting {zip_path} to {app_cache_dir}...")
+        app_cache_dir.parent.mkdir(parents=True, exist_ok=True)
 
-            # Extract the zip
+        # Extract to a temporary directory first
+        with tempfile.TemporaryDirectory(dir=cache_base_dir) as extract_temp_dir:
+            extract_temp_path = Path(extract_temp_dir) / "extract"
             with zipfile.ZipFile(zip_path, "r") as zip_file:
-                # Check for path traversal
-                for zip_info in zip_file.infolist():
-                    if ".." in zip_info.filename or zip_info.filename.startswith("/"):
-                        print(f"Error: Potentially unsafe path in zip: {zip_info.filename}")
-                        sys.exit(1)
+                if any(zip_info.filename.startswith("..") for zip_info in zip_file.infolist()):
+                    raise ValueError("Error: Potentially unsafe path in zip")
+                zip_file.extractall(extract_temp_path)
 
-                # Safe to extract
-                zip_file.extractall(temp_dir)
-
-            # Move from temporary location to final cache location
-            app_cache_dir.mkdir(exist_ok=True, parents=True)
-            for item in temp_dir.iterdir():
-                # Use shutil.move for directories, shutil.copy2 for files
-                if item.is_dir():
-                    shutil.move(str(item), str(app_cache_dir / item.name))
-                else:
-                    shutil.copy2(str(item), str(app_cache_dir / item.name))
+            # Move the extracted content to the final temporary directory
+            shutil.move(str(extract_temp_path), str(app_cache_dir))
 
     @staticmethod
     def _generate_fingerprint(zip_path: Path) -> str:
