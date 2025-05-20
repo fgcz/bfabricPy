@@ -53,7 +53,7 @@ class ValidationResult(BaseModel):
     def is_valid(self) -> bool:
         return not self.errors
 
-    def print(self):
+    def print(self) -> None:
         """Print validation results in a user-friendly format."""
         zip_name = self.path.name
 
