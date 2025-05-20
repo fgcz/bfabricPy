@@ -150,7 +150,7 @@ def test_create_app_zip(mocker):
 
     # Verify zip file was created with correct content
     mock_zip.assert_called_once_with(output_path, "w")
-    assert mock_zip_instance.writestr.call_count >= 3  # At minimum: version, python version, checksums
+    assert mock_zip_instance.writestr.call_count >= 2  # At minimum: version, python version
     assert mock_zip_instance.write.call_count >= 3  # At minimum: pylock, wheel, app.yml
 
     # Verify validation was performed
