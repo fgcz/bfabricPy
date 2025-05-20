@@ -18,31 +18,6 @@ from app_zip_tools import (
 )
 
 
-# Fixtures
-@pytest.fixture
-def valid_validator():
-    """Return a valid AppZipValidator instance"""
-    return AppZipValidator(
-        version=APP_ZIP_VERSION,
-        has_pylock=True,
-        wheel_files=["app/package/example-1.0.0-py3-none-any.whl"],
-        python_version="3.13",
-        has_app_config=True,
-    )
-
-
-@pytest.fixture
-def invalid_validator():
-    """Return an invalid AppZipValidator instance"""
-    return AppZipValidator(
-        version="0.0.0",  # Wrong version
-        has_pylock=False,  # Missing pylock
-        wheel_files=[],  # No wheels
-        python_version=None,  # No Python version
-        has_app_config=False,  # No app config
-    )
-
-
 @pytest.fixture
 def valid_app_dir(fs) -> Path:
     app_dir = Path(".app_tmp/app")
@@ -72,25 +47,52 @@ def valid_app_zip(fs, valid_app_dir) -> Path:
     return app_zip
 
 
-# Tests for AppZipValidator
-def test_validator_is_valid(valid_validator, invalid_validator):
-    """Test the is_valid property"""
-    assert valid_validator.is_valid is True
-    assert invalid_validator.is_valid is False
+class TestValidatorValid:
+    @staticmethod
+    @pytest.fixture
+    def validator():
+        """Return a valid AppZipValidator instance"""
+        return AppZipValidator(
+            version=APP_ZIP_VERSION,
+            has_pylock=True,
+            wheel_files=["app/package/example-1.0.0-py3-none-any.whl"],
+            python_version="3.13",
+            has_app_config=True,
+        )
+
+    @staticmethod
+    def test_is_valid(validator):
+        assert validator.is_valid is True
+
+    @staticmethod
+    def test_get_validation_errors(validator):
+        assert validator.get_validation_errors() == []
 
 
-def test_validator_get_validation_errors(valid_validator, invalid_validator):
-    """Test validation error generation"""
-    # Valid validator should have no errors
-    assert len(valid_validator.get_validation_errors()) == 0
+class TestValidatorInvalid:
+    @staticmethod
+    @pytest.fixture
+    def validator():
+        return AppZipValidator(
+            version="0.0.0",  # Wrong version
+            has_pylock=False,  # Missing pylock
+            wheel_files=[],  # No wheels
+            python_version=None,  # No Python version
+            has_app_config=False,  # No app config
+        )
 
-    # Invalid validator should have 4 errors (and 1 warning)
-    errors = invalid_validator.get_validation_errors()
-    assert len(errors) == 4
-    assert any("version" in error for error in errors)
-    assert any("pylock" in error for error in errors)
-    assert any("python_version" in error for error in errors)
-    assert any("Warning" in error for error in errors)  # app.yml warning
+    @staticmethod
+    def test_is_valid(validator):
+        assert validator.is_valid is False
+
+    @staticmethod
+    def test_validator_get_validation_errors(validator):
+        errors = validator.get_validation_errors()
+        assert len(errors) == 4
+        assert any("version" in error for error in errors)
+        assert any("pylock" in error for error in errors)
+        assert any("python_version" in error for error in errors)
+        assert any("Warning" in error for error in errors)  # app.yml warning
 
 
 class TestValidateAppZip:
