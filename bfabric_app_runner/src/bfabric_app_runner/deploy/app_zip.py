@@ -73,27 +73,16 @@ class UvAppZipHelper:
             raise RuntimeError(msg)
 
 
-def cmd_app_zip_create_uv(
-    project_path: Path | None = None,
-    output_folder: Path | None = None,
-    app_yml_path: Path | None = None,
-    allow_dirty: bool = False,
-    python_version: str = "3.13",
+def build_app_zip(
+    project_path: Path, output_folder: Path, app_yml_path: Path | None, allow_dirty: bool, python_version: str
 ) -> None:
-    """Creates an app.zip from the current Python project."""
-    if project_path is None:
-        project_path = Path.cwd()
-    if output_folder is None:
-        output_folder = project_path / "app_zip"
-    output_folder.mkdir(parents=True, exist_ok=True)
-
+    """Builds the app zip requested."""
     helper = UvAppZipHelper(project_path)
     if app_yml_path is None:
         app_yml_path = helper.discover_app_yml()
     helper.check_dirty(allow_dirty=allow_dirty)
     helper.build_wheel()
     helper.export_pylock_toml()
-
     app_zip_path = output_folder / f"{helper.package_name}-{helper.version}.zip"
     with ZipFile(app_zip_path, "w") as app_zip:
         # Write the app zip version
@@ -111,5 +100,4 @@ def cmd_app_zip_create_uv(
 
         # Write the python version
         app_zip.writestr("app/python_version.txt", python_version)
-
     logger.success(f"Successfully created app zip: {app_zip_path}")
