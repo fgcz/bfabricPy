@@ -1,11 +1,10 @@
+import io
+import sys
 import zipfile
 from pathlib import Path
-from unittest.mock import MagicMock, patch
-import io
+from unittest.mock import MagicMock
 
 import pytest
-
-import sys
 
 sys.path.append(".")
 from app_zip_tools import (
@@ -132,13 +131,10 @@ class TestValidateAppZipDir:
         assert len(result["errors"]) > 0
 
 
-@patch.object(AppZipManager, "_verify_input_files")
-@patch.object(AppZipManager, "calculate_checksum")
-@patch.object(AppZipManager, "validate_app_zip")
-def test_create_app_zip(mock_validate, mock_checksum, mock_verify, fs):
+def test_create_app_zip(mocker):
     """Test app zip creation"""
-    # Setup mocks
-    mock_checksum.return_value = "fake_checksum"
+    mocker.patch.object(AppZipManager, "_verify_input_files")
+    mock_validate = mocker.patch.object(AppZipManager, "validate")
     mock_validate.return_value = {"valid": True, "errors": []}
 
     output_path = Path("output.zip")
@@ -146,46 +142,43 @@ def test_create_app_zip(mock_validate, mock_checksum, mock_verify, fs):
     pylock_path = Path("pylock.toml")
     app_yml_path = Path("app.yml")
 
-    with patch("zipfile.ZipFile") as mock_zip:
-        mock_zip_instance = MagicMock()
-        mock_zip.return_value.__enter__.return_value = mock_zip_instance
+    mock_zip = mocker.patch("zipfile.ZipFile")
+    mock_zip_instance = MagicMock()
+    mock_zip.return_value.__enter__.return_value = mock_zip_instance
 
-        AppZipManager.create_app_zip(output_path, wheel_paths, pylock_path, app_yml_path, "3.13")
+    AppZipManager.create_app_zip(output_path, wheel_paths, pylock_path, app_yml_path, "3.13")
 
-        # Verify zip file was created with correct content
-        mock_zip.assert_called_once_with(output_path, "w")
-        assert mock_zip_instance.writestr.call_count >= 3  # At minimum: version, python version, checksums
-        assert mock_zip_instance.write.call_count >= 3  # At minimum: pylock, wheel, app.yml
+    # Verify zip file was created with correct content
+    mock_zip.assert_called_once_with(output_path, "w")
+    assert mock_zip_instance.writestr.call_count >= 3  # At minimum: version, python version, checksums
+    assert mock_zip_instance.write.call_count >= 3  # At minimum: pylock, wheel, app.yml
 
-        # Verify validation was performed
-        mock_validate.assert_called_once_with(output_path)
+    # Verify validation was performed
+    mock_validate.assert_called_once_with(output_path)
 
 
-@patch.object(AppZipManager, "_is_newer")
-@patch.object(AppZipManager, "validate_app_dir")
-@patch.object(AppZipManager, "_activate_venv_and_run")
-def test_run_app_zip(mock_activate, mock_validate, mock_is_newer, fs):
+def test_run_app_zip(mocker, valid_app_zip):
     """Test running a command from an app zip"""
-    # Setup mocks
-    mock_is_newer.return_value = False  # Assume zip is not newer than the directory
+    mocker.patch.object(AppZipManager, "_is_newer", return_value=False)
+    mock_validate = mocker.patch.object(AppZipManager, "validate")
+    mock_activate_run = mocker.patch.object(AppZipManager, "_activate_venv_and_run")
     mock_validate.return_value = {"valid": True, "errors": []}
 
-    # Setup directory structure
-    app_dir = Path(".app_tmp/app")
-    fs.create_dir(app_dir)
-    fs.create_dir(app_dir / "config")
-    fs.create_file(app_dir / "config/python_version.txt", contents="3.13")
-    fs.create_dir(app_dir / ".venv")  # Pretend venv exists
-
     # Run the command
-    with patch("os.chdir") as mock_chdir:
-        AppZipManager.run_app_zip(Path("test.zip"), "python -m app")
+    mock_chdir = mocker.patch("os.chdir")
+    AppZipManager.run_app_zip(Path("test.zip"), "python -m app")
 
-        # Verify directory change
-        assert mock_chdir.call_count == 2
+    # Verify directory change
+    assert mock_chdir.call_count == 2
 
-        # Verify command was run
-        mock_activate.assert_called_once()
+    # Verify command were run
+    assert mock_activate_run.mock_calls == [
+        mocker.call(mocker.ANY, [["uv", "pip", "install", "--requirement", "pylock.toml"]]),
+        mocker.call(mocker.ANY, [["python", "-m", "app"]]),
+    ]
+    venv_path = Path(".app_tmp/app/.venv")
+    assert Path(mock_activate_run.call_args_list[0][0][0]) == venv_path
+    assert Path(mock_activate_run.call_args_list[1][0][0]) == venv_path
 
 
 class TestCLI:
