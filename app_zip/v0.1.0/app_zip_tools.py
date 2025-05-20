@@ -9,12 +9,11 @@ import shutil
 import subprocess
 import sys
 import zipfile
-from zipfile import ZipFile
 from pathlib import Path
+from zipfile import ZipFile
 
 import cyclopts
 from pydantic import BaseModel, Field
-
 
 # Constants
 APP_ZIP_VERSION = "0.1.0"
@@ -51,44 +50,46 @@ class AppZipValidator(BaseModel):
         return errors
 
 
+class ValidationResult(BaseModel):
+    path: Path
+    errors: list[str]
+
+    @property
+    def is_valid(self) -> bool:
+        return not self.errors
+
+    def print(self):
+        """Print validation results in a user-friendly format."""
+        zip_name = self.path.name
+
+        if self.is_valid:
+            print(f"✅ {zip_name}: Valid App Zip (format {APP_ZIP_VERSION})")
+        else:
+            print(f"❌ {zip_name}: Invalid App Zip")
+            print("\nValidation errors:")
+            for i, error in enumerate(self.errors, 1):
+                print(f"  {i}. {error}")
+            print()
+            print(f"The zip file does not conform to App Zip Format {APP_ZIP_VERSION} specification.")
+
+
 class AppZipManager:
     """Manager for App Zip operations."""
 
     @classmethod
-    def validate(cls, source: Path) -> dict[str, bool | list[str]]:
-        """Validates if a zip file or directory follows the App Zip Format specification.
-
-        :param source: Path to a zip file or directory to validate
-        :return: Dictionary with validation results
-        """
-        result = {"valid": False, "errors": []}
-
+    def validate(cls, source: Path) -> ValidationResult:
+        """Validates if a zip file or directory follows the App Zip Format specification."""
         try:
-            if source.is_file() and source.suffix == ".zip":
+            if source.is_file():
                 with zipfile.ZipFile(source, "r") as zip_file:
                     validator = cls._extract_from_zip(zip_file)
-            elif source.is_dir():
-                validator = cls._extract_from_directory(source)
             else:
-                result["errors"] = ["Invalid source: must be a zip file or directory"]
-                return result
-
-            result["valid"] = validator.is_valid
-            result["errors"] = validator.get_validation_errors()
-
-            if source.is_file():  # Only print for zip files
-                AppZipManager._print_validation_result(source, result)
-
+                validator = cls._extract_from_directory(source)
+            return ValidationResult(path=source, errors=validator.get_validation_errors())
         except zipfile.BadZipFile:
-            result["errors"] = ["Not a valid zip file"]
-            if source.is_file():
-                AppZipManager._print_validation_result(source, result)
+            return ValidationResult(path=source, errors=["Not a valid zip file"])
         except Exception as e:
-            result["errors"] = [f"Error validating source: {e!s}"]
-            if source.is_file():
-                AppZipManager._print_validation_result(source, result)
-
-        return result
+            return ValidationResult(path=source, errors=[f"Unknown error validating source: {e!s}"])
 
     @staticmethod
     def _read_zip_file(zip_file: ZipFile, path: str, default: str | None = None) -> str | None:
@@ -252,22 +253,6 @@ class AppZipManager:
             raise ValueError(msg)
 
     @staticmethod
-    def _print_validation_result(zip_path: Path, result: dict[str, bool | list[str]]) -> None:
-        """Print validation results in a user-friendly format."""
-        zip_name = zip_path.name
-
-        if result["valid"]:
-            print(f"✅ {zip_name}: Valid App Zip (format {APP_ZIP_VERSION})")
-        else:
-            print(f"❌ {zip_name}: Invalid App Zip")
-            if result["errors"]:
-                print("\nValidation errors:")
-                for i, error in enumerate(result["errors"], 1):
-                    print(f"  {i}. {error}")
-                print()
-            print(f"The zip file does not conform to App Zip Format {APP_ZIP_VERSION} specification.")
-
-    @staticmethod
     def _is_newer(zip_path: Path, dir_path: Path) -> bool:
         """Check if zip file is newer than directory."""
         # If directory doesn't exist, zip is "newer"
@@ -313,7 +298,8 @@ app = cyclopts.App(help="App Zip Format 0.1.0 tool")
 def validate(zip_path: Path) -> None:
     """Validate an App Zip file against the 0.1.0 specification."""
     result = AppZipManager.validate(zip_path)
-    if not result["valid"]:
+    result.print()
+    if not result.is_valid:
         sys.exit(1)
 
 

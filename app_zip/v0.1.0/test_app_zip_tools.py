@@ -5,6 +5,7 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
+from inline_snapshot import snapshot
 
 sys.path.append(".")
 from app_zip_tools import (
@@ -14,6 +15,7 @@ from app_zip_tools import (
     validate,
     create,
     run,
+    ValidationResult,
 )
 
 
@@ -87,29 +89,31 @@ class TestValidatorInvalid:
     @staticmethod
     def test_validator_get_validation_errors(validator):
         errors = validator.get_validation_errors()
-        assert len(errors) == 4
-        assert any("version" in error for error in errors)
-        assert any("pylock" in error for error in errors)
-        assert any("python_version" in error for error in errors)
-        assert any("Warning" in error for error in errors)  # app.yml warning
+        assert set(errors) == snapshot(
+            {
+                "Invalid version: 0.0.0 (expected 0.1.0)",
+                "Missing pylock.toml file",
+                "Missing python_version.txt",
+                "Warning: Missing app.yml configuration file (not required for validation)",
+            }
+        )
 
 
 class TestValidateAppZip:
     @staticmethod
     def test_when_valid(mocker, valid_app_zip):
         """Test validation of an app zip file"""
-        mocker.patch.object(AppZipManager, "_print_validation_result")
         result = AppZipManager.validate(valid_app_zip)
-        assert result["errors"] == []
-        assert result["valid"] is True
+        assert result.errors == []
+        assert result.is_valid is True
 
     @staticmethod
     def test_when_bad_zip(mocker, valid_app_zip):
         """Test validation of an invalid zip file"""
         mocker.patch("zipfile.ZipFile", side_effect=zipfile.BadZipFile)
         result = AppZipManager.validate(valid_app_zip)
-        assert "Not a valid zip file" in result["errors"]
-        assert result["valid"] is False
+        assert result.errors == ["Not a valid zip file"]
+        assert result.is_valid is False
 
 
 class TestValidateAppZipDir:
@@ -117,8 +121,8 @@ class TestValidateAppZipDir:
     def test_validate_app_dir(valid_app_dir):
         """Test validation of an extracted app directory"""
         result = AppZipManager.validate(valid_app_dir)
-        assert result["errors"] == []
-        assert result["valid"] is True
+        assert result.errors == []
+        assert result.is_valid is True
 
     @staticmethod
     def test_validate_app_dir_invalid(fs):
@@ -127,8 +131,15 @@ class TestValidateAppZipDir:
         fs.create_dir(app_dir)
         fs.create_file(app_dir / "app_zip_version.txt", contents="0.0.0")
         result = AppZipManager.validate(app_dir)
-        assert result["valid"] is False
-        assert len(result["errors"]) > 0
+        assert result.errors == snapshot(
+            [
+                "Invalid version: 0.0.0 (expected 0.1.0)",
+                "Missing pylock.toml file",
+                "Missing python_version.txt",
+                "Warning: Missing app.yml configuration file (not required for validation)",
+            ]
+        )
+        assert result.is_valid is False
 
 
 def test_create_app_zip(mocker):
@@ -183,20 +194,30 @@ def test_run_app_zip(mocker, valid_app_zip):
 
 class TestCLI:
     @staticmethod
-    def test_validate(mocker):
-        """Test the validate command"""
-        mock_validate = mocker.patch.object(AppZipManager, "validate")
-        mock_validate.return_value = {"valid": True, "errors": []}
-        mock_exit = mocker.patch("sys.exit")
-        validate(Path("test.zip"))
-        mock_exit.assert_not_called()
+    @pytest.fixture
+    def zip_path():
+        return Path("test.zip")
 
-        # Test with invalid zip
-        mock_validate.return_value = {"valid": False, "errors": ["Invalid"]}
+    @staticmethod
+    @pytest.fixture
+    def validation_result_valid(zip_path):
+        return ValidationResult(errors=[], path=zip_path)
 
-        mock_exit.reset_mock()
+    @staticmethod
+    @pytest.fixture
+    def validation_result_invalid(zip_path):
+        return ValidationResult(errors=["Invalid"], path=zip_path)
+
+    @staticmethod
+    def test_validate_when_valid(mocker, zip_path, validation_result_valid):
+        mocker.patch.object(AppZipManager, "validate", return_value=validation_result_valid)
         validate(Path("test.zip"))
-        mock_exit.assert_called_once()
+
+    @staticmethod
+    def test_validate_when_invalid(mocker, zip_path, validation_result_invalid):
+        mocker.patch.object(AppZipManager, "validate", return_value=validation_result_invalid)
+        with pytest.raises(SystemExit):
+            validate(Path("test.zip"))
 
     @staticmethod
     def test_create_command(mocker):
