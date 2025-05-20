@@ -67,7 +67,7 @@ class TestValidatorValid:
 
     @staticmethod
     def test_get_validation_errors(validator):
-        assert validator.get_validation_errors() == []
+        assert validator.get_validation_errors() == ([], [])
 
 
 class TestValidatorInvalid:
@@ -88,15 +88,11 @@ class TestValidatorInvalid:
 
     @staticmethod
     def test_validator_get_validation_errors(validator):
-        errors = validator.get_validation_errors()
+        errors, warnings = validator.get_validation_errors()
         assert set(errors) == snapshot(
-            {
-                "Invalid version: 0.0.0 (expected 0.1.0)",
-                "Missing pylock.toml file",
-                "Missing python_version.txt",
-                "Warning: Missing app.yml configuration file (not required for validation)",
-            }
+            {"Invalid version: 0.0.0 (expected 0.1.0)", "Missing pylock.toml file", "Missing python_version.txt"}
         )
+        assert set(warnings) == snapshot({"Missing app.yml configuration file (not required for validation)"})
 
 
 class TestValidateAppZip:
@@ -132,12 +128,7 @@ class TestValidateAppZipDir:
         fs.create_file(app_dir / "app_zip_version.txt", contents="0.0.0")
         result = AppZipManager.validate(app_dir)
         assert result.errors == snapshot(
-            [
-                "Invalid version: 0.0.0 (expected 0.1.0)",
-                "Missing pylock.toml file",
-                "Missing python_version.txt",
-                "Warning: Missing app.yml configuration file (not required for validation)",
-            ]
+            ["Invalid version: 0.0.0 (expected 0.1.0)", "Missing pylock.toml file", "Missing python_version.txt"]
         )
         assert result.is_valid is False
 
@@ -146,7 +137,7 @@ def test_create_app_zip(mocker):
     """Test app zip creation"""
     mocker.patch.object(AppZipManager, "_verify_input_files")
     mock_validate = mocker.patch.object(AppZipManager, "validate")
-    mock_validate.return_value = {"valid": True, "errors": []}
+    mock_validate.return_value = ValidationResult(errors=[], path=Path("test.zip"))
 
     output_path = Path("output.zip")
     wheel_paths = [Path("wheel_file.whl")]
@@ -172,8 +163,8 @@ def test_run_app_zip(mocker, valid_app_zip):
     """Test running a command from an app zip"""
     mocker.patch.object(AppZipManager, "_is_newer", return_value=False)
     mock_validate = mocker.patch.object(AppZipManager, "validate")
+    mock_validate.return_value = ValidationResult(errors=[], path=valid_app_zip)
     mock_activate_run = mocker.patch.object(AppZipManager, "_activate_venv_and_run")
-    mock_validate.return_value = {"valid": True, "errors": []}
 
     # Run the command
     mock_chdir = mocker.patch("os.chdir")

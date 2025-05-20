@@ -34,25 +34,25 @@ class AppZipValidator(BaseModel):
         """Check if zip structure is valid."""
         return self.version == APP_ZIP_VERSION and self.has_pylock and self.python_version is not None
 
-    def get_validation_errors(self) -> list[str]:
+    def get_validation_errors(self) -> tuple[list[str], list[str]]:
         """Generate human-readable error messages."""
         errors = []
+        warnings = []
         if self.version != APP_ZIP_VERSION:
             errors.append(f"Invalid version: {self.version} (expected {APP_ZIP_VERSION})")
         if not self.has_pylock:
             errors.append("Missing pylock.toml file")
         if self.python_version is None:
             errors.append("Missing python_version.txt")
-        # TODO this is probably not correctly implemented yet
-        # Only warn about missing app.yml, as it's not strictly required for validation
         if not self.has_app_config:
-            errors.append("Warning: Missing app.yml configuration file (not required for validation)")
-        return errors
+            warnings.append("Missing app.yml configuration file (not required for validation)")
+        return errors, warnings
 
 
 class ValidationResult(BaseModel):
     path: Path
     errors: list[str]
+    warnings: list[str] = []
 
     @property
     def is_valid(self) -> bool:
@@ -72,6 +72,11 @@ class ValidationResult(BaseModel):
             print()
             print(f"The zip file does not conform to App Zip Format {APP_ZIP_VERSION} specification.")
 
+        if self.warnings:
+            print("\nValidation warnings:")
+            for i, warning in enumerate(self.warnings, 1):
+                print(f"  {i}. {warning}")
+
 
 class AppZipManager:
     """Manager for App Zip operations."""
@@ -85,7 +90,8 @@ class AppZipManager:
                     validator = cls._extract_from_zip(zip_file)
             else:
                 validator = cls._extract_from_directory(source)
-            return ValidationResult(path=source, errors=validator.get_validation_errors())
+            errors, warnings = validator.get_validation_errors()
+            return ValidationResult(path=source, errors=errors, warnings=warnings)
         except zipfile.BadZipFile:
             return ValidationResult(path=source, errors=["Not a valid zip file"])
         except Exception as e:
