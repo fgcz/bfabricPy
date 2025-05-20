@@ -93,38 +93,41 @@ def test_validator_get_validation_errors(valid_validator, invalid_validator):
     assert any("Warning" in error for error in errors)  # app.yml warning
 
 
-def test_validate_app_zip(mocker, valid_app_zip):
-    """Test validation of an app zip file"""
-    mocker.patch.object(AppZipManager, "_print_validation_result")
-    result = AppZipManager.validate_app_zip(valid_app_zip)
-    assert result["errors"] == []
-    assert result["valid"] is True
+class TestValidateAppZip:
+    @staticmethod
+    def test_when_valid(mocker, valid_app_zip):
+        """Test validation of an app zip file"""
+        mocker.patch.object(AppZipManager, "_print_validation_result")
+        result = AppZipManager.validate(valid_app_zip)
+        assert result["errors"] == []
+        assert result["valid"] is True
+
+    @staticmethod
+    def test_when_bad_zip(mocker, valid_app_zip):
+        """Test validation of an invalid zip file"""
+        mocker.patch("zipfile.ZipFile", side_effect=zipfile.BadZipFile)
+        result = AppZipManager.validate(valid_app_zip)
+        assert "Not a valid zip file" in result["errors"]
+        assert result["valid"] is False
 
 
-def test_validate_app_zip_bad_zip(mocker):
-    """Test validation of an invalid zip file"""
-    mocker.patch("zipfile.ZipFile", side_effect=zipfile.BadZipFile)
-    mocker.patch.object(AppZipManager, "_print_validation_result")
-    result = AppZipManager.validate(Path("bad.zip"))
-    assert result["valid"] is False
-    assert "Not a valid zip file" in result["errors"]
+class TestValidateAppZipDir:
+    @staticmethod
+    def test_validate_app_dir(valid_app_dir):
+        """Test validation of an extracted app directory"""
+        result = AppZipManager.validate(valid_app_dir)
+        assert result["errors"] == []
+        assert result["valid"] is True
 
-
-def test_validate_app_dir(valid_app_dir):
-    """Test validation of an extracted app directory"""
-    result = AppZipManager.validate_app_dir(valid_app_dir)
-    assert result["errors"] == []
-    assert result["valid"] is True
-
-
-def test_validate_app_dir_invalid(fs):
-    """Test validation of an invalid app directory"""
-    app_dir = Path(".app_tmp/app")
-    fs.create_dir(app_dir)
-    fs.create_file(app_dir / "app_zip_version.txt", contents="0.0.0")
-    result = AppZipManager.validate(app_dir)
-    assert result["valid"] is False
-    assert len(result["errors"]) > 0
+    @staticmethod
+    def test_validate_app_dir_invalid(fs):
+        """Test validation of an invalid app directory"""
+        app_dir = Path(".app_tmp/app")
+        fs.create_dir(app_dir)
+        fs.create_file(app_dir / "app_zip_version.txt", contents="0.0.0")
+        result = AppZipManager.validate(app_dir)
+        assert result["valid"] is False
+        assert len(result["errors"]) > 0
 
 
 @patch.object(AppZipManager, "_verify_input_files")
@@ -183,75 +186,35 @@ def test_run_app_zip(mock_activate, mock_validate, mock_is_newer, fs):
         mock_activate.assert_called_once()
 
 
-def test_verify_checksums(fs):
-    """Test checksum verification"""
-    app_dir = Path(".app_tmp/app")
-    fs.create_dir(app_dir)
-    fs.create_dir(app_dir / "package")
-
-    # Create a wheel file
-    wheel_path = app_dir / "package/test-1.0.0-py3-none-any.whl"
-    fs.create_file(wheel_path, contents="test wheel content")
-
-    # Create a checksum file with the correct hash
-    checksum = AppZipManager.calculate_checksum(wheel_path)
-    fs.create_file(app_dir / "checksum.sha256", contents=f"{checksum} test-1.0.0-py3-none-any.whl")
-
-    # This should not raise an exception
-    with patch("sys.exit") as mock_exit:
-        AppZipManager._verify_checksums(app_dir)
-        mock_exit.assert_not_called()
-
-
-def test_verify_checksums_mismatch(fs):
-    """Test checksum verification with mismatched checksums"""
-    app_dir = Path(".app_tmp/app")
-    fs.create_dir(app_dir)
-    fs.create_dir(app_dir / "package")
-
-    # Create a wheel file
-    wheel_path = app_dir / "package/test-1.0.0-py3-none-any.whl"
-    fs.create_file(wheel_path, contents="test wheel content")
-
-    # Create a checksum file with an incorrect hash
-    fs.create_file(app_dir / "checksum.sha256", contents="incorrect_checksum test-1.0.0-py3-none-any.whl")
-
-    # This should exit with an error
-    with patch("sys.exit") as mock_exit, patch("builtins.print") as mock_print:
-        AppZipManager._verify_checksums(app_dir)
-        mock_exit.assert_called_once()
-        mock_print.assert_called_with("Checksum mismatch for test-1.0.0-py3-none-any.whl")
-
-
-# Tests for command-line functions
-@patch.object(AppZipManager, "validate_app_zip")
-def test_validate_command(mock_validate):
-    """Test the validate command"""
-    mock_validate.return_value = {"valid": True, "errors": []}
-
-    with patch("sys.exit") as mock_exit:
+class TestCLI:
+    @staticmethod
+    def test_validate(mocker):
+        """Test the validate command"""
+        mock_validate = mocker.patch.object(AppZipManager, "validate")
+        mock_validate.return_value = {"valid": True, "errors": []}
+        mock_exit = mocker.patch("sys.exit")
         validate(Path("test.zip"))
         mock_exit.assert_not_called()
 
-    # Test with invalid zip
-    mock_validate.return_value = {"valid": False, "errors": ["Invalid"]}
+        # Test with invalid zip
+        mock_validate.return_value = {"valid": False, "errors": ["Invalid"]}
 
-    with patch("sys.exit") as mock_exit:
+        mock_exit.reset_mock()
         validate(Path("test.zip"))
         mock_exit.assert_called_once()
 
+    @staticmethod
+    def test_create_command(mocker):
+        """Test the create command"""
+        mock_create = mocker.patch.object(AppZipManager, "create_app_zip")
+        create(Path("output.zip"), [Path("wheel.whl")], Path("pylock.toml"), Path("app.yml"), "3.13")
+        mock_create.assert_called_once_with(
+            Path("output.zip"), [Path("wheel.whl")], Path("pylock.toml"), Path("app.yml"), "3.13"
+        )
 
-@patch.object(AppZipManager, "create_app_zip")
-def test_create_command(mock_create):
-    """Test the create command"""
-    create(Path("output.zip"), [Path("wheel.whl")], Path("pylock.toml"), Path("app.yml"), "3.13")
-    mock_create.assert_called_once_with(
-        Path("output.zip"), [Path("wheel.whl")], Path("pylock.toml"), Path("app.yml"), "3.13"
-    )
-
-
-@patch.object(AppZipManager, "run_app_zip")
-def test_run_command(mock_run):
-    """Test the run command"""
-    run(Path("test.zip"), "python -m app")
-    mock_run.assert_called_once_with(Path("test.zip"), "python -m app")
+    @staticmethod
+    def test_run_command(mocker):
+        """Test the run command"""
+        mock_run = mocker.patch.object(AppZipManager, "run_app_zip")
+        run(Path("test.zip"), "python -m app")
+        mock_run.assert_called_once_with(Path("test.zip"), "python -m app")

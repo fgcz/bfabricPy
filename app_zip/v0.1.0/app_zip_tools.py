@@ -56,7 +56,7 @@ class AppZipManager:
 
     @classmethod
     def validate(cls, source: Path) -> dict[str, bool | list[str]]:
-        """Validate if a zip file or directory follows the App Zip Format specification.
+        """Validates if a zip file or directory follows the App Zip Format specification.
 
         Args:
             source: Path to a zip file or directory to validate
