@@ -164,7 +164,8 @@ class AppZipManager:
 
         # Validate the created zip
         result = AppZipManager.validate(output_path)
-        if not result["valid"]:
+        result.print()
+        if not result.is_valid:
             print("Warning: Created zip file failed validation!")
             sys.exit(1)
 
@@ -195,8 +196,8 @@ class AppZipManager:
 
         # Validate the app zip
         result = AppZipManager.validate(app_dir)
-        if not result["valid"]:
-            AppZipManager._print_validation_result(zip_path, result)
+        result.print()
+        if not result.is_valid:
             sys.exit(1)
 
         # Setup environment
