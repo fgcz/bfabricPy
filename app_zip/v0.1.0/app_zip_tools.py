@@ -58,11 +58,8 @@ class AppZipManager:
     def validate(cls, source: Path) -> dict[str, bool | list[str]]:
         """Validates if a zip file or directory follows the App Zip Format specification.
 
-        Args:
-            source: Path to a zip file or directory to validate
-
-        Returns:
-            Dictionary with validation results
+        :param source: Path to a zip file or directory to validate
+        :return: Dictionary with validation results
         """
         result = {"valid": False, "errors": []}
 
@@ -240,23 +237,19 @@ class AppZipManager:
         """Verify that all input files exist."""
         # Verify pylock.toml exists
         if not pylock_path.exists():
-            print(f"Error: pylock.toml file not found at {pylock_path}")
-            sys.exit(1)
+            msg = f"Error: pylock.toml file not found at {pylock_path}"
+            raise ValueError(msg)
 
-        # Verify wheel files exist
-        if not wheel_paths:
-            print("Error: No wheel files specified")
-            sys.exit(1)
-
+        # Verify specified wheel files exist
         for wheel_path in wheel_paths:
             if not wheel_path.exists():
-                print(f"Error: Wheel file not found at {wheel_path}")
-                sys.exit(1)
+                msg = f"Error: Wheel file not found at {wheel_path}"
+                raise ValueError(msg)
 
         # Verify app.yml exists if provided
         if app_yml_path and not app_yml_path.exists():
-            print(f"Error: app.yml file not found at {app_yml_path}")
-            sys.exit(1)
+            msg = f"Error: app.yml file not found at {app_yml_path}"
+            raise ValueError(msg)
 
     @staticmethod
     def _print_validation_result(zip_path: Path, result: dict[str, bool | list[str]]) -> None:
