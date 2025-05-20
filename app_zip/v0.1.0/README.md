@@ -152,6 +152,43 @@ For implementations using the `uv` package manager:
     uv pip install --offline --no-deps package/*.whl
     ```
 
+### Robust Caching Implementation
+
+For efficient caching and handling of multiple app zip files, implementations should consider using a content-aware caching system:
+
+1. **Cache Directory Structure:**
+
+    Use a central cache directory (e.g., `.app_cache/`) with subdirectories for each app zip file. Each subdirectory should be named using both the original filename and a content-derived fingerprint separated by double underscore:
+
+    `.app_cache/myapp.zip__s12345_t1621789012_h1a2b3c4d5e6f/app/`
+
+2. **Fingerprinting Components:**
+
+    A robust fingerprint should combine multiple attributes:
+
+    - File size (prefix with 's')
+    - Modification timestamp (prefix with 't')
+    - Content hash of first 4KB (prefix with 'h', using 12 hex chars for uniqueness)
+
+    This creates fingerprints like: `s12345_t1621789012_h1a2b3c4d5e6f`
+
+3. **Implementation Approach:**
+
+    - Generate the fingerprint by reading file stats and first 4KB of content
+    - Create an MD5 hash of the content sample (using first 12 characters)
+    - Combine attributes in a readable format
+    - Check if a cache directory with matching fingerprint exists before extraction
+    - Extract to temporary directory first, then move to named cache location
+    - Validate zip entries before extraction to prevent path traversal attacks
+
+This caching approach provides several benefits for App Zip implementations:
+
+- **Reliability:** Detects content changes even when timestamps might be misleading
+- **Performance:** Avoids unnecessary re-extraction of unchanged zip files
+- **Concurrency:** Supports multiple applications running simultaneously
+- **Traceability:** Cache directories clearly indicate which zip file they correspond to
+- **Security:** Validates zip contents before extraction to prevent common attacks
+
 ## Appendix: Changelog
 
 ### Version 0.1.0
