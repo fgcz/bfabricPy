@@ -3,11 +3,13 @@
 ------------
 Tool for validating, running, and creating applications packaged in App Zip Format 0.1.0
 """
+import hashlib
 import os
 import shlex
 import shutil
 import subprocess
 import sys
+import tempfile
 import zipfile
 from pathlib import Path
 from zipfile import ZipFile
@@ -170,38 +172,88 @@ class AppZipManager:
             print("Warning: Created zip file failed validation!")
             sys.exit(1)
 
-    @staticmethod
-    def run_app_zip(zip_path: Path, command: str) -> None:
+    @classmethod
+    def run_app_zip(cls, zip_path: Path, command: str) -> None:
         """Run a command from an app zip file."""
-        # Parse the command string into a list of arguments
-        command_args = shlex.split(command)
+        # Create cache directory if it doesn't exist
+        cache_base_dir = Path.cwd() / ".app_cache"
+        cache_base_dir.mkdir(exist_ok=True)
 
-        # Setup paths
-        app_dir = TEMP_DIR / "app"
+        # Generate a cache directory name that includes filename and fingerprint
+        fingerprint = AppZipManager._generate_fingerprint(zip_path)
+        cache_dir_name = f"{zip_path.name}__{fingerprint}"
+        app_cache_dir = cache_base_dir / cache_dir_name
+        app_dir = app_cache_dir / "app"
 
-        # Extract if zip is newer than directory
-        if AppZipManager._is_newer(zip_path, app_dir):
-            print(f"Extracting {zip_path}...")
-            TEMP_DIR.mkdir(exist_ok=True)
+        # Extract if needed
+        if not app_dir.exists():
+            cls._extract_app_to_cache(zip_path, app_cache_dir, cache_base_dir)
+        else:
+            print(f"Using cached app from {app_cache_dir}")
 
-            # Safe removal of app directory
-            if app_dir.exists() and ".app_tmp/app" in str(app_dir):
-                shutil.rmtree(app_dir)
-            elif app_dir.exists():
-                print(f"Error: Unexpected app directory path: {app_dir}")
-                sys.exit(1)
-
-            # Extract the zip
-            with zipfile.ZipFile(zip_path, "r") as zip_file:
-                zip_file.extractall(TEMP_DIR)
-
-        # Validate the app zip
-        result = AppZipManager.validate(app_dir)
+        # Validate the app
+        result = cls.validate(app_dir)
         result.print()
         if not result.is_valid:
             sys.exit(1)
 
-        # Setup environment
+        # Run in virtual environment
+        cls._run_in_venv(app_dir, command)
+
+    @classmethod
+    def _extract_app_to_cache(cls, zip_path: Path, app_cache_dir: Path, cache_base_dir: Path) -> None:
+        print(f"Extracting {zip_path} to {app_cache_dir}...")
+        # Create a temporary directory for extraction
+        with tempfile.TemporaryDirectory(dir=cache_base_dir) as temp_dir_name:
+            temp_dir = Path(temp_dir_name)
+
+            # Extract the zip
+            with zipfile.ZipFile(zip_path, "r") as zip_file:
+                # Check for path traversal
+                for zip_info in zip_file.infolist():
+                    if ".." in zip_info.filename or zip_info.filename.startswith("/"):
+                        print(f"Error: Potentially unsafe path in zip: {zip_info.filename}")
+                        sys.exit(1)
+
+                # Safe to extract
+                zip_file.extractall(temp_dir)
+
+            # Move from temporary location to final cache location
+            app_cache_dir.mkdir(exist_ok=True, parents=True)
+            for item in temp_dir.iterdir():
+                # Use shutil.move for directories, shutil.copy2 for files
+                if item.is_dir():
+                    shutil.move(str(item), str(app_cache_dir / item.name))
+                else:
+                    shutil.copy2(str(item), str(app_cache_dir / item.name))
+
+    @staticmethod
+    def _generate_fingerprint(zip_path: Path) -> str:
+        """Generate a simple fingerprint for the zip file.
+
+        Combines file size, modification time, and a hash of the first 4KB.
+        """
+        stat = zip_path.stat()
+
+        # Read first 4KB for a content fingerprint
+        with open(zip_path, "rb") as f:
+            content_sample = f.read(4096)
+
+        # Create a hash of the content sample - using 12 characters for better uniqueness
+        # MD5 produces 32 hex chars, we're using 12 which gives us 16^12 = 2^48 possible values
+        # This provides a good balance of collision resistance while keeping the path length reasonable
+        content_hash = hashlib.md5(content_sample).hexdigest()[:12]
+
+        # Combine size, mod time and content hash in a simple format
+        return f"s{stat.st_size}_t{int(stat.st_mtime)}_h{content_hash}"
+
+    @classmethod
+    def _run_in_venv(cls, app_dir: Path, command: str) -> None:
+        """Set up virtual environment and run the command."""
+        # Parse command
+        command_args = shlex.split(command)
+
+        # Setup virtual environment
         python_version = (app_dir / "python_version.txt").read_text().strip()
         venv_path = app_dir / ".venv"
 
@@ -219,18 +271,18 @@ class AppZipManager:
                 print("Installing dependencies...")
                 commands = [["uv", "pip", "install", "--requirement", "pylock.toml"]]
 
-                # Add wheel installation command if wheel files exist
+                # Add wheel installation if needed
                 package_dir = Path("package")
                 if package_dir.exists() and list(package_dir.glob("*.whl")):
                     commands.append(
                         ["uv", "pip", "install", "--offline", "--no-deps", *list(package_dir.glob("*.whl"))]
                     )
 
-                AppZipManager._activate_venv_and_run(venv_path, commands)
+                cls._activate_venv_and_run(venv_path, commands)
 
             # Run the command in the virtual environment
             print(f"Running: {command}")
-            AppZipManager._activate_venv_and_run(venv_path, [command_args])
+            cls._activate_venv_and_run(venv_path, [command_args])
         finally:
             # Always return to original directory
             os.chdir(original_dir)
