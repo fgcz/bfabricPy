@@ -14,7 +14,7 @@ class UvAppZipHelper:
 
     @cached_property
     def package_name(self) -> str:
-        return re.sub("[^\w\d.]+", "_", self._package_name_version[0], re.UNICODE)
+        return re.sub(r"[^\w\d.]+", "_", self._package_name_version[0], re.UNICODE)
 
     @property
     def version(self) -> str:
