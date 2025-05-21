@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.27\] - 2025-05-21
+
 ### Added
 
 - Attribute `Bfabric.config_data` to obtain a `ConfigData` object directly.
