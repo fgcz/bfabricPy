@@ -8,15 +8,14 @@ import os
 import shlex
 import shutil
 import subprocess
-import sys
 import tempfile
 import zipfile
 from pathlib import Path
 from zipfile import ZipFile
 
 import cyclopts
-from pydantic import BaseModel, Field
 from loguru import logger
+from pydantic import BaseModel, Field
 
 # Constants
 APP_ZIP_VERSION = "0.1.0"
@@ -170,8 +169,8 @@ class AppZipManager:
         result = AppZipManager.validate(output_path)
         result.print()
         if not result.is_valid:
-            print("Warning: Created zip file failed validation!")
-            sys.exit(1)
+            msg = f"Error: Created zip file {output_path} failed validation!"
+            raise RuntimeError(msg)
 
     @classmethod
     def run_app_zip(cls, zip_path: Path, command: str) -> None:
@@ -196,7 +195,7 @@ class AppZipManager:
         result = cls.validate(app_dir)
         result.print()
         if not result.is_valid:
-            sys.exit(1)
+            raise RuntimeError(f"App zip file {zip_path} failed validation!")
 
         # Run in virtual environment
         cls._run_in_venv(app_dir, command)
@@ -319,7 +318,7 @@ def validate(zip_path: Path) -> None:
     result = AppZipManager.validate(zip_path)
     result.print()
     if not result.is_valid:
-        sys.exit(1)
+        raise SystemExit(1)
 
 
 @app.command()
