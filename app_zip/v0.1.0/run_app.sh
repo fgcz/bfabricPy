@@ -77,3 +77,9 @@ run_app() {
   # Run the command
   exec "$@"
 }
+
+# Check if the script is being run directly
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  set -euxo pipefail
+  run_app "$@"
+fi
