@@ -63,7 +63,11 @@ class UvAppZipHelper:
         return name, version
 
     def discover_app_yml(self) -> Path | None:
-        candidates = list(self._project_path.rglob("**/integrations/bfabric/app.yml"))
+        candidates = [
+            path
+            for path in self._project_path.rglob("**/integrations/bfabric/app.yml")
+            if ".app_cache" not in path.parts
+        ]
         if len(candidates) == 0:
             return None
         elif len(candidates) == 1:
