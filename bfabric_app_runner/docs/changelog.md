@@ -4,6 +4,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.0.22\] - 2025-05-21
+
 ### Added
 
 - Apps can now be referred to by module path rather than just file paths. This is going to be a primary building block
@@ -21,7 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 
 - Silently interpolate_config_strings log messages.
-- Update `bfabric` dependency to 1.13.26.
+- Update `bfabric` dependency to 1.13.27.
 - App versions do not always require a version key as it will default to "latest", but only one version can have a
     particular version key per app definition.
 

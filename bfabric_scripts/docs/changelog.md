@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.28\] - 2025-05-21
+
 ### Removed
 
 - Removed `bfabric_delete.py`. Use `bfabric-cli api delete` instead.
@@ -17,7 +19,7 @@ Versioning currently follows `X.Y.Z` where
 
 ### Changed
 
-- Update `bfabric` to 1.13.26.
+- Update `bfabric` to 1.13.27.
 - `bfabric-cli api delete` will use the type of the entity in CLI messages.
 
 ## \[1.13.27\] - 2025-04-22
