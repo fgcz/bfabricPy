@@ -71,14 +71,14 @@ def test_parameter_values(mocker, mock_workunit: Workunit) -> None:
     mocker.patch.object(
         mock_workunit,
         "parameters",
-        mocker.Mock(
-            list=[
-                mocker.Mock(key="key1", value="value1"),
-                mocker.Mock(key="key2", value="value2"),
-            ]
-        ),
+        [
+            mocker.MagicMock(key="key1", value="value1", __getitem__=lambda _self, x: {"context": "APPLICATION"}[x]),
+            mocker.MagicMock(key="key2", value="value2", __getitem__=lambda _self, x: {"context": "APPLICATION"}[x]),
+            mocker.MagicMock(key="key3", value="value3", __getitem__=lambda _self, x: {"context": "SUBMITTER"}[x]),
+        ],
     )
-    assert mock_workunit.parameter_values == {"key1": "value1", "key2": "value2"}
+    assert mock_workunit.application_parameters == {"key1": "value1", "key2": "value2"}
+    assert mock_workunit.submitter_parameters == {"key3": "value3"}
 
 
 def test_container_when_project(mocker, mock_workunit) -> None:
@@ -95,28 +95,13 @@ def test_container_when_order(mocker, mock_workunit, mock_data_dict) -> None:
 
 
 def test_store_output_folder(mocker, mock_workunit) -> None:
-    mock_application = mocker.MagicMock(storage={"projectfolderprefix": "xyz"})
+    mock_application = mocker.MagicMock(storage={"projectfolderprefix": "xyz"}, technology_folder_name="tech")
     mock_application.__getitem__.side_effect = {
-        "technology": "tech",
         "name": "my app",
     }.__getitem__
     mocker.patch.object(mock_workunit, "application", mock_application)
     mocker.patch.object(Workunit, "container", mocker.PropertyMock(return_value=mocker.MagicMock(id=12)))
     assert Path("xyz12/bfabric/tech/my_app/2024/2024-01/2024-01-02/workunit_30000") == mock_workunit.store_output_folder
-
-
-def test_store_output_folder_when_unsafe_chars(mocker, mock_workunit) -> None:
-    mock_application = mocker.MagicMock(storage={"projectfolderprefix": "xyz"})
-    mock_application.__getitem__.side_effect = {
-        "technology": "tech & tech",
-        "name": "my app (:",
-    }.__getitem__
-    mocker.patch.object(mock_workunit, "application", mock_application)
-    mocker.patch.object(Workunit, "container", mocker.PropertyMock(return_value=mocker.MagicMock(id=12)))
-    assert (
-        Path("xyz12/bfabric/tech_tech/my_app_/2024/2024-01/2024-01-02/workunit_30000")
-        == mock_workunit.store_output_folder
-    )
 
 
 def test_repr() -> None:

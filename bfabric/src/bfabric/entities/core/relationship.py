@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import importlib
 from functools import cached_property
 from typing import TypeVar, Generic, TYPE_CHECKING
 
+from bfabric.entities.core.import_entity import import_entity
 
 if TYPE_CHECKING:
     from bfabric.entities.core.entity import Entity
@@ -17,6 +17,4 @@ class Relationship(Generic[E]):
 
     @cached_property
     def _entity_type(self) -> type[E]:
-        return importlib.import_module(f"bfabric.entities.{self._entity_type_name.lower()}").__dict__[
-            self._entity_type_name
-        ]
+        return import_entity(entity_class_name=self._entity_type_name)

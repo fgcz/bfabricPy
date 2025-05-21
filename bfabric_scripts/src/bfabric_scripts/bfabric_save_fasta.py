@@ -14,7 +14,7 @@ BFABRIC_APPLICATION_ID = 61
 
 def save_fasta(container_id: int, fasta_file: Path) -> None:
     """Save a fasta file to bfabric."""
-    client = Bfabric.from_config()
+    client = Bfabric.connect()
 
     print("Reading description from stdin")
     description = sys.stdin.read()

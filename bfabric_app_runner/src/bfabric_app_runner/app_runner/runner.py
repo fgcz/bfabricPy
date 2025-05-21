@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import shlex
 import subprocess
 from pathlib import Path
@@ -26,8 +27,10 @@ class Runner:
 
     def run_dispatch(self, workunit_ref: int | Path, work_dir: Path) -> None:
         command = [*self._app_version.commands.dispatch.to_shell(), str(workunit_ref), str(work_dir)]
+        env = self._app_version.commands.dispatch.to_shell_env(environ=os.environ)
         logger.info(f"Running dispatch command: {shlex.join(command)}")
-        subprocess.run(command, check=True)
+        logger.debug(f"Split command: {command!r}")
+        subprocess.run(command, check=True, env=env)
 
     def run_prepare_input(self, chunk_dir: Path) -> None:
         prepare_folder(
@@ -41,20 +44,29 @@ class Runner:
     def run_collect(self, workunit_ref: int | Path, chunk_dir: Path) -> None:
         if self._app_version.commands.collect is not None:
             command = [*self._app_version.commands.collect.to_shell(), str(workunit_ref), str(chunk_dir)]
+            env = self._app_version.commands.collect.to_shell_env(environ=os.environ)
             logger.info(f"Running collect command: {shlex.join(command)}")
-            subprocess.run(command, check=True)
+            logger.debug(f"Split command: {command!r}")
+            subprocess.run(command, check=True, env=env)
         else:
             logger.info("App does not have a collect step.")
 
     def run_process(self, chunk_dir: Path) -> None:
         command = [*self._app_version.commands.process.to_shell(), str(chunk_dir)]
+        env = self._app_version.commands.process.to_shell_env(environ=os.environ)
         logger.info(f"Running process command: {shlex.join(command)}")
-        subprocess.run(command, check=True)
+        logger.debug(f"Split command: {command!r}")
+        subprocess.run(command, check=True, env=env)
 
 
 class ChunksFile(BaseModel):
     # TODO move to better location
     chunks: list[Path]
+
+    @classmethod
+    def read(cls, work_dir: Path) -> ChunksFile:
+        """Reads the chunks.yml file from the specified work directory."""
+        return ChunksFile.model_validate(yaml.safe_load((work_dir / "chunks.yml").read_text()))
 
 
 def run_app(
@@ -83,7 +95,7 @@ def run_app(
     runner = Runner(spec=app_spec, client=client, ssh_user=ssh_user)
     if dispatch_active:
         runner.run_dispatch(workunit_ref=workunit_definition_file, work_dir=work_dir)
-    chunks_file = ChunksFile.model_validate(yaml.safe_load((work_dir / "chunks.yml").read_text()))
+    chunks_file = ChunksFile.read(work_dir=work_dir)
     for chunk in chunks_file.chunks:
         logger.info(f"Processing chunk {chunk}")
         runner.run_prepare_input(chunk_dir=chunk)

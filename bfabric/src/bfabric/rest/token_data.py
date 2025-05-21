@@ -6,8 +6,11 @@ from typing import TYPE_CHECKING, Any
 import requests
 from pydantic import BaseModel, Field, SecretStr, ConfigDict
 
+from bfabric.entities.core.import_entity import import_entity
+
 if TYPE_CHECKING:
-    from bfabric import BfabricClientConfig
+    from bfabric import BfabricClientConfig, Bfabric
+    from bfabric.entities import Dataset, Instrument, Order, Plate, Project, Resource, Run, Sample, Workunit
 
 
 class TokenData(BaseModel):
@@ -34,6 +37,13 @@ class TokenData(BaseModel):
         if "token_expires" in data and isinstance(data["token_expires"], datetime):
             data["token_expires"] = data["token_expires"].isoformat()
         return data
+
+    def load_entity(
+        self, client: Bfabric
+    ) -> Dataset | Instrument | Order | Plate | Project | Resource | Run | Sample | Workunit | None:
+        """Loads the entity associated with this token."""
+        entity_class = import_entity(entity_class_name=self.entity_class)
+        return entity_class.find(self.entity_id, client=client)
 
 
 def get_token_data(client_config: BfabricClientConfig, token: str) -> TokenData:

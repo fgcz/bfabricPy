@@ -11,7 +11,7 @@ from bfabric_app_runner.output_registration import register_outputs
 
 @use_client
 def cmd_chunk_run_all(
-    app_spec: Path,
+    app_spec: Path | str,
     work_dir: Path,
     workunit_ref: int | Path,
     *,
@@ -22,7 +22,7 @@ def cmd_chunk_run_all(
 ) -> None:
     """Run all chunks, including input preparation, processing, and output registration.
 
-    :param app_spec: Path to the app spec file.
+    :param app_spec: Path to the app spec file or module.
     :param work_dir: Path to the work directory.
     :param workunit_ref: Reference to the workunit (ID or YAML file path).
     :param ssh_user: SSH user to use for downloading the input files, instead of the current user.
@@ -46,11 +46,11 @@ def cmd_chunk_run_all(
 
 
 @use_client
-def cmd_chunk_process(app_spec: Path, chunk_dir: Path, *, client: Bfabric) -> None:
+def cmd_chunk_process(app_spec: Path | str, chunk_dir: Path, *, client: Bfabric) -> None:
     """Process a chunk.
 
     Note that the input files must be prepared before running this command.
-    :param app_spec: Path to the app spec file.
+    :param app_spec: Path to the app spec file or module.
     :param chunk_dir: Path to the chunk directory.
     """
     chunk_dir = chunk_dir.resolve()
@@ -67,7 +67,7 @@ def cmd_chunk_process(app_spec: Path, chunk_dir: Path, *, client: Bfabric) -> No
 
 @use_client
 def cmd_chunk_outputs(
-    app_spec: Path,
+    app_spec: Path | str,
     chunk_dir: Path,
     workunit_ref: int | Path,
     *,
@@ -79,7 +79,7 @@ def cmd_chunk_outputs(
 ) -> None:
     """Register the output files of a chunk.
 
-    :param app_spec: Path to the app spec file.
+    :param app_spec: Path to the app spec file or module.
     :param chunk_dir: Path to the chunk directory.
     :param workunit_ref: Reference to the workunit (ID or YAML file path).
     :param ssh_user: SSH user to use for downloading the input files, instead of the current user.
