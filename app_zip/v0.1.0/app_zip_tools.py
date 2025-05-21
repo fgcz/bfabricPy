@@ -302,28 +302,12 @@ class AppZipManager:
     @staticmethod
     def _activate_uv_venv_and_run(venv_path: Path, commands_list: list[list[str]]) -> None:
         """Activate virtual environment and run commands."""
-        # Determine the activation script based on platform
-        if sys.platform == "win32":
-            activate_script = venv_path / "Scripts" / "activate.bat"
-            activate_cmd = f"call {activate_script}"
-        else:
-            activate_script = venv_path / "bin" / "activate"
-            activate_cmd = f"source {activate_script}"
-
-        # Run each command in the activated environment
+        activate_cmd = f'source {venv_path / "bin" / "activate"}'
         for cmd_args in commands_list:
-            if isinstance(cmd_args[0], Path):
-                cmd_args[0] = str(cmd_args[0])
-
-            cmd_str = " ".join(str(arg) for arg in cmd_args)
-            full_cmd = f"{activate_cmd} && {cmd_str}"
-
-            try:
-                subprocess.run(full_cmd, shell=True, check=True)
-            except subprocess.CalledProcessError as e:
-                print(f"Error executing command: {cmd_str}")
-                print(f"Return code: {e.returncode}")
-                sys.exit(e.returncode)
+            cmd_str = shlex.join(cmd_args)
+            full_cmd = f"bash -c '{activate_cmd} && {cmd_str}'"
+            logger.debug("Running command: %s", full_cmd)
+            subprocess.run(full_cmd, shell=True, check=True)
 
 
 app = cyclopts.App(help="App Zip Format 0.1.0 tool")
