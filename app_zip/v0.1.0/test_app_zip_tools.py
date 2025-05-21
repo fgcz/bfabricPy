@@ -1,10 +1,12 @@
 import io
+import os
 import sys
 import zipfile
 from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
+from dirty_equals import IsStr
 from inline_snapshot import snapshot
 
 sys.path.append(".")
@@ -21,7 +23,7 @@ from app_zip_tools import (
 
 @pytest.fixture
 def valid_app_dir(fs) -> Path:
-    app_dir = Path(".app_tmp/app")
+    app_dir = Path("/workdir/app_dir")
     fs.create_dir(app_dir)
     fs.create_file(app_dir / "app_zip_version.txt", contents=APP_ZIP_VERSION)
     fs.create_file(app_dir / "pylock.toml", contents="dependencies = []")
@@ -35,14 +37,13 @@ def valid_app_dir(fs) -> Path:
 
 @pytest.fixture
 def valid_app_zip(fs, valid_app_dir) -> Path:
-    app_zip = Path("app.zip")
+    app_zip = Path("/workdir/app.zip")
     zip_buffer = io.BytesIO()
-    base_dir = valid_app_dir.parent
 
     with zipfile.ZipFile(zip_buffer, "w") as zip_file:
         for file_path in valid_app_dir.rglob("*"):
             if file_path.is_file():
-                zip_file.write(file_path, arcname=str(file_path.relative_to(base_dir)))
+                zip_file.write(file_path, arcname=str(Path("app") / file_path.relative_to(valid_app_dir)))
 
     fs.create_file(app_zip, contents=zip_buffer.getvalue())
     return app_zip
@@ -151,16 +152,17 @@ def test_create_app_zip(mocker):
     mock_validate.assert_called_once_with(output_path)
 
 
-def test_run_app_zip(mocker, valid_app_zip):
+def test_run_app_zip(fs, mocker, valid_app_zip):
     """Test running a command from an app zip"""
-    mocker.patch.object(AppZipManager, "_is_newer", return_value=False)
     mock_validate = mocker.patch.object(AppZipManager, "validate")
     mock_validate.return_value = ValidationResult(errors=[], path=valid_app_zip)
-    mock_activate_run = mocker.patch.object(AppZipManager, "_activate_venv_and_run")
+    mock_create_venv = mocker.patch.object(AppZipManager, "_create_empty_uv_venv")
+    mock_activate_run = mocker.patch.object(AppZipManager, "_activate_uv_venv_and_run")
 
     # Run the command
+    os.chdir("/workdir")
     mock_chdir = mocker.patch("os.chdir")
-    AppZipManager.run_app_zip(Path("test.zip"), "python -m app")
+    AppZipManager.run_app_zip(valid_app_zip, "python -m app")
 
     # Verify directory change
     assert mock_chdir.call_count == 2
@@ -170,9 +172,12 @@ def test_run_app_zip(mocker, valid_app_zip):
         mocker.call(mocker.ANY, [["uv", "pip", "install", "--requirement", "pylock.toml"]]),
         mocker.call(mocker.ANY, [["python", "-m", "app"]]),
     ]
-    venv_path = Path(".app_tmp/app/.venv")
-    assert Path(mock_activate_run.call_args_list[0][0][0]) == venv_path
-    assert Path(mock_activate_run.call_args_list[1][0][0]) == venv_path
+    expected_path = IsStr(regex=r"/workdir/\.app_cache/app\.zip__s\d+_t\d+_h[a-f0-9]{12}/app/.venv")
+    assert str(mock_activate_run.call_args_list[0][0][0]) == expected_path
+    assert str(mock_activate_run.call_args_list[1][0][0]) == expected_path
+    mock_create_venv.assert_called_once()
+    assert mock_create_venv.call_args_list[0][0] == (mocker.ANY, "3.13")
+    assert str(mock_create_venv.call_args_list[0][0][0]) == expected_path
 
 
 class TestCLI:

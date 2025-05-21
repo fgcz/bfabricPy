@@ -216,6 +216,7 @@ class AppZipManager:
 
             # Move the extracted content to the final temporary directory
             shutil.move(str(extract_temp_path), str(app_cache_dir))
+            logger.debug(f"Extracted app to {app_cache_dir}, contents: {list(app_cache_dir.glob('*'))}")
 
     @staticmethod
     def _generate_fingerprint(zip_path: Path) -> str:
@@ -255,7 +256,7 @@ class AppZipManager:
             # Create virtual environment if it doesn't exist
             if not venv_path.exists():
                 print(f"Creating Python {python_version} virtual environment...")
-                subprocess.run(["uv", "venv", "-p", python_version, str(venv_path)], check=True)
+                cls._create_empty_uv_venv(venv_path, python_version)
 
                 # Install dependencies
                 print("Installing dependencies...")
@@ -268,11 +269,11 @@ class AppZipManager:
                         ["uv", "pip", "install", "--offline", "--no-deps", *list(package_dir.glob("*.whl"))]
                     )
 
-                cls._activate_venv_and_run(venv_path, commands)
+                cls._activate_uv_venv_and_run(venv_path, commands)
 
             # Run the command in the virtual environment
             print(f"Running: {command}")
-            cls._activate_venv_and_run(venv_path, [command_args])
+            cls._activate_uv_venv_and_run(venv_path, [command_args])
         finally:
             # Always return to original directory
             os.chdir(original_dir)
@@ -280,44 +281,34 @@ class AppZipManager:
     @staticmethod
     def _verify_input_files(pylock_path: Path, wheel_paths: list[Path], app_yml_path: Path | None) -> None:
         """Verify that all input files exist."""
-        # Verify pylock.toml exists
         if not pylock_path.exists():
             msg = f"Error: pylock.toml file not found at {pylock_path}"
             raise ValueError(msg)
 
-        # Verify specified wheel files exist
         for wheel_path in wheel_paths:
             if not wheel_path.exists():
                 msg = f"Error: Wheel file not found at {wheel_path}"
                 raise ValueError(msg)
 
-        # Verify app.yml exists if provided
         if app_yml_path and not app_yml_path.exists():
             msg = f"Error: app.yml file not found at {app_yml_path}"
             raise ValueError(msg)
 
-    @staticmethod
-    def _is_newer(zip_path: Path, dir_path: Path) -> bool:
-        """Check if zip file is newer than directory."""
-        # If directory doesn't exist, zip is "newer"
-        if not dir_path.exists():
-            return True
-
-        # Compare modification times
-        return zip_path.stat().st_mtime > dir_path.stat().st_mtime
+    @classmethod
+    def _create_empty_uv_venv(cls, venv_path: Path, python_version: str) -> None:
+        """Creates an empty virtual environment using uv."""
+        subprocess.run(["uv", "venv", "-p", python_version, str(venv_path)], check=True)
 
     @staticmethod
-    def _activate_venv_and_run(venv_path: Path, commands_list: list[list[str]]) -> None:
+    def _activate_uv_venv_and_run(venv_path: Path, commands_list: list[list[str]]) -> None:
         """Activate virtual environment and run commands."""
         # Determine the activation script based on platform
         if sys.platform == "win32":
             activate_script = venv_path / "Scripts" / "activate.bat"
             activate_cmd = f"call {activate_script}"
-            shell = True
         else:
             activate_script = venv_path / "bin" / "activate"
             activate_cmd = f"source {activate_script}"
-            shell = True
 
         # Run each command in the activated environment
         for cmd_args in commands_list:
@@ -328,7 +319,7 @@ class AppZipManager:
             full_cmd = f"{activate_cmd} && {cmd_str}"
 
             try:
-                subprocess.run(full_cmd, shell=shell, check=True)
+                subprocess.run(full_cmd, shell=True, check=True)
             except subprocess.CalledProcessError as e:
                 print(f"Error executing command: {cmd_str}")
                 print(f"Return code: {e.returncode}")
