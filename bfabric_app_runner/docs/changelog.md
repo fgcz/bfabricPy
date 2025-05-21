@@ -20,7 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
-- Silence interpolate_config_strings log messages.
+- Silently interpolate_config_strings log messages.
 - Update `bfabric` dependency to 1.13.26.
 - App versions do not always require a version key as it will default to "latest", but only one version can have a
     particular version key per app definition.
@@ -28,6 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Fixed
 
 - Use most recent cyclopts version again, i.e. [issue 168](https://github.com/fgcz/bfabricPy/issues/168) is fixed.
+- Compatibility with pandera 0.24.0 was restored.
 
 ## \[0.0.21\] - 2025-03-27
 

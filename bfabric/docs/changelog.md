@@ -24,7 +24,6 @@ Versioning currently follows `X.Y.Z` where
 ### Fixed
 
 - Compatibility with upcoming change that `Application` can have multiple `technology` values.
-- Compatibility with pandera 0.24.0 was restored.
 
 ### Deprecated
 
