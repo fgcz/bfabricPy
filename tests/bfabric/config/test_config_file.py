@@ -1,9 +1,15 @@
+import os
 from pathlib import Path
 
 import pytest
 from logot import logged, Logot
 
 from bfabric.config.config_file import ConfigFile, GeneralConfig, EnvironmentConfig, read_config_file
+
+
+@pytest.fixture(autouse=True)
+def reset_config_vars(mocker):
+    mocker.patch.dict(os.environ, {}, clear=True)
 
 
 @pytest.fixture()
@@ -125,6 +131,43 @@ def test_reject_env_name_default(mocker, data_no_auth):
     with pytest.raises(ValueError) as error:
         ConfigFile.model_validate(data_no_auth)
     assert "Environment name 'default' is reserved." in str(error.value)
+
+
+class TestConfigNoDefault:
+    @staticmethod
+    @pytest.fixture()
+    def config_data():
+        return {
+            "GENERAL": {},
+            "PRODUCTION": {
+                "base_url": "https://example.com",
+            },
+        }
+
+    @staticmethod
+    @pytest.fixture()
+    def config(config_data):
+        return ConfigFile.model_validate(config_data)
+
+    @staticmethod
+    def test_validate(config):
+        assert config.general.default_config is None
+        assert config.environments["PRODUCTION"].config.base_url == "https://example.com/"
+
+    @staticmethod
+    def test_get_selected_config_env(config):
+        with pytest.raises(ValueError) as error:
+            config.get_selected_config_env(None)
+        assert "No environment was specified and no default environment was found." in str(error.value)
+
+    @staticmethod
+    def test_get_selected_config_env_when_env_var(config, mocker):
+        mocker.patch.dict(os.environ, {"BFABRICPY_CONFIG_ENV": "PRODUCTION"})
+        assert config.get_selected_config_env(None) == "PRODUCTION"
+
+    @staticmethod
+    def test_get_selected_config_env_when_explicit(config):
+        assert config.get_selected_config_env("PRODUCTION") == "PRODUCTION"
 
 
 class TestReadConfig:

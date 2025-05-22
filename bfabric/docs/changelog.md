@@ -10,6 +10,15 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Breaking
+
+- `base_url` is now a mandatory parameter in the configuration.
+
+### Added
+
+- It is now possible to configure `~/.bfabricpy.yml` without a default environment. In that case it will always be
+    necessary to specify the requested config environment to be used.
+
 ## \[1.13.27\] - 2025-05-21
 
 ### Added
