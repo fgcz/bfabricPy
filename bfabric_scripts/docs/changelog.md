@@ -10,6 +10,12 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Changed
+
+- Update `bfabric` to 1.13.28. (TODO revise this and the second line before release)
+- Columns of tables named after B-Fabric entities, containing only integers, will be set as the specified type
+    when saving to B-Fabric.
+
 ## \[1.13.28\] - 2025-05-21
 
 ### Removed
