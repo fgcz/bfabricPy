@@ -14,7 +14,7 @@ from bfabric.config import BfabricClientConfig
 
 
 class GeneralConfig(BaseModel):
-    default_config: Annotated[str, Field(min_length=1)]
+    default_config: Annotated[str | None, Field(min_length=1)] = None
 
 
 class EnvironmentConfig(BaseModel):
@@ -56,7 +56,7 @@ class ConfigFile(BaseModel):
     @model_validator(mode="after")
     def validate_default_config(self) -> ConfigFile:
         """Validates that the default config is specified and is available in the configs."""
-        if self.general.default_config not in self.environments:
+        if self.general.default_config is not None and self.general.default_config not in self.environments:
             raise PydanticCustomError(
                 "default_config_not_available",
                 "Default config {default_config} not found in {available_configs}",

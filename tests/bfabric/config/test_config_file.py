@@ -127,6 +127,23 @@ def test_reject_env_name_default(mocker, data_no_auth):
     assert "Environment name 'default' is reserved." in str(error.value)
 
 
+class TestConfigNoDefault:
+    @staticmethod
+    @pytest.fixture()
+    def config_data():
+        return {
+            "GENERAL": {},
+            "PRODUCTION": {
+                "base_url": "https://example.com",
+            },
+        }
+
+    def test_validate(self, config_data):
+        config = ConfigFile.model_validate(config_data)
+        assert config.general.default_config is None
+        assert config.environments["PRODUCTION"].config.base_url == "https://example.com/"
+
+
 class TestReadConfig:
     @pytest.fixture
     def example_config_path(self) -> Path:
