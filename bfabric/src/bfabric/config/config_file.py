@@ -89,7 +89,11 @@ class ConfigFile(BaseModel):
             return os.environ["BFABRICPY_CONFIG_ENV"]
         else:
             logger.debug(f"BFABRICPY_CONFIG_ENV not found, using default environment {self.general.default_config}")
-            return self.general.default_config
+            env = self.general.default_config
+            if env is None:
+                msg = "No environment was specified and no default environment was found."
+                raise ValueError(msg)
+            return env
 
     def get_selected_config(self, explicit_config_env: str | None = None) -> EnvironmentConfig:
         """Returns the selected configuration, by checking the hierarchy of config_env definitions.
