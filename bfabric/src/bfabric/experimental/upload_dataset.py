@@ -10,8 +10,45 @@ if TYPE_CHECKING:
     from bfabric.bfabric import Bfabric
 
 
-def polars_to_bfabric_type(dtype: pl.DataType) -> str | None:
+def _all_values_are_integers(col: pl.Column) -> bool:
+    dtype = col.dtype
+    if dtype.is_integer():
+        return True
+    elif dtype == pl.Utf8:
+        # non-integers become null
+        int_col = col.str.to_integer(strict=False)
+        return int_col.null_count() == 0
+    else:
+        return False
+
+
+def polars_column_to_bfabric_type(
+    dataframe: pl.DataFrame, column_name: str, detect_entity_reference: bool = True
+) -> str:
+    """Returns the B-Fabric type for a given Polars column name."""
+    bfabric_types = ["Resource", "Dataset", "Sample"]
+    if detect_entity_reference and column_name in bfabric_types:
+        is_numeric = _all_values_are_integers(dataframe[column_name])
+        if is_numeric:
+            return column_name
+
+    dtype = dataframe[column_name].dtype
+    if str(dtype).startswith("Int"):
+        return "Integer"
+    elif str(dtype).startswith("String"):
+        return "String"
+    else:
+        return "String"
+
+
+def _polars_to_bfabric_type(dtype: pl.DataType, column_name: str) -> str | None:
     """Returns the B-Fabric type for a given Polars data type, defaulting to String if no correspondence is found."""
+    # TODO this will have to be the full list ->where to maintain it (we could pull it at least from bfabric.entities
+    #  in the worst case)
+    bfabric_types = ["Resource", "Dataset", "Sample"]
+    if column_name in bfabric_types:
+        pass
+
     if str(dtype).startswith("Int"):
         return "Integer"
     elif str(dtype).startswith("String"):
@@ -28,7 +65,7 @@ def polars_to_bfabric_dataset(
         {
             "name": col,
             "position": i + 1,
-            "type": polars_to_bfabric_type(data[col].dtype),
+            "type": _polars_to_bfabric_type(data[col].dtype, column_name=col),
         }
         for i, col in enumerate(data.columns)
     ]
