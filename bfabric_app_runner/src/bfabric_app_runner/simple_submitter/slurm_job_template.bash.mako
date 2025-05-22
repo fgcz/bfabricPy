@@ -27,6 +27,6 @@ bfabric-cli api update resource ${logging_resource_id} status available --no-con
 export PYTHONUNBUFFERED=1
 {
 ${command}
-} 2>&1 | ts '[%Y-%m-%d %H:%M:%S]'
+} 2>&1 | awk '{print strftime("[%Y-%m-%d %H:%M:%S]"), $0; fflush()}'
 
 exit 0
