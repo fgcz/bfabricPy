@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Annotated, Any
 
-from pydantic import BaseModel, BeforeValidator, Field, TypeAdapter, AnyHttpUrl
+from pydantic import BaseModel, Field, TypeAdapter, AnyHttpUrl, BeforeValidator
 
 http_url_adapter = TypeAdapter(AnyHttpUrl)
 
