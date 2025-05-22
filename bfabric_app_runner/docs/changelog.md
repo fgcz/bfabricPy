@@ -4,6 +4,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.0.22\] - 2025-05-21
+
 ### Added
 
 - Apps can now be referred to by module path rather than just file paths. This is going to be a primary building block
@@ -15,17 +17,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `CommandExec` allows prepending paths to `PATH` and setting environment variables and is less ambiguous than `shell`.
 - `bfabric-app-runner action` interface which standardizes the various actions of running app steps.
 - `bfabric-app-runner prepare workunit` to prepare a workunit execution and sets up a `app_env.yml` and `Makefile`.
+- `bfabric-app-runner deploy build-app-zip` experimental command to build an app zip file which can be deployed, for a
+    particular Python application.
 
 ### Changed
 
-- Silence interpolate_config_strings log messages.
-- Update `bfabric` dependency to 1.13.26.
+- Silently interpolate_config_strings log messages.
+- Update `bfabric` dependency to 1.13.27.
 - App versions do not always require a version key as it will default to "latest", but only one version can have a
     particular version key per app definition.
 
 ### Fixed
 
 - Use most recent cyclopts version again, i.e. [issue 168](https://github.com/fgcz/bfabricPy/issues/168) is fixed.
+- Compatibility with pandera 0.24.0 was restored.
 
 ## \[0.0.21\] - 2025-03-27
 

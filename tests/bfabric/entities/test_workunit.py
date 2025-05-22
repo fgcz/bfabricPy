@@ -71,14 +71,14 @@ def test_parameter_values(mocker, mock_workunit: Workunit) -> None:
     mocker.patch.object(
         mock_workunit,
         "parameters",
-        mocker.Mock(
-            list=[
-                mocker.Mock(key="key1", value="value1"),
-                mocker.Mock(key="key2", value="value2"),
-            ]
-        ),
+        [
+            mocker.MagicMock(key="key1", value="value1", __getitem__=lambda _self, x: {"context": "APPLICATION"}[x]),
+            mocker.MagicMock(key="key2", value="value2", __getitem__=lambda _self, x: {"context": "APPLICATION"}[x]),
+            mocker.MagicMock(key="key3", value="value3", __getitem__=lambda _self, x: {"context": "SUBMITTER"}[x]),
+        ],
     )
-    assert mock_workunit.parameter_values == {"key1": "value1", "key2": "value2"}
+    assert mock_workunit.application_parameters == {"key1": "value1", "key2": "value2"}
+    assert mock_workunit.submitter_parameters == {"key3": "value3"}
 
 
 def test_container_when_project(mocker, mock_workunit) -> None:
