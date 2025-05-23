@@ -14,6 +14,10 @@ Versioning currently follows `X.Y.Z` where
 
 - `bfabric-cli executable dump` command to export YAML and XML of executables
 
+### Changed
+
+- Update `bfabric` to 1.13.28 (TODO)
+
 ## \[1.13.28\] - 2025-05-21
 
 ### Removed
