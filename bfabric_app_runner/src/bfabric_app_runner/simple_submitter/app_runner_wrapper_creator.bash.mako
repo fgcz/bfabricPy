@@ -10,7 +10,7 @@ trap 'code=$?; [ $code -ne 0 ] && bfabric-cli api update workunit ${workunit_id}
 
 # Determine the binaries to use - we use uv for this
 bfabric_cli_bin=uv run --with '${dependencies.bfabric_scripts}' bfabric-cli
-bfabric_app_runner_bin=uv run --with '{dependencies.bfabric_app_runner}' bfabric-app-runner
+bfabric_app_runner_bin=uv run --with '${dependencies.bfabric_app_runner}' bfabric-app-runner
 
 # Create the scratch directory.
 mkdir -p '${working_directory}'
