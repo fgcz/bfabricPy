@@ -22,7 +22,7 @@ def cmd_executable_dump(
         else:
             raise ValueError(f"Unknown file extension: {path.suffix}. Please specify --format.")
 
-    results = Executable.find_by({"id": executable_id, "fulldetails": "true"})
+    results = Executable.find_by({"id": executable_id, "fulldetails": "true"}, client=client)
     if not results:
         raise ValueError(f"Executable with ID {executable_id} not found.")
     executable = list(results.values())[0]
