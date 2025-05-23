@@ -11,7 +11,12 @@ from bfabric.utils.cli_integration import use_client
 
 @use_client
 def cmd_executable_dump(
-    executable_id: int, path: Path, *, format: Literal["xml", "yaml"] | None = None, client: Bfabric
+    executable_id: int,
+    path: Path,
+    *,
+    format: Literal["xml", "yaml"] | None = None,
+    include_id: bool = False,
+    client: Bfabric,
 ) -> None:
     """Dumps an executable to a file in XML or YAML format."""
     if format is None:
@@ -28,8 +33,11 @@ def cmd_executable_dump(
     executable = list(results.values())[0]
     data = executable.data_dict
     data["parameter"] = [p.data_dict for p in executable.parameters.list]
+    result = {"executable": data}
+    if not include_id and "id" in data:
+        del data["id"]
 
     if format == "xml":
-        path.write_text(xmltodict.unparse({"executable": data}, pretty=True))
+        path.write_text(xmltodict.unparse(result, pretty=True))
     elif format == "yaml":
-        path.write_text(yaml.safe_dump(data, sort_keys=False))
+        path.write_text(yaml.safe_dump(result, sort_keys=False))
