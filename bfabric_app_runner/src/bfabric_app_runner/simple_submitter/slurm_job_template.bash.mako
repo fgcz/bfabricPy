@@ -3,8 +3,6 @@
 #SBATCH ${key}=${value}
 % endfor
 set -euxo pipefail
-hostname
-id
 {
-${command}
+${script}
 } 2>&1 | awk '{print strftime("[%Y-%m-%d %H:%M:%S]"), $0; fflush()}'
