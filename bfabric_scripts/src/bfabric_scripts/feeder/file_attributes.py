@@ -12,7 +12,10 @@ def get_file_attributes(file_name_or_attributes: str) -> tuple[str, int, int, st
         return values[0], int(values[1]), int(values[2]), values[3]
     elif len(values) == 1:
         filename = values[0].strip()
-        file_path = Path("/srv/www/htdocs") / filename
+        file_path = Path(filename)
+        if not file_path.is_absolute():
+            msg = f"Expected an absolute file path, got: {file_path}"
+            raise ValueError(msg)
         file_stat = file_path.stat()
         file_size = file_stat.st_size
         file_unix_timestamp = int(file_stat.st_mtime)
@@ -21,6 +24,6 @@ def get_file_attributes(file_name_or_attributes: str) -> tuple[str, int, int, st
             for chunk in iter(lambda: f.read(16384), b""):
                 hash.update(chunk)
         md5_checksum = hash.hexdigest()
-        return md5_checksum, file_unix_timestamp, file_size, filename
+        return md5_checksum, file_unix_timestamp, file_size, file_path.name
     else:
         raise ValueError("Invalid input line format")
