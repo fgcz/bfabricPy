@@ -94,6 +94,7 @@ def cmd_feeder_create_importresource(
     client: Bfabric,
 ) -> None:
     """Creates an importresource for each of the given files.
+
     :param storage: the target storage ID
     :param files: one or multiple file paths to create importresources for
     """
