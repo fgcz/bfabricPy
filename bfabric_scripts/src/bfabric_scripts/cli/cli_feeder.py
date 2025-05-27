@@ -78,7 +78,6 @@ def _generate_importresource_object(
 def cmd_feeder_create_importresource(
     storage: int,
     files: list[Path],
-    add_sample_id: bool = True,
     *,
     client: Bfabric,
 ) -> None:
@@ -89,7 +88,7 @@ def cmd_feeder_create_importresource(
         raise FileNotFoundError(f"Files {', '.join(map(str, missing))} do not exist.")
 
     # Execute
-    _create_importresources(storage_id=storage, files=files, add_sample_id=add_sample_id, client=client)
+    _create_importresources(storage_id=storage, files=files, client=client)
 
 
 cmd_feeder = cyclopts.App(help="Feeder commands")
