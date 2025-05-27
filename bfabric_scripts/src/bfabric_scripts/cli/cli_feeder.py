@@ -2,6 +2,7 @@ import time
 from pathlib import Path
 
 import cyclopts
+from loguru import logger
 from pydantic import BaseModel
 
 from bfabric import Bfabric
@@ -16,7 +17,7 @@ class ImportResourcePath(BaseModel):
     application_name: str
 
 
-def _create_importresources(storage_id: int, files: list[Path], add_sample_id: bool, client: Bfabric) -> None:
+def _create_importresources(storage_id: int, files: list[Path], client: Bfabric) -> None:
     storage = Storage.find(id=storage_id, client=client)
     if storage is None:
         raise ValueError(f"Storage with ID {storage_id} not found.")
@@ -28,17 +29,13 @@ def _create_importresources(storage_id: int, files: list[Path], add_sample_id: b
     # Obtain the mapping for application names and ids
     application_mapping = _get_application_mapping(parsed_paths=parsed_paths, client=client)
 
-    # Create the entities to be fed into B-Fabric.
-    entity_data = [
-        _generate_importresource_object(
+    # Create the entities in B-Fabric.
+    for parsed_path in parsed_paths:
+        importresource_data = _generate_importresource_object(
             storage=storage, parsed_path=parsed_path, application_mapping=application_mapping
         )
-        for parsed_path in parsed_paths
-    ]
-
-    # Save all
-    for entity in entity_data:
-        client.save("importresource", entity)
+        if importresource_data is not None:
+            client.save("importresource", importresource_data)
 
 
 def _get_application_mapping(parsed_paths: list[ParsedPath], client: Bfabric) -> dict[str, int]:
@@ -53,9 +50,14 @@ def _get_application_mapping(parsed_paths: list[ParsedPath], client: Bfabric) ->
 
 def _generate_importresource_object(
     storage: Storage, parsed_path: ParsedPath, application_mapping: dict[str, int]
-) -> list[dict[str, str | int]]:
+) -> list[dict[str, str | int]] | None:
     md5_checksum, file_unix_timestamp, file_size, file_path = get_file_attributes(str(parsed_path.absolute_path))
     file_date = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(file_unix_timestamp))
+    if parsed_path.application_name not in application_mapping:
+        logger.error(
+            f"Application {parsed_path.application_name} not found in B-Fabric. Skipping file {parsed_path.absolute_path}."
+        )
+        return None
     result = {
         "applicationid": application_mapping[parsed_path.application_name],
         "filechecksum": md5_checksum,
