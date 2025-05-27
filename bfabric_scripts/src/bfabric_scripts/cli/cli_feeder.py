@@ -34,7 +34,8 @@ def _create_importresources(storage_id: int, files: list[Path], client: Bfabric)
             storage=storage, parsed_path=parsed_path, application_mapping=application_mapping
         )
         if importresource_data is not None:
-            client.save("importresource", importresource_data)
+            result = client.save("importresource", importresource_data)
+            logger.debug("Created importresource: {}", result)
 
 
 def _get_application_mapping(parsed_paths: list[ParsedPath], client: Bfabric) -> dict[str, int]:
