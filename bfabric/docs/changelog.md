@@ -10,8 +10,6 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
-## \[1.13.28\] - 2025-05-26
-
 ### Breaking
 
 - `base_url` is now a mandatory parameter in the configuration.
