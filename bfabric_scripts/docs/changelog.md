@@ -13,6 +13,7 @@ Versioning currently follows `X.Y.Z` where
 ### Added
 
 - `bfabric-cli executable dump` command to export YAML and XML of executables
+- `bfabric-cli feeder create-importresource` command to register importresource objects in B-Fabric
 
 ### Changed
 
