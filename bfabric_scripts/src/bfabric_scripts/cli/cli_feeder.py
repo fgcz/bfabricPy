@@ -34,16 +34,20 @@ def _create_importresources(storage_id: int, files: list[Path], client: Bfabric)
             storage=storage, parsed_path=parsed_path, application_mapping=application_mapping
         )
         if importresource_data is not None:
-            result = client.save("importresource", importresource_data)
-            logger.trace("Created importresource: {}", result)
-            if len(result) == 1:
-                importresource_id = result[0]["id"]
-                importtresource_datetime = datetime.datetime.fromisoformat(result[0]["created"])
-                delay = datetime.datetime.now() - importtresource_datetime
-                if delay > datetime.timedelta(seconds=30):
-                    logger.info(f"Importresource {importresource_id} updated for file {parsed_path.absolute_path}.")
-                else:
-                    logger.success(f"Importresource {importresource_id} created for file {parsed_path.absolute_path}.")
+            _create_importresource(importresource_data=importresource_data, parsed_path=parsed_path, client=client)
+
+
+def _create_importresource(importresource_data: dict[str, str | int], parsed_path: ParsedPath, client: Bfabric):
+    result = client.save("importresource", importresource_data)
+    logger.trace("Created importresource: {}", result)
+    if len(result) == 1:
+        importresource_id = result[0]["id"]
+        importtresource_datetime = datetime.datetime.fromisoformat(result[0]["created"])
+        delay = datetime.datetime.now() - importtresource_datetime
+        if delay > datetime.timedelta(seconds=30):
+            logger.info(f"Importresource {importresource_id} updated for file {parsed_path.absolute_path}.")
+        else:
+            logger.success(f"Importresource {importresource_id} created for file {parsed_path.absolute_path}.")
 
 
 def _get_application_mapping(parsed_paths: list[ParsedPath], client: Bfabric) -> dict[str, int]:
