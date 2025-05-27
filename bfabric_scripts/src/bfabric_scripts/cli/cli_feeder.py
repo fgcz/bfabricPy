@@ -74,23 +74,6 @@ def _generate_importresource_object(
 @use_client
 def cmd_feeder_create_importresource(
     storage: int,
-    file: Path,
-    add_sample_id: bool = True,
-    *,
-    client: Bfabric,
-) -> None:
-    # Normalize the file name to absolute
-    file = file.resolve()
-    if not file.exists():
-        raise FileNotFoundError(f"File {file} does not exist.")
-
-    # Execute
-    _create_importresources(storage_id=storage, files=[file], add_sample_id=add_sample_id, client=client)
-
-
-@use_client
-def cmd_feeder_create_importresources(
-    storage: int,
     files: list[Path],
     add_sample_id: bool = True,
     *,
@@ -108,4 +91,3 @@ def cmd_feeder_create_importresources(
 
 cmd_feeder = cyclopts.App(help="Feeder commands")
 cmd_feeder.command(cmd_feeder_create_importresource, name="create-importresource")
-cmd_feeder.command(cmd_feeder_create_importresources, name="create-importresources")
