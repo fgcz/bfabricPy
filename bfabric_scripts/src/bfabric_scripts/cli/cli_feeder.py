@@ -44,7 +44,8 @@ def _create_importresources(storage_id: int, files: list[Path], add_sample_id: b
 def _get_application_mapping(parsed_paths: list[ParsedPath], client: Bfabric) -> dict[str, int]:
     unique_app_names = {parsed_path.application_name for parsed_path in parsed_paths}
     if not unique_app_names:
-        return {}
+        # Could be demote to empty dictionary later.
+        raise RuntimeError("Nothing to be processed.")
     # TODO this will have to be cached in the future and only request if there is anything missing
     result = Application.find_by({"name": sorted(unique_app_names)}, client=client, max_results=None)
     return {id: app["name"] for id, app in result.items()}
