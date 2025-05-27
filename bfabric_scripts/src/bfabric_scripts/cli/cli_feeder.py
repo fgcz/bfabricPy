@@ -62,7 +62,7 @@ def _get_application_mapping(parsed_paths: list[ParsedPath], client: Bfabric) ->
 
 def _generate_importresource_object(
     storage: Storage, parsed_path: ParsedPath, application_mapping: dict[str, int]
-) -> list[dict[str, str | int]] | None:
+) -> dict[str, str | int] | None:
     file_attributes = FileAttributes.compute(file=parsed_path.absolute_path)
     file_date = file_attributes.file_date.strftime("%Y-%m-%d %H:%M:%S")
     if parsed_path.application_name not in application_mapping:
