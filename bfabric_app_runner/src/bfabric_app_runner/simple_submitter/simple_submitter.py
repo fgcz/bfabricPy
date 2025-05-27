@@ -62,3 +62,7 @@ def _submit_workunit(workunit: Workunit) -> None:
 
 def _get_slurm_script_path(workunit_id: int) -> Path:
     return Path("~/slurmx/").expanduser() / f"workunitid-{workunit_id}.slurm.bash"
+
+
+if __name__ == "__main__":
+    app()
