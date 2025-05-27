@@ -41,7 +41,7 @@ def _create_importresources(storage_id: int, files: list[Path], client: Bfabric)
                 importtresource_datetime = datetime.datetime.fromisoformat(result[0]["created"])
                 delay = datetime.datetime.now() - importtresource_datetime
                 if delay > datetime.timedelta(seconds=30):
-                    logger.info(f"Importresource {importresource_id} was updated for file {parsed_path.absolute_path}.")
+                    logger.info(f"Importresource {importresource_id} updated for file {parsed_path.absolute_path}.")
                 else:
                     logger.success(f"Importresource {importresource_id} created for file {parsed_path.absolute_path}.")
 
