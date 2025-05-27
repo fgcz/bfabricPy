@@ -4,5 +4,5 @@
 % endfor
 set -euxo pipefail
 {
-${script}
+${wrapped_script}
 } 2>&1 | awk '{print strftime("[%Y-%m-%d %H:%M:%S]"), $0; fflush()}'
