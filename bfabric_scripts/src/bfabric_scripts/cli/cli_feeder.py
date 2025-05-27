@@ -1,4 +1,3 @@
-import time
 from pathlib import Path
 
 import cyclopts
@@ -9,7 +8,7 @@ from bfabric import Bfabric
 from bfabric.entities import Storage, Application
 from bfabric.utils.cli_integration import use_client
 from bfabric_scripts.cli.feeder.path_convention_compms import PathConventionCompMS, ParsedPath
-from bfabric_scripts.feeder.file_attributes import get_file_attributes
+from bfabric_scripts.feeder.file_attributes import FileAttributes
 
 
 class ImportResourcePath(BaseModel):
@@ -51,8 +50,8 @@ def _get_application_mapping(parsed_paths: list[ParsedPath], client: Bfabric) ->
 def _generate_importresource_object(
     storage: Storage, parsed_path: ParsedPath, application_mapping: dict[str, int]
 ) -> list[dict[str, str | int]] | None:
-    md5_checksum, file_unix_timestamp, file_size, file_path = get_file_attributes(str(parsed_path.absolute_path))
-    file_date = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(file_unix_timestamp))
+    file_attributes = FileAttributes.compute(file=parsed_path.absolute_path)
+    file_date = file_attributes.file_date.strftime("%Y-%m-%d %H:%M:%S")
     if parsed_path.application_name not in application_mapping:
         logger.error(
             f"Application {parsed_path.application_name} not found in B-Fabric. Skipping file {parsed_path.absolute_path}."
@@ -60,12 +59,12 @@ def _generate_importresource_object(
         return None
     result = {
         "applicationid": application_mapping[parsed_path.application_name],
-        "filechecksum": md5_checksum,
+        "filechecksum": file_attributes.md5_checksum,
         "containerid": parsed_path.container_id,
         "filedate": file_date,
         "relativepath": str(parsed_path.relative_path),
         "name": parsed_path.relative_path.name,
-        "size": file_size,
+        "size": file_attributes.file_size,
         "storageid": storage.id,
     }
     # TODO maybe this should be handled differently in the future
