@@ -6,6 +6,8 @@ import re
 
 
 class ParsedPath(BaseModel):
+    absolute_path: Path
+    """The absolute path to the file processed."""
     relative_path: Path
     """The path, which was parsed."""
     container_id: int
@@ -50,6 +52,7 @@ class PathConventionCompMS:
         application_name = match.group("application_name")
 
         return ParsedPath(
+            absolute_path=Path(self._storage["basepath"]) / relative_path,
             relative_path=relative_path,
             container_id=container_id,
             technology_name=technology_name,

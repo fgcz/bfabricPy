@@ -32,6 +32,7 @@ def test_parse_absolute_path(mocker, path_convention):
 def test_parse_relative_path_without_sample_id(path_convention) -> None:
     path = Path("x3000/Proteomics/LUMOS_1/tester_20250525_test/20250525_014_autoQC01_S1234.raw")
     parsed = path_convention.parse_relative_path(relative_path=path)
+    assert parsed.absolute_path == Path("/base/path") / path
     assert parsed.relative_path == path
     assert parsed.container_id == 3000
     assert parsed.technology_name == "Proteomics"
