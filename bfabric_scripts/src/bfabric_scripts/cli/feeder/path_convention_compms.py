@@ -24,9 +24,9 @@ class PathConventionCompMS:
     def __init__(self, storage: Storage) -> None:
         self._storage = storage
 
-    def parse_absolute_path(self):
-        # TODO is this needed?
-        raise NotImplementedError
+    def parse_absolute_path(self, absolute_path: Path) -> ParsedPath:
+        relative_path = absolute_path.relative_to(self._storage["basepath"])
+        return self.parse_relative_path(relative_path=relative_path)
 
     def parse_relative_path(self, relative_path: Path) -> ParsedPath:
         """Parses the relative path (to storage root) according to the CompMS path convention."""
