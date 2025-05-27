@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from bfabric_scripts.cli.feeder.path_convention_compms import PathConventionCompMS
+from bfabric_scripts.feeder.path_convention_compms import PathConventionCompMS
 
 
 @pytest.fixture

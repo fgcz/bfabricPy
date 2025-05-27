@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from bfabric import Bfabric
 from bfabric.entities import Storage, Application
 from bfabric.utils.cli_integration import use_client
-from bfabric_scripts.cli.feeder.path_convention_compms import PathConventionCompMS, ParsedPath
+from bfabric_scripts.feeder.path_convention_compms import PathConventionCompMS, ParsedPath
 from bfabric_scripts.feeder.file_attributes import FileAttributes
 
 
