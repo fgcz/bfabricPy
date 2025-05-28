@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Added
+
+- Command `bfabric-app-runner run workunit` to run the whole app end-to-end for a workunit.
+
 ## \[0.0.22\] - 2025-05-21
 
 ### Added
