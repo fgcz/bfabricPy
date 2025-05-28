@@ -5,17 +5,17 @@ from pathlib import Path  # noqa: TC003
 
 from pydantic import BaseModel
 
+from bfabric_app_runner.simple_submitter.config.slurm_submitter_params import SlurmSubmitterParams  # noqa: TC001
 from bfabric_app_runner.simple_submitter.config.slurm_workunit_params import (
     SlurmWorkunitParams,  # noqa: TC001
 )  # noqa: TC001
 from bfabric_app_runner.specs.config_interpolation import VariablesApp, VariablesWorkunit, interpolate_config_strings
-from bfabric_app_runner.specs.submitters_spec import SubmitterSlurmSpec  # noqa: TC001
 
 
 class _SlurmConfigBase(BaseModel):
     # Note: Originally, the idea was that at the app level app_params could also be defined, but this was omitted for
     #       simplicity in this version.
-    submitter_params: SubmitterSlurmSpec
+    submitter_params: SlurmSubmitterParams
     workunit_params: SlurmWorkunitParams
 
 
