@@ -25,10 +25,10 @@ class AppRunnerWrapperTemplate:
         @classmethod
         def extract_workunit(cls, workunit: Workunit) -> AppRunnerWrapperTemplate.Params:
             # TODO this is not encodeable right now
-            dependencies = cls.Params.Dependencies()
+            dependencies = cls.Dependencies()
 
-            app_yaml_path = workunit.application["program"]
-            return cls.Params(
+            app_yaml_path = workunit.application.executable["program"]
+            return cls(
                 dependencies=dependencies,
                 workunit_id=workunit.id,
                 app_yaml_path=app_yaml_path,
@@ -43,7 +43,7 @@ class AppRunnerWrapperTemplate:
         return Path(__file__).parent / "app_runner_wrapper_template.bash.mako"
 
     def render_string(self) -> str:
-        params = self._params.model_dump()
+        params = self._params.model_dump(mode="python")
         logger.debug("Rendering {} with params: {}", self._path, params)
         template = mako.template.Template(filename=str(self._path))
         return template.render(**params)

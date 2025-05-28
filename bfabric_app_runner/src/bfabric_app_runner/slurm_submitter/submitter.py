@@ -1,3 +1,5 @@
+from typing import Literal, Annotated
+
 import cyclopts
 import shlex
 import subprocess
@@ -7,6 +9,7 @@ from bfabric import Bfabric
 from bfabric.entities import ExternalJob, Workunit
 from bfabric.utils.cli_integration import use_client
 from bfabric_app_runner.slurm_submitter.app_runner_wrapper_template import AppRunnerWrapperTemplate
+from bfabric_app_runner.slurm_submitter.config.slurm_params import evaluate_slurm_parameters
 from bfabric_app_runner.slurm_submitter.slurm_job_template import SlurmJobTemplate
 
 app = cyclopts.App()
@@ -20,18 +23,27 @@ def wrapper_creator(j: int) -> None:
 
 @app.command()
 @use_client
-def submitter(j: int, *, client: Bfabric) -> None:
+def submitter(
+    config_path: Path,
+    j: Annotated[int, cyclopts.Parameter(name="-j")],
+    *,
+    entity_type: Literal["externaljob", "workunit"] = "externaljob",
+    client: Bfabric,
+) -> None:
     """Submitter implementation for simple_submitter."""
-    # Find the workunit to process
-    external_job = ExternalJob.find(id=j, client=client)
-    workunit = external_job.workunit
-    if workunit is None:
-        raise RuntimeError(f"External job {j} does not belong to a workunit (or it was deleted).")
+    if entity_type == "externaljob":
+        # Find the workunit to process
+        external_job = ExternalJob.find(id=j, client=client)
+        workunit = external_job.workunit
+        if workunit is None:
+            raise RuntimeError(f"External job {j} does not belong to a workunit (or it was deleted).")
+    else:
+        workunit = Workunit.find(id=j, client=client)
 
-    _submit_workunit(workunit=workunit)
+    _submit_workunit(workunit=workunit, config_path=config_path)
 
 
-def _submit_workunit(workunit: Workunit) -> None:
+def _submit_workunit(workunit: Workunit, config_path: Path) -> None:
     """Submit a workunit to the bfabric app runner."""
     logger.info(f"Submitting workunit {workunit.id}.")
 
@@ -43,7 +55,7 @@ def _submit_workunit(workunit: Workunit) -> None:
     wrapped_script = app_runner_wrapper_template.render_string()
 
     # Create the slurm executable
-    slurm_job_template_params = SlurmJobTemplate.Params.extract_workunit(workunit)
+    slurm_job_template_params = evaluate_slurm_parameters(config_yaml_path=config_path, workunit=workunit)
     slurm_job_template = SlurmJobTemplate(
         params=slurm_job_template_params, wrapped_script=wrapped_script, path=SlurmJobTemplate.default_path()
     )
