@@ -17,7 +17,7 @@ from bfabric_app_runner.specs.config_interpolation import VariablesApp, Variable
 class _SlurmParametersBase(BaseModel):
     # Note: Originally, the idea was that at the app level app_params could also be defined, but this was omitted for
     #       simplicity in this version.
-    submitter_params: dict[str, str | None]
+    submitter_params: dict[str, str | int | None]
     """Allows setting arbitrary parameters."""
     workunit_params: SlurmWorkunitParams
     """Allows setting a controlled set of parameters."""
@@ -27,7 +27,7 @@ class SlurmParameters(_SlurmParametersBase):
     @cached_property
     def sbatch_params(self) -> dict[str, str]:
         merged = {**self.submitter_params, **self.workunit_params.as_dict()}
-        return {key: value for key, value in merged.items() if value is not None}
+        return {key: str(value) for key, value in merged.items() if value is not None}
 
 
 class SlurmParametersTemplate(_SlurmParametersBase):
