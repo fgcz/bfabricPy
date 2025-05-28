@@ -28,9 +28,6 @@ class TestLoadWorkunitInformation:
                     command="bash -c 'echo processing'",
                 ),
             ),
-            submitter=SubmitterRef(
-                name="default",
-            ),
         )
 
     @pytest.fixture

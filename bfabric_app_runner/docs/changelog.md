@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Command `bfabric-app-runner run workunit` to run the whole app end-to-end for a workunit.
 
+### Removed
+
+- AppVersion does not have a `submitter` field anymore.
+
 ## \[0.0.22\] - 2025-05-21
 
 ### Added

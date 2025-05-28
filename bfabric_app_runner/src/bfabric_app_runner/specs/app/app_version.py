@@ -17,7 +17,6 @@ class AppVersion(BaseModel):
 
     version: str = "latest"
     commands: CommandsSpec
-    submitter: SubmitterRef
     # TODO remove when new submitter becomes available
     reuse_default_resource: bool = True
 
