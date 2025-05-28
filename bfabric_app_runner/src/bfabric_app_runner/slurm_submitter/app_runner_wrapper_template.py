@@ -12,7 +12,6 @@ if TYPE_CHECKING:
     from bfabric.entities import Workunit
 
 
-# TODO this is implementing the old yaml based logic for now, if there was enough time it should be app.zip spec instead
 class AppRunnerWrapperTemplate:
     class Params(BaseModel):
         class Dependencies(BaseModel):
