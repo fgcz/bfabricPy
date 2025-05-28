@@ -32,6 +32,7 @@ def report_resource(client: Bfabric, resource_id: int) -> ResultContainer:
     filename = Path(resource.storage["basepath"]) / relative_path
     logger.info("Testing file: {}", filename)
     if filename.is_file():
+        # TODO determine future of this script before merging
         checksum, _, filesize, _ = get_file_attributes(str(filename))
         return client.save(
             "resource",

@@ -11,12 +11,13 @@ version = "1.13.28"
 dependencies = [
     "bfabric==1.13.27",
     "cyclopts>=3.13.0",
+    "xmltodict",
 ]
 
 python_requires = ">=3.10"
 
 [project.optional-dependencies]
-test = ["pytest", "pytest-mock", "logot[pytest,loguru]"]
+test = ["pytest", "pytest-mock", "logot[pytest,loguru]", "pyfakefs"]
 excel = ["fastexcel"]
 
 [project.scripts]
