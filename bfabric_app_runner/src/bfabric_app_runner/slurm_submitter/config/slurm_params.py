@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from bfabric.entities import Workunit  # noqa: TC002
 from bfabric.utils.path_safe_name import path_safe_name
-from bfabric_app_runner.simple_submitter.config.slurm_workunit_params import (
+from bfabric_app_runner.slurm_submitter.config.slurm_workunit_params import (
     SlurmWorkunitParams,  # noqa: TC001
 )  # noqa: TC001
 from bfabric_app_runner.specs.config_interpolation import VariablesApp, VariablesWorkunit, interpolate_config_strings

@@ -6,8 +6,8 @@ from pathlib import Path
 from bfabric import Bfabric
 from bfabric.entities import ExternalJob, Workunit
 from bfabric.utils.cli_integration import use_client
-from bfabric_app_runner.simple_submitter.app_runner_wrapper_template import AppRunnerWrapperTemplate
-from bfabric_app_runner.simple_submitter.slurm_job_template import SlurmJobTemplate
+from bfabric_app_runner.slurm_submitter.app_runner_wrapper_template import AppRunnerWrapperTemplate
+from bfabric_app_runner.slurm_submitter.slurm_job_template import SlurmJobTemplate
 
 app = cyclopts.App()
 
