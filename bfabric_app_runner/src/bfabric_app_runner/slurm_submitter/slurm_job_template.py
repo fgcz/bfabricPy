@@ -24,4 +24,4 @@ class SlurmJobTemplate:
         params = {"sbatch_params": self._params.sbatch_params, "wrapped_script": self._wrapped_script}
         logger.debug("Rendering {} with params: {}", self._path, params)
         template = mako.template.Template(filename=str(self._path))
-        return template.render(**params, wrapped_script=self._wrapped_script)
+        return template.render(**params)

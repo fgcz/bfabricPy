@@ -2,7 +2,9 @@
 % for key, value in sbatch_params.items():
 #SBATCH ${key}=${value}
 % endfor
-set -euxo pipefail
+set -euo pipefail
+set +x
 {
+set -x
 ${wrapped_script}
-} 2>&1 | awk '{print strftime("[%Y-%m-%d %H:%M:%S]"), $0; fflush()}'
+} 2>&1 | while read line; do echo "[$(date '+%Y-%m-%d %H:%M:%S')] $line"; done
