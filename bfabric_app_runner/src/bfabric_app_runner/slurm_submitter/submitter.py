@@ -15,8 +15,11 @@ from bfabric_app_runner.slurm_submitter.slurm_job_template import SlurmJobTempla
 app = cyclopts.App()
 
 
+JobIdParam = Annotated[int, cyclopts.Parameter(name="-j", help="The externaljob ID to process.")]
+
+
 @app.command()
-def wrapper_creator(j: int) -> None:
+def wrapper_creator(j: JobIdParam) -> None:
     """Wrapper creator for simple_submitter."""
     logger.info("Wrapper creator called with job ID:", j)
 
@@ -25,7 +28,7 @@ def wrapper_creator(j: int) -> None:
 @use_client
 def submitter(
     config_path: Path,
-    j: Annotated[int, cyclopts.Parameter(name="-j")],
+    j: JobIdParam,
     *,
     entity_type: Literal["externaljob", "workunit"] = "externaljob",
     client: Bfabric,
