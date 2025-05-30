@@ -1,10 +1,4 @@
 # shellcheck disable=SC2016,SC2154
-# Setup
-set -euxo pipefail
-hostname
-id
-export PYTHONUNBUFFERED=1
-
 # Determine the binaries to use - we use uv for this
 bfabric_cli_bin="uv run --with ${dependencies["bfabric_scripts"]} bfabric-cli"
 bfabric_app_runner_bin="uv run --with ${dependencies["bfabric_app_runner"]} bfabric-app-runner"
