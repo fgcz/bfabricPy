@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+import sys
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -14,22 +14,14 @@ if TYPE_CHECKING:
 
 class WrapAppYamlTemplate:
     class Params(BaseModel):
-        class Dependencies(BaseModel):
-            bfabric_app_runner: str = "bfabric-app-runner==0.0.22"
-
-        dependencies: Dependencies
         workunit_id: int
         app_yaml_path: str
         scratch_root: Path
 
         @classmethod
         def extract_workunit(cls, workunit: Workunit, scratch_root: Path) -> WrapAppYamlTemplate.Params:
-            # TODO this is not encodeable right now
-            dependencies = cls.Dependencies()
-
             app_yaml_path = workunit.application.executable["program"]
             return cls(
-                dependencies=dependencies,
                 workunit_id=workunit.id,
                 app_yaml_path=app_yaml_path,
                 scratch_root=scratch_root,
@@ -45,6 +37,7 @@ class WrapAppYamlTemplate:
 
     def render_string(self) -> str:
         params = self._params.model_dump(mode="python")
+        params["python_interpreter"] = sys.executable
         logger.debug("Rendering {} with params: {}", self._path, params)
         template = mako.template.Template(filename=str(self._path))
         return template.render(**params)
