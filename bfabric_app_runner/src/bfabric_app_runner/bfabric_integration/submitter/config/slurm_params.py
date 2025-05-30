@@ -21,6 +21,8 @@ class _SlurmParametersBase(BaseModel):
     """Allows setting arbitrary parameters."""
     workunit_params: SlurmWorkunitParams
     """Allows setting a controlled set of parameters."""
+    job_script: Path
+    """The path to store job script."""
 
 
 class SlurmParameters(_SlurmParametersBase):
@@ -32,6 +34,7 @@ class SlurmParameters(_SlurmParametersBase):
 
 class SlurmConfigFile(BaseModel):
     params: dict[str, str | int | None]
+    job_script: Path
 
 
 class SlurmParametersTemplate(_SlurmParametersBase):

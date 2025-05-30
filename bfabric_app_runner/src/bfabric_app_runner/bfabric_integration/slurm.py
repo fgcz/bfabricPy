@@ -58,14 +58,14 @@ def _submit_workunit(workunit: Workunit, config_path: Path) -> None:
     wrapped_script = wrap_app_yaml_template.render_string()
 
     # Create the slurm executable
-    slurm_job_template_params = evaluate_slurm_parameters(config_yaml_path=config_path, workunit=workunit)
+    slurm_params = evaluate_slurm_parameters(config_yaml_path=config_path, workunit=workunit)
     slurm_job_template = SlurmJobTemplate(
-        params=slurm_job_template_params, wrapped_script=wrapped_script, path=SlurmJobTemplate.default_path()
+        params=slurm_params, wrapped_script=wrapped_script, path=SlurmJobTemplate.default_path()
     )
     slurm_script = slurm_job_template.render_string()
 
     # Write this slurm script to the appropriate location
-    slurm_script_path = _get_slurm_script_path(workunit_id=workunit.id)
+    slurm_script_path = slurm_params.job_script
     slurm_script_path.parent.mkdir(exist_ok=True)
     slurm_script_path.write_text(slurm_script)
 
@@ -73,10 +73,6 @@ def _submit_workunit(workunit: Workunit, config_path: Path) -> None:
     cmd = ["sbatch", str(slurm_script_path)]
     logger.info(f"Running slurm submit: {shlex.join(cmd)}")
     subprocess.run(cmd, check=True)
-
-
-def _get_slurm_script_path(workunit_id: int) -> Path:
-    return Path("~/slurmx/").expanduser() / f"workunitid-{workunit_id}.slurm.bash"
 
 
 if __name__ == "__main__":
