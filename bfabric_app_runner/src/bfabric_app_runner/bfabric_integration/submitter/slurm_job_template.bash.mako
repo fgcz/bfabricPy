@@ -19,4 +19,4 @@ hostname
 export PYTHONUNBUFFERED=1
 ${wrapped_script}
 } 2>&1 | while read line; do echo "[$(date '+%Y-%m-%d %H:%M:%S')] $line"; done
-${python_interpreter} -m bfabric_app_runner.bfabric_integration.api report-workunit-done ${workunit_id}
+${python_interpreter} -m bfabric_app_runner.bfabric_integration.api report-workunit-available ${workunit_id}
