@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -11,8 +12,9 @@ if TYPE_CHECKING:
 
 
 class SlurmJobTemplate:
-    def __init__(self, params: SlurmParameters, wrapped_script: str, path: Path) -> None:
+    def __init__(self, params: SlurmParameters, workunit_id: int, wrapped_script: str, path: Path) -> None:
         self._params = params
+        self._workunit_id = workunit_id
         self._wrapped_script = wrapped_script
         self._path = path
 
@@ -21,7 +23,12 @@ class SlurmJobTemplate:
         return Path(__file__).parent / "slurm_job_template.bash.mako"
 
     def render_string(self) -> str:
-        params = {"sbatch_params": self._params.sbatch_params, "wrapped_script": self._wrapped_script}
+        params = {
+            "sbatch_params": self._params.sbatch_params,
+            "wrapped_script": self._wrapped_script,
+            "python_interpreter": sys.executable,
+            "workunit_id": self._workunit_id,
+        }
         logger.debug("Rendering {} with params: {}", self._path, params)
         template = mako.template.Template(filename=str(self._path))
         return template.render(**params)

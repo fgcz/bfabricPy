@@ -4,6 +4,14 @@
 % endfor
 set -euo pipefail
 set +x
+cleanup_on_exit() {
+    local code=$?
+    if [ $code -ne 0 ]; then
+        ${python_interpreter} -m bfabric_app_runner.bfabric_integration.api report-failed-workunit ${workunit_id}
+    fi
+    exit $code
+}
+trap cleanup_on_exit EXIT
 {
 set -x
 id

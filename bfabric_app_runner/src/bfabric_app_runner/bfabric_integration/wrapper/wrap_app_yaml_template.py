@@ -15,7 +15,6 @@ if TYPE_CHECKING:
 class WrapAppYamlTemplate:
     class Params(BaseModel):
         class Dependencies(BaseModel):
-            bfabric_scripts: str = "bfabric-scripts==1.13.28"
             bfabric_app_runner: str = "bfabric-app-runner==0.0.22"
 
         dependencies: Dependencies

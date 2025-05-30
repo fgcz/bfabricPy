@@ -60,7 +60,10 @@ def _submit_workunit(workunit: Workunit, config_path: Path) -> None:
     # Create the slurm executable
     slurm_params = evaluate_slurm_parameters(config_yaml_path=config_path, workunit=workunit)
     slurm_job_template = SlurmJobTemplate(
-        params=slurm_params, wrapped_script=wrapped_script, path=SlurmJobTemplate.default_path()
+        params=slurm_params,
+        workunit_id=workunit.id,
+        wrapped_script=wrapped_script,
+        path=SlurmJobTemplate.default_path(),
     )
     slurm_script = slurm_job_template.render_string()
 
