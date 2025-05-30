@@ -10,7 +10,7 @@ from bfabric.entities import ExternalJob, Workunit
 from bfabric.utils.cli_integration import use_client
 from bfabric_app_runner.bfabric_integration.wrapper.wrap_app_yaml_template import WrapAppYamlTemplate
 from bfabric_app_runner.slurm_submitter.config.slurm_params import evaluate_slurm_parameters
-from bfabric_app_runner.slurm_submitter.slurm_job_template import SlurmJobTemplate
+from bfabric_app_runner.bfabric_integration.submitter.slurm_job_template import SlurmJobTemplate
 
 app = cyclopts.App()
 
