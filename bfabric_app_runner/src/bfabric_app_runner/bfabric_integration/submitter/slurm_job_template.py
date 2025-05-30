@@ -7,7 +7,7 @@ import mako.template
 from loguru import logger
 
 if TYPE_CHECKING:
-    from bfabric_app_runner.slurm_submitter.config.slurm_params import SlurmParameters
+    from bfabric_app_runner.bfabric_integration.submitter.config.slurm_params import SlurmParameters
 
 
 class SlurmJobTemplate:
