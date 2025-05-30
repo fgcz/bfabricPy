@@ -12,7 +12,6 @@ from bfabric.experimental.workunit_definition import (
 from bfabric_app_runner.app_runner.resolve_app import load_workunit_information
 from bfabric_app_runner.specs.app.app_version import AppVersion
 from bfabric_app_runner.specs.app.commands_spec import CommandsSpec, CommandExec
-from bfabric_app_runner.specs.submitter_ref import SubmitterRef
 
 
 class TestLoadWorkunitInformation:
@@ -27,9 +26,6 @@ class TestLoadWorkunitInformation:
                 process=CommandExec(
                     command="bash -c 'echo processing'",
                 ),
-            ),
-            submitter=SubmitterRef(
-                name="default",
             ),
         )
 

@@ -8,7 +8,6 @@ from bfabric_app_runner.specs.app.commands_spec import (
     MountOptions,
     CommandsSpec,
 )
-from bfabric_app_runner.specs.submitter_ref import SubmitterRef
 
 
 @pytest.fixture()
@@ -25,7 +24,6 @@ def parsed() -> AppVersion:
             collect=CommandShell(command="collect"),
         ),
         reuse_default_resource=True,
-        submitter=SubmitterRef(name="submitter"),
     )
 
 
@@ -56,9 +54,6 @@ def serialized() -> str:
       writeable: []
     type: docker
 reuse_default_resource: true
-submitter:
-  name: submitter
-  params: {}
 version: 0.0.1"""
 
 
