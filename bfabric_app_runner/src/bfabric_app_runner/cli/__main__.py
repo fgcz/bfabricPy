@@ -23,7 +23,6 @@ from bfabric_app_runner.cli.validate import (
     cmd_validate_outputs_spec,
     cmd_validate_app_spec,
     cmd_validate_app_spec_template,
-    cmd_validate_submitters_spec_template,
 )
 
 package_version = importlib.metadata.version("bfabric_app_runner")
@@ -60,7 +59,6 @@ cmd_validate.command(cmd_validate_app_spec, name="app-spec")
 cmd_validate.command(cmd_validate_app_spec_template, name="app-spec-template")
 cmd_validate.command(cmd_validate_inputs_spec, name="inputs-spec")
 cmd_validate.command(cmd_validate_outputs_spec, name="outputs-spec")
-cmd_validate.command(cmd_validate_submitters_spec_template, name="submitters-spec-template")
 app.command(cmd_validate)
 
 cmd_action = cyclopts.App("action", help="Executes an action of a prepared workunit")
