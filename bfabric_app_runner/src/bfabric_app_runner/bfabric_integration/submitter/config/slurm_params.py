@@ -30,6 +30,10 @@ class SlurmParameters(_SlurmParametersBase):
         return {key: str(value) for key, value in merged.items() if value is not None}
 
 
+class SlurmConfigFile(BaseModel):
+    params: dict[str, str | int | None]
+
+
 class SlurmParametersTemplate(_SlurmParametersBase):
     def evaluate(self, app: VariablesApp, workunit: VariablesWorkunit) -> SlurmParameters:
         data_template = self.model_dump(mode="json")
@@ -38,9 +42,9 @@ class SlurmParametersTemplate(_SlurmParametersBase):
 
     @classmethod
     def for_yaml_and_workunit(cls, config_yaml_path: Path, workunit: Workunit) -> SlurmParametersTemplate:
-        submitter_params = yaml.safe_load(config_yaml_path.read_text())["params"]
+        config_file = SlurmConfigFile.model_validate(yaml.safe_load(config_yaml_path.read_text()))
         workunit_params = SlurmWorkunitParams.model_validate(workunit.submitter_parameters)
-        return SlurmParametersTemplate(submitter_params=submitter_params, workunit_params=workunit_params)
+        return SlurmParametersTemplate(submitter_params=config_file.params, workunit_params=workunit_params)
 
 
 def evaluate_slurm_parameters(config_yaml_path: Path, workunit: Workunit) -> SlurmParameters:
