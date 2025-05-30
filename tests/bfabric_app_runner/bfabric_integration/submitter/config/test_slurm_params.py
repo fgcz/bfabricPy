@@ -1,3 +1,4 @@
+from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
@@ -14,7 +15,8 @@ from bfabric_app_runner.specs.config_interpolation import VariablesApp, Variable
 def slurm_config_file_template():
     return _SlurmConfigFileTemplate(
         params={"--partition": "test", "--nodes": 1, "--name": "workunit-${workunit.id}"},
-        job_script="/home/test/test/job-${workunit.id}",
+        job_script="~/test/job-${workunit.id}",
+        scratch_root="/scratch",
     )
 
 
@@ -37,7 +39,7 @@ def test_slurm_config_template_evaluation(slurm_config_file_template, variables_
     assert config_file.params["--name"] == "workunit-42"
     assert config_file.params["--partition"] == "test"
     assert config_file.params["--nodes"] == 1
-    assert str(config_file.job_script) == "/home/test/test/job-42"
+    assert config_file.job_script == Path("~/test/job-42").expanduser()
 
 
 def test_slurm_parameters_creation():
@@ -51,6 +53,7 @@ def test_slurm_parameters_creation():
         submitter_params={"--partition": "compute", "--nodes": 2, "--name": "test-job"},
         job_script="/path/to/job.sh",
         workunit_params=mock_workunit_params,
+        scratch_root="/scratch",
     )
 
     # Test sbatch_params merging
@@ -69,7 +72,9 @@ def test_slurm_parameters_creation():
 def test_template_with_app_variables():
     """Test template evaluation with app variables."""
     template = _SlurmConfigFileTemplate(
-        params={"--job-name": "${app.name}-${workunit.id}"}, job_script="/home/${app.name}/job-${workunit.id}"
+        params={"--job-name": "${app.name}-${workunit.id}"},
+        job_script="/home/${app.name}/job-${workunit.id}",
+        scratch_root="/scratch",
     )
 
     app = VariablesApp(id=1, name="my_app", version="1.0.0")

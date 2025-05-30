@@ -4,7 +4,7 @@ from functools import cached_property
 from pathlib import Path  # noqa: TC003
 
 import yaml
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from bfabric.entities import Workunit  # noqa: TC002
 from bfabric.utils.path_safe_name import path_safe_name
@@ -25,6 +25,8 @@ class SlurmParameters(BaseModel):
     """The path to store job script."""
     workunit_params: SlurmWorkunitParams
     """Allows setting a controlled set of parameters."""
+    scratch_root: Path
+    """The root directory for scratch space."""
 
     @cached_property
     def sbatch_params(self) -> dict[str, str]:
@@ -35,6 +37,13 @@ class SlurmParameters(BaseModel):
 class _SlurmConfigFile(BaseModel):
     params: dict[str, str | int | None]
     job_script: Path
+    scratch_root: Path
+
+    @field_validator("job_script", "scratch_root", mode="after")
+    @classmethod
+    def expand_user_in_paths(cls, value: Path) -> Path:
+        """Expands user in paths."""
+        return value.expanduser()
 
 
 class _SlurmConfigFileTemplate(BaseModel):
@@ -42,6 +51,7 @@ class _SlurmConfigFileTemplate(BaseModel):
 
     params: dict[str, str | int | None]
     job_script: str
+    scratch_root: Path
 
     @classmethod
     def for_yaml(cls, path: Path) -> _SlurmConfigFileTemplate:
@@ -66,4 +76,5 @@ def evaluate_slurm_parameters(config_yaml_path: Path, workunit: Workunit) -> Slu
         submitter_params=config_file.params,
         job_script=config_file.job_script,
         workunit_params=workunit_params,
+        scratch_root=config_file.scratch_root,
     )

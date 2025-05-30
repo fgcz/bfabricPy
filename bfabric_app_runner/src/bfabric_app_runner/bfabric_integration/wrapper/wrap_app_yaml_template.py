@@ -20,9 +20,10 @@ class WrapAppYamlTemplate:
         dependencies: Dependencies
         workunit_id: int
         app_yaml_path: str
+        scratch_root: Path
 
         @classmethod
-        def extract_workunit(cls, workunit: Workunit) -> WrapAppYamlTemplate.Params:
+        def extract_workunit(cls, workunit: Workunit, scratch_root: Path) -> WrapAppYamlTemplate.Params:
             # TODO this is not encodeable right now
             dependencies = cls.Dependencies()
 
@@ -31,6 +32,7 @@ class WrapAppYamlTemplate:
                 dependencies=dependencies,
                 workunit_id=workunit.id,
                 app_yaml_path=app_yaml_path,
+                scratch_root=scratch_root,
             )
 
     def __init__(self, params: Params, path: Path) -> None:
