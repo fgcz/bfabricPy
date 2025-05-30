@@ -14,47 +14,56 @@ from bfabric_app_runner.bfabric_integration.submitter.config.slurm_workunit_para
 from bfabric_app_runner.specs.config_interpolation import VariablesApp, VariablesWorkunit, interpolate_config_strings
 
 
-class _SlurmParametersBase(BaseModel):
+class SlurmParameters(BaseModel):
+    """The concrete Slurm parameters for a specific workunit."""
+
     # Note: Originally, the idea was that at the app level app_params could also be defined, but this was omitted for
     #       simplicity in this version.
     submitter_params: dict[str, str | int | None]
     """Allows setting arbitrary parameters."""
-    workunit_params: SlurmWorkunitParams
-    """Allows setting a controlled set of parameters."""
     job_script: Path
     """The path to store job script."""
+    workunit_params: SlurmWorkunitParams
+    """Allows setting a controlled set of parameters."""
 
-
-class SlurmParameters(_SlurmParametersBase):
     @cached_property
     def sbatch_params(self) -> dict[str, str]:
         merged = {**self.submitter_params, **self.workunit_params.as_dict()}
         return {key: str(value) for key, value in merged.items() if value is not None}
 
 
-class SlurmConfigFile(BaseModel):
+class _SlurmConfigFile(BaseModel):
     params: dict[str, str | int | None]
     job_script: Path
 
 
-class SlurmParametersTemplate(_SlurmParametersBase):
-    def evaluate(self, app: VariablesApp, workunit: VariablesWorkunit) -> SlurmParameters:
-        data_template = self.model_dump(mode="json")
-        data = interpolate_config_strings(data=data_template, variables={"app": app, "workunit": workunit})
-        return SlurmParameters.model_validate(data)
+class _SlurmConfigFileTemplate(BaseModel):
+    """The generic slurm configuration file, with template strings not yet evaluated."""
+
+    params: dict[str, str | int | None]
+    job_script: str
 
     @classmethod
-    def for_yaml_and_workunit(cls, config_yaml_path: Path, workunit: Workunit) -> SlurmParametersTemplate:
-        config_file = SlurmConfigFile.model_validate(yaml.safe_load(config_yaml_path.read_text()))
-        workunit_params = SlurmWorkunitParams.model_validate(workunit.submitter_parameters)
-        return SlurmParametersTemplate(submitter_params=config_file.params, workunit_params=workunit_params)
+    def for_yaml(cls, path: Path) -> _SlurmConfigFileTemplate:
+        return _SlurmConfigFileTemplate.model_validate(yaml.safe_load(path.read_text()))
+
+    def evaluate(self, app: VariablesApp, workunit: VariablesWorkunit) -> _SlurmConfigFile:
+        data_template = self.model_dump(mode="json")
+        data = interpolate_config_strings(data=data_template, variables={"app": app, "workunit": workunit})
+        return _SlurmConfigFile.model_validate(data)
 
 
 def evaluate_slurm_parameters(config_yaml_path: Path, workunit: Workunit) -> SlurmParameters:
     """Evaluates the Slurm Parameters from the YAML file for a given workunit."""
-    config_template = SlurmParametersTemplate.for_yaml_and_workunit(config_yaml_path, workunit)
+    config_file_template = _SlurmConfigFileTemplate.for_yaml(config_yaml_path)
     app_variables = VariablesApp(
         id=workunit.application.id, name=path_safe_name(workunit.application["name"]), version="latest"
     )
     workunit_variables = VariablesWorkunit(id=workunit.id)
-    return config_template.evaluate(app=app_variables, workunit=workunit_variables)
+    config_file = config_file_template.evaluate(app=app_variables, workunit=workunit_variables)
+    workunit_params = SlurmWorkunitParams.model_validate(workunit.submitter_parameters)
+    return SlurmParameters(
+        submitter_params=config_file.submitter_params,
+        job_script=config_file.job_script,
+        workunit_params=workunit_params,
+    )
