@@ -63,7 +63,7 @@ def evaluate_slurm_parameters(config_yaml_path: Path, workunit: Workunit) -> Slu
     config_file = config_file_template.evaluate(app=app_variables, workunit=workunit_variables)
     workunit_params = SlurmWorkunitParams.model_validate(workunit.submitter_parameters)
     return SlurmParameters(
-        submitter_params=config_file.submitter_params,
+        submitter_params=config_file.params,
         job_script=config_file.job_script,
         workunit_params=workunit_params,
     )
