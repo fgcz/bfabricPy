@@ -39,7 +39,7 @@ class WrapAppYamlTemplate:
 
     @classmethod
     def default_path(cls) -> Path:
-        return Path(__file__).parent / "app_runner_wrapper_yaml_template.bash.mako"
+        return Path(__file__).parent / "wrap_app_yaml_template.bash.mako"
 
     def render_string(self) -> str:
         params = self._params.model_dump(mode="python")
