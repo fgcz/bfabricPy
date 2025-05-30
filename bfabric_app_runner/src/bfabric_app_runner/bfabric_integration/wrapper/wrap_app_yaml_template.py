@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from bfabric.entities import Workunit
 
 
-class AppRunnerWrapperYamlTemplate:
+class WrapAppYamlTemplate:
     class Params(BaseModel):
         class Dependencies(BaseModel):
             bfabric_scripts: str = "bfabric-scripts==1.13.28"
@@ -23,7 +23,7 @@ class AppRunnerWrapperYamlTemplate:
         app_yaml_path: str
 
         @classmethod
-        def extract_workunit(cls, workunit: Workunit) -> AppRunnerWrapperYamlTemplate.Params:
+        def extract_workunit(cls, workunit: Workunit) -> WrapAppYamlTemplate.Params:
             # TODO this is not encodeable right now
             dependencies = cls.Dependencies()
 

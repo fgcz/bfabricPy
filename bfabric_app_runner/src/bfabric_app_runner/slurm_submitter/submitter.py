@@ -8,7 +8,7 @@ from pathlib import Path
 from bfabric import Bfabric
 from bfabric.entities import ExternalJob, Workunit
 from bfabric.utils.cli_integration import use_client
-from bfabric_app_runner.slurm_submitter.app_runner_wrapper_yaml_template import AppRunnerWrapperYamlTemplate
+from bfabric_app_runner.bfabric_integration.wrapper.wrap_app_yaml_template import WrapAppYamlTemplate
 from bfabric_app_runner.slurm_submitter.config.slurm_params import evaluate_slurm_parameters
 from bfabric_app_runner.slurm_submitter.slurm_job_template import SlurmJobTemplate
 
@@ -51,11 +51,11 @@ def _submit_workunit(workunit: Workunit, config_path: Path) -> None:
     logger.info(f"Submitting workunit {workunit.id}.")
 
     # Create the wrapped script
-    app_runner_wrapper_template_params = AppRunnerWrapperYamlTemplate.Params.extract_workunit(workunit)
-    app_runner_wrapper_template = AppRunnerWrapperYamlTemplate(
-        params=app_runner_wrapper_template_params, path=AppRunnerWrapperYamlTemplate.default_path()
+    wrap_app_yaml_template_params = WrapAppYamlTemplate.Params.extract_workunit(workunit)
+    wrap_app_yaml_template = WrapAppYamlTemplate(
+        params=wrap_app_yaml_template_params, path=WrapAppYamlTemplate.default_path()
     )
-    wrapped_script = app_runner_wrapper_template.render_string()
+    wrapped_script = wrap_app_yaml_template.render_string()
 
     # Create the slurm executable
     slurm_job_template_params = evaluate_slurm_parameters(config_yaml_path=config_path, workunit=workunit)
