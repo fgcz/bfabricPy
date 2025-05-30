@@ -10,9 +10,16 @@ app = cyclopts.App(help="Bfabric app runner integration API commands.")
 
 @app.command
 @use_client
-def report_failed_workunit(workunit_id: int, *, client: Bfabric) -> None:
+def report_workunit_failed(workunit_id: int, *, client: Bfabric) -> None:
     """Sets the status of a workunit to 'failed'."""
     client.save("workunit", {"id": workunit_id, "status": "failed"})
+
+
+@app.command
+@use_client
+def report_workunit_done(workunit_id: int, *, client: Bfabric) -> None:
+    """Sets the status of a workunit to 'successful'."""
+    client.save("workunit", {"id": workunit_id, "status": "done"})
 
 
 if __name__ == "__main__":
