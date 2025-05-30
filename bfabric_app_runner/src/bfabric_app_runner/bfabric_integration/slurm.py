@@ -64,6 +64,11 @@ def _submit_workunit(workunit: Workunit, config_path: Path) -> None:
     )
     slurm_script = slurm_job_template.render_string()
 
+    # Ensure log dir exists
+    if "--output" in slurm_params.sbatch_params:
+        log_dir = Path(slurm_params.sbatch_params["--output"]).parent
+        log_dir.mkdir(parents=True, exist_ok=True)
+
     # Write this slurm script to the appropriate location
     slurm_script_path = slurm_params.job_script
     slurm_script_path.parent.mkdir(exist_ok=True)
