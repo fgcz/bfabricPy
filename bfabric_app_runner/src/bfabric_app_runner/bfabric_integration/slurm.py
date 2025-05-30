@@ -49,16 +49,18 @@ def submitter(
 def _submit_workunit(workunit: Workunit, config_path: Path) -> None:
     """Submit a workunit to the bfabric app runner."""
     logger.info(f"Submitting workunit {workunit.id}.")
+    slurm_params = evaluate_slurm_parameters(config_yaml_path=config_path, workunit=workunit)
 
     # Create the wrapped script
-    wrap_app_yaml_template_params = WrapAppYamlTemplate.Params.extract_workunit(workunit)
+    wrap_app_yaml_template_params = WrapAppYamlTemplate.Params.extract_workunit(
+        workunit, scratch_root=slurm_params.scratch_root
+    )
     wrap_app_yaml_template = WrapAppYamlTemplate(
         params=wrap_app_yaml_template_params, path=WrapAppYamlTemplate.default_path()
     )
     wrapped_script = wrap_app_yaml_template.render_string()
 
     # Create the slurm executable
-    slurm_params = evaluate_slurm_parameters(config_yaml_path=config_path, workunit=workunit)
     slurm_job_template = SlurmJobTemplate(
         params=slurm_params,
         workunit_id=workunit.id,
