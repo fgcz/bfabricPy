@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 
 - Command `bfabric-app-runner run workunit` to run the whole app end-to-end for a workunit.
+- `bfabric_app_runner.bfabric_integration.slurm` and associated packages.
 
 ### Removed
 
