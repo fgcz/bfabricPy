@@ -7,6 +7,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 
 - Command `bfabric-app-runner run workunit` to run the whole app end-to-end for a workunit.
+- `bfabric_app_runner.bfabric_integration.slurm` and associated packages.
+
+### Removed
+
+- AppVersion does not have a `submitter` field anymore.
+- Some old submitter related functionality is deleted!
 
 ## \[0.0.22\] - 2025-05-21
 

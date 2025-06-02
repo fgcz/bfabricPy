@@ -6,7 +6,6 @@ from pydantic import BaseModel, field_validator
 
 from bfabric_app_runner.specs.app.commands_spec import CommandsSpec  # noqa: TCH001
 from bfabric_app_runner.specs.config_interpolation import interpolate_config_strings, VariablesApp
-from bfabric_app_runner.specs.submitter_ref import SubmitterRef  # noqa: TCH001
 
 
 class AppVersion(BaseModel):
@@ -17,7 +16,6 @@ class AppVersion(BaseModel):
 
     version: str = "latest"
     commands: CommandsSpec
-    submitter: SubmitterRef
     # TODO remove when new submitter becomes available
     reuse_default_resource: bool = True
 
@@ -25,7 +23,6 @@ class AppVersion(BaseModel):
 class AppVersionTemplate(BaseModel):
     version: str
     commands: CommandsSpec
-    submitter: SubmitterRef
     # TODO remove when new submitter becomes available
     reuse_default_resource: bool = True
 
@@ -39,7 +36,6 @@ class AppVersionTemplate(BaseModel):
 class AppVersionMultiTemplate(BaseModel):
     version: list[str]
     commands: CommandsSpec
-    submitter: SubmitterRef
 
     # TODO remove when new submitter becomes available
     reuse_default_resource: bool = True
