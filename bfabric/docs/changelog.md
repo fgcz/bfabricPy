@@ -20,6 +20,10 @@ Versioning currently follows `X.Y.Z` where
     necessary to specify the requested config environment to be used.
 - `bfabric.entities.Executable` has `parameters` relationship now
 
+### Removed
+
+- Some old submitter related functionality is deleted.
+
 ## \[1.13.27\] - 2025-05-21
 
 ### Added
