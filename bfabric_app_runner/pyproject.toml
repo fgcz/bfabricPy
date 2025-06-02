@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "bfabric_app_runner"
 description = "Application runner for B-Fabric apps"
 readme = "README.md"
-version = "0.0.22"
+version = "0.0.23"
 license = { text = "GPL-3.0" }
 authors = [
     {name = "Leonardo Schwarz", email = "leonardo.schwarz@fgcz.ethz.ch"},
@@ -25,7 +25,9 @@ dependencies = [
 include = [
     "src/bfabric_app_runner/**/*.py",
     "src/bfabric_app_runner/py.typed",
-    "src/bfabric_app_runner/resources/*.mk"
+    "src/bfabric_app_runner/resources/*.mk",
+    "src/bfabric_app_runner/**/*.mako",
+    "src/bfabric_app_runner/**/*.bash",
 ]
 
 [project.scripts]

@@ -6,7 +6,6 @@ from rich.pretty import pprint
 from bfabric_app_runner.specs.app.app_spec import AppSpecTemplate, AppSpec
 from bfabric_app_runner.specs.inputs_spec import InputsSpec
 from bfabric_app_runner.specs.outputs_spec import OutputsSpec
-from bfabric_app_runner.specs.submitters_spec import SubmittersSpecTemplate
 
 
 def cmd_validate_app_spec_template(yaml_file: Path) -> None:
@@ -31,9 +30,3 @@ def cmd_validate_outputs_spec(yaml_file: Path) -> None:
     """Validate an outputs spec file."""
     outputs_spec = OutputsSpec.model_validate(yaml.safe_load(yaml_file.read_text()))
     pprint(outputs_spec)
-
-
-def cmd_validate_submitters_spec_template(yaml_file: Path) -> None:
-    """Validate a submitters spec file."""
-    submitters_spec = SubmittersSpecTemplate.model_validate(yaml.safe_load(yaml_file.read_text()))
-    pprint(submitters_spec)

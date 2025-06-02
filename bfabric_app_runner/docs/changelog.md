@@ -4,6 +4,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.0.23\] - 2025-06-02
+
+### Added
+
+- `bfabric_app_runner.bfabric_integration.slurm` and associated packages.
+- Command `bfabric-app-runner run workunit` to run the whole app end-to-end for a workunit.
+
+### Removed
+
+- AppVersion does not have a `submitter` field anymore.
+- Some old submitter related functionality is deleted.
+
 ## \[0.0.22\] - 2025-05-21
 
 ### Added

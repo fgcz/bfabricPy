@@ -14,7 +14,7 @@ from bfabric.config import BfabricClientConfig
 
 
 class GeneralConfig(BaseModel):
-    default_config: Annotated[str, Field(min_length=1)]
+    default_config: Annotated[str | None, Field(min_length=1)] = None
 
 
 class EnvironmentConfig(BaseModel):
@@ -56,7 +56,7 @@ class ConfigFile(BaseModel):
     @model_validator(mode="after")
     def validate_default_config(self) -> ConfigFile:
         """Validates that the default config is specified and is available in the configs."""
-        if self.general.default_config not in self.environments:
+        if self.general.default_config is not None and self.general.default_config not in self.environments:
             raise PydanticCustomError(
                 "default_config_not_available",
                 "Default config {default_config} not found in {available_configs}",
@@ -89,7 +89,11 @@ class ConfigFile(BaseModel):
             return os.environ["BFABRICPY_CONFIG_ENV"]
         else:
             logger.debug(f"BFABRICPY_CONFIG_ENV not found, using default environment {self.general.default_config}")
-            return self.general.default_config
+            env = self.general.default_config
+            if env is None:
+                msg = "No environment was specified and no default environment was found."
+                raise ValueError(msg)
+            return env
 
     def get_selected_config(self, explicit_config_env: str | None = None) -> EnvironmentConfig:
         """Returns the selected configuration, by checking the hierarchy of config_env definitions.
