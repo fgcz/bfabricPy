@@ -23,6 +23,7 @@ def cmd_run_workunit(app_definition: Path, scratch_root: Path, workunit_ref: int
         cmd_prepare_workunit(app_spec=app_definition, work_dir=work_dir, workunit_ref=workunit_ref)
         # TODO directly call through python
         subprocess.run(["make", "run-all"], cwd=work_dir, check=True)
+        client.save("workunit", {"id": workunit_definition.registration.workunit_id, "status": "available"})
     except Exception:
         client.save("workunit", {"id": workunit_definition.registration.workunit_id, "status": "failed"})
         raise
