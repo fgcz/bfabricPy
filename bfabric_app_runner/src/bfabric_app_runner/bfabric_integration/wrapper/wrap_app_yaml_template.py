@@ -1,5 +1,4 @@
 from __future__ import annotations
-import sys
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -37,7 +36,6 @@ class WrapAppYamlTemplate:
 
     def render_string(self) -> str:
         params = self._params.model_dump(mode="python")
-        params["python_interpreter"] = sys.executable
         logger.debug("Rendering {} with params: {}", self._path, params)
         template = mako.template.Template(filename=str(self._path))
         return template.render(**params)

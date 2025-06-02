@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -26,7 +25,6 @@ class SlurmJobTemplate:
         params = {
             "sbatch_params": self._params.sbatch_params,
             "wrapped_script": self._wrapped_script,
-            "python_interpreter": sys.executable,
             "workunit_id": self._workunit_id,
         }
         logger.debug("Rendering {} with params: {}", self._path, params)
