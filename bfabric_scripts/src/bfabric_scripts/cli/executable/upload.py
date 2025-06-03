@@ -1,5 +1,6 @@
 import base64
 from pathlib import Path
+from typing import Literal, Any
 
 import xmltodict
 import yaml
@@ -8,7 +9,6 @@ from rich.console import Console
 from bfabric import Bfabric
 from bfabric.entities import Executable
 from bfabric.utils.cli_integration import use_client
-from typing import Literal, Any, assert_never
 
 
 @use_client
