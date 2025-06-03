@@ -71,4 +71,6 @@ def read_executable_data(metadata_file: Path, metadata_file_format: Literal["xml
     elif metadata_file_format == "xml":
         return xmltodict.parse(metadata_file.read_text())
     else:
-        assert_never(metadata_file_format)
+        raise ValueError(f"Should be unreachable: {metadata_file_format}")
+        # Py 3.11
+        # assert_never(metadata_file_format)
