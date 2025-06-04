@@ -9,7 +9,7 @@ readme = "../README.md"
 version = "1.13.28"
 
 dependencies = [
-    "bfabric==1.13.27",
+    "bfabric @ file:///${PROJECT_ROOT}/../bfabric",
     "cyclopts>=3.13.0",
     "xmltodict",
 ]
