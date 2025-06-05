@@ -10,11 +10,17 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Added
+
+- `bfabric-cli executable dump` command to export YAML and XML of executables
+- `bfabric-cli feeder create-importresource` command to register importresource objects in B-Fabric
+- `bfabric-cli executable upload` supports XML
+
 ### Changed
 
-- Update `bfabric` to 1.13.28. (TODO revise this and the second line before release)
 - Columns of tables named after B-Fabric entities, containing only integers, will be set as the specified type
     when saving to B-Fabric.
+- Update `bfabric` to 1.13.28 (TODO)
 
 ## \[1.13.28\] - 2025-05-21
 

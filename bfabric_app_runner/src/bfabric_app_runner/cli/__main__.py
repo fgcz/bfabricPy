@@ -15,6 +15,7 @@ from bfabric_app_runner.cli.cmd_action import (
 )
 from bfabric_app_runner.cli.cmd_deploy import cmd_deploy_build_app_zip
 from bfabric_app_runner.cli.cmd_prepare import cmd_prepare_workunit
+from bfabric_app_runner.cli.cmd_run import cmd_run_workunit
 from bfabric_app_runner.cli.inputs import cmd_inputs_prepare, cmd_inputs_clean, cmd_inputs_list, cmd_inputs_check
 from bfabric_app_runner.cli.outputs import cmd_outputs_register, cmd_outputs_register_single_file
 from bfabric_app_runner.cli.validate import (
@@ -22,7 +23,6 @@ from bfabric_app_runner.cli.validate import (
     cmd_validate_outputs_spec,
     cmd_validate_app_spec,
     cmd_validate_app_spec_template,
-    cmd_validate_submitters_spec_template,
 )
 
 package_version = importlib.metadata.version("bfabric_app_runner")
@@ -59,7 +59,6 @@ cmd_validate.command(cmd_validate_app_spec, name="app-spec")
 cmd_validate.command(cmd_validate_app_spec_template, name="app-spec-template")
 cmd_validate.command(cmd_validate_inputs_spec, name="inputs-spec")
 cmd_validate.command(cmd_validate_outputs_spec, name="outputs-spec")
-cmd_validate.command(cmd_validate_submitters_spec_template, name="submitters-spec-template")
 app.command(cmd_validate)
 
 cmd_action = cyclopts.App("action", help="Executes an action of a prepared workunit")
@@ -78,6 +77,9 @@ cmd_deploy = cyclopts.App(name="deploy", help="Utilities for deploying apps")
 cmd_deploy.command(cmd_deploy_build_app_zip, name="build-app-zip")
 app.command(cmd_deploy)
 
+cmd_run = cyclopts.App(name="run", help="Run an app end-to-end.")
+cmd_run.command(cmd_run_workunit, name="workunit")
+app.command(cmd_run)
 
 if __name__ == "__main__":
     app()
