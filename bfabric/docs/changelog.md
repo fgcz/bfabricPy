@@ -24,6 +24,11 @@ Versioning currently follows `X.Y.Z` where
 
 - Some old submitter related functionality is deleted.
 
+### Changed
+
+- Columns of tables named after B-Fabric entities, containing only integers, will be set as the specified type
+    when saving to B-Fabric (in `experimental.upload_dataset`).
+
 ## \[1.13.27\] - 2025-05-21
 
 ### Added
