@@ -17,25 +17,31 @@ def test_warn_on_trailing_spaces_when_warning(logot):
     logot.assert_logged(logged.warning("Warning: Column 'b' contains trailing spaces."))
 
 
+@pytest.fixture
+def column_types(mocker):
+    return mocker.Mock(name="column_types", entities=["Resource", "Dataset"])
+
+
 class TestPolarsColumnToBfabricType:
     @staticmethod
     @pytest.mark.parametrize("detect", [False, True])
-    def test_basic_types(detect):
+    def test_basic_types(detect, column_types):
         df = pl.DataFrame({"str": ["a", "b"], "int": [1, 2], "int_as_str": ["1", "2"]})
-        assert polars_column_to_bfabric_type(df, "str", detect_entity_reference=detect) == "String"
-        assert polars_column_to_bfabric_type(df, "int", detect_entity_reference=detect) == "Integer"
-        assert polars_column_to_bfabric_type(df, "int_as_str", detect_entity_reference=detect) == "String"
+        column_types = column_types if detect else None
+        assert polars_column_to_bfabric_type(df, "str", column_types=column_types) == "String"
+        assert polars_column_to_bfabric_type(df, "int", column_types=column_types) == "Integer"
+        assert polars_column_to_bfabric_type(df, "int_as_str", column_types=column_types) == "String"
 
     @staticmethod
     @pytest.mark.parametrize("entity_name", ["Resource", "Dataset"])
-    def test_entity_reference_when_int(entity_name):
+    def test_entity_reference_when_int(entity_name, column_types):
         df = pl.DataFrame({entity_name: [1, 2]})
-        assert polars_column_to_bfabric_type(df, entity_name, detect_entity_reference=True) == entity_name
-        assert polars_column_to_bfabric_type(df, entity_name, detect_entity_reference=False) == "Integer"
+        assert polars_column_to_bfabric_type(df, entity_name, column_types=column_types) == entity_name
+        assert polars_column_to_bfabric_type(df, entity_name, column_types=None) == "Integer"
 
     @staticmethod
     @pytest.mark.parametrize("entity_name", ["Resource", "Dataset"])
-    def test_entity_reference_when_str(entity_name):
+    def test_entity_reference_when_str(entity_name, column_types):
         df = pl.DataFrame({entity_name: ["1", "2"]})
-        assert polars_column_to_bfabric_type(df, entity_name, detect_entity_reference=True) == entity_name
-        assert polars_column_to_bfabric_type(df, entity_name, detect_entity_reference=False) == "String"
+        assert polars_column_to_bfabric_type(df, entity_name, column_types=column_types) == entity_name
+        assert polars_column_to_bfabric_type(df, entity_name, column_types=None) == "String"

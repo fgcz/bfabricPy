@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING
 import polars as pl
 from loguru import logger
 
+from bfabric.experimental.dataset_column_types import DatasetColumnTypes, get_dataset_column_types
+
 if TYPE_CHECKING:
     from pathlib import Path
     from bfabric.bfabric import Bfabric
@@ -23,11 +25,12 @@ def _all_values_are_integers(col: pl.Column) -> bool:
 
 
 def polars_column_to_bfabric_type(
-    dataframe: pl.DataFrame, column_name: str, detect_entity_reference: bool = True
+    dataframe: pl.DataFrame,
+    column_name: str,
+    column_types: DatasetColumnTypes | None = None,
 ) -> str:
     """Returns the B-Fabric type for a given Polars column name."""
-    bfabric_types = ["Resource", "Dataset", "Sample"]
-    if detect_entity_reference and column_name in bfabric_types:
+    if column_types is not None and column_name in column_types.entities:
         is_numeric = _all_values_are_integers(dataframe[column_name])
         if is_numeric:
             return column_name
@@ -45,11 +48,12 @@ def polars_to_bfabric_dataset(
     data: pl.DataFrame,
 ) -> dict[str, list[dict[str, int | str | float]]]:
     """Converts a Polars DataFrame to a B-Fabric dataset representation."""
+    column_types = get_dataset_column_types()
     attributes = [
         {
             "name": col,
             "position": i + 1,
-            "type": polars_column_to_bfabric_type(data, column_name=col, detect_entity_reference=True),
+            "type": polars_column_to_bfabric_type(data, column_name=col, column_types=column_types),
         }
         for i, col in enumerate(data.columns)
     ]
