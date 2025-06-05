@@ -45,3 +45,9 @@ class TestPolarsColumnToBfabricType:
         df = pl.DataFrame({entity_name: ["1", "2"]})
         assert polars_column_to_bfabric_type(df, entity_name, column_types=column_types) == entity_name
         assert polars_column_to_bfabric_type(df, entity_name, column_types=None) == "String"
+
+    @staticmethod
+    def test_entity_reference_when_not_actually_a_reference(column_types):
+        df = pl.DataFrame({"Dataset": ["1", "2"], "Resource": ["3", "a"]})
+        assert polars_column_to_bfabric_type(df, "Dataset", column_types=column_types) == "Dataset"
+        assert polars_column_to_bfabric_type(df, "Resource", column_types=column_types) == "String"
