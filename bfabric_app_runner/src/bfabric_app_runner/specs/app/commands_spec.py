@@ -1,9 +1,11 @@
 import os
 import shlex
+import sys
 from pathlib import Path
-from typing import Literal, Annotated
+from typing import Literal, Annotated, Any
 
-from pydantic import BaseModel, Discriminator, ConfigDict
+from pydantic import BaseModel, Discriminator, ConfigDict, field_validator
+from pydantic_core.core_schema import ValidationInfo
 
 
 class CommandShell(BaseModel):
@@ -159,7 +161,29 @@ class CommandDocker(BaseModel):
         return environ if environ is not None else os.environ.copy()
 
 
-Command = Annotated[CommandShell | CommandExec | CommandDocker, Discriminator("type")]
+class CommandAppZip(BaseModel):
+    type: Literal["app.zip"] = "app.zip"
+
+    app_zip: Path
+    """The path to the app.zip file that contains the relevant code."""
+    app_name: str
+    """The app name, will be used to construct module path by default."""
+    purpose: Literal["dispatch", "process", "collect"]
+    """The purpose of this command, will be populated automatically by putting it into the CommandsSpec."""
+
+    def to_shell(self, work_dir: Path | None = None) -> list[str]:
+        # TODO
+        execute_app_zip_bin = [sys.executable, "-m", "bfabric_app_runner.___"]
+        module_path = f"{self.app_name}.integrations.bfabric.{self.purpose}"
+        [execute_app_zip_bin, "python", "-m", module_path]
+        raise NotImplementedError
+
+    def to_shell_env(self, environ: dict[str, str] | None = None) -> dict[str, str]:
+        """Returns the shell environment variables to set before executing the command."""
+        return environ if environ is not None else os.environ.copy()
+
+
+Command = Annotated[CommandShell | CommandExec | CommandDocker | CommandAppZip, Discriminator("type")]
 
 
 class CommandsSpec(BaseModel):
@@ -184,3 +208,14 @@ class CommandsSpec(BaseModel):
 
     It will be called with arguments: `$workunit_ref` `$chunk_dir`.
     """
+
+    @field_validator("dispatch", "process", "collect", mode="before")
+    def populate_command_app_zip_purpose(cls, value: Any, info: ValidationInfo) -> Any:
+        """Automatically sets the _purpose field for CommandAppZip instances based on the field name."""
+        if isinstance(value, dict) and value.get("type") == "app.zip":
+            value["purpose"] = info.field_name
+        elif isinstance(value, CommandAppZip):
+            expected_purpose = info.field_name
+            if value.purpose != expected_purpose:
+                raise ValueError(f"Inconsistent purpose {value.purpose!r} expected {expected_purpose!r}")
+        return value
