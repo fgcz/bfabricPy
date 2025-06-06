@@ -103,7 +103,7 @@ def test_runner_run_prepare_input(mocker, mock_app_version, mock_bfabric, tmp_pa
     chunk_dir.mkdir()
     (chunk_dir / "inputs.yml").touch()
 
-    runner.run_prepare_input(chunk_dir)
+    runner.run_inputs(chunk_dir)
 
     mock_prepare.assert_called_once_with(
         inputs_yaml=chunk_dir / "inputs.yml",
