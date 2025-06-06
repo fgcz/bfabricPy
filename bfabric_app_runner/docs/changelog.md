@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Changed
+
+- Command implementation is separated from command definition for cleaner implementation.
+
 ## \[0.0.23\] - 2025-06-02
 
 ### Added
