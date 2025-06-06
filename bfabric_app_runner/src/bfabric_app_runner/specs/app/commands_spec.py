@@ -1,12 +1,38 @@
 import os
 import shlex
+import subprocess
 from pathlib import Path
-from typing import Literal, Annotated
-
+from typing import Literal, Annotated, Protocol, runtime_checkable
+from loguru import logger
 from pydantic import BaseModel, Discriminator, ConfigDict
 
 
-class CommandShell(BaseModel):
+@runtime_checkable
+class Execute(Protocol):
+    def execute(self, *args: str) -> None:
+        """Executes the command with the given arguments."""
+        raise NotImplementedError()
+
+
+class ExecuteInSubprocess:
+    def to_shell(self) -> list[str]:
+        """Returns a shell command that can be used to run the specified command."""
+        raise NotImplementedError()
+
+    def to_shell_env(self, environ: dict[str, str] | None) -> dict[str, str]:
+        """Returns the shell environment variables to set before executing the command."""
+        raise NotImplementedError()
+
+    def execute(self, *args: str) -> None:
+        """Executes the command in a subprocess with the given arguments."""
+        command = [*self.to_shell(), *args]
+        env = self.to_shell_env(environ=os.environ)
+        logger.info(f"Running dispatch command: {shlex.join(command)}")
+        logger.debug(f"Split command: {command!r}")
+        subprocess.run(command, check=True, env=env)
+
+
+class CommandShell(BaseModel, ExecuteInSubprocess):
     model_config = ConfigDict(extra="forbid")
 
     # TODO: Now deprecated by exec type - we can add a "bash" type later, if needed
@@ -45,7 +71,7 @@ def _get_shell_env(
     return environ
 
 
-class CommandExec(BaseModel):
+class CommandExec(BaseModel, ExecuteInSubprocess):
     model_config = ConfigDict(extra="forbid")
 
     type: Literal["exec"] = "exec"
@@ -101,7 +127,7 @@ class MountOptions(BaseModel):
         return [(source.expanduser().absolute(), target, read_only) for source, target, read_only in mounts]
 
 
-class CommandDocker(BaseModel):
+class CommandDocker(BaseModel, ExecuteInSubprocess):
     model_config = ConfigDict(extra="forbid")
 
     # TODO not sure if to call this "docker", since "docker-compatible" would be appropriate
@@ -174,6 +200,9 @@ class CommandPythonEnv(BaseModel):
     command: str
     """The command to run, will be split by `shlex.split` and is not an actual shell script."""
 
+    python_version: str | None = None
+    """The Python version to use."""
+
     local_extra_deps: list[str] = []
     """Additional dependencies, e.g. wheels or local packages, to install into the environment.
 
@@ -192,10 +221,18 @@ class CommandPythonEnv(BaseModel):
     If multiple paths are specified, the first one will be the first in PATH, etc.
     """
 
+    def _get_venv_command(self) -> list[str]:
+        # TODO
+        [
+            "bfabric-app-runner",
+            "utils",
+            "run-in-venv",
+        ]
+        raise NotImplementedError
+
     def to_shell(self) -> list[str]:
         """Returns a shell command that can be used to run the specified command."""
-        # TODO this is a bit weird (
-        venv_command = []
+        venv_command = self._get_venv_command()
         main_command = shlex.split(self.command)
         return venv_command + main_command
 
