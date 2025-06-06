@@ -66,38 +66,7 @@ class CommandDocker(BaseModel):
     """Any custom CLI arguments to pass to the container engine."""
 
 
-class CommandPythonEnv(BaseModel):
-    type: Literal["python_env"]
-
-    pylock: Path
-    """Path to the Pylock file that specifies the environment to use."""
-
-    command: str
-    """The command to run, will be split by `shlex.split` and is not an actual shell script."""
-
-    python_version: str | None = None
-    """The Python version to use."""
-
-    local_extra_deps: list[str] = []
-    """Additional dependencies, e.g. wheels or local packages, to install into the environment.
-
-    For these, no additional dependencies will be installed, so their dependencies should already be in the pylock file.
-    """
-
-    cache_env_path: Path | None = None
-    """Path to the cached environment."""
-
-    env: dict[str, str] = {}
-    """Environment variables to set before executing the command."""
-
-    prepend_paths: list[Path] = []
-    """A list of paths to prepend to the PATH variable before executing the command.
-
-    If multiple paths are specified, the first one will be the first in PATH, etc.
-    """
-
-
-Command = Annotated[CommandShell | CommandExec | CommandDocker | CommandPythonEnv, Discriminator("type")]
+Command = Annotated[CommandShell | CommandExec | CommandDocker, Discriminator("type")]
 
 
 class CommandsSpec(BaseModel):
