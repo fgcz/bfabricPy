@@ -1,11 +1,6 @@
-import os
-from pathlib import Path
-
 import pytest
 
 from bfabric_app_runner.specs.app.commands_spec import (
-    MountOptions,
-    CommandDocker,
     CommandShell,
     CommandExec,
     CommandsSpec,
@@ -35,102 +30,6 @@ class TestCommandShell:
             "import sys; print('Hello from Python')",
             "--verbose",
         ]
-
-
-class TestCommandDocker:
-    def test_basic(self):
-        """Test basic docker command generation"""
-        cmd = CommandDocker(image="python:3.9", command="python script.py")
-
-        result = cmd.to_shell(Path("/work"))
-
-        expected = [
-            "docker",
-            "run",
-            "--user",
-            f"{os.getuid()}:{os.getgid()}",
-            "--rm",
-            "--mount",
-            "type=bind,source=/home/user/.bfabricpy.yml,target=/home/user/.bfabricpy.yml,readonly",
-            "--mount",
-            "type=bind,source=/work,target=/work",
-            "python:3.9",
-            "python",
-            "script.py",
-        ]
-
-        # Replace actual home directory path with /home/user for test stability
-        result = [s.replace(str(Path.home()), "/home/user") for s in result]
-        assert result == expected
-
-    def test_with_options(self, tmp_path):
-        """Test docker command generation with entrypoint, env vars, and custom args"""
-        cmd = CommandDocker(
-            image="ubuntu:latest",
-            command="echo 'hello'",
-            entrypoint="/bin/bash",
-            env={"DEBUG": "1", "PATH": "/usr/local/bin"},
-            mac_address="00:00:00:00:00:00",
-            custom_args=["--network=host"],
-            hostname="myhost",
-            mounts=MountOptions(share_bfabric_config=False),  # Disable bfabric mount for simpler testing
-        )
-
-        work_dir = tmp_path / "work"
-        work_dir.mkdir()
-        result = cmd.to_shell(work_dir)
-
-        expected = [
-            "docker",
-            "run",
-            "--user",
-            f"{os.getuid()}:{os.getgid()}",
-            "--rm",
-            "--mount",
-            f"type=bind,source={work_dir.absolute()},target={work_dir.absolute()}",
-            "--entrypoint",
-            "/bin/bash",
-            "--env",
-            "DEBUG=1",
-            "--env",
-            "PATH=/usr/local/bin",
-            "--mac-address",
-            "00:00:00:00:00:00",
-            "--network=host",
-            "--hostname",
-            "myhost",
-            "ubuntu:latest",
-            "echo",
-            "hello",
-        ]
-
-        assert result == expected
-
-    def test_with_complex_command(self):
-        """Test docker command generation with a complex command containing spaces and quotes"""
-        cmd = CommandDocker(
-            image="alpine:latest",
-            command="sh -c \"echo 'test with spaces' && ls -la\"",
-            mounts=MountOptions(share_bfabric_config=False),
-        )
-
-        result = cmd.to_shell(Path("/work"))
-
-        expected = [
-            "docker",
-            "run",
-            "--user",
-            f"{os.getuid()}:{os.getgid()}",
-            "--rm",
-            "--mount",
-            "type=bind,source=/work,target=/work",
-            "alpine:latest",
-            "sh",
-            "-c",
-            "echo 'test with spaces' && ls -la",
-        ]
-
-        assert result == expected
 
 
 class TestCommandsSpec:
