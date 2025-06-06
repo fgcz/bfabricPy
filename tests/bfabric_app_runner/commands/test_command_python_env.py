@@ -11,7 +11,7 @@ def test_execute(mocker):
     execute_command_python_env(cmd, *args)
     execute_command.assert_called_once_with(
         CommandExec(
-            command="uv run -p 3.13 --with /test/pylock bash -c 'echo $1 $2'",
+            command="uv run -p 3.13 --no-project --isolated --with /test/pylock bash -c 'echo $1 $2'",
             env={},
             prepend_paths=[],
         ),

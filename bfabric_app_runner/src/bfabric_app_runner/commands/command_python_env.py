@@ -9,7 +9,16 @@ def execute_command_python_env(command: CommandPythonEnv, *args: str) -> None:
     # TODO this is the initial version, we want this more robust with caching etc in the future, so
     #      it works fully offline as well (the idea would be that the environment gets specified but you can
     #      prepare it ahead of time).
-    main_command = ["uv", "run", "-p", command.python_version, "--with", str(command.pylock)]
+    main_command = [
+        "uv",
+        "run",
+        "-p",
+        command.python_version,
+        "--no-project",
+        "--isolated",
+        "--with",
+        str(command.pylock),
+    ]
     if command.local_extra_deps:
         main_command.extend(["--with", ",".join(command.local_extra_deps)])
     main_command.extend(shlex.split(command.command))
