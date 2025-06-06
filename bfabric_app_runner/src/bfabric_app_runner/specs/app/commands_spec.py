@@ -1,11 +1,9 @@
 import os
 import shlex
-import sys
 from pathlib import Path
-from typing import Literal, Annotated, Any
+from typing import Literal, Annotated
 
-from pydantic import BaseModel, Discriminator, ConfigDict, field_validator
-from pydantic_core.core_schema import ValidationInfo
+from pydantic import BaseModel, Discriminator, ConfigDict
 
 
 class CommandShell(BaseModel):
@@ -25,6 +23,26 @@ class CommandShell(BaseModel):
     def to_shell_env(self, environ: dict[str, str] | None) -> dict[str, str]:
         """Returns the shell environment variables to set before executing the command."""
         return environ if environ is not None else os.environ.copy()
+
+
+def _get_shell_env(
+    environ: dict[str, str] | None, config_env: dict[str, str], config_prepend_paths: list[Path]
+) -> dict[str, str]:
+    if environ is None:
+        environ = os.environ.copy()
+
+    if config_prepend_paths:
+        # Ensure environ['PATH'] is set
+        environ["PATH"] = environ.get("PATH", "")
+        # Prepend paths
+        for path in reversed(config_prepend_paths):
+            resolved_path = path.expanduser().absolute()
+            environ["PATH"] = f"{resolved_path}:{environ['PATH']}"
+
+    for key, value in config_env.items():
+        environ[key] = value
+
+    return environ
 
 
 class CommandExec(BaseModel):
@@ -51,21 +69,7 @@ class CommandExec(BaseModel):
 
     def to_shell_env(self, environ: dict[str, str] | None) -> dict[str, str]:
         """Returns the shell environment variables to set before executing the command."""
-        if environ is None:
-            environ = os.environ.copy()
-
-        if self.prepend_paths:
-            # Ensure environ['PATH'] is set
-            environ["PATH"] = environ.get("PATH", "")
-            # Prepend paths
-            for path in reversed(self.prepend_paths):
-                resolved_path = path.expanduser().absolute()
-                environ["PATH"] = f"{resolved_path}:{environ['PATH']}"
-
-        for key, value in self.env.items():
-            environ[key] = value
-
-        return environ
+        return _get_shell_env(environ=environ, config_env=self.env, config_prepend_paths=self.prepend_paths)
 
 
 class MountOptions(BaseModel):
@@ -161,29 +165,46 @@ class CommandDocker(BaseModel):
         return environ if environ is not None else os.environ.copy()
 
 
-class CommandAppZip(BaseModel):
-    type: Literal["app.zip"] = "app.zip"
+class CommandPythonEnv(BaseModel):
+    type: Literal["python_env"]
 
-    app_zip: Path
-    """The path to the app.zip file that contains the relevant code."""
-    app_name: str
-    """The app name, will be used to construct module path by default."""
-    purpose: Literal["dispatch", "process", "collect"]
-    """The purpose of this command, will be populated automatically by putting it into the CommandsSpec."""
+    pylock: Path
+    """Path to the Pylock file that specifies the environment to use."""
 
-    def to_shell(self, work_dir: Path | None = None) -> list[str]:
-        # TODO
-        execute_app_zip_bin = [sys.executable, "-m", "bfabric_app_runner.___"]
-        module_path = f"{self.app_name}.integrations.bfabric.{self.purpose}"
-        [execute_app_zip_bin, "python", "-m", module_path]
-        raise NotImplementedError
+    command: str
+    """The command to run, will be split by `shlex.split` and is not an actual shell script."""
 
-    def to_shell_env(self, environ: dict[str, str] | None = None) -> dict[str, str]:
+    local_extra_deps: list[str] = []
+    """Additional dependencies, e.g. wheels or local packages, to install into the environment.
+
+    For these, no additional dependencies will be installed, so their dependencies should already be in the pylock file.
+    """
+
+    cache_env_path: Path | None = None
+    """Path to the cached environment."""
+
+    env: dict[str, str] = {}
+    """Environment variables to set before executing the command."""
+
+    prepend_paths: list[Path] = []
+    """A list of paths to prepend to the PATH variable before executing the command.
+
+    If multiple paths are specified, the first one will be the first in PATH, etc.
+    """
+
+    def to_shell(self) -> list[str]:
+        """Returns a shell command that can be used to run the specified command."""
+        # TODO this is a bit weird (
+        venv_command = []
+        main_command = shlex.split(self.command)
+        return venv_command + main_command
+
+    def to_shell_env(self, environ: dict[str, str] | None) -> dict[str, str]:
         """Returns the shell environment variables to set before executing the command."""
-        return environ if environ is not None else os.environ.copy()
+        return _get_shell_env(environ=environ, config_env=self.env, config_prepend_paths=self.prepend_paths)
 
 
-Command = Annotated[CommandShell | CommandExec | CommandDocker | CommandAppZip, Discriminator("type")]
+Command = Annotated[CommandShell | CommandExec | CommandDocker | CommandPythonEnv, Discriminator("type")]
 
 
 class CommandsSpec(BaseModel):
@@ -208,14 +229,3 @@ class CommandsSpec(BaseModel):
 
     It will be called with arguments: `$workunit_ref` `$chunk_dir`.
     """
-
-    @field_validator("dispatch", "process", "collect", mode="before")
-    def populate_command_app_zip_purpose(cls, value: Any, info: ValidationInfo) -> Any:
-        """Automatically sets the _purpose field for CommandAppZip instances based on the field name."""
-        if isinstance(value, dict) and value.get("type") == "app.zip":
-            value["purpose"] = info.field_name
-        elif isinstance(value, CommandAppZip):
-            expected_purpose = info.field_name
-            if value.purpose != expected_purpose:
-                raise ValueError(f"Inconsistent purpose {value.purpose!r} expected {expected_purpose!r}")
-        return value

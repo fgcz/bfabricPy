@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 
 import pytest
-from pydantic import ValidationError
 
 from bfabric_app_runner.specs.app.commands_spec import (
     MountOptions,
@@ -10,7 +9,6 @@ from bfabric_app_runner.specs.app.commands_spec import (
     CommandShell,
     CommandExec,
     CommandsSpec,
-    CommandAppZip,
 )
 
 
@@ -233,16 +231,6 @@ class TestCommandsSpec:
         return {"type": "exec", "command": "bash -c 'echo hello world'"}
 
     @staticmethod
-    @pytest.fixture
-    def data_command_app_zip_without_purpose(app_zip_path):
-        return {"type": "app.zip", "app_zip": str(app_zip_path), "app_name": "my_app"}
-
-    @staticmethod
-    @pytest.fixture
-    def app_zip_path():
-        return Path("/test/app.zip")
-
-    @staticmethod
     def test_parse_exec(data_command_exec):
         data = {"dispatch": data_command_exec, "process": data_command_exec}
         parsed = CommandsSpec.model_validate(data)
@@ -250,33 +238,3 @@ class TestCommandsSpec:
         assert parsed.dispatch == expected_command
         assert parsed.process == expected_command
         assert parsed.collect is None
-
-    @staticmethod
-    def test_populate_app_zip_purpose_when_dict(data_command_app_zip_without_purpose, app_zip_path):
-        data = {"dispatch": data_command_app_zip_without_purpose, "process": data_command_app_zip_without_purpose}
-        parsed = CommandsSpec.model_validate(data)
-        assert parsed.dispatch.purpose == "dispatch"
-        assert parsed.dispatch.app_zip == app_zip_path
-        assert parsed.process.purpose == "process"
-        assert parsed.process.app_zip == app_zip_path
-        assert parsed.collect is None
-
-    @staticmethod
-    def test_populate_app_zip_purpose_when_model_valid(data_command_app_zip_without_purpose):
-        command_dispatch = CommandAppZip(**data_command_app_zip_without_purpose, purpose="dispatch")
-        command_process = CommandAppZip(**data_command_app_zip_without_purpose, purpose="process")
-        data = {"dispatch": command_dispatch, "process": command_process}
-        commands = CommandsSpec.model_validate(data)
-        assert commands.dispatch == command_dispatch
-        assert commands.process == command_process
-        assert commands.collect is None
-
-    @staticmethod
-    def test_populate_app_zip_purpose_when_model_invalid(data_command_app_zip_without_purpose):
-        command_dispatch = CommandAppZip(**data_command_app_zip_without_purpose, purpose="dispatch")
-        command_process = CommandAppZip(**data_command_app_zip_without_purpose, purpose="dispatch")
-        data = {"dispatch": command_dispatch, "process": command_process}
-        with pytest.raises(ValidationError) as error:
-            CommandsSpec.model_validate(data)
-        assert error.value.error_count() == 1
-        assert error.value.errors()[0]["msg"] == "Value error, Inconsistent purpose 'dispatch' expected 'process'"
