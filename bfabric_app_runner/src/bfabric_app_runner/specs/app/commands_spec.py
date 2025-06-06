@@ -67,7 +67,7 @@ class CommandDocker(BaseModel):
 
 
 class CommandPythonEnv(BaseModel):
-    type: Literal["python_env"]
+    type: Literal["python_env"] = "python_env"
 
     pylock: Path
     """Path to the Pylock file that specifies the environment to use."""
@@ -83,9 +83,6 @@ class CommandPythonEnv(BaseModel):
 
     For these, no additional dependencies will be installed, so their dependencies should already be in the pylock file.
     """
-
-    cache_env_path: Path | None = None
-    """Path to the cached environment."""
 
     env: dict[str, str] = {}
     """Environment variables to set before executing the command."""
