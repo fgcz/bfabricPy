@@ -20,7 +20,7 @@ def execute_command_python_env(command: CommandPythonEnv, *args: str) -> None:
         str(command.pylock),
     ]
     if command.local_extra_deps:
-        main_command.extend(["--with", ",".join(command.local_extra_deps)])
+        main_command.extend(["--with", ",".join(str(p) for p in command.local_extra_deps)])
     main_command.extend(shlex.split(command.command))
     exec_command = CommandExec(command=shlex.join(main_command), env=command.env, prepend_paths=command.prepend_paths)
     execute_command_exec(exec_command, *args)

@@ -78,7 +78,7 @@ class CommandPythonEnv(BaseModel):
     python_version: str | None = None
     """The Python version to use."""
 
-    local_extra_deps: list[str] = []
+    local_extra_deps: list[Path] = []
     """Additional dependencies, e.g. wheels or local packages, to install into the environment.
 
     For these, no additional dependencies will be installed, so their dependencies should already be in the pylock file.
