@@ -32,6 +32,7 @@ def execute_command_exec(command: CommandExec, *args: str, environ: dict[str, st
     """Executes the command with the provided arguments."""
     command_args = shlex.split(command.command) + list(args)
     shell_env = _get_shell_env(environ, command.env, command.prepend_paths)
-    logger.info("Executing command:", command_args, "with environment:", shell_env)
-    logger.debug(f"{command_args=}, {shell_env=}")
+    logger.info("Executing command:", command_args)
+    logger.debug(f"{command_args=}")
+    logger.trace(f"{shell_env=}")
     subprocess.run(command_args, check=True, env=shell_env)

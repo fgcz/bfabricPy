@@ -27,7 +27,7 @@ def _collect_mount_options(options: MountOptions, work_dir: Path) -> list[tuple[
 def _to_shell(command: CommandDocker, work_dir: Path | None = None) -> list[str]:
     """Returns a shell command that can be used to run the specified command."""
     work_dir = (work_dir or Path()).expanduser().absolute()
-    mounts = _collect_mount_options(command.options, work_dir)
+    mounts = _collect_mount_options(command.mounts, work_dir)
     mount_args = []
     for host, container, read_only in mounts:
         source = shlex.quote(str(host))
