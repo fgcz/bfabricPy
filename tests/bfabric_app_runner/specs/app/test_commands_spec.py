@@ -1,35 +1,9 @@
 import pytest
 
 from bfabric_app_runner.specs.app.commands_spec import (
-    CommandShell,
     CommandExec,
     CommandsSpec,
 )
-
-
-class TestCommandShell:
-    def test_basic(self):
-        """Test basic shell command parsing"""
-        cmd = CommandShell(command="echo hello")
-        result = cmd.to_shell()
-        assert result == ["echo", "hello"]
-
-    def test_with_quotes(self):
-        """Test shell command with quoted arguments"""
-        cmd = CommandShell(command='echo "hello world"')
-        result = cmd.to_shell()
-        assert result == ["echo", "hello world"]
-
-    def test_complex_command(self):
-        """Test complex shell command with multiple arguments and quotes"""
-        cmd = CommandShell(command="python3 -c \"import sys; print('Hello from Python')\" --verbose")
-        result = cmd.to_shell()
-        assert result == [
-            "python3",
-            "-c",
-            "import sys; print('Hello from Python')",
-            "--verbose",
-        ]
 
 
 class TestCommandsSpec:
