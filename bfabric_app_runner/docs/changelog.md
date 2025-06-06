@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Added
+
+- Command type `python_env` for commands which require a provisioned Python environment.
+
 ### Changed
 
 - Command implementation is separated from command definition for cleaner implementation.
