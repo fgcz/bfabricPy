@@ -4,6 +4,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import yaml
+
+from bfabric_app_runner.commands.execute import execute_command
 from bfabric_app_runner.inputs.prepare.prepare_folder import prepare_folder
 from bfabric_app_runner.output_registration import register_outputs
 from loguru import logger
@@ -24,7 +26,7 @@ class Runner:
 
     def run_dispatch(self, workunit_ref: int | Path, work_dir: Path) -> None:
         logger.info(f"Calling dispatch for workunit {workunit_ref} in {work_dir}")
-        self._app_version.commands.dispatch.execute(str(workunit_ref), str(work_dir))
+        execute_command(self._app_version.commands.dispatch, str(workunit_ref), str(work_dir))
 
     def run_inputs(self, chunk_dir: Path) -> None:
         prepare_folder(
@@ -37,12 +39,12 @@ class Runner:
 
     def run_process(self, chunk_dir: Path) -> None:
         logger.info(f"Calling process for chunk directory {chunk_dir}")
-        self._app_version.commands.process.execute(str(chunk_dir))
+        execute_command(self._app_version.commands.process, str(chunk_dir))
 
     def run_collect(self, workunit_ref: int | Path, chunk_dir: Path) -> None:
         if self._app_version.commands.collect is not None:
             logger.info(f"Calling collect for workunit {workunit_ref} in {chunk_dir}")
-            self._app_version.commands.collect.execute(str(workunit_ref), str(chunk_dir))
+            execute_command(self._app_version.commands.collect, str(workunit_ref), str(chunk_dir))
         else:
             logger.info("App does not have a collect step.")
 
