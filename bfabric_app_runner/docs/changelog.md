@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 
 - Command implementation is separated from command definition for cleaner implementation.
+- New submitter requires `BFABRICPY_CONFIG_ENV` and `XDG_CACHE_HOME` to be set.
 
 ## \[0.0.23\] - 2025-06-02
 
