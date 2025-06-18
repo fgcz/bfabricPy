@@ -30,14 +30,6 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="log message of external job")
     parser.add_argument("entity_id", type=int, help="entity id")
     parser.add_argument("message", type=str, help="message")
-    # kept for compatibility
-    parser.add_argument(
-        "--entity",
-        type=str,
-        choices=["externaljob"],
-        default="externaljob",
-        help="entity type",
-    )
     args = vars(parser.parse_args())
     bfabric_logthis(**args)
 
