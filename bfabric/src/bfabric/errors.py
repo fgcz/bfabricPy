@@ -22,6 +22,9 @@ class BfabricRequestError(RuntimeError):
             return False
         return self.message == other.message
 
+    def __hash__(self) -> int:
+        return hash(self.message)
+
 
 class BfabricConfigError(RuntimeError):
     """An error that is raised when the configuration is invalid."""
