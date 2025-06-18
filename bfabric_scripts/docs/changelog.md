@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Removed
+
+- Deprecated `bfabric-cli api log` subcommand was removed.
+
 ### Added
 
 - `bfabric-cli executable dump` command to export YAML and XML of executables
