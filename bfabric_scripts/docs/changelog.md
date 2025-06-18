@@ -25,6 +25,7 @@ Versioning currently follows `X.Y.Z` where
 - Columns of tables named after B-Fabric entities, containing only integers, will be set as the specified type
     when saving to B-Fabric.
 - Update `bfabric` to 1.13.28 (TODO)
+- Update legacy `bfabric_logthis.py` script.
 
 ## \[1.13.28\] - 2025-05-21
 
