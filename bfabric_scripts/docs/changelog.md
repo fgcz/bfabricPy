@@ -20,6 +20,10 @@ Versioning currently follows `X.Y.Z` where
 - `bfabric-cli feeder create-importresource` command to register importresource objects in B-Fabric
 - `bfabric-cli executable upload` supports XML
 
+### Fixed
+
+- `bfabric-cli workunit not-available` shows nodelist for workunits using new submitter.
+
 ### Changed
 
 - Columns of tables named after B-Fabric entities, containing only integers, will be set as the specified type
