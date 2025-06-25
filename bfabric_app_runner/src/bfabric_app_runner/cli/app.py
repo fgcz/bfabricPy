@@ -1,5 +1,3 @@
-import importlib.metadata
-import importlib.resources
 import os
 import sys
 from pathlib import Path
@@ -11,6 +9,7 @@ from bfabric.experimental.entity_lookup_cache import EntityLookupCache
 from bfabric.utils.cli_integration import use_client
 from bfabric_app_runner.app_runner.resolve_app import load_workunit_information
 from bfabric_app_runner.app_runner.runner import run_app, Runner
+from bfabric_app_runner.cli.cmd_prepare import _write_workunit_makefile
 
 
 @use_client
@@ -28,7 +27,7 @@ def cmd_app_run(
     # TODO doc
     app_version, workunit_ref = load_workunit_information(app_spec, client, work_dir, workunit_ref)
 
-    copy_dev_makefile(work_dir=work_dir)
+    _write_workunit_makefile(path=work_dir / "Makefile")
 
     # TODO(#107): usage of entity lookup cache was problematic -> beyond the full solution we could also consider
     #             to deactivate the cache for the output registration
@@ -71,27 +70,7 @@ def cmd_app_dispatch(
         runner.run_dispatch(workunit_ref=workunit_ref, work_dir=work_dir)
 
     if create_makefile:
-        copy_dev_makefile(work_dir=work_dir)
-
-
-def copy_dev_makefile(work_dir: Path) -> None:
-    """Copies the workunit.mk file to the work directory, and sets the version of the app runner.
-    It also creates a .env file containing the BFABRICPY_CONFIG_OVERRIDE environment variable containing the configured
-    connection. For security reasons it will be chmod 600.
-    """
-    with importlib.resources.path("bfabric_app_runner", "resources/workunit.mk") as source_path:
-        target_path = work_dir / "Makefile"
-
-        makefile_template = source_path.read_text()
-        app_runner_version = importlib.metadata.version("bfabric_app_runner")
-        makefile = makefile_template.replace("@RUNNER_VERSION@", app_runner_version)
-
-        if target_path.exists():
-            logger.info("Renaming existing Makefile to Makefile.bak")
-            target_path.rename(work_dir / "Makefile.bak")
-        logger.info(f"Copying Makefile from {source_path} to {target_path}")
-        target_path.parent.mkdir(exist_ok=True, parents=True)
-        target_path.write_text(makefile)
+        _write_workunit_makefile(path=work_dir / "Makefile")
 
 
 def _write_file_chmod(path: Path, text: str, mode: int) -> None:

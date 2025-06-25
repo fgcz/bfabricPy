@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Command implementation is separated from command definition for cleaner implementation.
 - New submitter requires `BFABRICPY_CONFIG_ENV` and `XDG_CACHE_HOME` to be set.
+- Old `bfabric-app-runner app run` and `bfabric-app-runner app dispatch` use the new makefile function from cmd_prepare.
 
 ## \[0.0.23\] - 2025-06-02
 
