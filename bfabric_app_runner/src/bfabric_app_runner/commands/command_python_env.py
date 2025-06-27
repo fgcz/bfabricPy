@@ -51,12 +51,12 @@ def _provision_environment(command: CommandPythonEnv) -> None:
 
     # Install local_extra_deps with --no-deps (no dependency resolution)
     if command.local_extra_deps:
-        for dep in command.local_extra_deps:
-            dep_install_cmd = ["uv", "pip", "install", "-p", str(python_executable), "--no-deps", str(dep.absolute())]
-            exec_command = CommandExec(
-                command=shlex.join(dep_install_cmd), env=command.env, prepend_paths=command.prepend_paths
-            )
-            execute_command_exec(exec_command)
+        dep_install_cmd = ["uv", "pip", "install", "-p", str(python_executable), "--no-deps"]
+        dep_install_cmd.extend(str(dep.absolute()) for dep in command.local_extra_deps)
+        exec_command = CommandExec(
+            command=shlex.join(dep_install_cmd), env=command.env, prepend_paths=command.prepend_paths
+        )
+        execute_command_exec(exec_command)
 
 
 def execute_command_python_env(command: CommandPythonEnv, *args: str) -> None:
