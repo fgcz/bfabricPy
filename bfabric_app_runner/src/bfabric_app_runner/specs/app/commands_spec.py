@@ -67,6 +67,8 @@ class CommandDocker(BaseModel):
 
 
 class CommandPythonEnv(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     type: Literal["python_env"] = "python_env"
 
     pylock: Path
@@ -92,6 +94,9 @@ class CommandPythonEnv(BaseModel):
 
     If multiple paths are specified, the first one will be the first in PATH, etc.
     """
+
+    refresh: bool = False
+    """When True, forces re-download and cache refresh of the environment, ignoring any existing cache."""
 
 
 Command = Annotated[CommandShell | CommandExec | CommandDocker | CommandPythonEnv, Discriminator("type")]
