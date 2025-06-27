@@ -39,19 +39,24 @@ def _provision_environment(command: CommandPythonEnv) -> None:
     exec_command = CommandExec(command=shlex.join(venv_cmd), env=command.env, prepend_paths=command.prepend_paths)
     execute_command_exec(exec_command)
 
-    # Install dependencies from pylock file
+    # Install dependencies from pylock file (with dependency resolution)
     python_executable = env_path / "bin" / "python"
     install_cmd = ["uv", "pip", "install", "-p", str(python_executable), "-r", str(command.pylock)]
 
     if command.refresh:
         install_cmd.append("--reinstall")
 
-    if command.local_extra_deps:
-        for dep in command.local_extra_deps:
-            install_cmd.append(str(dep.absolute()))
-
     exec_command = CommandExec(command=shlex.join(install_cmd), env=command.env, prepend_paths=command.prepend_paths)
     execute_command_exec(exec_command)
+
+    # Install local_extra_deps with --no-deps (no dependency resolution)
+    if command.local_extra_deps:
+        for dep in command.local_extra_deps:
+            dep_install_cmd = ["uv", "pip", "install", "-p", str(python_executable), "--no-deps", str(dep.absolute())]
+            exec_command = CommandExec(
+                command=shlex.join(dep_install_cmd), env=command.env, prepend_paths=command.prepend_paths
+            )
+            execute_command_exec(exec_command)
 
 
 def execute_command_python_env(command: CommandPythonEnv, *args: str) -> None:

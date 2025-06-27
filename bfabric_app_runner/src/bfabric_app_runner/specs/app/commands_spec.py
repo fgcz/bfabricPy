@@ -81,9 +81,12 @@ class CommandPythonEnv(BaseModel):
     """The Python version to use."""
 
     local_extra_deps: list[Path] = []
-    """Additional dependencies, e.g. wheels or local packages, to install into the environment.
+    """Additional dependencies to install into the environment.
 
-    For these, no additional dependencies will be installed, so their dependencies should already be in the pylock file.
+    Each entry should be a path to a wheel, sdist, or local package directory.
+    These will be installed into the environment with `uv pip install --no-deps` after the main requirements.
+    No dependency resolution will be performed for these, so their dependencies should already be present
+    in the environment (typically specified in the pylock file).
     """
 
     env: dict[str, str] = {}

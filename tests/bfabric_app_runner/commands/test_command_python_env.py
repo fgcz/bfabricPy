@@ -77,8 +77,9 @@ def test_execute_with_local_extra_deps(mocker):
     mock_env_path = Path("/cache/env/test_hash")
     mock_get_cache_path.return_value = mock_env_path
 
-    # Mock python executable exists
-    mocker.patch.object(Path, "exists", return_value=True)
+    # Mock python executable doesn't exist (to trigger provisioning)
+    mocker.patch.object(Path, "exists", return_value=False)
+    mocker.patch.object(Path, "mkdir")
 
     # Mock execute_command_exec
     mock_execute = mocker.patch("bfabric_app_runner.commands.command_python_env.execute_command_exec")
@@ -91,8 +92,15 @@ def test_execute_with_local_extra_deps(mocker):
     )
     execute_command_python_env(cmd, "arg1")
 
-    # Should call execute_command_exec once for execution (environment exists)
-    mock_execute.assert_called_once()
+    # Should call execute_command_exec:
+    # 1. venv creation
+    # 2. pip install main requirements
+    # 3. pip install wheel1 (no-deps)
+    # 4. pip install wheel2 (no-deps)
+    # 5. execution
+    assert mock_execute.call_count == 5
+
+    # Last call should be the execution
     called_command = mock_execute.call_args[0][0]
     assert isinstance(called_command, CommandExec)
     assert "script.py arg1" in called_command.command
