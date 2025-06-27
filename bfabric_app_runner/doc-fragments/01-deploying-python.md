@@ -4,7 +4,7 @@ To deploy a python app using uv:
 
 ```bash
 uv lock -U
-uv export --no-emit-project --format pylock > pylock.toml
+uv export --no-emit-project --format pylock.toml > pylock.toml
 uv build
 ```
 
