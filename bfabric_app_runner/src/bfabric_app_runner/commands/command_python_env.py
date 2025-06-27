@@ -88,5 +88,9 @@ def execute_command_python_env(command: CommandPythonEnv, *args: str) -> None:
     command_args = shlex.split(command.command) + list(args)
     final_command = [str(python_executable)] + command_args
 
-    exec_command = CommandExec(command=shlex.join(final_command), env=command.env, prepend_paths=command.prepend_paths)
+    # Include venv's bin directory in prepend_paths
+    venv_bin_path = env_path / "bin"
+    prepend_paths = [venv_bin_path] + (command.prepend_paths or [])
+
+    exec_command = CommandExec(command=shlex.join(final_command), env=command.env, prepend_paths=prepend_paths)
     execute_command_exec(exec_command)

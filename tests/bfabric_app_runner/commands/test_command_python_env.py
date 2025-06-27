@@ -102,7 +102,14 @@ def test_execute_with_local_extra_deps(mock_python_env_setup, mocker):
                 )
             )
         ),
-        mocker.call(snapshot(CommandExec(command="/cache/env/test_hash/bin/python script.py arg1"))),
+        mocker.call(
+            snapshot(
+                CommandExec(
+                    command="/cache/env/test_hash/bin/python script.py arg1",
+                    prepend_paths=[Path("/cache/env/test_hash/bin")],
+                )
+            )
+        ),
     ]
 
     # Last call should be the execution
@@ -129,7 +136,7 @@ def test_execute_with_env_and_prepend_paths(mock_python_env_setup):
     called_command = mock_execute.call_args[0][0]
     assert isinstance(called_command, CommandExec)
     assert called_command.env == {"CUSTOM_VAR": "value"}
-    assert called_command.prepend_paths == [Path("/custom/bin")]
+    assert called_command.prepend_paths == [Path("/cache/env/test_hash/bin"), Path("/custom/bin")]
 
 
 def test_hash_includes_hostname(mocker):
