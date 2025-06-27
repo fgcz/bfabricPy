@@ -16,6 +16,7 @@ def mock_python_env_setup(mocker):
     # Mock filesystem operations
     mock_exists = mocker.patch.object(Path, "exists", return_value=True)
     mocker.patch.object(Path, "mkdir")
+    mocker.patch.object(Path, "touch")  # Mock the touch method for .provisioned marker
 
     # Mock file operations - use Path.open since that's what the code uses
     mocker.patch.object(Path, "open", mocker.mock_open())
@@ -64,7 +65,7 @@ def test_execute_with_missing_environment(mock_python_env_setup):
     mock_execute = mock_python_env_setup["mock_execute"]
     mock_exists = mock_python_env_setup["mock_exists"]
 
-    # Mock python executable doesn't exist
+    # Mock provisioned marker doesn't exist
     mock_exists.return_value = False
 
     cmd = CommandPythonEnv(pylock=Path("/test/pylock"), command="script.py", python_version="3.13")
@@ -79,7 +80,7 @@ def test_execute_with_local_extra_deps(mock_python_env_setup, mocker):
     mock_execute = mock_python_env_setup["mock_execute"]
     mock_exists = mock_python_env_setup["mock_exists"]
 
-    # Mock python executable doesn't exist (to trigger provisioning)
+    # Mock provisioned marker doesn't exist (to trigger provisioning)
     mock_exists.return_value = False
 
     cmd = CommandPythonEnv(
@@ -154,7 +155,7 @@ def test_file_locking_during_provisioning(mock_python_env_setup):
     mock_exists = mock_python_env_setup["mock_exists"]
     mock_flock = mock_python_env_setup["mock_flock"]
 
-    # Mock python executable doesn't exist (to trigger provisioning)
+    # Mock provisioned marker doesn't exist (to trigger provisioning)
     mock_exists.return_value = False
 
     cmd = CommandPythonEnv(pylock=Path("/test/pylock"), command="script.py", python_version="3.13")
@@ -173,7 +174,7 @@ def test_double_check_after_lock_acquisition(mock_python_env_setup):
     mock_exists = mock_python_env_setup["mock_exists"]
     mock_flock = mock_python_env_setup["mock_flock"]
 
-    # Mock Path.exists to return True (environment exists after lock acquired)
+    # Mock provisioned marker exists (environment exists after lock acquired)
     # This simulates the case where another process created the environment
     # between when we might have checked initially and when we acquired the lock
     mock_exists.return_value = True

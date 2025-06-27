@@ -61,12 +61,17 @@ def _provision_environment(command: CommandPythonEnv) -> None:
         )
         execute_command_exec(exec_command)
 
+    # Mark environment as successfully provisioned
+    provisioned_marker = env_path / ".provisioned"
+    provisioned_marker.touch()
+
 
 def execute_command_python_env(command: CommandPythonEnv, *args: str) -> None:
     """Executes the command with the provided arguments using a cached Python environment."""
     # Get the environment cache path
     env_path = _get_app_runner_cache_path(command)
     python_executable = env_path / "bin" / "python"
+    provisioned_marker = env_path / ".provisioned"
 
     # Use file lock to prevent race conditions during provisioning
     lock_file = env_path.parent / f"{env_path.name}.lock"
@@ -75,8 +80,8 @@ def execute_command_python_env(command: CommandPythonEnv, *args: str) -> None:
     with lock_file.open("a") as lock:
         fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
 
-        # Check if environment exists or if refresh is requested (under lock)
-        if not python_executable.exists() or command.refresh:
+        # Check if environment is properly provisioned or if refresh is requested (under lock)
+        if not provisioned_marker.exists() or command.refresh:
             _provision_environment(command)
 
     # Build command using the cached environment's Python interpreter
