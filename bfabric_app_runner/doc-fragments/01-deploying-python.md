@@ -11,7 +11,7 @@ uv build
 - This creates a .whl file and a pylock.toml file.
 - For a reproducible environment you can now specify these two files.
 - The .whl file will contain your code and no dependencies.
-- The pylock.toml file will reproducibly specify the dependencies.
+- The pylock.toml file will reproducibly specify the dependencies. -> Caveat, the file has to be named `pylock.toml` or acoording to the standards. This might be improved later to give us more flexibility on our end here.
 
 These files should be copied into a versioned directory in the server/repo.
 
@@ -26,15 +26,15 @@ versions:
     commands:
       dispatch:
         type: python_env
-        pylock: /home/bfabric/slurmworker/config/A375_MZMINE/dist/mzmine_app-${app.version}-pylock.toml
+        pylock: /home/bfabric/slurmworker/config/A375_MZMINE/dist/${app.version}/pylock.toml
         local_extra_deps:
-          - /home/bfabric/slurmworker/config/A375_MZMINE/dist/mzmine_app-${app.version}-py3-none-any.whl
+          - /home/bfabric/slurmworker/config/A375_MZMINE/dist/${app.version}/mzmine_app-${app.version}-py3-none-any.whl
         command: -m mzmine_app.integrations.bfabric.dispatch
       process:
-        type: exec
-        pylock: /home/bfabric/slurmworker/config/A375_MZMINE/dist/mzmine_app-${app.version}-pylock.toml
+        type: python_env
+        pylock: /home/bfabric/slurmworker/config/A375_MZMINE/dist/${app.version}/pylock.toml
         local_extra_deps:
-          - /home/bfabric/slurmworker/config/A375_MZMINE/dist/mzmine_app-${app.version}-py3-none-any.whl
+          - /home/bfabric/slurmworker/config/A375_MZMINE/dist/${app.version}/mzmine_app-${app.version}-py3-none-any.whl
         command: -m mzmine_app.integrations.bfabric.process
         env:
           MZMINE_CONTAINER_TAG: "4.7.8.p1"
