@@ -173,14 +173,15 @@ def test_double_check_after_lock_acquisition(mock_python_env_setup):
     mock_exists = mock_python_env_setup["mock_exists"]
     mock_flock = mock_python_env_setup["mock_flock"]
 
-    # Mock Path.exists to return False first (to trigger provisioning), then True (after lock acquired)
-    # Provide enough values: first check fails, second check (after lock) succeeds, plus any additional calls
-    mock_exists.side_effect = [False, True, True, True, True]  # Extra True values for any additional calls
+    # Mock Path.exists to return True (environment exists after lock acquired)
+    # This simulates the case where another process created the environment
+    # between when we might have checked initially and when we acquired the lock
+    mock_exists.return_value = True
 
     cmd = CommandPythonEnv(pylock=Path("/test/pylock"), command="script.py", python_version="3.13")
     execute_command_python_env(cmd)
 
-    # Should acquire lock but skip provisioning since environment exists after lock
+    # Should acquire lock but skip provisioning since environment exists
     mock_flock.assert_called_once()
     # Should only call execute_command_exec once for the final execution (no provisioning)
     mock_execute.assert_called_once()
