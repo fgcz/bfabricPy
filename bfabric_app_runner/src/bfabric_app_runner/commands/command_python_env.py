@@ -1,6 +1,8 @@
+import fcntl
 import hashlib
 import os
 import shlex
+import socket
 from pathlib import Path
 
 from bfabric_app_runner.commands.command_exec import execute_command_exec
@@ -20,7 +22,8 @@ def _get_app_runner_cache_path(command: CommandPythonEnv) -> Path:
 
 def _compute_env_hash(command: CommandPythonEnv) -> str:
     """Returns a hash for the environment based on the command's specifications."""
-    hash_input = f"{command.python_version or 'default'}:{command.pylock.absolute()}"
+    hostname = socket.gethostname()
+    hash_input = f"{hostname}:{command.python_version or 'default'}:{command.pylock.absolute()}"
     if command.local_extra_deps:
         deps_str = ",".join(str(p.absolute()) for p in command.local_extra_deps)
         hash_input += f":{deps_str}"
@@ -65,9 +68,16 @@ def execute_command_python_env(command: CommandPythonEnv, *args: str) -> None:
     env_path = _get_app_runner_cache_path(command)
     python_executable = env_path / "bin" / "python"
 
-    # Check if environment exists or if refresh is requested
-    if not python_executable.exists() or command.refresh:
-        _provision_environment(command)
+    # Use file lock to prevent race conditions during provisioning
+    lock_file = env_path.parent / f"{env_path.name}.lock"
+    env_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with lock_file.open("a") as lock:
+        fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
+
+        # Check if environment exists or if refresh is requested (under lock)
+        if not python_executable.exists() or command.refresh:
+            _provision_environment(command)
 
     # Build command using the cached environment's Python interpreter
     command_args = shlex.split(command.command) + list(args)
