@@ -1,6 +1,7 @@
 from pathlib import Path
+
 import pytest
-from inline_snapshot import snapshot
+
 from bfabric_app_runner.commands.command_python_env import execute_command_python_env
 from bfabric_app_runner.specs.app.commands_spec import CommandPythonEnv, CommandExec
 
@@ -93,21 +94,17 @@ def test_execute_with_local_extra_deps(mock_python_env_setup, mocker):
 
     # Check correct calls were made
     assert mock_execute.mock_calls == [
-        mocker.call(snapshot(CommandExec(command="uv venv -p 3.13 /cache/env/test_hash"))),
-        mocker.call(snapshot(CommandExec(command="uv pip install -p /cache/env/test_hash/bin/python -r /test/pylock"))),
+        mocker.call(CommandExec(command="uv venv -p 3.13 /cache/env/test_hash")),
+        mocker.call(CommandExec(command="uv pip install -p /cache/env/test_hash/bin/python -r /test/pylock")),
         mocker.call(
-            snapshot(
-                CommandExec(
-                    command="uv pip install -p /cache/env/test_hash/bin/python --no-deps /test/wheel1.whl /test/wheel2.whl"
-                )
+            CommandExec(
+                command="uv pip install -p /cache/env/test_hash/bin/python --no-deps /test/wheel1.whl /test/wheel2.whl"
             )
         ),
         mocker.call(
-            snapshot(
-                CommandExec(
-                    command="/cache/env/test_hash/bin/python script.py arg1",
-                    prepend_paths=[Path("/cache/env/test_hash/bin")],
-                )
+            CommandExec(
+                command="/cache/env/test_hash/bin/python script.py arg1",
+                prepend_paths=[Path("/cache/env/test_hash/bin")],
             )
         ),
     ]
