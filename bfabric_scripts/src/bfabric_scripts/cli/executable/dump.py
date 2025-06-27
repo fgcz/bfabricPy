@@ -42,7 +42,6 @@ def _clean(executable_data: dict[str, Any]) -> dict[str, Any]:
     )
     for parameter in executable_data["parameter"]:
         parameter.pop("executable", None)
-        parameter.pop("context", None)
     return executable_data
 
 

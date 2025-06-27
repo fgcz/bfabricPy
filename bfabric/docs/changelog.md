@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.28\] - 2025-06-27
+
 ### Breaking
 
 - `base_url` is now a mandatory parameter in the configuration.
@@ -23,6 +25,11 @@ Versioning currently follows `X.Y.Z` where
 ### Removed
 
 - Some old submitter related functionality is deleted.
+
+### Changed
+
+- Columns of tables named after B-Fabric entities, containing only integers, will be set as the specified type
+    when saving to B-Fabric (in `experimental.upload_dataset`).
 
 ## \[1.13.27\] - 2025-05-21
 

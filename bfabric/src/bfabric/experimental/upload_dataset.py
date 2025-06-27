@@ -5,16 +5,40 @@ from typing import TYPE_CHECKING
 import polars as pl
 from loguru import logger
 
+from bfabric.experimental.dataset_column_types import DatasetColumnTypes, get_dataset_column_types
+
 if TYPE_CHECKING:
     from pathlib import Path
     from bfabric.bfabric import Bfabric
 
 
-def polars_to_bfabric_type(dtype: pl.DataType) -> str | None:
-    """Returns the B-Fabric type for a given Polars data type, defaulting to String if no correspondence is found."""
-    if str(dtype).startswith("Int"):
+def _all_values_are_integers(col: pl.Column) -> bool:
+    dtype = col.dtype
+    if dtype.is_integer():
+        return True
+    elif isinstance(dtype, pl.String):
+        # non-integers become null
+        int_col = col.str.to_integer(strict=False)
+        return int_col.null_count() == 0
+    else:
+        return False
+
+
+def polars_column_to_bfabric_type(
+    dataframe: pl.DataFrame,
+    column_name: str,
+    column_types: DatasetColumnTypes | None = None,
+) -> str:
+    """Returns the B-Fabric type for a given Polars column name."""
+    if column_types is not None and column_name in column_types.entities:
+        is_numeric = _all_values_are_integers(dataframe[column_name])
+        if is_numeric:
+            return column_name
+
+    dtype = dataframe[column_name].dtype
+    if dtype.is_integer():
         return "Integer"
-    elif str(dtype).startswith("String"):
+    elif isinstance(dtype, pl.String):
         return "String"
     else:
         return "String"
@@ -24,11 +48,12 @@ def polars_to_bfabric_dataset(
     data: pl.DataFrame,
 ) -> dict[str, list[dict[str, int | str | float]]]:
     """Converts a Polars DataFrame to a B-Fabric dataset representation."""
+    column_types = get_dataset_column_types()
     attributes = [
         {
             "name": col,
             "position": i + 1,
-            "type": polars_to_bfabric_type(data[col].dtype),
+            "type": polars_column_to_bfabric_type(data, column_name=col, column_types=column_types),
         }
         for i, col in enumerate(data.columns)
     ]

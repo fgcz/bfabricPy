@@ -4,6 +4,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.1.0\] - 2025-06-27
+
+### Added
+
+- Command type `python_env` for commands which require a provisioned Python environment.
+
+### Changed
+
+- Command implementation is separated from command definition for cleaner implementation.
+- New submitter requires `BFABRICPY_CONFIG_ENV` and `XDG_CACHE_HOME` to be set.
+- Update `bfabric` dependency to 1.13.28.
+
 ## \[0.0.23\] - 2025-06-02
 
 ### Added
