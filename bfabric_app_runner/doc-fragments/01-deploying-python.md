@@ -22,25 +22,24 @@ bfabric:
   app_runner: 0.1.0
 versions:
   - version:
-      - devel
+      - 4.7.8.dev2
     commands:
       dispatch:
         type: python_env
-        pylock: /scratch/leo/code/mzmine_app/pylock.toml
-        command: -m mzmine_app.integrations.bfabric.dispatch
+        pylock: /home/bfabric/slurmworker/config/A375_MZMINE/dist/mzmine_app-${app.version}-pylock.toml
         local_extra_deps:
-          - /scratch/leo/code/mzmine_app/dist/mzmine_app-4.7.8.dev1-py3-none-any.whl
+          - /home/bfabric/slurmworker/config/A375_MZMINE/dist/mzmine_app-${app.version}-py3-none-any.whl
+        command: -m mzmine_app.integrations.bfabric.dispatch
       process:
-        type: python_env
-        pylock: /scratch/leo/code/mzmine_app/pylock.toml
+        type: exec
+        pylock: /home/bfabric/slurmworker/config/A375_MZMINE/dist/mzmine_app-${app.version}-pylock.toml
+        local_extra_deps:
+          - /home/bfabric/slurmworker/config/A375_MZMINE/dist/mzmine_app-${app.version}-py3-none-any.whl
         command: -m mzmine_app.integrations.bfabric.process
         env:
           MZMINE_CONTAINER_TAG: "4.7.8.p1"
           MZMINE_DATA_PATH: /home/bfabric/mzmine
-        local_extra_deps:
-          - /scratch/leo/code/mzmine_app/dist/mzmine_app-4.7.8.dev1-py3-none-any.whl
         prepend_paths:
-          - /scratch/leo/code/slurmworker/config/A375_MZMINE/bin
           - /home/bfabric/slurmworker/config/A375_MZMINE/bin
           - /home/bfabric/slurmworker/bin
 ```
