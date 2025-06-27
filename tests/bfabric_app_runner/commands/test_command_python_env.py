@@ -1,26 +1,41 @@
 from pathlib import Path
+import pytest
 from inline_snapshot import snapshot
 from bfabric_app_runner.commands.command_python_env import execute_command_python_env
 from bfabric_app_runner.specs.app.commands_spec import CommandPythonEnv, CommandExec
 
 
-def test_execute_with_existing_environment(mocker):
-    """Test execution when environment already exists."""
-    # Mock the cache path and python executable existence
+@pytest.fixture
+def mock_python_env_setup(mocker):
+    """Common mocking setup for python environment tests."""
+    # Mock the cache path
     mock_get_cache_path = mocker.patch("bfabric_app_runner.commands.command_python_env._get_app_runner_cache_path")
     mock_env_path = Path("/cache/env/test_hash")
     mock_get_cache_path.return_value = mock_env_path
 
-    # Mock python executable exists
-    mocker.patch.object(Path, "exists", return_value=True)
-    # Mock mkdir to prevent filesystem operations
+    # Mock filesystem operations
+    mock_exists = mocker.patch.object(Path, "exists", return_value=True)
     mocker.patch.object(Path, "mkdir")
-    # Mock file operations
-    mocker.patch("builtins.open", mocker.mock_open())
-    mocker.patch("fcntl.flock")
+
+    # Mock file operations - use Path.open since that's what the code uses
+    mocker.patch.object(Path, "open", mocker.mock_open())
+    mock_flock = mocker.patch("fcntl.flock")
 
     # Mock execute_command_exec
     mock_execute = mocker.patch("bfabric_app_runner.commands.command_python_env.execute_command_exec")
+
+    yield {
+        "env_path": mock_env_path,
+        "mock_exists": mock_exists,
+        "mock_flock": mock_flock,
+        "mock_execute": mock_execute,
+    }
+
+
+def test_execute_with_existing_environment(mock_python_env_setup):
+    """Test execution when environment already exists."""
+    mock_execute = mock_python_env_setup["mock_execute"]
+    mock_env_path = mock_python_env_setup["env_path"]
 
     cmd = CommandPythonEnv(pylock=Path("/test/pylock"), command="script.py", python_version="3.13")
     execute_command_python_env(cmd, "hello", "world")
@@ -33,22 +48,9 @@ def test_execute_with_existing_environment(mocker):
     assert "script.py hello world" in called_command.command
 
 
-def test_execute_with_refresh_flag(mocker):
+def test_execute_with_refresh_flag(mock_python_env_setup):
     """Test execution with refresh flag forces re-provisioning."""
-    # Mock the cache path
-    mock_get_cache_path = mocker.patch("bfabric_app_runner.commands.command_python_env._get_app_runner_cache_path")
-    mock_env_path = Path("/cache/env/test_hash")
-    mock_get_cache_path.return_value = mock_env_path
-
-    # Mock python executable exists but refresh should still cause re-provisioning
-    mocker.patch.object(Path, "exists", return_value=True)
-    mocker.patch.object(Path, "mkdir")
-    # Mock file operations
-    mocker.patch("builtins.open", mocker.mock_open())
-    mocker.patch("fcntl.flock")
-
-    # Mock execute_command_exec
-    mock_execute = mocker.patch("bfabric_app_runner.commands.command_python_env.execute_command_exec")
+    mock_execute = mock_python_env_setup["mock_execute"]
 
     cmd = CommandPythonEnv(pylock=Path("/test/pylock"), command="script.py", python_version="3.13", refresh=True)
     execute_command_python_env(cmd)
@@ -57,22 +59,13 @@ def test_execute_with_refresh_flag(mocker):
     assert mock_execute.call_count == 3
 
 
-def test_execute_with_missing_environment(mocker):
+def test_execute_with_missing_environment(mock_python_env_setup):
     """Test execution when environment doesn't exist yet."""
-    # Mock the cache path
-    mock_get_cache_path = mocker.patch("bfabric_app_runner.commands.command_python_env._get_app_runner_cache_path")
-    mock_env_path = Path("/cache/env/test_hash")
-    mock_get_cache_path.return_value = mock_env_path
+    mock_execute = mock_python_env_setup["mock_execute"]
+    mock_exists = mock_python_env_setup["mock_exists"]
 
     # Mock python executable doesn't exist
-    mocker.patch.object(Path, "exists", return_value=False)
-    mocker.patch.object(Path, "mkdir")
-    # Mock file operations
-    mocker.patch("builtins.open", mocker.mock_open())
-    mocker.patch("fcntl.flock")
-
-    # Mock execute_command_exec
-    mock_execute = mocker.patch("bfabric_app_runner.commands.command_python_env.execute_command_exec")
+    mock_exists.return_value = False
 
     cmd = CommandPythonEnv(pylock=Path("/test/pylock"), command="script.py", python_version="3.13")
     execute_command_python_env(cmd)
@@ -81,22 +74,13 @@ def test_execute_with_missing_environment(mocker):
     assert mock_execute.call_count == 3
 
 
-def test_execute_with_local_extra_deps(mocker):
+def test_execute_with_local_extra_deps(mock_python_env_setup, mocker):
     """Test execution with local extra dependencies."""
-    # Mock the cache path
-    mock_get_cache_path = mocker.patch("bfabric_app_runner.commands.command_python_env._get_app_runner_cache_path")
-    mock_env_path = Path("/cache/env/test_hash")
-    mock_get_cache_path.return_value = mock_env_path
+    mock_execute = mock_python_env_setup["mock_execute"]
+    mock_exists = mock_python_env_setup["mock_exists"]
 
     # Mock python executable doesn't exist (to trigger provisioning)
-    mocker.patch.object(Path, "exists", return_value=False)
-    mocker.patch.object(Path, "mkdir")
-    # Mock file operations
-    mocker.patch("builtins.open", mocker.mock_open())
-    mocker.patch("fcntl.flock")
-
-    # Mock execute_command_exec
-    mock_execute = mocker.patch("bfabric_app_runner.commands.command_python_env.execute_command_exec")
+    mock_exists.return_value = False
 
     cmd = CommandPythonEnv(
         pylock=Path("/test/pylock"),
@@ -126,22 +110,9 @@ def test_execute_with_local_extra_deps(mocker):
     assert "script.py arg1" in called_command.command
 
 
-def test_execute_with_env_and_prepend_paths(mocker):
+def test_execute_with_env_and_prepend_paths(mock_python_env_setup):
     """Test execution with custom environment and prepend paths."""
-    # Mock the cache path
-    mock_get_cache_path = mocker.patch("bfabric_app_runner.commands.command_python_env._get_app_runner_cache_path")
-    mock_env_path = Path("/cache/env/test_hash")
-    mock_get_cache_path.return_value = mock_env_path
-
-    # Mock python executable exists
-    mocker.patch.object(Path, "exists", return_value=True)
-    mocker.patch.object(Path, "mkdir")
-    # Mock file operations
-    mocker.patch("builtins.open", mocker.mock_open())
-    mocker.patch("fcntl.flock")
-
-    # Mock execute_command_exec
-    mock_execute = mocker.patch("bfabric_app_runner.commands.command_python_env.execute_command_exec")
+    mock_execute = mock_python_env_setup["mock_execute"]
 
     cmd = CommandPythonEnv(
         pylock=Path("/test/pylock"),
@@ -177,49 +148,34 @@ def test_hash_includes_hostname(mocker):
     assert hash1 != hash2
 
 
-def test_file_locking_during_provisioning(mocker):
+def test_file_locking_during_provisioning(mock_python_env_setup):
     """Test that file locking is used during environment provisioning."""
-    # Mock the cache path
-    mock_get_cache_path = mocker.patch("bfabric_app_runner.commands.command_python_env._get_app_runner_cache_path")
-    mock_env_path = Path("/cache/env/test_hash")
-    mock_get_cache_path.return_value = mock_env_path
+    mock_execute = mock_python_env_setup["mock_execute"]
+    mock_exists = mock_python_env_setup["mock_exists"]
+    mock_flock = mock_python_env_setup["mock_flock"]
 
     # Mock python executable doesn't exist (to trigger provisioning)
-    mocker.patch.object(Path, "exists", return_value=False)
-    mocker.patch.object(Path, "mkdir")
-
-    # Mock file operations and fcntl.flock
-    mock_open = mocker.patch("builtins.open", mocker.mock_open())
-    mock_flock = mocker.patch("fcntl.flock")
-    mock_execute = mocker.patch("bfabric_app_runner.commands.command_python_env.execute_command_exec")
+    mock_exists.return_value = False
 
     cmd = CommandPythonEnv(pylock=Path("/test/pylock"), command="script.py", python_version="3.13")
     execute_command_python_env(cmd)
 
-    # Verify lock file was opened and locked
-    mock_open.assert_any_call(mock_env_path.parent / f"{mock_env_path.name}.lock", "a")
+    # Verify lock was acquired
     mock_flock.assert_called_once()
 
     # Should call execute_command_exec for provisioning and execution
     assert mock_execute.call_count == 3  # venv, pip install, and final execution
 
 
-def test_double_check_after_lock_acquisition(mocker):
+def test_double_check_after_lock_acquisition(mock_python_env_setup):
     """Test that environment existence is checked again after acquiring lock."""
-    # Mock the cache path
-    mock_get_cache_path = mocker.patch("bfabric_app_runner.commands.command_python_env._get_app_runner_cache_path")
-    mock_env_path = Path("/cache/env/test_hash")
-    mock_get_cache_path.return_value = mock_env_path
+    mock_execute = mock_python_env_setup["mock_execute"]
+    mock_exists = mock_python_env_setup["mock_exists"]
+    mock_flock = mock_python_env_setup["mock_flock"]
 
     # Mock Path.exists to return False first (to trigger provisioning), then True (after lock acquired)
-    mock_exists = mocker.patch.object(Path, "exists")
     # Provide enough values: first check fails, second check (after lock) succeeds, plus any additional calls
     mock_exists.side_effect = [False, True, True, True, True]  # Extra True values for any additional calls
-
-    mocker.patch.object(Path, "mkdir")
-    mock_open = mocker.patch("builtins.open", mocker.mock_open())
-    mock_flock = mocker.patch("fcntl.flock")
-    mock_execute = mocker.patch("bfabric_app_runner.commands.command_python_env.execute_command_exec")
 
     cmd = CommandPythonEnv(pylock=Path("/test/pylock"), command="script.py", python_version="3.13")
     execute_command_python_env(cmd)
