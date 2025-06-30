@@ -18,7 +18,7 @@ SHELL := /bin/bash
 
 # Interpolated variables (when the Makefile was prepared):
 PYTHON_VERSION := @PYTHON_VERSION@
-APP_RUNNER_VERSION := @APP_RUNNER_VERSION@
+APP_RUNNER_DEP_STRING := @APP_RUNNER_DEP_STRING@
 
 # General set up
 CONFIG_FILE := app_env.yml
@@ -71,7 +71,7 @@ setup-runner:
 	fi
 	uv venv $(VENV_DIR) --python $(PYTHON_VERSION)
 	@echo "📦 Installing bfabric-app-runner..."
-	uv pip install --python $(VENV_DIR)/bin/python bfabric-app-runner==$(APP_RUNNER_VERSION)
+	uv pip install --python $(VENV_DIR)/bin/python $(APP_RUNNER_DEP_STRING)
 	@echo "✅ bfabric-app-runner installed successfully in $(VENV_DIR)"
 
 # Step 1: Initial dispatch
