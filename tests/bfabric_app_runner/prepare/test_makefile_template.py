@@ -89,7 +89,7 @@ class TestRenderMakefile:
         with tempfile.TemporaryDirectory() as tmpdir:
             makefile_path = Path(tmpdir) / "Makefile"
 
-            render_makefile(makefile_path, mock_spec)
+            render_makefile(makefile_path, mock_spec, rename_existing=True)
 
             assert makefile_path.exists()
             content = makefile_path.read_text()
@@ -107,7 +107,7 @@ class TestRenderMakefile:
         with tempfile.TemporaryDirectory() as tmpdir:
             makefile_path = Path(tmpdir) / "Makefile"
 
-            render_makefile(makefile_path, mock_spec)
+            render_makefile(makefile_path, mock_spec, rename_existing=True)
 
             content = makefile_path.read_text()
             assert "\\#subdirectory=subdir" in content

@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 
 import packaging.version
+from loguru import logger
 
 from bfabric_app_runner.specs.app.app_spec import BfabricAppSpec
 
@@ -39,6 +40,7 @@ def render_makefile_template(template: str, app_runner_dep_string: str, python_v
 def render_makefile(
     path: Path,
     bfabric_app_spec: BfabricAppSpec,
+    rename_existing: bool,
 ) -> None:
     """Render the workunit Makefile to `path` using information from the app spec."""
     app_runner_dep_string = get_app_runner_dep_string(version=bfabric_app_spec.version)
@@ -49,4 +51,8 @@ def render_makefile(
         app_runner_dep_string=app_runner_dep_string,
         python_version=python_version,
     )
+    if path.exists() and rename_existing:
+        logger.info("Renaming existing Makefile to Makefile.bak")
+        path.rename(path.parent / "Makefile.bak")
     path.write_text(makefile)
+    logger.success(f"Writing Makefile to {path}")
