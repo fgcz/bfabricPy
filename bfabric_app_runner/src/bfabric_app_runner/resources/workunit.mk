@@ -14,22 +14,17 @@
 # Use `make help` to see all available commands
 
 SHELL := /bin/bash
-
-# Virtual environment configuration
-PYTHON_VERSION := 3.13
-VENV_DIR := .venv
-VENV_PYTHON := $(VENV_DIR)/bin/python
-VENV_RUNNER := $(VENV_DIR)/bin/bfabric-app-runner
-
-# Runner command - can be overridden or templated
-RUNNER_CMD ?= @APP_RUNNER_CMD@
-# If still templated, fall back to venv runner
-ifeq ($(RUNNER_CMD),@APP_RUNNER_CMD@)
-    RUNNER_CMD := $(VENV_RUNNER)
-endif
-CONFIG_FILE := app_env.yml
-
 .PHONY: help dispatch inputs process stage run-all clean setup-runner check-runner clean-venv
+
+# Interpolated variables (when the Makefile was prepared):
+PYTHON_VERSION := @PYTHON_VERSION@
+APP_RUNNER_VERSION := @APP_RUNNER_VERSION@
+
+# General set up
+CONFIG_FILE := app_env.yml
+VENV_DIR := .venv
+
+RUNNER_CMD := PATH="$(VENV_DIR)/bin:$$PATH" bfabric-app-runner
 
 # Default target
 help:
@@ -57,17 +52,12 @@ help:
 
 # Check if runner exists and is executable, install if needed
 check-runner:
-	@if [ "$(RUNNER_CMD)" = "$(VENV_RUNNER)" ] && [ ! -x "$(VENV_RUNNER)" ]; then \
-		echo "🔧 bfabric-app-runner not found, setting up virtual environment..."; \
-		$(MAKE) setup-runner; \
-	elif [ "$(RUNNER_CMD)" != "$(VENV_RUNNER)" ] && ! command -v $(RUNNER_CMD) >/dev/null 2>&1; then \
-		echo "❌ Error: Custom runner command '$(RUNNER_CMD)' not found."; \
-		echo "💡 Either install it or run 'make setup-runner' to use local venv."; \
+	@if ! $(RUNNER_CMD) --version >/dev/null 2>&1; then \
+		echo "❌ bfabric-app-runner not found in PATH or venv."; \
+		echo "💡 Run 'make setup-runner' to install it locally."; \
 		exit 1; \
-	elif [ "$(RUNNER_CMD)" = "$(VENV_RUNNER)" ]; then \
-		echo "✓ bfabric-app-runner found at $(VENV_RUNNER)"; \
 	else \
-		echo "✓ Using custom runner: $(RUNNER_CMD)"; \
+		echo "✓ Using bfabric-app-runner from PATH"; \
 	fi
 
 # Setup the virtual environment and install the runner
@@ -81,8 +71,8 @@ setup-runner:
 	fi
 	uv venv $(VENV_DIR) --python $(PYTHON_VERSION)
 	@echo "📦 Installing bfabric-app-runner..."
-	uv pip install --python $(VENV_PYTHON) bfabric-app-runner
-	@echo "✅ bfabric-app-runner installed successfully at $(VENV_RUNNER)"
+	uv pip install --python $(VENV_DIR)/bin/python bfabric-app-runner==$(APP_RUNNER_VERSION)
+	@echo "✅ bfabric-app-runner installed successfully in $(VENV_DIR)"
 
 # Step 1: Initial dispatch
 dispatch: check-runner
