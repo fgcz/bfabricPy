@@ -66,7 +66,43 @@ class CommandDocker(BaseModel):
     """Any custom CLI arguments to pass to the container engine."""
 
 
-Command = Annotated[CommandShell | CommandExec | CommandDocker, Discriminator("type")]
+class CommandPythonEnv(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    type: Literal["python_env"] = "python_env"
+
+    pylock: Path
+    """Path to the Pylock file that specifies the environment to use."""
+
+    command: str
+    """The command to run, will be split by `shlex.split` and is not an actual shell script."""
+
+    python_version: str | None = None
+    """The Python version to use."""
+
+    local_extra_deps: list[Path] = []
+    """Additional dependencies to install into the environment.
+
+    Each entry should be a path to a wheel, sdist, or local package directory.
+    These will be installed into the environment with `uv pip install --no-deps` after the main requirements.
+    No dependency resolution will be performed for these, so their dependencies should already be present
+    in the environment (typically specified in the pylock file).
+    """
+
+    env: dict[str, str] = {}
+    """Environment variables to set before executing the command."""
+
+    prepend_paths: list[Path] = []
+    """A list of paths to prepend to the PATH variable before executing the command.
+
+    If multiple paths are specified, the first one will be the first in PATH, etc.
+    """
+
+    refresh: bool = False
+    """When True, forces re-download and cache refresh of the environment, ignoring any existing cache."""
+
+
+Command = Annotated[CommandShell | CommandExec | CommandDocker | CommandPythonEnv, Discriminator("type")]
 
 
 class CommandsSpec(BaseModel):

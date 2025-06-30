@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.29\] - 2025-06-27
+
 ### Removed
 
 - Deprecated `bfabric-cli api log` subcommand was removed.
@@ -20,11 +22,15 @@ Versioning currently follows `X.Y.Z` where
 - `bfabric-cli feeder create-importresource` command to register importresource objects in B-Fabric
 - `bfabric-cli executable upload` supports XML
 
+### Fixed
+
+- `bfabric-cli workunit not-available` shows nodelist for workunits using new submitter.
+
 ### Changed
 
 - Columns of tables named after B-Fabric entities, containing only integers, will be set as the specified type
     when saving to B-Fabric.
-- Update `bfabric` to 1.13.28 (TODO)
+- Update `bfabric` to 1.13.28.
 - Update legacy `bfabric_logthis.py`, the workunit target logic has been removed (unused).
 
 ## \[1.13.28\] - 2025-05-21
