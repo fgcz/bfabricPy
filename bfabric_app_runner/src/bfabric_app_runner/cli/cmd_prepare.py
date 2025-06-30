@@ -1,14 +1,13 @@
-import importlib.resources
-import os
 from pathlib import Path
 
 import yaml
-from loguru import logger
 
 from bfabric import Bfabric
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric.utils.cli_integration import use_client
 from bfabric_app_runner.actions.config_file import ActionConfig
+from bfabric_app_runner.prepare.makefile_template import render_makefile
+from bfabric_app_runner.specs.app.app_spec import AppSpec
 
 
 @use_client
@@ -37,23 +36,17 @@ def cmd_prepare_workunit(
         force_storage=force_storage,
         read_only=read_only,
     )
-    _write_workunit_makefile(path=work_dir / "Makefile")
+    _write_workunit_makefile(path=work_dir / "Makefile", app_ref=app_spec)
 
 
-def _write_workunit_makefile(path: Path) -> None:
-    makefile = importlib.resources.read_text("bfabric_app_runner", "resources/workunit.mk")
+def _write_workunit_makefile(path: Path, app_ref: Path) -> None:
+    # Retrieve the `BfabricAppSpec` section from the app yaml
+    # TODO this could be improved in the future
+    app_spec = AppSpec.load_yaml(app_yaml=app_ref, app_id="0", app_name="")
+    bfabric_app_spec = app_spec.bfabric
 
-    # TODO this should be improved (using env variable isn't reliable)
-    app_runner_cmd = os.environ.get("APP_RUNNER_COMMAND") or "bfabric-app-runner"
-    # For makefile escaping of URIs containing `#` character
-    app_runner_cmd = app_runner_cmd.replace(r"#", r"\#")
-    makefile = makefile.replace("@APP_RUNNER_CMD@", app_runner_cmd)
-
-    if path.exists():
-        logger.info("Renaming existing Makefile to Makefile.bak")
-        path.rename(path.parent / "Makefile.bak")
-    logger.info(f"Writing rendered Makefile to {path}")
-    path.write_text(makefile)
+    # Render the workunit Makefile template
+    render_makefile(path=path, bfabric_app_spec=bfabric_app_spec, rename_existing=True)
 
 
 def _write_app_env_file(

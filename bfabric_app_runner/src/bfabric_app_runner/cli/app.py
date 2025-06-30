@@ -26,8 +26,7 @@ def cmd_app_run(
     """Runs all stages of an app."""
     # TODO doc
     app_version, workunit_ref = load_workunit_information(app_spec, client, work_dir, workunit_ref)
-
-    _write_workunit_makefile(path=work_dir / "Makefile")
+    _write_workunit_makefile(path=work_dir / "Makefile", app_ref=app_spec)
 
     # TODO(#107): usage of entity lookup cache was problematic -> beyond the full solution we could also consider
     #             to deactivate the cache for the output registration
@@ -70,7 +69,7 @@ def cmd_app_dispatch(
         runner.run_dispatch(workunit_ref=workunit_ref, work_dir=work_dir)
 
     if create_makefile:
-        _write_workunit_makefile(path=work_dir / "Makefile")
+        _write_workunit_makefile(path=work_dir / "Makefile", app_ref=app_spec)
 
 
 def _write_file_chmod(path: Path, text: str, mode: int) -> None:
