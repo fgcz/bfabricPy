@@ -29,6 +29,7 @@ def _compute_env_hash(command: CommandPythonEnv) -> str:
     if command.local_extra_deps:
         deps_str = ",".join(str(p.absolute()) for p in command.local_extra_deps)
         hash_input += f":{deps_str}"
+    logger.debug(f"Computing environment hash with input: {hash_input!r}")
     env_hash = hashlib.sha256(hash_input.encode()).hexdigest()[:16]
     return env_hash
 
