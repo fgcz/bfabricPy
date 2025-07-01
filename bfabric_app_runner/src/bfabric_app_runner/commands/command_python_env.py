@@ -5,6 +5,7 @@ import shlex
 import socket
 from pathlib import Path
 
+from loguru import logger
 
 from bfabric_app_runner.commands.command_exec import execute_command_exec
 from bfabric_app_runner.specs.app.commands_spec import CommandPythonEnv, CommandExec
@@ -86,6 +87,10 @@ def execute_command_python_env(command: CommandPythonEnv, *args: str) -> None:
 
         # Check if environment is properly provisioned or if refresh is requested (under lock)
         if not _provisioned_marker(env_path).exists() or command.refresh:
+            logger.info(
+                f"Provisioning Python environment at {env_path} with command: "
+                f"{command.command} (force refresh: {command.refresh})"
+            )
             _provision_environment(command)
 
     # Build command using the cached environment's Python interpreter
