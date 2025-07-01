@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Changed
+
+- `CommandPythonEnv` computes the hash more carefully.
+
 ## \[0.1.0\] - 2025-06-27
 
 ### Added
