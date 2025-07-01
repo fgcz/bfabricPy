@@ -5,6 +5,7 @@ import shlex
 import socket
 from pathlib import Path
 
+
 from bfabric_app_runner.commands.command_exec import execute_command_exec
 from bfabric_app_runner.specs.app.commands_spec import CommandPythonEnv, CommandExec
 
@@ -23,7 +24,7 @@ def _get_app_runner_cache_path(command: CommandPythonEnv) -> Path:
 def _compute_env_hash(command: CommandPythonEnv) -> str:
     """Returns a hash for the environment based on the command's specifications."""
     hostname = socket.gethostname()
-    hash_input = f"{hostname}:{command.python_version or 'default'}:{command.pylock.absolute()}"
+    hash_input = f"{hostname}:{command.python_version}:{command.pylock.absolute()}:{command.pylock.stat().st_mtime}"
     if command.local_extra_deps:
         deps_str = ",".join(str(p.absolute()) for p in command.local_extra_deps)
         hash_input += f":{deps_str}"
