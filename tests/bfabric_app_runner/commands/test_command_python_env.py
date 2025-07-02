@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+from inline_snapshot import snapshot
 
 from bfabric_app_runner.commands.command_python_env import execute_command_python_env
 from bfabric_app_runner.specs.app.commands_spec import CommandPythonEnv, CommandExec
@@ -136,21 +137,20 @@ def test_execute_with_env_and_prepend_paths(mock_python_env_setup):
     assert called_command.prepend_paths == [Path("/cache/env/test_hash/bin"), Path("/custom/bin")]
 
 
-def test_hash_includes_hostname(mocker):
+def test_hash(mocker):
     """Test that environment hash includes hostname."""
     from bfabric_app_runner.commands.command_python_env import _compute_env_hash
 
-    # Mock hostname
-    mock_hostname = mocker.patch("socket.gethostname", return_value="test-host")
+    # Mock resources
+    mocker.patch("socket.gethostname", return_value="test-host")
+    mock_path = mocker.MagicMock(spec=Path, name="mock_path")
+    mock_path.absolute.return_value = Path("/test/pylock.toml")
+    mock_path.stat.return_value.st_mtime = 1234567890
 
-    cmd = CommandPythonEnv(pylock=Path("/test/pylock"), command="script.py", python_version="3.13")
-    hash1 = _compute_env_hash(cmd)
-
-    # Change hostname and verify hash changes
-    mock_hostname.return_value = "different-host"
-    hash2 = _compute_env_hash(cmd)
-
-    assert hash1 != hash2
+    cmd = CommandPythonEnv(pylock=mock_path, command="script.py", python_version="3.13")
+    hash = _compute_env_hash(cmd)
+    # This shouldn't change unless the implementation is changed.
+    assert hash == snapshot("a4f31fefdd6f1312")
 
 
 def test_file_locking_during_provisioning(mock_python_env_setup):

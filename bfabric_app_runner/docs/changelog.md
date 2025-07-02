@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- `CommandPythonEnv` computes the hash more carefully.
 - Old `bfabric-app-runner app run` and `bfabric-app-runner app dispatch` use the new makefile function from cmd_prepare.
 
 ## \[0.1.0\] - 2025-06-27
