@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Added
+
+- `bfabric-cli workunit export-resources` command to export resources as an `InputsSpec` YAML file
+
 ## \[1.13.29\] - 2025-06-27
 
 ### Removed
