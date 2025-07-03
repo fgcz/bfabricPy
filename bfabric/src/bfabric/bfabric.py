@@ -143,7 +143,7 @@ class Bfabric:
             config_file_path=config_file_path, include_auth=False, config_file_env=config_file_env
         )
         client_config = config_data.client
-        token_data = get_token_data(client_config=client_config.base_url, token=token)
+        token_data = get_token_data(base_url=client_config.base_url, token=token)
         auth = BfabricAuth(login=token_data.user, password=token_data.user_ws_password)
         return cls(config_data.with_auth(auth)), token_data
 
