@@ -9,7 +9,7 @@ readme = "../README.md"
 version = "1.13.29"
 
 dependencies = [
-    "bfabric @ git+https://github.com/fgcz/bfabricPy@main#subdirectory=bfabric",
+    "bfabric @ git+https://github.com/fgcz/bfabricPy@flask-token-support#subdirectory=bfabric",
     "cyclopts>=3.13.0",
     "xmltodict",
 ]
