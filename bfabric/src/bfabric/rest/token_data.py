@@ -64,5 +64,5 @@ def get_token_data(base_url: str, token: str) -> TokenData:
 
     If the request fails, an exception is raised.
     """
-    parsed = get_raw_token_data(base_url, token)
+    parsed = get_raw_token_data(base_url=base_url, token=token)
     return TokenData.model_validate(parsed)
