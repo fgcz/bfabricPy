@@ -47,17 +47,22 @@ class TokenData(BaseModel):
         return entity_class.find(self.entity_id, client=client)
 
 
-def get_token_data(base_url: str, token: str) -> TokenData:
-    """Returns the token data for the provided token.
-
-    If the request fails, an exception is raised.
-    """
+def get_raw_token_data(base_url: str, token: str) -> dict[str, Any]:
+    """Returns the raw token data for the provided token."""
     url = f"{base_url}/rest/token/validate"
     response = requests.get(url, params={"token": token})
     if not response.ok:
         response.raise_for_status()
     try:
-        parsed = response.json()
+        return response.json()
     except JSONDecodeError:
         raise RuntimeError(f"Get token data failed with message: {response.text!r}")
+
+
+def get_token_data(base_url: str, token: str) -> TokenData:
+    """Returns the token data for the provided token.
+
+    If the request fails, an exception is raised.
+    """
+    parsed = get_raw_token_data(base_url, token)
     return TokenData.model_validate(parsed)

@@ -40,6 +40,7 @@ from flask import Flask, Response, jsonify, request
 from loguru import logger
 
 from bfabric import Bfabric, BfabricAuth
+from bfabric.rest.token_data import get_raw_token_data
 
 if "BFABRICPY_CONFIG_ENV" not in os.environ:
     # Set the environment to the name of the PROD config section to use
@@ -68,6 +69,7 @@ def handle_unknown_exception(e: Exception) -> Response:
 def handle_json_decode_error(e: json.JSONDecodeError) -> Response:
     """Handles JSON decode errors."""
     logger.error("JSON decode error", exc_info=e)
+    logger.debug(e.doc)
     return jsonify({"error": "could not parse JSON request content"})
 
 
@@ -201,9 +203,21 @@ def get_remote_base_url() -> Response:
     return jsonify({"remote_base_url": client.config.base_url})
 
 
+@app.route("/validate_token", methods=["POST"])
+def validate_token() -> Response:
+    """Validates a token and returns the token data.
+
+    This endpoint is not really necessary since it proxies a REST endpoint, but is added here for consistency to avoid
+    shiny apps having to interface with two different APIs.
+    """
+    params = get_fields(required_fields=["token"], optional_fields={})
+    token_data = get_raw_token_data(base_url=client.config.base_url, token=params["token"])
+    return jsonify(token_data)
+
+
 def main() -> None:
     """Starts the server, for development.
-    Please use a WSGI server (e.g. uvicorn) and always use SSL in production!
+    Please use a WSGI server (e.g. gunicorn) and always use SSL in production!
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", default="127.0.0.1", type=str)
