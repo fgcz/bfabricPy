@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any
 
 import requests
 from pydantic import BaseModel, Field, SecretStr, ConfigDict
+from requests import JSONDecodeError
 
 from bfabric.entities.core.import_entity import import_entity
 
@@ -55,5 +56,8 @@ def get_token_data(base_url: str, token: str) -> TokenData:
     response = requests.get(url, params={"token": token})
     if not response.ok:
         response.raise_for_status()
-    parsed = response.json()
+    try:
+        parsed = response.json()
+    except JSONDecodeError:
+        raise RuntimeError(f"Get token data failed with message: {response.text!r}")
     return TokenData.model_validate(parsed)
