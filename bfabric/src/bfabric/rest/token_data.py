@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field, SecretStr, ConfigDict
 from bfabric.entities.core.import_entity import import_entity
 
 if TYPE_CHECKING:
-    from bfabric import BfabricClientConfig, Bfabric
+    from bfabric import Bfabric
     from bfabric.entities import Dataset, Instrument, Order, Plate, Project, Resource, Run, Sample, Workunit
 
 
@@ -46,12 +46,12 @@ class TokenData(BaseModel):
         return entity_class.find(self.entity_id, client=client)
 
 
-def get_token_data(client_config: BfabricClientConfig, token: str) -> TokenData:
+def get_token_data(base_url: str, token: str) -> TokenData:
     """Returns the token data for the provided token.
 
     If the request fails, an exception is raised.
     """
-    url = f"{client_config.base_url}/rest/token/validate"
+    url = f"{base_url}/rest/token/validate"
     response = requests.get(url, params={"token": token})
     if not response.ok:
         response.raise_for_status()
