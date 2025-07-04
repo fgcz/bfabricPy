@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Changed
+
+- `bfabric.rest.token_data.token_data.get_token_data` now only requires the base_url instead of the whole config.
+
 ## \[1.13.28\] - 2025-06-27
 
 ### Breaking
