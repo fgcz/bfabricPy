@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.30\] - 2025-07-04
+
 ### Added
 
 - `bfabric_flask.py` provides support for token-based authentication for B-Fabric.
