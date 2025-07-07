@@ -15,10 +15,17 @@ inputs:
     description: 'Comma-separated list of packages in priority order'
     required: false
     default: 'bfabric,bfabric_scripts,bfabric_app_runner'
+  include-versions:
+    description: 'Include version information in output'
+    required: false
+    default: 'false'
 outputs:
   packages-to-release:
     description: 'JSON array of packages that need to be released'
     value: ${{ steps.check-versions.outputs.packages_to_release }}
+  version-info:
+    description: 'JSON object with version information for all packages'
+    value: ${{ steps.check-versions.outputs.version_info }}
 runs:
   using: 'composite'
   steps:
@@ -38,4 +45,5 @@ runs:
           --pypi-url "${{ inputs.pypi-url }}" \
           ${{ inputs.force-packages != '' && format('--force "{0}"', inputs.force-packages) || '' }} \
           --priority "${{ inputs.priority-order }}" \
+          ${{ inputs.include-versions == 'true' && '--include-versions' || '' }} \
           --github-output $GITHUB_OUTPUT
