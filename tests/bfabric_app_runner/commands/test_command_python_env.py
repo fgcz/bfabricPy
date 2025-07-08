@@ -10,27 +10,38 @@ from bfabric_app_runner.specs.app.commands_spec import CommandPythonEnv, Command
 @pytest.fixture
 def mock_python_env_setup(mocker):
     """Common mocking setup for python environment tests."""
-    # Mock the cache path
-    mock_get_cache_path = mocker.patch("bfabric_app_runner.commands.command_python_env._get_app_runner_cache_path")
+    # Mock the strategy classes instead of individual functions
+    mock_cached_strategy = mocker.patch("bfabric_app_runner.commands.command_python_env.CachedEnvironmentStrategy")
+    mock_ephemeral_strategy = mocker.patch(
+        "bfabric_app_runner.commands.command_python_env.EphemeralEnvironmentStrategy"
+    )
+
+    # Create mock environment objects
     mock_env_path = Path("/cache/env/test_hash")
-    mock_get_cache_path.return_value = mock_env_path
+    mock_ephemeral_path = Path("/tmp/bfabric_app_runner_refresh_12345")
 
-    # Mock filesystem operations
-    mock_exists = mocker.patch.object(Path, "exists", return_value=True)
-    mocker.patch.object(Path, "mkdir")
-    mocker.patch.object(Path, "touch")  # Mock the touch method for .provisioned marker
+    # Mock environment for cached strategy
+    mock_cached_env = mocker.MagicMock()
+    mock_cached_env.python_executable = mock_env_path / "bin" / "python"
+    mock_cached_env.bin_path = mock_env_path / "bin"
+    mock_cached_strategy.return_value.get_environment.return_value = mock_cached_env
 
-    # Mock file operations - use Path.open since that's what the code uses
-    mocker.patch.object(Path, "open", mocker.mock_open())
-    mock_flock = mocker.patch("fcntl.flock")
+    # Mock environment for ephemeral strategy
+    mock_ephemeral_env = mocker.MagicMock()
+    mock_ephemeral_env.python_executable = mock_ephemeral_path / "bin" / "python"
+    mock_ephemeral_env.bin_path = mock_ephemeral_path / "bin"
+    mock_ephemeral_strategy.return_value.get_environment.return_value = mock_ephemeral_env
 
     # Mock execute_command_exec
     mock_execute = mocker.patch("bfabric_app_runner.commands.command_python_env.execute_command_exec")
 
     yield {
         "env_path": mock_env_path,
-        "mock_exists": mock_exists,
-        "mock_flock": mock_flock,
+        "ephemeral_path": mock_ephemeral_path,
+        "cached_strategy": mock_cached_strategy,
+        "ephemeral_strategy": mock_ephemeral_strategy,
+        "cached_env": mock_cached_env,
+        "ephemeral_env": mock_ephemeral_env,
         "mock_execute": mock_execute,
     }
 
@@ -43,7 +54,7 @@ def test_execute_with_existing_environment(mock_python_env_setup):
     cmd = CommandPythonEnv(pylock=Path("/test/pylock"), command="script.py", python_version="3.13")
     execute_command_python_env(cmd, "hello", "world")
 
-    # Should call execute_command_exec once for execution (no provisioning needed)
+    # Should call execute_command_exec once for execution
     mock_execute.assert_called_once()
     called_command = mock_execute.call_args[0][0]
     assert isinstance(called_command, CommandExec)
@@ -52,14 +63,99 @@ def test_execute_with_existing_environment(mock_python_env_setup):
 
 
 def test_execute_with_refresh_flag(mock_python_env_setup):
-    """Test execution with refresh flag forces re-provisioning."""
+    """Test execution with refresh flag uses ephemeral environment."""
     mock_execute = mock_python_env_setup["mock_execute"]
+    mock_ephemeral_path = mock_python_env_setup["ephemeral_path"]
 
     cmd = CommandPythonEnv(pylock=Path("/test/pylock"), command="script.py", python_version="3.13", refresh=True)
     execute_command_python_env(cmd)
 
-    # Should call execute_command_exec 3 times: venv creation, pip install, and execution
+    # Should call execute_command_exec once for execution
+    mock_execute.assert_called_once()
+
+    # Verify that the ephemeral path is used in the command
+    called_command = mock_execute.call_args[0][0]
+    assert isinstance(called_command, CommandExec)
+    assert str(mock_ephemeral_path / "bin" / "python") in called_command.command
+    assert "script.py" in called_command.command
+
+
+def test_refresh_does_not_affect_cache(mock_python_env_setup):
+    """Test that refresh operations don't affect the cached environment."""
+    mock_execute = mock_python_env_setup["mock_execute"]
+    mock_exists = mock_python_env_setup["mock_exists"]
+
+    # First, run with refresh=True (should use ephemeral path)
+    cmd_refresh = CommandPythonEnv(
+        pylock=Path("/test/pylock"), command="script.py", python_version="3.13", refresh=True
+    )
+    execute_command_python_env(cmd_refresh)
+
+    # Reset mock for second call
+    mock_execute.reset_mock()
+
+    # Mock that cache doesn't exist (to trigger provisioning)
+    mock_exists.return_value = False
+
+    # Now run without refresh (should use cached path and provision normally)
+    cmd_normal = CommandPythonEnv(
+        pylock=Path("/test/pylock"), command="script.py", python_version="3.13", refresh=False
+    )
+    execute_command_python_env(cmd_normal)
+
+    # Should still provision normally in cache path
     assert mock_execute.call_count == 3
+
+    # Verify cache path is used, not ephemeral path
+    cache_path = mock_python_env_setup["env_path"]
+    ephemeral_path = mock_python_env_setup["ephemeral_path"]
+
+    calls = mock_execute.call_args_list
+    venv_call = calls[0][0][0]
+    assert str(cache_path) in venv_call.command
+    assert str(ephemeral_path) not in venv_call.command
+
+
+def test_refresh_with_local_extra_deps(mock_python_env_setup):
+    """Test refresh with local extra dependencies uses ephemeral environment."""
+    mock_execute = mock_python_env_setup["mock_execute"]
+    mock_ephemeral_path = mock_python_env_setup["ephemeral_path"]
+
+    cmd = CommandPythonEnv(
+        pylock=Path("/test/pylock"),
+        command="script.py",
+        python_version="3.13",
+        local_extra_deps=[Path("/test/wheel1.whl"), Path("/test/wheel2.whl")],
+        refresh=True,
+    )
+    execute_command_python_env(cmd, "arg1")
+
+    # Should call execute_command_exec 4 times: venv creation, pip install, local deps install, and execution
+    assert mock_execute.call_count == 4
+
+    # Verify all calls use ephemeral path
+    calls = mock_execute.call_args_list
+
+    # Check venv creation
+    venv_call = calls[0][0][0]
+    assert str(mock_ephemeral_path) in venv_call.command
+
+    # Check pip install
+    pip_call = calls[1][0][0]
+    assert str(mock_ephemeral_path / "bin" / "python") in pip_call.command
+    assert "--reinstall" in pip_call.command  # Should have --reinstall flag
+
+    # Check local deps install
+    deps_call = calls[2][0][0]
+    assert str(mock_ephemeral_path / "bin" / "python") in deps_call.command
+    assert "--no-deps" in deps_call.command
+    assert "/test/wheel1.whl" in deps_call.command
+    assert "/test/wheel2.whl" in deps_call.command
+
+    # Check final execution
+    exec_call = calls[3][0][0]
+    assert str(mock_ephemeral_path / "bin" / "python") in exec_call.command
+    assert "script.py arg1" in exec_call.command
 
 
 def test_execute_with_missing_environment(mock_python_env_setup):
@@ -190,3 +286,17 @@ def test_double_check_after_lock_acquisition(mock_python_env_setup):
     mock_flock.assert_called_once()
     # Should only call execute_command_exec once for the final execution (no provisioning)
     mock_execute.assert_called_once()
+
+
+def test_refresh_does_not_use_locking(mock_python_env_setup):
+    """Test that refresh operations don't use file locking since they use ephemeral environments."""
+    mock_execute = mock_python_env_setup["mock_execute"]
+    mock_flock = mock_python_env_setup["mock_flock"]
+
+    cmd = CommandPythonEnv(pylock=Path("/test/pylock"), command="script.py", python_version="3.13", refresh=True)
+    execute_command_python_env(cmd)
+
+    # Should NOT acquire lock for refresh operations
+    mock_flock.assert_not_called()
+    # Should call execute_command_exec 3 times for ephemeral environment provisioning
+    assert mock_execute.call_count == 3
