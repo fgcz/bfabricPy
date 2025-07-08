@@ -4,8 +4,8 @@ import os
 import shlex
 import socket
 import tempfile
-from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import Protocol
 
 from loguru import logger
 
@@ -74,16 +74,15 @@ class PythonEnvironment:
         return self.env_path / ".provisioned"
 
 
-class EnvironmentStrategy(ABC):
-    """Abstract strategy for obtaining Python environments."""
+class EnvironmentStrategy(Protocol):
+    """Protocol for obtaining Python environments."""
 
-    @abstractmethod
     def get_environment(self, command: CommandPythonEnv) -> PythonEnvironment:
         """Get a Python environment for the given command."""
-        pass
+        ...
 
 
-class CachedEnvironmentStrategy(EnvironmentStrategy):
+class CachedEnvironmentStrategy:
     """Strategy for cached environments with file locking."""
 
     def get_environment(self, command: CommandPythonEnv) -> PythonEnvironment:
@@ -123,7 +122,7 @@ class CachedEnvironmentStrategy(EnvironmentStrategy):
         return env_hash
 
 
-class EphemeralEnvironmentStrategy(EnvironmentStrategy):
+class EphemeralEnvironmentStrategy:
     """Strategy for ephemeral (temporary) environments."""
 
     def get_environment(self, command: CommandPythonEnv) -> PythonEnvironment:
