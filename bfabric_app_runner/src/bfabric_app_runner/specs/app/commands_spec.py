@@ -99,7 +99,12 @@ class CommandPythonEnv(BaseModel):
     """
 
     refresh: bool = False
-    """When True, forces re-download and cache refresh of the environment, ignoring any existing cache."""
+    """When True, forces provisioning of an ephemeral environment that doesn't affect the cache.
+
+    This creates a temporary environment for the single execution and doesn't modify or reuse
+    the cached environment. This ensures that refresh operations always start from a clean state
+    and don't leave broken environments in the cache if provisioning fails.
+    """
 
 
 Command = Annotated[CommandShell | CommandExec | CommandDocker | CommandPythonEnv, Discriminator("type")]
