@@ -29,9 +29,10 @@ class PythonEnvironment:
         self._install_local_deps()
         self._mark_provisioned()
 
+    @property
     def is_provisioned(self) -> bool:
-        """Check if the environment is already provisioned."""
-        return self._provisioned_marker().exists()
+        """True if the environment is already provisioned."""
+        return self._provisioned_marker.exists()
 
     def _create_virtual_environment(self) -> None:
         """Create a virtual environment using uv venv."""
@@ -67,10 +68,11 @@ class PythonEnvironment:
 
     def _mark_provisioned(self) -> None:
         """Mark environment as successfully provisioned."""
-        self._provisioned_marker().touch()
+        self._provisioned_marker.touch()
 
+    @property
     def _provisioned_marker(self) -> Path:
-        """Returns the path to the provisioned marker file."""
+        """Path to the provisioned marker file."""
         return self.env_path / ".provisioned"
 
 
@@ -97,7 +99,7 @@ class CachedEnvironmentStrategy:
             fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
 
             # Check if environment is properly provisioned (under lock)
-            if not environment.is_provisioned():
+            if not environment.is_provisioned:
                 logger.info(f"Provisioning Python environment at {env_path} with command: {command.command}")
                 environment.provision()
 
