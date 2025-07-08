@@ -4,6 +4,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.1.2\] - 2025-07-08
+
 - `CommandPythonEnv` with `refresh=True` now will create a separate environment to avoid breaking apps which are already using a particular
     Python environment without locking it.
 
