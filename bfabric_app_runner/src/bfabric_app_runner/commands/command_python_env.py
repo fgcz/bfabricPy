@@ -2,6 +2,7 @@ import fcntl
 import hashlib
 import os
 import shlex
+import shutil
 import socket
 import tempfile
 from pathlib import Path
@@ -128,7 +129,7 @@ class EphemeralEnvironmentStrategy:
     """Strategy for ephemeral (temporary) environments."""
 
     def get_environment(self, command: CommandPythonEnv) -> PythonEnvironment:
-        env_path = self._get_ephemeral_path()
+        env_path = self._get_ephemeral_path(command)
         environment = PythonEnvironment(env_path, command)
 
         logger.info(
@@ -138,9 +139,15 @@ class EphemeralEnvironmentStrategy:
         environment.provision()
         return environment
 
-    def _get_ephemeral_path(self) -> Path:
-        """Get a temporary directory for ephemeral (refresh) environments."""
-        temp_dir = tempfile.mkdtemp(prefix="bfabric_app_runner_refresh_")
+    def _get_ephemeral_path(self, command: CommandPythonEnv) -> Path:
+        """Get an ephemeral directory for ephemeral (refresh) environments using cache directory."""
+        # Use the same cache directory as cached environments
+        cache_dir = Path(os.environ.get("XDG_CACHE_HOME", "~/.cache")).expanduser()
+        app_runner_cache = cache_dir / "bfabric_app_runner" / "ephemeral"
+
+        # Create a unique temporary subdirectory within the cache
+        app_runner_cache.mkdir(parents=True, exist_ok=True)
+        temp_dir = tempfile.mkdtemp(prefix="env_", dir=app_runner_cache)
         return Path(temp_dir)
 
 
@@ -156,14 +163,29 @@ def execute_command_python_env(command: CommandPythonEnv, *args: str) -> None:
     # Ensure the environment exists (either cached or ephemeral)
     env_path = _ensure_environment(command)
 
-    # Build command using the environment's Python interpreter
-    python_executable = env_path / "bin" / "python"
-    command_args = shlex.split(command.command) + list(args)
-    final_command = [str(python_executable)] + command_args
+    try:
+        # Build command using the environment's Python interpreter
+        python_executable = env_path / "bin" / "python"
+        command_args = shlex.split(command.command) + list(args)
+        final_command = [str(python_executable)] + command_args
 
-    # Include venv's bin directory in prepend_paths
-    venv_bin_path = env_path / "bin"
-    prepend_paths = [venv_bin_path] + (command.prepend_paths or [])
+        # Include venv's bin directory in prepend_paths
+        venv_bin_path = env_path / "bin"
+        prepend_paths = [venv_bin_path] + (command.prepend_paths or [])
 
-    exec_command = CommandExec(command=shlex.join(final_command), env=command.env, prepend_paths=prepend_paths)
-    execute_command_exec(exec_command)
+        exec_command = CommandExec(command=shlex.join(final_command), env=command.env, prepend_paths=prepend_paths)
+        execute_command_exec(exec_command)
+    finally:
+        # Clean up ephemeral environments after use
+        if command.refresh:
+            _cleanup_ephemeral_environment(env_path)
+
+
+def _cleanup_ephemeral_environment(env_path: Path) -> None:
+    """Clean up ephemeral environment after use."""
+    try:
+        if env_path.exists():
+            logger.info(f"Cleaning up ephemeral environment at {env_path}")
+            shutil.rmtree(env_path)
+    except (OSError, PermissionError) as e:
+        logger.warning(f"Failed to cleanup ephemeral environment at {env_path}: {e}")

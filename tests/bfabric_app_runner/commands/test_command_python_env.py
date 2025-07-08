@@ -12,7 +12,7 @@ def mock_python_env_setup(mocker):
     """Common mocking setup for python environment tests."""
     # Create mock environment paths
     mock_env_path = Path("/cache/env/test_hash")
-    mock_ephemeral_path = Path("/tmp/bfabric_app_runner_refresh_12345")
+    mock_ephemeral_path = Path("/cache/ephemeral/env_12345")
 
     # Mock the strategy classes and their methods
     mock_cached_strategy = mocker.MagicMock()
@@ -38,6 +38,9 @@ def mock_python_env_setup(mocker):
     # Mock execute_command_exec
     mock_execute = mocker.patch("bfabric_app_runner.commands.command_python_env.execute_command_exec")
 
+    # Mock cleanup function
+    mock_cleanup = mocker.patch("bfabric_app_runner.commands.command_python_env._cleanup_ephemeral_environment")
+
     yield {
         "env_path": mock_env_path,
         "ephemeral_path": mock_ephemeral_path,
@@ -47,6 +50,7 @@ def mock_python_env_setup(mocker):
         "mock_ephemeral_strategy_class": mock_ephemeral_strategy_class,
         "mock_environment": mock_environment,
         "mock_execute": mock_execute,
+        "mock_cleanup": mock_cleanup,
     }
 
 
