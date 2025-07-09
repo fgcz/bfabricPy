@@ -13,7 +13,7 @@ from bfabric_app_runner.actions.config_file import ActionConfig
 
 @use_client
 def cmd_prepare_workunit(
-    app_spec: Path | str,
+    app_spec: Path,
     work_dir: Path,
     workunit_ref: int | Path,
     *,
@@ -30,8 +30,7 @@ def cmd_prepare_workunit(
     workunit_definition.to_yaml(path=workunit_definition_path)
     _write_app_env_file(
         path=work_dir / "app_env.yml",
-        # TODO previously we sometimes copied it but now it will not always be supported (could be added later)
-        app_ref=app_spec,
+        app_ref=app_spec.resolve(),
         workunit_ref=workunit_definition_path,
         ssh_user=ssh_user,
         force_storage=force_storage,
