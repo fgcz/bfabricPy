@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-import os
-import shlex
-import subprocess
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import yaml
+
+from bfabric_app_runner.commands.execute import execute_command
 from bfabric_app_runner.inputs.prepare.prepare_folder import prepare_folder
 from bfabric_app_runner.output_registration import register_outputs
 from loguru import logger
@@ -26,13 +25,10 @@ class Runner:
         self._ssh_user = ssh_user
 
     def run_dispatch(self, workunit_ref: int | Path, work_dir: Path) -> None:
-        command = [*self._app_version.commands.dispatch.to_shell(), str(workunit_ref), str(work_dir)]
-        env = self._app_version.commands.dispatch.to_shell_env(environ=os.environ)
-        logger.info(f"Running dispatch command: {shlex.join(command)}")
-        logger.debug(f"Split command: {command!r}")
-        subprocess.run(command, check=True, env=env)
+        logger.info(f"Calling dispatch for workunit {workunit_ref} in {work_dir}")
+        execute_command(self._app_version.commands.dispatch, str(workunit_ref), str(work_dir))
 
-    def run_prepare_input(self, chunk_dir: Path) -> None:
+    def run_inputs(self, chunk_dir: Path) -> None:
         prepare_folder(
             inputs_yaml=chunk_dir / "inputs.yml",
             target_folder=chunk_dir,
@@ -41,22 +37,16 @@ class Runner:
             filter=None,
         )
 
+    def run_process(self, chunk_dir: Path) -> None:
+        logger.info(f"Calling process for chunk directory {chunk_dir}")
+        execute_command(self._app_version.commands.process, str(chunk_dir))
+
     def run_collect(self, workunit_ref: int | Path, chunk_dir: Path) -> None:
         if self._app_version.commands.collect is not None:
-            command = [*self._app_version.commands.collect.to_shell(), str(workunit_ref), str(chunk_dir)]
-            env = self._app_version.commands.collect.to_shell_env(environ=os.environ)
-            logger.info(f"Running collect command: {shlex.join(command)}")
-            logger.debug(f"Split command: {command!r}")
-            subprocess.run(command, check=True, env=env)
+            logger.info(f"Calling collect for workunit {workunit_ref} in {chunk_dir}")
+            execute_command(self._app_version.commands.collect, str(workunit_ref), str(chunk_dir))
         else:
             logger.info("App does not have a collect step.")
-
-    def run_process(self, chunk_dir: Path) -> None:
-        command = [*self._app_version.commands.process.to_shell(), str(chunk_dir)]
-        env = self._app_version.commands.process.to_shell_env(environ=os.environ)
-        logger.info(f"Running process command: {shlex.join(command)}")
-        logger.debug(f"Split command: {command!r}")
-        subprocess.run(command, check=True, env=env)
 
 
 class ChunksFile(BaseModel):
@@ -98,7 +88,7 @@ def run_app(
     chunks_file = ChunksFile.read(work_dir=work_dir)
     for chunk in chunks_file.chunks:
         logger.info(f"Processing chunk {chunk}")
-        runner.run_prepare_input(chunk_dir=chunk)
+        runner.run_inputs(chunk_dir=chunk)
         runner.run_process(chunk_dir=chunk)
         runner.run_collect(workunit_ref=workunit_definition_file, chunk_dir=chunk)
         if not read_only:

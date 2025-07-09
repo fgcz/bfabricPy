@@ -34,7 +34,7 @@ from bfabric.config.config_data import ConfigData, load_config_data
 from bfabric.config.config_file import read_config_file
 from bfabric.engine.engine_suds import EngineSUDS
 from bfabric.engine.engine_zeep import EngineZeep
-from bfabric.rest.token_data import get_token_data, TokenData
+from bfabric.rest.token_data import TokenData, get_token_data
 from bfabric.results.result_container import ResultContainer
 from bfabric.utils.cli_integration import DEFAULT_THEME, HostnameHighlighter
 from bfabric.utils.paginator import compute_requested_pages, BFABRIC_QUERY_LIMIT
@@ -143,7 +143,7 @@ class Bfabric:
             config_file_path=config_file_path, include_auth=False, config_file_env=config_file_env
         )
         client_config = config_data.client
-        token_data = get_token_data(client_config=client_config, token=token)
+        token_data = get_token_data(base_url=client_config.base_url, token=token)
         auth = BfabricAuth(login=token_data.user, password=token_data.user_ws_password)
         return cls(config_data.with_auth(auth)), token_data
 

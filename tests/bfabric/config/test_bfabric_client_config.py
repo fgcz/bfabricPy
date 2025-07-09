@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 from logot import Logot, logged
+from pydantic import ValidationError
 from pytest_mock import MockerFixture
 
 from bfabric.config import BfabricClientConfig
@@ -22,18 +23,25 @@ def example_config_path() -> Path:
     return Path(__file__).parent / "example_config.yml"
 
 
-def test_bfabric_config_default_params_when_omitted() -> None:
-    config = BfabricClientConfig()
-    assert config.base_url == "https://fgcz-bfabric.uzh.ch/bfabric"
-    assert config.application_ids == {}
-    assert config.job_notification_emails == ""
+class TestDefaultParams:
+    def test_when_omitted(self):
+        config = BfabricClientConfig(base_url="https://fgcz-bfabric.uzh.ch/bfabric")
+        assert config.application_ids == {}
+        assert config.job_notification_emails == ""
 
+    def test_when_specified(self) -> None:
+        config = BfabricClientConfig(
+            base_url="https://fgcz-bfabric.uzh.ch/bfabric", application_ids=None, job_notification_emails=None
+        )
+        assert config.application_ids == {}
+        assert config.job_notification_emails == ""
 
-def test_bfabric_config_default_params_when_specified() -> None:
-    config = BfabricClientConfig(base_url=None, application_ids=None, job_notification_emails=None)
-    assert config.base_url == "https://fgcz-bfabric.uzh.ch/bfabric"
-    assert config.application_ids == {}
-    assert config.job_notification_emails == ""
+    def test_base_url_is_required(self):
+        with pytest.raises(ValidationError) as error:
+            BfabricClientConfig()
+
+        assert error.value.error_count() == 1
+        assert error.value.errors()[0]["loc"] == ("base_url",)
 
 
 def test_bfabric_config_copy_with_overrides(mock_config: BfabricClientConfig) -> None:

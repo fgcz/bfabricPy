@@ -1,0 +1,93 @@
+name: PR Release Preview
+on:
+  pull_request:
+    branches:
+      - release
+    types: [opened, synchronize, reopened]
+jobs:
+  preview-release:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install hatch
+        run: pip install hatch
+      - name: Check which packages will be released
+        id: check-versions
+        uses: ./.github/actions/check-package-versions
+        with:
+          packages: "bfabric,bfabric_scripts,bfabric_app_runner"
+          pypi-url: "https://pypi.org"
+          priority-order: "bfabric,bfabric_scripts,bfabric_app_runner"
+          include-versions: "true"
+      - name: Build version table
+        id: build-table
+        run: |
+          packages='${{ steps.check-versions.outputs.packages-to-release }}'
+          version_info='${{ steps.check-versions.outputs.version-info }}'
+
+          # Build table with current PyPI and new versions
+          table="| Package | Current (PyPI) | New Version |\n|---------|----------------|-------------|"
+          for pkg in $(echo $packages | jq -r '.[]'); do
+            current_version=$(echo $version_info | jq -r ".$pkg.current_version")
+            new_version=$(echo $version_info | jq -r ".$pkg.local_version")
+            table="$table\n| $pkg | $current_version | $new_version |"
+          done
+
+          echo "table<<TABLE_EOF" >> $GITHUB_OUTPUT
+          echo -e "$table" >> $GITHUB_OUTPUT
+          echo "TABLE_EOF" >> $GITHUB_OUTPUT
+      - name: Create or update PR comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const packages = JSON.parse('${{ steps.check-versions.outputs.packages-to-release }}');
+            const table = `${{ steps.build-table.outputs.table }}`;
+
+            let commentBody;
+            if (packages.length === 0) {
+              commentBody = `## 🚀 Release Preview
+
+              No packages will be released - all versions already exist on PyPI.`;
+            } else {
+              commentBody = `## 🚀 Release Preview
+
+              The following packages will be released when this PR is merged:
+
+              ${table}
+
+              ---
+              *This comment is automatically updated when the PR changes.*`;
+            }
+
+            // Find existing comment
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const existingComment = comments.data.find(comment =>
+              comment.user.login === 'github-actions[bot]' &&
+              comment.body.includes('🚀 Release Preview')
+            );
+
+            if (existingComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: commentBody
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: commentBody
+              });
+            }

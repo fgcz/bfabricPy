@@ -77,7 +77,7 @@ def test_connect_webapp(mocker, mock_config):
     assert client.auth.password == SecretStr("x" * 32)
     assert data == mock_get_token_data.return_value
 
-    mock_get_token_data.assert_called_once_with(client_config=mock_config, token="test_token")
+    mock_get_token_data.assert_called_once_with(base_url="https://example.com/api/", token="test_token")
     mock_load_config_data.assert_called_once_with(
         config_file_env="default", config_file_path=Path("~/.bfabricpy.yml"), include_auth=False
     )

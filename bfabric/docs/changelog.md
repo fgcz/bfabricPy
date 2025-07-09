@@ -10,11 +10,53 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.29\] - 2025-07-04
+
+### Changed
+
+- `bfabric.rest.token_data.get_token_data` now only requires the base_url instead of the whole config.
+
+## \[1.13.28\] - 2025-06-27
+
+### Breaking
+
+- `base_url` is now a mandatory parameter in the configuration.
+
+### Added
+
+- It is now possible to configure `~/.bfabricpy.yml` without a default environment. In that case it will always be
+    necessary to specify the requested config environment to be used.
+- `bfabric.entities.Executable` has `parameters` relationship now
+
+### Removed
+
+- Some old submitter related functionality is deleted.
+
+### Changed
+
+- Columns of tables named after B-Fabric entities, containing only integers, will be set as the specified type
+    when saving to B-Fabric (in `experimental.upload_dataset`).
+
+## \[1.13.27\] - 2025-05-21
+
 ### Added
 
 - Attribute `Bfabric.config_data` to obtain a `ConfigData` object directly.
 - `TokenData.load_entity` convenience method to load an entity from the token data.
 - Entities `Instrument`, `Plate`, `Run` were added (but with no extra functionality).
+- `Workunit.{application_parameters, submitter_parameters}` to access parameter values.
+
+### Changed
+
+- Submitter parameters will not be written any longer to `WorkunitExecution` parameters.
+
+### Fixed
+
+- Compatibility with upcoming change that `Application` can have multiple `technology` values.
+
+### Deprecated
+
+- `Workunit.parameter_values` will be removed in favor of `Workunit.application_parameters` and `Workunit.submitter_parameters` in a future version.
 
 ## \[1.13.26\] - 2025-04-26
 

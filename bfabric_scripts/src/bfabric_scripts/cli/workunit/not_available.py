@@ -26,7 +26,7 @@ def render_output(workunits: list[Workunit], client: Bfabric) -> None:
     workunit_ids = [wu.id for wu in workunits]
     app_ids = {wu["application"]["id"] for wu in workunits}
 
-    nodelist_params = Parameter.find_by({"workunitid": workunit_ids, "key": "nodelist"}, client)
+    nodelist_params = Parameter.find_by({"workunitid": workunit_ids, "key": ["nodelist", "--nodelist"]}, client)
     nodelist_values = {param["workunit"]["id"]: param.value for param in nodelist_params.values()}
     application_values = Application.find_all(ids=sorted(app_ids), client=client)
 

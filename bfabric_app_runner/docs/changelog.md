@@ -4,6 +4,43 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.1.2\] - 2025-07-08
+
+- `CommandPythonEnv` with `refresh=True` now will create a separate environment to avoid breaking apps which are already using a particular
+    Python environment without locking it.
+
+## \[0.1.1\] - 2025-07-07
+
+### Changed
+
+- `CommandPythonEnv` computes the hash more carefully.
+
+## \[0.1.0\] - 2025-06-27
+
+### Added
+
+- Command type `python_env` for commands which require a provisioned Python environment.
+
+### Changed
+
+- Command implementation is separated from command definition for cleaner implementation.
+- New submitter requires `BFABRICPY_CONFIG_ENV` and `XDG_CACHE_HOME` to be set.
+- Update `bfabric` dependency to 1.13.28.
+
+## \[0.0.23\] - 2025-06-02
+
+### Added
+
+- `bfabric_app_runner.bfabric_integration.slurm` and associated packages.
+- Command `bfabric-app-runner run workunit` to run the whole app end-to-end for a workunit.
+
+### Removed
+
+- AppVersion does not have a `submitter` field anymore.
+- Some old submitter related functionality is deleted.
+
+## \[0.0.22\] - 2025-05-21
+
 ### Added
 
 - Apps can now be referred to by module path rather than just file paths. This is going to be a primary building block
@@ -15,17 +52,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `CommandExec` allows prepending paths to `PATH` and setting environment variables and is less ambiguous than `shell`.
 - `bfabric-app-runner action` interface which standardizes the various actions of running app steps.
 - `bfabric-app-runner prepare workunit` to prepare a workunit execution and sets up a `app_env.yml` and `Makefile`.
+- `bfabric-app-runner deploy build-app-zip` experimental command to build an app zip file which can be deployed, for a
+    particular Python application.
 
 ### Changed
 
-- Silence interpolate_config_strings log messages.
-- Update `bfabric` dependency to 1.13.26.
+- Silently interpolate_config_strings log messages.
+- Update `bfabric` dependency to 1.13.27.
 - App versions do not always require a version key as it will default to "latest", but only one version can have a
     particular version key per app definition.
 
 ### Fixed
 
 - Use most recent cyclopts version again, i.e. [issue 168](https://github.com/fgcz/bfabricPy/issues/168) is fixed.
+- Compatibility with pandera 0.24.0 was restored.
 
 ## \[0.0.21\] - 2025-03-27
 

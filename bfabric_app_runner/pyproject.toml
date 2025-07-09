@@ -6,26 +6,28 @@ build-backend = "hatchling.build"
 name = "bfabric_app_runner"
 description = "Application runner for B-Fabric apps"
 readme = "README.md"
-version = "0.0.21"
+version = "0.1.2"
 license = { text = "GPL-3.0" }
 authors = [
     {name = "Leonardo Schwarz", email = "leonardo.schwarz@fgcz.ethz.ch"},
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "bfabric==1.13.26",
+    "bfabric==1.13.28",
     "cyclopts>=3.13.0",
     "pydantic",
     "glom",
     "mako",
-    "pandera[polars]"
+    "pandera[polars] >= 0.24.0"
 ]
 
 [tool.hatch.build.targets.sdist]
 include = [
     "src/bfabric_app_runner/**/*.py",
     "src/bfabric_app_runner/py.typed",
-    "src/bfabric_app_runner/resources/*.mk"
+    "src/bfabric_app_runner/resources/*.mk",
+    "src/bfabric_app_runner/**/*.mako",
+    "src/bfabric_app_runner/**/*.bash",
 ]
 
 [project.scripts]
@@ -46,7 +48,7 @@ dev = [
     "mypy",
     "types-PyYAML",
 ]
-test = ["pytest", "pytest-mock", "logot", "pyfakefs"]
+test = ["pytest", "pytest-mock", "logot", "pyfakefs", "inline-snapshot"]
 
 [tool.uv]
 reinstall-package = ["bfabric", "bfabric_scripts", "bfabric_app_runner"]

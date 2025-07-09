@@ -6,24 +6,22 @@ build-backend = "hatchling.build"
 name = "bfabric_scripts"
 description = "Python command line scripts for the B-Fabric API"
 readme = "../README.md"
-version = "1.13.27"
+version = "1.13.30"
 
 dependencies = [
-    "bfabric==1.13.26",
+    "bfabric==1.13.29",
     "cyclopts>=3.13.0",
+    "xmltodict",
 ]
 
 python_requires = ">=3.10"
 
 [project.optional-dependencies]
-test = ["pytest", "pytest-mock", "logot[pytest,loguru]"]
+test = ["pytest", "pytest-mock", "logot[pytest,loguru]", "pyfakefs"]
 excel = ["fastexcel"]
 
 [project.scripts]
 "bfabric-cli" = "bfabric_scripts.cli.__main__:app"
-
-# TODO this should become a separate package
-"bfabric_flask.py" = "bfabric_scripts.bfabric_flask:main"
 
 # TODO Legacy CLI interfaces
 #bfabric_feeder_resource_autoQC="bfabric_scripts.bfabric_feeder_resource_autoQC:main"
@@ -49,3 +47,6 @@ excel = ["fastexcel"]
 "bfabric_save_workflowstep.py" = "bfabric_scripts.bfabric_save_workflowstep:main"
 "bfabric_slurm_queue_status.py" = "bfabric_scripts.bfabric_slurm_queue_status:main"
 "bfabric_save_resource_description.py" = "bfabric_scripts.bfabric_save_resource_description:main"
+
+[tool.hatch.metadata]
+allow-direct-references = true

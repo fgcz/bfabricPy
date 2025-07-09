@@ -10,6 +10,41 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.30\] - 2025-07-04
+
+### Added
+
+- `bfabric_flask.py` provides support for token-based authentication for B-Fabric.
+
+### Removed
+
+- `bfabric_flask.py` is not exported as a script anymore, because misuse can lead to security issues and should be deployed properly.
+
+## \[1.13.29\] - 2025-06-27
+
+### Removed
+
+- Deprecated `bfabric-cli api log` subcommand was removed.
+
+### Added
+
+- `bfabric-cli executable dump` command to export YAML and XML of executables
+- `bfabric-cli feeder create-importresource` command to register importresource objects in B-Fabric
+- `bfabric-cli executable upload` supports XML
+
+### Fixed
+
+- `bfabric-cli workunit not-available` shows nodelist for workunits using new submitter.
+
+### Changed
+
+- Columns of tables named after B-Fabric entities, containing only integers, will be set as the specified type
+    when saving to B-Fabric.
+- Update `bfabric` to 1.13.28.
+- Update legacy `bfabric_logthis.py`, the workunit target logic has been removed (unused).
+
+## \[1.13.28\] - 2025-05-21
+
 ### Removed
 
 - Removed `bfabric_delete.py`. Use `bfabric-cli api delete` instead.
@@ -17,7 +52,7 @@ Versioning currently follows `X.Y.Z` where
 
 ### Changed
 
-- Update `bfabric` to 1.13.26.
+- Update `bfabric` to 1.13.27.
 - `bfabric-cli api delete` will use the type of the entity in CLI messages.
 
 ## \[1.13.27\] - 2025-04-22

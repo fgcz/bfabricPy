@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from functools import cached_property
 from pathlib import Path
 from typing import Any, TYPE_CHECKING
@@ -39,7 +40,23 @@ class Workunit(Entity, HasContainerMixin):
     external_jobs: HasMany[ExternalJob] = HasMany(entity="ExternalJob", bfabric_field="externaljob", optional=True)
 
     @cached_property
+    def application_parameters(self) -> dict[str, str]:
+        """Dictionary of application context parameters."""
+        return {p.key: p.value for p in self.parameters if p["context"] == "APPLICATION"}
+
+    @cached_property
+    def submitter_parameters(self) -> dict[str, str]:
+        """Dictionary of submitter context parameters."""
+        return {p.key: p.value for p in self.parameters if p["context"] == "SUBMITTER"}
+
+    @cached_property
     def parameter_values(self) -> dict[str, Any]:
+        # Deprecated
+        warnings.warn(
+            "The parameter_values property is deprecated and will be removed in a future version. "
+            "Use application_parameters or submitter_parameters instead.",
+            DeprecationWarning,
+        )
         return {p.key: p.value for p in self.parameters.list}
 
     @cached_property
@@ -53,7 +70,7 @@ class Workunit(Entity, HasContainerMixin):
         return Path(
             f"{self.application.storage['projectfolderprefix']}{self.container.id}",
             "bfabric",
-            path_safe_name(self.application["technology"]),
+            self.application.technology_folder_name,
             path_safe_name(self.application["name"]),
             date.strftime("%Y/%Y-%m/%Y-%m-%d/"),
             f"workunit_{self.id}",
