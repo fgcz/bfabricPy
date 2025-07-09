@@ -1,5 +1,5 @@
 from {{project_name}}.compute_file_info import write_file_info_yaml
-from {{project_name}}.collect_info import write_index_markdown
+from {{project_name}}.collect_info import write_index_html
 from pathlib import Path
 from zipfile import ZipFile
 import yaml
@@ -16,7 +16,7 @@ rule file_info_yaml:
         write_file_info_yaml(input.file, output.yml)
 
 
-rule index_markdown:
+rule index_html:
     input:
         files=expand("info/{name}.yml", name=input_file_names)
     output:
@@ -27,7 +27,7 @@ rule index_markdown:
 
 rule output_zip:
     input:
-        html=rules.index_markdown.output.html,
+        html=rules.index_html.output.html,
     output:
         zip="output.zip"
     run:

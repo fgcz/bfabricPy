@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<executable classname="executable">
+    <name>{{project_name}}</name>
+    <description>Demo application</description>
+    <program>{{ _copier_conf.dst_path.resolve() }}/app.yml</program>
+    <context>APPLICATION</context>
+    <enabled>true</enabled>
+    <valid>true</valid>
+    <parameter>
+        <context>APPLICATION</context>
+        <description>The version of the application to run.</description>
+        <key>application_version</key>
+        <label>Application Version</label>
+        <required>true</required>
+        <type>STRING</type>
+        <value>0.0.1</value>
+    </parameter>
+    <parameter>
+        <context>APPLICATION</context>
+        <description>Check this to provoke a failure.</description>
+        <key>request_failure</key>
+        <label>Request Failure</label>
+        <required>true</required>
+        <type>BOOLEAN</type>
+        <value>false</value>
+    </parameter>
+</executable>
