@@ -7,8 +7,12 @@ versions:
       dispatch:
         type: python_env
         pylock: {{ _copier_conf.dst_path.resolve() }}/dist/${app.version}/pylock.toml
+        local_extra_deps:
+          - {{ _copier_conf.dst_path.resolve() }}/dist/${app.version}/{{project_name}}-${app.version}-py3-none-any.whl
         command: -m {{project_name}}.integrations.bfabric.dispatch
       process:
         type: python_env
         pylock: {{ _copier_conf.dst_path.resolve() }}/dist/${app.version}/pylock.toml
+        local_extra_deps:
+          - {{ _copier_conf.dst_path.resolve() }}/dist/${app.version}/{{project_name}}-${app.version}-py3-none-any.whl
         command: -m {{project_name}}.integrations.bfabric.process
