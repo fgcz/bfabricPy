@@ -43,6 +43,10 @@ def dispatch(workunit_definition_path: Path, work_dir: Path, *, client: Bfabric)
         for row in input_df.iter_rows(named=True)
     ]
 
+    # Parse the input parameters
+    params = {"request_failure": workunit_definition.execution.raw_parameters.pop("request_failure") == "true"}
+    inputs.append({"type": "static_yaml", "filename": "params.yml", "data": params})
+
     # Create folder structure.
     chunk_dir = work_dir / "work"
     chunk_dir.mkdir(exist_ok=True, parents=True)
