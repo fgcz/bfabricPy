@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 
 - `bfabric-cli prepare workunit` does not accept module refs anymore and will resolve the app spec path.
+- `bfabric-cli prepare workunit --force-app-version` to force a specific app version for the workunit.
 
 ## \[0.1.2\] - 2025-07-08
 
