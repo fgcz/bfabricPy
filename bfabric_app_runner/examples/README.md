@@ -9,7 +9,7 @@ cd hello1
 bash release.bash
 cd ..
 
-uvx -p 3.13 bfabric-app-runner prepare workunit hello1/app.yml --work-dir workdir --workunit-ref 328722 --read-only
+uvx -p 3.13 bfabric-app-runner prepare workunit hello1/app.yml --work-dir workdir --workunit-ref 328722 --read-only --force-app-version 0.0.1
 cd workdir
 
 ```
