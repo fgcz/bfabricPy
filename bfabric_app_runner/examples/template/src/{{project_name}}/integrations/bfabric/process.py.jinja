@@ -1,0 +1,24 @@
+import cyclopts
+import subprocess
+import shlex
+import importlib.resources
+from pathlib import Path
+from loguru import logger
+
+
+app = cyclopts.App()
+
+
+@app.default
+def process(chunk_dir: Path) -> None:
+    with importlib.resources.path("{{project_name}}", "Snakefile") as snakefile_path:
+        # TODO actually just use the app runner functionality
+        output_files = ["outputs.yml"]
+        cmd = ["snakemake", "--cores", "1", "--directory", str(chunk_dir.resolve()), "--snakefile", str(snakefile_path.resolve()),
+            *output_files]
+        logger.info(f"Running command: {shlex.join(cmd)}")
+        subprocess.run(cmd, check=True)
+
+
+if __name__ == "__main__":
+    app()
