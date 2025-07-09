@@ -2,13 +2,13 @@ bfabric:
   app_runner: 0.1.2
 versions:
   - version:
-      - 0.1.0
+      - 0.0.1
     commands:
       dispatch:
         type: python_env
-        pylock: {{ _copier_conf.dst_path.resolve() }}/dist/${version}/pylock.toml
+        pylock: {{ _copier_conf.dst_path.resolve() }}/dist/${app.version}/pylock.toml
         command: -m {{project_name}}.integrations.bfabric.dispatch
       process:
         type: python_env
-        pylock: {{ _copier_conf.dst_path.resolve() }}/dist/${version}/pylock.toml
+        pylock: {{ _copier_conf.dst_path.resolve() }}/dist/${app.version}/pylock.toml
         command: -m {{project_name}}.integrations.bfabric.process
