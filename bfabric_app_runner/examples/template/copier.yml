@@ -1,0 +1,3 @@
+project_name:
+  type: str
+  help: Project name for your application

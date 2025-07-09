@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "{{project_name}}"
+version = "0.0.1"
+requires-python = ">=3.13"
+dependencies = [
+    "pyyaml",
+    "snakemake",
+    "polars",
+    "bfabric",
+    "bfabric-app-runner",
+    "cyclopts",
+    "loguru",
+    "pyjanitor",
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest>=8.0.0",
+  "pytest-mock",
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/**/*.py",
+    "src/**/*.qmd",
+    "src/**/*.yml",
+    "src/**/*.mako",
+]
