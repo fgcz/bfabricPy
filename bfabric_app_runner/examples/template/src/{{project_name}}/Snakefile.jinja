@@ -20,19 +20,19 @@ rule index_markdown:
     input:
         files=expand("info/{name}.yml", name=input_file_names)
     output:
-        md="index.md"
+        html="index.html"
     run:
-        write_index_markdown(input.files, output.md)
+        write_index_html(input.files, output.html)
 
 
 rule output_zip:
     input:
-        md=rules.index_markdown.output.md,
+        html=rules.index_markdown.output.html,
     output:
         zip="output.zip"
     run:
         with ZipFile(output.zip, mode="w") as zip:
-            zip.write("index.md", input.md)
+            zip.write("index.html", input.html)
 
 rule outputs_yml:
     input:
