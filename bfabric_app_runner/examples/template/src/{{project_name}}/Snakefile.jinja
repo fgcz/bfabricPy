@@ -7,7 +7,7 @@ import yaml
 
 input_file_paths = sorted(Path("input").glob("*"))
 input_file_names = [p.name for p in input_file_paths]
-workflow_params = WorkflowParams.model_validate(yaml.safe_load(Path("params.yaml").read_text()))
+workflow_params = WorkflowParams.model_validate(yaml.safe_load(Path("params.yml").read_text()))
 
 
 rule file_info_yaml:
