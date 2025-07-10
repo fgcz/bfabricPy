@@ -62,6 +62,10 @@ line-length = 120
 indent-width = 4
 target-version = "py311"
 
+extend-exclude = [
+    "examples/template"
+]
+
 [tool.ruff.lint]
 select = ["ANN", "BLE", "D103", "E", "EXE", "F", "N", "PLW", "PTH", "SIM", "TCH", "UP", "W191"]
 ignore = ["ANN401"]

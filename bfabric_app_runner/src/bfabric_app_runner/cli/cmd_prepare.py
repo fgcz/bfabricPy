@@ -1,3 +1,4 @@
+import copy
 import importlib.resources
 import os
 from pathlib import Path
@@ -11,27 +12,48 @@ from bfabric.utils.cli_integration import use_client
 from bfabric_app_runner.actions.config_file import ActionConfig
 
 
+def _update_app_version(workunit_definition: WorkunitDefinition, application_version: str) -> WorkunitDefinition:
+    # TODO if this is useful consider moving it to the WorkunitDefinition class
+    workunit_definition = copy.deepcopy(workunit_definition)
+    workunit_definition.execution.raw_parameters["application_version"] = application_version
+    return workunit_definition
+
+
 @use_client
 def cmd_prepare_workunit(
-    app_spec: Path | str,
+    app_spec: Path,
     work_dir: Path,
     workunit_ref: int | Path,
     *,
     ssh_user: str | None = None,
     force_storage: Path | None = None,
+    force_app_version: str | None = None,
     read_only: bool = False,
     client: Bfabric,
 ) -> None:
-    """Prepares a workunit for processing."""
+    """Prepares a workunit for processing.
+
+    :param app_spec: The path to the application specification.
+    :param work_dir: The directory where the workunit execution will be executed later.
+    :param workunit_ref: The reference to the workunit, can be an ID or a path to a YAML file.
+    :param ssh_user: The SSH user to use for file operations (if not provided, defaults to the current user).
+    :param force_storage: (for testing) storage definition to use for the workunit output instead of the configured one.
+    :param force_app_version: (for testing) specific application version instead of the workunit's `application_version`
+    :param read_only: If True, no results will be written to B-Fabric.
+    """
     work_dir.mkdir(parents=True, exist_ok=True)
 
     workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client=client)
+    if force_app_version:
+        workunit_definition = _update_app_version(
+            workunit_definition=workunit_definition, application_version=force_app_version
+        )
+
     workunit_definition_path = work_dir / "workunit_definition.yml"
     workunit_definition.to_yaml(path=workunit_definition_path)
     _write_app_env_file(
         path=work_dir / "app_env.yml",
-        # TODO previously we sometimes copied it but now it will not always be supported (could be added later)
-        app_ref=app_spec,
+        app_ref=app_spec.resolve(),
         workunit_ref=workunit_definition_path,
         ssh_user=ssh_user,
         force_storage=force_storage,
