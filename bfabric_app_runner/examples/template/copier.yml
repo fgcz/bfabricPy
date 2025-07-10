@@ -1,3 +1,7 @@
 project_name:
   type: str
   help: Project name for your application
+deploy_with_lfs:
+  type: bool
+  default: false
+  help: Whether to deploy the application by tracking it with Git LFS (Large File Storage)
