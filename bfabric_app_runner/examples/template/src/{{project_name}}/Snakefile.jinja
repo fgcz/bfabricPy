@@ -1,18 +1,25 @@
-from {{project_name}}.compute_file_info import write_file_info_yaml
-from {{project_name}}.collect_info import write_index_html
+from {{project_name}}.steps.compute_file_info import write_file_info_yaml
+from {{project_name}}.steps.collect_info import write_index_html
+from {{project_name}}.workflow_params import WorkflowParams
 from pathlib import Path
 from zipfile import ZipFile
 import yaml
 
 input_file_paths = sorted(Path("input").glob("*"))
 input_file_names = [p.name for p in input_file_paths]
+workflow_params = WorkflowParams.model_validate(yaml.safe_load(Path("params.yaml").read_text()))
+
 
 rule file_info_yaml:
     input:
         file="input/{file}"
     output:
         yml="info/{file}.yml"
+    params:
+        request_failure=workflow_params.request_failure
     run:
+        if params.request_failure:
+            raise ValueError("The user requested a failure (for testing purposes).")
         write_file_info_yaml(input.file, output.yml)
 
 

@@ -19,6 +19,8 @@ versions:
 
   # - The development version has the flag "refresh: true" which ensures, that it will always create a new venv.
   # - Additionally, instead of using the packaged code, it loads the code directly from the specified directory.
+  # TODO improve this, before running you need to export the pylock.toml:
+  #   `uv export --no-emit-project --format pylock.toml > pylock.toml`
   - version:
       - devel
     commands:
