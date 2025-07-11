@@ -6,10 +6,10 @@ build-backend = "hatchling.build"
 name = "bfabric_scripts"
 description = "Python command line scripts for the B-Fabric API"
 readme = "../README.md"
-version = "1.13.29"
+version = "1.13.30"
 
 dependencies = [
-    "bfabric==1.13.28",
+    "bfabric==1.13.29",
     "cyclopts>=3.13.0",
     "xmltodict",
 ]
@@ -22,9 +22,6 @@ excel = ["fastexcel"]
 
 [project.scripts]
 "bfabric-cli" = "bfabric_scripts.cli.__main__:app"
-
-# TODO this should become a separate package
-"bfabric_flask.py" = "bfabric_scripts.bfabric_flask:main"
 
 # TODO Legacy CLI interfaces
 #bfabric_feeder_resource_autoQC="bfabric_scripts.bfabric_feeder_resource_autoQC:main"

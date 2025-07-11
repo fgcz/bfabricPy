@@ -13,3 +13,7 @@ The individual app can be in a container environment or a script running in the 
 To make this possible input and output staging is abstracted and communicated through `inputs.yml` and `outputs.yml`
 specification files.
 A command is available to stage the inputs or register the outputs respectively then.
+
+## Quick Start
+
+See the [examples/](examples/) directory for templates and detailed instructions on creating new applications. Start with development mode for testing, then build for production after updating the version in `pyproject.toml`.

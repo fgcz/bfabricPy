@@ -10,6 +10,16 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.30\] - 2025-07-04
+
+### Added
+
+- `bfabric_flask.py` provides support for token-based authentication for B-Fabric.
+
+### Removed
+
+- `bfabric_flask.py` is not exported as a script anymore, because misuse can lead to security issues and should be deployed properly.
+
 ## \[1.13.29\] - 2025-06-27
 
 ### Removed

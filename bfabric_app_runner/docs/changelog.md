@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- `bfabric-cli prepare workunit` does not accept module refs anymore and will resolve the app spec path.
+- `bfabric-cli prepare workunit --force-app-version` to force a specific app version for the workunit.
+
+### Added
+
+- `copier` based template/demo application for development and end-to-end testing of bfabric-app-runner.
+
+## \[0.1.2\] - 2025-07-08
+
+### Changed
+
+- `CommandPythonEnv` with `refresh=True` now will create a separate environment to avoid breaking apps which are already using a particular
+    Python environment without locking it.
+
+## \[0.1.1\] - 2025-07-07
+
+### Changed
+
 - `CommandPythonEnv` computes the hash more carefully.
 - Old `bfabric-app-runner app run` and `bfabric-app-runner app dispatch` use the new makefile function from cmd_prepare.
 
