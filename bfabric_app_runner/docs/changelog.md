@@ -12,6 +12,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 
 - `copier` based template/demo application for development and end-to-end testing of bfabric-app-runner.
+- Added `ResolvedDirectory` type to represent directories resolved from resource archives.
+- Added `BfabricResourceArchiveSpec` to specify input archives which should be extracted (and select which files are need) (`bfabric_app_runner/src/bfabric_app_runner/specs/inputs/bfabric_resource_archive_spec.py`)
+- Validation logic has been added for `ResolvedDirectory` and `BfabricResourceArchiveSpec`. In particular a `ResolvedDirectory` may never overlap with a `ResolvedFile` or `ResolvedStaticFile` path.
 
 ## \[0.1.2\] - 2025-07-08
 
