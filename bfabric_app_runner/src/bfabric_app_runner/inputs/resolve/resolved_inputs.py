@@ -32,7 +32,7 @@ class ResolvedDirectory(BaseModel):
     strip_root: bool = False
 
 
-ResolvedInput = ResolvedFile | ResolvedStaticFile
+ResolvedInput = ResolvedFile | ResolvedStaticFile | ResolvedDirectory
 
 
 class ResolvedInputs(BaseModel):

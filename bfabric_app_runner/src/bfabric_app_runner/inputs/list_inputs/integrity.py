@@ -3,7 +3,12 @@ from __future__ import annotations
 from enum import Enum
 from typing import TYPE_CHECKING, assert_never
 
-from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedInput, ResolvedFile, ResolvedStaticFile
+from bfabric_app_runner.inputs.resolve.resolved_inputs import (
+    ResolvedInput,
+    ResolvedFile,
+    ResolvedStaticFile,
+    ResolvedDirectory,
+)
 from bfabric_app_runner.util.checksums import md5sum
 
 if TYPE_CHECKING:
@@ -39,5 +44,7 @@ def check_integrity(file: ResolvedInput, local_path: Path, client: Bfabric) -> I
         bytes_flag = "b" if isinstance(file.content, bytes) else ""
         with local_path.open(f"r{bytes_flag}") as f:
             return IntegrityState.Correct if f.read() == file.content else IntegrityState.Incorrect
+    elif isinstance(file, ResolvedDirectory):
+        return IntegrityState.NotChecked
     else:
         assert_never(file)
