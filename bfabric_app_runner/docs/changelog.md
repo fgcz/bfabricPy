@@ -12,7 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Removed
 
 - Removed experimental `bfabric-app-runner deploy build-app-zip` command and associated app.zip functionality. This functionality has been superseded by the more robust `CommandPythonEnv` approach for Python environment management.
-- Removed module path support for app specification. Apps can now only be referenced by file paths (Path objects), not by module paths (strings). This simplifies the codebase and eliminates confusion about app referencing methods.
+- Removed module path support for app specification. `CommandPythonEnv` is cleaner than the workflow this tried to enable.
 
 ### Added
 
