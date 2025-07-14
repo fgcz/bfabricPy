@@ -22,6 +22,16 @@ class ResolvedStaticFile(BaseModel):
     content: str | bytes
 
 
+class ResolvedDirectory(BaseModel):
+    type: Literal["resolved_directory"] = "resolved_directory"
+    filename: RelativeFilePath
+    source: FileSourceSsh | FileSourceLocal
+    extract: None | Literal["zip"] = None
+    include_patterns: list[str] = []
+    exclude_patterns: list[str] = []
+    strip_root: bool = False
+
+
 ResolvedInput = ResolvedFile | ResolvedStaticFile
 
 
