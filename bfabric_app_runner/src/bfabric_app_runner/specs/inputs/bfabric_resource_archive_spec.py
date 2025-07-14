@@ -8,7 +8,7 @@ from pydantic import BaseModel, ConfigDict
 
 class BfabricResourceArchiveSpec(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    type: Literal["bfabric_resource_zip"] = "bfabric_resource_zip"
+    type: Literal["bfabric_resource_archive"] = "bfabric_resource_archive"
 
     id: int
     """B-Fabric resource ID"""
