@@ -15,7 +15,7 @@ from bfabric_app_runner.app_runner.runner import run_app, Runner
 
 @use_client
 def cmd_app_run(
-    app_spec: Path | str,
+    app_spec: Path,
     work_dir: Path,
     workunit_ref: int | Path,
     *,
@@ -46,7 +46,7 @@ def cmd_app_run(
 
 @use_client
 def cmd_app_dispatch(
-    app_spec: Path | str,
+    app_spec: Path,
     work_dir: Path,
     workunit_ref: int | Path,
     *,
@@ -56,7 +56,7 @@ def cmd_app_dispatch(
 ) -> None:
     """Create chunks, which can be processed individually.
 
-    :param app_spec: Path to the app spec file or module.
+    :param app_spec: Path to the app spec file.
     :param work_dir: Path to the work directory.
     :param workunit_ref: Reference to the workunit (ID or YAML file path).
     :param create_makefile: If True, a Makefile will be created in the app directory.

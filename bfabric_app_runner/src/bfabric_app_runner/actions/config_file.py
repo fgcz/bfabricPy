@@ -5,26 +5,19 @@ import yaml
 from glom import glom
 from loguru import logger
 
-from pydantic import BaseModel, field_validator, model_validator
+from pydantic import BaseModel, model_validator
 
 
 class ActionConfig(BaseModel):
     """Configuration which will be passed to the corresponding action."""
 
     work_dir: Path | None = None
-    app_ref: Path | str | None = None
+    app_ref: Path | None = None
     workunit_ref: int | Path | None = None
     ssh_user: str | None = None
     filter: str | None = None
     force_storage: Path | None = None
     read_only: bool | None = None
-
-    @field_validator("app_ref", mode="after")
-    @classmethod
-    def ensure_app_ref_path_if_path(cls, app_ref: Path | str) -> Path | str:
-        if Path(app_ref).exists():
-            return Path(app_ref)
-        return app_ref
 
 
 class FromConfigFile(BaseModel):

@@ -15,7 +15,7 @@ def action_run() -> ActionRun:
         chunk=None,
         ssh_user="ssh_user",
         filter="filter",
-        app_ref="app_ref",
+        app_ref=Path("app_ref"),
         force_storage=Path("force_storage"),
         workunit_ref=Path("workunit_ref"),
     )
@@ -49,7 +49,7 @@ def test_run(mocker, action_run, mock_client):
         action=ActionProcess(
             work_dir=Path("/test/work_dir"),
             chunk="chunk1",
-            app_ref="app_ref",
+            app_ref=Path("app_ref"),
         ),
         client=mock_client,
     )
@@ -58,7 +58,7 @@ def test_run(mocker, action_run, mock_client):
             work_dir=Path("/test/work_dir"),
             chunk="chunk1",
             workunit_ref=Path("workunit_ref"),
-            app_ref="app_ref",
+            app_ref=Path("app_ref"),
             ssh_user="ssh_user",
             force_storage=Path("force_storage"),
         ),

@@ -1,4 +1,3 @@
-import importlib.resources
 from pathlib import Path
 
 import pytest
@@ -40,22 +39,6 @@ class TestLoadWorkunitInformation:
         return path
 
     @pytest.fixture
-    def app_spec_module(self, mocker, app_version_yaml) -> str:
-        unmocked_read_text = importlib.resources.read_text
-
-        def mocked_read_text(*args, **kwargs):
-            if args[0] == "_mocked_package.integrations.bfabric":
-                if args[1] == "app.yml":
-                    return app_version_yaml
-                else:
-                    raise NotImplementedError
-            else:
-                return unmocked_read_text(*args, **kwargs)
-
-        mocker.patch("importlib.resources.read_text").side_effect = mocked_read_text
-        return "_mocked_package"
-
-    @pytest.fixture
     def workunit_definition(self):
         return WorkunitDefinition(
             execution=WorkunitExecutionDefinition(
@@ -83,28 +66,6 @@ class TestLoadWorkunitInformation:
         path = Path("/fake/work/workunit_definition.yml")
         fs.create_file(path, contents=workunit_definition_yaml)
         return path
-
-    def test_from_module_when_default(self, mocker, app_spec_module, workunit_definition_path, app_version):
-        mock_client = mocker.Mock(name="mock_client")
-        return_app_version, return_workunit_ref = load_workunit_information(
-            app_spec=app_spec_module,
-            client=mock_client,
-            work_dir=Path("/fake/work"),
-            workunit_ref=workunit_definition_path,
-        )
-        assert return_app_version == app_version
-        assert return_workunit_ref == workunit_definition_path
-
-    def test_from_module_when_explicit(self, mocker, app_spec_module, workunit_definition_path, app_version):
-        mock_client = mocker.Mock(name="mock_client")
-        return_app_version, return_workunit_ref = load_workunit_information(
-            app_spec=f"{app_spec_module}.integrations.bfabric:app.yml",
-            client=mock_client,
-            work_dir=Path("/fake/work"),
-            workunit_ref=workunit_definition_path,
-        )
-        assert return_app_version == app_version
-        assert return_workunit_ref == workunit_definition_path
 
     def test_from_path(self, mocker, app_version_path, workunit_definition_path, app_version):
         mock_client = mocker.Mock(name="mock_client")

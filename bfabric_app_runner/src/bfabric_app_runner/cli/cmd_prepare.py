@@ -80,7 +80,7 @@ def _write_workunit_makefile(path: Path) -> None:
 
 def _write_app_env_file(
     path: Path,
-    app_ref: Path | str,
+    app_ref: Path,
     workunit_ref: Path,
     ssh_user: str | None,
     force_storage: Path | None,
