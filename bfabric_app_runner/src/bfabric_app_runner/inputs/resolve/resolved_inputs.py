@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+from collections import defaultdict
 from typing import Annotated, Literal, Self
 
 from bfabric_app_runner.specs.common_types import RelativeFilePath  # noqa: TC001
@@ -40,50 +42,46 @@ class ResolvedInputs(BaseModel):
 
     @model_validator(mode="after")
     def no_duplicates(self) -> Self:
-        from pathlib import Path
+        # Build efficient data structures in a single pass
+        filename_counts = defaultdict(int)
+        directories = set()
+        all_paths = set()
 
-        filenames = [file.filename for file in self.files]
+        for file in self.files:
+            filename = file.filename
+            filename_counts[filename] += 1
+            all_paths.add(filename)
 
-        # Check for exact duplicates
-        if len(filenames) != len(set(filenames)):
-            duplicates = [name for name in filenames if filenames.count(name) > 1]
-            unique_duplicates = sorted(set(duplicates))
-            msg = f"Duplicate filenames in resolved inputs: {', '.join(unique_duplicates)}"
+            if isinstance(file, ResolvedDirectory):
+                directories.add(filename)
+
+        # Check for exact duplicates - O(1) lookup
+        duplicates = [name for name, count in filename_counts.items() if count > 1]
+        if duplicates:
+            msg = f"Duplicate filenames in resolved inputs: {', '.join(sorted(duplicates))}"
             raise ValueError(msg)
 
-        # Check for "." conflicts - "." cannot coexist with other files
-        if "." in filenames and len(filenames) > 1:
+        # Check for "." conflicts - O(1) lookup
+        if "." in all_paths and len(all_paths) > 1:
             msg = "Current directory '.' cannot coexist with other files"
             raise ValueError(msg)
 
-        # Check for path conflicts using generic path logic
-        paths = [(file.filename, isinstance(file, ResolvedDirectory)) for file in self.files]
-
-        for i, (path1, is_dir1) in enumerate(paths):
-            for j, (path2, is_dir2) in enumerate(paths):
-                if i >= j:  # Skip self and already checked pairs
-                    continue
-
-                path1_obj = Path(path1)
-                path2_obj = Path(path2)
-
-                # Check if one path is inside the other
-                try:
-                    # If path1 is inside path2 and path2 is a directory
-                    if is_dir2 and path1_obj.is_relative_to(path2_obj) and path1 != path2:
-                        msg = f"Path '{path1}' conflicts with directory '{path2}' (would be inside extracted directory)"
-                        raise ValueError(msg)
-
-                    # If path2 is inside path1 and path1 is a directory
-                    if is_dir1 and path2_obj.is_relative_to(path1_obj) and path1 != path2:
-                        msg = f"Path '{path2}' conflicts with directory '{path1}' (would be inside extracted directory)"
-                        raise ValueError(msg)
-                except ValueError as e:
-                    # is_relative_to can raise ValueError for invalid paths, but we want to re-raise our own errors
-                    if "conflicts with directory" in str(e):
-                        raise
-                    # Otherwise ignore invalid path errors
-                    pass
+        # Check for directory/file conflicts - O(d * n), where d = number of directories, n = total files
+        for directory in directories:
+            dir_path = Path(directory)
+            for path in all_paths:
+                if path != directory:
+                    try:
+                        if Path(path).is_relative_to(dir_path):
+                            msg = (
+                                f"Path '{path}' conflicts with directory '{directory}'\n"
+                                f" (would be inside extracted directory)"
+                            )
+                            raise ValueError(msg)
+                    except ValueError as e:
+                        # Re-raise our conflict errors, ignore invalid path errors
+                        if "conflicts with directory" in str(e):
+                            raise
 
         return self
 
