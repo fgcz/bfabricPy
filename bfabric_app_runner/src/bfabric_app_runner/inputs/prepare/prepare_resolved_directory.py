@@ -26,40 +26,21 @@ def prepare_resolved_directory(
 
 def _prepare_zip_archive(file: ResolvedDirectory, output_path: Path, ssh_user: str | None) -> None:
     """Prepare a zip archive by downloading, extracting, and filtering."""
-    # Create a temporary file for the zip archive
-    with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as temp_file:
+    with tempfile.NamedTemporaryFile(suffix=".zip") as temp_file:
         temp_path = Path(temp_file.name)
-
-    try:
-        # Download the zip file
-        if not _download_file(file, temp_path, ssh_user):
-            raise RuntimeError(f"Failed to download zip file: {file}")
-
-        # Extract the zip file
+        _download_file(file, temp_path, ssh_user)
         _extract_zip_with_filtering(temp_path, output_path, file)
 
-    finally:
-        # Clean up temporary file
-        if temp_path.exists():
-            temp_path.unlink()
 
-
-def _download_file(file: ResolvedDirectory, temp_path: Path, ssh_user: str | None) -> bool:
+def _download_file(file: ResolvedDirectory, temp_path: Path, ssh_user: str | None) -> None:
     """Download the file from the specified source using existing file operations."""
-    # Create a temporary ResolvedFile to reuse existing download logic
     temp_resolved_file = ResolvedFile(
         source=file.source,
         filename=temp_path.name,
         link=False,
         checksum=None,
     )
-
-    # Use the existing prepare_resolved_file function to handle the download
-    try:
-        prepare_resolved_file(temp_resolved_file, temp_path.parent, ssh_user)
-        return True
-    except RuntimeError:
-        return False
+    prepare_resolved_file(file=temp_resolved_file, working_dir=temp_path.parent, ssh_user=ssh_user)
 
 
 def _extract_zip_with_filtering(zip_path: Path, output_path: Path, file: ResolvedDirectory) -> None:
@@ -67,46 +48,59 @@ def _extract_zip_with_filtering(zip_path: Path, output_path: Path, file: Resolve
     output_path.mkdir(parents=True, exist_ok=True)
 
     with zipfile.ZipFile(zip_path, "r") as zip_ref:
-        # Get all file names in the archive
-        all_files = zip_ref.namelist()
+        # Filter files based on include/exclude patterns, excluding directories
+        filtered_files = [
+            f
+            for f in _filter_files(zip_ref.namelist(), file.include_patterns, file.exclude_patterns)
+            if not f.endswith("/")
+        ]
 
-        # Filter files based on include/exclude patterns
-        filtered_files = _filter_files(all_files, file.include_patterns, file.exclude_patterns)
+        # Determine if we should strip root based on archive structure
+        should_strip_root = file.strip_root and _should_strip_root_directory(zip_ref.namelist())
 
         # Extract filtered files
         for file_path in filtered_files:
-            # Skip directories
-            if file_path.endswith("/"):
-                continue
-
-            # Determine output path
-            output_file_path = _get_output_file_path(file_path, output_path, file.strip_root)
-
-            # Create parent directories
+            output_file_path = _get_output_file_path(file_path, output_path, should_strip_root)
             output_file_path.parent.mkdir(parents=True, exist_ok=True)
 
-            # Extract file
             logger.info(f"Extracting {file_path} to {output_file_path}")
             with zip_ref.open(file_path) as source, output_file_path.open("wb") as target:
                 shutil.copyfileobj(source, target)
 
 
+def _should_strip_root_directory(all_files: list[str]) -> bool:
+    """Determine if we should strip the root directory based on archive structure."""
+    if not all_files:
+        return False
+
+    # Get unique root-level entries (directories and files)
+    root_entries = set()
+    for file_path in all_files:
+        if "/" in file_path:
+            root_entries.add(file_path.split("/")[0])
+        else:
+            root_entries.add(file_path)
+
+    # Only strip if there's exactly one root-level entry and it's a directory
+    if len(root_entries) == 1:
+        root_entry = next(iter(root_entries))
+        # Check if this root entry is a directory (has files under it)
+        return any(file_path.startswith(root_entry + "/") for file_path in all_files)
+
+    return False
+
+
 def _filter_files(files: list[str], include_patterns: list[str], exclude_patterns: list[str]) -> list[str]:
     """Filter files based on include and exclude patterns."""
-    filtered_files = []
 
-    for file_path in files:
+    def should_include(file_path: str) -> bool:
         # If include patterns are specified, file must match at least one
         if include_patterns and not any(fnmatch.fnmatch(file_path, pattern) for pattern in include_patterns):
-            continue
-
+            return False
         # If exclude patterns are specified, file must not match any
-        if exclude_patterns and any(fnmatch.fnmatch(file_path, pattern) for pattern in exclude_patterns):
-            continue
+        return not (exclude_patterns and any(fnmatch.fnmatch(file_path, pattern) for pattern in exclude_patterns))
 
-        filtered_files.append(file_path)
-
-    return filtered_files
+    return [file_path for file_path in files if should_include(file_path)]
 
 
 def _get_output_file_path(file_path: str, output_path: Path, strip_root: bool) -> Path:
