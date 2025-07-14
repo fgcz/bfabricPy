@@ -17,8 +17,26 @@ if TYPE_CHECKING:
 
 
 class IntegrityState(Enum):
-    """
-    TODO basically this: enum(Missing, Exists(NOT_CHECKED, CORRECT, INCORRECT))
+    """Represents the integrity state of a local artifact (file or directory).
+
+    This enum is used to determine whether local artifacts need to be refreshed
+    (re-downloaded or re-prepared) based on their current state and validation.
+
+    States:
+        Missing: The local artifact does not exist at the expected path.
+                 Action: Download/prepare the artifact.
+
+        NotChecked: The artifact exists but integrity validation was not performed
+                   or is not possible (e.g., no checksum available).
+                   Action: Assume the artifact is valid (no refresh needed).
+
+        Correct: The artifact exists and passes all integrity checks
+                (checksum validation, content validation, etc.).
+                Action: No refresh needed.
+
+        Incorrect: The artifact exists but fails integrity validation
+                  (wrong checksum, corrupted content, etc.).
+                  Action: Re-download/re-prepare the artifact.
     """
 
     Missing = "Missing"
