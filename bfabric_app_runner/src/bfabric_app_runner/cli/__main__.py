@@ -13,7 +13,6 @@ from bfabric_app_runner.cli.cmd_action import (
     cmd_action_run_all,
     cmd_action_dispatch,
 )
-from bfabric_app_runner.cli.cmd_deploy import cmd_deploy_build_app_zip
 from bfabric_app_runner.cli.cmd_prepare import cmd_prepare_workunit
 from bfabric_app_runner.cli.cmd_run import cmd_run_workunit
 from bfabric_app_runner.cli.inputs import cmd_inputs_prepare, cmd_inputs_clean, cmd_inputs_list, cmd_inputs_check
@@ -73,9 +72,6 @@ cmd_prepare = cyclopts.App(name="prepare")
 cmd_prepare.command(cmd_prepare_workunit, name="workunit")
 app.command(cmd_prepare)
 
-cmd_deploy = cyclopts.App(name="deploy", help="Utilities for deploying apps")
-cmd_deploy.command(cmd_deploy_build_app_zip, name="build-app-zip")
-app.command(cmd_deploy)
 
 cmd_run = cyclopts.App(name="run", help="Run an app end-to-end.")
 cmd_run.command(cmd_run_workunit, name="workunit")
