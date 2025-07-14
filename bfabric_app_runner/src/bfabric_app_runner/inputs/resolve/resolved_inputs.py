@@ -32,6 +32,7 @@ class ResolvedDirectory(BaseModel):
     include_patterns: list[str] = []
     exclude_patterns: list[str] = []
     strip_root: bool = False
+    checksum: str | None = None
 
 
 ResolvedInput = ResolvedFile | ResolvedStaticFile | ResolvedDirectory

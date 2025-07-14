@@ -48,4 +48,5 @@ class ResolveBfabricResourceArchiveSpecs:
             include_patterns=spec.include_patterns,
             exclude_patterns=spec.exclude_patterns,
             strip_root=spec.strip_root,
+            checksum=resource["filechecksum"] if spec.check_checksum else None,
         )
