@@ -151,7 +151,7 @@ bfabric-cli api create --help
 {CODE}
 
 {CODE(colors="true", language="bash")}
-bfabric-cli api create resource name "hello_world_$(date -Iseconds).txt" workunitid 321802 base64 aGVsbG8gd29ybGQ=
+bfabric-cli api create resource name "hi_world_$(date -Iseconds).txt" workunitid 321802 base64 aGVsbG8gd29ybGQ=
 {CODE}
 
 We can check the result here: https://fgcz-bfabric-test.uzh.ch/bfabric/workunit/show.html?id=321802&tab=resources

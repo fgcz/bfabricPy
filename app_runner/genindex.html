@@ -356,12 +356,10 @@ document.write(`
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandsSpec.collect">collect (bfabric_app_runner.specs.app.commands_spec.CommandsSpec attribute)</a>
 </li>
-      <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.MountOptions.collect">collect() (bfabric_app_runner.specs.app.commands_spec.MountOptions method)</a>
-</li>
       <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandDocker.command">command (bfabric_app_runner.specs.app.commands_spec.CommandDocker attribute)</a>
 
       <ul>
-        <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandShell.command">(bfabric_app_runner.specs.app.commands_spec.CommandShell attribute)</a>
+        <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandExec.command">(bfabric_app_runner.specs.app.commands_spec.CommandExec attribute)</a>
 </li>
       </ul></li>
       <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_version.AppVersion.commands">commands (bfabric_app_runner.specs.app.app_version.AppVersion attribute)</a>
@@ -411,7 +409,11 @@ document.write(`
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandDocker.env">env (bfabric_app_runner.specs.app.commands_spec.CommandDocker attribute)</a>
+
+      <ul>
+        <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandExec.env">(bfabric_app_runner.specs.app.commands_spec.CommandExec attribute)</a>
 </li>
+      </ul></li>
       <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.evaluate">evaluate() (bfabric_app_runner.specs.app.app_spec.AppSpecTemplate method)</a>
 
       <ul>
@@ -531,6 +533,8 @@ document.write(`
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.UpdateExisting.NO">NO (bfabric_app_runner.specs.outputs_spec.UpdateExisting attribute)</a>
 </li>
+      <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_spec.AppSpec.no_duplicate_versions">no_duplicate_versions() (bfabric_app_runner.specs.app.app_spec.AppSpec class method)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -545,10 +549,12 @@ document.write(`
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandsSpec.process">process (bfabric_app_runner.specs.app.commands_spec.CommandsSpec attribute)</a>
+      <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandExec.prepend_paths">prepend_paths (bfabric_app_runner.specs.app.commands_spec.CommandExec attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandsSpec.process">process (bfabric_app_runner.specs.app.commands_spec.CommandsSpec attribute)</a>
+</li>
       <li><a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.protocol">protocol (bfabric_app_runner.specs.outputs_spec.CopyResourceSpec attribute)</a>
 </li>
   </ul></td>
@@ -595,40 +601,26 @@ document.write(`
 </li>
       <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_id">storage_id (bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition attribute)</a>
 </li>
-      <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_output_folder">storage_output_folder (bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_output_folder">storage_output_folder (bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition attribute)</a>
+</li>
       <li><a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.store_entry_path">store_entry_path (bfabric_app_runner.specs.outputs_spec.CopyResourceSpec attribute)</a>
 </li>
       <li><a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.store_folder_path">store_folder_path (bfabric_app_runner.specs.outputs_spec.CopyResourceSpec attribute)</a>
 </li>
-      <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_version.AppVersion.submitter">submitter (bfabric_app_runner.specs.app.app_version.AppVersion attribute)</a>
-
-      <ul>
-        <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.submitter">(bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate attribute)</a>
-</li>
-        <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_version.AppVersionTemplate.submitter">(bfabric_app_runner.specs.app.app_version.AppVersionTemplate attribute)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandDocker.to_shell">to_shell() (bfabric_app_runner.specs.app.commands_spec.CommandDocker method)</a>
-
-      <ul>
-        <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandShell.to_shell">(bfabric_app_runner.specs.app.commands_spec.CommandShell method)</a>
-</li>
-      </ul></li>
       <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitDefinition.to_yaml">to_yaml() (bfabric.experimental.workunit_definition.WorkunitDefinition method)</a>
 </li>
       <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandDocker.type">type (bfabric_app_runner.specs.app.commands_spec.CommandDocker attribute)</a>
 
       <ul>
-        <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandShell.type">(bfabric_app_runner.specs.app.commands_spec.CommandShell attribute)</a>
+        <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandExec.type">(bfabric_app_runner.specs.app.commands_spec.CommandExec attribute)</a>
 </li>
         <li><a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.type">(bfabric_app_runner.specs.outputs_spec.CopyResourceSpec attribute)</a>
 </li>
