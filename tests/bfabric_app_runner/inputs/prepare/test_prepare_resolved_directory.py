@@ -355,3 +355,41 @@ def test_should_strip_root_directory_mixed_scenario():
     """Test should not strip when there's a mix of root dir and files."""
     files = ["project/src/file.py", "standalone.txt"]
     assert _should_strip_root_directory(files) is False
+
+
+def test_caching_behavior_zip_file_reuse(temp_zip_file, tmp_path):
+    """Test that zip file is left in working directory for caching."""
+    directory = ResolvedDirectory(
+        source=FileSourceLocal(local=str(temp_zip_file)),
+        filename="cached_extract",
+        extract="zip",
+        include_patterns=[],
+        exclude_patterns=[],
+        strip_root=False,
+    )
+
+    # First extraction
+    prepare_resolved_directory(directory, tmp_path, ssh_user=None)
+
+    # Verify zip file exists and extraction worked
+    zip_file_path = tmp_path / "cached_extract.zip"
+    extracted_path = tmp_path / "cached_extract"
+    assert zip_file_path.exists()
+    assert extracted_path.exists()
+    assert (extracted_path / "root" / "file1.txt").exists()
+
+    # Get the modification time of the zip file
+    first_mtime = zip_file_path.stat().st_mtime
+
+    # Second extraction (should reuse zip file via rsync caching)
+    # For local files, rsync would detect the file is unchanged and skip download
+    prepare_resolved_directory(directory, tmp_path, ssh_user=None)
+
+    # Verify zip file still exists and extraction still works
+    assert zip_file_path.exists()
+    assert extracted_path.exists()
+    assert (extracted_path / "root" / "file1.txt").exists()
+
+    # The zip file should still be there for caching
+    # (In real usage, rsync would handle the caching optimization)
+    assert zip_file_path.stat().st_mtime >= first_mtime

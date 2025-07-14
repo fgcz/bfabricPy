@@ -40,12 +40,51 @@ class ResolvedInputs(BaseModel):
 
     @model_validator(mode="after")
     def no_duplicates(self) -> Self:
+        from pathlib import Path
+
         filenames = [file.filename for file in self.files]
+
+        # Check for exact duplicates
         if len(filenames) != len(set(filenames)):
             duplicates = [name for name in filenames if filenames.count(name) > 1]
             unique_duplicates = sorted(set(duplicates))
             msg = f"Duplicate filenames in resolved inputs: {', '.join(unique_duplicates)}"
             raise ValueError(msg)
+
+        # Check for "." conflicts - "." cannot coexist with other files
+        if "." in filenames and len(filenames) > 1:
+            msg = "Current directory '.' cannot coexist with other files"
+            raise ValueError(msg)
+
+        # Check for path conflicts using generic path logic
+        paths = [(file.filename, isinstance(file, ResolvedDirectory)) for file in self.files]
+
+        for i, (path1, is_dir1) in enumerate(paths):
+            for j, (path2, is_dir2) in enumerate(paths):
+                if i >= j:  # Skip self and already checked pairs
+                    continue
+
+                path1_obj = Path(path1)
+                path2_obj = Path(path2)
+
+                # Check if one path is inside the other
+                try:
+                    # If path1 is inside path2 and path2 is a directory
+                    if is_dir2 and path1_obj.is_relative_to(path2_obj) and path1 != path2:
+                        msg = f"Path '{path1}' conflicts with directory '{path2}' (would be inside extracted directory)"
+                        raise ValueError(msg)
+
+                    # If path2 is inside path1 and path1 is a directory
+                    if is_dir1 and path2_obj.is_relative_to(path1_obj) and path1 != path2:
+                        msg = f"Path '{path2}' conflicts with directory '{path1}' (would be inside extracted directory)"
+                        raise ValueError(msg)
+                except ValueError as e:
+                    # is_relative_to can raise ValueError for invalid paths, but we want to re-raise our own errors
+                    if "conflicts with directory" in str(e):
+                        raise
+                    # Otherwise ignore invalid path errors
+                    pass
+
         return self
 
     def apply_filter(self, filter_files: list[str]) -> Self:
