@@ -19,7 +19,7 @@ class Action(str, Enum):
 class ActionDispatch(FromConfigFile):
     action: Literal[Action.dispatch] = Action.dispatch
     work_dir: Path
-    app_ref: Path | str
+    app_ref: Path
     workunit_ref: int | Path
     read_only: bool = False
 
@@ -30,7 +30,7 @@ class ActionRun(FromConfigFile):
     chunk: str | None = None
     ssh_user: str | None = None
     filter: str | None = None
-    app_ref: Path | str
+    app_ref: Path
     force_storage: Path | None = None
     read_only: bool = False
     workunit_ref: int | Path
@@ -57,7 +57,7 @@ class ActionInputs(FromConfigFile):
 class ActionProcess(FromConfigFile):
     action: Literal[Action.process] = Action.process
     work_dir: Path
-    app_ref: Path | str
+    app_ref: Path
     chunk: str | None = None
 
     @classmethod
@@ -74,7 +74,7 @@ class ActionOutputs(FromConfigFile):
     action: Literal[Action.outputs] = Action.outputs
     work_dir: Path
     workunit_ref: int | Path
-    app_ref: Path | str
+    app_ref: Path
     chunk: str | None = None
     ssh_user: str | None = None
     force_storage: Path | None = None
