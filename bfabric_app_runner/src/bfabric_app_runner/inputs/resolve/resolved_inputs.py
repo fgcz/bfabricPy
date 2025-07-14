@@ -70,14 +70,13 @@ class ResolvedInputs(BaseModel):
         for directory in directories:
             dir_path = Path(directory)
             for path in all_paths:
-                if path != directory:
-                    file_path = Path(path)
-                    if file_path.is_relative_to(dir_path):
-                        msg = (
-                            f"Path '{path}' conflicts with directory '{directory}'"
-                            f" (would be inside extracted directory)"
-                        )
-                        raise ValueError(msg)
+                file_path = Path(path)
+                if path != directory and file_path.is_relative_to(dir_path):
+                    msg = (
+                        f"Path '{path}' conflicts with directory '{directory}'"
+                        f" (would be inside extracted directory)"
+                    )
+                    raise ValueError(msg)
 
         return self
 
