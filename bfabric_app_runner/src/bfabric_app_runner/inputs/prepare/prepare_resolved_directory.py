@@ -1,6 +1,5 @@
 import fnmatch
 import shutil
-import tempfile
 import zipfile
 from pathlib import Path
 
@@ -26,21 +25,22 @@ def prepare_resolved_directory(
 
 def _prepare_zip_archive(file: ResolvedDirectory, output_path: Path, ssh_user: str | None) -> None:
     """Prepare a zip archive by downloading, extracting, and filtering."""
-    with tempfile.NamedTemporaryFile(suffix=".zip") as temp_file:
-        temp_path = Path(temp_file.name)
-        _download_file(file, temp_path, ssh_user)
-        _extract_zip_with_filtering(temp_path, output_path, file)
+    # Download zip to permanent location in working directory for caching
+    zip_filename = f"{file.filename}.zip"
+    zip_path = output_path.parent / zip_filename
+    _download_file(file, zip_path, ssh_user)
+    _extract_zip_with_filtering(zip_path, output_path, file)
 
 
-def _download_file(file: ResolvedDirectory, temp_path: Path, ssh_user: str | None) -> None:
+def _download_file(file: ResolvedDirectory, zip_path: Path, ssh_user: str | None) -> None:
     """Download the file from the specified source using existing file operations."""
-    temp_resolved_file = ResolvedFile(
+    zip_resolved_file = ResolvedFile(
         source=file.source,
-        filename=temp_path.name,
+        filename=zip_path.name,
         link=False,
         checksum=None,
     )
-    prepare_resolved_file(file=temp_resolved_file, working_dir=temp_path.parent, ssh_user=ssh_user)
+    prepare_resolved_file(file=zip_resolved_file, working_dir=zip_path.parent, ssh_user=ssh_user)
 
 
 def _extract_zip_with_filtering(zip_path: Path, output_path: Path, file: ResolvedDirectory) -> None:

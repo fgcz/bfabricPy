@@ -53,6 +53,10 @@ def test_prepare_resolved_directory_zip_extraction(temp_zip_file, tmp_path):
 
     prepare_resolved_directory(directory, tmp_path, ssh_user=None)
 
+    # Check that zip file is left in working directory for caching
+    zip_file_path = tmp_path / "extracted.zip"
+    assert zip_file_path.exists()
+
     # Check extracted files
     extracted_path = tmp_path / "extracted"
     assert extracted_path.exists()
@@ -78,6 +82,10 @@ def test_prepare_resolved_directory_with_strip_root_multiple_dirs(temp_zip_file,
     )
 
     prepare_resolved_directory(directory, tmp_path, ssh_user=None)
+
+    # Check that zip file is left in working directory for caching
+    zip_file_path = tmp_path / "extracted.zip"
+    assert zip_file_path.exists()
 
     # Check that root directory was NOT stripped (because there are multiple root dirs)
     extracted_path = tmp_path / "extracted"
@@ -112,6 +120,10 @@ def test_prepare_resolved_directory_with_strip_root_single_dir(tmp_path):
 
         prepare_resolved_directory(directory, tmp_path, ssh_user=None)
 
+        # Check that zip file is left in working directory for caching
+        zip_file_path = tmp_path / "extracted.zip"
+        assert zip_file_path.exists()
+
         # Check that root directory WAS stripped (single root directory)
         extracted_path = tmp_path / "extracted"
         assert extracted_path.exists()
@@ -142,6 +154,10 @@ def test_prepare_resolved_directory_with_include_patterns(temp_zip_file, tmp_pat
 
     prepare_resolved_directory(directory, tmp_path, ssh_user=None)
 
+    # Check that zip file is left in working directory for caching
+    zip_file_path = tmp_path / "extracted.zip"
+    assert zip_file_path.exists()
+
     # Check that only .txt files were extracted
     extracted_path = tmp_path / "extracted"
     assert extracted_path.exists()
@@ -163,6 +179,10 @@ def test_prepare_resolved_directory_with_exclude_patterns(temp_zip_file, tmp_pat
     )
 
     prepare_resolved_directory(directory, tmp_path, ssh_user=None)
+
+    # Check that zip file is left in working directory for caching
+    zip_file_path = tmp_path / "extracted.zip"
+    assert zip_file_path.exists()
 
     # Check that .log files were excluded
     extracted_path = tmp_path / "extracted"
