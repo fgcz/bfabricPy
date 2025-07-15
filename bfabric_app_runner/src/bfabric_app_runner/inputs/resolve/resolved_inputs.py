@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+from collections import defaultdict
 from typing import Annotated, Literal, Self
 
 from bfabric_app_runner.specs.common_types import RelativeFilePath  # noqa: TC001
@@ -22,7 +24,18 @@ class ResolvedStaticFile(BaseModel):
     content: str | bytes
 
 
-ResolvedInput = ResolvedFile | ResolvedStaticFile
+class ResolvedDirectory(BaseModel):
+    type: Literal["resolved_directory"] = "resolved_directory"
+    filename: RelativeFilePath
+    source: FileSourceSsh | FileSourceLocal
+    extract: None | Literal["zip"] = None
+    include_patterns: list[str] = []
+    exclude_patterns: list[str] = []
+    strip_root: bool = False
+    checksum: str | None = None
+
+
+ResolvedInput = ResolvedFile | ResolvedStaticFile | ResolvedDirectory
 
 
 class ResolvedInputs(BaseModel):
@@ -30,12 +43,42 @@ class ResolvedInputs(BaseModel):
 
     @model_validator(mode="after")
     def no_duplicates(self) -> Self:
-        filenames = [file.filename for file in self.files]
-        if len(filenames) != len(set(filenames)):
-            duplicates = [name for name in filenames if filenames.count(name) > 1]
-            unique_duplicates = sorted(set(duplicates))
-            msg = f"Duplicate filenames in resolved inputs: {', '.join(unique_duplicates)}"
+        # Build efficient data structures in a single pass
+        filename_counts = defaultdict(int)
+        directories = set()
+        all_paths = set()
+
+        for file in self.files:
+            filename = file.filename
+            filename_counts[filename] += 1
+            all_paths.add(filename)
+
+            if isinstance(file, ResolvedDirectory):
+                directories.add(filename)
+
+        # Check for exact duplicates - O(1) lookup
+        duplicates = [name for name, count in filename_counts.items() if count > 1]
+        if duplicates:
+            msg = f"Duplicate filenames in resolved inputs: {', '.join(sorted(duplicates))}"
             raise ValueError(msg)
+
+        # Check for "." conflicts - O(1) lookup
+        if "." in all_paths and len(all_paths) > 1:
+            msg = "Current directory '.' cannot coexist with other files"
+            raise ValueError(msg)
+
+        # Check for directory/file conflicts - O(d * n), where d = number of directories, n = total files
+        for directory in directories:
+            dir_path = Path(directory)
+            for path in all_paths:
+                file_path = Path(path)
+                if path != directory and file_path.is_relative_to(dir_path):
+                    msg = (
+                        f"Path '{path}' conflicts with directory '{directory}'"
+                        f" (would be inside extracted directory)"
+                    )
+                    raise ValueError(msg)
+
         return self
 
     def apply_filter(self, filter_files: list[str]) -> Self:

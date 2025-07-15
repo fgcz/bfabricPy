@@ -1,5 +1,5 @@
 # shellcheck disable=SC2016,SC2154
-# Determine app runner version (note app.zip provides a more elegant solution for this problem)
+# Determine app runner version
 get_app_runner_version() {
     uv run -p 3.13 --with "pyyaml==6.0.2" python - "$1" <<'EOF'
 import yaml

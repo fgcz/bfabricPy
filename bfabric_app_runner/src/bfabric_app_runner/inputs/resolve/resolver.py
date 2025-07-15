@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, assert_never
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_annotation_specs import ResolveBfabricAnnotationSpecs
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_dataset_specs import ResolveBfabricDatasetSpecs
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_order_fasta_specs import ResolveBfabricOrderFastaSpecs
+from bfabric_app_runner.inputs.resolve._resolve_bfabric_resource_archive_specs import ResolveBfabricResourceArchiveSpecs
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_resource_specs import ResolveBfabricResourceSpecs
 from bfabric_app_runner.inputs.resolve._resolve_file_specs import ResolveFileSpecs
 from bfabric_app_runner.inputs.resolve._resolve_static_file_specs import ResolveStaticFileSpecs
@@ -16,6 +17,7 @@ from bfabric_app_runner.specs.inputs.bfabric_annotation_spec import (
 )
 from bfabric_app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
 from bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec import BfabricOrderFastaSpec
+from bfabric_app_runner.specs.inputs.bfabric_resource_archive_spec import BfabricResourceArchiveSpec
 from bfabric_app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
 from bfabric_app_runner.specs.inputs.file_spec import FileSpec
 from bfabric_app_runner.specs.inputs.static_file_spec import StaticFileSpec
@@ -33,6 +35,7 @@ class Resolver:
         self._client = client
         self._resolve_bfabric_dataset_specs = ResolveBfabricDatasetSpecs(client=client)
         self._resolve_bfabric_resource_specs = ResolveBfabricResourceSpecs(client=client)
+        self._resolve_bfabric_resource_archive_specs = ResolveBfabricResourceArchiveSpecs(client=client)
         self._resolve_static_yaml_specs = ResolveStaticYamlSpecs()
         self._resolve_static_file_specs = ResolveStaticFileSpecs()
         self._resolve_bfabric_order_fasta_specs = ResolveBfabricOrderFastaSpecs(client=client)
@@ -51,6 +54,8 @@ class Resolver:
                 files.extend(self._resolve_static_file_specs(specs_list))
             elif issubclass(spec_type, BfabricResourceSpec):
                 files.extend(self._resolve_bfabric_resource_specs(specs_list))
+            elif issubclass(spec_type, BfabricResourceArchiveSpec):
+                files.extend(self._resolve_bfabric_resource_archive_specs(specs_list))
             elif issubclass(spec_type, BfabricDatasetSpec):
                 files.extend(self._resolve_bfabric_dataset_specs(specs_list))
             elif issubclass(spec_type, BfabricOrderFastaSpec):
