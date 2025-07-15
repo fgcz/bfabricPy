@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Added `ResolvedDirectory` type to represent directories resolved from resource archives.
 - Added `BfabricResourceArchiveSpec` to specify input archives which should be extracted  (and select which files are needed).
 - Validation logic has been added for `ResolvedDirectory` and `BfabricResourceArchiveSpec`. In particular a `ResolvedDirectory` may never overlap with a `ResolvedFile` or `ResolvedStaticFile` path.
+- Using `uv tool` the Makefile will provide the correct version of the app runner when called. To opt-out of this behavior, one can set `USE_EXTERNAL_RUNNER=true` for the makefile.
 
 ## \[0.1.2\] - 2025-07-08
 
