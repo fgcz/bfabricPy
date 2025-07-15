@@ -1,3 +1,17 @@
+"""
+If you are integrating bfabric-app-runner into an automatic system, you may find the command
+`bfabric-app-runner run workunit` most useful which runs the app as configured end-to-end without any intervention
+necessary.
+
+However, as a developer you will generally want to use `bfabric-app-runner prepare workunit` to prepare a workunit
+folder. Please check the parameters of the command, which allows to specify e.g. `--read-only` to prevent writes
+to your B-Fabric instance.
+
+To run individual steps, you will find a `Makefile` in the created workunit folder. Run `make help` for
+more information. The Makefile calls the `bfabric-app-runner action` command to run the individual steps for you,
+so using that directly is not necessary in general.
+"""
+
 from __future__ import annotations
 
 import importlib.metadata
@@ -22,22 +36,31 @@ from bfabric_app_runner.cli.validate import (
     cmd_validate_app_spec_template,
 )
 
+
 package_version = importlib.metadata.version("bfabric_app_runner")
 app = cyclopts.App(
-    help="Provides an entrypoint to app execution.\n\nFunctionality/API under active development!",
+    help=__doc__,
     version=package_version,
 )
+
+groups = {
+    "Running Apps": cyclopts.Group("Running Apps", sort_key=1),
+    "Developer Tools": cyclopts.Group("Developer Tools", sort_key=2),
+}
+
 
 cmd_inputs = cyclopts.App("inputs", help="Prepare input files for an app.")
 cmd_inputs.command(cmd_inputs_check, name="check")
 cmd_inputs.command(cmd_inputs_clean, name="clean")
 cmd_inputs.command(cmd_inputs_list, name="list")
 cmd_inputs.command(cmd_inputs_prepare, name="prepare")
+cmd_inputs.group = groups["Developer Tools"]
 app.command(cmd_inputs)
 
 cmd_outputs = cyclopts.App("outputs", help="Register output files of an app.")
 cmd_outputs.command(cmd_outputs_register, name="register")
 cmd_outputs.command(cmd_outputs_register_single_file, name="register-single-file")
+cmd_outputs.group = groups["Developer Tools"]
 app.command(cmd_outputs)
 
 cmd_validate = cyclopts.App("validate", help="Validate yaml files.")
@@ -45,6 +68,7 @@ cmd_validate.command(cmd_validate_app_spec, name="app-spec")
 cmd_validate.command(cmd_validate_app_spec_template, name="app-spec-template")
 cmd_validate.command(cmd_validate_inputs_spec, name="inputs-spec")
 cmd_validate.command(cmd_validate_outputs_spec, name="outputs-spec")
+cmd_validate.group = groups["Developer Tools"]
 app.command(cmd_validate)
 
 cmd_action = cyclopts.App("action", help="Executes an action of a prepared workunit")
@@ -53,15 +77,17 @@ cmd_action.command(cmd_action_dispatch, name="dispatch")
 cmd_action.command(cmd_action_inputs, name="inputs")
 cmd_action.command(cmd_action_process, name="process")
 cmd_action.command(cmd_action_outputs, name="outputs")
+cmd_action.group = groups["Developer Tools"]
 app.command(cmd_action)
 
-cmd_prepare = cyclopts.App(name="prepare")
+cmd_prepare = cyclopts.App(name="prepare", help="Prepare a workunit for execution.")
 cmd_prepare.command(cmd_prepare_workunit, name="workunit")
+cmd_prepare.group = groups["Running Apps"]
 app.command(cmd_prepare)
-
 
 cmd_run = cyclopts.App(name="run", help="Run an app end-to-end.")
 cmd_run.command(cmd_run_workunit, name="workunit")
+cmd_run.group = groups["Running Apps"]
 app.command(cmd_run)
 
 if __name__ == "__main__":
