@@ -1,7 +1,3 @@
-#!/usr/bin/env python3
-"""
-Tests for makefile rendering functionality.
-"""
 import sys
 
 import pytest
