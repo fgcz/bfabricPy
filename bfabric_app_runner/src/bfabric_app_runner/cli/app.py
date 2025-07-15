@@ -37,7 +37,6 @@ def cmd_app_run(
     :param read_only: If True, runs in read-only mode without modifying the workunit state.
     :param client: Bfabric client instance for API communication.
     """
-    # TODO docstring
     app_version, bfabric_app_spec, workunit_ref = load_workunit_information(app_spec, client, work_dir, workunit_ref)
 
     # Render the workunit Makefile template
