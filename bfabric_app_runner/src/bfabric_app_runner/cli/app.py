@@ -23,7 +23,20 @@ def cmd_app_run(
     read_only: bool = False,
     client: Bfabric,
 ) -> None:
-    """Runs all stages of an app."""
+    """Runs all stages of an app.
+
+    This function executes the app end-to-end, including
+    loading workunit information, rendering the Makefile template, and running all
+    app stages (dispatch, inputs, process, outputs).
+
+    :param app_spec: Path to the app specification file that defines the app configuration.
+    :param work_dir: Path to the working directory where the app will be executed.
+    :param workunit_ref: Reference to the workunit, either as an ID (int) or path to a YAML file.
+    :param ssh_user: Optional SSH username for remote execution. If None, uses local execution.
+    :param force_storage: Optional path to force a specific storage location for outputs.
+    :param read_only: If True, runs in read-only mode without modifying the workunit state.
+    :param client: Bfabric client instance for API communication.
+    """
     # TODO docstring
     app_version, bfabric_app_spec, workunit_ref = load_workunit_information(app_spec, client, work_dir, workunit_ref)
 
