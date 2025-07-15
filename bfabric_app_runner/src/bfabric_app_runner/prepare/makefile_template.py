@@ -41,10 +41,13 @@ def render_makefile(
     path: Path,
     bfabric_app_spec: BfabricAppSpec,
     rename_existing: bool,
+    *,
+    python_version: str | None = None,
 ) -> None:
     """Render the workunit Makefile to `path` using information from the app spec."""
-    app_runner_dep_string = get_app_runner_dep_string(version=bfabric_app_spec.version)
-    python_version = f"{sys.version_info[0]}.{sys.version_info[1]}"
+    app_runner_dep_string = get_app_runner_dep_string(version=bfabric_app_spec.app_runner)
+    if python_version is None:
+        python_version = f"{sys.version_info[0]}.{sys.version_info[1]}"
     template = importlib.resources.read_text("bfabric_app_runner", "resources/workunit.mk")
     makefile = render_makefile_template(
         template=template,

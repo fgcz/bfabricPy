@@ -81,10 +81,12 @@ class TestRenderMakefile:
     def test_makefile_creation(self, mocker):
         """Test that makefile is created correctly."""
         mock_template = "PYTHON_VERSION := @PYTHON_VERSION@\nAPP_RUNNER := @APP_RUNNER_DEP_STRING@"
-        mocker.patch("bfabric_app_runner.cli.cmd_prepare.importlib.resources.read_text", return_value=mock_template)
+        mocker.patch(
+            "bfabric_app_runner.prepare.makefile_template.importlib.resources.read_text", return_value=mock_template
+        )
 
         mock_spec = mocker.Mock()
-        mock_spec.version = "1.5.0"
+        mock_spec.app_runner = "1.5.0"
 
         with tempfile.TemporaryDirectory() as tmpdir:
             makefile_path = Path(tmpdir) / "Makefile"
@@ -99,10 +101,12 @@ class TestRenderMakefile:
     def test_makefile_with_git_reference(self, mocker):
         """Test makefile generation with git reference."""
         mock_template = "DEP := @APP_RUNNER_DEP_STRING@"
-        mocker.patch("bfabric_app_runner.cli.cmd_prepare.importlib.resources.read_text", return_value=mock_template)
+        mocker.patch(
+            "bfabric_app_runner.prepare.makefile_template.importlib.resources.read_text", return_value=mock_template
+        )
 
         mock_spec = mocker.Mock()
-        mock_spec.version = "git+https://github.com/user/repo@branch#subdirectory=subdir"
+        mock_spec.app_runner = "git+https://github.com/user/repo@branch#subdirectory=subdir"
 
         with tempfile.TemporaryDirectory() as tmpdir:
             makefile_path = Path(tmpdir) / "Makefile"
