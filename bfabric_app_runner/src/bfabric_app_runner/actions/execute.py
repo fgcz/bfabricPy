@@ -54,20 +54,20 @@ def execute_dispatch(action: ActionDispatch, client: Bfabric) -> None:
 
 def execute_run(action: ActionRun, client: Bfabric) -> None:
     """Executes a run action."""
-    chunks = _validate_chunks_list(action.work_dir, action.chunk)
-    for chunk in chunks:
-        execute_inputs(action=ActionInputs.from_action_run(action, chunk=str(chunk)), client=client)
-        execute_process(action=ActionProcess.from_action_run(action, chunk=str(chunk)), client=client)
-        execute_outputs(action=ActionOutputs.from_action_run(action, chunk=str(chunk)), client=client)
+    chunk_dirs = _validate_chunks_list(action.work_dir, action.chunk)
+    for chunk_dir_rel in chunk_dirs:
+        execute_inputs(action=ActionInputs.from_action_run(action, chunk=str(chunk_dir_rel)), client=client)
+        execute_process(action=ActionProcess.from_action_run(action, chunk=str(chunk_dir_rel)), client=client)
+        execute_outputs(action=ActionOutputs.from_action_run(action, chunk=str(chunk_dir_rel)), client=client)
 
 
 def execute_inputs(action: ActionInputs, client: Bfabric) -> None:
     """Executes an inputs action."""
-    chunk_paths = _validate_chunks_list(action.work_dir, action.chunk)
-    for chunk_path in chunk_paths:
+    chunk_dirs = _validate_chunks_list(action.work_dir, action.chunk)
+    for chunk_dir_rel in chunk_dirs:
         prepare_folder(
-            inputs_yaml=chunk_path / "inputs.yml",
-            target_folder=chunk_path,
+            inputs_yaml=chunk_dir_rel / "inputs.yml",
+            target_folder=chunk_dir_rel,
             client=client,
             ssh_user=action.ssh_user,
             filter=action.filter,
