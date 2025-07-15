@@ -14,7 +14,7 @@
 # Use `make help` to see all available commands
 
 SHELL := /bin/bash
-.PHONY: help dispatch inputs process stage run-all clean setup-runner check-runner clean-venv
+.PHONY: help dispatch inputs process stage run-all clean check-runner
 
 # Interpolated variables (when the Makefile was prepared):
 PYTHON_VERSION := @PYTHON_VERSION@
@@ -22,9 +22,16 @@ APP_RUNNER_DEP_STRING := @APP_RUNNER_DEP_STRING@
 
 # General set up
 CONFIG_FILE := app_env.yml
-VENV_DIR := .venv
 
-RUNNER_CMD := PATH="$(VENV_DIR)/bin:$$PATH" bfabric-app-runner
+# Dynamic runner command - tries PATH first, then uv tool run
+RUNNER_CMD := $(shell \
+	if command -v bfabric-app-runner >/dev/null 2>&1; then \
+		echo 'bfabric-app-runner'; \
+	elif command -v uv >/dev/null 2>&1; then \
+		echo 'uv tool run -p $(PYTHON_VERSION) $(APP_RUNNER_DEP_STRING)'; \
+	else \
+		echo 'bfabric-app-runner'; \
+	fi)
 
 # Default target
 help:
@@ -38,41 +45,25 @@ help:
 	  printf "  make stage                   - Step 4: Stage results to server/storage\n" && \
 	  printf "\n" && \
 	  printf "Environment management:\n" && \
-	  printf "  make setup-runner            - Manually setup Python virtual environment\n" && \
-	  printf "  make clean-venv             - Remove virtual environment\n" && \
+	  printf "  make check-runner            - Verify bfabric-app-runner is available\n" && \
 	  printf "\n" && \
 	  printf "Other commands:\n" && \
 	  printf "  make clean                   - Remove specified work directory\n" && \
 	  printf "  make help                    - Show this help message\n" && \
 	  printf "\n" && \
 	  printf "Current settings:\n" && \
-	  printf "  RUNNER_CMD = $(RUNNER_CMD)\n" && \
-	  printf "  PYTHON_VERSION = $(PYTHON_VERSION)\n" && \
-	  printf "  VENV_DIR = $(VENV_DIR)\n"
+	  printf "  RUNNER_CMD = $(RUNNER_CMD)\n"
 
-# Check if runner exists and is executable, install if needed
+# Check if runner exists and is executable
 check-runner:
 	@if ! $(RUNNER_CMD) --version >/dev/null 2>&1; then \
-		echo "❌ bfabric-app-runner not found in PATH or venv."; \
-		echo "💡 Run 'make setup-runner' to install it locally."; \
+		echo "❌ bfabric-app-runner not available."; \
+		echo "💡 Install bfabric-app-runner or ensure 'uv' is available."; \
 		exit 1; \
 	else \
-		echo "✓ Using bfabric-app-runner from PATH"; \
+		echo "✓ Using runner command: $(RUNNER_CMD)"; \
 	fi
 
-# Setup the virtual environment and install the runner
-setup-runner:
-	@echo "🐍 Creating Python $(PYTHON_VERSION) virtual environment with uv in $(VENV_DIR)..."
-	@if ! command -v uv >/dev/null 2>&1; then \
-		echo "❌ Error: uv not found. Please install uv first:"; \
-		echo "   curl -LsSf https://astral.sh/uv/install.sh | sh"; \
-		echo "   or: pip install uv"; \
-		exit 1; \
-	fi
-	uv venv $(VENV_DIR) --python $(PYTHON_VERSION)
-	@echo "📦 Installing bfabric-app-runner..."
-	uv pip install --python $(VENV_DIR)/bin/python $(APP_RUNNER_DEP_STRING)
-	@echo "✅ bfabric-app-runner installed successfully in $(VENV_DIR)"
 
 # Step 1: Initial dispatch
 dispatch: check-runner
@@ -116,9 +107,3 @@ clean:
 	else \
 		echo "⚠️  WORK_DIR not specified. Use: make clean WORK_DIR=<directory>"; \
 	fi
-
-# Clean virtual environment
-clean-venv:
-	@echo "🧹 Removing virtual environment..."
-	rm -rf $(VENV_DIR)
-	@echo "✓ Virtual environment removed"
