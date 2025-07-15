@@ -4,7 +4,6 @@ import importlib.metadata
 
 import cyclopts
 
-from bfabric_app_runner.cli.app import cmd_app_run, cmd_app_dispatch
 from bfabric_app_runner.cli.cmd_action import (
     cmd_action_inputs,
     cmd_action_outputs,
@@ -28,11 +27,6 @@ app = cyclopts.App(
     help="Provides an entrypoint to app execution.\n\nFunctionality/API under active development!",
     version=package_version,
 )
-
-cmd_app = cyclopts.App(help="Run an app.")
-cmd_app.command(cmd_app_dispatch, name="dispatch")
-cmd_app.command(cmd_app_run, name="run")
-app.command(cmd_app, name="app")
 
 cmd_inputs = cyclopts.App("inputs", help="Prepare input files for an app.")
 cmd_inputs.command(cmd_inputs_check, name="check")

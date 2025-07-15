@@ -13,8 +13,8 @@ from bfabric_app_runner.actions.types import (
     ActionGeneric,
 )
 from bfabric_app_runner.app_runner.resolve_app import load_workunit_information
-from bfabric_app_runner.app_runner.runner import ChunksFile, Runner
-from bfabric_app_runner.cli.app import cmd_app_dispatch
+from bfabric_app_runner.app_runner.runner import ChunksFile
+from bfabric_app_runner.app_runner.runner import Runner
 from bfabric_app_runner.inputs.prepare.prepare_folder import prepare_folder
 from bfabric_app_runner.output_registration import register_outputs
 
@@ -38,13 +38,14 @@ def execute(action: ActionGeneric, client: Bfabric) -> None:
 
 def execute_dispatch(action: ActionDispatch, client: Bfabric) -> None:
     """Executes a dispatch action."""
-    cmd_app_dispatch(
-        app_spec=action.app_ref,
-        work_dir=action.work_dir,
-        workunit_ref=action.workunit_ref,
-        create_makefile=False,
-        client=client,
+
+    app_version, _, workunit_ref = load_workunit_information(
+        app_spec=action.app_ref, client=client, work_dir=action.work_dir, workunit_ref=action.workunit_ref
     )
+
+    with EntityLookupCache.enable():
+        runner = Runner(spec=app_version, client=client, ssh_user=None)
+        runner.run_dispatch(workunit_ref=workunit_ref, work_dir=action.work_dir)
 
     if not action.read_only:
         # Set the workunit status to processing
