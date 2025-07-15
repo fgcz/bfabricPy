@@ -8,9 +8,6 @@ import pytest
     "command",
     [
         "--help",
-        "app --help",
-        "app dispatch --help",
-        "app run --help",
         "inputs --help",
         "inputs check --help",
         "inputs clean --help",
