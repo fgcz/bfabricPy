@@ -5,7 +5,6 @@ import importlib.metadata
 import cyclopts
 
 from bfabric_app_runner.cli.app import cmd_app_run, cmd_app_dispatch
-from bfabric_app_runner.cli.chunk import cmd_chunk_run_all, cmd_chunk_outputs, cmd_chunk_process
 from bfabric_app_runner.cli.cmd_action import (
     cmd_action_inputs,
     cmd_action_outputs,
@@ -46,12 +45,6 @@ cmd_outputs = cyclopts.App("outputs", help="Register output files of an app.")
 cmd_outputs.command(cmd_outputs_register, name="register")
 cmd_outputs.command(cmd_outputs_register_single_file, name="register-single-file")
 app.command(cmd_outputs)
-
-cmd_chunk = cyclopts.App("chunk", help="Run an app on a chunk. You can create the chunks with `app dispatch`.")
-cmd_chunk.command(cmd_chunk_outputs, name="outputs")
-cmd_chunk.command(cmd_chunk_process, name="process")
-cmd_chunk.command(cmd_chunk_run_all, name="run-all")
-app.command(cmd_chunk)
 
 cmd_validate = cyclopts.App("validate", help="Validate yaml files.")
 cmd_validate.command(cmd_validate_app_spec, name="app-spec")
