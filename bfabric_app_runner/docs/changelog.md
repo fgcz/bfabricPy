@@ -4,15 +4,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
-### Changed
-
-- `bfabric-cli prepare workunit` does not accept module refs anymore and will resolve the app spec path.
-- `bfabric-cli prepare workunit --force-app-version` to force a specific app version for the workunit.
-
 ### Removed
 
 - Removed experimental `bfabric-app-runner deploy build-app-zip` command and associated app.zip functionality. This functionality has been superseded by the more robust `CommandPythonEnv` approach for Python environment management.
 - Removed module path support for app specification. `CommandPythonEnv` is cleaner than the workflow this tried to enable.
+
+### Changed
+
+- `bfabric-cli prepare workunit` does not accept module refs anymore and will resolve the app spec path.
+- `bfabric-cli prepare workunit --force-app-version` to force a specific app version for the workunit.
+- Old `bfabric-app-runner app run` and `bfabric-app-runner app dispatch` use the new makefile function from cmd_prepare.
 
 ### Added
 
@@ -34,7 +35,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 
 - `CommandPythonEnv` computes the hash more carefully.
-- Old `bfabric-app-runner app run` and `bfabric-app-runner app dispatch` use the new makefile function from cmd_prepare.
 
 ## \[0.1.0\] - 2025-06-27
 
