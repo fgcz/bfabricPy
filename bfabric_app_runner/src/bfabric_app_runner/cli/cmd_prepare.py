@@ -1,16 +1,14 @@
+import copy
 from pathlib import Path
 
 import yaml
-import copy
 
 from bfabric import Bfabric
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric.utils.cli_integration import use_client
 from bfabric_app_runner.actions.config_file import ActionConfig
 from bfabric_app_runner.prepare.makefile_template import render_makefile
-from bfabric_app_runner.specs.app.app_spec import AppSpec, BfabricAppSpec
-from bfabric_app_runner.specs.app.app_version import AppVersion
-from bfabric_app_runner.app_runner.resolve_app import _resolve_app_version
+from bfabric_app_runner.specs.app.app_spec import AppSpec
 
 
 def _update_app_version(workunit_definition: WorkunitDefinition, application_version: str) -> WorkunitDefinition:
@@ -53,7 +51,6 @@ def cmd_prepare_workunit(
         )
 
     # Resolve the app version early, following the pattern used by other commands
-    app_version = _resolve_app_version(app_spec, workunit_definition)
     app_full_spec = AppSpec.load_yaml(
         app_yaml=app_spec,
         app_id=workunit_definition.registration.application_id,
@@ -70,20 +67,12 @@ def cmd_prepare_workunit(
         force_storage=force_storage,
         read_only=read_only,
     )
-    _write_workunit_makefile(
-        path=work_dir / "Makefile",
-        app_version=app_version,
-        bfabric_app_spec=app_full_spec.bfabric,
-        use_external_runner=use_external_runner,
-    )
-
-
-def _write_workunit_makefile(
-    path: Path, app_version: AppVersion, bfabric_app_spec: BfabricAppSpec, use_external_runner: bool = False
-) -> None:
     # Render the workunit Makefile template
     render_makefile(
-        path=path, bfabric_app_spec=bfabric_app_spec, rename_existing=True, use_external_runner=use_external_runner
+        path=work_dir / "Makefile",
+        bfabric_app_spec=app_full_spec.bfabric,
+        rename_existing=True,
+        use_external_runner=use_external_runner,
     )
 
 

@@ -29,7 +29,7 @@ def cmd_chunk_run_all(
     :param force_storage: Path to the storage.yml for the output files instead of where it should go (for testing).
     :param read_only: If True, results will not be registered and the workunit status will not be changed.
     """
-    app_version, workunit_ref = load_workunit_information(
+    app_version, _, workunit_ref = load_workunit_information(
         app_spec=app_spec, client=client, work_dir=work_dir, workunit_ref=workunit_ref
     )
 
@@ -54,10 +54,12 @@ def cmd_chunk_process(app_spec: Path, chunk_dir: Path, *, client: Bfabric) -> No
     :param chunk_dir: Path to the chunk directory.
     """
     chunk_dir = chunk_dir.resolve()
-
-    # TODO this lookup of workunit_definition is very problematic now! FIX NEEDED
-    app_version, workunit_ref = load_workunit_information(
-        app_spec=app_spec, client=client, work_dir=chunk_dir, workunit_ref=chunk_dir / ".." / "workunit_definition.yml"
+    # TODO we should enforce that chunks are subdirectories of the work_dir when they are created
+    app_version, _, workunit_ref = load_workunit_information(
+        app_spec=app_spec,
+        client=client,
+        work_dir=chunk_dir / "..",
+        workunit_ref=chunk_dir / ".." / "workunit_definition.yml",
     )
 
     with EntityLookupCache.enable():
@@ -89,14 +91,14 @@ def cmd_chunk_outputs(
     # TODO redundant functionality with "outputs register"
     chunk_dir = chunk_dir.resolve()
 
-    app_version, workunit_ref = load_workunit_information(
+    app_version, _, workunit_ref = load_workunit_information(
         app_spec=app_spec, client=client, work_dir=chunk_dir, workunit_ref=workunit_ref
     )
 
     runner = Runner(spec=app_version, client=client, ssh_user=ssh_user)
     runner.run_collect(workunit_ref=workunit_ref, chunk_dir=chunk_dir)
-    # TODO specify cache file
-    workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client=client)
+    # TODO see comment above, chunk_dir being a direct subdirectory of the work_dir is not enforced yet but should be
+    workunit_definition = WorkunitDefinition.from_yaml(path=chunk_dir / ".." / "workunit_definition.yml")
     if not read_only:
         register_outputs(
             outputs_yaml=chunk_dir / "outputs.yml",
