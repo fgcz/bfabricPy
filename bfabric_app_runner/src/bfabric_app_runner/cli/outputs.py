@@ -5,8 +5,8 @@ from rich.pretty import pprint
 from bfabric import Bfabric
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric.utils.cli_integration import use_client
-from bfabric_app_runner.output_registration.register import register_all
-from bfabric_app_runner.specs.outputs_spec import OutputsSpec, CopyResourceSpec, UpdateExisting
+from bfabric_app_runner.output_registration.register import register_all, register_outputs
+from bfabric_app_runner.specs.outputs_spec import CopyResourceSpec, UpdateExisting
 
 
 def _get_workunit_definition(client: Bfabric, workunit_ref: int | Path) -> WorkunitDefinition:
@@ -28,11 +28,10 @@ def cmd_outputs_register(
     reuse_default_resource: bool = True,
 ) -> None:
     """Register the output files of a workunit."""
-    specs_list = OutputsSpec.read_yaml(outputs_yaml)
-    register_all(
-        client=client,
+    register_outputs(
+        outputs_yaml=outputs_yaml,
         workunit_definition=_get_workunit_definition(client, workunit_ref),
-        specs_list=specs_list,
+        client=client,
         ssh_user=ssh_user,
         reuse_default_resource=reuse_default_resource,
         force_storage=force_storage,
