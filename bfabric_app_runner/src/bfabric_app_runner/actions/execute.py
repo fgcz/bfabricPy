@@ -101,7 +101,6 @@ def execute_outputs(action: ActionOutputs, client: Bfabric) -> None:
 
     for chunk_dir_rel in chunk_dirs:
         # this includes the legacy collect step
-        # TODO redundant functionality with "outputs register"
         chunk_dir = chunk_dir_rel.resolve()
         app_version, _, workunit_ref = load_workunit_information(
             app_spec=action.app_ref, client=client, work_dir=chunk_dir, workunit_ref=action.workunit_ref
