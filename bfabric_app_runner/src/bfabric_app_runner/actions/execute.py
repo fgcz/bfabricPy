@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import assert_never
 
 from bfabric import Bfabric
+from bfabric.experimental.entity_lookup_cache import EntityLookupCache
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric_app_runner.actions.types import (
     ActionDispatch,
@@ -11,14 +12,15 @@ from bfabric_app_runner.actions.types import (
     ActionRun,
     ActionGeneric,
 )
+from bfabric_app_runner.app_runner.resolve_app import load_workunit_information
 from bfabric_app_runner.app_runner.runner import ChunksFile
-from bfabric_app_runner.cli.app import cmd_app_dispatch
-from bfabric_app_runner.cli.chunk import cmd_chunk_process, cmd_chunk_outputs
+from bfabric_app_runner.app_runner.runner import Runner
 from bfabric_app_runner.inputs.prepare.prepare_folder import prepare_folder
+from bfabric_app_runner.output_registration import register_outputs
 
 
 def execute(action: ActionGeneric, client: Bfabric) -> None:
-    """Executes any action."""
+    """Executes the provided action."""
     match action:
         case ActionDispatch():
             execute_dispatch(action=action, client=client)
@@ -36,13 +38,14 @@ def execute(action: ActionGeneric, client: Bfabric) -> None:
 
 def execute_dispatch(action: ActionDispatch, client: Bfabric) -> None:
     """Executes a dispatch action."""
-    cmd_app_dispatch(
-        app_spec=action.app_ref,
-        work_dir=action.work_dir,
-        workunit_ref=action.workunit_ref,
-        create_makefile=False,
-        client=client,
+
+    app_version, _, workunit_ref = load_workunit_information(
+        app_spec=action.app_ref, client=client, work_dir=action.work_dir, workunit_ref=action.workunit_ref
     )
+
+    with EntityLookupCache.enable():
+        runner = Runner(spec=app_version, client=client, ssh_user=None)
+        runner.run_dispatch(workunit_ref=workunit_ref, work_dir=action.work_dir)
 
     if not action.read_only:
         # Set the workunit status to processing
@@ -52,20 +55,20 @@ def execute_dispatch(action: ActionDispatch, client: Bfabric) -> None:
 
 def execute_run(action: ActionRun, client: Bfabric) -> None:
     """Executes a run action."""
-    chunks = _validate_chunks_list(action.work_dir, action.chunk)
-    for chunk in chunks:
-        execute_inputs(action=ActionInputs.from_action_run(action, chunk=str(chunk)), client=client)
-        execute_process(action=ActionProcess.from_action_run(action, chunk=str(chunk)), client=client)
-        execute_outputs(action=ActionOutputs.from_action_run(action, chunk=str(chunk)), client=client)
+    chunk_dirs = _validate_chunks_list(action.work_dir, action.chunk)
+    for chunk_dir_rel in chunk_dirs:
+        execute_inputs(action=ActionInputs.from_action_run(action, chunk=str(chunk_dir_rel)), client=client)
+        execute_process(action=ActionProcess.from_action_run(action, chunk=str(chunk_dir_rel)), client=client)
+        execute_outputs(action=ActionOutputs.from_action_run(action, chunk=str(chunk_dir_rel)), client=client)
 
 
 def execute_inputs(action: ActionInputs, client: Bfabric) -> None:
     """Executes an inputs action."""
-    chunk_paths = _validate_chunks_list(action.work_dir, action.chunk)
-    for chunk_path in chunk_paths:
+    chunk_dirs = _validate_chunks_list(action.work_dir, action.chunk)
+    for chunk_dir_rel in chunk_dirs:
         prepare_folder(
-            inputs_yaml=chunk_path / "inputs.yml",
-            target_folder=chunk_path,
+            inputs_yaml=chunk_dir_rel / "inputs.yml",
+            target_folder=chunk_dir_rel,
             client=client,
             ssh_user=action.ssh_user,
             filter=action.filter,
@@ -75,32 +78,45 @@ def execute_inputs(action: ActionInputs, client: Bfabric) -> None:
 
 def execute_process(action: ActionProcess, client: Bfabric) -> None:
     """Executes a process action."""
-    chunk_paths = _validate_chunks_list(action.work_dir, action.chunk)
+    chunk_dirs = _validate_chunks_list(action.work_dir, action.chunk)
 
-    # TODO to be cleaned later
-    for chunk in chunk_paths:
-        cmd_chunk_process(app_spec=action.app_ref, chunk_dir=chunk, client=client)
+    for chunk_dir_rel in chunk_dirs:
+        app_spec = action.app_ref
+        chunk_dir = chunk_dir_rel.resolve()
+        app_version, _, workunit_ref = load_workunit_information(
+            app_spec=app_spec,
+            client=client,
+            work_dir=action.work_dir,
+            workunit_ref=action.work_dir / "workunit_definition.yml",
+        )
+
+        with EntityLookupCache.enable():
+            runner = Runner(spec=app_version, client=client, ssh_user=None)
+            runner.run_process(chunk_dir=chunk_dir)
 
 
 def execute_outputs(action: ActionOutputs, client: Bfabric) -> None:
     """Executes an outputs action."""
-    chunk_paths = _validate_chunks_list(action.work_dir, action.chunk)
+    chunk_dirs = _validate_chunks_list(action.work_dir, action.chunk)
 
-    # TODO to bo cleaned later
-    for chunk_path in chunk_paths:
+    for chunk_dir_rel in chunk_dirs:
         # this includes the legacy collect step
-        cmd_chunk_outputs(
-            app_spec=action.app_ref,
-            chunk_dir=chunk_path,
-            workunit_ref=action.workunit_ref,
-            ssh_user=action.ssh_user,
-            force_storage=action.force_storage,
-            read_only=action.read_only,
-            # TODO
-            # reuse_default_resource=action.reuse_default_resource,
-            reuse_default_resource=True,
-            client=client,
+        chunk_dir = chunk_dir_rel.resolve()
+        app_version, _, workunit_ref = load_workunit_information(
+            app_spec=action.app_ref, client=client, work_dir=chunk_dir, workunit_ref=action.workunit_ref
         )
+        runner = Runner(spec=app_version, client=client, ssh_user=action.ssh_user)
+        runner.run_collect(workunit_ref=action.workunit_ref, chunk_dir=chunk_dir)
+        workunit_definition = WorkunitDefinition.from_yaml(path=action.work_dir / "workunit_definition.yml")
+        if not action.read_only:
+            register_outputs(
+                outputs_yaml=chunk_dir / "outputs.yml",
+                workunit_definition=workunit_definition,
+                client=client,
+                ssh_user=action.ssh_user,
+                force_storage=action.force_storage,
+                reuse_default_resource=True,
+            )
 
 
 def _validate_chunks_list(work_dir: Path, chunk: str | None) -> list[Path]:

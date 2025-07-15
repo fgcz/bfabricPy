@@ -2,14 +2,21 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, assert_never
 
+from loguru import logger
+
+from bfabric_app_runner.inputs.prepare.prepare_resolved_directory import prepare_resolved_directory
 from bfabric_app_runner.inputs.prepare.prepare_resolved_file import prepare_resolved_file
 from bfabric_app_runner.inputs.prepare.prepare_resolved_static_file import prepare_resolved_static_file
-from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedInputs, ResolvedFile, ResolvedStaticFile
+from bfabric_app_runner.inputs.resolve.resolved_inputs import (
+    ResolvedInputs,
+    ResolvedFile,
+    ResolvedStaticFile,
+    ResolvedDirectory,
+)
 from bfabric_app_runner.inputs.resolve.resolver import Resolver
 from bfabric_app_runner.specs.inputs_spec import (
     InputsSpec,
 )
-from loguru import logger
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -69,6 +76,8 @@ def _prepare_input_files(input_files: ResolvedInputs, working_dir: Path, ssh_use
                 prepare_resolved_file(file=input_file, working_dir=working_dir, ssh_user=ssh_user)
             case ResolvedStaticFile():
                 prepare_resolved_static_file(file=input_file, working_dir=working_dir)
+            case ResolvedDirectory():
+                prepare_resolved_directory(file=input_file, working_dir=working_dir, ssh_user=ssh_user)
             case _:
                 assert_never(input_file)
 

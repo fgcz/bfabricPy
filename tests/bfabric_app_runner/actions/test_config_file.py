@@ -4,34 +4,6 @@ from unittest.mock import MagicMock
 from bfabric_app_runner.actions.config_file import ActionConfig, FromConfigFile
 
 
-class TestActionConfig:
-    def test_ensure_app_ref_path_existing_path(self, mocker):
-        """Test ensure_app_ref_path_if_path when path exists"""
-        # Mock Path.exists to return True
-        mocker.patch.object(Path, "exists", return_value=True)
-
-        # Test with a string that should be converted to Path
-        test_path = "/path/to/app"
-        result = ActionConfig.ensure_app_ref_path_if_path(test_path)
-
-        # Verify result is a Path object
-        assert isinstance(result, Path)
-        assert str(result) == test_path
-
-    def test_ensure_app_ref_path_non_existing_path(self, mocker):
-        """Test ensure_app_ref_path_if_path when path doesn't exist"""
-        # Mock Path.exists to return False
-        mocker.patch.object(Path, "exists", return_value=False)
-
-        # Test with a string that should remain a string
-        test_path = "/path/to/nonexistent/app"
-        result = ActionConfig.ensure_app_ref_path_if_path(test_path)
-
-        # Verify result remains a string
-        assert isinstance(result, str)
-        assert result == test_path
-
-
 class TestFromConfigFile:
     def test_parse_config_file(self, mocker):
         """Test parse_config_file method with valid config"""

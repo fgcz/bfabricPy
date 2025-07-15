@@ -1,0 +1,38 @@
+bfabric:
+  app_runner: 0.1.2
+versions:
+  - version:
+      - 0.0.1
+    commands:
+      dispatch:
+        type: python_env
+        pylock: {{ _copier_conf.dst_path.resolve() }}/dist/${app.version}/pylock.toml
+        local_extra_deps:
+          - {{ _copier_conf.dst_path.resolve() }}/dist/${app.version}/{{project_name}}-${app.version}-py3-none-any.whl
+        command: -m {{project_name}}.integrations.bfabric.dispatch
+      process:
+        type: python_env
+        pylock: {{ _copier_conf.dst_path.resolve() }}/dist/${app.version}/pylock.toml
+        local_extra_deps:
+          - {{ _copier_conf.dst_path.resolve() }}/dist/${app.version}/{{project_name}}-${app.version}-py3-none-any.whl
+        command: -m {{project_name}}.integrations.bfabric.process
+
+  # - The development version has the flag "refresh: true" which ensures, that it will always create a new venv.
+  # - Additionally, instead of using the packaged code, it loads the code directly from the specified directory.
+  - version:
+      - devel
+    commands:
+      dispatch:
+        type: python_env
+        pylock: {{ _copier_conf.dst_path.resolve() }}/pylock.toml
+        local_extra_deps:
+          - {{ _copier_conf.dst_path.resolve() }}
+        refresh: true
+        command: -m {{project_name}}.integrations.bfabric.dispatch
+      process:
+        type: python_env
+        pylock: {{ _copier_conf.dst_path.resolve() }}/pylock.toml
+        local_extra_deps:
+          - {{ _copier_conf.dst_path.resolve() }}
+        refresh: true
+        command: -m {{project_name}}.integrations.bfabric.process

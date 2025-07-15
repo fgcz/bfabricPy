@@ -8,13 +8,6 @@ import pytest
     "command",
     [
         "--help",
-        "app --help",
-        "app dispatch --help",
-        "app run --help",
-        "chunk --help",
-        "chunk outputs --help",
-        "chunk process --help",
-        "chunk run-all --help",
         "inputs --help",
         "inputs check --help",
         "inputs clean --help",

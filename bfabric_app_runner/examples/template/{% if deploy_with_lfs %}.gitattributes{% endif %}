@@ -1,0 +1,2 @@
+dist/**/*.whl filter=lfs diff=lfs merge=lfs -text
+dist/**/pylock.toml filter=lfs diff=lfs merge=lfs -text

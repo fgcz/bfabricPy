@@ -4,7 +4,37 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.2.0\] - 2025-07-15
+
+This release consolidates various commands in bfabric-app-runner streamlining the user experience.
+It also brings an improved Makefile which should obsolete the manual installation of `bfabric-app-runner` providing
+the user with the configured version by default.
+
+### Removed
+
+- Removed experimental `bfabric-app-runner deploy build-app-zip` command and associated app.zip functionality. This functionality has been superseded by the more robust `CommandPythonEnv` approach for Python environment management.
+- Removed `bfabric-app-runner app` command (covered by `bfabric-app-runner run` and `bfabric-app-runner prepare` now).
+- Removed `bfabric-app-runner chunk` command (covered by `bfabric-app-runner action` now).
+- Removed module path support for app specification. `CommandPythonEnv` is cleaner than the workflow this tried to enable.
+- The app related commands do not support `AppVersion` inputs anymore. Instead, you should always specify a `AppSpec` file.
+
+### Changed
+
+- `bfabric-app-runner prepare workunit` does not accept module refs anymore and will resolve the app spec path.
+- `bfabric-app-runner prepare workunit --force-app-version` to force a specific app version for the workunit.
+- Old `bfabric-app-runner app run` and `bfabric-app-runner app dispatch` use the new makefile function from cmd_prepare.
+
+### Added
+
+- `copier` based template/demo application for development and end-to-end testing of bfabric-app-runner.
+- Added `ResolvedDirectory` type to represent directories resolved from resource archives.
+- Added `BfabricResourceArchiveSpec` to specify input archives which should be extracted  (and select which files are needed).
+- Validation logic has been added for `ResolvedDirectory` and `BfabricResourceArchiveSpec`. In particular a `ResolvedDirectory` may never overlap with a `ResolvedFile` or `ResolvedStaticFile` path.
+- Using `uv tool` the Makefile will provide the correct version of the app runner when called. To opt-out of this behavior, one can set `USE_EXTERNAL_RUNNER=true` for the makefile.
+
 ## \[0.1.2\] - 2025-07-08
+
+### Changed
 
 - `CommandPythonEnv` with `refresh=True` now will create a separate environment to avoid breaking apps which are already using a particular
     Python environment without locking it.

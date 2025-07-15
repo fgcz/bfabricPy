@@ -1,0 +1,19 @@
+project_name:
+  type: str
+  help: Project name for your application
+deploy_with_lfs:
+  type: bool
+  default: true
+  help: Whether to deploy the application by tracking it with Git LFS (Large File Storage)
+_message_after_copy: |
+  Application {{project_name}} was successfully created at {{ _copier_conf.dst_path.resolve() }}.
+
+  Before you can run the application, you need to ensure you have `uv` installed and perform the following steps:
+
+  - Release mode (i.e. 0.0.1 version):
+    - `cd {{ _copier_conf.dst_path.resolve() }}`
+    - `./release.bash`
+  - Development mode (i.e. devel version):
+    - `cd {{ _copier_conf.dst_path.resolve() }}`
+    - `uv lock -U`
+    - `uv export --no-emit-project --format pylock.toml > pylock.toml`
