@@ -20,7 +20,7 @@ from bfabric_app_runner.output_registration import register_outputs
 
 
 def execute(action: ActionGeneric, client: Bfabric) -> None:
-    """Executes any action."""
+    """Executes the provided action."""
     match action:
         case ActionDispatch():
             execute_dispatch(action=action, client=client)
@@ -79,16 +79,14 @@ def execute_process(action: ActionProcess, client: Bfabric) -> None:
     """Executes a process action."""
     chunk_dirs = _validate_chunks_list(action.work_dir, action.chunk)
 
-    # TODO to be cleaned later
     for chunk_dir_rel in chunk_dirs:
         app_spec = action.app_ref
         chunk_dir = chunk_dir_rel.resolve()
-        # TODO we should enforce that chunks are subdirectories of the work_dir when they are created
         app_version, _, workunit_ref = load_workunit_information(
             app_spec=app_spec,
             client=client,
-            work_dir=chunk_dir / "..",
-            workunit_ref=chunk_dir / ".." / "workunit_definition.yml",
+            work_dir=action.work_dir,
+            workunit_ref=action.work_dir / "workunit_definition.yml",
         )
 
         with EntityLookupCache.enable():
@@ -100,7 +98,6 @@ def execute_outputs(action: ActionOutputs, client: Bfabric) -> None:
     """Executes an outputs action."""
     chunk_dirs = _validate_chunks_list(action.work_dir, action.chunk)
 
-    # TODO to bo cleaned later
     for chunk_dir_rel in chunk_dirs:
         # this includes the legacy collect step
         # TODO redundant functionality with "outputs register"
@@ -110,8 +107,7 @@ def execute_outputs(action: ActionOutputs, client: Bfabric) -> None:
         )
         runner = Runner(spec=app_version, client=client, ssh_user=action.ssh_user)
         runner.run_collect(workunit_ref=action.workunit_ref, chunk_dir=chunk_dir)
-        # TODO see above, chunk_dir being a direct subdirectory of the work_dir is not enforced yet but should be
-        workunit_definition = WorkunitDefinition.from_yaml(path=chunk_dir / ".." / "workunit_definition.yml")
+        workunit_definition = WorkunitDefinition.from_yaml(path=action.work_dir / "workunit_definition.yml")
         if not action.read_only:
             register_outputs(
                 outputs_yaml=chunk_dir / "outputs.yml",
