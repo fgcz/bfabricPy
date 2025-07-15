@@ -1,5 +1,3 @@
-import importlib.metadata
-import importlib.resources
 import os
 import sys
 from pathlib import Path
@@ -11,6 +9,7 @@ from bfabric.experimental.entity_lookup_cache import EntityLookupCache
 from bfabric.utils.cli_integration import use_client
 from bfabric_app_runner.app_runner.resolve_app import load_workunit_information
 from bfabric_app_runner.app_runner.runner import run_app, Runner
+from bfabric_app_runner.prepare.makefile_template import render_makefile
 
 
 @use_client
@@ -24,11 +23,26 @@ def cmd_app_run(
     read_only: bool = False,
     client: Bfabric,
 ) -> None:
-    """Runs all stages of an app."""
-    # TODO doc
-    app_version, workunit_ref = load_workunit_information(app_spec, client, work_dir, workunit_ref)
+    """Runs all stages of an app.
 
-    copy_dev_makefile(work_dir=work_dir)
+    This function executes the app end-to-end, including
+    loading workunit information, rendering the Makefile template, and running all
+    app stages (dispatch, inputs, process, outputs).
+
+    :param app_spec: Path to the app specification file that defines the app configuration.
+    :param work_dir: Path to the working directory where the app will be executed.
+    :param workunit_ref: Reference to the workunit, either as an ID (int) or path to a YAML file.
+    :param ssh_user: Optional SSH username for remote execution. If None, uses local execution.
+    :param force_storage: Optional path to force a specific storage location for outputs.
+    :param read_only: If True, runs in read-only mode without modifying the workunit state.
+    :param client: Bfabric client instance for API communication.
+    """
+    app_version, bfabric_app_spec, workunit_ref = load_workunit_information(app_spec, client, work_dir, workunit_ref)
+
+    # Render the workunit Makefile template
+    render_makefile(
+        path=work_dir / "Makefile", bfabric_app_spec=bfabric_app_spec, rename_existing=True, use_external_runner=False
+    )
 
     # TODO(#107): usage of entity lookup cache was problematic -> beyond the full solution we could also consider
     #             to deactivate the cache for the output registration
@@ -61,37 +75,22 @@ def cmd_app_dispatch(
     :param workunit_ref: Reference to the workunit (ID or YAML file path).
     :param create_makefile: If True, a Makefile will be created in the app directory.
     """
-
     work_dir = work_dir.resolve()
     # TODO set workunit to processing? (i.e. add read-only option here)
 
-    app_version, workunit_ref = load_workunit_information(app_spec, client, work_dir, workunit_ref)
+    app_version, bfabric_app_spec, workunit_ref = load_workunit_information(app_spec, client, work_dir, workunit_ref)
     with EntityLookupCache.enable():
         runner = Runner(spec=app_version, client=client, ssh_user=None)
         runner.run_dispatch(workunit_ref=workunit_ref, work_dir=work_dir)
 
     if create_makefile:
-        copy_dev_makefile(work_dir=work_dir)
-
-
-def copy_dev_makefile(work_dir: Path) -> None:
-    """Copies the workunit.mk file to the work directory, and sets the version of the app runner.
-    It also creates a .env file containing the BFABRICPY_CONFIG_OVERRIDE environment variable containing the configured
-    connection. For security reasons it will be chmod 600.
-    """
-    with importlib.resources.path("bfabric_app_runner", "resources/workunit.mk") as source_path:
-        target_path = work_dir / "Makefile"
-
-        makefile_template = source_path.read_text()
-        app_runner_version = importlib.metadata.version("bfabric_app_runner")
-        makefile = makefile_template.replace("@RUNNER_VERSION@", app_runner_version)
-
-        if target_path.exists():
-            logger.info("Renaming existing Makefile to Makefile.bak")
-            target_path.rename(work_dir / "Makefile.bak")
-        logger.info(f"Copying Makefile from {source_path} to {target_path}")
-        target_path.parent.mkdir(exist_ok=True, parents=True)
-        target_path.write_text(makefile)
+        # Render the workunit Makefile template
+        render_makefile(
+            path=work_dir / "Makefile",
+            bfabric_app_spec=bfabric_app_spec,
+            rename_existing=True,
+            use_external_runner=False,
+        )
 
 
 def _write_file_chmod(path: Path, text: str, mode: int) -> None:

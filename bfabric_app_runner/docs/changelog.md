@@ -4,15 +4,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
-### Changed
-
-- `bfabric-cli prepare workunit` does not accept module refs anymore and will resolve the app spec path.
-- `bfabric-cli prepare workunit --force-app-version` to force a specific app version for the workunit.
-
 ### Removed
 
 - Removed experimental `bfabric-app-runner deploy build-app-zip` command and associated app.zip functionality. This functionality has been superseded by the more robust `CommandPythonEnv` approach for Python environment management.
 - Removed module path support for app specification. `CommandPythonEnv` is cleaner than the workflow this tried to enable.
+- The app related commands do not support `AppVersion` inputs anymore. Instead, you should always specify a `AppSpec` file.
+
+### Changed
+
+- `bfabric-cli prepare workunit` does not accept module refs anymore and will resolve the app spec path.
+- `bfabric-cli prepare workunit --force-app-version` to force a specific app version for the workunit.
+- Old `bfabric-app-runner app run` and `bfabric-app-runner app dispatch` use the new makefile function from cmd_prepare.
 
 ### Added
 
@@ -20,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Added `ResolvedDirectory` type to represent directories resolved from resource archives.
 - Added `BfabricResourceArchiveSpec` to specify input archives which should be extracted  (and select which files are needed).
 - Validation logic has been added for `ResolvedDirectory` and `BfabricResourceArchiveSpec`. In particular a `ResolvedDirectory` may never overlap with a `ResolvedFile` or `ResolvedStaticFile` path.
+- Using `uv tool` the Makefile will provide the correct version of the app runner when called. To opt-out of this behavior, one can set `USE_EXTERNAL_RUNNER=true` for the makefile.
 
 ## \[0.1.2\] - 2025-07-08
 
