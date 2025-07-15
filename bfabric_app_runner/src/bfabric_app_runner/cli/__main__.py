@@ -1,15 +1,20 @@
 """
-If you are integrating bfabric-app-runner into an automatic system, you may find the command
-`bfabric-app-runner run workunit` most useful which runs the app as configured end-to-end without any intervention
-necessary.
+B-Fabric App Runner - Execute bioinformatics applications on your B-Fabric workunits.
 
-However, as a developer you will generally want to use `bfabric-app-runner prepare workunit` to prepare a workunit
-folder. Please check the parameters of the command, which allows to specify e.g. `--read-only` to prevent writes
-to your B-Fabric instance.
+**For automated systems:**
+Use ``bfabric-app-runner run workunit`` for end-to-end workunit execution.
 
-To run individual steps, you will find a `Makefile` in the created workunit folder. Run `make help` for
-more information. The Makefile calls the `bfabric-app-runner action` command to run the individual steps for you,
-so using that directly is not necessary in general.
+**For development and testing:**
+
+1. Create a workunit folder: ``bfabric-app-runner prepare workunit``
+2. Navigate to the folder and run ``make help`` for available commands
+
+**Options:**
+
+- Add ``--read-only`` to prevent writes to your B-Fabric instance during testing
+- Add ``--use-external-runner`` if ``bfabric-app-runner`` is available externally (otherwise requires ``uv``)
+
+The generated Makefile uses ``bfabric-app-runner action`` commands internally.
 """
 
 from __future__ import annotations
