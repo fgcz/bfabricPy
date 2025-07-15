@@ -4,6 +4,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.2.0\] - 2025-07-15
+
+This release consolidates various commands in bfabric-app-runner streamlining the user experience.
+It also brings an improved Makefile which should obsolete the manual installation of `bfabric-app-runner` providing
+the user with the configured version by default.
+
 ### Removed
 
 - Removed experimental `bfabric-app-runner deploy build-app-zip` command and associated app.zip functionality. This functionality has been superseded by the more robust `CommandPythonEnv` approach for Python environment management.
@@ -14,8 +20,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
-- `bfabric-cli prepare workunit` does not accept module refs anymore and will resolve the app spec path.
-- `bfabric-cli prepare workunit --force-app-version` to force a specific app version for the workunit.
+- `bfabric-app-runner prepare workunit` does not accept module refs anymore and will resolve the app spec path.
+- `bfabric-app-runner prepare workunit --force-app-version` to force a specific app version for the workunit.
 - Old `bfabric-app-runner app run` and `bfabric-app-runner app dispatch` use the new makefile function from cmd_prepare.
 
 ### Added
