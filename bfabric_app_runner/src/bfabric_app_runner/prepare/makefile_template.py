@@ -9,6 +9,7 @@ from bfabric_app_runner.specs.app.app_spec import BfabricAppSpec
 
 
 def _is_valid_version(version: str) -> bool:
+    """Returns True if the version string is a valid Python package version."""
     try:
         packaging.version.Version(version)
         return True
@@ -17,13 +18,13 @@ def _is_valid_version(version: str) -> bool:
 
 
 def get_app_runner_dep_string(version: str) -> str:
-    """
-    Returns a formatted version string that can be used with uv, e.g.:
+    """Returns a formatted version string that can be used with uv.
+
+    For example:
     - "bfabric-app-runner==1.2.3" for PyPI versions
     - "bfabric-app-runner@git+https://..." for git references
     """
     pypi_package = "bfabric-app-runner"
-    # handle PyPI vs git references
     dep_type = "==" if _is_valid_version(version) else "@"
     return f"{pypi_package}{dep_type}{version}"
 
