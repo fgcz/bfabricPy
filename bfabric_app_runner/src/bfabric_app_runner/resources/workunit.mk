@@ -19,13 +19,14 @@ SHELL := /bin/bash
 # Interpolated variables (when the Makefile was prepared):
 PYTHON_VERSION := @PYTHON_VERSION@
 APP_RUNNER_DEP_STRING := @APP_RUNNER_DEP_STRING@
+USE_EXTERNAL_RUNNER := @USE_EXTERNAL_RUNNER@
 
 # General set up
 CONFIG_FILE := app_env.yml
 
-# Dynamic runner command - tries PATH first, then uv tool run
+# Dynamic runner command - uses exact version by default, optionally uses external runner
 RUNNER_CMD := $(shell \
-	if command -v bfabric-app-runner >/dev/null 2>&1; then \
+	if [ "$(USE_EXTERNAL_RUNNER)" = "true" ] && command -v bfabric-app-runner >/dev/null 2>&1; then \
 		echo 'bfabric-app-runner'; \
 	elif command -v uv >/dev/null 2>&1; then \
 		echo 'uv tool run -p $(PYTHON_VERSION) $(APP_RUNNER_DEP_STRING)'; \
@@ -52,7 +53,8 @@ help:
 	  printf "  make help                    - Show this help message\n" && \
 	  printf "\n" && \
 	  printf "Current settings:\n" && \
-	  printf "  RUNNER_CMD = $(RUNNER_CMD)\n"
+	  printf "  RUNNER_CMD = $(RUNNER_CMD)\n" && \
+	  printf "  USE_EXTERNAL_RUNNER = $(USE_EXTERNAL_RUNNER) (set to 'true' to use external bfabric-app-runner from PATH)\n"
 
 # Check if runner exists and is executable
 check-runner:

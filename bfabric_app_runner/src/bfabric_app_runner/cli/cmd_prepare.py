@@ -30,6 +30,7 @@ def cmd_prepare_workunit(
     force_storage: Path | None = None,
     force_app_version: str | None = None,
     read_only: bool = False,
+    use_external_runner: bool = False,
     client: Bfabric,
 ) -> None:
     """Prepares a workunit for processing.
@@ -41,6 +42,7 @@ def cmd_prepare_workunit(
     :param force_storage: (for testing) storage definition to use for the workunit output instead of the configured one.
     :param force_app_version: (for testing) specific application version instead of the workunit's `application_version`
     :param read_only: If True, no results will be written to B-Fabric.
+    :param use_external_runner: If True, allows using external bfabric-app-runner from PATH instead of exact version.
     """
     work_dir.mkdir(parents=True, exist_ok=True)
 
@@ -69,13 +71,20 @@ def cmd_prepare_workunit(
         read_only=read_only,
     )
     _write_workunit_makefile(
-        path=work_dir / "Makefile", app_version=app_version, bfabric_app_spec=app_full_spec.bfabric
+        path=work_dir / "Makefile",
+        app_version=app_version,
+        bfabric_app_spec=app_full_spec.bfabric,
+        use_external_runner=use_external_runner,
     )
 
 
-def _write_workunit_makefile(path: Path, app_version: AppVersion, bfabric_app_spec: BfabricAppSpec) -> None:
+def _write_workunit_makefile(
+    path: Path, app_version: AppVersion, bfabric_app_spec: BfabricAppSpec, use_external_runner: bool = False
+) -> None:
     # Render the workunit Makefile template
-    render_makefile(path=path, bfabric_app_spec=bfabric_app_spec, rename_existing=True)
+    render_makefile(
+        path=path, bfabric_app_spec=bfabric_app_spec, rename_existing=True, use_external_runner=use_external_runner
+    )
 
 
 def _write_app_env_file(
