@@ -146,6 +146,18 @@ class TestDetermineOutputColumns:
                 results=results, columns=None, max_columns=0, output_format=OutputFormat.TABLE_RICH
             )
 
+    def test_determine_output_columns_empty_results(self):
+        # Arrange
+        results = []
+
+        # Act
+        columns = _determine_output_columns(
+            results=results, columns=None, max_columns=7, output_format=OutputFormat.TABLE_RICH
+        )
+
+        # Assert
+        assert columns == ["id"]  # Should return default columns when no results available
+
 
 class TestReadFunction:
     def test_read_json_output(self, mock_client, mock_console, sample_results, mocker):
@@ -230,3 +242,37 @@ class TestReadFunction:
 
         # Assert
         assert result == 1  # Should return error code 1
+
+    @pytest.mark.parametrize(
+        "output_format",
+        [
+            OutputFormat.JSON,
+            OutputFormat.YAML,
+            OutputFormat.TSV,
+            OutputFormat.TABLE_RICH,
+        ],
+    )
+    def test_read_with_empty_results(self, mock_client, mock_console, mocker, output_format, capfd):
+        # Arrange
+        mock_perform_query = mocker.patch("bfabric_scripts.cli.api.read.perform_query")
+        mock_perform_query.return_value = []
+
+        # Use no explicit columns to trigger _determine_output_columns with empty results
+        params = Params(
+            endpoint="resource",
+            columns=[],  # No explicit columns - will trigger column determination
+            format=output_format,
+            query=[("status", "nonexistent")],
+        )
+
+        # Act & Assert - All formats should handle empty results gracefully
+        result = cmd_api_read(params, client=mock_client)
+        captured = capfd.readouterr()
+        # Should not see IndexError or Traceback in output
+        assert "Traceback" not in captured.out
+        assert "Traceback" not in captured.err
+        assert "IndexError" not in captured.out
+        assert "IndexError" not in captured.err
+        assert result is None  # Should return None (success) for all formats
+
+        mock_perform_query.assert_called_once_with(params=params, client=mock_client, console_user=mocker.ANY)
