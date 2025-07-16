@@ -105,6 +105,13 @@ def cmd_api_read(params: Annotated[Params, cyclopts.Parameter(name="*")], *, cli
     # Perform the query
     results = perform_query(params=params, client=client, console_user=console_user)
 
+    # Handle empty results gracefully for table format
+    if not results:
+        if params.format == OutputFormat.TABLE_RICH:
+            logger.info("No results found for the given query.")
+            return None
+        # For other formats (JSON, YAML, TSV), continue to render empty results
+
     # Print/export output
     results = sorted(results, key=lambda x: x["id"])
     console_out = Console()
@@ -127,6 +134,8 @@ def _determine_output_columns(
         if max_columns < 1:
             raise ValueError("max_columns must be at least 1")
         columns = ["id"]
+        if not results:
+            return columns
         available_columns = sorted(set(results[0].keys()) - {"id"})
         columns += available_columns[:max_columns]
 
