@@ -4,6 +4,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.2.1\] - 2025-07-22
+
+### Fixed
+
+- Makefile avoids redundant dispatch on every target.
+
 ## \[0.2.0\] - 2025-07-15
 
 This release consolidates various commands in bfabric-app-runner streamlining the user experience.
