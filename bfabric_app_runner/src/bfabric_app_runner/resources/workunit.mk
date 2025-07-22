@@ -71,31 +71,31 @@ check-runner:
 dispatch: check-runner
 	@$(MAKE) --always-make chunks.yml
 
-chunks.yml: check-runner
+chunks.yml: $(CONFIG_FILE)
 	@echo "Step 1/4: Running initial dispatch..."
 	$(RUNNER_CMD) action dispatch --config "$(CONFIG_FILE)"
 	@echo "✓ Dispatch completed"
 
 # Step 2: Prepare inputs
-inputs: chunks.yml
+inputs: check-runner chunks.yml
 	@echo "Step 2/4: Preparing inputs..."
 	$(RUNNER_CMD) action inputs --config "$(CONFIG_FILE)"
 	@echo "✓ Inputs prepared"
 
 # Step 3: Process chunks
-process: chunks.yml
+process: check-runner chunks.yml
 	@echo "Step 3/4: Processing chunks..."
 	$(RUNNER_CMD) action process --config "$(CONFIG_FILE)"
 	@echo "✓ Processing completed"
 
 # Step 4: Stage results
-stage: chunks.yml
+stage: check-runner chunks.yml
 	@echo "Step 4/4: Staging results..."
 	$(RUNNER_CMD) action outputs --config "$(CONFIG_FILE)"
 	@echo "✓ Results staged"
 
 # Run all steps in one command
-run-all: chunks.yml
+run-all: check-runner chunks.yml
 	@echo "Running steps 2-4 in a single command..."
 	$(RUNNER_CMD) action run-all --config "$(CONFIG_FILE)"
 	@echo "✓ All steps completed"
