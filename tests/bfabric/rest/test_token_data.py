@@ -22,6 +22,7 @@ def token_data() -> TokenData:
         user="illegal_mock_user ",
         user_ws_password="password",
         token_expires="2023-10-01T00:00:00Z",
+        caller="https://example.com/mock-caller",
         environment="mock",
     )
 
@@ -37,6 +38,7 @@ def token_data_json() -> dict[str, Any]:
         "userWsPassword": "password",
         "expiryDateTime": "2023-10-01T00:00:00Z",
         "environment": "mock",
+        "caller": "https://example.com/mock-caller",
     }
 
 

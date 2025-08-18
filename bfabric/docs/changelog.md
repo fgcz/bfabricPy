@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Added
+
+- `TokenData` will include the `caller` url now.
+
 ## \[1.13.29\] - 2025-07-04
 
 ### Changed
