@@ -143,7 +143,7 @@ class Bfabric:
                 DeprecationWarning,
             )
         token_data = get_token_data(base_url=validation_instance_url, token=token)
-        config_data_client = BfabricClientConfig(base_url=validation_instance_url)
+        config_data_client = BfabricClientConfig(base_url=token_data.caller)
         config_data_auth = BfabricAuth(login=token_data.user, password=token_data.user_ws_password)
         config_data = ConfigData(client=config_data_client, auth=config_data_auth)
         return cls(config_data=config_data), token_data
