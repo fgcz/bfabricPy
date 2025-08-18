@@ -125,27 +125,28 @@ class Bfabric:
         cls,
         token: str,
         *,
-        config_file_path: Path | str = Path("~/.bfabricpy.yml"),
-        config_file_env: str | Literal["default"] | None = "default",
+        validation_instance_url: str = "https://fgcz-bfabric.uzh.ch/bfabric/",
+        config_file_path: None = None,
+        config_file_env: None = None,
     ) -> tuple[Bfabric, TokenData]:
         """Returns a new Bfabric instance, configured with the user configuration file and the provided token.
 
-        Any authentication in the configuration file will be ignored, but it will be used to determine the correct
-        B-Fabric instance.
         :param token: the token to use for authentication
-        :param config_file_path: a non-standard configuration file to use, if config file is selected as a config source
-        :param config_file_env: name of environment to use, if config file is selected as a config source.
-            if `"default"` is specified, the default environment will be used.
-            if `None` is specified, the file will not be used as a config source.
+        :param validation_instance_url: the URL of the B-Fabric instance to use for token validation, in principle
+            validation can be performed on any B-Fabric instance as the token describes the caller too
         :return: a tuple of the Bfabric instance and the token data
         """
-        config_data = load_config_data(
-            config_file_path=config_file_path, include_auth=False, config_file_env=config_file_env
-        )
-        client_config = config_data.client
-        token_data = get_token_data(base_url=client_config.base_url, token=token)
-        auth = BfabricAuth(login=token_data.user, password=token_data.user_ws_password)
-        return cls(config_data.with_auth(auth)), token_data
+        if config_file_path is not None or config_file_env is not None:
+            # TODO delete these later
+            warnings.warn(
+                "config_file_path and config_file_env are deprecated and will be removed in the future.",
+                DeprecationWarning,
+            )
+        token_data = get_token_data(base_url=validation_instance_url, token=token)
+        config_data_client = BfabricClientConfig(base_url=validation_instance_url)
+        config_data_auth = BfabricAuth(login=token_data.user, password=token_data.user_ws_password)
+        config_data = ConfigData(client=config_data_client, auth=config_data_auth)
+        return cls(config_data=config_data), token_data
 
     @property
     def config(self) -> BfabricClientConfig:

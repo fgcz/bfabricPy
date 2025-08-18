@@ -63,24 +63,18 @@ def test_connect_with_custom_args(mocker):
 
 
 def test_connect_webapp(mocker, mock_config):
-    mock_load_config_data = mocker.patch(
-        "bfabric.bfabric.load_config_data", return_value=ConfigData(client=mock_config, auth=None)
-    )
     mock_get_token_data = mocker.patch(
         "bfabric.bfabric.get_token_data", return_value=mocker.MagicMock(user="test_user", user_ws_password="x" * 32)
     )
     mocker.patch.object(Bfabric, "_log_version_message")
 
-    client, data = Bfabric.connect_webapp(token="test_token")
+    client, data = Bfabric.connect_webapp(token="test_token", validation_instance_url="https://example.com/api/")
 
     assert client.auth.login == "test_user"
     assert client.auth.password == SecretStr("x" * 32)
     assert data == mock_get_token_data.return_value
 
     mock_get_token_data.assert_called_once_with(base_url="https://example.com/api/", token="test_token")
-    mock_load_config_data.assert_called_once_with(
-        config_file_env="default", config_file_path=Path("~/.bfabricpy.yml"), include_auth=False
-    )
 
 
 def test_query_counter(bfabric_instance):
