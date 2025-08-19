@@ -13,8 +13,8 @@ Versioning currently follows `X.Y.Z` where
 ### Changed
 
 - The `Bfabric.connect_webapp` will use the `caller` field from the token data to set the `base_url` of the client.
-    - Existing code should, but will emit a deprecation warning as we plan to remove the old parameters.
-    - Theoretically, it changes the semantics but in practice it should yield the same result for all known use cases.
+    - Existing code should not break, but will emit a deprecation warning as we plan to remove the old parameters.
+    - Theoretically, it changes the semantics, but in practice it should yield the same result for all known use cases.
 
 ### Added
 
