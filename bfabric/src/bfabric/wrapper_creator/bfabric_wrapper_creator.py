@@ -94,7 +94,7 @@ class BfabricWrapperCreator:
                 f"bfabric@{resource.storage.scp_prefix}{resource.data_dict['relativepath']}"
             )
         return {
-            "parameters": self.workunit_definition.execution.raw_parameters,
+            "parameters": {k: v or "" for k, v in self.workunit_definition.execution.raw_parameters.items()},
             "protocol": "scp",
             "input": dict(inputs),
             "output": [output_url],
