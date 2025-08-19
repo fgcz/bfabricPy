@@ -10,9 +10,15 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.31\] - 2025-08-19
+
 ### Fixed
 
 - `bfabric-cli api read` handles empty results gracefully for all output formats.
+
+### Changed
+
+- Update `bfabric` to 1.13.30. This includes a fix for legacy wrapper creator.
 
 ## \[1.13.30\] - 2025-07-04
 
