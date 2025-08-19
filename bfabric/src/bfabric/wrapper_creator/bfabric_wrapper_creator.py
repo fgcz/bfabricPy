@@ -136,7 +136,7 @@ class BfabricWrapperCreator:
             "input": dict(inputs),
             "inputdataset": None,
             "order_id": self._order.id if self._order is not None else None,
-            "project_id": self._project.id,
+            "project_id": self._project.id if self._project is not None else None,
             "output": {
                 "protocol": "scp",
                 "resource_id": output_resource.id,
