@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Fixed
+
+- Fix legacy wrapper creator for orders without projects.
+
 ## \[1.13.29\] - 2025-07-04
 
 ### Changed
