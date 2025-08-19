@@ -29,6 +29,7 @@ class TokenData(BaseModel):
     user_ws_password: SecretStr = Field(alias="userWsPassword")
 
     token_expires: datetime = Field(alias="expiryDateTime")
+    caller: str
     environment: str
 
     # Define a custom serializer method for model_dump
