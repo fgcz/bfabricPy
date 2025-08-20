@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.31\] - 2025-09-20
+
 ### Changed
 
 - The `Bfabric.connect_webapp` will use the `caller` field from the token data to set the `base_url` of the client.
