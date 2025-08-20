@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Added
+
+- Entity `User` has been added.
+
 ## \[1.13.30\] - 2025-08-19
 
 ### Fixed
