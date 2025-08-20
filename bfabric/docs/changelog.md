@@ -21,6 +21,10 @@ Versioning currently follows `X.Y.Z` where
 - `TokenData` will include the `caller` url now.
 - Entity `User` has been added.
 
+### Fixed
+
+- Legacy wrapper creator creates `""` rather than `None` for empty parameter values.
+
 ## \[1.13.30\] - 2025-08-19
 
 ### Fixed
