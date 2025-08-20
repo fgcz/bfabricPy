@@ -21,6 +21,15 @@ from __future__ import annotations
 import argparse
 
 from bfabric import Bfabric
+from bfabric.entities import Workunit
+
+
+def _get_user_id(login: str, client: Bfabric) -> int | None:
+    result = client.read("user", {"login": login}, return_id_only=True)
+    if len(result) == 1:
+        return result[0]["id"]
+    else:
+        raise RuntimeError(f"Could not find user with login: {login}")
 
 
 def save_workflowstep(workunit_id: int | None = None) -> None:
@@ -41,7 +50,9 @@ def save_workflowstep(workunit_id: int | None = None) -> None:
         266: 60,
     }
 
-    workunit = client.read("workunit", obj={"id": workunit_id}).to_list_dict()[0]
+    workunit = Workunit.find(id=workunit_id, client=client)
+    user_id = _get_user_id(login=workunit["createdby"], client=client)
+
     application_id = workunit["application"]["id"]
     container_id = workunit["container"]["id"]
 
@@ -72,6 +83,7 @@ def save_workflowstep(workunit_id: int | None = None) -> None:
                 "workflowid": daw_id,
                 "workflowtemplatestepid": workflowtemplatestep_ids[application_id],
                 "workunitid": workunit_id,
+                "supervisorid": user_id,
             },
         )
         print(res[0])
