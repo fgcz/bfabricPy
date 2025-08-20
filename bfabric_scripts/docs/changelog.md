@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Fixed
+
+- Legacy `bfabric_save_workflowstep.py` is compatible with current bfabricPy version again.
+
 ## \[1.13.31\] - 2025-08-19
 
 ### Fixed
