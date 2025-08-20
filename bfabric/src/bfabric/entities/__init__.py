@@ -13,6 +13,7 @@ from .resource import Resource
 from .run import Run
 from .sample import Sample
 from .storage import Storage
+from .user import User
 from .workunit import Workunit
 
 __all__ = [
@@ -31,5 +32,6 @@ __all__ = [
     "Run",
     "Sample",
     "Storage",
+    "User",
     "Workunit",
 ]

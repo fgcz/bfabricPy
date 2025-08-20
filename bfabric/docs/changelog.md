@@ -19,6 +19,7 @@ Versioning currently follows `X.Y.Z` where
 ### Added
 
 - `TokenData` will include the `caller` url now.
+- Entity `User` has been added.
 
 ## \[1.13.30\] - 2025-08-19
 
