@@ -20,5 +20,3 @@ class WorkflowTemplateStep(Entity, UserCreatedMixin):
     workflow_template: HasOne[WorkflowTemplate] = HasOne(
         entity="WorkflowTemplate", bfabric_field="workflowtemplate", optional=True
     )
-
-    # TODO: supervisor: ...
