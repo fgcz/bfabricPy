@@ -1,7 +1,10 @@
 from pathlib import Path
 from typing import assert_never
 
+from loguru import logger
+
 from bfabric import Bfabric
+from bfabric.entities import User, Workunit
 from bfabric.experimental.entity_lookup_cache import EntityLookupCache
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric_app_runner.actions.types import (
@@ -38,8 +41,7 @@ def execute(action: ActionGeneric, client: Bfabric) -> None:
 
 def execute_dispatch(action: ActionDispatch, client: Bfabric) -> None:
     """Executes a dispatch action."""
-
-    app_version, _, workunit_ref = load_workunit_information(
+    app_version, bfabric_app_spec, workunit_ref = load_workunit_information(
         app_spec=action.app_ref, client=client, work_dir=action.work_dir, workunit_ref=action.workunit_ref
     )
 
@@ -51,6 +53,10 @@ def execute_dispatch(action: ActionDispatch, client: Bfabric) -> None:
         # Set the workunit status to processing
         workunit_definition = WorkunitDefinition.from_yaml(action.work_dir / "workunit_definition.yml")
         client.save("workunit", {"id": workunit_definition.registration.workunit_id, "status": "processing"})
+
+        # Create a workflowstep template if specified
+        if bfabric_app_spec.workflow_template_step_id is not None:
+            logger.info(f"Creating workflowstep from template {bfabric_app_spec.workflow_template_step_id}")
 
 
 def execute_run(action: ActionRun, client: Bfabric) -> None:
@@ -117,6 +123,46 @@ def execute_outputs(action: ActionOutputs, client: Bfabric) -> None:
                 force_storage=action.force_storage,
                 reuse_default_resource=True,
             )
+
+
+def _register_workflow_step(
+    workflow_template_step_id: int, workunit_definition: WorkunitDefinition, client: Bfabric
+) -> None:
+    # Load the template information.
+    try:
+        workflow_template_step = client.read("workflowtemplatestep", {"id": workflow_template_step_id})[0]
+        workflow_template = client.read("workflowtemplate", {"id": workflow_template_step["workflowtemplate"]["id"]})[0]
+    except IndexError:
+        logger.error("Misconfigured workflow template step id, cannot find it in the database.")
+        return
+
+    # Find or create the workflow entity
+    container_id = workunit_definition.registration.container_id
+    resp = client.read("workflow", {"containerid": container_id, "workflowtemplateid": workflow_template["id"]})
+    if len(resp) > 0:
+        workflow = resp[0]
+    else:
+        resp = client.save("workflow", {"containerid": container_id, "workflowtemplateid": workflow_template["id"]})
+        workflow = resp[0]
+
+    # Find or create the workflow step entity
+    # TODO handle this better than to query the workunit again
+    workunit = Workunit.find(id=workunit_definition.registration.workunit_id, client=client)
+    user_id = User.find_by_login(login=workunit["createdby"], client=client)
+    workunit_id = workunit_definition.registration.id
+    workflow_step_data = {
+        "workflowid": workflow["id"],
+        "workflowtemplatestepid": workflow_template_step["id"],
+        "supervisorid": user_id,
+        "workunitid": workunit_id,
+    }
+    resp = client.read("workflowstep", workflow_step_data)
+    if len(resp) > 0:
+        logger.info(f"Workflow step already exists: {resp[0]['id']}, skipping creation.")
+        return
+
+    resp = client.save("workflowstep", workflow_step_data)
+    logger.info(f"Created workflow step: {resp[0]['id']} for workunit {workunit_id} in workflow {workflow['id']}.")
 
 
 def _validate_chunks_list(work_dir: Path, chunk: str | None) -> list[Path]:
