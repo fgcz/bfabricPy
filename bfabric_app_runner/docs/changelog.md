@@ -6,7 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
-- Add `workflow_template_step_id` field to BfabricAppSpec to specify template step to register workunits under automatically.
+- Add `workflow_template_step_id` field to `BfabricAppSpec` to specify template step to register workunits under automatically.
+- Dispatch action checks if a workflow template step is specified and registers the workunit under it automatically.
 
 ## \[0.2.1\] - 2025-07-22
 
