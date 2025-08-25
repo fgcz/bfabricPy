@@ -24,6 +24,9 @@ class BfabricAppSpec(BaseModel):
     any git reference instead of `main` as needed.
     """
 
+    workflow_template_step_id: int | None = None
+    """If specified, this indicates that a workflow step should be created for the workunit."""
+
 
 class AppSpecTemplate(BaseModel):
     """This model defines the app_spec definition in a file.

@@ -59,28 +59,28 @@ def save_workflowstep(workunit_id: int | None = None) -> None:
     if application_id in workflowtemplatestep_ids and application_id in workflowtemplate_ids:
         workflows = client.read("workflow", obj={"containerid": container_id}).to_list_dict()
         # if workflows is None, no workflow is available - > create a new one
-        daw_id = -1
+        workflow_id = -1
         if workflows:
             # check if the corresponding workflow exists (template id 59)
             for item in workflows:
                 if item["workflowtemplate"]["id"] == workflowtemplate_ids[application_id]:
-                    daw_id = item["id"]
+                    workflow_id = item["id"]
                     break
         # case when no workflows are available (workflows == None)
-        if daw_id == -1:
-            daw = client.save(
+        if workflow_id == -1:
+            res = client.save(
                 "workflow",
                 obj={
                     "containerid": container_id,
                     "workflowtemplateid": workflowtemplate_ids[application_id],
                 },
             )
-            daw_id = daw[0]["id"]
+            workflow_id = res[0]["id"]
 
         res = client.save(
             "workflowstep",
             obj={
-                "workflowid": daw_id,
+                "workflowid": workflow_id,
                 "workflowtemplatestepid": workflowtemplatestep_ids[application_id],
                 "workunitid": workunit_id,
                 "supervisorid": user_id,

@@ -9,6 +9,8 @@ import yaml
 from bfabric import Bfabric
 from bfabric.entities import Resource
 from bfabric.experimental.workunit_definition import WorkunitDefinition
+from bfabric_app_runner.actions.execute import execute_dispatch, _register_workflow_step
+from bfabric_app_runner.actions.types import ActionDispatch
 from bfabric_app_runner.dispatch.dispatch_resource_flow import (
     ResourceDispatcher,
 )
@@ -16,7 +18,7 @@ from bfabric_app_runner.dispatch.dispatch_resource_flow import (
 
 @pytest.fixture
 def mock_bfabric(mocker):
-    return mocker.Mock(spec=Bfabric)
+    return mocker.Mock(name="mock_bfabric", spec=Bfabric)
 
 
 @pytest.fixture
@@ -243,3 +245,83 @@ def test_determine_requested_inputs(
 
     # Check tasks
     assert tasks == ["work"]
+
+
+def test_execute_dispatch_calls_register_workflow_step_when_template_exists(mocker, mock_bfabric, fs):
+    """Test that execute_dispatch calls _register_workflow_step when workflow_template_step_id exists."""
+    # Setup filesystem
+    work_dir = Path("/tmp/work")
+    fs.create_dir(work_dir)
+    fs.create_file(work_dir / "workunit_definition.yml", contents="registration:\n  workunit_id: 123")
+
+    # Mock dependencies
+    mock_load_workunit_info = mocker.patch("bfabric_app_runner.actions.execute.load_workunit_information")
+    mock_app_spec = mocker.Mock()
+    mock_app_spec.workflow_template_step_id = 789
+    mock_load_workunit_info.return_value = (mocker.Mock(), mock_app_spec, mocker.Mock())
+
+    mock_runner = mocker.patch("bfabric_app_runner.actions.execute.Runner")
+    mocker.patch("bfabric_app_runner.actions.execute.EntityLookupCache.enable")
+    mock_workunit_def = mocker.patch("bfabric_app_runner.actions.execute.WorkunitDefinition.from_yaml").return_value
+    mock_register_workflow = mocker.patch("bfabric_app_runner.actions.execute._register_workflow_step")
+
+    # Mock the client.save call for workunit status update
+    mock_bfabric.save.return_value = [{"id": 123}]
+
+    # Create action
+    action = ActionDispatch(app_ref=work_dir / "app.yml", work_dir=work_dir, workunit_ref=123, read_only=False)
+
+    # Execute
+    execute_dispatch(action, mock_bfabric)
+
+    # Verify _register_workflow_step was called
+    mock_register_workflow.assert_called_once_with(
+        workflow_template_step_id=789, workunit_definition=mock_workunit_def, client=mock_bfabric
+    )
+
+
+def test_register_workflow_step_creates_workflow_and_step(mocker, mock_bfabric):
+    """Test _register_workflow_step function creates workflow and step entities."""
+    # Setup mock responses in the order they're called
+    mock_bfabric.read.side_effect = [
+        [{"id": 789, "workflowtemplate": {"id": 999}}],  # workflowtemplatestep read
+        [{"id": 999}],  # workflowtemplate read
+        [],  # workflow read (not found, so will create)
+        [],  # workflowstep read (not found, so will create)
+    ]
+    mock_bfabric.save.side_effect = [[{"id": 100}], [{"id": 200}]]  # created workflow  # created workflowstep
+
+    # Mock Workunit and User lookups
+    mock_workunit_find = mocker.patch("bfabric_app_runner.actions.execute.Workunit.find")
+    mock_workunit_find.return_value = {"createdby": "testuser"}
+    mock_user_find = mocker.patch("bfabric_app_runner.actions.execute.User.find_by_login")
+    mock_user_find.return_value = 555
+
+    # Create mock workunit definition
+    mock_workunit_def = mocker.Mock()
+    mock_workunit_def.registration.container_id = 456
+    mock_workunit_def.registration.workunit_id = 123
+    mock_workunit_def.registration.id = 123
+
+    # Execute
+    _register_workflow_step(789, mock_workunit_def, mock_bfabric)
+
+    # Verify the sequence of calls
+    expected_read_calls = [
+        mocker.call("workflowtemplatestep", {"id": 789}),
+        mocker.call("workflowtemplate", {"id": 999}),
+        mocker.call("workflow", {"containerid": 456, "workflowtemplateid": 999}),
+        mocker.call(
+            "workflowstep", {"workflowid": 100, "workflowtemplatestepid": 789, "supervisorid": 555, "workunitid": 123}
+        ),
+    ]
+    mock_bfabric.read.assert_has_calls(expected_read_calls)
+
+    # Verify save calls
+    expected_save_calls = [
+        mocker.call("workflow", {"containerid": 456, "workflowtemplateid": 999}),
+        mocker.call(
+            "workflowstep", {"workflowid": 100, "workflowtemplatestepid": 789, "supervisorid": 555, "workunitid": 123}
+        ),
+    ]
+    mock_bfabric.save.assert_has_calls(expected_save_calls)
