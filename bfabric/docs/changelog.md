@@ -10,6 +10,11 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Added
+
+- New entities: `Workflow`, `WorkflowStep`, `WorkflowTemplate`, `WorkflowTemplateStep`
+- New relationship: `HasUser` to resolve user references (since these are modeled differently from other relationships).
+
 ## \[1.13.31\] - 2025-09-20
 
 ### Changed
