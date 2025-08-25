@@ -57,6 +57,11 @@ def execute_dispatch(action: ActionDispatch, client: Bfabric) -> None:
         # Create a workflowstep template if specified
         if bfabric_app_spec.workflow_template_step_id is not None:
             logger.info(f"Creating workflowstep from template {bfabric_app_spec.workflow_template_step_id}")
+            _register_workflow_step(
+                workflow_template_step_id=bfabric_app_spec.workflow_template_step_id,
+                workunit_definition=workunit_definition,
+                client=client,
+            )
 
 
 def execute_run(action: ActionRun, client: Bfabric) -> None:
