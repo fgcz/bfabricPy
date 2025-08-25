@@ -6,7 +6,7 @@ from typing import TypeVar, TYPE_CHECKING
 if TYPE_CHECKING:
     from bfabric.entities.core.entity import Entity
 
-E = TypeVar("E", bound="Entity")
+    E = TypeVar("E", bound=Entity)
 
 
 def import_entity(entity_class_name: str) -> type[E]:
