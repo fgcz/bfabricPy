@@ -282,42 +282,50 @@ def test_execute_dispatch_calls_register_workflow_step_when_template_exists(mock
 
 def test_register_workflow_step_creates_workflow_and_step(mocker, mock_bfabric):
     """Test _register_workflow_step function creates workflow and step entities."""
-    # Setup mock responses in the order they're called
+    # Mock entities using the new bfabric.entities API
+    mock_workflow_template = mocker.Mock()
+    mock_workflow_template.id = 999
+
+    mock_workflow_template_step = mocker.Mock()
+    mock_workflow_template_step.id = 789
+    mock_workflow_template_step.workflow_template = mock_workflow_template
+
+    # Mock WorkflowTemplateStep.find
+    mock_wts_find = mocker.patch("bfabric_app_runner.actions.execute.WorkflowTemplateStep.find")
+    mock_wts_find.return_value = mock_workflow_template_step
+
+    # Mock WorkflowStep.find_by to return None (not found, so will create)
+    mock_ws_find_by = mocker.patch("bfabric_app_runner.actions.execute.WorkflowStep.find_by")
+    mock_ws_find_by.return_value = None
+
+    # Setup client mock responses for workflow lookup and creation
     mock_bfabric.read.side_effect = [
-        [{"id": 789, "workflowtemplate": {"id": 999}}],  # workflowtemplatestep read
-        [{"id": 999}],  # workflowtemplate read
         [],  # workflow read (not found, so will create)
-        [],  # workflowstep read (not found, so will create)
     ]
-    mock_bfabric.save.side_effect = [[{"id": 100}], [{"id": 200}]]  # created workflow  # created workflowstep
+    mock_bfabric.save.side_effect = [
+        [{"id": 100}],  # created workflow
+        [{"id": 200}],  # created workflowstep
+    ]
 
-    # Mock Workunit and User lookups
-    mock_workunit_find = mocker.patch("bfabric_app_runner.actions.execute.Workunit.find")
-    mock_workunit_find.return_value = {"createdby": "testuser"}
-    mock_user_find = mocker.patch("bfabric_app_runner.actions.execute.User.find_by_login")
-    mock_user_find.return_value = 555
-
-    # Create mock workunit definition
+    # Create mock workunit definition with user_id
     mock_workunit_def = mocker.Mock()
     mock_workunit_def.registration.container_id = 456
     mock_workunit_def.registration.workunit_id = 123
     mock_workunit_def.registration.id = 123
+    mock_workunit_def.registration.user_id = 555
 
     # Execute
     _register_workflow_step(789, mock_workunit_def, mock_bfabric)
 
-    # Verify the sequence of calls
-    expected_read_calls = [
-        mocker.call("workflowtemplatestep", {"id": 789}),
-        mocker.call("workflowtemplate", {"id": 999}),
-        mocker.call("workflow", {"containerid": 456, "workflowtemplateid": 999}),
-        mocker.call(
-            "workflowstep", {"workflowid": 100, "workflowtemplatestepid": 789, "supervisorid": 555, "workunitid": 123}
-        ),
-    ]
-    mock_bfabric.read.assert_has_calls(expected_read_calls)
+    # Verify entity method calls
+    mock_wts_find.assert_called_once_with(id=789, client=mock_bfabric)
+    mock_ws_find_by.assert_called_once_with(
+        {"workflowid": 100, "workflowtemplatestepid": 789, "supervisorid": 555, "workunitid": 123}, client=mock_bfabric
+    )
 
-    # Verify save calls
+    # Verify client calls for workflow creation
+    mock_bfabric.read.assert_called_once_with("workflow", {"containerid": 456, "workflowtemplateid": 999})
+
     expected_save_calls = [
         mocker.call("workflow", {"containerid": 456, "workflowtemplateid": 999}),
         mocker.call(
