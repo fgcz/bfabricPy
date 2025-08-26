@@ -4,7 +4,7 @@ from typing import assert_never, Any
 from loguru import logger
 
 from bfabric import Bfabric
-from bfabric.entities import User, Workunit, WorkflowTemplateStep, WorkflowTemplate, WorkflowStep
+from bfabric.entities import WorkflowTemplateStep, WorkflowTemplate, WorkflowStep
 from bfabric.experimental.entity_lookup_cache import EntityLookupCache
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric_app_runner.actions.types import (
@@ -147,14 +147,11 @@ def _register_workflow_step(
     )
 
     # Prepare the data for the workflow step
-    # TODO handle this better than to query the workunit again
-    workunit = Workunit.find(id=workunit_definition.registration.workunit_id, client=client)
-    user_id = User.find_by_login(login=workunit["createdby"], client=client)
     workunit_id = workunit_definition.registration.id
     workflow_step_data = {
         "workflowid": workflow["id"],
         "workflowtemplatestepid": workflow_template_step.id,
-        "supervisorid": user_id,
+        "supervisorid": workunit_definition.registration.user_id,
         "workunitid": workunit_id,
     }
 
