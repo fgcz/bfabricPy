@@ -147,7 +147,7 @@ def _register_workflow_step(
     )
 
     # Prepare the data for the workflow step
-    workunit_id = workunit_definition.registration.id
+    workunit_id = workunit_definition.registration.workunit_id
     workflow_step_data = {
         "workflowid": workflow["id"],
         "workflowtemplatestepid": workflow_template_step.id,
