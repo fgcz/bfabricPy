@@ -132,7 +132,7 @@ class BfabricWrapperCreator:
         inputdataset = (
             None
             if self.workunit_definition.execution.dataset is None
-            else {"_id": self.workunit_definition.execution.dataset.id}
+            else {"_id": self.workunit_definition.execution.dataset}
         )
 
         return {
