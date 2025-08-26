@@ -10,6 +10,11 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Added
+
+- Add new field `WorkunitDefinition.registration.user_id`.
+- Add created/modified fields to `Workunit` entity.
+
 ### Fixed
 
 - Legacy wrapper creator also writes the inputdataset name.
