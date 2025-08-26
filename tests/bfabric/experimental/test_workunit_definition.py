@@ -13,6 +13,7 @@ def test_workunit_definition_from_workunit(mocker):
         application_parameters={"param1": "value1", "param2": "value2"},
         container=mocker.Mock(id=5, ENDPOINT="project"),
         store_output_folder="output_folder",
+        created_by=mocker.MagicMock(id=6),
     )
     workunit_definition = WorkunitDefinition.from_workunit(workunit)
     assert workunit_definition.execution.raw_parameters == {"param1": "value1", "param2": "value2"}
@@ -26,3 +27,4 @@ def test_workunit_definition_from_workunit(mocker):
     assert workunit_definition.registration.container_type == "project"
     assert workunit_definition.registration.storage_id == 1
     assert workunit_definition.registration.storage_output_folder == Path("output_folder")
+    assert workunit_definition.registration.user_id == 6

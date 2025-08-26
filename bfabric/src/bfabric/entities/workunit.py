@@ -11,6 +11,7 @@ from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.has_container_mixin import HasContainerMixin
 from bfabric.entities.core.has_many import HasMany
 from bfabric.entities.core.has_one import HasOne
+from bfabric.entities.core.user_created_mixin import UserCreatedMixin
 from bfabric.utils.path_safe_name import path_safe_name
 
 if TYPE_CHECKING:
@@ -22,7 +23,7 @@ if TYPE_CHECKING:
     from bfabric.entities.resource import Resource
 
 
-class Workunit(Entity, HasContainerMixin):
+class Workunit(Entity, HasContainerMixin, UserCreatedMixin):
     """Immutable representation of a single workunit in B-Fabric.
     :param data_dict: The dictionary representation of the workunit.
     """

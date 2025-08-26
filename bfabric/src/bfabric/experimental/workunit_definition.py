@@ -76,6 +76,8 @@ class WorkunitRegistrationDefinition(BaseModel):
     """The ID of the storage."""
     storage_output_folder: Path
     """The output folder in the storage."""
+    user_id: int | None = None
+    """The ID of the user who created the workunit, if available."""
 
     @classmethod
     def from_workunit(cls, workunit: Workunit) -> WorkunitRegistrationDefinition:
@@ -89,6 +91,7 @@ class WorkunitRegistrationDefinition(BaseModel):
             "container_type": workunit.container.ENDPOINT,
             "storage_id": workunit.application.storage.id,
             "storage_output_folder": workunit.store_output_folder,
+            "user_id": workunit.created_by.id,
         }
         return cls.model_validate(data)
 
