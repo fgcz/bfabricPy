@@ -137,7 +137,9 @@ class BfabricWrapperCreator:
             inputs[resource.workunit.application["name"]].append({"resource_id": resource.id, "resource_url": web_url})
 
         inputdataset = (
-            None if self._input_dataset is None else {"_id": self._input_dataset, "name": self._input_dataset["name"]}
+            None
+            if self._input_dataset is None
+            else {"_id": self._input_dataset.id, "name": self._input_dataset["name"]}
         )
 
         return {
