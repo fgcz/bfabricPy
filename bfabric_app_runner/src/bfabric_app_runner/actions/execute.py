@@ -4,7 +4,7 @@ from typing import assert_never, Any
 from loguru import logger
 
 from bfabric import Bfabric
-from bfabric.entities import User, Workunit, WorkflowTemplateStep, WorkflowTemplate
+from bfabric.entities import User, Workunit, WorkflowTemplateStep, WorkflowTemplate, WorkflowStep
 from bfabric.experimental.entity_lookup_cache import EntityLookupCache
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric_app_runner.actions.types import (
@@ -133,19 +133,20 @@ def execute_outputs(action: ActionOutputs, client: Bfabric) -> None:
 def _register_workflow_step(
     workflow_template_step_id: int, workunit_definition: WorkunitDefinition, client: Bfabric
 ) -> None:
-    # Load the template information.
+    # Load the workflow template step
     workflow_template_step = WorkflowTemplateStep.find(id=workflow_template_step_id, client=client)
     if not workflow_template_step:
-        logger.error("Misconfigured workflow template step id, cannot find it in the database.")
+        logger.error(f"Misconfigured {workflow_template_step_id=}, cannot find it in the database.")
         return
-    workflow_template = workflow_template_step.workflow_template
 
     # Find or create the workflow entity
     workflow = _find_or_create_workflow(
-        workflow_template=workflow_template, workunit_definition=workunit_definition, client=client
+        workflow_template=workflow_template_step.workflow_template,
+        workunit_definition=workunit_definition,
+        client=client,
     )
 
-    # Find or create the workflow step entity
+    # Prepare the data for the workflow step
     # TODO handle this better than to query the workunit again
     workunit = Workunit.find(id=workunit_definition.registration.workunit_id, client=client)
     user_id = User.find_by_login(login=workunit["createdby"], client=client)
@@ -156,11 +157,20 @@ def _register_workflow_step(
         "supervisorid": user_id,
         "workunitid": workunit_id,
     }
-    resp = client.read("workflowstep", workflow_step_data)
-    if len(resp) > 0:
-        logger.info(f"Workflow step already exists: {resp[0]['id']}, skipping creation.")
-        return
 
+    # Find or create the workflow step entity
+    _create_workflow_step_if_not_exists(
+        workflow=workflow, workflow_step_data=workflow_step_data, workunit_id=workunit_id, client=client
+    )
+
+
+def _create_workflow_step_if_not_exists(
+    workflow: dict[str, Any], workflow_step_data: dict[str, Any], workunit_id: int, client: Bfabric
+) -> None:
+    workflow_step = WorkflowStep.find_by(workflow_step_data, client=client)
+    if workflow_step:
+        logger.info(f"Workflow step already exists: {workflow_step}, skipping creation.")
+        return
     resp = client.save("workflowstep", workflow_step_data)
     logger.info(f"Created workflow step: {resp[0]['id']} for workunit {workunit_id} in workflow {workflow['id']}.")
 
