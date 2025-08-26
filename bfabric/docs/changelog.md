@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.32\] - 2025-08-26
+
 ### Added
 
 - New entities: `Workflow`, `WorkflowStep`, `WorkflowTemplate`, `WorkflowTemplateStep`
