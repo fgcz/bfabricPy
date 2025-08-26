@@ -114,6 +114,7 @@ def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit_definition: W
 
 
 def _save_link(spec: SaveLinkSpec, client: Bfabric, workunit_definition: WorkunitDefinition) -> None:
+    # TODO remove workunit_definition if we decide to never take the id from there
     # Check if the link already exists
     res = client.read("link", {"name": spec.name, "parentid": spec.entity_id, "parentclassname": spec.entity_type})
     existing_link_id = res[0]["id"] if len(res) > 0 else None

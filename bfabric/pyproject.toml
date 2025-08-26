@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "bfabric"
 description = "Python client for the B-Fabric API"
 readme = "../README.md"
-version = "1.13.32"
+version = "1.13.33"
 license = { text = "GPL-3.0" }
 authors = [
     { name = "Christian Panse", email = "cp@fgcz.ethz.ch" },

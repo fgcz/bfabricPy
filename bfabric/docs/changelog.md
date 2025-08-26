@@ -10,6 +10,17 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.33\] - 2025-08-26
+
+### Added
+
+- Add new field `WorkunitDefinition.registration.user_id`.
+- Add created/modified fields to `Workunit` entity.
+
+### Fixed
+
+- Legacy wrapper creator also writes the inputdataset name.
+
 ## \[1.13.32\] - 2025-08-26
 
 ### Added

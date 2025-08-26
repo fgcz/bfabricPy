@@ -13,7 +13,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "bfabric==1.13.28",
+    "bfabric @ git+https://github.com/fgcz/bfabricPy@main#subdirectory=bfabric",
     "cyclopts>=3.13.0",
     "pydantic",
     "glom",
@@ -29,6 +29,9 @@ include = [
     "src/bfabric_app_runner/**/*.mako",
     "src/bfabric_app_runner/**/*.bash",
 ]
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [project.scripts]
 "bfabric-app-runner"="bfabric_app_runner.cli.__main__:app"
