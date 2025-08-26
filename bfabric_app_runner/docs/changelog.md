@@ -4,6 +4,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.3.0\] - 2025-08-26
+
 ### Added
 
 - Add `workflow_template_step_id` field to `BfabricAppSpec` to specify template step to register workunits under automatically.
@@ -12,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 
 - Generic dispatch functionality will not override existing `workunit_definition.yml` files anymore.
+- Update `bfabric` dependency to 1.13.33.
 
 ## \[0.2.1\] - 2025-07-22
 
