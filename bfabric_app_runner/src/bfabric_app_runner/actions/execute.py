@@ -44,6 +44,9 @@ def execute_dispatch(action: ActionDispatch, client: Bfabric) -> None:
     app_version, bfabric_app_spec, workunit_ref = load_workunit_information(
         app_spec=action.app_ref, client=client, work_dir=action.work_dir, workunit_ref=action.workunit_ref
     )
+    # TODO this was moved here, because the dispatch step can override the workunit_definition.yml e.g. with A366 which
+    #      in principle we do not want.
+    workunit_definition = WorkunitDefinition.from_yaml(workunit_ref)
 
     with EntityLookupCache.enable():
         runner = Runner(spec=app_version, client=client, ssh_user=None)
@@ -51,7 +54,6 @@ def execute_dispatch(action: ActionDispatch, client: Bfabric) -> None:
 
     if not action.read_only:
         # Set the workunit status to processing
-        workunit_definition = WorkunitDefinition.from_yaml(action.work_dir / "workunit_definition.yml")
         client.save("workunit", {"id": workunit_definition.registration.workunit_id, "status": "processing"})
 
         # Create a workflowstep template if specified
