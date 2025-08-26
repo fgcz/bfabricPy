@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Fixed
+
+- Legacy wrapper creator also writes the inputdataset name.
+
 ## \[1.13.32\] - 2025-08-26
 
 ### Added
