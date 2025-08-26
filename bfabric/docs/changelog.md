@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.33\] - 2025-08-26
+
 ### Added
 
 - Add new field `WorkunitDefinition.registration.user_id`.
