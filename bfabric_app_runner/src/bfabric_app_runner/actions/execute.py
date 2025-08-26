@@ -1,10 +1,10 @@
 from pathlib import Path
-from typing import assert_never
+from typing import assert_never, Any
 
 from loguru import logger
 
 from bfabric import Bfabric
-from bfabric.entities import User, Workunit
+from bfabric.entities import User, Workunit, WorkflowTemplateStep, WorkflowTemplate
 from bfabric.experimental.entity_lookup_cache import EntityLookupCache
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric_app_runner.actions.types import (
@@ -134,21 +134,16 @@ def _register_workflow_step(
     workflow_template_step_id: int, workunit_definition: WorkunitDefinition, client: Bfabric
 ) -> None:
     # Load the template information.
-    try:
-        workflow_template_step = client.read("workflowtemplatestep", {"id": workflow_template_step_id})[0]
-        workflow_template = client.read("workflowtemplate", {"id": workflow_template_step["workflowtemplate"]["id"]})[0]
-    except IndexError:
+    workflow_template_step = WorkflowTemplateStep.find(id=workflow_template_step_id, client=client)
+    if not workflow_template_step:
         logger.error("Misconfigured workflow template step id, cannot find it in the database.")
         return
+    workflow_template = workflow_template_step.workflow_template
 
     # Find or create the workflow entity
-    container_id = workunit_definition.registration.container_id
-    resp = client.read("workflow", {"containerid": container_id, "workflowtemplateid": workflow_template["id"]})
-    if len(resp) > 0:
-        workflow = resp[0]
-    else:
-        resp = client.save("workflow", {"containerid": container_id, "workflowtemplateid": workflow_template["id"]})
-        workflow = resp[0]
+    workflow = _find_or_create_workflow(
+        workflow_template=workflow_template, workunit_definition=workunit_definition, client=client
+    )
 
     # Find or create the workflow step entity
     # TODO handle this better than to query the workunit again
@@ -157,7 +152,7 @@ def _register_workflow_step(
     workunit_id = workunit_definition.registration.id
     workflow_step_data = {
         "workflowid": workflow["id"],
-        "workflowtemplatestepid": workflow_template_step["id"],
+        "workflowtemplatestepid": workflow_template_step.id,
         "supervisorid": user_id,
         "workunitid": workunit_id,
     }
@@ -168,6 +163,20 @@ def _register_workflow_step(
 
     resp = client.save("workflowstep", workflow_step_data)
     logger.info(f"Created workflow step: {resp[0]['id']} for workunit {workunit_id} in workflow {workflow['id']}.")
+
+
+def _find_or_create_workflow(
+    workflow_template: WorkflowTemplate, workunit_definition: WorkunitDefinition, client: Bfabric
+) -> dict[str, Any]:
+    container_id = workunit_definition.registration.container_id
+    workflow_data = {"containerid": container_id, "workflowtemplateid": workflow_template.id}
+    resp = client.read("workflow", workflow_data)
+    if len(resp) > 0:
+        workflow = resp[0]
+    else:
+        resp = client.save("workflow", workflow_data)
+        workflow = resp[0]
+    return workflow
 
 
 def _validate_chunks_list(work_dir: Path, chunk: str | None) -> list[Path]:
