@@ -156,6 +156,8 @@ def _register_workflow_step(
         "supervisorid": workunit_definition.registration.user_id,
         "workunitid": workunit_id,
     }
+    if workunit_definition.execution.dataset is not None:
+        workflow_step_data["datasetid"] = workunit_definition.execution.dataset
 
     # Find or create the workflow step entity
     _create_workflow_step_if_not_exists(
