@@ -4,9 +4,9 @@ from typing import Any, TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, model_validator
 
-from bfabric_app_runner.dispatch.generic import write_workunit_definition_file, write_chunks_file
-from bfabric_app_runner.dispatch.resource_flow import get_resource_flow_input_resources
 from bfabric.entities import Resource, Dataset
+from bfabric_app_runner.dispatch.generic import write_chunks_file
+from bfabric_app_runner.dispatch.resource_flow import get_resource_flow_input_resources
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -74,7 +74,6 @@ class DispatchIndividualResources:
             paths = self._dispatch_jobs_dataset_flow(definition, params)
         else:
             raise ValueError("either dataset or resources must be provided")
-        write_workunit_definition_file(out_dir=self._out_dir, definition=definition)
         write_chunks_file(out_dir=self._out_dir, chunks=paths)
 
     def _dispatch_jobs_resource_flow(self, definition: WorkunitDefinition, params: dict[str, Any]) -> list[Path]:
