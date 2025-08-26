@@ -4,6 +4,8 @@ from pathlib import Path
 from typing import Literal, TYPE_CHECKING
 
 import yaml
+from loguru import logger
+
 from bfabric.entities import Workunit
 from pydantic import BaseModel, model_validator
 from bfabric.utils.path_safe_name import PathSafeStr  # noqa: TC001
@@ -128,6 +130,7 @@ class WorkunitDefinition(BaseModel):
                 raise ValueError(f"Workunit with ID {workunit} does not exist")
             result = cls.from_workunit(workunit=workunit_instance)
         if cache_file is not None:
+            logger.info(f"Caching workunit definition to {cache_file}")
             cache_file.parent.mkdir(exist_ok=True, parents=True)
             result.to_yaml(cache_file)
         return result

@@ -2,10 +2,10 @@ from pathlib import Path
 
 from loguru import logger
 
-from bfabric_app_runner.dispatch.generic import write_workunit_definition_file, write_chunks_file
 from bfabric import Bfabric
 from bfabric.entities import Dataset
 from bfabric.experimental.workunit_definition import WorkunitDefinition
+from bfabric_app_runner.dispatch.generic import write_chunks_file
 
 
 class DispatchSingleDatasetFlow:
@@ -22,6 +22,5 @@ class DispatchSingleDatasetFlow:
             return
 
         dataset = Dataset.find(id=workunit.execution.dataset, client=self._client)
-        write_workunit_definition_file(out_dir=self._out_dir, definition=workunit)
         path = self.dispatch_job(dataset=dataset, workunit=workunit)
         write_chunks_file(out_dir=self._out_dir, chunks=[path])
