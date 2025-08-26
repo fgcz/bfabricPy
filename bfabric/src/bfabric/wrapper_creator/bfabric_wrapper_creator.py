@@ -18,6 +18,7 @@ from bfabric.entities import (
     Storage,
     Order,
     Project,
+    Dataset,
 )
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 
@@ -100,6 +101,12 @@ class BfabricWrapperCreator:
             "output": [output_url],
         }
 
+    @cached_property
+    def _input_dataset(self) -> Dataset | None:
+        if self.workunit_definition.execution.dataset is not None:
+            return Dataset.find(id=self.workunit_definition.execution.dataset, client=self._client)
+        return None
+
     def get_job_configuration_section(
         self,
         output_resource: Resource,
@@ -129,12 +136,18 @@ class BfabricWrapperCreator:
             web_url = Resource({"id": resource.id}, client=self._client).web_url
             inputs[resource.workunit.application["name"]].append({"resource_id": resource.id, "resource_url": web_url})
 
+        inputdataset = (
+            None
+            if self._input_dataset is None
+            else {"_id": self._input_dataset.id, "name": self._input_dataset["name"]}
+        )
+
         return {
             "executable": str(self._workunit.application.executable["program"]),
             "external_job_id": self._external_job_id,
             "fastasequence": self._fasta_sequence,
             "input": dict(inputs),
-            "inputdataset": None,
+            "inputdataset": inputdataset,
             "order_id": self._order.id if self._order is not None else None,
             "project_id": self._project.id if self._project is not None else None,
             "output": {

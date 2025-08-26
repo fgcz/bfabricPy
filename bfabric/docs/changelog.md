@@ -10,6 +10,12 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Fixed
+
+- Legacy wrapper creator also writes the inputdataset name.
+
+## \[1.13.32\] - 2025-08-26
+
 ### Added
 
 - New entities: `Workflow`, `WorkflowStep`, `WorkflowTemplate`, `WorkflowTemplateStep`
@@ -18,6 +24,7 @@ Versioning currently follows `X.Y.Z` where
 ### Fixed
 
 - There was an issue in `import_entity.py` which made loading entities with additional uppercase characters in the type fail.
+- Fix compatibility in legacy wrapper creator for dataset-flow workunits.
 
 ## \[1.13.31\] - 2025-09-20
 
