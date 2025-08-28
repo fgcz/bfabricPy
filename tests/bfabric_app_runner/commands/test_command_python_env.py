@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import pytest
-from inline_snapshot import snapshot
 
 from bfabric_app_runner.commands.command_python_env import execute_command_python_env
 from bfabric_app_runner.specs.app.commands_spec import CommandPythonEnv, CommandExec
@@ -313,3 +312,73 @@ def test_execute_with_changed_args(mock_python_env_setup):
     called_command = mock_execute.call_args[0][0]
     assert isinstance(called_command, CommandExec)
     assert "script.py hi world" in called_command.command
+
+
+def test_ensure_executable_with_existing_script(mock_python_env_setup, mocker):
+    """Test that _ensure_executable uses script from bin directory when it exists."""
+    # Mock the _ensure_executable function directly
+    from bfabric_app_runner.commands import command_python_env
+
+    original_ensure_executable = command_python_env._ensure_executable
+
+    def mock_ensure_executable(command_args, env_path):
+        if command_args[0] == "mock-script":
+            # Simulate finding the script in bin directory
+            return [str(env_path / "bin" / "mock-script")] + command_args[1:]
+        return original_ensure_executable(command_args, env_path)
+
+    mocker.patch.object(command_python_env, "_ensure_executable", side_effect=mock_ensure_executable)
+
+    mock_execute = mock_python_env_setup["mock_execute"]
+    mock_cached_strategy = mock_python_env_setup["mock_cached_strategy"]
+
+    cmd = CommandPythonEnv(pylock=Path("/test/pylock"), command="mock-script", python_version="3.13")
+    execute_command_python_env(cmd, "arg1", "arg2")
+
+    # Should use cached strategy
+    mock_cached_strategy.get_environment.assert_called_once_with(cmd)
+
+    # Should call execute_command_exec once for execution
+    mock_execute.assert_called_once()
+    called_command = mock_execute.call_args[0][0]
+    assert isinstance(called_command, CommandExec)
+
+    # Should use the script from bin directory directly
+    expected_script_path = str(mock_python_env_setup["env_path"] / "bin" / "mock-script")
+    assert expected_script_path in called_command.command
+    assert "arg1 arg2" in called_command.command
+
+
+def test_ensure_executable_fallback_to_python(mock_python_env_setup, mocker):
+    """Test that _ensure_executable falls back to python interpreter when script doesn't exist."""
+    # Mock the _ensure_executable function to simulate script not existing
+    from bfabric_app_runner.commands import command_python_env
+
+    original_ensure_executable = command_python_env._ensure_executable
+
+    def mock_ensure_executable(command_args, env_path):
+        if command_args[0] == "non-existent-script":
+            # Simulate script not found - fallback to python interpreter
+            return [str(env_path / "bin" / "python")] + command_args
+        return original_ensure_executable(command_args, env_path)
+
+    mocker.patch.object(command_python_env, "_ensure_executable", side_effect=mock_ensure_executable)
+
+    mock_execute = mock_python_env_setup["mock_execute"]
+    mock_cached_strategy = mock_python_env_setup["mock_cached_strategy"]
+
+    cmd = CommandPythonEnv(pylock=Path("/test/pylock"), command="non-existent-script", python_version="3.13")
+    execute_command_python_env(cmd, "arg1", "arg2")
+
+    # Should use cached strategy
+    mock_cached_strategy.get_environment.assert_called_once_with(cmd)
+
+    # Should call execute_command_exec once for execution
+    mock_execute.assert_called_once()
+    called_command = mock_execute.call_args[0][0]
+    assert isinstance(called_command, CommandExec)
+
+    # Should use python interpreter as fallback
+    expected_python_path = str(mock_python_env_setup["env_path"] / "bin" / "python")
+    assert expected_python_path in called_command.command
+    assert "non-existent-script arg1 arg2" in called_command.command
