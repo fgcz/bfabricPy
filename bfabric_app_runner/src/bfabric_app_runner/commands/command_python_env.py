@@ -6,8 +6,9 @@ import shutil
 import socket
 import tempfile
 from pathlib import Path
-from typing import Protocol
+from typing import Protocol, Annotated
 
+import cyclopts
 from loguru import logger
 
 from bfabric_app_runner.commands.command_exec import execute_command_exec
@@ -129,7 +130,7 @@ class EphemeralEnvironmentStrategy:
     """Strategy for ephemeral (temporary) environments."""
 
     def get_environment(self, command: CommandPythonEnv) -> PythonEnvironment:
-        env_path = self._get_ephemeral_path(command)
+        env_path = self._get_ephemeral_path()
         environment = PythonEnvironment(env_path, command)
 
         logger.info(
@@ -139,7 +140,7 @@ class EphemeralEnvironmentStrategy:
         environment.provision()
         return environment
 
-    def _get_ephemeral_path(self, command: CommandPythonEnv) -> Path:
+    def _get_ephemeral_path(self) -> Path:
         """Get an ephemeral directory for ephemeral (refresh) environments using cache directory."""
         # Use the same cache directory as cached environments
         cache_dir = Path(os.environ.get("XDG_CACHE_HOME", "~/.cache")).expanduser()
@@ -158,7 +159,7 @@ def _ensure_environment(command: CommandPythonEnv) -> Path:
     return environment.env_path
 
 
-def execute_command_python_env(command: CommandPythonEnv, *args: str) -> None:
+def execute_command_python_env(command: Annotated[CommandPythonEnv, cyclopts.Parameter(name="*")], *args: str) -> None:
     """Executes the command with the provided arguments using a Python environment."""
     # Ensure the environment exists (either cached or ephemeral)
     env_path = _ensure_environment(command)
@@ -198,3 +199,10 @@ def _cleanup_ephemeral_environment(env_path: Path) -> None:
             shutil.rmtree(env_path)
     except (OSError, PermissionError) as e:
         logger.warning(f"Failed to cleanup ephemeral environment at {env_path}: {e}")
+
+
+app = cyclopts.App()
+app.command(execute_command_python_env, name="execute")
+
+if __name__ == "__main__":
+    app()
