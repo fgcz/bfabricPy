@@ -310,15 +310,6 @@ class Bfabric:
         )
         return len(results) > 0
 
-    def read_reference(self, reference: dict[str, Any], check: bool = True) -> dict[str, Any] | None:
-        """Reads a single entity from the specified reference.
-        :param reference: a dictionary containing 'classname' and 'id' fields
-        :param check: whether to raise an error if the response is not successful
-        :return: the entity if exactly one result is found, None otherwise
-        """
-        result = self.read(reference["classname"], {"id": reference["id"]}, max_results=1, check=check)
-        return result[0] if len(result) == 1 else None
-
     def upload_resource(
         self, resource_name: str, content: bytes, workunit_id: int, check: bool = True
     ) -> ResultContainer:
