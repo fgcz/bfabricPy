@@ -376,3 +376,5 @@ def test_repr(bfabric_instance, variant):
         "client=BfabricClientConfig(base_url='https://example.com/api/', application_ids={}, "
         "job_notification_emails='', engine=BfabricAPIEngineType.SUDS), auth=None))"
     )
+
+
