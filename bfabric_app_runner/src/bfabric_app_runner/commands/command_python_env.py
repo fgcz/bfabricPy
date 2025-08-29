@@ -166,9 +166,8 @@ def execute_command_python_env(command: Annotated[CommandPythonEnv, cyclopts.Par
 
     try:
         # Build command using the environment's Python interpreter
-        python_executable = env_path / "bin" / "python"
         command_args = shlex.split(command.command) + list(args)
-        final_command = [str(python_executable)] + command_args
+        final_command = _ensure_executable(command_args, env_path)
 
         # Include venv's bin directory in prepend_paths
         venv_bin_path = env_path / "bin"
@@ -180,6 +179,16 @@ def execute_command_python_env(command: Annotated[CommandPythonEnv, cyclopts.Par
         # Clean up ephemeral environments after use
         if command.refresh:
             _cleanup_ephemeral_environment(env_path)
+
+
+def _ensure_executable(command_args: list[str], env_path: Path) -> list[str]:
+    candidate_script = env_path / "bin" / command_args[0]
+    if candidate_script.exists():
+        return [str(candidate_script), *command_args[1:]]
+
+    # Fallback to using the Python interpreter directly
+    python_executable = env_path / "bin" / "python"
+    return [str(python_executable), *command_args]
 
 
 def _cleanup_ephemeral_environment(env_path: Path) -> None:

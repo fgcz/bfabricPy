@@ -10,7 +10,7 @@ jobs:
     name: Unit Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-python@v5
         with:
           python-version: 3.11
@@ -22,7 +22,7 @@ jobs:
     name: Code Style
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-python@v5
         with:
           python-version: 3.11
@@ -30,12 +30,87 @@ jobs:
         run: pip install nox uv
       - name: Check code with ruff
         run: nox -s code_style
-  list_todos:
-    name: List TODOs
+  check_todos:
+    name: Check "TODO" Changes
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      pull-requests: write
+      contents: read
     steps:
-      - uses: actions/checkout@v4
-      - run: sudo apt-get install -y ripgrep
-        name: Install ripgrep
-      - run: rg -n TODO .
-        name: List TODOs
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Check "TODO" differences
+        id: todo-diff
+        uses: ./.github/actions/todo-diff
+        with:
+          base-ref: ${{ github.event.pull_request.base.sha }}
+          head-ref: ${{ github.sha }}
+      - name: Comment on PR with "TODO" changes
+        if: steps.todo-diff.outputs.has-changes == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const summary = `${{ steps.todo-diff.outputs.summary }}`;
+            const details = ${{ steps.todo-diff.outputs.details }};
+
+            let commentBody = `## 📝 "TODO" Changes Detected\n\n**Summary:** ${summary}\n\n`;
+
+            if (details.added && details.added.length > 0) {
+              commentBody += `### ➕ Added "TODO"s (${details.added.length})\n`;
+              for (const todo of details.added) {
+                commentBody += `- \`${todo.file_path}:${todo.line_number}\`: ${todo.content}\n`;
+              }
+              commentBody += '\n';
+            }
+
+            if (details.removed && details.removed.length > 0) {
+              commentBody += `### ❌ Removed "TODO"s (${details.removed.length})\n`;
+              for (const todo of details.removed) {
+                commentBody += `- \`${todo.file_path}:${todo.line_number}\`: ${todo.content}\n`;
+              }
+              commentBody += '\n';
+            }
+
+            if (details.modified && details.modified.length > 0) {
+              commentBody += `### 📝 Modified "TODO"s (${details.modified.length})\n`;
+              for (const todo of details.modified) {
+                commentBody += `- \`${todo.file_path}:${todo.line_number}\`:\n`;
+                commentBody += `  - **Before:** ${todo.old_content}\n`;
+                commentBody += `  - **After:** ${todo.new_content}\n`;
+              }
+              commentBody += '\n';
+            }
+
+            commentBody += '---\n*This comment is automatically updated when "TODO" changes are detected.*';
+
+            // Find existing TODO comment
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const existingComment = comments.data.find(comment =>
+              comment.user.login === 'github-actions[bot]' &&
+              comment.body.includes('📝 "TODO" Changes Detected')
+            );
+
+            if (existingComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: commentBody
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: commentBody
+              });
+            }

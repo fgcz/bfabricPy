@@ -53,5 +53,30 @@ def test_get_when_cache_exists(mocker, mock_client):
     mock_load_entity.assert_not_called()
 
 
+def test_load_entity_found(mocker, mock_client):
+    mock_obj = MockEntity(data_dict={"test_field": {"id": 1}}, client=mock_client)
+    has_one = HasOne("MockEntity", bfabric_field="test_field")
+    mock_entity = mocker.MagicMock(name="mock_entity", spec=MockEntity)
+    mock_find = mocker.patch.object(MockEntity, "find", return_value=mock_entity)
+    result = has_one._load_entity(obj=mock_obj)
+    assert result == mock_entity
+    mock_find.assert_called_once_with(id=1, client=mock_client)
+
+
+def test_load_entity_not_found_required(mocker, mock_client):
+    mock_obj = MockEntity(data_dict={"test_field": None}, client=mock_client)
+    has_one = HasOne("MockEntity", bfabric_field="test_field", optional=False)
+    with pytest.raises(ValueError) as exc_info:
+        has_one._load_entity(obj=mock_obj)
+    assert str(exc_info.value) == "Field 'test_field' is required"
+
+
+def test_load_entity_not_found_optional(mocker, mock_client):
+    mock_obj = MockEntity(data_dict={"test_field": None}, client=mock_client)
+    has_one = HasOne("MockEntity", bfabric_field="test_field", optional=True)
+    result = has_one._load_entity(obj=mock_obj)
+    assert result is None
+
+
 if __name__ == "__main__":
     pytest.main()

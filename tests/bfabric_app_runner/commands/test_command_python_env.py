@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import pytest
-from inline_snapshot import snapshot
 
 from bfabric_app_runner.commands.command_python_env import execute_command_python_env
 from bfabric_app_runner.specs.app.commands_spec import CommandPythonEnv, CommandExec
@@ -313,3 +312,43 @@ def test_execute_with_changed_args(mock_python_env_setup):
     called_command = mock_execute.call_args[0][0]
     assert isinstance(called_command, CommandExec)
     assert "script.py hi world" in called_command.command
+
+
+def test_ensure_executable_with_existing_script(mock_python_env_setup, mocker):
+    """Test that _ensure_executable uses script from bin directory when it exists."""
+
+    # Mock only the exists check for the specific script path
+    def mock_exists(self):
+        return str(self).endswith("/cache/env/test_hash/bin/mock-script")
+
+    mocker.patch("pathlib.Path.exists", mock_exists)
+
+    mock_execute = mock_python_env_setup["mock_execute"]
+
+    cmd = CommandPythonEnv(pylock=Path("/test/pylock"), command="mock-script", python_version="3.13")
+    execute_command_python_env(cmd, "arg1", "arg2")
+
+    # Should call execute_command_exec with the script path directly
+    mock_execute.assert_called_once()
+    called_command = mock_execute.call_args[0][0]
+
+    # Should use the script from bin directory directly
+    assert "/cache/env/test_hash/bin/mock-script arg1 arg2" in called_command.command
+
+
+def test_ensure_executable_fallback_to_python(mock_python_env_setup, mocker):
+    """Test that _ensure_executable falls back to python interpreter when script doesn't exist."""
+    # Mock exists to always return False (script doesn't exist)
+    mocker.patch("pathlib.Path.exists", return_value=False)
+
+    mock_execute = mock_python_env_setup["mock_execute"]
+
+    cmd = CommandPythonEnv(pylock=Path("/test/pylock"), command="non-existent-script", python_version="3.13")
+    execute_command_python_env(cmd, "arg1", "arg2")
+
+    # Should call execute_command_exec with python interpreter + original command
+    mock_execute.assert_called_once()
+    called_command = mock_execute.call_args[0][0]
+
+    # Should use python interpreter as fallback
+    assert "/cache/env/test_hash/bin/python non-existent-script arg1 arg2" in called_command.command

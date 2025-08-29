@@ -10,6 +10,52 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.33\] - 2025-08-26
+
+### Added
+
+- Add new field `WorkunitDefinition.registration.user_id`.
+- Add created/modified fields to `Workunit` entity.
+
+### Fixed
+
+- Legacy wrapper creator also writes the inputdataset name.
+
+## \[1.13.32\] - 2025-08-26
+
+### Added
+
+- New entities: `Workflow`, `WorkflowStep`, `WorkflowTemplate`, `WorkflowTemplateStep`
+- New relationship: `HasUser` to resolve user references (since these are modeled differently from other relationships).
+
+### Fixed
+
+- There was an issue in `import_entity.py` which made loading entities with additional uppercase characters in the type fail.
+- Fix compatibility in legacy wrapper creator for dataset-flow workunits.
+
+## \[1.13.31\] - 2025-09-20
+
+### Changed
+
+- The `Bfabric.connect_webapp` will use the `caller` field from the token data to set the `base_url` of the client.
+    - Existing code should not break, but will emit a deprecation warning as we plan to remove the old parameters.
+    - Theoretically, it changes the semantics, but in practice it should yield the same result for all known use cases.
+
+### Added
+
+- `TokenData` will include the `caller` url now.
+- Entity `User` has been added.
+
+### Fixed
+
+- Legacy wrapper creator creates `""` rather than `None` for empty parameter values.
+
+## \[1.13.30\] - 2025-08-19
+
+### Fixed
+
+- Fix legacy wrapper creator for orders without projects.
+
 ## \[1.13.29\] - 2025-07-04
 
 ### Changed

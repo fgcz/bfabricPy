@@ -4,6 +4,8 @@ from pathlib import Path
 from typing import Literal, TYPE_CHECKING
 
 import yaml
+from loguru import logger
+
 from bfabric.entities import Workunit
 from pydantic import BaseModel, model_validator
 from bfabric.utils.path_safe_name import PathSafeStr  # noqa: TC001
@@ -76,6 +78,8 @@ class WorkunitRegistrationDefinition(BaseModel):
     """The ID of the storage."""
     storage_output_folder: Path
     """The output folder in the storage."""
+    user_id: int | None = None
+    """The ID of the user who created the workunit, if available."""
 
     @classmethod
     def from_workunit(cls, workunit: Workunit) -> WorkunitRegistrationDefinition:
@@ -89,6 +93,7 @@ class WorkunitRegistrationDefinition(BaseModel):
             "container_type": workunit.container.ENDPOINT,
             "storage_id": workunit.application.storage.id,
             "storage_output_folder": workunit.store_output_folder,
+            "user_id": workunit.created_by.id,
         }
         return cls.model_validate(data)
 
@@ -125,6 +130,7 @@ class WorkunitDefinition(BaseModel):
                 raise ValueError(f"Workunit with ID {workunit} does not exist")
             result = cls.from_workunit(workunit=workunit_instance)
         if cache_file is not None:
+            logger.info(f"Caching workunit definition to {cache_file}")
             cache_file.parent.mkdir(exist_ok=True, parents=True)
             result.to_yaml(cache_file)
         return result

@@ -1,0 +1,37 @@
+name: '"TODO" Diff Checker'
+description: 'Check for "TODO" changes in PR by comparing base and head branches'
+inputs:
+  base-ref:
+    description: 'Base branch reference for comparison'
+    required: true
+  head-ref:
+    description: 'Head branch reference for comparison'
+    required: true
+outputs:
+  has-changes:
+    description: 'Whether there are "TODO" changes'
+    value: ${{ steps.check-todos.outputs.has_changes }}
+  summary:
+    description: 'Summary of "TODO" changes'
+    value: ${{ steps.check-todos.outputs.summary }}
+  details:
+    description: 'Detailed "TODO" changes in JSON format'
+    value: ${{ steps.check-todos.outputs.details }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Install ripgrep
+      shell: bash
+      run: sudo apt-get update && sudo apt-get install -y ripgrep
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Check "TODO" differences
+      id: check-todos
+      shell: bash
+      run: |
+        python ${{ github.action_path }}/check_todos.py \
+          --base-ref "${{ inputs.base-ref }}" \
+          --head-ref "${{ inputs.head-ref }}" \
+          --github-output $GITHUB_OUTPUT

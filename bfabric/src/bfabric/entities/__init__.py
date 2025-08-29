@@ -13,6 +13,11 @@ from .resource import Resource
 from .run import Run
 from .sample import Sample
 from .storage import Storage
+from .user import User
+from .workflow import Workflow
+from .workflowstep import WorkflowStep
+from .workflowtemplate import WorkflowTemplate
+from .workflowtemplatestep import WorkflowTemplateStep
 from .workunit import Workunit
 
 __all__ = [
@@ -31,5 +36,10 @@ __all__ = [
     "Run",
     "Sample",
     "Storage",
+    "User",
+    "Workflow",
+    "WorkflowStep",
+    "WorkflowTemplate",
+    "WorkflowTemplateStep",
     "Workunit",
 ]
