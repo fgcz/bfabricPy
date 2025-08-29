@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Added
+
+- `CommandPythonEnv` can also execute any tools available in the Python environment (in `.venv/bin`), not just modules.
+
 ## \[0.3.0\] - 2025-08-26
 
 ### Added
