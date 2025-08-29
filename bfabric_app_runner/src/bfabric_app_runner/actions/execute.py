@@ -23,17 +23,27 @@ from bfabric_app_runner.output_registration import register_outputs
 
 def execute_dispatch(action: ActionDispatch, client: Bfabric) -> None:
     """Executes a dispatch action."""
-    app_version, bfabric_app_spec, workunit_ref = load_workunit_information(
+    app_version, bfabric_app_spec, workunit_definition_path = load_workunit_information(
         app_spec=action.app_ref, client=client, work_dir=action.work_dir, workunit_ref=action.workunit_ref
     )
+    workunit_definition_mtime = workunit_definition_path.stat().st_mtime
+    workunit_definition = WorkunitDefinition.from_yaml(workunit_definition_path)
 
     with EntityLookupCache.enable():
         runner = Runner(spec=app_version, client=client, ssh_user=None)
-        runner.run_dispatch(workunit_ref=workunit_ref, work_dir=action.work_dir)
+        runner.run_dispatch(workunit_ref=workunit_definition_path, work_dir=action.work_dir)
+
+    new_mtime = workunit_definition_path.stat().st_mtime
+    if workunit_definition_mtime != new_mtime:
+        logger.warning(
+            f"The workunit definition file {workunit_definition_path} was modified during dispatch. "
+            "This must not happen, and could be promoted to an error in the future. "
+            "Please adapt the app, restoring original file now."
+        )
+        workunit_definition.to_yaml(workunit_definition_path)
 
     if not action.read_only:
         # Set the workunit status to processing
-        workunit_definition = WorkunitDefinition.from_yaml(workunit_ref)
         client.save("workunit", {"id": workunit_definition.registration.workunit_id, "status": "processing"})
 
         # Create a workflowstep template if specified
