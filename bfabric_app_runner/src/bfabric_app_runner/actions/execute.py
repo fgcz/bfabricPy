@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import assert_never, Any
+from typing import Any
 
 from loguru import logger
 
@@ -13,30 +13,12 @@ from bfabric_app_runner.actions.types import (
     ActionProcess,
     ActionOutputs,
     ActionRun,
-    ActionGeneric,
 )
 from bfabric_app_runner.app_runner.resolve_app import load_workunit_information
 from bfabric_app_runner.app_runner.runner import ChunksFile
 from bfabric_app_runner.app_runner.runner import Runner
 from bfabric_app_runner.inputs.prepare.prepare_folder import prepare_folder
 from bfabric_app_runner.output_registration import register_outputs
-
-
-def execute(action: ActionGeneric, client: Bfabric) -> None:
-    """Executes the provided action."""
-    match action:
-        case ActionDispatch():
-            execute_dispatch(action=action, client=client)
-        case ActionRun():
-            execute_run(action=action, client=client)
-        case ActionInputs():
-            execute_inputs(action=action, client=client)
-        case ActionProcess():
-            execute_process(action=action, client=client)
-        case ActionOutputs():
-            execute_outputs(action=action, client=client)
-        case _:
-            assert_never(action)
 
 
 def execute_dispatch(action: ActionDispatch, client: Bfabric) -> None:
