@@ -1,3 +1,4 @@
+import warnings
 from pathlib import Path
 from typing import Any
 
@@ -35,10 +36,11 @@ def execute_dispatch(action: ActionDispatch, client: Bfabric) -> None:
 
     new_mtime = workunit_definition_path.stat().st_mtime
     if workunit_definition_mtime != new_mtime:
-        logger.warning(
+        warnings.warn(
             f"The workunit definition file {workunit_definition_path} was modified during dispatch. "
             "This must not happen, and could be promoted to an error in the future. "
-            "Please adapt the app, restoring original file now."
+            "Please adapt the app, restoring original file now.",
+            DeprecationWarning,
         )
         logger.warning("Renaming workunit_definition.yml to workunit_definition.yml.bak, and restoring original.")
         workunit_definition_path.rename(workunit_definition_path.with_suffix(".yml.bak"))
