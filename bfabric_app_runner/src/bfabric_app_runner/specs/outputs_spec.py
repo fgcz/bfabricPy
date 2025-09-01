@@ -46,7 +46,7 @@ class SaveDatasetSpec(BaseModel):
 
 
 class SaveLinkSpec(BaseModel):
-    """Saves a link to the entity of type entity_type with id entity_id."""
+    """Saves a link to the workunit, or, if desired to an arbitrary entity of type entity_type with id entity_id."""
 
     model_config = ConfigDict(extra="forbid")
     type: Literal["bfabric_link"] = "bfabric_link"
