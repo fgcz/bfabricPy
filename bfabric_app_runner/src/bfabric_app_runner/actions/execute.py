@@ -40,6 +40,8 @@ def execute_dispatch(action: ActionDispatch, client: Bfabric) -> None:
             "This must not happen, and could be promoted to an error in the future. "
             "Please adapt the app, restoring original file now."
         )
+        logger.warning("Renaming workunit_definition.yml to workunit_definition.yml.bak, and restoring original.")
+        workunit_definition_path.rename(workunit_definition_path.with_suffix(".yml.bak"))
         workunit_definition.to_yaml(workunit_definition_path)
 
     if not action.read_only:
