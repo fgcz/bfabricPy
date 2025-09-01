@@ -114,30 +114,38 @@ def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit_definition: W
 
 
 def _save_link(spec: SaveLinkSpec, client: Bfabric, workunit_definition: WorkunitDefinition) -> None:
-    # TODO remove workunit_definition if we decide to never take the id from there
+    entity_id = spec.entity_id
+    entity_type = spec.entity_type
+
+    if entity_id is None:
+        # double check, although it should be already checked by the validator
+        if entity_type != "Workunit":
+            raise ValueError("entity_id must be provided if entity_type is not 'Workunit'")
+        entity_id = workunit_definition.registration.workunit_id
+
     # Check if the link already exists
-    res = client.read("link", {"name": spec.name, "parentid": spec.entity_id, "parentclassname": spec.entity_type})
+    res = client.read("link", {"name": spec.name, "parentid": entity_id, "parentclassname": entity_type})
     existing_link_id = res[0]["id"] if len(res) > 0 else None
     # TODO maybe some of this logic could be extracted generically (i.e. UPDATE_EXISTING logic)
     if existing_link_id is not None and spec.update_existing == UpdateExisting.NO:
         msg = (
-            f"Link {spec.name} already exists for entity {spec.entity_type} with id {spec.entity_id}, "
+            f"Link {spec.name} already exists for entity {entity_type} with id {entity_id}, "
             f"but existing links should not be updated."
         )
         raise ValueError(msg)
     elif existing_link_id is None and spec.update_existing == UpdateExisting.REQUIRED:
         msg = (
-            f"Link {spec.name} does not exist for entity {spec.entity_type} with id {spec.entity_id}, "
+            f"Link {spec.name} does not exist for entity {entity_type} with id {entity_id}, "
             f"but existing links is expected to be updated."
         )
         raise ValueError(msg)
 
     # Create or update the link
-    link_data = {"name": spec.name, "url": spec.url, "parentid": spec.entity_id, "parentclassname": spec.entity_type}
+    link_data = {"name": spec.name, "url": spec.url, "parentid": entity_id, "parentclassname": entity_type}
     if existing_link_id is not None:
         link_data["id"] = existing_link_id
     res = client.save("link", link_data)
-    logger.info(f"Link {spec.name} saved with id {res['id']} for entity {spec.entity_type} with id {spec.entity_id}")
+    logger.info(f"Link {spec.name} saved with id {res['id']} for entity {entity_type} with id {entity_id}")
 
 
 def find_default_resource_id(workunit_definition: WorkunitDefinition, client: Bfabric) -> int | None:

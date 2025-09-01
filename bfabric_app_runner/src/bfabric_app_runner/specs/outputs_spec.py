@@ -5,7 +5,7 @@ from pathlib import Path  # noqa: TCH003
 from typing import Literal, Annotated
 
 import yaml
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class UpdateExisting(enum.Enum):
@@ -46,7 +46,7 @@ class SaveDatasetSpec(BaseModel):
 
 
 class SaveLinkSpec(BaseModel):
-    """Saves a link to the entity of type entity_type with id entity_id."""
+    """Saves a link to the workunit, or, if desired to an arbitrary entity of type entity_type with id entity_id."""
 
     model_config = ConfigDict(extra="forbid")
     type: Literal["bfabric_link"] = "bfabric_link"
@@ -54,12 +54,18 @@ class SaveLinkSpec(BaseModel):
     """The name of the link."""
     url: str
     """The URL of the link."""
-    entity_type: str
+    entity_type: str = "Workunit"
     """The type of the entity that will be linked."""
-    entity_id: int
+    entity_id: int | None = None
     """The ID of the entity that will be linked."""
     update_existing: UpdateExisting = UpdateExisting.IF_EXISTS
     """Behavior, if a link with the same name already exists."""
+
+    @model_validator(mode="after")
+    def require_entity_id_if_not_workunit(self) -> SaveLinkSpec:
+        if self.entity_type != "Workunit" and self.entity_id is None:
+            raise ValueError("entity_id must be provided if entity_type is not 'Workunit'")
+        return self
 
 
 SpecType = Annotated[CopyResourceSpec | SaveDatasetSpec | SaveLinkSpec, Field(discriminator="type")]
