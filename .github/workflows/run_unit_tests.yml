@@ -58,7 +58,7 @@ jobs:
             let commentBody = `## 📝 "TODO" Changes Detected\n\n**Summary:** ${summary}\n\n`;
 
             if (details.added && details.added.length > 0) {
-              commentBody += `### ➕ Added "TODO"s (${details.added.length})\n`;
+              commentBody += `### Added "TODO"s (${details.added.length})\n`;
               for (const todo of details.added) {
                 commentBody += `- \`${todo.file_path}:${todo.line_number}\`: ${todo.content}\n`;
               }
@@ -66,7 +66,7 @@ jobs:
             }
 
             if (details.removed && details.removed.length > 0) {
-              commentBody += `### ❌ Removed "TODO"s (${details.removed.length})\n`;
+              commentBody += `### Removed "TODO"s (${details.removed.length})\n`;
               for (const todo of details.removed) {
                 commentBody += `- \`${todo.file_path}:${todo.line_number}\`: ${todo.content}\n`;
               }
@@ -74,7 +74,7 @@ jobs:
             }
 
             if (details.modified && details.modified.length > 0) {
-              commentBody += `### 📝 Modified "TODO"s (${details.modified.length})\n`;
+              commentBody += `### Modified "TODO"s (${details.modified.length})\n`;
               for (const todo of details.modified) {
                 commentBody += `- \`${todo.file_path}:${todo.line_number}\`:\n`;
                 commentBody += `  - **Before:** ${todo.old_content}\n`;

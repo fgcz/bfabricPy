@@ -143,7 +143,7 @@ def generate_summary(changes: Dict) -> str:
     if added_count > 0:
         parts.append(f"➕ {added_count} \"TODO\"{'s' if added_count != 1 else ''} added")
     if removed_count > 0:
-        parts.append(f"❌ {removed_count} \"TODO\"{'s' if removed_count != 1 else ''} removed")
+        parts.append(f"✅ {removed_count} \"TODO\"{'s' if removed_count != 1 else ''} removed")
     if modified_count > 0:
         parts.append(f"📝 {modified_count} \"TODO\"{'s' if modified_count != 1 else ''} modified")
 
