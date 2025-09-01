@@ -1,5 +1,6 @@
+import warnings
 from pathlib import Path
-from typing import assert_never, Any
+from typing import Any
 
 from loguru import logger
 
@@ -13,7 +14,6 @@ from bfabric_app_runner.actions.types import (
     ActionProcess,
     ActionOutputs,
     ActionRun,
-    ActionGeneric,
 )
 from bfabric_app_runner.app_runner.resolve_app import load_workunit_information
 from bfabric_app_runner.app_runner.runner import ChunksFile
@@ -22,36 +22,32 @@ from bfabric_app_runner.inputs.prepare.prepare_folder import prepare_folder
 from bfabric_app_runner.output_registration import register_outputs
 
 
-def execute(action: ActionGeneric, client: Bfabric) -> None:
-    """Executes the provided action."""
-    match action:
-        case ActionDispatch():
-            execute_dispatch(action=action, client=client)
-        case ActionRun():
-            execute_run(action=action, client=client)
-        case ActionInputs():
-            execute_inputs(action=action, client=client)
-        case ActionProcess():
-            execute_process(action=action, client=client)
-        case ActionOutputs():
-            execute_outputs(action=action, client=client)
-        case _:
-            assert_never(action)
-
-
 def execute_dispatch(action: ActionDispatch, client: Bfabric) -> None:
     """Executes a dispatch action."""
-    app_version, bfabric_app_spec, workunit_ref = load_workunit_information(
+    app_version, bfabric_app_spec, workunit_definition_path = load_workunit_information(
         app_spec=action.app_ref, client=client, work_dir=action.work_dir, workunit_ref=action.workunit_ref
     )
+    workunit_definition_mtime = workunit_definition_path.stat().st_mtime
+    workunit_definition = WorkunitDefinition.from_yaml(workunit_definition_path)
 
     with EntityLookupCache.enable():
         runner = Runner(spec=app_version, client=client, ssh_user=None)
-        runner.run_dispatch(workunit_ref=workunit_ref, work_dir=action.work_dir)
+        runner.run_dispatch(workunit_ref=workunit_definition_path, work_dir=action.work_dir)
+
+    new_mtime = workunit_definition_path.stat().st_mtime
+    if workunit_definition_mtime != new_mtime:
+        warnings.warn(
+            f"The workunit definition file {workunit_definition_path} was modified during dispatch. "
+            "This must not happen, and could be promoted to an error in the future. "
+            "Please adapt the app, restoring original file now.",
+            DeprecationWarning,
+        )
+        logger.warning("Renaming workunit_definition.yml to workunit_definition.yml.bak, and restoring original.")
+        workunit_definition_path.rename(workunit_definition_path.with_suffix(".yml.bak"))
+        workunit_definition.to_yaml(workunit_definition_path)
 
     if not action.read_only:
         # Set the workunit status to processing
-        workunit_definition = WorkunitDefinition.from_yaml(workunit_ref)
         client.save("workunit", {"id": workunit_definition.registration.workunit_id, "status": "processing"})
 
         # Create a workflowstep template if specified

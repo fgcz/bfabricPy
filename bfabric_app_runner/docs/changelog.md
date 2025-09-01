@@ -4,6 +4,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.3.1\] - 2025-09-01
+
+### Added
+
+- `CommandPythonEnv` can also execute any tools available in the Python environment (in `.venv/bin`), not just modules.
+- `-m bfabric_app_runner.commands.command_python_env` provides an experimental CLI to run arbitrary commands analogously to the app runner.
+- Automatically save links to workunits without specifying extra IDs.
+
+# Changed
+
+- Dispatch action detects, when the script modifies `workunit_definition.yml` which should not happen anymore, and notifies
+    the user restoring the original file. The app continues without an error.
+
 ## \[0.3.0\] - 2025-08-26
 
 ### Added

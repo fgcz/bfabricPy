@@ -102,3 +102,16 @@ class TestRenderMakefile:
 
         content = makefile_path.read_text()
         assert "\\#subdirectory=subdir" in content
+
+    def test_makefile_unmocked_template(self, mocker, tmp_path):
+        """Test makefile generation with the real template."""
+        # Note: This is broken in Python 3.12
+        mock_spec = mocker.Mock()
+        mock_spec.app_runner = "git+https://github.com/user/repo@branch#subdirectory=subdir"
+
+        makefile_path = tmp_path / "Makefile"
+
+        render_makefile(makefile_path, mock_spec, rename_existing=True)
+
+        content = makefile_path.read_text()
+        assert "github.com/user/repo" in content
