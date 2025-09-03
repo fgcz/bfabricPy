@@ -160,6 +160,7 @@
 
 <li class="toctree-l1"><a class="reference internal" href="app_specification.html">App Specification</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+
 </ul>
 
     </div>
@@ -430,6 +431,7 @@ In general to download to the current directory simply use <code class="docutils
 <span class="w">                  </span><span class="nt">&quot;bfabric_dataset&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/BfabricDatasetSpec&quot;</span><span class="p">,</span>
 <span class="w">                  </span><span class="nt">&quot;bfabric_order_fasta&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/BfabricOrderFastaSpec&quot;</span><span class="p">,</span>
 <span class="w">                  </span><span class="nt">&quot;bfabric_resource&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/BfabricResourceSpec&quot;</span><span class="p">,</span>
+<span class="w">                  </span><span class="nt">&quot;bfabric_resource_archive&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/BfabricResourceArchiveSpec&quot;</span><span class="p">,</span>
 <span class="w">                  </span><span class="nt">&quot;file&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/FileSpec&quot;</span><span class="p">,</span>
 <span class="w">                  </span><span class="nt">&quot;static_file&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/StaticFileSpec&quot;</span><span class="p">,</span>
 <span class="w">                  </span><span class="nt">&quot;static_yaml&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/StaticYamlSpec&quot;</span>
@@ -451,6 +453,9 @@ In general to download to the current directory simply use <code class="docutils
 <span class="w">               </span><span class="p">},</span>
 <span class="w">               </span><span class="p">{</span>
 <span class="w">                  </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/BfabricAnnotationResourceSampleSpec&quot;</span>
+<span class="w">               </span><span class="p">},</span>
+<span class="w">               </span><span class="p">{</span>
+<span class="w">                  </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/BfabricResourceArchiveSpec&quot;</span>
 <span class="w">               </span><span class="p">},</span>
 <span class="w">               </span><span class="p">{</span>
 <span class="w">                  </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/StaticYamlSpec&quot;</span>
@@ -592,6 +597,64 @@ In general to download to the current directory simply use <code class="docutils
 <span class="w">            </span><span class="s2">&quot;filename&quot;</span>
 <span class="w">         </span><span class="p">],</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;BfabricOrderFastaSpec&quot;</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;BfabricResourceArchiveSpec&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;const&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bfabric_resource_archive&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bfabric_resource_archive&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Type&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Id&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;integer&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;filename&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;pattern&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^[^/][^:]*$&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Filename&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;extract&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;const&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;zip&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;zip&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Extract&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;include_patterns&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">               </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">               </span><span class="p">},</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Include Patterns&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;exclude_patterns&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">               </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">               </span><span class="p">},</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Exclude Patterns&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;strip_root&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Strip Root&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;boolean&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;check_checksum&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Check Checksum&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;boolean&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">         </span><span class="p">},</span>
+<span class="w">         </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="s2">&quot;id&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;filename&quot;</span>
+<span class="w">         </span><span class="p">],</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;BfabricResourceArchiveSpec&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nt">&quot;BfabricResourceSpec&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -814,7 +877,7 @@ In general to download to the current directory simply use <code class="docutils
 </dd>
 <dt class="field-even">Fields<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs_spec.InputsSpec.inputs" title="bfabric_app_runner.specs.inputs_spec.InputsSpec.inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inputs</span> <span class="pre">(list[bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.inputs.file_spec.FileSpec</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.inputs.bfabric_dataset_spec.BfabricDatasetSpec</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec.BfabricOrderFastaSpec</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.inputs.bfabric_annotation_spec.BfabricAnnotationResourceSampleSpec</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.inputs.static_yaml_spec.StaticYamlSpec</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.inputs.static_file_spec.StaticFileSpec])</span></code></a></p></li>
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs_spec.InputsSpec.inputs" title="bfabric_app_runner.specs.inputs_spec.InputsSpec.inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inputs</span> <span class="pre">(list[bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.inputs.file_spec.FileSpec</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.inputs.bfabric_dataset_spec.BfabricDatasetSpec</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec.BfabricOrderFastaSpec</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.inputs.bfabric_annotation_spec.BfabricAnnotationResourceSampleSpec</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.inputs.bfabric_resource_archive_spec.BfabricResourceArchiveSpec</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.inputs.static_yaml_spec.StaticYamlSpec</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.inputs.static_file_spec.StaticFileSpec])</span></code></a></p></li>
 </ul>
 </dd>
 </dl>

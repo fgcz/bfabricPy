@@ -160,6 +160,7 @@
 
 <li class="toctree-l1"><a class="reference internal" href="specs/app_specification.html">App Specification</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+
 </ul>
 
     </div>
@@ -336,6 +337,7 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_type"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.container_type</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_id"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.storage_id</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_output_folder"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.storage_output_folder</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.user_id"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.user_id</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.workunit_id"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.workunit_id</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.workunit_name"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.workunit_name</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.from_workunit"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.from_workunit()</span></code></a></li>
@@ -489,6 +491,18 @@ loading the same from B-Fabric workunits. This abstraction ensures easier develo
 <span class="w">               </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
 <span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Storage Output Folder&quot;</span><span class="p">,</span>
 <span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;user_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                  </span><span class="p">{</span>
+<span class="w">                     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;integer&quot;</span>
+<span class="w">                  </span><span class="p">},</span>
+<span class="w">                  </span><span class="p">{</span>
+<span class="w">                     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;null&quot;</span>
+<span class="w">                  </span><span class="p">}</span>
+<span class="w">               </span><span class="p">],</span>
+<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;User Id&quot;</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">         </span><span class="p">},</span>
 <span class="w">         </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
@@ -741,6 +755,18 @@ but not the final details on how to register the results in B-Fabric.</p>
 <span class="w">         </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Storage Output Folder&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;user_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;integer&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;null&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">         </span><span class="p">],</span>
+<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;User Id&quot;</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">   </span><span class="p">},</span>
 <span class="w">   </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
@@ -765,6 +791,7 @@ but not the final details on how to register the results in B-Fabric.</p>
 <li><p><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_type" title="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">container_type</span> <span class="pre">(Literal['project',</span> <span class="pre">'order'])</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_id" title="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">storage_id</span> <span class="pre">(int)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_output_folder" title="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_output_folder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">storage_output_folder</span> <span class="pre">(pathlib.Path)</span></code></a></p></li>
+<li><p><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.user_id" title="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.user_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">user_id</span> <span class="pre">(int</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.workunit_id" title="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.workunit_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workunit_id</span> <span class="pre">(int)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.workunit_name" title="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.workunit_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workunit_name</span> <span class="pre">(str)</span></code></a></p></li>
 </ul>
@@ -783,7 +810,7 @@ but not the final details on how to register the results in B-Fabric.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Constraints<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>func</strong> = &lt;function path_safe_name at 0x114581ee0&gt;</p></li>
+<li><p><strong>func</strong> = &lt;function path_safe_name at 0x116cddbc0&gt;</p></li>
 <li><p><strong>json_schema_input_type</strong> = PydanticUndefined</p></li>
 </ul>
 </dd>
@@ -815,6 +842,12 @@ but not the final details on how to register the results in B-Fabric.</p>
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.user_id">
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">user_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.user_id" title="Link to this definition">#</a></dt>
+<dd><p>The ID of the user who created the workunit, if available.</p>
+</dd></dl>
+
+<dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.workunit_id">
 <em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">workunit_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.workunit_id" title="Link to this definition">#</a></dt>
 <dd><p>The ID of the workunit.</p>
@@ -827,7 +860,7 @@ but not the final details on how to register the results in B-Fabric.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Constraints<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>func</strong> = &lt;function path_safe_name at 0x114581ee0&gt;</p></li>
+<li><p><strong>func</strong> = &lt;function path_safe_name at 0x116cddbc0&gt;</p></li>
 <li><p><strong>json_schema_input_type</strong> = PydanticUndefined</p></li>
 </ul>
 </dd>
@@ -918,6 +951,7 @@ but not the final details on how to register the results in B-Fabric.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_type"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.container_type</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_id"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.storage_id</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_output_folder"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.storage_output_folder</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.user_id"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.user_id</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.workunit_id"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.workunit_id</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.workunit_name"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.workunit_name</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.from_workunit"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.from_workunit()</span></code></a></li>

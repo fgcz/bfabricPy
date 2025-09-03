@@ -160,6 +160,7 @@
 
 <li class="toctree-l1"><a class="reference internal" href="app_specification.html">App Specification</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+
 </ul>
 
     </div>
@@ -349,6 +350,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.type"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec.type</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.update_existing"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec.update_existing</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.url"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec.url</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.require_entity_id_if_not_workunit"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec.require_entity_id_if_not_workunit</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.UpdateExisting"><code class="docutils literal notranslate"><span class="pre">UpdateExisting</span></code></a><ul class="nav section-nav flex-column">
@@ -677,7 +679,7 @@ with permission to create the particular file over SSH.</p></li>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nt">&quot;SaveLinkSpec&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">         </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Saves a link to the entity of type entity_type with id entity_id.&quot;</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Saves a link to the workunit, or, if desired to an arbitrary entity of type entity_type with id entity_id.&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">               </span><span class="nt">&quot;const&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bfabric_link&quot;</span><span class="p">,</span>
@@ -694,12 +696,21 @@ with permission to create the particular file over SSH.</p></li>
 <span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
 <span class="w">            </span><span class="p">},</span>
 <span class="w">            </span><span class="nt">&quot;entity_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Workunit&quot;</span><span class="p">,</span>
 <span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Entity Type&quot;</span><span class="p">,</span>
 <span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
 <span class="w">            </span><span class="p">},</span>
 <span class="w">            </span><span class="nt">&quot;entity_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Entity Id&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;integer&quot;</span>
+<span class="w">               </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                  </span><span class="p">{</span>
+<span class="w">                     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;integer&quot;</span>
+<span class="w">                  </span><span class="p">},</span>
+<span class="w">                  </span><span class="p">{</span>
+<span class="w">                     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;null&quot;</span>
+<span class="w">                  </span><span class="p">}</span>
+<span class="w">               </span><span class="p">],</span>
+<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Entity Id&quot;</span>
 <span class="w">            </span><span class="p">},</span>
 <span class="w">            </span><span class="nt">&quot;update_existing&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">               </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/UpdateExisting&quot;</span><span class="p">,</span>
@@ -708,9 +719,7 @@ with permission to create the particular file over SSH.</p></li>
 <span class="w">         </span><span class="p">},</span>
 <span class="w">         </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">            </span><span class="s2">&quot;name&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;url&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;entity_type&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;entity_id&quot;</span>
+<span class="w">            </span><span class="s2">&quot;url&quot;</span>
 <span class="w">         </span><span class="p">],</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SaveLinkSpec&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span>
@@ -869,11 +878,11 @@ with permission to create the particular file over SSH.</p></li>
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec">
 <em class="property"><span class="pre">pydantic</span> <span class="pre">model</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfabric_app_runner.specs.outputs_spec.</span></span><span class="sig-name descname"><span class="pre">SaveLinkSpec</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
-<p>Saves a link to the entity of type entity_type with id entity_id.</p>
+<p>Saves a link to the workunit, or, if desired to an arbitrary entity of type entity_type with id entity_id.</p>
 <p><details  class="autodoc_pydantic_collapsable_json">
 <summary>Show JSON schema</summary><div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
 <span class="w">   </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SaveLinkSpec&quot;</span><span class="p">,</span>
-<span class="w">   </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Saves a link to the entity of type entity_type with id entity_id.&quot;</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Saves a link to the workunit, or, if desired to an arbitrary entity of type entity_type with id entity_id.&quot;</span><span class="p">,</span>
 <span class="w">   </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
 <span class="w">   </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -891,12 +900,21 @@ with permission to create the particular file over SSH.</p></li>
 <span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nt">&quot;entity_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Workunit&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Entity Type&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nt">&quot;entity_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Entity Id&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;integer&quot;</span>
+<span class="w">         </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;integer&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;null&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">         </span><span class="p">],</span>
+<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Entity Id&quot;</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nt">&quot;update_existing&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">         </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/UpdateExisting&quot;</span><span class="p">,</span>
@@ -917,9 +935,7 @@ with permission to create the particular file over SSH.</p></li>
 <span class="w">   </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
 <span class="w">   </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">      </span><span class="s2">&quot;name&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="s2">&quot;url&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="s2">&quot;entity_type&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="s2">&quot;entity_id&quot;</span>
+<span class="w">      </span><span class="s2">&quot;url&quot;</span>
 <span class="w">   </span><span class="p">]</span>
 <span class="p">}</span>
 </pre></div>
@@ -932,7 +948,7 @@ with permission to create the particular file over SSH.</p></li>
 </dd>
 <dt class="field-even">Fields<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.entity_id" title="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.entity_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">entity_id</span> <span class="pre">(int)</span></code></a></p></li>
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.entity_id" title="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.entity_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">entity_id</span> <span class="pre">(int</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.entity_type" title="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.entity_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">entity_type</span> <span class="pre">(str)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.name" title="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span> <span class="pre">(str)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.type" title="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">type</span> <span class="pre">(Literal['bfabric_link'])</span></code></a></p></li>
@@ -940,41 +956,93 @@ with permission to create the particular file over SSH.</p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.url" title="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">url</span> <span class="pre">(str)</span></code></a></p></li>
 </ul>
 </dd>
+<dt class="field-odd">Validators<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.require_entity_id_if_not_workunit" title="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.require_entity_id_if_not_workunit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">require_entity_id_if_not_workunit</span></code></a> » <code class="xref py py-obj docutils literal notranslate"><span class="pre">all</span> <span class="pre">fields</span></code></p></li>
+</ul>
+</dd>
 </dl>
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.entity_id">
-<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">entity_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.entity_id" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">entity_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.entity_id" title="Link to this definition">#</a></dt>
 <dd><p>The ID of the entity that will be linked.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Validated by<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.require_entity_id_if_not_workunit" title="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.require_entity_id_if_not_workunit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">require_entity_id_if_not_workunit</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.entity_type">
-<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">entity_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.entity_type" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">entity_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Workunit'</span></em><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.entity_type" title="Link to this definition">#</a></dt>
 <dd><p>The type of the entity that will be linked.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Validated by<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.require_entity_id_if_not_workunit" title="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.require_entity_id_if_not_workunit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">require_entity_id_if_not_workunit</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.name">
 <em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.name" title="Link to this definition">#</a></dt>
 <dd><p>The name of the link.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Validated by<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.require_entity_id_if_not_workunit" title="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.require_entity_id_if_not_workunit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">require_entity_id_if_not_workunit</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.type">
 <em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'bfabric_link'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'bfabric_link'</span></em><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.type" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Validated by<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.require_entity_id_if_not_workunit" title="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.require_entity_id_if_not_workunit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">require_entity_id_if_not_workunit</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.update_existing">
 <em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">update_existing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.UpdateExisting" title="bfabric_app_runner.specs.outputs_spec.UpdateExisting"><span class="pre">UpdateExisting</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">UpdateExisting.IF_EXISTS</span></em><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.update_existing" title="Link to this definition">#</a></dt>
 <dd><p>Behavior, if a link with the same name already exists.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Validated by<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.require_entity_id_if_not_workunit" title="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.require_entity_id_if_not_workunit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">require_entity_id_if_not_workunit</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.url">
 <em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">url</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.url" title="Link to this definition">#</a></dt>
 <dd><p>The URL of the link.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Validated by<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.require_entity_id_if_not_workunit" title="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.require_entity_id_if_not_workunit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">require_entity_id_if_not_workunit</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
+
+<dl class="py method pydantic_validator">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.require_entity_id_if_not_workunit">
+<em class="property"><span class="pre">validator</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">require_entity_id_if_not_workunit</span></span><em class="autodoc_pydantic_validator_arrow property">&#160; <span class="pre">»</span>&#160; </em><em class="xref py py-obj"><span class="pre">all</span> <span class="pre">fields</span></em><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.require_entity_id_if_not_workunit" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -1087,6 +1155,7 @@ with permission to create the particular file over SSH.</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.type"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec.type</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.update_existing"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec.update_existing</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.url"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec.url</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.require_entity_id_if_not_workunit"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec.require_entity_id_if_not_workunit</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.UpdateExisting"><code class="docutils literal notranslate"><span class="pre">UpdateExisting</span></code></a><ul class="nav section-nav flex-column">
