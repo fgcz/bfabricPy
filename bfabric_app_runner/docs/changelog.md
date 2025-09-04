@@ -4,6 +4,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Changed
+
+- Automatic workflow step creation is moved from `dispatch` action to `stage` action, to avoid creating workflowsteps
+    for failed workunits. We might revisit this decision in the future, as there could be some benefit to creating the
+    workflowstep early on.
+
 ## \[0.3.1\] - 2025-09-01
 
 ### Added
