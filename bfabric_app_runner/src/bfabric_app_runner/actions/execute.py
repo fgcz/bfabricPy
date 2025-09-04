@@ -24,7 +24,7 @@ from bfabric_app_runner.output_registration import register_outputs
 
 def execute_dispatch(action: ActionDispatch, client: Bfabric) -> None:
     """Executes a dispatch action."""
-    app_version, bfabric_app_spec, workunit_definition_path = load_workunit_information(
+    app_version, _, workunit_definition_path = load_workunit_information(
         app_spec=action.app_ref, client=client, work_dir=action.work_dir, workunit_ref=action.workunit_ref
     )
     workunit_definition_mtime = workunit_definition_path.stat().st_mtime
