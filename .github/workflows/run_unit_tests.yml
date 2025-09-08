@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: 3.11
       - name: Install nox
@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: 3.11
       - name: Install nox
@@ -49,7 +49,7 @@ jobs:
           head-ref: ${{ github.sha }}
       - name: Comment on PR with "TODO" changes
         if: steps.todo-diff.outputs.has-changes == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const summary = `${{ steps.todo-diff.outputs.summary }}`;
