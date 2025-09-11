@@ -183,10 +183,13 @@ def execute_command_python_env(command: Annotated[CommandPythonEnv, cyclopts.Par
 
 def _ensure_executable(command_args: list[str], env_path: Path) -> list[str]:
     candidate_script = env_path / "bin" / command_args[0]
+    logger.info("Checking if candidate script exists: {}", candidate_script)
     if candidate_script.exists():
+        logger.info("Found candidate script: {}", candidate_script)
         return [str(candidate_script), *command_args[1:]]
 
     # Fallback to using the Python interpreter directly
+    logger.info("Falling back to using Python interpreter at {}", env_path / "bin" / "python")
     python_executable = env_path / "bin" / "python"
     return [str(python_executable), *command_args]
 
