@@ -189,6 +189,7 @@ def _ensure_executable(command_args: list[str], env_path: Path) -> list[str]:
         return [str(candidate_script), *command_args[1:]]
 
     # Fallback to using the Python interpreter directly
+    breakpoint()
     logger.info("Falling back to using Python interpreter at {}", env_path / "bin" / "python")
     python_executable = env_path / "bin" / "python"
     return [str(python_executable), *command_args]
