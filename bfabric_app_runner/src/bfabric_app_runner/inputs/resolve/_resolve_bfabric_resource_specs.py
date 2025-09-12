@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING
 
-from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedFile
-from bfabric_app_runner.specs.inputs.file_spec import FileSourceSsh, FileSourceSshValue
-
 from bfabric.entities import Resource, Storage
+from bfabric_app_runner.inputs.resolve._common import get_file_source_and_filename
+from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedFile
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
@@ -38,11 +36,10 @@ class ResolveBfabricResourceSpecs:
         return result
 
     def _get_file_spec(self, spec: BfabricResourceSpec, resource: Resource, storage: Storage) -> ResolvedFile:
+        source, filename = get_file_source_and_filename(resource=resource, storage=storage, filename=spec.filename)
         return ResolvedFile(
-            source=FileSourceSsh(
-                ssh=FileSourceSshValue(host=storage["host"], path=f"{storage['basepath']}{resource['relativepath']}")
-            ),
-            filename=spec.filename or Path(resource["relativepath"]).name,
+            source=source,
+            filename=filename,
             link=False,
             checksum=resource["filechecksum"] if spec.check_checksum else None,
         )
