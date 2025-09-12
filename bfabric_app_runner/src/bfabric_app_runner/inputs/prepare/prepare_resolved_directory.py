@@ -1,11 +1,12 @@
-import fnmatch
 import shutil
 import zipfile
 from pathlib import Path
 
-from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedDirectory, ResolvedFile
-from bfabric_app_runner.inputs.prepare.prepare_resolved_file import prepare_resolved_file
 from loguru import logger
+
+from bfabric_app_runner.inputs._filter_files import filter_files
+from bfabric_app_runner.inputs.prepare.prepare_resolved_file import prepare_resolved_file
+from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedDirectory, ResolvedFile
 
 
 def prepare_resolved_directory(
@@ -51,7 +52,7 @@ def _extract_zip_with_filtering(zip_path: Path, output_path: Path, file: Resolve
         # Filter files based on include/exclude patterns, excluding directories
         filtered_files = [
             f
-            for f in _filter_files(zip_ref.namelist(), file.include_patterns, file.exclude_patterns)
+            for f in filter_files(zip_ref.namelist(), file.include_patterns, file.exclude_patterns)
             if not f.endswith("/")
         ]
 
@@ -88,19 +89,6 @@ def _should_strip_root_directory(all_files: list[str]) -> bool:
         return any(file_path.startswith(root_entry + "/") for file_path in all_files)
 
     return False
-
-
-def _filter_files(files: list[str], include_patterns: list[str], exclude_patterns: list[str]) -> list[str]:
-    """Filter files based on include and exclude patterns."""
-
-    def should_include(file_path: str) -> bool:
-        # If include patterns are specified, file must match at least one
-        if include_patterns and not any(fnmatch.fnmatch(file_path, pattern) for pattern in include_patterns):
-            return False
-        # If exclude patterns are specified, file must not match any
-        return not (exclude_patterns and any(fnmatch.fnmatch(file_path, pattern) for pattern in exclude_patterns))
-
-    return [file_path for file_path in files if should_include(file_path)]
 
 
 def _get_output_file_path(file_path: str, output_path: Path, strip_root: bool) -> Path:

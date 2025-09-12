@@ -1,13 +1,12 @@
-from pathlib import Path
-import zipfile
 import tempfile
+import zipfile
+from pathlib import Path
 
 import pytest
+
 from bfabric_app_runner.inputs.prepare.prepare_resolved_directory import (
     prepare_resolved_directory,
     _download_file,
-    _extract_zip_with_filtering,
-    _filter_files,
     _get_output_file_path,
     _should_strip_root_directory,
 )
@@ -273,34 +272,6 @@ def test_download_file_ssh_source(mock_prepare_resolved_file, tmp_path):
     assert resolved_file.source == directory.source
     # ssh_user is passed as keyword argument to prepare_resolved_file
     assert call_args[1]["ssh_user"] == "user"
-
-
-def test_filter_files_no_patterns():
-    """Test file filtering with no patterns."""
-    files = ["file1.txt", "file2.py", "file3.log"]
-    result = _filter_files(files, [], [])
-    assert result == files
-
-
-def test_filter_files_include_patterns():
-    """Test file filtering with include patterns."""
-    files = ["file1.txt", "file2.py", "file3.log", "file4.txt"]
-    result = _filter_files(files, ["*.txt"], [])
-    assert result == ["file1.txt", "file4.txt"]
-
-
-def test_filter_files_exclude_patterns():
-    """Test file filtering with exclude patterns."""
-    files = ["file1.txt", "file2.py", "file3.log", "file4.txt"]
-    result = _filter_files(files, [], ["*.log"])
-    assert result == ["file1.txt", "file2.py", "file4.txt"]
-
-
-def test_filter_files_include_and_exclude():
-    """Test file filtering with both include and exclude patterns."""
-    files = ["file1.txt", "file2.py", "file3.log", "test.txt"]
-    result = _filter_files(files, ["*.txt"], ["test*"])
-    assert result == ["file1.txt"]
 
 
 def test_get_output_file_path_no_strip():
