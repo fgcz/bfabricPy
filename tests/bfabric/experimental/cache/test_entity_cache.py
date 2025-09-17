@@ -47,3 +47,8 @@ def test_entity_lookup_cache_put(entity_cache):
     assert entity_cache.get("Entity1", 2) == "value2"
     assert entity_cache.get("Entity1", 3) == "value3"
     assert entity_cache.get("Entity1", 4) == "value4"
+
+
+def test_entity_lookup_cache_put_when_type_not_in_config(entity_cache):
+    entity_cache.put("Entity3", 1, "value1")
+    assert entity_cache.get("Entity3", 1) is None
