@@ -7,6 +7,13 @@ if TYPE_CHECKING:
 
 
 class CacheStack:
+    """Implements a stack of entity caches.
+
+    Retrieval is performed by looking first at the most recently added cache.
+    Items are put into all caches in the stack (they may each have different sizes and inclusion rules) so that nesting
+    contexts has no effect on cache hits.
+    """
+
     def __init__(self) -> None:
         self._stack: list[EntityMemoryCache] = []
 
