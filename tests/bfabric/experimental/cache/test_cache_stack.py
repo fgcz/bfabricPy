@@ -1,7 +1,7 @@
 import pytest
 
-from bfabric.experimental.cache._entity_cache import EntityCache
 from bfabric.experimental.cache._cache_stack import CacheStack
+from bfabric.experimental.cache._entity_cache import EntityCache
 
 
 @pytest.fixture
@@ -35,6 +35,9 @@ class TestEmpty:
 
     def test_item_put(self, stack, mock_cache_1):
         stack.item_put("Entity1", 1, "entity1")
+
+    def test_item_put_all(self, stack, mock_cache_1):
+        stack.item_put_all("Entity1", {1: "entity1", 2: "entity2"})
 
 
 class TestPopulated:
@@ -90,3 +93,13 @@ class TestPopulated:
         stack.item_put("Entity1", 1, "entity1")
         mock_cache_1.put.assert_called_once_with("Entity1", 1, "entity1")
         mock_cache_2.put.assert_called_once_with("Entity1", 1, "entity1")
+
+    def test_item_put_all(self, stack, mock_cache_1, mock_cache_2):
+        entities = {1: "entity1", 2: "entity2"}
+        stack.item_put_all("Entity1", entities)
+        mock_cache_1.put.assert_any_call("Entity1", 1, "entity1")
+        mock_cache_1.put.assert_any_call("Entity1", 2, "entity2")
+        mock_cache_2.put.assert_any_call("Entity1", 1, "entity1")
+        mock_cache_2.put.assert_any_call("Entity1", 2, "entity2")
+        assert mock_cache_1.put.call_count == 2
+        assert mock_cache_2.put.call_count == 2

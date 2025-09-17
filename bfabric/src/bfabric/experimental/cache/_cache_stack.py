@@ -40,3 +40,7 @@ class CacheStack:
     def item_put(self, entity_type: type[Entity], entity_id: int, entity: Entity | None) -> None:
         for cache in reversed(self._stack):
             cache.put(entity_type, entity_id, entity)
+
+    def item_put_all(self, entity_type: type[Entity], entities: dict[int, Entity | None]) -> None:
+        for entity_id, entity in entities.items():
+            self.item_put(entity_type, entity_id, entity)
