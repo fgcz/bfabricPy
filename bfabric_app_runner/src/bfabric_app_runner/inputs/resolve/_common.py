@@ -15,9 +15,7 @@ def get_file_source_and_filename(resource: Resource, filename: str | None) -> tu
     If filename is None, the original filename from the resource is used, otherwise the same value will be returned.
     """
     file_source = FileSourceSsh(
-        ssh=FileSourceSshValue(
-            host=resource.storage["host"], path=f"{resource.storage['basepath']}{resource['relativepath']}"
-        )
+        ssh=FileSourceSshValue(host=resource.storage["host"], path=resource.storage_absolute_path)
     )
     filename = filename or Path(resource["relativepath"]).name
     return file_source, filename
