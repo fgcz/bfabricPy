@@ -48,14 +48,15 @@ class Entity:
     def find(cls, id: int, client: Bfabric) -> Self | None:
         """Finds an entity by its ID, if it does not exist `None` is returned."""
         cache = EntityLookupCache.instance()
-        if cache and cache.contains(entity_type=cls, entity_id=id):
-            return cache.get(entity_type=cls, entity_id=id)
-        else:
-            result = client.read(cls.ENDPOINT, obj={"id": int(id)})
-            entity = cls(result[0], client=client) if len(result) == 1 else None
-            if cache:
-                cache.put(entity_type=cls, entity_id=id, entity=entity)
-            return entity
+        cache_entry = cache.get(entity_type=cls, entity_id=id) if cache else None
+        if cache_entry:
+            return cache_entry
+
+        result = client.read(cls.ENDPOINT, obj={"id": int(id)})
+        entity = cls(result[0], client=client) if len(result) == 1 else None
+        if cache:
+            cache.put(entity_type=cls, entity_id=id, entity=entity)
+        return entity
 
     @classmethod
     def find_all(cls, ids: list[int], client: Bfabric) -> dict[int, Self]:
