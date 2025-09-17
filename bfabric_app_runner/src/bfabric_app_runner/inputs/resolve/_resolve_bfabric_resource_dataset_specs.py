@@ -27,7 +27,7 @@ class ResolveBfabricResourceDatasetSpecs:
     def _resolve_spec(self, spec: BfabricResourceDatasetSpec) -> list[ResolvedFile]:
         # TODO this will raise, but i am not sure how we handle errors at the moment
         dataset = Dataset.find(id=spec.id, client=self._client).to_polars()
-        column = self._select_column(dataset, spec.column)
+        column = self._select_input_column(dataset, spec.column)
         resource_ids = dataset[column].unique().sort().to_list()
         resources_all = list(Resource.find_all(ids=resource_ids, client=self._client).values())
         resources_sel = filter_files(
@@ -50,7 +50,21 @@ class ResolveBfabricResourceDatasetSpecs:
             )
         return files
 
-    def _select_column(self, dataset: pl.DataFrame, column: str | int) -> str | None:
+    def _resolve_unfiltered_dataset(self, spec: BfabricResourceDatasetSpec) -> pl.DataFrame:
+        # Obtain dataset information
+        data = Dataset.find(id=spec.id, client=self._client).to_polars()
+        input_column = self._select_input_column(data, spec.column)
+
+        # Obtain resource information
+        resource_ids = self._extract_resource_ids(data, input_column)
+        resources = [
+            {"resource_id": r.id, "resource_filename": r}
+            for r in Resource.find_all(ids=resource_ids, client=self._client).values()
+        ]
+        # TODO
+        _ = resources
+
+    def _select_input_column(self, dataset: pl.DataFrame, column: str | int) -> str | None:
         if isinstance(column, int):
             if 0 <= column < len(dataset.columns):
                 return dataset.columns[column]

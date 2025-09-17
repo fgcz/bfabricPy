@@ -10,8 +10,11 @@ from bfabric_app_runner.specs.common_types import RelativeFilePath
 class BfabricResourceDatasetSpec(BaseModel):
     """Spec to download all resources listed in a B-Fabric dataset to a folder.
 
-    TODO: This breaks with legacy dataframes which did not use ID but rather relativepath for resources.
-    -> I do believe this breakage is acceptable
+    This requires a column ("Resource" by default) referring to the resource IDs in B-Fabric.
+
+    The output will be saved to a folder (specified by `filename`), containing the selected files, as well as a
+    parquet file (by default `dataset.parquet`) which contains the original dataset and an additional column
+    (by default "File") which contains the file names to identify the files.
     """
 
     model_config = ConfigDict(extra="forbid")
@@ -34,3 +37,9 @@ class BfabricResourceDatasetSpec(BaseModel):
 
     check_checksum: bool = True
     """Whether to check the checksum of each resource file, after downloading."""
+
+    output_dataset_filename: str = "dataset.parquet"
+    """Filename to store the dataset metadata as a parquet file."""
+
+    output_dataset_file_column: str = "File"
+    """Output name containing the file names (i.e. relative to the directory where the files get stored)."""
