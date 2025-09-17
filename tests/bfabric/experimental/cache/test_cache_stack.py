@@ -30,6 +30,9 @@ class TestEmpty:
     def test_item_get(self, stack, mock_cache_1):
         assert stack.item_get("Entity1", 1) is None
 
+    def test_item_get_all(self, stack, mock_cache_1):
+        assert stack.item_get_all("Entity1", [1, 2, 3]) == {}
+
     def test_item_put(self, stack, mock_cache_1):
         stack.item_put("Entity1", 1, "entity1")
 
@@ -74,6 +77,14 @@ class TestPopulated:
         mock_cache_2.get.return_value = "entity1"
         assert stack.item_get("Entity1", 1) == "entity1"
         mock_cache_2.get.assert_called_once_with("Entity1", 1)
+
+    def test_item_get_all(self, stack, mock_cache_1, mock_cache_2):
+        mock_cache_1.get_all.return_value = {1: "entity1", 2: "entity2"}
+        mock_cache_2.get_all.return_value = {3: "entity3"}
+        result = stack.item_get_all("Entity1", [1, 2, 3, 4])
+        assert result == {1: "entity1", 2: "entity2", 3: "entity3"}
+        mock_cache_1.get_all.assert_called_once_with("Entity1", [1, 2, 4])
+        mock_cache_2.get_all.assert_called_once_with("Entity1", [1, 2, 3, 4])
 
     def test_item_put(self, stack, mock_cache_1, mock_cache_2):
         stack.item_put("Entity1", 1, "entity1")

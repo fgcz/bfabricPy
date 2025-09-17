@@ -26,6 +26,17 @@ class CacheStack:
                 return entity
         return None
 
+    def item_get_all(self, entity_type: type[Entity], entity_ids: list[int]) -> dict[int, Entity]:
+        results = {}
+        pending = set(entity_ids)
+        for cache in reversed(self._stack):
+            if not pending:
+                break
+            matches = cache.get_all(entity_type, list(pending))
+            results.update(matches)
+            pending.difference_update(matches)
+        return results
+
     def item_put(self, entity_type: type[Entity], entity_id: int, entity: Entity | None) -> None:
         for cache in reversed(self._stack):
             cache.put(entity_type, entity_id, entity)
