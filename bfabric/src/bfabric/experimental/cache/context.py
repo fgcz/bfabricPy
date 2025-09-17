@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import asyncio
 from contextlib import contextmanager
-from functools import cache
+from contextvars import ContextVar
 from typing import TYPE_CHECKING, overload
 
 from bfabric.experimental.cache._cache_stack import CacheStack
@@ -52,22 +51,19 @@ def cache_entities(
         stack.cache_pop()
 
 
+# Context variable to store the cache stack per async task/thread context
+_cache_stack_var: ContextVar[CacheStack | None] = ContextVar("cache_stack", default=None)
+
+
 def get_cache_stack() -> CacheStack:
-    """Returns a cache stack instance isolated per async context.
-
-    Outside an async context, a singleton instance is returned.
-    """
-    try:
-        loop = asyncio.get_running_loop()
-        # Store cache in the event loop's context
-        if not hasattr(loop, "_cache_stack"):
-            loop._cache_stack = CacheStack()
-        return loop._cache_stack
-    except RuntimeError:
-        # Sync context - use singleton
-        return _get_sync_cache_stack()
+    """Returns the cache stack instance for the current context."""
+    cache = _cache_stack_var.get()
+    if cache is None:
+        cache = CacheStack()
+        _cache_stack_var.set(cache)
+    return cache
 
 
-@cache
-def _get_sync_cache_stack() -> CacheStack:
-    return CacheStack()
+def _reset_cache_stack() -> None:
+    """Reset the cache stack for the current context (for testing)."""
+    _cache_stack_var.set(None)
