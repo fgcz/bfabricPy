@@ -10,6 +10,11 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Added
+
+- Fields `filename`, `storage_relative_path`, `storage_absolute_path` have been added to `Resource`. This should be used
+    in the future, to ensure path handling is performed consistently
+
 ## \[1.13.33\] - 2025-08-26
 
 ### Added
