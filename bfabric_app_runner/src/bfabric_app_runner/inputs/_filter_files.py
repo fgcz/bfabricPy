@@ -1,5 +1,6 @@
 import fnmatch
 from typing import overload, TypeVar
+import polars as pl
 
 T = TypeVar("T")
 
@@ -21,6 +22,17 @@ def filter_files(files, include_patterns, exclude_patterns, *, key=None):
         for file in files
         if _should_include(file if key is None else file[key], include_patterns, exclude_patterns)
     ]
+
+
+def filter_dataframe(
+    dataframe: pl.DataFrame, column: str, include_patterns: list[str], exclude_patterns: list[str]
+) -> pl.DataFrame:
+    return dataframe.filter(
+        pl.col(column).map_elements(
+            lambda x: _should_include(x, include_patterns, exclude_patterns),
+            return_dtype=pl.Boolean,
+        )
+    )
 
 
 def _should_include(file_path: str, include_patterns: list[str], exclude_patterns: list[str]) -> bool:
