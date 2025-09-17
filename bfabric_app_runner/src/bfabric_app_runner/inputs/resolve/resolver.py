@@ -3,6 +3,8 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import TYPE_CHECKING, assert_never
 
+from bfabric.entities import Resource, Storage, Application, Dataset
+from bfabric.experimental.cache.context import cache_entities
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_annotation_specs import ResolveBfabricAnnotationSpecs
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_dataset_specs import ResolveBfabricDatasetSpecs
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_order_fasta_specs import ResolveBfabricOrderFastaSpecs
@@ -47,30 +49,30 @@ class Resolver:
 
     def resolve(self, specs: list[InputSpecType]) -> ResolvedInputs:
         """Convert input specifications to resolved file specifications."""
-        grouped_specs = self._group_specs_by_type(specs=specs)
-        files = []
-
-        for spec_type, specs_list in grouped_specs.items():
-            if issubclass(spec_type, StaticYamlSpec):
-                files.extend(self._resolve_static_yaml_specs(specs_list))
-            elif issubclass(spec_type, StaticFileSpec):
-                files.extend(self._resolve_static_file_specs(specs_list))
-            elif issubclass(spec_type, BfabricResourceSpec):
-                files.extend(self._resolve_bfabric_resource_specs(specs_list))
-            elif issubclass(spec_type, BfabricResourceArchiveSpec):
-                files.extend(self._resolve_bfabric_resource_archive_specs(specs_list))
-            elif issubclass(spec_type, BfabricResourceDatasetSpec):
-                files.extend(self._resolve_bfabric_resource_dataset_specs(specs_list))
-            elif issubclass(spec_type, BfabricDatasetSpec):
-                files.extend(self._resolve_bfabric_dataset_specs(specs_list))
-            elif issubclass(spec_type, BfabricOrderFastaSpec):
-                files.extend(self._resolve_bfabric_order_fasta_specs(specs_list))
-            elif issubclass(spec_type, BfabricAnnotationSpec):
-                files.extend(self._resolve_bfabric_annotation_specs(specs_list))
-            elif issubclass(spec_type, FileSpec):
-                files.extend(self._resolve_file_specs(specs_list))
-            else:
-                assert_never(spec_type)
+        with cache_entities(entities=[Application, Dataset, Resource, Storage], max_size=500):
+            grouped_specs = self._group_specs_by_type(specs=specs)
+            files = []
+            for spec_type, specs_list in grouped_specs.items():
+                if issubclass(spec_type, StaticYamlSpec):
+                    files.extend(self._resolve_static_yaml_specs(specs_list))
+                elif issubclass(spec_type, StaticFileSpec):
+                    files.extend(self._resolve_static_file_specs(specs_list))
+                elif issubclass(spec_type, BfabricResourceSpec):
+                    files.extend(self._resolve_bfabric_resource_specs(specs_list))
+                elif issubclass(spec_type, BfabricResourceArchiveSpec):
+                    files.extend(self._resolve_bfabric_resource_archive_specs(specs_list))
+                elif issubclass(spec_type, BfabricResourceDatasetSpec):
+                    files.extend(self._resolve_bfabric_resource_dataset_specs(specs_list))
+                elif issubclass(spec_type, BfabricDatasetSpec):
+                    files.extend(self._resolve_bfabric_dataset_specs(specs_list))
+                elif issubclass(spec_type, BfabricOrderFastaSpec):
+                    files.extend(self._resolve_bfabric_order_fasta_specs(specs_list))
+                elif issubclass(spec_type, BfabricAnnotationSpec):
+                    files.extend(self._resolve_bfabric_annotation_specs(specs_list))
+                elif issubclass(spec_type, FileSpec):
+                    files.extend(self._resolve_file_specs(specs_list))
+                else:
+                    assert_never(spec_type)
 
         return ResolvedInputs(files=files)
 
