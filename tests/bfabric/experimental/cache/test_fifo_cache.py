@@ -38,6 +38,12 @@ def test_cache_put(cache, max_size):
     assert cache.get("key4") == "value4"
 
 
+def test_cache_put_when_key_exists(cache):
+    cache.put("key1", "new_value1")
+    assert cache.get("key1") == "new_value1"
+    assert cache.get("key2") == "value2"
+
+
 def test_cache_contains(cache):
     assert "key1" in cache
     assert "key2" in cache
