@@ -1,0 +1,105 @@
+import pytest
+
+from bfabric.experimental.cache._cache_stack import CacheStack
+from bfabric.experimental.cache._entity_memory_cache import EntityMemoryCache
+
+
+@pytest.fixture
+def mock_cache_1(mocker):
+    return mocker.MagicMock(name="mock_cache_1", spec=EntityMemoryCache, autospec=True)
+
+
+@pytest.fixture
+def mock_cache_2(mocker):
+    return mocker.MagicMock(name="mock_cache_2", spec=EntityMemoryCache, autospec=True)
+
+
+class TestEmpty:
+    @pytest.fixture
+    def stack(self):
+        return CacheStack()
+
+    def test_cache_pop(self, stack):
+        with pytest.raises(IndexError) as error:
+            assert stack.cache_pop() is None
+        assert "pop from empty list" in str(error.value)
+
+    def test_item_contains(self, stack, mock_cache_1):
+        assert not stack.item_contains("Entity1", 1)
+
+    def test_item_get(self, stack, mock_cache_1):
+        assert stack.item_get("Entity1", 1) is None
+
+    def test_item_get_all(self, stack, mock_cache_1):
+        assert stack.item_get_all("Entity1", [1, 2, 3]) == {}
+
+    def test_item_put(self, stack, mock_cache_1):
+        stack.item_put("Entity1", 1, "entity1")
+
+    def test_item_put_all(self, stack, mock_cache_1):
+        stack.item_put_all("Entity1", {1: "entity1", 2: "entity2"})
+
+
+class TestPopulated:
+    @pytest.fixture
+    def stack(self, mock_cache_1, mock_cache_2):
+        result = CacheStack()
+        result.cache_push(mock_cache_1)
+        result.cache_push(mock_cache_2)
+        return result
+
+    def test_item_contains_when_exists_in_cache_1(self, stack, mock_cache_1, mock_cache_2):
+        mock_cache_1.contains.return_value = True
+        mock_cache_2.contains.return_value = False
+        assert stack.item_contains("Entity1", 1)
+        mock_cache_1.contains.assert_called_once_with("Entity1", 1)
+        mock_cache_2.contains.assert_called_once_with("Entity1", 1)
+
+    def test_item_contains_when_exists_in_cache_2(self, stack, mock_cache_1, mock_cache_2):
+        mock_cache_1.contains.return_value = False
+        mock_cache_2.contains.return_value = True
+        assert stack.item_contains("Entity1", 1)
+        mock_cache_1.contains.assert_not_called()
+        mock_cache_2.contains.assert_called_once_with("Entity1", 1)
+
+    def test_item_contains_when_not_exists(self, stack, mock_cache_1, mock_cache_2):
+        mock_cache_1.contains.return_value = False
+        mock_cache_2.contains.return_value = False
+        assert not stack.item_contains("Entity1", 1)
+        mock_cache_1.contains.assert_called_once_with("Entity1", 1)
+        mock_cache_2.contains.assert_called_once_with("Entity1", 1)
+
+    def test_item_get_when_exists_in_cache_1(self, stack, mock_cache_1, mock_cache_2):
+        mock_cache_1.get.return_value = "entity1"
+        mock_cache_2.get.return_value = None
+        assert stack.item_get("Entity1", 1) == "entity1"
+        mock_cache_1.get.assert_called_once_with("Entity1", 1)
+
+    def test_item_get_when_exists_in_cache_2(self, stack, mock_cache_1, mock_cache_2):
+        mock_cache_1.get.return_value = None
+        mock_cache_2.get.return_value = "entity1"
+        assert stack.item_get("Entity1", 1) == "entity1"
+        mock_cache_2.get.assert_called_once_with("Entity1", 1)
+
+    def test_item_get_all(self, stack, mock_cache_1, mock_cache_2):
+        mock_cache_1.get_all.return_value = {1: "entity1", 2: "entity2"}
+        mock_cache_2.get_all.return_value = {3: "entity3"}
+        result = stack.item_get_all("Entity1", [1, 2, 3, 4])
+        assert result == {1: "entity1", 2: "entity2", 3: "entity3"}
+        mock_cache_1.get_all.assert_called_once_with("Entity1", [1, 2, 4])
+        mock_cache_2.get_all.assert_called_once_with("Entity1", [1, 2, 3, 4])
+
+    def test_item_put(self, stack, mock_cache_1, mock_cache_2):
+        stack.item_put("Entity1", 1, "entity1")
+        mock_cache_1.put.assert_called_once_with("Entity1", 1, "entity1")
+        mock_cache_2.put.assert_called_once_with("Entity1", 1, "entity1")
+
+    def test_item_put_all(self, stack, mock_cache_1, mock_cache_2):
+        entities = {1: "entity1", 2: "entity2"}
+        stack.item_put_all("Entity1", entities)
+        mock_cache_1.put.assert_any_call("Entity1", 1, "entity1")
+        mock_cache_1.put.assert_any_call("Entity1", 2, "entity2")
+        mock_cache_2.put.assert_any_call("Entity1", 1, "entity1")
+        mock_cache_2.put.assert_any_call("Entity1", 2, "entity2")
+        assert mock_cache_1.put.call_count == 2
+        assert mock_cache_2.put.call_count == 2
