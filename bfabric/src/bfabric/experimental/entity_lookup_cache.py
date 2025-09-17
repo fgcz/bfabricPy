@@ -1,45 +1,18 @@
 from __future__ import annotations
 
-from collections import defaultdict, OrderedDict
+from collections import defaultdict
 from contextlib import contextmanager
-from typing import TypeVar, Generic, TYPE_CHECKING
+from typing import TypeVar, TYPE_CHECKING
 
 from loguru import logger
 
+from bfabric.experimental.cache.fifo_cache import FifoCache
+
 if TYPE_CHECKING:
     from collections.abc import Generator
-    from collections.abc import Hashable
     from bfabric.entities.core.entity import Entity  # type: ignore
 
-T = TypeVar("T")
 E = TypeVar("E", bound="Entity")
-
-
-class Cache(Generic[T]):
-    """A FIFO cache with a maximum size, implemented by an OrderedDict."""
-
-    def __init__(self, max_size: int) -> None:
-        self._entries: OrderedDict[Hashable, T] = OrderedDict()
-        self._max_size = max_size
-
-    def get(self, key: Hashable) -> T | None:
-        """Returns the value with the given key, if it exists, and marks it as used.
-
-        If the key does not exist, returns None.
-        """
-        if key in self._entries:
-            self._entries.move_to_end(key)
-            return self._entries[key]
-
-    def put(self, key: Hashable, value: T) -> None:
-        """Puts a key-value pair into the cache, marking it as used."""
-        if self._max_size != 0 and len(self._entries) >= self._max_size:
-            self._entries.popitem(last=False)
-        self._entries[key] = value
-
-    def __contains__(self, key: Hashable) -> bool:
-        """Returns whether the cache contains a key."""
-        return key in self._entries
 
 
 class EntityLookupCache:
@@ -51,7 +24,7 @@ class EntityLookupCache:
     __class_instance = None
 
     def __init__(self, max_size: int = 0) -> None:
-        self._caches: dict[type[Entity], Cache[Entity | None]] = defaultdict(lambda: Cache(max_size=max_size))
+        self._caches: dict[type[Entity], FifoCache[Entity | None]] = defaultdict(lambda: FifoCache(max_size=max_size))
 
     def contains(self, entity_type: type[Entity], entity_id: int) -> bool:
         """Returns whether the cache contains an entity with the given type and ID."""
@@ -83,11 +56,13 @@ class EntityLookupCache:
     def enable(cls, max_size: int = 0) -> Generator[None, None, None]:
         """Context manager that enables the EntityLookupCache singleton instance, i.e. every entity lookup by ID
         within this context will be cached. The cache is cleared after the context exits.
+
+        If a cache already exists, it is used instead of creating a new one, i.e. only the parent's
+        parameters and lifetime are used.
         """
         existing_cache = cls.__class_instance is not None
         if not existing_cache:
             cls.__class_instance = cls(max_size=max_size)
-            # TODO what to do if existing_cache and max_size mismatch?
             # TODO another relevant use case could be selectively caching only some entities, whereas others should be
             #      reloaded
             # TODO finally, there is the question about persistent caches (e.g. storages do not change that often)

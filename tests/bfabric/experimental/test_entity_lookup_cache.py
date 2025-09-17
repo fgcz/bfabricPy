@@ -1,6 +1,6 @@
 import pytest
 
-from bfabric.experimental.entity_lookup_cache import Cache, EntityLookupCache
+from bfabric.experimental.entity_lookup_cache import EntityLookupCache
 
 
 @pytest.fixture()
@@ -9,47 +9,11 @@ def max_size() -> int:
 
 
 @pytest.fixture()
-def cache(max_size: int):
-    cache = Cache(max_size=max_size)
-    cache.put("key1", "value1")
-    cache.put("key2", "value2")
-    return cache
-
-
-@pytest.fixture()
 def entity_cache(max_size: int):
     result = EntityLookupCache(max_size=max_size)
     result.put("Entity1", 1, "value1")
     result.put("Entity1", 2, "value2")
     return result
-
-
-def test_cache_get_when_exists(cache):
-    assert cache.get("key1") == "value1"
-    assert cache.get("key2") == "value2"
-
-
-def test_cache_get_when_not_exists(cache):
-    assert cache.get("missing") is None
-
-
-@pytest.mark.parametrize("max_size", [0, 3])
-def test_cache_put(cache, max_size):
-    cache.put("key3", "value3")
-    cache.put("key4", "value4")
-    if max_size == 3:
-        assert cache.get("key1") is None
-    else:
-        assert cache.get("key1") == "value1"
-    assert cache.get("key2") == "value2"
-    assert cache.get("key3") == "value3"
-    assert cache.get("key4") == "value4"
-
-
-def test_cache_contains(cache):
-    assert "key1" in cache
-    assert "key2" in cache
-    assert "key3" not in cache
 
 
 def test_entity_lookup_cache_contains(entity_cache):
