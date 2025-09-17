@@ -1,6 +1,6 @@
 import pytest
 
-from bfabric.experimental.cache.entity_cache import EntityCache
+from bfabric.experimental.cache._entity_cache import EntityCache
 
 
 @pytest.fixture

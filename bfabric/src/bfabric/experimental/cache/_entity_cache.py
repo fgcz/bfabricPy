@@ -4,7 +4,7 @@ from typing import TypeVar, TYPE_CHECKING
 
 from loguru import logger
 
-from bfabric.experimental.cache.fifo_cache import FifoCache
+from bfabric.experimental.cache._fifo_cache import FifoCache
 
 if TYPE_CHECKING:
     from bfabric.entities.core.entity import Entity
