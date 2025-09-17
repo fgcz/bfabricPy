@@ -12,8 +12,8 @@ if TYPE_CHECKING:
     E = TypeVar("E", bound="Entity")
 
 
-class EntityCache:
-    """Implements a configurable cache for different entity types.
+class EntityMemoryCache:
+    """Implements a configurable cache for different entity types in memory.
 
     Only entity types specified in the config will be cached, and at most the specified number of entities will be
     cached for each type.

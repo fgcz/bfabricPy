@@ -5,7 +5,7 @@ from contextvars import ContextVar
 from typing import TYPE_CHECKING, overload
 
 from bfabric.experimental.cache._cache_stack import CacheStack
-from bfabric.experimental.cache._entity_cache import EntityCache
+from bfabric.experimental.cache._entity_memory_cache import EntityMemoryCache
 
 if TYPE_CHECKING:
     from bfabric.entities.core.entity import Entity
@@ -41,7 +41,7 @@ def cache_entities(
     stack = get_cache_stack()
 
     # Create the new cache and push it to the stack
-    cache = EntityCache(config=config)
+    cache = EntityMemoryCache(config=config)
     stack.cache_push(cache)
 
     # Yield to the context

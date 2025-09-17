@@ -3,14 +3,14 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from bfabric.entities.core.entity import Entity
-    from bfabric.experimental.cache._entity_cache import EntityCache
+    from bfabric.experimental.cache._entity_memory_cache import EntityMemoryCache
 
 
 class CacheStack:
     def __init__(self) -> None:
-        self._stack: list[EntityCache] = []
+        self._stack: list[EntityMemoryCache] = []
 
-    def cache_push(self, cache: EntityCache) -> None:
+    def cache_push(self, cache: EntityMemoryCache) -> None:
         self._stack.append(cache)
 
     def cache_pop(self) -> None:

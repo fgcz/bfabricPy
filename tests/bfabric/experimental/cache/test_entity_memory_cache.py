@@ -1,6 +1,6 @@
 import pytest
 
-from bfabric.experimental.cache._entity_cache import EntityCache
+from bfabric.experimental.cache._entity_memory_cache import EntityMemoryCache
 
 
 @pytest.fixture
@@ -13,7 +13,7 @@ def config():
 
 @pytest.fixture()
 def entity_cache(config):
-    result = EntityCache(config)
+    result = EntityMemoryCache(config)
     result.put("Entity1", 1, "value1")
     result.put("Entity1", 2, "value2")
     return result

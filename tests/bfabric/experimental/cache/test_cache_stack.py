@@ -1,17 +1,17 @@
 import pytest
 
 from bfabric.experimental.cache._cache_stack import CacheStack
-from bfabric.experimental.cache._entity_cache import EntityCache
+from bfabric.experimental.cache._entity_memory_cache import EntityMemoryCache
 
 
 @pytest.fixture
 def mock_cache_1(mocker):
-    return mocker.MagicMock(name="mock_cache_1", spec=EntityCache, autospec=True)
+    return mocker.MagicMock(name="mock_cache_1", spec=EntityMemoryCache, autospec=True)
 
 
 @pytest.fixture
 def mock_cache_2(mocker):
-    return mocker.MagicMock(name="mock_cache_2", spec=EntityCache, autospec=True)
+    return mocker.MagicMock(name="mock_cache_2", spec=EntityMemoryCache, autospec=True)
 
 
 class TestEmpty:
