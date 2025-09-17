@@ -51,7 +51,7 @@ dev = [
     "mypy",
     "types-PyYAML",
 ]
-test = ["pytest", "pytest-mock", "logot", "pyfakefs", "inline-snapshot"]
+test = ["pytest", "pytest-mock", "logot", "pyfakefs", "inline-snapshot", "pytest-bdd"]
 
 [tool.uv]
 reinstall-package = ["bfabric", "bfabric_scripts", "bfabric_app_runner"]
