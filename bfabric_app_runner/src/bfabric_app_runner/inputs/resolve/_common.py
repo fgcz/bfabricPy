@@ -8,13 +8,8 @@ if TYPE_CHECKING:
     from bfabric.entities import Resource
 
 
-def get_file_source_and_filename(resource: Resource, filename: str | None) -> tuple[FileSourceSsh, str]:
-    """Get the file source and filename for a given resource.
-
-    If filename is None, the original filename from the resource is used, otherwise the same value will be returned.
-    """
-    file_source = FileSourceSsh(
-        ssh=FileSourceSshValue(host=resource.storage["host"], path=resource.storage_absolute_path)
+def get_file_source(resource: Resource) -> FileSourceSsh:
+    """Get the file source for a given resource."""
+    return FileSourceSsh(
+        ssh=FileSourceSshValue(host=resource.storage["host"], path=str(resource.storage_absolute_path))
     )
-    filename = filename or resource.filename
-    return file_source, filename

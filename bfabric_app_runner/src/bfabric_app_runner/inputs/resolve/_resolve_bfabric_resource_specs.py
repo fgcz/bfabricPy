@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from bfabric.entities import Resource
-from bfabric_app_runner.inputs.resolve._common import get_file_source_and_filename
+from bfabric_app_runner.inputs.resolve._common import get_file_source
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedFile
 
 if TYPE_CHECKING:
@@ -33,10 +33,10 @@ class ResolveBfabricResourceSpecs:
         return result
 
     def _get_file_spec(self, spec: BfabricResourceSpec, resource: Resource) -> ResolvedFile:
-        source, filename = get_file_source_and_filename(resource=resource, filename=spec.filename)
+        source = get_file_source(resource=resource)
         return ResolvedFile(
             source=source,
-            filename=filename,
+            filename=spec.filename or resource.filename,
             link=False,
             checksum=resource["filechecksum"] if spec.check_checksum else None,
         )
