@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from bfabric_app_runner.specs.inputs.file_spec import FileSourceSsh, FileSourceSshValue
@@ -17,5 +16,5 @@ def get_file_source_and_filename(resource: Resource, filename: str | None) -> tu
     file_source = FileSourceSsh(
         ssh=FileSourceSshValue(host=resource.storage["host"], path=resource.storage_absolute_path)
     )
-    filename = filename or Path(resource["relativepath"]).name
+    filename = filename or resource.filename
     return file_source, filename
