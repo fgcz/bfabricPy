@@ -52,7 +52,7 @@ def save_importresource(client: Bfabric, line: str) -> None:
     )
     logger.info(obj)
     res = client.save(endpoint="importresource", obj=obj)
-    print(json.dumps(res, indent=2))
+    print(json.dumps(res.to_list_dict(), indent=2))
 
 
 def create_importresource_dict(
