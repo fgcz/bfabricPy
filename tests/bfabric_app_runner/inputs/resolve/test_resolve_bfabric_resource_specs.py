@@ -17,21 +17,20 @@ def resolver(mock_client):
 
 def test_call(resolver, mocker, mock_client):
     # Setup mock resources and storages
-    mock_resource = {"storage": {"id": 1}, "relativepath": "/path/to/file.txt", "filechecksum": "abc123"}
-
     mock_storage = {"host": "example.com", "basepath": "/data"}
+    mock_resource = mocker.MagicMock(
+        name="mock_resource",
+        storage=mock_storage,
+        storage_absolute_path="/data/path/to/file.txt",
+        spec=["storage", "storage_absolute_path", "__getitem__"],
+    )
+    mock_resource.__getitem__.side_effect = lambda key: {"filechecksum": "abc123"}[key]
 
     # Mock Resource.find_all to return our mock resource
     mocker.patch.object(Resource, "find_all", return_value={42: mock_resource})
 
-    # Mock Storage.find_all to return our mock storage
-    mocker.patch.object(Storage, "find_all", return_value={1: mock_storage})
-
     # Create mock spec
-    mock_spec = mocker.MagicMock(name="mock_spec")
-    mock_spec.id = 42
-    mock_spec.filename = "renamed_file.txt"
-    mock_spec.check_checksum = True
+    mock_spec = mocker.MagicMock(name="mock_spec", id=42, filename="renamed_file.txt", check_checksum=True)
 
     # Call the function under test
     result = resolver([mock_spec])
@@ -47,7 +46,6 @@ def test_call(resolver, mocker, mock_client):
 
     # Verify the correct methods were called
     Resource.find_all.assert_called_once_with(ids=[42], client=mock_client)
-    Storage.find_all.assert_called_once_with(ids=[1], client=mock_client)
 
 
 def test_call_when_empty(resolver):
@@ -58,15 +56,28 @@ def test_call_when_empty(resolver):
 
 def test_call_multiple_resources(resolver, mocker, mock_client):
     # Setup mock resources and storages
-    mock_resources = {
-        101: {"storage": {"id": 1}, "relativepath": "/path/to/file1.txt", "filechecksum": "abc123"},
-        102: {"storage": {"id": 2}, "relativepath": "/path/to/file2.txt", "filechecksum": "def456"},
-    }
-
     mock_storages = {
         1: {"host": "example.com", "basepath": "/data1"},
         2: {"host": "example2.com", "basepath": "/data2"},
     }
+    mock_resources = {
+        101: mocker.MagicMock(
+            name="mock_resources[101]",
+            storage=mock_storages[1],
+            storage_absolute_path="/data1/path/to/file1.txt",
+            filename="file1.txt",
+            spec=["storage", "storage_absolute_path", "filename", "__getitem__"],
+        ),
+        102: mocker.MagicMock(
+            name="mock_resources[102]",
+            storage=mock_storages[2],
+            storage_absolute_path="/data2/path/to/file2.txt",
+            filename="file2.txt",
+            spec=["storage", "storage_absolute_path", "filename", "__getitem__"],
+        ),
+    }
+    mock_resources[101].__getitem__.side_effect = lambda key: {"filechecksum": "abc123"}[key]
+    mock_resources[102].__getitem__.side_effect = lambda key: {"filechecksum": "def456"}[key]
 
     # Mock find_all methods
     mocker.patch.object(Resource, "find_all", return_value=mock_resources)
@@ -108,12 +119,17 @@ def test_get_file_spec(resolver, mocker):
     mock_spec.filename = "custom_name.txt"
     mock_spec.check_checksum = True
 
-    mock_resource = {"relativepath": "/path/to/original.txt", "filechecksum": "abc123"}
-
     mock_storage = {"host": "example.com", "basepath": "/data"}
+    mock_resource = mocker.MagicMock(
+        name="mock_resource",
+        storage=mock_storage,
+        storage_absolute_path="/data/path/to/original.txt",
+        spec=["storage", "storage_absolute_path", "filename", "__getitem__"],
+    )
+    mock_resource.__getitem__.side_effect = lambda key: {"filechecksum": "abc123"}[key]
 
     # Call the method under test
-    result = resolver._get_file_spec(spec=mock_spec, resource=mock_resource, storage=mock_storage)
+    result = resolver._get_file_spec(spec=mock_spec, resource=mock_resource)
 
     # Assert the result
     assert isinstance(result, ResolvedFile)
@@ -130,12 +146,18 @@ def test_get_file_spec_no_filename(resolver, mocker):
     mock_spec.filename = None
     mock_spec.check_checksum = False
 
-    mock_resource = {"relativepath": "/path/to/original.txt", "filechecksum": "abc123"}
-
     mock_storage = {"host": "example.com", "basepath": "/data"}
+    mock_resource = mocker.MagicMock(
+        name="mock_resource",
+        storage=mock_storage,
+        storage_absolute_path="/data/path/to/original.txt",
+        filename="original.txt",
+        spec=["storage", "storage_absolute_path", "filename", "__getitem__"],
+    )
+    mock_resource.__getitem__.side_effect = lambda key: {"filechecksum": "abc123"}[key]
 
     # Call the method under test
-    result = resolver._get_file_spec(spec=mock_spec, resource=mock_resource, storage=mock_storage)
+    result = resolver._get_file_spec(spec=mock_spec, resource=mock_resource)
 
     # Assert the result
     assert result.filename == "original.txt"  # Should use basename

@@ -10,6 +10,18 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.34\] - 2025-09-19
+
+### Added
+
+- `bfabric.experimental.cache` which implements re-entrant lookup caching for entities (when retrieved by ID).
+- Fields `filename`, `storage_relative_path`, `storage_absolute_path` have been added to `Resource`. This should be used
+    in the future, to ensure path handling is performed consistently
+
+### Removed
+
+- `bfabric.experimental.entity_lookup_cache` has been removed in favor of the new (experimental) API.
+
 ## \[1.13.33\] - 2025-08-26
 
 ### Added

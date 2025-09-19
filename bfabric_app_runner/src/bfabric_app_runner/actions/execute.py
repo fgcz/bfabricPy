@@ -6,7 +6,6 @@ from loguru import logger
 
 from bfabric import Bfabric
 from bfabric.entities import WorkflowTemplateStep, WorkflowTemplate, WorkflowStep
-from bfabric.experimental.entity_lookup_cache import EntityLookupCache
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric_app_runner.actions.types import (
     ActionDispatch,
@@ -24,15 +23,13 @@ from bfabric_app_runner.output_registration import register_outputs
 
 def execute_dispatch(action: ActionDispatch, client: Bfabric) -> None:
     """Executes a dispatch action."""
-    app_version, bfabric_app_spec, workunit_definition_path = load_workunit_information(
+    app_version, _, workunit_definition_path = load_workunit_information(
         app_spec=action.app_ref, client=client, work_dir=action.work_dir, workunit_ref=action.workunit_ref
     )
     workunit_definition_mtime = workunit_definition_path.stat().st_mtime
     workunit_definition = WorkunitDefinition.from_yaml(workunit_definition_path)
-
-    with EntityLookupCache.enable():
-        runner = Runner(spec=app_version, client=client, ssh_user=None)
-        runner.run_dispatch(workunit_ref=workunit_definition_path, work_dir=action.work_dir)
+    runner = Runner(spec=app_version, client=client, ssh_user=None)
+    runner.run_dispatch(workunit_ref=workunit_definition_path, work_dir=action.work_dir)
 
     new_mtime = workunit_definition_path.stat().st_mtime
     if workunit_definition_mtime != new_mtime:
@@ -49,15 +46,6 @@ def execute_dispatch(action: ActionDispatch, client: Bfabric) -> None:
     if not action.read_only:
         # Set the workunit status to processing
         client.save("workunit", {"id": workunit_definition.registration.workunit_id, "status": "processing"})
-
-        # Create a workflowstep template if specified
-        if bfabric_app_spec.workflow_template_step_id:
-            logger.info(f"Creating workflowstep from template {bfabric_app_spec.workflow_template_step_id}")
-            _register_workflow_step(
-                workflow_template_step_id=bfabric_app_spec.workflow_template_step_id,
-                workunit_definition=workunit_definition,
-                client=client,
-            )
 
 
 def execute_run(action: ActionRun, client: Bfabric) -> None:
@@ -96,10 +84,8 @@ def execute_process(action: ActionProcess, client: Bfabric) -> None:
             work_dir=action.work_dir,
             workunit_ref=action.work_dir / "workunit_definition.yml",
         )
-
-        with EntityLookupCache.enable():
-            runner = Runner(spec=app_version, client=client, ssh_user=None)
-            runner.run_process(chunk_dir=chunk_dir)
+        runner = Runner(spec=app_version, client=client, ssh_user=None)
+        runner.run_process(chunk_dir=chunk_dir)
 
 
 def execute_outputs(action: ActionOutputs, client: Bfabric) -> None:
@@ -109,7 +95,7 @@ def execute_outputs(action: ActionOutputs, client: Bfabric) -> None:
     for chunk_dir_rel in chunk_dirs:
         # this includes the legacy collect step
         chunk_dir = chunk_dir_rel.resolve()
-        app_version, _, workunit_ref = load_workunit_information(
+        app_version, bfabric_app_spec, workunit_ref = load_workunit_information(
             app_spec=action.app_ref, client=client, work_dir=chunk_dir, workunit_ref=action.workunit_ref
         )
         runner = Runner(spec=app_version, client=client, ssh_user=action.ssh_user)
@@ -124,6 +110,14 @@ def execute_outputs(action: ActionOutputs, client: Bfabric) -> None:
                 force_storage=action.force_storage,
                 reuse_default_resource=True,
             )
+            # Create a workflowstep template if specified
+            if bfabric_app_spec.workflow_template_step_id:
+                logger.info(f"Creating workflowstep from template {bfabric_app_spec.workflow_template_step_id}")
+                _register_workflow_step(
+                    workflow_template_step_id=bfabric_app_spec.workflow_template_step_id,
+                    workunit_definition=workunit_definition,
+                    client=client,
+                )
 
 
 def _register_workflow_step(
