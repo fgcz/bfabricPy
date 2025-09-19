@@ -30,10 +30,15 @@ def polars_column_to_bfabric_type(
     column_types: DatasetColumnTypes | None = None,
 ) -> str:
     """Returns the B-Fabric type for a given Polars column name."""
-    if column_types is not None and column_name in column_types.entities:
-        is_numeric = _all_values_are_integers(dataframe[column_name])
-        if is_numeric:
-            return column_name
+    if column_types is not None:
+        # Create a case-insensitive lookup mapping lowercase to original entity names
+        entity_lookup = {entity.lower(): entity for entity in column_types.entities}
+
+        # Check if column name matches any entity (case-insensitive)
+        if column_name.lower() in entity_lookup:
+            is_numeric = _all_values_are_integers(dataframe[column_name])
+            if is_numeric:
+                return entity_lookup[column_name.lower()]
 
     dtype = dataframe[column_name].dtype
     if dtype.is_integer():
