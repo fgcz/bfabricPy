@@ -4,6 +4,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Added
+
+- New Input type `BfabricResourceDatasetSpec` to specify a dataset which links `Resource` entities with a particular column.
+    All files will be copied into a directory (filename field) and the dataset file will be written into the directory as well.
+
 ### Changed
 
 - Automatic workflow step creation is moved from `dispatch` action to `stage` action, to avoid creating workflowsteps
