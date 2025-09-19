@@ -28,7 +28,8 @@ class ResolveBfabricResourceDatasetSpecs:
     def _resolve_spec(self, spec: BfabricResourceDatasetSpec) -> list[ResolvedFile | ResolvedStaticFile]:
         data_tmp = self._resolve_unfiltered_dataset(spec=spec)
         data_filtered = self._filter_dataset(spec=spec, data=data_tmp)
-        data = data_filtered.rename({"tmp_resource_filename": spec.output_dataset_file_column}).drop(
+        output_file_column = self._get_unique_output_column(spec, data_filtered)
+        data = data_filtered.rename({"tmp_resource_filename": output_file_column}).drop(
             "tmp_resource_source", "tmp_resource_relative_path", "tmp_resource_checksum"
         )
 
@@ -47,6 +48,16 @@ class ResolveBfabricResourceDatasetSpecs:
             )
         )
         return files
+
+    def _get_unique_output_column(self, spec: BfabricResourceDatasetSpec, data: pl.DataFrame) -> str:
+        output_file_column = spec.output_dataset_file_column
+        if output_file_column not in data.columns:
+            return output_file_column
+        for i in range(1, 10):
+            candidate = f"{output_file_column}.{i}"
+            if candidate not in data.columns:
+                return candidate
+        raise ValueError("Could not determine unique output file column name.")
 
     @staticmethod
     def _data_to_parquet(data: pl.DataFrame) -> bytes:
