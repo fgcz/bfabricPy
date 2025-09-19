@@ -16,6 +16,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Automatic Workflow Step Creation moved from `dispatch` action to `stage` action
     - Prevents creating workflowsteps for failed workunits
     - Note: This decision may be revisited in the future, as there could be benefits to creating the workflowstep early on
+- Improved error messaging when running "make stage" in read-only mode
+    - Now displays clear warning messages explaining that staging is skipped
+    - Provides guidance on how to remove the --read-only flag
 
 ## \[0.3.1\] - 2025-09-01
 
