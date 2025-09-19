@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Fixed
+
+- `bfabric_save_importresource_sample.py` now properly serializes ResultContainer objects for JSON output.
+
 ### Changed
 
 - Update `bfabric` to include case-insensitive dataset column type detection support.
