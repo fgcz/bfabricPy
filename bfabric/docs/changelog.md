@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.34\] - 2025-09-19
+
 ### Added
 
 - `bfabric.experimental.cache` which implements re-entrant lookup caching for entities (when retrieved by ID).
