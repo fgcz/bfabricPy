@@ -165,6 +165,25 @@ def test_execute_outputs_does_not_call_register_workflow_step_when_read_only(
     execute_outputs_common_mocks["register_workflow_step"].assert_not_called()
 
 
+def test_execute_outputs_logs_warning_when_read_only(action_outputs, mock_client, mocker):
+    """Test that execute_outputs logs warning messages when read_only=True."""
+    # Setup read_only action
+    action_outputs.read_only = True
+
+    # Mock logger.warning to capture log messages
+    mock_logger_warning = mocker.patch("bfabric_app_runner.actions.execute.logger.warning")
+
+    # Execute
+    execute_outputs(action_outputs, mock_client)
+
+    # Verify warning messages were logged
+    expected_calls = [
+        mocker.call("Read-only mode: Skipping output registration and staging."),
+        mocker.call("To actually stage results, remove the --read-only flag from your configuration."),
+    ]
+    mock_logger_warning.assert_has_calls(expected_calls)
+
+
 def test_execute_outputs_does_not_call_register_workflow_step_when_no_template(
     action_outputs, mock_client, execute_outputs_common_mocks, mock_app_spec_without_workflow_template
 ):
