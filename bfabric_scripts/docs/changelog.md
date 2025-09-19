@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Changed
+
+- Update `bfabric` to include case-insensitive dataset column type detection support.
+
 ## \[1.13.33\] - 2025-08-26
 
 ### Changed
