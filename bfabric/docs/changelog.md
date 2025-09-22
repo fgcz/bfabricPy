@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.35\] - 2025-09-22
+
 ### Changed
 
 - Dataset column type detection now supports case-insensitive entity matching (e.g., "resource" is detected as "Resource" type automatically).
