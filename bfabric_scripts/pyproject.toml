@@ -23,9 +23,11 @@ excel = ["fastexcel"]
 [project.scripts]
 "bfabric-cli" = "bfabric_scripts.cli.__main__:app"
 
-# TODO Legacy CLI interfaces
-#bfabric_feeder_resource_autoQC="bfabric_scripts.bfabric_feeder_resource_autoQC:main"
+# TODO scripts for feeder
 "bfabric_list_not_existing_storage_directories.py" = "bfabric_scripts.bfabric_list_not_existing_storage_directories:app"
+"bfabric_save_importresource_sample.py" = "bfabric_scripts.bfabric_save_importresource_sample:main"
+
+# TODO Legacy CLI interfaces
 "bfabric_list_workunit_parameters.py" = "bfabric_scripts.bfabric_list_workunit_parameters:main"
 "bfabric_upload_resource.py" = "bfabric_scripts.bfabric_upload_resource:main"
 "bfabric_logthis.py" = "bfabric_scripts.bfabric_logthis:main"
@@ -40,7 +42,6 @@ excel = ["fastexcel"]
 "bfabric_save_csv2dataset.py" = "bfabric_scripts.bfabric_save_csv2dataset:main"
 "bfabric_save_dataset2csv.py" = "bfabric_scripts.bfabric_save_dataset2csv:main"
 "bfabric_save_fasta.py" = "bfabric_scripts.bfabric_save_fasta:main"
-"bfabric_save_importresource_sample.py" = "bfabric_scripts.bfabric_save_importresource_sample:main"
 "bfabric_save_link_to_workunit.py" = "bfabric_scripts.bfabric_save_link_to_workunit:main"
 #bfabric_save_resource="bfabric_scripts.bfabric_save_resource:main"
 "bfabric_save_workunit_attribute.py" = "bfabric_scripts.bfabric_save_workunit_attribute:main"
