@@ -10,6 +10,12 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.35\] - 2025-09-25
+
+### Changed
+
+- `bfabric_list_not_existing_storage_directories.py` is made more robust. Instead of the file based cache, it will check all containers modified within a sliding time window (default 14 days).
+
 ## \[1.13.34\] - 2025-09-22
 
 ### Fixed
