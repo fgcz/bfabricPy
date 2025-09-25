@@ -17,7 +17,7 @@ dependencies = [
 python_requires = ">=3.10"
 
 [project.optional-dependencies]
-test = ["pytest", "pytest-mock", "logot[pytest,loguru]", "pyfakefs"]
+test = ["pytest", "pytest-mock", "logot[pytest,loguru]", "pyfakefs", "inline-snapshot", "freezegun"]
 excel = ["fastexcel"]
 
 [project.scripts]
@@ -25,7 +25,7 @@ excel = ["fastexcel"]
 
 # TODO Legacy CLI interfaces
 #bfabric_feeder_resource_autoQC="bfabric_scripts.bfabric_feeder_resource_autoQC:main"
-"bfabric_list_not_existing_storage_directories.py" = "bfabric_scripts.bfabric_list_not_existing_storage_directories:main"
+"bfabric_list_not_existing_storage_directories.py" = "bfabric_scripts.bfabric_list_not_existing_storage_directories:app"
 "bfabric_list_workunit_parameters.py" = "bfabric_scripts.bfabric_list_workunit_parameters:main"
 "bfabric_upload_resource.py" = "bfabric_scripts.bfabric_upload_resource:main"
 "bfabric_logthis.py" = "bfabric_scripts.bfabric_logthis:main"
