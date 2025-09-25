@@ -28,7 +28,7 @@ def list_not_existing_storage_dirs(
 
     # list containers with technology id 2 or 4 modified after cutoff date
     result = client.read(
-        "container", obj={"technologyid": [2, 4], "modifiedafter": date}, return_id_only=True, max_results=None
+        endpoint="container", obj={"technologyid": [2, 4], "modifiedafter": date}, return_id_only=True, max_results=None
     )
     container_ids = sorted(r["id"] for r in result)
     count = 0

@@ -17,7 +17,7 @@ dependencies = [
 python_requires = ">=3.10"
 
 [project.optional-dependencies]
-test = ["pytest", "pytest-mock", "logot[pytest,loguru]", "pyfakefs"]
+test = ["pytest", "pytest-mock", "logot[pytest,loguru]", "pyfakefs", "inline-snapshot", "freezegun"]
 excel = ["fastexcel"]
 
 [project.scripts]
