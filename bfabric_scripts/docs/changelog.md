@@ -14,6 +14,10 @@ Versioning currently follows `X.Y.Z` where
 
 - Delete unused `bfabric_feeder_resource_autoQC.py` script.
 
+### Changed
+
+- Legacy: `bfabric_save_workflowstep.py` reads config from `~/slurmworker/config/legacy_template_steps.yml`. Not relevant for bfabric-app-runner apps.
+
 ## \[1.13.35\] - 2025-09-25
 
 ### Changed
