@@ -16,7 +16,7 @@ Versioning currently follows `X.Y.Z` where
 
 ### Changed
 
-- Legacy: Update configuration in `bfabric_save_workflowstep.py`. Not relevant for bfabric-app-runner apps.
+- Legacy: `bfabric_save_workflowstep.py` reads config from `~/slurmworker/config/legacy_template_steps.yml`. Not relevant for bfabric-app-runner apps.
 
 ## \[1.13.35\] - 2025-09-25
 
