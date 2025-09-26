@@ -93,7 +93,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Create an analysis workflow step")
     parser.add_argument("workunitid", metavar="workunitid", type=int, help="workunit id")
     parser.add_argument(
-        "--config-path", default=Path(os.path.expanduser("~/slurmworker/config/legacy_template_steps.yml")), type=Path
+        "--config-path",
+        default=Path(os.path.expanduser("~/slurmworker/config/legacy_template_steps.yml")),
+        type=Path,
+        required=False,
     )
     args = parser.parse_args()
     config = SaveWorkflowStepConfig.model_validate(yaml.safe_load(args.config_path.read_text()))
