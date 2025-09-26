@@ -90,6 +90,11 @@ def execute_process(action: ActionProcess, client: Bfabric) -> None:
 
 def execute_outputs(action: ActionOutputs, client: Bfabric) -> None:
     """Executes an outputs action."""
+    if action.read_only:
+        logger.warning("Read-only mode: Skipping output registration and staging.")
+        logger.warning("To actually stage results, remove the --read-only flag from your configuration.")
+        return
+
     chunk_dirs = _validate_chunks_list(action.work_dir, action.chunk)
 
     for chunk_dir_rel in chunk_dirs:
