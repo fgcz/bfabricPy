@@ -14,6 +14,10 @@ Versioning currently follows `X.Y.Z` where
 
 - Delete unused `bfabric_feeder_resource_autoQC.py` script.
 
+### Changed
+
+- Legacy: Update configuration in `bfabric_save_workflowstep.py`. Not relevant for bfabric-app-runner apps.
+
 ## \[1.13.35\] - 2025-09-25
 
 ### Changed

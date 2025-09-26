@@ -41,6 +41,10 @@ def save_workflowstep(workunit_id: int | None = None) -> None:
         314: 254,  # DIANN
         255: 256,  # maxquant_scaffold
         266: 258,  # MaxQuant-sampleSizeEstimation
+        302: 259,
+        308: 259,
+        310: 259,
+        315: 290,
     }
     workflowtemplate_ids = {
         224: 59,  # Proteomics Data analysis
@@ -48,6 +52,10 @@ def save_workflowstep(workunit_id: int | None = None) -> None:
         314: 59,
         255: 60,  # Proteomics Results
         266: 60,
+        302: 60,
+        308: 60,
+        310: 60,
+        315: 60,
     }
 
     workunit = Workunit.find(id=workunit_id, client=client)
