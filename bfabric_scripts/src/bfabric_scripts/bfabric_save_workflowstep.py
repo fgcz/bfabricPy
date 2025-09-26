@@ -94,7 +94,7 @@ def main() -> None:
     parser.add_argument("workunitid", metavar="workunitid", type=int, help="workunit id")
     parser.add_argument(
         "--config-path",
-        default=Path(os.path.expanduser("~/slurmworker/config/legacy_template_steps.yml")),
+        default=Path(os.path.expanduser("~/slurmworker/config/legacy_workflow_steps.yml")),
         type=Path,
         required=False,
     )
