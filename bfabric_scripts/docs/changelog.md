@@ -16,6 +16,7 @@ Versioning currently follows `X.Y.Z` where
 
 ### Changed
 
+- `bfabric_flask.py` didn't log exceptions properly because it passed the wrong argument `exc_info` instead of `exception`.
 - Legacy: `bfabric_save_workflowstep.py` reads config from `~/slurmworker/config/legacy_template_steps.yml`. Not relevant for bfabric-app-runner apps.
 
 ## \[1.13.35\] - 2025-09-25

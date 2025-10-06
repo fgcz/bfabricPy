@@ -34,6 +34,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import sys
 from typing import Any
 
 from flask import Flask, Response, jsonify, request
@@ -51,6 +52,12 @@ app = Flask(__name__)
 client = Bfabric.connect(include_auth=False)
 
 
+with app.app_context():
+    # Ensure, that in production, we do not log variable names to stderr as these can include passwords.
+    logger.remove()
+    logger.add(sys.stderr, level="DEBUG", diagnose=False)
+
+
 def get_request_auth(request_data: dict[str, Any]) -> BfabricAuth:
     """Extracts the login and password from a JSON request body. Assumes it has been filtered beforehand."""
     webservicepassword = request_data["webservicepassword"].replace("\t", "")
@@ -61,15 +68,14 @@ def get_request_auth(request_data: dict[str, Any]) -> BfabricAuth:
 @app.errorhandler(Exception)
 def handle_unknown_exception(e: Exception) -> Response:
     """Handles exceptions which are not handled by a more specific handler."""
-    logger.error("Unknown exception", exc_info=e)
+    logger.exception("Unknown exception", exception=e)
     return jsonify({"error": f"unknown exception occurred: {e}"})
 
 
 @app.errorhandler(json.JSONDecodeError)
 def handle_json_decode_error(e: json.JSONDecodeError) -> Response:
     """Handles JSON decode errors."""
-    logger.error("JSON decode error", exc_info=e)
-    logger.debug(e.doc)
+    logger.exception("JSON decode error", exception=e)
     return jsonify({"error": "could not parse JSON request content"})
 
 
@@ -83,7 +89,7 @@ class InvalidRequestContent(RuntimeError):
 @app.errorhandler(InvalidRequestContent)
 def handle_invalid_request_content(e: InvalidRequestContent) -> Response:
     """Handles invalid request content errors."""
-    logger.error("Invalid request content", exc_info=e)
+    logger.exception("Invalid request content", exception=e)
     return jsonify({"error": f"invalid request content: {e}"})
 
 
