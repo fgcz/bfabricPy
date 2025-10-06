@@ -61,14 +61,14 @@ def get_request_auth(request_data: dict[str, Any]) -> BfabricAuth:
 @app.errorhandler(Exception)
 def handle_unknown_exception(e: Exception) -> Response:
     """Handles exceptions which are not handled by a more specific handler."""
-    logger.error("Unknown exception", exc_info=e)
+    logger.error("Unknown exception", exception=e)
     return jsonify({"error": f"unknown exception occurred: {e}"})
 
 
 @app.errorhandler(json.JSONDecodeError)
 def handle_json_decode_error(e: json.JSONDecodeError) -> Response:
     """Handles JSON decode errors."""
-    logger.error("JSON decode error", exc_info=e)
+    logger.error("JSON decode error", exception=e)
     logger.debug(e.doc)
     return jsonify({"error": "could not parse JSON request content"})
 
@@ -83,7 +83,7 @@ class InvalidRequestContent(RuntimeError):
 @app.errorhandler(InvalidRequestContent)
 def handle_invalid_request_content(e: InvalidRequestContent) -> Response:
     """Handles invalid request content errors."""
-    logger.error("Invalid request content", exc_info=e)
+    logger.error("Invalid request content", exception=e)
     return jsonify({"error": f"invalid request content: {e}"})
 
 
