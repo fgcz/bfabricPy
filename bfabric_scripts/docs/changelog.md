@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.36\] - 2025-10-13
+
 ### Removed
 
 - Delete unused `bfabric_feeder_resource_autoQC.py` script.
