@@ -14,6 +14,10 @@ Versioning currently follows `X.Y.Z` where
 
 - Delete unused `bfabric_feeder_resource_autoQC.py` script.
 
+### Fixed
+
+- `bfabric_save_importresource_sample.py` sample ID detection has been updated to work with recent queue generator and enabled for metabolomics.
+
 ### Changed
 
 - `bfabric_flask.py` didn't log exceptions properly because it passed the wrong argument `exc_info` instead of `exception`.
