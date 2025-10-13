@@ -10,9 +10,20 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.36\] - 2025-10-13
+
 ### Removed
 
 - Delete unused `bfabric_feeder_resource_autoQC.py` script.
+
+### Fixed
+
+- `bfabric_save_importresource_sample.py` sample ID detection has been updated to work with recent queue generator and enabled for metabolomics.
+
+### Changed
+
+- `bfabric_flask.py` didn't log exceptions properly because it passed the wrong argument `exc_info` instead of `exception`.
+- Legacy: `bfabric_save_workflowstep.py` reads config from `~/slurmworker/config/legacy_template_steps.yml`. Not relevant for bfabric-app-runner apps.
 
 ## \[1.13.35\] - 2025-09-25
 

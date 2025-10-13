@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Fixed
+
+- A test-only incompatibility with Polars was fixed.
+
 ## \[1.13.35\] - 2025-09-22
 
 ### Changed
