@@ -4,7 +4,9 @@ import os
 import shlex
 import shutil
 import socket
+import subprocess
 import tempfile
+from functools import cached_property
 from pathlib import Path
 from typing import Protocol, Annotated
 
@@ -36,33 +38,47 @@ class PythonEnvironment:
         """True if the environment is already provisioned."""
         return self._provisioned_marker.exists()
 
+    def log_packages(self, level: str = "DEBUG") -> None:
+        """Log installed packages in the environment for debugging."""
+        list_cmd = [self._uv_bin, "pip", "list", "-p", str(self.python_executable)]
+        proc = subprocess.run(list_cmd, check=False, capture_output=True, text=True)
+        logger.log(level, f"Installed packages in {self.env_path}:\n{proc.stdout}")
+
+    @cached_property
+    def _uv_bin(self) -> str:
+        return shutil.which("uv")
+
     def _create_virtual_environment(self) -> None:
         """Create a virtual environment using uv venv."""
         self.env_path.parent.mkdir(parents=True, exist_ok=True)
-        venv_cmd = ["uv", "venv", "-p", self.command.python_version, str(self.env_path)]
-        exec_command = CommandExec(
-            command=shlex.join(venv_cmd), env=self.command.env, prepend_paths=self.command.prepend_paths
-        )
-        execute_command_exec(exec_command)
+        venv_cmd = [self._uv_bin, "venv", "-p", self.command.python_version, str(self.env_path)]
+        self._execute_shell_cmd(venv_cmd)
 
     def _install_dependencies(self) -> None:
         """Install dependencies from pylock file."""
-        install_cmd = ["uv", "pip", "install", "-p", str(self.python_executable), "-r", str(self.command.pylock)]
+        install_cmd = [
+            self._uv_bin,
+            "pip",
+            "install",
+            "-p",
+            str(self.python_executable),
+            "-r",
+            str(self.command.pylock),
+        ]
         if self.command.refresh:
             install_cmd.append("--reinstall")
-
-        exec_command = CommandExec(
-            command=shlex.join(install_cmd), env=self.command.env, prepend_paths=self.command.prepend_paths
-        )
-        execute_command_exec(exec_command)
+        self._execute_shell_cmd(install_cmd)
 
     def _install_local_deps(self) -> None:
         """Install local extra dependencies with --no-deps."""
         if not self.command.local_extra_deps:
             return
 
-        dep_install_cmd = ["uv", "pip", "install", "-p", str(self.python_executable), "--no-deps"]
+        dep_install_cmd = [self._uv_bin, "pip", "install", "-p", str(self.python_executable), "--no-deps"]
         dep_install_cmd.extend(str(dep.absolute()) for dep in self.command.local_extra_deps)
+        self._execute_shell_cmd(dep_install_cmd)
+
+    def _execute_shell_cmd(self, dep_install_cmd: list[str]) -> None:
         exec_command = CommandExec(
             command=shlex.join(dep_install_cmd), env=self.command.env, prepend_paths=self.command.prepend_paths
         )
@@ -189,7 +205,6 @@ def _ensure_executable(command_args: list[str], env_path: Path) -> list[str]:
         return [str(candidate_script), *command_args[1:]]
 
     # Fallback to using the Python interpreter directly
-    breakpoint()
     logger.info("Falling back to using Python interpreter at {}", env_path / "bin" / "python")
     python_executable = env_path / "bin" / "python"
     return [str(python_executable), *command_args]
