@@ -54,9 +54,51 @@ class ChunksFile(BaseModel):
     chunks: list[Path]
 
     @classmethod
+    def infer_from_directory(cls, work_dir: Path) -> ChunksFile:
+        """Infer chunks by scanning for subdirectories containing inputs.yml.
+
+        :param work_dir: The work directory to scan
+        :return: ChunksFile with discovered chunks
+        :raises ValueError: If no chunks are found
+        """
+        work_dir = work_dir.resolve()
+        # Scan for subdirectories containing inputs.yml (non-recursive, 1 level deep)
+        chunk_dirs = []
+        for item in work_dir.iterdir():
+            if item.is_dir() and (item / "inputs.yml").exists():
+                # Store relative path
+                chunk_dirs.append(item.relative_to(work_dir))
+
+        if not chunk_dirs:
+            raise ValueError(f"No chunks found in {work_dir}. Expected subdirectories containing 'inputs.yml' files.")
+
+        # Sort alphabetically for consistent ordering
+        chunk_dirs.sort()
+        logger.info(f"Auto-discovered {len(chunk_dirs)} chunk(s): {[str(d) for d in chunk_dirs]}")
+        return ChunksFile(chunks=chunk_dirs)
+
+    @classmethod
     def read(cls, work_dir: Path) -> ChunksFile:
-        """Reads the chunks.yml file from the specified work directory."""
-        return ChunksFile.model_validate(yaml.safe_load((work_dir / "chunks.yml").read_text()))
+        """Reads the chunks.yml file from the specified work directory.
+
+        If chunks.yml is missing, automatically discovers chunks by scanning for
+        subdirectories containing inputs.yml and writes the result to chunks.yml.
+
+        :param work_dir: The work directory containing chunks.yml or chunk subdirectories
+        :return: ChunksFile with chunk paths
+        """
+        chunks_file = work_dir / "chunks.yml"
+        try:
+            return ChunksFile.model_validate(yaml.safe_load(chunks_file.read_text()))
+        except FileNotFoundError:
+            logger.info(f"chunks.yml not found in {work_dir}, auto-discovering chunks...")
+            chunks = cls.infer_from_directory(work_dir)
+            # Write discovered chunks to file for traceability
+            with chunks_file.open("w") as f:
+                data = {"chunks": [str(chunk) for chunk in chunks.chunks]}
+                yaml.safe_dump(data, f)
+            logger.info(f"Created chunks.yml with {len(chunks.chunks)} chunk(s)")
+            return chunks
 
 
 def run_app(

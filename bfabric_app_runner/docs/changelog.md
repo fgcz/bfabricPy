@@ -4,6 +4,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Added
+
+- Automatic `chunks.yml` generation when the file is missing
+    - Scans the work directory for subdirectories containing `inputs.yml` files
+    - Discovered chunks are written to `chunks.yml` for traceability and reproducibility
+    - Enables workflows without explicit dispatch steps or manual chunk creation
+    - Chunks are sorted alphabetically for deterministic ordering
+
 ## \[0.4.0\] - 2025-09-26
 
 ### Added

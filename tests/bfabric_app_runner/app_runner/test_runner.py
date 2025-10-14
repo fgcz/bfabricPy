@@ -4,7 +4,7 @@ import pytest
 import yaml
 from pydantic import BaseModel
 
-from bfabric_app_runner.app_runner.runner import Runner, run_app
+from bfabric_app_runner.app_runner.runner import Runner, run_app, ChunksFile
 
 
 class MockCommand(BaseModel):
@@ -209,3 +209,152 @@ def test_run_app_with_path_workunit_ref(
     assert isinstance(mock_from_ref.call_args[1]["workunit"], Path)
     assert mock_from_ref.call_args[1]["workunit"].is_absolute()
     assert mock_execute_command.call_count == 3
+
+
+def test_chunks_file_infer_from_directory_basic(tmp_path):
+    """Test basic chunk discovery from directory structure"""
+    work_dir = tmp_path / "work"
+    work_dir.mkdir()
+
+    # Create chunk directories with inputs.yml
+    (work_dir / "chunk1").mkdir()
+    (work_dir / "chunk1" / "inputs.yml").touch()
+    (work_dir / "chunk2").mkdir()
+    (work_dir / "chunk2" / "inputs.yml").touch()
+
+    chunks_file = ChunksFile.infer_from_directory(work_dir)
+
+    assert len(chunks_file.chunks) == 2
+    assert Path("chunk1") in chunks_file.chunks
+    assert Path("chunk2") in chunks_file.chunks
+
+
+def test_chunks_file_infer_from_directory_sorted(tmp_path):
+    """Test that discovered chunks are sorted alphabetically"""
+    work_dir = tmp_path / "work"
+    work_dir.mkdir()
+
+    # Create chunks in non-alphabetical order
+    for chunk_name in ["zebra", "alpha", "beta"]:
+        chunk_dir = work_dir / chunk_name
+        chunk_dir.mkdir()
+        (chunk_dir / "inputs.yml").touch()
+
+    chunks_file = ChunksFile.infer_from_directory(work_dir)
+
+    assert len(chunks_file.chunks) == 3
+    assert chunks_file.chunks == [Path("alpha"), Path("beta"), Path("zebra")]
+
+
+def test_chunks_file_infer_from_directory_empty(tmp_path):
+    """Test that an error is raised when no chunks are found"""
+    work_dir = tmp_path / "work"
+    work_dir.mkdir()
+
+    # Create some directories but without inputs.yml
+    (work_dir / "empty_dir").mkdir()
+
+    with pytest.raises(ValueError, match="No chunks found"):
+        ChunksFile.infer_from_directory(work_dir)
+
+
+def test_chunks_file_infer_ignores_nested(tmp_path):
+    """Test that only 1 level deep directories are scanned"""
+    from bfabric_app_runner.app_runner.runner import ChunksFile
+
+    work_dir = tmp_path / "work"
+    work_dir.mkdir()
+
+    # Create a chunk at level 1
+    (work_dir / "chunk1").mkdir()
+    (work_dir / "chunk1" / "inputs.yml").touch()
+
+    # Create a nested directory with inputs.yml (should be ignored)
+    (work_dir / "chunk1" / "nested").mkdir()
+    (work_dir / "chunk1" / "nested" / "inputs.yml").touch()
+
+    chunks_file = ChunksFile.infer_from_directory(work_dir)
+
+    assert len(chunks_file.chunks) == 1
+    assert chunks_file.chunks == [Path("chunk1")]
+
+
+def test_chunks_file_infer_ignores_files(tmp_path):
+    """Test that files in work_dir are ignored, only directories considered"""
+    from bfabric_app_runner.app_runner.runner import ChunksFile
+
+    work_dir = tmp_path / "work"
+    work_dir.mkdir()
+
+    # Create a file named inputs.yml directly in work_dir (should be ignored)
+    (work_dir / "inputs.yml").touch()
+
+    # Create a proper chunk
+    (work_dir / "chunk1").mkdir()
+    (work_dir / "chunk1" / "inputs.yml").touch()
+
+    chunks_file = ChunksFile.infer_from_directory(work_dir)
+
+    assert len(chunks_file.chunks) == 1
+    assert chunks_file.chunks == [Path("chunk1")]
+
+
+def test_chunks_file_read_auto_discovers(tmp_path):
+    """Test that read() falls back to auto-discovery when chunks.yml is missing"""
+    work_dir = tmp_path / "work"
+    work_dir.mkdir()
+
+    # Create chunk directories with inputs.yml but no chunks.yml
+    (work_dir / "chunk1").mkdir()
+    (work_dir / "chunk1" / "inputs.yml").touch()
+    (work_dir / "chunk2").mkdir()
+    (work_dir / "chunk2" / "inputs.yml").touch()
+
+    chunks_file = ChunksFile.read(work_dir)
+
+    assert len(chunks_file.chunks) == 2
+    assert Path("chunk1") in chunks_file.chunks
+    assert Path("chunk2") in chunks_file.chunks
+
+
+def test_chunks_file_read_writes_discovered(tmp_path):
+    """Test that read() writes chunks.yml after auto-discovery"""
+    work_dir = tmp_path / "work"
+    work_dir.mkdir()
+
+    # Create chunk directories with inputs.yml but no chunks.yml
+    (work_dir / "chunk1").mkdir()
+    (work_dir / "chunk1" / "inputs.yml").touch()
+
+    # Verify chunks.yml doesn't exist
+    assert not (work_dir / "chunks.yml").exists()
+
+    # Call read which should auto-discover and write
+    ChunksFile.read(work_dir)
+
+    # Verify chunks.yml was created
+    assert (work_dir / "chunks.yml").exists()
+
+    # Verify contents
+    chunks_content = yaml.safe_load((work_dir / "chunks.yml").read_text())
+    assert chunks_content == {"chunks": ["chunk1"]}
+
+
+def test_chunks_file_read_prefers_existing(tmp_path):
+    """Test that read() uses existing chunks.yml if present"""
+    work_dir = tmp_path / "work"
+    work_dir.mkdir()
+
+    # Create explicit chunks.yml with specific chunks
+    explicit_chunks = {"chunks": ["explicit_chunk"]}
+    (work_dir / "chunks.yml").write_text(yaml.dump(explicit_chunks))
+
+    # Also create a different chunk directory that would be discovered
+    (work_dir / "discovered_chunk").mkdir()
+    (work_dir / "discovered_chunk" / "inputs.yml").touch()
+
+    chunks_file = ChunksFile.read(work_dir)
+
+    # Should use the explicit chunks.yml, not discover
+    assert len(chunks_file.chunks) == 1
+    assert chunks_file.chunks == [Path("explicit_chunk")]
