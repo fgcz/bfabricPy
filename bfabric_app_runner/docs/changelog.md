@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Added
+
+- Automatic `chunks.yml` generation when the file is missing, by scanning for folders containing a `inputs.yml` file
+
 ## \[0.4.0\] - 2025-09-26
 
 ### Added
