@@ -58,12 +58,12 @@ reinstall-package = ["bfabric", "bfabric_scripts", "bfabric_app_runner"]
 
 [tool.black]
 line-length = 120
-target-version = ["py311"]
+target-version = ["py312"]
 
 [tool.ruff]
 line-length = 120
 indent-width = 4
-target-version = "py311"
+target-version = "py312"
 
 extend-exclude = [
     "examples/template"

@@ -2,9 +2,15 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+import yaml
 from pydantic import BaseModel, model_validator
 
 from bfabric_app_runner.specs.inputs_spec import LocalInputSpecType  # noqa: TC001
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class LocalWorkunitExecutionDefinition(BaseModel):
@@ -28,3 +34,8 @@ class LocalWorkunitExecutionDefinition(BaseModel):
         if (self.dataset is None) == (not self.resources):
             raise ValueError("either dataset or resources must be provided, but not both")
         return self
+
+    @classmethod
+    def from_yaml(cls, path: Path) -> LocalWorkunitExecutionDefinition:
+        parsed = yaml.safe_load(path.read_text())
+        return cls.model_validate(parsed)
