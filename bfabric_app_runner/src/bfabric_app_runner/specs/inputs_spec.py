@@ -17,16 +17,19 @@ from pydantic import BaseModel, ConfigDict, Field
 if TYPE_CHECKING:
     from pathlib import Path
 
+LocalInputSpecType = Annotated[
+    FileSpec | StaticYamlSpec | StaticFileSpec,
+    Field(discriminator="type"),
+]
+
 InputSpecType = Annotated[
-    BfabricResourceSpec
-    | FileSpec
+    LocalInputSpecType
+    | BfabricResourceSpec
     | BfabricDatasetSpec
     | BfabricOrderFastaSpec
     | BfabricAnnotationSpec
     | BfabricResourceArchiveSpec
-    | BfabricResourceDatasetSpec
-    | StaticYamlSpec
-    | StaticFileSpec,
+    | BfabricResourceDatasetSpec,
     Field(discriminator="type"),
 ]
 
