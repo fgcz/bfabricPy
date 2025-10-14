@@ -61,16 +61,14 @@ class ChunksFile(BaseModel):
         :return: ChunksFile with discovered chunks
         :raises ValueError: If no chunks are found
         """
-        work_dir = work_dir.resolve()
         # Scan for subdirectories containing inputs.yml (non-recursive, 1 level deep)
-        chunk_dirs = []
-        for item in work_dir.iterdir():
-            if item.is_dir() and (item / "inputs.yml").exists():
-                # Store relative path
-                chunk_dirs.append(item.relative_to(work_dir))
+        work_dir = work_dir.resolve()
+        chunk_dirs = [p.parent.relative_to(work_dir) for p in work_dir.glob("*/inputs.yml")]
 
+        # Fail if no chunks found
         if not chunk_dirs:
-            raise ValueError(f"No chunks found in {work_dir}. Expected subdirectories containing 'inputs.yml' files.")
+            msg = f"No chunks found in {work_dir}. Expected subdirectories containing 'inputs.yml' files."
+            raise ValueError(msg)
 
         # Sort alphabetically for consistent ordering
         chunk_dirs.sort()
@@ -95,8 +93,7 @@ class ChunksFile(BaseModel):
             chunks = cls.infer_from_directory(work_dir)
             # Write discovered chunks to file for traceability
             with chunks_file.open("w") as f:
-                data = {"chunks": [str(chunk) for chunk in chunks.chunks]}
-                yaml.safe_dump(data, f)
+                yaml.safe_dump(chunks.model_dump(mode="json"), f)
             logger.info(f"Created chunks.yml with {len(chunks.chunks)} chunk(s)")
             return chunks
 
