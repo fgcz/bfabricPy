@@ -33,8 +33,9 @@ def test_bfabric(session, resolution):
 
 
 @nox.session(python=["3.10", "3.11", "3.13"])
-def test_bfabric_scripts(session):
-    session.install("-e", "./bfabric_scripts[test]")
+@nox.parametrize("resolution", ["highest", "lowest-direct"])
+def test_bfabric_scripts(session, resolution):
+    session.install("--resolution", resolution, "-e", "./bfabric_scripts[test]")
     session.run("uv", "pip", "list")
     packages = ["tests/bfabric_scripts"]
     if session.python.split(".")[0] == "3" and int(session.python.split(".")[1]) >= 11:
