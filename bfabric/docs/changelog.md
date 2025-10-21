@@ -21,6 +21,7 @@ From the next release onwards, Python 3.11 or higher will be required.
 
 ### Changed
 
+- Flask is not a dependency anymore, as the dependency will be moved to bfabric-scripts.
 - Version upper bounds for dependencies have been defined.
 
 ## \[1.13.35\] - 2025-09-22
