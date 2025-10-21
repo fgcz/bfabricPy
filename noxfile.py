@@ -31,7 +31,7 @@ def test_bfabric(session):
     session.run("pytest", "--durations=50", "tests/bfabric")
 
 
-@nox.session(python=["3.9", "3.11", "3.13"])
+@nox.session(python=["3.10", "3.11", "3.13"])
 def test_bfabric_scripts(session):
     session.install("-e", "./bfabric_scripts[test]")
     session.run("uv", "pip", "list")
