@@ -25,8 +25,9 @@ def chdir(path: Path) -> Generator[None, None, None]:
 
 
 @nox.session(python=["3.9", "3.11", "3.13"])
-def test_bfabric(session):
-    session.install("./bfabric[test]")
+@nox.parametrize("resolution", ["highest", "lowest-direct"])
+def test_bfabric(session, resolution):
+    session.install("--resolution", resolution, "./bfabric[test]")
     session.run("uv", "pip", "list")
     session.run("pytest", "--durations=50", "tests/bfabric")
 
