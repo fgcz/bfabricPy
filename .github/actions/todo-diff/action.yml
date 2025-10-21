@@ -22,7 +22,14 @@ runs:
   steps:
     - name: Install ripgrep
       shell: bash
-      run: sudo apt-get update && sudo apt-get install -y ripgrep
+      run: |
+        # Download ripgrep binary directly from GitHub releases (faster than apt-get)
+        RG_VERSION="14.1.1"
+        RG_ARCH="x86_64-unknown-linux-musl"
+        curl -LO "https://github.com/BurntSushi/ripgrep/releases/download/${RG_VERSION}/ripgrep-${RG_VERSION}-${RG_ARCH}.tar.gz"
+        tar xzf "ripgrep-${RG_VERSION}-${RG_ARCH}.tar.gz"
+        sudo mv "ripgrep-${RG_VERSION}-${RG_ARCH}/rg" /usr/local/bin/
+        rm -rf "ripgrep-${RG_VERSION}-${RG_ARCH}" "ripgrep-${RG_VERSION}-${RG_ARCH}.tar.gz"
     - name: Set up Python
       uses: actions/setup-python@v5
       with:

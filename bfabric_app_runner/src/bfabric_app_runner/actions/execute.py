@@ -6,7 +6,6 @@ from loguru import logger
 
 from bfabric import Bfabric
 from bfabric.entities import WorkflowTemplateStep, WorkflowTemplate, WorkflowStep
-from bfabric.experimental.entity_lookup_cache import EntityLookupCache
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric_app_runner.actions.types import (
     ActionDispatch,
@@ -29,10 +28,8 @@ def execute_dispatch(action: ActionDispatch, client: Bfabric) -> None:
     )
     workunit_definition_mtime = workunit_definition_path.stat().st_mtime
     workunit_definition = WorkunitDefinition.from_yaml(workunit_definition_path)
-
-    with EntityLookupCache.enable():
-        runner = Runner(spec=app_version, client=client, ssh_user=None)
-        runner.run_dispatch(workunit_ref=workunit_definition_path, work_dir=action.work_dir)
+    runner = Runner(spec=app_version, client=client, ssh_user=None)
+    runner.run_dispatch(workunit_ref=workunit_definition_path, work_dir=action.work_dir)
 
     new_mtime = workunit_definition_path.stat().st_mtime
     if workunit_definition_mtime != new_mtime:
@@ -87,14 +84,17 @@ def execute_process(action: ActionProcess, client: Bfabric) -> None:
             work_dir=action.work_dir,
             workunit_ref=action.work_dir / "workunit_definition.yml",
         )
-
-        with EntityLookupCache.enable():
-            runner = Runner(spec=app_version, client=client, ssh_user=None)
-            runner.run_process(chunk_dir=chunk_dir)
+        runner = Runner(spec=app_version, client=client, ssh_user=None)
+        runner.run_process(chunk_dir=chunk_dir)
 
 
 def execute_outputs(action: ActionOutputs, client: Bfabric) -> None:
     """Executes an outputs action."""
+    if action.read_only:
+        logger.warning("Read-only mode: Skipping output registration and staging.")
+        logger.warning("To actually stage results, remove the --read-only flag from your configuration.")
+        return
+
     chunk_dirs = _validate_chunks_list(action.work_dir, action.chunk)
 
     for chunk_dir_rel in chunk_dirs:

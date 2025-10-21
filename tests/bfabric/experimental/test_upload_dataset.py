@@ -51,3 +51,46 @@ class TestPolarsColumnToBfabricType:
         df = pl.DataFrame({"Dataset": ["1", "2"], "Resource": ["3", "a"]})
         assert polars_column_to_bfabric_type(df, "Dataset", column_types=column_types) == "Dataset"
         assert polars_column_to_bfabric_type(df, "Resource", column_types=column_types) == "String"
+
+    @staticmethod
+    @pytest.mark.parametrize("entity_name", ["Resource", "Dataset"])
+    def test_entity_reference_lowercase_when_int(entity_name, column_types):
+        lowercase_name = entity_name.lower()
+        df = pl.DataFrame({lowercase_name: [1, 2]})
+        assert polars_column_to_bfabric_type(df, lowercase_name, column_types=column_types) == entity_name
+        assert polars_column_to_bfabric_type(df, lowercase_name, column_types=None) == "Integer"
+
+    @staticmethod
+    @pytest.mark.parametrize("entity_name", ["Resource", "Dataset"])
+    def test_entity_reference_lowercase_when_str(entity_name, column_types):
+        lowercase_name = entity_name.lower()
+        df = pl.DataFrame({lowercase_name: ["1", "2"]})
+        assert polars_column_to_bfabric_type(df, lowercase_name, column_types=column_types) == entity_name
+        assert polars_column_to_bfabric_type(df, lowercase_name, column_types=None) == "String"
+
+    @staticmethod
+    def test_entity_reference_lowercase_when_not_actually_a_reference(column_types):
+        df = pl.DataFrame({"dataset": ["1", "2"], "resource": ["3", "a"]})
+        assert polars_column_to_bfabric_type(df, "dataset", column_types=column_types) == "Dataset"
+        assert polars_column_to_bfabric_type(df, "resource", column_types=column_types) == "String"
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "column_name,expected_entity",
+        [
+            ("rEsOuRcE", "Resource"),
+            ("dAtAsEt", "Dataset"),
+            ("RESOURCE", "Resource"),
+            ("DATASET", "Dataset"),
+        ],
+    )
+    def test_entity_reference_mixed_case_when_int(column_name, expected_entity, column_types):
+        df = pl.DataFrame({column_name: [1, 2]})
+        assert polars_column_to_bfabric_type(df, column_name, column_types=column_types) == expected_entity
+        assert polars_column_to_bfabric_type(df, column_name, column_types=None) == "Integer"
+
+    @staticmethod
+    def test_non_entity_lowercase_column_name(column_types):
+        df = pl.DataFrame({"some_column": [1, 2], "another_col": ["a", "b"]})
+        assert polars_column_to_bfabric_type(df, "some_column", column_types=column_types) == "Integer"
+        assert polars_column_to_bfabric_type(df, "another_col", column_types=column_types) == "String"

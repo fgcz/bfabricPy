@@ -103,7 +103,9 @@ jobs:
           package: ${{ matrix.package }}
       - name: Save changelog to file
         run: |
-          echo '${{ steps.extract-changelog.outputs.changelog-entry }}' > release_notes.md
+          cat > release_notes.md <<'EOF'
+          ${{ steps.extract-changelog.outputs.changelog-entry }}
+          EOF
           # Display the content to verify
           echo "--- Content of release_notes.md ---"
           cat release_notes.md

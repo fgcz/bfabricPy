@@ -6,26 +6,29 @@ build-backend = "hatchling.build"
 name = "bfabric_scripts"
 description = "Python command line scripts for the B-Fabric API"
 readme = "../README.md"
-version = "1.13.33"
+version = "1.13.36"
 
 dependencies = [
-    "bfabric==1.13.32",
-    "cyclopts>=3.13.0",
-    "xmltodict",
+    "bfabric @ git+https://github.com/fgcz/bfabricPy@main#subdirectory=bfabric",
+    "cyclopts>=4.0,<5.0",
+    "Flask>=3.0.3,<4.0",
+    "xmltodict>=1.0.0,<2.0.0",
 ]
 
 python_requires = ">=3.10"
 
 [project.optional-dependencies]
-test = ["pytest", "pytest-mock", "logot[pytest,loguru]", "pyfakefs"]
+test = ["pytest", "pytest-mock", "logot[pytest,loguru]", "pyfakefs", "inline-snapshot", "freezegun"]
 excel = ["fastexcel"]
 
 [project.scripts]
 "bfabric-cli" = "bfabric_scripts.cli.__main__:app"
 
+# TODO scripts for feeder
+"bfabric_list_not_existing_storage_directories.py" = "bfabric_scripts.bfabric_list_not_existing_storage_directories:app"
+"bfabric_save_importresource_sample.py" = "bfabric_scripts.bfabric_save_importresource_sample:main"
+
 # TODO Legacy CLI interfaces
-#bfabric_feeder_resource_autoQC="bfabric_scripts.bfabric_feeder_resource_autoQC:main"
-"bfabric_list_not_existing_storage_directories.py" = "bfabric_scripts.bfabric_list_not_existing_storage_directories:main"
 "bfabric_list_workunit_parameters.py" = "bfabric_scripts.bfabric_list_workunit_parameters:main"
 "bfabric_upload_resource.py" = "bfabric_scripts.bfabric_upload_resource:main"
 "bfabric_logthis.py" = "bfabric_scripts.bfabric_logthis:main"
@@ -40,7 +43,6 @@ excel = ["fastexcel"]
 "bfabric_save_csv2dataset.py" = "bfabric_scripts.bfabric_save_csv2dataset:main"
 "bfabric_save_dataset2csv.py" = "bfabric_scripts.bfabric_save_dataset2csv:main"
 "bfabric_save_fasta.py" = "bfabric_scripts.bfabric_save_fasta:main"
-"bfabric_save_importresource_sample.py" = "bfabric_scripts.bfabric_save_importresource_sample:main"
 "bfabric_save_link_to_workunit.py" = "bfabric_scripts.bfabric_save_link_to_workunit:main"
 #bfabric_save_resource="bfabric_scripts.bfabric_save_resource:main"
 "bfabric_save_workunit_attribute.py" = "bfabric_scripts.bfabric_save_workunit_attribute:main"

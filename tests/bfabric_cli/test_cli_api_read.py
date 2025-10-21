@@ -252,7 +252,7 @@ class TestReadFunction:
             OutputFormat.TABLE_RICH,
         ],
     )
-    def test_read_with_empty_results(self, mock_client, mock_console, mocker, output_format, capfd):
+    def test_read_with_empty_results(self, mock_client, mock_console, mocker, output_format, caplog):
         # Arrange
         mock_perform_query = mocker.patch("bfabric_scripts.cli.api.read.perform_query")
         mock_perform_query.return_value = []
@@ -266,13 +266,19 @@ class TestReadFunction:
         )
 
         # Act & Assert - All formats should handle empty results gracefully
-        result = cmd_api_read(params, client=mock_client)
-        captured = capfd.readouterr()
-        # Should not see IndexError or Traceback in output
-        assert "Traceback" not in captured.out
-        assert "Traceback" not in captured.err
-        assert "IndexError" not in captured.out
-        assert "IndexError" not in captured.err
+        with caplog.at_level("ERROR"):  # Only capture ERROR level and above
+            result = cmd_api_read(params, client=mock_client)
+
+        # Should not see any error/exception logs
+        # Check that no ERROR, CRITICAL, or exception messages were logged
+        error_messages = [record.message for record in caplog.records if record.levelno >= 40]  # ERROR=40
+        assert not error_messages, f"Unexpected error messages logged: {error_messages}"
+
+        # Also check that no traceback patterns appear in any log messages
+        all_messages = [record.message for record in caplog.records]
+        traceback_messages = [msg for msg in all_messages if "Traceback" in msg or "IndexError" in msg]
+        assert not traceback_messages, f"Unexpected traceback/error patterns in logs: {traceback_messages}"
+
         assert result is None  # Should return None (success) for all formats
 
         mock_perform_query.assert_called_once_with(params=params, client=mock_client, console_user=mocker.ANY)

@@ -6,7 +6,7 @@ import yaml
 from loguru import logger
 
 from bfabric.experimental import MultiQuery
-from bfabric.experimental.entity_lookup_cache import EntityLookupCache
+from bfabric.experimental.cache.context import get_cache_stack
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -47,41 +47,41 @@ class Entity:
     @classmethod
     def find(cls, id: int, client: Bfabric) -> Self | None:
         """Finds an entity by its ID, if it does not exist `None` is returned."""
-        cache = EntityLookupCache.instance()
-        if cache and cache.contains(entity_type=cls, entity_id=id):
-            return cache.get(entity_type=cls, entity_id=id)
-        else:
-            result = client.read(cls.ENDPOINT, obj={"id": int(id)})
-            entity = cls(result[0], client=client) if len(result) == 1 else None
-            if cache:
-                cache.put(entity_type=cls, entity_id=id, entity=entity)
-            return entity
+        cache_stack = get_cache_stack()
+        cache_entry = cache_stack.item_get(entity_type=cls, entity_id=id)
+        if cache_entry:
+            return cache_entry
+
+        result = client.read(cls.ENDPOINT, obj={"id": int(id)})
+        entity = cls(result[0], client=client) if len(result) == 1 else None
+        cache_stack.item_put(entity_type=cls, entity_id=id, entity=entity)
+        return entity
 
     @classmethod
     def find_all(cls, ids: list[int], client: Bfabric) -> dict[int, Self]:
         """Returns a dictionary of entities with the given IDs. The order will generally match the input, however,
         if some entities are not found they will be omitted and a warning will be logged.
         """
-        cache = EntityLookupCache.instance()
+        cache_stack = get_cache_stack()
         ids_requested = cls.__check_ids_list(ids)
 
         # retrieve entities from cache and from B-Fabric as needed
-        results_cached = cache.get_all(entity_type=cls, entity_ids=ids) if cache else {}
+        results_cached = cache_stack.item_get_all(entity_type=cls, entity_ids=ids)
         results_fresh = cls.__retrieve_entities(
             client=client, ids_requested=ids_requested, ids_cached=results_cached.keys()
         )
 
-        if cache:
-            for entity_id, entity in results_fresh.items():
-                cache.put(entity_type=cls, entity_id=entity_id, entity=entity)
-
+        cache_stack.item_put_all(entity_type=cls, entities=results_fresh)
         return cls.__ensure_results_order(ids_requested, results_cached, results_fresh)
 
     @classmethod
     def find_by(cls, obj: dict[str, Any], client: Bfabric, max_results: int | None = 100) -> dict[int, Self]:
         """Returns a dictionary of entities that match the given query."""
         result = client.read(cls.ENDPOINT, obj=obj, max_results=max_results)
-        return {x["id"]: cls(x, client=client) for x in result}
+        cache_stack = get_cache_stack()
+        entities = {x["id"]: cls(x, client=client) for x in result}
+        cache_stack.item_put_all(entity_type=cls, entities=entities)
+        return entities
 
     def dump_yaml(self, path: Path) -> None:
         """Writes the entity's data dictionary to a YAML file."""

@@ -10,6 +10,44 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Changed
+
+- Last version to support Python 3.10, next version will require Python 3.11 or higher.
+- Upper bounds for dependencies have been introduced.
+- Update `bfabric` to `1.13.36`.
+- Update `cyclopts` to `4.*`
+
+## \[1.13.36\] - 2025-10-13
+
+### Removed
+
+- Delete unused `bfabric_feeder_resource_autoQC.py` script.
+
+### Fixed
+
+- `bfabric_save_importresource_sample.py` sample ID detection has been updated to work with recent queue generator and enabled for metabolomics.
+
+### Changed
+
+- `bfabric_flask.py` didn't log exceptions properly because it passed the wrong argument `exc_info` instead of `exception`.
+- Legacy: `bfabric_save_workflowstep.py` reads config from `~/slurmworker/config/legacy_template_steps.yml`. Not relevant for bfabric-app-runner apps.
+
+## \[1.13.35\] - 2025-09-25
+
+### Changed
+
+- `bfabric_list_not_existing_storage_directories.py` is made more robust. Instead of the file based cache, it will check all containers modified within a sliding time window (default 14 days).
+
+## \[1.13.34\] - 2025-09-22
+
+### Fixed
+
+- `bfabric_save_importresource_sample.py` now properly serializes ResultContainer objects for JSON output.
+
+### Changed
+
+- Update `bfabric` to include case-insensitive dataset column type detection support.
+
 ## \[1.13.33\] - 2025-08-26
 
 ### Changed

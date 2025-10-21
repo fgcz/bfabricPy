@@ -10,6 +10,34 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Changed
+
+- This is the last release supporting Python 3.9. From the next release onwards, Python 3.11 or higher will be required.
+- Flask is not a dependency anymore, as the dependency will be moved to bfabric-scripts.
+- Version upper bounds for dependencies have been defined.
+
+### Fixed
+
+- A test-only incompatibility with Polars was fixed.
+
+## \[1.13.35\] - 2025-09-22
+
+### Changed
+
+- Dataset column type detection now supports case-insensitive entity matching (e.g., "resource" is detected as "Resource" type automatically).
+
+## \[1.13.34\] - 2025-09-19
+
+### Added
+
+- `bfabric.experimental.cache` which implements re-entrant lookup caching for entities (when retrieved by ID).
+- Fields `filename`, `storage_relative_path`, `storage_absolute_path` have been added to `Resource`. This should be used
+    in the future, to ensure path handling is performed consistently
+
+### Removed
+
+- `bfabric.experimental.entity_lookup_cache` has been removed in favor of the new (experimental) API.
+
 ## \[1.13.33\] - 2025-08-26
 
 ### Added

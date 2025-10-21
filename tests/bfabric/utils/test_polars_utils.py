@@ -1,7 +1,7 @@
 import polars as pl
 import polars.testing
 import pytest
-from polars.polars import DuplicateError
+from polars.exceptions import DuplicateError
 
 from bfabric.utils.polars_utils import flatten_relations
 

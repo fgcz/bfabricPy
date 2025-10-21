@@ -52,7 +52,7 @@ def save_importresource(client: Bfabric, line: str) -> None:
     )
     logger.info(obj)
     res = client.save(endpoint="importresource", obj=obj)
-    print(json.dumps(res, indent=2))
+    print(json.dumps(res.to_list_dict(), indent=2))
 
 
 def create_importresource_dict(
@@ -89,12 +89,13 @@ def create_importresource_dict(
 def get_sample_id_from_path(file_path: str) -> int | None:
     """Returns the sample id for a given file path, if it's present in the correct format."""
     match = re.search(
-        r"p([0-9]+)\/(Proteomics\/[A-Z]+_[1-9])\/.*_\d\d\d_S([0-9][0-9][0-9][0-9][0-9][0-9]+)_.*(raw|zip)$",
+        r"p\d+/(?:Proteomics|Metabolomics)/[A-Z]+_[1-9]/.*_\d{3}(?:_C\d+)?_S(?P<S>\d{6,})_.*\.(?:raw|zip)$",
         file_path,
     )
     if match:
-        logger.info(f"found sampleid={match.group(3)} pattern")
-        return int(match.group(3))
+        sample_id = match.group("S")
+        logger.info(f"found sample_id={sample_id} in path={file_path}")
+        return int(sample_id)
 
 
 def get_bfabric_application_and_project_id(bfabric_application_ids: dict[str, int], file_path: str) -> tuple[int, int]:
