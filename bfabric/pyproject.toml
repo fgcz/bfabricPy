@@ -16,21 +16,18 @@ authors = [
     { name = "Maria d'Errico" },
     { name = "Witold Eryk Wolski" },
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 dependencies = [
-    "suds >= 1.1.2",
-    "PyYAML >= 6.0",
-    "Flask >= 3.0.3",
-    "rich >= 13.7.1",
-    "zeep >= 4.2.1",
+    "suds>=1.2.0,<2.0.0",
+    "PyYAML>=6.0,<7.0",
+    "rich>=14.0.0,<15.0.0",
+    "zeep>=4.2.1",
     "polars-lts-cpu >= 0.20.25; platform_machine == 'x86_64' and platform_system == 'Darwin'",
     "polars >= 0.20.25; platform_machine != 'x86_64' or platform_system != 'Darwin'",
-    "loguru>=0.7",
-    "pydantic>=2.9.2",
-    "eval_type_backport; python_version < '3.10'",
-    "python-dateutil >= 2.9.0",
-    "requests >= 2.26.0",
-    #"platformdirs >= 4.3",
+    "loguru>=0.7,<0.8",
+    "pydantic>=2.9.2,<3.0",
+    "python-dateutil>=2.9.0,<3.0",
+    "requests>=2.26.0,<3.0",
 ]
 
 [project.optional-dependencies]
@@ -45,7 +42,7 @@ dev = [
     "ipython",
 ]
 doc = ["mkdocs", "mkdocs-material", "mkdocstrings[python]"]
-test = ["pytest", "pytest-mock", "logot[pytest,loguru]", "coverage"]
+test = ["pytest>=8", "pytest-mock>=3.15", "logot[pytest,loguru]>=1.5.1", "coverage>=7.11.0"]
 typing = ["mypy", "types-requests", "lxml-stubs", "types-python-dateutil", "types-PyYAML"]
 
 [project.urls]
