@@ -55,12 +55,25 @@ def get_changed_files(base_ref: str, head_ref: str) -> Set[str]:
     return changed_files
 
 
+def file_exists_in_ref(ref: str, file_path: str) -> bool:
+    """Check if a file exists at the specified git reference."""
+    try:
+        subprocess.run(["git", "cat-file", "-e", f"{ref}:{file_path}"], capture_output=True, check=True)
+        return True
+    except subprocess.CalledProcessError:
+        return False
+
+
 def get_todos_in_ref(ref: str, files: Set[str]) -> List[TodoItem]:
     """Get all "TODO" items in the given files at the specified git reference."""
     todos = []
 
     for file_path in files:
-        # Check if file exists at this ref
+        # Check if file exists at this ref (it might not exist for new files)
+        if not file_exists_in_ref(ref, file_path):
+            continue
+
+        # Get file content at this ref
         cmd = ["git", "show", f"{ref}:{file_path}"]
         file_content = run_command(cmd)
 
