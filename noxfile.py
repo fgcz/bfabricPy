@@ -26,6 +26,9 @@ def chdir(path: Path) -> Generator[None, None, None]:
 @nox.session(python=["3.9", "3.11", "3.13"])
 @nox.parametrize("resolution", ["highest", "lowest-direct"])
 def test_bfabric(session, resolution):
+    if resolution == "lowest-direct" and session.python != "3.9":
+        session.skip("Only testing lowest-direct on Python 3.9")
+
     session.install("--resolution", resolution, "./bfabric[test]")
     session.run("uv", "pip", "list")
     session.run("pytest", "--durations=50", "tests/bfabric")
@@ -34,6 +37,9 @@ def test_bfabric(session, resolution):
 @nox.session(python=["3.10", "3.11", "3.13"])
 @nox.parametrize("resolution", ["highest", "lowest-direct"])
 def test_bfabric_scripts(session, resolution):
+    if resolution == "lowest-direct" and session.python != "3.10":
+        session.skip("Only testing lowest-direct on Python 3.10")
+
     session.install("--resolution", resolution, "./bfabric_scripts[test]")
     session.run("uv", "pip", "list")
     packages = ["tests/bfabric_scripts"]
@@ -45,6 +51,7 @@ def test_bfabric_scripts(session, resolution):
 @nox.session(python=["3.13"])
 @nox.parametrize("resolution", ["highest", "lowest-direct"])
 def test_bfabric_app_runner(session, resolution):
+    # Both resolutions run for the single Python version
     session.install("--resolution", resolution, "./bfabric_app_runner[test]")
     session.run("uv", "pip", "list")
     session.run("pytest", "--durations=50", "tests/bfabric_app_runner")
