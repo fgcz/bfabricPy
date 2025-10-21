@@ -10,6 +10,12 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Changed
+
+- This is the last release supporting Python 3.9. From the next release onwards, Python 3.11 or higher will be required.
+- Flask is not a dependency anymore, as the dependency will be moved to bfabric-scripts.
+- Version upper bounds for dependencies have been defined.
+
 ### Fixed
 
 - A test-only incompatibility with Polars was fixed.
