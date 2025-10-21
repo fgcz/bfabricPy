@@ -9,7 +9,6 @@ from tempfile import TemporaryDirectory
 
 import nox
 
-# TODO check the problem
 nox.options.default_venv_backend = "uv"
 
 
@@ -25,15 +24,23 @@ def chdir(path: Path) -> Generator[None, None, None]:
 
 
 @nox.session(python=["3.9", "3.11", "3.13"])
-def test_bfabric(session):
-    session.install("./bfabric[test]")
+@nox.parametrize("resolution", ["highest", "lowest-direct"])
+def test_bfabric(session, resolution):
+    if resolution == "lowest-direct" and session.python != "3.9":
+        session.skip("Only testing lowest-direct on Python 3.9")
+
+    session.install("--resolution", resolution, "./bfabric[test]")
     session.run("uv", "pip", "list")
     session.run("pytest", "--durations=50", "tests/bfabric")
 
 
 @nox.session(python=["3.10", "3.11", "3.13"])
-def test_bfabric_scripts(session):
-    session.install("-e", "./bfabric_scripts[test]")
+@nox.parametrize("resolution", ["highest", "lowest-direct"])
+def test_bfabric_scripts(session, resolution):
+    if resolution == "lowest-direct" and session.python != "3.10":
+        session.skip("Only testing lowest-direct on Python 3.10")
+
+    session.install("--resolution", resolution, "./bfabric_scripts[test]")
     session.run("uv", "pip", "list")
     packages = ["tests/bfabric_scripts"]
     if session.python.split(".")[0] == "3" and int(session.python.split(".")[1]) >= 11:
@@ -42,9 +49,10 @@ def test_bfabric_scripts(session):
 
 
 @nox.session(python=["3.13"])
-def test_bfabric_app_runner(session):
-    session.install("-e", "./bfabric")
-    session.install("./bfabric_app_runner[test]")
+@nox.parametrize("resolution", ["highest", "lowest-direct"])
+def test_bfabric_app_runner(session, resolution):
+    # Both resolutions run for the single Python version
+    session.install("--resolution", resolution, "./bfabric_app_runner[test]")
     session.run("uv", "pip", "list")
     session.run("pytest", "--durations=50", "tests/bfabric_app_runner")
 

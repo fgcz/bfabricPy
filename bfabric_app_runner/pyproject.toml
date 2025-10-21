@@ -38,20 +38,26 @@ allow-direct-references = true
 
 [project.optional-dependencies]
 doc = [
-    "sphinx",
-    "myst-parser",
-    "autodoc_pydantic",
-    "sphinx-book-theme",
-    "sphinx-autobuild",
-    "sphinxcontrib-plantuml",
+    "sphinx>=8.0.2",
+    "myst-parser>=4.0.1",
+    "autodoc_pydantic>=2.2.0",
+    "sphinx-book-theme>=1.1.4",
+    "sphinx-autobuild>=2024.10.3",
+    "sphinxcontrib-plantuml>=0.31",
 ]
 dev = [
     "app_runner[doc]",
     "bfabric[dev, typing]",
-    "mypy",
-    "types-PyYAML",
+    "mypy>=1.18.2",
+    "types-PyYAML>=6.0.12.20250915",
 ]
-test = ["pytest", "pytest-mock", "logot", "pyfakefs", "inline-snapshot"]
+test = [
+    "pytest>=8.4.2",
+    "pytest-mock>=3.15.1",
+    "logot>=1.5.1",
+    "pyfakefs>=5.10.0",
+    "inline-snapshot>=0.30.0",
+]
 
 [tool.uv]
 reinstall-package = ["bfabric", "bfabric_scripts", "bfabric_app_runner"]

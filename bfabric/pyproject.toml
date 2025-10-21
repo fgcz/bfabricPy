@@ -19,16 +19,16 @@ authors = [
 requires-python = ">=3.9"
 dependencies = [
     "suds>=1.2.0,<2.0.0",
-    "PyYAML>=6.0,<7.0",
+    "PyYAML>=6.0.2,<7.0",
     "rich>=14.0.0,<15.0.0",
-    "zeep>=4.2.1",
-    "polars-lts-cpu >= 0.20.25; platform_machine == 'x86_64' and platform_system == 'Darwin'",
-    "polars >= 0.20.25; platform_machine != 'x86_64' or platform_system != 'Darwin'",
+    "zeep>=4.3.2,<5.0",
+    "polars-lts-cpu>=1.30,<2.0; platform_machine == 'x86_64' and platform_system == 'Darwin'",
+    "polars>=1.30,<2.0; platform_machine != 'x86_64' or platform_system != 'Darwin'",
     "loguru>=0.7,<0.8",
     "pydantic>=2.9.2,<3.0",
     "eval_type_backport; python_version < '3.10'",
     "python-dateutil>=2.9.0,<3.0",
-    "requests>=2.26.0,<3.0",
+    "requests>=2.27.0,<3.0",
 ]
 
 [project.optional-dependencies]
