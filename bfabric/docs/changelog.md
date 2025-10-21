@@ -10,9 +10,18 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.36\] - 2025-10-21
+
+This is the last release supporting Python 3.9.
+From the next release onwards, Python 3.11 or higher will be required.
+
 ### Fixed
 
 - A test-only incompatibility with Polars was fixed.
+
+### Changed
+
+- Version upper bounds for dependencies have been defined.
 
 ## \[1.13.35\] - 2025-09-22
 
