@@ -43,7 +43,7 @@ dev = [
     "ipython",
 ]
 doc = ["mkdocs", "mkdocs-material", "mkdocstrings[python]"]
-test = ["pytest>=8", "pytest-mock>=3.15", "logot[pytest,loguru]>=1.5.1", "coverage>=7.11.0"]
+test = ["pytest>=8", "pytest-mock>=3.15", "logot[pytest,loguru]>=1.5.1", "coverage>=7.10.0"]
 typing = ["mypy", "types-requests", "lxml-stubs", "types-python-dateutil", "types-PyYAML"]
 
 [project.urls]
