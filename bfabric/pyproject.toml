@@ -26,6 +26,7 @@ dependencies = [
     "polars >= 0.20.25; platform_machine != 'x86_64' or platform_system != 'Darwin'",
     "loguru>=0.7,<0.8",
     "pydantic>=2.9.2,<3.0",
+    "eval_type_backport; python_version < '3.10'",
     "python-dateutil>=2.9.0,<3.0",
     "requests>=2.26.0,<3.0",
 ]
