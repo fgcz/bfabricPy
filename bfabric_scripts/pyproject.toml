@@ -12,7 +12,7 @@ dependencies = [
     "bfabric==1.13.35",
     "cyclopts>=3.13.0,<4.0",
     "Flask>=3.0.3,<4.0",
-    "xmltodict",
+    "xmltodict>=1.0.0,<2.0.0",
 ]
 
 python_requires = ">=3.10"
