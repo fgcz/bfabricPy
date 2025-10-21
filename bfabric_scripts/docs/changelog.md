@@ -10,15 +10,12 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
-Last version to support Python 3.10, next version will require Python 3.11 or higher.
-
-### Fixed
-
-- Constrain cyclopts for a quick fix of a breaking change in 4.0.0.
-
 ### Changed
 
-- Update `bfabric` to 1.13.36.
+- Last version to support Python 3.10, next version will require Python 3.11 or higher.
+- Upper bounds for dependencies have been introduced.
+- Update `bfabric` to `1.13.36`.
+- Update `cyclopts` to `4.*`
 
 ## \[1.13.36\] - 2025-10-13
 
