@@ -30,7 +30,7 @@ from bfabric_app_runner.cli.cmd_action import (
     cmd_action_run_all,
     cmd_action_dispatch,
 )
-from bfabric_app_runner.cli.cmd_prepare import cmd_prepare_workunit
+from bfabric_app_runner.cli.cmd_prepare import cmd_prepare_workunit, cmd_prepare_local_workunit
 from bfabric_app_runner.cli.cmd_run import cmd_run_workunit
 from bfabric_app_runner.cli.inputs import cmd_inputs_prepare, cmd_inputs_clean, cmd_inputs_list, cmd_inputs_check
 from bfabric_app_runner.cli.outputs import cmd_outputs_register, cmd_outputs_register_single_file
@@ -87,6 +87,7 @@ app.command(cmd_action)
 
 cmd_prepare = cyclopts.App(name="prepare", help="Prepare a workunit for execution.")
 cmd_prepare.command(cmd_prepare_workunit, name="workunit")
+cmd_prepare.command(cmd_prepare_local_workunit, name="local-workunit")
 cmd_prepare.group = groups["Running Apps"]
 app.command(cmd_prepare)
 
