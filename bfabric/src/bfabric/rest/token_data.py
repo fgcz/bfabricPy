@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import urllib.parse
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
@@ -50,7 +51,7 @@ class TokenData(BaseModel):
 
 def get_raw_token_data(base_url: str, token: str) -> dict[str, Any]:
     """Returns the raw token data for the provided token."""
-    url = f"{base_url}/rest/token/validate"
+    url = urllib.parse.urljoin(base_url, "rest/token/validate")
     response = requests.get(url, params={"token": token})
     if not response.ok:
         response.raise_for_status()
