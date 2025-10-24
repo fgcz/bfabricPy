@@ -15,6 +15,7 @@ Versioning currently follows `X.Y.Z` where
 - This is the last release supporting Python 3.9. From the next release onwards, Python 3.11 or higher will be required.
 - Flask is not a dependency anymore, as the dependency will be moved to bfabric-scripts.
 - Version upper bounds for dependencies have been defined.
+- More robust URL handling for token authentication.
 
 ### Fixed
 
