@@ -1,14 +1,14 @@
 # Bfabric ASGI Authentication Middleware
 
-ASGI middleware for authenticating Bfabric web applications using URL-based sessions.
+ASGI middleware for authenticating Bfabric web applications using cookie-based sessions.
 
 ## Features
 
-- **URL-based sessions**: Shareable, bookmarkable session URLs
-- **Token validation**: Validates Bfabric tokens using `Bfabric.connect_webapp`
-- **Session management**: In-memory session store with TTL support
-- **State machine**: Tracks session lifecycle (NEW → READY/ERROR)
-- **ASGI compliant**: Works with FastAPI, Starlette, and other ASGI frameworks
+- Cookie-based sessions using Starlette's SessionMiddleware
+- Token validation via `Bfabric.connect_webapp`
+- Session lifecycle tracking (NEW → READY/ERROR)
+- Built-in logout endpoint
+- ASGI compliant (works with FastAPI, Starlette, etc.)
 
 ## Installation
 
@@ -18,36 +18,63 @@ pip install -e .
 
 ## Quick Start
 
-### With Mock Validator (Testing)
-
 ```python
 import fastapi
-from bfabric_asgi_auth import (
-    BfabricAuthMiddleware,
-    SessionStoreMem,
-    create_mock_validator,
-)
+from starlette.middleware.sessions import SessionMiddleware
+from bfabric_asgi_auth import BfabricAuthMiddleware, create_mock_validator
 
 app = fastapi.FastAPI()
-
-# Use mock validator for testing (accepts tokens starting with 'valid_')
 token_validator = create_mock_validator()
-session_store = SessionStoreMem(default_ttl=3600)
 
+# IMPORTANT: Add BfabricAuthMiddleware FIRST, then SessionMiddleware
+# (add_middleware works in reverse order)
+app.add_middleware(BfabricAuthMiddleware, token_validator=token_validator)
 app.add_middleware(
-    BfabricAuthMiddleware,
-    token_validator=token_validator,
-    session_store=session_store,
+    SessionMiddleware, secret_key="your-secret-key-min-32-chars!!", max_age=3600
 )
 
 
 @app.get("/")
 async def root(request: fastapi.Request):
-    session_data = request.scope.get("session_data", {})
+    session_data = request.scope.get("bfabric_session", {})
     return {"user": session_data.get("user_info", {}).get("username")}
 ```
 
-### With Real Bfabric Validator (Production)
+## Configuration
+
+**Middleware order is critical!** Add in this sequence:
+
+```python
+# 1. Add BfabricAuthMiddleware FIRST
+app.add_middleware(
+    BfabricAuthMiddleware,
+    token_validator=token_validator,  # Required
+    landing_path="/landing",  # Optional (default: /landing)
+    token_param="token",  # Optional (default: token)
+    authenticated_path="/",  # Optional (default: /)
+    logout_path="/logout",  # Optional (default: /logout)
+)
+
+# 2. Add SessionMiddleware LAST (wraps BfabricAuthMiddleware)
+app.add_middleware(
+    SessionMiddleware,
+    secret_key="your-secret-key",  # Required: min 32 chars, keep secret!
+    max_age=3600,  # Optional: session timeout in seconds
+    https_only=False,  # Optional: set True in production
+)
+```
+
+### Token Validators
+
+**Mock validator** (testing):
+
+```python
+from bfabric_asgi_auth import create_mock_validator
+
+token_validator = create_mock_validator()  # Accepts tokens starting with 'valid_'
+```
+
+**Bfabric validator** (production):
 
 ```python
 from bfabric_asgi_auth import create_bfabric_validator
@@ -55,108 +82,114 @@ from bfabric_asgi_auth import create_bfabric_validator
 token_validator = create_bfabric_validator(
     validation_instance_url="https://fgcz-bfabric-test.uzh.ch/bfabric/"
 )
-
-app.add_middleware(
-    BfabricAuthMiddleware,
-    token_validator=token_validator,
-    session_store=SessionStoreMem(),
-)
 ```
 
-## How It Works
+## Usage
 
 ### Authentication Flow
 
-1. **Landing URL**: User accesses `/landing?token=xyz`
+1. User visits `/landing?token=xyz`
+2. Middleware validates token with Bfabric
+3. Session created in encrypted cookie
+4. Redirects to `/` (or `authenticated_path`)
+5. All subsequent requests use the session cookie
 
-    - Middleware validates token with Bfabric
-    - Creates session in memory store
-    - Redirects to `/session/{session_id}/`
-
-2. **Session URLs**: User accesses `/session/{session_id}/path`
-
-    - Middleware validates session exists and is READY
-    - Attaches session data to request scope
-    - Rewrites path (removes `/session/{session_id}` prefix)
-    - Passes to main application
-
-3. **Protected Resources**: Application endpoints access session data
-
-    ```python
-    @app.get("/data")
-    async def get_data(request: fastapi.Request):
-        session_data = request.scope.get("session_data", {})
-        bfabric_config = request.scope.get("bfabric_connection", {})
-        # Use bfabric_config to make authenticated API calls
-    ```
-
-### URL Structure
-
-```
-/landing?token=xyz           → Landing page (creates session)
-/session/{uuid}/             → Root of protected app
-/session/{uuid}/data         → Protected endpoint
-/session/{uuid}/api/users    → Another protected endpoint
-/other                       → Returns 401 Unauthorized
-```
-
-## Configuration Options
+### Accessing Session Data
 
 ```python
+@app.get("/data")
+async def get_data(request: fastapi.Request):
+    session_data = request.scope.get("bfabric_session", {})
+    bfabric_config = request.scope.get("bfabric_connection", {})
+
+    return {
+        "user_info": session_data.get("user_info"),
+        "bfabric_url": bfabric_config.get("base_url"),
+    }
+```
+
+Available in `request.scope`:
+
+- `bfabric_session`: Full session data (state, token, client_config, user_info, error)
+- `bfabric_connection`: Bfabric client config (base_url, login, password)
+
+### Example Commands
+
+```bash
+# Start server
+uvicorn examples.example_app:app --reload
+
+# Login (creates session cookie)
+curl -c cookies.txt -L "http://localhost:8000/landing?token=valid_test123"
+
+# Access protected endpoints
+curl -b cookies.txt "http://localhost:8000/"
+curl -b cookies.txt "http://localhost:8000/data"
+
+# Logout
+curl -b cookies.txt "http://localhost:8000/logout"
+```
+
+## Security
+
+### Secret Key
+
+**Critical:** Use a strong secret key for SessionMiddleware:
+
+```python
+import secrets
+
+secret_key = secrets.token_hex(32)  # Generate 64-char hex string
+```
+
+- Minimum 32 characters
+- Randomly generated
+- Never commit to version control
+- Different per environment
+
+### Production Settings
+
+```python
+import os
+
 app.add_middleware(
-    BfabricAuthMiddleware,
-    token_validator=token_validator,  # Required: Token validator instance
-    session_store=session_store,  # Optional: Session store (default: new SessionStoreMem())
-    landing_path="/landing",  # Optional: Landing URL path
-    session_prefix="/session",  # Optional: Session URL prefix
-    token_param="token",  # Optional: Token query parameter name
+    SessionMiddleware,
+    secret_key=os.environ["SESSION_SECRET_KEY"],
+    https_only=True,  # Require HTTPS
+    max_age=3600,
 )
 ```
 
-## Accessing Session Data
+## Migration from URL-based Sessions
 
-The middleware adds the following to `request.scope`:
+Previous version used URL-based sessions (`/session/{uuid}/path`). Key changes:
 
-- `session_id` (str): The session UUID
-- `session_data` (dict): Full session data including:
-    - `state`: Session state (NEW, READY, ERROR)
-    - `token`: The authentication token
-    - `client_config`: Bfabric client configuration (base_url, login, password)
-    - `user_info`: User information from token validation
-- `bfabric_connection` (dict): Bfabric client config for easy access
+### Before
 
-## Example Usage
+```python
+from bfabric_asgi_auth import SessionStoreMem
 
-```bash
-# Start the example server
-uvicorn examples.example_app:app --reload
-
-# Get a session (with mock validator)
-curl "http://localhost:8000/landing?token=valid_test123"
-# Redirects to: /session/123e4567-e89b-12d3-a456-426614174000/
-
-# Access protected endpoints
-curl "http://localhost:8000/session/123e4567-e89b-12d3-a456-426614174000/"
-curl "http://localhost:8000/session/123e4567-e89b-12d3-a456-426614174000/data"
+session_store = SessionStoreMem(default_ttl=3600)
+app.add_middleware(BfabricAuthMiddleware, session_store=session_store, ...)
+# URLs: /session/123e4567-e89b-12d3-a456-426614174000/data
 ```
 
-## Development
+### After
 
-See [examples/example_app.py](examples/example_app.py) for a complete working example.
+```python
+from starlette.middleware.sessions import SessionMiddleware
 
-## Session States
+app.add_middleware(BfabricAuthMiddleware, ...)  # First
+app.add_middleware(SessionMiddleware, secret_key="...", max_age=3600)  # Last
+# URLs: /data (with session cookie)
+```
 
-Sessions follow a state machine:
+### Changes
 
-- **NEW**: Token validated, session created, not yet initialized
-- **READY**: Session initialized and ready for use
-- **ERROR**: Session encountered an error during initialization
+- ✅ Simpler code (no custom session store)
+- ✅ Standard Starlette patterns
+- ✅ Built-in logout at `/logout`
+- ❌ No URL shareability (cookies are per-browser)
+- Session data access: `request.scope["bfabric_session"]` (unchanged)
 
-## Why URL-based Sessions?
-
-URL-based sessions (vs cookie-based) provide:
-
-- **Shareable links**: Users can share specific sessions with colleagues
-- **Direct file access**: Links to files remain valid
-- **No cookie complexity**: Works across domains and iframes
-- **Bookmarkable**: Users can bookmark specific sessions
+See [examples/example_app.py](examples/example_app.py) for complete examples.

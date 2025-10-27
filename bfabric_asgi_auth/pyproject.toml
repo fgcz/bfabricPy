@@ -9,6 +9,8 @@ authors = [
 requires-python = ">=3.13"
 dependencies = [
     "asgiref>=3.10.0",
+    "itsdangerous>=2.2.0,<3",
+    "starlette>=0.48.0",
 ]
 
 [build-system]
