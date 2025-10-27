@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.36\] - 2025-10-27
+
 ### Changed
 
 - This is the last release supporting Python 3.9. From the next release onwards, Python 3.11 or higher will be required.
