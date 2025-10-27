@@ -7,25 +7,40 @@ from pydantic import BaseModel, model_validator
 
 
 class SessionState(str, Enum):
-    """Session lifecycle states."""
+    """Session lifecycle states.
 
-    NEW = "new"  # Token validated, session created, not yet initialized
-    READY = "ready"  # Session initialized and ready for use
-    ERROR = "error"  # Session encountered an error during initialization
+    :cvar NEW: Token validated, session created, not yet initialized
+    :cvar READY: Session initialized and ready for use
+    :cvar ERROR: Session encountered an error during initialization
+    """
+
+    NEW = "new"
+    READY = "ready"
+    ERROR = "error"
 
 
 class SessionData(BaseModel):
-    """Session data stored for authenticated users."""
+    """Session data stored for authenticated users.
+
+    :ivar state: Current session lifecycle state
+    :ivar token: The authentication token
+    :ivar client_config: Bfabric client configuration (or None)
+    :ivar user_info: User information from token validation (or None)
+    :ivar error: Error message if state is ERROR (or None)
+    """
 
     state: SessionState
-    token: str  # The authentication token
-    client_config: dict[str, Any] | None = None  # Bfabric client configuration
-    user_info: dict[str, Any] | None = None  # User information from token validation
-    error: str | None = None  # Error message if state is ERROR
+    token: str
+    client_config: dict[str, Any] | None = None
+    user_info: dict[str, Any] | None = None
+    error: str | None = None
 
     @model_validator(mode="after")
     def state_constraints(self) -> SessionData:
-        """Validate state transitions and requirements."""
+        """Validate state transitions and requirements.
+
+        :returns: The validated SessionData instance
+        """
         if self.state == SessionState.NEW:
             if self.error:
                 msg = "Session in NEW state must not have an error"
@@ -46,15 +61,10 @@ class SessionData(BaseModel):
     def update_ready(self, client_config: dict[str, Any], user_info: dict[str, Any] | None = None) -> SessionData:
         """Update session to READY state.
 
-        Args:
-            client_config: Bfabric client configuration
-            user_info: Optional user information
-
-        Returns:
-            Updated session data
-
-        Raises:
-            ValueError: If session is not in NEW state
+        :param client_config: Bfabric client configuration
+        :param user_info: Optional user information
+        :returns: Updated session data
+        :raises ValueError: If session is not in NEW state
         """
         if self.state != SessionState.NEW:
             msg = "Session must be in NEW state to update to READY"
@@ -70,14 +80,9 @@ class SessionData(BaseModel):
     def update_error(self, error: str) -> SessionData:
         """Update session to ERROR state.
 
-        Args:
-            error: Error message
-
-        Returns:
-            Updated session data
-
-        Raises:
-            ValueError: If session is not in NEW state
+        :param error: Error message
+        :returns: Updated session data
+        :raises ValueError: If session is not in NEW state
         """
         if self.state != SessionState.NEW:
             msg = "Session must be in NEW state to update to ERROR"

@@ -11,8 +11,8 @@ class SessionStoreMem:
     def __init__(self, default_ttl: int = 3600):
         """Initialize session store.
 
-        Args:
-            default_ttl: Default time-to-live for sessions in seconds (default: 1 hour)
+        :param default_ttl: Default time-to-live for sessions in seconds (default: 1 hour)
+        :type default_ttl: int
         """
         self._sessions: dict[str, dict[str, Any]] = {}
         self._default_ttl = default_ttl
@@ -20,12 +20,10 @@ class SessionStoreMem:
     def create(self, session_data: dict[str, Any], ttl: int | None = None) -> str:
         """Create a new session and return its ID.
 
-        Args:
-            session_data: Data to store in the session
-            ttl: Time-to-live in seconds (uses default if not specified)
-
-        Returns:
-            The generated session ID
+        :param session_data: Data to store in the session
+        :param ttl: Time-to-live in seconds (uses default if not specified)
+        :returns: The generated session ID
+        :rtype: str
         """
         session_id = str(uuid.uuid4())
         expiry = time.time() + (ttl or self._default_ttl)
@@ -40,17 +38,13 @@ class SessionStoreMem:
     def get(self, session_id: str) -> dict[str, Any] | None:
         """Get session data by ID.
 
-        Args:
-            session_id: The session ID to retrieve
-
-        Returns:
-            Session data if found and not expired, None otherwise
+        :param session_id: The session ID to retrieve
+        :returns: Session data if found and not expired, None otherwise
         """
         session = self._sessions.get(session_id)
         if session is None:
             return None
 
-        # Check if expired
         if time.time() > session["expiry"]:
             self.delete(session_id)
             return None
@@ -58,14 +52,11 @@ class SessionStoreMem:
         return session["data"]
 
     def update(self, session_id: str, session_data: dict[str, Any]) -> bool:
-        """Update session data.
+        """Update session data, by replacing the existing data.
 
-        Args:
-            session_id: The session ID to update
-            session_data: New data to store
-
-        Returns:
-            True if updated, False if session not found
+        :param session_id: The session ID to update
+        :param session_data: New session data
+        :returns: True if updated, False if session not found or expired
         """
         session = self._sessions.get(session_id)
         if session is None:
@@ -82,11 +73,8 @@ class SessionStoreMem:
     def delete(self, session_id: str) -> bool:
         """Delete a session.
 
-        Args:
-            session_id: The session ID to delete
-
-        Returns:
-            True if deleted, False if not found
+        :param session_id: The session ID to delete
+        :returns: True if deleted, False if not found
         """
         if session_id in self._sessions:
             del self._sessions[session_id]
@@ -96,8 +84,7 @@ class SessionStoreMem:
     def cleanup_expired(self) -> int:
         """Remove all expired sessions.
 
-        Returns:
-            Number of sessions removed
+        :returns: Number of sessions removed
         """
         now = time.time()
         expired = [session_id for session_id, session in self._sessions.items() if now > session["expiry"]]
