@@ -51,7 +51,6 @@ def base_app():
                 "message": "success",
                 "scope_keys": list(request.scope.keys()),
                 "has_bfabric_session": "bfabric_session" in request.scope,
-                "has_bfabric_connection": "bfabric_connection" in request.scope,
             }
         )
 
@@ -61,7 +60,6 @@ def base_app():
             {
                 "connected": True,
                 "has_bfabric_session": "bfabric_session" in websocket.scope,
-                "has_bfabric_connection": "bfabric_connection" in websocket.scope,
             }
         )
         await websocket.close()
@@ -355,15 +353,6 @@ def session_contains_user_info(context, client):
     response = run_async(client.get("/"))
     data = response.json()
     assert data["has_bfabric_session"]
-
-
-@then("the session should contain client configuration")
-def session_contains_client_config(context, client):
-    """Check session contains client config."""
-    # Client automatically handles cookies
-    response = run_async(client.get("/"))
-    data = response.json()
-    assert data["has_bfabric_connection"]
 
 
 @then(parsers.parse('the scope should contain "{key}"'))

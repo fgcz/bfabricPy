@@ -11,7 +11,6 @@ Feature: Token-based authentication
     Then I should be redirected to "/"
     And I should have a session cookie
     And the session should contain user information
-    And the session should contain client configuration
 
   Scenario: Authentication fails with invalid token
     When I visit "/landing?token=invalid_token"

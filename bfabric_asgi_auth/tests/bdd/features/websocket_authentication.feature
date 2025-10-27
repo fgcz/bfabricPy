@@ -16,7 +16,6 @@ Feature: WebSocket authentication
     When I connect to WebSocket "/ws"
     Then the connection should be accepted
     And the scope should contain "bfabric_session"
-    And the scope should contain "bfabric_connection"
 
   Scenario: WebSocket connection with expired session
     Given the session max_age is 1 second

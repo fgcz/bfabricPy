@@ -11,7 +11,6 @@ Feature: Session management
     When I request "/"
     Then I should receive a 200 status code
     And the scope should contain "bfabric_session"
-    And the scope should contain "bfabric_connection"
 
   Scenario: Access protected resource without session
     Given I have no session cookie

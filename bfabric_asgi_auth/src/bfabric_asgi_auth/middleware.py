@@ -71,12 +71,8 @@ class BfabricAuthMiddleware:
                     await self._send_unauthorized(send, "Not authenticated")
                 return
 
-            # Parse session data
-            session_data = SessionData(**session_data_dict)
-
             # Attach session data to scope for the application
             scope["bfabric_session"] = session_data_dict
-            scope["bfabric_connection"] = session_data.client_config
 
         # Pass to the main application
         await self.app(scope, receive, send)
