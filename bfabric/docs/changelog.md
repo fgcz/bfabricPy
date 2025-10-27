@@ -13,22 +13,21 @@ Versioning currently follows `X.Y.Z` where
 ### Changed
 
 - Minimal Python version is now 3.11.
+- TokenData retrieval uses async httpx, but provides a sync interface for compatibility.
 
 ## \[1.13.36\] - 2025-10-27
 
 ### Changed
 
+- This is the last release supporting Python 3.9. From the next release onwards, Python 3.11 or higher will be required.
 - Flask is not a dependency anymore, as the dependency will be moved to bfabric-scripts.
 - Version upper bounds for dependencies have been defined.
-- TokenData retrieval uses async httpx, but provides a sync interface for compatibility.
 
 ### Fixed
 
 - A test-only incompatibility with Polars was fixed.
 
 ## \[1.13.35\] - 2025-09-22
-
-This is the last release supporting Python 3.9. From the next release onwards, Python 3.11 or higher will be required.
 
 ### Changed
 

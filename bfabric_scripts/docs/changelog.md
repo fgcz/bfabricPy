@@ -13,19 +13,18 @@ Versioning currently follows `X.Y.Z` where
 ### Changed
 
 - Minimal Python version is now 3.11.
+- `bfabric_flask` validate_token uses the newer functionality in bfabricPy, and reduced the output.
 
 ## \[1.13.37\] - 2025-10-27
 
 ### Changed
 
+- Last version to support Python 3.10, next version will require Python 3.11 or higher.
 - Upper bounds for dependencies have been introduced.
-- `bfabric_flask` validate_token uses the newer functionality in bfabricPy, and reduced the output.
 - Update `bfabric` to `1.13.36`.
 - Update `cyclopts` to `4.*`
 
 ## \[1.13.36\] - 2025-10-13
-
-Last version to support Python 3.10, next version will require Python 3.11 or higher.
 
 ### Removed
 
