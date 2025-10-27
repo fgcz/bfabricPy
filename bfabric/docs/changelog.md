@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.36\] - 2025-10-27
+
 ### Changed
 
 - Flask is not a dependency anymore, as the dependency will be moved to bfabric-scripts.

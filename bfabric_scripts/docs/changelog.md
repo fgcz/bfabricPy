@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.37\] - 2025-10-27
+
 ### Changed
 
 - Upper bounds for dependencies have been introduced.
