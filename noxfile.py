@@ -23,22 +23,22 @@ def chdir(path: Path) -> Generator[None, None, None]:
         os.chdir(cwd)
 
 
-@nox.session(python=["3.9", "3.11", "3.13"])
+@nox.session(python=["3.11", "3.13"])
 @nox.parametrize("resolution", ["highest", "lowest-direct"])
 def test_bfabric(session, resolution):
-    if resolution == "lowest-direct" and session.python != "3.9":
-        session.skip("Only testing lowest-direct on Python 3.9")
+    if resolution == "lowest-direct" and session.python != "3.11":
+        session.skip("Only testing lowest-direct on Python 3.11")
 
     session.install("--resolution", resolution, "./bfabric[test]")
     session.run("uv", "pip", "list")
     session.run("pytest", "--durations=50", "tests/bfabric")
 
 
-@nox.session(python=["3.10", "3.11", "3.13"])
+@nox.session(python=["3.11", "3.13"])
 @nox.parametrize("resolution", ["highest", "lowest-direct"])
 def test_bfabric_scripts(session, resolution):
-    if resolution == "lowest-direct" and session.python != "3.10":
-        session.skip("Only testing lowest-direct on Python 3.10")
+    if resolution == "lowest-direct" and session.python != "3.11":
+        session.skip("Only testing lowest-direct on Python 3.11")
 
     session.install("--resolution", resolution, "./bfabric_scripts[test]")
     session.run("uv", "pip", "list")
