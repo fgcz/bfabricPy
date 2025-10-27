@@ -16,7 +16,7 @@ authors = [
     { name = "Maria d'Errico" },
     { name = "Witold Eryk Wolski" },
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 dependencies = [
     "suds>=1.2.0,<2.0.0",
     "PyYAML>=6.0.2,<7.0",

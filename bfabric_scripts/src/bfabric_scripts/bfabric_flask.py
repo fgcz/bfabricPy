@@ -218,7 +218,13 @@ def validate_token() -> Response:
     """
     params = get_fields(required_fields=["token"], optional_fields={})
     token_data = get_token_data(base_url=client.config.base_url, token=params["token"])
-    return jsonify(token_data.model_dump(mode="json"))
+    return jsonify(
+        {
+            "caller": token_data.caller,
+            "user": token_data.user,
+            "userWsPassword": token_data.user_ws_password.get_secret_value(),
+        }
+    )
 
 
 def main() -> None:

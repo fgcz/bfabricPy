@@ -12,13 +12,14 @@ Versioning currently follows `X.Y.Z` where
 
 ### Changed
 
-- Last version to support Python 3.10, next version will require Python 3.11 or higher.
 - Upper bounds for dependencies have been introduced.
-- Adapt bfabric_flask to not use a removed function for token authentication anymore.
+- `bfabric_flask` validate_token uses the newer functionality in bfabricPy, and reduced the output.
 - Update `bfabric` to `1.13.36`.
 - Update `cyclopts` to `4.*`
 
 ## \[1.13.36\] - 2025-10-13
+
+Last version to support Python 3.10, next version will require Python 3.11 or higher.
 
 ### Removed
 
