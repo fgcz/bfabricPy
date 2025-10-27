@@ -110,7 +110,7 @@ def app(base_app, mock_validator, app_config):
     return base_app
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client(app, context):
     """Create async HTTP client for testing."""
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
@@ -130,8 +130,8 @@ def app_configured(context, app):
     return context
 
 
-@given(parsers.parse('the application is configured with {param}="{value}"'), target_fixture="context")
-def app_configured_with_param(context, base_app, mock_validator, param, value):
+@given(parsers.parse('the application is configured with {param}="{value}"'), target_fixture="app")
+def app_configured_with_param(base_app, mock_validator, param, value):
     """Configure application with specific parameter."""
     config = {
         "landing_path": "/landing",
@@ -152,21 +152,23 @@ def app_configured_with_param(context, base_app, mock_validator, param, value):
         max_age=3600,
     )
 
-    context["app"] = base_app
-    return context
+    return base_app
 
 
 @given(parsers.parse('I am authenticated with token "{token}"'))
 def authenticated_with_token(context, client, token):
     """Authenticate with a token."""
+    # Client will automatically store cookies from this response
     response = run_async(client.get(f"/landing?token={token}", follow_redirects=False))
-    context["cookies"] = response.cookies
+    context["authenticated"] = True
 
 
 @given("I have no session cookie", target_fixture="context")
-def no_session_cookie(context):
+def no_session_cookie(context, client):
     """Clear session cookies."""
-    context["cookies"] = None
+    # Clear the client's cookie jar to ensure no cookies are sent
+    client.cookies.clear()
+    context["authenticated"] = False
     return context
 
 
@@ -217,37 +219,37 @@ def session_expired(context):
 @when(parsers.parse('I visit "{url}"'))
 def visit_url(context, client, url):
     """Visit a URL."""
-    cookies = context.get("cookies")
-    response = run_async(client.get(url, follow_redirects=False, cookies=cookies))
+    # Client automatically handles cookies
+    response = run_async(client.get(url, follow_redirects=False))
     context["response"] = response
 
 
 @when(parsers.parse('I request "{url}"'))
 def request_url(context, client, url):
     """Make a request to URL."""
-    cookies = context.get("cookies")
-    response = run_async(client.get(url, cookies=cookies))
+    # Client automatically handles cookies
+    response = run_async(client.get(url))
     context["response"] = response
 
 
 @when(parsers.parse('I request "{url}" {count} times'))
 def request_url_multiple(context, client, url, count):
     """Make multiple requests to URL."""
-    cookies = context.get("cookies")
+    # Client automatically handles cookies
     responses = []
     for _ in range(int(count) if count.isdigit() else 3):
-        response = run_async(client.get(url, cookies=cookies))
+        response = run_async(client.get(url))
         responses.append(response)
     context["responses"] = responses
     context["response"] = responses[-1]  # Also store last response
 
 
 @when("I modify the session cookie")
-def modify_cookie(context):
+def modify_cookie(context, client):
     """Tamper with session cookie."""
-    if context.get("cookies"):
+    if "session" in client.cookies:
         # Modify the session cookie value
-        context["cookies"]["session"] = "tampered_value"
+        client.cookies.set("session", "tampered_value")
 
 
 @when(parsers.parse("I wait {seconds:d} seconds"))
@@ -260,42 +262,57 @@ def wait_seconds(context, seconds):
 def validate_token(context, token):
     """Validate a token."""
     validator = context.get("validator")
-    result = run_async(validator.validate(token))
+    from pydantic import SecretStr
+
+    result = run_async(validator(SecretStr(token)))
     context["validation_result"] = result
 
 
 @when("multiple users authenticate with different tokens")
-def multiple_users_authenticate(context, client):
+def multiple_users_authenticate(context, app):
     """Simulate concurrent authentication."""
+    from httpx import ASGITransport, AsyncClient
+
     tokens = ["valid_user1", "valid_user2", "valid_user3"]
     sessions = []
 
-    for token in tokens:
-        response = run_async(client.get(f"/landing?token={token}", follow_redirects=False))
-        sessions.append({"token": token, "cookies": response.cookies})
+    async def authenticate_users():
+        results = []
+        for token in tokens:
+            # Create a separate client for each user
+            async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as user_client:
+                response = await user_client.get(f"/landing?token={token}", follow_redirects=False)
+                # Extract cookies from this specific client
+                cookies = {name: value for name, value in user_client.cookies.items()}
+                results.append({"token": token, "cookies": cookies})
+        return results
 
+    sessions = run_async(authenticate_users())
     context["multiple_sessions"] = sessions
 
 
 @when(parsers.parse('I connect to WebSocket "{path}"'))
-def connect_websocket(context, client, path):
+def connect_websocket(context, app, client, path):
     """Attempt WebSocket connection."""
-    cookies = context.get("cookies")
+    # Use Starlette's TestClient for WebSocket support
+    from starlette.testclient import TestClient
 
-    async def _connect():
-        try:
-            async with client.websocket_connect(path, cookies=cookies) as websocket:
-                data = await websocket.receive_json()
-                return data, True, None
-        except Exception as e:
-            return None, False, str(e)
+    # Get cookies from httpx client to pass to WebSocket connection
+    cookies = {name: value for name, value in client.cookies.items()}
 
-    data, connected, error = run_async(_connect())
-    if data:
-        context["websocket_response"] = data
-    context["websocket_connected"] = connected
-    if error:
-        context["websocket_error"] = error
+    test_client = TestClient(app)
+    # Set cookies in test client
+    for name, value in cookies.items():
+        test_client.cookies.set(name, value)
+
+    try:
+        with test_client.websocket_connect(path) as websocket:
+            data = websocket.receive_json()
+            context["websocket_response"] = data
+            context["websocket_connected"] = True
+    except Exception as e:
+        context["websocket_connected"] = False
+        context["websocket_error"] = str(e)
 
 
 # ============================================================================
@@ -342,10 +359,8 @@ def no_session_cookie_set(context):
 @then("the session should contain user information")
 def session_contains_user_info(context, client):
     """Check session contains user info."""
-    cookies = context.get("cookies")
-    if not cookies and "response" in context:
-        cookies = context["response"].cookies
-    response = run_async(client.get("/", cookies=cookies))
+    # Client automatically handles cookies
+    response = run_async(client.get("/"))
     data = response.json()
     assert data["has_bfabric_session"]
 
@@ -353,10 +368,8 @@ def session_contains_user_info(context, client):
 @then("the session should contain client configuration")
 def session_contains_client_config(context, client):
     """Check session contains client config."""
-    cookies = context.get("cookies")
-    if not cookies and "response" in context:
-        cookies = context["response"].cookies
-    response = run_async(client.get("/", cookies=cookies))
+    # Client automatically handles cookies
+    response = run_async(client.get("/"))
     data = response.json()
     assert data["has_bfabric_connection"]
 
@@ -364,10 +377,8 @@ def session_contains_client_config(context, client):
 @then(parsers.parse('the scope should contain "{key}"'))
 def scope_contains(context, client, key):
     """Check scope contains key."""
-    cookies = context.get("cookies")
-    if not cookies and "response" in context:
-        cookies = context["response"].cookies
-    response = run_async(client.get("/", cookies=cookies))
+    # Client automatically handles cookies
+    response = run_async(client.get("/"))
     data = response.json()
     assert key in data["scope_keys"]
 

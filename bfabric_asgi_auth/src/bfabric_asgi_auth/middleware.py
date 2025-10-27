@@ -44,46 +44,53 @@ class BfabricAuthMiddleware:
         self.logout_path = logout_path
 
     async def __call__(self, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
-        # Only process HTTP requests
-        if scope["type"] != "http":
-            await self.app(scope, receive, send)
-            return
+        # Handle HTTP and WebSocket connections
+        if scope["type"] == "http":
+            path = scope["path"]
 
-        path = scope["path"]
+            # Handle logout
+            if path == self.logout_path:
+                await self._handle_logout(scope, receive, send)
+                return
 
-        # Handle logout
-        if path == self.logout_path:
-            await self._handle_logout(scope, receive, send)
-            return
+            # Handle landing URL with token
+            if path == self.landing_path:
+                await self._handle_landing(scope, receive, send)
+                return
 
-        # Handle landing URL with token
-        if path == self.landing_path:
-            await self._handle_landing(scope, receive, send)
-            return
+        # For all other HTTP requests and WebSocket connections, check if session is authenticated
+        if scope["type"] in ("http", "websocket"):
+            # Get session data from scope (set by SessionMiddleware)
+            session = scope.get("session", {})
+            session_data_dict = session.get("bfabric_session")
 
-        # For all other requests, check if session is authenticated
-        # Get session data from scope (set by SessionMiddleware)
-        session = scope.get("session", {})
-        session_data_dict = session.get("bfabric_session")
+            if not session_data_dict:
+                if scope["type"] == "websocket":
+                    await self._send_websocket_close(send, 1008, "Not authenticated")
+                else:
+                    await self._send_unauthorized(send, "Not authenticated")
+                return
 
-        if not session_data_dict:
-            await self._send_unauthorized(send, "Not authenticated")
-            return
+            # Parse session data
+            session_data = SessionData(**session_data_dict)
 
-        # Parse session data
-        session_data = SessionData(**session_data_dict)
+            if session_data.state == SessionState.ERROR:
+                if scope["type"] == "websocket":
+                    await self._send_websocket_close(send, 1008, "Session error")
+                else:
+                    await self._send_error(send, session_data.error or "Session error")
+                return
 
-        if session_data.state == SessionState.ERROR:
-            await self._send_error(send, session_data.error or "Session error")
-            return
+            if session_data.state != SessionState.READY:
+                if scope["type"] == "websocket":
+                    await self._send_websocket_close(send, 1008, "Session not ready")
+                else:
+                    await self._send_error(send, "Session not ready")
+                return
 
-        if session_data.state != SessionState.READY:
-            await self._send_error(send, "Session not ready")
-            return
-
-        # Attach session data to scope for the application
-        scope["bfabric_session"] = session_data_dict
-        scope["bfabric_connection"] = session_data.client_config
+            # Attach session data to scope for the application
+            scope["bfabric_session"] = session_data_dict
+            scope["bfabric_connection"] = session_data.client_config
 
         # Pass to the main application
         await self.app(scope, receive, send)
@@ -93,12 +100,14 @@ class BfabricAuthMiddleware:
         # Parse query string
         query_string = scope.get("query_string", b"").decode("utf-8")
         params = parse_qs(query_string)
-        token = SecretStr(params.get(self.token_param, [None])[0])
+        token_value = params.get(self.token_param, [None])[0]
 
-        if not token:
+        if not token_value:
             response = PlainTextResponse("Error: Missing token parameter", status_code=400)
             await response(scope, receive, send)
             return
+
+        token = SecretStr(token_value)
 
         # Validate token
         result = await self.token_validator(token)
@@ -137,8 +146,8 @@ class BfabricAuthMiddleware:
         """Handle logout request."""
         # Clear session using Request object
         request = Request(scope, receive, send)
-        if "bfabric_session" in request.session:
-            del request.session["bfabric_session"]
+        # Clear the entire session to ensure cookie is removed
+        request.session.clear()
 
         # Send success response
         response = PlainTextResponse("Logged out successfully\n", status_code=200)
@@ -181,5 +190,15 @@ class BfabricAuthMiddleware:
             {
                 "type": "http.response.body",
                 "body": body,
+            }
+        )
+
+    async def _send_websocket_close(self, send: ASGISendCallable, code: int, reason: str) -> None:
+        """Close WebSocket connection with error code."""
+        await send(
+            {
+                "type": "websocket.close",
+                "code": code,
+                "reason": reason,
             }
         )
