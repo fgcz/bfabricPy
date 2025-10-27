@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Changed
+
+- Minimal Python version is now 3.11.
+
 ## \[1.13.36\] - 2025-10-27
 
 ### Changed
