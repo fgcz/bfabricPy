@@ -21,16 +21,15 @@ class BfabricAuthMiddleware:
         landing_path: str = "/landing",
         session_prefix: str = "/session",
         token_param: str = "token",
-    ):
+    ) -> None:
         """Initialize the middleware.
 
-        Args:
-            app: The ASGI application to wrap
-            token_validator: Token validator instance
-            session_store: Session store (creates new one if not provided)
-            landing_path: URL path for landing page (default: /landing)
-            session_prefix: URL prefix for session paths (default: /session)
-            token_param: Query parameter name for token (default: token)
+        :param app: The ASGI application to wrap
+        :param token_validator: Token validator instance
+        :param session_store: Session store (creates new one if not provided)
+        :param landing_path: URL path for landing page (default: /landing)
+        :param session_prefix: URL prefix for session paths (default: /session)
+        :param token_param: Query parameter name for token (default: token)
         """
         self.app = app
         self.token_validator = token_validator
