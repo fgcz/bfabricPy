@@ -52,7 +52,7 @@ class TokenData(BaseModel):
 async def get_token_data_async(base_url: str, token: str, http_client: httpx.AsyncClient | None) -> TokenData:
     """Returns the token data for the provided token."""
     url = f"{base_url}/rest/token/validate"
-    with contextlib.nullcontext(http_client) if http_client is not None else httpx.AsyncClient() as client:
+    async with contextlib.nullcontext(http_client) if http_client is not None else httpx.AsyncClient() as client:
         response = await client.get(url, params={"token": token})
     response.raise_for_status()
     json = response.json()
