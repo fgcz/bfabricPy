@@ -23,14 +23,12 @@ class SessionData(BaseModel):
     """Session data stored for authenticated users.
 
     :ivar state: Current session lifecycle state
-    :ivar token: The authentication token
     :ivar client_config: Bfabric client configuration (or None)
     :ivar user_info: User information from token validation (or None)
     :ivar error: Error message if state is ERROR (or None)
     """
 
     state: SessionState
-    token: str
     client_config: dict[str, Any] | None = None
     user_info: dict[str, Any] | None = None
     error: str | None = None
@@ -71,7 +69,6 @@ class SessionData(BaseModel):
             raise ValueError(msg)
         return SessionData(
             state=SessionState.READY,
-            token=self.token,
             client_config=client_config,
             user_info=user_info,
             error=None,
@@ -89,7 +86,6 @@ class SessionData(BaseModel):
             raise ValueError(msg)
         return SessionData(
             state=SessionState.ERROR,
-            token=self.token,
             client_config=None,
             user_info=None,
             error=error,

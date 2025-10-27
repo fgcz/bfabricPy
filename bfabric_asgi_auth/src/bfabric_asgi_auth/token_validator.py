@@ -29,42 +29,14 @@ class TokenValidationResult:
         self.error = error
 
 
-class TokenValidator:
-    """Validates authentication tokens against Bfabric.
-
-    :param validation_func: Async function that validates a token and returns TokenValidationResult
-    """
-
-    def __init__(self, validation_func: Callable[[SecretStr], Awaitable[TokenValidationResult]]):
-        """Initialize token validator.
-
-        :param validation_func: Async function that validates a token and returns TokenValidationResult
-        """
-        self._validation_func = validation_func
-
-    async def validate(self, token: str) -> TokenValidationResult:
-        """Validate a token asynchronously.
-
-        :param token: The token to validate
-        :returns: TokenValidationResult with success status and data or error
-        """
-        try:
-            secret_token = SecretStr(token)
-            result = await self._validation_func(secret_token)
-            return result
-        except Exception as e:
-            return TokenValidationResult(
-                success=False,
-                error=f"Token validation failed: {str(e)}",
-            )
+TokenValidatorType = Callable[[SecretStr], Awaitable[TokenValidationResult]]
 
 
-def create_bfabric_validator(validation_instance_url: str) -> TokenValidator:
+def create_bfabric_validator(validation_instance_url: str) -> TokenValidatorType:
     """Create a validator that uses async Bfabric token validation.
 
     :param validation_instance_url: URL of the B-Fabric instance for token validation
         (e.g., "https://fgcz-bfabric-test.uzh.ch/bfabric/")
-    :returns: TokenValidator configured for Bfabric authentication
     """
 
     async def bfabric_validation(token: SecretStr) -> TokenValidationResult:
@@ -105,10 +77,10 @@ def create_bfabric_validator(validation_instance_url: str) -> TokenValidator:
                 error=f"Bfabric token validation failed: {str(e)}",
             )
 
-    return TokenValidator(bfabric_validation)
+    return bfabric_validation
 
 
-def create_mock_validator() -> TokenValidator:
+def create_mock_validator() -> TokenValidatorType:
     """Create a mock validator for testing.
 
     The mock validator accepts any token starting with 'valid_' as valid.
@@ -136,4 +108,4 @@ def create_mock_validator() -> TokenValidator:
                 error="Invalid token",
             )
 
-    return TokenValidator(mock_validation)
+    return mock_validation

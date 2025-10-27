@@ -3,11 +3,12 @@ from __future__ import annotations
 from urllib.parse import parse_qs
 
 from asgiref.typing import ASGIReceiveCallable, ASGISendCallable, Scope
+from pydantic import SecretStr
 from starlette.requests import Request
 from starlette.responses import PlainTextResponse, RedirectResponse
 
 from bfabric_asgi_auth.session_data import SessionData, SessionState
-from bfabric_asgi_auth.token_validator import TokenValidator
+from bfabric_asgi_auth.token_validator import TokenValidatorType
 
 
 class BfabricAuthMiddleware:
@@ -20,7 +21,7 @@ class BfabricAuthMiddleware:
     def __init__(
         self,
         app,
-        token_validator: TokenValidator,
+        token_validator: TokenValidatorType,
         landing_path: str = "/landing",
         token_param: str = "token",
         authenticated_path: str = "/",
@@ -92,7 +93,7 @@ class BfabricAuthMiddleware:
         # Parse query string
         query_string = scope.get("query_string", b"").decode("utf-8")
         params = parse_qs(query_string)
-        token = params.get(self.token_param, [None])[0]
+        token = SecretStr(params.get(self.token_param, [None])[0])
 
         if not token:
             response = PlainTextResponse("Error: Missing token parameter", status_code=400)
@@ -100,7 +101,7 @@ class BfabricAuthMiddleware:
             return
 
         # Validate token
-        result = await self.token_validator.validate(token)
+        result = await self.token_validator(token)
 
         if not result.success:
             response = PlainTextResponse(f"Error: {result.error or 'Token validation failed'}", status_code=400)
@@ -108,9 +109,9 @@ class BfabricAuthMiddleware:
             return
 
         # Create new session
+        # TODO relict from the past, can be simplified/merged
         session_data = SessionData(
             state=SessionState.NEW,
-            token=token,
             client_config=result.client_config,
             user_info=result.user_info,
         )
