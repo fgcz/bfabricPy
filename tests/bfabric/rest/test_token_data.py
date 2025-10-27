@@ -73,8 +73,9 @@ def test_load_entity(mocker, token_data):
     mock_import_entity.return_value.find.assert_called_once_with(token_data.entity_id, client=mock_client)
 
 
+@pytest.mark.parametrize("extra_slash", ["", "/"])
 @pytest.mark.asyncio
-async def test_get_token_data_async(mocker, token_data_json, token_data, base_url):
+async def test_get_token_data_async(mocker, token_data_json, token_data, base_url, extra_slash: str):
     mock_response = mocker.Mock()
     mock_response.json.return_value = token_data_json
     mock_response.raise_for_status = mocker.Mock()
@@ -82,7 +83,9 @@ async def test_get_token_data_async(mocker, token_data_json, token_data, base_ur
     mock_client = mocker.AsyncMock()
     mock_client.get.return_value = mock_response
 
-    result = await get_token_data_async(base_url=base_url, token="mock-token", http_client=mock_client)
+    result = await get_token_data_async(
+        base_url=f"{base_url}{extra_slash}", token="mock-token", http_client=mock_client
+    )
 
     assert result == token_data
     mock_client.get.assert_called_once_with(f"{base_url}/rest/token/validate", params={"token": "mock-token"})
