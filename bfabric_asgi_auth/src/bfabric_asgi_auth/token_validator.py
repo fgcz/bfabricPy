@@ -1,14 +1,20 @@
 from __future__ import annotations
 
-from typing import Any, Callable
+from typing import Any, Awaitable, Callable
 
 from pydantic import SecretStr
 
-from bfabric import Bfabric
+from bfabric.rest.token_data import get_token_data_async
 
 
 class TokenValidationResult:
-    """Result of token validation."""
+    """Result of token validation.
+
+    :param success: Whether the token validation was successful
+    :param client_config: Bfabric client configuration (base_url, login, password)
+    :param user_info: User information from token validation
+    :param error: Error message if validation failed
+    """
 
     def __init__(
         self,
@@ -24,28 +30,27 @@ class TokenValidationResult:
 
 
 class TokenValidator:
-    """Validates authentication tokens against Bfabric."""
+    """Validates authentication tokens against Bfabric.
 
-    def __init__(self, validation_func: Callable[[SecretStr], TokenValidationResult]):
+    :param validation_func: Async function that validates a token and returns TokenValidationResult
+    """
+
+    def __init__(self, validation_func: Callable[[SecretStr], Awaitable[TokenValidationResult]]):
         """Initialize token validator.
 
-        Args:
-            validation_func: Function that validates a token and returns TokenValidationResult
+        :param validation_func: Async function that validates a token and returns TokenValidationResult
         """
         self._validation_func = validation_func
 
     async def validate(self, token: str) -> TokenValidationResult:
-        """Validate a token.
+        """Validate a token asynchronously.
 
-        Args:
-            token: The token to validate
-
-        Returns:
-            TokenValidationResult with success status and data or error
+        :param token: The token to validate
+        :returns: TokenValidationResult with success status and data or error
         """
         try:
             secret_token = SecretStr(token)
-            result = self._validation_func(secret_token)
+            result = await self._validation_func(secret_token)
             return result
         except Exception as e:
             return TokenValidationResult(
@@ -55,29 +60,27 @@ class TokenValidator:
 
 
 def create_bfabric_validator(validation_instance_url: str) -> TokenValidator:
-    """Create a validator that uses Bfabric.connect_webapp.
+    """Create a validator that uses async Bfabric token validation.
 
-    Args:
-        validation_instance_url: URL of the B-Fabric instance for token validation
-                                (e.g., "https://fgcz-bfabric-test.uzh.ch/bfabric/")
-
-    Returns:
-        TokenValidator configured for Bfabric authentication
+    :param validation_instance_url: URL of the B-Fabric instance for token validation
+        (e.g., "https://fgcz-bfabric-test.uzh.ch/bfabric/")
+    :returns: TokenValidator configured for Bfabric authentication
     """
 
-    def bfabric_validation(token: SecretStr) -> TokenValidationResult:
+    async def bfabric_validation(token: SecretStr) -> TokenValidationResult:
         try:
-            # Use Bfabric.connect_webapp to validate the token
-            client, token_data = Bfabric.connect_webapp(
+            # Use async token validation
+            token_data = await get_token_data_async(
+                base_url=validation_instance_url,
                 token=token.get_secret_value(),
-                validation_instance_url=validation_instance_url,
+                http_client=None,
             )
 
             # Extract client configuration
             client_config = {
-                "base_url": client.config.base_url,
-                "login": client.auth.login,
-                "password": client.auth.password.get_secret_value(),
+                "base_url": token_data.caller,
+                "login": token_data.user,
+                "password": token_data.user_ws_password.get_secret_value(),
             }
 
             # Extract user information from token data
@@ -109,9 +112,11 @@ def create_mock_validator() -> TokenValidator:
     """Create a mock validator for testing.
 
     The mock validator accepts any token starting with 'valid_' as valid.
+
+    :returns: TokenValidator configured for mock authentication
     """
 
-    def mock_validation(token: SecretStr) -> TokenValidationResult:
+    async def mock_validation(token: SecretStr) -> TokenValidationResult:
         token_str = token.get_secret_value()
         if token_str.startswith("valid_"):
             return TokenValidationResult(
