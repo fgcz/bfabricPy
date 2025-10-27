@@ -7,7 +7,7 @@ from pydantic import SecretStr
 from starlette.requests import Request
 from starlette.responses import PlainTextResponse, RedirectResponse
 
-from bfabric_asgi_auth.session_data import SessionData, SessionState
+from bfabric_asgi_auth.session_data import SessionData
 from bfabric_asgi_auth.token_validator import TokenValidatorType
 
 
@@ -74,20 +74,6 @@ class BfabricAuthMiddleware:
             # Parse session data
             session_data = SessionData(**session_data_dict)
 
-            if session_data.state == SessionState.ERROR:
-                if scope["type"] == "websocket":
-                    await self._send_websocket_close(send, 1008, "Session error")
-                else:
-                    await self._send_error(send, session_data.error or "Session error")
-                return
-
-            if session_data.state != SessionState.READY:
-                if scope["type"] == "websocket":
-                    await self._send_websocket_close(send, 1008, "Session not ready")
-                else:
-                    await self._send_error(send, "Session not ready")
-                return
-
             # Attach session data to scope for the application
             scope["bfabric_session"] = session_data_dict
             scope["bfabric_connection"] = session_data.client_config
@@ -117,16 +103,8 @@ class BfabricAuthMiddleware:
             await response(scope, receive, send)
             return
 
-        # Create new session
-        # TODO relict from the past, can be simplified/merged
+        # Create session data
         session_data = SessionData(
-            state=SessionState.NEW,
-            client_config=result.client_config,
-            user_info=result.user_info,
-        )
-
-        # Update to READY state
-        session_data = session_data.update_ready(
             client_config=result.client_config or {},
             user_info=result.user_info,
         )

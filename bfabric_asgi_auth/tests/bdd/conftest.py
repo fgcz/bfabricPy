@@ -196,14 +196,6 @@ def using_mock_validator(context, mock_validator):
     return context
 
 
-@given("I have a session in ERROR state")
-def session_in_error_state(context, client):
-    """Create a session in ERROR state (simulated)."""
-    # This is a placeholder - in reality we'd need to inject an error state
-    # For now, we'll use an invalid token to trigger error
-    context["error_session"] = True
-
-
 @given("the session has expired")
 def session_expired(context):
     """Mark session as expired."""
@@ -473,10 +465,3 @@ def websocket_rejected(context, code):
 def websocket_accepted(context):
     """Check WebSocket was accepted."""
     assert context.get("websocket_connected", False)
-
-
-@then("the response should contain the session error message")
-def response_has_session_error(context):
-    """Check response contains session error."""
-    # This would need actual implementation with real error state
-    assert context["response"].status_code == 400

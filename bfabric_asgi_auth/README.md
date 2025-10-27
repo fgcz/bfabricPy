@@ -6,8 +6,8 @@ ASGI middleware for authenticating Bfabric web applications using cookie-based s
 
 - Cookie-based sessions using Starlette's SessionMiddleware
 - Token validation via `Bfabric.connect_webapp`
-- Session lifecycle tracking (NEW → READY/ERROR)
 - Built-in logout endpoint
+- WebSocket authentication support
 - ASGI compliant (works with FastAPI, Starlette, etc.)
 
 ## Installation
@@ -110,7 +110,7 @@ async def get_data(request: fastapi.Request):
 
 Available in `request.scope`:
 
-- `bfabric_session`: Full session data (state, token, client_config, user_info, error)
+- `bfabric_session`: Full session data (client_config, user_info)
 - `bfabric_connection`: Bfabric client config (base_url, login, password)
 
 ### Example Commands

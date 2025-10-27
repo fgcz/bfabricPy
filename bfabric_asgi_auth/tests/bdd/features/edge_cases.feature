@@ -24,12 +24,6 @@ Feature: Edge cases and error handling
     And I request "/"
     Then I should receive a 401 status code
 
-  Scenario: Session state validation
-    Given I have a session in ERROR state
-    When I request "/"
-    Then I should receive a 400 status code
-    And the response should contain the session error message
-
   Scenario: Concurrent authentication requests
     When multiple users authenticate with different tokens
     Then each user should have an independent session
