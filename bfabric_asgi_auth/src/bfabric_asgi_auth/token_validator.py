@@ -32,11 +32,12 @@ class TokenValidationResult:
 TokenValidatorType = Callable[[SecretStr], Awaitable[TokenValidationResult]]
 
 
-def create_bfabric_validator(validation_instance_url: str) -> TokenValidatorType:
+def create_bfabric_validator(
+    validation_instance_url: str = "https://fgcz-bfabric-test.uzh.ch/bfabric/",
+) -> TokenValidatorType:
     """Create a validator that uses async Bfabric token validation.
 
     :param validation_instance_url: URL of the B-Fabric instance for token validation
-        (e.g., "https://fgcz-bfabric-test.uzh.ch/bfabric/")
     """
 
     async def bfabric_validation(token: SecretStr) -> TokenValidationResult:
