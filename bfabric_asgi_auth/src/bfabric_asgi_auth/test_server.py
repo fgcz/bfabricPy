@@ -1,14 +1,16 @@
 import fastapi
 from starlette.middleware.sessions import SessionMiddleware
 
+from bfabric_asgi_auth import create_bfabric_validator  # noqa
 from bfabric_asgi_auth.middleware import BfabricAuthMiddleware
-from bfabric_asgi_auth.token_validator import create_mock_validator
+from bfabric_asgi_auth.token_validator import create_mock_validator  # noqa
 
 # Create FastAPI app
 app = fastapi.FastAPI()
 
 # Create token validator
 token_validator = create_mock_validator()
+# token_validator = create_bfabric_validator()
 
 # IMPORTANT: Middleware order matters!
 # add_middleware adds them in REVERSE order, so add BfabricAuthMiddleware FIRST
@@ -39,7 +41,6 @@ async def root(request: fastapi.Request):
     session_data = request.scope.get("bfabric_session", {})
     return {
         "message": "Welcome to Bfabric authenticated app",
-        "bfabric_connection": request.scope.get("bfabric_connection"),
         "user": session_data.get("user_info", {}).get("username"),
     }
 
@@ -49,7 +50,6 @@ async def debug(request: fastapi.Request):
     """Debug endpoint - shows all request scope data."""
     return {
         "bfabric_session": request.scope.get("bfabric_session"),
-        "bfabric_connection": request.scope.get("bfabric_connection"),
         "path": request.scope.get("path"),
     }
 
