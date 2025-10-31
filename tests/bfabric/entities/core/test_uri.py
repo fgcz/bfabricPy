@@ -8,18 +8,19 @@ from bfabric.entities.core.uri import _parse_uri_components
 class TestEntityUri:
     def test_valid(self):
         uri = "https://fgcz-bfabric.uzh.ch/bfabric/project/show.html?id=3000"
-        entity_uri = EntityUri.model_validate(uri)
-        assert entity_uri.root == uri
+        entity_uri = EntityUri(uri)
+        assert entity_uri == uri
+        assert isinstance(entity_uri, EntityUri)
 
     def test_invalid(self):
         uri = "https://example.com/invalid/uri"
-        with pytest.raises(ValidationError) as error:
-            EntityUri.model_validate(uri)
+        with pytest.raises(ValueError) as error:
+            EntityUri(uri)
         assert "Invalid Entity URI" in str(error.value)
 
     def test_components_property(self):
         uri = "https://fgcz-bfabric.uzh.ch/bfabric/project/show.html?id=3000"
-        entity_uri = EntityUri.model_validate(uri)
+        entity_uri = EntityUri(uri)
         components = entity_uri.components
         assert components.bfabric_instance == HttpUrl("https://fgcz-bfabric.uzh.ch/bfabric/")
         assert components.entity_type == "project"
@@ -53,4 +54,5 @@ class TestEntityUriComponents:
     def test_as_uri(self):
         components = _parse_uri_components("https://fgcz-bfabric.uzh.ch/bfabric/project/show.html?id=3000")
         entity_uri = components.as_uri()
-        assert entity_uri.root == "https://fgcz-bfabric.uzh.ch/bfabric/project/show.html?id=3000"
+        assert entity_uri == "https://fgcz-bfabric.uzh.ch/bfabric/project/show.html?id=3000"
+        assert isinstance(entity_uri, EntityUri)

@@ -34,7 +34,7 @@ class Entity:
         if self._client is None:
             msg = "Cannot generate a URI without a client's config information."
             raise ValueError(msg)
-        return EntityUri.model_validate(f"{self._client.config.base_url}/{self.ENDPOINT}/show.html?id={self.id}")
+        return EntityUri(f"{self._client.config.base_url}/{self.ENDPOINT}/show.html?id={self.id}")
 
     @property
     def web_url(self) -> str:

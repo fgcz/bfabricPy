@@ -1,15 +1,13 @@
 from __future__ import annotations
-from functools import cached_property
 from typing import Annotated
 
 from pydantic import (
     HttpUrl,
     BaseModel,
-    RootModel,
-    model_validator,
-    ConfigDict,
     PositiveInt,
     StringConstraints,
+    AfterValidator,
+    TypeAdapter,
 )
 import re
 
@@ -18,18 +16,35 @@ _URI_REGEX = re.compile(
 )
 
 
-class EntityUri(RootModel):
-    model_config = ConfigDict(frozen=True)
-    root: str
+def _validate_entity_uri(uri: str) -> str:
+    if not _URI_REGEX.match(uri):
+        raise ValueError(f"Invalid Entity URI: {uri}")
+    return uri
 
-    @cached_property
+
+ValidatedEntityUri = Annotated[str, AfterValidator(_validate_entity_uri)]
+entity_uri_adapter: TypeAdapter[str] = TypeAdapter(ValidatedEntityUri)
+
+
+class EntityUri(str):
+    def __new__(cls, uri: str | EntityUri) -> EntityUri:
+        if isinstance(uri, cls):
+            return uri
+
+        # Parse once for validation
+        components = _parse_uri_components(uri)  # raises on invalid
+
+        # Create instance
+        instance = super().__new__(cls, uri)
+
+        # Cache components using name mangling
+        object.__setattr__(instance, "_EntityUri__components", components)
+        return instance
+
+    @property
     def components(self) -> EntityUriComponents:
-        return _parse_uri_components(self.root)
-
-    @model_validator(mode="after")
-    def _validate_uri(self) -> EntityUri:
-        _ = self.components
-        return self
+        # Access via name-mangled attribute
+        return self.__components
 
 
 class EntityUriComponents(BaseModel):
@@ -39,7 +54,7 @@ class EntityUriComponents(BaseModel):
 
     def as_uri(self) -> EntityUri:
         uri = f"{self.bfabric_instance}{self.entity_type}/show.html?id={self.entity_id}"
-        return EntityUri.model_validate(uri)
+        return EntityUri(uri)
 
 
 def _parse_uri_components(uri: str) -> EntityUriComponents:
