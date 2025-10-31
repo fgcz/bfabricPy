@@ -26,6 +26,15 @@ class TestEntityUri:
         assert components.entity_type == "project"
         assert components.entity_id == 3000
 
+    @pytest.mark.parametrize(
+        "bfabric_instance", ["https://bfabric.example.com/bfabric/", "https://bfabric.example.com/bfabric"]
+    )
+    def test_from_components(self, bfabric_instance: str):
+        entity_uri = EntityUri.from_components(bfabric_instance, "dataset", 1234)
+        expected_uri = "https://bfabric.example.com/bfabric/dataset/show.html?id=1234"
+        assert entity_uri == expected_uri
+        assert isinstance(entity_uri, EntityUri)
+
 
 class TestEntityUriComponents:
     @pytest.mark.parametrize(

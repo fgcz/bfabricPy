@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Annotated, Any
-
+import urllib.parse
 from pydantic import (
     HttpUrl,
     BaseModel,
@@ -45,7 +45,7 @@ class EntityUri(str):
 
     @classmethod
     def from_components(cls, bfabric_instance: str, entity_type: str, entity_id: int) -> EntityUri:
-        uri = f"{bfabric_instance}{entity_type}/show.html?id={entity_id}"
+        uri = urllib.parse.urljoin(f"{bfabric_instance}/", f"{entity_type}/show.html?id={entity_id}")
         return cls(uri)
 
     @property
