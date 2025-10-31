@@ -13,6 +13,7 @@ Versioning currently follows `X.Y.Z` where
 ### Added
 
 - `bfabric.entities.core.uri` to specify entities by URI in a standardized way.
+- `Entity.uri` property to get the URI of an entity.
 
 ### Changed
 
