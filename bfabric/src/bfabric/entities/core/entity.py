@@ -39,7 +39,9 @@ class Entity:
         if self._client is None:
             msg = "Cannot generate a URI without a client's config information."
             raise ValueError(msg)
-        return EntityUri(f"{self._client.config.base_url}/{self.classname}/show.html?id={self.id}")
+        return EntityUri.from_components(
+            bfabric_instance=self._client.config.base_url, entity_type=self.ENDPOINT, entity_id=self.id
+        )
 
     @property
     def web_url(self) -> str:
