@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Annotated, Any
 
-from pydantic import BaseModel, Field, TypeAdapter, AnyHttpUrl, BeforeValidator, field_validator
+from pydantic import BaseModel, Field, TypeAdapter, AnyHttpUrl, BeforeValidator
 
 http_url_adapter = TypeAdapter(AnyHttpUrl)
 
@@ -35,12 +35,6 @@ class BfabricClientConfig(BaseModel):
     application_ids: Annotated[dict[str, int], Field(default_factory=dict)]
     job_notification_emails: Annotated[str, Field(default="")]
     engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS
-
-    @field_validator("base_url")
-    @classmethod
-    def ensure_trailing_slash(cls, v: str) -> str:
-        """Ensure base_url always ends with a trailing slash."""
-        return v if v.endswith("/") else f"{v}/"
 
     def __init__(self, **kwargs: Any) -> None:
         # TODO remove this custom constructor (note that this is currently used in some places when "None" is passed)
