@@ -1,54 +1,77 @@
 import pytest
 
+from bfabric.entities.core.uri import EntityUri
 from bfabric.experimental.cache._entity_memory_cache import EntityMemoryCache
 
 
 @pytest.fixture
 def config():
-    return {
-        "Entity1": 3,
-        "Entity2": 2,
-    }
+    return {"project": 3, "sample": 2}
+
+
+@pytest.fixture
+def mock_entity1(mocker):
+    return mocker.Mock(uri=EntityUri("https://bfabric.example.com/bfabric/project/show.html?id=1"), id=1)
+
+
+@pytest.fixture
+def mock_entity2(mocker):
+    return mocker.Mock(uri=EntityUri("https://bfabric.example.com/bfabric/project/show.html?id=2"), id=2)
+
+
+@pytest.fixture
+def mock_entity3(mocker):
+    return mocker.Mock(uri=EntityUri("https://bfabric.example.com/bfabric/project/show.html?id=3"), id=3)
+
+
+@pytest.fixture
+def mock_entity4(mocker):
+    return mocker.Mock(uri=EntityUri("https://bfabric.example.com/bfabric/project/show.html?id=4"), id=4)
 
 
 @pytest.fixture()
-def entity_cache(config):
+def entity_cache(config, mock_entity1, mock_entity2):
     result = EntityMemoryCache(config)
-    result.put("Entity1", 1, "value1")
-    result.put("Entity1", 2, "value2")
+    result.put(mock_entity1)
+    result.put(mock_entity2)
     return result
 
 
-def test_entity_lookup_cache_contains(entity_cache):
-    assert entity_cache.contains("Entity1", 1)
-    assert entity_cache.contains("Entity1", 2)
-    assert not entity_cache.contains("Entity1", 3)
-    assert not entity_cache.contains("Entity2", 1)
+def test_entity_lookup_cache_contains(entity_cache, mock_entity1, mock_entity2, mock_entity3):
+    assert entity_cache.contains(mock_entity1.uri)
+    assert entity_cache.contains(mock_entity2.uri)
+    assert not entity_cache.contains(mock_entity3.uri)
+
+    # Test sample type which is in config but empty
+    uri_sample = EntityUri("https://bfabric.example.com/bfabric/sample/show.html?id=1")
+    assert not entity_cache.contains(uri_sample)
 
 
-def test_entity_lookup_cache_get_when_exists(entity_cache):
-    assert entity_cache.get("Entity1", 1) == "value1"
-    assert entity_cache.get("Entity1", 2) == "value2"
+def test_entity_lookup_cache_get_when_exists(entity_cache, mock_entity1, mock_entity2):
+    assert entity_cache.get(mock_entity1.uri) == mock_entity1
+    assert entity_cache.get(mock_entity2.uri) == mock_entity2
 
 
-def test_entity_lookup_cache_get_when_not_exists(entity_cache):
-    assert entity_cache.get("Entity1", 3) is None
+def test_entity_lookup_cache_get_when_not_exists(entity_cache, mock_entity3):
+    assert entity_cache.get(mock_entity3.uri) is None
 
 
-def test_entity_lookup_cache_get_all(entity_cache):
-    result = entity_cache.get_all("Entity1", [1, 2, 3])
-    assert result == {1: "value1", 2: "value2"}
+def test_entity_lookup_cache_get_all(entity_cache, mock_entity1, mock_entity2, mock_entity3):
+    result = entity_cache.get_all([mock_entity1.uri, mock_entity2.uri, mock_entity3.uri])
+    assert result == {mock_entity1.uri: mock_entity1, mock_entity2.uri: mock_entity2}
 
 
-def test_entity_lookup_cache_put(entity_cache):
-    entity_cache.put("Entity1", 3, "value3")
-    entity_cache.put("Entity1", 4, "value4")
-    assert entity_cache.get("Entity1", 1) is None
-    assert entity_cache.get("Entity1", 2) == "value2"
-    assert entity_cache.get("Entity1", 3) == "value3"
-    assert entity_cache.get("Entity1", 4) == "value4"
+def test_entity_lookup_cache_put(entity_cache, mock_entity1, mock_entity2, mock_entity3, mock_entity4):
+    entity_cache.put(mock_entity3)
+    entity_cache.put(mock_entity4)
+    # Cache size is 3, so entity1 should be evicted (FIFO)
+    assert entity_cache.get(mock_entity1.uri) is None
+    assert entity_cache.get(mock_entity2.uri) == mock_entity2
+    assert entity_cache.get(mock_entity3.uri) == mock_entity3
+    assert entity_cache.get(mock_entity4.uri) == mock_entity4
 
 
-def test_entity_lookup_cache_put_when_type_not_in_config(entity_cache):
-    entity_cache.put("Entity3", 1, "value1")
-    assert entity_cache.get("Entity3", 1) is None
+def test_entity_lookup_cache_put_when_type_not_in_config(entity_cache, mocker):
+    entity_workunit = mocker.Mock(uri=EntityUri("https://bfabric.example.com/bfabric/workunit/show.html?id=1"), id=1)
+    entity_cache.put(entity_workunit)
+    assert entity_cache.get(entity_workunit.uri) is None
