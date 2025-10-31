@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Annotated
+from typing import Annotated, Any
 
 from pydantic import (
     HttpUrl,
@@ -10,6 +10,8 @@ from pydantic import (
     TypeAdapter,
 )
 import re
+
+from pydantic_core import core_schema
 
 _URI_REGEX = re.compile(
     r"^(?P<bfabric_instance>https://[^/]+/bfabric/)(?P<entity_type>\w+)/show\.html\?id=(?P<entity_id>\d+)$"
@@ -45,6 +47,18 @@ class EntityUri(str):
     def components(self) -> EntityUriComponents:
         # Access via name-mangled attribute
         return self.__components
+
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls,
+        source_type: Any,
+        handler: Any,
+    ) -> core_schema.CoreSchema:
+        """Provide Pydantic v2 schema for EntityUri."""
+        return core_schema.no_info_after_validator_function(
+            cls,
+            core_schema.str_schema(),
+        )
 
 
 class EntityUriComponents(BaseModel):

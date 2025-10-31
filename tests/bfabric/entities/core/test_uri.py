@@ -1,5 +1,5 @@
 import pytest
-from pydantic import HttpUrl, ValidationError
+from pydantic import HttpUrl, ValidationError, BaseModel
 
 from bfabric.entities.core.uri import EntityUri
 from bfabric.entities.core.uri import _parse_uri_components
@@ -56,3 +56,20 @@ class TestEntityUriComponents:
         entity_uri = components.as_uri()
         assert entity_uri == "https://fgcz-bfabric.uzh.ch/bfabric/project/show.html?id=3000"
         assert isinstance(entity_uri, EntityUri)
+
+
+class TestPydanticModel:
+    class MockModel(BaseModel):
+        uri: EntityUri
+
+    def test_validate(self):
+        uri = "https://fgcz-bfabric.uzh.ch/bfabric/project/show.html?id=3000"
+        model = self.MockModel(uri=uri)
+        assert model.uri == uri
+        assert isinstance(model.uri, EntityUri)
+
+    def test_dump(self):
+        uri = "https://fgcz-bfabric.uzh.ch/bfabric/project/show.html?id=3000"
+        model = self.MockModel(uri=uri)
+        dumped = model.model_dump()
+        assert dumped["uri"] == uri
