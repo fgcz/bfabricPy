@@ -43,6 +43,11 @@ class EntityUri(str):
         object.__setattr__(instance, "_EntityUri__components", components)
         return instance
 
+    @classmethod
+    def from_components(cls, bfabric_instance: str, entity_type: str, entity_id: int) -> EntityUri:
+        uri = f"{bfabric_instance}{entity_type}/show.html?id={entity_id}"
+        return cls(uri)
+
     @property
     def components(self) -> EntityUriComponents:
         # Access via name-mangled attribute

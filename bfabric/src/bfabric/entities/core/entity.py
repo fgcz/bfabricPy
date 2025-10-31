@@ -29,12 +29,17 @@ class Entity:
         return int(self.__data_dict["id"])
 
     @property
+    def classname(self) -> str:
+        """Returns the entity's classname."""
+        return self.__data_dict["classname"]
+
+    @property
     def uri(self) -> EntityUri:
         """Returns the entity's URI."""
         if self._client is None:
             msg = "Cannot generate a URI without a client's config information."
             raise ValueError(msg)
-        return EntityUri(f"{self._client.config.base_url}/{self.ENDPOINT}/show.html?id={self.id}")
+        return EntityUri(f"{self._client.config.base_url}/{self.classname}/show.html?id={self.id}")
 
     @property
     def web_url(self) -> str:
