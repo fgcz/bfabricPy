@@ -1,5 +1,5 @@
 import pytest
-from pydantic import HttpUrl, ValidationError, BaseModel
+from pydantic import HttpUrl, BaseModel
 
 from bfabric.entities.core.uri import EntityUri
 from bfabric.entities.core.uri import _parse_uri_components
