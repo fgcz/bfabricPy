@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 import yaml
 from loguru import logger
 
+from bfabric.entities.core.uri import EntityUri
 from bfabric.experimental import MultiQuery
 from bfabric.experimental.cache.context import get_cache_stack
 
@@ -26,6 +27,21 @@ class Entity:
     def id(self) -> int:
         """Returns the entity's ID."""
         return int(self.__data_dict["id"])
+
+    @property
+    def classname(self) -> str:
+        """Returns the entity's classname."""
+        return self.__data_dict["classname"]
+
+    @property
+    def uri(self) -> EntityUri:
+        """Returns the entity's URI."""
+        if self._client is None:
+            msg = "Cannot generate a URI without a client's config information."
+            raise ValueError(msg)
+        return EntityUri.from_components(
+            bfabric_instance=self._client.config.base_url, entity_type=self.ENDPOINT, entity_id=self.id
+        )
 
     @property
     def web_url(self) -> str:
