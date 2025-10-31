@@ -1,7 +1,7 @@
 import pytest
 from pydantic import HttpUrl, BaseModel
 
-from bfabric.entities.core.uri import EntityUri
+from bfabric.entities.core.uri import EntityUri, EntityUriComponents
 from bfabric.entities.core.uri import _parse_uri_components
 
 
@@ -60,10 +60,13 @@ class TestEntityUriComponents:
         with pytest.raises(ValueError):
             _parse_uri_components(uri)
 
-    def test_as_uri(self):
-        components = _parse_uri_components("https://fgcz-bfabric.uzh.ch/bfabric/project/show.html?id=3000")
+    @pytest.mark.parametrize(
+        "bfabric_instance", ["https://bfabric.example.com/bfabric/", "https://bfabric.example.com/bfabric"]
+    )
+    def test_as_uri(self, bfabric_instance):
+        components = EntityUriComponents(bfabric_instance=bfabric_instance, entity_type="project", entity_id=3000)
         entity_uri = components.as_uri()
-        assert entity_uri == "https://fgcz-bfabric.uzh.ch/bfabric/project/show.html?id=3000"
+        assert entity_uri == "https://bfabric.example.com/bfabric/project/show.html?id=3000"
         assert isinstance(entity_uri, EntityUri)
 
 

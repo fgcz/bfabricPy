@@ -45,8 +45,9 @@ class EntityUri(str):
 
     @classmethod
     def from_components(cls, bfabric_instance: str, entity_type: str, entity_id: int) -> EntityUri:
-        uri = urllib.parse.urljoin(f"{bfabric_instance}/", f"{entity_type}/show.html?id={entity_id}")
-        return cls(uri)
+        return EntityUriComponents(
+            bfabric_instance=bfabric_instance, entity_type=entity_type, entity_id=entity_id
+        ).as_uri()
 
     @property
     def components(self) -> EntityUriComponents:
@@ -72,7 +73,7 @@ class EntityUriComponents(BaseModel):
     entity_id: PositiveInt
 
     def as_uri(self) -> EntityUri:
-        uri = f"{self.bfabric_instance}{self.entity_type}/show.html?id={self.entity_id}"
+        uri = urllib.parse.urljoin(f"{self.bfabric_instance}/", f"{self.entity_type}/show.html?id={self.entity_id}")
         return EntityUri(uri)
 
 
