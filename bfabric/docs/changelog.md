@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Added
+
+- `bfabric.entities.core.uri` to specify entities by URI in a standardized way.
+
 ### Changed
 
 - Minimal Python version is now 3.11.
