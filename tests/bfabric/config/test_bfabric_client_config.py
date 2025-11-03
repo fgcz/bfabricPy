@@ -37,6 +37,20 @@ class TestDefaultParams:
         assert error.value.errors()[0]["loc"] == ("base_url",)
 
 
+class TestBaseUrl:
+    @pytest.mark.parametrize(
+        "base_url",
+        [
+            "https://example.com/bfabric",
+            "https://example.com/bfabric/",
+            "https://example.com/bfabric////",
+        ],
+    )
+    def test_normalizes_slash(self, base_url):
+        config = BfabricClientConfig(base_url=base_url)
+        assert config.base_url == "https://example.com/bfabric/"
+
+
 def test_bfabric_config_copy_with_overrides(mock_config: BfabricClientConfig) -> None:
     new_config = mock_config.copy_with(
         base_url="https://example.com/new-url",
