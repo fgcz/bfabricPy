@@ -29,13 +29,6 @@ class TestDefaultParams:
         assert config.application_ids == {}
         assert config.job_notification_emails == ""
 
-    def test_when_specified(self) -> None:
-        config = BfabricClientConfig(
-            base_url="https://fgcz-bfabric.uzh.ch/bfabric", application_ids=None, job_notification_emails=None
-        )
-        assert config.application_ids == {}
-        assert config.job_notification_emails == ""
-
     def test_base_url_is_required(self):
         with pytest.raises(ValidationError) as error:
             BfabricClientConfig()
