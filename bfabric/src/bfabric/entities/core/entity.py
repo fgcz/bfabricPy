@@ -41,7 +41,7 @@ class Entity:
             msg = "Cannot generate a URI without a client's config information."
             raise ValueError(msg)
         return EntityUri.from_components(
-            bfabric_instance=self._client.config.base_url, entity_type=self.ENDPOINT, entity_id=self.id
+            bfabric_instance=self._client.config.base_url, entity_type=self.classname, entity_id=self.id
         )
 
     @property
@@ -49,7 +49,7 @@ class Entity:
         if self._client is None:
             msg = "Cannot generate a web URL without a client's config information."
             raise ValueError(msg)
-        return urllib.parse.urljoin(self._client.config.base_url, f"{self.ENDPOINT}/show.html?id={self.id}")
+        return urllib.parse.urljoin(self._client.config.base_url, f"{self.classname}/show.html?id={self.id}")
 
     @property
     def data_dict(self) -> dict[str, Any]:
