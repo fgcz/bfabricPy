@@ -35,7 +35,7 @@ class CacheStack:
                 return entity
         return None
 
-    def item_get_all(self, entity_uris: list[EntityUri]) -> dict[int, Entity]:
+    def item_get_all(self, entity_uris: list[EntityUri]) -> dict[EntityUri, Entity]:
         results = {}
         pending = set(entity_uris)
         for cache in reversed(self._stack):
