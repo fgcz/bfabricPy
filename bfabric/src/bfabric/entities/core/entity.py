@@ -91,7 +91,7 @@ class Entity:
             for uri, entity in results.items()
             if entity is not None
         }
-        return cls.__ensure_results_order_new(ids, results)
+        return cls.__ensure_results_order(ids, results)
 
     @classmethod
     def find_by(cls, obj: dict[str, Any], client: Bfabric, max_results: int | None = 100) -> dict[int, Self]:
@@ -165,20 +165,6 @@ class Entity:
 
     @classmethod
     def __ensure_results_order(
-        cls,
-        ids_requested: list[int],
-        results_cached: dict[int, Self],
-        results_fresh: dict[int, Self],
-    ) -> dict[int, Self]:
-        """Ensures the results are in the same order as requested and prints a warning if some results are missing."""
-        results = {**results_cached, **results_fresh}
-        results = {entity_id: results[entity_id] for entity_id in ids_requested if entity_id in results}
-        if len(results) != len(ids_requested):
-            logger.warning(f"Only found {len(results)} out of {len(ids_requested)}.")
-        return results
-
-    @classmethod
-    def __ensure_results_order_new(
         cls,
         ids_requested: list[int],
         results: dict[int, Self],
