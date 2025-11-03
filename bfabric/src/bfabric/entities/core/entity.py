@@ -1,18 +1,16 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
 import urllib.parse
+from typing import TYPE_CHECKING
 
 import yaml
 from loguru import logger
 
 from bfabric.entities.core.uri import EntityUri
-from bfabric.experimental import MultiQuery
 from bfabric.experimental.cache.context import get_cache_stack
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from collections.abc import Iterable
     from bfabric import Bfabric
     from typing import Any, Self
 
@@ -137,31 +135,6 @@ class Entity:
         return f"{self.__class__.__name__}({repr(self.__data_dict)}, client={repr(self.__client)})"
 
     __str__ = __repr__
-
-    @classmethod
-    def __check_ids_list(cls, ids: list[int]) -> list[int]:
-        """Converts the ids to a list of integers (if they are not already) and raises an error if this fails or
-        there are duplicates."""
-        ids_requested = [int(id) for id in ids]
-        if len(ids_requested) != len(set(ids_requested)):
-            duplicates = [item for item in set(ids_requested) if ids_requested.count(item) > 1]
-            raise ValueError(f"Duplicate IDs are not allowed, duplicates: {duplicates}")
-        return ids_requested
-
-    @classmethod
-    def __retrieve_entities(
-        cls, client: Bfabric, ids_requested: list[int], ids_cached: Iterable[int]
-    ) -> dict[int, Self]:
-        """Retrieves entities from B-Fabric that are not already in the cache"""
-        ids = list(set(ids_requested) - set(ids_cached))
-        if ids:
-            if len(ids) > 100:
-                result = MultiQuery(client).read_multi(cls.ENDPOINT, {}, "id", ids)
-            else:
-                result = client.read(cls.ENDPOINT, obj={"id": ids})
-            return {x["id"]: cls(x, client=client) for x in result}
-        else:
-            return {}
 
     @classmethod
     def __ensure_results_order(
