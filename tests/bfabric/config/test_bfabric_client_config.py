@@ -42,7 +42,7 @@ def test_bfabric_config_copy_with_overrides(mock_config: BfabricClientConfig) ->
         base_url="https://example.com/new-url",
         application_ids={"new": 2},
     )
-    assert new_config.base_url == "https://example.com/new-url"
+    assert new_config.base_url == "https://example.com/new-url/"
     assert new_config.application_ids == {"new": 2}
     assert mock_config.base_url == "https://example.com/"
     assert mock_config.application_ids == {"app": 1}
@@ -72,7 +72,7 @@ def test_bfabric_config_read_yml_bypath_default(mocker: MockerFixture, example_c
     config, auth = read_config_file(example_config_path)
     assert auth.login == "my_epic_production_login"
     assert auth.password.get_secret_value() == "01234567890123456789012345678901"
-    assert config.base_url == "https://mega-production-server.uzh.ch/myprod"
+    assert config.base_url == "https://mega-production-server.uzh.ch/myprod/"
 
     logot.assert_logged(
         logged.debug(f"Reading configuration from: {str(example_config_path.absolute())} config_env=None")
@@ -89,7 +89,7 @@ def test_bfabric_config_read_yml_bypath_environment_variable(
     config, auth = read_config_file(example_config_path)
     assert auth.login == "my_epic_test_login"
     assert auth.password.get_secret_value() == "012345678901234567890123456789ff"
-    assert config.base_url == "https://mega-test-server.uzh.ch/mytest"
+    assert config.base_url == "https://mega-test-server.uzh.ch/mytest/"
 
     logot.assert_logged(
         logged.debug(f"Reading configuration from: {str(example_config_path.absolute())} config_env=None")

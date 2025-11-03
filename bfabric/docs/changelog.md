@@ -18,6 +18,7 @@ Versioning currently follows `X.Y.Z` where
 ### Changed
 
 - Minimal Python version is now 3.11.
+- `BfabricClientConfig.base_url` always ends with exactly one `/` now.
 - TokenData retrieval uses async httpx, but provides a sync interface for compatibility.
 
 ## \[1.13.36\] - 2025-10-27

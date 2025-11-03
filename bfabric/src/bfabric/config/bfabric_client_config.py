@@ -5,7 +5,15 @@ from typing import Annotated
 
 from pydantic import BaseModel, Field, TypeAdapter, AnyHttpUrl, BeforeValidator
 
-http_url_adapter = TypeAdapter(AnyHttpUrl)
+
+def _validate_base_url(value: str) -> str:
+    """Validates that the base URL is indeed a valid HTTP URL and ensures it ends with a slash."""
+    value = value.rstrip("/") + "/"
+    http_url = TypeAdapter(AnyHttpUrl).validate_python(value)
+    return str(http_url)
+
+
+_ValidatedBaseUrl = Annotated[str, BeforeValidator(_validate_base_url)]
 
 
 class BfabricAPIEngineType(str, Enum):
@@ -21,17 +29,13 @@ class BfabricAPIEngineType(str, Enum):
 class BfabricClientConfig(BaseModel):
     """Holds the configuration for the B-Fabric client for connecting to particular instance of B-Fabric.
 
-    Parameters:
-        base_url (optional): The API base url
-        application_ids (optional): Map of application names to ids.
-        job_notification_emails (optional): Space-separated list of email addresses to notify when a job finishes.
+    :param base_url: The API base url
+    :param application_ids (optional): Map of application names to ids.
+    :param job_notification_emails (optional): Space-separated list of email addresses to notify when a job finishes.
+    :param engine: The API engine to use (optional).
     """
 
-    # TODO consider using AnyHttpUrl in the future directly
-    base_url: Annotated[
-        str,
-        BeforeValidator(lambda value: str(http_url_adapter.validate_python(value))),
-    ]
+    base_url: _ValidatedBaseUrl
     application_ids: Annotated[dict[str, int], Field(default_factory=dict)]
     job_notification_emails: Annotated[str, Field(default="")]
     engine: BfabricAPIEngineType = BfabricAPIEngineType.SUDS

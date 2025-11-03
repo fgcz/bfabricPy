@@ -187,14 +187,14 @@ class TestReadConfig:
 
         assert auth.login == "my_epic_test_login"
         assert auth.password.get_secret_value() == "012345678901234567890123456789ff"
-        assert config.base_url == "https://mega-test-server.uzh.ch/mytest"
+        assert config.base_url == "https://mega-test-server.uzh.ch/mytest/"
         assert config.application_ids == applications_dict_ground_truth
         assert config.job_notification_emails == job_notification_emails_ground_truth
 
     def test_when_empty_optional(self, example_config_path: Path, logot: Logot) -> None:
         config, auth = read_config_file(example_config_path, config_env="STANDBY")
         assert auth is None
-        assert config.base_url == "https://standby-server.uzh.ch/mystandby"
+        assert config.base_url == "https://standby-server.uzh.ch/mystandby/"
         assert config.application_ids == {}
         assert config.job_notification_emails == ""
         logot.assert_logged(
