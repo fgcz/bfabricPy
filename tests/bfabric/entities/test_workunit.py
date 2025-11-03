@@ -4,6 +4,7 @@ from typing import Any
 import pytest
 from pytest_mock import MockerFixture
 
+from bfabric import Bfabric
 from bfabric.entities import Project, Order
 from bfabric.entities.core.has_many import HasMany
 from bfabric.entities.parameter import Parameter
@@ -15,6 +16,7 @@ from bfabric.entities.workunit import Workunit
 def mock_data_dict() -> dict[str, Any]:
     return {
         "id": 30000,
+        "classname": "workunit",
         "created": "2024-01-02 03:04:05",
         "application": {"classname": "application", "id": 1000},
         "container": {"classname": "project", "id": 3000},
@@ -29,8 +31,15 @@ def mock_data_dict() -> dict[str, Any]:
 
 
 @pytest.fixture()
-def mock_client(mocker: MockerFixture):
-    return mocker.MagicMock(name="mock_client")
+def mock_client_config(mocker: MockerFixture):
+    mock = mocker.MagicMock(name="mock_client_config")
+    mock.base_url = "https://example.com/bfabric/"
+    return mock
+
+
+@pytest.fixture()
+def mock_client(mocker: MockerFixture, mock_client_config):
+    return mocker.MagicMock(name="mock_client", config=mock_client_config, spec=Bfabric)
 
 
 @pytest.fixture()
