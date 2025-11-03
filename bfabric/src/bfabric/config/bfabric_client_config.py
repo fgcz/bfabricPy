@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Annotated
 
-from pydantic import BaseModel, Field, TypeAdapter, AnyHttpUrl, BeforeValidator
+from pydantic import BaseModel, Field, TypeAdapter, AnyHttpUrl, AfterValidator
 
 
 def _validate_base_url(value: str) -> str:
@@ -13,7 +13,7 @@ def _validate_base_url(value: str) -> str:
     return str(http_url)
 
 
-_ValidatedBaseUrl = Annotated[str, BeforeValidator(_validate_base_url)]
+_ValidatedBaseUrl = Annotated[str, AfterValidator(_validate_base_url)]
 
 
 class BfabricAPIEngineType(str, Enum):
