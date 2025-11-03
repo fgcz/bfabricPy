@@ -93,7 +93,7 @@ class Entity:
         result = client.read(cls.ENDPOINT, obj=obj, max_results=max_results)
         cache_stack = get_cache_stack()
         entities = {x["id"]: cls(x, client=client) for x in result}
-        cache_stack.item_put_all(entity_type=cls, entities=entities)
+        cache_stack.item_put_all(entities=entities.values())
         return entities
 
     def dump_yaml(self, path: Path) -> None:
