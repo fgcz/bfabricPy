@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-import urllib.parse
+import warnings
 from typing import TYPE_CHECKING
 
 import yaml
 from loguru import logger
 
 from bfabric.entities.core.uri import EntityUri
-from bfabric.experimental.cache.context import get_cache_stack
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -16,38 +15,42 @@ if TYPE_CHECKING:
 
 
 class Entity:
+    # TODO this should be deprecated in favor of classname or moving the .find stuff into mixin
     ENDPOINT: str = ""
 
-    def __init__(self, data_dict: dict[str, Any], client: Bfabric | None) -> None:
+    def __init__(
+        self, data_dict: dict[str, Any], client: Bfabric | None, *, bfabric_instance: str | None = None
+    ) -> None:
         self.__data_dict = data_dict
         self.__client = client
-
-    @property
-    def id(self) -> int:
-        """Returns the entity's ID."""
-        return int(self.__data_dict["id"])
+        self.__bfabric_instance = bfabric_instance
 
     @property
     def classname(self) -> str:
-        """Returns the entity's classname."""
+        """The entity's classname."""
         return self.__data_dict["classname"]
 
     @property
+    def id(self) -> int:
+        """The entity's ID."""
+        return int(self.__data_dict["id"])
+
+    @property
     def uri(self) -> EntityUri:
-        """Returns the entity's URI."""
-        if self._client is None:
+        """The entity's URI."""
+        if self.__bfabric_instance is None and self._client is None:
             msg = "Cannot generate a URI without a client's config information."
             raise ValueError(msg)
+        bfabric_instance = self.__bfabric_instance or self._client.config.base_url
         return EntityUri.from_components(
-            bfabric_instance=self._client.config.base_url, entity_type=self.classname, entity_id=self.id
+            bfabric_instance=bfabric_instance, entity_type=self.classname, entity_id=self.id
         )
 
     @property
     def web_url(self) -> str:
-        if self._client is None:
-            msg = "Cannot generate a web URL without a client's config information."
-            raise ValueError(msg)
-        return urllib.parse.urljoin(self._client.config.base_url, f"{self.classname}/show.html?id={self.id}")
+        # TODO delete this function later (and document deprecation)
+        warnings.warn("Entity.web_url is deprecated, use str(Entity.uri) instead.", DeprecationWarning, stacklevel=2)
+        return str(self.uri)
 
     @property
     def data_dict(self) -> dict[str, Any]:
@@ -94,11 +97,13 @@ class Entity:
     @classmethod
     def find_by(cls, obj: dict[str, Any], client: Bfabric, max_results: int | None = 100) -> dict[int, Self]:
         """Returns a dictionary of entities that match the given query."""
-        result = client.read(cls.ENDPOINT, obj=obj, max_results=max_results)
-        cache_stack = get_cache_stack()
-        entities = {x["id"]: cls(x, client=client) for x in result}
-        cache_stack.item_put_all(entities=entities.values())
-        return entities
+        from bfabric.entities.core.entity_reader import EntityReader
+
+        reader = EntityReader(client=client)
+        results = reader.query_by(entity_type=cls.ENDPOINT, obj=obj, max_results=max_results)
+        return {
+            uri.components.entity_id: cls(entity.data_dict, client=entity._client) for uri, entity in results.items()
+        }
 
     def dump_yaml(self, path: Path) -> None:
         """Writes the entity's data dictionary to a YAML file."""
