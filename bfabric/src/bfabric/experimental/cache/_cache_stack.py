@@ -51,6 +51,5 @@ class CacheStack:
             cache.put(entity)
 
     def item_put_all(self, entities: Iterable[Entity]) -> None:
-        # TODO could be optimized later
         for entity in entities:
             self.item_put(entity)
