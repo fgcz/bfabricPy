@@ -64,13 +64,14 @@ class Entity:
     def find(cls, id: int, client: Bfabric) -> Self | None:
         """Finds an entity by its ID, if it does not exist `None` is returned."""
         cache_stack = get_cache_stack()
-        cache_entry = cache_stack.item_get(entity_type=cls, entity_id=id)
+        uri = EntityUri.from_components(bfabric_instance=client.config.base_url, entity_type=cls.ENDPOINT, entity_id=id)
+        cache_entry = cache_stack.item_get(uri)
         if cache_entry:
             return cache_entry
 
         result = client.read(cls.ENDPOINT, obj={"id": int(id)})
         entity = cls(result[0], client=client) if len(result) == 1 else None
-        cache_stack.item_put(entity_type=cls, entity_id=id, entity=entity)
+        cache_stack.item_put(entity=entity)
         return entity
 
     @classmethod
