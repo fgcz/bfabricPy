@@ -27,6 +27,7 @@ class EntityReader:
 
     def read_uris(self, uris: list[EntityUri | str]) -> dict[EntityUri, GenericEntity | None]:
         uris = [EntityUri(uri) for uri in uris]
+        logger.debug(f"Reading entities for URIs: {uris}")
         self._validate_uris(uris)
 
         # group by entity type
@@ -52,6 +53,7 @@ class EntityReader:
     def query_by(
         self, entity_type: str, obj: dict[str, Any], max_results: int | None = 100
     ) -> dict[EntityUri, GenericEntity | None]:
+        logger.debug(f"Querying {entity_type} by {obj}")
         result = self._client.read(entity_type, obj=obj, max_results=max_results)
         cache_stack = get_cache_stack()
         entities = {x.uri: x for x in [GenericEntity(r, client=self._client) for r in result]}
