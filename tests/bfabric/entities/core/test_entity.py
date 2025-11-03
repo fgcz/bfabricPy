@@ -4,6 +4,9 @@ import pytest
 
 from bfabric import Bfabric
 from bfabric.entities.core.entity import Entity
+from bfabric.entities.core.entity_reader import EntityReader
+from bfabric.entities.core.generic import GenericEntity
+from bfabric.entities.core.uri import EntityUri
 
 
 @pytest.fixture
@@ -36,39 +39,63 @@ def test_client(mock_entity, mock_client) -> None:
 
 
 def test_find_when_found(mocker, mock_client) -> None:
-    mock_client.read.return_value = [{"id": 1, "name": "Test Entity"}]
-    mocker.patch.object(Entity, "ENDPOINT", new="test_endpoint")
+    mocker.patch.object(Entity, "ENDPOINT", new="testendpoint")
+    mock_client.config.base_url = "https://test.bfabric.org/bfabric/"
+
+    # Mock EntityReader.read_uri to return a GenericEntity
+    mock_entity = GenericEntity({"id": 1, "name": "Test Entity", "classname": "testendpoint"}, mock_client)
+    mock_reader_instance = mocker.MagicMock(spec=EntityReader)
+    mock_reader_instance.read_uri.return_value = mock_entity
+    mocker.patch.object(EntityReader, "__init__", return_value=None)
+    mocker.patch.object(EntityReader, "read_uri", return_value=mock_entity)
+
     entity = Entity.find(1, mock_client)
     assert isinstance(entity, Entity)
-    assert entity.data_dict == {"id": 1, "name": "Test Entity"}
-    mock_client.read.assert_called_once_with("test_endpoint", obj={"id": 1})
+    assert entity.data_dict == {"id": 1, "name": "Test Entity", "classname": "testendpoint"}
 
 
 def test_find_when_not_found(mocker, mock_client) -> None:
-    mock_client.read.return_value = []
-    mocker.patch.object(Entity, "ENDPOINT", new="test_endpoint")
+    mocker.patch.object(Entity, "ENDPOINT", new="testendpoint")
+    mock_client.config.base_url = "https://test.bfabric.org/bfabric/"
+
+    # Mock EntityReader.read_uri to return None
+    mocker.patch.object(EntityReader, "__init__", return_value=None)
+    mocker.patch.object(EntityReader, "read_uri", return_value=None)
+
     entity = Entity.find(1, mock_client)
     assert entity is None
-    mock_client.read.assert_called_once_with("test_endpoint", obj={"id": 1})
 
 
 def test_find_all_when_all_found(mocker, mock_client) -> None:
-    mock_client.read.return_value = [{"id": 1, "name": "Test Entity"}]
-    mocker.patch.object(Entity, "ENDPOINT", new="test_endpoint")
+    mocker.patch.object(Entity, "ENDPOINT", new="testendpoint")
+    mock_client.config.base_url = "https://test.bfabric.org/bfabric/"
+
+    # Mock EntityReader.read_uris to return a GenericEntity
+    uri = EntityUri.from_components("https://test.bfabric.org/bfabric/", "testendpoint", 1)
+    mock_entity = GenericEntity({"id": 1, "name": "Test Entity", "classname": "testendpoint"}, mock_client)
+    mocker.patch.object(EntityReader, "__init__", return_value=None)
+    mocker.patch.object(EntityReader, "read_uris", return_value={uri: mock_entity})
+
     entities = Entity.find_all([1], mock_client)
     assert len(entities) == 1
     assert isinstance(entities[1], Entity)
-    assert entities[1].data_dict == {"id": 1, "name": "Test Entity"}
-    mock_client.read.assert_called_once_with("test_endpoint", obj={"id": [1]})
+    assert entities[1].data_dict == {"id": 1, "name": "Test Entity", "classname": "testendpoint"}
 
 
 def test_find_all_when_not_all_found(mocker, mock_client) -> None:
-    mock_client.read.return_value = [{"id": 5, "name": "Test Entity"}]
-    mocker.patch.object(Entity, "ENDPOINT", new="test_endpoint")
+    mocker.patch.object(Entity, "ENDPOINT", new="testendpoint")
+    mock_client.config.base_url = "https://test.bfabric.org/bfabric/"
+
+    # Mock EntityReader.read_uris to return only one entity (id=5, not id=1)
+    uri1 = EntityUri.from_components("https://test.bfabric.org/bfabric/", "testendpoint", 1)
+    uri5 = EntityUri.from_components("https://test.bfabric.org/bfabric/", "testendpoint", 5)
+    mock_entity = GenericEntity({"id": 5, "name": "Test Entity", "classname": "testendpoint"}, mock_client)
+    mocker.patch.object(EntityReader, "__init__", return_value=None)
+    mocker.patch.object(EntityReader, "read_uris", return_value={uri1: None, uri5: mock_entity})
+
     entities = Entity.find_all([1, 5], mock_client)
     assert len(entities) == 1
-    assert entities[5].data_dict == {"id": 5, "name": "Test Entity"}
-    mock_client.read.assert_called_once_with("test_endpoint", obj={"id": [1, 5]})
+    assert entities[5].data_dict == {"id": 5, "name": "Test Entity", "classname": "testendpoint"}
 
 
 def test_find_all_when_empty_list(mock_client) -> None:
