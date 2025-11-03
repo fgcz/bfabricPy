@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+import urllib.parse
 
 import yaml
 from loguru import logger
@@ -48,7 +49,7 @@ class Entity:
         if self._client is None:
             msg = "Cannot generate a web URL without a client's config information."
             raise ValueError(msg)
-        return f"{self._client.config.base_url}/{self.ENDPOINT}/show.html?id={self.id}"
+        return urllib.parse.urljoin(self._client.config.base_url, f"{self.ENDPOINT}/show.html?id={self.id}")
 
     @property
     def data_dict(self) -> dict[str, Any]:
