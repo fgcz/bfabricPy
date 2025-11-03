@@ -23,14 +23,11 @@ class EntityReader:
     def __init__(self, client: Bfabric) -> None:
         self._client = client
 
-    def read_uri(self, uri: EntityUri | str) -> Entity:
+    def read_uri(self, uri: EntityUri | str) -> Entity | None:
         logger.debug(f"Reading entity for URI: {uri}")
-        return self.read_uris([uri])[0]
+        return list(self.read_uris([uri]).values())[0]
 
-    # TODO this could be a bit more efficient than the old code, by only providing the to list conversion when necessary
-    #   -> i.e. return dict[EntityUri, Entity | None]
-
-    def read_uris(self, uris: list[EntityUri | str]) -> list[Entity]:
+    def read_uris(self, uris: list[EntityUri | str]) -> dict[EntityUri, Entity | None]:
         uris = [EntityUri(uri) for uri in uris]
         self.__validate_uris(uris)
 
@@ -39,13 +36,18 @@ class EntityReader:
 
         # retrieve each group separately
         cache_stack = get_cache_stack()
-        results = []
+        results = {}
         for entity_type, uris_group in grouped.items():
             results_cached = cache_stack.item_get_all(uris_group)
             results_fresh = self.__retrieve_entities(uris_group, results_cached.keys())
             cache_stack.item_put_all(entities=results_fresh.values())
-            results.extend(results_cached.values())
-            results.extend(results_fresh.values())
+            results.update(results_cached)
+            results.update(results_fresh)
+
+        # Add missing (TODO is it necesary?)
+        for uri in uris:
+            if uri not in results:
+                results[uri] = None
 
         return results
 

@@ -64,33 +64,28 @@ class Entity:
     @classmethod
     def find(cls, id: int, client: Bfabric) -> Self | None:
         """Finds an entity by its ID, if it does not exist `None` is returned."""
-        cache_stack = get_cache_stack()
-        uri = EntityUri.from_components(bfabric_instance=client.config.base_url, entity_type=cls.ENDPOINT, entity_id=id)
-        cache_entry = cache_stack.item_get(uri)
-        if cache_entry:
-            return cache_entry
+        from bfabric.entities.core.entity_reader import EntityReader
 
-        result = client.read(cls.ENDPOINT, obj={"id": int(id)})
-        entity = cls(result[0], client=client) if len(result) == 1 else None
-        cache_stack.item_put(entity=entity)
-        return entity
+        reader = EntityReader(client=client)
+        uri = EntityUri.from_components(bfabric_instance=client.config.base_url, entity_type=cls.ENDPOINT, entity_id=id)
+        # TODO generic type needs to be handled which is not the case yet
+        return reader.read_uri(uri=uri)
 
     @classmethod
     def find_all(cls, ids: list[int], client: Bfabric) -> dict[int, Self]:
         """Returns a dictionary of entities with the given IDs. The order will generally match the input, however,
         if some entities are not found they will be omitted and a warning will be logged.
         """
-        cache_stack = get_cache_stack()
-        ids_requested = cls.__check_ids_list(ids)
+        from bfabric.entities.core.entity_reader import EntityReader
 
-        # retrieve entities from cache and from B-Fabric as needed
-        results_cached = cache_stack.item_get_all(entity_type=cls, entity_ids=ids)
-        results_fresh = cls.__retrieve_entities(
-            client=client, ids_requested=ids_requested, ids_cached=results_cached.keys()
-        )
-
-        cache_stack.item_put_all(entity_type=cls, entities=results_fresh)
-        return cls.__ensure_results_order(ids_requested, results_cached, results_fresh)
+        reader = EntityReader(client=client)
+        uris = [
+            EntityUri.from_components(bfabric_instance=client.config.base_url, entity_type=cls.ENDPOINT, entity_id=id)
+            for id in ids
+        ]
+        results = reader.read_uris(uris=uris)
+        results = {uri.components.entity_id: entity for uri, entity in results.items() if entity is not None}
+        return cls.__ensure_results_order_new(ids, results)
 
     @classmethod
     def find_by(cls, obj: dict[str, Any], client: Bfabric, max_results: int | None = 100) -> dict[int, Self]:
@@ -171,6 +166,18 @@ class Entity:
     ) -> dict[int, Self]:
         """Ensures the results are in the same order as requested and prints a warning if some results are missing."""
         results = {**results_cached, **results_fresh}
+        results = {entity_id: results[entity_id] for entity_id in ids_requested if entity_id in results}
+        if len(results) != len(ids_requested):
+            logger.warning(f"Only found {len(results)} out of {len(ids_requested)}.")
+        return results
+
+    @classmethod
+    def __ensure_results_order_new(
+        cls,
+        ids_requested: list[int],
+        results: dict[int, Self],
+    ) -> dict[int, Self]:
+        """Ensures the results are in the same order as requested and prints a warning if some results are missing."""
         results = {entity_id: results[entity_id] for entity_id in ids_requested if entity_id in results}
         if len(results) != len(ids_requested):
             logger.warning(f"Only found {len(results)} out of {len(ids_requested)}.")
