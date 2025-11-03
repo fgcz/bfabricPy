@@ -68,8 +68,10 @@ class Entity:
 
         reader = EntityReader(client=client)
         uri = EntityUri.from_components(bfabric_instance=client.config.base_url, entity_type=cls.ENDPOINT, entity_id=id)
-        # TODO generic type needs to be handled which is not the case yet
-        return reader.read_uri(uri=uri)
+        entity = reader.read_uri(uri=uri)
+        if entity is None:
+            return None
+        return cls(entity.data_dict, client=entity._client)
 
     @classmethod
     def find_all(cls, ids: list[int], client: Bfabric) -> dict[int, Self]:
@@ -84,7 +86,11 @@ class Entity:
             for id in ids
         ]
         results = reader.read_uris(uris=uris)
-        results = {uri.components.entity_id: entity for uri, entity in results.items() if entity is not None}
+        results = {
+            uri.components.entity_id: cls(entity.data_dict, client=entity._client)
+            for uri, entity in results.items()
+            if entity is not None
+        }
         return cls.__ensure_results_order_new(ids, results)
 
     @classmethod
