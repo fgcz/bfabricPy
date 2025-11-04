@@ -15,7 +15,6 @@ from bfabric.entities.core.user_created_mixin import UserCreatedMixin
 from bfabric.utils.path_safe_name import path_safe_name
 
 if TYPE_CHECKING:
-    from bfabric import Bfabric
     from bfabric.entities.application import Application
     from bfabric.entities.dataset import Dataset
     from bfabric.entities.externaljob import ExternalJob
@@ -24,14 +23,9 @@ if TYPE_CHECKING:
 
 
 class Workunit(Entity, HasContainerMixin, UserCreatedMixin):
-    """Immutable representation of a single workunit in B-Fabric.
-    :param data_dict: The dictionary representation of the workunit.
-    """
+    """Immutable representation of a single workunit in B-Fabric."""
 
     ENDPOINT = "workunit"
-
-    def __init__(self, data_dict: dict[str, Any], client: Bfabric | None = None) -> None:
-        super().__init__(data_dict=data_dict, client=client)
 
     application: HasOne[Application] = HasOne(entity="Application", bfabric_field="application")
     parameters: HasMany[Parameter] = HasMany(entity="Parameter", bfabric_field="parameter", optional=True)
