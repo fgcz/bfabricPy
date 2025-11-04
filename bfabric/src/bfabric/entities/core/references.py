@@ -2,30 +2,60 @@ from __future__ import annotations
 
 from typing import Any, TYPE_CHECKING
 
+from loguru import logger
+from pydantic import BaseModel
+
 from bfabric.entities.core.uri import EntityUri
 
 if TYPE_CHECKING:
-    from bfabric.entities.core.entity import Entity
+    from bfabric import Bfabric
+
+
+class _ReferenceInformation(BaseModel):
+    name: str
+    uris: list[EntityUri]
+    is_singular: bool
+    is_loaded: bool
 
 
 class References:
-    def __init__(self, entity: Entity) -> None:
-        self._entity = entity
-        self._parsed = self.__parse_references(entity)
-        # TODO instead of creating a separate field,
-        #      we should store it in the same, in the same way as it will be returned when "fulldetails" is used
-        #      -> that will allow us to support fulldetails responses transparently in the future
-        self._loaded = {}
+    def __init__(self, client: Bfabric, data_ref: dict[str, Any]) -> None:
+        self._client = client
+        self._bfabric_instance = client.config.base_url
+        self._data_ref = data_ref
+
+        # Retrieve information about all reference fields
+        self._ref_info = self.__extract_reference_info(data_ref=data_ref, bfabric_instance=self._bfabric_instance)
 
     @property
-    def dict(self) -> dict[str, EntityUri | list[EntityUri]]:
-        return self._parsed.copy()
+    def uris(self) -> dict[str, EntityUri | list[EntityUri]]:
+        """Returns a shallow copy of the reference URIs dictionary."""
+        return {info.name: (info.uris[0] if info.is_singular else info.uris) for info in self._ref_info.values()}
+
+    def is_loaded(self, name: str) -> bool:
+        """Returns whether the reference with the given name is already loaded.
+        :raises KeyError: If the reference with the given name does not exist.
+        """
+        return self._ref_info[name].is_loaded
 
     def get(self, name: str) -> Any | None:
-        if name not in self._loaded and name in self._parsed:
-            self.__load(name)
-        if name in self._loaded:
-            return self._loaded[name]
+        ref_info = self._ref_info.get(name)
+        if ref_info is None:
+            return None
+        if not ref_info.is_loaded:
+            self.__load(ref_info=ref_info)
+
+        # TODO resolve the correct entity type, i guess we need to handle multiple different types in the same list
+        #      -> we need a factory it's the easiest solution instead of replicating the logic everywhere
+        from bfabric.entities.core.generic import Entity
+
+        data_dicts = [self._data_ref[name]] if ref_info.is_singular else self._data_ref[name]
+        entities = [
+            Entity(data_dict=data, client=self._client, bfabric_instance=self._bfabric_instance) for data in data_dicts
+        ]
+        if ref_info.is_singular:
+            return entities[0]
+        return entities
 
     def __getattr__(self, name: str) -> Any:
         value = self.get(name)
@@ -34,33 +64,59 @@ class References:
         return value
 
     def __contains__(self, name: str) -> bool:
-        return name in self._parsed
+        return name in self._ref_info
 
-    def __repr__(self) -> str:
-        return f"References({sorted(self._parsed.keys())})"
-
-    def __load(self, name: str) -> None:
+    def __load(self, ref_info: _ReferenceInformation) -> None:
         from bfabric.entities.core.entity_reader import EntityReader
 
-        reader = EntityReader(self._entity._client)
-        if isinstance(self._parsed[name], list):
-            self._loaded[name] = list(reader.read_uris(uris=self._parsed[name]).values())
+        reader = EntityReader(self._client)
+        entities = reader.read_uris(ref_info.uris)
+
+        # merge into the ref_data object
+        if ref_info.is_singular:
+            self._data_ref[ref_info.name].update(entities[ref_info.uris[0]].data_dict)
         else:
-            self._loaded[name] = reader.read_uri(self._parsed[name])
+            # TODO and test (ordering challenge)
+            raise NotImplementedError
+
+        # mark as loaded
+        ref_info.is_loaded = True
 
     @classmethod
-    def __parse_references(cls, entity: Entity) -> dict[str, EntityUri | list[EntityUri]]:
+    def __extract_reference_info(
+        cls, data_ref: dict[str, Any], bfabric_instance: str
+    ) -> dict[str, _ReferenceInformation]:
         references = {}
-        for key, value in entity.data_dict.items():
-            refs = cls.__extract_reference_dict(value, entity.bfabric_instance)
-            if refs:
-                references[key] = refs
+        for name, value in data_ref.items():
+            refs = cls.__extract_reference_info_item(name, value, bfabric_instance)
+            if refs is not None:
+                references[name] = refs
         return dict(references)
 
     @classmethod
-    def __extract_reference_dict(cls, value: Any, bfabric_instance: str) -> EntityUri | list[EntityUri] | None:
+    def __extract_reference_info_item(
+        cls, name: str, value: Any, bfabric_instance: str
+    ) -> _ReferenceInformation | None:
         if isinstance(value, dict) and "classname" in value and "id" in value:
-            return EntityUri.from_components(bfabric_instance, value["classname"], value["id"])
+            info = cls.__extract_reference_info_item_dict(value, bfabric_instance)
+            return _ReferenceInformation(name=name, uris=[info["uri"]], is_singular=True, is_loaded=info["is_loaded"])
+
         if isinstance(value, list):
-            refs = [cls.__extract_reference_dict(item, bfabric_instance) for item in value]
-            return [ref for ref in refs if ref is not None]
+            try:
+                refs = [cls.__extract_reference_info_item_dict(item, bfabric_instance) for item in value]
+            except KeyError:
+                logger.warning(f"Reference list '{name}' contains invalid items, skipping.")
+                return None
+
+            uris = [ref["uri"] for ref in refs]
+            is_loaded = all(ref["is_loaded"] for ref in refs)
+            return _ReferenceInformation(name=name, uris=uris, is_singular=False, is_loaded=is_loaded)
+
+    @classmethod
+    def __extract_reference_info_item_dict(
+        cls, value: dict[str, Any], bfabric_instance: str
+    ) -> dict[str, EntityUri | bool]:
+        uri = EntityUri.from_components(bfabric_instance, value["classname"], value["id"])
+        # TODO double check if this handles the more complex references
+        is_loaded = len(value) > 2
+        return {"uri": uri, "is_loaded": is_loaded}
