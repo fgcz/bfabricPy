@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from typing import Any, Self
 
 
-class Entity:
+class Entity(FindMixin):
     def __init__(
         self,
         data_dict: dict[str, Any],
@@ -62,6 +62,12 @@ class Entity:
     def _client(self) -> Bfabric | None:
         """Returns the client associated with the entity."""
         return self.__client
+
+    # @property
+    # def ENDPOINT(self) -> str:
+    #    # TODO deprecate and delete
+    #    warnings.warn("Entity.ENDPOINT is deprecated, use Entity.classname instead.", DeprecationWarning, stacklevel=2)
+    #    return self.classname
 
     @property
     def web_url(self) -> str:
