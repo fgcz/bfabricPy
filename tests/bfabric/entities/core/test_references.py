@@ -26,6 +26,7 @@ def entity_data_dict():
                 "email": "test@example.com",
             }
         ],
+        "technologies": ["proteomics", "genomics"],
     }
 
 

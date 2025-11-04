@@ -99,7 +99,7 @@ class References:
             info = cls.__extract_reference_info_item_dict(value, bfabric_instance)
             return _ReferenceInformation(name=name, uris=[info["uri"]], is_singular=True, is_loaded=info["is_loaded"])
 
-        if isinstance(value, list):
+        if isinstance(value, list) and all(isinstance(item, dict) for item in value):
             try:
                 refs = [cls.__extract_reference_info_item_dict(item, bfabric_instance) for item in value]
             except KeyError:
