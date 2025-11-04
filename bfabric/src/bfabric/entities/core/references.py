@@ -28,6 +28,8 @@ class References:
         # Retrieve information about all reference fields
         self._ref_info = self.__extract_reference_info(data_ref=data_ref, bfabric_instance=self._bfabric_instance)
 
+        self._cache = {}
+
     @property
     def uris(self) -> dict[str, EntityUri | list[EntityUri]]:
         """Returns a shallow copy of the reference URIs dictionary."""
@@ -40,6 +42,9 @@ class References:
         return self._ref_info[name].is_loaded
 
     def get(self, name: str) -> Any | None:
+        if name in self._cache:
+            return self._cache[name]
+
         ref_info = self._ref_info.get(name)
         if ref_info is None:
             return None
@@ -52,8 +57,10 @@ class References:
             for data_dict in data_dicts
         ]
         if ref_info.is_singular:
-            return entities[0]
-        return entities
+            self._cache[name] = entities[0]
+        else:
+            self._cache[name] = entities
+        return self._cache[name]
 
     def __getattr__(self, name: str) -> Any:
         value = self.get(name)
