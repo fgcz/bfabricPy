@@ -5,13 +5,14 @@ from typing import TYPE_CHECKING, Any
 
 from loguru import logger
 
-from bfabric.entities.core.generic import GenericEntity
+from bfabric.entities.core.import_entity import instantiate_entity
 from bfabric.entities.core.uri import EntityUri
 from bfabric.experimental import MultiQuery
 from bfabric.experimental.cache.context import get_cache_stack
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from bfabric.entities.core.entity import Entity
     from bfabric import Bfabric
 
 
@@ -21,11 +22,11 @@ class EntityReader:
     def __init__(self, client: Bfabric) -> None:
         self._client = client
 
-    def read_uri(self, uri: EntityUri | str) -> GenericEntity | None:
+    def read_uri(self, uri: EntityUri | str) -> Entity | None:
         logger.debug(f"Reading entity for URI: {uri}")
         return list(self.read_uris([uri]).values())[0]
 
-    def read_uris(self, uris: list[EntityUri | str]) -> dict[EntityUri, GenericEntity | None]:
+    def read_uris(self, uris: list[EntityUri | str]) -> dict[EntityUri, Entity | None]:
         uris = [EntityUri(uri) for uri in uris]
         logger.debug(f"Reading entities for URIs: {uris}")
         self._validate_uris(uris)
@@ -52,11 +53,18 @@ class EntityReader:
 
     def query_by(
         self, entity_type: str, obj: dict[str, Any], max_results: int | None = 100
-    ) -> dict[EntityUri, GenericEntity | None]:
+    ) -> dict[EntityUri, Entity | None]:
+
         logger.debug(f"Querying {entity_type} by {obj}")
         result = self._client.read(entity_type, obj=obj, max_results=max_results)
         cache_stack = get_cache_stack()
-        entities = {x.uri: x for x in [GenericEntity(r, client=self._client) for r in result]}
+        entities = {
+            x.uri: x
+            for x in [
+                instantiate_entity(data_dict=r, client=self._client, bfabric_instance=self._client.config.base_url)
+                for r in result
+            ]
+        }
         cache_stack.item_put_all(entities=entities.values())
         return entities
 
@@ -78,8 +86,9 @@ class EntityReader:
 
     def _retrieve_entities(
         self, uris_request: list[EntityUri], uris_cached: Iterable[EntityUri]
-    ) -> dict[EntityUri, GenericEntity]:
+    ) -> dict[EntityUri, Entity]:
         """Retrieves entities from B-Fabric that are not already in the cache"""
+
         # filter out cached URIs
         uris = [uri for uri in uris_request if uri not in set(uris_cached)]
         if len(uris) == 0:
@@ -94,4 +103,9 @@ class EntityReader:
         result = MultiQuery(self._client).read_multi(
             endpoint=entity_type, obj={}, multi_query_key="id", multi_query_vals=list(entity_ids.keys())
         )
-        return {entity_ids[x["id"]]: GenericEntity(x, client=self._client) for x in result}
+        return {
+            entity_ids[x["id"]]: instantiate_entity(
+                data_dict=x, client=self._client, bfabric_instance=self._client.config.base_url
+            )
+            for x in result
+        }
