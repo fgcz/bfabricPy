@@ -5,6 +5,7 @@ from typing import Any, TYPE_CHECKING
 from loguru import logger
 from pydantic import BaseModel
 
+from bfabric.entities.core.import_entity import instantiate_entity
 from bfabric.entities.core.uri import EntityUri
 
 if TYPE_CHECKING:
@@ -45,13 +46,10 @@ class References:
         if not ref_info.is_loaded:
             self.__load(ref_info=ref_info)
 
-        # TODO resolve the correct entity type, i guess we need to handle multiple different types in the same list
-        #      -> we need a factory it's the easiest solution instead of replicating the logic everywhere
-        from bfabric.entities.core.generic import Entity
-
         data_dicts = [self._data_ref[name]] if ref_info.is_singular else self._data_ref[name]
         entities = [
-            Entity(data_dict=data, client=self._client, bfabric_instance=self._bfabric_instance) for data in data_dicts
+            instantiate_entity(data_dict=data_dict, client=self._client, bfabric_instance=self._bfabric_instance)
+            for data_dict in data_dicts
         ]
         if ref_info.is_singular:
             return entities[0]

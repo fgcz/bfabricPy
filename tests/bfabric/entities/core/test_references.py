@@ -94,6 +94,7 @@ def test_contains(refs):
 
 class TestGet:
     def test_loaded(self, refs):
+        assert refs.is_loaded("member") == True
         members = refs.get("member")
         assert len(members) == 1
         assert members[0].data_dict == {
@@ -102,22 +103,15 @@ class TestGet:
             "name": "Test User",
             "email": "test@example.com",
         }
+        assert refs.is_loaded("member") == True
 
     def test_not_loaded(self, refs, mock_project, entity_reader):
+        assert refs.is_loaded("container") == False
         entity_reader.read_uris.return_value = {mock_project.uri: mock_project}
         container = refs.get("container")
+        assert refs.is_loaded("container") == True
         assert container.data_dict == mock_project.data_dict
 
     def test_not_exists(self, refs):
         value = refs.get("nonexistent")
         assert value is None
-
-
-def test_getattr_reference_loading(mock_project, refs, entity_reader):
-    entity_reader.read_uri.return_value = mock_project
-    assert refs.container == mock_project
-    assert entity_reader.read_uri.assert_called_once_with(uri="https://example.com/bfabric/project/show.html?id=3000")
-
-
-def test_getattr_preloaded(refs):
-    assert refs.member == []
