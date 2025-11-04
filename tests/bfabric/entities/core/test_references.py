@@ -1,6 +1,7 @@
 import pytest
 
 from bfabric import Bfabric
+from bfabric.entities import User, Project
 from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.references import References
 
@@ -103,6 +104,7 @@ class TestGet:
             "name": "Test User",
             "email": "test@example.com",
         }
+        assert isinstance(members[0], User)
         assert refs.is_loaded("member") == True
 
     def test_not_loaded(self, refs, mock_project, entity_reader):
@@ -110,6 +112,7 @@ class TestGet:
         entity_reader.read_uris.return_value = {mock_project.uri: mock_project}
         container = refs.get("container")
         assert refs.is_loaded("container") == True
+        assert isinstance(container, Project)
         assert container.data_dict == mock_project.data_dict
 
     def test_not_exists(self, refs):
