@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from contextvars import ContextVar
-from typing import TYPE_CHECKING, overload
+from typing import TYPE_CHECKING
 
 from bfabric.experimental.cache._cache_stack import CacheStack
 from bfabric.experimental.cache._entity_memory_cache import EntityMemoryCache
@@ -10,18 +10,6 @@ from bfabric.experimental.cache._entity_memory_cache import EntityMemoryCache
 if TYPE_CHECKING:
     from bfabric.entities.core.entity import Entity
     from collections.abc import Iterator
-
-
-@overload
-def cache_entities(entities: type[Entity], max_size: int) -> Iterator[None]: ...
-
-
-@overload
-def cache_entities(entities: list[type[Entity]], max_size: int) -> Iterator[None]: ...
-
-
-@overload
-def cache_entities(entities: dict[type[Entity], int]) -> Iterator[None]: ...
 
 
 @contextmanager

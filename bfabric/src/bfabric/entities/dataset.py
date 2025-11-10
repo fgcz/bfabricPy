@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import io
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from polars import DataFrame
 
@@ -9,18 +9,12 @@ from bfabric.entities.core.entity import Entity
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from bfabric import Bfabric
 
 
 class Dataset(Entity):
-    """Immutable representation of a single dataset in B-Fabric.
-    :param data_dict: The dictionary representation of the dataset.
-    """
+    """Representation of a single dataset in B-Fabric."""
 
     ENDPOINT: str = "dataset"
-
-    def __init__(self, data_dict: dict[str, Any], client: Bfabric | None = None) -> None:
-        super().__init__(data_dict=data_dict, client=client)
 
     @property
     def column_names(self) -> list[str]:
