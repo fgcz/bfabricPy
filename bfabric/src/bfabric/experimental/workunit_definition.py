@@ -26,7 +26,7 @@ class WorkunitExecutionDefinition(BaseModel):
     """Input dataset (for dataset-flow applications)"""
 
     resources: list[int] = []
-    """Input resources (for resource-flow applications"""
+    """Input resources (for resource-flow applications)"""
 
     @model_validator(mode="after")
     def either_dataset_or_resources(self) -> WorkunitExecutionDefinition:
