@@ -26,19 +26,19 @@ class Entity:
         client: Bfabric | None = None,
         bfabric_instance: str | None = None,
     ) -> None:
-        self.__data_dict = data_dict
+        self._data_dict = data_dict
         self.__client = client
         self.__bfabric_instance = bfabric_instance or (client.config.base_url if client is not None else None)
 
     @property
     def id(self) -> int:
         """Returns the entity's ID."""
-        return int(self.__data_dict["id"])
+        return int(self._data_dict["id"])
 
     @property
     def classname(self) -> str:
         """Returns the entity's classname."""
-        return self.__data_dict["classname"]
+        return self._data_dict["classname"]
 
     @property
     def uri(self) -> EntityUri:
@@ -60,7 +60,7 @@ class Entity:
     @property
     def data_dict(self) -> dict[str, Any]:
         """Returns a shallow copy of the entity's data dictionary."""
-        return self.__data_dict.copy()
+        return self._data_dict.copy()
 
     @property
     def _client(self) -> Bfabric | None:
@@ -109,7 +109,7 @@ class Entity:
     def dump_yaml(self, path: Path) -> None:
         """Writes the entity's data dictionary to a YAML file."""
         with path.open("w") as file:
-            yaml.safe_dump(self.__data_dict, file)
+            yaml.safe_dump(self._data_dict, file)
 
     @classmethod
     def load_yaml(cls, path: Path, client: Bfabric | None) -> Self:
@@ -120,15 +120,15 @@ class Entity:
 
     def __contains__(self, key: str) -> Any:
         """Checks if a key is present in the data dictionary."""
-        return key in self.__data_dict
+        return key in self._data_dict
 
     def __getitem__(self, key: str) -> Any:
         """Returns the value of a key in the data dictionary."""
-        return self.__data_dict[key]
+        return self._data_dict[key]
 
     def get(self, key: str, default: Any = None) -> Any:
         """Returns the value of a key in the data dictionary, or a default value if the key is not present."""
-        return self.__data_dict.get(key, default)
+        return self._data_dict.get(key, default)
 
     def __lt__(self, other: Entity) -> bool:
         """Compares the entity with another entity based on their IDs."""
@@ -137,8 +137,7 @@ class Entity:
         return self.id < other.id
 
     def __repr__(self) -> str:
-        """Returns the string representation of the workunit."""
-        return f"{self.__class__.__name__}({repr(self.__data_dict)}, client={repr(self.__client)})"
+        return f"{self.__class__.__name__}(data_dict={self.data_dict!r}, bfabric_instance={self.__bfabric_instance!r})"
 
     __str__ = __repr__
 
