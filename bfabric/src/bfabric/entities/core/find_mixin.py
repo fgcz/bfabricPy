@@ -20,14 +20,14 @@ class FindMixin:
     @classmethod
     def find(cls, id: int, client: Bfabric) -> Self | None:
         """Finds an entity by its ID, if it does not exist `None` is returned."""
-        return EntityReader(client=client).read_by_entity_id(entity_type=cls.ENDPOINT, entity_id=id)
+        return EntityReader(client=client).read_id(entity_type=cls.ENDPOINT, entity_id=id)
 
     @classmethod
     def find_all(cls, ids: list[int], client: Bfabric) -> dict[int, Self]:
         """Returns a dictionary of entities with the given IDs. The order will generally match the input, however,
         if some entities are not found they will be omitted and a warning will be logged.
         """
-        results = EntityReader(client=client).read_by_entity_ids(entity_type=cls.ENDPOINT, entity_ids=ids)
+        results = EntityReader(client=client).read_ids(entity_type=cls.ENDPOINT, entity_ids=ids)
         results_by_id = {uri.components.entity_id: item for uri, item in results.items()}
         return cls.__ensure_results_order(ids, results_by_id)
 
@@ -36,7 +36,7 @@ class FindMixin:
         """Returns a dictionary of entities that match the given query."""
         reader = EntityReader(client=client)
         bfabric_instance = client.config.base_url
-        results = reader.query_by(
+        results = reader.query(
             entity_type=cls.ENDPOINT, obj=obj, bfabric_instance=bfabric_instance, max_results=max_results
         )
         return {uri.components.entity_id: entity for uri, entity in results.items()}

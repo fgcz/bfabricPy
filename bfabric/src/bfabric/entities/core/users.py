@@ -39,7 +39,7 @@ class Users:
                 return user
 
         # retrieve
-        users = self._entity_reader.query_by(
+        users = self._entity_reader.query(
             entity_type="user", obj={"login": login}, bfabric_instance=self._bfabric_instance, max_results=1
         )
         if not users:
