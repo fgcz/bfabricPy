@@ -5,7 +5,7 @@ from typing import Any
 import polars as pl
 import polars.testing
 import pytest
-from pytest_mock import MockFixture, MockerFixture
+from pytest_mock import MockFixture
 
 from bfabric.entities.dataset import Dataset
 
@@ -38,11 +38,6 @@ def mock_data_dict_rearranged() -> dict[str, Any]:
             {"field": [{"value": "Circle", "attributeposition": "2"}, {"value": "Blue", "attributeposition": "1"}]},
         ],
     }
-
-
-@pytest.fixture()
-def mock_client(mocker: MockerFixture):
-    return mocker.MagicMock(name="mock_client")
 
 
 @pytest.fixture()

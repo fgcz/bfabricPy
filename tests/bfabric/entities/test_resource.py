@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from bfabric.entities import Resource, Storage
+from bfabric.entities import Resource
 
 
 @pytest.fixture
@@ -10,14 +10,14 @@ def data_dict():
     return {
         "id": 1,
         "name": "mismatched.txt",
-        "storage": {"classname": "storage", "id": 2},
+        "storage": {"classname": "storage", "id": 2, "basepath": "/test/storage"},
         "relativepath": "path/to/resource.txt",
     }
 
 
 @pytest.fixture()
-def resource(data_dict):
-    return Resource(data_dict)
+def resource(data_dict, mock_client, bfabric_instance):
+    return Resource(data_dict, client=mock_client, bfabric_instance=bfabric_instance)
 
 
 def test_storage_relative_path(resource):
@@ -33,10 +33,8 @@ def test_storage_relative_path(resource):
         ("/test/storage", "/path/to/resource.txt"),
     ],
 )
-def test_storage_absolute_path(mocker, data_dict, storage_path, resource_path):
-    data_dict["relativepath"] = resource_path
-    resource = Resource(data_dict)
-    mocker.patch.object(Storage, "find").return_value.base_path = storage_path
+def test_storage_absolute_path(resource, storage_path, resource_path):
+    resource._data_dict["relativepath"] = resource_path
     assert resource.storage_absolute_path == Path("/test/storage/path/to/resource.txt")
 
 
