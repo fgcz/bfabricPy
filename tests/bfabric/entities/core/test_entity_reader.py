@@ -255,7 +255,7 @@ class TestReadUris:
         assert uri_project_1 in result
 
 
-class TestReadByEntityId:
+class TestReadId:
     def test_read_single_entity(
         self,
         entity_reader,
@@ -270,7 +270,7 @@ class TestReadByEntityId:
         mock_multi_query.read_multi.return_value = [{"id": 100, "classname": "project", "name": "Project 1"}]
         mock_instantiate_entity.return_value = mock_entity_project_1
 
-        result = entity_reader.read_by_entity_id(entity_type="project", entity_id=100)
+        result = entity_reader.read_id(entity_type="project", entity_id=100)
 
         assert result == mock_entity_project_1
         mock_multi_query.read_multi.assert_called_once_with(
@@ -284,7 +284,7 @@ class TestReadByEntityId:
         mock_cache_stack.item_get_all.return_value = {}
         mock_multi_query.read_multi.return_value = []
 
-        result = entity_reader.read_by_entity_id(entity_type="project", entity_id=999)
+        result = entity_reader.read_id(entity_type="project", entity_id=999)
 
         assert result is None
 
@@ -302,12 +302,12 @@ class TestReadByEntityId:
         mock_multi_query.read_multi.return_value = [{"id": 100, "classname": "project", "name": "Project 1"}]
         mock_instantiate_entity.return_value = mock_entity_project_1
 
-        result = entity_reader.read_by_entity_id(entity_type="project", entity_id=100, bfabric_instance=custom_instance)
+        result = entity_reader.read_id(entity_type="project", entity_id=100, bfabric_instance=custom_instance)
 
         assert result == mock_entity_project_1
 
 
-class TestReadByEntityIds:
+class TestReadIds:
     def test_read_multiple_entities(
         self,
         entity_reader,
@@ -328,7 +328,7 @@ class TestReadByEntityIds:
         ]
         mock_instantiate_entity.side_effect = [mock_entity_project_1, mock_entity_project_2]
 
-        result = entity_reader.read_by_entity_ids(entity_type="project", entity_ids=[100, 200])
+        result = entity_reader.read_ids(entity_type="project", entity_ids=[100, 200])
 
         assert result == {uri_project_1: mock_entity_project_1, uri_project_2: mock_entity_project_2}
         mock_multi_query.read_multi.assert_called_once_with(
@@ -350,7 +350,7 @@ class TestReadByEntityIds:
         mock_multi_query.read_multi.return_value = [{"id": 100, "classname": "project", "name": "Project 1"}]
         mock_instantiate_entity.return_value = mock_entity_project_1
 
-        result = entity_reader.read_by_entity_ids(entity_type="project", entity_ids=[100, 999])
+        result = entity_reader.read_ids(entity_type="project", entity_ids=[100, 999])
 
         expected_uri_999 = EntityUri(f"{bfabric_instance}project/show.html?id=999")
         assert result == {uri_project_1: mock_entity_project_1, expected_uri_999: None}
@@ -360,7 +360,7 @@ class TestReadByEntityIds:
         mock_cache_stack.item_get_all.return_value = {}
         mock_multi_query.read_multi.return_value = []
 
-        result = entity_reader.read_by_entity_ids(entity_type="project", entity_ids=[999, 888])
+        result = entity_reader.read_ids(entity_type="project", entity_ids=[999, 888])
 
         expected_uri_999 = EntityUri(f"{bfabric_instance}project/show.html?id=999")
         expected_uri_888 = EntityUri(f"{bfabric_instance}project/show.html?id=888")
@@ -370,7 +370,7 @@ class TestReadByEntityIds:
         """Test reading an empty list of entity IDs."""
         mock_cache_stack.item_get_all.return_value = {}
 
-        result = entity_reader.read_by_entity_ids(entity_type="project", entity_ids=[])
+        result = entity_reader.read_ids(entity_type="project", entity_ids=[])
 
         assert result == {}
 
@@ -389,16 +389,14 @@ class TestReadByEntityIds:
         mock_multi_query.read_multi.return_value = [{"id": 100, "classname": "project", "name": "Project 1"}]
         mock_instantiate_entity.return_value = mock_entity_project_1
 
-        result = entity_reader.read_by_entity_ids(
-            entity_type="project", entity_ids=[100], bfabric_instance=custom_instance
-        )
+        result = entity_reader.read_ids(entity_type="project", entity_ids=[100], bfabric_instance=custom_instance)
 
         # Verify URI was constructed with custom instance
         expected_uri = EntityUri(f"{custom_instance}project/show.html?id=100")
         assert expected_uri in result
 
 
-class TestQueryBy:
+class TestQuery:
     def test_successful_query(
         self, entity_reader, mock_cache_stack, mock_client, bfabric_instance, mock_instantiate_entity
     ):
@@ -421,7 +419,7 @@ class TestQueryBy:
         )
         mock_instantiate_entity.side_effect = [mock_entity_1, mock_entity_2]
 
-        result = entity_reader.query_by(
+        result = entity_reader.query(
             entity_type="project", obj={"name": "Project"}, bfabric_instance=bfabric_instance, max_results=10
         )
 
@@ -436,7 +434,7 @@ class TestQueryBy:
         mock_cache_stack.item_get_all.return_value = {}
         mock_client.read.return_value = []
 
-        result = entity_reader.query_by(
+        result = entity_reader.query(
             entity_type="project", obj={"name": "Nonexistent"}, bfabric_instance=bfabric_instance
         )
 
@@ -447,7 +445,7 @@ class TestQueryBy:
         different_instance = "https://other-instance.example.org/bfabric/"
 
         with pytest.raises(ValueError) as exc_info:
-            entity_reader.query_by(entity_type="project", obj={}, bfabric_instance=different_instance, max_results=100)
+            entity_reader.query(entity_type="project", obj={}, bfabric_instance=different_instance, max_results=100)
 
         assert f"Unsupported B-Fabric instance: {different_instance}" in str(exc_info.value)
 
