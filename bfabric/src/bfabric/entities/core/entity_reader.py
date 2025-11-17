@@ -11,7 +11,6 @@ from bfabric.experimental import MultiQuery
 from bfabric.experimental.cache.context import get_cache_stack
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
     from bfabric.entities.core.entity import Entity
     from bfabric import Bfabric
 
@@ -39,8 +38,10 @@ class EntityReader:
         results = {}
         for entity_type, uris_group in grouped.items():
             results_cached = cache_stack.item_get_all(uris_group)
-            results_fresh = self._retrieve_entities(uris_group, results_cached.keys())
-            cache_stack.item_put_all(entities=results_fresh.values())
+            uris_to_retrieve = [uri for uri in uris_group if uri not in results_cached]
+            results_fresh = self._retrieve_entities(uris_to_retrieve)
+            if results_fresh:
+                cache_stack.item_put_all(entities=results_fresh.values())
             results.update(results_cached)
             results.update(results_fresh)
 
@@ -90,19 +91,16 @@ class EntityReader:
                 f"Unsupported B-Fabric instances: {unsupported_instances} != {self._client.config.base_url}"
             )
 
-    def _retrieve_entities(
-        self, uris_request: list[EntityUri], uris_cached: Iterable[EntityUri]
-    ) -> dict[EntityUri, Entity]:
-        """Retrieves entities from B-Fabric that are not already in the cache"""
-
-        # filter out cached URIs
-        uris = [uri for uri in uris_request if uri not in set(uris_cached)]
+    def _retrieve_entities(self, uris: list[EntityUri]) -> dict[EntityUri, Entity]:
+        """Retrieves entities from B-Fabric"""
         if len(uris) == 0:
             return {}
 
         # check pre-condition that all URIs are of the same entity type and instance
-        assert len({uri.components.bfabric_instance for uri in uris}) == 1
-        assert len({uri.components.entity_type for uri in uris}) == 1
+        if len({uri.components.bfabric_instance for uri in uris}) != 1:
+            raise ValueError("All URIs must be from the same B-Fabric instance")
+        if len({uri.components.entity_type for uri in uris}) != 1:
+            raise ValueError("All URIs must be of the same entity type")
         entity_type = uris[0].components.entity_type
 
         entity_ids = {uri.components.entity_id: uri for uri in uris}
