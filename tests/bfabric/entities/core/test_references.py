@@ -120,6 +120,12 @@ class TestGet:
         assert isinstance(members[0], User)
         assert refs.is_loaded("member") == True
 
+    def test_caching(self, refs, mock_user, mock_project, entity_reader):
+        # NOTE: There is some overlap with the remaining tests
+        entity_reader.read_uris.return_value = {mock_project.uri: mock_project, mock_user.uri: mock_user}
+        assert refs.get("member") is refs.get("member")
+        assert refs.get("container") is refs.get("container")
+
     @pytest.mark.parametrize("refs_loaded", [False], indirect=True)
     def test_not_loaded_singular(self, refs, mock_project, entity_reader):
         assert refs.is_loaded("container") == False
@@ -142,3 +148,17 @@ class TestGet:
     def test_not_exists(self, refs):
         value = refs.get("nonexistent")
         assert value is None
+
+
+class TestGetAttr:
+    def test_when_present(self, mocker, refs):
+        entity = mocker.MagicMock(name="entity")
+        mocker.patch.object(refs, "get").return_value = entity
+        assert refs.container == entity
+        assert refs.member == entity
+
+    def test_when_missing(self, mocker, refs):
+        mocker.patch.object(refs, "get").return_value = None
+        with pytest.raises(AttributeError) as error:
+            _ = refs.container
+        assert str(error.value) == "'References' object has no attribute 'container'"
