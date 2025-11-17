@@ -4,6 +4,7 @@ from typing import Generic, TypeVar, TYPE_CHECKING
 
 from polars import DataFrame
 
+
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
@@ -26,24 +27,21 @@ class HasMany(Generic[E]):
         self._optional = optional
 
     def __get__(self, obj: T | None, objtype: type[T] | None = None) -> _HasManyProxy[E]:
-        if obj is None:
-            raise ValueError("Cannot access HasMany relationship on class")
-
-        items = obj.refs.get(self._bfabric_field)
-        if items is None and not self._optional:
+        items_list = obj.refs.get(self._bfabric_field)
+        if items_list is None and not self._optional:
             raise ValueError(f"Missing field: {self._bfabric_field}")
-        items = items or []
+        items_list = items_list or []
+        items = {entity.id: entity for entity in items_list}
         return _HasManyProxy(items=items)
 
 
 class _HasManyProxy(Generic[E]):
-    def __init__(self, items: list[E]) -> None:
+    def __init__(self, items: dict[int, E]) -> None:
         self._items = items
 
     @property
     def ids(self) -> list[int]:
-        # TODO re-optimize
-        return [item.id for item in self._items]
+        return sorted(self._items.keys())
 
     @property
     def list(self) -> list[E]:
