@@ -12,6 +12,9 @@ if TYPE_CHECKING:
     from typing import Any, Self
 
 
+# TODO provide clear alternative API and deprecate this mixin so it can be dropped
+
+
 class FindMixin:
     ENDPOINT: str = ""
 
