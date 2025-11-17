@@ -255,6 +255,149 @@ class TestReadUris:
         assert uri_project_1 in result
 
 
+class TestReadByEntityId:
+    def test_read_single_entity(
+        self,
+        entity_reader,
+        mock_cache_stack,
+        mock_multi_query,
+        mock_instantiate_entity,
+        mock_entity_project_1,
+        bfabric_instance,
+    ):
+        """Test reading a single entity by ID."""
+        mock_cache_stack.item_get_all.return_value = {}
+        mock_multi_query.read_multi.return_value = [{"id": 100, "classname": "project", "name": "Project 1"}]
+        mock_instantiate_entity.return_value = mock_entity_project_1
+
+        result = entity_reader.read_by_entity_id(entity_type="project", entity_id=100)
+
+        assert result == mock_entity_project_1
+        mock_multi_query.read_multi.assert_called_once_with(
+            endpoint="project", obj={}, multi_query_key="id", multi_query_vals=[100]
+        )
+
+    def test_read_missing_entity_returns_none(
+        self, entity_reader, mock_cache_stack, mock_multi_query, bfabric_instance
+    ):
+        """Test that reading a non-existent entity returns None."""
+        mock_cache_stack.item_get_all.return_value = {}
+        mock_multi_query.read_multi.return_value = []
+
+        result = entity_reader.read_by_entity_id(entity_type="project", entity_id=999)
+
+        assert result is None
+
+    def test_with_custom_bfabric_instance(
+        self,
+        entity_reader,
+        mock_cache_stack,
+        mock_multi_query,
+        mock_instantiate_entity,
+        mock_entity_project_1,
+    ):
+        """Test reading with a custom bfabric_instance."""
+        custom_instance = "https://bfabric.example.org/bfabric/"
+        mock_cache_stack.item_get_all.return_value = {}
+        mock_multi_query.read_multi.return_value = [{"id": 100, "classname": "project", "name": "Project 1"}]
+        mock_instantiate_entity.return_value = mock_entity_project_1
+
+        result = entity_reader.read_by_entity_id(entity_type="project", entity_id=100, bfabric_instance=custom_instance)
+
+        assert result == mock_entity_project_1
+
+
+class TestReadByEntityIds:
+    def test_read_multiple_entities(
+        self,
+        entity_reader,
+        mock_cache_stack,
+        mock_multi_query,
+        mock_instantiate_entity,
+        uri_project_1,
+        uri_project_2,
+        mock_entity_project_1,
+        mock_entity_project_2,
+        bfabric_instance,
+    ):
+        """Test reading multiple entities by IDs."""
+        mock_cache_stack.item_get_all.return_value = {}
+        mock_multi_query.read_multi.return_value = [
+            {"id": 100, "classname": "project", "name": "Project 1"},
+            {"id": 200, "classname": "project", "name": "Project 2"},
+        ]
+        mock_instantiate_entity.side_effect = [mock_entity_project_1, mock_entity_project_2]
+
+        result = entity_reader.read_by_entity_ids(entity_type="project", entity_ids=[100, 200])
+
+        assert result == {uri_project_1: mock_entity_project_1, uri_project_2: mock_entity_project_2}
+        mock_multi_query.read_multi.assert_called_once_with(
+            endpoint="project", obj={}, multi_query_key="id", multi_query_vals=[100, 200]
+        )
+
+    def test_some_missing_entities(
+        self,
+        entity_reader,
+        mock_cache_stack,
+        mock_multi_query,
+        mock_instantiate_entity,
+        uri_project_1,
+        mock_entity_project_1,
+        bfabric_instance,
+    ):
+        """Test reading when some entities don't exist."""
+        mock_cache_stack.item_get_all.return_value = {}
+        mock_multi_query.read_multi.return_value = [{"id": 100, "classname": "project", "name": "Project 1"}]
+        mock_instantiate_entity.return_value = mock_entity_project_1
+
+        result = entity_reader.read_by_entity_ids(entity_type="project", entity_ids=[100, 999])
+
+        expected_uri_999 = EntityUri(f"{bfabric_instance}project/show.html?id=999")
+        assert result == {uri_project_1: mock_entity_project_1, expected_uri_999: None}
+
+    def test_all_missing_entities(self, entity_reader, mock_cache_stack, mock_multi_query, bfabric_instance):
+        """Test reading when all entities don't exist."""
+        mock_cache_stack.item_get_all.return_value = {}
+        mock_multi_query.read_multi.return_value = []
+
+        result = entity_reader.read_by_entity_ids(entity_type="project", entity_ids=[999, 888])
+
+        expected_uri_999 = EntityUri(f"{bfabric_instance}project/show.html?id=999")
+        expected_uri_888 = EntityUri(f"{bfabric_instance}project/show.html?id=888")
+        assert result == {expected_uri_999: None, expected_uri_888: None}
+
+    def test_empty_list(self, entity_reader, mock_cache_stack):
+        """Test reading an empty list of entity IDs."""
+        mock_cache_stack.item_get_all.return_value = {}
+
+        result = entity_reader.read_by_entity_ids(entity_type="project", entity_ids=[])
+
+        assert result == {}
+
+    def test_with_custom_bfabric_instance(
+        self,
+        entity_reader,
+        mock_cache_stack,
+        mock_multi_query,
+        mock_instantiate_entity,
+        mock_entity_project_1,
+        bfabric_instance,
+    ):
+        """Test reading with a custom bfabric_instance."""
+        custom_instance = "https://bfabric.example.org/bfabric/"
+        mock_cache_stack.item_get_all.return_value = {}
+        mock_multi_query.read_multi.return_value = [{"id": 100, "classname": "project", "name": "Project 1"}]
+        mock_instantiate_entity.return_value = mock_entity_project_1
+
+        result = entity_reader.read_by_entity_ids(
+            entity_type="project", entity_ids=[100], bfabric_instance=custom_instance
+        )
+
+        # Verify URI was constructed with custom instance
+        expected_uri = EntityUri(f"{custom_instance}project/show.html?id=100")
+        assert expected_uri in result
+
+
 class TestQueryBy:
     def test_successful_query(
         self, entity_reader, mock_cache_stack, mock_client, bfabric_instance, mock_instantiate_entity
