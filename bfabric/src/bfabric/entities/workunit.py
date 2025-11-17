@@ -27,11 +27,11 @@ class Workunit(Entity, HasContainerMixin, UserCreatedMixin):
 
     ENDPOINT = "workunit"
 
-    application: HasOne[Application] = HasOne(entity="Application", bfabric_field="application")
+    application: HasOne[Application] = HasOne(bfabric_field="application")
     parameters: HasMany[Parameter] = HasMany(entity="Parameter", bfabric_field="parameter", optional=True)
     resources: HasMany[Resource] = HasMany(entity="Resource", bfabric_field="resource", optional=True)
     input_resources: HasMany[Resource] = HasMany(entity="Resource", bfabric_field="inputresource", optional=True)
-    input_dataset: HasOne[Dataset] = HasOne(entity="Dataset", bfabric_field="inputdataset", optional=True)
+    input_dataset: HasOne[Dataset] = HasOne(bfabric_field="inputdataset", optional=True)
     external_jobs: HasMany[ExternalJob] = HasMany(entity="ExternalJob", bfabric_field="externaljob", optional=True)
 
     @cached_property
