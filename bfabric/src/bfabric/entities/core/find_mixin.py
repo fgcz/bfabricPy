@@ -28,7 +28,7 @@ class FindMixin:
         if some entities are not found they will be omitted and a warning will be logged.
         """
         results = EntityReader(client=client).read_ids(entity_type=cls.ENDPOINT, entity_ids=ids)
-        results_by_id = {uri.components.entity_id: item for uri, item in results.items()}
+        results_by_id = {uri.components.entity_id: item for uri, item in results.items() if item is not None}
         return cls.__ensure_results_order(ids, results_by_id)
 
     @classmethod
