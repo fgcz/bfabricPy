@@ -115,6 +115,7 @@ def cmd_workunit_not_available(
     ).values()
     workunits = sort_workunits_by(workunits, sort_by)
     if not include_user and not exclude_user:
+        # TODO This can lead to the false impression that no workunits are not available
         exclude_user = ["gfeeder", "itfeeder"]
     workunits = filter_workunits_by_user(workunits, exclude_user)
     render_output(workunits, client=client)

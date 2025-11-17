@@ -20,9 +20,17 @@ if TYPE_CHECKING:
 class Entity:
     ENDPOINT: str = ""
 
-    def __init__(self, data_dict: dict[str, Any], client: Bfabric | None = None) -> None:
+    def __init__(
+        self,
+        data_dict: dict[str, Any],
+        client: Bfabric | None = None,
+        bfabric_instance: str | None = None,
+    ) -> None:
         self.__data_dict = data_dict
         self.__client = client
+        self.__bfabric_instance = bfabric_instance or (
+            client.config.base_url if client is not None and client.config is not None else None
+        )
 
     @property
     def id(self) -> int:
@@ -41,7 +49,7 @@ class Entity:
             msg = "Cannot generate a URI without a client's config information."
             raise ValueError(msg)
         return EntityUri.from_components(
-            bfabric_instance=self._client.config.base_url, entity_type=self.ENDPOINT, entity_id=self.id
+            bfabric_instance=self.__bfabric_instance, entity_type=self.classname, entity_id=self.id
         )
 
     @property

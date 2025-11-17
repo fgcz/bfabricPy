@@ -1,5 +1,7 @@
 from __future__ import annotations
-from typing import Annotated, Any
+
+from collections import defaultdict
+from typing import Annotated, Any, TYPE_CHECKING
 import urllib.parse
 from pydantic import (
     HttpUrl,
@@ -8,10 +10,14 @@ from pydantic import (
     StringConstraints,
     AfterValidator,
     TypeAdapter,
+    ConfigDict,
 )
 import re
 
 from pydantic_core import core_schema
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 _URI_REGEX = re.compile(
     r"^(?P<bfabric_instance>https://[^/]+/bfabric/)(?P<entity_type>\w+)/show\.html\?id=(?P<entity_id>\d+)$"
@@ -75,6 +81,28 @@ class EntityUriComponents(BaseModel):
     def as_uri(self) -> EntityUri:
         uri = urllib.parse.urljoin(f"{self.bfabric_instance}/", f"{self.entity_type}/show.html?id={self.entity_id}")
         return EntityUri(uri)
+
+
+class GroupedUris(BaseModel):
+    class GroupKey(BaseModel):
+        model_config = ConfigDict(frozen=True)
+        bfabric_instance: str
+        entity_type: str
+
+    groups: dict[GroupKey, list[EntityUri]] = {}
+
+    def items(self) -> Iterator[tuple[GroupKey, list[EntityUri]]]:
+        yield from self.groups.items()
+
+    @classmethod
+    def from_uris(cls, uris: list[EntityUri]) -> GroupedUris:
+        groups = defaultdict(list)
+        for uri in uris:
+            key = cls.GroupKey(
+                bfabric_instance=str(uri.components.bfabric_instance), entity_type=uri.components.entity_type
+            )
+            groups[key].append(uri)
+        return cls(groups=dict(groups))
 
 
 def _parse_uri_components(uri: str) -> EntityUriComponents:
