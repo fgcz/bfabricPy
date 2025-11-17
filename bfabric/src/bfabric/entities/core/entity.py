@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 class Entity:
     ENDPOINT: str = ""
 
-    def __init__(self, data_dict: dict[str, Any], client: Bfabric | None) -> None:
+    def __init__(self, data_dict: dict[str, Any], client: Bfabric | None = None) -> None:
         self.__data_dict = data_dict
         self.__client = client
 
