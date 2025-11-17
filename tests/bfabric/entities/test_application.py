@@ -13,7 +13,7 @@ from bfabric.entities import Application
         ("Proteomics", "Proteomics"),
     ],
 )
-def test_technology_folder_name(technology_value, expected_technology):
+def test_technology_folder_name(technology_value, expected_technology, bfabric_instance):
     data_dict = {"technology": technology_value}
-    application = Application(data_dict=data_dict, client=None)
+    application = Application(data_dict=data_dict, client=None, bfabric_instance=bfabric_instance)
     assert application.technology_folder_name == expected_technology

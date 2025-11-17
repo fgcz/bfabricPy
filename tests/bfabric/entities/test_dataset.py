@@ -46,8 +46,8 @@ def mock_client(mocker: MockerFixture):
 
 
 @pytest.fixture()
-def mock_dataset(mock_data_dict: dict[str, Any], mock_client) -> Dataset:
-    return Dataset(mock_data_dict, client=mock_client)
+def mock_dataset(mock_data_dict: dict[str, Any], mock_client, bfabric_instance) -> Dataset:
+    return Dataset(mock_data_dict, client=mock_client, bfabric_instance=bfabric_instance)
 
 
 @pytest.fixture()
@@ -114,11 +114,14 @@ def test_get_parquet(mock_dataset: Dataset) -> None:
 
 
 def test_repr(mock_empty_dataset: Dataset) -> None:
-    assert repr(mock_empty_dataset) == "Dataset({'id': 1234, 'attribute': [], 'item': []}, client=None)"
+    assert (
+        repr(mock_empty_dataset)
+        == "Dataset(data_dict={'id': 1234, 'attribute': [], 'item': []}, bfabric_instance=None)"
+    )
 
 
 def test_str(mock_empty_dataset: Dataset) -> None:
-    assert str(mock_empty_dataset) == "Dataset({'id': 1234, 'attribute': [], 'item': []}, client=None)"
+    assert str(mock_empty_dataset) == repr(mock_empty_dataset)
 
 
 if __name__ == "__main__":
