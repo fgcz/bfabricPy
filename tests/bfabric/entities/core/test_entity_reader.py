@@ -254,6 +254,14 @@ class TestReadUris:
 
         assert uri_project_1 in result
 
+    def test_unsupported_instance_raises_error(self, entity_reader, uri_project_1, uri_wrong_instance):
+        """Test that URIs from unsupported instances raise ValueError."""
+        with pytest.raises(ValueError) as exc_info:
+            entity_reader.read_uris([uri_project_1, uri_wrong_instance])
+
+        assert "Unsupported B-Fabric instances" in str(exc_info.value)
+        assert "https://other-instance.example.org/bfabric/" in str(exc_info.value)
+
 
 class TestReadId:
     def test_read_single_entity(
@@ -448,51 +456,6 @@ class TestQuery:
             entity_reader.query(entity_type="project", obj={}, bfabric_instance=different_instance, max_results=100)
 
         assert f"Unsupported B-Fabric instance: {different_instance}" in str(exc_info.value)
-
-
-class TestGroupByEntityType:
-    def test_single_entity_type(self, uri_project_1, uri_project_2):
-        """Test grouping URIs of a single entity type."""
-        result = EntityReader._group_by_entity_type([uri_project_1, uri_project_2])
-
-        assert result == {"project": [uri_project_1, uri_project_2]}
-
-    def test_multiple_entity_types(self, uri_project_1, uri_project_2, uri_user_1, uri_user_2):
-        """Test grouping URIs of multiple entity types."""
-        result = EntityReader._group_by_entity_type([uri_project_1, uri_user_1, uri_project_2, uri_user_2])
-
-        assert result == {
-            "project": [uri_project_1, uri_project_2],
-            "user": [uri_user_1, uri_user_2],
-        }
-
-    def test_empty_list(self):
-        """Test grouping an empty list."""
-        result = EntityReader._group_by_entity_type([])
-
-        assert result == {}
-
-
-class TestValidateUris:
-    def test_valid_uris(self, entity_reader, uri_project_1, uri_user_1):
-        """Test that valid URIs pass validation."""
-        # Should not raise
-        entity_reader._validate_uris([uri_project_1, uri_user_1])
-
-    def test_unsupported_instance_raises_error(self, entity_reader, uri_project_1, uri_wrong_instance):
-        """Test that URIs from unsupported instances raise ValueError."""
-        with pytest.raises(ValueError) as exc_info:
-            entity_reader._validate_uris([uri_project_1, uri_wrong_instance])
-
-        assert "Unsupported B-Fabric instances" in str(exc_info.value)
-        assert "https://other-instance.example.org/bfabric/" in str(exc_info.value)
-
-    def test_all_wrong_instances_raises_error(self, entity_reader, uri_wrong_instance):
-        """Test that all wrong instances raise ValueError."""
-        with pytest.raises(ValueError) as exc_info:
-            entity_reader._validate_uris([uri_wrong_instance])
-
-        assert "Unsupported B-Fabric instances" in str(exc_info.value)
 
 
 class TestRetrieveEntities:
