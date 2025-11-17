@@ -63,7 +63,7 @@ class Entity(FindMixin):
 
     @cached_property
     def refs(self) -> References:
-        return References(client=self._client, data_ref=self._data_dict)
+        return References(client=self._client, bfabric_instance=self.__bfabric_instance, data_ref=self._data_dict)
 
     @property
     def data_dict(self) -> dict[str, Any]:

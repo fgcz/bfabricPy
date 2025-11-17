@@ -20,9 +20,9 @@ class _ReferenceInformation(BaseModel):
 
 
 class References:
-    def __init__(self, client: Bfabric, data_ref: dict[str, Any]) -> None:
+    def __init__(self, client: Bfabric, bfabric_instance: str, data_ref: dict[str, Any]) -> None:
         self._client = client
-        self._bfabric_instance = client.config.base_url
+        self._bfabric_instance = bfabric_instance
         self._data_ref = data_ref
 
         # Retrieve information about all reference fields
