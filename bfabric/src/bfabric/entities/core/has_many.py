@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Generic, TypeVar, TYPE_CHECKING
 
+import polars as pl
 from polars import DataFrame
-
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -27,36 +27,35 @@ class HasMany(Generic[E]):
         self._optional = optional
 
     def __get__(self, obj: T | None, objtype: type[T] | None = None) -> _HasManyProxy[E]:
-        items_list = obj.refs.get(self._bfabric_field)
-        if items_list is None and not self._optional:
+        items = obj.refs.get(self._bfabric_field)
+        if items is None and not self._optional:
             raise ValueError(f"Missing field: {self._bfabric_field}")
-        items_list = items_list or []
-        items = {entity.id: entity for entity in items_list}
+        items = items or []
         return _HasManyProxy(items=items)
 
 
 class _HasManyProxy(Generic[E]):
-    def __init__(self, items: dict[int, E]) -> None:
+    def __init__(self, items: list[E]) -> None:
         self._items = items
 
     @property
     def ids(self) -> list[int]:
-        return sorted(self._items.keys())
+        return [item.id for item in self._items]
 
     @property
     def list(self) -> list[E]:
-        return sorted(self._items.values(), key=lambda x: self._items.keys())
+        return self._items.copy()
 
     @property
     def polars(self) -> DataFrame:
-        return DataFrame([x.data_dict for x in self._items.values()])
+        return pl.from_dicts([x.data_dict for x in self._items])
 
     def __getitem__(self, key: int) -> E:
         # TODO should key=0 map to first element etc instead? this can be a bit confusing at times
         return self._items[key]
 
     def __iter__(self) -> Iterator[E]:
-        return iter(sorted(self._items.values(), key=lambda x: self._items.keys()))
+        return iter(self._items)
 
     def __len__(self) -> int:
         return len(self._items)
