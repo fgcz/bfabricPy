@@ -5,21 +5,28 @@ from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.references import References
 
 
+@pytest.fixture(params=[True, False])
+def refs_loaded(request) -> bool:
+    if hasattr(request, "param"):
+        return request.param
+    return True
+
+
 @pytest.fixture
-def entity_data_dict():
+def entity_data_dict(refs_loaded):
+    container = {"id": 3000, "classname": "project"}
+    member = {"id": 1, "classname": "user"}
+    if refs_loaded:
+        container["name"] = "Test Project"
+        member["name"] = "Test User"
+        member["email"] = "test@bfabric.example.org"
+
     return {
         "id": 42,
         "classname": "order",
         "name": "Test Order",
-        "container": {"id": 3000, "classname": "project"},
-        "member": [
-            {
-                "id": 1,
-                "classname": "user",
-                "name": "Test User",
-                "email": "test@bfabric.example.org",
-            }
-        ],
+        "container": container,
+        "member": [member],
         "technologies": ["proteomics", "genomics"],
     }
 
@@ -46,10 +53,18 @@ def entity_reader(mocker, entity_reader_constructor):
 
 @pytest.fixture
 def mock_project(mocker, bfabric_instance):
-    mock_project = mocker.MagicMock(name="mock_entity")
-    mock_project.uri = f"{bfabric_instance}project/show.html?id=3000"
-    mock_project.data_dict = {"id": 3000, "classname": "project", "name": "Mock Project"}
-    return mock_project
+    project = mocker.MagicMock(name="mock_project")
+    project.uri = f"{bfabric_instance}project/show.html?id=3000"
+    project.data_dict = {"id": 3000, "classname": "project", "name": "Mock Project"}
+    return project
+
+
+@pytest.fixture
+def mock_user(mocker, bfabric_instance):
+    user = mocker.MagicMock(name="mock_user")
+    user.uri = f"{bfabric_instance}user/show.html?id=1"
+    user.data_dict = {"id": 1, "classname": "user", "name": "Test User", "email": "test@bfabric.example.org"}
+    return user
 
 
 @pytest.fixture
@@ -65,11 +80,9 @@ def test_uris(refs):
 
 
 class TestIsLoaded:
-    def test_loaded(self, refs):
-        assert refs.is_loaded("member") == True
-
-    def test_not_loaded(self, refs):
-        assert refs.is_loaded("container") == False
+    def test_loaded(self, refs, refs_loaded):
+        assert refs.is_loaded("member") == refs_loaded
+        assert refs.is_loaded("container") == refs_loaded
 
     def test_not_exists(self, refs):
         with pytest.raises(KeyError):
@@ -83,7 +96,18 @@ def test_contains(refs):
 
 
 class TestGet:
-    def test_loaded(self, refs):
+    @pytest.mark.parametrize("refs_loaded", [True], indirect=True)
+    def test_loaded_singular(self, refs):
+        assert refs.is_loaded("container") == True
+        container = refs.get("container")
+        assert container.data_dict == {
+            "id": 3000,
+            "classname": "project",
+            "name": "Test Project",
+        }
+
+    @pytest.mark.parametrize("refs_loaded", [True], indirect=True)
+    def test_loaded_multiple(self, refs):
         assert refs.is_loaded("member") == True
         members = refs.get("member")
         assert len(members) == 1
@@ -96,13 +120,24 @@ class TestGet:
         assert isinstance(members[0], User)
         assert refs.is_loaded("member") == True
 
-    def test_not_loaded(self, refs, mock_project, entity_reader):
+    @pytest.mark.parametrize("refs_loaded", [False], indirect=True)
+    def test_not_loaded_singular(self, refs, mock_project, entity_reader):
         assert refs.is_loaded("container") == False
         entity_reader.read_uris.return_value = {mock_project.uri: mock_project}
         container = refs.get("container")
         assert refs.is_loaded("container") == True
         assert isinstance(container, Project)
         assert container.data_dict == mock_project.data_dict
+
+    @pytest.mark.parametrize("refs_loaded", [False], indirect=True)
+    def test_not_loaded_multiple(self, refs, mock_user, entity_reader):
+        assert refs.is_loaded("member") == False
+        entity_reader.read_uris.return_value = {mock_user.uri: mock_user}
+        members = refs.get("member")
+        assert len(members) == 1
+        assert refs.is_loaded("member") == True
+        assert isinstance(members[0], User)
+        assert members[0].data_dict == mock_user.data_dict
 
     def test_not_exists(self, refs):
         value = refs.get("nonexistent")

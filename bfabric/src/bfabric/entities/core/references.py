@@ -81,7 +81,6 @@ class References:
         if ref_info.is_singular:
             self._data_ref[ref_info.name].update(entities[ref_info.uris[0]].data_dict)
         else:
-            # TODO does this need some more testing?
             indices_map = {uri: idx for idx, uri in enumerate(ref_info.uris)}
             for entry_uri in ref_info.uris:
                 self._data_ref[ref_info.name][indices_map[entry_uri]].update(entities[entry_uri].data_dict)
