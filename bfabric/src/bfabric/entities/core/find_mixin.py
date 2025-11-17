@@ -43,7 +43,10 @@ class FindMixin:
     def find_by(cls, obj: dict[str, Any], client: Bfabric, max_results: int | None = 100) -> dict[int, Self]:
         """Returns a dictionary of entities that match the given query."""
         reader = EntityReader(client=client)
-        results = reader.query_by(entity_type=cls.ENDPOINT, obj=obj, max_results=max_results)
+        bfabric_instance = client.config.base_url
+        results = reader.query_by(
+            entity_type=cls.ENDPOINT, obj=obj, bfabric_instance=bfabric_instance, max_results=max_results
+        )
         return {uri.components.entity_id: entity for uri, entity in results.items()}
 
     @classmethod

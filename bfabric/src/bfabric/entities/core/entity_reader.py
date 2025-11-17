@@ -52,8 +52,15 @@ class EntityReader:
         return results
 
     def query_by(
-        self, entity_type: str, obj: dict[str, Any], max_results: int | None = 100
+        self,
+        entity_type: str,
+        obj: dict[str, Any],
+        bfabric_instance: str,
+        max_results: int | None = 100,
     ) -> dict[EntityUri, Entity | None]:
+        # TODO limitation of the current implementation
+        if bfabric_instance != self._client.config.base_url:
+            raise ValueError(f"Unsupported B-Fabric instance: {bfabric_instance} != {self._client.config.base_url}")
 
         logger.debug(f"Querying {entity_type} by {obj}")
         result = self._client.read(entity_type, obj=obj, max_results=max_results)
@@ -61,8 +68,7 @@ class EntityReader:
         entities = {
             x.uri: x
             for x in [
-                instantiate_entity(data_dict=r, client=self._client, bfabric_instance=self._client.config.base_url)
-                for r in result
+                instantiate_entity(data_dict=r, client=self._client, bfabric_instance=bfabric_instance) for r in result
             ]
         }
         cache_stack.item_put_all(entities=entities.values())
