@@ -2,10 +2,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from pytest_mock import MockerFixture
 
-from bfabric import Bfabric
-from bfabric.entities import Project, Order
 from bfabric.entities.core.has_many import HasMany
 from bfabric.entities.parameter import Parameter
 from bfabric.entities.resource import Resource
@@ -18,8 +15,14 @@ def mock_data_dict() -> dict[str, Any]:
         "id": 30000,
         "classname": "workunit",
         "created": "2024-01-02 03:04:05",
-        "application": {"classname": "application", "id": 1000},
-        "container": {"classname": "project", "id": 3000},
+        "application": {
+            "classname": "application",
+            "id": 1000,
+            "name": "my app",
+            "storage": {"classname": "storage", "id": 2000, "projectfolderprefix": "xyz"},
+            "technology": ["Tech"],
+        },
+        "container": {"classname": "project", "id": 3000, "name": "test container"},
         "exportable": "true",
         "parameter": [
             {"classname": "parameter", "id": 8118},
@@ -31,20 +34,8 @@ def mock_data_dict() -> dict[str, Any]:
 
 
 @pytest.fixture()
-def mock_client_config(mocker: MockerFixture):
-    mock = mocker.MagicMock(name="mock_client_config")
-    mock.base_url = "https://example.com/bfabric/"
-    return mock
-
-
-@pytest.fixture()
-def mock_client(mocker: MockerFixture, mock_client_config):
-    return mocker.MagicMock(name="mock_client", config=mock_client_config, spec=Bfabric)
-
-
-@pytest.fixture()
-def mock_workunit(mock_data_dict: dict[str, Any], mock_client) -> Workunit:
-    return Workunit(mock_data_dict, client=mock_client)
+def mock_workunit(mock_data_dict: dict[str, Any], mock_client, bfabric_instance) -> Workunit:
+    return Workunit(mock_data_dict, client=mock_client, bfabric_instance=bfabric_instance)
 
 
 def test_data_dict(mock_workunit: Workunit, mock_data_dict: dict[str, Any]) -> None:
@@ -90,37 +81,32 @@ def test_parameter_values(mocker, mock_workunit: Workunit) -> None:
     assert mock_workunit.submitter_parameters == {"key3": "value3"}
 
 
-def test_container_when_project(mocker, mock_workunit) -> None:
-    mock_find = mocker.patch.object(Project, "find")
-    assert mock_workunit.container == mock_find.return_value
-    mock_find.assert_called_once_with(id=3000, client=mock_workunit._client)
+def test_container_when_project(mock_workunit) -> None:
+    mock_workunit._data_dict["container"]["classname"] = "project"
+    assert mock_workunit.container.classname == "project"
+    assert mock_workunit.container.id == 3000
 
 
-def test_container_when_order(mocker, mock_workunit, mock_data_dict) -> None:
-    mock_find = mocker.patch.object(Order, "find")
-    mock_data_dict["container"]["classname"] = "order"
-    assert mock_workunit.container == mock_find.return_value
-    mock_find.assert_called_once_with(id=3000, client=mock_workunit._client)
+def test_container_when_order(mock_workunit) -> None:
+    mock_workunit._data_dict["container"]["classname"] = "order"
+    assert mock_workunit.container.classname == "order"
+    assert mock_workunit.container.id == 3000
 
 
-def test_store_output_folder(mocker, mock_workunit) -> None:
-    mock_application = mocker.MagicMock(storage={"projectfolderprefix": "xyz"}, technology_folder_name="tech")
-    mock_application.__getitem__.side_effect = {
-        "name": "my app",
-    }.__getitem__
-    mocker.patch.object(mock_workunit, "application", mock_application)
-    mocker.patch.object(Workunit, "container", mocker.PropertyMock(return_value=mocker.MagicMock(id=12)))
-    assert Path("xyz12/bfabric/tech/my_app/2024/2024-01/2024-01-02/workunit_30000") == mock_workunit.store_output_folder
+def test_store_output_folder(mock_workunit) -> None:
+    assert (
+        Path("xyz3000/bfabric/Tech/my_app/2024/2024-01/2024-01-02/workunit_30000") == mock_workunit.store_output_folder
+    )
 
 
 def test_repr() -> None:
     workunit = Workunit({"id": 30000}, client=None)
-    assert repr(workunit) == "Workunit({'id': 30000}, client=None)"
+    assert repr(workunit) == "Workunit(data_dict={'id': 30000}, bfabric_instance=None)"
 
 
 def test_str() -> None:
     workunit = Workunit({"id": 30000}, client=None)
-    assert repr(workunit) == "Workunit({'id': 30000}, client=None)"
+    assert str(workunit) == repr(workunit)
 
 
 if __name__ == "__main__":
