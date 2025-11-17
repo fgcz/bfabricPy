@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-from collections import defaultdict
 from typing import TYPE_CHECKING, Any
 
 from loguru import logger
 
 from bfabric.entities.core.import_entity import instantiate_entity
-from bfabric.entities.core.uri import EntityUri
+from bfabric.entities.core.uri import EntityUri, GroupedUris
 from bfabric.experimental import MultiQuery
 from bfabric.experimental.cache.context import get_cache_stack
 
@@ -55,17 +54,22 @@ class EntityReader:
         """
         uris = [EntityUri(uri) for uri in uris]
         logger.debug(f"Reading entities for URIs: {uris}")
-        self._validate_uris(uris)
 
-        # group by entity type
-        grouped = self._group_by_entity_type(uris)
+        # group uris
+        grouped_uris = GroupedUris.from_uris(uris)
 
         # retrieve each group separately
         cache_stack = get_cache_stack()
         results = {}
-        for entity_type, uris_group in grouped.items():
-            results_cached = cache_stack.item_get_all(uris_group)
-            uris_to_retrieve = [uri for uri in uris_group if uri not in results_cached]
+        for group_key, group_uris in grouped_uris.items():
+            if group_key.bfabric_instance != self._client.config.base_url:
+                # NOTE this is a limitation of the current design, but could be extended in the future
+                raise ValueError(
+                    f"Unsupported B-Fabric instances: {group_key.bfabric_instance} != {self._client.config.base_url}"
+                )
+
+            results_cached = cache_stack.item_get_all(group_uris)
+            uris_to_retrieve = [uri for uri in group_uris if uri not in results_cached]
             results_fresh = self._retrieve_entities(uris_to_retrieve)
             if results_fresh:
                 cache_stack.item_put_all(entities=results_fresh.values())
@@ -148,32 +152,6 @@ class EntityReader:
         }
         cache_stack.item_put_all(entities=entities.values())
         return entities
-
-    @staticmethod
-    def _group_by_entity_type(uris: list[EntityUri]) -> dict[str, list[EntityUri]]:
-        """Group URIs by their entity type.
-
-        :param uris: List of entity URIs to group.
-        :return: Dictionary mapping entity types to lists of URIs of that type.
-        """
-        # TODO to be converted into dedicated utility function
-        grouped = defaultdict(list)
-        for uri in uris:
-            grouped[uri.components.entity_type].append(uri)
-        return dict(grouped)
-
-    def _validate_uris(self, uris: list[EntityUri]) -> None:
-        """Validate that all URIs are from the client's configured B-Fabric instance.
-
-        :param uris: List of entity URIs to validate.
-        :raises ValueError: If any URI is from a different B-Fabric instance.
-        """
-        # NOTE this is a limitation of the current design, but could be extended in the future
-        unsupported_instances = {str(uri.components.bfabric_instance) for uri in uris} - {self._client.config.base_url}
-        if unsupported_instances:
-            raise ValueError(
-                f"Unsupported B-Fabric instances: {unsupported_instances} != {self._client.config.base_url}"
-            )
 
     def _retrieve_entities(self, uris: list[EntityUri]) -> dict[EntityUri, Entity]:
         """Retrieve entities from B-Fabric API.
