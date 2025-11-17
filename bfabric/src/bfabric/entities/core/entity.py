@@ -84,7 +84,7 @@ class Entity(FindMixin):
 
 class LegacyEntity(Entity, FindMixin):
     def __init__(
-        self, data_dict: dict[str, Any], client: Bfabric | None, *, bfabric_instance: str | None = None
+        self, data_dict: dict[str, Any], client: Bfabric | None = None, *, bfabric_instance: str | None = None
     ) -> None:
         self.__data_dict = data_dict
         self.__client = client
