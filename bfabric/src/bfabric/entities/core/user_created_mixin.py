@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import datetime
 from functools import cached_property
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Protocol, Any
 
 from bfabric.entities.core.entity_reader import EntityReader
 
 if TYPE_CHECKING:
+    from bfabric import Bfabric
     from bfabric.entities import User
-    from bfabric.entities.core.has_container_mixin import EntityProtocol
     from bfabric.entities.core.users import Users
 
 
@@ -37,3 +37,11 @@ class UserCreatedMixin:
     @property
     def modified_by(self) -> User:
         return self.users.get_by_login(self.data_dict["modifiedby"])
+
+
+class EntityProtocol(Protocol):
+    @property
+    def _client(self) -> Bfabric | None: ...
+
+    @property
+    def data_dict(self) -> dict[str, Any]: ...
