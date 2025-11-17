@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 from loguru import logger
 
 from bfabric.entities.core.entity_reader import EntityReader
-from bfabric.entities.core.uri import EntityUri
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
@@ -21,22 +20,15 @@ class FindMixin:
     @classmethod
     def find(cls, id: int, client: Bfabric) -> Self | None:
         """Finds an entity by its ID, if it does not exist `None` is returned."""
-        reader = EntityReader(client=client)
-        uri = EntityUri.from_components(bfabric_instance=client.config.base_url, entity_type=cls.ENDPOINT, entity_id=id)
-        return reader.read_uri(uri=uri)
+        return EntityReader(client=client).read_by_entity_id(entity_type=cls.ENDPOINT, entity_id=id)
 
     @classmethod
     def find_all(cls, ids: list[int], client: Bfabric) -> dict[int, Self]:
         """Returns a dictionary of entities with the given IDs. The order will generally match the input, however,
         if some entities are not found they will be omitted and a warning will be logged.
         """
-        reader = EntityReader(client=client)
-        uris = [
-            EntityUri.from_components(bfabric_instance=client.config.base_url, entity_type=cls.ENDPOINT, entity_id=id)
-            for id in ids
-        ]
-        results = reader.read_uris(uris=uris)
-        results_by_id = {entity.uri.components.entity_id: entity for entity in results.values() if entity is not None}
+        results = EntityReader(client=client).read_by_entity_ids(entity_type=cls.ENDPOINT, entity_ids=ids)
+        results_by_id = {uri.components.entity_id: item for uri, item in results.items()}
         return cls.__ensure_results_order(ids, results_by_id)
 
     @classmethod

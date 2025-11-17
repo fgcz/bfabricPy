@@ -52,13 +52,32 @@ class EntityReader:
 
         return results
 
+    def read_by_entity_id(self, entity_type: str, entity_id: int, bfabric_instance: str | None = None) -> Entity | None:
+        """Finds an entity by its ID, if it does not exist `None` is returned."""
+        results = self.read_by_entity_ids(
+            entity_type=entity_type, entity_ids=[entity_id], bfabric_instance=bfabric_instance
+        )
+        return list(results.values())[0]
+
+    def read_by_entity_ids(
+        self, entity_type: str, entity_ids: list[int], bfabric_instance: str | None = None
+    ) -> dict[EntityUri, Entity | None]:
+        """Finds entities by their ID, returning `None` for entities which have not been found."""
+        bfabric_instance = bfabric_instance if bfabric_instance is not None else self._client.config.base_url
+        uris = [
+            EntityUri.from_components(bfabric_instance=bfabric_instance, entity_type=entity_type, entity_id=id)
+            for id in entity_ids
+        ]
+        return self.read_uris(uris)
+
     def query_by(
         self,
         entity_type: str,
         obj: dict[str, Any],
-        bfabric_instance: str,
+        bfabric_instance: str | None = None,
         max_results: int | None = 100,
     ) -> dict[EntityUri, Entity | None]:
+        bfabric_instance = bfabric_instance if bfabric_instance is not None else self._client.config.base_url
         # TODO limitation of the current implementation
         if bfabric_instance != self._client.config.base_url:
             raise ValueError(f"Unsupported B-Fabric instance: {bfabric_instance} != {self._client.config.base_url}")
