@@ -144,9 +144,16 @@ def test_load_yaml(mocker) -> None:
     assert isinstance(entity, Entity)
 
 
-def test_get_item(mock_entity) -> None:
+def test_getitem(mock_entity) -> None:
     assert mock_entity["id"] == 1
     assert mock_entity["name"] == "Test Entity"
+
+
+def test_contains(mock_entity) -> None:
+    assert "id" in mock_entity
+    assert "name" in mock_entity
+    assert "classname" in mock_entity
+    assert "missing" not in mock_entity
 
 
 def test_get_when_present(mock_entity) -> None:
@@ -159,20 +166,23 @@ def test_get_when_missing(mock_entity) -> None:
     assert mock_entity.get("missing", "default") == "default"
 
 
-def test_repr(mock_entity, mock_data_dict) -> None:
-    entity = Entity(mock_data_dict, None)
-    assert repr(entity) == "Entity({'id': 1, 'name': 'Test Entity'}, client=None)"
+def test_repr(mock_entity) -> None:
+    assert repr(mock_entity) == (
+        "Entity("
+        "data_dict={'id': 1, 'name': 'Test Entity', 'classname': 'testendpoint'}, "
+        "bfabric_instance='https://example.com/bfabric/'"
+        ")"
+    )
 
 
-def test_str(mock_entity, mock_data_dict) -> None:
-    entity = Entity(mock_data_dict, None)
-    assert str(entity) == "Entity({'id': 1, 'name': 'Test Entity'}, client=None)"
+def test_str(mock_entity) -> None:
+    assert str(mock_entity) == repr(mock_entity)
 
 
 def test_compare_when_possible():
-    entity_1 = Entity({"id": 1, "name": "Test Entity"}, None)
+    entity_1 = Entity({"classname": "test", "id": 1, "name": "Test Entity"}, None)
     entity_1.ENDPOINT = "X"
-    entity_10 = Entity({"id": 10, "name": "Test Entity"}, None)
+    entity_10 = Entity({"classname": "test", "id": 10, "name": "Test Entity"}, None)
     entity_10.ENDPOINT = "X"
     assert entity_1 == entity_1
     assert entity_1 < entity_10
@@ -180,9 +190,9 @@ def test_compare_when_possible():
 
 
 def test_compare_when_not_possible():
-    entity_1 = Entity({"id": 1, "name": "Test Entity"}, None)
+    entity_1 = Entity({"classname": "test", "id": 1, "name": "Test Entity"}, None)
     entity_1.ENDPOINT = "X"
-    entity_2 = Entity({"id": 2, "name": "Test Entity"}, None)
+    entity_2 = Entity({"classname": "resource", "id": 2, "name": "Test Entity"}, None)
     entity_2.ENDPOINT = "Y"
     assert entity_1 != entity_2
     with pytest.raises(TypeError):

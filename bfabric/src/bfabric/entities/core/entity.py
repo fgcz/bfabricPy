@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import warnings
 from functools import cached_property
-from typing import TYPE_CHECKING
-
+from typing import TYPE_CHECKING, Self
 
 from bfabric.entities.core.find_mixin import FindMixin
 from bfabric.entities.core.references import References
@@ -12,6 +11,7 @@ from bfabric.entities.core.uri import EntityUri
 if TYPE_CHECKING:
     from bfabric import Bfabric
     from typing import Any
+    from pathlib import Path
 
 
 class Entity(FindMixin):
@@ -81,8 +81,39 @@ class Entity(FindMixin):
         warnings.warn("Entity.web_url is deprecated, use str(Entity.uri) instead.", DeprecationWarning, stacklevel=2)
         return str(self.uri)
 
+    def __getitem__(self, name: str) -> Any:
+        return self._data_dict[name]
+
+    def __contains__(self, name: str) -> bool:
+        return name in self._data_dict
+
+    def get(self, name: str, default: Any = None) -> Any:
+        return self._data_dict.get(name, default)
+
     def __lt__(self, other: Entity) -> bool:
         """Compares the entity with another entity based on their IDs."""
         if self.classname != other.classname:
             return NotImplemented
         return self.id < other.id
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(data_dict={self.data_dict!r}, bfabric_instance={self.bfabric_instance!r})"
+
+    __str__ = __repr__
+
+    def dump_yaml(self, path: Path) -> None:
+        """Writes the entity's data dictionary to a YAML file."""
+        # TODO keep long term? I would suggest we also move this into a different layer which e.g. can keep URI
+        import yaml
+
+        with path.open("w") as file:
+            yaml.safe_dump(self._data_dict, file)
+
+    @classmethod
+    def load_yaml(cls, path: Path, client: Bfabric | None = None, bfabric_instance: str | None = None) -> Self:
+        """Loads an entity from a YAML file."""
+        import yaml
+
+        with path.open("r") as file:
+            data = yaml.safe_load(file)
+        return cls(data, client=client, bfabric_instance=bfabric_instance)
