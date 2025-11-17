@@ -4,7 +4,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING
 
 from bfabric.entities.core.entity import Entity
-from bfabric.entities.core.has_one import HasOneOld
+from bfabric.entities.core.has_one import HasOne
 
 if TYPE_CHECKING:
     from bfabric.entities.workunit import Workunit
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 class ExternalJob(Entity):
     ENDPOINT = "externaljob"
 
-    executable: HasOneOld[Executable] = HasOneOld(entity="Executable", bfabric_field="executable")
+    executable: HasOne[Executable] = HasOne(entity="Executable", bfabric_field="executable")
 
     @cached_property
     def workunit(self) -> Workunit | None:
