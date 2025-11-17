@@ -1,14 +1,7 @@
-from typing import Any
-
 import pytest
 
 from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.has_one import HasOne
-
-
-@pytest.fixture
-def data_dict() -> dict[str, Any]:
-    return {"id": 1000, "classname": "mockentity"}
 
 
 @pytest.fixture(params=[True, False])
@@ -17,11 +10,11 @@ def optional(request) -> bool:
 
 
 @pytest.fixture
-def entity(data_dict, bfabric_instance, optional):
+def entity(bfabric_instance, optional):
     class MockEntity(Entity):
         field: HasOne = HasOne(bfabric_field="test_field", optional=optional)
 
-    return MockEntity(data_dict=data_dict, bfabric_instance=bfabric_instance)
+    return MockEntity(data_dict={}, bfabric_instance=bfabric_instance)
 
 
 def test_get_when_exists(entity, mocker):
