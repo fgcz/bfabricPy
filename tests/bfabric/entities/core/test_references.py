@@ -1,14 +1,8 @@
 import pytest
 
-from bfabric import Bfabric
 from bfabric.entities import User, Project
 from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.references import References
-
-
-@pytest.fixture
-def bfabric_instance():
-    return "https://example.com/bfabric/"
 
 
 @pytest.fixture
@@ -23,7 +17,7 @@ def entity_data_dict():
                 "id": 1,
                 "classname": "user",
                 "name": "Test User",
-                "email": "test@example.com",
+                "email": "test@bfabric.example.org",
             }
         ],
         "technologies": ["proteomics", "genomics"],
@@ -31,14 +25,8 @@ def entity_data_dict():
 
 
 @pytest.fixture
-def client(mocker, bfabric_instance):
-    config = mocker.MagicMock(name="client.config", base_url=bfabric_instance)
-    return mocker.MagicMock(name="client", spec=Bfabric, config=config)
-
-
-@pytest.fixture
-def entity(entity_data_dict, client, bfabric_instance):
-    return Entity(data_dict=entity_data_dict, client=client, bfabric_instance=bfabric_instance)
+def entity(entity_data_dict, mock_client, bfabric_instance):
+    return Entity(data_dict=entity_data_dict, client=mock_client, bfabric_instance=bfabric_instance)
 
 
 @pytest.fixture
@@ -65,14 +53,14 @@ def mock_project(mocker, bfabric_instance):
 
 
 @pytest.fixture
-def refs(client, entity_data_dict):
-    return References(client=client, data_ref=entity_data_dict)
+def refs(mock_client, entity_data_dict, bfabric_instance):
+    return References(client=mock_client, data_ref=entity_data_dict, bfabric_instance=bfabric_instance)
 
 
 def test_uris(refs):
     assert refs.uris == {
-        "container": "https://example.com/bfabric/project/show.html?id=3000",
-        "member": ["https://example.com/bfabric/user/show.html?id=1"],
+        "container": "https://bfabric.example.org/bfabric/project/show.html?id=3000",
+        "member": ["https://bfabric.example.org/bfabric/user/show.html?id=1"],
     }
 
 
@@ -103,7 +91,7 @@ class TestGet:
             "id": 1,
             "classname": "user",
             "name": "Test User",
-            "email": "test@example.com",
+            "email": "test@bfabric.example.org",
         }
         assert isinstance(members[0], User)
         assert refs.is_loaded("member") == True
