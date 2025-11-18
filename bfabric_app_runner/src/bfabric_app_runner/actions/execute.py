@@ -78,7 +78,7 @@ def execute_process(action: ActionProcess, client: Bfabric) -> None:
     for chunk_dir_rel in chunk_dirs:
         app_spec = action.app_ref
         chunk_dir = chunk_dir_rel.resolve()
-        app_version, _, _ = load_workunit_information(
+        app_version, _, workunit_ref = load_workunit_information(
             app_spec=app_spec,
             client=client,
             work_dir=action.work_dir,
