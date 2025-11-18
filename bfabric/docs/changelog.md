@@ -14,6 +14,7 @@ Versioning currently follows `X.Y.Z` where
 
 - `bfabric.entities.core.uri` to specify entities by URI in a standardized way.
 - `Entity.uri` property to get the URI of an entity.
+- `bfabric.entities.cache` which supersedes `bfabric.experimental.cache` (temporarily kept in tree).
 
 ### Changed
 
