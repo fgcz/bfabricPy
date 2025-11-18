@@ -2,18 +2,12 @@ from pathlib import Path
 
 import pytest
 
-from bfabric import Bfabric
 from bfabric.entities.core.entity import Entity
 
 
 @pytest.fixture
-def mock_client(mocker):
-    return mocker.Mock(spec=Bfabric)
-
-
-@pytest.fixture
 def mock_data_dict():
-    return {"id": 1, "name": "Test Entity"}
+    return {"id": 1, "name": "Test Entity", "classname": "testendpoint"}
 
 
 @pytest.fixture()
@@ -132,13 +126,11 @@ def test_get_when_missing(mock_entity) -> None:
     assert mock_entity.get("missing", "default") == "default"
 
 
-@pytest.mark.xfail()
 def test_repr(mock_entity) -> None:
-    # TODO after refactoring PR this should work again
     assert repr(mock_entity) == (
         "Entity("
         "data_dict={'id': 1, 'name': 'Test Entity', 'classname': 'testendpoint'}, "
-        "bfabric_instance='https://example.com/bfabric/'"
+        "bfabric_instance='https://bfabric.example.org/bfabric/'"
         ")"
     )
 
