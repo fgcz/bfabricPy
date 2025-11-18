@@ -2,18 +2,12 @@ from pathlib import Path
 
 import pytest
 
-from bfabric import Bfabric
 from bfabric.entities.core.entity import Entity
 
 
 @pytest.fixture
-def mock_client(mocker):
-    return mocker.Mock(spec=Bfabric)
-
-
-@pytest.fixture
 def mock_data_dict():
-    return {"id": 1, "name": "Test Entity"}
+    return {"id": 1, "name": "Test Entity", "classname": "testendpoint"}
 
 
 @pytest.fixture()
@@ -132,14 +126,17 @@ def test_get_when_missing(mock_entity) -> None:
     assert mock_entity.get("missing", "default") == "default"
 
 
-def test_repr(mock_entity, mock_data_dict) -> None:
-    entity = Entity(mock_data_dict, None)
-    assert repr(entity) == "Entity({'id': 1, 'name': 'Test Entity'}, client=None)"
+def test_repr(mock_entity) -> None:
+    assert repr(mock_entity) == (
+        "Entity("
+        "data_dict={'id': 1, 'name': 'Test Entity', 'classname': 'testendpoint'}, "
+        "bfabric_instance='https://bfabric.example.org/bfabric/'"
+        ")"
+    )
 
 
-def test_str(mock_entity, mock_data_dict) -> None:
-    entity = Entity(mock_data_dict, None)
-    assert str(entity) == "Entity({'id': 1, 'name': 'Test Entity'}, client=None)"
+def test_str(mock_entity) -> None:
+    assert str(mock_entity) == repr(mock_entity)
 
 
 def test_compare_when_possible():

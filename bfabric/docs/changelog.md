@@ -18,6 +18,7 @@ Versioning currently follows `X.Y.Z` where
 ### Changed
 
 - Minimal Python version is now 3.11.
+- `Entity` has a new constructor parameter `bfabric_instance` which in the future will become mandatory.
 - `BfabricClientConfig.base_url` always ends with exactly one `/` now.
 - `BFabricClientConfig` does not allow passing `None` for values anymore.
 - `bfabric.entities` do not define custom constructors anymore, simplifying future changes (and removing tiny inconsistencies).

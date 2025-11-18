@@ -20,14 +20,25 @@ if TYPE_CHECKING:
 class Entity:
     ENDPOINT: str = ""
 
-    def __init__(self, data_dict: dict[str, Any], client: Bfabric | None = None) -> None:
+    def __init__(
+        self,
+        data_dict: dict[str, Any],
+        client: Bfabric | None = None,
+        bfabric_instance: str | None = None,
+    ) -> None:
         self.__data_dict = data_dict
         self.__client = client
+        self.__bfabric_instance = bfabric_instance or (client.config.base_url if client is not None else None)
 
     @property
     def id(self) -> int:
         """Returns the entity's ID."""
         return int(self.__data_dict["id"])
+
+    @property
+    def bfabric_instance(self) -> str:
+        """The bfabric instance URL associated with the entity."""
+        return self.__bfabric_instance
 
     @property
     def classname(self) -> str:
@@ -41,7 +52,7 @@ class Entity:
             msg = "Cannot generate a URI without a client's config information."
             raise ValueError(msg)
         return EntityUri.from_components(
-            bfabric_instance=self._client.config.base_url, entity_type=self.ENDPOINT, entity_id=self.id
+            bfabric_instance=self.__bfabric_instance, entity_type=self.classname, entity_id=self.id
         )
 
     @property
@@ -131,8 +142,9 @@ class Entity:
         return self.id < other.id
 
     def __repr__(self) -> str:
-        """Returns the string representation of the workunit."""
-        return f"{self.__class__.__name__}({repr(self.__data_dict)}, client={repr(self.__client)})"
+        return (
+            f"{self.__class__.__name__}(data_dict={self.__data_dict!r}, bfabric_instance={self.__bfabric_instance!r})"
+        )
 
     __str__ = __repr__
 

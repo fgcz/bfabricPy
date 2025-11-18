@@ -106,12 +106,12 @@ def test_store_output_folder(mocker, mock_workunit) -> None:
 
 def test_repr() -> None:
     workunit = Workunit({"id": 30000}, client=None)
-    assert repr(workunit) == "Workunit({'id': 30000}, client=None)"
+    assert repr(workunit) == "Workunit(data_dict={'id': 30000}, bfabric_instance=None)"
 
 
 def test_str() -> None:
     workunit = Workunit({"id": 30000}, client=None)
-    assert repr(workunit) == "Workunit({'id': 30000}, client=None)"
+    assert str(workunit) == repr(workunit)
 
 
 if __name__ == "__main__":
