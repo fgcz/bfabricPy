@@ -12,7 +12,9 @@ Versioning currently follows `X.Y.Z` where
 
 ### Added
 
-- `bfabric.entities.core.uri` to specify entities by URI in a standardized way.
+- `bfabric.entities.core.uri.EntityUri` to specify entities by URI in a standardized way.
+- `bfabric.entities.core.uri.EntityUriComponents` to access individual components `(bfabric_instance, entity_type, entity_id)` from a URI.
+- `bfabric.entities.core.uri.GroupedUris` mostly relevant for internal code needing to handle entity URIs.
 - `bfabric.entities.core.entity_reader` which allows reading entities by URI, ID, and general queries.
 - `Entity.uri` property to get the URI of an entity.
 - `bfabric.entities.cache` which supersedes `bfabric.experimental.cache` (temporarily kept in tree).
