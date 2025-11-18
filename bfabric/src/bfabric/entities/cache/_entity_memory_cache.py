@@ -32,8 +32,8 @@ class EntityMemoryCache:
         entity_type = uri.components.entity_type
         if entity_type not in self._caches:
             return False
-        else:
-            return uri in self._caches[entity_type]
+
+        return uri in self._caches[entity_type]
 
     def get(self, uri: EntityUri) -> E | None:
         """Returns the entity with the given type and ID, if it exists in the cache."""
@@ -41,12 +41,9 @@ class EntityMemoryCache:
         if entity_type not in self._caches:
             return None
 
-        if self._caches[entity_type].get(uri):
-            logger.debug(f"Cache hit for entity: {uri}")
-            return self._caches[entity_type].get(uri)
-        else:
-            logger.debug(f"Cache miss for entity: {uri}")
-            return None
+        entity = self._caches[entity_type].get(uri)
+        logger.debug(f"Cache {'hit' if entity is not None else 'miss'} for entity: {uri}")
+        return entity
 
     def get_all(self, uris: list[EntityUri]) -> dict[EntityUri, Entity]:
         """Returns a dictionary of entities with the given type and IDs,
