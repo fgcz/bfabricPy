@@ -36,6 +36,11 @@ class Entity:
         return int(self.__data_dict["id"])
 
     @property
+    def bfabric_instance(self) -> str:
+        """The bfabric instance URL associated with the entity."""
+        return self.__bfabric_instance
+
+    @property
     def classname(self) -> str:
         """Returns the entity's classname."""
         return self.__data_dict["classname"]

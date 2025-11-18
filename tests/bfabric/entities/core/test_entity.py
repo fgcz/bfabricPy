@@ -21,6 +21,18 @@ def test_endpoint(mock_entity) -> None:
     assert mock_entity.ENDPOINT == "test_endpoint"
 
 
+def test_id(mock_entity) -> None:
+    assert mock_entity.id == 1
+
+
+def test_bfabric_instance(mock_entity, bfabric_instance) -> None:
+    assert mock_entity.bfabric_instance == bfabric_instance
+
+
+def test_classname(mock_entity) -> None:
+    assert mock_entity.classname == "testendpoint"
+
+
 def test_data_dict(mock_entity, mock_data_dict) -> None:
     assert mock_entity.data_dict == mock_data_dict
 
