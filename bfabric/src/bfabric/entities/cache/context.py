@@ -35,7 +35,7 @@ def cache_entities(entities: str | list[str] | dict[str, int], max_size: int = 0
 
 
 def _get_config_dict(
-    entities: str | Entity | list[str | Entity] | dict[str | Entity, int], max_size: int
+    entities: str | Entity | list[str | Entity] | dict[str | Entity, int], *, max_size: int
 ) -> dict[str, int]:
     # convert to dict of int
     if isinstance(entities, dict):
