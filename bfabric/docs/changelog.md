@@ -26,6 +26,7 @@ Versioning currently follows `X.Y.Z` where
 - `BfabricClientConfig.base_url` always ends with exactly one `/` now.
 - `BFabricClientConfig` does not allow passing `None` for values anymore.
 - `bfabric.entities` do not define custom constructors anymore, simplifying future changes (and removing tiny inconsistencies).
+- `bfabric.entities` allows loading entity references without custom definitions in Python.
 - `TokenData` retrieval uses async httpx internally, but provides a sync interface for compatibility.
 
 ## \[1.13.36\] - 2025-10-27
