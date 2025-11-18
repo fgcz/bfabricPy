@@ -254,7 +254,9 @@ class TestReadUris:
 
         assert uri_project_1 in result
 
-    def test_unsupported_instance_raises_error(self, entity_reader, uri_project_1, uri_wrong_instance):
+    def test_unsupported_instance_raises_error(
+        self, entity_reader, uri_project_1, uri_wrong_instance, mock_cache_stack
+    ):
         """Test that URIs from unsupported instances raise ValueError."""
         with pytest.raises(ValueError) as exc_info:
             entity_reader.read_uris([uri_project_1, uri_wrong_instance])

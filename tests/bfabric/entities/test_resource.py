@@ -34,7 +34,7 @@ def test_storage_relative_path(resource):
     ],
 )
 def test_storage_absolute_path(resource, storage_path, resource_path):
-    resource._data_dict["relativepath"] = resource_path
+    resource._Entity__data_dict["relativepath"] = resource_path
     assert resource.storage_absolute_path == Path("/test/storage/path/to/resource.txt")
 
 

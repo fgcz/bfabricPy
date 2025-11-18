@@ -2,17 +2,9 @@ from pathlib import Path
 
 import pytest
 
-from bfabric import Bfabric
 from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.entity_reader import EntityReader
 from bfabric.entities.core.uri import EntityUri
-
-
-@pytest.fixture
-def mock_client(mocker, bfabric_instance):
-    config = mocker.Mock(name="mock_client.config")
-    config.base_url = bfabric_instance
-    return mocker.Mock(spec=Bfabric, config=config)
 
 
 @pytest.fixture
@@ -25,9 +17,12 @@ def mock_entity(mock_data_dict, mock_client, bfabric_instance) -> Entity:
     return Entity(mock_data_dict, mock_client, bfabric_instance)
 
 
-@pytest.fixture
-def bfabric_instance() -> str:
-    return "https://example.com/bfabric/"
+def test_id(mock_entity) -> None:
+    assert mock_entity.id == 1
+
+
+def test_bfabric_instance(mock_entity, bfabric_instance) -> None:
+    assert mock_entity.bfabric_instance == bfabric_instance
 
 
 def test_classname(mock_entity) -> None:
@@ -164,7 +159,7 @@ def test_repr(mock_entity) -> None:
     assert repr(mock_entity) == (
         "Entity("
         "data_dict={'id': 1, 'name': 'Test Entity', 'classname': 'testendpoint'}, "
-        "bfabric_instance='https://example.com/bfabric/'"
+        "bfabric_instance='https://bfabric.example.org/bfabric/'"
         ")"
     )
 

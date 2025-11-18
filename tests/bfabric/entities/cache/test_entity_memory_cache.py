@@ -1,7 +1,7 @@
 import pytest
 
 from bfabric.entities.core.uri import EntityUri
-from bfabric.experimental.cache._entity_memory_cache import EntityMemoryCache
+from bfabric.entities.cache._entity_memory_cache import EntityMemoryCache
 
 
 @pytest.fixture

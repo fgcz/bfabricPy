@@ -15,6 +15,8 @@ if TYPE_CHECKING:
 
 
 class Entity(FindMixin):
+    ENDPOINT: str = ""
+
     def __init__(
         self,
         data_dict: dict[str, Any],
@@ -30,10 +32,16 @@ class Entity(FindMixin):
                 "In the future, creating an Entity object without bfabric_instance will not be supported.",
                 DeprecationWarning,
             )
+            bfabric_instance = client.config.base_url if client is not None else None
 
-        self._data_dict = data_dict
+        self.__data_dict = data_dict
         self.__client = client
         self.__bfabric_instance = bfabric_instance
+
+    @property
+    def id(self) -> int:
+        """Returns the entity's ID."""
+        return int(self.__data_dict["id"])
 
     @property
     def bfabric_instance(self) -> str:
@@ -43,37 +51,21 @@ class Entity(FindMixin):
     @property
     def classname(self) -> str:
         """The entity's classname."""
-        return self._data_dict["classname"]
+        return self.__data_dict["classname"]
 
     def ENDPOINT(self) -> str:  # noqa
         warnings.warn("Entity.ENDPOINT is deprecated, use Entity.classname instead.", DeprecationWarning, stacklevel=2)
         return self.classname
 
     @property
-    def id(self) -> int:
-        """The entity's ID."""
-        return int(self._data_dict["id"])
-
-    @property
     def uri(self) -> EntityUri:
         """The entity's URI."""
+        if self._client is None:
+            msg = "Cannot generate a URI without a client's config information."
+            raise ValueError(msg)
         return EntityUri.from_components(
-            bfabric_instance=self.bfabric_instance, entity_type=self.classname, entity_id=self.id
+            bfabric_instance=self.__bfabric_instance, entity_type=self.classname, entity_id=self.id
         )
-
-    @cached_property
-    def refs(self) -> References:
-        return References(client=self._client, bfabric_instance=self.__bfabric_instance, data_ref=self._data_dict)
-
-    @property
-    def data_dict(self) -> dict[str, Any]:
-        """Returns a shallow copy of the entity's data dictionary."""
-        return self._data_dict.copy()
-
-    @property
-    def _client(self) -> Bfabric | None:
-        """Returns the client associated with the entity."""
-        return self.__client
 
     @property
     def web_url(self) -> str:
@@ -81,14 +73,31 @@ class Entity(FindMixin):
         warnings.warn("Entity.web_url is deprecated, use str(Entity.uri) instead.", DeprecationWarning, stacklevel=2)
         return str(self.uri)
 
-    def __getitem__(self, name: str) -> Any:
-        return self._data_dict[name]
+    @cached_property
+    def refs(self) -> References:
+        return References(client=self._client, bfabric_instance=self.__bfabric_instance, data_ref=self.__data_dict)
 
-    def __contains__(self, name: str) -> bool:
-        return name in self._data_dict
+    @property
+    def data_dict(self) -> dict[str, Any]:
+        """Returns a shallow copy of the entity's data dictionary."""
+        return self.__data_dict.copy()
 
-    def get(self, name: str, default: Any = None) -> Any:
-        return self._data_dict.get(name, default)
+    @property
+    def _client(self) -> Bfabric | None:
+        """Returns the client associated with the entity."""
+        return self.__client
+
+    def __contains__(self, key: str) -> Any:
+        """Checks if a key is present in the data dictionary."""
+        return key in self.__data_dict
+
+    def __getitem__(self, key: str) -> Any:
+        """Returns the value of a key in the data dictionary."""
+        return self.__data_dict[key]
+
+    def get(self, key: str, default: Any = None) -> Any:
+        """Returns the value of a key in the data dictionary, or a default value if the key is not present."""
+        return self.__data_dict.get(key, default)
 
     def __lt__(self, other: Entity) -> bool:
         """Compares the entity with another entity based on their IDs."""
@@ -97,7 +106,9 @@ class Entity(FindMixin):
         return self.id < other.id
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(data_dict={self.data_dict!r}, bfabric_instance={self.bfabric_instance!r})"
+        return (
+            f"{self.__class__.__name__}(data_dict={self.__data_dict!r}, bfabric_instance={self.__bfabric_instance!r})"
+        )
 
     __str__ = __repr__
 
@@ -107,7 +118,7 @@ class Entity(FindMixin):
         import yaml
 
         with path.open("w") as file:
-            yaml.safe_dump(self._data_dict, file)
+            yaml.safe_dump(self.__data_dict, file)
 
     @classmethod
     def load_yaml(cls, path: Path, client: Bfabric | None = None, bfabric_instance: str | None = None) -> Self:

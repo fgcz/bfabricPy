@@ -87,13 +87,13 @@ def test_parameter_values(mocker, workunit: Workunit) -> None:
 
 
 def test_container_when_project(workunit) -> None:
-    workunit._data_dict["container"]["classname"] = "project"
+    workunit._Entity__data_dict["container"]["classname"] = "project"
     assert workunit.container.classname == "project"
     assert workunit.container.id == 3000
 
 
 def test_container_when_order(workunit) -> None:
-    workunit._data_dict["container"]["classname"] = "order"
+    workunit._Entity__data_dict["container"]["classname"] = "order"
     assert workunit.container.classname == "order"
     assert workunit.container.id == 3000
 

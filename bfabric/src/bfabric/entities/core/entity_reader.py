@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING, Any
 
 from loguru import logger
 
+from bfabric.entities.cache.context import get_cache_stack
 from bfabric.entities.core.import_entity import instantiate_entity
 from bfabric.entities.core.uri import EntityUri, GroupedUris
 from bfabric.experimental import MultiQuery
-from bfabric.experimental.cache.context import get_cache_stack
 
 if TYPE_CHECKING:
     from bfabric.entities.core.entity import Entity

@@ -57,12 +57,12 @@ reinstall-package = ["bfabric", "bfabric_scripts", "bfabric_app_runner"]
 
 [tool.black]
 line-length = 120
-target-version = ["py39"]
+target-version = ["py311"]
 
 [tool.ruff]
 line-length = 120
 indent-width = 4
-target-version = "py39"
+target-version = "py311"
 
 [tool.ruff.lint]
 select = ["ANN", "BLE", "D103", "E", "EXE", "F", "N", "PLW", "PTH", "SIM", "TCH", "UP", "W191"]
