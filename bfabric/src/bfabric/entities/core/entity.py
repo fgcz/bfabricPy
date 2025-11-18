@@ -137,7 +137,9 @@ class Entity:
         return self.id < other.id
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(data_dict={self.data_dict!r}, bfabric_instance={self.__bfabric_instance!r})"
+        return (
+            f"{self.__class__.__name__}(data_dict={self.__data_dict!r}, bfabric_instance={self.__bfabric_instance!r})"
+        )
 
     __str__ = __repr__
 
