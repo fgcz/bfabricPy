@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import warnings
 from contextlib import contextmanager
 from contextvars import ContextVar
 from typing import TYPE_CHECKING
+
 
 from bfabric.entities.cache._cache_stack import CacheStack
 from bfabric.entities.cache._entity_memory_cache import EntityMemoryCache
@@ -13,17 +15,10 @@ if TYPE_CHECKING:
 
 
 @contextmanager
-def cache_entities(
-    entities: type[Entity] | list[type[Entity]] | dict[type[Entity], int], max_size: int = 0
-) -> Iterator[None]:
+def cache_entities(entities: str | list[str] | dict[str, int], max_size: int = 0) -> Iterator[None]:
     """Enables caching for the specified entity types within the context."""
     # Get the entities config dict
-    if isinstance(entities, dict):
-        config = entities
-    elif isinstance(entities, list):
-        config = {entity: max_size for entity in entities}
-    else:
-        config = {entities: max_size}
+    config = _get_config_dict(entities, max_size)
 
     # Get the stack
     stack = get_cache_stack()
@@ -37,6 +32,29 @@ def cache_entities(
         yield
     finally:
         stack.cache_pop()
+
+
+def _get_config_dict(
+    entities: str | Entity | list[str | Entity] | dict[str | Entity, int], max_size: int
+) -> dict[str, int]:
+    # convert to dict of int
+    if isinstance(entities, dict):
+        config = entities
+    elif isinstance(entities, list):
+        config = {entity: max_size for entity in entities}
+    else:
+        config = {entities: max_size}
+
+    # legacy code support
+    non_string_keys = {key for key in config if not isinstance(key, str)}
+    if non_string_keys:
+        warnings.warn("Please specify cache_context arguments as strings.", DeprecationWarning)
+        for key in non_string_keys:
+            value = config.pop(key)
+            config[key.ENDPOINT] = value
+
+    # check if any keys are actual entity types
+    return config
 
 
 # Context variable to store the cache stack per async task/thread context
