@@ -25,6 +25,7 @@ Versioning currently follows `X.Y.Z` where
 - `Entity` has a new constructor parameter `bfabric_instance` which in the future will become mandatory.
 - `BfabricClientConfig.base_url` always ends with exactly one `/` now.
 - `BFabricClientConfig` does not allow passing `None` for values anymore.
+- `HasMany` retains the original order, instead of sorting by ID (should be sorted in API response).
 - `bfabric.entities` do not define custom constructors anymore, simplifying future changes (and removing tiny inconsistencies).
 - `bfabric.entities` allows loading entity references without custom definitions in Python.
 - `TokenData` retrieval uses async httpx internally, but provides a sync interface for compatibility.

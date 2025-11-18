@@ -1,144 +1,99 @@
+import polars as pl
+import polars.testing
 import pytest
-from polars import DataFrame
-from pytest_mock import MockerFixture
 
-from bfabric import Bfabric
 from bfabric.entities.core.entity import Entity
-from bfabric.entities.core.has_many import HasMany, _HasManyProxy
+from bfabric.entities.core.has_many import HasMany
 
 
-class MockEntity(Entity):
-    def __init__(self, data_dict=None, client=None):
-        if data_dict is None:
-            data_dict = {"mock": "mock"}
-        super().__init__(data_dict=data_dict, client=client)
+@pytest.fixture
+def optional(request) -> bool:
+    if hasattr(request, "param"):
+        return request.param
+    return False
 
 
-@pytest.fixture(autouse=True)
-def mock_entity_resolution(mocker):
-    """Mocks the resolution of the MockEntity class, since it is not actually defined in the bfabric.entities module."""
-    mocker.patch.object(
-        HasMany,
-        "_entity_type",
-        new_callable=mocker.PropertyMock,
-        return_value=MockEntity,
-    )
+@pytest.fixture
+def data_dict():
+    return {
+        "classname": "mock",
+        "id": 1000,
+        "many": [
+            {"id": 10, "classname": "testreferenced", "name": "Referenced Entity 10"},
+            {"id": 20, "classname": "testreferenced", "name": "Referenced Entity 20"},
+        ],
+    }
 
 
-@pytest.fixture()
-def mock_client(mocker):
-    return mocker.MagicMock(name="mock_client", spec=Bfabric)
+@pytest.fixture
+def entity(bfabric_instance, optional, data_dict):
+    class MockEntity(Entity):
+        field: HasMany = HasMany(bfabric_field="many", optional=optional)
+
+    return MockEntity(data_dict=data_dict, bfabric_instance=bfabric_instance)
 
 
-@pytest.fixture()
-def mock_proxy(mock_client):
-    return _HasManyProxy(MockEntity, [1, 2], mock_client)
+class TestFunctionality:
+    @staticmethod
+    def test_ids(entity):
+        assert entity.field.ids == [10, 20]
+
+    @staticmethod
+    def test_list(entity):
+        result = entity.field.list
+        assert len(result) == 2
+        assert result[0].id == 10
+        assert result[0].classname == "testreferenced"
+        assert result[0]["name"] == "Referenced Entity 10"
+        assert result[1].id == 20
+        assert result[1].classname == "testreferenced"
+        assert result[1]["name"] == "Referenced Entity 20"
+
+    @staticmethod
+    def test_polars(entity):
+        result = entity.field.polars
+        expected = pl.from_dicts(
+            [
+                {"id": 10, "classname": "testreferenced", "name": "Referenced Entity 10"},
+                {"id": 20, "classname": "testreferenced", "name": "Referenced Entity 20"},
+            ]
+        )
+        pl.testing.assert_frame_equal(expected, result)
+
+    @staticmethod
+    def test_len(entity):
+        assert len(entity.field) == 2
+
+    @staticmethod
+    def test_iter(entity):
+        collect = list(entity.field)
+        assert len(collect) == 2
+        assert collect[0].id == 10
+        assert collect[1].id == 20
+
+    @staticmethod
+    def test_repr(entity):
+        assert (
+            repr(entity)
+            == "MockEntity(data_dict={'classname': 'mock', 'id': 1000, 'many': [{'id': 10, 'classname': 'testreferenced', 'name': 'Referenced Entity 10'}, {'id': 20, 'classname': 'testreferenced', 'name': 'Referenced Entity 20'}]}, bfabric_instance='https://bfabric.example.org/bfabric/')"
+        )
+
+    @staticmethod
+    def test_str(entity):
+        assert str(entity) == repr(entity)
 
 
-def test_has_many_init():
-    has_many = HasMany("MockEntity", bfabric_field="test_field")
-    assert has_many._entity_type == MockEntity
-    assert has_many._bfabric_field == "test_field"
-    assert has_many._ids_property is None
-    assert has_many._client_property == "_client"
+class TestMissing:
+    @staticmethod
+    @pytest.mark.parametrize("optional", [True], indirect=True)
+    def test_missing_when_optional(entity, data_dict):
+        del data_dict["many"]
+        assert entity.field.ids == []
 
-
-def test_has_many_get(mock_client):
-    mock_obj = MockEntity(data_dict={"test_field": [{"id": 1}, {"id": 2}]}, client=mock_client)
-    has_many = HasMany("MockEntity", bfabric_field="test_field")
-
-    result = has_many.__get__(mock_obj)
-
-    assert isinstance(result, _HasManyProxy)
-    assert result._entity_type == MockEntity
-    assert result._ids == [1, 2]
-    assert result._client == mock_client
-
-
-def test_has_many_get_ids_property(mock_client):
-    mock_obj = MockEntity(client=mock_client)
-    mock_obj.test_ids = [3, 4]
-    has_many = HasMany("MockEntity", ids_property="test_ids")
-
-    result = has_many.__get__(mock_obj)
-
-    assert isinstance(result, _HasManyProxy)
-    assert result._entity_type == MockEntity
-    assert result._ids == [3, 4]
-    assert result._client == mock_client
-
-
-def test_has_many_get_invalid_config():
-    has_many = HasMany("MockEntity")
-    mock_obj = MockEntity()
-
-    with pytest.raises(ValueError, match="Exactly one of bfabric_field and ids_property must be set"):
-        has_many.__get__(mock_obj)
-
-
-def test_has_many_proxy_init(mock_proxy, mock_client):
-    assert mock_proxy._entity_type == MockEntity
-    assert mock_proxy._ids == [1, 2]
-    assert mock_proxy._client == mock_client
-    assert mock_proxy._items == {}
-
-
-def test_has_many_proxy_ids(mock_proxy):
-    assert mock_proxy.ids == [1, 2]
-
-
-def test_has_many_proxy_list(mocker: MockerFixture, mock_client, mock_proxy):
-    mock_entities = {1: MockEntity(), 2: MockEntity()}
-    mocker.patch.object(MockEntity, "find_all", return_value=mock_entities)
-
-    result = mock_proxy.list
-
-    assert result == sorted(mock_entities.values(), key=lambda x: mock_entities.keys())
-    MockEntity.find_all.assert_called_once_with(ids=[1, 2], client=mock_client)
-
-
-def test_has_many_proxy_polars(mocker: MockerFixture, mock_client, mock_proxy):
-    mock_entities = {1: MockEntity(), 2: MockEntity()}
-    mocker.patch.object(MockEntity, "find_all", return_value=mock_entities)
-    mocker.patch.object(DataFrame, "__init__", return_value=None)
-
-    result = mock_proxy.polars
-
-    assert isinstance(result, DataFrame)
-    DataFrame.__init__.assert_called_once_with([x.data_dict for x in mock_entities.values()])
-
-
-def test_has_many_proxy_getitem(mocker: MockerFixture, mock_client, mock_proxy):
-    mock_entities = {1: MockEntity(), 2: MockEntity()}
-    mocker.patch.object(MockEntity, "find_all", return_value=mock_entities)
-
-    result = mock_proxy[1]
-
-    assert result == mock_entities[1]
-    MockEntity.find_all.assert_called_once_with(ids=[1, 2], client=mock_client)
-
-
-def test_has_many_proxy_iter(mocker: MockerFixture, mock_client, mock_proxy):
-    mock_entities = {1: MockEntity(), 2: MockEntity()}
-    mocker.patch.object(MockEntity, "find_all", return_value=mock_entities)
-
-    result = list(iter(mock_proxy))
-
-    assert result == sorted(mock_entities.values(), key=lambda x: mock_entities.keys())
-    MockEntity.find_all.assert_called_once_with(ids=[1, 2], client=mock_client)
-
-
-def test_has_many_proxy_len(mocker: MockerFixture, mock_client, mock_proxy):
-    mock_entities = {1: MockEntity(), 2: MockEntity()}
-    mocker.patch.object(MockEntity, "find_all", return_value=mock_entities)
-    assert len(mock_proxy) == 2
-    MockEntity.find_all.assert_not_called()
-
-
-def test_has_many_proxy_repr(mocker: MockerFixture, mock_client, mock_proxy):
-    assert repr(mock_proxy) == f"_HasManyProxy({MockEntity}, [1, 2], {mock_client})"
-    assert str(mock_proxy) == repr(mock_proxy)
-
-
-if __name__ == "__main__":
-    pytest.main()
+    @staticmethod
+    @pytest.mark.parametrize("optional", [False], indirect=True)
+    def test_missing_when_required(entity, data_dict):
+        del data_dict["many"]
+        with pytest.raises(ValueError) as err:
+            _ = entity.field
+        assert str(err.value) == "Missing field: many"
