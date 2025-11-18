@@ -13,11 +13,13 @@ Versioning currently follows `X.Y.Z` where
 ### Added
 
 - `bfabric.entities.core.uri` to specify entities by URI in a standardized way.
+- `bfabric.entities.core.entity_reader` which allows reading entities by URI, ID, and general queries.
 - `Entity.uri` property to get the URI of an entity.
 
 ### Changed
 
 - Minimal Python version is now 3.11.
+- `Entity` has a new constructor parameter `bfabric_instance` which in the future will become mandatory.
 - `BfabricClientConfig.base_url` always ends with exactly one `/` now.
 - `BFabricClientConfig` does not allow passing `None` for values anymore.
 - `bfabric.entities` do not define custom constructors anymore, simplifying future changes (and removing tiny inconsistencies).
