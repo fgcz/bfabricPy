@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from bfabric.entities.core.entity import Entity
     from bfabric.entities.core.uri import EntityUri
-    from bfabric.experimental.cache._entity_memory_cache import EntityMemoryCache
+    from bfabric.entities.cache._entity_memory_cache import EntityMemoryCache
     from collections.abc import Iterable
 
 

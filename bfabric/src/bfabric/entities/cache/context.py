@@ -4,8 +4,8 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from typing import TYPE_CHECKING
 
-from bfabric.experimental.cache._cache_stack import CacheStack
-from bfabric.experimental.cache._entity_memory_cache import EntityMemoryCache
+from bfabric.entities.cache._cache_stack import CacheStack
+from bfabric.entities.cache._entity_memory_cache import EntityMemoryCache
 
 if TYPE_CHECKING:
     from bfabric.entities.core.entity import Entity
