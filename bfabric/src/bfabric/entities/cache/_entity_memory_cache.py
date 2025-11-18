@@ -20,10 +20,7 @@ class EntityMemoryCache:
     cached for each type.
     """
 
-    def __init__(self, config: dict[type[Entity] | str, int]) -> None:
-        # TODO not sure if to be kept
-        config = {(e if isinstance(e, str) else e.ENDPOINT): max_size for e, max_size in config.items()}
-
+    def __init__(self, config: dict[str, int]) -> None:
         self._config = config
         self._caches = {entity_type: FifoCache(max_size=max_size) for entity_type, max_size in config.items()}
 
