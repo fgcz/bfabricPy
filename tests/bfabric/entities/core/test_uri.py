@@ -1,7 +1,7 @@
 import pytest
 from pydantic import HttpUrl, BaseModel
 
-from bfabric.entities.core.uri import EntityUri, EntityUriComponents
+from bfabric.entities.core.uri import EntityUri, EntityUriComponents, GroupedUris
 from bfabric.entities.core.uri import _parse_uri_components
 
 
@@ -85,3 +85,27 @@ class TestPydanticModel:
         model = self.MockModel(uri=uri)
         dumped = model.model_dump()
         assert dumped["uri"] == uri
+
+
+class TestGroupedUris:
+    def test_from_uris_groups_by_type_and_instance(self):
+        """Test grouping URIs by both entity type and B-Fabric instance."""
+        # Create URIs with different types and instances
+        uri1 = EntityUri("https://instance1.example.org/bfabric/project/show.html?id=100")
+        uri2 = EntityUri("https://instance1.example.org/bfabric/project/show.html?id=200")
+        uri3 = EntityUri("https://instance1.example.org/bfabric/user/show.html?id=1")
+        uri4 = EntityUri("https://instance2.example.org/bfabric/project/show.html?id=300")
+        uri5 = EntityUri("https://instance2.example.org/bfabric/user/show.html?id=2")
+
+        grouped = GroupedUris.from_uris([uri1, uri2, uri3, uri4, uri5])
+
+        # Should have 4 groups: (instance1, project), (instance1, user), (instance2, project), (instance2, user)
+        assert len(grouped.groups) == 4
+
+        # Verify groups contain correct URIs
+        groups_dict = {(key.bfabric_instance, key.entity_type): uris for key, uris in grouped.items()}
+
+        assert groups_dict[("https://instance1.example.org/bfabric/", "project")] == [uri1, uri2]
+        assert groups_dict[("https://instance1.example.org/bfabric/", "user")] == [uri3]
+        assert groups_dict[("https://instance2.example.org/bfabric/", "project")] == [uri4]
+        assert groups_dict[("https://instance2.example.org/bfabric/", "user")] == [uri5]

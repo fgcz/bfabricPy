@@ -12,7 +12,10 @@ Versioning currently follows `X.Y.Z` where
 
 ### Added
 
-- `bfabric.entities.core.uri` to specify entities by URI in a standardized way.
+- `bfabric.entities.core.uri.EntityUri` to specify entities by URI in a standardized way.
+- `bfabric.entities.core.uri.EntityUriComponents` to access individual components `(bfabric_instance, entity_type, entity_id)` from a URI.
+- `bfabric.entities.core.uri.GroupedUris` mostly relevant for internal code needing to handle entity URIs.
+- `bfabric.entities.core.entity_reader` which allows reading entities by URI, ID, and general queries.
 - `Entity.uri` property to get the URI of an entity.
 - `bfabric.entities.cache` which supersedes `bfabric.experimental.cache` (temporarily kept in tree).
 
@@ -23,6 +26,7 @@ Versioning currently follows `X.Y.Z` where
 - `BfabricClientConfig.base_url` always ends with exactly one `/` now.
 - `BFabricClientConfig` does not allow passing `None` for values anymore.
 - `bfabric.entities` do not define custom constructors anymore, simplifying future changes (and removing tiny inconsistencies).
+- `bfabric.entities` allows loading entity references without custom definitions in Python.
 - `TokenData` retrieval uses async httpx internally, but provides a sync interface for compatibility.
 
 ## \[1.13.36\] - 2025-10-27
