@@ -15,6 +15,7 @@ Versioning currently follows `X.Y.Z` where
 - `bfabric.entities.core.uri` to specify entities by URI in a standardized way.
 - `bfabric.entities.core.entity_reader` which allows reading entities by URI, ID, and general queries.
 - `Entity.uri` property to get the URI of an entity.
+- `bfabric.entities.cache` which supersedes `bfabric.experimental.cache` (temporarily kept in tree).
 
 ### Changed
 
