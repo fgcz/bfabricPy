@@ -8,6 +8,7 @@ from bfabric.experimental.cache._fifo_cache import FifoCache
 
 if TYPE_CHECKING:
     from bfabric.entities.core.entity import Entity
+    from bfabric.entities.core.uri import EntityUri
 
     E = TypeVar("E", bound="Entity")
 
@@ -19,40 +20,46 @@ class EntityMemoryCache:
     cached for each type.
     """
 
-    def __init__(self, config: dict[type[Entity], int]) -> None:
+    def __init__(self, config: dict[type[Entity] | str, int]) -> None:
+        # TODO not sure if to be kept
+        config = {(e if isinstance(e, str) else e.ENDPOINT): max_size for e, max_size in config.items()}
+
         self._config = config
         self._caches = {entity_type: FifoCache(max_size=max_size) for entity_type, max_size in config.items()}
 
-    def contains(self, entity_type: type[Entity], entity_id: int) -> bool:
+    def contains(self, uri: EntityUri) -> bool:
         """Returns whether the cache contains an entity with the given type and ID."""
+        entity_type = uri.components.entity_type
         if entity_type not in self._caches:
             return False
         else:
-            return entity_id in self._caches[entity_type]
+            return uri in self._caches[entity_type]
 
-    def get(self, entity_type: type[E], entity_id: int) -> E | None:
+    def get(self, uri: EntityUri) -> E | None:
         """Returns the entity with the given type and ID, if it exists in the cache."""
+        entity_type = uri.components.entity_type
         if entity_type not in self._caches:
             return None
 
-        if self._caches[entity_type].get(entity_id):
-            logger.debug(f"Cache hit for entity {entity_type} with ID {entity_id}")
-            return self._caches[entity_type].get(entity_id)
+        if self._caches[entity_type].get(uri):
+            logger.debug(f"Cache hit for entity: {uri}")
+            return self._caches[entity_type].get(uri)
         else:
-            logger.debug(f"Cache miss for entity {entity_type} with ID {entity_id}")
+            logger.debug(f"Cache miss for entity: {uri}")
             return None
 
-    def get_all(self, entity_type: type[Entity], entity_ids: list[int]) -> dict[int, Entity]:
+    def get_all(self, uris: list[EntityUri]) -> dict[EntityUri, Entity]:
         """Returns a dictionary of entities with the given type and IDs,
         containing only the entities that exist in the cache.
         """
-        results = {entity_id: self.get(entity_type, entity_id) for entity_id in entity_ids}
-        return {entity_id: result for entity_id, result in results.items() if result is not None}
+        values = {uri: self.get(uri) for uri in uris}
+        return {uri: value for uri, value in values.items() if value is not None}
 
-    def put(self, entity_type: type[Entity], entity_id: int, entity: Entity | None) -> None:
-        """Puts an entity with the given type and ID into the cache."""
+    def put(self, entity: Entity | None) -> None:
+        """Puts an entity into the cache."""
+        entity_type = entity.uri.components.entity_type
         if entity_type not in self._caches:
             return
 
-        logger.debug(f"Caching entity {entity_type} with ID {entity_id}")
-        self._caches[entity_type].put(entity_id, entity)
+        logger.debug(f"Caching entity: {entity.uri}")
+        self._caches[entity_type].put(entity.uri, entity)
