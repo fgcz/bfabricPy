@@ -30,6 +30,10 @@ Versioning currently follows `X.Y.Z` where
 - `bfabric.entities` allows loading entity references without custom definitions in Python.
 - `TokenData` retrieval uses async httpx internally, but provides a sync interface for compatibility.
 
+### Removed
+
+- `bfabric.experimental.cache` is removed in favor of `bfabric.entities.cache`.
+
 ## \[1.13.36\] - 2025-10-27
 
 ### Changed
