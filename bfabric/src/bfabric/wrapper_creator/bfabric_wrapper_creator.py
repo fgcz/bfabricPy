@@ -34,7 +34,9 @@ class BfabricWrapperCreator:
 
     @cached_property
     def _external_job(self) -> Externaljob:
-        return Externaljob.find(id=self._external_job_id, client=self._client)
+        return self._client.reader.read_id(
+            "externaljob", self._external_job_id, bfabric_instance=self._client.config.base_url
+        )
 
     @cached_property
     def _workunit(self) -> Workunit:
