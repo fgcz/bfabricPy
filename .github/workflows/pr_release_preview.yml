@@ -11,7 +11,7 @@ jobs:
       pull-requests: write
       contents: read
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Install hatch
         run: pip install hatch
       - name: Check which packages will be released
