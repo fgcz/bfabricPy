@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 class UserCreatedMixin:
     @cached_property
-    def users(self) -> Users:
+    def _users(self) -> Users:
         from bfabric.entities.core.users import Users
 
         return Users(entity_reader=self._client.reader)
@@ -29,11 +29,11 @@ class UserCreatedMixin:
 
     @property
     def created_by(self) -> User:
-        return self.users.get_by_login(bfabric_instance=self.bfabric_instance, login=self.data_dict["createdby"])
+        return self._users.get_by_login(bfabric_instance=self.bfabric_instance, login=self.data_dict["createdby"])
 
     @property
     def modified_by(self) -> User:
-        return self.users.get_by_login(bfabric_instance=self.bfabric_instance, login=self.data_dict["modifiedby"])
+        return self._users.get_by_login(bfabric_instance=self.bfabric_instance, login=self.data_dict["modifiedby"])
 
 
 class EntityProtocol(Protocol):
