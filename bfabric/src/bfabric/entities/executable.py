@@ -2,25 +2,21 @@ from __future__ import annotations
 
 import base64
 from functools import cached_property
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.has_many import HasMany
 from bfabric.entities.core.has_one import HasOne
 
 if TYPE_CHECKING:
-    from bfabric import Bfabric
     from bfabric.entities import Parameter
 
 
 class Executable(Entity):
     ENDPOINT = "executable"
 
-    storage = HasOne(entity="Storage", bfabric_field="storage", optional=True)
-    parameters: HasMany[Parameter] = HasMany(entity="Parameter", bfabric_field="parameter", optional=True)
-
-    def __init__(self, data_dict: dict[str, Any], client: Bfabric | None = None) -> None:
-        super().__init__(data_dict=data_dict, client=client)
+    storage = HasOne(bfabric_field="storage", optional=True)
+    parameters: HasMany[Parameter] = HasMany(bfabric_field="parameter", optional=True)
 
     @cached_property
     def decoded(self) -> str | None:

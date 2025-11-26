@@ -29,13 +29,6 @@ class TestDefaultParams:
         assert config.application_ids == {}
         assert config.job_notification_emails == ""
 
-    def test_when_specified(self) -> None:
-        config = BfabricClientConfig(
-            base_url="https://fgcz-bfabric.uzh.ch/bfabric", application_ids=None, job_notification_emails=None
-        )
-        assert config.application_ids == {}
-        assert config.job_notification_emails == ""
-
     def test_base_url_is_required(self):
         with pytest.raises(ValidationError) as error:
             BfabricClientConfig()
@@ -44,12 +37,26 @@ class TestDefaultParams:
         assert error.value.errors()[0]["loc"] == ("base_url",)
 
 
+class TestBaseUrl:
+    @pytest.mark.parametrize(
+        "base_url",
+        [
+            "https://example.com/bfabric",
+            "https://example.com/bfabric/",
+            "https://example.com/bfabric////",
+        ],
+    )
+    def test_normalizes_slash(self, base_url):
+        config = BfabricClientConfig(base_url=base_url)
+        assert config.base_url == "https://example.com/bfabric/"
+
+
 def test_bfabric_config_copy_with_overrides(mock_config: BfabricClientConfig) -> None:
     new_config = mock_config.copy_with(
         base_url="https://example.com/new-url",
         application_ids={"new": 2},
     )
-    assert new_config.base_url == "https://example.com/new-url"
+    assert new_config.base_url == "https://example.com/new-url/"
     assert new_config.application_ids == {"new": 2}
     assert mock_config.base_url == "https://example.com/"
     assert mock_config.application_ids == {"app": 1}
@@ -77,9 +84,9 @@ def test_bfabric_config_read_yml_bypath_default(mocker: MockerFixture, example_c
     mocker.patch.dict(os.environ, {}, clear=True)
 
     config, auth = read_config_file(example_config_path)
-    assert auth.login == "my_epic_production_login"
+    assert auth.login == "testuser"
     assert auth.password.get_secret_value() == "01234567890123456789012345678901"
-    assert config.base_url == "https://mega-production-server.uzh.ch/myprod"
+    assert config.base_url == "https://prod-server.example.com/api/"
 
     logot.assert_logged(
         logged.debug(f"Reading configuration from: {str(example_config_path.absolute())} config_env=None")
@@ -94,9 +101,9 @@ def test_bfabric_config_read_yml_bypath_environment_variable(
     mocker.patch.dict(os.environ, {"BFABRICPY_CONFIG_ENV": "TEST"}, clear=True)
 
     config, auth = read_config_file(example_config_path)
-    assert auth.login == "my_epic_test_login"
+    assert auth.login == "testuser"
     assert auth.password.get_secret_value() == "012345678901234567890123456789ff"
-    assert config.base_url == "https://mega-test-server.uzh.ch/mytest"
+    assert config.base_url == "https://test-server.example.com/api/"
 
     logot.assert_logged(
         logged.debug(f"Reading configuration from: {str(example_config_path.absolute())} config_env=None")

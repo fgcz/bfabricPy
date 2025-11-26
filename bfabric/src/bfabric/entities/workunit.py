@@ -8,37 +8,27 @@ from typing import Any, TYPE_CHECKING
 import dateutil.parser
 
 from bfabric.entities.core.entity import Entity
-from bfabric.entities.core.has_container_mixin import HasContainerMixin
 from bfabric.entities.core.has_many import HasMany
 from bfabric.entities.core.has_one import HasOne
-from bfabric.entities.core.user_created_mixin import UserCreatedMixin
+from bfabric.entities.core.mixins.user_created_mixin import UserCreatedMixin
 from bfabric.utils.path_safe_name import path_safe_name
 
 if TYPE_CHECKING:
-    from bfabric import Bfabric
-    from bfabric.entities.application import Application
-    from bfabric.entities.dataset import Dataset
-    from bfabric.entities.externaljob import ExternalJob
-    from bfabric.entities.parameter import Parameter
-    from bfabric.entities.resource import Resource
+    from bfabric.entities import Application, Dataset, Externaljob, Parameter, Resource, Order, Project
 
 
-class Workunit(Entity, HasContainerMixin, UserCreatedMixin):
-    """Immutable representation of a single workunit in B-Fabric.
-    :param data_dict: The dictionary representation of the workunit.
-    """
+class Workunit(Entity, UserCreatedMixin):
+    """Immutable representation of a single workunit in B-Fabric."""
 
     ENDPOINT = "workunit"
 
-    def __init__(self, data_dict: dict[str, Any], client: Bfabric | None = None) -> None:
-        super().__init__(data_dict=data_dict, client=client)
-
-    application: HasOne[Application] = HasOne(entity="Application", bfabric_field="application")
-    parameters: HasMany[Parameter] = HasMany(entity="Parameter", bfabric_field="parameter", optional=True)
-    resources: HasMany[Resource] = HasMany(entity="Resource", bfabric_field="resource", optional=True)
-    input_resources: HasMany[Resource] = HasMany(entity="Resource", bfabric_field="inputresource", optional=True)
-    input_dataset: HasOne[Dataset] = HasOne(entity="Dataset", bfabric_field="inputdataset", optional=True)
-    external_jobs: HasMany[ExternalJob] = HasMany(entity="ExternalJob", bfabric_field="externaljob", optional=True)
+    application: HasOne[Application] = HasOne(bfabric_field="application")
+    container: HasOne[Order | Project] = HasOne(bfabric_field="container")
+    parameters: HasMany[Parameter] = HasMany(bfabric_field="parameter", optional=True)
+    resources: HasMany[Resource] = HasMany(bfabric_field="resource", optional=True)
+    input_resources: HasMany[Resource] = HasMany(bfabric_field="inputresource", optional=True)
+    input_dataset: HasOne[Dataset] = HasOne(bfabric_field="inputdataset", optional=True)
+    external_jobs: HasMany[Externaljob] = HasMany(bfabric_field="externaljob", optional=True)
 
     @cached_property
     def application_parameters(self) -> dict[str, str]:

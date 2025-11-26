@@ -1,17 +1,17 @@
 GENERAL:
   default_config: PRODUCTION
 PRODUCTION:
-  login: my_epic_production_login
+  login: testuser
   password: 01234567890123456789012345678901
-  base_url: https://mega-production-server.uzh.ch/myprod
+  base_url: https://prod-server.example.com/api
 TEST:
-  login: my_epic_test_login
+  login: testuser
   password: 012345678901234567890123456789ff
-  base_url: https://mega-test-server.uzh.ch/mytest
+  base_url: https://test-server.example.com/api
   application_ids:
     Proteomics/CAT_123: 7
     Proteomics/DOG_552: 6
     Proteomics/DUCK_666: 12
-  job_notification_emails: john.snow@fgcz.uzh.ch billy.the.kid@fgcz.ethz.ch
+  job_notification_emails: user1@example.com user2@example.com
 STANDBY:
-  base_url: https://standby-server.uzh.ch/mystandby
+  base_url: https://standby-server.example.com/api
