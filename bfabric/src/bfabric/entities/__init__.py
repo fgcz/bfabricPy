@@ -1,9 +1,9 @@
 from .application import Application
 from .dataset import Dataset
 from .executable import Executable
-from .externaljob import ExternalJob
+from .externaljob import Externaljob
 from .instrument import Instrument
-from .multiplexid import MultiplexId
+from .multiplexid import Multiplexid
 from .multiplexkit import MultiplexKit
 from .order import Order
 from .parameter import Parameter
@@ -15,18 +15,18 @@ from .sample import Sample
 from .storage import Storage
 from .user import User
 from .workflow import Workflow
-from .workflowstep import WorkflowStep
-from .workflowtemplate import WorkflowTemplate
-from .workflowtemplatestep import WorkflowTemplateStep
+from .workflowstep import Workflowstep
+from .workflowtemplate import Workflowtemplate
+from .workflowtemplatestep import Workflowtemplatestep
 from .workunit import Workunit
 
 __all__ = [
     "Application",
     "Dataset",
     "Executable",
-    "ExternalJob",
+    "Externaljob",
     "Instrument",
-    "MultiplexId",
+    "Multiplexid",
     "MultiplexKit",
     "Order",
     "Parameter",
@@ -38,8 +38,8 @@ __all__ = [
     "Storage",
     "User",
     "Workflow",
-    "WorkflowStep",
-    "WorkflowTemplate",
-    "WorkflowTemplateStep",
+    "Workflowstep",
+    "Workflowtemplate",
+    "Workflowtemplatestep",
     "Workunit",
 ]

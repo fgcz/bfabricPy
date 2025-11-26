@@ -9,6 +9,9 @@ if TYPE_CHECKING:
     from bfabric.entities import Order, Project
 
 
-class WorkflowStep(Entity, UserCreatedMixin):
+class Workflowstep(Entity, UserCreatedMixin):
     ENDPOINT = "workflowstep"
     container: HasOne[Order | Project] = HasOne(bfabric_field="container")
+
+
+WorkflowStep = Workflowstep  # Alias for backward compatibility

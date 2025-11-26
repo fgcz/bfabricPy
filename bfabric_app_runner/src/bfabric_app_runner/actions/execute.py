@@ -5,7 +5,7 @@ from typing import Any
 from loguru import logger
 
 from bfabric import Bfabric
-from bfabric.entities import WorkflowTemplateStep, WorkflowTemplate, WorkflowStep
+from bfabric.entities import Workflowtemplatestep, Workflowtemplate, Workflowstep
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric_app_runner.actions.types import (
     ActionDispatch,
@@ -129,7 +129,7 @@ def _register_workflow_step(
     workflow_template_step_id: int, workunit_definition: WorkunitDefinition, client: Bfabric
 ) -> None:
     # Load the workflow template step
-    workflow_template_step = WorkflowTemplateStep.find(id=workflow_template_step_id, client=client)
+    workflow_template_step = Workflowtemplatestep.find(id=workflow_template_step_id, client=client)
     if not workflow_template_step:
         logger.error(f"Misconfigured {workflow_template_step_id=}, cannot find it in the database.")
         return
@@ -161,7 +161,7 @@ def _register_workflow_step(
 def _create_workflow_step_if_not_exists(
     workflow: dict[str, Any], workflow_step_data: dict[str, Any], workunit_id: int, client: Bfabric
 ) -> None:
-    workflow_step = WorkflowStep.find_by(workflow_step_data, client=client)
+    workflow_step = Workflowstep.find_by(workflow_step_data, client=client)
     if workflow_step:
         logger.info(f"Workflow step already exists: {workflow_step}, skipping creation.")
         return
@@ -170,7 +170,7 @@ def _create_workflow_step_if_not_exists(
 
 
 def _find_or_create_workflow(
-    workflow_template: WorkflowTemplate, workunit_definition: WorkunitDefinition, client: Bfabric
+    workflow_template: Workflowtemplate, workunit_definition: WorkunitDefinition, client: Bfabric
 ) -> dict[str, Any]:
     container_id = workunit_definition.registration.container_id
     workflow_data = {"containerid": container_id, "workflowtemplateid": workflow_template.id}

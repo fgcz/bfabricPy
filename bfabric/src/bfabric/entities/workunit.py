@@ -14,7 +14,7 @@ from bfabric.entities.core.mixins.user_created_mixin import UserCreatedMixin
 from bfabric.utils.path_safe_name import path_safe_name
 
 if TYPE_CHECKING:
-    from bfabric.entities import Application, Dataset, ExternalJob, Parameter, Resource, Order, Project
+    from bfabric.entities import Application, Dataset, Externaljob, Parameter, Resource, Order, Project
 
 
 class Workunit(Entity, UserCreatedMixin):
@@ -28,7 +28,7 @@ class Workunit(Entity, UserCreatedMixin):
     resources: HasMany[Resource] = HasMany(bfabric_field="resource", optional=True)
     input_resources: HasMany[Resource] = HasMany(bfabric_field="inputresource", optional=True)
     input_dataset: HasOne[Dataset] = HasOne(bfabric_field="inputdataset", optional=True)
-    external_jobs: HasMany[ExternalJob] = HasMany(bfabric_field="externaljob", optional=True)
+    external_jobs: HasMany[Externaljob] = HasMany(bfabric_field="externaljob", optional=True)
 
     @cached_property
     def application_parameters(self) -> dict[str, str]:
