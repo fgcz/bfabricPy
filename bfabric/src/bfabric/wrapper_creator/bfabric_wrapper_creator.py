@@ -90,7 +90,7 @@ class BfabricWrapperCreator:
         logger.info("Creating application section")
         output_url = f"bfabric@{self._application.storage.data_dict['host']}:{self._application.storage.data_dict['basepath']}{output_resource.data_dict['relativepath']}"
         inputs = defaultdict(list)
-        for resource in Resource.find_all(self.workunit_definition.execution.resources, client=self._client).values():
+        for resource in self._get_input_resources_dict().values():
             inputs[resource.workunit.application["name"]].append(
                 f"bfabric@{resource.storage.scp_prefix}{resource.data_dict['relativepath']}"
             )
@@ -132,9 +132,7 @@ class BfabricWrapperCreator:
             }
 
         inputs = defaultdict(list)
-        input_resources_dict = self._client.reader.read_ids(
-            "resource", self.workunit_definition.execution.resources, bfabric_instance=self._client.config.base_url
-        )
+        input_resources_dict = self._get_input_resources_dict()
         for resource_url, resource in input_resources_dict.items():
             inputs[resource.workunit.application["name"]].append(
                 {"resource_id": resource.id, "resource_url": resource_url}
@@ -165,6 +163,12 @@ class BfabricWrapperCreator:
             "workunit_id": self.workunit_definition.registration.workunit_id,
             "workunit_url": self._workunit.web_url,
         }
+
+    def _get_input_resources_dict(self):
+        input_resources_dict = self._client.reader.read_ids(
+            "resource", self.workunit_definition.execution.resources, bfabric_instance=self._client.config.base_url
+        )
+        return input_resources_dict
 
     @cached_property
     def _order(self) -> Order | None:
