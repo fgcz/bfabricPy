@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 class MultiplexKit(Entity):
     ENDPOINT = "multiplexkit"
 
-    multiplex_ids: HasMany[MultiplexId] = HasMany("MultiplexId", bfabric_field="multiplexid")
+    multiplex_ids: HasMany[MultiplexId] = HasMany(bfabric_field="multiplexid")
 
     @cached_property
     def ids(self) -> pl.DataFrame:
