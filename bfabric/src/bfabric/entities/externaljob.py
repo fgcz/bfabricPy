@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 class ExternalJob(Entity):
     ENDPOINT = "externaljob"
 
-    executable: HasOne[Executable] = HasOne(entity="Executable", bfabric_field="executable")
+    executable: HasOne[Executable] = HasOne(bfabric_field="executable")
 
     @cached_property
     def workunit(self) -> Workunit | None:
