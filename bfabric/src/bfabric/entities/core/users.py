@@ -9,11 +9,14 @@ if TYPE_CHECKING:
 
 
 class Users:
+    """An interface for resolving users by ID or login name."""
+
     def __init__(self, entity_reader: EntityReader) -> None:
         self._users = []
         self._entity_reader = entity_reader
 
     def get_by_id(self, bfabric_instance: str, id: int) -> User | None:
+        """Gets a user by their ID."""
         # check if exists
         for user in self._users:
             if user.id == id:
@@ -29,6 +32,7 @@ class Users:
         return user
 
     def get_by_login(self, bfabric_instance: str, login: str) -> User | None:
+        """Gets a user by their login name."""
         # check if exists
         for user in self._users:
             if user["login"] == login:
