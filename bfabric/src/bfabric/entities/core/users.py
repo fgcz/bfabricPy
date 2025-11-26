@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from bfabric.entities.core.uri import EntityUri
 
 if TYPE_CHECKING:
     from bfabric.entities.core.entity_reader import EntityReader
@@ -21,9 +20,7 @@ class Users:
                 return user
 
         # retrieve
-        user = self._entity_reader.read_uri(
-            EntityUri.from_components(bfabric_instance=bfabric_instance, entity_type="user", entity_id=user.id)
-        )
+        user = self._entity_reader.read_id(entity_type="user", entity_id=id, bfabric_instance=bfabric_instance)
         if user is None:
             return None
 
