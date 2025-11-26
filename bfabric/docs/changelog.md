@@ -2,13 +2,20 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-Versioning currently follows `X.Y.Z` where
+Versioning currently follows `X.Y.Z` semantic versioning.
+Historically, before 1.14.0, a different versioning scheme was used.
 
-- `X` is used for major changes, that contain breaking changes
-- `Y` should be the current bfabric release
-- `Z` is increased for feature releases, that should not break the API
+Minor breaking changes are still possible in `1.X.Y` but we try to announce them with DeprecationWarnings in the previous `Y-1` release.
 
 ## \[Unreleased\]
+
+This release brings a complete overhaul of `bfabric.entities` to support multiple B-Fabric instances cleanly.
+The main new concept is the `EntityUri` which standardizes the way entities are specified by their URI.
+We also remove the reliance on custom entity classes providing generic functionality to read entities and their references.
+This is available through the `EntityReader` class which can be accessed through `Bfabric.reader`.
+
+This version also marks a change in versioning, whereas we will use semantic versioning starting from `1.14.0`.
+We will continue to track the B-Fabric version in the `bfabric-scripts` package instead.
 
 ### Added
 
@@ -19,6 +26,7 @@ Versioning currently follows `X.Y.Z` where
 - `Entity.refs` resolves all references of entities generically, writes the data into data_dict and is compatible with pre-loaded references from B-Fabric.
 - `Entity.uri` property to get the URI of an entity.
 - `bfabric.entities.cache` which supersedes `bfabric.experimental.cache` (temporarily kept in tree).
+- `HasOne` and `HasMany` should be able to use resolved entities when loading with `fulldetails=True`.
 
 ### Changed
 
