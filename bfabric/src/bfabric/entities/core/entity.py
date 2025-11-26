@@ -73,14 +73,15 @@ class Entity(FindMixin):
         warnings.warn("Entity.web_url is deprecated, use str(Entity.uri) instead.", DeprecationWarning, stacklevel=2)
         return str(self.uri)
 
-    @cached_property
-    def refs(self) -> References:
-        return References(client=self._client, bfabric_instance=self.__bfabric_instance, data_ref=self.__data_dict)
-
     @property
     def data_dict(self) -> dict[str, Any]:
         """Returns a shallow copy of the entity's data dictionary."""
         return self.__data_dict.copy()
+
+    @cached_property
+    def refs(self) -> References:
+        """Returns the entity's references manager."""
+        return References(client=self._client, bfabric_instance=self.__bfabric_instance, data_ref=self.__data_dict)
 
     @property
     def _client(self) -> Bfabric | None:

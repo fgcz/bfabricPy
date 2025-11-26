@@ -20,6 +20,16 @@ class _ReferenceInformation(BaseModel):
 
 
 class References:
+    """References manager for a B-Fabric entity.
+
+    References can be loaded, in which case their full data is available at the expected field in the data dictionary,
+    or, they can be unloaded, in which case only a reference (classname and id) is present.
+
+    This is compatible with pre-loaded references from B-Fabric API (i.e. fulldetails).
+
+    This class receives a reference to the entity's data dictionary, updating it in-place when references are loaded.
+    """
+
     def __init__(self, client: Bfabric, bfabric_instance: str, data_ref: dict[str, Any]) -> None:
         self._client = client
         self._bfabric_instance = bfabric_instance

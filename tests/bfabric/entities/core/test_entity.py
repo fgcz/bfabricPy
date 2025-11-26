@@ -33,6 +33,14 @@ def test_data_dict(mock_entity, mock_data_dict) -> None:
     assert mock_entity.data_dict == mock_data_dict
 
 
+def test_refs(mock_entity, mocker, mock_client, bfabric_instance) -> None:
+    mock_references = mocker.patch("bfabric.entities.core.entity.References")
+    assert mock_entity.refs == mock_references.return_value
+    mock_references.assert_called_once_with(
+        client=mock_client, bfabric_instance=bfabric_instance, data_ref=mock_entity.data_dict
+    )
+
+
 def test_client(mock_entity, mock_client) -> None:
     assert mock_entity._client == mock_client
 
