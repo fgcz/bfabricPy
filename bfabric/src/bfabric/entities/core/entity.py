@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+from functools import cached_property
 from typing import TYPE_CHECKING
 import urllib.parse
 
 import yaml
 from loguru import logger
 
+from bfabric.entities.core.references import References
 from bfabric.entities.core.uri import EntityUri
 from bfabric.experimental import MultiQuery
 from bfabric.experimental.cache.context import get_cache_stack
@@ -66,6 +68,10 @@ class Entity:
     def data_dict(self) -> dict[str, Any]:
         """Returns a shallow copy of the entity's data dictionary."""
         return self.__data_dict.copy()
+
+    @cached_property
+    def refs(self) -> References:
+        return References(client=self._client, bfabric_instance=self.__bfabric_instance, data_ref=self.__data_dict)
 
     @property
     def _client(self) -> Bfabric | None:
