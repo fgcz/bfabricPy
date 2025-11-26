@@ -13,6 +13,4 @@ if TYPE_CHECKING:
 class WorkflowTemplate(Entity, UserCreatedMixin):
     ENDPOINT = "workflowtemplate"
 
-    workflow_template_steps: HasMany[WorkflowTemplateStep] = HasMany(
-        entity="WorkflowTemplateStep", bfabric_field="workflowtemplatestep"
-    )
+    workflow_template_steps: HasMany[WorkflowTemplateStep] = HasMany(bfabric_field="workflowtemplatestep")

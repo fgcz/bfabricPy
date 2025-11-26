@@ -18,7 +18,6 @@ T = TypeVar("T")
 class HasMany(Generic[E]):
     def __init__(
         self,
-        entity: None = None,
         *,
         bfabric_field: str | None = None,
         optional: bool = False,
