@@ -42,6 +42,9 @@ We will continue to track the B-Fabric version in the `bfabric-scripts` package 
 ### Removed
 
 - `bfabric.experimental.cache` is removed in favor of `bfabric.entities.cache`.
+- Future deprecations:
+    - `Entity.find`, `Entity.find_all`, `Entity.find_by` will be removed in favor of `EntityReader` methods.
+    - Passing entity class to `cache_context` will be removed in favor of their name (this is because not all entities have custom classes).
 
 ## \[1.13.36\] - 2025-10-27
 
