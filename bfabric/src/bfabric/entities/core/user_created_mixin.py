@@ -4,8 +4,6 @@ import datetime
 from functools import cached_property
 from typing import TYPE_CHECKING, Protocol, Any
 
-from bfabric.entities.core.entity_reader import EntityReader
-
 if TYPE_CHECKING:
     from bfabric import Bfabric
     from bfabric.entities import User
@@ -17,9 +15,7 @@ class UserCreatedMixin:
     def users(self) -> Users:
         from bfabric.entities.core.users import Users
 
-        # TODO isn't this currently broken
-        entity_reader = EntityReader.for_client(self._client)
-        return Users(bfabric_instance=self.bfabric_instance, entity_reader=entity_reader)
+        return Users(entity_reader=self._client.reader)
 
     @property
     def created_at(self: EntityProtocol) -> datetime.datetime:
@@ -33,11 +29,11 @@ class UserCreatedMixin:
 
     @property
     def created_by(self) -> User:
-        return self.users.get_by_login(self.data_dict["createdby"])
+        return self.users.get_by_login(bfabric_instance=self.bfabric_instance, login=self.data_dict["createdby"])
 
     @property
     def modified_by(self) -> User:
-        return self.users.get_by_login(self.data_dict["modifiedby"])
+        return self.users.get_by_login(bfabric_instance=self.bfabric_instance, login=self.data_dict["modifiedby"])
 
 
 class EntityProtocol(Protocol):
