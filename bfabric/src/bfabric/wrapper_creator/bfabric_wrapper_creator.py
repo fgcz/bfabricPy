@@ -88,7 +88,11 @@ class BfabricWrapperCreator:
 
     def get_application_section(self, output_resource: Resource) -> dict[str, Any]:
         logger.info("Creating application section")
-        output_url = f"bfabric@{self._application.storage.data_dict['host']}:{self._application.storage.data_dict['basepath']}{output_resource.data_dict['relativepath']}"
+        output_url = (
+            f"bfabric@{self._application.storage.data_dict['host']}:"
+            f"{self._application.storage.data_dict['basepath']}"
+            f"{output_resource.data_dict['relativepath']}"
+        )
         inputs = defaultdict(list)
         for resource in self._get_input_resources_dict().values():
             inputs[resource.workunit.application["name"]].append(
