@@ -7,7 +7,7 @@ from bfabric.entities.core.uri import EntityUri
 
 @pytest.fixture
 def entity_reader(mock_client):
-    return EntityReader(client=mock_client)
+    return EntityReader.for_client(client=mock_client)
 
 
 @pytest.fixture

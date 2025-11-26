@@ -2,6 +2,7 @@ import pytest
 
 from bfabric.entities import User, Project
 from bfabric.entities.core.entity import Entity
+from bfabric.entities.core.entity_reader import EntityReader
 from bfabric.entities.core.references import References
 
 
@@ -38,10 +39,7 @@ def entity(entity_data_dict, mock_client, bfabric_instance):
 
 @pytest.fixture
 def entity_reader_constructor(mocker):
-    return mocker.patch(
-        "bfabric.entities.core.entity_reader.EntityReader",
-        autospec=True,
-    )
+    return mocker.patch.object(EntityReader, "for_client", autospec=True)
 
 
 @pytest.fixture

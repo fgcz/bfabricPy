@@ -17,7 +17,8 @@ class UserCreatedMixin:
     def users(self) -> Users:
         from bfabric.entities.core.users import Users
 
-        entity_reader = EntityReader(self._client)
+        # TODO isn't this currently broken
+        entity_reader = EntityReader.for_client(self._client)
         return Users(bfabric_instance=self.bfabric_instance, entity_reader=entity_reader)
 
     @property

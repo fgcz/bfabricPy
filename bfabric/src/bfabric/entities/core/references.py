@@ -84,7 +84,7 @@ class References:
     def __load(self, ref_info: _ReferenceInformation) -> None:
         from bfabric.entities.core.entity_reader import EntityReader
 
-        reader = EntityReader(self._client)
+        reader = EntityReader.for_client(self._client)
         entities = reader.read_uris(ref_info.uris)
 
         # merge into the ref_data object
