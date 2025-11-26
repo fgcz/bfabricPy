@@ -71,7 +71,7 @@ class BfabricWrapperCreator:
         # Save the path
         logger.info("Saving correct path")
         result = self._client.save("resource", {"id": resource_id, "relativepath": relative_path})
-        return Resource(result[0])
+        return Resource(result[0], bfabric_instance=self._client.config.base_url)
 
     def create_log_resource(self, variant: Literal["out", "err"], output_resource: Resource) -> Resource:
         logger.info("Creating log resource")
@@ -84,7 +84,7 @@ class BfabricWrapperCreator:
                 "relativepath": f"workunitid-{self._workunit.id}_resourceid-{output_resource.id}.{variant}",
             },
         )
-        return Resource(result[0])
+        return Resource(result[0], bfabric_instance=self._client.config.base_url)
 
     def get_application_section(self, output_resource: Resource) -> dict[str, Any]:
         logger.info("Creating application section")
@@ -132,9 +132,13 @@ class BfabricWrapperCreator:
             }
 
         inputs = defaultdict(list)
-        for resource in Resource.find_all(self.workunit_definition.execution.resources, client=self._client).values():
-            web_url = Resource({"id": resource.id}, client=self._client).web_url
-            inputs[resource.workunit.application["name"]].append({"resource_id": resource.id, "resource_url": web_url})
+        input_resources_dict = self._client.reader.read_ids(
+            "resource", self.workunit_definition.execution.resources, bfabric_instance=self._client.config.base_url
+        )
+        for resource_url, resource in input_resources_dict.items():
+            inputs[resource.workunit.application["name"]].append(
+                {"resource_id": resource.id, "resource_url": resource_url}
+            )
 
         inputdataset = (
             None
