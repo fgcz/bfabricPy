@@ -71,6 +71,7 @@ class Entity:
 
     @cached_property
     def refs(self) -> References:
+        """Returns the entity's references manager."""
         return References(client=self._client, bfabric_instance=self.__bfabric_instance, data_ref=self.__data_dict)
 
     @property
