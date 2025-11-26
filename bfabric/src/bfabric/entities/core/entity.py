@@ -15,8 +15,6 @@ if TYPE_CHECKING:
 
 
 class Entity(FindMixin):
-    ENDPOINT: str = ""
-
     def __init__(
         self,
         data_dict: dict[str, Any],
@@ -115,7 +113,7 @@ class Entity(FindMixin):
 
     def dump_yaml(self, path: Path) -> None:
         """Writes the entity's data dictionary to a YAML file."""
-        # TODO keep long term? I would suggest we also move this into a different layer which e.g. can keep URI
+        # TODO (#351): to be extended
         import yaml
 
         with path.open("w") as file:
@@ -124,6 +122,7 @@ class Entity(FindMixin):
     @classmethod
     def load_yaml(cls, path: Path, client: Bfabric | None = None, bfabric_instance: str | None = None) -> Self:
         """Loads an entity from a YAML file."""
+        # TODO (#351): to be extended
         import yaml
 
         with path.open("r") as file:
