@@ -16,8 +16,8 @@ if TYPE_CHECKING:
 class Executable(Entity):
     ENDPOINT = "executable"
 
-    storage = HasOne(entity="Storage", bfabric_field="storage", optional=True)
-    parameters: HasMany[Parameter] = HasMany(entity="Parameter", bfabric_field="parameter", optional=True)
+    storage = HasOne(bfabric_field="storage", optional=True)
+    parameters: HasMany[Parameter] = HasMany(bfabric_field="parameter", optional=True)
 
     def __init__(self, data_dict: dict[str, Any], client: Bfabric | None = None) -> None:
         super().__init__(data_dict=data_dict, client=client)

@@ -11,8 +11,7 @@ T = TypeVar("T")
 
 
 class HasOne(Generic[T]):
-    def __init__(self, entity: None = None, *, bfabric_field: str, optional: bool = False) -> None:
-        # TODO delete entity kwarg as soon as all usages are removed
+    def __init__(self, *, bfabric_field: str, optional: bool = False) -> None:
         self._bfabric_field = bfabric_field
         self._optional = optional
 

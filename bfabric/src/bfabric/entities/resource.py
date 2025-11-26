@@ -15,9 +15,9 @@ if TYPE_CHECKING:
 class Resource(Entity):
     ENDPOINT = "resource"
 
-    storage: HasOne[Storage] = HasOne("Storage", bfabric_field="storage")
-    workunit: HasOne[Workunit] = HasOne("Workunit", bfabric_field="workunit")
-    sample: HasOne[Sample] = HasOne("Sample", bfabric_field="sample", optional=True)
+    storage: HasOne[Storage] = HasOne(bfabric_field="storage")
+    workunit: HasOne[Workunit] = HasOne(bfabric_field="workunit")
+    sample: HasOne[Sample] = HasOne(bfabric_field="sample", optional=True)
 
     @property
     def storage_relative_path(self) -> Path:

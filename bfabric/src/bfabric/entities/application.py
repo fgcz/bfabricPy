@@ -16,8 +16,8 @@ if TYPE_CHECKING:
 class Application(Entity):
     ENDPOINT = "application"
 
-    storage: HasOne[Storage] = HasOne("Storage", bfabric_field="storage")
-    executable: HasOne[Executable] = HasOne("Executable", bfabric_field="executable")
+    storage: HasOne[Storage] = HasOne(bfabric_field="storage")
+    executable: HasOne[Executable] = HasOne(bfabric_field="executable")
 
     @property
     def technology_folder_name(self) -> PathSafeStr:
