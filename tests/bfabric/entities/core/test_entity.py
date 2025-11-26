@@ -3,6 +3,8 @@ from pathlib import Path
 import pytest
 
 from bfabric.entities.core.entity import Entity
+from bfabric.entities.core.entity_reader import EntityReader
+from bfabric.entities.core.uri import EntityUri
 
 
 @pytest.fixture
@@ -11,14 +13,8 @@ def mock_data_dict():
 
 
 @pytest.fixture()
-def mock_entity(mock_data_dict, mock_client) -> Entity:
-    entity = Entity(mock_data_dict, mock_client)
-    entity.ENDPOINT = "test_endpoint"
-    return entity
-
-
-def test_endpoint(mock_entity) -> None:
-    assert mock_entity.ENDPOINT == "test_endpoint"
+def mock_entity(mock_data_dict, mock_client, bfabric_instance) -> Entity:
+    return Entity(mock_data_dict, mock_client, bfabric_instance)
 
 
 def test_id(mock_entity) -> None:
@@ -49,65 +45,79 @@ def test_client(mock_entity, mock_client) -> None:
     assert mock_entity._client == mock_client
 
 
-def test_find_when_found(mocker, mock_client) -> None:
-    mock_client.read.return_value = [{"id": 1, "name": "Test Entity"}]
-    mocker.patch.object(Entity, "ENDPOINT", new="test_endpoint")
-    entity = Entity.find(1, mock_client)
-    assert isinstance(entity, Entity)
-    assert entity.data_dict == {"id": 1, "name": "Test Entity"}
-    mock_client.read.assert_called_once_with("test_endpoint", obj={"id": 1})
+class TestFindMixin:
+    @staticmethod
+    @pytest.fixture(autouse=True)
+    def set_endpoint(mocker):
+        mocker.patch.object(Entity, "ENDPOINT", new="testendpoint")
 
+    @staticmethod
+    def test_find_when_found(mocker, mock_client, bfabric_instance) -> None:
+        mock_entity = Entity(
+            {"id": 1, "name": "Test Entity", "classname": "testendpoint"}, mock_client, bfabric_instance
+        )
+        mocker.patch.object(EntityReader, "read_id", return_value=mock_entity)
 
-def test_find_when_not_found(mocker, mock_client) -> None:
-    mock_client.read.return_value = []
-    mocker.patch.object(Entity, "ENDPOINT", new="test_endpoint")
-    entity = Entity.find(1, mock_client)
-    assert entity is None
-    mock_client.read.assert_called_once_with("test_endpoint", obj={"id": 1})
+        entity = Entity.find(1, mock_client)
+        assert isinstance(entity, Entity)
+        assert entity.data_dict == {"id": 1, "name": "Test Entity", "classname": "testendpoint"}
 
+    @staticmethod
+    def test_find_when_not_found(mocker, mock_client) -> None:
+        mocker.patch.object(EntityReader, "read_id", return_value=None)
 
-def test_find_all_when_all_found(mocker, mock_client) -> None:
-    mock_client.read.return_value = [{"id": 1, "name": "Test Entity"}]
-    mocker.patch.object(Entity, "ENDPOINT", new="test_endpoint")
-    entities = Entity.find_all([1], mock_client)
-    assert len(entities) == 1
-    assert isinstance(entities[1], Entity)
-    assert entities[1].data_dict == {"id": 1, "name": "Test Entity"}
-    mock_client.read.assert_called_once_with("test_endpoint", obj={"id": [1]})
+        entity = Entity.find(1, mock_client)
+        assert entity is None
 
+    @staticmethod
+    def test_find_all_when_all_found(mocker, mock_client, bfabric_instance) -> None:
+        uri = EntityUri.from_components(bfabric_instance, "testendpoint", 1)
+        mock_entity = Entity(
+            {"id": 1, "name": "Test Entity", "classname": "testendpoint"}, mock_client, bfabric_instance
+        )
+        mocker.patch.object(EntityReader, "read_ids", return_value={uri: mock_entity})
 
-def test_find_all_when_not_all_found(mocker, mock_client) -> None:
-    mock_client.read.return_value = [{"id": 5, "name": "Test Entity"}]
-    mocker.patch.object(Entity, "ENDPOINT", new="test_endpoint")
-    entities = Entity.find_all([1, 5], mock_client)
-    assert len(entities) == 1
-    assert entities[5].data_dict == {"id": 5, "name": "Test Entity"}
-    mock_client.read.assert_called_once_with("test_endpoint", obj={"id": [1, 5]})
+        entities = Entity.find_all([1], mock_client)
+        assert len(entities) == 1
+        assert isinstance(entities[1], Entity)
+        assert entities[1].data_dict == {"id": 1, "name": "Test Entity", "classname": "testendpoint"}
 
+    @staticmethod
+    def test_find_all_when_not_all_found(mocker, mock_client, bfabric_instance) -> None:
+        # Mock EntityReader.read_uris to return only one entity (id=5, not id=1)
+        uri1 = EntityUri.from_components(bfabric_instance, "testendpoint", 1)
+        uri5 = EntityUri.from_components(bfabric_instance, "testendpoint", 5)
+        mock_entity = Entity(
+            {"id": 5, "name": "Test Entity", "classname": "testendpoint"}, mock_client, bfabric_instance
+        )
+        mocker.patch.object(EntityReader, "read_ids", return_value={uri1: None, uri5: mock_entity})
 
-def test_find_all_when_empty_list(mock_client) -> None:
-    entities = Entity.find_all([], mock_client)
-    assert entities == {}
-    mock_client.read.assert_not_called()
-    mock_client.assert_not_called()
+        entities = Entity.find_all([1, 5], mock_client)
+        assert len(entities) == 1
+        assert entities[5].data_dict == {"id": 5, "name": "Test Entity", "classname": "testendpoint"}
 
+    @staticmethod
+    def test_find_all_when_empty_list(mock_client) -> None:
+        entities = Entity.find_all([], mock_client)
+        assert entities == {}
+        mock_client.read.assert_not_called()
+        mock_client.assert_not_called()
 
-def test_find_by_when_found(mocker, mock_client) -> None:
-    mock_client.read.return_value = [{"id": 1, "name": "Test Entity"}]
-    mocker.patch.object(Entity, "ENDPOINT", new="test_endpoint")
-    entities = Entity.find_by({"id": 1}, mock_client)
-    assert len(entities) == 1
-    assert isinstance(entities[1], Entity)
-    assert entities[1].data_dict == {"id": 1, "name": "Test Entity"}
-    mock_client.read.assert_called_once_with("test_endpoint", obj={"id": 1}, max_results=100)
+    @staticmethod
+    def test_find_by_when_found(mocker, mock_client) -> None:
+        mock_client.read.return_value = [{"id": 1, "name": "Test Entity", "classname": "testendpoint"}]
+        entities = Entity.find_by({"id": 1}, mock_client)
+        assert len(entities) == 1
+        assert isinstance(entities[1], Entity)
+        assert entities[1].data_dict == {"id": 1, "name": "Test Entity", "classname": "testendpoint"}
+        mock_client.read.assert_called_once_with("testendpoint", obj={"id": 1}, max_results=100)
 
-
-def test_find_by_when_not_found(mocker, mock_client) -> None:
-    mock_client.read.return_value = []
-    mocker.patch.object(Entity, "ENDPOINT", new="test_endpoint")
-    entities = Entity.find_by({"id": 1}, mock_client)
-    assert len(entities) == 0
-    mock_client.read.assert_called_once_with("test_endpoint", obj={"id": 1}, max_results=100)
+    @staticmethod
+    def test_find_by_when_not_found(mocker, mock_client) -> None:
+        mock_client.read.return_value = []
+        entities = Entity.find_by({"id": 1}, mock_client)
+        assert len(entities) == 0
+        mock_client.read.assert_called_once_with("testendpoint", obj={"id": 1}, max_results=100)
 
 
 def test_dump_yaml(mocker, mock_entity) -> None:
@@ -131,9 +141,16 @@ def test_load_yaml(mocker) -> None:
     assert isinstance(entity, Entity)
 
 
-def test_get_item(mock_entity) -> None:
+def test_getitem(mock_entity) -> None:
     assert mock_entity["id"] == 1
     assert mock_entity["name"] == "Test Entity"
+
+
+def test_contains(mock_entity) -> None:
+    assert "id" in mock_entity
+    assert "name" in mock_entity
+    assert "classname" in mock_entity
+    assert "missing" not in mock_entity
 
 
 def test_get_when_present(mock_entity) -> None:
@@ -160,9 +177,9 @@ def test_str(mock_entity) -> None:
 
 
 def test_compare_when_possible():
-    entity_1 = Entity({"id": 1, "name": "Test Entity"}, None)
+    entity_1 = Entity({"classname": "test", "id": 1, "name": "Test Entity"}, None)
     entity_1.ENDPOINT = "X"
-    entity_10 = Entity({"id": 10, "name": "Test Entity"}, None)
+    entity_10 = Entity({"classname": "test", "id": 10, "name": "Test Entity"}, None)
     entity_10.ENDPOINT = "X"
     assert entity_1 == entity_1
     assert entity_1 < entity_10
@@ -170,9 +187,9 @@ def test_compare_when_possible():
 
 
 def test_compare_when_not_possible():
-    entity_1 = Entity({"id": 1, "name": "Test Entity"}, None)
+    entity_1 = Entity({"classname": "test", "id": 1, "name": "Test Entity"}, None)
     entity_1.ENDPOINT = "X"
-    entity_2 = Entity({"id": 2, "name": "Test Entity"}, None)
+    entity_2 = Entity({"classname": "resource", "id": 2, "name": "Test Entity"}, None)
     entity_2.ENDPOINT = "Y"
     assert entity_1 != entity_2
     with pytest.raises(TypeError):

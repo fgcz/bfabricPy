@@ -25,12 +25,17 @@ class EntityReader:
     All methods use the cache stack when available to minimize API calls.
     """
 
-    def __init__(self, client: Bfabric) -> None:
+    def __init__(self, client: Bfabric, *, _private: bool) -> None:
         """Initialize the EntityReader.
 
         :param client: The B-Fabric client to use for API calls.
         """
         self._client = client
+
+    @classmethod
+    def for_client(cls, client: Bfabric) -> EntityReader:
+        """Create an EntityReader for a single B-Fabric client."""
+        return cls(client=client, _private=True)
 
     def read_uri(self, uri: EntityUri | str) -> Entity | None:
         """Read a single entity by its URI.

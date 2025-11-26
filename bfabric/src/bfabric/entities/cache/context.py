@@ -5,6 +5,7 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from typing import TYPE_CHECKING
 
+from loguru import logger
 
 from bfabric.entities.cache._cache_stack import CacheStack
 from bfabric.entities.cache._entity_memory_cache import EntityMemoryCache
@@ -24,6 +25,7 @@ def cache_entities(entities: str | list[str] | dict[str, int], *, max_size: int 
     stack = get_cache_stack()
 
     # Create the new cache and push it to the stack
+    logger.debug(f"Enabling entity cache for entities: {config}")
     cache = EntityMemoryCache(config=config)
     stack.cache_push(cache)
 
@@ -52,6 +54,9 @@ def _get_config_dict(
         for key in non_string_keys:
             value = config.pop(key)
             config[key.ENDPOINT] = value
+
+    # convert to lower case keys
+    config = {key.lower(): value for key, value in config.items()}
 
     # check if any keys are actual entity types
     return config

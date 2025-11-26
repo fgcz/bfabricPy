@@ -31,3 +31,8 @@ def cache_config(request, entity_ref):
 def test_get_config_dict(cache_config):
     config_dict = _get_config_dict(cache_config, max_size=3)
     assert config_dict == {"mocky": 3}
+
+
+def test_get_config_dict_lower_case():
+    config_dict = _get_config_dict({"MoCkY": 5}, max_size=0)
+    assert config_dict == {"mocky": 5}

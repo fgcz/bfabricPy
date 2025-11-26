@@ -11,10 +11,10 @@ if TYPE_CHECKING:
     from bfabric.entities.executable import Executable
 
 
-class ExternalJob(Entity):
+class Externaljob(Entity):
     ENDPOINT = "externaljob"
 
-    executable: HasOne[Executable] = HasOne(entity="Executable", bfabric_field="executable")
+    executable: HasOne[Executable] = HasOne(bfabric_field="executable")
 
     @cached_property
     def workunit(self) -> Workunit | None:
@@ -27,3 +27,6 @@ class ExternalJob(Entity):
             return Workunit.find(id=self.data_dict["cliententityid"], client=self._client)
         else:
             return None
+
+
+ExternalJob = Externaljob  # Alias for backward compatibility

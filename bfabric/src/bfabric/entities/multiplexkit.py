@@ -9,16 +9,19 @@ from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.has_many import HasMany
 
 if TYPE_CHECKING:
-    from bfabric.entities.multiplexid import MultiplexId
+    from bfabric.entities.multiplexid import Multiplexid
 
 
-class MultiplexKit(Entity):
+class Multiplexkit(Entity):
     ENDPOINT = "multiplexkit"
 
-    multiplex_ids: HasMany[MultiplexId] = HasMany("MultiplexId", bfabric_field="multiplexid")
+    multiplex_ids: HasMany[Multiplexid] = HasMany(bfabric_field="multiplexid")
 
     @cached_property
     def ids(self) -> pl.DataFrame:
         return self.multiplex_ids.polars.filter(pl.col("enabled") == "true").select(
             ["name", "sequence", "reversesequence", "reversecomplementsequence", "type"]
         )
+
+
+MultiplexKit = Multiplexkit  # Alias for backward compatibility

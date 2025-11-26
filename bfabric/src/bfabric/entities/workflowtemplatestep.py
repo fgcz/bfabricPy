@@ -4,15 +4,16 @@ from typing import TYPE_CHECKING
 
 from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.has_one import HasOne
-from bfabric.entities.core.user_created_mixin import UserCreatedMixin
+from bfabric.entities.core.mixins.user_created_mixin import UserCreatedMixin
 
 if TYPE_CHECKING:
-    from bfabric.entities import WorkflowTemplate
+    from bfabric.entities import Workflowtemplate
 
 
-class WorkflowTemplateStep(Entity, UserCreatedMixin):
+class Workflowtemplatestep(Entity, UserCreatedMixin):
     ENDPOINT = "workflowtemplatestep"
 
-    workflow_template: HasOne[WorkflowTemplate] = HasOne(
-        entity="WorkflowTemplate", bfabric_field="workflowtemplate", optional=True
-    )
+    workflow_template: HasOne[Workflowtemplate] = HasOne(bfabric_field="workflowtemplate", optional=True)
+
+
+WorkflowTemplateStep = Workflowtemplatestep  # Alias for backward compatibility

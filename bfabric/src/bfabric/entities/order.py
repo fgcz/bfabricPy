@@ -12,4 +12,4 @@ if TYPE_CHECKING:
 class Order(Entity):
     ENDPOINT = "order"
 
-    project: HasOne[Project] = HasOne("Project", bfabric_field="project", optional=True)
+    project: HasOne[Project] = HasOne(bfabric_field="project", optional=True)
