@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import datetime
 from functools import cached_property
-from typing import TYPE_CHECKING, Protocol, Any
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from bfabric import Bfabric
     from bfabric.entities import User
     from bfabric.entities.core.users import Users
+    from bfabric.entities.core.mixins.entity_mixin_protocol import EntityProtocol
 
 
 class UserCreatedMixin:
@@ -28,17 +28,9 @@ class UserCreatedMixin:
         return datetime.datetime.fromisoformat(iso.replace("Z", "+00:00"))
 
     @property
-    def created_by(self) -> User:
+    def created_by(self: EntityProtocol) -> User:
         return self._users.get_by_login(bfabric_instance=self.bfabric_instance, login=self.data_dict["createdby"])
 
     @property
-    def modified_by(self) -> User:
+    def modified_by(self: EntityProtocol) -> User:
         return self._users.get_by_login(bfabric_instance=self.bfabric_instance, login=self.data_dict["modifiedby"])
-
-
-class EntityProtocol(Protocol):
-    @property
-    def _client(self) -> Bfabric | None: ...
-
-    @property
-    def data_dict(self) -> dict[str, Any]: ...

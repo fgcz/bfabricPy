@@ -4,7 +4,7 @@ import warnings
 from functools import cached_property
 from typing import TYPE_CHECKING, Self
 
-from bfabric.entities.core.find_mixin import FindMixin
+from bfabric.entities.core.mixins.find_mixin import FindMixin
 from bfabric.entities.core.references import References
 from bfabric.entities.core.uri import EntityUri
 
