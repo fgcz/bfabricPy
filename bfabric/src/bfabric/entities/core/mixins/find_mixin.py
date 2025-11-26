@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from typing import TYPE_CHECKING
 
 from loguru import logger
@@ -11,15 +12,15 @@ if TYPE_CHECKING:
     from typing import Any, Self
 
 
-# TODO provide clear alternative API and deprecate this mixin so it can be dropped
-
-
 class FindMixin:
     ENDPOINT: str = ""
 
     @classmethod
     def find(cls, id: int, client: Bfabric) -> Self | None:
         """Finds an entity by its ID, if it does not exist `None` is returned."""
+        warnings.warn(
+            "FindMixin is deprecated and will be removed in future versions.", DeprecationWarning, stacklevel=2
+        )
         return EntityReader.for_client(client=client).read_id(entity_type=cls.ENDPOINT, entity_id=id)
 
     @classmethod
@@ -27,6 +28,9 @@ class FindMixin:
         """Returns a dictionary of entities with the given IDs. The order will generally match the input, however,
         if some entities are not found they will be omitted and a warning will be logged.
         """
+        warnings.warn(
+            "FindMixin is deprecated and will be removed in future versions.", DeprecationWarning, stacklevel=2
+        )
         results = EntityReader.for_client(client=client).read_ids(entity_type=cls.ENDPOINT, entity_ids=ids)
         results_by_id = {uri.components.entity_id: item for uri, item in results.items() if item is not None}
         return cls.__ensure_results_order(ids, results_by_id)
@@ -34,6 +38,9 @@ class FindMixin:
     @classmethod
     def find_by(cls, obj: dict[str, Any], client: Bfabric, max_results: int | None = 100) -> dict[int, Self]:
         """Returns a dictionary of entities that match the given query."""
+        warnings.warn(
+            "FindMixin is deprecated and will be removed in future versions.", DeprecationWarning, stacklevel=2
+        )
         reader = EntityReader.for_client(client=client)
         bfabric_instance = client.config.base_url
         results = reader.query(
