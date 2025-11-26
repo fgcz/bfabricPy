@@ -9,7 +9,6 @@ if TYPE_CHECKING:
 
 def md5sum(file: Path) -> str:
     """Calculates the MD5 checksum of a file."""
-    # TODO use python 3.11 hashlib.file_digest now
     hasher = hashlib.md5()
     with file.open("rb") as f:
         for chunk in iter(lambda: f.read(16384), b""):
