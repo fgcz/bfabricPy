@@ -4,7 +4,7 @@ from .executable import Executable
 from .externaljob import Externaljob
 from .instrument import Instrument
 from .multiplexid import Multiplexid
-from .multiplexkit import MultiplexKit
+from .multiplexkit import Multiplexkit
 from .order import Order
 from .parameter import Parameter
 from .plate import Plate
@@ -27,7 +27,7 @@ __all__ = [
     "Externaljob",
     "Instrument",
     "Multiplexid",
-    "MultiplexKit",
+    "Multiplexkit",
     "Order",
     "Parameter",
     "Plate",
