@@ -82,6 +82,24 @@ class Entity(FindMixin):
         return References(client=self._client, bfabric_instance=self.__bfabric_instance, data_ref=self.__data_dict)
 
     @property
+    def has_custom_attributes(self) -> bool:
+        """Returns whether the entity has custom attributes."""
+        return "customattribute" in self.__data_dict
+
+    @cached_property
+    def custom_attributes(self) -> dict[str, str]:
+        """Returns custom attributes as a dictionary, if the entity has any.
+
+        If the field exists but is empty, an empty dictionary is returned.
+        If the field does not exist, an `AttributeError` is raised.
+        """
+        if not self.has_custom_attributes:
+            msg = f"Entity of classname '{self.classname}' has no custom attributes."
+            raise AttributeError(msg)
+
+        return {attr["name"]: attr["value"] for attr in self.__data_dict["customattribute"]}
+
+    @property
     def _client(self) -> Bfabric | None:
         """Returns the client associated with the entity."""
         return self.__client

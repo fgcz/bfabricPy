@@ -41,6 +41,40 @@ def test_refs(mock_entity, mocker, mock_client, bfabric_instance) -> None:
     )
 
 
+class TestCustomAttributes:
+    @pytest.fixture(params=["present", "empty", "missing"])
+    def scenario(self, request) -> str:
+        return request.param
+
+    @pytest.fixture
+    def custom_attributes(self, scenario):
+        if scenario == "present":
+            return {"attr1": "val1", "attr2": "val2"}
+        else:
+            return {}
+
+    @pytest.fixture
+    def mock_data_dict(self, scenario, mock_data_dict, custom_attributes):
+        if scenario in ("present", "empty"):
+            mock_data_dict["customattribute"] = [{"name": n, "value": v} for n, v in custom_attributes.items()]
+        else:
+            assert "customattribute" not in mock_data_dict
+        return mock_data_dict
+
+    def test_has_custom_attributes(self, mock_entity, scenario):
+        assert mock_entity.has_custom_attributes == (scenario != "missing")
+
+    @pytest.mark.parametrize("scenario", ["present", "empty"], indirect=True)
+    def test_custom_attributes(self, mock_entity, custom_attributes):
+        assert mock_entity.custom_attributes == custom_attributes
+
+    @pytest.mark.parametrize("scenario", ["missing"], indirect=True)
+    def test_custom_attributes_when_missing(self, mock_entity):
+        with pytest.raises(AttributeError) as error:
+            _ = mock_entity.custom_attributes
+        assert str(error.value) == "Entity of classname 'testendpoint' has no custom attributes."
+
+
 def test_client(mock_entity, mock_client) -> None:
     assert mock_entity._client == mock_client
 
