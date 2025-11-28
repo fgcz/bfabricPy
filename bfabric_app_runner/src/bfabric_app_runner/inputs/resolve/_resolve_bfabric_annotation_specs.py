@@ -44,9 +44,8 @@ def _get_resource_sample_annotation(
     resources_df = flatten_relations(
         pl.DataFrame([resource.data_dict for resource in resources]).select(pl.all().name.prefix("resource_"))
     )
-    samples_df = flatten_relations(
-        pl.DataFrame([sample.data_dict for sample in samples]).select(pl.all().name.prefix("sample_"))
-    )
+    sample_dicts = [sample.data_dict if sample is not None else {} for sample in samples]
+    samples_df = flatten_relations(pl.DataFrame(sample_dicts).select(pl.all().name.prefix("sample_")))
     return resources_df.join(samples_df, left_on="resource_sample_id", right_on="sample_id", how="left")
 
 
