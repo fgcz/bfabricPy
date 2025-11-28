@@ -58,9 +58,6 @@ class Entity(FindMixin):
     @property
     def uri(self) -> EntityUri:
         """The entity's URI."""
-        if self._client is None:
-            msg = "Cannot generate a URI without a client's config information."
-            raise ValueError(msg)
         return EntityUri.from_components(
             bfabric_instance=self.__bfabric_instance, entity_type=self.classname, entity_id=self.id
         )

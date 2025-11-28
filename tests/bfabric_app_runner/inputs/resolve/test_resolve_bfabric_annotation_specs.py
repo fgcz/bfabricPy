@@ -1,11 +1,26 @@
 import pytest
-from bfabric_app_runner.inputs.resolve._resolve_bfabric_annotation_specs import ResolveBfabricAnnotationSpecs
+
+from bfabric import Bfabric
+from bfabric.entities import Resource
+from bfabric.entities.core.entity import Entity
+from bfabric.entities.core.entity_reader import EntityReader
+from bfabric_app_runner.inputs.resolve._resolve_bfabric_annotation_specs import (
+    ResolveBfabricAnnotationSpecs,
+    get_annotation,
+)
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedStaticFile
+from bfabric_app_runner.specs.inputs.bfabric_annotation_spec import BfabricAnnotationResourceSampleSpec
 
 
 @pytest.fixture
-def mock_client(mocker):
-    return mocker.MagicMock(name="mock_client")
+def bfabric_instance():
+    return "https://bfabric.example.org/bfabric/"
+
+
+@pytest.fixture
+def mock_client(mocker, bfabric_instance):
+    config = mocker.MagicMock(base_url=bfabric_instance)
+    return mocker.MagicMock(name="mock_client", spec=Bfabric, config=config)
 
 
 @pytest.fixture
@@ -73,3 +88,57 @@ def test_call_multiple_specs(resolver, mocker, mock_client):
     get_annotation_mock.assert_has_calls(
         [mocker.call(spec=mock_spec1, client=mock_client), mocker.call(spec=mock_spec2, client=mock_client)]
     )
+
+
+class TestGetResourceSampleAnnotation:
+    @pytest.fixture(params=["standard", "partially_annotated"])
+    def scenario(self, request):
+        return request.param
+
+    @pytest.fixture
+    def spec(self, scenario):
+        return BfabricAnnotationResourceSampleSpec(
+            filename="dummy.csv",
+            separator=",",
+            resource_ids=[100, 200] if scenario == "standard" else [100, 300],
+            format="csv",
+        )
+
+    @pytest.fixture
+    def all_samples(self):
+        return {
+            101: Entity({"classname": "sample", "id": 101, "name": "test101", "groupingvar": "x"}),
+            201: Entity({"classname": "sample", "id": 201, "name": "test201", "groupingvar": "x"}),
+        }
+
+    @pytest.fixture
+    def all_resources(self, all_samples, bfabric_instance):
+        return {
+            100: Resource(
+                {"classname": "resource", "id": 100, "sample": all_samples[101].data_dict},
+                bfabric_instance=bfabric_instance,
+            ),
+            200: Resource(
+                {"classname": "resource", "id": 200, "sample": all_samples[201].data_dict},
+                bfabric_instance=bfabric_instance,
+            ),
+            300: Resource({"classname": "resource", "id": 300}, bfabric_instance=bfabric_instance),
+        }
+
+    @pytest.fixture
+    def entity_reader(self, mocker, all_resources):
+        def _read(entity_type: str, entity_ids: list[int]):
+            assert entity_type == "resource"
+            return {all_resources[id].uri: all_resources[id] for id in entity_ids}
+
+        reader = mocker.MagicMock(name="entity_reader", spec=EntityReader)
+        reader.read_ids.side_effect = _read
+        return reader
+
+    @pytest.fixture
+    def mock_client(self, mock_client, entity_reader):
+        mock_client.reader = entity_reader
+        return mock_client
+
+    def test(self, spec, mock_client):
+        get_annotation(spec=spec, client=mock_client)

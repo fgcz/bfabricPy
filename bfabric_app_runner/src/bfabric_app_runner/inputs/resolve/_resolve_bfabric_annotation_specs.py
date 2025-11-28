@@ -4,13 +4,14 @@ import io
 from typing import TYPE_CHECKING, assert_never
 
 import polars as pl
+
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedStaticFile
 
-from bfabric.entities import Resource
 from bfabric.utils.polars_utils import flatten_relations
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
+    from bfabric.entities.core.entity_reader import EntityReader
     from bfabric_app_runner.specs.inputs.bfabric_annotation_spec import (
         BfabricAnnotationSpec,
         BfabricAnnotationResourceSampleSpec,
@@ -31,10 +32,12 @@ class ResolveBfabricAnnotationSpecs:
         ]
 
 
-def _get_resource_sample_annotation(spec: BfabricAnnotationResourceSampleSpec, client: Bfabric) -> pl.DataFrame:
+def _get_resource_sample_annotation(
+    spec: BfabricAnnotationResourceSampleSpec, entity_reader: EntityReader
+) -> pl.DataFrame:
     """Returns the annotation content for the resource_sample annotation type."""
     # load entities
-    resources = list(Resource.find_all(spec.resource_ids, client).values())
+    resources = list(entity_reader.read_ids(entity_type="resource", entity_ids=spec.resource_ids).values())
     samples = [resource.sample for resource in resources]
 
     # flatten and merge data
@@ -51,7 +54,7 @@ def get_annotation(spec: BfabricAnnotationSpec, client: Bfabric) -> str | bytes:
     """Returns the annotation content specified by the spec."""
     match spec.annotation:
         case "resource_sample":
-            annotation_df = _get_resource_sample_annotation(spec, client=client)
+            annotation_df = _get_resource_sample_annotation(spec, entity_reader=client.reader)
         case _:
             raise ValueError(f"Unsupported annotation type: {spec.annotation}")
     if spec.format == "csv":
