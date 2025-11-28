@@ -118,8 +118,9 @@ class CachedEnvironmentStrategy:
 
             # Check if environment is properly provisioned (under lock)
             if not environment.is_provisioned:
-                logger.info(f"Provisioning Python environment at {env_path} with command: {command.command}")
+                logger.info(f"Provisioning Python environment at {env_path}")
                 environment.provision()
+                environment.log_packages()
 
         return environment
 
@@ -149,11 +150,9 @@ class EphemeralEnvironmentStrategy:
         env_path = self._get_ephemeral_path()
         environment = PythonEnvironment(env_path, command)
 
-        logger.info(
-            f"Provisioning ephemeral Python environment at {env_path} with command: "
-            f"{command.command} (refresh mode)"
-        )
+        logger.info(f"Provisioning ephemeral Python environment at {env_path} (refresh mode)")
         environment.provision()
+        environment.log_packages()
         return environment
 
     def _get_ephemeral_path(self) -> Path:

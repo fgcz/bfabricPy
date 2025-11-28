@@ -179,6 +179,7 @@ class TestCachedEnvironmentStrategy:
         cache_path.mkdir(parents=True, exist_ok=True)
 
         mocker.patch.object(strategy, "_get_cache_path", return_value=cache_path)
+        mock_log_packages = mocker.patch.object(PythonEnvironment, "log_packages")
 
         env = strategy.get_environment(sample_command)
 
@@ -187,6 +188,27 @@ class TestCachedEnvironmentStrategy:
 
         # Marker file should be created
         assert (cache_path / ".provisioned").exists()
+
+        # log_packages should be called after provisioning
+        mock_log_packages.assert_called_once()
+
+    def test_does_not_log_packages_when_already_provisioned(self, sample_command, mocker, tmp_path):
+        """Test that log_packages is not called when environment is already provisioned."""
+        strategy = CachedEnvironmentStrategy()
+        cache_path = tmp_path / "test_env"
+        cache_path.mkdir(parents=True, exist_ok=True)
+
+        # Create marker file to simulate already provisioned environment
+        marker = cache_path / ".provisioned"
+        marker.touch()
+
+        mocker.patch.object(strategy, "_get_cache_path", return_value=cache_path)
+        mock_log_packages = mocker.patch.object(PythonEnvironment, "log_packages")
+
+        env = strategy.get_environment(sample_command)
+
+        # log_packages should NOT be called since already provisioned
+        mock_log_packages.assert_not_called()
 
     def test_compute_env_hash_includes_hostname(self, sample_command, mocker):
         """Test that environment hash includes hostname."""
@@ -293,6 +315,7 @@ class TestEphemeralEnvironmentStrategy:
         mocker.patch("tempfile.mkdtemp", return_value="/tmp/env_12345")
         mocker.patch("pathlib.Path.mkdir")
         mocker.patch("pathlib.Path.touch")
+        mocker.patch.object(PythonEnvironment, "log_packages")
 
         env = strategy.get_environment(sample_command)
 
@@ -306,11 +329,15 @@ class TestEphemeralEnvironmentStrategy:
         mocker.patch("tempfile.mkdtemp", return_value="/tmp/env_12345")
         mocker.patch("pathlib.Path.mkdir")
         mocker.patch("pathlib.Path.touch")
+        mock_log_packages = mocker.patch.object(PythonEnvironment, "log_packages")
 
         strategy.get_environment(sample_command)
 
         # Should have called provision (venv + pip install)
         assert mock_execute_command_exec.call_count == 2
+
+        # log_packages should be called after provisioning
+        mock_log_packages.assert_called_once()
 
     def test_uses_cache_directory_for_temp(self, sample_command, mocker, mock_uv, mock_execute_command_exec):
         """Test that ephemeral environments are created in cache directory."""
@@ -318,6 +345,7 @@ class TestEphemeralEnvironmentStrategy:
         mock_mkdtemp = mocker.patch("tempfile.mkdtemp", return_value="/tmp/env_12345")
         mocker.patch("pathlib.Path.mkdir")
         mocker.patch("pathlib.Path.touch")
+        mocker.patch.object(PythonEnvironment, "log_packages")
 
         strategy.get_environment(sample_command)
 
