@@ -1,7 +1,7 @@
 [project]
 name = "bfabric-asgi-auth"
 version = "0.1.0"
-description = "Add your description here"
+description = "ASGI middleware for authenticating Bfabric web applications using cookie-based sessions."
 readme = "README.md"
 authors = [
     { name = "Leonardo Schwarz", email = "leonardo.schwarz@fgcz.ethz.ch" }

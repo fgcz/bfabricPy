@@ -1,6 +1,9 @@
-# Bfabric ASGI Authentication Middleware
+# B-Fabric ASGI Authentication Middleware
 
-ASGI middleware for authenticating Bfabric web applications using cookie-based sessions.
+ASGI middleware for authenticating B-Fabric web applications using cookie-based sessions.
+
+Integrates any ASGI application with B-Fabric, simply by adding the middleware to your application.
+Supports HTTP(S) and WebSocket out of the box.
 
 ## Features
 
