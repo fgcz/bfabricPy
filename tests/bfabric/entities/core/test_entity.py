@@ -12,9 +12,14 @@ def mock_data_dict():
     return {"id": 1, "name": "Test Entity", "classname": "testendpoint"}
 
 
+@pytest.fixture
+def mock_entity_has_client(request) -> bool:
+    return request.param if hasattr(request, "param") else True
+
+
 @pytest.fixture()
-def mock_entity(mock_data_dict, mock_client, bfabric_instance) -> Entity:
-    return Entity(mock_data_dict, mock_client, bfabric_instance)
+def mock_entity(mock_data_dict, mock_client, bfabric_instance, mock_entity_has_client) -> Entity:
+    return Entity(mock_data_dict, mock_client if mock_entity_has_client else None, bfabric_instance)
 
 
 def test_id(mock_entity) -> None:
@@ -27,6 +32,11 @@ def test_bfabric_instance(mock_entity, bfabric_instance) -> None:
 
 def test_classname(mock_entity) -> None:
     assert mock_entity.classname == "testendpoint"
+
+
+@pytest.mark.parametrize("mock_entity_has_client", [True, False], indirect=True)
+def test_uri(mock_entity, bfabric_instance) -> None:
+    assert mock_entity.uri == f"{bfabric_instance}testendpoint/show.html?id=1"
 
 
 def test_data_dict(mock_entity, mock_data_dict) -> None:
