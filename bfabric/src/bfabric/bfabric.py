@@ -33,7 +33,6 @@ from bfabric.config.bfabric_client_config import BfabricAPIEngineType
 from bfabric.config.config_data import ConfigData, load_config_data
 from bfabric.config.config_file import read_config_file
 from bfabric.engine.engine_suds import EngineSUDS
-from bfabric.engine.engine_zeep import EngineZeep
 from bfabric.rest.token_data import TokenData, get_token_data
 from bfabric.results.result_container import ResultContainer
 from bfabric.utils.cli_integration import DEFAULT_THEME, HostnameHighlighter
@@ -42,6 +41,7 @@ from bfabric.utils.paginator import compute_requested_pages, BFABRIC_QUERY_LIMIT
 if TYPE_CHECKING:
     from collections.abc import Generator
     from bfabric.entities.core.entity_reader import EntityReader
+    from bfabric.engine.engine_zeep import EngineZeep
 
 
 class Bfabric:
@@ -62,6 +62,8 @@ class Bfabric:
         if self.config.engine == BfabricAPIEngineType.SUDS:
             return EngineSUDS(base_url=self._config.base_url)
         elif self.config.engine == BfabricAPIEngineType.ZEEP:
+            from bfabric.engine.engine_zeep import EngineZeep
+
             return EngineZeep(base_url=self._config.base_url)
         else:
             raise ValueError(f"Unexpected engine type: {self.config.engine}")

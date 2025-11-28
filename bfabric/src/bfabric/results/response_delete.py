@@ -4,7 +4,6 @@ import re
 from typing import Any
 
 from loguru import logger
-from zeep.helpers import serialize_object
 
 from bfabric.engine.response_format_suds import suds_asdict_recursive
 from bfabric.errors import BfabricRequestError
@@ -37,6 +36,8 @@ class ResponseDelete(ResultContainer):
     @classmethod
     def from_zeep(cls, zeep_response: Any, endpoint: str) -> ResponseDelete:
         """Creates a `ResponseDelete` from a ZEEP response."""
+        from zeep.helpers import serialize_object
+
         result_parsed = [dict(serialize_object(result, target_cls=dict)) for result in zeep_response[endpoint]]
         results, errors = cls.__convert_parsed_response(result_parsed)
         return cls(results=results, errors=errors, total_pages_api=None)
