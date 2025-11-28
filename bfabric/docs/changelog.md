@@ -49,6 +49,10 @@ We will continue to track the B-Fabric version in the `bfabric-scripts` package 
     - `Entity.find`, `Entity.find_all`, `Entity.find_by` will be removed in favor of `EntityReader` methods.
     - Passing entity class to `cache_context` will be removed in favor of their name (this is because not all entities have custom classes).
 
+### Fixed
+
+- `ResolveBfabricAnnotationSpecs` previously failed, when a resource was not linked with a sample.
+
 ## \[1.13.36\] - 2025-10-27
 
 ### Changed
