@@ -61,9 +61,6 @@ class TestCustomAttributes:
             assert "customattribute" not in mock_data_dict
         return mock_data_dict
 
-    def test_has_custom_attributes(self, mock_entity, scenario):
-        assert mock_entity.has_custom_attributes == (scenario != "missing")
-
     @pytest.mark.parametrize("scenario", ["present", "empty"], indirect=True)
     def test_custom_attributes(self, mock_entity, custom_attributes):
         assert mock_entity.custom_attributes == custom_attributes

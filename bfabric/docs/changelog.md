@@ -26,7 +26,7 @@ We will continue to track the B-Fabric version in the `bfabric-scripts` package 
 - `bfabric.entities.cache` which supersedes `bfabric.experimental.cache` (temporarily kept in tree).
 - `Entity.refs` resolves all references of entities generically, writes the data into data_dict and is compatible with pre-loaded references from B-Fabric.
 - `Entity.uri` property to get the URI of an entity.
-- `Entity.custom_attributes` and `Entity.has_custom_attributes` for reading custom attribute values.
+- `Entity.custom_attributes` for reading custom attribute values.
 - `bfabric.experimental.update_custom_attributes` for updating custom attributes correctly.
 - `HasOne` and `HasMany` should be able to use resolved entities when loading with `fulldetails=True`.
 
