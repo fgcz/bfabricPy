@@ -1,6 +1,6 @@
 import pytest
 
-from bfabric.experimental.cache._fifo_cache import FifoCache
+from bfabric.entities.cache._fifo_cache import FifoCache
 
 
 @pytest.fixture()

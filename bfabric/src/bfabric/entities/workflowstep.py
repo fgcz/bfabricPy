@@ -1,17 +1,17 @@
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING
-
 from bfabric.entities.core.entity import Entity
-from bfabric.entities.core.has_container_mixin import HasContainerMixin
-from bfabric.entities.core.user_created_mixin import UserCreatedMixin
+from bfabric.entities.core.has_one import HasOne
+from bfabric.entities.core.mixins.user_created_mixin import UserCreatedMixin
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from bfabric import Bfabric
+    from bfabric.entities import Order, Project
 
 
-class WorkflowStep(Entity, HasContainerMixin, UserCreatedMixin):
+class Workflowstep(Entity, UserCreatedMixin):
     ENDPOINT = "workflowstep"
+    container: HasOne[Order | Project] = HasOne(bfabric_field="container")
 
-    def __init__(self, data_dict: dict[str, Any], client: Bfabric | None = None) -> None:
-        super().__init__(data_dict=data_dict, client=client)
+
+WorkflowStep = Workflowstep  # Alias for backward compatibility

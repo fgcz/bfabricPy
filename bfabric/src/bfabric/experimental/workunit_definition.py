@@ -90,7 +90,7 @@ class WorkunitRegistrationDefinition(BaseModel):
             "workunit_id": workunit.id,
             "workunit_name": workunit["name"],
             "container_id": workunit.container.id,
-            "container_type": workunit.container.ENDPOINT,
+            "container_type": workunit.container.classname,
             "storage_id": workunit.application.storage.id,
             "storage_output_folder": workunit.store_output_folder,
             "user_id": workunit.created_by.id,

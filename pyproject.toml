@@ -1,5 +1,7 @@
 [tool.pytest.ini_options]
 logot_capturer = "logot.loguru.LoguruCapturer"
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 
 [tool.ruff.lint.per-file-ignores]
 "**/bfabric_scripts/**" = ["ALL"]
@@ -15,7 +17,7 @@ target-version = ["py311"]
 [tool.ruff]
 line-length = 120
 indent-width = 4
-target-version = "py39"
+target-version = "py311"
 
 [tool.uv]
 reinstall-package = ["bfabric", "bfabric_scripts", "bfabric_app_runner"]

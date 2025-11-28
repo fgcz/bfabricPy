@@ -54,9 +54,9 @@ class TestLoadConfigData:
         loaded_config = load_config_data(
             config_file_path=example_config_path, config_file_env="default", include_auth=include_auth
         )
-        assert loaded_config.client.base_url == "https://mega-production-server.uzh.ch/myprod"
+        assert loaded_config.client.base_url == "https://prod-server.example.com/api/"
         if include_auth:
-            assert loaded_config.auth.login == "my_epic_production_login"
+            assert loaded_config.auth.login == "testuser"
         else:
             assert loaded_config.auth is None
 
@@ -68,9 +68,9 @@ class TestLoadConfigData:
         loaded_config = load_config_data(
             config_file_path=example_config_path, config_file_env="default", include_auth=include_auth
         )
-        assert loaded_config.client.base_url == "https://mega-test-server.uzh.ch/mytest"
+        assert loaded_config.client.base_url == "https://test-server.example.com/api/"
         if include_auth:
-            assert loaded_config.auth.login == "my_epic_test_login"
+            assert loaded_config.auth.login == "testuser"
         else:
             assert loaded_config.auth is None
 
@@ -82,9 +82,9 @@ class TestLoadConfigData:
         loaded_config = load_config_data(
             config_file_path=example_config_path, config_file_env="TEST", include_auth=include_auth
         )
-        assert loaded_config.client.base_url == "https://mega-test-server.uzh.ch/mytest"
+        assert loaded_config.client.base_url == "https://test-server.example.com/api/"
         if include_auth:
-            assert loaded_config.auth.login == "my_epic_test_login"
+            assert loaded_config.auth.login == "testuser"
         else:
             assert loaded_config.auth is None
 

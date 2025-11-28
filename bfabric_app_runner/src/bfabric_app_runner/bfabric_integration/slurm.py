@@ -6,7 +6,7 @@ import subprocess
 from loguru import logger
 from pathlib import Path
 from bfabric import Bfabric
-from bfabric.entities import ExternalJob, Workunit
+from bfabric.entities import Externaljob, Workunit
 from bfabric.utils.cli_integration import use_client
 from bfabric_app_runner.bfabric_integration.wrapper.wrap_app_yaml_template import WrapAppYamlTemplate
 from bfabric_app_runner.bfabric_integration.submitter.config.slurm_params import evaluate_slurm_parameters
@@ -36,7 +36,7 @@ def submitter(
     """Submitter implementation for simple_submitter."""
     if entity_type == "externaljob":
         # Find the workunit to process
-        external_job = ExternalJob.find(id=j, client=client)
+        external_job = Externaljob.find(id=j, client=client)
         workunit = external_job.workunit
         if workunit is None:
             raise RuntimeError(f"External job {j} does not belong to a workunit (or it was deleted).")

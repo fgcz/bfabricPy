@@ -2,13 +2,58 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-Versioning currently follows `X.Y.Z` where
+Versioning currently follows `X.Y.Z` semantic versioning.
+Historically, before 1.14.0, a different versioning scheme was used.
 
-- `X` is used for major changes, that contain breaking changes
-- `Y` should be the current bfabric release
-- `Z` is increased for feature releases, that should not break the API
+Minor breaking changes are still possible in `1.X.Y` but we try to announce them with DeprecationWarnings in the previous `Y-1` release.
 
 ## \[Unreleased\]
+
+This release brings a complete overhaul of `bfabric.entities` to support multiple B-Fabric instances cleanly.
+The main new concept is the `EntityUri` which standardizes the way entities are specified by their URI.
+We also remove the reliance on custom entity classes providing generic functionality to read entities and their references.
+This is available through the `EntityReader` class which can be accessed through `Bfabric.reader`.
+
+This version also marks a change in versioning, whereas we will use semantic versioning starting from `1.14.0`.
+We will continue to track the B-Fabric version in the `bfabric-scripts` package instead.
+
+### Added
+
+- `bfabric.entities.core.uri.EntityUri` to specify entities by URI in a standardized way.
+- `bfabric.entities.core.uri.EntityUriComponents` to access individual components `(bfabric_instance, entity_type, entity_id)` from a URI.
+- `bfabric.entities.core.uri.GroupedUris` mostly relevant for internal code needing to handle entity URIs.
+- `bfabric.entities.core.entity_reader` which allows reading entities by URI, ID, and general queries.
+- `bfabric.entities.cache` which supersedes `bfabric.experimental.cache` (temporarily kept in tree).
+- `Entity.refs` resolves all references of entities generically, writes the data into data_dict and is compatible with pre-loaded references from B-Fabric.
+- `Entity.uri` property to get the URI of an entity.
+- `Entity.custom_attributes` for reading custom attribute values.
+- `bfabric.experimental.update_custom_attributes` for updating custom attributes correctly.
+- `HasOne` and `HasMany` should be able to use resolved entities when loading with `fulldetails=True`.
+
+### Changed
+
+- Minimal Python version is now 3.11.
+- `Entity` has a new constructor parameter `bfabric_instance` which in the future will become mandatory.
+- `BfabricClientConfig.base_url` always ends with exactly one `/` now.
+- `BFabricClientConfig` does not allow passing `None` for values anymore.
+- Composite-named entities have been renamed (but backward compatible aliases exist), e.g. `ExternalJob` -> `Externaljob`.
+- `HasMany` retains the original order, instead of sorting by ID (should be sorted in API response).
+- `bfabric.entities` do not define custom constructors anymore, simplifying future changes (and removing tiny inconsistencies).
+- `bfabric.entities` allows loading entity references without custom definitions in Python.
+    -`TokenData` retrieval uses async httpx internally, but provides a sync interface for compatibility.
+
+### Removed
+
+- `bfabric.experimental.cache` is removed in favor of `bfabric.entities.cache`.
+- Future deprecations:
+    - `Entity.find`, `Entity.find_all`, `Entity.find_by` will be removed in favor of `EntityReader` methods.
+    - Passing entity class to `cache_context` will be removed in favor of their name (this is because not all entities have custom classes).
+
+### Fixed
+
+- `ResolveBfabricAnnotationSpecs` previously failed, when a resource was not linked with a sample.
+
+## \[1.13.36\] - 2025-10-27
 
 ### Changed
 
