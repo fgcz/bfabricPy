@@ -12,9 +12,14 @@ def mock_data_dict():
     return {"id": 1, "name": "Test Entity", "classname": "testendpoint"}
 
 
+@pytest.fixture
+def mock_entity_has_client(request) -> bool:
+    return request.param if hasattr(request, "param") else True
+
+
 @pytest.fixture()
-def mock_entity(mock_data_dict, mock_client, bfabric_instance) -> Entity:
-    return Entity(mock_data_dict, mock_client, bfabric_instance)
+def mock_entity(mock_data_dict, mock_client, bfabric_instance, mock_entity_has_client) -> Entity:
+    return Entity(mock_data_dict, mock_client if mock_entity_has_client else None, bfabric_instance)
 
 
 def test_id(mock_entity) -> None:
@@ -29,6 +34,11 @@ def test_classname(mock_entity) -> None:
     assert mock_entity.classname == "testendpoint"
 
 
+@pytest.mark.parametrize("mock_entity_has_client", [True, False], indirect=True)
+def test_uri(mock_entity, bfabric_instance) -> None:
+    assert mock_entity.uri == f"{bfabric_instance}testendpoint/show.html?id=1"
+
+
 def test_data_dict(mock_entity, mock_data_dict) -> None:
     assert mock_entity.data_dict == mock_data_dict
 
@@ -39,6 +49,37 @@ def test_refs(mock_entity, mocker, mock_client, bfabric_instance) -> None:
     mock_references.assert_called_once_with(
         client=mock_client, bfabric_instance=bfabric_instance, data_ref=mock_entity.data_dict
     )
+
+
+class TestCustomAttributes:
+    @pytest.fixture(params=["present", "empty", "missing"])
+    def scenario(self, request) -> str:
+        return request.param
+
+    @pytest.fixture
+    def custom_attributes(self, scenario):
+        if scenario == "present":
+            return {"attr1": "val1", "attr2": "val2"}
+        else:
+            return {}
+
+    @pytest.fixture
+    def mock_data_dict(self, scenario, mock_data_dict, custom_attributes):
+        if scenario in ("present", "empty"):
+            mock_data_dict["customattribute"] = [{"name": n, "value": v} for n, v in custom_attributes.items()]
+        else:
+            assert "customattribute" not in mock_data_dict
+        return mock_data_dict
+
+    @pytest.mark.parametrize("scenario", ["present", "empty"], indirect=True)
+    def test_custom_attributes(self, mock_entity, custom_attributes):
+        assert mock_entity.custom_attributes == custom_attributes
+
+    @pytest.mark.parametrize("scenario", ["missing"], indirect=True)
+    def test_custom_attributes_when_missing(self, mock_entity):
+        with pytest.raises(AttributeError) as error:
+            _ = mock_entity.custom_attributes
+        assert str(error.value) == "Entity of classname 'testendpoint' has no custom attributes."
 
 
 def test_client(mock_entity, mock_client) -> None:
