@@ -8,8 +8,10 @@ authors = [
 ]
 requires-python = ">=3.13"
 dependencies = [
-    "asgiref>=3.10.0",
+    "asgiref>=3.10.0,<4",
     "bfabric>=1.13.36",
+    "pydantic>=2.11,<3",
+    "starlette>=0.50.0,<1"
 ]
 
 [build-system]
@@ -19,8 +21,8 @@ build-backend = "uv_build"
 [project.optional-dependencies]
 demo = [
     "aiosqlite>=0.21.0",
-    "starlette>=0.48.0",
     "itsdangerous>=2.2.0,<3",
+    "fastapi",
 ]
 test = [
     "bfabric-asgi-auth[demo]",
