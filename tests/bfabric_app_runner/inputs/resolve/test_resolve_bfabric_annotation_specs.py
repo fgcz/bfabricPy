@@ -1,5 +1,7 @@
-import pytest
+from io import StringIO
 
+import pytest
+import polars as pl
 from bfabric import Bfabric
 from bfabric.entities import Resource
 from bfabric.entities.core.entity import Entity
@@ -96,11 +98,15 @@ class TestGetResourceSampleAnnotation:
         return request.param
 
     @pytest.fixture
-    def spec(self, scenario):
+    def resource_ids(self, scenario):
+        return [100, 200] if scenario == "standard" else [100, 300]
+
+    @pytest.fixture
+    def spec(self, scenario, resource_ids):
         return BfabricAnnotationResourceSampleSpec(
             filename="dummy.csv",
             separator=",",
-            resource_ids=[100, 200] if scenario == "standard" else [100, 300],
+            resource_ids=resource_ids,
             format="csv",
         )
 
@@ -140,5 +146,23 @@ class TestGetResourceSampleAnnotation:
         mock_client.reader = entity_reader
         return mock_client
 
-    def test(self, spec, mock_client):
-        get_annotation(spec=spec, client=mock_client)
+    def test(self, scenario, spec, mock_client, resource_ids):
+        result_csv = get_annotation(spec=spec, client=mock_client)
+        result_df = pl.read_csv(StringIO(result_csv))
+        assert result_df.columns == [
+            "resource_classname",
+            "resource_id",
+            "resource_sample_classname",
+            "resource_sample_id",
+            "resource_sample_name",
+            "resource_sample_groupingvar",
+            "sample_classname",
+            "sample_name",
+            "sample_groupingvar",
+        ]
+        assert result_df["resource_id"].to_list() == resource_ids
+        assert (
+            result_df["resource_sample_name"].to_list() == ["test101", "test201"]
+            if scenario == "standard"
+            else ["test101", None]
+        )
