@@ -81,7 +81,7 @@ class Entity(FindMixin):
         """Returns the entity's references manager."""
         return References(client=self._client, bfabric_instance=self.__bfabric_instance, data_ref=self.__data_dict)
 
-    @cached_property
+    @property
     def custom_attributes(self) -> dict[str, str]:
         """Returns custom attributes as a dictionary, if the entity has any.
 
