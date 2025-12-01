@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import enum
+from collections import Counter
 from pathlib import Path  # noqa: TCH003
-from typing import Literal, Annotated
+from typing import Annotated, Literal
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -84,3 +85,17 @@ class OutputsSpec(BaseModel):
     def write_yaml(cls, specs: list[SpecType], path: Path) -> None:
         model = cls.model_validate(dict(outputs=specs))
         path.write_text(yaml.dump(model.model_dump(mode="json")))
+
+    @model_validator(mode="after")
+    def _no_duplicate_store_entry_paths(self) -> OutputsSpec:
+        # arguably, this is a bit strict and might be relaxed in the future
+        # TODO although the main scenario where this could be a problem is when store_folder_path is used and maybe we
+        #      should handle this differently?
+        resource_specs = list(filter(lambda x: isinstance(x, CopyResourceSpec), self.outputs))
+        store_entry_paths = [spec.store_entry_path for spec in resource_specs]
+        # check for duplicates
+        duplicates = [path for path, count in Counter(store_entry_paths).items() if count > 1]
+        if duplicates:
+            msg = f"Duplicate store entry paths: {duplicates}"
+            raise ValueError(msg)
+        return self
