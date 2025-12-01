@@ -8,6 +8,8 @@ from typing import Annotated, Literal
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from bfabric_app_runner.specs.outputs.annotations import AnnotationType
+
 
 class UpdateExisting(enum.Enum):
     NO = "no"
@@ -75,6 +77,7 @@ SpecType = Annotated[CopyResourceSpec | SaveDatasetSpec | SaveLinkSpec, Field(di
 class OutputsSpec(BaseModel):
     model_config = ConfigDict(extra="forbid")
     outputs: list[SpecType]
+    annotations: list[AnnotationType] = []
 
     @classmethod
     def read_yaml(cls, path: Path) -> list[SpecType]:
