@@ -21,7 +21,7 @@ def _validate_table_schema(df: pl.DataFrame) -> None:
     if df["Resource"].null_count() > 0:
         raise ValueError("Column 'Resource' cannot contain null values")
 
-    if "Anchor" in df.columns and df["Anchor"].dtype != pl.String:
+    if "Anchor" in df.columns and df["Anchor"].dtype not in (pl.Null, pl.String):
         raise ValueError(f"Column 'Anchor' must be String type, got {df['Anchor'].dtype}")
 
 
