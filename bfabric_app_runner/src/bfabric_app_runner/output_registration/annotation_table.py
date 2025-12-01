@@ -10,6 +10,21 @@ if TYPE_CHECKING:
     from bfabric_app_runner.specs.outputs.annotations import BfabricOutputDataset, IncludeDatasetRef, IncludeResourceRef
 
 
+def _validate_table_schema(df: pl.DataFrame) -> None:
+    """Validate that required columns exist and have correct types."""
+    if "Resource" not in df.columns:
+        raise ValueError("Missing required column: Resource")
+
+    if not df["Resource"].dtype.is_integer():
+        raise ValueError(f"Column 'Resource' must be integer type, got {df['Resource'].dtype}")
+
+    if df["Resource"].null_count() > 0:
+        raise ValueError("Column 'Resource' cannot contain null values")
+
+    if "Anchor" in df.columns and df["Anchor"].dtype != pl.String:
+        raise ValueError(f"Column 'Anchor' must be String type, got {df['Anchor'].dtype}")
+
+
 def _load_table(ref: IncludeDatasetRef) -> pl.DataFrame:
     format = ref.get_format()
     # TODO maybe this should be a generic function somewhere, it's duplicated with input specs probably!
@@ -22,8 +37,7 @@ def _load_table(ref: IncludeDatasetRef) -> pl.DataFrame:
             df = pl.read_parquet(ref.local_path)
         case _:
             assert_never(format)
-    # TODO it would be good to ensure "Resource" column presence here!
-    # TODO and maybe "Anchor"
+    _validate_table_schema(df)
     return df
 
 
