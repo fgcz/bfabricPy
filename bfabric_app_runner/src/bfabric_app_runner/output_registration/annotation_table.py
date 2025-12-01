@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, assert_never
+from typing import TYPE_CHECKING, assert_never
 
 import polars as pl
 
@@ -41,8 +41,8 @@ def _load_table(ref: IncludeDatasetRef) -> pl.DataFrame:
     return df
 
 
-def _get_resource_row(resource: IncludeResourceRef, resource_mapping: dict[Path, int]) -> dict[str, Any]:
-    # TODO see comment regarding limitations
+def _get_resource_row(resource: IncludeResourceRef, resource_mapping: dict[Path, int]) -> dict[str, int | str | None]:
+    # TODO check if accessing store_entry_path like this is robust enough (see comment below)
     resource_id = resource_mapping[resource.store_entry_path]
     return {"Resource": resource_id, "Anchor": resource.anchor, **resource.metadata}
 
@@ -66,7 +66,7 @@ def generate_output_table(config: BfabricOutputDataset, resource_mapping: dict[P
     for resource in config.include_resources:
         resource_rows.append(_get_resource_row(resource, resource_mapping))
     resources_df = pl.from_dicts(resource_rows, strict=False)
+    _validate_table_schema(resources_df)
 
     # concatenate these two dataframes now
-    # TODO maybe now would be another good opportunity to check the invariants of the table
     return pl.concat([tables_df, resources_df], how="diagonal_relaxed")
