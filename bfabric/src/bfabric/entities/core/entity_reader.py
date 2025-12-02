@@ -14,6 +14,7 @@ from collections.abc import Iterable, Mapping  # noqa
 if TYPE_CHECKING:
     from bfabric import Bfabric
 
+
 EntityT = TypeVar("EntityT", bound="Entity")
 
 
@@ -141,6 +142,7 @@ class EntityReader:
         :param entity_type: The entity type (e.g., "project", "workunit").
         :param entity_ids: List of entity IDs to read.
         :param bfabric_instance: The B-Fabric instance URL. If ``None``, uses the client's configured instance.
+        :param expected_type: The expected type of the entities to read.
         :return: Dictionary mapping each URI to its entity (or ``None`` if not found).
         :raises ValueError: If the instance doesn't match the client's configured instance.
         """
