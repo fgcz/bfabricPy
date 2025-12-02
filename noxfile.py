@@ -247,13 +247,15 @@ def check_test_inits(session):
         session.log("✓ No __init__.py files found in tests directory")
 
 
-@nox.session(python=["3.11", "3.13"])
+@nox.session(python=["3.11", "3.13"], default=False)
 def test_distributions(session):
     """
     Test built distributions (wheels) instead of editable installs.
 
     This session is used in the PR release preview workflow to validate
     that the packages work correctly when installed from distributions.
+
+    Not run by default - only used in release testing.
 
     Usage:
         nox -s test_distributions-3.11 -- \
