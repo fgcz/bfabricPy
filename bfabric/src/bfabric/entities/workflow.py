@@ -8,12 +8,12 @@ from bfabric.entities.core.has_one import HasOne
 from bfabric.entities.core.mixins.user_created_mixin import UserCreatedMixin
 
 if TYPE_CHECKING:
-    from bfabric.entities import Order, Project, Workflowstep, Workflowtemplate
+    from bfabric.entities import Order, Project, WorkflowStep, WorkflowTemplate
 
 
 class Workflow(Entity, UserCreatedMixin):
     ENDPOINT = "workflow"
 
     container: HasOne[Order | Project] = HasOne(bfabric_field="container")
-    workflow_steps: HasMany[Workflowstep] = HasMany(bfabric_field="workflowstep")
-    workflow_template: HasOne[Workflowtemplate] = HasOne(bfabric_field="workflowtemplate", optional=True)
+    workflow_steps: HasMany[WorkflowStep] = HasMany(bfabric_field="workflowstep")
+    workflow_template: HasOne[WorkflowTemplate] = HasOne(bfabric_field="workflowtemplate", optional=True)
