@@ -22,13 +22,12 @@ from datetime import datetime
 from functools import cached_property
 from pathlib import Path
 from pprint import pprint
-from typing import Literal, Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Literal
 
 from loguru import logger
 from rich.console import Console
 
-from bfabric.config import BfabricAuth
-from bfabric.config import BfabricClientConfig
+from bfabric.config import BfabricAuth, BfabricClientConfig
 from bfabric.config.bfabric_client_config import BfabricAPIEngineType
 from bfabric.config.config_data import ConfigData, load_config_data
 from bfabric.config.config_file import read_config_file
@@ -37,10 +36,11 @@ from bfabric.engine.engine_zeep import EngineZeep
 from bfabric.rest.token_data import TokenData, get_token_data
 from bfabric.results.result_container import ResultContainer
 from bfabric.utils.cli_integration import DEFAULT_THEME, HostnameHighlighter
-from bfabric.utils.paginator import compute_requested_pages, BFABRIC_QUERY_LIMIT
+from bfabric.utils.paginator import BFABRIC_QUERY_LIMIT, compute_requested_pages
 
 if TYPE_CHECKING:
     from collections.abc import Generator
+
     from bfabric.entities.core.entity_reader import EntityReader
 
 

@@ -42,9 +42,7 @@ def test_bfabric_scripts(session, resolution):
 
     session.install("--resolution", resolution, "./bfabric_scripts[test]")
     session.run("uv", "pip", "list")
-    packages = ["tests/bfabric_scripts"]
-    if session.python.split(".")[0] == "3" and int(session.python.split(".")[1]) >= 11:
-        packages.append("tests/bfabric_cli")
+    packages = ["tests/bfabric_scripts", "tests/bfabric_cli"]
     session.run("pytest", "--durations=50", *packages)
 
 
@@ -125,9 +123,8 @@ def licensecheck(session) -> None:
 @nox.session(python="3.13")
 @nox.parametrize("package", ["bfabric", "bfabric_scripts", "bfabric_app_runner"])
 def basedpyright(session, package):
+    # Install the package in editable mode so basedpyright can find it from source
     session.install("-e", f"./{package}")
-    if package != "bfabric":
-        session.install("-e", "./bfabric")
     session.install("basedpyright>=1.34.0,<1.35.0")
     session.run("basedpyright", "--baselinefile", f".basedpyright/baseline.{package}.json", package)
 
