@@ -9,6 +9,8 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+## \[1.14.0\] - 2025-12-02
+
 - The minimal Python version has been updated to 3.11.
 
 - *bfabric.entities*
