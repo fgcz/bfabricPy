@@ -9,7 +9,7 @@ from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.import_entity import instantiate_entity
 from bfabric.entities.core.uri import EntityUri, GroupedUris
 from bfabric.experimental import MultiQuery
-from collections.abc import Iterable, Mapping  # noqa
+from collections.abc import Iterable  # noqa
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
@@ -55,7 +55,7 @@ class EntityReader:
 
     def read_uris(
         self, uris: Iterable[EntityUri | str], *, expected_type: type[EntityT] = Entity
-    ) -> Mapping[EntityUri, EntityT | None]:
+    ) -> dict[EntityUri, EntityT | None]:
         """Read multiple entities by their URIs.
 
         Entities are grouped by type and retrieved efficiently. Uses the cache stack
@@ -99,7 +99,7 @@ class EntityReader:
         if not all(isinstance(entity, expected_type) or entity is None for entity in results.values()):
             raise ValueError("Unexpected entity type in results")
 
-        return cast("Mapping[EntityUri, EntityT | None]", results)
+        return cast("dict[EntityUri, EntityT | None]", results)
 
     def read_id(
         self,
@@ -134,7 +134,7 @@ class EntityReader:
         bfabric_instance: str | None = None,
         *,
         expected_type: type[EntityT] = Entity,
-    ) -> Mapping[EntityUri, EntityT | None]:
+    ) -> dict[EntityUri, EntityT | None]:
         """Read multiple entities by their type and IDs.
 
         Constructs URIs from the provided entity type and IDs, then delegates to :meth:`read_uris`.
