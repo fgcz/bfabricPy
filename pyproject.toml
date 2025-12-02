@@ -1,3 +1,16 @@
+[project]
+name = "bfabricpy_workspace"
+version = "0.0.0"
+requires-python = ">=3.11"
+
+[tool.uv.workspace]
+members = ["bfabric", "bfabric_scripts", "bfabric_app_runner"]
+
+[tool.uv.sources]
+bfabric = { workspace = true }
+bfabric_scripts = { workspace = true }
+bfabric_app_runner = { workspace = true }
+
 [tool.pytest.ini_options]
 logot_capturer = "logot.loguru.LoguruCapturer"
 asyncio_mode = "auto"
