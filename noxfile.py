@@ -200,3 +200,92 @@ def check_test_inits(session):
     else:
         # No __init__.py files found
         session.log("✓ No __init__.py files found in tests directory")
+
+
+@nox.session(python=["3.11", "3.13"])
+def test_distributions(session):
+    """
+    Test built distributions (wheels) instead of editable installs.
+
+    This session is used in the PR release preview workflow to validate
+    that the packages work correctly when installed from distributions.
+
+    Usage:
+        nox -s test_distributions-3.11 -- \
+            --wheels bfabric/dist/bfabric-1.14.0-py3-none-any.whl \
+            --wheels bfabric_scripts/dist/bfabric_scripts-1.13.37-py3-none-any.whl \
+            --resolution highest
+
+    The wheels are installed in the order provided, which should match
+    dependency order (base packages first).
+    """
+    # Parse wheel paths and resolution from command line arguments
+    wheels = []
+    package_test_map = {}
+    resolution = "highest"  # default
+
+    args = session.posargs
+    i = 0
+    while i < len(args):
+        if args[i] == "--wheels":
+            if i + 1 < len(args):
+                wheel_path = args[i + 1]
+                wheels.append(wheel_path)
+
+                # Determine which package this wheel belongs to
+                if "bfabric_app_runner" in wheel_path:
+                    package_test_map["bfabric_app_runner"] = "tests/bfabric_app_runner"
+                elif "bfabric_scripts" in wheel_path:
+                    package_test_map["bfabric_scripts"] = ["tests/bfabric_scripts", "tests/bfabric_cli"]
+                elif "bfabric-" in wheel_path or "/bfabric/" in wheel_path:
+                    package_test_map["bfabric"] = "tests/bfabric"
+                i += 2
+            else:
+                session.error("--wheels requires a path argument")
+        elif args[i] == "--resolution":
+            if i + 1 < len(args):
+                resolution = args[i + 1]
+                if resolution not in ["highest", "lowest-direct"]:
+                    session.error("--resolution must be 'highest' or 'lowest-direct'")
+                i += 2
+            else:
+                session.error("--resolution requires a value (highest or lowest-direct)")
+        else:
+            i += 1
+
+    if not wheels:
+        session.error("No wheels specified. Use: --wheels path/to/wheel.whl --resolution highest")
+
+    session.log(f"Testing with resolution: {resolution}")
+    session.log(f"Wheels to test: {wheels}")
+
+    # Install test dependencies first (without any package)
+    # Combining all test dependencies from all packages
+    test_deps = [
+        "pytest>=8",
+        "pytest-mock>=3.15",
+        "logot[pytest,loguru]>=1.5.1",
+        "coverage>=7.10.0",
+        "pytest-asyncio>=1.2.0",
+        "dirty-equals>=0.10.0",
+        "pyfakefs>=5.10.0",
+        "inline-snapshot>=0.30.0",
+        "freezegun>=1.5.5",
+    ]
+    session.install("--resolution", resolution, *test_deps)
+
+    # Install wheels in order (dependency order is preserved by caller)
+    for wheel in wheels:
+        session.log(f"Installing wheel: {wheel}")
+        session.install(wheel)
+
+    # Show what's installed for debugging
+    session.run("uv", "pip", "list")
+
+    # Run tests for each package that was installed
+    for package, test_paths in package_test_map.items():
+        session.log(f"Running tests for {package}")
+        if isinstance(test_paths, list):
+            session.run("pytest", "--durations=50", *test_paths)
+        else:
+            session.run("pytest", "--durations=50", test_paths)
