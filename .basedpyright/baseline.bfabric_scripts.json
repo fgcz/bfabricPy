@@ -1152,14 +1152,6 @@
                     "endColumn": 74,
                     "lineCount": 1
                 }
-            },
-            {
-                "code": "reportAny",
-                "range": {
-                    "startColumn": 22,
-                    "endColumn": 26,
-                    "lineCount": 1
-                }
             }
         ],
         "./bfabric_scripts/src/bfabric_scripts/bfabric_read.py": [
@@ -1256,14 +1248,6 @@
                 "range": {
                     "startColumn": 20,
                     "endColumn": 48,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportArgumentType",
-                "range": {
-                    "startColumn": 1,
-                    "endColumn": 11,
                     "lineCount": 1
                 }
             },
@@ -2442,14 +2426,6 @@
                     "endColumn": 5,
                     "lineCount": 6
                 }
-            },
-            {
-                "code": "reportAny",
-                "range": {
-                    "startColumn": 49,
-                    "endColumn": 62,
-                    "lineCount": 1
-                }
             }
         ],
         "./bfabric_scripts/src/bfabric_scripts/bfabric_wrapper_creator_yaml.py": [
@@ -3326,16 +3302,6 @@
                 "range": {
                     "startColumn": 36,
                     "endColumn": 40,
-                    "lineCount": 1
-                }
-            }
-        ],
-        "./bfabric_scripts/src/bfabric_scripts/cli/external_job/upload_wrapper_creator_executable.py": [
-            {
-                "code": "reportArgumentType",
-                "range": {
-                    "startColumn": 1,
-                    "endColumn": 11,
                     "lineCount": 1
                 }
             }
