@@ -15,6 +15,10 @@ Versioning currently follows `X.Y.Z` where
 - Minimal Python version is now 3.11.
 - `bfabric_flask` validate_token uses the newer functionality in bfabricPy.
 
+### Fixed
+
+- Fix bfabric_read_samples_of_workunit.py ordering.
+
 ## \[1.13.37\] - 2025-10-27
 
 ### Changed
