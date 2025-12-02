@@ -49,5 +49,5 @@ def wrapper_creator(external_job_id: int, *, client: Bfabric) -> None:
     pprint(creator.create())
 
 
-app.command(upload_submitter_executable)
-app.command(upload_wrapper_creator_executable)
+_ = app.command(upload_submitter_executable)
+_ = app.command(upload_wrapper_creator_executable)

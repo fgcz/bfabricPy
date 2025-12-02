@@ -6,7 +6,7 @@ from bfabric_scripts.cli.api.read import cmd_api_read
 from bfabric_scripts.cli.api.update import cmd_api_update
 
 cmd_api = cyclopts.App(help="Commands for interacting with B-Fabric API directly.")
-cmd_api.command(cmd_api_create, name="create")
-cmd_api.command(cmd_api_delete, name="delete")
-cmd_api.command(cmd_api_read, name="read")
-cmd_api.command(cmd_api_update, name="update")
+_ = cmd_api.command(cmd_api_create, name="create")
+_ = cmd_api.command(cmd_api_delete, name="delete")
+_ = cmd_api.command(cmd_api_read, name="read")
+_ = cmd_api.command(cmd_api_update, name="update")
