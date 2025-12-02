@@ -209,11 +209,11 @@ def test_register_workflow_step_creates_workflow_and_step(mocker, mock_client, m
     mock_workflow_template_step = mocker.Mock(id=789, workflow_template=mock_workflow_template)
 
     # Mock WorkflowTemplateStep.find
-    mock_wts_find = mocker.patch("bfabric_app_runner.actions.execute.Workflowtemplatestep.find")
+    mock_wts_find = mocker.patch("bfabric_app_runner.actions.execute.WorkflowTemplateStep.find")
     mock_wts_find.return_value = mock_workflow_template_step
 
     # Mock WorkflowStep.find_by to return None (not found, so will create)
-    mock_ws_find_by = mocker.patch("bfabric_app_runner.actions.execute.Workflowstep.find_by")
+    mock_ws_find_by = mocker.patch("bfabric_app_runner.actions.execute.WorkflowStep.find_by")
     mock_ws_find_by.return_value = None
 
     # Setup client mock responses for workflow lookup and creation
