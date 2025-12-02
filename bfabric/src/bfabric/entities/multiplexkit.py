@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from bfabric.entities.multiplexid import Multiplexid
 
 
-class Multiplexkit(Entity):
+class MultiplexKit(Entity):
     ENDPOINT = "multiplexkit"
 
     multiplex_ids: HasMany[Multiplexid] = HasMany(bfabric_field="multiplexid")
@@ -22,6 +22,3 @@ class Multiplexkit(Entity):
         return self.multiplex_ids.polars.filter(pl.col("enabled") == "true").select(
             ["name", "sequence", "reversesequence", "reversecomplementsequence", "type"]
         )
-
-
-MultiplexKit = Multiplexkit  # Alias for backward compatibility
