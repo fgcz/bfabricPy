@@ -10,10 +10,7 @@ if TYPE_CHECKING:
     from bfabric.entities import Workflowtemplate
 
 
-class Workflowtemplatestep(Entity, UserCreatedMixin):
+class WorkflowTemplateStep(Entity, UserCreatedMixin):
     ENDPOINT = "workflowtemplatestep"
 
     workflow_template: HasOne[Workflowtemplate] = HasOne(bfabric_field="workflowtemplate", optional=True)
-
-
-WorkflowTemplateStep = Workflowtemplatestep  # Alias for backward compatibility
