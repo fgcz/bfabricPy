@@ -126,6 +126,8 @@ def licensecheck(session) -> None:
 @nox.parametrize("package", ["bfabric", "bfabric_scripts", "bfabric_app_runner"])
 def basedpyright(session, package):
     session.install("-e", f"./{package}")
+    if package != "bfabric":
+        session.install("-e", "./bfabric")
     session.install("basedpyright>=1.34.0,<1.35.0")
     session.run("basedpyright", "--baselinefile", f".basedpyright/baseline.{package}.json", package)
 
