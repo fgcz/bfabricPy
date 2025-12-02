@@ -12,7 +12,7 @@ from loguru import logger
 from bfabric import Bfabric
 from bfabric.entities import (
     Workunit,
-    Externaljob,
+    ExternalJob,
     Application,
     Resource,
     Storage,
@@ -33,7 +33,7 @@ class BfabricWrapperCreator:
         return WorkunitDefinition.from_workunit(self._external_job.workunit)
 
     @cached_property
-    def _external_job(self) -> Externaljob:
+    def _external_job(self) -> ExternalJob:
         return self._client.reader.read_id(
             "externaljob", self._external_job_id, bfabric_instance=self._client.config.base_url
         )
