@@ -58,6 +58,3 @@ excel = [
 "bfabric_save_workflowstep.py" = "bfabric_scripts.bfabric_save_workflowstep:main"
 "bfabric_slurm_queue_status.py" = "bfabric_scripts.bfabric_slurm_queue_status:main"
 "bfabric_save_resource_description.py" = "bfabric_scripts.bfabric_save_resource_description:main"
-
-[tool.hatch.metadata]
-allow-direct-references = true
