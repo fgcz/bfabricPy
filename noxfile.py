@@ -274,10 +274,10 @@ def test_distributions(session):
     ]
     session.install("--resolution", resolution, *test_deps)
 
-    # Install wheels in order (dependency order is preserved by caller)
-    for wheel in wheels:
-        session.log(f"Installing wheel: {wheel}")
-        session.install(wheel)
+    # Install all wheels at once so uv can resolve dependencies between them
+    # (installing one at a time causes uv to check PyPI for dependencies)
+    session.log(f"Installing wheels: {wheels}")
+    session.install(*wheels)
 
     # Show what's installed for debugging
     session.run("uv", "pip", "list")
