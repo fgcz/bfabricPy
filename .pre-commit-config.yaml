@@ -20,7 +20,6 @@ repos:
     rev: "v4.6.0"
     hooks:
       - id: check-added-large-files
-        exclude: '^\.basedpyright/baseline\.json$'
       - id: check-case-conflict
       - id: check-merge-conflict
       - id: check-symlinks
@@ -37,6 +36,7 @@ repos:
           - "--autofix"
           - "--indent=4"
           - "--no-sort-keys"
+    exclude: '^\.basedpyright/baseline\.json$'
   - repo: https://github.com/google/yamlfmt
     rev: "v0.15.0"
     hooks:
