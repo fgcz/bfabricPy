@@ -8,6 +8,7 @@ from pydantic import SecretStr
 from bfabric import Bfabric, BfabricAPIEngineType, BfabricClientConfig, BfabricAuth
 from bfabric.config.config_data import ConfigData
 from bfabric.engine.engine_suds import EngineSUDS
+from bfabric.entities.core.entity_reader import EntityReader
 
 
 @pytest.fixture
@@ -124,6 +125,13 @@ def test_with_auth_when_exception(mocker, bfabric_instance):
             raise ValueError("Test exception")
 
     assert bfabric_instance.auth == mock_old_auth
+
+
+def test_reader(mocker, bfabric_instance):
+    constructor = mocker.patch.object(EntityReader, "for_client")
+    for _ in range(2):
+        assert bfabric_instance.reader == constructor.return_value
+    constructor.assert_called_once_with(client=bfabric_instance)
 
 
 def test_read_when_no_pages_available_and_check(mocker, bfabric_instance):

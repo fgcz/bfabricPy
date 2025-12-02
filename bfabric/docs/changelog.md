@@ -2,13 +2,65 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-Versioning currently follows `X.Y.Z` where
+Versioning currently follows `X.Y.Z` semantic versioning.
+Historically, before 1.14.0, a different versioning scheme was used.
 
-- `X` is used for major changes, that contain breaking changes
-- `Y` should be the current bfabric release
-- `Z` is increased for feature releases, that should not break the API
+Minor breaking changes are still possible in `1.X.Y` but we try to announce them with DeprecationWarnings in the previous `Y-1` release.
 
 ## \[Unreleased\]
+
+## \[2025-12-02\] - 1.14.0
+
+- The minimal Python version has been updated to 3.11.
+
+- *bfabric.entities*
+
+    - The read-only API in `bfabric.entities` has been redesigned to support multiple B-Fabric instances cleanly.
+    - In particular, when handling configuration files it should now be obvious how to specify entities by their URI rather than having
+        to specify instance, classname, and id separately.
+    - The main new concept is the `EntityUri` which standardizes the way entities are specified by their URI.
+    - `EntityReader` is a new class which implements the resolution, currently for only one B-Fabric instance, but extensible to support
+        multiple B-Fabric instances in the future.
+    - We also remove the reliance on custom entity classes providing generic functionality to read entities and their references.
+        This is available through the `EntityReader` class which can be accessed through `Bfabric.reader`.
+
+- Versioning:
+
+    - The `bfabric` Python package versioning starting with 1.14.0 does not track the B-Fabric server version anymore.
+    - This will allow us to adapt to implement a more semantically meaningful versioning, starting with 1.14.0.
+    - Applications, like `bfabric-scripts` can instead track the particular version of bfabric against which they are tested/developed
+        either in their version (planned for `bfabric-scripts`) or through documentation.
+
+### Added
+
+- `Entity.uri` property to obtain the URI of an entity.
+- `Entity.refs` resolves all references of entities generically, writes the data into `data_dict` and is compatible with pre-loaded references from B-Fabric.
+- `bfabric.entities.core.uri.EntityUri` to identify entities regardless of B-Fabric instance.
+- `bfabric.entities.core.uri.EntityUriComponents` to access individual components `(bfabric_instance, entity_type, entity_id)` from a URI.
+- `bfabric.entities.core.uri.GroupedUris` helper for looping over lists of `EntityUri`s.- `bfabric.entities.core.entity_reader` which allows reading entities by URI, ID, and general queries.
+- `bfabric.entities.cache` which supersedes `bfabric.experimental.cache`.
+- `HasOne` and `HasMany` should be able to use resolved entities when loading with `fulldetails=True`.
+- `Entity.custom_attributes` for reading custom attribute values.
+- `bfabric.experimental.update_custom_attributes` for updating custom attributes correctly.
+
+### Changed
+
+- Minimal Python version is now 3.11.
+- `BFabricClientConfig` does not allow passing `None` for values anymore.
+- `HasMany` retains response order, instead of redundant sorting by ID.
+- `bfabric.entities` allows loading entity references without custom definitions in Python.
+- Internal
+    - `Entity` has a new constructor parameter `bfabric_instance` which in the future will become mandatory.
+    - `BfabricClientConfig.base_url` always ends with exactly one `/` now.
+    - `bfabric.entities` do not define custom constructors anymore, simplifying future changes (and removing tiny inconsistencies).
+    - `TokenData` retrieval uses async httpx internally, but provides a sync interface for compatibility.
+
+### Removed
+
+- `bfabric.experimental.cache` is removed in favor of `bfabric.entities.cache`.
+- Future deprecations:
+    - `Entity.find`, `Entity.find_all`, `Entity.find_by` will be removed in favor of `EntityReader` methods.
+    - Passing entity class to `cache_context` will be removed in favor of their name (this is because not all entities have custom classes).
 
 ## \[1.13.36\] - 2025-10-27
 

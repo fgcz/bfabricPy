@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "bfabric"
 description = "Python client for the B-Fabric API"
 readme = "../README.md"
-version = "1.13.36"
+version = "1.14.0"
 license = { text = "GPL-3.0" }
 authors = [
     { name = "Christian Panse", email = "cp@fgcz.ethz.ch" },
@@ -16,7 +16,7 @@ authors = [
     { name = "Maria d'Errico" },
     { name = "Witold Eryk Wolski" },
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 dependencies = [
     "suds>=1.2.0,<2.0.0",
     "PyYAML>=6.0.2,<7.0",
@@ -29,6 +29,7 @@ dependencies = [
     "eval_type_backport; python_version < '3.10'",
     "python-dateutil>=2.9.0,<3.0",
     "requests>=2.27.0,<3.0",
+    "httpx>=0.28.1,<0.29",
 ]
 
 [project.optional-dependencies]
@@ -43,7 +44,7 @@ dev = [
     "ipython",
 ]
 doc = ["mkdocs", "mkdocs-material", "mkdocstrings[python]"]
-test = ["pytest>=8", "pytest-mock>=3.15", "logot[pytest,loguru]>=1.5.1", "coverage>=7.10.0"]
+test = ["pytest>=8", "pytest-mock>=3.15", "logot[pytest,loguru]>=1.5.1", "coverage>=7.10.0", "pytest-asyncio>=1.2.0", "dirty-equals>=0.10.0"]
 typing = ["mypy", "types-requests", "lxml-stubs", "types-python-dateutil", "types-PyYAML"]
 
 [project.urls]
@@ -56,12 +57,12 @@ reinstall-package = ["bfabric", "bfabric_scripts", "bfabric_app_runner"]
 
 [tool.black]
 line-length = 120
-target-version = ["py39"]
+target-version = ["py311"]
 
 [tool.ruff]
 line-length = 120
 indent-width = 4
-target-version = "py39"
+target-version = "py311"
 
 [tool.ruff.lint]
 select = ["ANN", "BLE", "D103", "E", "EXE", "F", "N", "PLW", "PTH", "SIM", "TCH", "UP", "W191"]

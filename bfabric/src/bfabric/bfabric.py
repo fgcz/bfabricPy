@@ -41,6 +41,7 @@ from bfabric.utils.paginator import compute_requested_pages, BFABRIC_QUERY_LIMIT
 
 if TYPE_CHECKING:
     from collections.abc import Generator
+    from bfabric.entities.core.entity_reader import EntityReader
 
 
 class Bfabric:
@@ -179,6 +180,13 @@ class Bfabric:
             yield
         finally:
             self._auth = old_auth
+
+    @cached_property
+    def reader(self) -> EntityReader:
+        """Returns an EntityReader for this client."""
+        from bfabric.entities.core.entity_reader import EntityReader
+
+        return EntityReader.for_client(client=self)
 
     def read(
         self,

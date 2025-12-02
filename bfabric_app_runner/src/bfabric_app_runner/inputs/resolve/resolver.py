@@ -3,8 +3,7 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import TYPE_CHECKING, assert_never
 
-from bfabric.entities import Resource, Storage, Application, Dataset
-from bfabric.experimental.cache.context import cache_entities
+from bfabric.entities.cache.context import cache_entities
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_annotation_specs import ResolveBfabricAnnotationSpecs
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_dataset_specs import ResolveBfabricDatasetSpecs
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_order_fasta_specs import ResolveBfabricOrderFastaSpecs
@@ -49,7 +48,7 @@ class Resolver:
 
     def resolve(self, specs: list[InputSpecType]) -> ResolvedInputs:
         """Convert input specifications to resolved file specifications."""
-        with cache_entities(entities=[Application, Dataset, Resource, Storage], max_size=500):
+        with cache_entities(entities=["application", "dataset", "resource", "storage"], max_size=500):
             grouped_specs = self._group_specs_by_type(specs=specs)
             files = []
             for spec_type, specs_list in grouped_specs.items():

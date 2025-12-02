@@ -41,7 +41,7 @@ from flask import Flask, Response, jsonify, request
 from loguru import logger
 
 from bfabric import Bfabric, BfabricAuth
-from bfabric.rest.token_data import get_raw_token_data
+from bfabric.rest.token_data import get_token_data
 
 if "BFABRICPY_CONFIG_ENV" not in os.environ:
     # Set the environment to the name of the PROD config section to use
@@ -217,8 +217,10 @@ def validate_token() -> Response:
     shiny apps having to interface with two different APIs.
     """
     params = get_fields(required_fields=["token"], optional_fields={})
-    token_data = get_raw_token_data(base_url=client.config.base_url, token=params["token"])
-    return jsonify(token_data)
+    token_data = get_token_data(base_url=client.config.base_url, token=params["token"])
+    dump = token_data.model_dump(by_alias=True, mode="json")
+    dump["userWsPassword"] = token_data.user_ws_password.get_secret_value()
+    return jsonify(dump)
 
 
 def main() -> None:

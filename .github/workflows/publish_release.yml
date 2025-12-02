@@ -23,7 +23,7 @@ jobs:
     outputs:
       packages_to_release: ${{ steps.check-versions.outputs.packages-to-release }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set PyPI repository URL
         id: set-repo-url
         run: |
@@ -56,7 +56,7 @@ jobs:
       # Run sequentially to ensure proper order of releases
       max-parallel: 1
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
