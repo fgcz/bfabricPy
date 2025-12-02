@@ -21,9 +21,9 @@ from loguru import logger
 from bfabric.utils.cli_integration import use_client
 
 from bfabric import Bfabric
+from bfabric.entities import Workunit
 
 if TYPE_CHECKING:
-    from bfabric.entities import Workunit
     from bfabric.entities.core.uri import EntityUri
 
 
@@ -36,7 +36,7 @@ def bfabric_read_samples_of_workunit(workunit_id: int, client: Bfabric) -> None:
 
     collect: list[dict[str, int | str]] = []
     sample_uris = {
-        cast(EntityUri | None, input_resource.refs.uris.get("sample")) for input_resource in workunit.input_resources
+        cast("EntityUri | None", input_resource.refs.uris.get("sample")) for input_resource in workunit.input_resources
     }
     logger.debug(f"Querying samples: {sample_uris}")
     sample_uris = {item for item in sample_uris if item is not None}
