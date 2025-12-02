@@ -1414,32 +1414,6 @@
                 }
             }
         ],
-        "./bfabric_scripts/src/bfabric_scripts/bfabric_read_samples_of_workunit.py": [
-            {
-                "code": "reportUnusedCallResult",
-                "range": {
-                    "startColumn": 4,
-                    "endColumn": 68,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportAny",
-                "range": {
-                    "startColumn": 49,
-                    "endColumn": 65,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportAny",
-                "range": {
-                    "startColumn": 49,
-                    "endColumn": 65,
-                    "lineCount": 1
-                }
-            }
-        ],
         "./bfabric_scripts/src/bfabric_scripts/bfabric_save_csv2dataset.py": [
             {
                 "code": "reportUnusedCallResult",

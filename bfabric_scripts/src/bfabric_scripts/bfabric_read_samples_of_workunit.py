@@ -69,9 +69,9 @@ def bfabric_read_samples_of_workunit(workunit_id: int, client: Bfabric) -> None:
 def main(*, client: Bfabric) -> None:
     """Parses the command line arguments and calls `bfabric_read_samples_of_workunit`."""
     parser = argparse.ArgumentParser()
-    parser.add_argument("workunit_id", type=int, help="workunit id")
+    _ = parser.add_argument("workunit_id", type=int, help="workunit id")
     args = parser.parse_args()
-    bfabric_read_samples_of_workunit(workunit_id=args.workunit_id, client=client)
+    bfabric_read_samples_of_workunit(workunit_id=cast(int, args.workunit_id), client=client)
 
 
 if __name__ == "__main__":
