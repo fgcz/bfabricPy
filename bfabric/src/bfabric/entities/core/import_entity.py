@@ -12,9 +12,15 @@ def import_entity(entity_class_name: str) -> type[Entity]:
     """Returns the entity class from a string, e.g. for `"Workunit"` returns the Workunit class."""
     from bfabric.entities.core.entity import Entity
 
-    capitalized = entity_class_name[0].upper() + entity_class_name[1:]
+    name = entity_class_name.lower()
     try:
-        return importlib.import_module(f"bfabric.entities.{entity_class_name.lower()}").__dict__[capitalized]
+        module = importlib.import_module(f"bfabric.entities.{name}")
+        names_all = list(module.__dict__.keys())
+        names_map = {name.lower(): name for name in names_all}
+        if names_all.count(name) > 1:
+            msg = f"Multiple candidate classes found for '{name}'"
+            raise ValueError(msg)
+        return module.__dict__[names_map[name]]
     except (ModuleNotFoundError, KeyError):
         return Entity
 
