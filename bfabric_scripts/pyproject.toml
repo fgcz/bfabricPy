@@ -9,7 +9,7 @@ readme = "../README.md"
 version = "1.13.37"
 
 dependencies = [
-    "bfabric>=1.13.36",
+    "bfabric>=1.14.0,<1.15.0",
     "cyclopts>=4.0,<5.0",
     "Flask>=3.0.3,<4.0",
     "xmltodict>=1.0.0,<2.0.0",

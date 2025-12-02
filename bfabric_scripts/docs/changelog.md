@@ -14,6 +14,7 @@ Versioning currently follows `X.Y.Z` where
 
 - Minimal Python version is now 3.11.
 - `bfabric_flask` validate_token uses the newer functionality in bfabricPy.
+- Update `bfabric` dependency to `1.14.0` and as an experiment, replace the very strong constraint by `<1.15.0`.
 
 ### Fixed
 
