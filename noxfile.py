@@ -12,6 +12,51 @@ import nox
 nox.options.default_venv_backend = "uv"
 
 
+def _collect_test_deps(package_dirs):
+    """
+    Collect test dependencies from package pyproject.toml files.
+
+    Filters out self-references to avoid trying to install packages
+    that aren't on PyPI yet or that we're installing from wheels.
+
+    Args:
+        package_dirs: Iterable of package directory names
+
+    Returns:
+        List of test dependency strings
+    """
+    all_deps = []
+    package_names = set(package_dirs)  # e.g., {"bfabric", "bfabric_scripts"}
+
+    for pkg in package_dirs:
+        pyproject = Path(pkg) / "pyproject.toml"
+        if pyproject.exists():
+            with open(pyproject, "rb") as f:
+                data = tomllib.load(f)
+                deps = data.get("project", {}).get("optional-dependencies", {}).get("test", [])
+
+                # Filter out self-references to packages we're testing
+                for dep in deps:
+                    # Extract package name from dependency spec
+                    # Handles: "pkg>=1.0", "pkg[extra]>=1.0", "pkg[extra]", "pkg"
+                    dep_name = (
+                        dep.split("[")[0]
+                        .split(">=")[0]
+                        .split("<=")[0]
+                        .split("==")[0]
+                        .split("!=")[0]
+                        .split("<")[0]
+                        .split(">")[0]
+                        .split(";")[0]
+                        .strip()
+                    )
+
+                    if dep_name not in package_names:
+                        all_deps.append(dep)
+
+    return all_deps
+
+
 @contextmanager
 def chdir(path: Path) -> Generator[None, None, None]:
     """Context manager to change directory."""
@@ -259,19 +304,10 @@ def test_distributions(session):
     session.log(f"Testing with resolution: {resolution}")
     session.log(f"Wheels to test: {wheels}")
 
-    # Install test dependencies first (without any package)
-    # Combining all test dependencies from all packages
-    test_deps = [
-        "pytest>=8",
-        "pytest-mock>=3.15",
-        "logot[pytest,loguru]>=1.5.1",
-        "coverage>=7.10.0",
-        "pytest-asyncio>=1.2.0",
-        "dirty-equals>=0.10.0",
-        "pyfakefs>=5.10.0",
-        "inline-snapshot>=0.30.0",
-        "freezegun>=1.5.5",
-    ]
+    # Collect test dependencies from package pyproject.toml files
+    # This automatically filters out self-references and stays in sync
+    test_deps = _collect_test_deps(package_test_map.keys())
+    session.log(f"Test dependencies: {test_deps}")
     session.install("--resolution", resolution, *test_deps)
 
     # Install all wheels at once so uv can resolve dependencies between them
