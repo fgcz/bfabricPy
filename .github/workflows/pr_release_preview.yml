@@ -182,39 +182,47 @@ jobs:
           nox -s test_distributions-${{ matrix.python-version }} -- \
             ${{ steps.build.outputs.wheels_args }} \
             --resolution ${{ matrix.resolution }}
-      - name: Comment test results on PR
-        if: always()
-        uses: actions/github-script@v8
+  comment-test-results:
+    needs: [preview-release, validate-and-test-release]
+    if: always() && needs.preview-release.outputs.packages_to_release != '[]'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/github-script@v8
         with:
           script: |
             const packages = JSON.parse('${{ needs.preview-release.outputs.packages_to_release }}');
-            const pythonVersion = '${{ matrix.python-version }}';
-            const resolution = '${{ matrix.resolution }}';
-            const success = '${{ job.status }}' === 'success';
 
-            const emoji = success ? '✅' : '❌';
-            const status = success ? 'passed' : 'failed';
+            // Determine overall status
+            const testResult = '${{ needs.validate-and-test-release.result }}';
+            const allPassed = testResult === 'success';
+            const emoji = allPassed ? '✅' : '❌';
 
-            const commentBody = `### ${emoji} Release Testing (Python ${pythonVersion}, ${resolution}): ${status}
+            const commentBody = `## ${emoji} Release Distribution Testing
 
-            Built and tested distributions for: ${packages.join(', ')}
+            **Packages to release:** ${packages.join(', ')}
 
-            ${success ?
-              'All tests passed with built distributions. The packages are ready for release.' :
-              'Tests failed. Please check the workflow logs for details.'}
+            **Test Results:**
+            - Python 3.11 (highest): ${testResult === 'success' ? '✅ passed' : '❌ failed'}
+            - Python 3.11 (lowest-direct): ${testResult === 'success' ? '✅ passed' : '❌ failed'}
+            - Python 3.13 (highest): ${testResult === 'success' ? '✅ passed' : '❌ failed'}
+
+            ${allPassed ?
+              '**Status:** All tests passed with built distributions. The packages are ready for release.' :
+              '**Status:** Tests failed. Please check the [workflow logs](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.'}
             `;
 
-            // Find existing comment for this configuration
+            // Find existing comment
             const comments = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
             });
 
-            const marker = `Release Testing (Python ${pythonVersion}, ${resolution})`;
             const existingComment = comments.data.find(comment =>
               comment.user.login === 'github-actions[bot]' &&
-              comment.body.includes(marker)
+              comment.body.includes('Release Distribution Testing')
             );
 
             if (existingComment) {
