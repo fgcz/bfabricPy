@@ -5,11 +5,10 @@ from typing import TYPE_CHECKING
 
 from loguru import logger
 
-from bfabric.entities.core.entity_reader import EntityReader
-
 if TYPE_CHECKING:
-    from bfabric import Bfabric
     from typing import Any, Self
+
+    from bfabric import Bfabric
 
 
 class FindMixin:
@@ -18,6 +17,8 @@ class FindMixin:
     @classmethod
     def find(cls, id: int, client: Bfabric) -> Self | None:
         """Finds an entity by its ID, if it does not exist `None` is returned."""
+        from bfabric.entities.core.entity_reader import EntityReader
+
         warnings.warn(
             "FindMixin is deprecated and will be removed in future versions.", DeprecationWarning, stacklevel=2
         )
@@ -28,6 +29,8 @@ class FindMixin:
         """Returns a dictionary of entities with the given IDs. The order will generally match the input, however,
         if some entities are not found they will be omitted and a warning will be logged.
         """
+        from bfabric.entities.core.entity_reader import EntityReader
+
         warnings.warn(
             "FindMixin is deprecated and will be removed in future versions.", DeprecationWarning, stacklevel=2
         )
@@ -38,6 +41,8 @@ class FindMixin:
     @classmethod
     def find_by(cls, obj: dict[str, Any], client: Bfabric, max_results: int | None = 100) -> dict[int, Self]:
         """Returns a dictionary of entities that match the given query."""
+        from bfabric.entities.core.entity_reader import EntityReader
+
         warnings.warn(
             "FindMixin is deprecated and will be removed in future versions.", DeprecationWarning, stacklevel=2
         )

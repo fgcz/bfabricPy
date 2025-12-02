@@ -1280,14 +1280,6 @@
                 }
             },
             {
-                "code": "reportImportCycles",
-                "range": {
-                    "startColumn": 0,
-                    "endColumn": 0,
-                    "lineCount": 1
-                }
-            },
-            {
                 "code": "reportUnusedCallResult",
                 "range": {
                     "startColumn": 8,
@@ -1321,14 +1313,6 @@
             }
         ],
         "./bfabric/src/bfabric/entities/cache/_entity_memory_cache.py": [
-            {
-                "code": "reportImportCycles",
-                "range": {
-                    "startColumn": 0,
-                    "endColumn": 0,
-                    "lineCount": 1
-                }
-            },
             {
                 "code": "reportUnannotatedClassAttribute",
                 "range": {
@@ -1470,14 +1454,6 @@
         ],
         "./bfabric/src/bfabric/entities/cache/context.py": [
             {
-                "code": "reportImportCycles",
-                "range": {
-                    "startColumn": 0,
-                    "endColumn": 0,
-                    "lineCount": 1
-                }
-            },
-            {
                 "code": "reportArgumentType",
                 "range": {
                     "startColumn": 30,
@@ -1551,22 +1527,6 @@
             }
         ],
         "./bfabric/src/bfabric/entities/core/entity.py": [
-            {
-                "code": "reportImportCycles",
-                "range": {
-                    "startColumn": 0,
-                    "endColumn": 0,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportImportCycles",
-                "range": {
-                    "startColumn": 0,
-                    "endColumn": 0,
-                    "lineCount": 1
-                }
-            },
             {
                 "code": "reportExplicitAny",
                 "range": {
@@ -1790,30 +1750,6 @@
                 "range": {
                     "startColumn": 13,
                     "endColumn": 20,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownMemberType",
-                "range": {
-                    "startColumn": 12,
-                    "endColumn": 26,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownMemberType",
-                "range": {
-                    "startColumn": 12,
-                    "endColumn": 26,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownVariableType",
-                "range": {
-                    "startColumn": 15,
-                    "endColumn": 22,
                     "lineCount": 1
                 }
             },
