@@ -32,14 +32,6 @@
                     "endColumn": 0,
                     "lineCount": 1
                 }
-            },
-            {
-                "code": "reportPrivateLocalImportUsage",
-                "range": {
-                    "startColumn": 37,
-                    "endColumn": 57,
-                    "lineCount": 1
-                }
             }
         ],
         "./bfabric/src/bfabric/bfabric.py": [

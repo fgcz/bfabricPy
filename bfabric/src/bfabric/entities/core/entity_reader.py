@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypeVar, overload
 
 from loguru import logger
 
@@ -10,8 +10,12 @@ from bfabric.entities.core.uri import EntityUri, GroupedUris
 from bfabric.experimental import MultiQuery
 
 if TYPE_CHECKING:
-    from bfabric.entities.core.entity import Entity
+    from collections.abc import Iterable
+
     from bfabric import Bfabric
+    from bfabric.entities.core.entity import Entity
+
+EntityT = TypeVar("EntityT", bound="Entity")
 
 
 class EntityReader:
@@ -47,7 +51,7 @@ class EntityReader:
         logger.debug(f"Reading entity for URI: {uri}")
         return list(self.read_uris([uri]).values())[0]
 
-    def read_uris(self, uris: list[EntityUri | str]) -> dict[EntityUri, Entity | None]:
+    def read_uris(self, uris: Iterable[EntityUri | str]) -> dict[EntityUri, Entity | None]:
         """Read multiple entities by their URIs.
 
         Entities are grouped by type and retrieved efficiently. Uses the cache stack
@@ -88,17 +92,51 @@ class EntityReader:
 
         return results
 
-    def read_id(self, entity_type: str, entity_id: int, bfabric_instance: str | None = None) -> Entity | None:
+    @overload
+    def read_id(
+        self,
+        entity_type: str,
+        entity_id: int,
+        bfabric_instance: str | None = None,
+        *,
+        expected_type: type[EntityT],
+    ) -> EntityT | None: ...
+
+    @overload
+    def read_id(
+        self,
+        entity_type: str,
+        entity_id: int,
+        bfabric_instance: str | None = None,
+        *,
+        expected_type: None = None,
+    ) -> Entity | None: ...
+
+    def read_id(
+        self,
+        entity_type: str,
+        entity_id: int,
+        bfabric_instance: str | None = None,
+        *,
+        expected_type: type[EntityT] | None = None,
+    ) -> Entity | EntityT | None:
         """Read a single entity by its type and ID.
 
         :param entity_type: The entity type (e.g., "project", "workunit").
         :param entity_id: The entity ID.
         :param bfabric_instance: The B-Fabric instance URL. If ``None``, uses the client's configured instance.
+        :param expected_type: Optional type to validate and cast the result to.
         :return: The entity if found, ``None`` otherwise.
         :raises ValueError: If the instance doesn't match the client's configured instance.
+        :raises TypeError: If expected_type is provided and the result doesn't match.
         """
         results = self.read_ids(entity_type=entity_type, entity_ids=[entity_id], bfabric_instance=bfabric_instance)
-        return list(results.values())[0]
+        result = list(results.values())[0]
+
+        if expected_type is not None and result is not None and not isinstance(result, expected_type):
+            raise TypeError(f"Expected {expected_type.__name__}, got {type(result).__name__}")
+
+        return result
 
     def read_ids(
         self, entity_type: str, entity_ids: list[int], bfabric_instance: str | None = None
