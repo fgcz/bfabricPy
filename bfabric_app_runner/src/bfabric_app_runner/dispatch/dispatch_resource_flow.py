@@ -1,17 +1,16 @@
 from pathlib import Path
-from typing import Protocol, Any
+from typing import Any, Protocol
 
 import cyclopts
 import pandera.polars as pa
 import polars as pl
 import yaml
-from pandera import Field
-from pandera.typing.polars import DataFrame
-
 from bfabric import Bfabric
 from bfabric.entities import Resource
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric.utils.cli_integration import use_client
+from pandera import Field
+from pandera.typing.polars import DataFrame
 
 
 class InputTable(pa.DataFrameModel):
@@ -155,7 +154,7 @@ class ResourceDispatcherCLI:
     def __init__(self, resource_strategy: DispatchResource) -> None:
         self._resource_strategy = resource_strategy
         self._app = cyclopts.App()
-        self._app.default(self.main)
+        _ = self._app.default(self.main)
 
     def run(self) -> None:
         """Runs the CLI application."""

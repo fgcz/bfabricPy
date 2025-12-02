@@ -21,3 +21,8 @@ target-version = "py311"
 
 [tool.uv]
 reinstall-package = ["bfabric", "bfabric_scripts", "bfabric_app_runner"]
+
+[tool.basedpyright]
+exclude = [
+    "*/tests/*"
+]
