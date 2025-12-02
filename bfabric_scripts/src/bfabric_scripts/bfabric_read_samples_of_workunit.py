@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+from __future__ import annotations
+
 """
 Copyright (C) 2022 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 
@@ -13,57 +14,65 @@ Licensed under  GPL version 3
 Usage example:
   bfabric_read_samples_of_workunit.py 278175
 """
-
 import argparse
-import time
-
-from rich.console import Console
+from typing import TYPE_CHECKING, cast
+import polars as pl
+from loguru import logger
+from bfabric.utils.cli_integration import use_client
 
 from bfabric import Bfabric
+from bfabric.entities import Workunit
+
+if TYPE_CHECKING:
+    from bfabric.entities.core.uri import EntityUri
 
 
-def bfabric_read_samples_of_workunit(workunit_id: int) -> None:
+def bfabric_read_samples_of_workunit(workunit_id: int, client: Bfabric) -> None:
     """Reads the samples of the specified workunit and prints the results to stdout."""
-    client = Bfabric.connect()
 
-    start_time = time.time()
-    res_workunit = client.read(endpoint="workunit", obj={"id": workunit_id}).to_list_dict()[0]
-    input_resource_ids = [x["id"] for x in res_workunit.get("inputresource", [])]
-    input_resources = client.read(endpoint="resource", obj={"id": input_resource_ids}).to_list_dict()
-    input_resources_name = [(r["id"], r["name"]) for r in input_resources]
+    workunit = client.reader.read_id("workunit", workunit_id, expected_type=Workunit)
+    if workunit is None:
+        raise ValueError(f"Workunit {workunit_id} not found")
 
-    samples = client.read(endpoint="sample", obj={"id": [x["sample"]["id"] for x in input_resources]}).to_list_dict()
-    groupingvars = [(s["id"], s["name"], (s.get("groupingvar") or {}).get("name", "NA")) for s in samples]
+    collect: list[dict[str, int | str]] = []
+    sample_uris = {
+        cast("EntityUri | None", input_resource.refs.uris.get("sample")) for input_resource in workunit.input_resources
+    }
+    logger.debug(f"Querying samples: {sample_uris}")
+    sample_uris = {item for item in sample_uris if item is not None}
+    samples = client.reader.read_uris(sample_uris)
+    samples = {key: value for key, value in samples.items() if value is not None}
 
-    print(
-        "\t".join(
-            [
-                "workunit_id",
-                "inputresource_id",
-                "inputresource_name",
-                "sample_name",
-                "groupingvar_name",
-            ]
-        )
-    )
-    for i in zip(input_resources_name, groupingvars):
-        print("\t".join([str(workunit_id), str(i[0][0]), i[0][1], i[1][1], i[1][2]]))
+    for input_resource in workunit.input_resources:
+        data = {
+            "workunit_id": workunit_id,
+            "inputresource_id": input_resource["id"],
+            "inputresource_name": input_resource["name"],
+        }
+        sample_uri = input_resource.refs.uris.get("sample")
+        if sample_uri is not None:
+            if isinstance(sample_uri, list):
+                raise ValueError("Should not be a list")
+            sample = samples[sample_uri]
+            data["sample_name"] = sample["name"]
+            data["sample_groupingvar"] = sample["groupingvar"]["name"] if sample["groupingvar"] else "NA"
+        else:
+            data["sample_name"] = None
+            data["sample_groupingvar"] = "NA"
+        collect.append(data)
 
-    end_time = time.time()
-    Console(stderr=True).print(
-        f"--- query time = {end_time - start_time:.2f} seconds ---",
-        style="bright_yellow",
-    )
+    table = pl.DataFrame(collect)
+    print(table.write_csv(separator="\t"))
 
 
-def main() -> None:
+@use_client
+def main(*, client: Bfabric) -> None:
     """Parses the command line arguments and calls `bfabric_read_samples_of_workunit`."""
     parser = argparse.ArgumentParser()
-    parser.add_argument("workunit_id", type=int, help="workunit id")
+    _ = parser.add_argument("workunit_id", type=int, help="workunit id")
     args = parser.parse_args()
-    bfabric_read_samples_of_workunit(workunit_id=args.workunit_id)
+    bfabric_read_samples_of_workunit(workunit_id=cast(int, args.workunit_id), client=client)
 
 
 if __name__ == "__main__":
-    # main()
-    bfabric_read_samples_of_workunit(285689)
+    main()
