@@ -9,6 +9,10 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+### Added
+
+- `EntityReader.read_id` has a `expected_type` parameter to specify the expected type of the entity.
+
 ### Fixed
 
 - A few imports within the package were accidentally broken in 1.14.0 which is resolved now. `basedpyright` has been added to identify issues like this earlier.

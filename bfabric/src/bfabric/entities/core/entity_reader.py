@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, TypeVar, overload
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from loguru import logger
 
 from bfabric.entities.cache.context import get_cache_stack
+from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.import_entity import instantiate_entity
 from bfabric.entities.core.uri import EntityUri, GroupedUris
 from bfabric.experimental import MultiQuery
@@ -13,7 +14,6 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from bfabric import Bfabric
-    from bfabric.entities.core.entity import Entity
 
 EntityT = TypeVar("EntityT", bound="Entity")
 
@@ -92,34 +92,14 @@ class EntityReader:
 
         return results
 
-    @overload
     def read_id(
         self,
         entity_type: str,
         entity_id: int,
         bfabric_instance: str | None = None,
         *,
-        expected_type: type[EntityT],
-    ) -> EntityT | None: ...
-
-    @overload
-    def read_id(
-        self,
-        entity_type: str,
-        entity_id: int,
-        bfabric_instance: str | None = None,
-        *,
-        expected_type: None = None,
-    ) -> Entity | None: ...
-
-    def read_id(
-        self,
-        entity_type: str,
-        entity_id: int,
-        bfabric_instance: str | None = None,
-        *,
-        expected_type: type[EntityT] | None = None,
-    ) -> Entity | EntityT | None:
+        expected_type: type[EntityT] = Entity,
+    ) -> EntityT | None:
         """Read a single entity by its type and ID.
 
         :param entity_type: The entity type (e.g., "project", "workunit").
@@ -133,7 +113,7 @@ class EntityReader:
         results = self.read_ids(entity_type=entity_type, entity_ids=[entity_id], bfabric_instance=bfabric_instance)
         result = list(results.values())[0]
 
-        if expected_type is not None and result is not None and not isinstance(result, expected_type):
+        if result is not None and not isinstance(result, expected_type):
             raise TypeError(f"Expected {expected_type.__name__}, got {type(result).__name__}")
 
         return result
