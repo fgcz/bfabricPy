@@ -122,7 +122,7 @@ def licensecheck(session) -> None:
     session.run("sh", "-c", "cd bfabric && licensecheck")
 
 
-@nox.session
+@nox.session(python="3.13")
 @nox.parametrize("package", ["bfabric", "bfabric_scripts", "bfabric_app_runner"])
 def basedpyright(session, package):
     session.install("-e", f"./{package}")
