@@ -122,6 +122,14 @@ def licensecheck(session) -> None:
     session.run("sh", "-c", "cd bfabric && licensecheck")
 
 
+@nox.session
+@nox.parametrize("package", ["bfabric", "bfabric_scripts", "bfabric_app_runner"])
+def basedpyright(session, package):
+    session.install("-e", f"./{package}")
+    session.install("basedpyright")
+    session.run("basedpyright", package)
+
+
 def verify_changelog_version(session: nox.Session, package_dir: str) -> None:
     """
     Verify that the changelog contains an entry for the current version.
