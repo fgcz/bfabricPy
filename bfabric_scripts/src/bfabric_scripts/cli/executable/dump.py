@@ -74,6 +74,6 @@ def cmd_executable_dump(
     result = {"executable": data}
 
     if format == "xml":
-        path.write_text(xmltodict.unparse(result, pretty=True))
+        _ = path.write_text(xmltodict.unparse(result, pretty=True))
     elif format == "yaml":
-        path.write_text(yaml.safe_dump(result, sort_keys=False))
+        _ = path.write_text(yaml.safe_dump(result, sort_keys=False))

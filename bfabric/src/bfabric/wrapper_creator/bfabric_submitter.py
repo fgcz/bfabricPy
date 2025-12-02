@@ -7,7 +7,7 @@ import yaml
 from loguru import logger
 
 from bfabric.bfabric import Bfabric
-from bfabric.entities import Externaljob, Executable
+from bfabric.entities import ExternalJob, Executable
 from bfabric.wrapper_creator.slurm import SLURM
 
 
@@ -69,7 +69,7 @@ class BfabricSubmitter:
         self.user = user
         self._script_dir = script_dir
 
-        self.external_job = Externaljob.find(id=externaljobid, client=client)
+        self.external_job = ExternalJob.find(id=externaljobid, client=client)
         self.workunit = self.external_job.workunit
         self.parameters = self.workunit.parameter_values
         self.application = self.workunit.application

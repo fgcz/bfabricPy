@@ -9,13 +9,13 @@ from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.has_many import HasMany
 
 if TYPE_CHECKING:
-    from bfabric.entities.multiplexid import Multiplexid
+    from bfabric.entities.multiplexid import MultiplexId
 
 
 class MultiplexKit(Entity):
     ENDPOINT = "multiplexkit"
 
-    multiplex_ids: HasMany[Multiplexid] = HasMany(bfabric_field="multiplexid")
+    multiplex_ids: HasMany[MultiplexId] = HasMany(bfabric_field="multiplexid")
 
     @cached_property
     def ids(self) -> pl.DataFrame:

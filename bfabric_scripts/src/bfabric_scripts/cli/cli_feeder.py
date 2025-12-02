@@ -109,4 +109,4 @@ def cmd_feeder_create_importresource(
 
 
 cmd_feeder = cyclopts.App(help="Feeder commands")
-cmd_feeder.command(cmd_feeder_create_importresource, name="create-importresource")
+_ = cmd_feeder.command(cmd_feeder_create_importresource, name="create-importresource")
