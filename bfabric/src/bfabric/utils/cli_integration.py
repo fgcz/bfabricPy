@@ -1,19 +1,42 @@
+from __future__ import annotations
+
 import functools
 import inspect
 import os
 import sys
-from typing import Any
+from typing import TYPE_CHECKING, Any, ParamSpec, Protocol, TypeVar
 
 from loguru import logger
 from rich.highlighter import RegexHighlighter
 from rich.theme import Theme
 
+if TYPE_CHECKING:
+    from bfabric import Bfabric
 
-def use_client(fn: Any, setup_logging: bool = True) -> Any:
+P = ParamSpec("P")
+T = TypeVar("T")
+
+
+class _FnWithClientProtocol(Protocol[P, T]):
+    """Protocol for functions that accept a 'client' keyword argument."""
+
+    def __call__(self, *args: Any, client: Bfabric, **kwargs: Any) -> T: ...
+
+
+class _FnWithoutClientProtocol(Protocol[P, T]):
+    """Protocol for functions without a 'client' keyword argument."""
+
+    def __call__(self, *args: Any, **kwargs: Any) -> T: ...
+
+
+def use_client(fn: _FnWithClientProtocol[P, T], setup_logging: bool = True) -> _FnWithoutClientProtocol[P, T]:
     """Decorator that injects a Bfabric client into a function.
 
     The client is automatically created using default configuration if not provided.
     If setup_logging is True (default), logging is set up using setup_script_logging.
+
+    The decorator removes the 'client' parameter from the function signature. The decorated
+    function will have the same parameters except for 'client', which is automatically injected.
     """
     from bfabric import Bfabric
 
@@ -27,7 +50,7 @@ def use_client(fn: Any, setup_logging: bool = True) -> Any:
     new_sig = sig.replace(parameters=params)
 
     @functools.wraps(fn)
-    def wrapper(*args: Any, **kwargs: Any) -> Any:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
         if setup_logging:
             setup_script_logging()
         client = kwargs.pop("client") if "client" in kwargs else Bfabric.connect()

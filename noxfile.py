@@ -127,7 +127,7 @@ def licensecheck(session) -> None:
 def basedpyright(session, package):
     session.install("-e", f"./{package}")
     session.install("basedpyright>=1.34.0,<1.35.0")
-    session.run("basedpyright", package)
+    session.run("basedpyright", "--baselinefile", f".basedpyright/baseline.{package}.json", package)
 
 
 def verify_changelog_version(session: nox.Session, package_dir: str) -> None:

@@ -1,6 +1,7 @@
 ci:
   autoupdate_commit_msg: "chore: update pre-commit hooks"
   autofix_commit_msg: "style: pre-commit fixes"
+exclude: '^\.basedpyright/baseline.*\.json$'
 repos:
   - repo: https://github.com/psf/black
     rev: "25.1.0"
@@ -36,7 +37,6 @@ repos:
           - "--autofix"
           - "--indent=4"
           - "--no-sort-keys"
-    exclude: '^\.basedpyright/baseline\.json$'
   - repo: https://github.com/google/yamlfmt
     rev: "v0.15.0"
     hooks:
