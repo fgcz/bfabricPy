@@ -11,7 +11,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Added
 
-- `EntityReader.read_id` has a `expected_type` parameter to specify the expected type of the entity.
+- `EntityReader.read_` methods accept a `expected_type` parameter to specify the expected type of the entity (default `Entity`).
 
 ### Fixed
 
