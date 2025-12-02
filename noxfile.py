@@ -12,6 +12,51 @@ import nox
 nox.options.default_venv_backend = "uv"
 
 
+def _collect_test_deps(package_dirs):
+    """
+    Collect test dependencies from package pyproject.toml files.
+
+    Filters out self-references to avoid trying to install packages
+    that aren't on PyPI yet or that we're installing from wheels.
+
+    Args:
+        package_dirs: Iterable of package directory names
+
+    Returns:
+        List of test dependency strings
+    """
+    all_deps = []
+    package_names = set(package_dirs)  # e.g., {"bfabric", "bfabric_scripts"}
+
+    for pkg in package_dirs:
+        pyproject = Path(pkg) / "pyproject.toml"
+        if pyproject.exists():
+            with open(pyproject, "rb") as f:
+                data = tomllib.load(f)
+                deps = data.get("project", {}).get("optional-dependencies", {}).get("test", [])
+
+                # Filter out self-references to packages we're testing
+                for dep in deps:
+                    # Extract package name from dependency spec
+                    # Handles: "pkg>=1.0", "pkg[extra]>=1.0", "pkg[extra]", "pkg"
+                    dep_name = (
+                        dep.split("[")[0]
+                        .split(">=")[0]
+                        .split("<=")[0]
+                        .split("==")[0]
+                        .split("!=")[0]
+                        .split("<")[0]
+                        .split(">")[0]
+                        .split(";")[0]
+                        .strip()
+                    )
+
+                    if dep_name not in package_names:
+                        all_deps.append(dep)
+
+    return all_deps
+
+
 @contextmanager
 def chdir(path: Path) -> Generator[None, None, None]:
     """Context manager to change directory."""
@@ -126,7 +171,16 @@ def basedpyright(session, package):
     # Install the package in editable mode so basedpyright can find it from source
     session.install("-e", f"./{package}")
     session.install("basedpyright>=1.34.0,<1.35.0")
-    session.run("basedpyright", "--baselinefile", f".basedpyright/baseline.{package}.json", package)
+    # Use --venvpath to explicitly point to nox's venv directory, avoiding .venv if it exists
+    venv_path = Path(session.virtualenv.location).parent
+    session.run(
+        "basedpyright",
+        "--venvpath",
+        str(venv_path),
+        "--baselinefile",
+        f".basedpyright/baseline.{package}.json",
+        package,
+    )
 
 
 def verify_changelog_version(session: nox.Session, package_dir: str) -> None:
@@ -191,3 +245,85 @@ def check_test_inits(session):
     else:
         # No __init__.py files found
         session.log("✓ No __init__.py files found in tests directory")
+
+
+@nox.session(python=["3.11", "3.13"], default=False)
+def test_distributions(session):
+    """
+    Test built distributions (wheels) instead of editable installs.
+
+    This session is used in the PR release preview workflow to validate
+    that the packages work correctly when installed from distributions.
+
+    Not run by default - only used in release testing.
+
+    Usage:
+        nox -s test_distributions-3.11 -- \
+            --wheels bfabric/dist/bfabric-1.14.0-py3-none-any.whl \
+            --wheels bfabric_scripts/dist/bfabric_scripts-1.13.37-py3-none-any.whl \
+            --resolution highest
+
+    The wheels are installed in the order provided, which should match
+    dependency order (base packages first).
+    """
+    # Parse wheel paths and resolution from command line arguments
+    wheels = []
+    package_test_map = {}
+    resolution = "highest"  # default
+
+    args = session.posargs
+    i = 0
+    while i < len(args):
+        if args[i] == "--wheels":
+            if i + 1 < len(args):
+                wheel_path = args[i + 1]
+                wheels.append(wheel_path)
+
+                # Determine which package this wheel belongs to
+                if "bfabric_app_runner" in wheel_path:
+                    package_test_map["bfabric_app_runner"] = "tests/bfabric_app_runner"
+                elif "bfabric_scripts" in wheel_path:
+                    package_test_map["bfabric_scripts"] = ["tests/bfabric_scripts", "tests/bfabric_cli"]
+                elif "bfabric-" in wheel_path or "/bfabric/" in wheel_path:
+                    package_test_map["bfabric"] = "tests/bfabric"
+                i += 2
+            else:
+                session.error("--wheels requires a path argument")
+        elif args[i] == "--resolution":
+            if i + 1 < len(args):
+                resolution = args[i + 1]
+                if resolution not in ["highest", "lowest-direct"]:
+                    session.error("--resolution must be 'highest' or 'lowest-direct'")
+                i += 2
+            else:
+                session.error("--resolution requires a value (highest or lowest-direct)")
+        else:
+            i += 1
+
+    if not wheels:
+        session.error("No wheels specified. Use: --wheels path/to/wheel.whl --resolution highest")
+
+    session.log(f"Testing with resolution: {resolution}")
+    session.log(f"Wheels to test: {wheels}")
+
+    # Collect test dependencies from package pyproject.toml files
+    # This automatically filters out self-references and stays in sync
+    test_deps = _collect_test_deps(package_test_map.keys())
+    session.log(f"Test dependencies: {test_deps}")
+    session.install("--resolution", resolution, *test_deps)
+
+    # Install all wheels at once so uv can resolve dependencies between them
+    # (installing one at a time causes uv to check PyPI for dependencies)
+    session.log(f"Installing wheels: {wheels}")
+    session.install(*wheels)
+
+    # Show what's installed for debugging
+    session.run("uv", "pip", "list")
+
+    # Run tests for each package that was installed
+    for package, test_paths in package_test_map.items():
+        session.log(f"Running tests for {package}")
+        if isinstance(test_paths, list):
+            session.run("pytest", "--durations=50", *test_paths)
+        else:
+            session.run("pytest", "--durations=50", test_paths)

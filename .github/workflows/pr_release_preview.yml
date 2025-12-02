@@ -7,6 +7,9 @@ on:
 jobs:
   preview-release:
     runs-on: ubuntu-latest
+    outputs:
+      packages_to_release: ${{ steps.check-versions.outputs.packages-to-release }}
+      version_info: ${{ steps.check-versions.outputs.version-info }}
     permissions:
       pull-requests: write
       contents: read
@@ -84,6 +87,157 @@ jobs:
               });
             } else {
               // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: commentBody
+              });
+            }
+  validate-and-test-release:
+    needs: preview-release
+    if: ${{ needs.preview-release.outputs.packages_to_release != '[]' }}
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.13"]
+        resolution: ["highest", "lowest-direct"]
+        exclude:
+          # Only test lowest-direct on Python 3.11
+          - python-version: "3.13"
+            resolution: "lowest-direct"
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install build and test tools
+        run: pip install hatch nox uv
+      - name: Build distributions
+        id: build
+        run: |
+          packages='${{ needs.preview-release.outputs.packages_to_release }}'
+          wheels=""
+
+          for pkg in $(echo $packages | jq -r '.[]'); do
+            echo "Building $pkg..."
+            cd $pkg
+            hatch build
+            cd ..
+
+            # Find the wheel file
+            wheel=$(ls $pkg/dist/*.whl | head -1)
+            wheel_abs=$(realpath $wheel)
+
+            # Add to wheels list
+            if [ -z "$wheels" ]; then
+              wheels="--wheels $wheel_abs"
+            else
+              wheels="$wheels --wheels $wheel_abs"
+            fi
+          done
+
+          echo "wheels_args=$wheels" >> $GITHUB_OUTPUT
+          echo "Built wheels: $wheels"
+      - name: Verify package contents
+        if: ${{ matrix.python-version == '3.11' && matrix.resolution == 'highest' }}
+        run: |
+          packages='${{ needs.preview-release.outputs.packages_to_release }}'
+
+          for pkg in $(echo $packages | jq -r '.[]'); do
+            echo "Verifying $pkg..."
+            wheel=$(ls $pkg/dist/*.whl | head -1)
+
+            # List wheel contents
+            echo "Contents of $wheel:"
+            unzip -l $wheel
+
+            # Check for py.typed in bfabric
+            if [ "$pkg" = "bfabric" ]; then
+              if ! unzip -l $wheel | grep -q "py.typed"; then
+                echo "❌ py.typed missing from bfabric wheel"
+                exit 1
+              fi
+              echo "✅ py.typed found in bfabric wheel"
+            fi
+
+            # Check for resources in bfabric_app_runner
+            if [ "$pkg" = "bfabric_app_runner" ]; then
+              if ! unzip -l $wheel | grep -q "resources/.*\.mk"; then
+                echo "❌ .mk resources missing from bfabric_app_runner wheel"
+                exit 1
+              fi
+              echo "✅ Resources found in bfabric_app_runner wheel"
+            fi
+          done
+      - name: Test distributions
+        run: |
+          # This will install the built wheels and run tests
+          # If version constraints are incompatible, installation will fail naturally
+          nox -s test_distributions-${{ matrix.python-version }} -- \
+            ${{ steps.build.outputs.wheels_args }} \
+            --resolution ${{ matrix.resolution }}
+  comment-test-results:
+    needs: [preview-release, validate-and-test-release]
+    if: always() && needs.preview-release.outputs.packages_to_release != '[]'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/github-script@v8
+        with:
+          script: |
+            const packages = JSON.parse('${{ needs.preview-release.outputs.packages_to_release }}');
+
+            // Determine overall status
+            const testResult = '${{ needs.validate-and-test-release.result }}';
+            const allPassed = testResult === 'success';
+            const emoji = allPassed ? '✅' : '❌';
+
+            // Get current timestamp
+            const timestamp = new Date().toISOString();
+
+            const commentBody = `## ${emoji} Release Distribution Testing
+
+            **Packages to release:** ${packages.join(', ')}
+
+            **Test Results:**
+            - Python 3.11 (highest): ${testResult === 'success' ? '✅ passed' : '❌ failed'}
+            - Python 3.11 (lowest-direct): ${testResult === 'success' ? '✅ passed' : '❌ failed'}
+            - Python 3.13 (highest): ${testResult === 'success' ? '✅ passed' : '❌ failed'}
+
+            ${allPassed ?
+              '**Status:** All tests passed with built distributions. The packages are ready for release.' :
+              '**Status:** Tests failed. Please check the [workflow logs](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.'}
+
+            *Last updated: ${timestamp}*
+            `;
+
+            // Find existing comment
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const existingComment = comments.data.find(comment =>
+              comment.user.login === 'github-actions[bot]' &&
+              comment.body.includes('Release Distribution Testing')
+            );
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: commentBody
+              });
+            } else {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
