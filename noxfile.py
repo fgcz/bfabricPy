@@ -126,7 +126,16 @@ def basedpyright(session, package):
     # Install the package in editable mode so basedpyright can find it from source
     session.install("-e", f"./{package}")
     session.install("basedpyright>=1.34.0,<1.35.0")
-    session.run("basedpyright", "--baselinefile", f".basedpyright/baseline.{package}.json", package)
+    # Use --venvpath to explicitly point to nox's venv directory, avoiding .venv if it exists
+    venv_path = Path(session.virtualenv.location).parent
+    session.run(
+        "basedpyright",
+        "--venvpath",
+        str(venv_path),
+        "--baselinefile",
+        f".basedpyright/baseline.{package}.json",
+        package,
+    )
 
 
 def verify_changelog_version(session: nox.Session, package_dir: str) -> None:
