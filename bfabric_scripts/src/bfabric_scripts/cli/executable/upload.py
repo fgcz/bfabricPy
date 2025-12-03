@@ -8,6 +8,7 @@ from rich.console import Console
 
 from bfabric import Bfabric
 from bfabric.entities import Executable
+from bfabric.entities.core.uri import EntityUri
 from bfabric.utils.cli_integration import use_client
 
 
@@ -61,7 +62,12 @@ def cmd_executable_upload(
 
     console.print("Executable uploaded successfully.")
     console.print("Executable ID:", executable_id)
-    console.print("Executable URL:", Executable({"id": executable_id}, client=client).web_url)
+    console.print(
+        "Executable URL:",
+        EntityUri.from_components(
+            bfabric_instance=client.config.base_url, entity_type="executable", entity_id=executable_id
+        ),
+    )
 
 
 def read_executable_data(metadata_file: Path, metadata_file_format: Literal["xml", "yaml"]) -> dict[str, Any]:
