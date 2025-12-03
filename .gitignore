@@ -1,4 +1,5 @@
 .idea/
+.nox/
 __pycache__
 *.egg-info/
 bfabric/scripts/query_result.txt
