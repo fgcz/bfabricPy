@@ -55,10 +55,10 @@ def bfabric_read_samples_of_workunit(workunit_id: int, client: Bfabric) -> None:
                 raise ValueError("Should not be a list")
             sample = samples[sample_uri]
             data["sample_name"] = sample["name"]
-            data["sample_groupingvar"] = sample["groupingvar"]["name"] if sample["groupingvar"] else "NA"
+            data["groupingvar_name"] = sample["groupingvar"]["name"] if sample["groupingvar"] else "NA"
         else:
             data["sample_name"] = None
-            data["sample_groupingvar"] = "NA"
+            data["groupingvar_name"] = "NA"
         collect.append(data)
 
     table = pl.DataFrame(collect)
