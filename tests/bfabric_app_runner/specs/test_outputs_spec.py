@@ -28,7 +28,8 @@ def parsed() -> OutputsSpec:
 
 @pytest.fixture()
 def serialized() -> str:
-    return """outputs:
+    return """annotations: []
+outputs:
 - local_path: local_path
   protocol: scp
   store_entry_path: store_entry_path
