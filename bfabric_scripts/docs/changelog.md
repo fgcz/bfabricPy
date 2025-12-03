@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.13.39\] - 2025-12-03
+
 ### Fixed
 
 - Fix bfabric_read_samples_of_workunit.py returns the same column name `groupingvar_name` as in the past.
