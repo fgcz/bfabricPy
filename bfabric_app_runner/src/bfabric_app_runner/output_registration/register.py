@@ -1,26 +1,29 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, assert_never
 
 import yaml
-from loguru import logger
-
-from bfabric.entities import Resource
-from bfabric.entities import Storage, Workunit
+from bfabric.entities import Resource, Storage, Workunit
 from bfabric.experimental.upload_dataset import bfabric_save_csv2dataset
+from loguru import logger
+from pydantic import BaseModel
+
+from bfabric_app_runner.output_registration.annotation_table import generate_output_table
+from bfabric_app_runner.specs.outputs.annotations import AnnotationType, BfabricOutputDataset
 from bfabric_app_runner.specs.outputs_spec import (
     CopyResourceSpec,
-    UpdateExisting,
     OutputsSpec,
-    SpecType,
     SaveDatasetSpec,
     SaveLinkSpec,
+    SpecType,
+    UpdateExisting,
 )
 from bfabric_app_runner.util.checksums import md5sum
 from bfabric_app_runner.util.scp import scp
 
 if TYPE_CHECKING:
     from pathlib import Path
+
     from bfabric import Bfabric
     from bfabric.experimental.workunit_definition import WorkunitDefinition
 
@@ -37,8 +40,8 @@ def register_file_in_workunit(
     client: Bfabric,
     workunit_definition: WorkunitDefinition,
     resource_id: int | None = None,
-) -> None:
-    """Registers a file in the workunit."""
+) -> int:
+    """Registers a file in the workunit and returns the resource ID."""
     existing_id = _identify_existing_resource_id(client, spec, workunit_definition)
     if resource_id is not None and existing_id is not None and resource_id != existing_id:
         raise ValueError(f"Resource id {resource_id} does not match existing resource id {existing_id}")
@@ -59,7 +62,8 @@ def register_file_in_workunit(
     if existing_id is not None:
         resource_data["id"] = existing_id
 
-    client.save("resource", resource_data)
+    result = client.save("resource", resource_data)
+    return result[0]["id"]
 
 
 def _identify_existing_resource_id(
@@ -145,7 +149,7 @@ def _save_link(spec: SaveLinkSpec, client: Bfabric, workunit_definition: Workuni
     if existing_link_id is not None:
         link_data["id"] = existing_link_id
     res = client.save("link", link_data)
-    logger.info(f"Link {spec.name} saved with id {res['id']} for entity {entity_type} with id {entity_id}")
+    logger.info(f"Link {spec.name} saved with id {res[0]['id']} for entity {entity_type} with id {entity_id}")
 
 
 def find_default_resource_id(workunit_definition: WorkunitDefinition, client: Bfabric) -> int | None:
@@ -160,6 +164,11 @@ def find_default_resource_id(workunit_definition: WorkunitDefinition, client: Bf
     return None
 
 
+class RegisterAllOutputs(BaseModel):
+    resources_mapping: dict[Path, int] = {}
+    """This maps the store_entry_path to the ids of the resources which were created or updated"""
+
+
 def register_all(
     client: Bfabric,
     workunit_definition: WorkunitDefinition,
@@ -167,12 +176,16 @@ def register_all(
     ssh_user: str | None,
     reuse_default_resource: bool,
     force_storage: Path | None,
-) -> None:
+) -> RegisterAllOutputs:
     """Registers all the output specs to the workunit."""
     default_resource_was_reused = not reuse_default_resource
 
     storage = _get_storage(client, force_storage, specs_list, workunit_definition)
     logger.info(f"Using storage: {storage}")
+
+    # TODO maybe the naming "created" is a bit confusing, because it could have existed beforehand
+    # created_resources_mapping: dict[Path, int] = {}
+    outputs = RegisterAllOutputs()
 
     for spec in specs_list:
         logger.debug(f"Registering {spec}")
@@ -188,7 +201,8 @@ def register_all(
                 default_resource_was_reused = True
             else:
                 resource_id = None
-            register_file_in_workunit(
+
+            outputs.resources_mapping[spec.store_entry_path] = register_file_in_workunit(
                 spec,
                 client=client,
                 workunit_definition=workunit_definition,
@@ -199,7 +213,13 @@ def register_all(
         elif isinstance(spec, SaveLinkSpec):
             _save_link(spec, client, workunit_definition=workunit_definition)
         else:
-            raise ValueError(f"Unknown spec type: {type(spec)}")
+            assert_never(type(spec))
+
+    return outputs
+
+    # TODO register the dataset... now this gets tricky, how should we handle the case when there is existing dataset
+    #      - it could be modifiable or it could not be modifiable anymore
+    #  -> recompute and then have a logic for handling
 
 
 def _get_storage(
@@ -215,6 +235,22 @@ def _get_storage(
     return None
 
 
+def _save_annotations(outputs: RegisterAllOutputs, annotations: list[AnnotationType], client: Bfabric) -> None:
+    for annotation in annotations:
+        if isinstance(annotation, BfabricOutputDataset):
+            output_df = generate_output_table(config=annotation, resource_mapping=outputs.resources_mapping)
+
+            # TODO we should also check if there is id already
+            existing_dataset = None
+            # TODO and now we need to handle this maybe with the old logic of save/update from savedataset
+            # TODO but it will need some logic for handling the existing dataset already
+            # TODO the final step will be attaching this dataset to the workunit
+
+            _ = output_df
+            _ = existing_dataset
+            raise NotImplementedError
+
+
 def register_outputs(
     outputs_yaml: Path,
     workunit_definition: WorkunitDefinition,
@@ -224,12 +260,16 @@ def register_outputs(
     force_storage: Path | None,
 ) -> None:
     """Registers outputs to the workunit."""
-    specs_list = OutputsSpec.read_yaml(outputs_yaml)
-    register_all(
+    with outputs_yaml.open("r") as file:
+        spec = OutputsSpec.model_validate(yaml.safe_load(file))
+
+    outputs = register_all(
         client=client,
         workunit_definition=workunit_definition,
-        specs_list=specs_list,
+        specs_list=spec.outputs,
         ssh_user=ssh_user,
         reuse_default_resource=reuse_default_resource,
         force_storage=force_storage,
     )
+    # TODO and here we create the dataset mapping
+    _save_annotations(outputs, spec.annotations, client=client)

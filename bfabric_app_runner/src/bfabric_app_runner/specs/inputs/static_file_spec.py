@@ -11,6 +11,7 @@ class StaticFileSpec(BaseModel):
     type: Literal["static_file"] = "static_file"
 
     content: str | bytes
+
     """The text or binary content to write."""
     filename: str
     """The target filename to write to."""
