@@ -1,11 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
+import polars as pl
+from polars.exceptions import InvalidOperationError
 from pydantic import BaseModel, field_validator
-
-if TYPE_CHECKING:
-    import polars as pl
 
 
 class DatasetChanges(BaseModel):
@@ -79,7 +76,22 @@ def identify_changes(old_df: pl.DataFrame, new_df: pl.DataFrame) -> DatasetChang
     # TODO this code assumes identical columns, if generalized it should only operate on the common ones
     # we only check which columns have changed
     for column_name in new_df.columns:
-        if column_name not in changes.column_added and not new_df[column_name].equals(old_df[column_name]):
-            changes.changed_values.append(column_name)
+        if column_name in changes.column_added:
+            # there is no old_column
+            continue
+        elif new_df[column_name].equals(old_df[column_name]):
+            # exact match
+            continue
+
+        try:
+            if new_df[column_name].cast(pl.Utf8).equals(old_df[column_name].cast(pl.Utf8)):
+                # match after convert to string
+                continue
+                # TODO in principle, there is also strict=False which is possibly a bit dangerous in this context
+        except InvalidOperationError:
+            # TODO find the correct exception class: https://docs.pola.rs/api/python/stable/reference/exceptions.html
+            pass
+
+        changes.changed_values.append(column_name)
 
     return changes
