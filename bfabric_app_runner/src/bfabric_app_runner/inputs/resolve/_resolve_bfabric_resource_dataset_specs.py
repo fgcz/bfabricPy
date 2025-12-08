@@ -41,10 +41,10 @@ class ResolveBfabricResourceDatasetSpecs:
         if not spec.output_dataset_only:
             files.extend(
                 ResolvedFile(
-                    filename=str(Path(spec.filename) / row["tmp_resource_filename"]),
-                    source=row["tmp_resource_source"],
+                    filename=str(Path(spec.filename) / row["tmp_resource_filename"]),  # pyright:ignore[reportAny]
+                    source=row["tmp_resource_source"],  # pyright:ignore[reportAny]
                     link=False,
-                    checksum=row["tmp_resource_checksum"],
+                    checksum=row["tmp_resource_checksum"],  # pyright:ignore[reportAny]
                 )
                 for row in data_filtered.iter_rows(named=True)
             )
