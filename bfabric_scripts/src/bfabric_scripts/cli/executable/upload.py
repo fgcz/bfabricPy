@@ -1,13 +1,12 @@
 import base64
 from pathlib import Path
 from typing import Literal, Any
-
+from bfabric.entities import Executable
 import xmltodict
 import yaml
 from rich.console import Console
 
 from bfabric import Bfabric
-from bfabric.entities import Executable
 from bfabric.utils.cli_integration import use_client
 
 
@@ -57,11 +56,11 @@ def cmd_executable_upload(
 
     # Perform the request
     result = client.save("executable", executable_data)
-    executable_id = result[0]["id"]
+    executable = Executable(data_dict=result[0], bfabric_instance=client.config.base_url)
 
     console.print("Executable uploaded successfully.")
-    console.print("Executable ID:", executable_id)
-    console.print("Executable URL:", Executable({"id": executable_id}, client=client).web_url)
+    console.print("Executable ID:", executable.id)
+    console.print("Executable URI:", executable.uri)
 
 
 def read_executable_data(metadata_file: Path, metadata_file_format: Literal["xml", "yaml"]) -> dict[str, Any]:
