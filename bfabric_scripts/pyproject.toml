@@ -27,7 +27,7 @@ test = [
     "freezegun>=1.5.5",
 ]
 excel = [
-    "fastexcel>=4.4",
+    "fastexcel>=0.18.0",
 ]
 
 [project.scripts]
