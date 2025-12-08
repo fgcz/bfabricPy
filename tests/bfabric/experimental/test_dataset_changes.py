@@ -1,9 +1,23 @@
 from polars.interchange import column
 import pytest
 import polars as pl
-from bfabric_scripts.cli.dataset.update import identify_changes, DatasetChanges
+from bfabric.experimental.dataset_changes import identify_changes, DatasetChanges
 
-# TODO maybe migrate to different path/module
+
+@pytest.mark.parametrize(
+    "kwargs,expected",
+    [
+        ({}, False),
+        ({"column_position": ["a"]}, True),
+        ({"column_added": ["a"]}, True),
+        ({"column_removed": ["a"]}, True),
+        ({"row_count": (1, 2)}, True),
+        ({"changed_values": ["a"]}, True),
+    ],
+)
+def test_bool(kwargs, expected):
+    changes = DatasetChanges(**kwargs)
+    assert bool(changes) == expected
 
 
 class TestIdentifyChanges:
