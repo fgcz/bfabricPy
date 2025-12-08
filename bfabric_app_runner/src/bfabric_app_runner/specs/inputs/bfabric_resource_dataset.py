@@ -43,3 +43,6 @@ class BfabricResourceDatasetSpec(BaseModel):
 
     output_dataset_file_column: str = "File"
     """Output name containing the file names (i.e. relative to the directory where the files get stored)."""
+
+    output_dataset_only: bool = False
+    """Special flag which can be set to true for cases, where you only want the dataset but not the actual files."""

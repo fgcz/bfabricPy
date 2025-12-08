@@ -34,19 +34,20 @@ class ResolveBfabricResourceDatasetSpecs:
         )
 
         files: list[ResolvedFile | ResolvedStaticFile] = [
-            ResolvedFile(
-                filename=str(Path(spec.filename) / row["tmp_resource_filename"]),
-                source=row["tmp_resource_source"],
-                link=False,
-                checksum=row["tmp_resource_checksum"],
-            )
-            for row in data_filtered.iter_rows(named=True)
-        ]
-        files.append(
             ResolvedStaticFile(
                 filename=str(Path(spec.filename) / spec.output_dataset_filename), content=self._data_to_parquet(data)
             )
-        )
+        ]
+        if not spec.output_dataset_only:
+            files.extend(
+                ResolvedFile(
+                    filename=str(Path(spec.filename) / row["tmp_resource_filename"]),  # pyright:ignore[reportAny]
+                    source=row["tmp_resource_source"],  # pyright:ignore[reportAny]
+                    link=False,
+                    checksum=row["tmp_resource_checksum"],  # pyright:ignore[reportAny]
+                )
+                for row in data_filtered.iter_rows(named=True)
+            )
         return files
 
     def _get_unique_output_column(self, spec: BfabricResourceDatasetSpec, data: pl.DataFrame) -> str:
