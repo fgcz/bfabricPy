@@ -19,6 +19,8 @@ class Params(BaseModel):
     """The ID of the dataset to be updated."""
     xlsx_file: Path
     """The path to the Excel file containing the updated dataset."""
+    no_confirm: bool = False
+    """Skip confirmation prompt."""
 
 
 class DatasetChanges(BaseModel):
@@ -74,14 +76,12 @@ def cmd_dataset_update(params: Params, *, client: Bfabric) -> None:
         logger.info("No changes detected.")
         return
 
-    if not _confirm_action(dataset, changes):
+    if not _confirm_action(dataset, changes) and not params.no_confirm:
         return
 
     # column types is more tricky, for now, we are not checking them
     # TODO we could check that the result of the conversion has correct types in the dict repr
     dataset_content = polars_to_bfabric_dataset(data)
-
-    # TODO confirm maybe highlight the changes which will be performed
 
     # perform the save
     _ = client.save("dataset", {"id": dataset.id, **dataset_content})
