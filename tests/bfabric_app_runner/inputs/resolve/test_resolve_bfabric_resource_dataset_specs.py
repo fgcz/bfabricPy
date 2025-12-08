@@ -1,26 +1,26 @@
 import polars as pl
 import pytest
 from inline_snapshot import snapshot
-
+import polars.testing
 from bfabric.entities import Dataset, Resource
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_resource_dataset_specs import ResolveBfabricResourceDatasetSpecs
-from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedFile
+from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedFile, ResolvedStaticFile
 from bfabric_app_runner.specs.inputs.bfabric_resource_dataset import BfabricResourceDatasetSpec
 from bfabric_app_runner.specs.inputs.file_spec import FileSourceSsh, FileSourceSshValue
 
 
 @pytest.fixture
 def scenario(request):
-    if request.param in ("minimal", "complex", "complex_output_column_conflict"):
+    if request.param in ("minimal", "complex", "complex_output_column_conflict", "dataset_only"):
         return request.param
     raise NotImplementedError
 
 
 @pytest.fixture
 def original_dataset_df(scenario):
-    if scenario == "minimal":
+    if scenario in ("minimal", "dataset_only"):
         return pl.DataFrame({"Resource": [10, 11, 12]})
-    if scenario in ("complex", "complex_output_column_conflict"):
+    elif scenario in ("complex", "complex_output_column_conflict"):
         return pl.DataFrame({"Resource": [10, 11, 12], "OtherColumn": [20, 21, 22]})
 
 
@@ -69,6 +69,7 @@ def spec(scenario):
         id=1,
         filename="files",
         **({} if scenario != "complex_output_column_conflict" else {"output_dataset_file_column": "OtherColumn"}),
+        output_dataset_only=(scenario == "dataset_only"),
     )
 
 
@@ -174,3 +175,10 @@ class TestResolveSpec:
                 ),
             ]
         )
+
+    @pytest.mark.parametrize("scenario", ["dataset_only"], indirect=True)
+    def test_dataset_only(self, result, result_dataset):
+        assert len(result) == 1
+        assert result[0].filename == "files/dataset.parquet"
+        assert result_dataset.columns == ["Resource", "File"]
+        assert result_dataset.row(0) == (10, "file_10.txt")
