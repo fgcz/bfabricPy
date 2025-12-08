@@ -1,10 +1,10 @@
 import polars as pl
 import pytest
 from inline_snapshot import snapshot
-import polars.testing
+
 from bfabric.entities import Dataset, Resource
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_resource_dataset_specs import ResolveBfabricResourceDatasetSpecs
-from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedFile, ResolvedStaticFile
+from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedFile
 from bfabric_app_runner.specs.inputs.bfabric_resource_dataset import BfabricResourceDatasetSpec
 from bfabric_app_runner.specs.inputs.file_spec import FileSourceSsh, FileSourceSshValue
 
