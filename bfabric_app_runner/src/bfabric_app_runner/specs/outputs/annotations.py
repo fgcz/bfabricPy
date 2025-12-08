@@ -6,12 +6,17 @@ from typing import ClassVar, Literal
 
 from pydantic import BaseModel, model_validator
 
+from bfabric_app_runner.specs.outputs_spec import UpdateExisting
+
 
 class IncludeDatasetRef(BaseModel):
     Formats: ClassVar = Literal["csv", "tsv", "parquet"]
 
     local_path: Path
     format: Formats | None = None
+
+    # TODO decide if this is the correct place or it should be a level higher
+    update_existing: UpdateExisting = UpdateExisting.IF_EXISTS
 
     def get_format(self) -> Formats:
         """Returns the format inferring the type from the filename if not specified explicitly."""

@@ -48,6 +48,7 @@ class SaveDatasetSpec(BaseModel):
     invalid_characters: str = ""
 
 
+# TODO deprecate!
 class SaveLinkSpec(BaseModel):
     """Saves a link to the workunit, or, if desired to an arbitrary entity of type entity_type with id entity_id."""
 
@@ -79,10 +80,10 @@ class OutputsSpec(BaseModel):
     outputs: list[SpecType]
     annotations: list[AnnotationType] = []
 
-    @classmethod
-    def read_yaml(cls, path: Path) -> list[SpecType]:
-        model = cls.model_validate(yaml.safe_load(path.read_text()))
-        return model.outputs
+    # @classmethod
+    # def read_yaml(cls, path: Path) -> list[SpecType]:
+    #    model = cls.model_validate(yaml.safe_load(path.read_text()))
+    #    return model.outputs
 
     @classmethod
     def write_yaml(cls, specs: list[SpecType], path: Path) -> None:

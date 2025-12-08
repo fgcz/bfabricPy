@@ -68,5 +68,6 @@ def generate_output_table(config: BfabricOutputDataset, resource_mapping: dict[P
     resources_df = pl.from_dicts(resource_rows, strict=False)
     _validate_table_schema(resources_df)
 
+    # TODO the schema handling could maybe be relaxed a tiny bit
     # concatenate these two dataframes now
     return pl.concat([tables_df, resources_df], how="diagonal_relaxed")
