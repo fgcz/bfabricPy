@@ -24,13 +24,13 @@ if TYPE_CHECKING:
     from bfabric.entities import Dataset, Instrument, Order, Plate, Project, Resource, Run, Sample, Workunit
 
 
-def parse_boolean_string(v: str, handler: ValidatorFunctionWrapHandler, info: ValidationInfo) -> bool:
+def _parse_boolean_string(v: str, handler: ValidatorFunctionWrapHandler, info: ValidationInfo) -> bool:
     """Parses a boolean string "true" or "false" to a boolean value."""
     _ = handler, info
     return {"true": True, "false": False}[v]
 
 
-BooleanString = Annotated[bool, WrapValidator(parse_boolean_string)]
+BooleanString = Annotated[bool, WrapValidator(_parse_boolean_string)]
 
 
 class TokenData(BaseModel):
