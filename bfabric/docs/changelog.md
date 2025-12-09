@@ -9,6 +9,10 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+### Fixed
+
+- Allow `http://localhost` for EntityURIs.
+
 ## \[1.15.0\] - 2025-12-09
 
 ### Added
