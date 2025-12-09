@@ -5,7 +5,7 @@ from typing import Any, Annotated
 
 import fastapi
 from fastapi.params import Depends
-from pydantic import SecretStr, model_validator
+from pydantic import SecretStr, model_validator, BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from bfabric import BfabricAuth, Bfabric, BfabricClientConfig
@@ -86,77 +86,75 @@ def read(
 # TODO save workunit/resource should only permit the operation for "CREATE" no update!!!
 
 
+class CreateWorkunitParams(BaseModel):
+    container_id: int
+    application_id: int
+    workunit_name: str
+    parameters: dict[str, str] = Field(default_factory=dict, max_length=100)
+    resources: dict[str, str] = Field(default_factory=dict, max_length=100)
+    links: dict[str, str] = Field(default_factory=dict, max_length=100)
+    description: str = ""
+
+    @model_validator(mode="after")
+    def _ensure_data(self) -> CreateWorkunitParams:
+        if not self.parameters and not self.resources and not self.links:
+            msg = "No workunit data was provided, please specific parameters, resources, or, links"
+            raise ValueError(msg)
+
+        return self
+
+
 @app.post("/create/workunit/v1")
 def create_workunit(
     user_client: BfabricUserClientDep,
     feeder_client: BfabricFeederClientDep,
     bfabric_instance: BfabricInstanceDep,
-    container_id: int,
-    application_id: int,
-    workunit_name: str,
-    parameters: dict[str, str],
-    resources: dict[str, str],
-    links: dict[str, str],
-    description: str = "",
+    params: CreateWorkunitParams,
 ):
-    # NOTE: To keep things simple, otherwise we need to batch these write requests
-    # TODO move this into a pydantic model
-    if len(parameters) > 100:
-        raise ValueError("Parameters cannot be longer than 100 items")
-    if len(resources) > 100:
-        raise ValueError("Resources cannot be longer than 100 items")
-    if len(links) > 100:
-        raise ValueError("Links cannot be longer than 100 items")
-    if not parameters and not resources and not links:
-        msg = "No workunit data was provided, please specific parameters, resources, or, links"
-        raise ValueError(msg)
-
     # TODO check if this should be expanded further
-    res_valid = user_client.read("container", {"id": container_id}, return_id_only=True, check=True)
-    if len(res_valid) != 1 or res_valid[0]["id"] != container_id:
+    res_valid = user_client.read("container", {"id": params.container_id}, return_id_only=True, check=True)
+    if len(res_valid) != 1 or res_valid[0]["id"] != params.container_id:
         msg = "Container authorization failed"
         raise ValueError(msg)
-
-    description = (
-        description + ("" if not description else "\n\n") + f"Created on behalf of user {user_client.auth.login}"
-    )
 
     # create the workunit
     result = feeder_client.save(
         "workunit",
         {
-            "containerid": container_id,
-            "applicationid": application_id,
-            "name": workunit_name,
-            "description": description,
+            "containerid": params.container_id,
+            "applicationid": params.application_id,
+            "name": params.workunit_name,
+            "description": params.description,
             "status": "processing",
+            "customattribute": [{"name": "WebApp User", "value": user_client.auth.login}],
         },
     )
     workunit_id = result[0]["id"]
 
     # create the resources
-    if resources:
+    if params.resources:
         _ = feeder_client.save(
-            "resource", [{"base64": value, "name": key, "workunitid": workunit_id} for key, value in resources.items()]
+            "resource",
+            [{"base64": value, "name": key, "workunitid": workunit_id} for key, value in params.resources.items()],
         )
 
     # create the parameters
-    if parameters:
+    if params.parameters:
         _ = feeder_client.save(
             "parameter",
             [
                 {"key": key, "label": key, "value": value, "context": "workunit", "workunitid": workunit_id}
-                for key, value in parameters.items()
+                for key, value in params.parameters.items()
             ],
         )
 
     # create the links
-    if links:
+    if params.links:
         _ = feeder_client.save(
             "link",
             [
                 {"parentclassname": "workunit", "parentid": workunit_id, "name": link_name, "url": link_url}
-                for link_name, link_url in links.items()
+                for link_name, link_url in params.links.items()
             ],
         )
 
