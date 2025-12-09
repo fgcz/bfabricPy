@@ -5,12 +5,12 @@ from typing import Annotated
 
 import fastapi
 from fastapi.params import Depends
-from pydantic import SecretStr, model_validator, BaseModel, Field
+from pydantic import SecretStr, BaseModel, Field
 
 from bfabric import BfabricAuth, Bfabric, BfabricClientConfig
 from bfabric.config.config_data import ConfigData
-from bfabric.entities.core.import_entity import instantiate_entity
 from bfabric.rest.token_data import get_token_data
+from bfabric_fastapi_proxy.feeder_operations.create_workunit import CreateWorkunitParams, create_workunit
 from bfabric_fastapi_proxy.settings import ServerSettings
 
 app = fastapi.FastAPI()
@@ -81,81 +81,13 @@ def read(user_client: BfabricUserClientDep, params: ReadParams):
     return res.to_list_dict()
 
 
-class CreateWorkunitParams(BaseModel):
-    container_id: int
-    application_id: int
-    workunit_name: str
-    parameters: dict[str, str] = Field(default_factory=dict, max_length=100)
-    resources: dict[str, str] = Field(default_factory=dict, max_length=100)
-    links: dict[str, str] = Field(default_factory=dict, max_length=100)
-    description: str = ""
-
-    @model_validator(mode="after")
-    def _ensure_data(self) -> CreateWorkunitParams:
-        if not self.parameters and not self.resources and not self.links:
-            msg = "No workunit data was provided, please specific parameters, resources, or, links"
-            raise ValueError(msg)
-
-        return self
-
-
 @app.post("/create/workunit/v1")
-def create_workunit(
+def post_create_workunit(
     user_client: BfabricUserClientDep,
     feeder_client: BfabricFeederClientDep,
-    bfabric_instance: BfabricInstanceDep,
     params: CreateWorkunitParams,
 ):
-    # TODO check if this should be expanded further
-    res_valid = user_client.read("container", {"id": params.container_id}, return_id_only=True, check=True)
-    if len(res_valid) != 1 or res_valid[0]["id"] != params.container_id:
-        msg = "Container authorization failed"
-        raise ValueError(msg)
-
-    # create the workunit
-    result = feeder_client.save(
-        "workunit",
-        {
-            "containerid": params.container_id,
-            "applicationid": params.application_id,
-            "name": params.workunit_name,
-            "description": params.description,
-            "status": "processing",
-            "customattribute": [{"name": "WebApp User", "value": user_client.auth.login}],
-        },
-    )
-    workunit_id = result[0]["id"]
-
-    # create the resources
-    if params.resources:
-        _ = feeder_client.save(
-            "resource",
-            [{"base64": value, "name": key, "workunitid": workunit_id} for key, value in params.resources.items()],
-        )
-
-    # create the parameters
-    if params.parameters:
-        _ = feeder_client.save(
-            "parameter",
-            [
-                {"key": key, "label": key, "value": value, "context": "workunit", "workunitid": workunit_id}
-                for key, value in params.parameters.items()
-            ],
-        )
-
-    # create the links
-    if params.links:
-        _ = feeder_client.save(
-            "link",
-            [
-                {"parentclassname": "workunit", "parentid": workunit_id, "name": link_name, "url": link_url}
-                for link_name, link_url in params.links.items()
-            ],
-        )
-
-    # set the workunit as available
-    result = feeder_client.save("workunit", {"id": workunit_id, "status": "available"})
-    workunit = instantiate_entity(result[0], None, bfabric_instance)
+    workunit = create_workunit(user_client=user_client, feeder_client=feeder_client, params=params)
     return {**workunit.data_dict, "uri": workunit.uri}
 
 
