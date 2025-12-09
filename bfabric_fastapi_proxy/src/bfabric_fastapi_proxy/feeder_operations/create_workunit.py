@@ -26,15 +26,17 @@ class CreateWorkunitParams(BaseModel):
 
 
 def create_workunit(
-    user_client: Bfabric,
+    user_client: Bfabric | None,
     feeder_client: Bfabric,
     params: CreateWorkunitParams,
 ) -> Workunit:
-    # TODO check if this should be expanded further
-    res_valid = user_client.read("container", {"id": params.container_id}, return_id_only=True, check=True)
-    if len(res_valid) != 1 or res_valid[0]["id"] != params.container_id:
-        msg = "Container authorization failed"
-        raise ValueError(msg)
+    if user_client is not None:
+        # TODO document
+        # TODO check if this should be expanded further
+        res_valid = user_client.read("container", {"id": params.container_id}, return_id_only=True, check=True)
+        if len(res_valid) != 1 or res_valid[0]["id"] != params.container_id:
+            msg = "Container authorization failed"
+            raise ValueError(msg)
 
     # create the workunit
     result = feeder_client.save(
