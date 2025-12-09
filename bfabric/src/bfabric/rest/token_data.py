@@ -21,7 +21,7 @@ from bfabric.entities.core.import_entity import import_entity
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
-    from bfabric.entities import Dataset, Instrument, Order, Plate, Project, Resource, Run, Sample, Workunit
+    from bfabric.entities.core.entity import Entity
 
 
 def _parse_boolean_string(v: str, handler: ValidatorFunctionWrapHandler, info: ValidationInfo) -> bool:
@@ -69,9 +69,7 @@ class TokenData(BaseModel):
             data["token_expires"] = data["token_expires"].isoformat()
         return data
 
-    def load_entity(
-        self, client: Bfabric
-    ) -> Dataset | Instrument | Order | Plate | Project | Resource | Run | Sample | Workunit | None:
+    def load_entity(self, client: Bfabric) -> Entity | None:
         """Loads the entity associated with this token."""
         entity_class = import_entity(entity_class_name=self.entity_class)
         return entity_class.find(self.entity_id, client=client)
