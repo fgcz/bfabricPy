@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import datetime
-from typing import Any, Annotated
+from typing import Annotated
 
 import fastapi
 from fastapi.params import Depends
@@ -11,6 +11,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from bfabric import BfabricAuth, Bfabric, BfabricClientConfig
 from bfabric.config.config_data import ConfigData
 from bfabric.entities.core.uri import EntityUri
+from bfabric.rest.token_data import get_token_data
 
 
 class ServerSettings(BaseSettings):
@@ -38,6 +39,7 @@ def get_bfabric_auth(login: str, webservicepassword: SecretStr) -> BfabricAuth:
 
 
 def get_bfabric_instance(bfabric_instance: str | None = None) -> str:
+    """Specify the B-Fabric instance explicitly. Only configured B-Fabric instances are permitted."""
     if bfabric_instance is None:
         return settings.default_bfabric_instance
     if bfabric_instance in settings.known_bfabric_instances:
@@ -64,26 +66,29 @@ BfabricUserClientDep = Annotated[Bfabric, Depends(get_bfabric_user_client)]
 BfabricFeederClientDep = Annotated[Bfabric, Depends(get_bfabric_feeder_client)]
 
 
+class ReadParams(BaseModel):
+    endpoint: str
+    """The endpoint to read from."""
+    query: dict[str, str | int | datetime.datetime | list[str | int | datetime.datetime]] = Field(
+        default_factory=dict, max_length=100
+    )
+    """The query which will be passed as-is to the B-Fabric webservices API."""
+    page_offset: int = 0
+    """The number of items to skip, after which to start reading."""
+    page_max_results: int = 100
+    """The maximum number of results to return."""
+
+
 @app.post("/read")
-def read(
-    user_client: BfabricUserClientDep,
-    query: dict[str, Any],
-    endpoint: str,
-    page_offset: int = 0,
-    page_max_results: int = 100,
-):
+def read(user_client: BfabricUserClientDep, params: ReadParams):
     user_client._log_version_message()
     res = user_client.read(
-        endpoint=endpoint,
-        obj=query,
-        offset=page_offset,
-        max_results=page_max_results,
+        endpoint=params.endpoint,
+        obj=params.query,
+        offset=params.page_offset,
+        max_results=params.page_max_results,
     )
     return res.to_list_dict()
-
-
-# @app.post("/v1/read")
-# TODO save workunit/resource should only permit the operation for "CREATE" no update!!!
 
 
 class CreateWorkunitParams(BaseModel):
@@ -178,3 +183,16 @@ async def health():
         "date": datetime.datetime.now().isoformat(),
         "known_bfabric_instances": settings.known_bfabric_instances,
     }
+
+
+@app.post("/validate_token")
+async def validate_token(token: str, bfabric_instance: BfabricInstanceDep):
+    """Validates a token and returns the token data.
+
+    This endpoint is not really necessary since it proxies a REST endpoint, but is added here for consistency to avoid
+    shiny apps having to interface with two different APIs.
+    """
+    token_data = get_token_data(base_url=bfabric_instance, token=token)
+    dump = token_data.model_dump(by_alias=True, mode="json")
+    dump["userWsPassword"] = token_data.user_ws_password.get_secret_value()
+    return dump
