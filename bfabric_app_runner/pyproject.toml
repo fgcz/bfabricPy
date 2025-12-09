@@ -46,7 +46,7 @@ doc = [
     "sphinxcontrib-plantuml>=0.31",
 ]
 dev = [
-    "app_runner[doc]",
+    "bfabric_app_runner[doc]",
     "bfabric[dev, typing]",
     "mypy>=1.18.2",
     "types-PyYAML>=6.0.12.20250915",
