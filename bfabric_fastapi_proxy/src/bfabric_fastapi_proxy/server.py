@@ -6,29 +6,12 @@ from typing import Annotated
 import fastapi
 from fastapi.params import Depends
 from pydantic import SecretStr, model_validator, BaseModel, Field
-from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from bfabric import BfabricAuth, Bfabric, BfabricClientConfig
 from bfabric.config.config_data import ConfigData
-from bfabric.entities.core.uri import EntityUri
+from bfabric.entities.core.import_entity import instantiate_entity
 from bfabric.rest.token_data import get_token_data
-
-
-class ServerSettings(BaseSettings):
-    # TODO for development
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
-
-    default_bfabric_instance: str
-    # TODO these credentials need to be per instance
-    default_write_credentials: BfabricAuth
-    known_bfabric_instances: list[str]
-
-    @model_validator(mode="after")
-    def _default_bfabric_is_known(self) -> ServerSettings:
-        if self.default_bfabric_instance not in self.known_bfabric_instances:
-            raise ValueError("Default instance needs to be in known instances list")
-        return self
-
+from bfabric_fastapi_proxy.settings import ServerSettings
 
 app = fastapi.FastAPI()
 settings = ServerSettings()
@@ -41,11 +24,16 @@ def get_bfabric_auth(login: str, webservicepassword: SecretStr) -> BfabricAuth:
 def get_bfabric_instance(bfabric_instance: str | None = None) -> str:
     """Specify the B-Fabric instance explicitly. Only configured B-Fabric instances are permitted."""
     if bfabric_instance is None:
+        # use the default
+        if settings.default_bfabric_instance is None:
+            raise ValueError("server is configured to enforce explicit bfabric_instance parameter")
         return settings.default_bfabric_instance
-    if bfabric_instance in settings.known_bfabric_instances:
-        return bfabric_instance
-    else:
+
+    # check the specified value
+    if bfabric_instance not in settings.supported_bfabric_instances:
         raise ValueError(f"Unknown bfabric instance: {bfabric_instance}")
+
+    return bfabric_instance
 
 
 def get_bfabric_user_client(bfabric_auth: BfabricAuthDep, bfabric_instance: BfabricInstanceDep) -> Bfabric:
@@ -55,8 +43,10 @@ def get_bfabric_user_client(bfabric_auth: BfabricAuthDep, bfabric_instance: Bfab
 
 
 def get_bfabric_feeder_client(bfabric_instance: BfabricInstanceDep) -> Bfabric:
-    client_config = BfabricClientConfig(base_url=bfabric_instance)
-    config_data = ConfigData(client=client_config, auth=settings.default_write_credentials)
+    config_data = ConfigData(
+        client=BfabricClientConfig(base_url=bfabric_instance), auth=settings.feeder_user_credentials[bfabric_instance]
+    )
+
     return Bfabric(config_data)
 
 
@@ -164,15 +154,9 @@ def create_workunit(
         )
 
     # set the workunit as available
-    _ = feeder_client.save("workunit", {"id": workunit_id, "status": "available"})
-
-    return {
-        "workunit": {
-            "id": workunit_id,
-            "classname": "workunit",
-            "uri": EntityUri.from_components(bfabric_instance, "workunit", workunit_id),
-        }
-    }
+    result = feeder_client.save("workunit", {"id": workunit_id, "status": "available"})
+    workunit = instantiate_entity(result[0], None, bfabric_instance)
+    return {**workunit.data_dict, "uri": workunit.uri}
 
 
 @app.get("/health")
@@ -181,7 +165,7 @@ async def health():
     return {
         "status": "ok",
         "date": datetime.datetime.now().isoformat(),
-        "known_bfabric_instances": settings.known_bfabric_instances,
+        "supported_bfabric_instances": settings.supported_bfabric_instances,
     }
 
 
