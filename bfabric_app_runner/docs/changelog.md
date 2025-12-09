@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Automatic `chunks.yml` generation when the file is missing, by scanning for folders containing a `inputs.yml` file
 - `CommandPythonEnv` provides more diagnostic output now.
+- `ResolveBfabricResourceDatasetSpecs` has `output_dataset_only` parameter which is useful in some cases.
 
 ### Changed
 
