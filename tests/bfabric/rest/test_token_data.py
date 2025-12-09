@@ -1,6 +1,6 @@
 from typing import Any
 from json import JSONDecodeError
-
+import datetime
 import pytest
 import httpx
 from pydantic import SecretStr
@@ -23,6 +23,7 @@ def token_data() -> TokenData:
         user="illegal_mock_user ",
         user_ws_password="password",
         token_expires="2023-10-01T00:00:00Z",
+        web_service_user="true",
         caller="https://example.com/mock-caller",
         environment="mock",
     )
@@ -37,6 +38,7 @@ def token_data_json() -> dict[str, Any]:
         "entityId": 3,
         "user": "illegal_mock_user ",
         "userWsPassword": "password",
+        "webServiceUser": "true",
         "expiryDateTime": "2023-10-01T00:00:00Z",
         "environment": "mock",
         "caller": "https://example.com/mock-caller",
@@ -62,6 +64,21 @@ def test_model_dump(token_data):
     assert dumped["user_ws_password"] == SecretStr("password")
     assert dumped["token_expires"] == "2023-10-01T00:00:00+00:00"
     assert dumped["environment"] == "mock"
+    assert dumped["web_service_user"] == True
+
+
+def test_model_dump_by_alias(token_data):
+    dumped = token_data.model_dump(by_alias=True)
+    assert dumped["jobId"] == 1
+    assert dumped["applicationId"] == 2
+    assert dumped["entityClassName"] == "Dataset"
+    assert dumped["entityId"] == 3
+    assert dumped["user"] == "illegal_mock_user"
+    assert dumped["userWsPassword"] == SecretStr("password")
+    assert dumped["expiryDateTime"] == datetime.datetime.fromisoformat("2023-10-01T00:00:00+00:00")
+    assert dumped["environment"] == "mock"
+    assert dumped["caller"] == "https://example.com/mock-caller"
+    assert dumped["webServiceUser"] == True
 
 
 def test_load_entity(mocker, token_data):
