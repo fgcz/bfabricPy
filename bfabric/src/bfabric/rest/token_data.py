@@ -26,6 +26,7 @@ if TYPE_CHECKING:
 
 def parse_boolean_string(v: str, handler: ValidatorFunctionWrapHandler, info: ValidationInfo) -> bool:
     """Parses a boolean string "true" or "false" to a boolean value."""
+    _ = handler, info
     return {"true": True, "false": False}[v]
 
 
