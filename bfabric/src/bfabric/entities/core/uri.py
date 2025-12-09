@@ -20,14 +20,20 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
 _URI_REGEX = re.compile(
-    r"^(?P<bfabric_instance>https://[^/]+/bfabric/)(?P<entity_type>\w+)/show\.html\?id=(?P<entity_id>\d+)$"
+    r"^(?P<bfabric_instance>(https://[^/]+/bfabric/|http://localhost(:\d+)?/bfabric/))(?P<entity_type>\w+)/show\.html\?id=(?P<entity_id>\d+)$"
 )
 
 
 def _validate_entity_uri(uri: str) -> str:
-    if not _URI_REGEX.match(uri):
-        raise ValueError(f"Invalid Entity URI: {uri}")
+    _ = _parse_uri_components(uri)
     return uri
+
+
+def _parse_uri_components(uri: str) -> EntityUriComponents:
+    match = _URI_REGEX.match(uri)
+    if not match:
+        raise ValueError(f"Invalid Entity URI: {uri}")
+    return EntityUriComponents.model_validate(match.groupdict())
 
 
 ValidatedEntityUri = Annotated[str, AfterValidator(_validate_entity_uri)]
@@ -103,10 +109,3 @@ class GroupedUris(BaseModel):
             )
             groups[key].append(uri)
         return cls(groups=dict(groups))
-
-
-def _parse_uri_components(uri: str) -> EntityUriComponents:
-    match = _URI_REGEX.match(uri)
-    if not match:
-        raise ValueError(f"Invalid Entity URI: {uri}")
-    return EntityUriComponents.model_validate(match.groupdict())
