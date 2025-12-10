@@ -3048,56 +3048,6 @@
                 }
             }
         ],
-        "./bfabric_scripts/src/bfabric_scripts/cli/executable/show.py": [
-            {
-                "code": "reportOptionalSubscript",
-                "range": {
-                    "startColumn": 17,
-                    "endColumn": 29,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportOptionalMemberAccess",
-                "range": {
-                    "startColumn": 32,
-                    "endColumn": 35,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportOptionalMemberAccess",
-                "range": {
-                    "startColumn": 54,
-                    "endColumn": 61,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportOptionalMemberAccess",
-                "range": {
-                    "startColumn": 79,
-                    "endColumn": 86,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportOptionalMemberAccess",
-                "range": {
-                    "startColumn": 18,
-                    "endColumn": 25,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportOptionalMemberAccess",
-                "range": {
-                    "startColumn": 33,
-                    "endColumn": 40,
-                    "lineCount": 1
-                }
-            }
-        ],
         "./bfabric_scripts/src/bfabric_scripts/cli/executable/upload.py": [
             {
                 "code": "reportAny",
