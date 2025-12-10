@@ -6,8 +6,14 @@ from bfabric.entities.core.uri import _parse_uri_components
 
 
 class TestEntityUri:
-    def test_valid(self):
-        uri = "https://fgcz-bfabric.uzh.ch/bfabric/project/show.html?id=3000"
+    @pytest.mark.parametrize(
+        "uri",
+        [
+            "https://fgcz-bfabric.uzh.ch/bfabric/project/show.html?id=3000",
+            "http://localhost:8080/bfabric/project/show.html?id=3000",
+        ],
+    )
+    def test_valid(self, uri):
         entity_uri = EntityUri(uri)
         assert entity_uri == uri
         assert isinstance(entity_uri, EntityUri)
@@ -38,7 +44,12 @@ class TestEntityUri:
 
 class TestEntityUriComponents:
     @pytest.mark.parametrize(
-        "bfabric_instance", ["https://fgcz-bfabric.uzh.ch/bfabric/", "https://bfabric.example.com/bfabric/"]
+        "bfabric_instance",
+        [
+            "https://fgcz-bfabric.uzh.ch/bfabric/",
+            "https://bfabric.example.com/bfabric/",
+            "http://localhost:8080/bfabric/",
+        ],
     )
     def test_valid(self, bfabric_instance):
         uri = f"{bfabric_instance}project/show.html?id=3000"

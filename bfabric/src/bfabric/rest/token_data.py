@@ -4,16 +4,33 @@ import asyncio
 import contextlib
 import urllib.parse
 from datetime import datetime
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Annotated, Any
 
 import httpx
-from pydantic import BaseModel, Field, SecretStr, ConfigDict
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    SecretStr,
+    ValidationInfo,
+    ValidatorFunctionWrapHandler,
+    WrapValidator,
+)
 
 from bfabric.entities.core.import_entity import import_entity
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
-    from bfabric.entities import Dataset, Instrument, Order, Plate, Project, Resource, Run, Sample, Workunit
+    from bfabric.entities.core.entity import Entity
+
+
+def _parse_boolean_string(v: str, handler: ValidatorFunctionWrapHandler, info: ValidationInfo) -> bool:
+    """Parses a boolean string "true" or "false" to a boolean value."""
+    _ = handler, info
+    return {"true": True, "false": False}[v]
+
+
+BooleanString = Annotated[bool, WrapValidator(_parse_boolean_string)]
 
 
 class TokenData(BaseModel):
@@ -22,16 +39,26 @@ class TokenData(BaseModel):
     model_config = ConfigDict(populate_by_name=True, str_strip_whitespace=True)
 
     job_id: int = Field(alias="jobId")
+    """ID of the job associated with the token."""
     application_id: int = Field(alias="applicationId")
+    """ID of the B-Fabric application which created the token."""
 
     entity_class: str = Field(alias="entityClassName")
+    """Target entity class name"""
     entity_id: int = Field(alias="entityId")
+    """Target entity ID"""
 
     user: str = Field(alias="user")
+    """User/login"""
     user_ws_password: SecretStr = Field(alias="userWsPassword")
+    """Webservice password of the user."""
 
     token_expires: datetime = Field(alias="expiryDateTime")
+    """Expiration datetime of the token."""
+    web_service_user: BooleanString = Field(alias="webServiceUser")
+    """Indicates whether the user has permission to use webservices API"""
     caller: str
+    """The B-Fabric instance where the token originates from."""
     environment: str
 
     # Define a custom serializer method for model_dump
@@ -42,9 +69,7 @@ class TokenData(BaseModel):
             data["token_expires"] = data["token_expires"].isoformat()
         return data
 
-    def load_entity(
-        self, client: Bfabric
-    ) -> Dataset | Instrument | Order | Plate | Project | Resource | Run | Sample | Workunit | None:
+    def load_entity(self, client: Bfabric) -> Entity | None:
         """Loads the entity associated with this token."""
         entity_class = import_entity(entity_class_name=self.entity_class)
         return entity_class.find(self.entity_id, client=client)
