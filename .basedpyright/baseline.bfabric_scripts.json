@@ -2818,24 +2818,6 @@
                 }
             }
         ],
-        "./bfabric_scripts/src/bfabric_scripts/cli/cli_feeder.py": [
-            {
-                "code": "reportAny",
-                "range": {
-                    "startColumn": 8,
-                    "endColumn": 25,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportAny",
-                "range": {
-                    "startColumn": 67,
-                    "endColumn": 87,
-                    "lineCount": 1
-                }
-            }
-        ],
         "./bfabric_scripts/src/bfabric_scripts/cli/dataset/show.py": [
             {
                 "code": "reportAny",
