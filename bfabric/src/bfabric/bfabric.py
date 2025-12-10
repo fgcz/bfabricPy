@@ -41,6 +41,7 @@ from bfabric.utils.paginator import BFABRIC_QUERY_LIMIT, compute_requested_pages
 if TYPE_CHECKING:
     from collections.abc import Generator
 
+    from bfabric.engine.types import ApiRequestObjectType, ApiResponseObjectType
     from bfabric.entities.core.entity_reader import EntityReader
 
 
@@ -237,7 +238,7 @@ class Bfabric:
         logger.debug(f"Requested pages: {requested_pages}")
 
         # NOTE: Page numbering starts at 1
-        response_items: list[dict[str, Any]] = []
+        response_items: list[ApiResponseObjectType] = []
         errors = results.errors
         page_offset = initial_offset
         for i_iter, i_page in enumerate(requested_pages):
@@ -263,13 +264,13 @@ class Bfabric:
     def save(
         self,
         endpoint: str,
-        obj: dict[str, Any] | list[dict[str, Any]],
+        obj: ApiRequestObjectType | list[ApiRequestObjectType],
         check: bool = True,
         method: str = "save",
     ) -> ResultContainer:
         """Saves the provided object to the specified endpoint.
         :param endpoint: the endpoint to save to, e.g. "sample"
-        :param obj: the object to save
+        :param obj: the object(s) to save
         :param check: whether to raise an error if the response is not successful
         :param method: the method to use for saving, generally "save", but in some cases e.g. "update" is more
             appropriate to be used instead.

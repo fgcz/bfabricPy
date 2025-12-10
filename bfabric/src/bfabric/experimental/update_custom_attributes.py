@@ -1,10 +1,11 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
+from bfabric.entities.core.uri import EntityUri
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
-    from bfabric.entities.core.uri import EntityUri
     from bfabric.results.result_container import ResultContainer
 
 
@@ -21,6 +22,8 @@ def update_custom_attributes(
     :param custom_attributes: Custom attributes to update
     :param replace: Replace existing custom attributes mapping, or update/add only the specified ones.
     """
+    entity_uri = EntityUri(entity_uri)
+
     # read the current custom attributes (if requested)
     if replace:
         attributes_dict = {}

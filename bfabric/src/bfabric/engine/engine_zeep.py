@@ -1,6 +1,7 @@
 from __future__ import annotations
+
 import copy
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import requests
 import zeep
@@ -8,11 +9,12 @@ from zeep.helpers import serialize_object
 
 from bfabric.errors import BfabricRequestError, get_response_errors
 from bfabric.results.response_delete import ResponseDelete
-from bfabric.results.result_container import ResultContainer
 from bfabric.results.response_format_dict import clean_result, drop_empty_elements
+from bfabric.results.result_container import ResultContainer
 
 if TYPE_CHECKING:
     from bfabric.config import BfabricAuth
+    from bfabric.engine.types import ApiRequestObjectType
 
 
 class EngineZeep:
@@ -70,7 +72,13 @@ class EngineZeep:
             response = client.service.read(full_query)
         return self._convert_results(response=response, endpoint=endpoint)
 
-    def save(self, endpoint: str, obj: dict, auth: BfabricAuth, method: str = "save") -> ResultContainer:
+    def save(
+        self,
+        endpoint: str,
+        obj: ApiRequestObjectType | list[ApiRequestObjectType],
+        auth: BfabricAuth,
+        method: str = "save",
+    ) -> ResultContainer:
         """Saves the provided object to the specified endpoint.
         :param endpoint: the endpoint to save to, e.g. "sample"
         :param obj: the object to save
@@ -83,7 +91,11 @@ class EngineZeep:
         # FIXME: Hacks for the cases where Zeep thinks a parameter is compulsory and it is actually not
         if endpoint == "resource":
             excl_keys = ["name", "sampleid", "storageid", "workunitid", "relativepath"]
-            _zeep_query_append_skipped(query, excl_keys, inplace=True, overwrite=False)
+            if isinstance(query, list):
+                for q in query:
+                    _ = _zeep_query_append_skipped(q, excl_keys, inplace=True, overwrite=False)
+            else:
+                _ = _zeep_query_append_skipped(query, excl_keys, inplace=True, overwrite=False)
 
         full_query = {"login": auth.login, "password": auth.password.get_secret_value(), endpoint: query}
 

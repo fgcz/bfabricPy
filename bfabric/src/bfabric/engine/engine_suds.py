@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import copy
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import suds.transport
 from suds import MethodNotFound
@@ -15,7 +15,9 @@ from bfabric.results.result_container import ResultContainer
 
 if TYPE_CHECKING:
     from suds.serviceproxy import ServiceProxy
+
     from bfabric.config import BfabricAuth
+    from bfabric.engine.types import ApiRequestObjectType
 
 
 class EngineSUDS:
@@ -58,7 +60,13 @@ class EngineSUDS:
         response = service.read(full_query)
         return self._convert_results(response=response, endpoint=endpoint)
 
-    def save(self, endpoint: str, obj: dict, auth: BfabricAuth, method: str = "save") -> ResultContainer:
+    def save(
+        self,
+        endpoint: str,
+        obj: ApiRequestObjectType | list[ApiRequestObjectType],
+        auth: BfabricAuth,
+        method: str = "save",
+    ) -> ResultContainer:
         """Saves the provided object to the specified endpoint.
         :param endpoint: the endpoint to save to, e.g. "sample"
         :param obj: the object to save
