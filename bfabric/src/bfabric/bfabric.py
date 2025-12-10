@@ -192,7 +192,7 @@ class Bfabric:
     def read(
         self,
         endpoint: str,
-        obj: dict[str, Any],
+        obj: ApiRequestObjectType,
         max_results: int | None = 100,
         offset: int = 0,
         check: bool = True,

@@ -17,6 +17,8 @@ if TYPE_CHECKING:
 
 
 class Entity(FindMixin):
+    """A single generic entity, read from B-Fabric."""
+
     def __init__(
         self,
         data_dict: ApiResponseObjectType,

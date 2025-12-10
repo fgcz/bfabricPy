@@ -31,7 +31,7 @@ class EngineSUDS:
     def read(
         self,
         endpoint: str,
-        obj: dict[str, Any],
+        obj: ApiRequestObjectType,
         auth: BfabricAuth,
         page: int = 1,
         return_id_only: bool = False,
@@ -46,7 +46,7 @@ class EngineSUDS:
         :param return_id_only: whether to return only the ids of the objects
         :param include_deletable_and_updatable_fields: whether to include the deletable and updatable fields
         """
-        query = copy.deepcopy(obj)
+        query = copy.deepcopy(dict(obj))
         query["includedeletableupdateable"] = include_deletable_and_updatable_fields
 
         full_query = {

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable  # noqa
-from typing import TYPE_CHECKING, Any, TypeGuard, TypeVar, cast
+from typing import TYPE_CHECKING, TypeGuard, TypeVar, cast
 
 from loguru import logger
 
@@ -13,7 +13,7 @@ from bfabric.experimental import MultiQuery
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
-    from bfabric.engine.types import ApiResponseDataType, ApiResponseObjectType
+    from bfabric.engine.types import ApiRequestObjectType, ApiResponseDataType, ApiResponseObjectType
 
 
 EntityT = TypeVar("EntityT", bound="Entity")
@@ -157,7 +157,7 @@ class EntityReader:
     def query(
         self,
         entity_type: str,
-        obj: dict[str, Any],
+        obj: ApiRequestObjectType,
         bfabric_instance: str | None = None,
         max_results: int | None = 100,
     ) -> dict[EntityUri, Entity | None]:
