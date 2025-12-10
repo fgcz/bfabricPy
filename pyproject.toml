@@ -46,4 +46,5 @@ exclude = [
     "bfabric_scripts/src/bfabric_scripts/bfabric_slurm_queue_status.py",
     "bfabric_scripts/src/bfabric_scripts/cli/workunit/not_available.py",
     "bfabric_scripts/src/bfabric_scripts/bfabric_read_samples_from_dataset.py",
+    "bfabric_scripts/src/bfabric_scripts/bfabric_read.py",
 ]
