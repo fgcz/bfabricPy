@@ -11,11 +11,16 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Added
 
-- `bfabric.engine.types` for typing the request types
+- `bfabric.typing` with specific types for the API request and response objects.
+- `Executable.decoded_str`, `Executable.decoded_bytes`
 
 ### Removed
 
-- Legacy workaround for B-Fabric with non-list `technology` field is removed. Assumed to not be breaking (this needs to be fomralized later).
+- Legacy workaround for B-Fabric with non-list `technology` field is removed. Assumed to not be breaking since for the current B-Fabric instances, this change should be transparent.
+
+### Deprecated
+
+- `Executable.decoded`: misleading name
 
 ## \[1.15.1\] - 2025-12-09
 

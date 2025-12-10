@@ -33,7 +33,7 @@ def cmd_executable_show(executable_id: int, *, client: Bfabric) -> None:
     pprint(metadata)
 
     console.print(Panel("Encoded Program"))
-    if executable.decoded:
-        console.print(executable.decoded)
+    if executable.decoded_str:
+        console.print(executable.decoded_str)
     else:
         console.print("No encoded program found.")
