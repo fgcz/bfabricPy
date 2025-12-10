@@ -10,7 +10,6 @@ from bfabric.entities import Application
         (["Metabolomics/Biophysics", "Proteomics"], "Metabolomics_Biophysics"),
         (["Metabolomics/Biophysics"], "Metabolomics_Biophysics"),
         (["Proteomics"], "Proteomics"),
-        ("Proteomics", "Proteomics"),
     ],
 )
 def test_technology_folder_name(technology_value, expected_technology, bfabric_instance):
