@@ -13,7 +13,7 @@ from bfabric.experimental import MultiQuery
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
-    from bfabric.engine.types import ApiRequestObjectType, ApiResponseDataType, ApiResponseObjectType
+    from bfabric.typing import ApiRequestObjectType, ApiResponseDataType, ApiResponseObjectType
 
 
 EntityT = TypeVar("EntityT", bound="Entity")

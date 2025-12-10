@@ -11,7 +11,7 @@ from bfabric import Bfabric
 from bfabric.utils.cli_integration import use_client
 
 if TYPE_CHECKING:
-    from bfabric.engine.types import ApiResponseDataType
+    from bfabric.typing import ApiResponseDataType
 
 app = cyclopts.App()
 

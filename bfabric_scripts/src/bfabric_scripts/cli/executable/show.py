@@ -1,4 +1,4 @@
-from bfabric.engine.types import ApiResponseDataType, ApiResponseObjectType
+from bfabric.typing import ApiResponseDataType, ApiResponseObjectType
 from rich.console import Console
 from rich.panel import Panel
 from rich.pretty import pprint

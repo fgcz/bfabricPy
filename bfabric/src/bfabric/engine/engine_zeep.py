@@ -14,7 +14,7 @@ from bfabric.results.result_container import ResultContainer
 
 if TYPE_CHECKING:
     from bfabric.config import BfabricAuth
-    from bfabric.engine.types import ApiRequestObjectType
+    from bfabric.typing import ApiRequestObjectType
 
 
 class EngineZeep:

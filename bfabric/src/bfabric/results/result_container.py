@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
     import polars
 
-    from bfabric.engine.types import ApiResponseObjectType
+    from bfabric.typing import ApiResponseObjectType
     from bfabric.errors import BfabricRequestError
 
 

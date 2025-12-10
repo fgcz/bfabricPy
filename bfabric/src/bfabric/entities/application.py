@@ -9,7 +9,7 @@ from bfabric.entities.core.has_one import HasOne
 from bfabric.utils.path_safe_name import PathSafeStr
 
 if TYPE_CHECKING:
-    from bfabric.engine.types import ApiResponseDataType
+    from bfabric.typing import ApiResponseDataType
     from bfabric.entities.executable import Executable
     from bfabric.entities.storage import Storage
 

@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from suds.serviceproxy import ServiceProxy
 
     from bfabric.config import BfabricAuth
-    from bfabric.engine.types import ApiRequestObjectType
+    from bfabric.typing import ApiRequestObjectType
 
 
 class EngineSUDS:

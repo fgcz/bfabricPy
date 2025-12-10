@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from typing import Any
 
     from bfabric import Bfabric
-    from bfabric.engine.types import ApiResponseDataType, ApiResponseObjectType
+    from bfabric.typing import ApiResponseDataType, ApiResponseObjectType
 
 
 class Entity(FindMixin):

@@ -41,7 +41,7 @@ from bfabric.utils.paginator import BFABRIC_QUERY_LIMIT, compute_requested_pages
 if TYPE_CHECKING:
     from collections.abc import Generator
 
-    from bfabric.engine.types import ApiRequestObjectType, ApiResponseObjectType
+    from bfabric.typing import ApiRequestObjectType, ApiResponseObjectType
     from bfabric.entities.core.entity_reader import EntityReader
 
 

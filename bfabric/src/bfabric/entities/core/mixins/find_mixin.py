@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
 
     from bfabric import Bfabric
-    from bfabric.engine.types import ApiRequestObjectType
+    from bfabric.typing import ApiRequestObjectType
 
 
 class _HasEndpoint(Protocol):
