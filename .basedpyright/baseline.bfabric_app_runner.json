@@ -2434,22 +2434,6 @@
                     "endColumn": 38,
                     "lineCount": 1
                 }
-            },
-            {
-                "code": "reportAny",
-                "range": {
-                    "startColumn": 15,
-                    "endColumn": 55,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportOptionalMemberAccess",
-                "range": {
-                    "startColumn": 21,
-                    "endColumn": 30,
-                    "lineCount": 1
-                }
             }
         ],
         "./bfabric_app_runner/src/bfabric_app_runner/inputs/resolve/_resolve_bfabric_resource_archive_specs.py": [

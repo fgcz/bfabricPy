@@ -1362,14 +1362,6 @@
             {
                 "code": "reportAny",
                 "range": {
-                    "startColumn": 8,
-                    "endColumn": 11,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportAny",
-                "range": {
                     "startColumn": 28,
                     "endColumn": 35,
                     "lineCount": 1
@@ -1380,14 +1372,6 @@
                 "range": {
                     "startColumn": 37,
                     "endColumn": 40,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportExplicitAny",
-                "range": {
-                    "startColumn": 52,
-                    "endColumn": 55,
                     "lineCount": 1
                 }
             },
