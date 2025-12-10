@@ -20,6 +20,9 @@ class Executable(Entity):
 
     @cached_property
     def decoded(self) -> str | None:
-        if "base64" in self:
-            return base64.decodebytes(self["base64"].encode("utf-8")).decode("utf-8")
-        return None
+        if "base64" not in self:
+            return None
+        base64_value = self["base64"]
+        if not isinstance(base64_value, str):
+            raise ValueError("base64 value must be a string")
+        return base64.decodebytes(base64_value.encode("utf-8")).decode("utf-8")
