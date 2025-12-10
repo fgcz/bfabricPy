@@ -93,9 +93,13 @@ class EngineZeep:
             excl_keys = ["name", "sampleid", "storageid", "workunitid", "relativepath"]
             if isinstance(query, list):
                 for q in query:
-                    _ = _zeep_query_append_skipped(q, excl_keys, inplace=True, overwrite=False)
+                    _ = _zeep_query_append_skipped(
+                        q, excl_keys, inplace=True, overwrite=False
+                    )  # pyright: ignore[reportArgumentType, reportUnknownVariableType]
             else:
-                _ = _zeep_query_append_skipped(query, excl_keys, inplace=True, overwrite=False)
+                _ = _zeep_query_append_skipped(
+                    query, excl_keys, inplace=True, overwrite=False
+                )  # pyright: ignore[reportArgumentType, reportUnknownVariableType]
 
         full_query = {"login": auth.login, "password": auth.password.get_secret_value(), endpoint: query}
 
