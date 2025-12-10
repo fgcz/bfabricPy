@@ -40,7 +40,7 @@ dev = [
     "isort",
     "ruff",
     "licensecheck",
-    "nox",
+    "nox>=2025.11.12",
     "uv",
     "ipython",
 ]
