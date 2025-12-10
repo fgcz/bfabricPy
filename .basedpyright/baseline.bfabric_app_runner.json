@@ -2486,32 +2486,6 @@
                 }
             }
         ],
-        "./bfabric_app_runner/src/bfabric_app_runner/inputs/resolve/_resolve_bfabric_resource_specs.py": [
-            {
-                "code": "reportUnannotatedClassAttribute",
-                "range": {
-                    "startColumn": 13,
-                    "endColumn": 20,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownMemberType",
-                "range": {
-                    "startColumn": 12,
-                    "endColumn": 25,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownVariableType",
-                "range": {
-                    "startColumn": 15,
-                    "endColumn": 21,
-                    "lineCount": 1
-                }
-            }
-        ],
         "./bfabric_app_runner/src/bfabric_app_runner/inputs/resolve/_resolve_static_yaml_specs.py": [
             {
                 "code": "reportUnknownMemberType",
