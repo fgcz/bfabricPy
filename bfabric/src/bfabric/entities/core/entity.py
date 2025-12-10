@@ -9,15 +9,17 @@ from bfabric.entities.core.references import References
 from bfabric.entities.core.uri import EntityUri
 
 if TYPE_CHECKING:
-    from bfabric import Bfabric
-    from typing import Any
     from pathlib import Path
+    from typing import Any
+
+    from bfabric import Bfabric
+    from bfabric.engine.types import ApiResponseDataType, ApiResponseObjectType
 
 
 class Entity(FindMixin):
     def __init__(
         self,
-        data_dict: dict[str, Any],
+        data_dict: ApiResponseObjectType,
         client: Bfabric | None = None,
         bfabric_instance: str | None = None,
     ) -> None:
@@ -69,7 +71,7 @@ class Entity(FindMixin):
         return str(self.uri)
 
     @property
-    def data_dict(self) -> dict[str, Any]:
+    def data_dict(self) -> ApiResponseObjectType:
         """Returns a shallow copy of the entity's data dictionary."""
         return self.__data_dict.copy()
 
@@ -96,11 +98,11 @@ class Entity(FindMixin):
         """Returns the client associated with the entity."""
         return self.__client
 
-    def __contains__(self, key: str) -> Any:
+    def __contains__(self, key: str) -> bool:
         """Checks if a key is present in the data dictionary."""
         return key in self.__data_dict
 
-    def __getitem__(self, key: str) -> Any:
+    def __getitem__(self, key: str) -> ApiResponseDataType:
         """Returns the value of a key in the data dictionary."""
         return self.__data_dict[key]
 
