@@ -1836,32 +1836,6 @@
                 }
             }
         ],
-        "./bfabric_app_runner/src/bfabric_app_runner/dispatch/resource_flow.py": [
-            {
-                "code": "reportAny",
-                "range": {
-                    "startColumn": 45,
-                    "endColumn": 78,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownMemberType",
-                "range": {
-                    "startColumn": 8,
-                    "endColumn": 31,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownVariableType",
-                "range": {
-                    "startColumn": 11,
-                    "endColumn": 27,
-                    "lineCount": 1
-                }
-            }
-        ],
         "./bfabric_app_runner/src/bfabric_app_runner/inputs/_filter_files.py": [
             {
                 "code": "reportUnknownParameterType",
@@ -2990,14 +2964,6 @@
                 "range": {
                     "startColumn": 54,
                     "endColumn": 64,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnusedCallResult",
-                "range": {
-                    "startColumn": 4,
-                    "endColumn": 42,
                     "lineCount": 1
                 }
             },
