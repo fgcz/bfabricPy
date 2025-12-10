@@ -97,9 +97,9 @@ class Entity(FindMixin):
             msg = f"Entity of classname '{self.classname}' has no custom attributes."
             raise AttributeError(msg)
 
-        custom_attributes_list = self.__data_dict["customattributes"]
+        custom_attributes_list = self.__data_dict["customattribute"]
         if not _is_custom_attributes_list(custom_attributes_list):
-            raise ValueError("invalid type for customattributes")
+            raise ValueError("invalid type for customattribute")
 
         return {attr["name"]: attr["value"] for attr in custom_attributes_list}
 
