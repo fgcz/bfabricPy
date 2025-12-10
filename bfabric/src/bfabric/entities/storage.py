@@ -9,7 +9,12 @@ from bfabric.entities.core.entity import Entity
 class Storage(Entity):
     ENDPOINT = "storage"
 
-    base_path: Path = property(lambda self: Path(self.data_dict["basepath"]))
+    @property
+    def base_path(self) -> Path:
+        str_path = self.data_dict["basepath"]
+        if not isinstance(str_path, str):
+            raise ValueError("basepath must be a string")
+        return Path(str_path)
 
     @cached_property
     def scp_prefix(self) -> str | None:
