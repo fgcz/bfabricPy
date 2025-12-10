@@ -26,19 +26,48 @@ class CreateWorkunitParams(BaseModel):
 
 
 def create_workunit(
-    user_client: Bfabric | None,
+    user_client: Bfabric,
     feeder_client: Bfabric,
     params: CreateWorkunitParams,
 ) -> Workunit:
-    if user_client is not None:
-        # TODO document
-        # TODO check if this should be expanded further
-        res_valid = user_client.read("container", {"id": params.container_id}, return_id_only=True, check=True)
-        if len(res_valid) != 1 or res_valid[0]["id"] != params.container_id:
-            msg = "Container authorization failed"
-            raise ValueError(msg)
+    """Create a workunit with the given parameters, using the feeder client on behalf of the user client.
+
+    Before proceeding, it will be checked if the user has permission to read the target container.
+
+    :param user_client: the web application user, which initiates the operation
+    :param feeder_client: the feeder user, which will actually perform the operation
+    :param params: the workunit parameters
+    :return: the created workunit
+    :raise: BfabricException if any API operation fails
+    :raise: RuntimeError if authorization fails
+    """
+    _check_container_access(user_client=user_client, container_id=params.container_id)
 
     # create the workunit
+    workunit_id = _create_workunit_initial(
+        feeder_client=feeder_client, user_login=user_client.auth.login, params=params
+    )
+
+    # create related entities
+    if params.resources:
+        _create_workunit_resources(feeder_client=feeder_client, workunit_id=workunit_id, resources=params.resources)
+    if params.parameters:
+        _create_workunit_parameters(feeder_client=feeder_client, workunit_id=workunit_id, parameters=params.parameters)
+    if params.links:
+        _create_workunit_links(feeder_client=feeder_client, workunit_id=workunit_id, links=params.links)
+
+    # set the workunit as available and return
+    return _complete_workunit(feeder_client=feeder_client, workunit_id=workunit_id)
+
+
+def _check_container_access(user_client: Bfabric, container_id: int) -> None:
+    res_valid = user_client.read("container", {"id": container_id}, return_id_only=True, check=True)
+    if len(res_valid) != 1 or res_valid[0]["id"] != container_id:
+        msg = "Container authorization failed"
+        raise RuntimeError(msg)
+
+
+def _create_workunit_initial(feeder_client: Bfabric, user_login: str, params: CreateWorkunitParams) -> int:
     result = feeder_client.save(
         "workunit",
         {
@@ -47,39 +76,40 @@ def create_workunit(
             "name": params.workunit_name,
             "description": params.description,
             "status": "processing",
-            "customattribute": [{"name": "WebApp User", "value": user_client.auth.login}],
+            "customattribute": [{"name": "WebApp User", "value": user_login}],
         },
     )
-    workunit_id = result[0]["id"]
+    return result[0]["id"]
 
-    # create the resources
-    if params.resources:
-        _ = feeder_client.save(
-            "resource",
-            [{"base64": value, "name": key, "workunitid": workunit_id} for key, value in params.resources.items()],
-        )
 
-    # create the parameters
-    if params.parameters:
-        _ = feeder_client.save(
-            "parameter",
-            [
-                {"key": key, "label": key, "value": value, "context": "workunit", "workunitid": workunit_id}
-                for key, value in params.parameters.items()
-            ],
-        )
+def _create_workunit_resources(feeder_client: Bfabric, workunit_id: int, resources: dict[str, str]) -> None:
+    _ = feeder_client.save(
+        "resource",
+        [{"base64": value, "name": key, "workunitid": workunit_id} for key, value in resources.items()],
+    )
 
-    # create the links
-    if params.links:
-        _ = feeder_client.save(
-            "link",
-            [
-                {"parentclassname": "workunit", "parentid": workunit_id, "name": link_name, "url": link_url}
-                for link_name, link_url in params.links.items()
-            ],
-        )
 
-    # set the workunit as available
+def _create_workunit_parameters(feeder_client: Bfabric, workunit_id: int, parameters: dict[str, str]) -> None:
+    _ = feeder_client.save(
+        "parameter",
+        [
+            {"key": key, "label": key, "value": value, "context": "workunit", "workunitid": workunit_id}
+            for key, value in parameters.items()
+        ],
+    )
+
+
+def _create_workunit_links(feeder_client: Bfabric, workunit_id: int, links: dict[str, str]) -> None:
+    _ = feeder_client.save(
+        "link",
+        [
+            {"parentclassname": "workunit", "parentid": workunit_id, "name": link_name, "url": link_url}
+            for link_name, link_url in links.items()
+        ],
+    )
+
+
+def _complete_workunit(feeder_client: Bfabric, workunit_id: int) -> Workunit:
     result = feeder_client.save("workunit", {"id": workunit_id, "status": "available"})
     workunit = instantiate_entity(result[0], client=None, bfabric_instance=feeder_client.config.base_url)
     if not isinstance(workunit, Workunit):
