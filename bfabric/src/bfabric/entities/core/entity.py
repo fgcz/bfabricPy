@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import warnings
 from functools import cached_property
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Self, TypeGuard
 
 from bfabric.entities.core.mixins.find_mixin import FindMixin
 from bfabric.entities.core.references import References
@@ -41,7 +41,10 @@ class Entity(FindMixin):
     @property
     def id(self) -> int:
         """Returns the entity's ID."""
-        return int(self.__data_dict["id"])
+        value = self.__data_dict["id"]
+        if not isinstance(value, int):
+            raise ValueError("Invalid ID")
+        return value
 
     @property
     def bfabric_instance(self) -> str:
@@ -51,7 +54,10 @@ class Entity(FindMixin):
     @property
     def classname(self) -> str:
         """The entity's classname."""
-        return self.__data_dict["classname"]
+        value = self.__data_dict["classname"]
+        if not isinstance(value, str):
+            raise ValueError("Invalid classname")
+        return value
 
     def ENDPOINT(self) -> str:  # noqa
         warnings.warn("Entity.ENDPOINT is deprecated, use Entity.classname instead.", DeprecationWarning, stacklevel=2)
@@ -91,7 +97,11 @@ class Entity(FindMixin):
             msg = f"Entity of classname '{self.classname}' has no custom attributes."
             raise AttributeError(msg)
 
-        return {attr["name"]: attr["value"] for attr in self.__data_dict["customattribute"]}
+        custom_attributes_list = self.__data_dict["customattributes"]
+        if not _is_custom_attributes_list(custom_attributes_list):
+            raise ValueError("invalid type for customattributes")
+
+        return {attr["name"]: attr["value"] for attr in custom_attributes_list}
 
     @property
     def _client(self) -> Bfabric | None:
@@ -140,3 +150,12 @@ class Entity(FindMixin):
         with path.open("r") as file:
             data = yaml.safe_load(file)
         return cls(data, client=client, bfabric_instance=bfabric_instance)
+
+
+def _is_custom_attributes_list(custom_attributes: ApiResponseDataType) -> TypeGuard[list[dict[str, str]]]:
+    if not isinstance(custom_attributes, list):
+        return False
+    for item in custom_attributes:
+        if not isinstance(item, dict) or any(not isinstance(value, str) for value in item.values()):
+            return False
+    return True
