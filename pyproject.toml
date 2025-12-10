@@ -37,5 +37,8 @@ reinstall-package = ["bfabric", "bfabric_scripts", "bfabric_app_runner"]
 
 [tool.basedpyright]
 exclude = [
-    "*/tests/*"
+    "*/tests/*",
+    # TODO specific legacy code should not be handled like this in general
+    "bfabric/src/bfabric/wrapper_creator/bfabric_submitter.py",
+    "bfabric/src/bfabric/wrapper_creator/bfabric_wrapper_creator.py",
 ]
