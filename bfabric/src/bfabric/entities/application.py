@@ -9,9 +9,9 @@ from bfabric.entities.core.has_one import HasOne
 from bfabric.utils.path_safe_name import PathSafeStr
 
 if TYPE_CHECKING:
-    from bfabric.typing import ApiResponseDataType
     from bfabric.entities.executable import Executable
     from bfabric.entities.storage import Storage
+    from bfabric.typing import ApiResponseDataType
 
 
 class Application(Entity):
@@ -22,7 +22,11 @@ class Application(Entity):
 
     @property
     def technology_folder_name(self) -> PathSafeStr:
-        """Returns the technology which is used e.g. for output registration."""
+        """Returns the technology which is used e.g. for output registration.
+
+        Currently, in case of multiple technologies, the first one (alphabetically) is used.
+        TODO this logic should probably be improved in the future
+        """
         technology = self.data_dict["technology"]
         if not _is_technology_list(technology):
             raise ValueError("Technology must be a list of strings")
