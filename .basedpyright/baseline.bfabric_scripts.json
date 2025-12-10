@@ -2950,14 +2950,6 @@
                     "endColumn": 25,
                     "lineCount": 1
                 }
-            },
-            {
-                "code": "reportImplicitStringConcatenation",
-                "range": {
-                    "startColumn": 8,
-                    "endColumn": 42,
-                    "lineCount": 2
-                }
             }
         ],
         "./bfabric_scripts/src/bfabric_scripts/cli/executable/dump.py": [
