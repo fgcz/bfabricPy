@@ -14,6 +14,12 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 - `bfabric.typing` with specific types for the API request and response objects.
 - `Executable.decoded_str`, `Executable.decoded_bytes`
 
+### Changed
+
+- Type hints have been narrowed for the following classes:
+    - `Bfabric`
+    - `ResultContainer`
+
 ### Removed
 
 - Legacy workaround for B-Fabric with non-list `technology` field is removed. Assumed to not be breaking since for the current B-Fabric instances, this change should be transparent.

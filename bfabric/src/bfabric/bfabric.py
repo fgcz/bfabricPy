@@ -41,8 +41,8 @@ from bfabric.utils.paginator import BFABRIC_QUERY_LIMIT, compute_requested_pages
 if TYPE_CHECKING:
     from collections.abc import Generator
 
-    from bfabric.typing import ApiRequestObjectType, ApiResponseObjectType
     from bfabric.entities.core.entity_reader import EntityReader
+    from bfabric.typing import ApiRequestObjectType, ApiResponseObjectType
 
 
 class Bfabric:
@@ -298,7 +298,7 @@ class Bfabric:
         endpoint: str,
         key: str,
         value: int | str,
-        query: dict[str, Any] | None = None,
+        query: ApiRequestObjectType | None = None,
         check: bool = True,
     ) -> bool:
         """Returns whether an object with the specified key-value pair exists in the specified endpoint.
