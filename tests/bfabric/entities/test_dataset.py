@@ -30,8 +30,8 @@ def mock_data_dict_rearranged() -> dict[str, Any]:
     return {
         "id": 1234,
         "attribute": [
-            {"name": "Color", "position": "1"},
-            {"name": "Shape", "position": "2"},
+            {"name": "Color", "position": "1", "type": "String"},
+            {"name": "Shape", "position": "2", "type": "String"},
         ],
         "item": [
             {"field": [{"value": "Square", "attributeposition": "2"}, {"value": "Red", "attributeposition": "1"}]},
@@ -117,7 +117,3 @@ def test_repr(mock_empty_dataset: Dataset) -> None:
 
 def test_str(mock_empty_dataset: Dataset) -> None:
     assert str(mock_empty_dataset) == repr(mock_empty_dataset)
-
-
-if __name__ == "__main__":
-    pytest.main()
