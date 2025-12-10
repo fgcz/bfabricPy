@@ -10,5 +10,5 @@ ApiRequestObjectType = Mapping[str, ApiRequestDataType]
 
 # Response types (data received FROM the API)
 ApiResponseScalarType = int | float | str | bool | None
-ApiResponseDataType = ApiResponseScalarType | list["ApiResponseDataType"] | dict[str, "ApiResponseDataType"]
+ApiResponseDataType = ApiResponseScalarType | Sequence["ApiResponseDataType"] | Mapping[str, "ApiResponseDataType"]
 ApiResponseObjectType = dict[str, ApiResponseDataType]
