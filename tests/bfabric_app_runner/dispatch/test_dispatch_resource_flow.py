@@ -31,9 +31,9 @@ def mock_workunit_definition(mocker):
 @pytest.fixture
 def sample_resources():
     return {
-        1: {"id": 1, "relativepath": "path/to/file1.txt"},
-        2: {"id": 2, "relativepath": "path/to/file2.txt"},
-        3: {"id": 3, "relativepath": "path/to/file3.txt"},
+        1: Resource({"id": 1, "relativepath": "path/to/file1.txt"}),
+        2: Resource({"id": 2, "relativepath": "path/to/file2.txt"}),
+        3: Resource({"id": 3, "relativepath": "path/to/file3.txt"}),
     }
 
 
