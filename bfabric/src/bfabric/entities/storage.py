@@ -9,7 +9,7 @@ from bfabric.entities.core.entity import Entity
 class Storage(Entity):
     ENDPOINT = "storage"
 
-    base_path = property(lambda self: Path(self.data_dict["basepath"]))
+    base_path: Path = property(lambda self: Path(self.data_dict["basepath"]))
 
     @cached_property
     def scp_prefix(self) -> str | None:
