@@ -118,7 +118,7 @@ class Entity(FindMixin):
         """Returns the value of a key in the data dictionary."""
         return self.__data_dict[key]
 
-    def get(self, key: str, default: Any = None) -> Any:
+    def get(self, key: str, default: Any = None) -> ApiResponseDataType | None:
         """Returns the value of a key in the data dictionary, or a default value if the key is not present."""
         return self.__data_dict.get(key, default)
 
