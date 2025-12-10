@@ -1,4 +1,3 @@
-from os import PRIO_DARWIN_PROCESS
 import pytest
 from bfabric.entities.executable import Executable
 
