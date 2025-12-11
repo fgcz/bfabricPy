@@ -3,24 +3,24 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import yaml
+from bfabric.entities import Resource, Storage, Workunit
+from bfabric.experimental.upload_dataset import bfabric_save_csv2dataset
 from loguru import logger
 
-from bfabric.entities import Resource
-from bfabric.entities import Storage, Workunit
-from bfabric.experimental.upload_dataset import bfabric_save_csv2dataset
 from bfabric_app_runner.specs.outputs_spec import (
     CopyResourceSpec,
-    UpdateExisting,
     OutputsSpec,
-    SpecType,
     SaveDatasetSpec,
     SaveLinkSpec,
+    SpecType,
+    UpdateExisting,
 )
 from bfabric_app_runner.util.checksums import md5sum
 from bfabric_app_runner.util.scp import scp
 
 if TYPE_CHECKING:
     from pathlib import Path
+
     from bfabric import Bfabric
     from bfabric.experimental.workunit_definition import WorkunitDefinition
 
@@ -49,7 +49,7 @@ def register_file_in_workunit(
         "name": spec.store_entry_path.name,
         "workunitid": workunit_definition.registration.workunit_id,
         "storageid": workunit_definition.registration.storage_id,
-        "relativepath": output_folder / spec.store_entry_path,
+        "relativepath": str(output_folder / spec.store_entry_path),
         "filechecksum": checksum,
         "status": "available",
         "size": spec.local_path.stat().st_size,
@@ -59,7 +59,7 @@ def register_file_in_workunit(
     if existing_id is not None:
         resource_data["id"] = existing_id
 
-    client.save("resource", resource_data)
+    _ = client.save("resource", resource_data)
 
 
 def _identify_existing_resource_id(
@@ -127,12 +127,15 @@ def _save_link(spec: SaveLinkSpec, client: Bfabric, workunit_definition: Workuni
     res = client.read("link", {"name": spec.name, "parentid": entity_id, "parentclassname": entity_type})
     existing_link_id = res[0]["id"] if len(res) > 0 else None
     # TODO maybe some of this logic could be extracted generically (i.e. UPDATE_EXISTING logic)
-    if existing_link_id is not None and spec.update_existing == UpdateExisting.NO:
-        msg = (
-            f"Link {spec.name} already exists for entity {entity_type} with id {entity_id}, "
-            f"but existing links should not be updated."
-        )
-        raise ValueError(msg)
+    if existing_link_id is not None:
+        if spec.update_existing == UpdateExisting.NO:
+            msg = (
+                f"Link {spec.name} already exists for entity {entity_type} with id {entity_id}, "
+                f"but existing links should not be updated."
+            )
+            raise ValueError(msg)
+        if not isinstance(existing_link_id, int):
+            raise ValueError("existing_link_id must be an integer")
     elif existing_link_id is None and spec.update_existing == UpdateExisting.REQUIRED:
         msg = (
             f"Link {spec.name} does not exist for entity {entity_type} with id {entity_id}, "
@@ -141,7 +144,12 @@ def _save_link(spec: SaveLinkSpec, client: Bfabric, workunit_definition: Workuni
         raise ValueError(msg)
 
     # Create or update the link
-    link_data = {"name": spec.name, "url": spec.url, "parentid": entity_id, "parentclassname": entity_type}
+    link_data: dict[str, str | int] = {
+        "name": spec.name,
+        "url": spec.url,
+        "parentid": entity_id,
+        "parentclassname": entity_type,
+    }
     if existing_link_id is not None:
         link_data["id"] = existing_link_id
     res = client.save("link", link_data)

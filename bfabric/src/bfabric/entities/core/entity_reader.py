@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from collections.abc import Iterable  # noqa
+from typing import TYPE_CHECKING, TypeGuard, TypeVar, cast
 
 from loguru import logger
 
@@ -9,10 +10,10 @@ from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.import_entity import instantiate_entity
 from bfabric.entities.core.uri import EntityUri, GroupedUris
 from bfabric.experimental import MultiQuery
-from collections.abc import Iterable  # noqa
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
+    from bfabric.typing import ApiRequestObjectType, ApiResponseDataType, ApiResponseObjectType
 
 
 EntityT = TypeVar("EntityT", bound="Entity")
@@ -156,7 +157,7 @@ class EntityReader:
     def query(
         self,
         entity_type: str,
-        obj: dict[str, Any],
+        obj: ApiRequestObjectType,
         bfabric_instance: str | None = None,
         max_results: int | None = 100,
     ) -> dict[EntityUri, Entity | None]:
@@ -211,13 +212,23 @@ class EntityReader:
             raise ValueError("All URIs must be of the same entity type")
         entity_type = uris[0].components.entity_type
 
-        entity_ids = {uri.components.entity_id: uri for uri in uris}
+        id_to_uri_map = {uri.components.entity_id: uri for uri in uris}
         result = MultiQuery(self._client).read_multi(
-            endpoint=entity_type, obj={}, multi_query_key="id", multi_query_vals=list(entity_ids.keys())
+            endpoint=entity_type, obj={}, multi_query_key="id", multi_query_vals=list(id_to_uri_map.keys())
         )
+        result_by_id = {x["id"]: x for x in result}
+        if not _is_id_dict(result_by_id):
+            raise ValueError("All entity IDs must be integers")
+
         return {
-            entity_ids[x["id"]]: instantiate_entity(
-                data_dict=x, client=self._client, bfabric_instance=self._client.config.base_url
+            id_to_uri_map[id]: instantiate_entity(
+                data_dict=data_dict, client=self._client, bfabric_instance=self._client.config.base_url
             )
-            for x in result
+            for id, data_dict in result_by_id.items()
         }
+
+
+def _is_id_dict(
+    data_dict: dict[ApiResponseDataType, ApiResponseObjectType],
+) -> TypeGuard[dict[int, ApiResponseObjectType]]:
+    return all(isinstance(key, int) for key in data_dict)
