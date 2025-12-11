@@ -4,7 +4,12 @@ version = "0.0.0"
 requires-python = ">=3.11"
 
 [tool.uv.workspace]
-members = ["bfabric", "bfabric_scripts", "bfabric_app_runner"]
+members = [
+    "bfabric",
+    "bfabric_scripts",
+    "bfabric_app_runner",
+    "bfabric_rest_proxy",
+]
 
 [tool.uv.sources]
 bfabric = { workspace = true }
@@ -33,7 +38,7 @@ indent-width = 4
 target-version = "py311"
 
 [tool.uv]
-reinstall-package = ["bfabric", "bfabric_scripts", "bfabric_app_runner"]
+reinstall-package = ["bfabric", "bfabric_scripts", "bfabric_app_runner", "bfabric_rest_proxy"]
 
 [tool.basedpyright]
 exclude = [

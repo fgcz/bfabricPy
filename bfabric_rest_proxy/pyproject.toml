@@ -1,0 +1,26 @@
+[project]
+name = "bfabric-rest-proxy"
+version = "0.0.0"
+description = "REST proxy for B-Fabric web services, with specific functionality for shiny apps."
+readme = "README.md"
+authors = [
+    { name = "Leonardo Schwarz", email = "leonardo.schwarz@fgcz.ethz.ch" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "bfabric>=1.15.1,<2",
+    "fastapi>=0.124.0",
+    "pydantic-settings>=2.12.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "fastapi[standard]"
+]
+
+[build-system]
+requires = ["uv_build>=0.9.13,<0.10.0"]
+build-backend = "uv_build"
+
+[tool.uv.sources]
+bfabric = { workspace = true }
