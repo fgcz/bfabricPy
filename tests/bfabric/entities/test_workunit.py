@@ -25,6 +25,7 @@ def data_dict() -> dict[str, Any]:
             {"classname": "parameter", "id": 8118, "key": "param8118", "value": "test1", "context": "APPLICATION"},
             {"classname": "parameter", "id": 8122, "key": "param8122", "value": "test2", "context": "APPLICATION"},
             {"classname": "parameter", "id": 8119, "key": "param8119", "value": "test3", "context": "SUBMITTER"},
+            {"classname": "parameter", "id": 8120, "key": "param8120", "value": "test4", "context": "WORKUNIT"},
         ],
         "status": "AVAILABLE",
         "resource": [
@@ -48,7 +49,7 @@ def test_data_dict(workunit: Workunit, data_dict) -> None:
 
 def test_parameters(workunit) -> None:
     # TODO drop sorting?
-    assert workunit.parameters.ids == [8118, 8122, 8119]
+    assert workunit.parameters.ids == [8118, 8122, 8119, 8120]
 
 
 def test_application_parameters(workunit) -> None:
@@ -61,6 +62,12 @@ def test_application_parameters(workunit) -> None:
 def test_submitter_parameters(workunit) -> None:
     assert workunit.submitter_parameters == {
         "param8119": "test3",
+    }
+
+
+def test_workunit_parameters(workunit) -> None:
+    assert workunit.workunit_parameters == {
+        "param8120": "test4",
     }
 
 

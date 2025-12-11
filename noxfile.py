@@ -1,6 +1,7 @@
 import os
 import re
 import shutil
+import subprocess
 import tomllib
 from collections.abc import Generator
 from contextlib import contextmanager
@@ -10,6 +11,23 @@ from tempfile import TemporaryDirectory
 import nox
 
 nox.options.default_venv_backend = "uv"
+
+
+def _get_workspace_packages():
+    uv_list_paths = subprocess.run(
+        ["uv", "workspace", "list", "--paths", "--preview-features", "workspace-list"],
+        text=True,
+        stdout=subprocess.PIPE,
+    ).stdout.splitlines()
+    uv_list_names = [str(Path(p).relative_to(Path(__file__).parent)) for p in uv_list_paths]
+    # exclude the workspace itself
+    filtered = set(uv_list_names) - {"."}
+    if not filtered:
+        raise ValueError("No workspace packages were found")
+    return sorted(filtered)
+
+
+WORKSPACE_PACKAGES = _get_workspace_packages()
 
 
 def _collect_test_deps(package_dirs):
@@ -158,15 +176,15 @@ def code_style(session):
 
 
 @nox.session
-def licensecheck(session) -> None:
+@nox.parametrize("package", WORKSPACE_PACKAGES)
+def licensecheck(session, package) -> None:
     """Runs the license check."""
-    # TODO revert the upper constraint after https://github.com/FHPythonUtils/LicenseCheck/issues/111 is fixed
-    session.install("licensecheck<2025")
-    session.run("sh", "-c", "cd bfabric && licensecheck")
+    session.install("licensecheck")
+    session.run("licensecheck", "--requirements-paths", f"{package}/pyproject.toml")
 
 
 @nox.session(python="3.13")
-@nox.parametrize("package", ["bfabric", "bfabric_scripts", "bfabric_app_runner"])
+@nox.parametrize("package", WORKSPACE_PACKAGES)
 def basedpyright(session, package):
     # Install the package in editable mode so basedpyright can find it from source
     session.install("-e", f"./{package}")
@@ -192,18 +210,11 @@ def basedpyright(session, package):
     )
 
 
-def verify_changelog_version(session: nox.Session, package_dir: str) -> None:
-    """
-    Verify that the changelog contains an entry for the current version.
-
-    Args:
-        session: The nox session
-        package_dir: The package directory to check (e.g., 'bfabric', 'bfabric_scripts')
-
-    Raises:
-        nox.CommandFailed: If the changelog doesn't contain the current version
-    """
-    package_path = Path(package_dir)
+@nox.session
+@nox.parametrize("package", WORKSPACE_PACKAGES)
+def changelog(session: nox.Session, package):
+    """Verify that the changelog contains an entry for the current version."""
+    package_path = Path(package)
 
     # Read version from pyproject.toml
     try:
@@ -212,6 +223,9 @@ def verify_changelog_version(session: nox.Session, package_dir: str) -> None:
             current_version = pyproject["project"]["version"]
     except (FileNotFoundError, KeyError) as e:
         session.error(f"Failed to read version from pyproject.toml: {e}")
+
+    if current_version == "0.0.0":
+        session.skip("version 0.0.0 detected")
 
     # Read and check changelog
     changelog_path = package_path / "docs" / "changelog.md"
@@ -229,16 +243,6 @@ def verify_changelog_version(session: nox.Session, package_dir: str) -> None:
         )
 
     session.log(f"✓ {changelog_path} contains entry for version {current_version}")
-
-
-@nox.session
-def check_changelog(session: nox.Session):
-    """Check that changelog contains current version for all packages being released."""
-    # List of packages to check - could be made configurable
-    packages = ["bfabric", "bfabric_scripts", "bfabric_app_runner"]
-
-    for package in packages:
-        verify_changelog_version(session, package)
 
 
 @nox.session

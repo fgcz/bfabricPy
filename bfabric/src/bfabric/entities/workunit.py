@@ -3,7 +3,7 @@ from __future__ import annotations
 import warnings
 from functools import cached_property
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.has_many import HasMany
@@ -39,7 +39,12 @@ class Workunit(Entity, UserCreatedMixin):
         return {p.key: p.value for p in self.parameters if p["context"] == "SUBMITTER"}
 
     @cached_property
-    def parameter_values(self) -> dict[str, Any]:
+    def workunit_parameters(self) -> dict[str, str]:
+        """Dictionary of workunit context parameters."""
+        return {p.key: p.value for p in self.parameters if p["context"] == "WORKUNIT"}
+
+    @cached_property
+    def parameter_values(self) -> dict[str, str]:
         # Deprecated
         warnings.warn(
             "The parameter_values property is deprecated and will be removed in a future version. "
