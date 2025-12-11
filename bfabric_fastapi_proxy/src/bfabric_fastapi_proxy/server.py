@@ -17,12 +17,17 @@ from bfabric_fastapi_proxy.settings import ServerSettings
 app = fastapi.FastAPI()
 
 
+class BfabricAuthParam(BaseModel):
+    login: str
+    webservicepassword: SecretStr
+
+
 def get_server_settings() -> ServerSettings:
     return ServerSettings()  # pyright: ignore[reportCallIssue]
 
 
-def get_bfabric_auth(login: str, webservicepassword: SecretStr) -> BfabricAuth:
-    return BfabricAuth(login=login, password=webservicepassword)
+def get_bfabric_auth(auth: BfabricAuthParam) -> BfabricAuth:
+    return BfabricAuth(login=auth.login, password=auth.webservicepassword)
 
 
 def get_bfabric_instance(settings: ServerSettingsDep, bfabric_instance: str | None = None) -> str:
