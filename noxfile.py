@@ -18,7 +18,8 @@ def _get_workspace_packages():
         ["uv", "workspace", "list", "--paths"], text=True, stdout=subprocess.PIPE
     ).stdout.splitlines()
     uv_list_names = [str(Path(p).relative_to(Path(__file__).parent)) for p in uv_list_paths]
-    filtered = set(uv_list_names) - {"bfabricpy-workspace"}
+    # exclude the workspace itself
+    filtered = set(uv_list_names) - {"."}
     if not filtered:
         raise ValueError("No workspace packages were found")
     return sorted(filtered)
