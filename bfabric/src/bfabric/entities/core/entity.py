@@ -1,3 +1,5 @@
+# pyright: reportImportCycles=false
+
 from __future__ import annotations
 
 import warnings
@@ -5,7 +7,6 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Self, TypeGuard
 
 from bfabric.entities.core.mixins.find_mixin import FindMixin
-from bfabric.entities.core.references import References
 from bfabric.entities.core.uri import EntityUri
 
 if TYPE_CHECKING:
@@ -13,6 +14,7 @@ if TYPE_CHECKING:
     from typing import Any
 
     from bfabric import Bfabric
+    from bfabric.entities.core.references import References
     from bfabric.typing import ApiResponseDataType, ApiResponseObjectType
 
 
@@ -86,6 +88,8 @@ class Entity(FindMixin):
     @cached_property
     def refs(self) -> References:
         """Returns the entity's references manager."""
+        from bfabric.entities.core.references import References
+
         return References(client=self._client, bfabric_instance=self.__bfabric_instance, data_ref=self.__data_dict)
 
     @property

@@ -43,6 +43,7 @@ reinstall-package = ["bfabric", "bfabric_scripts", "bfabric_app_runner", "bfabri
 [tool.basedpyright]
 exclude = [
     "*/tests/*",
+    "**/.venv/*",
     # TODO this list should ideally not be extended or even consolidated at some point:
     "bfabric/src/bfabric/wrapper_creator/bfabric_submitter.py",
     "bfabric/src/bfabric/wrapper_creator/bfabric_wrapper_creator.py",
