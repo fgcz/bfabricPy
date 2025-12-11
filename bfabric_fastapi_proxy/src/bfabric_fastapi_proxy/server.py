@@ -100,7 +100,7 @@ def post_create_workunit(
     params: CreateWorkunitParams,
 ):
     workunit = create_workunit(user_client=user_client, feeder_client=feeder_client, params=params)
-    return {**workunit.data_dict, "uri": workunit.uri}
+    return [{**workunit.data_dict, "uri": workunit.uri}]
 
 
 @app.get("/health")
