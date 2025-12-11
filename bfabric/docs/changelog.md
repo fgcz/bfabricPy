@@ -20,6 +20,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 - Type hints have been narrowed in the public interfaces of the following classes:
     - `Bfabric`
     - `ResultContainer`
+    - `References`
     - `Entity`
     - `EntityReader`
     - `EngineSuds`
