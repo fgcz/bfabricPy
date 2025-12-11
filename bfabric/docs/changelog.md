@@ -13,6 +13,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 - `bfabric.typing` with specific types for the API request and response objects.
 - `Executable.decoded_str`, `Executable.decoded_bytes`
+- `Workunit.workunit_parameters` to list workunit context parameters
 
 ### Changed
 
