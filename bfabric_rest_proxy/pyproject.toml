@@ -8,7 +8,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "bfabric",
+    "bfabric>=1.15.1,<2",
     "fastapi>=0.124.0",
     "pydantic-settings>=2.12.0",
 ]
