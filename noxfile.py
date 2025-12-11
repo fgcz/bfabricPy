@@ -14,8 +14,11 @@ nox.options.default_venv_backend = "uv"
 
 
 def _get_workspace_packages():
-    uv_list = subprocess.run(["uv", "workspace", "list"], text=True, stdout=subprocess.PIPE).stdout.splitlines()
-    filtered = set(uv_list) - {"bfabricpy-workspace"}
+    uv_list_paths = subprocess.run(
+        ["uv", "workspace", "list", "--paths"], text=True, stdout=subprocess.PIPE
+    ).stdout.splitlines()
+    uv_list_names = [str(Path(p).relative_to(Path(__file__).parent)) for p in uv_list_paths]
+    filtered = set(uv_list_names) - {"bfabricpy-workspace"}
     if not filtered:
         raise ValueError("No workspace packages were found")
     return sorted(filtered)
