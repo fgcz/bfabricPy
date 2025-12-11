@@ -1,6 +1,6 @@
 [project]
 name = "bfabric-rest-proxy"
-version = "0.1.0"
+version = "0.0.0"
 description = "REST proxy for B-Fabric web services, with specific functionality for shiny apps."
 readme = "README.md"
 authors = [
