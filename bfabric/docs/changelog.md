@@ -9,6 +9,35 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+### Added
+
+- `bfabric.typing` with specific types for the API request and response objects.
+- `Executable.decoded_str`, `Executable.decoded_bytes`
+
+### Changed
+
+- Type hints have been narrowed in the public interfaces of the following classes:
+    - `Bfabric`
+    - `ResultContainer`
+    - `Entity`
+    - `EntityReader`
+    - `EngineSuds`
+    - `EngineZeep`
+
+### Removed
+
+- Legacy workaround for B-Fabric with non-list `technology` field is removed. Assumed to not be breaking since for the current B-Fabric instances, this change should be transparent.
+
+### Deprecated
+
+- `Executable.decoded`: misleading name
+
+## \[1.15.1\] - 2025-12-09
+
+### Fixed
+
+- Allow `http://localhost` for EntityURIs.
+
 ## \[1.15.0\] - 2025-12-09
 
 ### Added

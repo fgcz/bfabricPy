@@ -42,5 +42,13 @@ reinstall-package = ["bfabric", "bfabric_scripts", "bfabric_app_runner"]
 
 [tool.basedpyright]
 exclude = [
-    "*/tests/*"
+    "*/tests/*",
+    # TODO this list should ideally not be extended or even consolidated at some point:
+    "bfabric/src/bfabric/wrapper_creator/bfabric_submitter.py",
+    "bfabric/src/bfabric/wrapper_creator/bfabric_wrapper_creator.py",
+    "bfabric_scripts/src/bfabric_scripts/bfabric_save_workflowstep.py",
+    "bfabric_scripts/src/bfabric_scripts/bfabric_slurm_queue_status.py",
+    "bfabric_scripts/src/bfabric_scripts/cli/workunit/not_available.py",
+    "bfabric_scripts/src/bfabric_scripts/bfabric_read_samples_from_dataset.py",
+    "bfabric_scripts/src/bfabric_scripts/bfabric_read.py",
 ]

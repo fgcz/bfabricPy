@@ -5,8 +5,6 @@ from functools import cached_property
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-import dateutil.parser
-
 from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.has_many import HasMany
 from bfabric.entities.core.has_one import HasOne
@@ -57,7 +55,7 @@ class Workunit(Entity, UserCreatedMixin):
             raise ValueError("Cannot determine the storage path without an application.")
         if self.application.storage is None:
             raise ValueError("Cannot determine the storage path without an application storage configuration.")
-        date = dateutil.parser.parse(self.data_dict["created"])
+        date = self.created_at
         return Path(
             f"{self.application.storage['projectfolderprefix']}{self.container.id}",
             "bfabric",

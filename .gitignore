@@ -8,3 +8,4 @@ dist/
 site/
 feats/
 _build/
+uv.lock

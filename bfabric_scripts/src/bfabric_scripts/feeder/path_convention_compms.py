@@ -24,10 +24,10 @@ class PathConventionCompMS:
     """Parses paths according to the CompMS path convention (with slightly relaxed application naming)."""
 
     def __init__(self, storage: Storage) -> None:
-        self._storage = storage
+        self._storage: Storage = storage
 
     def parse_absolute_path(self, absolute_path: Path) -> ParsedPath:
-        relative_path = absolute_path.relative_to(self._storage["basepath"])
+        relative_path = absolute_path.relative_to(self._storage.base_path)
         return self.parse_relative_path(relative_path=relative_path)
 
     def parse_relative_path(self, relative_path: Path) -> ParsedPath:
@@ -52,7 +52,7 @@ class PathConventionCompMS:
         application_name = match.group("application_name")
 
         return ParsedPath(
-            absolute_path=Path(self._storage["basepath"]) / relative_path,
+            absolute_path=self._storage.base_path / relative_path,
             relative_path=relative_path,
             container_id=container_id,
             technology_name=technology_name,

@@ -5,7 +5,7 @@ import cyclopts
 import polars as pl
 from loguru import logger
 from pydantic import BaseModel, model_validator
-
+from bfabric.entities import Dataset
 from bfabric import Bfabric
 from bfabric.experimental.upload_dataset import (
     check_for_invalid_characters,
@@ -114,13 +114,12 @@ def upload_table(table: pl.DataFrame, params: Params, client: Bfabric) -> None:
         warn_on_trailing_spaces(table)
 
     obj = polars_to_bfabric_dataset(table)
+
     obj["name"] = params.dataset_name or params.file.stem
     obj["containerid"] = params.container_id
     if params.workunit_id is not None:
         obj["workunitid"] = params.workunit_id
     endpoint = "dataset"
     res = client.save(endpoint=endpoint, obj=obj)
-    logger.success(
-        f"Dataset {res[0]['id']} with name {res[0]['name']} in container {res[0]['container']['id']}"
-        f" has been created successfully."
-    )
+    dataset = Dataset(res[0], client=client, bfabric_instance=client.config.base_url)
+    logger.success(f"Dataset {dataset.uri} successfully created.")

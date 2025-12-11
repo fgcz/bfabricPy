@@ -1,33 +1,39 @@
 from __future__ import annotations
 
-from collections import defaultdict
-from typing import Annotated, Any, TYPE_CHECKING
-import urllib.parse
-from pydantic import (
-    HttpUrl,
-    BaseModel,
-    PositiveInt,
-    StringConstraints,
-    AfterValidator,
-    TypeAdapter,
-    ConfigDict,
-)
 import re
+import urllib.parse
+from collections import defaultdict
+from typing import TYPE_CHECKING, Annotated, Any
 
+import annotated_types
+from pydantic import (
+    AfterValidator,
+    BaseModel,
+    ConfigDict,
+    HttpUrl,
+    StringConstraints,
+    TypeAdapter,
+)
 from pydantic_core import core_schema
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
 _URI_REGEX = re.compile(
-    r"^(?P<bfabric_instance>https://[^/]+/bfabric/)(?P<entity_type>\w+)/show\.html\?id=(?P<entity_id>\d+)$"
+    r"^(?P<bfabric_instance>(https://[^/]+/bfabric/|http://localhost(:\d+)?/bfabric/))(?P<entity_type>\w+)/show\.html\?id=(?P<entity_id>\d+)$"
 )
 
 
 def _validate_entity_uri(uri: str) -> str:
-    if not _URI_REGEX.match(uri):
-        raise ValueError(f"Invalid Entity URI: {uri}")
+    _ = _parse_uri_components(uri)
     return uri
+
+
+def _parse_uri_components(uri: str) -> EntityUriComponents:
+    match = _URI_REGEX.match(uri)
+    if not match:
+        raise ValueError(f"Invalid Entity URI: {uri}")
+    return EntityUriComponents.model_validate(match.groupdict())
 
 
 ValidatedEntityUri = Annotated[str, AfterValidator(_validate_entity_uri)]
@@ -76,7 +82,7 @@ class EntityUri(str):
 class EntityUriComponents(BaseModel):
     bfabric_instance: HttpUrl
     entity_type: Annotated[str, StringConstraints(pattern=r"^[a-z]+$")]
-    entity_id: PositiveInt
+    entity_id: Annotated[int, annotated_types.Gt(0)]
 
     def as_uri(self) -> EntityUri:
         uri = urllib.parse.urljoin(f"{self.bfabric_instance}/", f"{self.entity_type}/show.html?id={self.entity_id}")
@@ -103,10 +109,3 @@ class GroupedUris(BaseModel):
             )
             groups[key].append(uri)
         return cls(groups=dict(groups))
-
-
-def _parse_uri_components(uri: str) -> EntityUriComponents:
-    match = _URI_REGEX.match(uri)
-    if not match:
-        raise ValueError(f"Invalid Entity URI: {uri}")
-    return EntityUriComponents.model_validate(match.groupdict())
