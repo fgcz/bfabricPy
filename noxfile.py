@@ -15,7 +15,9 @@ nox.options.default_venv_backend = "uv"
 
 def _get_workspace_packages():
     uv_list_paths = subprocess.run(
-        ["uv", "workspace", "list", "--paths"], text=True, stdout=subprocess.PIPE
+        ["uv", "workspace", "list", "--paths", "--preview-features", "workspace-list"],
+        text=True,
+        stdout=subprocess.PIPE,
     ).stdout.splitlines()
     uv_list_names = [str(Path(p).relative_to(Path(__file__).parent)) for p in uv_list_paths]
     # exclude the workspace itself
