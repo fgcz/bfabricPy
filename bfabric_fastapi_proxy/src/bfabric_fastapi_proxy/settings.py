@@ -8,10 +8,9 @@ from bfabric import BfabricAuth
 
 class ServerSettings(BaseSettings):
     # TODO for development
-    model_config: SettingsConfigDict = SettingsConfigDict(
+    model_config: SettingsConfigDict = SettingsConfigDict(  # pyright: ignore[reportIncompatibleVariableOverride]
         env_file=".env", env_file_encoding="utf-8"
-    )  # pyright: ignore[reportIncompatibleVariableOverride]
-
+    )
     # specific to the proxy:
     default_bfabric_instance: str | None = None
 

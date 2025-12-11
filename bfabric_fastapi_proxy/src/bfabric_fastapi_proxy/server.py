@@ -15,14 +15,17 @@ from bfabric_fastapi_proxy.feeder_operations.create_workunit import CreateWorkun
 from bfabric_fastapi_proxy.settings import ServerSettings
 
 app = fastapi.FastAPI()
-settings = ServerSettings()  # pyright: ignore[reportCallIssue]
+
+
+def get_server_settings() -> ServerSettings:
+    return ServerSettings()  # pyright: ignore[reportCallIssue]
 
 
 def get_bfabric_auth(login: str, webservicepassword: SecretStr) -> BfabricAuth:
     return BfabricAuth(login=login, password=webservicepassword)
 
 
-def get_bfabric_instance(bfabric_instance: str | None = None) -> str:
+def get_bfabric_instance(settings: ServerSettingsDep, bfabric_instance: str | None = None) -> str:
     """Specify the B-Fabric instance explicitly. Only configured B-Fabric instances are permitted."""
     if bfabric_instance is None:
         # use the default
@@ -43,7 +46,7 @@ def get_bfabric_user_client(bfabric_auth: BfabricAuthDep, bfabric_instance: Bfab
     return Bfabric(config_data)
 
 
-def get_bfabric_feeder_client(bfabric_instance: BfabricInstanceDep) -> Bfabric:
+def get_bfabric_feeder_client(settings: ServerSettingsDep, bfabric_instance: BfabricInstanceDep) -> Bfabric:
     client_config = BfabricClientConfig.model_validate({"base_url": bfabric_instance})
     config_data = ConfigData(
         client=client_config,
@@ -53,6 +56,7 @@ def get_bfabric_feeder_client(bfabric_instance: BfabricInstanceDep) -> Bfabric:
     return Bfabric(config_data)
 
 
+ServerSettingsDep = Annotated[ServerSettings, Depends(get_server_settings)]
 BfabricAuthDep = Annotated[BfabricAuth, Depends(get_bfabric_auth)]
 BfabricInstanceDep = Annotated[str, Depends(get_bfabric_instance)]
 BfabricUserClientDep = Annotated[Bfabric, Depends(get_bfabric_user_client)]
@@ -95,7 +99,7 @@ def post_create_workunit(
 
 
 @app.get("/health")
-async def health():
+async def health(settings: ServerSettingsDep):
     """Check server health. It also lists the known bfabric instances."""
     return {
         "status": "ok",
