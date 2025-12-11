@@ -9,7 +9,7 @@ from bfabric import BfabricAuth
 class ServerSettings(BaseSettings):
     # NOTE: environment variables will take priority over dotenv variables
     model_config: SettingsConfigDict = SettingsConfigDict(  # pyright: ignore[reportIncompatibleVariableOverride]
-        env_file=".env", env_file_encoding="utf-8"
+        env_file=".env", env_file_encoding="utf-8", extra="allow"
     )
     # specific to the proxy:
     default_bfabric_instance: str | None = None
