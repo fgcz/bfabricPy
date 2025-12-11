@@ -42,6 +42,7 @@ if TYPE_CHECKING:
     from collections.abc import Generator
 
     from bfabric.entities.core.entity_reader import EntityReader
+    from bfabric.typing import ApiRequestObjectType, ApiResponseObjectType
 
 
 class Bfabric:
@@ -191,7 +192,7 @@ class Bfabric:
     def read(
         self,
         endpoint: str,
-        obj: dict[str, Any],
+        obj: ApiRequestObjectType,
         max_results: int | None = 100,
         offset: int = 0,
         check: bool = True,
@@ -237,7 +238,7 @@ class Bfabric:
         logger.debug(f"Requested pages: {requested_pages}")
 
         # NOTE: Page numbering starts at 1
-        response_items: list[dict[str, Any]] = []
+        response_items: list[ApiResponseObjectType] = []
         errors = results.errors
         page_offset = initial_offset
         for i_iter, i_page in enumerate(requested_pages):
@@ -263,15 +264,15 @@ class Bfabric:
     def save(
         self,
         endpoint: str,
-        obj: dict[str, Any],
+        obj: ApiRequestObjectType | list[ApiRequestObjectType],
         check: bool = True,
         method: str = "save",
     ) -> ResultContainer:
         """Saves the provided object to the specified endpoint.
         :param endpoint: the endpoint to save to, e.g. "sample"
-        :param obj: the object to save
+        :param obj: the object(s) to save
         :param check: whether to raise an error if the response is not successful
-        :param method: the method to use for saving, generally "save", but in some cases e.g. "checkandinsert" is more
+        :param method: the method to use for saving, generally "save", but in some cases e.g. "update" is more
             appropriate to be used instead.
         :return a ResultContainer describing the saved object if successful
         """
@@ -297,7 +298,7 @@ class Bfabric:
         endpoint: str,
         key: str,
         value: int | str,
-        query: dict[str, Any] | None = None,
+        query: ApiRequestObjectType | None = None,
         check: bool = True,
     ) -> bool:
         """Returns whether an object with the specified key-value pair exists in the specified endpoint.

@@ -173,13 +173,22 @@ def basedpyright(session, package):
     session.install("basedpyright>=1.34.0,<1.35.0")
     # Use --venvpath to explicitly point to nox's venv directory, avoiding .venv if it exists
     venv_path = Path(session.virtualenv.location).parent
+
+    # Check if a specific file was passed via posargs
+    if session.posargs:
+        # User specified specific file(s) to check
+        target = session.posargs
+    else:
+        # Default: check the entire package directory
+        target = [package]
+
     session.run(
         "basedpyright",
         "--venvpath",
         str(venv_path),
         "--baselinefile",
         f".basedpyright/baseline.{package}.json",
-        package,
+        *target,
     )
 
 
