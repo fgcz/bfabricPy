@@ -57,11 +57,15 @@ def cmd_dataset_update(params: Params, *, client: Bfabric) -> None:
 
 def _confirm_action(dataset: Dataset, changes: DatasetChanges) -> bool:
     logger.info(f"Updating {dataset.uri}")
+    container_uri = dataset.refs.uris["container"]
+    if isinstance(container_uri, list):
+        raise TypeError("should always be singular")
+    container_id = container_uri.components.entity_id
     dataset_summary = {
         "id": dataset.id,
         "uri": dataset.uri,
         "name": dataset["name"],
-        "containerid": dataset["container"]["id"],
+        "containerid": container_id,
         "description": dataset.get("description"),
         "column_names": dataset.column_names,
         "column_types": dataset.column_types,
