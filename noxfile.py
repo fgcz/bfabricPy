@@ -206,7 +206,7 @@ def basedpyright(session, package):
 
 @nox.session
 @nox.parametrize("package", WORKSPACE_PACKAGES)
-def check_changelog(session: nox.Session, package):
+def changelog(session: nox.Session, package):
     """Verify that the changelog contains an entry for the current version."""
     package_path = Path(package)
 
