@@ -194,18 +194,11 @@ def basedpyright(session, package):
     )
 
 
-def verify_changelog_version(session: nox.Session, package_dir: str) -> None:
-    """
-    Verify that the changelog contains an entry for the current version.
-
-    Args:
-        session: The nox session
-        package_dir: The package directory to check (e.g., 'bfabric', 'bfabric_scripts')
-
-    Raises:
-        nox.CommandFailed: If the changelog doesn't contain the current version
-    """
-    package_path = Path(package_dir)
+@nox.session
+@nox.parametrize("package", WORKSPACE_PACKAGES)
+def check_changelog(session: nox.Session, package):
+    """Verify that the changelog contains an entry for the current version."""
+    package_path = Path(package)
 
     # Read version from pyproject.toml
     try:
@@ -214,6 +207,9 @@ def verify_changelog_version(session: nox.Session, package_dir: str) -> None:
             current_version = pyproject["project"]["version"]
     except (FileNotFoundError, KeyError) as e:
         session.error(f"Failed to read version from pyproject.toml: {e}")
+
+    if current_version == "0.0.0":
+        session.skip("version 0.0.0 detected")
 
     # Read and check changelog
     changelog_path = package_path / "docs" / "changelog.md"
@@ -231,16 +227,6 @@ def verify_changelog_version(session: nox.Session, package_dir: str) -> None:
         )
 
     session.log(f"✓ {changelog_path} contains entry for version {current_version}")
-
-
-@nox.session
-def check_changelog(session: nox.Session):
-    """Check that changelog contains current version for all packages being released."""
-    # List of packages to check - could be made configurable
-    packages = ["bfabric", "bfabric_scripts", "bfabric_app_runner"]
-
-    for package in packages:
-        verify_changelog_version(session, package)
 
 
 @nox.session
