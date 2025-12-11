@@ -11,6 +11,8 @@ import nox
 
 nox.options.default_venv_backend = "uv"
 
+WORKSPACE_PACKAGES = ("bfabric", "bfabric_scripts", "bfabric_app_runner", "bfabric_rest_proxy")
+
 
 def _collect_test_deps(package_dirs):
     """
@@ -158,15 +160,15 @@ def code_style(session):
 
 
 @nox.session
-def licensecheck(session) -> None:
+@nox.parametrize("package", WORKSPACE_PACKAGES)
+def licensecheck(session, package) -> None:
     """Runs the license check."""
-    # TODO revert the upper constraint after https://github.com/FHPythonUtils/LicenseCheck/issues/111 is fixed
-    session.install("licensecheck<2025")
-    session.run("sh", "-c", "cd bfabric && licensecheck")
+    session.install("licensecheck")
+    session.run("licensecheck", "--requirements-paths", f"{package}/pyproject.toml")
 
 
 @nox.session(python="3.13")
-@nox.parametrize("package", ["bfabric", "bfabric_scripts", "bfabric_app_runner", "bfabric_rest_proxy"])
+@nox.parametrize("package", WORKSPACE_PACKAGES)
 def basedpyright(session, package):
     # Install the package in editable mode so basedpyright can find it from source
     session.install("-e", f"./{package}")
