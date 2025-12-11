@@ -1,10 +1,10 @@
 from __future__ import annotations
 
+from bfabric.entities import Workunit
+from bfabric.entities.core.import_entity import instantiate_entity
 from pydantic import BaseModel, Field, model_validator
 
 from bfabric import Bfabric
-from bfabric.entities import Workunit
-from bfabric.entities.core.import_entity import instantiate_entity
 
 
 class CreateWorkunitParams(BaseModel):
@@ -79,7 +79,7 @@ def _create_workunit_initial(feeder_client: Bfabric, user_login: str, params: Cr
             "customattribute": [{"name": "WebApp User", "value": user_login}],
         },
     )
-    return result[0]["id"]
+    return Workunit(result[0], bfabric_instance=feeder_client.config.base_url).id
 
 
 def _create_workunit_resources(feeder_client: Bfabric, workunit_id: int, resources: dict[str, str]) -> None:

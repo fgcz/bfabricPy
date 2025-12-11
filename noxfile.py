@@ -166,7 +166,7 @@ def licensecheck(session) -> None:
 
 
 @nox.session(python="3.13")
-@nox.parametrize("package", ["bfabric", "bfabric_scripts", "bfabric_app_runner"])
+@nox.parametrize("package", ["bfabric", "bfabric_scripts", "bfabric_app_runner", "bfabric_fastapi_proxy"])
 def basedpyright(session, package):
     # Install the package in editable mode so basedpyright can find it from source
     session.install("-e", f"./{package}")

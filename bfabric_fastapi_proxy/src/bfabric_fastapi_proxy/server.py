@@ -4,17 +4,18 @@ import datetime
 from typing import Annotated
 
 import fastapi
-from fastapi.params import Depends
-from pydantic import SecretStr, BaseModel, Field
-
-from bfabric import BfabricAuth, Bfabric, BfabricClientConfig
 from bfabric.config.config_data import ConfigData
 from bfabric.rest.token_data import get_token_data
+from fastapi.params import Depends
+from loguru import logger
+from pydantic import BaseModel, Field, SecretStr
+
+from bfabric import Bfabric, BfabricAuth, BfabricClientConfig
 from bfabric_fastapi_proxy.feeder_operations.create_workunit import CreateWorkunitParams, create_workunit
 from bfabric_fastapi_proxy.settings import ServerSettings
 
 app = fastapi.FastAPI()
-settings = ServerSettings()
+settings = ServerSettings()  # pyright: ignore[reportCallIssue]
 
 
 def get_bfabric_auth(login: str, webservicepassword: SecretStr) -> BfabricAuth:
@@ -37,14 +38,16 @@ def get_bfabric_instance(bfabric_instance: str | None = None) -> str:
 
 
 def get_bfabric_user_client(bfabric_auth: BfabricAuthDep, bfabric_instance: BfabricInstanceDep) -> Bfabric:
-    client_config = BfabricClientConfig(base_url=bfabric_instance)
+    client_config = BfabricClientConfig.model_validate({"base_url": bfabric_instance})
     config_data = ConfigData(client=client_config, auth=bfabric_auth)
     return Bfabric(config_data)
 
 
 def get_bfabric_feeder_client(bfabric_instance: BfabricInstanceDep) -> Bfabric:
+    client_config = BfabricClientConfig.model_validate({"base_url": bfabric_instance})
     config_data = ConfigData(
-        client=BfabricClientConfig(base_url=bfabric_instance), auth=settings.feeder_user_credentials[bfabric_instance]
+        client=client_config,
+        auth=settings.feeder_user_credentials[bfabric_instance],
     )
 
     return Bfabric(config_data)
@@ -71,7 +74,7 @@ class ReadParams(BaseModel):
 
 @app.post("/read")
 def read(user_client: BfabricUserClientDep, params: ReadParams):
-    user_client._log_version_message()
+    logger.info(f"Reading from endpoint {params.endpoint} for user {user_client.auth.login}")
     res = user_client.read(
         endpoint=params.endpoint,
         obj=params.query,
