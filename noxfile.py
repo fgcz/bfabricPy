@@ -1,6 +1,7 @@
 import os
 import re
 import shutil
+import subprocess
 import tomllib
 from collections.abc import Generator
 from contextlib import contextmanager
@@ -11,7 +12,16 @@ import nox
 
 nox.options.default_venv_backend = "uv"
 
-WORKSPACE_PACKAGES = ("bfabric", "bfabric_scripts", "bfabric_app_runner", "bfabric_rest_proxy")
+
+def _get_workspace_packages():
+    uv_list = subprocess.run(["uv", "workspace", "list"], text=True, stdout=subprocess.PIPE).stdout.splitlines()
+    filtered = set(uv_list) - {"bfabricpy-workspace"}
+    if not filtered:
+        raise ValueError("No workspace packages were found")
+    return sorted(filtered)
+
+
+WORKSPACE_PACKAGES = _get_workspace_packages()
 
 
 def _collect_test_deps(package_dirs):
