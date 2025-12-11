@@ -11,8 +11,8 @@ from loguru import logger
 from pydantic import BaseModel, Field, SecretStr
 
 from bfabric import Bfabric, BfabricAuth, BfabricClientConfig
-from bfabric_fastapi_proxy.feeder_operations.create_workunit import CreateWorkunitParams, create_workunit
-from bfabric_fastapi_proxy.settings import ServerSettings
+from bfabric_rest_proxy.feeder_operations.create_workunit import CreateWorkunitParams, create_workunit
+from bfabric_rest_proxy.settings import ServerSettings
 
 app = fastapi.FastAPI()
 
