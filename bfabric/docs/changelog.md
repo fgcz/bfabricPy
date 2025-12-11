@@ -16,9 +16,13 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Changed
 
-- Type hints have been narrowed for the following classes:
+- Type hints have been narrowed in the public interfaces of the following classes:
     - `Bfabric`
     - `ResultContainer`
+    - `Entity`
+    - `EntityReader`
+    - `EngineSuds`
+    - `EngineZeep`
 
 ### Removed
 
