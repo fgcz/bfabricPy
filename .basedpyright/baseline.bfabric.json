@@ -1410,14 +1410,6 @@
         ],
         "./bfabric/src/bfabric/entities/core/entity_reader.py": [
             {
-                "code": "reportUnknownVariableType",
-                "range": {
-                    "startColumn": 48,
-                    "endColumn": 66,
-                    "lineCount": 1
-                }
-            },
-            {
                 "code": "reportUnannotatedClassAttribute",
                 "range": {
                     "startColumn": 13,
@@ -1612,46 +1604,6 @@
                 "range": {
                     "startColumn": 15,
                     "endColumn": 47,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownParameterType",
-                "range": {
-                    "startColumn": 23,
-                    "endColumn": 32,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportMissingTypeArgument",
-                "range": {
-                    "startColumn": 34,
-                    "endColumn": 38,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownVariableType",
-                "range": {
-                    "startColumn": 4,
-                    "endColumn": 21,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownArgumentType",
-                "range": {
-                    "startColumn": 33,
-                    "endColumn": 50,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownArgumentType",
-                "range": {
-                    "startColumn": 34,
-                    "endColumn": 43,
                     "lineCount": 1
                 }
             }
@@ -1863,14 +1815,6 @@
             }
         ],
         "./bfabric/src/bfabric/entities/core/references.py": [
-            {
-                "code": "reportUnknownVariableType",
-                "range": {
-                    "startColumn": 48,
-                    "endColumn": 66,
-                    "lineCount": 1
-                }
-            },
             {
                 "code": "reportExplicitAny",
                 "range": {
