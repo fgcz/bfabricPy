@@ -19,7 +19,7 @@ class _AttributeData(BaseModel):
 
 
 class _ItemDataField(BaseModel):
-    value: str
+    value: str = ""
     attributeposition: int
 
 

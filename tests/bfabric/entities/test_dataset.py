@@ -11,7 +11,7 @@ from bfabric.entities.dataset import Dataset
 
 
 @pytest.fixture()
-def mock_data_dict() -> dict[str, Any]:
+def mock_data_dict() -> dict[str, int | list[dict[str, str]] | list[dict[str, list[dict[str, str]]]]]:
     return {
         "id": 1234,
         "attribute": [
@@ -21,12 +21,13 @@ def mock_data_dict() -> dict[str, Any]:
         "item": [
             {"field": [{"value": "Red", "attributeposition": "1"}, {"value": "Square", "attributeposition": "2"}]},
             {"field": [{"value": "Blue", "attributeposition": "1"}, {"value": "Circle", "attributeposition": "2"}]},
+            {"field": [{"value": "Green", "attributeposition": "1"}, {"attributeposition": "2"}]},
         ],
     }
 
 
 @pytest.fixture()
-def mock_data_dict_rearranged() -> dict[str, Any]:
+def mock_data_dict_rearranged() -> dict[str, int | list[dict[str, str]] | list[dict[str, list[dict[str, str]]]]]:
     return {
         "id": 1234,
         "attribute": [
@@ -36,6 +37,7 @@ def mock_data_dict_rearranged() -> dict[str, Any]:
         "item": [
             {"field": [{"value": "Square", "attributeposition": "2"}, {"value": "Red", "attributeposition": "1"}]},
             {"field": [{"value": "Circle", "attributeposition": "2"}, {"value": "Blue", "attributeposition": "1"}]},
+            {"field": [{"attributeposition": "2"}, {"value": "Green", "attributeposition": "1"}]},
         ],
     }
 
@@ -72,8 +74,8 @@ def test_to_polars(request, rearranged_data_dict: bool, mock_client) -> None:
         df,
         pl.DataFrame(
             {
-                "Color": ["Red", "Blue"],
-                "Shape": ["Square", "Circle"],
+                "Color": ["Red", "Blue", "Green"],
+                "Shape": ["Square", "Circle", ""],
             }
         ),
     )
@@ -91,7 +93,7 @@ def test_write_csv(mocker: MockFixture, mock_dataset: Dataset) -> None:
 
 def test_get_csv(mock_dataset: Dataset) -> None:
     csv = mock_dataset.get_csv()
-    assert csv == "Color,Shape\nRed,Square\nBlue,Circle\n"
+    assert csv == 'Color,Shape\nRed,Square\nBlue,Circle\nGreen,""\n'
 
 
 def test_get_parquet(mock_dataset: Dataset) -> None:
@@ -101,8 +103,8 @@ def test_get_parquet(mock_dataset: Dataset) -> None:
         df,
         pl.DataFrame(
             {
-                "Color": ["Red", "Blue"],
-                "Shape": ["Square", "Circle"],
+                "Color": ["Red", "Blue", "Green"],
+                "Shape": ["Square", "Circle", ""],
             }
         ),
     )
@@ -117,3 +119,7 @@ def test_repr(mock_empty_dataset: Dataset) -> None:
 
 def test_str(mock_empty_dataset: Dataset) -> None:
     assert str(mock_empty_dataset) == repr(mock_empty_dataset)
+
+
+if __name__ == "__main__":
+    pytest.main(["-vv", __file__])
