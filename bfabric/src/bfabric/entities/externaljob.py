@@ -3,7 +3,7 @@ from __future__ import annotations
 from functools import cached_property
 from typing import TYPE_CHECKING
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.has_one import HasOne
@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 
 
 class _ClientEntityRef(BaseModel):
+    model_config: ConfigDict = ConfigDict(str_to_lower=True)  # pyright: ignore[reportIncompatibleVariableOverride]
     client_entity_classname: str = Field(alias="cliententityclassname")
     client_entity_id: int = Field(alias="cliententityid")
 
