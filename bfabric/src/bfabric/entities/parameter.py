@@ -14,8 +14,12 @@ class Parameter(Entity):
         return key
 
     @property
-    def value(self) -> str:
-        value = self["value"]
+    def value(self) -> str | None:
+        try:
+            value = self["value"]
+        except KeyError:
+            # in principle, this should only be possible when "Required" = false
+            return None
         if not isinstance(value, str):
             raise TypeError("value is not a string")
         return value
