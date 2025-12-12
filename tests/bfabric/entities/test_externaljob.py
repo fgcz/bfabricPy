@@ -28,7 +28,7 @@ def test_workunit_when_available(
     external_job = ExternalJob(data_dict, mock_client, bfabric_instance=bfabric_instance)
     assert external_job.workunit == workunit
     mock_client.reader.read_id.assert_called_once_with(
-        entity_type="Workunit", entity_id=5, bfabric_instance=bfabric_instance
+        entity_type="workunit", entity_id=5, bfabric_instance=bfabric_instance
     )
 
 
