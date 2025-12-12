@@ -26,6 +26,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
     - `EntityReader`
     - `EngineSuds`
     - `EngineZeep`
+- `Parameter.value` returns `""` for values not specified with `required` = `false`. This solves a few rare compatibility bugs and I do not think having the ability to distinguish between `None` and `""` makes much sense at this level.
 
 ### Removed
 

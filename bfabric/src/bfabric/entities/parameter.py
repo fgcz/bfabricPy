@@ -14,12 +14,13 @@ class Parameter(Entity):
         return key
 
     @property
-    def value(self) -> str | None:
-        try:
-            value = self["value"]
-        except KeyError:
-            # in principle, this should only be possible when "Required" = false
-            return None
+    def value(self) -> str:
+        if "value" not in self:
+            # in principle, this should only be possible when "required" = "false
+            # we normalize this to an empty string
+            return ""
+
+        value = self["value"]
         if not isinstance(value, str):
             raise TypeError("value is not a string")
         return value
