@@ -9,6 +9,8 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+## \[1.16.0\] - 2025-12-15
+
 ### Added
 
 - `bfabric.typing` with specific types for the API request and response objects.
