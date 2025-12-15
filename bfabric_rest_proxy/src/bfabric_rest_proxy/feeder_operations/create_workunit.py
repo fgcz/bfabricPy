@@ -14,6 +14,7 @@ class CreateWorkunitParams(BaseModel):
     parameters: dict[str, str] = Field(default_factory=dict, max_length=100)
     resources: dict[str, str] = Field(default_factory=dict, max_length=100)
     links: dict[str, str] = Field(default_factory=dict, max_length=100)
+    input_resource_ids: list[int] = Field(default_factory=list, max_length=100)
     description: str = ""
 
     @model_validator(mode="after")
@@ -77,6 +78,7 @@ def _create_workunit_initial(feeder_client: Bfabric, user_login: str, params: Cr
             "description": params.description,
             "status": "processing",
             "customattribute": [{"name": "WebApp User", "value": user_login}],
+            "inputresourceid": params.input_resource_ids,
         },
     )
     return Workunit(result[0], bfabric_instance=feeder_client.config.base_url).id
