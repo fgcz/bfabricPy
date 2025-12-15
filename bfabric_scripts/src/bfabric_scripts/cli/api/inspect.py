@@ -17,12 +17,11 @@ class Params(BaseModel):
     """Maximum recursion depth for nested types."""
 
 
-def display_signature(signature: dict[str, ParameterModel], indent: int = 0) -> None:
+def display_signature(signature: dict[str, ParameterModel]) -> None:
     """Pretty-print a parsed method signature.
 
     Args:
         signature: Dictionary mapping parameter names to ParameterModel instances
-        indent: Base indentation level
     """
     for param_name, param in signature.items():
         print(f"\nParameter: {param_name}")

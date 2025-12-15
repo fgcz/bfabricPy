@@ -2,10 +2,16 @@
 
 Extracts parameter and type information from SOAP endpoints into reusable
 Pydantic models for introspection and programmatic access.
+
+Note: This module deals with SUDS, which has limited type stubs. Many type
+checks are suppressed here as they relate to the SUDS library's dynamic nature.
 """
 
-from pydantic import BaseModel, Field, ConfigDict
-from suds.xsd.query import TypeQuery
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field
+from suds.xsd.query import TypeQuery  # pyright: ignore[reportMissingTypeStubs]
+
 from bfabric import Bfabric
 
 
@@ -17,7 +23,7 @@ class FieldModel(BaseModel):
     required: bool
     children: list["FieldModel"] = Field(default_factory=list)
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True)  # pyright: ignore[reportUnannotatedClassAttribute]
 
 
 class ParameterModel(BaseModel):
@@ -28,7 +34,7 @@ class ParameterModel(BaseModel):
     required: bool
     children: list[FieldModel] = Field(default_factory=list)
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True)  # pyright: ignore[reportUnannotatedClassAttribute]
 
 
 def parse_method_signature(
@@ -52,34 +58,40 @@ def parse_method_signature(
         AttributeError: If endpoint or method doesn't exist
     """
     # Get the SUDS service
-    service = client._engine._get_suds_service(endpoint)
+    service = client._engine._get_suds_service(
+        endpoint
+    )  # pyright: ignore[reportPrivateUsage,reportAttributeAccessIssue,reportUnknownVariableType,reportUnknownMemberType]
 
     # Get the specified method
-    method = getattr(service, method_name)
+    method = getattr(service, method_name)  # pyright: ignore[reportAny,reportUnknownArgumentType]
 
     # Get parameter definitions
-    binding = method.method.binding.input
-    param_defs = binding.param_defs(method.method)
+    binding = method.method.binding.input  # pyright: ignore[reportAny]
+    param_defs = binding.param_defs(method.method)  # pyright: ignore[reportAny]
 
     # Get schema for type resolution
-    schema = method.method.binding.input.wsdl.schema
+    schema = method.method.binding.input.wsdl.schema  # pyright: ignore[reportAny]
 
     # Parse each parameter
-    result = {}
-    for param_name, param_schema in param_defs:
-        resolved_type = param_schema.resolve()
-        type_name = resolved_type.name if hasattr(resolved_type, "name") else str(resolved_type)
+    result: dict[str, ParameterModel] = {}
+    for param_name, param_schema in param_defs:  # pyright: ignore[reportAny]
+        resolved_type = param_schema.resolve()  # pyright: ignore[reportAny]
+        type_name: str = (
+            resolved_type.name  # pyright: ignore[reportAny]
+            if hasattr(resolved_type, "name")  # pyright: ignore[reportAny]
+            else str(resolved_type)  # pyright: ignore[reportAny]
+        )
 
         # Parse nested fields
-        children = []
-        if hasattr(resolved_type, "children"):
-            fields = resolved_type.children()
-            for field, _ancestry in fields:
+        children: list[FieldModel] = []
+        if hasattr(resolved_type, "children"):  # pyright: ignore[reportAny]
+            fields = resolved_type.children()  # pyright: ignore[reportAny]
+            for field, _ancestry in fields:  # pyright: ignore[reportAny]
                 child_field = _parse_field_recursive(field, schema, current_depth=0, max_depth=max_depth)
                 children.append(child_field)
 
         result[param_name] = ParameterModel(
-            name=param_name,
+            name=param_name,  # pyright: ignore[reportAny]
             type_name=type_name,
             required=True,  # Top-level parameters are typically required
             children=children,
@@ -89,8 +101,8 @@ def parse_method_signature(
 
 
 def _parse_field_recursive(
-    field,
-    schema,
+    field: Any,  # pyright: ignore[reportExplicitAny,reportAny]
+    schema: Any,  # pyright: ignore[reportExplicitAny,reportAny]
     current_depth: int,
     max_depth: int,
 ) -> FieldModel:
@@ -106,29 +118,33 @@ def _parse_field_recursive(
         FieldModel with fully resolved nested structure
     """
     # Extract field information
-    field_name = field.name if hasattr(field, "name") else "unknown"
-    field_type = field.type if hasattr(field, "type") else "N/A"
-    required = hasattr(field, "minOccurs") and field.minOccurs > 0
+    field_name: str = field.name if hasattr(field, "name") else "unknown"  # pyright: ignore[reportAny]
+    field_type: str | tuple[str, str] = field.type if hasattr(field, "type") else "N/A"  # pyright: ignore[reportAny]
+    required: bool = hasattr(field, "minOccurs") and field.minOccurs > 0  # pyright: ignore[reportAny]
 
-    children = []
+    children: list[FieldModel] = []
 
     # Recurse into nested types if within depth limit
-    if current_depth < max_depth and hasattr(field, "type"):
-        type_ref = field.type
+    if current_depth < max_depth and hasattr(field, "type"):  # pyright: ignore[reportAny]
+        type_ref = field.type  # pyright: ignore[reportAny]
 
         # Skip built-in XML types
         if isinstance(type_ref, tuple):
-            type_name, type_ns = type_ref
+            _type_name, type_ns = type_ref  # pyright: ignore[reportUnknownVariableType]
             if type_ns != "http://www.w3.org/2001/XMLSchema":
                 # Look up the type in the schema
                 query = TypeQuery(type_ref)
-                type_def = query.execute(schema)
+                type_def = query.execute(
+                    schema
+                )  # pyright: ignore[reportUnknownVariableType,reportUnknownMemberType,reportAny]
 
                 if type_def:
-                    resolved = type_def.resolve()
-                    if hasattr(resolved, "children"):
-                        nested_fields = resolved.children()
-                        for nested_field, _ancestry in nested_fields:
+                    resolved = type_def.resolve()  # pyright: ignore[reportUnknownVariableType,reportUnknownMemberType]
+                    if hasattr(resolved, "children"):  # pyright: ignore[reportUnknownArgumentType]
+                        nested_fields = (
+                            resolved.children()
+                        )  # pyright: ignore[reportUnknownVariableType,reportUnknownMemberType]
+                        for nested_field, _ancestry in nested_fields:  # pyright: ignore[reportUnknownVariableType]
                             child_field = _parse_field_recursive(nested_field, schema, current_depth + 1, max_depth)
                             children.append(child_field)
 
