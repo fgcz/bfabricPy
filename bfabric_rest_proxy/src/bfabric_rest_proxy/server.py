@@ -131,5 +131,6 @@ async def validate_token(token: str, bfabric_instance: BfabricInstanceDep):
 @app.exception_handler(Exception)
 def handle_unknown_exception(request: Request, exc: Exception):
     """Handles exceptions which are not handled by a more specific handler."""
+    _ = request
     logger.exception("Unknown exception", exception=exc)
     return JSONResponse({"error": f"unknown exception occurred: {exc}"})
