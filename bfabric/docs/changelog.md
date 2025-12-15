@@ -9,6 +9,35 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+## \[1.16.0\] - 2025-12-15
+
+### Added
+
+- `bfabric.typing` with specific types for the API request and response objects.
+- `Executable.decoded_str`, `Executable.decoded_bytes`
+- `Workunit.workunit_parameters` to list workunit context parameters
+- `ExternalJob.client_entity`
+
+### Changed
+
+- Type hints have been narrowed in the public interfaces of the following classes:
+    - `Bfabric`
+    - `ResultContainer`
+    - `References`
+    - `Entity`
+    - `EntityReader`
+    - `EngineSuds`
+    - `EngineZeep`
+- `Parameter.value` returns `""` for values not specified with `required` = `false`. This solves a few rare compatibility bugs and I do not think having the ability to distinguish between `None` and `""` makes much sense at this level.
+
+### Removed
+
+- Legacy workaround for B-Fabric with non-list `technology` field is removed. Assumed to not be breaking since for the current B-Fabric instances, this change should be transparent.
+
+### Deprecated
+
+- `Executable.decoded`: misleading name
+
 ## \[1.15.1\] - 2025-12-09
 
 ### Fixed

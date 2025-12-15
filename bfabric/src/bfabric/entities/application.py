@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeGuard
 
 from pydantic import TypeAdapter
 
@@ -11,6 +11,7 @@ from bfabric.utils.path_safe_name import PathSafeStr
 if TYPE_CHECKING:
     from bfabric.entities.executable import Executable
     from bfabric.entities.storage import Storage
+    from bfabric.typing import ApiResponseDataType
 
 
 class Application(Entity):
@@ -21,10 +22,19 @@ class Application(Entity):
 
     @property
     def technology_folder_name(self) -> PathSafeStr:
-        """Returns the technology which is used e.g. for output registration."""
+        """Returns the technology which is used e.g. for output registration.
+
+        Currently, in case of multiple technologies, the first one (alphabetically) is used.
+        TODO this logic should probably be improved in the future
+        """
         technology = self.data_dict["technology"]
-        if isinstance(technology, list):
-            # TODO certainly this can be improved, also in the future it may always be a list (right now it is not
-            #      rolled out yet)
-            technology = sorted(technology)[0]
+        if not _is_technology_list(technology):
+            raise ValueError("Technology must be a list of strings")
+        technology = sorted(technology)[0]
         return TypeAdapter(PathSafeStr).validate_python(technology)
+
+
+def _is_technology_list(technology: ApiResponseDataType) -> TypeGuard[list[str]]:
+    if not isinstance(technology, list):
+        return False
+    return all(isinstance(t, str) for t in technology)

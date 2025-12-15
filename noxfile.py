@@ -1,6 +1,7 @@
 import os
 import re
 import shutil
+import subprocess
 import tomllib
 from collections.abc import Generator
 from contextlib import contextmanager
@@ -10,6 +11,23 @@ from tempfile import TemporaryDirectory
 import nox
 
 nox.options.default_venv_backend = "uv"
+
+
+def _get_workspace_packages():
+    uv_list_paths = subprocess.run(
+        ["uv", "workspace", "list", "--paths", "--preview-features", "workspace-list"],
+        text=True,
+        stdout=subprocess.PIPE,
+    ).stdout.splitlines()
+    uv_list_names = [str(Path(p).relative_to(Path(__file__).parent)) for p in uv_list_paths]
+    # exclude the workspace itself
+    filtered = set(uv_list_names) - {"."}
+    if not filtered:
+        raise ValueError("No workspace packages were found")
+    return sorted(filtered)
+
+
+WORKSPACE_PACKAGES = _get_workspace_packages()
 
 
 def _collect_test_deps(package_dirs):
@@ -55,6 +73,127 @@ def _collect_test_deps(package_dirs):
                         all_deps.append(dep)
 
     return all_deps
+
+
+def _get_python_version_tuple(python_string):
+    """
+    Parse Python version string to tuple.
+
+    Args:
+        python_string: e.g., "3.11" or "3.13"
+
+    Returns:
+        tuple like (3, 11)
+    """
+    parts = python_string.split(".")
+    return (int(parts[0]), int(parts[1]))
+
+
+def _get_package_metadata(package_dir):
+    """
+    Extract metadata from a package's pyproject.toml.
+
+    Args:
+        package_dir: Package directory name (e.g., "bfabric")
+
+    Returns:
+        dict with keys:
+            - "min_python": tuple like (3, 12) for minimum Python version
+            - "test_paths": str or list of test paths
+    """
+    pyproject_path = Path(package_dir) / "pyproject.toml"
+
+    try:
+        with open(pyproject_path, "rb") as f:
+            data = tomllib.load(f)
+    except FileNotFoundError:
+        raise ValueError(f"pyproject.toml not found for package {package_dir}")
+
+    # Extract requires-python (PEP 621 standard)
+    project_data = data.get("project", {})
+    requires_python = project_data.get("requires-python")
+
+    if not requires_python:
+        raise ValueError(f"No requires-python found in {package_dir}/pyproject.toml")
+
+    # Parse ">=3.12" -> (3, 12)
+    match = re.match(r">=(\d+)\.(\d+)", requires_python)
+    if not match:
+        raise ValueError(f"Unexpected requires-python format in {package_dir}: {requires_python}")
+
+    min_python = (int(match.group(1)), int(match.group(2)))
+
+    # Determine test paths based on package name
+    if package_dir == "bfabric":
+        test_paths = "tests/bfabric"
+    elif package_dir == "bfabric_scripts":
+        test_paths = ["tests/bfabric_scripts", "tests/bfabric_cli"]
+    elif package_dir == "bfabric_app_runner":
+        test_paths = "tests/bfabric_app_runner"
+    else:
+        # Fallback for unknown packages
+        test_paths = f"tests/{package_dir}"
+
+    return {
+        "min_python": min_python,
+        "test_paths": test_paths,
+    }
+
+
+def _get_package_name_from_wheel(wheel_path):
+    """
+    Extract package name from wheel filename.
+
+    Args:
+        wheel_path: Path to wheel file
+
+    Returns:
+        Package name or None if not recognized
+    """
+    wheel_filename = Path(wheel_path).name
+
+    # Check for known packages - order matters (check longer names first)
+    if wheel_filename.startswith("bfabric_app_runner-"):
+        return "bfabric_app_runner"
+    elif wheel_filename.startswith("bfabric_scripts-"):
+        return "bfabric_scripts"
+    elif wheel_filename.startswith("bfabric-"):
+        return "bfabric"
+    else:
+        return None
+
+
+def _filter_compatible_packages(package_names, current_python_tuple):
+    """
+    Filter packages by Python version compatibility.
+
+    Args:
+        package_names: List of package directory names
+        current_python_tuple: tuple like (3, 11)
+
+    Returns:
+        tuple of (compatible_dict, skipped_list) where:
+            - compatible_dict: {package_name: test_paths}
+            - skipped_list: [(package_name, min_python_tuple, reason)]
+    """
+    compatible = {}
+    skipped = []
+
+    for pkg in package_names:
+        try:
+            metadata = _get_package_metadata(pkg)
+            min_python = metadata["min_python"]
+
+            if current_python_tuple >= min_python:
+                compatible[pkg] = metadata["test_paths"]
+            else:
+                reason = f"requires Python {min_python[0]}.{min_python[1]}+"
+                skipped.append((pkg, min_python, reason))
+        except Exception as e:
+            # If we can't read metadata, log error and skip
+            skipped.append((pkg, None, f"error reading metadata: {e}"))
+
+    return compatible, skipped
 
 
 @contextmanager
@@ -158,43 +297,45 @@ def code_style(session):
 
 
 @nox.session
-def licensecheck(session) -> None:
+@nox.parametrize("package", WORKSPACE_PACKAGES)
+def licensecheck(session, package) -> None:
     """Runs the license check."""
-    # TODO revert the upper constraint after https://github.com/FHPythonUtils/LicenseCheck/issues/111 is fixed
-    session.install("licensecheck<2025")
-    session.run("sh", "-c", "cd bfabric && licensecheck")
+    session.install("licensecheck")
+    session.run("licensecheck", "--requirements-paths", f"{package}/pyproject.toml")
 
 
 @nox.session(python="3.13")
-@nox.parametrize("package", ["bfabric", "bfabric_scripts", "bfabric_app_runner"])
+@nox.parametrize("package", WORKSPACE_PACKAGES)
 def basedpyright(session, package):
     # Install the package in editable mode so basedpyright can find it from source
     session.install("-e", f"./{package}")
     session.install("basedpyright>=1.34.0,<1.35.0")
     # Use --venvpath to explicitly point to nox's venv directory, avoiding .venv if it exists
     venv_path = Path(session.virtualenv.location).parent
+
+    # Check if a specific file was passed via posargs
+    if session.posargs:
+        # User specified specific file(s) to check
+        target = session.posargs
+    else:
+        # Default: check the entire package directory
+        target = [package]
+
     session.run(
         "basedpyright",
         "--venvpath",
         str(venv_path),
         "--baselinefile",
         f".basedpyright/baseline.{package}.json",
-        package,
+        *target,
     )
 
 
-def verify_changelog_version(session: nox.Session, package_dir: str) -> None:
-    """
-    Verify that the changelog contains an entry for the current version.
-
-    Args:
-        session: The nox session
-        package_dir: The package directory to check (e.g., 'bfabric', 'bfabric_scripts')
-
-    Raises:
-        nox.CommandFailed: If the changelog doesn't contain the current version
-    """
-    package_path = Path(package_dir)
+@nox.session
+@nox.parametrize("package", WORKSPACE_PACKAGES)
+def changelog(session: nox.Session, package):
+    """Verify that the changelog contains an entry for the current version."""
+    package_path = Path(package)
 
     # Read version from pyproject.toml
     try:
@@ -203,6 +344,9 @@ def verify_changelog_version(session: nox.Session, package_dir: str) -> None:
             current_version = pyproject["project"]["version"]
     except (FileNotFoundError, KeyError) as e:
         session.error(f"Failed to read version from pyproject.toml: {e}")
+
+    if current_version == "0.0.0":
+        session.skip("version 0.0.0 detected")
 
     # Read and check changelog
     changelog_path = package_path / "docs" / "changelog.md"
@@ -220,16 +364,6 @@ def verify_changelog_version(session: nox.Session, package_dir: str) -> None:
         )
 
     session.log(f"✓ {changelog_path} contains entry for version {current_version}")
-
-
-@nox.session
-def check_changelog(session: nox.Session):
-    """Check that changelog contains current version for all packages being released."""
-    # List of packages to check - could be made configurable
-    packages = ["bfabric", "bfabric_scripts", "bfabric_app_runner"]
-
-    for package in packages:
-        verify_changelog_version(session, package)
 
 
 @nox.session
@@ -255,12 +389,15 @@ def test_distributions(session):
     This session is used in the PR release preview workflow to validate
     that the packages work correctly when installed from distributions.
 
+    Automatically filters packages based on Python version compatibility,
+    reading requirements from each package's pyproject.toml.
+
     Not run by default - only used in release testing.
 
     Usage:
         nox -s test_distributions-3.11 -- \
             --wheels bfabric/dist/bfabric-1.14.0-py3-none-any.whl \
-            --wheels bfabric_scripts/dist/bfabric_scripts-1.13.37-py3-none-any.whl \
+            --wheels bfabric_app_runner/dist/bfabric_app_runner-0.5.0-py3-none-any.whl \
             --resolution highest
 
     The wheels are installed in the order provided, which should match
@@ -268,7 +405,6 @@ def test_distributions(session):
     """
     # Parse wheel paths and resolution from command line arguments
     wheels = []
-    package_test_map = {}
     resolution = "highest"  # default
 
     args = session.posargs
@@ -276,16 +412,7 @@ def test_distributions(session):
     while i < len(args):
         if args[i] == "--wheels":
             if i + 1 < len(args):
-                wheel_path = args[i + 1]
-                wheels.append(wheel_path)
-
-                # Determine which package this wheel belongs to
-                if "bfabric_app_runner" in wheel_path:
-                    package_test_map["bfabric_app_runner"] = "tests/bfabric_app_runner"
-                elif "bfabric_scripts" in wheel_path:
-                    package_test_map["bfabric_scripts"] = ["tests/bfabric_scripts", "tests/bfabric_cli"]
-                elif "bfabric-" in wheel_path or "/bfabric/" in wheel_path:
-                    package_test_map["bfabric"] = "tests/bfabric"
+                wheels.append(args[i + 1])
                 i += 2
             else:
                 session.error("--wheels requires a path argument")
@@ -303,27 +430,81 @@ def test_distributions(session):
     if not wheels:
         session.error("No wheels specified. Use: --wheels path/to/wheel.whl --resolution highest")
 
-    session.log(f"Testing with resolution: {resolution}")
-    session.log(f"Wheels to test: {wheels}")
+    # Map wheels to package names
+    wheel_package_map = {}
+    for wheel in wheels:
+        pkg_name = _get_package_name_from_wheel(wheel)
+        if pkg_name:
+            wheel_package_map[wheel] = pkg_name
+        else:
+            session.warn(f"Could not determine package name from wheel: {wheel}")
 
-    # Collect test dependencies from package pyproject.toml files
-    # This automatically filters out self-references and stays in sync
-    test_deps = _collect_test_deps(package_test_map.keys())
-    session.log(f"Test dependencies: {test_deps}")
-    session.install("--resolution", resolution, *test_deps)
+    requested_packages = list(wheel_package_map.values())
 
-    # Install all wheels at once so uv can resolve dependencies between them
-    # (installing one at a time causes uv to check PyPI for dependencies)
-    session.log(f"Installing wheels: {wheels}")
-    session.install(*wheels)
+    # Get current Python version
+    current_python = _get_python_version_tuple(session.python)
+    session.log(f"Testing with Python {session.python}")
+    session.log(f"Resolution strategy: {resolution}")
+
+    # Filter packages by compatibility
+    compatible_packages, skipped_packages = _filter_compatible_packages(requested_packages, current_python)
+
+    # Log skipped packages
+    if skipped_packages:
+        session.log("")
+        session.log("Skipped packages (incompatible with current Python):")
+        for pkg, min_ver, reason in skipped_packages:
+            if min_ver:
+                session.log(f"   - {pkg}: {reason} (current: {current_python[0]}.{current_python[1]})")
+            else:
+                session.log(f"   - {pkg}: {reason}")
+        session.log("")
+
+    # Error if nothing is compatible
+    if not compatible_packages:
+        session.error(
+            f"No packages are compatible with Python {session.python}. "
+            f"Requested packages: {', '.join(requested_packages)}"
+        )
+
+    # Log compatible packages
+    session.log("Testing compatible packages:")
+    for pkg in compatible_packages:
+        session.log(f"   - {pkg}")
+    session.log("")
+
+    # Filter wheels to only include compatible packages
+    compatible_wheels = [wheel for wheel, pkg in wheel_package_map.items() if pkg in compatible_packages]
+
+    session.log(f"Installing wheels: {len(compatible_wheels)}/{len(wheels)}")
+    for wheel in compatible_wheels:
+        session.log(f"   - {Path(wheel).name}")
+    session.log("")
+
+    # Collect test dependencies from compatible packages only
+    test_deps = _collect_test_deps(compatible_packages.keys())
+    if test_deps:
+        session.log(f"Installing test dependencies: {len(test_deps)} packages")
+        session.install("--resolution", resolution, *test_deps)
+
+    # Install all compatible wheels at once so uv can resolve dependencies
+    session.log("Installing wheels...")
+    session.install(*compatible_wheels)
 
     # Show what's installed for debugging
+    session.log("")
+    session.log("Installed packages:")
     session.run("uv", "pip", "list")
+    session.log("")
 
-    # Run tests for each package that was installed
-    for package, test_paths in package_test_map.items():
-        session.log(f"Running tests for {package}")
+    # Run tests for each compatible package
+    for package, test_paths in compatible_packages.items():
+        session.log(f"Running tests for {package}...")
         if isinstance(test_paths, list):
             session.run("pytest", "--durations=50", *test_paths)
         else:
             session.run("pytest", "--durations=50", test_paths)
+        session.log(f"Tests passed for {package}")
+        session.log("")
+
+    session.log("All compatible packages tested successfully!")

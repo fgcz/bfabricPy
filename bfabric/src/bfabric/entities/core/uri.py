@@ -1,19 +1,19 @@
 from __future__ import annotations
 
-from collections import defaultdict
-from typing import Annotated, Any, TYPE_CHECKING
-import urllib.parse
-from pydantic import (
-    HttpUrl,
-    BaseModel,
-    PositiveInt,
-    StringConstraints,
-    AfterValidator,
-    TypeAdapter,
-    ConfigDict,
-)
 import re
+import urllib.parse
+from collections import defaultdict
+from typing import TYPE_CHECKING, Annotated, Any
 
+import annotated_types
+from pydantic import (
+    AfterValidator,
+    BaseModel,
+    ConfigDict,
+    HttpUrl,
+    StringConstraints,
+    TypeAdapter,
+)
 from pydantic_core import core_schema
 
 if TYPE_CHECKING:
@@ -82,7 +82,7 @@ class EntityUri(str):
 class EntityUriComponents(BaseModel):
     bfabric_instance: HttpUrl
     entity_type: Annotated[str, StringConstraints(pattern=r"^[a-z]+$")]
-    entity_id: PositiveInt
+    entity_id: Annotated[int, annotated_types.Gt(0)]
 
     def as_uri(self) -> EntityUri:
         uri = urllib.parse.urljoin(f"{self.bfabric_instance}/", f"{self.entity_type}/show.html?id={self.entity_id}")

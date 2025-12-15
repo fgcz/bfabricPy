@@ -41,8 +41,11 @@ def _create_importresource(importresource_data: dict[str, str | int], parsed_pat
     result = client.save("importresource", importresource_data)
     logger.trace("Created importresource: {}", result)
     if len(result) == 1:
+        datestring = result[0]["created"]
+        if not isinstance(datestring, str):
+            raise ValueError("created field is not a string")
         importresource_id = result[0]["id"]
-        importtresource_datetime = datetime.datetime.fromisoformat(result[0]["created"])
+        importtresource_datetime = datetime.datetime.fromisoformat(datestring)
         delay = datetime.datetime.now() - importtresource_datetime
         if delay > datetime.timedelta(seconds=30):
             logger.info(f"Importresource {importresource_id} updated for file {parsed_path.absolute_path}.")
@@ -57,7 +60,7 @@ def _get_application_mapping(parsed_paths: list[ParsedPath], client: Bfabric) ->
         raise RuntimeError("Nothing to be processed.")
     # TODO this will have to be cached in the future and only request if there is anything missing
     result = Application.find_by({"name": sorted(unique_app_names)}, client=client, max_results=None)
-    return {app["name"]: id for id, app in result.items()}
+    return {str(app["name"]): id for id, app in result.items()}
 
 
 def _generate_importresource_object(
