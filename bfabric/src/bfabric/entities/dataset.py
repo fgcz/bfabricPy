@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import io
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated, Any
 
 from polars import DataFrame
-from pydantic import BaseModel
+from pydantic import BaseModel, BeforeValidator
 
 from bfabric.entities.core.entity import Entity
 
@@ -18,8 +18,14 @@ class _AttributeData(BaseModel):
     type: str
 
 
+def _remove_none(value: Any) -> str:  # pyright: ignore[reportAny, reportExplicitAny]
+    if value is None:
+        return ""
+    return str(value)  # pyright: ignore[reportAny]
+
+
 class _ItemDataField(BaseModel):
-    value: str = ""
+    value: Annotated[str, BeforeValidator(_remove_none)] = ""
     attributeposition: int
 
 
