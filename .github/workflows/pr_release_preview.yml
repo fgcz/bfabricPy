@@ -213,7 +213,7 @@ jobs:
 
             ${allPassed ?
               '**Status:** All tests passed with built distributions. The packages are ready for release.' :
-              '**Status:** Tests failed. Please check the [workflow logs](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.'}
+              `**Status:** Tests failed. Please check the [workflow logs](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.`}
 
             *Last updated: ${timestamp}*
             `;
