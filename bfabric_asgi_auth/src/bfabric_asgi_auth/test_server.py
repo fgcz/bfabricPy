@@ -17,7 +17,7 @@ token_validator = create_mock_validator()
 # so that SessionMiddleware ends up on the OUTSIDE
 
 # Add auth middleware FIRST (so it's inner)
-app.add_middleware(BfabricAuthMiddleware, token_validator=token_validator, renderer=HTMLRenderer(page_title="My App"))
+app.add_middleware(BfabricAuthMiddleware, token_validator=token_validator, renderer=HTMLRenderer())
 
 # Add session middleware LAST (so it's outer and wraps BfabricAuthMiddleware)
 app.add_middleware(
