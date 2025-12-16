@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+from bfabric.config.bfabric_auth import BfabricAuth
+from bfabric.rest.token_data import get_token_data_async
 from pydantic import SecretStr
 
-from bfabric.rest.token_data import get_token_data_async
-from bfabric_asgi_auth import TokenValidationResult
-from bfabric_asgi_auth.token_validation.strategy import TokenValidatorStrategy
+from bfabric_asgi_auth.token_validation.strategy import (
+    TokenValidationError,
+    TokenValidationResult,
+    TokenValidationSuccess,
+    TokenValidatorStrategy,
+)
 
 
 def create_bfabric_validator(
@@ -25,11 +30,7 @@ def create_bfabric_validator(
             )
 
             # Extract client configuration
-            client_config = {
-                "base_url": token_data.caller,
-                "login": token_data.user,
-                "password": token_data.user_ws_password.get_secret_value(),
-            }
+            bfabric_auth = BfabricAuth(login=token_data.user, password=token_data.user_ws_password)
 
             # Extract user information from token data
             user_info = {
@@ -42,15 +43,12 @@ def create_bfabric_validator(
                 "environment": token_data.environment,
             }
 
-            return TokenValidationResult(
-                success=True,
-                client_config=client_config,
+            return TokenValidationSuccess(
+                bfabric_instance=token_data.caller,
+                bfabric_auth=bfabric_auth,
                 user_info=user_info,
             )
         except Exception as e:
-            return TokenValidationResult(
-                success=False,
-                error=f"Bfabric token validation failed: {str(e)}",
-            )
+            return TokenValidationError(error=f"Bfabric token validation failed: {str(e)}")
 
     return bfabric_validation
