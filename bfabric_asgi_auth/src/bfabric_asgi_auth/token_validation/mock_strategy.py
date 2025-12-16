@@ -3,9 +3,9 @@ from __future__ import annotations
 from bfabric.config.bfabric_auth import BfabricAuth
 from pydantic import SecretStr
 
-from bfabric_asgi_auth import TokenValidationResult
 from bfabric_asgi_auth.token_validation.strategy import (
     TokenValidationError,
+    TokenValidationResult,
     TokenValidationSuccess,
     TokenValidatorStrategy,
 )
@@ -30,7 +30,7 @@ def create_mock_validator() -> TokenValidatorStrategy:
             # Generate a unique user_id based on the username hash
             user_id = abs(hash(username)) % 100000
 
-            bfabric_auth = BfabricAuth.model_validate(dict(login=username, password="mock_password"))
+            bfabric_auth = BfabricAuth.model_validate(dict(login=username, password="_" * 32))
 
             return TokenValidationSuccess(
                 bfabric_instance="https://fgcz-bfabric-test.uzh.ch/bfabric/",

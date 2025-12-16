@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-
-from bfabric.config.bfabric_auth import BfabricAuth
 from pydantic import BaseModel
 
 
@@ -19,5 +17,6 @@ class SessionData(BaseModel):
     # TODO doc
     # client_config: dict[str, Any]
     bfabric_instance: str
-    bfabric_auth: BfabricAuth
+    bfabric_auth_login: str
+    bfabric_auth_password: str
     user_info: dict[str, str | int]

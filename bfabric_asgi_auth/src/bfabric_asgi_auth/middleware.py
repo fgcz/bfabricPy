@@ -103,7 +103,8 @@ class BfabricAuthMiddleware:
         # Create session data
         session_data = SessionData(
             bfabric_instance=result.bfabric_instance,
-            bfabric_auth=result.bfabric_auth,
+            bfabric_auth_login=result.bfabric_auth.login,
+            bfabric_auth_password=result.bfabric_auth.password.get_secret_value(),
             user_info=result.user_info,
         )
 
