@@ -20,8 +20,6 @@ token_validator = create_mock_validator()
 app.add_middleware(
     BfabricAuthMiddleware,
     token_validator=token_validator,
-    landing_path="/landing",
-    token_param="token",
 )
 
 # Add session middleware LAST (so it's outer and wraps BfabricAuthMiddleware)
