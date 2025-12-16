@@ -137,6 +137,10 @@ def _display_fields(fields: list[FieldModel], namespaces: dict[str, str], indent
         # Format the type with namespace prefix
         formatted_type = _format_type(field.type, namespaces)
 
+        # Add [] suffix for multi-occurrence fields (lists)
+        if field.multi_occurrence:
+            formatted_type = f"{formatted_type}[]"
+
         # Add red asterisk for required fields
         required_marker = " [red]*[/red]" if field.required else ""
 

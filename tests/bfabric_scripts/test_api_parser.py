@@ -23,11 +23,13 @@ class TestFieldModel:
             name="test_field",
             type="string",
             required=True,
+            multi_occurrence=False,
             children=[],
         )
         assert field.name == "test_field"
         assert field.type == "string"
         assert field.required is True
+        assert field.multi_occurrence is False
         assert field.children == []
 
     def test_field_model_with_tuple_type(self) -> None:
@@ -36,19 +38,22 @@ class TestFieldModel:
             name="nested_field",
             type=("CustomType", "http://example.com/schema"),
             required=False,
+            multi_occurrence=False,
             children=[],
         )
         assert field.name == "nested_field"
         assert field.type == ("CustomType", "http://example.com/schema")
         assert field.required is False
+        assert field.multi_occurrence is False
 
     def test_field_model_with_children(self) -> None:
         """Test FieldModel with nested children."""
-        child = FieldModel(name="child", type="int", required=False, children=[])
+        child = FieldModel(name="child", type="int", required=False, multi_occurrence=False, children=[])
         parent = FieldModel(
             name="parent",
             type="complex_type",
             required=True,
+            multi_occurrence=False,
             children=[child],
         )
         assert len(parent.children) == 1
@@ -56,11 +61,12 @@ class TestFieldModel:
 
     def test_field_model_serialization(self) -> None:
         """Test FieldModel can be serialized to dict."""
-        field = FieldModel(name="test", type="string", required=True, children=[])
+        field = FieldModel(name="test", type="string", required=True, multi_occurrence=False, children=[])
         field_dict = field.model_dump()
         assert field_dict["name"] == "test"
         assert field_dict["type"] == "string"
         assert field_dict["required"] is True
+        assert field_dict["multi_occurrence"] is False
 
 
 class TestParameterModel:
@@ -81,7 +87,7 @@ class TestParameterModel:
 
     def test_parameter_model_with_children(self) -> None:
         """Test ParameterModel with nested fields."""
-        field = FieldModel(name="field1", type="string", required=False, children=[])
+        field = FieldModel(name="field1", type="string", required=False, multi_occurrence=False, children=[])
         param = ParameterModel(
             name="param1",
             type_name="ComplexType",
@@ -100,7 +106,8 @@ class TestParseFieldRecursive:
         field_mock = MagicMock()
         field_mock.name = "simple_field"
         field_mock.type = "string"
-        field_mock.minOccurs = 0
+        field_mock.required.return_value = False
+        field_mock.multi_occurrence.return_value = False
 
         schema_mock = MagicMock()
 
@@ -109,6 +116,7 @@ class TestParseFieldRecursive:
         assert result.name == "simple_field"
         assert result.type == "string"
         assert result.required is False
+        assert result.multi_occurrence is False
         assert result.children == []
 
     def test_parse_required_field(self) -> None:
@@ -116,7 +124,8 @@ class TestParseFieldRecursive:
         field_mock = MagicMock()
         field_mock.name = "required_field"
         field_mock.type = "int"
-        field_mock.minOccurs = 1
+        field_mock.required.return_value = True
+        field_mock.multi_occurrence.return_value = False
 
         schema_mock = MagicMock()
 
@@ -124,13 +133,15 @@ class TestParseFieldRecursive:
 
         assert result.name == "required_field"
         assert result.required is True
+        assert result.multi_occurrence is False
 
     def test_parse_field_max_depth_exceeded(self) -> None:
         """Test that recursion stops at max_depth."""
         field_mock = MagicMock()
         field_mock.name = "field"
         field_mock.type = "string"
-        field_mock.minOccurs = 0
+        field_mock.required.return_value = False
+        field_mock.multi_occurrence.return_value = False
 
         schema_mock = MagicMock()
 
@@ -145,7 +156,8 @@ class TestParseFieldRecursive:
         field_mock = MagicMock()
         field_mock.name = "xml_field"
         field_mock.type = ("string", "http://www.w3.org/2001/XMLSchema")
-        field_mock.minOccurs = 0
+        field_mock.required.return_value = False
+        field_mock.multi_occurrence.return_value = False
 
         schema_mock = MagicMock()
 
@@ -160,13 +172,15 @@ class TestParseFieldRecursive:
         nested_field_mock = MagicMock()
         nested_field_mock.name = "nested_field"
         nested_field_mock.type = "simple_type"
-        nested_field_mock.minOccurs = 0
+        nested_field_mock.required.return_value = False
+        nested_field_mock.multi_occurrence.return_value = False
 
         # Create parent field with custom type
         parent_field_mock = MagicMock()
         parent_field_mock.name = "parent_field"
         parent_field_mock.type = ("CustomType", "http://example.com/schema")
-        parent_field_mock.minOccurs = 0
+        parent_field_mock.required.return_value = False
+        parent_field_mock.multi_occurrence.return_value = False
 
         # Mock schema and type resolution
         schema_mock = MagicMock()
@@ -199,12 +213,14 @@ class TestParseMethodSignature:
         param_field_mock = MagicMock()
         param_field_mock.name = "field1"
         param_field_mock.type = "string"
-        param_field_mock.minOccurs = 0
+        param_field_mock.required.return_value = False
+        param_field_mock.multi_occurrence.return_value = False
 
         # Mock parameter schema
         param_schema_mock = MagicMock()
         resolved_param_mock = MagicMock()
         resolved_param_mock.name = "ParamType"
+        resolved_param_mock.required.return_value = True
         resolved_param_mock.children.return_value = [(param_field_mock, None)]
         param_schema_mock.resolve.return_value = resolved_param_mock
 

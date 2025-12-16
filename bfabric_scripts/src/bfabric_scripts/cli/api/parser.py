@@ -21,6 +21,7 @@ class FieldModel(BaseModel):
     name: str
     type: str | tuple[str, str]
     required: bool
+    multi_occurrence: bool
     children: list["FieldModel"] = Field(default_factory=list)
 
     model_config = ConfigDict(arbitrary_types_allowed=True)  # pyright: ignore[reportUnannotatedClassAttribute]
@@ -125,6 +126,10 @@ def _parse_field_recursive(
     field_type: str | tuple[str, str] = field.type if hasattr(field, "type") else "N/A"  # pyright: ignore[reportAny]
     # Use SUDS built-in method to check if required, fallback to True (XSD default when minOccurs not specified)
     required: bool = field.required() if hasattr(field, "required") else True  # pyright: ignore[reportAny]
+    # Check if multiple occurrences are allowed (maxOccurs > 1 or maxOccurs = "unbounded")
+    multi_occurrence: bool = (
+        field.multi_occurrence() if hasattr(field, "multi_occurrence") else False
+    )  # pyright: ignore[reportAny]
 
     children: list[FieldModel] = []
 
@@ -156,5 +161,6 @@ def _parse_field_recursive(
         name=field_name,
         type=field_type,
         required=required,
+        multi_occurrence=multi_occurrence,
         children=children,
     )
