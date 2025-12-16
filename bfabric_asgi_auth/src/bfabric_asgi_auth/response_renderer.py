@@ -6,9 +6,14 @@ Users only need to implement two methods: render_error and render_redirect.
 
 from __future__ import annotations
 
-from typing import Protocol
+from typing import TYPE_CHECKING, Any, Protocol, cast
 
 from asgiref.typing import ASGIReceiveCallable, ASGISendCallable, Scope
+
+if TYPE_CHECKING:
+    from asgiref.typing import ASGISendEvent
+else:
+    ASGISendEvent = Any
 
 
 class ErrorContext:
@@ -21,10 +26,10 @@ class ErrorContext:
     """
 
     def __init__(self, message: str, status_code: int, error_type: str, scope: Scope) -> None:
-        self.message = message
-        self.status_code = status_code
-        self.error_type = error_type
-        self.scope = scope
+        self.message: str = message
+        self.status_code: int = status_code
+        self.error_type: str = error_type
+        self.scope: Scope = scope
 
 
 class RedirectContext:
@@ -36,9 +41,9 @@ class RedirectContext:
     """
 
     def __init__(self, url: str, redirect_type: str, scope: Scope) -> None:
-        self.url = url
-        self.redirect_type = redirect_type
-        self.scope = scope
+        self.url: str = url
+        self.redirect_type: str = redirect_type
+        self.scope: Scope = scope
 
 
 class SuccessContext:
@@ -50,9 +55,9 @@ class SuccessContext:
     """
 
     def __init__(self, message: str, success_type: str, scope: Scope) -> None:
-        self.message = message
-        self.success_type = success_type
-        self.scope = scope
+        self.message: str = message
+        self.success_type: str = success_type
+        self.scope: Scope = scope
 
 
 class ResponseRenderer(Protocol):
@@ -98,32 +103,92 @@ class PlainTextRenderer:
     """Default plain text renderer.
 
     Renders all responses as plain text with appropriate status codes.
+    Uses raw ASGI protocol for full type compatibility.
     """
 
     async def render_error(self, context: ErrorContext, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
         """Render plain text error response."""
-        from starlette.responses import PlainTextResponse
-
-        response = PlainTextResponse(f"Error: {context.message}\n", status_code=context.status_code)
-        await response(context.scope, receive, send)
+        _ = receive
+        body = f"Error: {context.message}\n".encode("utf-8")
+        await send(
+            cast(
+                ASGISendEvent,
+                {  # pyright: ignore[reportInvalidCast]
+                    "type": "http.response.start",
+                    "status": context.status_code,
+                    "headers": [
+                        (b"content-type", b"text/plain; charset=utf-8"),
+                        (b"content-length", str(len(body)).encode("ascii")),
+                    ],
+                },
+            )
+        )
+        await send(
+            cast(
+                ASGISendEvent,
+                {  # pyright: ignore[reportInvalidCast]
+                    "type": "http.response.body",
+                    "body": body,
+                },
+            )
+        )
 
     async def render_redirect(
         self, context: RedirectContext, receive: ASGIReceiveCallable, send: ASGISendCallable
     ) -> None:
         """Render HTTP redirect response."""
-        from starlette.responses import RedirectResponse
-
-        response = RedirectResponse(url=context.url, status_code=302)
-        await response(context.scope, receive, send)
+        _ = receive
+        await send(
+            cast(
+                ASGISendEvent,
+                {  # pyright: ignore[reportInvalidCast]
+                    "type": "http.response.start",
+                    "status": 302,
+                    "headers": [
+                        (b"location", context.url.encode("utf-8")),
+                        (b"content-length", b"0"),
+                    ],
+                },
+            )
+        )
+        await send(
+            cast(
+                ASGISendEvent,
+                {  # pyright: ignore[reportInvalidCast]
+                    "type": "http.response.body",
+                    "body": b"",
+                },
+            )
+        )
 
     async def render_success(
         self, context: SuccessContext, receive: ASGIReceiveCallable, send: ASGISendCallable
     ) -> None:
         """Render plain text success response."""
-        from starlette.responses import PlainTextResponse
-
-        response = PlainTextResponse(f"{context.message}\n", status_code=200)
-        await response(context.scope, receive, send)
+        _ = receive
+        body = f"{context.message}\n".encode("utf-8")
+        await send(
+            cast(
+                ASGISendEvent,
+                {  # pyright: ignore[reportInvalidCast]
+                    "type": "http.response.start",
+                    "status": 200,
+                    "headers": [
+                        (b"content-type", b"text/plain; charset=utf-8"),
+                        (b"content-length", str(len(body)).encode("ascii")),
+                    ],
+                },
+            )
+        )
+        await send(
+            cast(
+                ASGISendEvent,
+                {  # pyright: ignore[reportInvalidCast]
+                    "type": "http.response.body",
+                    "body": body,
+                },
+            )
+        )
 
 
 class HTMLRenderer:
@@ -136,13 +201,12 @@ class HTMLRenderer:
     """
 
     def __init__(self, page_title: str = "Authentication", show_error_details: bool = True) -> None:
-        self.page_title = page_title
-        self.show_error_details = show_error_details
+        self.page_title: str = page_title
+        self.show_error_details: bool = show_error_details
 
     async def render_error(self, context: ErrorContext, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
         """Render self-contained HTML error page."""
-        from starlette.responses import HTMLResponse
-
+        _ = receive
         # Map status codes to user-friendly titles
         title_map = {
             400: "Bad Request",
@@ -216,24 +280,63 @@ class HTMLRenderer:
     </div>
 </body>
 </html>"""
-        response = HTMLResponse(html, status_code=context.status_code)
-        await response(context.scope, receive, send)
+        body = html.encode("utf-8")
+        await send(
+            cast(
+                ASGISendEvent,
+                {  # pyright: ignore[reportInvalidCast]
+                    "type": "http.response.start",
+                    "status": context.status_code,
+                    "headers": [
+                        (b"content-type", b"text/html; charset=utf-8"),
+                        (b"content-length", str(len(body)).encode("ascii")),
+                    ],
+                },
+            )
+        )
+        await send(
+            cast(
+                ASGISendEvent,
+                {  # pyright: ignore[reportInvalidCast]
+                    "type": "http.response.body",
+                    "body": body,
+                },
+            )
+        )
 
     async def render_redirect(
         self, context: RedirectContext, receive: ASGIReceiveCallable, send: ASGISendCallable
     ) -> None:
         """Render HTTP redirect response."""
-        from starlette.responses import RedirectResponse
-
-        response = RedirectResponse(url=context.url, status_code=302)
-        await response(context.scope, receive, send)
+        _ = receive
+        await send(
+            cast(
+                ASGISendEvent,
+                {  # pyright: ignore[reportInvalidCast]
+                    "type": "http.response.start",
+                    "status": 302,
+                    "headers": [
+                        (b"location", context.url.encode("utf-8")),
+                        (b"content-length", b"0"),
+                    ],
+                },
+            )
+        )
+        await send(
+            cast(
+                ASGISendEvent,
+                {  # pyright: ignore[reportInvalidCast]
+                    "type": "http.response.body",
+                    "body": b"",
+                },
+            )
+        )
 
     async def render_success(
         self, context: SuccessContext, receive: ASGIReceiveCallable, send: ASGISendCallable
     ) -> None:
         """Render self-contained HTML success page."""
-        from starlette.responses import HTMLResponse
-
+        _ = receive
         html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -290,5 +393,26 @@ class HTMLRenderer:
     </div>
 </body>
 </html>"""
-        response = HTMLResponse(html, status_code=200)
-        await response(context.scope, receive, send)
+        body = html.encode("utf-8")
+        await send(
+            cast(
+                ASGISendEvent,
+                {  # pyright: ignore[reportInvalidCast]
+                    "type": "http.response.start",
+                    "status": 200,
+                    "headers": [
+                        (b"content-type", b"text/html; charset=utf-8"),
+                        (b"content-length", str(len(body)).encode("ascii")),
+                    ],
+                },
+            )
+        )
+        await send(
+            cast(
+                ASGISendEvent,
+                {  # pyright: ignore[reportInvalidCast]
+                    "type": "http.response.body",
+                    "body": body,
+                },
+            )
+        )
