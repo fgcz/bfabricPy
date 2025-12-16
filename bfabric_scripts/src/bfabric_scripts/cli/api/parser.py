@@ -17,6 +17,8 @@ from suds.xsd.query import TypeQuery  # pyright: ignore[reportMissingTypeStubs]
 
 from bfabric import Bfabric
 
+from .namespaces import NAMESPACES
+
 
 class FieldModel(BaseModel):
     """Represents a single field in a type definition."""
@@ -142,7 +144,7 @@ def _parse_field_recursive(
         # Skip built-in XML types
         if isinstance(type_ref, tuple):
             _type_name, type_ns = type_ref  # pyright: ignore[reportUnknownVariableType]
-            if type_ns != "http://www.w3.org/2001/XMLSchema":
+            if type_ns != NAMESPACES["xs"]:
                 # Look up the type in the schema
                 query = TypeQuery(type_ref)
                 type_def = query.execute(

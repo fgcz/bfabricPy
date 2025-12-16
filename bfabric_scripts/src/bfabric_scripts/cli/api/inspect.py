@@ -6,12 +6,9 @@ from bfabric import Bfabric
 from rich.console import Console
 
 from .parser import parse_method_signature, ParameterModel, FieldModel
+from .namespaces import NAMESPACES, NAMESPACE_URIS
 
 console = Console()
-
-
-# Standard XSD namespace
-XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema"
 
 
 @Parameter(name="*")
@@ -25,35 +22,19 @@ class Params(BaseModel):
 
 
 def _collect_namespaces(signature: dict[str, ParameterModel]) -> dict[str, str]:
-    """Collect all unique namespaces from the signature and assign prefixes.
-
-    Args:
-        signature: Dictionary mapping parameter names to ParameterModel instances
-
-    Returns:
-        Dictionary mapping namespace prefixes to URIs
-    """
+    """Collect all unique namespaces from the signature and assign prefixes."""
     namespaces_set: set[str] = set()
-
-    # Collect namespaces from all parameters and fields
     for param in signature.values():
         _collect_namespaces_from_fields(param.children, namespaces_set)
 
-    # Create prefix mappings
-    namespaces: dict[str, str] = {}
-    namespace_counter = 0
+    # Start with known namespaces
+    namespaces = {prefix: uri for prefix, uri in NAMESPACES.items() if uri in namespaces_set}
 
-    for ns in sorted(namespaces_set):
-        if ns == XSD_NAMESPACE:
-            namespaces["xs"] = ns
-        else:
-            # Use a generic prefix for other namespaces
-            # Extract a meaningful prefix from the URL if possible
-            if "bfabric" in ns.lower():
-                namespaces["bf"] = ns
-            else:
-                namespaces[f"ns{namespace_counter}"] = ns
-                namespace_counter += 1
+    # Add unknown namespaces with generic prefixes
+    counter = 0
+    for ns in sorted(namespaces_set - set(NAMESPACE_URIS.keys())):
+        namespaces[f"ns{counter}"] = ns
+        counter += 1
 
     return namespaces
 
@@ -74,27 +55,12 @@ def _collect_namespaces_from_fields(fields: list[FieldModel], namespaces_set: se
             _collect_namespaces_from_fields(field.children, namespaces_set)
 
 
-def _format_type(field_type: str | tuple[str, str], namespaces: dict[str, str]) -> str:
-    """Format a field type with namespace prefix.
-
-    Args:
-        field_type: Either a string or tuple of (type_name, namespace_uri)
-        namespaces: Dictionary mapping namespace prefixes to URIs
-
-    Returns:
-        Formatted type string with prefix
-    """
+def _format_type(field_type: str | tuple[str, str]) -> str:
+    """Format a field type with namespace prefix."""
     if isinstance(field_type, tuple) and len(field_type) == 2:
         type_name, namespace_uri = field_type
-
-        # Find the prefix for this namespace
-        for prefix, uri in namespaces.items():
-            if uri == namespace_uri:
-                return f"{prefix}:{type_name}"
-
-        # Fallback if namespace not found in mapping
-        return type_name
-
+        prefix = NAMESPACE_URIS.get(namespace_uri, "")
+        return f"{prefix}:{type_name}" if prefix else type_name
     return str(field_type)
 
 
@@ -118,24 +84,18 @@ def display_signature(signature: dict[str, ParameterModel]) -> None:
         console.print(f"[bold]Type:[/bold] {param.type_name}")
 
         if param.children:
-            _display_fields(param.children, namespaces, indent=1)
+            _display_fields(param.children, indent=1)
 
         console.print("\n[red]*[/red] required")
 
 
-def _display_fields(fields: list[FieldModel], namespaces: dict[str, str], indent: int) -> None:
-    """Recursively display fields with proper indentation and Rich formatting.
-
-    Args:
-        fields: List of FieldModel instances to display
-        namespaces: Dictionary mapping namespace prefixes to URIs
-        indent: Current indentation level
-    """
+def _display_fields(fields: list[FieldModel], indent: int) -> None:
+    """Recursively display fields with proper indentation and Rich formatting."""
     prefix = "  " * indent
 
     for field in fields:
         # Format the type with namespace prefix
-        formatted_type = _format_type(field.type, namespaces)
+        formatted_type = _format_type(field.type)
 
         # Add [] suffix for multi-occurrence fields (lists)
         if field.multi_occurrence:
@@ -147,7 +107,7 @@ def _display_fields(fields: list[FieldModel], namespaces: dict[str, str], indent
         console.print(f"{prefix}- {field.name}: [italic]{formatted_type}[/italic]{required_marker}")
 
         if field.children:
-            _display_fields(field.children, namespaces, indent + 1)
+            _display_fields(field.children, indent + 1)
 
 
 @use_client
