@@ -5708,22 +5708,6 @@
                     "endColumn": 42,
                     "lineCount": 1
                 }
-            },
-            {
-                "code": "reportUnusedCallResult",
-                "range": {
-                    "startColumn": 4,
-                    "endColumn": 31,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportAny",
-                "range": {
-                    "startColumn": 4,
-                    "endColumn": 8,
-                    "lineCount": 1
-                }
             }
         ],
         "./bfabric/src/bfabric/results/response_delete.py": [

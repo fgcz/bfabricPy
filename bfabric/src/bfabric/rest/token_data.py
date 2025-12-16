@@ -76,12 +76,18 @@ class TokenData(BaseModel):
 
 
 async def get_token_data_async(base_url: str, token: str, http_client: httpx.AsyncClient | None) -> TokenData:
-    """Returns the token data for the provided token."""
+    """Returns the token data for the provided token.
+
+    Raises:
+        httpx.HTTPError: If the HTTP request fails (covers connection errors, timeouts, 4xx/5xx status).
+        json.JSONDecodeError: If the response body is not valid JSON.
+        pydantic.ValidationError: If the JSON does not match the TokenData schema.
+    """
     url = urllib.parse.urljoin(f"{base_url}/", "rest/token/validate")
     async with contextlib.nullcontext(http_client) if http_client is not None else httpx.AsyncClient() as client:
         response = await client.get(url, params={"token": token})
-    response.raise_for_status()
-    json = response.json()
+    _ = response.raise_for_status()
+    json = response.json()  # pyright: ignore[reportAny]
     return TokenData.model_validate(json)
 
 
