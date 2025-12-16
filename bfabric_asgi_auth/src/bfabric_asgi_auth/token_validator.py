@@ -29,12 +29,12 @@ class TokenValidationResult:
         self.error = error
 
 
-TokenValidatorType = Callable[[SecretStr], Awaitable[TokenValidationResult]]
+TokenValidatorStrategy = Callable[[SecretStr], Awaitable[TokenValidationResult]]
 
 
 def create_bfabric_validator(
     validation_instance_url: str = "https://fgcz-bfabric-test.uzh.ch/bfabric/",
-) -> TokenValidatorType:
+) -> TokenValidatorStrategy:
     """Create a validator that uses async Bfabric token validation.
 
     :param validation_instance_url: URL of the B-Fabric instance for token validation
@@ -81,7 +81,7 @@ def create_bfabric_validator(
     return bfabric_validation
 
 
-def create_mock_validator() -> TokenValidatorType:
+def create_mock_validator() -> TokenValidatorStrategy:
     """Create a mock validator for testing.
 
     The mock validator accepts any token starting with 'valid_' as valid.

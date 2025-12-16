@@ -8,7 +8,7 @@ from starlette.requests import Request
 from starlette.responses import PlainTextResponse, RedirectResponse
 
 from bfabric_asgi_auth.session_data import SessionData
-from bfabric_asgi_auth.token_validator import TokenValidatorType
+from bfabric_asgi_auth.token_validator import TokenValidatorStrategy
 
 
 class BfabricAuthMiddleware:
@@ -21,7 +21,7 @@ class BfabricAuthMiddleware:
     def __init__(
         self,
         app,
-        token_validator: TokenValidatorType,
+        token_validator: TokenValidatorStrategy,
         landing_path: str = "/landing",
         token_param: str = "token",
         authenticated_path: str = "/",
