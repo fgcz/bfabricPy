@@ -3,6 +3,7 @@ from __future__ import annotations
 from urllib.parse import parse_qs
 
 from asgiref.typing import ASGIApplication, ASGIReceiveCallable, ASGISendCallable, Scope
+from loguru import logger
 from pydantic import SecretStr
 from starlette.requests import Request
 from starlette.responses import PlainTextResponse, RedirectResponse
@@ -47,21 +48,14 @@ class BfabricAuthMiddleware:
         self.logout_path: str = logout_path
 
     async def __call__(self, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
-        # Handle HTTP and WebSocket connections
+        # Handle middleware-provided operations
         if scope["type"] == "http":
-            path = scope["path"]
+            if scope["path"] == self.logout_path:
+                return await self._handle_logout(scope, receive, send)
+            if scope["path"] == self.landing_path:
+                return await self._handle_landing(scope, receive, send)
 
-            # Handle logout
-            if path == self.logout_path:
-                await self._handle_logout(scope, receive, send)
-                return
-
-            # Handle landing URL with token
-            if path == self.landing_path:
-                await self._handle_landing(scope, receive, send)
-                return
-
-        # For all other HTTP requests and WebSocket connections, check if session is authenticated
+        # Ensure authentication is provided
         if scope["type"] in ("http", "websocket"):
             # Get session data from scope (set by SessionMiddleware)
             session = scope.get("session", {})
@@ -69,13 +63,17 @@ class BfabricAuthMiddleware:
 
             if not session_data_dict:
                 if scope["type"] == "websocket":
-                    await self._send_websocket_close(send, 1008, "Not authenticated")
+                    return await self._send_websocket_close(send, 1008, "Not authenticated")
                 else:
-                    await self._send_unauthorized(send, "Not authenticated")
-                return
+                    return await self._send_unauthorized(send, "Not authenticated")
 
             # Attach session data to scope for the application
             scope["bfabric_session"] = session_data_dict
+        elif scope["type"] == "lifespan":
+            pass
+        else:
+            logger.info(f"Dropping unknown scope: {scope['type']}")
+            return
 
         # Pass to the main application
         await self.app(scope, receive, send)
