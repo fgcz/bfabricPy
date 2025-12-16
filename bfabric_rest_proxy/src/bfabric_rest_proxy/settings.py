@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from bfabric.experimental.webapp_integration_settings import BfabricTokenValidationSettings
+from bfabric.experimental.webapp_integration_settings import WebappIntegrationSettings
 from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class ServerSettings(BaseSettings, BfabricTokenValidationSettings):  # pyright: ignore[reportUnsafeMultipleInheritance]
+class ServerSettings(BaseSettings, WebappIntegrationSettings):  # pyright: ignore[reportUnsafeMultipleInheritance]
     # NOTE: environment variables will take priority over dotenv variables
     model_config: SettingsConfigDict = SettingsConfigDict(  # pyright: ignore[reportIncompatibleVariableOverride]
         env_file=".env", env_file_encoding="utf-8", extra="allow"
