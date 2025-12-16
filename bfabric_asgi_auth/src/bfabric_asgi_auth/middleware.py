@@ -5,7 +5,6 @@ from urllib.parse import parse_qs
 from asgiref.typing import ASGI3Application, ASGIReceiveCallable, ASGISendCallable, Scope
 from loguru import logger
 from pydantic import SecretStr
-from starlette.requests import Request
 from starlette.responses import PlainTextResponse, RedirectResponse
 
 from bfabric_asgi_auth.session_data import SessionData
@@ -108,12 +107,17 @@ class BfabricAuthMiddleware:
             user_info=result.user_info,
         )
 
-        # Create a Request object to access session properly
-        request = Request(scope, receive, send)
+        # Store session data by modifying scope["session"] directly
+        # This is framework-agnostic and works with any ASGI session middleware
+        # that follows the standard pattern (e.g., Starlette, FastAPI, etc.)
+        session = scope.get("session")
+        if session is None:
+            # Session middleware should have set this, but handle gracefully
+            response = PlainTextResponse("Error: Session middleware not configured", status_code=500)
+            await response(scope, receive, send)
+            return
 
-        # Store session data using the request's session interface
-        # This is the proper way to work with SessionMiddleware
-        request.session["bfabric_session"] = session_data.model_dump()
+        session["bfabric_session"] = session_data.model_dump()
 
         # Send redirect response
         response = RedirectResponse(url=self.authenticated_path, status_code=302)
@@ -121,10 +125,11 @@ class BfabricAuthMiddleware:
 
     async def _handle_logout(self, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
         """Handle logout request."""
-        # Clear session using Request object
-        request = Request(scope, receive, send)
-        # Clear the entire session to ensure cookie is removed
-        request.session.clear()
+        # Clear session by modifying scope["session"] directly
+        # This is framework-agnostic and works with any ASGI session middleware
+        session = scope.get("session")
+        if session is not None:
+            session.clear()
 
         # Send success response
         response = PlainTextResponse("Logged out successfully\n", status_code=200)
