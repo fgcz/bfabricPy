@@ -159,11 +159,21 @@ class BfabricAuthMiddleware:
         # This is framework-agnostic and works with any ASGI session middleware
         session = scope.get("session")
         if session is not None:
+            logged_in = session.get("bfabric_session") is not None
             session.clear()
 
-        # Send success response
-        context = SuccessContext(message="Logged out successfully", success_type="logout", scope=scope)
-        await self.renderer.render_success(context, receive, send)
+            # Send success response
+            if logged_in:
+                context = SuccessContext(message="Logged out successfully", success_type="logout", scope=scope)
+                await self.renderer.render_success(context, receive, send)
+            else:
+                context = ErrorContext(
+                    message="User not logged in",
+                    status_code=400,
+                    error_type="bad_request",
+                    scope=scope,
+                )
+                await self.renderer.render_error(context, receive, send)
 
     async def _send_websocket_close(self, send: ASGISendCallable, code: int, reason: str) -> None:
         """Close WebSocket connection with error code."""
