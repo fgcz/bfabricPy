@@ -1,3 +1,4 @@
+# pyright: basic
 import fastapi
 from starlette.middleware.sessions import SessionMiddleware
 
