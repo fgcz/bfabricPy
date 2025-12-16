@@ -6,7 +6,9 @@ from typing import Annotated
 import fastapi
 from bfabric.config.config_data import ConfigData
 from bfabric.rest.token_data import get_token_data
+from fastapi import Request
 from fastapi.params import Depends
+from fastapi.responses import JSONResponse
 from loguru import logger
 from pydantic import BaseModel, Field, SecretStr
 
@@ -124,3 +126,11 @@ async def validate_token(token: str, bfabric_instance: BfabricInstanceDep):
     dump = token_data.model_dump(by_alias=True, mode="json")
     dump["userWsPassword"] = token_data.user_ws_password.get_secret_value()
     return dump
+
+
+@app.exception_handler(Exception)
+def handle_unknown_exception(request: Request, exc: Exception):
+    """Handles exceptions which are not handled by a more specific handler."""
+    _ = request
+    logger.exception("Unknown exception", exception=exc)
+    return JSONResponse({"error": f"unknown exception occurred: {exc}"})
