@@ -93,7 +93,10 @@ def parse_method_signature(
         result[param_name] = ParameterModel(
             name=param_name,  # pyright: ignore[reportAny]
             type_name=type_name,
-            required=True,  # Top-level parameters are typically required
+            # Use SUDS built-in method to check if required, fallback to True (XSD default when minOccurs not specified)
+            required=(
+                resolved_type.required() if hasattr(resolved_type, "required") else True
+            ),  # pyright: ignore[reportAny]
             children=children,
         )
 
@@ -120,7 +123,8 @@ def _parse_field_recursive(
     # Extract field information
     field_name: str = field.name if hasattr(field, "name") else "unknown"  # pyright: ignore[reportAny]
     field_type: str | tuple[str, str] = field.type if hasattr(field, "type") else "N/A"  # pyright: ignore[reportAny]
-    required: bool = hasattr(field, "minOccurs") and field.minOccurs > 0  # pyright: ignore[reportAny]
+    # Use SUDS built-in method to check if required, fallback to True (XSD default when minOccurs not specified)
+    required: bool = field.required() if hasattr(field, "required") else True  # pyright: ignore[reportAny]
 
     children: list[FieldModel] = []
 
