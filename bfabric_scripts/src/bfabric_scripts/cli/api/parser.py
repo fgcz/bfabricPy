@@ -17,7 +17,7 @@ from suds.xsd.query import TypeQuery  # pyright: ignore[reportMissingTypeStubs]
 
 from bfabric import Bfabric
 
-from .namespaces import NAMESPACES
+from bfabric_scripts.cli.api.namespaces import NAMESPACES
 
 
 class FieldModel(BaseModel):

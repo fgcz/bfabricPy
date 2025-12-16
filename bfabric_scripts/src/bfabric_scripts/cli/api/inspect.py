@@ -5,8 +5,8 @@ from loguru import logger
 from bfabric import Bfabric
 from rich.console import Console
 
-from .parser import parse_method_signature, ParameterModel, FieldModel
-from .namespaces import NAMESPACES, NAMESPACE_URIS
+from bfabric_scripts.cli.api.parser import parse_method_signature, ParameterModel, FieldModel
+from bfabric_scripts.cli.api.namespaces import NAMESPACES, NAMESPACE_URIS
 
 console = Console()
 
