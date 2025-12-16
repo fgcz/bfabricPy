@@ -2,13 +2,16 @@ from __future__ import annotations
 
 from urllib.parse import parse_qs
 
-from asgiref.typing import ASGIReceiveCallable, ASGISendCallable, Scope
+from asgiref.typing import ASGIApplication, ASGIReceiveCallable, ASGISendCallable, Scope
 from pydantic import SecretStr
 from starlette.requests import Request
 from starlette.responses import PlainTextResponse, RedirectResponse
 
 from bfabric_asgi_auth.session_data import SessionData
-from bfabric_asgi_auth.token_validation.strategy import TokenValidatorStrategy
+from bfabric_asgi_auth.token_validation.strategy import (
+    TokenValidationSuccess,
+    TokenValidatorStrategy,
+)
 
 
 class BfabricAuthMiddleware:
@@ -20,7 +23,7 @@ class BfabricAuthMiddleware:
 
     def __init__(
         self,
-        app,
+        app: ASGIApplication,
         token_validator: TokenValidatorStrategy,
         landing_path: str = "/landing",
         token_param: str = "token",
@@ -36,12 +39,12 @@ class BfabricAuthMiddleware:
         :param authenticated_path: Path to redirect to after successful authentication (default: /)
         :param logout_path: URL path for logout (default: /logout)
         """
-        self.app = app
-        self.token_validator = token_validator
-        self.landing_path = landing_path
-        self.token_param = token_param
-        self.authenticated_path = authenticated_path
-        self.logout_path = logout_path
+        self.app: ASGIApplication = app
+        self.token_validator: TokenValidatorStrategy = token_validator
+        self.landing_path: str = landing_path
+        self.token_param: str = token_param
+        self.authenticated_path: str = authenticated_path
+        self.logout_path: str = logout_path
 
     async def __call__(self, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
         # Handle HTTP and WebSocket connections
@@ -94,14 +97,15 @@ class BfabricAuthMiddleware:
         # Validate token
         result = await self.token_validator(token)
 
-        if not result.success:
+        if not isinstance(result, TokenValidationSuccess):
             response = PlainTextResponse(f"Error: {result.error or 'Token validation failed'}", status_code=400)
             await response(scope, receive, send)
             return
 
         # Create session data
         session_data = SessionData(
-            client_config=result.client_config or {},
+            bfabric_instance=result.bfabric_instance,
+            bfabric_auth=result.bfabric_auth,
             user_info=result.user_info,
         )
 

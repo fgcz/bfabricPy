@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from typing import Any
 
+from bfabric.config.bfabric_auth import BfabricAuth
 from pydantic import BaseModel
 
 
@@ -16,5 +16,8 @@ class SessionData(BaseModel):
     :ivar user_info: User information from token validation
     """
 
-    client_config: dict[str, Any]
-    user_info: dict[str, Any] | None = None
+    # TODO doc
+    # client_config: dict[str, Any]
+    bfabric_instance: str
+    bfabric_auth: BfabricAuth
+    user_info: dict[str, str | int]
