@@ -23,6 +23,7 @@ app.add_middleware(BfabricAuthMiddleware, token_validator=token_validator, rende
 # Add session middleware LAST (so it's outer and wraps BfabricAuthMiddleware)
 app.add_middleware(
     SessionMiddleware,
+    # TODO random initialization
     secret_key="test-secret-key-min-32-characters!!",
     max_age=3600,
 )

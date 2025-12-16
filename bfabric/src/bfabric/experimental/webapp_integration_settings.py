@@ -7,7 +7,7 @@ from pydantic import BaseModel, model_validator
 from bfabric.config.bfabric_auth import BfabricAuth  # noqa
 
 
-class BfabricTokenValidationSettings(BaseModel):
+class WebappIntegrationSettings(BaseModel):
     validation_bfabric_instance: str
     supported_bfabric_instances: list[str]
     feeder_user_credentials: dict[str, BfabricAuth]
