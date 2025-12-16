@@ -14,10 +14,12 @@ class ServerSettings(BaseSettings):
     # specific to the proxy:
     default_bfabric_instance: str | None = None
 
-    # general bfabric web app settings
+    # general bfabric web app settings:
     validation_bfabric_instance: str
-    feeder_user_credentials: dict[str, BfabricAuth]
     supported_bfabric_instances: list[str]
+
+    # specific to the proxy:
+    feeder_user_credentials: dict[str, BfabricAuth]
 
     @model_validator(mode="after")
     def _only_supported_bfabric_instances(self) -> ServerSettings:
@@ -25,6 +27,11 @@ class ServerSettings(BaseSettings):
             raise ValueError("validation_bfabric_instance must be one of supported_bfabric_instances")
         if self.default_bfabric_instance not in self.supported_bfabric_instances:
             raise ValueError("default_bfabric_instance must be one of supported_bfabric_instances")
+        return self
+
+    @model_validator(mode="after")
+    def _valid_feeder_user_credentials(self) -> ServerSettings:
         if any(key not in self.supported_bfabric_instances for key in self.feeder_user_credentials):
             raise ValueError("feeder_user_credentials must contain only supported bfabric instances.")
+
         return self
