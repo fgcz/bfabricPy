@@ -10,10 +10,27 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Added
+
+- `bfabric-cli api inspect` to inspect various API endpoints directly from the command line.
+
+## \[1.13.39\] - 2025-12-03
+
+### Fixed
+
+- Fix bfabric_read_samples_of_workunit.py returns the same column name `groupingvar_name` as in the past.
+
+## \[1.13.38\] - 2025-12-03
+
 ### Changed
 
 - Minimal Python version is now 3.11.
 - `bfabric_flask` validate_token uses the newer functionality in bfabricPy.
+- Update `bfabric` dependency to `>=1.14.1,<1.15.0`.
+
+### Fixed
+
+- Fix bfabric_read_samples_of_workunit.py ordering.
 
 ## \[1.13.37\] - 2025-10-27
 

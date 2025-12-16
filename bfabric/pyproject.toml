@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "bfabric"
 description = "Python client for the B-Fabric API"
 readme = "../README.md"
-version = "1.13.36"
+version = "1.16.1"
 license = { text = "GPL-3.0" }
 authors = [
     { name = "Christian Panse", email = "cp@fgcz.ethz.ch" },
@@ -30,6 +30,7 @@ dependencies = [
     "python-dateutil>=2.9.0,<3.0",
     "requests>=2.27.0,<3.0",
     "httpx>=0.28.1,<0.29",
+    "annotated-types>=0.7.0",
 ]
 
 [project.optional-dependencies]
@@ -39,7 +40,7 @@ dev = [
     "isort",
     "ruff",
     "licensecheck",
-    "nox",
+    "nox>=2025.11.12",
     "uv",
     "ipython",
 ]
