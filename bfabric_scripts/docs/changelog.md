@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Added
+
+- `bfabric-cli api inspect` to inspect various API endpoints directly from the command line.
+
 ## \[1.13.39\] - 2025-12-03
 
 ### Fixed
