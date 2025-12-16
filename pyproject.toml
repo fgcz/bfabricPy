@@ -9,6 +9,7 @@ members = [
     "bfabric_scripts",
     "bfabric_app_runner",
     "bfabric_rest_proxy",
+    "bfabric_asgi_auth",
 ]
 
 [tool.uv.sources]
@@ -38,7 +39,7 @@ indent-width = 4
 target-version = "py311"
 
 [tool.uv]
-reinstall-package = ["bfabric", "bfabric_scripts", "bfabric_app_runner", "bfabric_rest_proxy"]
+reinstall-package = ["bfabric", "bfabric_scripts", "bfabric_app_runner", "bfabric_rest_proxy", "bfabric-asgi-auth"]
 
 [tool.basedpyright]
 exclude = [
