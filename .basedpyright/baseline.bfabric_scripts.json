@@ -4600,14 +4600,6 @@
         ],
         "./bfabric_scripts/src/bfabric_scripts/optional_features.py": [
             {
-                "code": "reportMissingImports",
-                "range": {
-                    "startColumn": 15,
-                    "endColumn": 24,
-                    "lineCount": 1
-                }
-            },
-            {
                 "code": "reportUnusedImport",
                 "range": {
                     "startColumn": 15,

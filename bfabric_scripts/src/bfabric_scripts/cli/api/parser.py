@@ -5,7 +5,10 @@ Pydantic models for introspection and programmatic access.
 
 Note: This module deals with SUDS, which has limited type stubs. Many type
 checks are suppressed here as they relate to the SUDS library's dynamic nature.
+This module deeply interacts with SUDS internals and type checking is disabled.
 """
+
+# pyright: basic
 
 from typing import Any
 
@@ -59,9 +62,8 @@ def parse_method_signature(
         AttributeError: If endpoint or method doesn't exist
     """
     # Get the SUDS service
-    service = client._engine._get_suds_service(
-        endpoint
-    )  # pyright: ignore[reportPrivateUsage,reportAttributeAccessIssue,reportUnknownVariableType,reportUnknownMemberType]
+    # Note: This only works with EngineSuds, not EngineZeep
+    service = client._engine._get_suds_service(endpoint)  # type: ignore[attr-defined]  # pyright: ignore[reportPrivateUsage,reportAttributeAccessIssue,reportUnknownVariableType,reportUnknownMemberType]
 
     # Get the specified method
     method = getattr(service, method_name)  # pyright: ignore[reportAny,reportUnknownArgumentType]
@@ -96,8 +98,8 @@ def parse_method_signature(
             type_name=type_name,
             # Use SUDS built-in method to check if required, fallback to True (XSD default when minOccurs not specified)
             required=(
-                resolved_type.required() if hasattr(resolved_type, "required") else True
-            ),  # pyright: ignore[reportAny]
+                resolved_type.required() if hasattr(resolved_type, "required") else True  # pyright: ignore[reportAny]
+            ),
             children=children,
         )
 
