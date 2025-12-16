@@ -4,12 +4,11 @@ from __future__ import annotations
 
 import asyncio
 import time
-from typing import Any
 
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
-from pytest_bdd import given, parsers, scenarios, then, when
+from pytest_bdd import given, parsers, then, when
 from starlette.applications import Starlette
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
@@ -390,7 +389,8 @@ def validation_fails(context):
 def result_has_client_config(context):
     """Check validation result has client config."""
     result = context["validation_result"]
-    assert result.client_config is not None
+    assert result.bfabric_instance is not None
+    assert result.bfabric_auth is not None
 
 
 @then("the result should contain user information")
@@ -411,7 +411,7 @@ def error_contains(context, text):
 def client_config_has_field(context, field):
     """Check client config has field."""
     result = context["validation_result"]
-    assert field in result.client_config
+    assert getattr(result, field) is not None
 
 
 @then(parsers.parse('the user info should contain "{field}"'))
