@@ -10,12 +10,12 @@ class SessionData(BaseModel):
     There are no intermediate states - token validation either succeeds and creates a session,
     or fails and no session is created.
 
-    :ivar client_config: Bfabric client configuration
-    :ivar user_info: User information from token validation
+    :ivar bfabric_instance: Bfabric instance URL
+    :ivar bfabric_auth_login: Bfabric authentication login
+    :ivar bfabric_auth_password: Bfabric authentication password
+    :ivar user_info: Additional information from token validation
     """
 
-    # TODO doc
-    # client_config: dict[str, Any]
     bfabric_instance: str
     bfabric_auth_login: str
     bfabric_auth_password: str
