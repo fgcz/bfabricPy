@@ -5,8 +5,14 @@ from urllib.parse import parse_qs
 from asgiref.typing import ASGI3Application, ASGIReceiveCallable, ASGISendCallable, Scope
 from loguru import logger
 from pydantic import SecretStr
-from starlette.responses import PlainTextResponse, RedirectResponse
 
+from bfabric_asgi_auth.response_renderer import (
+    ErrorContext,
+    PlainTextRenderer,
+    RedirectContext,
+    ResponseRenderer,
+    SuccessContext,
+)
 from bfabric_asgi_auth.session_data import SessionData
 from bfabric_asgi_auth.token_validation.strategy import (
     TokenValidationSuccess,
@@ -29,6 +35,7 @@ class BfabricAuthMiddleware:
         token_param: str = "token",
         authenticated_path: str = "/",
         logout_path: str = "/logout",
+        renderer: ResponseRenderer | None = None,
     ) -> None:
         """Initialize the middleware.
 
@@ -38,6 +45,7 @@ class BfabricAuthMiddleware:
         :param token_param: Query parameter name for token (default: token)
         :param authenticated_path: Path to redirect to after successful authentication (default: /)
         :param logout_path: URL path for logout (default: /logout)
+        :param renderer: Response renderer for customizing error/success pages (default: PlainTextRenderer)
         """
         self.app: ASGI3Application = app
         self.token_validator: TokenValidatorStrategy = token_validator
@@ -45,6 +53,7 @@ class BfabricAuthMiddleware:
         self.token_param: str = token_param
         self.authenticated_path: str = authenticated_path
         self.logout_path: str = logout_path
+        self.renderer: ResponseRenderer = renderer or PlainTextRenderer()
 
     async def __call__(self, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
         # Handle middleware-provided operations
@@ -64,7 +73,13 @@ class BfabricAuthMiddleware:
                 if scope["type"] == "websocket":
                     return await self._send_websocket_close(send, 1008, "Not authenticated")
                 else:
-                    return await self._send_unauthorized(send, "Not authenticated")
+                    context = ErrorContext(
+                        message="Not authenticated",
+                        status_code=401,
+                        error_type="unauthorized",
+                        scope=scope,
+                    )
+                    return await self.renderer.render_error(context, receive, send)
 
             # Attach session data to scope for the application
             scope["bfabric_session"] = session_data_dict
@@ -85,8 +100,13 @@ class BfabricAuthMiddleware:
         token_value = params.get(self.token_param, [None])[0]
 
         if not token_value:
-            response = PlainTextResponse("Error: Missing token parameter", status_code=400)
-            await response(scope, receive, send)
+            context = ErrorContext(
+                message="Missing token parameter",
+                status_code=400,
+                error_type="missing_token",
+                scope=scope,
+            )
+            await self.renderer.render_error(context, receive, send)
             return
 
         token = SecretStr(token_value)
@@ -95,8 +115,13 @@ class BfabricAuthMiddleware:
         result = await self.token_validator(token)
 
         if not isinstance(result, TokenValidationSuccess):
-            response = PlainTextResponse(f"Error: {result.error or 'Token validation failed'}", status_code=400)
-            await response(scope, receive, send)
+            context = ErrorContext(
+                message=result.error or "Token validation failed",
+                status_code=400,
+                error_type="invalid_token",
+                scope=scope,
+            )
+            await self.renderer.render_error(context, receive, send)
             return
 
         # Create session data
@@ -113,15 +138,20 @@ class BfabricAuthMiddleware:
         session = scope.get("session")
         if session is None:
             # Session middleware should have set this, but handle gracefully
-            response = PlainTextResponse("Error: Session middleware not configured", status_code=500)
-            await response(scope, receive, send)
+            context = ErrorContext(
+                message="Session middleware not configured",
+                status_code=500,
+                error_type="server_error",
+                scope=scope,
+            )
+            await self.renderer.render_error(context, receive, send)
             return
 
         session["bfabric_session"] = session_data.model_dump()
 
         # Send redirect response
-        response = RedirectResponse(url=self.authenticated_path, status_code=302)
-        await response(scope, receive, send)
+        context = RedirectContext(url=self.authenticated_path, redirect_type="authenticated", scope=scope)
+        await self.renderer.render_redirect(context, receive, send)
 
     async def _handle_logout(self, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
         """Handle logout request."""
@@ -132,48 +162,8 @@ class BfabricAuthMiddleware:
             session.clear()
 
         # Send success response
-        response = PlainTextResponse("Logged out successfully\n", status_code=200)
-        await response(scope, receive, send)
-
-    async def _send_unauthorized(self, send: ASGISendCallable, message: str = "Unauthorized") -> None:
-        """Send HTTP 401 response."""
-        body = f"{message}\n".encode("utf-8")
-        await send(
-            {
-                "type": "http.response.start",
-                "status": 401,
-                "headers": [
-                    (b"content-type", b"text/plain"),
-                    (b"content-length", str(len(body)).encode("utf-8")),
-                ],
-            }
-        )
-        await send(
-            {
-                "type": "http.response.body",
-                "body": body,
-            }
-        )
-
-    async def _send_error(self, send: ASGISendCallable, message: str) -> None:
-        """Send HTTP 400 response."""
-        body = f"Error: {message}\n".encode("utf-8")
-        await send(
-            {
-                "type": "http.response.start",
-                "status": 400,
-                "headers": [
-                    (b"content-type", b"text/plain"),
-                    (b"content-length", str(len(body)).encode("utf-8")),
-                ],
-            }
-        )
-        await send(
-            {
-                "type": "http.response.body",
-                "body": body,
-            }
-        )
+        context = SuccessContext(message="Logged out successfully", success_type="logout", scope=scope)
+        await self.renderer.render_success(context, receive, send)
 
     async def _send_websocket_close(self, send: ASGISendCallable, code: int, reason: str) -> None:
         """Close WebSocket connection with error code."""

@@ -3,6 +3,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from bfabric_asgi_auth import create_bfabric_validator, create_mock_validator  # noqa
 from bfabric_asgi_auth.middleware import BfabricAuthMiddleware
+from bfabric_asgi_auth.response_renderer import HTMLRenderer
 
 # Create FastAPI app
 app = fastapi.FastAPI()
@@ -16,10 +17,7 @@ token_validator = create_mock_validator()
 # so that SessionMiddleware ends up on the OUTSIDE
 
 # Add auth middleware FIRST (so it's inner)
-app.add_middleware(
-    BfabricAuthMiddleware,
-    token_validator=token_validator,
-)
+app.add_middleware(BfabricAuthMiddleware, token_validator=token_validator, renderer=HTMLRenderer(page_title="My App"))
 
 # Add session middleware LAST (so it's outer and wraps BfabricAuthMiddleware)
 app.add_middleware(
