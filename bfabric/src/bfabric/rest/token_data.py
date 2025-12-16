@@ -18,10 +18,12 @@ from pydantic import (
 )
 
 from bfabric.entities.core.import_entity import import_entity
+from bfabric.errors import BfabricInstanceNotConfiguredError
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
     from bfabric.entities.core.entity import Entity
+    from bfabric.experimental.webapp_integration_settings import TokenValidationSettings
 
 
 def _parse_boolean_string(v: str, handler: ValidatorFunctionWrapHandler, info: ValidationInfo) -> bool:
@@ -95,3 +97,21 @@ def get_token_data(base_url: str, token: str) -> TokenData:
     If the request fails, an exception is raised.
     """
     return asyncio.run(get_token_data_async(base_url=base_url, token=token, http_client=None))
+
+
+async def validate_token(
+    token: str, settings: TokenValidationSettings, http_client: httpx.AsyncClient | None = None
+) -> TokenData:
+    """Validates the token according to the provided settings.
+
+    Raises:
+        httpx.HTTPError: If the HTTP request fails (covers connection errors, timeouts, 4xx/5xx status).
+        pydantic.ValidationError: If the response body is not valid JSON or doesn't match the TokenData schema.
+        BfabricInstanceNotConfiguredError: If the caller is not configured as supported.
+    """
+    token_data = await get_token_data_async(
+        base_url=settings.validation_bfabric_instance, token=token, http_client=http_client
+    )
+    if token_data.caller not in settings.supported_bfabric_instances:
+        raise BfabricInstanceNotConfiguredError(token_data.caller)
+    return token_data
