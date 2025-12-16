@@ -77,7 +77,9 @@ class TokenData(BaseModel):
         return entity_class.find(self.entity_id, client=client)
 
 
-async def get_token_data_async(base_url: str, token: str, http_client: httpx.AsyncClient | None) -> TokenData:
+async def get_token_data_async(
+    base_url: str, token: str | SecretStr, http_client: httpx.AsyncClient | None
+) -> TokenData:
     """Returns the token data for the provided token.
 
     Raises:
@@ -86,7 +88,9 @@ async def get_token_data_async(base_url: str, token: str, http_client: httpx.Asy
     """
     url = urllib.parse.urljoin(f"{base_url}/", "rest/token/validate")
     async with contextlib.nullcontext(http_client) if http_client is not None else httpx.AsyncClient() as client:
-        response = await client.get(url, params={"token": token})
+        response = await client.get(
+            url, params={"token": token.get_secret_value() if isinstance(token, SecretStr) else token}
+        )
     _ = response.raise_for_status()
     return TokenData.model_validate_json(response.text)
 
@@ -100,7 +104,7 @@ def get_token_data(base_url: str, token: str) -> TokenData:
 
 
 async def validate_token(
-    token: str, settings: TokenValidationSettings, http_client: httpx.AsyncClient | None = None
+    token: str | SecretStr, settings: TokenValidationSettings, http_client: httpx.AsyncClient | None = None
 ) -> TokenData:
     """Validates the token according to the provided settings.
 
