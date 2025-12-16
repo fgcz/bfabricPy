@@ -162,37 +162,3 @@ app.add_middleware(
     max_age=3600,
 )
 ```
-
-## Migration from URL-based Sessions
-
-Previous version used URL-based sessions (`/session/{uuid}/path`). Key changes:
-
-### Before
-
-```python
-from bfabric_asgi_auth import SessionStoreMem
-
-session_store = SessionStoreMem(default_ttl=3600)
-app.add_middleware(BfabricAuthMiddleware, session_store=session_store, ...)
-# URLs: /session/123e4567-e89b-12d3-a456-426614174000/data
-```
-
-### After
-
-```python
-from starlette.middleware.sessions import SessionMiddleware
-
-app.add_middleware(BfabricAuthMiddleware, ...)  # First
-app.add_middleware(SessionMiddleware, secret_key="...", max_age=3600)  # Last
-# URLs: /data (with session cookie)
-```
-
-### Changes
-
-- ✅ Simpler code (no custom session store)
-- ✅ Standard Starlette patterns
-- ✅ Built-in logout at `/logout`
-- ❌ No URL shareability (cookies are per-browser)
-- Session data access: `request.scope["bfabric_session"]` (unchanged)
-
-See [examples/example_app.py](examples/example_app.py) for complete examples.
