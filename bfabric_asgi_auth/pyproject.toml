@@ -34,3 +34,13 @@ test = [
     "coverage>=7.11.0",
     "httpx>=0.28.1",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["bdd"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
+markers = [
+    "bdd: BDD tests using pytest-bdd",
+]
