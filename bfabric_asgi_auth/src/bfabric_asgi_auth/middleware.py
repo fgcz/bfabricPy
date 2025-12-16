@@ -82,11 +82,11 @@ class BfabricAuthMiddleware:
                     return await self.renderer.render_error(context, receive, send)
 
             # Attach session data to scope for the application
-            scope["bfabric_session"] = session_data_dict
+            scope["bfabric_session"] = session_data_dict  # pyright: ignore[reportGeneralTypeIssues]
         elif scope["type"] == "lifespan":
             pass
         else:
-            logger.info(f"Dropping unknown scope: {scope['type']}")
+            logger.warning(f"Dropping unknown scope: {scope['type']}")  # pyright: ignore[reportUnreachable]
             return
 
         # Pass to the main application
@@ -158,8 +158,8 @@ class BfabricAuthMiddleware:
         # Clear session by modifying scope["session"] directly
         # This is framework-agnostic and works with any ASGI session middleware
         session = scope.get("session")
-        if session is not None:
-            logged_in = session.get("bfabric_session") is not None
+        if session is not None and isinstance(session, dict):
+            logged_in = session.get("bfabric_session") is not None  # pyright: ignore[reportUnknownMemberType]
             session.clear()
 
             # Send success response
