@@ -1,5 +1,5 @@
 # pyright: basic
-import fastapi
+import fastapi  # pyright: ignore[reportMissingImports]
 from starlette.middleware.sessions import SessionMiddleware
 
 from bfabric_asgi_auth import create_bfabric_validator, create_mock_validator  # noqa
