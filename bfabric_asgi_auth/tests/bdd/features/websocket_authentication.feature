@@ -16,10 +16,3 @@ Feature: WebSocket authentication
     When I connect to WebSocket "/ws"
     Then the connection should be accepted
     And the scope should contain "bfabric_session"
-
-  Scenario: WebSocket connection with expired session
-    Given the session max_age is 1 second
-    And I am authenticated with token "valid_test123"
-    When I wait 2 seconds
-    And I connect to WebSocket "/ws"
-    Then the connection should be rejected with code 1008

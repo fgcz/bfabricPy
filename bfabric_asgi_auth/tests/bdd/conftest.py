@@ -237,7 +237,12 @@ def request_url_multiple(context, client, url, count):
 def modify_cookie(context, client):
     """Tamper with session cookie."""
     if "session" in client.cookies:
-        # Modify the session cookie value
+        # Modify the session cookie value by clearing and setting new one
+        # First, extract domain/path info to remove the old cookie properly
+        session_cookies = [c for c in client.cookies.jar if c.name == "session"]
+        for cookie in session_cookies:
+            client.cookies.delete("session", domain=cookie.domain, path=cookie.path)
+        # Now set the tampered value
         client.cookies.set("session", "tampered_value")
 
 
