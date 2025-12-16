@@ -1,0 +1,56 @@
+from __future__ import annotations
+
+from pydantic import SecretStr
+
+from bfabric.rest.token_data import get_token_data_async
+from bfabric_asgi_auth import TokenValidationResult
+from bfabric_asgi_auth.token_validation.strategy import TokenValidatorStrategy
+
+
+def create_bfabric_validator(
+    validation_instance_url: str = "https://fgcz-bfabric-test.uzh.ch/bfabric/",
+) -> TokenValidatorStrategy:
+    """Create a validator that uses async Bfabric token validation.
+
+    :param validation_instance_url: URL of the B-Fabric instance for token validation
+    """
+
+    async def bfabric_validation(token: SecretStr) -> TokenValidationResult:
+        try:
+            # Use async token validation
+            token_data = await get_token_data_async(
+                base_url=validation_instance_url,
+                token=token.get_secret_value(),
+                http_client=None,
+            )
+
+            # Extract client configuration
+            client_config = {
+                "base_url": token_data.caller,
+                "login": token_data.user,
+                "password": token_data.user_ws_password.get_secret_value(),
+            }
+
+            # Extract user information from token data
+            user_info = {
+                "username": token_data.user,
+                "job_id": token_data.job_id,
+                "application_id": token_data.application_id,
+                "entity_class": token_data.entity_class,
+                "entity_id": token_data.entity_id,
+                "token_expires": token_data.token_expires.isoformat(),
+                "environment": token_data.environment,
+            }
+
+            return TokenValidationResult(
+                success=True,
+                client_config=client_config,
+                user_info=user_info,
+            )
+        except Exception as e:
+            return TokenValidationResult(
+                success=False,
+                error=f"Bfabric token validation failed: {str(e)}",
+            )
+
+    return bfabric_validation

@@ -8,7 +8,7 @@ from starlette.requests import Request
 from starlette.responses import PlainTextResponse, RedirectResponse
 
 from bfabric_asgi_auth.session_data import SessionData
-from bfabric_asgi_auth.token_validator import TokenValidatorStrategy
+from bfabric_asgi_auth.token_validation.strategy import TokenValidatorStrategy
 
 
 class BfabricAuthMiddleware:

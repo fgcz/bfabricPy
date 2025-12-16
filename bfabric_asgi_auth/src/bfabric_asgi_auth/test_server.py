@@ -1,9 +1,8 @@
 import fastapi
 from starlette.middleware.sessions import SessionMiddleware
 
-from bfabric_asgi_auth import create_bfabric_validator  # noqa
+from bfabric_asgi_auth import create_bfabric_validator, create_mock_validator  # noqa
 from bfabric_asgi_auth.middleware import BfabricAuthMiddleware
-from bfabric_asgi_auth.token_validator import create_mock_validator  # noqa
 
 # Create FastAPI app
 app = fastapi.FastAPI()
