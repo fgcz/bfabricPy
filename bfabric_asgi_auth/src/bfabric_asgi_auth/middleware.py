@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from urllib.parse import parse_qs
 
-from asgiref.typing import ASGIApplication, ASGIReceiveCallable, ASGISendCallable, Scope
+from asgiref.typing import ASGI3Application, ASGIReceiveCallable, ASGISendCallable, Scope
 from loguru import logger
 from pydantic import SecretStr
 from starlette.requests import Request
@@ -24,7 +24,7 @@ class BfabricAuthMiddleware:
 
     def __init__(
         self,
-        app: ASGIApplication,
+        app: ASGI3Application,
         token_validator: TokenValidatorStrategy,
         landing_path: str = "/landing",
         token_param: str = "token",
@@ -40,7 +40,7 @@ class BfabricAuthMiddleware:
         :param authenticated_path: Path to redirect to after successful authentication (default: /)
         :param logout_path: URL path for logout (default: /logout)
         """
-        self.app: ASGIApplication = app
+        self.app: ASGI3Application = app
         self.token_validator: TokenValidatorStrategy = token_validator
         self.landing_path: str = landing_path
         self.token_param: str = token_param
@@ -56,7 +56,7 @@ class BfabricAuthMiddleware:
                 return await self._handle_landing(scope, receive, send)
 
         # Ensure authentication is provided
-        if scope["type"] in ("http", "websocket"):
+        if scope["type"] == "http" or scope["type"] == "websocket":
             # Get session data from scope (set by SessionMiddleware)
             session = scope.get("session", {})
             session_data_dict = session.get("bfabric_session")
