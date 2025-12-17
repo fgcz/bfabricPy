@@ -19,4 +19,5 @@ class SessionData(BaseModel):
     bfabric_instance: str
     bfabric_auth_login: str
     bfabric_auth_password: str
+    # TODO user_info to be removed from here
     user_info: dict[str, str | int]

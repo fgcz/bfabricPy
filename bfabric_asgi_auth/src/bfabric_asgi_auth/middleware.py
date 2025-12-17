@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Protocol
 from urllib.parse import parse_qs
 
 from asgiref.typing import ASGI3Application, ASGIReceiveCallable, ASGISendCallable, Scope
@@ -19,6 +20,13 @@ from bfabric_asgi_auth.token_validation.strategy import (
     TokenValidatorStrategy,
 )
 
+if TYPE_CHECKING:
+    from bfabric.rest.token_data import TokenData
+
+
+class LandingCallbackProtocol(Protocol):
+    async def __call__(self, *, session_data: SessionData, token_data: TokenData) -> str | None: ...
+
 
 class BfabricAuthMiddleware:
     """ASGI middleware for Bfabric authentication using session cookies.
@@ -32,6 +40,7 @@ class BfabricAuthMiddleware:
         app: ASGI3Application,
         token_validator: TokenValidatorStrategy,
         landing_path: str = "/landing",
+        landing_callback: LandingCallbackProtocol | None = None,
         token_param: str = "token",
         authenticated_path: str = "/",
         logout_path: str = "/logout",
@@ -50,6 +59,7 @@ class BfabricAuthMiddleware:
         self.app: ASGI3Application = app
         self.token_validator: TokenValidatorStrategy = token_validator
         self.landing_path: str = landing_path
+        self.landing_callback: LandingCallbackProtocol | None = landing_callback
         self.token_param: str = token_param
         self.authenticated_path: str = authenticated_path
         self.logout_path: str = logout_path
@@ -149,8 +159,17 @@ class BfabricAuthMiddleware:
 
         session["bfabric_session"] = session_data.model_dump()
 
+        # Invoke the landing callback, if configured, and determine the redirect URL
+        redirect_url = self.authenticated_path
+        if self.landing_callback is not None:
+            callback_result = await self.landing_callback(session_data=session_data, token_data=result.token_data)
+            if callback_result is not None:
+                redirect_url = callback_result
+            else:
+                logger.info("Landing callback returned None, redirecting to default authenticated_path.")
+
         # Send redirect response
-        context = RedirectContext(url=self.authenticated_path, redirect_type="authenticated", scope=scope)
+        context = RedirectContext(url=redirect_url, redirect_type="authenticated", scope=scope)
         await self.renderer.render_redirect(context, receive, send)
 
     async def _handle_logout(self, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
