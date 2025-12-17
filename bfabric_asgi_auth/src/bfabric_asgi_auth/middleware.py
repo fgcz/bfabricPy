@@ -157,16 +157,29 @@ class BfabricAuthMiddleware:
             await self.renderer.render_error(context, receive, send)
             return
 
-        session["bfabric_session"] = session_data.model_dump()
-
         # Invoke the landing callback, if configured, and determine the redirect URL
         redirect_url = self.authenticated_path
         if self.landing_callback is not None:
-            callback_result = await self.landing_callback(session_data=session_data, token_data=result.token_data)
+            try:
+                callback_result = await self.landing_callback(session_data=session_data, token_data=result.token_data)
+            except Exception as e:
+                logger.error(f"Landing callback failed: {e}")
+                context = ErrorContext(
+                    message="Landing callback failed",
+                    status_code=500,
+                    error_type="server_error",
+                    scope=scope,
+                )
+                await self.renderer.render_error(context, receive, send)
+                return
+
             if callback_result is not None:
                 redirect_url = callback_result
             else:
-                logger.info("Landing callback returned None, redirecting to default authenticated_path.")
+                logger.debug("Landing callback returned None, redirecting to default authenticated_path.")
+
+        # update the session
+        session["bfabric_session"] = session_data.model_dump()
 
         # Send redirect response
         context = RedirectContext(url=redirect_url, redirect_type="authenticated", scope=scope)
