@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Any, Protocol, TypeGuard
 from urllib.parse import parse_qs
 
 from asgiref.typing import ASGI3Application, ASGIReceiveCallable, ASGISendCallable, Scope
@@ -24,8 +24,11 @@ if TYPE_CHECKING:
     from bfabric.rest.token_data import TokenData
 
 
+JsonSerializable = str | int | float | bool | None | dict[str, "JsonSerializable"] | list["JsonSerializable"]
+
+
 class LandingCallbackProtocol(Protocol):
-    async def __call__(self, *, session_data: SessionData, token_data: TokenData) -> str | None: ...
+    async def __call__(self, *, session: dict[str, JsonSerializable], token_data: TokenData) -> str | None: ...
 
 
 class BfabricAuthMiddleware:
@@ -156,12 +159,21 @@ class BfabricAuthMiddleware:
             )
             await self.renderer.render_error(context, receive, send)
             return
+        if not _is_valid_session_dict(session):
+            context = ErrorContext(
+                message="Invalid session data",
+                status_code=400,
+                error_type="client_error",
+                scope=scope,
+            )
+            await self.renderer.render_error(context, receive, send)
+            return
 
         # Invoke the landing callback, if configured, and determine the redirect URL
         redirect_url = self.authenticated_path
         if self.landing_callback is not None:
             try:
-                callback_result = await self.landing_callback(session_data=session_data, token_data=result.token_data)
+                callback_result = await self.landing_callback(session=session, token_data=result.token_data)
             except Exception as e:
                 logger.error(f"Landing callback failed: {e}")
                 context = ErrorContext(
@@ -216,3 +228,27 @@ class BfabricAuthMiddleware:
                 "reason": reason,
             }
         )
+
+
+def _is_json_serializable(value: Any) -> TypeGuard[JsonSerializable]:  # pyright: ignore[reportAny, reportExplicitAny]
+    """Check if a value is JSON serializable."""
+    if isinstance(value, (str, int, float, bool, type(None))):
+        return True
+    if isinstance(value, dict):
+        return all(
+            isinstance(k, str) and _is_json_serializable(v) for k, v in value.items()
+        )  # pyright: ignore[reportUnknownVariableType]
+    if isinstance(value, list):
+        return all(_is_json_serializable(item) for item in value)  # pyright: ignore[reportUnknownVariableType]
+    return False
+
+
+def _is_valid_session_dict(
+    session: Any,
+) -> TypeGuard[dict[str, JsonSerializable]]:  # pyright: ignore[reportAny, reportExplicitAny]
+    """Check if session is a valid dict with string keys and JSON serializable values."""
+    if not isinstance(session, dict):
+        return False
+    return all(
+        isinstance(key, str) and _is_json_serializable(value) for key, value in session.items()
+    )  # pyright: ignore[reportUnknownVariableType]
