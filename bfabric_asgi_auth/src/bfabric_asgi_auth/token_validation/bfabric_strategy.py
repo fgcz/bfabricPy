@@ -46,6 +46,7 @@ def create_bfabric_validator(settings: TokenValidationSettings) -> TokenValidato
             bfabric_instance=token_data.caller,
             bfabric_auth=bfabric_auth,
             user_info=user_info,
+            token_data=token_data,
         )
 
     return bfabric_validation

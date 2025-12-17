@@ -25,10 +25,10 @@ if TYPE_CHECKING:
     from bfabric.entities.core.entity import Entity
 
 
-def _parse_boolean_string(v: str, handler: ValidatorFunctionWrapHandler, info: ValidationInfo) -> bool:
+def _parse_boolean_string(v: bool | str, handler: ValidatorFunctionWrapHandler, info: ValidationInfo) -> bool:
     """Parses a boolean string "true" or "false" to a boolean value."""
     _ = handler, info
-    return {"true": True, "false": False}[v]
+    return {"true": True, "false": False, True: True, False: False}[v]
 
 
 BooleanString = Annotated[bool, WrapValidator(_parse_boolean_string)]
