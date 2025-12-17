@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING, Any, Protocol, TypeGuard
 from urllib.parse import parse_qs
 
@@ -24,7 +25,7 @@ if TYPE_CHECKING:
     from bfabric.rest.token_data import TokenData
 
 
-JsonRepresentable = str | int | float | bool | None | dict[str, "JsonRepresentable"] | list["JsonRepresentable"]
+JsonRepresentable = str | int | float | bool | None | Mapping[str, "JsonRepresentable"] | Sequence["JsonRepresentable"]
 
 
 class LandingCallbackProtocol(Protocol):
