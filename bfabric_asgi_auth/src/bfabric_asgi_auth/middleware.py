@@ -24,11 +24,11 @@ if TYPE_CHECKING:
     from bfabric.rest.token_data import TokenData
 
 
-JsonSerializable = str | int | float | bool | None | dict[str, "JsonSerializable"] | list["JsonSerializable"]
+JsonRepresentable = str | int | float | bool | None | dict[str, "JsonRepresentable"] | list["JsonRepresentable"]
 
 
 class LandingCallbackProtocol(Protocol):
-    async def __call__(self, *, session: dict[str, JsonSerializable], token_data: TokenData) -> str | None: ...
+    async def __call__(self, *, session: dict[str, JsonRepresentable], token_data: TokenData) -> str | None: ...
 
 
 class BfabricAuthMiddleware:
@@ -230,25 +230,25 @@ class BfabricAuthMiddleware:
         )
 
 
-def _is_json_serializable(value: Any) -> TypeGuard[JsonSerializable]:  # pyright: ignore[reportAny, reportExplicitAny]
-    """Check if a value is JSON serializable."""
+def _is_json_representable(value: Any) -> TypeGuard[JsonRepresentable]:  # pyright: ignore[reportAny, reportExplicitAny]
+    """Check if a value is JSON representable."""
     if isinstance(value, (str, int, float, bool, type(None))):
         return True
     if isinstance(value, dict):
         return all(
-            isinstance(k, str) and _is_json_serializable(v) for k, v in value.items()
+            isinstance(k, str) and _is_json_representable(v) for k, v in value.items()
         )  # pyright: ignore[reportUnknownVariableType]
     if isinstance(value, list):
-        return all(_is_json_serializable(item) for item in value)  # pyright: ignore[reportUnknownVariableType]
+        return all(_is_json_representable(item) for item in value)  # pyright: ignore[reportUnknownVariableType]
     return False
 
 
 def _is_valid_session_dict(
     session: Any,
-) -> TypeGuard[dict[str, JsonSerializable]]:  # pyright: ignore[reportAny, reportExplicitAny]
-    """Check if session is a valid dict with string keys and JSON serializable values."""
+) -> TypeGuard[dict[str, JsonRepresentable]]:  # pyright: ignore[reportAny, reportExplicitAny]
+    """Check if session is a valid dict with string keys and JSON representable values."""
     if not isinstance(session, dict):
         return False
     return all(
-        isinstance(key, str) and _is_json_serializable(value) for key, value in session.items()
+        isinstance(key, str) and _is_json_representable(value) for key, value in session.items()
     )  # pyright: ignore[reportUnknownVariableType]
