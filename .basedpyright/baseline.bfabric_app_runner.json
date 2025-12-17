@@ -550,14 +550,6 @@
         ],
         "./bfabric_app_runner/src/bfabric_app_runner/actions/execute.py": [
             {
-                "code": "reportImplicitStringConcatenation",
-                "range": {
-                    "startColumn": 12,
-                    "endColumn": 64,
-                    "lineCount": 3
-                }
-            },
-            {
                 "code": "reportUnusedCallResult",
                 "range": {
                     "startColumn": 8,

@@ -11,13 +11,15 @@ app = fastapi.FastAPI()
 
 # Create token validator
 token_validator = create_mock_validator()
-# token_validator = create_bfabric_validator()
+# token_validator = create_bfabric_validator(settings)
 
 # IMPORTANT: Middleware order matters!
 # add_middleware adds them in REVERSE order, so add BfabricAuthMiddleware FIRST
 # so that SessionMiddleware ends up on the OUTSIDE
 
 # Add auth middleware FIRST (so it's inner)
+
+# TODO HTMLRender should be default?
 app.add_middleware(BfabricAuthMiddleware, token_validator=token_validator, renderer=HTMLRenderer())
 
 # Add session middleware LAST (so it's outer and wraps BfabricAuthMiddleware)

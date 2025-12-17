@@ -13,6 +13,7 @@ Authors:
 
 from __future__ import annotations
 
+import asyncio
 import base64
 import importlib.metadata
 import sys
@@ -33,13 +34,15 @@ from bfabric.config.config_data import ConfigData, load_config_data
 from bfabric.config.config_file import read_config_file
 from bfabric.engine.engine_suds import EngineSUDS
 from bfabric.engine.engine_zeep import EngineZeep
-from bfabric.rest.token_data import TokenData, get_token_data
+from bfabric.rest.token_data import TokenData, TokenValidationSettingsProtocol, get_token_data, validate_token
 from bfabric.results.result_container import ResultContainer
 from bfabric.utils.cli_integration import DEFAULT_THEME, HostnameHighlighter
 from bfabric.utils.paginator import BFABRIC_QUERY_LIMIT, compute_requested_pages
 
 if TYPE_CHECKING:
     from collections.abc import Generator
+
+    from pydantic import SecretStr
 
     from bfabric.entities.core.entity_reader import EntityReader
     from bfabric.typing import ApiRequestObjectType, ApiResponseObjectType
@@ -115,12 +118,23 @@ class Bfabric:
             If it is set to None, no authentication will be used.
         :param engine: Engine to use for the API.
         """
+        warnings.warn(
+            "Bfabric.from_config() is deprecated and will be removed in a future release. "
+            "Use Bfabric.connect() instead."
+        )
         config, auth_config = get_system_auth(config_env=config_env, config_path=config_path)
         auth_used: BfabricAuth | None = auth_config if auth == "config" else auth
         # TODO https://github.com/fgcz/bfabricPy/issues/164
         # if engine is not None:
         #    config = config.copy_with(engine=engine)
         return cls(ConfigData(client=config, auth=auth_used))
+
+    @classmethod
+    def _from_token_data(cls, token_data: TokenData) -> Bfabric:
+        config_data_client = BfabricClientConfig.model_validate(dict(base_url=token_data.caller))
+        config_data_auth = BfabricAuth(login=token_data.user, password=token_data.user_ws_password)
+        config_data = ConfigData(client=config_data_client, auth=config_data_auth)
+        return cls(config_data=config_data)
 
     @classmethod
     def connect_webapp(
@@ -145,10 +159,18 @@ class Bfabric:
                 DeprecationWarning,
             )
         token_data = get_token_data(base_url=validation_instance_url, token=token)
-        config_data_client = BfabricClientConfig(base_url=token_data.caller)
-        config_data_auth = BfabricAuth(login=token_data.user, password=token_data.user_ws_password)
-        config_data = ConfigData(client=config_data_client, auth=config_data_auth)
-        return cls(config_data=config_data), token_data
+        return cls._from_token_data(token_data), token_data
+
+    @classmethod
+    def connect_token(
+        cls, token: str | SecretStr, settings: TokenValidationSettingsProtocol
+    ) -> tuple[Bfabric, TokenData]:
+        """Returns a new Bfabric instance configured with the provided token.
+
+        Settings needs to be configured to allow the desired B-Fabric instances.
+        """
+        token_data = asyncio.run(validate_token(token=token, settings=settings))
+        return cls._from_token_data(token_data), token_data
 
     @property
     def config(self) -> BfabricClientConfig:

@@ -57,3 +57,4 @@ exclude = [
     "bfabric_scripts/src/bfabric_scripts/bfabric_read_samples_from_dataset.py",
     "bfabric_scripts/src/bfabric_scripts/bfabric_read.py",
 ]
+reportImplicitStringConcatenation = false
