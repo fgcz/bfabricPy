@@ -4,7 +4,7 @@ import asyncio
 import contextlib
 import urllib.parse
 from datetime import datetime
-from typing import TYPE_CHECKING, Annotated, Any
+from typing import TYPE_CHECKING, Annotated, Any, Protocol, runtime_checkable
 
 import httpx
 from pydantic import (
@@ -23,7 +23,6 @@ from bfabric.errors import BfabricInstanceNotConfiguredError
 if TYPE_CHECKING:
     from bfabric import Bfabric
     from bfabric.entities.core.entity import Entity
-    from bfabric.experimental.webapp_integration_settings import TokenValidationSettings
 
 
 def _parse_boolean_string(v: str, handler: ValidatorFunctionWrapHandler, info: ValidationInfo) -> bool:
@@ -103,8 +102,14 @@ def get_token_data(base_url: str, token: str) -> TokenData:
     return asyncio.run(get_token_data_async(base_url=base_url, token=token, http_client=None))
 
 
+@runtime_checkable
+class TokenValidationSettingsProtocol(Protocol):
+    validation_bfabric_instance: str
+    supported_bfabric_instances: list[str]
+
+
 async def validate_token(
-    token: str | SecretStr, settings: TokenValidationSettings, http_client: httpx.AsyncClient | None = None
+    token: str | SecretStr, settings: TokenValidationSettingsProtocol, http_client: httpx.AsyncClient | None = None
 ) -> TokenData:
     """Validates the token according to the provided settings.
 
