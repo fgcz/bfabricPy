@@ -236,19 +236,21 @@ def _is_json_representable(value: Any) -> TypeGuard[JsonRepresentable]:  # pyrig
         return True
     if isinstance(value, dict):
         return all(
-            isinstance(k, str) and _is_json_representable(v) for k, v in value.items()
-        )  # pyright: ignore[reportUnknownVariableType]
+            isinstance(k, str) and _is_json_representable(v)
+            for k, v in value.items()  # pyright: ignore[reportUnknownVariableType]
+        )
     if isinstance(value, list):
         return all(_is_json_representable(item) for item in value)  # pyright: ignore[reportUnknownVariableType]
     return False
 
 
 def _is_valid_session_dict(
-    session: Any,
-) -> TypeGuard[dict[str, JsonRepresentable]]:  # pyright: ignore[reportAny, reportExplicitAny]
+    session: Any,  # pyright: ignore[reportAny, reportExplicitAny]
+) -> TypeGuard[dict[str, JsonRepresentable]]:
     """Check if session is a valid dict with string keys and JSON representable values."""
     if not isinstance(session, dict):
         return False
     return all(
-        isinstance(key, str) and _is_json_representable(value) for key, value in session.items()
-    )  # pyright: ignore[reportUnknownVariableType]
+        isinstance(key, str) and _is_json_representable(value)
+        for key, value in session.items()  # pyright: ignore[reportUnknownVariableType]
+    )
