@@ -15,6 +15,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
+    "bfabric-rest-proxy",
     "fastapi[standard]"
 ]
 

@@ -32,6 +32,13 @@ class BfabricConfigError(RuntimeError):
     pass
 
 
+class BfabricInstanceNotConfiguredError(RuntimeError):
+    """An error that is raised when the caller is not configured as supported."""
+
+    def __init__(self, instance_name: str) -> None:
+        super().__init__(f"Instance '{instance_name}' is not configured as supported.")
+
+
 # TODO: Also test for response-level errors
 def get_response_errors(response: Any, endpoint: str) -> list[BfabricRequestError]:
     """

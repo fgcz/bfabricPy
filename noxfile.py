@@ -239,6 +239,13 @@ def test_bfabric_app_runner(session, resolution):
     session.run("pytest", "--durations=50", "tests/bfabric_app_runner")
 
 
+@nox.session(python=["3.13"])
+def test_bfabric_asgi_auth(session):
+    session.install("--resolution", "highest", "./bfabric_asgi_auth[test]")
+    session.run("uv", "pip", "list")
+    session.run("pytest", "--gherkin-terminal-reporter", "-v", "bfabric_asgi_auth/tests")
+
+
 @nox.session
 def test_py_typed(session):
     """Verify py.typed is properly installed with the package."""

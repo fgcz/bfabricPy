@@ -1,9 +1,9 @@
 from typing import Any
-from json import JSONDecodeError
+import json
 import datetime
 import pytest
 import httpx
-from pydantic import SecretStr
+from pydantic import SecretStr, ValidationError
 
 from bfabric.rest.token_data import TokenData, get_token_data, get_token_data_async
 
@@ -43,6 +43,11 @@ def token_data_json() -> dict[str, Any]:
         "environment": "mock",
         "caller": "https://example.com/mock-caller",
     }
+
+
+@pytest.fixture
+def token_data_json_str(token_data_json) -> str:
+    return json.dumps(token_data_json)
 
 
 def test_str_strip_whitespace(token_data):
@@ -92,10 +97,8 @@ def test_load_entity(mocker, token_data):
 
 @pytest.mark.parametrize("extra_slash", ["", "/"])
 @pytest.mark.asyncio
-async def test_get_token_data_async(mocker, token_data_json, token_data, base_url, extra_slash: str):
-    mock_response = mocker.Mock()
-    mock_response.json.return_value = token_data_json
-    mock_response.raise_for_status = mocker.Mock()
+async def test_get_token_data_async(mocker, token_data, base_url, extra_slash: str, token_data_json_str):
+    mock_response = mocker.Mock(text=token_data_json_str)
 
     mock_client = mocker.AsyncMock()
     mock_client.get.return_value = mock_response
@@ -127,15 +130,16 @@ async def test_get_token_data_async_when_response_error(mocker, base_url):
 
 @pytest.mark.asyncio
 async def test_get_token_data_async_when_json_decode_error(mocker, base_url):
-    mock_response = mocker.Mock()
+    mock_response = mocker.Mock(text="not json")
     mock_response.raise_for_status = mocker.Mock()
-    mock_response.json.side_effect = JSONDecodeError("mocked", "mocked", 0)
 
     mock_client = mocker.AsyncMock()
     mock_client.get.return_value = mock_response
 
-    with pytest.raises(JSONDecodeError):
+    with pytest.raises(ValidationError) as err:
         await get_token_data_async(base_url=base_url, token="mock-token", http_client=mock_client)
+
+    assert "Invalid JSON" in str(err.value)
 
     mock_client.get.assert_called_once_with(f"{base_url}/rest/token/validate", params={"token": "mock-token"})
 
