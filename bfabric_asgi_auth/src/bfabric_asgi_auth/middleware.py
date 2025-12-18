@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import urllib.parse
 from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING, Any, Protocol, TypeGuard
-from urllib.parse import parse_qs
 
 from asgiref.typing import ASGI3Application, ASGIReceiveCallable, ASGISendCallable, Scope
 from loguru import logger
@@ -28,23 +28,35 @@ if TYPE_CHECKING:
 JsonRepresentable = str | int | float | bool | None | Mapping[str, "JsonRepresentable"] | Sequence["JsonRepresentable"]
 
 
-class LandingCallbackProtocol(Protocol):
-    async def __call__(self, *, session: dict[str, JsonRepresentable], token_data: TokenData) -> str | None: ...
+class AuthHooks(Protocol):
+    async def on_reject(self, scope: Scope) -> bool:
+        """Called when a request is rejected. If return value is False and scope type is HTTP, a default message will be displayed."""
+        return False
+
+    async def on_success(self, session: dict[str, JsonRepresentable], token_data: TokenData) -> str | None:
+        """Called on successful authentication. If the return value is not None, it is used as the redirect URL."""
+        return None
+
+    async def on_logout(self, session: dict[str, JsonRepresentable]) -> str | None:
+        """Called on logout. If the return value is not None, it is used as the redirect URL."""
+        return None
 
 
 class BfabricAuthMiddleware:
     """ASGI middleware for Bfabric authentication using session cookies.
 
-    This middleware must be added BEFORE SessionMiddleware when using add_middleware()
-    (which adds middleware in reverse order), so that SessionMiddleware wraps this middleware.
+    For starlette/fastapi users:
+        This middleware must be added BEFORE SessionMiddleware when using add_middleware()
+        (which adds middleware in reverse order), so that SessionMiddleware wraps this middleware.
     """
 
     def __init__(
         self,
         app: ASGI3Application,
         token_validator: TokenValidatorStrategy,
+        *,
         landing_path: str = "/landing",
-        landing_callback: LandingCallbackProtocol | None = None,
+        hooks: AuthHooks | None = None,
         token_param: str = "token",
         authenticated_path: str = "/",
         logout_path: str = "/logout",
@@ -55,6 +67,7 @@ class BfabricAuthMiddleware:
         :param app: The ASGI application to wrap
         :param token_validator: Token validator instance
         :param landing_path: URL path for landing page (default: /landing)
+        :param hooks: Authentication hooks for customizing behavior (default: None)
         :param token_param: Query parameter name for token (default: token)
         :param authenticated_path: Path to redirect to after successful authentication (default: /)
         :param logout_path: URL path for logout (default: /logout)
@@ -63,7 +76,7 @@ class BfabricAuthMiddleware:
         self.app: ASGI3Application = app
         self.token_validator: TokenValidatorStrategy = token_validator
         self.landing_path: str = landing_path
-        self.landing_callback: LandingCallbackProtocol | None = landing_callback
+        self.hooks: AuthHooks | None = hooks
         self.token_param: str = token_param
         self.authenticated_path: str = authenticated_path
         self.logout_path: str = logout_path
@@ -84,18 +97,11 @@ class BfabricAuthMiddleware:
             session_data_dict = session.get("bfabric_session")
 
             if not session_data_dict:
-                if scope["type"] == "websocket":
-                    return await self._send_websocket_close(send, 1008, "Not authenticated")
-                else:
-                    context = ErrorContext(
-                        message="Not authenticated",
-                        status_code=401,
-                        error_type="unauthorized",
-                        scope=scope,
-                    )
-                    return await self.renderer.render_error(context, receive, send)
+                return await self._handle_reject(scope=scope, receive=receive, send=send)
 
             # Attach session data to scope for the application
+            # TODO revisit this one, maybe it's redundant and better to take directly from the session,
+            #      but this also abstracts the session which has some benefit in other cases
             scope["bfabric_session"] = session_data_dict  # pyright: ignore[reportGeneralTypeIssues]
         elif scope["type"] == "lifespan":
             pass
@@ -106,11 +112,29 @@ class BfabricAuthMiddleware:
         # Pass to the main application
         await self.app(scope, receive, send)
 
+    async def _handle_reject(self, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
+        """Handle rejection of authentication."""
+        if self.hooks:
+            handled = await self.hooks.on_reject(scope=scope)
+            if handled:
+                return
+
+        if scope["type"] == "websocket":
+            return await self._send_websocket_close(send, 1008, "Not authenticated")
+        else:
+            context = ErrorContext(
+                message="Not authenticated",
+                status_code=401,
+                error_type="unauthorized",
+                scope=scope,
+            )
+            await self.renderer.render_error(context, receive, send)
+
     async def _handle_landing(self, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
         """Handle landing page request with token."""
         # Parse query string
         query_string = scope.get("query_string", b"").decode("utf-8")
-        params = parse_qs(query_string)
+        params = urllib.parse.parse_qs(query_string)
         token_value = params.get(self.token_param, [None])[0]
 
         if not token_value:
@@ -172,9 +196,9 @@ class BfabricAuthMiddleware:
 
         # Invoke the landing callback, if configured, and determine the redirect URL
         redirect_url = self.authenticated_path
-        if self.landing_callback is not None:
+        if self.hooks is not None:
             try:
-                callback_result = await self.landing_callback(session=session, token_data=result.token_data)
+                callback_result = await self.hooks.on_success(session=session, token_data=result.token_data)
             except Exception as e:
                 logger.error(f"Landing callback failed: {e}")
                 context = ErrorContext(
@@ -206,6 +230,11 @@ class BfabricAuthMiddleware:
         if session is not None and isinstance(session, dict):
             logged_in = session.get("bfabric_session") is not None  # pyright: ignore[reportUnknownMemberType]
             session.clear()
+
+            if self.hooks is not None:
+                handled = await self.hooks.on_logout(session=session)
+                if handled:
+                    return
 
             # Send success response
             if logged_in:
