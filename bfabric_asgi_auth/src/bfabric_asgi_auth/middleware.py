@@ -236,6 +236,7 @@ class BfabricAuthMiddleware:
         )
 
 
+# TODO decide whether to keep
 class ResponseWriter:
     def __init__(self, renderer: ResponseRenderer) -> None:
         self.renderer: ResponseRenderer = renderer
