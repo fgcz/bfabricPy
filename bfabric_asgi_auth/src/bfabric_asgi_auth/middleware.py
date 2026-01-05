@@ -231,6 +231,9 @@ class BfabricAuthMiddleware:
             logged_in = session.get("bfabric_session") is not None  # pyright: ignore[reportUnknownMemberType]
             session.clear()
 
+            if not _is_valid_session_dict(session):
+                raise ValueError("Invalid session dictionary")
+
             if self.hooks is not None:
                 handled = await self.hooks.on_logout(session=session)
                 if handled:
