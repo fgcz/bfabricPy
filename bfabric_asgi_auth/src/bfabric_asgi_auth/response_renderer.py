@@ -6,14 +6,9 @@ Users only need to implement two methods: render_error and render_redirect.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Protocol, cast
+from typing import Protocol, cast
 
-from asgiref.typing import ASGIReceiveCallable, ASGISendCallable, Scope
-
-if TYPE_CHECKING:
-    from asgiref.typing import ASGISendEvent
-else:
-    ASGISendEvent = Any
+from asgiref.typing import ASGIReceiveCallable, ASGISendCallable, ASGISendEvent, Scope
 
 
 class ErrorContext:
@@ -22,14 +17,12 @@ class ErrorContext:
     :ivar message: The error message to display
     :ivar status_code: HTTP status code (400, 401, 500, etc.)
     :ivar error_type: Type of error ("missing_token", "invalid_token", "unauthorized", "server_error")
-    :ivar scope: ASGI scope dictionary
     """
 
-    def __init__(self, message: str, status_code: int, error_type: str, scope: Scope) -> None:
+    def __init__(self, message: str, status_code: int, error_type: str) -> None:
         self.message: str = message
         self.status_code: int = status_code
         self.error_type: str = error_type
-        self.scope: Scope = scope
 
 
 class RedirectContext:
@@ -37,13 +30,11 @@ class RedirectContext:
 
     :ivar url: The URL to redirect to
     :ivar redirect_type: Type of redirect ("authenticated", "other")
-    :ivar scope: ASGI scope dictionary
     """
 
-    def __init__(self, url: str, redirect_type: str, scope: Scope) -> None:
+    def __init__(self, url: str, redirect_type: str) -> None:
         self.url: str = url
         self.redirect_type: str = redirect_type
-        self.scope: Scope = scope
 
 
 class SuccessContext:
@@ -51,13 +42,11 @@ class SuccessContext:
 
     :ivar message: The success message to display
     :ivar success_type: Type of success ("logout", "other")
-    :ivar scope: ASGI scope dictionary
     """
 
-    def __init__(self, message: str, success_type: str, scope: Scope) -> None:
+    def __init__(self, message: str, success_type: str) -> None:
         self.message: str = message
         self.success_type: str = success_type
-        self.scope: Scope = scope
 
 
 class ResponseRenderer(Protocol):
@@ -67,32 +56,37 @@ class ResponseRenderer(Protocol):
     You only need to implement three methods: render_error, render_redirect, and render_success.
     """
 
-    async def render_error(self, context: ErrorContext, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
+    async def render_error(
+        self, context: ErrorContext, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable
+    ) -> None:
         """Render an error response.
 
         :param context: Error context with message, status code, and error type
+        :param scope: ASGI scope dictionary
         :param receive: ASGI receive callable
         :param send: ASGI send callable
         """
         ...
 
     async def render_redirect(
-        self, context: RedirectContext, receive: ASGIReceiveCallable, send: ASGISendCallable
+        self, context: RedirectContext, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable
     ) -> None:
         """Render a redirect response.
 
         :param context: Redirect context with URL and redirect type
+        :param scope: ASGI scope dictionary
         :param receive: ASGI receive callable
         :param send: ASGI send callable
         """
         ...
 
     async def render_success(
-        self, context: SuccessContext, receive: ASGIReceiveCallable, send: ASGISendCallable
+        self, context: SuccessContext, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable
     ) -> None:
         """Render a success response.
 
         :param context: Success context with message and success type
+        :param scope: ASGI scope dictionary
         :param receive: ASGI receive callable
         :param send: ASGI send callable
         """
@@ -142,9 +136,11 @@ class PlainTextRenderer:
     Uses raw ASGI protocol for full type compatibility.
     """
 
-    async def render_error(self, context: ErrorContext, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
+    async def render_error(
+        self, context: ErrorContext, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable
+    ) -> None:
         """Render plain text error response."""
-        _ = receive
+        _ = scope, receive
         body = f"Error: {context.message}\n".encode("utf-8")
         await send(
             _send_http_header(
@@ -158,10 +154,10 @@ class PlainTextRenderer:
         await send(_send_http_body(body))
 
     async def render_redirect(
-        self, context: RedirectContext, receive: ASGIReceiveCallable, send: ASGISendCallable
+        self, context: RedirectContext, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable
     ) -> None:
         """Render HTTP redirect response."""
-        _ = receive
+        _ = scope, receive
         await send(
             _send_http_header(
                 302,
@@ -174,10 +170,10 @@ class PlainTextRenderer:
         await send(_send_http_body(b""))
 
     async def render_success(
-        self, context: SuccessContext, receive: ASGIReceiveCallable, send: ASGISendCallable
+        self, context: SuccessContext, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable
     ) -> None:
         """Render plain text success response."""
-        _ = receive
+        _ = scope, receive
         body = f"{context.message}\n".encode("utf-8")
         await send(
             _send_http_header(
@@ -317,9 +313,11 @@ class HTMLRenderer:
         )
         await send(_send_http_body(body))
 
-    async def render_error(self, context: ErrorContext, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
+    async def render_error(
+        self, context: ErrorContext, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable
+    ) -> None:
         """Render self-contained HTML error page."""
-        _ = receive
+        _ = scope, receive
         title = self._STATUS_TITLE_MAP.get(context.status_code, "Error")
         details = (
             f"<p style='color: #666; font-size: 0.9em; margin-top: 1em;'>Error type: {context.error_type}</p>"
@@ -336,10 +334,10 @@ class HTMLRenderer:
         await self._send_html_response(send, html, context.status_code)
 
     async def render_redirect(
-        self, context: RedirectContext, receive: ASGIReceiveCallable, send: ASGISendCallable
+        self, context: RedirectContext, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable
     ) -> None:
         """Render HTTP redirect response."""
-        _ = receive
+        _ = scope, receive
         await send(
             _send_http_header(
                 302,
@@ -352,10 +350,10 @@ class HTMLRenderer:
         await send(_send_http_body(b""))
 
     async def render_success(
-        self, context: SuccessContext, receive: ASGIReceiveCallable, send: ASGISendCallable
+        self, context: SuccessContext, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable
     ) -> None:
         """Render self-contained HTML success page."""
-        _ = receive
+        _ = scope, receive
         html = self._get_html_page(
             title="Success",
             message=context.message,
