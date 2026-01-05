@@ -7,11 +7,11 @@ from loguru import logger
 from pydantic import SecretStr
 
 from bfabric_asgi_auth.response_renderer import (
-    ErrorContext,
+    ErrorResponse,
     PlainTextRenderer,
-    RedirectContext,
+    RedirectResponse,
     ResponseRenderer,
-    SuccessContext,
+    SuccessResponse,
 )
 from bfabric_asgi_auth.session_data import SessionData
 from bfabric_asgi_auth.token_validation.strategy import (
@@ -102,12 +102,12 @@ class BfabricAuthMiddleware:
             return await self._send_websocket_close(send, 1008, "Not authenticated")
         else:
             # TODO see below for initial work on refactor
-            context = ErrorContext(
+            response = ErrorResponse(
                 message="Not authenticated",
                 status_code=401,
                 error_type="unauthorized",
             )
-            await self.renderer.render_error(context, scope, receive, send)
+            await self.renderer.render_error(response, scope, receive, send)
 
     async def _handle_landing(self, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
         """Handle landing page request with token."""
@@ -117,12 +117,12 @@ class BfabricAuthMiddleware:
         token_value = params.get(self.token_param, [None])[0]
 
         if not token_value:
-            context = ErrorContext(
+            response = ErrorResponse(
                 message="Missing token parameter",
                 status_code=400,
                 error_type="missing_token",
             )
-            await self.renderer.render_error(context, scope, receive, send)
+            await self.renderer.render_error(response, scope, receive, send)
             return
 
         token = SecretStr(token_value)
@@ -131,12 +131,12 @@ class BfabricAuthMiddleware:
         result = await self.token_validator(token)
 
         if not isinstance(result, TokenValidationSuccess):
-            context = ErrorContext(
+            response = ErrorResponse(
                 message=result.error or "Token validation failed",
                 status_code=400,
                 error_type="invalid_token",
             )
-            await self.renderer.render_error(context, scope, receive, send)
+            await self.renderer.render_error(response, scope, receive, send)
             return
 
         # Create session data
@@ -153,20 +153,20 @@ class BfabricAuthMiddleware:
         session = scope.get("session")
         if session is None:
             # Session middleware should have set this, but handle gracefully
-            context = ErrorContext(
+            response = ErrorResponse(
                 message="Session middleware not configured",
                 status_code=500,
                 error_type="server_error",
             )
-            await self.renderer.render_error(context, scope, receive, send)
+            await self.renderer.render_error(response, scope, receive, send)
             return
         if not is_valid_session_dict(session):
-            context = ErrorContext(
+            response = ErrorResponse(
                 message="Invalid session data",
                 status_code=400,
                 error_type="client_error",
             )
-            await self.renderer.render_error(context, scope, receive, send)
+            await self.renderer.render_error(response, scope, receive, send)
             return
 
         # Invoke the landing callback, if configured, and determine the redirect URL
@@ -176,12 +176,12 @@ class BfabricAuthMiddleware:
                 callback_result = await self.hooks.on_success(session=session, token_data=result.token_data)
             except Exception as e:
                 logger.error(f"Landing callback failed: {e}")
-                context = ErrorContext(
+                response = ErrorResponse(
                     message="Landing callback failed",
                     status_code=500,
                     error_type="server_error",
                 )
-                await self.renderer.render_error(context, scope, receive, send)
+                await self.renderer.render_error(response, scope, receive, send)
                 return
 
             if callback_result is not None:
@@ -193,8 +193,8 @@ class BfabricAuthMiddleware:
         session["bfabric_session"] = session_data.model_dump()
 
         # Send redirect response
-        context = RedirectContext(url=redirect_url, redirect_type="authenticated")
-        await self.renderer.render_redirect(context, scope, receive, send)
+        response = RedirectResponse(url=redirect_url, redirect_type="authenticated")
+        await self.renderer.render_redirect(response, scope, receive, send)
 
     async def _handle_logout(self, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
         """Handle logout request."""
@@ -215,15 +215,15 @@ class BfabricAuthMiddleware:
 
             # Send success response
             if logged_in:
-                context = SuccessContext(message="Logged out successfully", success_type="logout")
-                await self.renderer.render_success(context, scope, receive, send)
+                response = SuccessResponse(message="Logged out successfully", success_type="logout")
+                await self.renderer.render_success(response, scope, receive, send)
             else:
-                context = ErrorContext(
+                response = ErrorResponse(
                     message="User not logged in",
                     status_code=400,
                     error_type="bad_request",
                 )
-                await self.renderer.render_error(context, scope, receive, send)
+                await self.renderer.render_error(response, scope, receive, send)
 
     async def _send_websocket_close(self, send: ASGISendCallable, code: int, reason: str) -> None:
         """Close WebSocket connection with error code."""
@@ -242,9 +242,9 @@ class ResponseWriter:
         self.renderer: ResponseRenderer = renderer
 
     async def unauthorized(self, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
-        context = ErrorContext(
+        response = ErrorResponse(
             message="Not authenticated",
             status_code=401,
             error_type="unauthorized",
         )
-        await self.renderer.render_error(context, scope, receive, send)
+        await self.renderer.render_error(response, scope, receive, send)
