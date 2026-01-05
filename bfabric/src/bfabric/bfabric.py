@@ -197,6 +197,7 @@ class Bfabric:
         offset: int = 0,
         check: bool = True,
         return_id_only: bool = False,
+        method: str = "read",
     ) -> ResultContainer:
         """Reads from the specified endpoint matching all specified attributes in `obj`.
         By setting `max_results` it is possible to change the number of results that are returned.
@@ -211,6 +212,7 @@ class Bfabric:
               is 0 which means no skipping)
         :param check: whether to raise an error if the response is not successful
         :param return_id_only: whether to return only the ids of the found objects
+        :param method: alternative SOAP method to use for reading data
         :return: List of responses, packaged in the results container
         """
         # Get the first page.
@@ -219,6 +221,7 @@ class Bfabric:
             endpoint=endpoint,
             obj=obj,
             auth=self.auth,
+            method=method,
             page=1,
             return_id_only=return_id_only,
         )
@@ -248,6 +251,7 @@ class Bfabric:
                     endpoint=endpoint,
                     obj=obj,
                     auth=self.auth,
+                    method=method,
                     page=i_page,
                     return_id_only=return_id_only,
                 )

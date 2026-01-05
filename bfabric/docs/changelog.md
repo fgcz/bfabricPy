@@ -9,6 +9,10 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+### Added
+
+- `Bfabric.read` supports `method` parameter to specify alternative read methods.
+
 ## \[1.16.1\] - 2025-12-15
 
 ### Fixed

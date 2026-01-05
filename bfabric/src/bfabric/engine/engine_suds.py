@@ -33,6 +33,7 @@ class EngineSUDS:
         endpoint: str,
         obj: ApiRequestObjectType,
         auth: BfabricAuth,
+        method: str = "read",
         page: int = 1,
         return_id_only: bool = False,
         include_deletable_and_updatable_fields: bool = False,
@@ -42,6 +43,7 @@ class EngineSUDS:
         :param obj: a dictionary containing the query, for every field multiple possible values can be provided, the
             final query requires the condition for each field to be met
         :param auth: the authentication handle of the user performing the request
+        :param method: alternative SOAP method to use for reading data
         :param page: the page number to read
         :param return_id_only: whether to return only the ids of the objects
         :param include_deletable_and_updatable_fields: whether to include the deletable and updatable fields
@@ -57,7 +59,10 @@ class EngineSUDS:
             "idonly": return_id_only,
         }
         service = self._get_suds_service(endpoint)
-        response = service.read(full_query)
+        try:
+            response = getattr(service, method)(full_query)
+        except MethodNotFound as e:
+            raise BfabricRequestError(f"SUDS failed to find method '{method}'") from e
         return self._convert_results(response=response, endpoint=endpoint)
 
     def save(

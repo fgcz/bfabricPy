@@ -29,6 +29,7 @@ class EngineZeep:
         endpoint: str,
         obj: ApiRequestObjectType,
         auth: BfabricAuth,
+        method: str = "read",
         page: int = 1,
         return_id_only: bool = False,
         include_deletable_and_updatable_fields: bool = False,
@@ -38,6 +39,7 @@ class EngineZeep:
         :param obj: a dictionary containing the query, for every field multiple possible values can be provided, the
             final query requires the condition for each field to be met
         :param auth: the authentication handle of the user performing the request
+        :param method: the method to use for the request, e.g. "read"
         :param page: the page number to read
         :param return_id_only: whether to return only the ids of the objects
         :param include_deletable_and_updatable_fields: whether to include the deletable and updatable fields
@@ -69,7 +71,7 @@ class EngineZeep:
 
         client = self._get_client(endpoint)
         with client.settings(strict=False, xml_huge_tree=True, xsd_ignore_sequence_order=True):
-            response = client.service.read(full_query)
+            response = getattr(client.service, method)(full_query)
         return self._convert_results(response=response, endpoint=endpoint)
 
     def save(
