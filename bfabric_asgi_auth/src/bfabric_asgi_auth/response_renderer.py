@@ -24,6 +24,51 @@ class ErrorResponse:
         self.status_code: int = status_code
         self.error_type: str = error_type
 
+    @classmethod
+    def unauthorized(cls) -> ErrorResponse:
+        """Error response for when a user is not authenticated."""
+        return cls(
+            message="Not authenticated",
+            status_code=401,
+            error_type="unauthorized",
+        )
+
+    @classmethod
+    def missing_token(cls) -> ErrorResponse:
+        """Error response for when the token parameter is missing."""
+        return cls(
+            message="Missing token parameter",
+            status_code=400,
+            error_type="missing_token",
+        )
+
+    @classmethod
+    def invalid_token(cls) -> ErrorResponse:
+        """Error response for when the token is invalid."""
+        return cls(
+            message="Token validation failed",
+            status_code=400,
+            error_type="invalid_token",
+        )
+
+    @classmethod
+    def invalid_session(cls) -> ErrorResponse:
+        """Error response for when the session data is invalid."""
+        return cls(
+            message="Invalid session data",
+            status_code=400,
+            error_type="invalid_session",
+        )
+
+    @classmethod
+    def session_not_configured(cls) -> ErrorResponse:
+        """Error response for when the session middleware is not configured."""
+        return cls(
+            message="Session middleware not configured",
+            status_code=500,
+            error_type="session_not_configured",
+        )
+
 
 class RedirectResponse:
     """response information for redirect responses.
@@ -47,6 +92,11 @@ class SuccessResponse:
     def __init__(self, message: str, success_type: str) -> None:
         self.message: str = message
         self.success_type: str = success_type
+
+    @classmethod
+    def logout(cls) -> "SuccessResponse":
+        """Create a logout success response."""
+        return cls(message="Logged out successfully", success_type="logout")
 
 
 class ResponseRenderer(Protocol):
