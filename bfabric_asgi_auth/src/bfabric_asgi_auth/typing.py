@@ -22,9 +22,13 @@ class AuthHooks(Protocol):
         """Called on logout. If the return value is not None, it is used as the redirect URL."""
         return None
 
-    async def on_evict(self, session: dict[str, JsonRepresentable]) -> None:
-        """Called on session eviction, i.e. when a different B-Fabric instance or user logs in."""
-        return None
+    async def on_evict(self, session: dict[str, JsonRepresentable]) -> bool:
+        """Called on user eviction, i.e. when a different B-Fabric instance or user logs in.
+
+        If the return value is False (default), all session data will be cleared. Otherwise, please make sure to prevent
+        problems with multi-instance loopholes.
+        """
+        return False
 
 
 def is_json_representable(value: Any) -> TypeGuard[JsonRepresentable]:  # pyright: ignore[reportAny, reportExplicitAny]

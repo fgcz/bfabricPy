@@ -136,14 +136,19 @@ class BfabricAuthMiddleware:
             existing_bfabric_session = None
 
         if existing_bfabric_session is not None and existing_bfabric_session != session_data:
+            session_cleared = False
             if self.hooks:
                 try:
-                    await self.hooks.on_evict(session=session)
+                    session_cleared = await self.hooks.on_evict(session=session)
                 except VisibleException as e:
                     return await self.renderer.render_error(e.response, scope, receive, send)
                 except Exception:
                     logger.exception("eviction callback failed")
                     return await self.renderer.render_error(ErrorResponse.callback_error("evict"), scope, receive, send)
+
+            if not session_cleared:
+                logger.info("Clearing session due to user eviction")
+                session.clear()
 
         # Invoke the landing callback, if configured, and determine the redirect URL
         redirect_url = self.authenticated_path
