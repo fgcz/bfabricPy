@@ -12,6 +12,7 @@ from bfabric_asgi_auth.response_renderer import (
     RedirectResponse,
     ResponseRenderer,
     SuccessResponse,
+    VisibleException,
 )
 from bfabric_asgi_auth.session_data import SessionData
 from bfabric_asgi_auth.token_validation.strategy import (
@@ -136,6 +137,8 @@ class BfabricAuthMiddleware:
         if self.hooks is not None:
             try:
                 callback_result = await self.hooks.on_success(session=session, token_data=result.token_data)
+            except VisibleException as e:
+                return await self.renderer.render_error(e.response, scope, receive, send)
             except Exception:
                 logger.exception("Landing callback failed")
                 return await self.renderer.render_error(ErrorResponse.landing_callback_error(), scope, receive, send)

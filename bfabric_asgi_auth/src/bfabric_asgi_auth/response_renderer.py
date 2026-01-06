@@ -11,6 +11,14 @@ from typing import Protocol, cast
 from asgiref.typing import ASGIReceiveCallable, ASGISendCallable, ASGISendEvent, Scope
 
 
+class VisibleException(RuntimeError):
+    """Base class for exceptions that should be visible to the user."""
+
+    def __init__(self, message: str, status_code: int = 400, error_type: str = "server_error") -> None:
+        super().__init__(message)
+        self.response: ErrorResponse = ErrorResponse(message, status_code, error_type)
+
+
 class ErrorResponse:
     """Error message to render.
 

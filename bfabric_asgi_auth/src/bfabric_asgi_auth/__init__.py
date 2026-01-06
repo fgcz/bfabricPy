@@ -8,6 +8,7 @@ from bfabric_asgi_auth.response_renderer import (
     RedirectResponse,
     ResponseRenderer,
     SuccessResponse,
+    VisibleException,
 )
 from bfabric_asgi_auth.session_data import SessionData
 from bfabric_asgi_auth.token_validation.bfabric_strategy import create_bfabric_validator
@@ -24,6 +25,7 @@ __all__ = [
     "SessionData",
     "SuccessResponse",
     "TokenValidationResult",
+    "VisibleException",
     "create_bfabric_validator",
     "create_mock_validator",
 ]
