@@ -74,21 +74,22 @@ class BfabricAuthMiddleware:
             # Get session data from scope (set by SessionMiddleware)
             session = scope.get("session", {})
             if "bfabric_session" in session:
-                await self.app(scope, receive, send)
+                return await self.app(scope, receive, send)
             else:
                 return await self._handle_reject(scope=scope, receive=receive, send=send)
         elif scope["type"] == "lifespan":
-            await self.app(scope, receive, send)
+            return await self.app(scope, receive, send)
         else:
             # We reject unknown scopes, this might need to be extended in the future.
             logger.warning(f"Dropping unknown scope: {scope['type']}")  # pyright: ignore[reportUnreachable]
+            return None
 
     async def _handle_reject(self, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
         """Handle rejection of authentication."""
         if self.hooks:
             handled = await self.hooks.on_reject(scope=scope)
             if handled:
-                return
+                return None
 
         if scope["type"] == "websocket":
             return await self._send_websocket_close(send, 1008, "Not authenticated")
