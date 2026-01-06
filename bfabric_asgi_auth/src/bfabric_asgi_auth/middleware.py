@@ -73,24 +73,15 @@ class BfabricAuthMiddleware:
         if scope["type"] == "http" or scope["type"] == "websocket":
             # Get session data from scope (set by SessionMiddleware)
             session = scope.get("session", {})
-            session_data_dict = session.get("bfabric_session")
-
-            if not session_data_dict:
+            if "bfabric_session" in session:
+                await self.app(scope, receive, send)
+            else:
                 return await self._handle_reject(scope=scope, receive=receive, send=send)
-
-            # Attach session data to scope for the application
-            # TODO revisit this one, maybe it's redundant and better to take directly from the session,
-            #      but this also abstracts the session which has some benefit in other cases
-            scope["bfabric_session"] = session_data_dict  # pyright: ignore[reportGeneralTypeIssues]
         elif scope["type"] == "lifespan":
-            pass
+            await self.app(scope, receive, send)
         else:
             # We reject unknown scopes, this might need to be extended in the future.
             logger.warning(f"Dropping unknown scope: {scope['type']}")  # pyright: ignore[reportUnreachable]
-            return
-
-        # Pass to the main application
-        await self.app(scope, receive, send)
 
     async def _handle_reject(self, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
         """Handle rejection of authentication."""
