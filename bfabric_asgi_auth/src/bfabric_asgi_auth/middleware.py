@@ -89,6 +89,7 @@ class BfabricAuthMiddleware:
         if self.hooks:
             handled = await self.hooks.on_reject(scope=scope)
             if handled:
+                # If the hook handled the error, we do not display a custom message anymore.
                 return None
 
         if scope["type"] == "websocket":
