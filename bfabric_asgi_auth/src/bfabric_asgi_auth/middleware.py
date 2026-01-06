@@ -63,27 +63,36 @@ class BfabricAuthMiddleware:
         self.renderer: ResponseRenderer = renderer or PlainTextRenderer()
 
     async def __call__(self, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
-        # Handle middleware-provided operations
-        if scope["type"] == "http":
-            if scope["path"] == self.logout_path:
-                return await self._handle_logout(scope, receive, send)
-            if scope["path"] == self.landing_path:
-                return await self._handle_landing(scope, receive, send)
+        try:
+            # Handle middleware-provided operations
+            if scope["type"] == "http":
+                if scope["path"] == self.logout_path:
+                    return await self._handle_logout(scope, receive, send)
+                if scope["path"] == self.landing_path:
+                    return await self._handle_landing(scope, receive, send)
 
-        # Ensure authentication is provided
-        if scope["type"] == "http" or scope["type"] == "websocket":
-            # Get session data from scope (set by SessionMiddleware)
-            session = scope.get("session", {})
-            if "bfabric_session" in session:
+            # Ensure authentication is provided
+            if scope["type"] == "http" or scope["type"] == "websocket":
+                # Get session data from scope (set by SessionMiddleware)
+                session = scope.get("session", {})
+                if "bfabric_session" in session:
+                    return await self.app(scope, receive, send)
+                else:
+                    return await self._handle_reject(scope=scope, receive=receive, send=send)
+            elif scope["type"] == "lifespan":
                 return await self.app(scope, receive, send)
             else:
-                return await self._handle_reject(scope=scope, receive=receive, send=send)
-        elif scope["type"] == "lifespan":
-            return await self.app(scope, receive, send)
-        else:
-            # We reject unknown scopes, this might need to be extended in the future.
-            logger.warning(f"Dropping unknown scope: {scope['type']}")  # pyright: ignore[reportUnreachable]
-            return None
+                # We reject unknown scopes, this might need to be extended in the future.
+                logger.warning(f"Dropping unknown scope: {scope['type']}")  # pyright: ignore[reportUnreachable]
+                return None
+        except VisibleException as e:
+            logger.exception(f"Error occurred: {e}")
+            return await self.renderer.render_error(e.response, scope, receive, send)
+        except Exception as e:
+            logger.exception(f"Unexpected error occurred: {e}")
+            return await self.renderer.render_error(
+                ErrorResponse(str(e), status_code=500, error_type="unknown"), scope, receive, send
+            )
 
     async def _handle_reject(
         self, scope: HTTPScope | WebSocketScope, receive: ASGIReceiveCallable, send: ASGISendCallable
@@ -140,13 +149,7 @@ class BfabricAuthMiddleware:
         if existing_bfabric_session is not None and existing_bfabric_session != session_data:
             session_cleared = False
             if self.hooks:
-                try:
-                    session_cleared = await self.hooks.on_evict(session=session)
-                except VisibleException as e:
-                    return await self.renderer.render_error(e.response, scope, receive, send)
-                except Exception:
-                    logger.exception("eviction callback failed")
-                    return await self.renderer.render_error(ErrorResponse.callback_error("evict"), scope, receive, send)
+                session_cleared = await self.hooks.on_evict(session=session)
 
             if not session_cleared:
                 logger.info("Clearing session due to user eviction")
@@ -155,13 +158,7 @@ class BfabricAuthMiddleware:
         # Invoke the landing callback, if configured, and determine the redirect URL
         redirect_url = self.authenticated_path
         if self.hooks is not None:
-            try:
-                callback_result = await self.hooks.on_success(session=session, token_data=result.token_data)
-            except VisibleException as e:
-                return await self.renderer.render_error(e.response, scope, receive, send)
-            except Exception:
-                logger.exception("Landing callback failed")
-                return await self.renderer.render_error(ErrorResponse.callback_error("landing"), scope, receive, send)
+            callback_result = await self.hooks.on_success(session=session, token_data=result.token_data)
 
             if callback_result is not None:
                 redirect_url = callback_result
