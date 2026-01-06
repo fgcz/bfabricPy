@@ -11,7 +11,15 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Added
 
-- `bfabric.experimental.webapp_integration_settings`
+- Improved token authentication
+    - `bfabric.experimental.webapp_integration_settings`
+    - `Bfabric.connect_token`: this one respects the list of allowed bfabric instances
+    - `bfabric.rest.token_data.validate_token`
+
+### Deprecated
+
+- `Bfabric.from_config`
+- `Bfabric.connect_webapp`
 
 ## \[1.16.1\] - 2025-12-15
 

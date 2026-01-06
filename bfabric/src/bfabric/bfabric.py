@@ -152,12 +152,10 @@ class Bfabric:
             validation can be performed on any B-Fabric instance as the token describes the caller too
         :return: a tuple of the Bfabric instance and the token data
         """
-        if config_file_path is not None or config_file_env is not None:
-            # TODO delete these later
-            warnings.warn(
-                "config_file_path and config_file_env are deprecated and will be removed in the future.",
-                DeprecationWarning,
-            )
+        warnings.warn(
+            "use Bfabric.connect_token which allows for a more secure set up",
+            DeprecationWarning,
+        )
         token_data = get_token_data(base_url=validation_instance_url, token=token)
         return cls._from_token_data(token_data), token_data
 
