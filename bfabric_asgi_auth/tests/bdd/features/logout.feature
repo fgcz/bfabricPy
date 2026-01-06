@@ -9,8 +9,8 @@ Feature: User logout
   Scenario: Logout when not authenticated
     Given I have no session cookie
     When I request "/logout"
-    Then I should receive a 400 status code
-    And the response should contain "User not logged in"
+    Then I should receive a 401 status code
+    And the response should contain "Not authenticated"
 
   Scenario: Successful logout
     Given I am authenticated with token "valid_test123"
@@ -23,6 +23,7 @@ Feature: User logout
     When I request "/logout"
     And I request "/"
     Then I should receive a 401 status code
+    And the response should contain "Not authenticated"
 
   Scenario: Re-authentication after logout
     Given I am authenticated with token "valid_test123"

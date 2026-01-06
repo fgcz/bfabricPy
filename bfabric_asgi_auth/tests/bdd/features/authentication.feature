@@ -15,7 +15,7 @@ Feature: Token-based authentication
   Scenario: Authentication fails with invalid token
     When I visit "/landing?token=invalid_token"
     Then I should receive a 400 status code
-    And the response should contain "Invalid token"
+    And the response should contain "Token validation failed"
     And I should not have a session cookie
 
   Scenario: Authentication fails without token parameter

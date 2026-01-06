@@ -48,8 +48,8 @@ def base_app():
         return JSONResponse(
             {
                 "message": "success",
-                "scope_keys": list(request.scope.keys()),
-                "has_bfabric_session": "bfabric_session" in request.scope,
+                "session": request.session,
+                "has_bfabric_session": "bfabric_session" in request.session,
             }
         )
 
@@ -359,13 +359,13 @@ def session_contains_user_info(context, client):
     assert data["has_bfabric_session"]
 
 
-@then(parsers.parse('the scope should contain "{key}"'))
-def scope_contains(context, client, key):
-    """Check scope contains key."""
+@then(parsers.parse('the session should contain "{key}"'))
+def session_contains(context, client, key):
+    """Check session contains key."""
     # Client automatically handles cookies
     response = run_async(client.get("/"))
     data = response.json()
-    assert key in data["scope_keys"]
+    assert key in data["session"]
 
 
 @then("all requests should return 200 status code")

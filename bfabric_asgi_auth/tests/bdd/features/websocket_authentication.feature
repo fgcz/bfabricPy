@@ -15,4 +15,4 @@ Feature: WebSocket authentication
     Given I am authenticated with token "valid_test123"
     When I connect to WebSocket "/ws"
     Then the connection should be accepted
-    And the scope should contain "bfabric_session"
+    And the session should contain "bfabric_session"
