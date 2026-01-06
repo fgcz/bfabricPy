@@ -85,6 +85,7 @@ class BfabricAuthMiddleware:
         elif scope["type"] == "lifespan":
             pass
         else:
+            # We reject unknown scopes, this might need to be extended in the future.
             logger.warning(f"Dropping unknown scope: {scope['type']}")  # pyright: ignore[reportUnreachable]
             return
 
@@ -103,21 +104,22 @@ class BfabricAuthMiddleware:
         else:
             return await self.renderer.render_error(ErrorResponse.unauthorized(), scope, receive, send)
 
-    async def _handle_landing(self, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
-        """Handle landing page request with token."""
-        # Parse query string
+    def _get_landing_token(self, scope: Scope) -> SecretStr | None:
+        """Get the landing token from the query string."""
         query_string = scope.get("query_string", b"").decode("utf-8")
         params = urllib.parse.parse_qs(query_string)
         token_value = params.get(self.token_param, [None])[0]
+        return SecretStr(token_value) if token_value else None
 
-        if not token_value:
+    async def _handle_landing(self, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
+        """Handle landing page request with token."""
+        # Get the token
+        token = self._get_landing_token(scope)
+        if not token:
             return await self.renderer.render_error(ErrorResponse.missing_token(), scope, receive, send)
 
-        token = SecretStr(token_value)
-
-        # Validate token
+        # Validate the token
         result = await self.token_validator(token)
-
         if not isinstance(result, TokenValidationSuccess):
             return await self.renderer.render_error(ErrorResponse.invalid_token(), scope, receive, send)
 
