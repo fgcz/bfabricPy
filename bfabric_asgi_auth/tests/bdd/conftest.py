@@ -25,8 +25,7 @@ from bfabric_asgi_auth.typing import AuthHooks, JsonRepresentable
 # Helper to run async code in sync context
 def run_async(coro):
     """Run async coroutine synchronously."""
-    loop = asyncio.get_event_loop()
-    return loop.run_until_complete(coro)
+    return asyncio.run(coro)
 
 
 # Test context to store state between steps
@@ -271,6 +270,10 @@ def validate_token(context, token):
     result = run_async(validator(SecretStr(token)))
     context["validation_result"] = result
 
+    # Extract token_data for easier access in assertions
+    if result.success:
+        context["token_data"] = result.token_data
+
 
 @when("multiple users authenticate with different tokens")
 def multiple_users_authenticate(context, app):
@@ -404,15 +407,17 @@ def validation_fails(context):
 def result_has_client_config(context):
     """Check validation result has client config."""
     result = context["validation_result"]
-    assert result.bfabric_instance is not None
-    assert result.bfabric_auth is not None
+    assert result.success is True
+    assert result.token_data.caller is not None
 
 
 @then("the result should contain user information")
 def result_has_user_info(context):
     """Check validation result has user info."""
     result = context["validation_result"]
-    assert result.user_info is not None
+    assert result.success is True
+    assert result.token_data.user is not None
+    assert result.token_data.user_ws_password is not None
 
 
 @then(parsers.parse('the error should contain "{text}"'))
@@ -468,3 +473,33 @@ def websocket_rejected(context, code):
 def websocket_accepted(context):
     """Check WebSocket was accepted."""
     assert context.get("websocket_connected", False)
+
+
+@then("the session bfabric_session should contain all required fields")
+def session_bfabric_session_has_required_fields(context, client):
+    """Verify bfabric_session contains all required SessionData fields."""
+    response = run_async(client.get("/"))
+    data = response.json()
+
+    # Verify bfabric_session exists
+    assert "bfabric_session" in data["session"]
+    session_data = data["session"]["bfabric_session"]
+
+    # Verify all required fields exist
+    assert "bfabric_instance" in session_data
+    assert "bfabric_auth_login" in session_data
+    assert "bfabric_auth_password" in session_data
+
+    # Verify fields are populated correctly from token_data
+    token_data = context["token_data"]
+    assert session_data["bfabric_instance"] == token_data.caller
+    assert session_data["bfabric_auth_login"] == token_data.user
+    # Verify password content matches (not just length)
+    assert session_data["bfabric_auth_password"] == token_data.user_ws_password.get_secret_value()
+
+
+@then("the hook should have received token data")
+def hook_received_token_data(context):
+    """Verify hook was called with token data."""
+    assert "token_data" in context, "Hook did not populate context['token_data']"
+    assert context["token_data"] is not None

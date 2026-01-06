@@ -19,8 +19,14 @@ Feature: Token validation
   Scenario: Token validation extracts required fields
     Given I am using the mock validator
     When I validate token "valid_test123"
-    #Then the client config should contain "bfabric_instance"
-    #And the client config should contain "bfabric_auth"
-    Then the token data should contain "login"
+    Then the token data should contain "user"
     And the token data should contain "entity_class"
     And the token data should contain "entity_id"
+
+  Scenario: Authentication flow populates session with token data
+    Given the application is configured with auth middleware
+    When I visit "/landing?token=valid_testuser"
+    Then I should be redirected to "/"
+    And the session should contain "bfabric_session"
+    And the session bfabric_session should contain all required fields
+    And the hook should have received token data
