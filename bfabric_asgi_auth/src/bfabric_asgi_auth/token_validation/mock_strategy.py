@@ -20,6 +20,8 @@ class MockFixture(BaseModel):
     entity_id: int = 2
     web_service_user: bool = True
     environment: str = "mocked"
+    caller: str = "https://fgcz-bfabric-test.uzh.ch/bfabric/"
+    user_ws_password: SecretStr = SecretStr("_" * 32)
 
     # additional conversion
     expires_in: datetime.timedelta = datetime.timedelta(minutes=60)
@@ -43,21 +45,21 @@ def create_mock_validator(fixture: MockFixture | None = None) -> TokenValidatorS
         if token_str.startswith("valid_"):
             # Extract username from token (everything after 'valid_')
             username = token_str[6:] if len(token_str) > 6 else "testuser"
-            # Generate a unique user_id based on the username hash
-            user_id = abs(hash(username)) % 100000
+            # Generate a unique job_id based on the username hash
+            job_id = abs(hash(username)) % 100000
 
             return TokenValidationSuccess(
                 token_data=TokenData.model_validate(
                     dict(
-                        job_id=user_id,
+                        job_id=job_id,
                         application_id=fixture.application_id,
                         entity_class=fixture.entity_class,
                         entity_id=fixture.entity_id,
                         user=username,
-                        user_ws_password="_" * 32,
+                        user_ws_password=fixture.user_ws_password,
                         token_expires=datetime.datetime.now() + fixture.expires_in,
                         web_service_user=fixture.web_service_user,
-                        caller="https://fgcz-bfabric-test.uzh.ch/bfabric/",
+                        caller=fixture.caller,
                         environment=fixture.environment,
                     )
                 ),
