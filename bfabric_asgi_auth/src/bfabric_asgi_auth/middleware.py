@@ -122,12 +122,9 @@ class BfabricAuthMiddleware:
             user_info=result.user_info,
         )
 
-        # Store session data by modifying scope["session"] directly
-        # This is framework-agnostic and works with any ASGI session middleware
-        # that follows the standard pattern (e.g., Starlette, FastAPI, etc.)
+        # Store session data by modifying scope["session"] directly, this is supported by starlette's SessionMiddleware
         session = scope.get("session")
         if session is None:
-            # Session middleware should have set this, but handle with a clean error
             return await self.renderer.render_error(ErrorResponse.session_not_configured(), scope, receive, send)
         if not is_valid_session_dict(session):
             return await self.renderer.render_error(ErrorResponse.invalid_session(), scope, receive, send)
@@ -143,6 +140,7 @@ class BfabricAuthMiddleware:
 
             if callback_result is not None:
                 redirect_url = callback_result
+                logger.debug(f"Landing callback returned {callback_result}, redirecting.")
             else:
                 logger.debug("Landing callback returned None, redirecting to default authenticated_path.")
 
