@@ -144,15 +144,9 @@ class BfabricAuthMiddleware:
         if self.hooks is not None:
             try:
                 callback_result = await self.hooks.on_success(session=session, token_data=result.token_data)
-            except Exception as e:
-                logger.error(f"Landing callback failed: {e}")
-                response = ErrorResponse(
-                    message="Landing callback failed",
-                    status_code=500,
-                    error_type="server_error",
-                )
-                await self.renderer.render_error(response, scope, receive, send)
-                return
+            except Exception:
+                logger.exception("Landing callback failed")
+                return await self.renderer.render_error(ErrorResponse.landing_callback_error(), scope, receive, send)
 
             if callback_result is not None:
                 redirect_url = callback_result
