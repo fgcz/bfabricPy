@@ -130,7 +130,8 @@ class Bfabric:
         return cls(ConfigData(client=config, auth=auth_used))
 
     @classmethod
-    def _from_token_data(cls, token_data: TokenData) -> Bfabric:
+    def from_token_data(cls, token_data: TokenData) -> Bfabric:
+        """Creates a new Bfabric instance from token data."""
         config_data_client = BfabricClientConfig.model_validate(dict(base_url=token_data.caller))
         config_data_auth = BfabricAuth(login=token_data.user, password=token_data.user_ws_password)
         config_data = ConfigData(client=config_data_client, auth=config_data_auth)
@@ -157,7 +158,7 @@ class Bfabric:
             DeprecationWarning,
         )
         token_data = get_token_data(base_url=validation_instance_url, token=token)
-        return cls._from_token_data(token_data), token_data
+        return cls.from_token_data(token_data), token_data
 
     @classmethod
     def connect_token(
@@ -168,7 +169,7 @@ class Bfabric:
         Settings needs to be configured to allow the desired B-Fabric instances.
         """
         token_data = asyncio.run(validate_token(token=token, settings=settings))
-        return cls._from_token_data(token_data), token_data
+        return cls.from_token_data(token_data), token_data
 
     @property
     def config(self) -> BfabricClientConfig:
