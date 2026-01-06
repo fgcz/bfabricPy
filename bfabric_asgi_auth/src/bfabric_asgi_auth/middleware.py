@@ -4,7 +4,7 @@ import urllib.parse
 
 from asgiref.typing import ASGI3Application, ASGIReceiveCallable, ASGISendCallable, Scope
 from loguru import logger
-from pydantic import SecretStr
+from pydantic import SecretStr, ValidationError
 
 from bfabric_asgi_auth.response_renderer import (
     ErrorResponse,
@@ -126,10 +126,24 @@ class BfabricAuthMiddleware:
 
         # Store session data by modifying scope["session"] directly, this is supported by starlette's SessionMiddleware
         session = scope.get("session")
-        if session is None:
-            return await self.renderer.render_error(ErrorResponse.session_not_configured(), scope, receive, send)
         if not is_valid_session_dict(session):
             return await self.renderer.render_error(ErrorResponse.invalid_session(), scope, receive, send)
+
+        # If either user or B-Fabric instance is different, evict the session
+        try:
+            existing_bfabric_session = SessionData.model_validate(session.get("bfabric_session"))
+        except ValidationError:
+            existing_bfabric_session = None
+
+        if existing_bfabric_session is not None and existing_bfabric_session != session_data:
+            if self.hooks:
+                try:
+                    await self.hooks.on_evict(session=session)
+                except VisibleException as e:
+                    return await self.renderer.render_error(e.response, scope, receive, send)
+                except Exception:
+                    logger.exception("eviction callback failed")
+                    return await self.renderer.render_error(ErrorResponse.callback_error("evict"), scope, receive, send)
 
         # Invoke the landing callback, if configured, and determine the redirect URL
         redirect_url = self.authenticated_path
@@ -140,7 +154,7 @@ class BfabricAuthMiddleware:
                 return await self.renderer.render_error(e.response, scope, receive, send)
             except Exception:
                 logger.exception("Landing callback failed")
-                return await self.renderer.render_error(ErrorResponse.landing_callback_error(), scope, receive, send)
+                return await self.renderer.render_error(ErrorResponse.callback_error("landing"), scope, receive, send)
 
             if callback_result is not None:
                 redirect_url = callback_result

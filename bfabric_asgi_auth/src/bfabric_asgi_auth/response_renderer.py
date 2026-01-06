@@ -69,21 +69,12 @@ class ErrorResponse:
         )
 
     @classmethod
-    def session_not_configured(cls) -> ErrorResponse:
-        """Error response for when the session middleware is not configured."""
+    def callback_error(cls, name: str) -> ErrorResponse:
+        """Error response for when a callback fails."""
         return cls(
-            message="Session middleware not configured",
+            message=f"Callback {name} failed",
             status_code=500,
-            error_type="session_not_configured",
-        )
-
-    @classmethod
-    def landing_callback_error(cls) -> ErrorResponse:
-        """Error response for when the landing callback fails."""
-        return cls(
-            message="Landing callback failed",
-            status_code=500,
-            error_type="landing_callback_error",
+            error_type="callback_error",
         )
 
 
