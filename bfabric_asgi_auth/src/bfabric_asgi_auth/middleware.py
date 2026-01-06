@@ -151,7 +151,7 @@ class BfabricAuthMiddleware:
 
         # Send redirect response
         response = RedirectResponse(url=redirect_url, redirect_type="authenticated")
-        await self.renderer.render_redirect(response, scope, receive, send)
+        return await self.renderer.render_redirect(response, scope, receive, send)
 
     async def _handle_logout(self, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
         """Handle logout request."""
