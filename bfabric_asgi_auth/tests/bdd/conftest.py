@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import time
 
+from bfabric.rest.token_data import TokenData
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
@@ -17,6 +18,8 @@ from starlette.routing import Route, WebSocketRoute
 from starlette.websockets import WebSocket
 
 from bfabric_asgi_auth import BfabricAuthMiddleware, create_mock_validator
+
+from bfabric_asgi_auth.typing import AuthHooks, JsonRepresentable
 
 
 # Helper to run async code in sync context
@@ -85,8 +88,14 @@ def app_config():
 
 
 @pytest.fixture
-def app(base_app, mock_validator, app_config):
+def app(base_app, mock_validator, app_config, context):
     """Create configured application with middleware."""
+
+    class Hooks(AuthHooks):
+        async def on_success(self, session: dict[str, JsonRepresentable], token_data: TokenData) -> str | None:
+            context["token_data"] = token_data
+            return None
+
     # Add BfabricAuthMiddleware
     base_app.add_middleware(
         BfabricAuthMiddleware,
@@ -95,6 +104,7 @@ def app(base_app, mock_validator, app_config):
         token_param=app_config["token_param"],
         authenticated_path=app_config["authenticated_path"],
         logout_path=app_config["logout_path"],
+        hooks=Hooks(),
     )
 
     # Add SessionMiddleware (wraps BfabricAuthMiddleware)
@@ -419,11 +429,10 @@ def client_config_has_field(context, field):
     assert getattr(result, field) is not None
 
 
-@then(parsers.parse('the user info should contain "{field}"'))
-def user_info_has_field(context, field):
+@then(parsers.parse('the token data should contain "{field}"'))
+def token_data_has_field(context, field):
     """Check user info has field."""
-    result = context["validation_result"]
-    assert field in result.user_info
+    assert hasattr(context["token_data"], field)
 
 
 @then("the token should be URL-decoded correctly")

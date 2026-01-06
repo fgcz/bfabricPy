@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import datetime
 
-from bfabric.config.bfabric_auth import BfabricAuth
 from bfabric.rest.token_data import TokenData
 from pydantic import BaseModel, SecretStr
 
@@ -47,17 +46,7 @@ def create_mock_validator(fixture: MockFixture | None = None) -> TokenValidatorS
             # Generate a unique user_id based on the username hash
             user_id = abs(hash(username)) % 100000
 
-            bfabric_auth = BfabricAuth.model_validate(dict(login=username, password="_" * 32))
-
             return TokenValidationSuccess(
-                bfabric_instance="https://fgcz-bfabric-test.uzh.ch/bfabric/",
-                bfabric_auth=bfabric_auth,
-                user_info={
-                    "username": username,
-                    "user_id": user_id,
-                    "entity_class": "Workunit",
-                    "entity_id": user_id + 10000,
-                },
                 token_data=TokenData.model_validate(
                     dict(
                         job_id=user_id,

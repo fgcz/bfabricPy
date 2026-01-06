@@ -3,7 +3,6 @@ from __future__ import annotations
 from collections.abc import Awaitable
 from typing import Annotated, Callable, Literal
 
-from bfabric.config.bfabric_auth import BfabricAuth
 from bfabric.rest.token_data import TokenData
 from pydantic import BaseModel, Discriminator, SecretStr
 
@@ -20,12 +19,6 @@ class TokenValidationSuccess(BaseModel):
 
     success: Literal[True] = True
     token_data: TokenData
-    # TODO obsolete maybe?
-    bfabric_instance: str
-    # TODO obsolete
-    bfabric_auth: BfabricAuth
-    # TODO obsolete
-    user_info: dict[str, str | int]
 
 
 TokenValidationResult = Annotated[TokenValidationSuccess | TokenValidationError, Discriminator("success")]

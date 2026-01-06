@@ -19,8 +19,8 @@ Feature: Token validation
   Scenario: Token validation extracts required fields
     Given I am using the mock validator
     When I validate token "valid_test123"
-    Then the client config should contain "bfabric_instance"
-    And the client config should contain "bfabric_auth"
-    And the user info should contain "username"
-    And the user info should contain "entity_class"
-    And the user info should contain "entity_id"
+    #Then the client config should contain "bfabric_instance"
+    #And the client config should contain "bfabric_auth"
+    Then the token data should contain "login"
+    And the token data should contain "entity_class"
+    And the token data should contain "entity_id"
