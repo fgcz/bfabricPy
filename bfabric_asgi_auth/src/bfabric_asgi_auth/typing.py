@@ -3,14 +3,14 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any, Protocol, TypeGuard
 
-from asgiref.typing import Scope
+from asgiref.typing import HTTPScope, WebSocketScope
 from bfabric.rest.token_data import TokenData
 
 JsonRepresentable = str | int | float | bool | None | Mapping[str, "JsonRepresentable"] | Sequence["JsonRepresentable"]
 
 
 class AuthHooks(Protocol):
-    async def on_reject(self, scope: Scope) -> bool:
+    async def on_reject(self, scope: HTTPScope | WebSocketScope) -> bool:
         """Called when a request is rejected. If return value is False and scope type is HTTP, a default message will be displayed."""
         return False
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import urllib.parse
 
-from asgiref.typing import ASGI3Application, ASGIReceiveCallable, ASGISendCallable, Scope
+from asgiref.typing import ASGI3Application, ASGIReceiveCallable, ASGISendCallable, HTTPScope, Scope, WebSocketScope
 from loguru import logger
 from pydantic import SecretStr, ValidationError
 
@@ -85,7 +85,9 @@ class BfabricAuthMiddleware:
             logger.warning(f"Dropping unknown scope: {scope['type']}")  # pyright: ignore[reportUnreachable]
             return None
 
-    async def _handle_reject(self, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
+    async def _handle_reject(
+        self, scope: HTTPScope | WebSocketScope, receive: ASGIReceiveCallable, send: ASGISendCallable
+    ) -> None:
         """Handle rejection of authentication."""
         if self.hooks:
             handled = await self.hooks.on_reject(scope=scope)
