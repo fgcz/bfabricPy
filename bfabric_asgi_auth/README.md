@@ -2,70 +2,12 @@
 
 ASGI middleware for authenticating B-Fabric web applications using cookie-based sessions.
 
-Integrates any ASGI application with B-Fabric, simply by adding the middleware to your application.
+Integrates any ASGI application as a B-Fabric web application, simply by adding the middleware to your application.
 Supports HTTP(S) and WebSocket out of the box.
 
-## Features
+## Example
 
-- Cookie-based sessions using Starlette's SessionMiddleware
-- Token validation via `Bfabric.connect_webapp`
-- Built-in logout endpoint
-- WebSocket authentication support
-- ASGI compliant (works with FastAPI, Starlette, etc.)
-
-## Installation
-
-```bash
-pip install -e .
-```
-
-## Quick Start
-
-```python
-import fastapi
-from starlette.middleware.sessions import SessionMiddleware
-from bfabric_asgi_auth import BfabricAuthMiddleware, create_mock_validator
-
-app = fastapi.FastAPI()
-token_validator = create_mock_validator()
-
-# IMPORTANT: Add BfabricAuthMiddleware FIRST, then SessionMiddleware
-# (add_middleware works in reverse order)
-app.add_middleware(BfabricAuthMiddleware, token_validator=token_validator)
-app.add_middleware(
-    SessionMiddleware, secret_key="your-secret-key-min-32-chars!!", max_age=3600
-)
-
-
-@app.get("/")
-async def root(request: fastapi.Request):
-    session_data = request.scope.get("bfabric_session", {})
-    return {"user": session_data.get("user_info", {}).get("username")}
-```
-
-## Configuration
-
-**Middleware order is critical!** Add in this sequence:
-
-```python
-# 1. Add BfabricAuthMiddleware FIRST
-app.add_middleware(
-    BfabricAuthMiddleware,
-    token_validator=token_validator,  # Required
-    landing_path="/landing",  # Optional (default: /landing)
-    token_param="token",  # Optional (default: token)
-    authenticated_path="/",  # Optional (default: /)
-    logout_path="/logout",  # Optional (default: /logout)
-)
-
-# 2. Add SessionMiddleware LAST (wraps BfabricAuthMiddleware)
-app.add_middleware(
-    SessionMiddleware,
-    secret_key="your-secret-key",  # Required: min 32 chars, keep secret!
-    max_age=3600,  # Optional: session timeout in seconds
-    https_only=False,  # Optional: set True in production
-)
-```
+TODO: To be linked here later, we have a few internal examples so far.
 
 ### Token Validators
 
@@ -97,41 +39,25 @@ token_validator = create_bfabric_validator(
 4. Redirects to `/` (or `authenticated_path`)
 5. All subsequent requests use the session cookie
 
-### Accessing Session Data
+### Obtaining the token data
 
-```python
-@app.get("/data")
-async def get_data(request: fastapi.Request):
-    session_data = request.scope.get("bfabric_session", {})
-    bfabric_config = request.scope.get("bfabric_connection", {})
+- In most cases, you should define a `on_success` callback to handle the token data with your application logic.
+- The `bfabric_instance`, `bfabric_auth_login` and `bfabric_auth_password` are available in the `bfabric_session` key of `session`.
 
-    return {
-        "user_info": session_data.get("user_info"),
-        "bfabric_url": bfabric_config.get("base_url"),
-    }
-```
+### Session management
 
-Available in `request.scope`:
+In many cases, a user may have multiple sessions of a particular web app open.
 
-- `bfabric_session`: Full session data (client_config, user_info)
-- `bfabric_connection`: Bfabric client config (base_url, login, password)
+Your application is responsible for correctly behaving in this scenario, which is why if it is sensitive to the value of `TokenData`
+you should encode this information most likely in the path of the session witth a `on_success` callback.
 
-### Example Commands
+The middleware currently has the behavior, that if the session is already authenticated but with a different user or B-Fabric instance, the session
+will be evicted. This behavior can be changed.
 
-```bash
-# Start server
-uvicorn examples.example_app:app --reload
+### Visible errors
 
-# Login (creates session cookie)
-curl -c cookies.txt -L "http://localhost:8000/landing?token=valid_test123"
-
-# Access protected endpoints
-curl -b cookies.txt "http://localhost:8000/"
-curl -b cookies.txt "http://localhost:8000/data"
-
-# Logout
-curl -b cookies.txt "http://localhost:8000/logout"
-```
+Error handling can be customized with a custom renderer, however before that it would probably be a better use of time to improve the implementation here.
+If you want to raise an error to the browser, you should raise a `VisibleException` instance with the error mesage and status code.
 
 ## Security
 
