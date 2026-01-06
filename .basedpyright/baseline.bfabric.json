@@ -84,14 +84,6 @@
                 }
             },
             {
-                "code": "reportUnreachable",
-                "range": {
-                    "startColumn": 12,
-                    "endColumn": 13,
-                    "lineCount": 4
-                }
-            },
-            {
                 "code": "reportImplicitOverride",
                 "range": {
                     "startColumn": 8,

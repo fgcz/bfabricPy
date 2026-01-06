@@ -153,6 +153,7 @@ class Bfabric:
             validation can be performed on any B-Fabric instance as the token describes the caller too
         :return: a tuple of the Bfabric instance and the token data
         """
+        _ = config_file_path, config_file_env
         warnings.warn(
             "use Bfabric.connect_token which allows for a more secure set up",
             DeprecationWarning,
