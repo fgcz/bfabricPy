@@ -167,9 +167,19 @@ class Bfabric:
     ) -> tuple[Bfabric, TokenData]:
         """Returns a new Bfabric instance configured with the provided token.
 
+        Calls connect_token_async, if you are in a coroutine then you have to call connect_token_async instead.
+        """
+        return asyncio.run(cls.connect_token_async(token=token, settings=settings))
+
+    @classmethod
+    async def connect_token_async(
+        cls, token: str | SecretStr, settings: TokenValidationSettingsProtocol
+    ) -> tuple[Bfabric, TokenData]:
+        """Returns a new Bfabric instance configured with the provided token.
+
         Settings needs to be configured to allow the desired B-Fabric instances.
         """
-        token_data = asyncio.run(validate_token(token=token, settings=settings))
+        token_data = await validate_token(token=token, settings=settings)
         return cls.from_token_data(token_data), token_data
 
     @property

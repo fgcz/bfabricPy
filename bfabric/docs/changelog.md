@@ -13,7 +13,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 - Improved token authentication
     - `bfabric.experimental.webapp_integration_settings`
-    - `Bfabric.connect_token`: this one respects the list of allowed bfabric instances
+    - `Bfabric.connect_token`, `Bfabric.connect_token_async`: this one respects the list of allowed bfabric instances
     - `bfabric.rest.token_data.validate_token`
     - `Bfabric.from_token_data`: creates a new Bfabric instance from token data.
 
