@@ -155,14 +155,23 @@ class ResponseRenderer(Protocol):
 def _send_http_header(
     status: int,
     headers: list[tuple[bytes, bytes]],
+    include_cache_control: bool = True,
 ) -> ASGISendEvent:
     """Build an HTTP response start event.
 
     :param status: HTTP status code
     :param headers: List of header tuples
-    :param body: Response body bytes
+    :param include_cache_control: Whether to include cache control headers (default: True)
     :return: ASGI response start event
     """
+    # Add cache control headers to prevent caching of authentication responses
+    if include_cache_control:
+        cache_headers = [
+            (b"cache-control", b"no-store, max-age=0, must-revalidate"),
+            (b"pragma", b"no-cache"),
+        ]
+        headers = cache_headers + headers
+
     return cast(
         ASGISendEvent,
         {  # pyright: ignore[reportInvalidCast]
