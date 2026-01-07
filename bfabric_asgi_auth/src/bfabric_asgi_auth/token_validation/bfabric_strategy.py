@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from bfabric.errors import BfabricInstanceNotConfiguredError
-from bfabric.rest.token_data import TokenValidationSettingsProtocol, validate_token
+from bfabric.experimental.webapp_integration_settings import TokenValidationSettingsProtocol
+from bfabric.rest.token_data import validate_token
 from httpx import HTTPError
 from loguru import logger
 from pydantic import SecretStr, ValidationError
