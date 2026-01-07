@@ -1,10 +1,16 @@
 from __future__ import annotations
 
-from typing import Self
+from typing import Protocol, Self, runtime_checkable
 
 from pydantic import BaseModel, model_validator
 
 from bfabric.config.bfabric_auth import BfabricAuth  # noqa
+
+
+@runtime_checkable
+class TokenValidationSettingsProtocol(Protocol):
+    validation_bfabric_instance: str
+    supported_bfabric_instances: list[str]
 
 
 class TokenValidationSettings(BaseModel):
