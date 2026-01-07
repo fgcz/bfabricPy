@@ -24,7 +24,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Fixed
 
-- `References` correctly handles references with extra fields like `_position`. (#418)
+- `References` correctly handles references with extra fields like `_position`.
 
 ## \[1.16.1\] - 2025-12-15
 
