@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+from bfabric.errors import BfabricInstanceNotConfiguredError
+from bfabric.experimental.webapp_integration_settings import TokenValidationSettingsProtocol
+from bfabric.rest.token_data import validate_token
 from httpx import HTTPError
 from loguru import logger
 from pydantic import SecretStr, ValidationError
 
-from bfabric.errors import BfabricInstanceNotConfiguredError
-from bfabric.experimental.webapp_integration_settings import TokenValidationSettings
-from bfabric.rest.token_data import validate_token
 from bfabric_asgi_auth.token_validation.strategy import (
     TokenValidationError,
     TokenValidationResult,
@@ -15,7 +15,7 @@ from bfabric_asgi_auth.token_validation.strategy import (
 )
 
 
-def create_bfabric_validator(settings: TokenValidationSettings) -> TokenValidatorStrategy:
+def create_bfabric_validator(settings: TokenValidationSettingsProtocol) -> TokenValidatorStrategy:
     """Create a validator that uses async Bfabric token validation.
 
     :param validation_instance_url: URL of the B-Fabric instance for token validation
