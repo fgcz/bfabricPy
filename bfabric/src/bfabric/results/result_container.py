@@ -113,10 +113,15 @@ class ResultContainer:
         else:
             return self.results
 
-    def to_polars(self, drop_empty: bool = False) -> polars.DataFrame:
+    def to_polars(self, drop_empty: bool = False, flatten: bool = False) -> polars.DataFrame:
         """Returns the results as a polars DataFrame.
         :param drop_empty: If True, empty attributes will be removed from the results
+        :param flatten: If True, flatten struct columns into individual columns
         """
+        from bfabric.utils.polars_utils import flatten_relations
         import polars
 
-        return polars.DataFrame(self.to_list_dict(drop_empty=drop_empty))
+        df = polars.DataFrame(self.to_list_dict(drop_empty=drop_empty))
+        if flatten:
+            df = flatten_relations(df)
+        return df
