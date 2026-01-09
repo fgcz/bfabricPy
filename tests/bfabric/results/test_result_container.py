@@ -113,3 +113,16 @@ def test_to_list_dict_when_drop_empty(res_with_empty):
 def test_to_polars(res1):
     df = res1.to_polars()
     polars.testing.assert_series_equal(polars.Series("column_0", [1, 2, 3]), df["column_0"])
+
+
+def test_to_polars_flatten_relations():
+    res = ResultContainer(
+        [{"a": 1, "nested": {"x": 10, "y": 20}}, {"a": 2, "nested": {"x": 30, "y": 40}}],
+        total_pages_api=None,
+        errors=[],
+    )
+    df = res.to_polars(flatten=True)
+    polars.testing.assert_series_equal(polars.Series("a", [1, 2]), df["a"])
+    polars.testing.assert_series_equal(polars.Series("nested_x", [10, 30]), df["nested_x"])
+    polars.testing.assert_series_equal(polars.Series("nested_y", [20, 40]), df["nested_y"])
+    assert "nested" not in df.columns

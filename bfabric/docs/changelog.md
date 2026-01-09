@@ -16,6 +16,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
     - `Bfabric.connect_token`, `Bfabric.connect_token_async`: this one respects the list of allowed bfabric instances
     - `bfabric.rest.token_data.validate_token`
     - `Bfabric.from_token_data`: creates a new Bfabric instance from token data.
+- `ResultContainer.to_polars` now has a `flatten` parameter to flatten struct columns into individual columns.
 
 ### Deprecated
 
