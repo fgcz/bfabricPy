@@ -10,7 +10,14 @@ Several pieces of functionality are available:
 - A REST API: A REST API to interact with the B-Fabric system. This allows us to interact with B-Fabric from R
     using [bfabricShiny](https://github.com/cpanse/bfabricShiny).
 
-Please see below for how to install bfabricPy.
+Please see below for how to install bfabricPy and create a client.
+
+## Getting Started
+
+See {doc}`client` for information on creating a client, with separate guides for:
+
+- Interactive sessions and scripts using config files
+- Web servers and webapps using token-based authentication
 
 ## Installation
 
@@ -71,7 +78,12 @@ GENERAL:
 PRODUCTION:
   login: yourBfabricLogin
   password: yourBfabricWebPassword
-  base_url: https://fgcz-bfabric.uzh.ch/bfabric
+  base_url: https://fgcz-bfabric.uzh.ch/bfabric/
+
+TEST:
+  login: yourBfabricLogin
+  password: yourBfabricWebPassword
+  base_url: https://fgcz-bfabric-test.uzh.ch/bfabric/
 ```
 
 You can also append an additional config section for the TEST instance which will be used for instance when running the
@@ -96,6 +108,9 @@ correct environment.
 :caption: Documentation:
 client
 entities
+write_data
+experimental_data
+experimental_workunits
 good_to_know
 contribute
 changelog
