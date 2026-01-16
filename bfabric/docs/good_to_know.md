@@ -2,10 +2,12 @@
 
 ## Updating workunits with many associated resources
 
-!!! note "Summary: Updating workunits and its associated resources"
-    1. Set workunit state to `"processing"`.
-    2. Update workunit and associated resources, as much as you need to.
-    3. Set workunit state to `"available"`.
+```{note}
+**Summary: Updating workunits and its associated resources**
+1. Set workunit state to `"processing"`.
+2. Update workunit and associated resources, as much as you need to.
+3. Set workunit state to `"available"`.
+```
 
 When updating large workunits, it's crucial to prevent state recomputation in B-Fabric by setting the workunit state to `"processing"` before making any changes.
 Failing to do so can lead to significant performance issues and complications, especially during iterative updates.

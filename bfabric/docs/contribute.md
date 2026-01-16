@@ -23,11 +23,14 @@ Note that integration tests have been moved to a separate repository. Please con
 We currently do not have a versioning solution for the documentation, but we can add that later once it is more mature.
 
 ```bash
-# To preview while you write it
-mkdocs serve
+# To preview while you write it (from bfabric/docs directory)
+make html
+
+# To rebuild documentation for all packages
+nox -s docs
 
 # To publish after changes
-mkdocs gh-deploy
+nox -s publish_docs
 ```
 
 ## Release

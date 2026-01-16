@@ -90,3 +90,13 @@ environment that is used by setting the environemnt variable `BFABRICPY_CONFIG_E
 you want to use.
 Command line scripts will log the user and base URL that is used, so you can verify that you are indeed using the
 correct environment.
+
+```{toctree}
+:maxdepth: 2
+:caption: Documentation:
+client
+entities
+good_to_know
+contribute
+changelog
+```

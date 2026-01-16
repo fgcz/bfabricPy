@@ -266,8 +266,13 @@ def docs(session):
     """Builds documentation for bfabricPy and app-runner and writes to site directory."""
     with TemporaryDirectory() as tmpdir:
         session.install("./bfabric[doc]")
-        with chdir("bfabric"):
-            session.run("mkdocs", "build", "-d", Path(tmpdir) / "build_bfabricpy")
+        session.run(
+            "sphinx-build",
+            "-M",
+            "html",
+            "bfabric/docs",
+            Path(tmpdir) / "build_bfabricpy",
+        )
 
         session.install("./bfabric_app_runner[doc]")
         session.run(
@@ -282,7 +287,7 @@ def docs(session):
         if target_dir.exists():
             shutil.rmtree(target_dir)
 
-        shutil.copytree(Path(tmpdir) / "build_bfabricpy", target_dir)
+        shutil.copytree(Path(tmpdir) / "build_bfabricpy" / "html", target_dir)
         shutil.copytree(Path(tmpdir) / "build_app_runner" / "html", target_dir / "app_runner")
 
 
