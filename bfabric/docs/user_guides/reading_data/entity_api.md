@@ -38,6 +38,18 @@ uris = [
 entities = reader.read_uris(uris)  # Returns dict[URI, Entity]
 ```
 
+**Parameters:**
+
+- `uri` (str | EntityUri): The entity URI to read
+- `expected_type` (type\[Entity\]): Optional type to validate and cast the result to. Defaults to `Entity`
+
+**Returns:** Entity or `None` if not found
+
+**Raises:**
+
+- `ValueError`: If URI is invalid or from unsupported B-Fabric instance
+- `TypeError`: If entity type doesn't match `expected_type`
+
 ### By ID
 
 Read entities by type and ID:
@@ -50,6 +62,22 @@ sample = reader.read_id(entity_type="sample", entity_id=123)
 entities = reader.read_ids(entity_type="sample", entity_ids=[123, 456, 789])
 ```
 
+**Parameters:**
+
+- `entity_type` (str): The entity type (e.g., "sample", "project", "workunit")
+- `entity_id` (int): The entity ID
+- `bfabric_instance` (str | None): The B-Fabric instance URL. If `None`, uses client's configured instance
+- `expected_type` (type\[Entity\]): Optional type to validate and cast the result to. Defaults to `Entity`
+
+**Returns:** Entity or `None` if not found
+
+**Raises:**
+
+- `ValueError`: If instance doesn't match client's configured instance
+- `TypeError`: If entity type doesn't match `expected_type`
+
+**Note:** The `read_id()` method is internally implemented as `read_ids()` for a single ID.
+
 ### By Query
 
 Query entities with search criteria:
@@ -61,6 +89,23 @@ entities = reader.query(entity_type="sample", obj={"name": "MySample"}, max_resu
 # Find projects with specific criteria
 entities = reader.query(entity_type="project", obj={"name": "Test", "status": "Active"})
 ```
+
+**Parameters:**
+
+- `entity_type` (str): The entity type to query (e.g., "project", "workunit")
+- `obj` (dict): Dictionary of search criteria (e.g., `{"name": "MyProject"}`)
+    - Multiple values for a field are treated as OR condition: `{"id": [1, 2, 3]}`
+    - Multiple fields are treated as AND condition: `{"name": "Test", "status": "Active"}`
+- `bfabric_instance` (str | None): The B-Fabric instance URL. If `None`, uses client's configured instance
+- `max_results` (int | None): Maximum number of results to return. Defaults to 100. Set to `None` for all results
+
+**Returns:** Dictionary mapping EntityUri to Entity
+
+**Raises:**
+
+- `ValueError`: If instance doesn't match client's configured instance
+
+**Note:** Currently only supports querying the client's configured B-Fabric instance. Cross-instance queries are not yet supported.
 
 ## Entity Objects
 
@@ -274,6 +319,61 @@ for uri, entity in entities.items():
         print(f"Not found: {uri}")
 ```
 
+## Using expected_type Parameter
+
+The `expected_type` parameter allows you to specify the type of entity you expect to receive, providing type safety and IDE autocompletion:
+
+```python
+from bfabric import Bfabric
+from bfabric.entities import Sample, Project
+
+client = Bfabric.connect()
+reader = client.reader
+
+# Without expected_type - returns generic Entity
+entity = reader.read_id(entity_type="sample", entity_id=123)
+# entity is of type Entity, no type-specific methods available
+
+# With expected_type - returns typed entity
+sample = reader.read_id(entity_type="sample", entity_id=123, expected_type=Sample)
+# sample is of type Sample, all Sample methods available
+print(sample.container)  # IDE knows this is available
+
+# Works with multiple reads
+entities = reader.read_ids(
+    entity_type="sample",
+    entity_ids=[123, 456],
+    expected_type=Sample,
+)
+for sample in entities.values():
+    # Each sample is properly typed
+    print(sample.container)
+```
+
+**When to use `expected_type`:**
+
+- When you know the exact entity type you'll receive
+- To get IDE autocompletion for entity-specific methods
+- To catch bugs early (mismatched types raise TypeError)
+
+**When to skip `expected_type` (use default `Entity`):**
+
+- When reading mixed entity types
+- When you don't know the entity type in advance
+- When using URIs that may reference different types
+
+## Current Limitations
+
+The EntityReader has some limitations to be aware of:
+
+1. **Single B-Fabric Instance**: Query operations only work with the client's configured B-Fabric instance. Cross-instance queries are not yet supported.
+
+2. **URI Validation**: URIs must match the client's configured instance. You cannot read entities from a different instance.
+
+3. **None Returns**: Methods return `None` when entity is not found, rather than raising an exception. Always check for `None` returns.
+
+4. **Type Safety**: While `expected_type` provides validation, it's not enforced at the API level - the B-Fabric server determines the entity type.
+
 ## Comparison to ResultContainer API
 
 If you find yourself needing any of the following, consider using {doc}`read_resultcontainer` instead:
@@ -282,3 +382,7 @@ If you find yourself needing any of the following, consider using {doc}`read_res
 - Exporting directly to DataFrames without entity overhead
 - Simple queries without relationships
 - Full control over data structure
+
+## Entity-Specific Features
+
+For detailed information about specific entity types and their special features (like `Dataset` export methods, `Workunit` parameter access, `Resource` path methods), see {doc}`entity_reference`.

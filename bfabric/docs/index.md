@@ -1,117 +1,152 @@
-# Home
+# bfabricPy Documentation
 
-This package implements a Python interface to the [B-Fabric](https://fgcz-bfabric.uzh.ch/bfabric/) system.
-Several pieces of functionality are available:
+bfabricPy provides a Python interface to the [B-Fabric](https://fgcz-bfabric.uzh.ch/bfabric/) system.
 
-- Python API:
-    - General client for all B-Fabric web service operations (CRUD) and configuration management.
-    - A relational API for low-boilerplate read access to the B-Fabric system.
-- Scripts: Several scripts we use more or less frequently to interact with the system.
-- A REST API: A REST API to interact with the B-Fabric system. This allows us to interact with B-Fabric from R
-    using [bfabricShiny](https://github.com/cpanse/bfabricShiny).
+## Quick Start
 
-Please see below for how to install bfabricPy and create a client.
-
-## Getting Started
-
-See {doc}`client` for information on creating a client, with separate guides for:
-
-- Interactive sessions and scripts using config files
-- Web servers and webapps using token-based authentication
-
-## Installation
-
-The [bfabric](https://pypi.org/project/bfabric/) and [bfabric-scripts](https://pypi.org/project/bfabric-scripts/)
-packages are available on PyPI.
-If you want to use the API in your code the `bfabric` package already provides all relevant functionality, whereas
-`bfabric-scripts` will provide several command line tools to interact with the B-Fabric system.
-
-### Installing the tool
-
-If you are only interested in running the command line scripts, installation with `uv tool` is recommended as it will
-create a separate virtual environment for bfabric-scripts and make it possible to upgrade your installation later
-easily.
-
-```bash
-uv tool install -p 3.13 bfabric-scripts
-```
-
-You can upgrade this installation to the most recent version later with:
-
-```bash
-uv tool upgrade bfabric-scripts
-```
-
-### Declaring a package dependency
-
-If you want to add it to a `pyproject.toml`, simply add bfabric to your dependencies:
-
-```toml
-[project]
-dependencies = [
-    "bfabric==x.y.z"
-]
-```
-
-where you replace `x.y.z` with the version you want to use.
-
-If you instead want to install a development version, you can specify the git repository and branch to use:
-
-```toml
-[project]
-dependencies = [
-    "bfabric @ git+https://github.com/fgcz/bfabricPy.git@stable&subdirectory=bfabric#egg=bfabric",
-]
-```
-
-## Configuration
-
-Create a file as follows: (note: the password is not your login password, but the web service password available on your
-profile page)
-
-```yaml
-# ~/.bfabricpy.yml
-
-GENERAL:
-  default_config: PRODUCTION
-
-PRODUCTION:
-  login: yourBfabricLogin
-  password: yourBfabricWebPassword
-  base_url: https://fgcz-bfabric.uzh.ch/bfabric/
-
-TEST:
-  login: yourBfabricLogin
-  password: yourBfabricWebPassword
-  base_url: https://fgcz-bfabric-test.uzh.ch/bfabric/
-```
-
-You can also append an additional config section for the TEST instance which will be used for instance when running the
-integration tests:
-
-```yaml
-TEST:
-  login: yourBfabricLogin
-  password: yourBfabricWebPassword
-  base_url: https://fgcz-bfabric-test.uzh.ch/bfabric
-```
-
-When you run an application using bfabricPy, and it does not explicitly set the config when calling
-`Bfabric.from_config`, you can adjust the
-environment that is used by setting the environemnt variable `BFABRICPY_CONFIG_ENV` to the name of the config section
-you want to use.
-Command line scripts will log the user and base URL that is used, so you can verify that you are indeed using the
-correct environment.
+New to bfabricPy? Start here:
 
 ```{toctree}
 :maxdepth: 2
-:caption: Documentation:
-client
-entities
-write_data
-experimental_data
-experimental_workunits
-good_to_know
-contribute
-changelog
+:caption: Getting Started:
+getting_started/index
+getting_started/installation
+getting_started/quick_start
+getting_started/configuration
 ```
+
+## User Guides
+
+Practical guides for common tasks and workflows:
+
+```{toctree}
+:maxdepth: 2
+:caption: User Guides:
+user_guides/index
+user_guides/creating_a_client/index
+user_guides/reading_data/index
+user_guides/writing_data/index
+user_guides/working_with_entities/index
+```
+
+## API Reference
+
+Complete, auto-generated documentation from the code:
+
+```{toctree}
+:maxdepth: 2
+:caption: API Reference:
+api_reference/index
+api_reference/bfabric_client/methods
+api_reference/entity_types/index
+api_reference/entity_reader/index
+api_reference/result_container/index
+api_reference/token_data/index
+api_reference/exceptions_and_errors/index
+```
+
+## Advanced Topics
+
+For experienced users:
+
+```{toctree}
+:maxdepth: 2
+:caption: Advanced Topics:
+advanced_topics/index
+advanced_topics/token_authentication/index
+advanced_topics/workunit_definitions/index
+advanced_topics/experimental_features/index
+```
+
+## Resources
+
+Additional resources and support:
+
+```{toctree}
+:maxdepth: 1
+:caption: Resources:
+resources/index
+resources/error_handling
+resources/best_practices
+resources/troubleshooting
+resources/contributing
+resources/changelog
+```
+
+## Key Features
+
+### Entity System
+
+bfabricPy provides a rich entity system with typed classes, relationships, and special features:
+
+- **20+ entity types** with auto-generated documentation
+- **Relationships**: Navigate connected entities (project → samples → workunits)
+- **Special features**: Dataset exports, Workunit parameters, Resource paths
+- **URI support**: Reference entities across B-Fabric instances
+- **Automatic caching**: Performance optimization for repeated access
+
+### Dual API Design
+
+bfabricPy provides two complementary APIs:
+
+| Feature       | ResultContainer API           | Entity API                           |
+| ------------- | ----------------------------- | ------------------------------------ |
+| Use Case      | Simple queries, data analysis | Working with entities, relationships |
+| Entry Point   | `client.read(endpoint, obj)`  | `client.reader`                      |
+| Return Type   | Dictionaries (raw data)       | Entity objects (typed)               |
+| Relationships | Manual handling               | Lazy-loading via `entity.refs`       |
+| Caching       | Manual                        | Automatic (via `cache_entities()`)   |
+
+### Authentication Methods
+
+- **Config-based**: For scripts and interactive sessions
+- **Token-based**: For web servers and webapps
+- **Async support**: For async frameworks (FastAPI, asyncio)
+
+### Experimental Features
+
+- Dataset upload from CSV
+- Custom attributes update
+- Workunit definitions (YAML)
+- Entity caching context
+
+## Installation
+
+```bash
+# Install library
+pip install bfabric
+
+# Install command-line tools
+uv tool install bfabric-scripts
+```
+
+See [Installation Guide](getting_started/installation.md) for more options.
+
+## Documentation Structure
+
+This documentation is organized by **what you want to do** rather than by API structure:
+
+- **[Getting Started](getting_started/index)** - Installation, configuration, first script
+- **[User Guides](user_guides/index)** - Task-based tutorials and examples
+- **[API Reference](api_reference/index)** - Complete, auto-generated documentation
+- **[Advanced Topics](advanced_topics/index)** - Advanced features and patterns
+- **[Resources](resources/index)** - Error handling, best practices, contributing
+
+## Contributing
+
+Contributions are welcome! See [Contributing Guide](resources/contributing.md) for details.
+
+## Version
+
+Current version and history: [Changelog](resources/changelog.md)
+
+## License
+
+Copyright (C) 2014-2025 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
+
+Licensed under GPL version 3.
+
+## Support
+
+- **Issues**: https://github.com/fgcz/bfabricPy/issues
+- **Documentation**: https://github.com/fgcz/bfabricPy

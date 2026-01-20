@@ -42,6 +42,10 @@ By default, the logs go to standard error, which can be useful in some scenarios
 
 Alternatively, you can set the environment variable `LOGURU_LEVEL`, e.g. `LOGURU_LEVEL=WARNING`. However, this will affect all loguru loggers in your code and may thus not be the preferable approach.
 
+## Error Handling
+
+For comprehensive information about error handling, exception types, and patterns, see {doc}`error_handling`.
+
 ### In bfabricPy scripts
 
 Generally, to achieve a consistent output in our scripts, we initialize the logger by the following function:

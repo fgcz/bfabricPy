@@ -249,3 +249,22 @@ with cache_entities(cache_config):
 - Caching is especially beneficial for relationship navigation and repeated access
 - Cache contexts can be nested for fine-grained control
 - Caches are automatically cleared when the context exits
+
+## Advanced: Cache Internals
+
+For details on cache implementation, see:
+
+```{eval-rst}
+.. automodule:: bfabric.entities.cache
+    :members:
+    :undoc-members:
+    :show-inheritance:
+```
+
+This includes:
+
+- `cache_entities()` - Context manager for enabling caching
+- `EntityMemoryCache` - In-memory cache implementation
+- `CacheStack` - Stack-based cache management
+
+See {doc}`entity_reference` for complete documentation of all entity types and their features.
