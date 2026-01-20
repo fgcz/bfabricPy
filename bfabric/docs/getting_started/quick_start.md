@@ -288,7 +288,7 @@ Use the CLI to explore, then copy the Python code it shows:
 bfabric-cli api read workunit --limit 5
 
 # Shows equivalent Python code:
-# results = client.read(endpoint='workunit', obj={}, max_results=100)
+# results = client.read(endpoint='workunit', obj={}, max_results=5)
 ```
 
 **Or inspect the structure first:**
