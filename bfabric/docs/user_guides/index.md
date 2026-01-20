@@ -4,10 +4,35 @@ Practical guides for common tasks and workflows with bfabricPy.
 
 ```{toctree}
 :maxdepth: 1
-creating_a_client/index
-reading_data/index
-writing_data/index
-working_with_entities/index
+:caption: Creating a Client
+creating_a_client/interactive_scripted_usage
+creating_a_client/server_webapp_usage
+```
+
+```{toctree}
+:maxdepth: 1
+:caption: Reading Data
+reading_data/resultcontainer_api
+reading_data/entity_api
+reading_data/caching_for_performance
+```
+
+```{toctree}
+:maxdepth: 1
+:caption: Writing Data
+writing_data/save_update_delete
+```
+
+```{toctree}
+:maxdepth: 1
+:caption: Working with Entities
+working_with_entities/entity_types
+working_with_entities/dataset_operations
+```
+
+```{toctree}
+:maxdepth: 2
+:caption: CLI Reference
 cli_reference/index
 ```
 

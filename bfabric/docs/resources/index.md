@@ -7,21 +7,22 @@ Supporting documentation including error handling, best practices, and troublesh
 error_handling
 best_practices
 troubleshooting
-contributing
 changelog
 ```
+
+> **Note:** For contributing guidelines, see the main [Contributing Guide](../../../CONTRIBUTING.md) in the repository root.
 
 ## Overview
 
 This section contains resources to help you use bfabricPy effectively:
 
-| Resource                                  | Description                                          | For                         |
-| ----------------------------------------- | ---------------------------------------------------- | --------------------------- |
-| **[Error Handling](error_handling.md)**   | Exception types, error patterns, handling strategies | All users                   |
-| **[Best Practices](best_practices.md)**   | Development guidelines and recommendations           | All users                   |
-| **[Troubleshooting](troubleshooting.md)** | Solutions to common issues                           | When you encounter problems |
-| **[Contributing](contributing.md)**       | How to contribute to bfabricPy                       | Contributors                |
-| **[Changelog](changelog.md)**             | Version history and changes                          | All users                   |
+| Resource                                     | Description                                          | For                         |
+| -------------------------------------------- | ---------------------------------------------------- | --------------------------- |
+| **[Error Handling](error_handling.md)**      | Exception types, error patterns, handling strategies | All users                   |
+| **[Best Practices](best_practices.md)**      | Development guidelines and recommendations           | All users                   |
+| **[Troubleshooting](troubleshooting.md)**    | Solutions to common issues                           | When you encounter problems |
+| **[Contributing](../../../CONTRIBUTING.md)** | How to contribute to bfabricPy                       | Contributors                |
+| **[Changelog](changelog.md)**                | Version history and changes                          | All users                   |
 
 ## Quick Links
 
@@ -42,5 +43,5 @@ This section contains resources to help you use bfabricPy effectively:
 
 ### I Want to Contribute
 
-- [Contributing Guide](contributing.md) - How to contribute
+- [Contributing Guide](../CONTRIBUTING.md) - How to contribute (repository root)
 - [Changelog](changelog.md) - Recent changes

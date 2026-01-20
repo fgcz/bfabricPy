@@ -9,7 +9,6 @@ user_guides/index
 api_reference/index
 advanced_topics/index
 resources/index
-changelog
 ```
 
 ## Key Features
@@ -73,7 +72,7 @@ This documentation is organized by **what you want to do** rather than by API st
 
 ## Contributing
 
-Contributions are welcome! See [Contributing Guide](resources/contributing.md) for details.
+Contributions are welcome! See [Contributing Guide](../CONTRIBUTING.md) for details.
 
 ## Version
 

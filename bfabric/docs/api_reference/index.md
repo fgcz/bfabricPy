@@ -84,7 +84,7 @@ Documentation is generated from docstrings in the code. To improve it:
 3. **Run documentation build** to see changes
 4. **Commit documentation** changes along with code changes
 
-See [Contributing Guide](../../resources/contributing.md) for more details.
+See [Contributing Guide](../../../CONTRIBUTING.md) for more details.
 
 ## Next Steps
 

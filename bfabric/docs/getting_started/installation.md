@@ -97,7 +97,7 @@ ______________________________________________________________________
 
 ## Development Installation
 
-For contributing to bfabricPy, see the [Contributing Guide](../../resources/contributing.md).
+For contributing to bfabricPy, see the [Contributing Guide](../../../CONTRIBUTING.md).
 
 ______________________________________________________________________
 
