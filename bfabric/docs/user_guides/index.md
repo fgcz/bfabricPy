@@ -8,6 +8,7 @@ creating_a_client
 reading_data
 writing_data
 working_with_entities
+cli_reference
 ```
 
 ## Guides Overview
@@ -18,6 +19,7 @@ working_with_entities
 | [Reading Data](reading_data/index.md)                   | Query B-Fabric and retrieve data               | Beginner     |
 | [Writing Data](writing_data/index.md)                   | Create, update, and delete entities            | Intermediate |
 | [Working with Entities](working_with_entities/index.md) | Use typed entities and relationships           | Intermediate |
+| [CLI Reference](cli_reference/index.md)                 | Command-line interface for bfabric-cli         | All Levels   |
 
 ## Common Workflows
 
@@ -25,6 +27,7 @@ working_with_entities
 - **[Workunit Management](working_with_entities/workunit_operations.md)** - Create and manage workunits
 - **[Batch Processing](writing_data/batch_operations.md)** - Process multiple entities efficiently
 - **[Performance Optimization](reading_data/caching_for_performance.md)** - Cache entities for speed
+- **[CLI Quick Operations](cli_reference/index.md)** - Quick one-off tasks with bfabric-cli
 
 ## Quick Links
 

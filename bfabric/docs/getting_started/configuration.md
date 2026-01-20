@@ -31,6 +31,11 @@ The password in your config file is **NOT** your login password. Find your web s
 2. Go to your profile page
 3. Find the "Web Service Password" section
 
+```{warning}
+This password authenticates you to the B-Fabric webservices.
+Make sure not to share it with others and ensure proper permissions for the configuration file.
+```
+
 ### Multiple Environments
 
 You can define multiple environments (e.g., PRODUCTION, TEST) and switch between them:
@@ -72,7 +77,7 @@ python script.py  # Will use TEST environment
 
 ### BFABRICPY_CONFIG_OVERRIDE
 
-Complete configuration override (highest priority). Useful for containerized deployments:
+Complete configuration override (highest priority). Used primarily for integration tests, where it needs to be prevented that the regular config file leads to the wrong B-Fabric instance being modified.
 
 ```bash
 export BFABRICPY_CONFIG_OVERRIDE='{"client": {"base_url": "https://fgcz-bfabric.uzh.ch/bfabric/"}, "auth": {"login": "myuser", "password": "mypass"}}'

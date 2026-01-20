@@ -2,10 +2,6 @@
 
 bfabricPy provides a Python interface to the [B-Fabric](https://fgcz-bfabric.uzh.ch/bfabric/) system.
 
-## Quick Start
-
-New to bfabricPy? Start here:
-
 ```{toctree}
 :maxdepth: 2
 :caption: Getting Started:
@@ -15,10 +11,6 @@ getting_started/quick_start
 getting_started/configuration
 ```
 
-## User Guides
-
-Practical guides for common tasks and workflows:
-
 ```{toctree}
 :maxdepth: 2
 :caption: User Guides:
@@ -27,6 +19,7 @@ user_guides/creating_a_client/index
 user_guides/reading_data/index
 user_guides/writing_data/index
 user_guides/working_with_entities/index
+user_guides/cli_reference/index
 ```
 
 ## API Reference
@@ -142,7 +135,7 @@ Current version and history: [Changelog](resources/changelog.md)
 
 ## License
 
-Copyright (C) 2014-2025 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
+Copyright (C) 2014-2026 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 
 Licensed under GPL version 3.
 
