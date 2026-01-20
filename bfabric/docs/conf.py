@@ -29,6 +29,13 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 html_theme = "sphinx_book_theme"
 html_static_path = ["_static"]
 
+# Theme options for sidebar navigation
+html_theme_options = {
+    "navigation_depth": 4,
+    "collapse_navigation": False,
+    "show_toc_level": 3,
+}
+
 # -- MyST Parser configuration -----------------------------------------------
 myst_enable_extensions = [
     "colon_fence",

@@ -4,11 +4,11 @@ Practical guides for common tasks and workflows with bfabricPy.
 
 ```{toctree}
 :maxdepth: 1
-creating_a_client
-reading_data
-writing_data
-working_with_entities
-cli_reference
+creating_a_client/index
+reading_data/index
+writing_data/index
+working_with_entities/index
+cli_reference/index
 ```
 
 ## Guides Overview

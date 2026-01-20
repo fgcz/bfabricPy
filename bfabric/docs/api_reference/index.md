@@ -4,12 +4,12 @@ Complete API documentation for all bfabricPy classes and methods.
 
 ```{toctree}
 :maxdepth: 1
-bfabric_client
-entity_types
-entity_reader
-result_container
-token_data
-exceptions_and_errors
+bfabric_client/index
+entity_types/index
+entity_reader/index
+result_container/index
+token_data/index
+exceptions_and_errors/index
 ```
 
 ## Documentation Style

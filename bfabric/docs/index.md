@@ -4,66 +4,12 @@ bfabricPy provides a Python interface to the [B-Fabric](https://fgcz-bfabric.uzh
 
 ```{toctree}
 :maxdepth: 2
-:caption: Getting Started:
 getting_started/index
-getting_started/installation
-getting_started/quick_start
-getting_started/configuration
-```
-
-```{toctree}
-:maxdepth: 2
-:caption: User Guides:
 user_guides/index
-user_guides/creating_a_client/index
-user_guides/reading_data/index
-user_guides/writing_data/index
-user_guides/working_with_entities/index
-user_guides/cli_reference/index
-```
-
-## API Reference
-
-Complete, auto-generated documentation from the code:
-
-```{toctree}
-:maxdepth: 2
-:caption: API Reference:
 api_reference/index
-api_reference/bfabric_client/methods
-api_reference/entity_types/index
-api_reference/entity_reader/index
-api_reference/result_container/index
-api_reference/token_data/index
-api_reference/exceptions_and_errors/index
-```
-
-## Advanced Topics
-
-For experienced users:
-
-```{toctree}
-:maxdepth: 2
-:caption: Advanced Topics:
 advanced_topics/index
-advanced_topics/token_authentication/index
-advanced_topics/workunit_definitions/index
-advanced_topics/experimental_features/index
-```
-
-## Resources
-
-Additional resources and support:
-
-```{toctree}
-:maxdepth: 1
-:caption: Resources:
 resources/index
-resources/error_handling
-resources/best_practices
-resources/troubleshooting
-resources/contributing
-resources/changelog
+changelog
 ```
 
 ## Key Features

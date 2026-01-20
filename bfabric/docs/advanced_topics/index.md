@@ -4,9 +4,9 @@ Advanced features and topics for experienced users.
 
 ```{toctree}
 :maxdepth: 1
-token_authentication
-workunit_definitions
-experimental_features
+token_authentication/index
+workunit_definitions/index
+experimental_features/index
 ```
 
 ## Topics Overview
