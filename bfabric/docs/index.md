@@ -72,7 +72,7 @@ This documentation is organized by **what you want to do** rather than by API st
 
 ## Contributing
 
-Contributions are welcome! See [Contributing Guide](../CONTRIBUTING.md) for details.
+Contributions are welcome! See [Contributing Guide](https://github.com/fgcz/bfabricPy/blob/main/CONTRIBUTING.md) for details.
 
 ## Version
 

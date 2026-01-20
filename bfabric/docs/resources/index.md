@@ -10,7 +10,7 @@ troubleshooting
 changelog
 ```
 
-> **Note:** For contributing guidelines, see the main [Contributing Guide](../../../CONTRIBUTING.md) in the repository root.
+> **Note:** For contributing guidelines, see the main [Contributing Guide](https://github.com/fgcz/bfabricPy/blob/main/CONTRIBUTING.md) in the repository root.
 
 ## Overview
 
@@ -43,5 +43,5 @@ This section contains resources to help you use bfabricPy effectively:
 
 ### I Want to Contribute
 
-- [Contributing Guide](../CONTRIBUTING.md) - How to contribute (repository root)
+- [Contributing Guide](https://github.com/fgcz/bfabricPy/blob/main/CONTRIBUTING.md) - How to contribute (repository root)
 - [Changelog](changelog.md) - Recent changes
