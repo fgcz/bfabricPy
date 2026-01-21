@@ -1,28 +1,26 @@
 # Resources
 
-Supporting documentation including error handling, best practices, and troubleshooting.
+Supporting documentation including error handling and good practices.
 
 ```{toctree}
 :maxdepth: 1
 error_handling
-best_practices
-troubleshooting
-changelog
+good_to_know
+../changelog
 ```
 
-> **Note:** For contributing guidelines, see the main [Contributing Guide](https://github.com/fgcz/bfabricPy/blob/main/CONTRIBUTING.md) in the repository root.
+> **Note:** For contributing guidelines, see main [Contributing Guide](https://github.com/fgcz/bfabricPy/blob/main/CONTRIBUTING.md) in the repository root.
 
 ## Overview
 
 This section contains resources to help you use bfabricPy effectively:
 
-| Resource                                     | Description                                          | For                         |
+| Resource | Description | For |
 | -------------------------------------------- | ---------------------------------------------------- | --------------------------- |
-| **[Error Handling](error_handling.md)**      | Exception types, error patterns, handling strategies | All users                   |
-| **[Best Practices](best_practices.md)**      | Development guidelines and recommendations           | All users                   |
-| **[Troubleshooting](troubleshooting.md)**    | Solutions to common issues                           | When you encounter problems |
-| **[Contributing](../../../CONTRIBUTING.md)** | How to contribute to bfabricPy                       | Contributors                |
-| **[Changelog](changelog.md)**                | Version history and changes                          | All users                   |
+| **[Error Handling](error_handling.md)** | Exception types, error patterns, handling strategies | All users |
+| **[Good to Know](good_to_know.md)** | Useful tips and important notes | All users |
+| **[Contributing](../../../CONTRIBUTING.md)** | How to contribute to bfabricPy | Contributors |
+| **[Changelog](../changelog.md)** | Version history and changes | All users |
 
 ## Quick Links
 
@@ -34,14 +32,13 @@ This section contains resources to help you use bfabricPy effectively:
 ### I Have a Specific Problem
 
 - [Error Handling](error_handling.md) - Find your error type
-- [Troubleshooting](troubleshooting.md) - Search for your issue
 
 ### I Want to Improve My Code
 
-- [Best Practices](best_practices.md) - Development guidelines
+- [Good to Know](good_to_know.md) - Useful tips and notes
 - [User Guides](../../user_guides/index.md) - Task-based tutorials
 
 ### I Want to Contribute
 
 - [Contributing Guide](https://github.com/fgcz/bfabricPy/blob/main/CONTRIBUTING.md) - How to contribute (repository root)
-- [Changelog](changelog.md) - Recent changes
+- [Changelog](../changelog.md) - Recent changes
