@@ -2,6 +2,8 @@
 
 This page covers error types and handling in bfabricPy.
 
+Consult [Exceptions and Errors](../api_reference/exceptions_and_errors/index.md) for a complete API reference for exception types.
+
 ## ResultContainer Error Handling
 
 When using `client.read()`, `client.save()`, or `client.delete()`, operations return a `ResultContainer`.
@@ -47,38 +49,6 @@ Use manual checking when you need to:
 - Continue processing even if some operations fail
 - Collect errors from multiple operations
 - Implement custom error recovery logic
-
-## Exception Types
-
-### BfabricRequestError
-
-Raised for errors returned by the B-Fabric server (e.g., authentication failures, permission errors).
-
-```{eval-rst}
-.. autoclass:: bfabric.errors.BfabricRequestError
-    :members:
-    :show-inheritance:
-```
-
-### BfabricConfigError
-
-Raised when configuration is invalid or missing.
-
-```{eval-rst}
-.. autoclass:: bfabric.errors.BfabricConfigError
-    :members:
-    :show-inheritance:
-```
-
-### BfabricInstanceNotConfiguredError
-
-Raised when using token-based authentication with an unsupported B-Fabric instance.
-
-```{eval-rst}
-.. autoclass:: bfabric.errors.BfabricInstanceNotConfiguredError
-    :members:
-    :show-inheritance:
-```
 
 ## EntityReader Error Handling
 
