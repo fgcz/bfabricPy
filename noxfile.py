@@ -263,32 +263,52 @@ def test_py_typed(session):
 
 @nox.session(default=False)
 def docs(session):
-    """Builds documentation for bfabricPy and app-runner and writes to site directory."""
-    with TemporaryDirectory() as tmpdir:
-        session.install("./bfabric[doc]")
-        session.run(
-            "sphinx-build",
-            "-M",
-            "html",
-            "bfabric/docs",
-            Path(tmpdir) / "build_bfabricpy",
-        )
+    """Builds documentation for bfabricPy and app-runner and writes to site directory.
 
-        session.install("./bfabric_app_runner[doc]")
-        session.run(
-            "sphinx-build",
-            "-M",
-            "html",
-            "bfabric_app_runner/docs",
-            Path(tmpdir) / "build_app_runner",
-        )
+    Usage:
+        nox -s docs                    # builds both
+        nox -s docs -- bfabric         # builds only bfabric
+        nox -s docs -- bfabric_app_runner  # builds only bfabric_app_runner
+    """
+    target = session.posargs[0] if session.posargs else None
+    valid_targets = {None, "bfabric", "bfabric_app_runner"}
+
+    if target not in valid_targets:
+        session.error(f"Invalid target: {target}. Must be one of: bfabric, bfabric_app_runner")
+
+    with TemporaryDirectory() as tmpdir:
+        build_bfabricpy = target in (None, "bfabric")
+        build_app_runner = target in (None, "bfabric_app_runner")
+
+        if build_bfabricpy:
+            session.install("./bfabric[doc]")
+            session.run(
+                "sphinx-build",
+                "-M",
+                "html",
+                "bfabric/docs",
+                Path(tmpdir) / "build_bfabricpy",
+            )
+
+        if build_app_runner:
+            session.install("./bfabric_app_runner[doc]")
+            session.run(
+                "sphinx-build",
+                "-M",
+                "html",
+                "bfabric_app_runner/docs",
+                Path(tmpdir) / "build_app_runner",
+            )
 
         target_dir = Path("site")
         if target_dir.exists():
             shutil.rmtree(target_dir)
 
-        shutil.copytree(Path(tmpdir) / "build_bfabricpy" / "html", target_dir)
-        shutil.copytree(Path(tmpdir) / "build_app_runner" / "html", target_dir / "app_runner")
+        if build_bfabricpy:
+            shutil.copytree(Path(tmpdir) / "build_bfabricpy" / "html", target_dir)
+
+        if build_app_runner:
+            shutil.copytree(Path(tmpdir) / "build_app_runner" / "html", target_dir / "app_runner")
 
 
 @nox.session(default=False)
