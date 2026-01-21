@@ -8,6 +8,9 @@ For quick one-off operations, consider using [bfabric-cli API operations](../cli
 
 ## Configuration for Testing
 
+Set up a `TEST` environment in `~/.bfabricpy.yml`, if you don't already have one.
+See [Configuration Guide](../../getting_started/configuration.md) for details.
+
 ```python
 # Customize for your test system
 TEST_PROJECT_ID = 3000
@@ -18,12 +21,11 @@ from bfabric import Bfabric
 client = Bfabric.connect(config_file_env="TEST")
 ```
 
-Set up a `TEST` environment in `~/.bfabricpy.yml`. See [Configuration Guide](../../getting_started/configuration.md).
-
 ## Example
 
+### Create
+
 ```python
-# Create
 new_sample = {
     "name": "TEST_MySample",
     "containerid": TEST_PROJECT_ID,
@@ -37,10 +39,11 @@ print(f"Created: {sample_id}")
 
 Inspect the sample in B-Fabric before continuing.
 
+### Update
+
 Updates only require the `id` field and the fields whose values should be changed. Be careful with list-valued fields as they will be replaced in their entirety.
 
 ```python
-# Update
 result = client.save(
     endpoint="sample",
     obj={
@@ -53,10 +56,11 @@ print("Updated")
 
 Inspect the updated sample in B-Fabric. The operation also adds an entry to the `log` tab.
 
+### Delete
+
 To complete the example and delete the sample:
 
 ```python
-# Delete
 result = client.delete(endpoint="sample", id=sample_id)
 print("Deleted")
 ```
