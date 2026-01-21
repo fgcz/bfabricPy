@@ -8,7 +8,6 @@ entity_types
 dataset_operations
 workunit_operations
 parameter_access
-experimental_features
 ```
 
 ## Overview
@@ -17,26 +16,26 @@ bfabricPy provides a rich entity system with typed classes, relationships, and s
 
 ### Why Use Entities?
 
-| Feature             | Benefit                                                         |
+| Feature | Benefit |
 | ------------------- | --------------------------------------------------------------- |
-| **Type Safety**     | IDE autocomplete, type checking                                 |
-| **Relationships**   | Navigate connected entities (project → samples → workunits)     |
+| **Type Safety** | IDE autocomplete, type checking |
+| **Relationships** | Navigate connected entities (project → samples → workunits) |
 | **Special Methods** | Entity-specific features (Dataset exports, Workunit parameters) |
-| **URI Support**     | Reference entities across instances                             |
-| **Caching**         | Automatic caching for repeated access                           |
+| **URI Support** | Reference entities across instances |
+| **Caching** | Automatic caching for repeated access |
 
 ### Entity Types
 
 bfabricPy includes 20+ entity types with different features:
 
-| Entity          | Special Features                            | Documentation                                 |
+| Entity | Special Features | Documentation |
 | --------------- | ------------------------------------------- | --------------------------------------------- |
-| **Dataset**     | DataFrame conversion, CSV/Parquet export    | [Dataset Operations](dataset_operations.md)   |
-| **Workunit**    | Parameter access, output folder calculation | [Workunit Operations](workunit_operations.md) |
-| **Sample**      | Container relationships                     | [Entity Types Reference](entity_types.md)     |
-| **Project**     | Sample relationships                        | [Entity Types Reference](entity_types.md)     |
-| **Resource**    | Path methods, storage access                | [Entity Types Reference](entity_types.md)     |
-| **Application** | Technology information                      | [Entity Types Reference](entity_types.md)     |
+| **Dataset** | DataFrame conversion, CSV/Parquet export | [Dataset Operations](dataset_operations.md) |
+| **Workunit** | Parameter access, output folder calculation | [Workunit Operations](workunit_operations.md) |
+| **Sample** | Container relationships | [Entity Types Reference](entity_types.md) |
+| **Project** | Sample relationships | [Entity Types Reference](entity_types.md) |
+| **Resource** | Path methods, storage access | [Entity Types Reference](entity_types.md) |
+| **Application** | Technology information | [Entity Types Reference](entity_types.md) |
 
 For a complete reference of all entity types, see [Entity Types Reference](entity_types.md) or [API Reference: Entity Types](../../api_reference/entity_types/index.md).
 

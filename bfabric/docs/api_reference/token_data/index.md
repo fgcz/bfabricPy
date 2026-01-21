@@ -15,17 +15,17 @@ Complete reference for the `TokenData` class.
 
 ## Properties
 
-| Property           | Type     | Description                              |
+| Property | Type | Description |
 | ------------------ | -------- | ---------------------------------------- |
-| `user`             | str      | B-Fabric user login                      |
-| `user_ws_password` | str      | Web service password for the user        |
-| `application_id`   | int      | Application ID                           |
-| `entity_class`     | str      | Entity class name                        |
-| `entity_id`        | int      | Entity ID                                |
-| `job_id`           | int      | External job ID                          |
-| `caller`           | str      | B-Fabric instance URL                    |
-| `token_expires`    | datetime | Token expiration time                    |
-| `web_service_user` | bool     | Whether user has web service permissions |
+| `user` | str | B-Fabric user login |
+| `user_ws_password` | str | Web service password for the user |
+| `application_id` | int | Application ID |
+| `entity_class` | str | Entity class name |
+| `entity_id` | int | Entity ID |
+| `job_id` | int | External job ID |
+| `caller` | str | B-Fabric instance URL |
+| `token_expires` | datetime | Token expiration time |
+| `web_service_user` | bool | Whether user has web service permissions |
 
 ## Quick Examples
 
@@ -82,5 +82,4 @@ print(f"Loaded entity: {entity}")
 
 ## See Also
 
-- [Token Authentication](../../advanced_topics/token_authentication/index.md) - Deep dive into token-based auth
 - [Server/Webapp Usage](../../user_guides/creating_a_client/server_webapp_usage.md) - Server authentication guide
