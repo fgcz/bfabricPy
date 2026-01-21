@@ -113,3 +113,7 @@ if entity is None:
 else:
     print(f"Found sample: {entity['name']}")
 ```
+
+## See Also
+
+- [Exceptions and Errors](../api_reference/exceptions_and_errors/index.md) - Complete API reference for exception types

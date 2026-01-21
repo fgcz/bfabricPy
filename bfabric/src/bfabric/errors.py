@@ -8,10 +8,15 @@ class BfabricRequestError(RuntimeError):
 
     Typically raised for authentication failures, permission errors, or server-side issues.
     The error is wrapped in a RuntimeError when automatic error checking is enabled.
+
+    :ivar str message: The error message from the B-Fabric server
     """
 
     def __init__(self, message: str) -> None:
-        # Call parent class constructor to properly initialize RuntimeError
+        """Initialize with the error message from the B-Fabric server.
+
+        :param str message: The error message returned by the B-Fabric server
+        """
         super().__init__(message)
         self.message = message
 
@@ -50,6 +55,10 @@ class BfabricInstanceNotConfiguredError(RuntimeError):
     """
 
     def __init__(self, instance_name: str) -> None:
+        """Initialize with the unsupported B-Fabric instance name.
+
+        :param str instance_name: The URL of the unsupported B-Fabric instance
+        """
         super().__init__(f"Instance '{instance_name}' is not configured as supported.")
 
 
