@@ -49,13 +49,13 @@ The project uses [uv](https://github.com/astral-sh/uv) as its package manager an
 
 1. Install Python 3.11 or 3.13
 2. Install [uv](https://docs.astral.sh/uv/getting-started/installation/):
-    ```bash
-    # Using pip
-    pip install uv
+   ```bash
+   # Using pip
+   pip install uv
 
-    # Or using the install script (Linux/Mac)
-    curl -LsSf https://astral.sh/uv/install.sh | sh
-    ```
+   # Or using the install script (Linux/Mac)
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   ```
 
 ### Setting Up the Development Environment
 
@@ -206,20 +206,23 @@ Note that integration tests have been moved to a separate repository. Please con
 
 To create a release:
 
-1. Increase the version in the package's `pyproject.toml`
-2. Update the `docs/changelog.md` with release notes for the new version
-3. Commit everything and create a PR to the `stable` branch
+1. **Create a branch** from `main` (e.g., `deploy-yyyymmdd-01`)
+2. **Update versions** in the relevant `pyproject.toml` files
+3. **Update changelogs** with the new version number and date after the "Unreleased" section
+4. **Create a PR** from your new branch to the `release` branch
 
-Once merged:
+Once the PR is ready:
 
-- A GitHub Action will create a git tag (if the tag already exists, it will fail)
-- The documentation will be rebuilt and published to GitHub Pages
+5. **Wait for validation pipeline comments**:
+   - One comment will list the package versions that will be updated
+   - Another comment will confirm all tests have passed
+6. **Merge the PR**
 
-The only manual step that remains is creating a release on GitHub:
+After merging:
 
-1. Go to the GitHub releases page
-2. Paste the changelog section from the release
-3. Create a new release using the tag that was created
+7. **Wait for PyPI publish**: Your package will be built and sent to PyPI automatically
+8. **Backport to main**: Create a PR from `release` to `main` to include the `pyproject.toml` changes and merge it ASAP
+9. **Publish GitHub release**: If everything worked, the release should be pre-filled with the changelog notes. Create the release using the tag that was automatically created.
 
 ## Troubleshooting
 
@@ -228,15 +231,5 @@ The only manual step that remains is creating a release on GitHub:
 If you encounter issues with workspace dependencies, try resyncing:
 
 ```bash
-uv sync --reinstall
-```
-
-### Test Failures
-
-If tests fail after pulling changes:
-
-```bash
-# Clean and reinstall
-rm -rf .venv
-uv sync --all-packages --all-extras
+uv sync --reinstall --all-packages --all-extras
 ```
