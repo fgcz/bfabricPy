@@ -20,9 +20,11 @@ Add `bfabric` to your project's dependencies in `pyproject.toml`:
 ```toml
 [project]
 dependencies = [
-    "bfabric==1.16.1"  # Specify the version you need
+    "bfabric>=1.16.0,<2.0.0"
 ]
 ```
+
+For production use, consider locking to a specific version to avoid unexpected changes.
 
 ### Installing from Git
 
@@ -31,7 +33,7 @@ For development versions or specific commits:
 ```toml
 [project]
 dependencies = [
-    "bfabric @ git+https://github.com/fgcz/bfabricPy.git@stable&subdirectory=bfabric#egg=bfabric",
+    "bfabric @ git+https://github.com/fgcz/bfabricPy.git@main&subdirectory=bfabric#egg=bfabric",
 ]
 ```
 
@@ -74,24 +76,20 @@ uv tool upgrade bfabric-scripts
 
 This makes `bfabric-cli` available system-wide and simplifies upgrades.
 
-### With pip
-
-```bash
-pip install bfabric-scripts
-```
-
 ______________________________________________________________________
 
 ## Which Should You Install?
 
-| Use Case                                 | Install This Package                       |
-| ---------------------------------------- | ------------------------------------------ |
-| Writing Python scripts or applications   | `bfabric` only                             |
-| Using command-line tools for quick tasks | `bfabric-scripts` (includes `bfabric-cli`) |
-| Both Python programming and CLI usage    | Both packages                              |
-| Existing bfabric-scripts users (legacy)  | `bfabric-scripts`                          |
+bfabricPy provides two components that are installed separately:
 
-**Tip:** Many users start with just the core `bfabric` library and add `bfabric-scripts` later if they find the CLI tools helpful.
+| Component | Type | Install Method | Best For |
+|-----------|------|----------------|-----------|
+| **bfabric** | Python package | `pip install bfabric` or `uv pip install bfabric` | Python projects, scripts, applications |
+| **bfabric-scripts** | CLI tool | `uv tool install bfabric-scripts` | Command-line usage, quick tasks, shell scripts |
+
+**Install both if:** You plan to use both Python programming and command-line tools.
+
+**Note:** `bfabric` is a Python package dependency. `bfabric-scripts` is a CLI tool installed separately using `uv tool`.
 
 ______________________________________________________________________
 
@@ -114,10 +112,11 @@ python -c "import bfabric; print(bfabric.__version__)"
 If you installed `bfabric-scripts`:
 
 ```bash
+bfabric-cli --version
 bfabric-cli --help
 ```
 
-This should display the available CLI commands and options.
+This should display the CLI version and available commands.
 
 ______________________________________________________________________
 
@@ -163,8 +162,8 @@ After installing the packages:
 
 1. **Configure your credentials**: [Configuration Guide](configuration.md)
 2. **Try it out**:
-    - For Python usage: [Quick Start Tutorial](quick_start.md)
-    - For CLI usage: [bfabric-cli Reference](../user_guides/cli_reference/index.md)
+   - For Python usage: [Quick Start Tutorial](quick_start.md)
+   - For CLI usage: [bfabric-cli Reference](../user_guides/cli_reference/index.md)
 
 ______________________________________________________________________
 

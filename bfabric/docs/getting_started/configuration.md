@@ -121,37 +121,6 @@ For web applications that receive B-Fabric tokens, see:
 
 - [Server/Webapp Usage](../user_guides/creating_a_client/server_webapp_usage.md)
 
-## Testing Configuration
-
-Test your configuration:
-
-```python
-from bfabric import Bfabric
-
-client = Bfabric.connect()
-print(f"Connected to: {client.config.base_url}")
-print(f"User: {client.auth.login}")
-```
-
-## Common Issues
-
-### "Configuration file not found"
-
-Ensure your file is at the correct location:
-
-- **Linux/macOS**: `~/.bfabricpy.yml` (in your home directory)
-- **Windows**: `C:\Users\<username>\.bfabricpy.yml`
-
-### "Invalid login or password"
-
-- Verify the login is correct (case-sensitive)
-- Ensure you're using the **web service password**, not your login password
-- Check that the password doesn't contain special characters that need escaping in YAML
-
-### "No default_config found"
-
-Add a `default_config` field under the `GENERAL` section in your config file.
-
 ## Best Practices
 
 1. **Never commit config files to git** - Use environment variables for CI/CD
@@ -165,3 +134,4 @@ Add a `default_config` field under the `GENERAL` section in your config file.
 - [Installation Guide](installation.md) - Installation options
 - [Creating a Client Guide](../user_guides/creating_a_client/index.md) - How to use configuration
 - [Server/Webapp Configuration](../user_guides/creating_a_client/server_webapp_usage.md) - Token-based auth
+- [Troubleshooting](troubleshooting.md) - Common issues and solutions
