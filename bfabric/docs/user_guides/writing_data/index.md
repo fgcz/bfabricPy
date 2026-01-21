@@ -2,24 +2,24 @@
 
 Learn to create, update, and delete entities in B-Fabric.
 
-```{toctree}
-:maxdepth: 1
-save_update_delete
-file_uploads
-batch_operations
+```{note}
+For quick one-off operations or shell scripts, consider using the [bfabric-cli API operations](../cli_reference/api_operations.md) instead of Python scripts.
 ```
 
 ## Overview
 
 bfabricPy provides methods for all write operations through the `Bfabric` client:
 
-| Operation                    | Method                                | Documentation                                                                    |
-| ---------------------------- | ------------------------------------- | -------------------------------------------------------------------------------- |
-| **Create/Update**            | `client.save(endpoint, obj)`          | [Save, Update, Delete](save_update_delete.md)                                    |
-| **Delete**                   | `client.delete(endpoint, id)`         | [Save, Update, Delete](save_update_delete.md)                                    |
-| **Upload Files**             | `client.upload_resource()`            | [File Uploads](file_uploads.md)                                                  |
-| **Check Existence**          | `client.exists(endpoint, key, value)` | [Save, Update, Delete](save_update_delete.md)                                    |
-| **Update Custom Attributes** | `update_custom_attributes()`          | [Experimental Features](../working_with_entities/experimental_features/index.md) |
+| Operation                    | Method                                |
+| ---------------------------- | ------------------------------------- |
+| **Create/Update**            | `client.save(endpoint, obj)`          |
+| **Delete**                   | `client.delete(endpoint, id)`         |
+| **Check Existence**          | `client.exists(endpoint, key, value)` |
+| **Update Custom Attributes** | `update_custom_attributes()`          |
+
+```{note}
+`client.upload_resource()` is available for small files (configurations, scripts, metadata). Use dedicated data stores for large experimental data.
+```
 
 ## Quick Start
 
@@ -134,30 +134,6 @@ if result.is_success:
         print(f"  - {sample['name']} (ID: {sample['id']})")
 ```
 
-### Example 3: Upload a Small File
-
-```python
-from bfabric import Bfabric
-from pathlib import Path
-
-client = Bfabric.connect()
-
-# Read file content
-file_path = Path("/path/to/small_file.txt")
-content = file_path.read_bytes()
-
-# Upload to workunit
-result = client.upload_resource(
-    resource_name="my_file.txt",
-    content=content,
-    workunit_id=789,
-)
-
-if result.is_success:
-    print("File uploaded successfully")
-    print(f"Resource ID: {result[0]['id']}")
-```
-
 ## Best Practices
 
 ### 1. Check Existence Before Creating
@@ -238,6 +214,17 @@ if not test_result.is_success:
     print("Insufficient permissions for write operations")
 ```
 
+### 6. Use Alternative Save Methods When Needed
+
+Most endpoints use the default "save" method, but some may require "update":
+
+```python
+# Use alternative method when required
+result = client.save(
+    endpoint="sample", obj=obj, method="update"  # Some endpoints require this
+)
+```
+
 ## Error Handling
 
 ### ResultContainer Error Checking
@@ -267,15 +254,9 @@ else:
     print("Success")
 ```
 
-## Next Steps
-
-- [Save, Update, Delete](save_update_delete.md) - Detailed write operation guide
-- [File Uploads](file_uploads.md) - Uploading resources
-- [Batch Operations](batch_operations.md) - Efficient batch processing
-- [Error Handling](../../resources/error_handling.md) - Error types and patterns
-
 ## See Also
 
 - [API Reference: Bfabric Client](../../api_reference/bfabric_client/index.md) - Complete client documentation
 - [Reading Data](../reading_data/index.md) - Querying B-Fabric
+- [bfabric-cli API Operations](../cli_reference/api_operations.md) - Command-line interface for CRUD operations
 - [Best Practices](../../resources/best_practices.md) - Development guidelines
