@@ -3,13 +3,25 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
+import datetime
+import tomllib
+from pathlib import Path
+
+# Read project metadata from pyproject.toml
+pyproject_path = Path(__file__).parent.parent / "pyproject.toml"
+pyproject_data = tomllib.loads(pyproject_path.read_text())
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "bfabricPy"
-copyright = "2024 ETH Zurich"
-author = "Leonardo Schwarz"
+release = pyproject_data.get("project", {}).get("version", "")
+version = release.split("+")[0] if release else ""
+
+# Dynamic copyright year (same pattern as bfabric.py)
+current_year = datetime.datetime.now().year
+copyright = f"2014-{current_year} Functional Genomics Center Zurich"
+author = "the bfabricpy authors"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
