@@ -232,19 +232,19 @@ class Bfabric:
         return_id_only: bool = False,
     ) -> ResultContainer:
         """Reads from the specified endpoint matching all specified attributes in `obj`.
+
         By setting `max_results` it is possible to change the number of results that are returned.
-        :param endpoint: the endpoint to read from, e.g. "sample"
-        :param obj: a dictionary containing the query, for every field multiple possible values can be provided, the
-            final query requires the condition for each field to be met
-        :param max_results: cap on the number of results to query. The code will keep reading pages until all pages
-           are read or expected number of results has been reached. If None, load all available pages.
-           NOTE: max_results will be rounded upwards to the nearest multiple of BFABRIC_QUERY_LIMIT, because results
-           come in blocks, and there is little overhead to providing results over integer number of pages.
-        :param offset: the number of elements to skip before starting to return results (useful for pagination, default
-              is 0 which means no skipping)
-        :param check: whether to raise an error if the response is not successful
-        :param return_id_only: whether to return only the ids of the found objects
-        :return: List of responses, packaged in the results container
+
+        :param endpoint: The B-Fabric endpoint to query (e.g., "sample", "project", "workunit").
+        :param obj: A dictionary containing the query criteria. For every field, multiple possible values
+            can be provided as a list (treated as OR). Multiple fields are treated as AND.
+        :param max_results: Maximum number of results to return. The client will automatically handle
+            pagination to reach this limit. Set to ``None`` to retrieve all available results.
+            Note: results are fetched in blocks of 100.
+        :param offset: Number of results to skip before starting to return results.
+        :param check: If ``True`` (default), raises a ``RuntimeError`` if the query fails.
+        :param return_id_only: If ``True``, only returns entity IDs instead of full data (faster).
+        :return: A :class:`ResultContainer` containing the query results.
         """
         # Get the first page.
         logger.debug(f"Reading from endpoint {repr(endpoint)} with query {repr(obj)}")
