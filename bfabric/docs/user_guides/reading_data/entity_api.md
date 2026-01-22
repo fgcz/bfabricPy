@@ -144,4 +144,4 @@ If you find yourself needing any of the following, consider using {doc}`resultco
 
 ## Entity-Specific Features
 
-For detailed information about specific entity types and their special features (like `Dataset` export methods, `Workunit` parameter access, `Resource` path methods), see {doc}`../working_with_entities/entity_types`.
+For detailed information about specific entity types and their special features (like `Dataset` export methods, `Workunit` parameter access, `Resource` path methods), see {doc}`../working_with_entities/index`.

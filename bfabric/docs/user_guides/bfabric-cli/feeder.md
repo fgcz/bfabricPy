@@ -10,7 +10,7 @@ bfabric-cli feeder --help
 
 Available subcommands:
 
-| Subcommand              | Purpose                                       |
+| Subcommand | Purpose |
 | ----------------------- | --------------------------------------------- |
 | `create-importresource` | Create importresources for files in a storage |
 
@@ -28,10 +28,10 @@ bfabric-cli feeder create-importresource [STORAGE_ID] [FILES]...
 
 ### Parameters
 
-| Parameter    | Required | Description                                          |
+| Parameter | Required | Description |
 | ------------ | -------- | ---------------------------------------------------- |
-| `storage_id` | Yes      | ID of the target storage                             |
-| `files`      | Yes      | One or more file paths to create importresources for |
+| `storage_id` | Yes | ID of the target storage |
+| `files` | Yes | One or more file paths to create importresources for |
 
 ### Examples
 

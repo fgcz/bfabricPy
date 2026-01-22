@@ -1,231 +1,204 @@
-# Working with Entities
+# Entity Features
 
-Learn to work with typed entities, relationships, and entity-specific features.
-
-```{toctree}
-:maxdepth: 1
-entity_types
-dataset_operations
-workunit_operations
-parameter_access
-```
+Learn about special features and methods provided by specific entity types.
 
 ## Overview
 
-bfabricPy provides a rich entity system with typed classes, relationships, and special features for each entity type.
+bfabricPy provides typed entity classes with type-specific features like Dataset exports, Workunit parameter access, and Resource path methods. These features extend the basic entity API described in [Entity API](../reading_data/entity_api.md).
 
-### Why Use Entities?
+## Available Entity Types
 
-| Feature | Benefit |
-| ------------------- | --------------------------------------------------------------- |
-| **Type Safety** | IDE autocomplete, type checking |
-| **Relationships** | Navigate connected entities (project → samples → workunits) |
-| **Special Methods** | Entity-specific features (Dataset exports, Workunit parameters) |
-| **URI Support** | Reference entities across instances |
-| **Caching** | Automatic caching for repeated access |
+For complete API documentation, see [API Reference: Entity Types](../../api_reference/entity_types/index.md).
 
-### Entity Types
+| Entity | Special Features |
+| ------- | ---------------- |
+| **Dataset** | DataFrame conversion, CSV/Parquet export |
+| **Workunit** | Parameter access, output folder calculation |
+| **Resource** | Path methods, storage access |
+| **Application** | Technology folder name |
+| **Executable** | Base64 decoding |
+| **Parameter** | Key-value access |
+| **User** | Login-based lookup |
 
-bfabricPy includes 20+ entity types with different features:
+## Datasets
 
-| Entity | Special Features | Documentation |
-| --------------- | ------------------------------------------- | --------------------------------------------- |
-| **Dataset** | DataFrame conversion, CSV/Parquet export | [Dataset Operations](dataset_operations.md) |
-| **Workunit** | Parameter access, output folder calculation | [Workunit Operations](workunit_operations.md) |
-| **Sample** | Container relationships | [Entity Types Reference](entity_types.md) |
-| **Project** | Sample relationships | [Entity Types Reference](entity_types.md) |
-| **Resource** | Path methods, storage access | [Entity Types Reference](entity_types.md) |
-| **Application** | Technology information | [Entity Types Reference](entity_types.md) |
-
-For a complete reference of all entity types, see [Entity Types Reference](entity_types.md) or [API Reference: Entity Types](../../api_reference/entity_types/index.md).
-
-## Quick Examples
-
-### Example 1: Access Entity Properties
+Datasets provide rich data access and export capabilities.
 
 ```python
 from bfabric import Bfabric
 
 client = Bfabric.connect()
-reader = client.reader
+dataset = client.reader.read_id(entity_type="dataset", entity_id=12345)
+```
 
-# Read a dataset
-dataset = reader.read_id(entity_type="dataset", entity_id=12345)
+### Column Information
 
-# Access entity properties
-print(f"Dataset ID: {dataset.id}")
-print(f"Dataset name: {dataset['name']}")
-
-# Access special features
+```python
+# Get column names and types
 print(f"Columns: {dataset.column_names}")
 print(f"Types: {dataset.column_types}")
 ```
 
-### Example 2: Navigate Relationships
+### DataFrame Conversion
 
 ```python
-from bfabric import Bfabric
-
-client = Bfabric.connect()
-reader = client.reader
-
-# Get a workunit
-workunit = reader.read_id(entity_type="workunit", entity_id=123)
-
-# Navigate to application (HasOne relationship)
-application = workunit.application
-print(f"Application: {application['name']}")
-
-# Navigate to parameters (HasMany relationship)
-parameters = workunit.parameters
-print(f"Number of parameters: {len(parameters)}")
-
-# Access by context
-app_params = workunit.application_parameters
-print(f"Application params: {app_params}")
-```
-
-### Example 3: Use Expected Type for Safety
-
-```python
-from bfabric import Bfabric
-from bfabric.entities import Dataset
-
-client = Bfabric.connect()
-reader = client.reader
-
-# Read with expected type
-dataset = reader.read_id(
-    entity_type="dataset",
-    entity_id=12345,
-    expected_type=Dataset,  # Type safety!
-)
-
-# IDE knows about Dataset methods
+# Convert to Polars DataFrame
 df = dataset.to_polars()
-csv = dataset.get_csv()
+
+# Access column data
+for column_name in dataset.column_names:
+    column_data = dataset[column_name]
+    print(f"{column_name}: {len(column_data)} values")
 ```
 
-### Example 4: Entity Caching
+### Export
 
 ```python
-from bfabric import Bfabric
-from bfabric.entities.cache.context import cache_entities
-
-client = Bfabric.connect()
-reader = client.reader
-
-# Cache entities for performance
-with cache_entities(["sample", "project"], max_size=1000):
-    # First access fetches from API
-    project1 = reader.read_id(entity_type="project", entity_id=1)
-
-    # Second access uses cache (no API call)
-    project2 = reader.read_id(entity_type="project", entity_id=1)
-
-    assert project1 is project2  # Same object
+# Export to CSV or Parquet
+dataset.write_csv("output.csv")
+dataset.write_parquet("output.parquet")
 ```
 
-## Relationship Patterns
+## Workunits
 
-### HasOne (Single Relationship)
+Workunits provide easy access to parameters and output paths.
 
 ```python
-# Required relationship
-class Workunit(Entity):
-    application: HasOne[Application] = HasOne(bfabric_field="application")
-
-
-# Access
-workunit = reader.read_id(entity_type="workunit", entity_id=123)
-app = workunit.application
-if app is None:
-    print("No application")
-else:
-    print(app["name"])
+workunit = client.reader.read_id(entity_type="workunit", entity_id=123)
 ```
 
-### HasMany (Multiple Relationships)
+### Parameter Access
+
+Parameters are grouped by context (application, submitter, etc.):
 
 ```python
-class Workunit(Entity):
-    parameters: HasMany[Parameter] = HasMany(bfabric_field="parameter")
+# Application parameters
+app_params = workunit.application_parameters
+print(f"App params: {len(app_params)}")
 
+# Submitter parameters
+submitter_params = workunit.submitter_params
+print(f"Submitter params: {len(submitter_params)}")
 
-# Access
-workunit = reader.read_id(entity_type="workunit", entity_id=123)
-params = workunit.parameters
-
-# Get all as list
-all_params = params.list
-print(f"Parameters: {len(all_params)}")
-
-# Get as DataFrame
-params_df = params.polars
-
-# Get just IDs
-param_ids = params.ids
-
-# Iterate
-for param in params:
+# All parameters
+all_params = workunit.parameters
+for param in all_params:
     print(f"  {param.key}: {param.value}")
 ```
 
-### Optional Relationships
+### Output Folder
+
+Calculate the output folder path on storage:
 
 ```python
-class Sample(Entity):
-    container: HasOne[Project] = HasOne(bfabric_field="container", optional=True)
-
-
-# Returns None if no container
-sample = reader.read_id(entity_type="sample", entity_id=123)
-container = sample.container
-if container:
-    print(f"Container: {container['name']}")  # Optional check not needed!
+output_folder = workunit.store_output_folder
+print(f"Output folder: {output_folder}")
 ```
 
-## Advanced Topics
+## Resources
 
-### EntityReader Methods
-
-- `read_uri()` - Read by URI (string or EntityUri)
-- `read_uris()` - Read multiple URIs (efficient batching)
-- `read_id()` - Read by type and ID
-- `read_ids()` - Read multiple IDs (efficient batching)
-- `query()` - Query by search criteria
-
-See [API Reference: EntityReader](../../api_reference/entity_reader/index.md) for complete documentation.
-
-### URI Construction
+Resources represent files and provide path calculation methods.
 
 ```python
-from bfabric.entities.core.uri import EntityUri
-
-# Parse URI
-uri = EntityUri("https://fgcz-bfabric.uzh.ch/bfabric/sample/show.html?id=123")
-print(uri.components.entity_type)  # "sample"
-print(uri.components.entity_id)  # 123
-
-# Construct URI
-uri = EntityUri.from_components(
-    bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric/",
-    entity_type="sample",
-    entity_id=123,
-)
-print(uri)  # Full URI string
+resource = client.reader.read_id(entity_type="resource", entity_id=789)
 ```
 
-## Next Steps
+### Path Methods
 
-- [Entity Types Reference](entity_types.md) - Complete entity type documentation
-- [Dataset Operations](dataset_operations.md) - Working with datasets
-- [Workunit Operations](workunit_operations.md) - Working with workunits
-- [Entity Relationships](entity_relationships.md) - Deep dive into relationships
-- [Caching for Performance](caching_for_performance.md) - Performance optimization
+```python
+# Relative path within storage
+relative_path = resource.storage_relative_path
+print(f"Relative: {relative_path}")
+
+# Absolute path with storage base
+absolute_path = resource.storage_absolute_path
+print(f"Absolute: {absolute_path}")
+```
+
+### Storage Access
+
+Resources have relationships to storage, sample, and workunit:
+
+```python
+storage = resource.storage
+sample = resource.sample
+workunit = resource.workunit
+```
+
+## Executables
+
+Executables can decode their content from base64 automatically.
+
+```python
+executable = client.reader.read_id(entity_type="executable", entity_id=456)
+```
+
+### Decoded Content
+
+```python
+# Get decoded string content
+if executable.decoded_str:
+    print(f"Content: {executable.decoded_str[:100]}...")
+```
+
+### Parameter Definitions
+
+```python
+# Get parameter definitions
+param_defs = executable.parameters
+print(f"Defined parameters: {len(param_defs)}")
+```
+
+## Users
+
+Users can be looked up by login name.
+
+```python
+from bfabric.entities import User
+
+user = User.find_by_login(login="myusername", client=client)
+print(f"User ID: {user.id}")
+print(f"User name: {user['name']}")
+```
+
+## Custom Entity Methods
+
+Some entity types provide custom class methods:
+
+```python
+# Find by login (User class)
+user = User.find_by_login(login="username", client=client)
+
+# Future entities may provide similar convenience methods
+```
+
+## Advanced Usage
+
+### Entity-Specific Relationships
+
+Some entities define specialized relationship accessors:
+
+```python
+# Workunit has application relationship
+workunit = client.reader.read_id(entity_type="workunit", entity_id=123)
+application = workunit.application  # Direct accessor (not via refs)
+print(f"Application: {application['name']}")
+```
+
+### Combining Features
+
+```python
+# Get all datasets from a project and export them
+project = client.reader.read_id(entity_type="project", entity_id=456)
+
+for uri, dataset in project.refs.get("member").items():
+    dataset_name = dataset["name"]
+    dataset.write_csv(f"exports/{dataset_name}.csv")
+    print(f"Exported: {dataset_name}")
+```
 
 ## See Also
 
-- [API Reference: Entity Types](../../api_reference/entity_types/index.md) - Auto-generated entity documentation
-- [API Reference: EntityReader](../../api_reference/entity_reader/index.md) - Complete EntityReader documentation
-- [Reading Data](../reading_data/index.md) - Query strategies
+- [Entity API](../reading_data/entity_api.md) - Core entity reading and relationships
+- [API Reference: Entity Types](../../api_reference/entity_types/index.md) - Complete entity type documentation
+- [Reading Data](../reading_data/index.md) - Choosing between ResultContainer and Entity APIs

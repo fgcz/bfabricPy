@@ -5,6 +5,7 @@ Advanced features and topics for experienced users.
 ```{toctree}
 :maxdepth: 1
 workunit_definitions/index
+data_operations.md
 ```
 
 ## Topics Overview
@@ -12,6 +13,7 @@ workunit_definitions/index
 | Topic | Description | Skill Level |
 | ----------------------------------------------------- | -------------------------------------------- | ------------ |
 | **[Workunit Definitions](workunit_definitions/index.md)** | YAML-based workunit configuration | Intermediate |
+| **[Data Operations](data_operations.md)** | Experimental features for datasets and custom attributes | Advanced |
 
 ## Advanced Guides
 

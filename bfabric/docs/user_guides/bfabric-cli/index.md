@@ -1,4 +1,6 @@
-# bfabric-cli Reference
+# bfabric-cli
+
+Command-line interface for quick B-Fabric operations.
 
 The `bfabric-cli` command-line interface provides convenient access to B-Fabric functionality without writing Python code. It's particularly useful for:
 
@@ -19,17 +21,17 @@ bfabric-cli organizes commands by functionality:
 
 ### Core Commands
 
-| Command                  | Purpose                                                |
+| Command | Purpose |
 | ------------------------ | ------------------------------------------------------ |
-| `bfabric-cli api`        | Generic CRUD operations on B-Fabric entities           |
-| `bfabric-cli dataset`    | Dataset-specific operations (read, upload, download)   |
-| `bfabric-cli executable` | Executable operations (show, upload, dump)             |
-| `bfabric-cli workunit`   | Workunit operations (check status, export definitions) |
-| `bfabric-cli feeder`     | Feeder operations for creating importresources         |
+| `bfabric-cli api` | Generic CRUD operations on B-Fabric entities |
+| `bfabric-cli dataset` | Dataset-specific operations (read, upload, download) |
+| `bfabric-cli executable` | Executable operations (show, upload, dump) |
+| `bfabric-cli workunit` | Workunit operations (check status, export definitions) |
+| `bfabric-cli feeder` | Feeder operations for creating importresources |
 
 ### Legacy/Deprecated
 
-| Command                    | Status                                         |
+| Command | Status |
 | -------------------------- | ---------------------------------------------- |
 | `bfabric-cli external-job` | Transitory - will be removed in future release |
 
@@ -123,6 +125,7 @@ bfabric-cli api update workunit 12345 description "Updated description" --no-con
 ```{toctree}
 :maxdepth: 1
 api_operations
+api_inspection
 datasets
 executables
 workunits

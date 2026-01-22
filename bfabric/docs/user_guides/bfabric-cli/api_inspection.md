@@ -205,6 +205,6 @@ results = client.read(endpoint='sample', obj={'projectid': 123}, max_results=5)
 
 ## See Also
 
-- [CLI Reference](../user_guides/cli_reference/index.md) - Complete CLI documentation
-- [Quick Start](quick_start.md) - 5-minute tutorial
-- [Reading Data](../user_guides/reading_data/index.md) - Querying B-Fabric
+- [bfabric-cli](index.md) - Complete CLI documentation
+- [API Operations](api_operations.md) - Generic CRUD operations
+- [Reading Data](../reading_data/index.md) - Querying B-Fabric in Python

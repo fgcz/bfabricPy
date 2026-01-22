@@ -8,7 +8,7 @@ creating_a_client/index
 reading_data/index
 writing_data/index
 working_with_entities/index
-cli_reference/index
+bfabric-cli/index
 ```
 
 ## Guides Overview
@@ -19,13 +19,13 @@ cli_reference/index
 | [Reading Data](reading_data/index.md) | Query B-Fabric and retrieve data | Beginner |
 | [Writing Data](writing_data/index.md) | Create, update, and delete entities | Intermediate |
 | [Working with Entities](working_with_entities/index.md) | Use typed entities and relationships | Intermediate |
-| [CLI Reference](cli_reference/index.md) | Command-line interface for bfabric-cli | All Levels |
+| [bfabric-cli](bfabric-cli/index.md) | Command-line interface for bfabric-cli | All Levels |
 
 ## Common Workflows
 
-- **[Dataset Analysis](working_with_entities/dataset_operations.md)** - Read datasets and export to formats
+- **[Dataset Features](working_with_entities/index.md#datasets)** - Dataset exports and data access
 - **[Performance Optimization](reading_data/caching_for_performance.md)** - Cache entities for speed
-- **[CLI Quick Operations](cli_reference/index.md)** - Quick one-off tasks with bfabric-cli
+- **[CLI Quick Operations](bfabric-cli/index.md)** - Quick one-off tasks with bfabric-cli
 
 ## Quick Links
 

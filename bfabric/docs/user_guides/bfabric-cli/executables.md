@@ -10,11 +10,11 @@ bfabric-cli executable --help
 
 Available subcommands:
 
-| Subcommand | Purpose                               |
+| Subcommand | Purpose |
 | ---------- | ------------------------------------- |
-| `show`     | View executable details               |
-| `upload`   | Upload new executables (experimental) |
-| `dump`     | Dump executable contents              |
+| `show` | View executable details |
+| `upload` | Upload new executables (experimental) |
+| `dump` | Dump executable contents |
 
 ______________________________________________________________________
 
@@ -30,9 +30,9 @@ bfabric-cli executable show [EXECUTABLE_ID]
 
 ### Parameters
 
-| Parameter       | Required | Description                  |
+| Parameter | Required | Description |
 | --------------- | -------- | ---------------------------- |
-| `executable_id` | Yes      | ID of the executable to view |
+| `executable_id` | Yes | ID of the executable to view |
 
 ### Examples
 
@@ -74,10 +74,10 @@ bfabric-cli executable upload [YAML_FILE] [OPTIONS]
 
 ### Parameters
 
-| Parameter   | Required | Description                                        |
+| Parameter | Required | Description |
 | ----------- | -------- | -------------------------------------------------- |
-| `yaml_file` | Yes      | Path to YAML file containing executable definition |
-| `--force`   | No       | Force upload even if validation warnings exist     |
+| `yaml_file` | Yes | Path to YAML file containing executable definition |
+| `--force` | No | Force upload even if validation warnings exist |
 
 ### Example
 
@@ -129,9 +129,9 @@ bfabric-cli executable dump [EXECUTABLE_ID]
 
 ### Parameters
 
-| Parameter       | Required | Description                  |
+| Parameter | Required | Description |
 | --------------- | -------- | ---------------------------- |
-| `executable_id` | Yes      | ID of the executable to dump |
+| `executable_id` | Yes | ID of the executable to dump |
 
 ### Example
 

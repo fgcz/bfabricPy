@@ -12,13 +12,13 @@ Use the CLI when you need quick one-off operations, want to test API calls, or p
 bfabric-cli api --help
 ```
 
-| Subcommand | Purpose                     |
+| Subcommand | Purpose |
 | ---------- | --------------------------- |
-| `create`   | Create new entities         |
-| `read`     | Query and retrieve entities |
-| `update`   | Modify existing entities    |
-| `delete`   | Remove entities             |
-| `inspect`  | Inspect SOAP API structure  |
+| `create` | Create new entities |
+| `read` | Query and retrieve entities |
+| `update` | Modify existing entities |
+| `delete` | Remove entities |
+| `inspect` | Inspect SOAP API structure |
 
 ## Reading Entities
 
@@ -30,14 +30,14 @@ bfabric-cli api read [ENDPOINT] [QUERY] [OPTIONS]
 
 ### Parameters
 
-| Parameter   | Required | Description                                                         |
+| Parameter | Required | Description |
 | ----------- | -------- | ------------------------------------------------------------------- |
-| `endpoint`  | Yes      | Entity type (e.g., `resource`, `sample`, `workunit`, `dataset`)     |
-| `query`     | No       | Key-value pairs to filter results                                   |
-| `--format`  | No       | Output: `json`, `yaml`, `tsv`, `table-rich` (default: `table-rich`) |
-| `--limit`   | No       | Maximum results (default: 100)                                      |
-| `--columns` | No       | Comma-separated columns to display                                  |
-| `--file`    | No       | Write output to file                                                |
+| `endpoint` | Yes | Entity type (e.g., `resource`, `sample`, `workunit`, `dataset`) |
+| `query` | No | Key-value pairs to filter results |
+| `--format` | No | Output: `json`, `yaml`, `tsv`, `table-rich` (default: `table-rich`) |
+| `--limit` | No | Maximum results (default: 100) |
+| `--columns` | No | Comma-separated columns to display |
+| `--file` | No | Write output to file |
 
 ### Examples
 
@@ -124,30 +124,26 @@ bfabric-cli api delete resource 12345 --no-confirm
 
 ## Inspecting API Structure
 
+For detailed information about discovering endpoints and understanding API structure, see [API Inspection](api_inspection.md).
+
 ```bash
+# Quick inspect
 bfabric-cli api inspect [ENDPOINT] [METHOD]
-
-# Examples
-bfabric-cli api inspect resource
-bfabric-cli api inspect resource save
-bfabric-cli api inspect workunit --max-depth 3
 ```
-
-Shows the SOAP API parameter structure including namespaces, field types, and required fields.
 
 ## Common Entity Types
 
-| Endpoint         | Description             |
+| Endpoint | Description |
 | ---------------- | ----------------------- |
-| `resource`       | File resources          |
-| `sample`         | Samples                 |
-| `workunit`       | Workunits/jobs          |
-| `dataset`        | Datasets                |
-| `project`        | Projects                |
-| `container`      | Containers              |
-| `application`    | Applications            |
-| `executable`     | Application executables |
-| `importresource` | Import resources        |
+| `resource` | File resources |
+| `sample` | Samples |
+| `workunit` | Workunits/jobs |
+| `dataset` | Datasets |
+| `project` | Projects |
+| `container` | Containers |
+| `application` | Applications |
+| `executable` | Application executables |
+| `importresource` | Import resources |
 
 ## Tips
 

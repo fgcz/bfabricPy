@@ -10,10 +10,10 @@ bfabric-cli workunit --help
 
 Available subcommands:
 
-| Subcommand          | Purpose                                                                     |
+| Subcommand | Purpose |
 | ------------------- | --------------------------------------------------------------------------- |
-| `not-available`     | Check for workunits with missing results (commonly failed CompMS workunits) |
-| `export-definition` | Export workunit definition to a YAML file                                   |
+| `not-available` | Check for workunits with missing results (commonly failed CompMS workunits) |
+| `export-definition` | Export workunit definition to a YAML file |
 
 ______________________________________________________________________
 
@@ -76,10 +76,10 @@ bfabric-cli workunit export-definition [WORKUNIT_ID] [OPTIONS]
 
 ### Parameters
 
-| Parameter     | Required | Description                                           |
+| Parameter | Required | Description |
 | ------------- | -------- | ----------------------------------------------------- |
-| `workunit_id` | Yes      | ID of the workunit to export                          |
-| `--file`      | No       | Output file path (default: `workunit_definition.yml`) |
+| `workunit_id` | Yes | ID of the workunit to export |
+| `--file` | No | Output file path (default: `workunit_definition.yml`) |
 
 ### Examples
 
