@@ -1,12 +1,6 @@
 # ResultContainer API
 
-The `ResultContainer` API provides direct access to B-Fabric data through dictionary-based structures. This is ideal for simple queries,
-data analysis, and when you don't need entity relationships.
-
-## Overview
-
-The `ResultContainer` class wraps query results from `client.read()`, providing convenient methods for accessing, converting, and
-exporting data.
+The `ResultContainer` API provides direct access to B-Fabric data through dictionary-based structures. This class wraps query results from `client.read()`, providing convenient methods for accessing, converting, and exporting data. It is ideal for simple queries, data analysis, and when you don't need the overhead of entity objects or relationships.
 
 ## Reading Data
 
@@ -25,16 +19,9 @@ results = client.read(endpoint="sample", obj={"name": "MySample"}, max_results=1
 
 ### Query Parameters
 
-The `client.read()` method accepts these parameters:
-
-- **`endpoint`** (str): The B-Fabric endpoint to query (e.g., "sample", "project", "workunit")
-- **`obj`** (dict): Query criteria. For each field, you can provide:
-    - A single value: `{"name": "MyProject"}`
-    - Multiple values: `{"id": [1, 2, 3]}`
-- **`max_results`** (int | None): Maximum number of results to return. Defaults to 100. Set to `None` for all results.
-- **`offset`** (int): Number of results to skip (for pagination). Defaults to 0.
-- **`check`** (bool): Whether to raise an error if the query fails. Defaults to `True`.
-- **`return_id_only`** (bool): Return only IDs instead of full data. Defaults to `False`.
+```{eval-rst}
+.. automethod:: bfabric.Bfabric.read
+```
 
 ### Example Queries
 
@@ -50,6 +37,12 @@ results = client.read(endpoint="sample", obj={"id": [1, 2, 3, 4]})
 
 # Get only IDs (faster for existence checks)
 results = client.read(endpoint="sample", obj={"name": "Test"}, return_id_only=True)
+```
+
+```{warning}
+Pagination in the B-Fabric API is sensitive to concurrent changes. If entities are created or deleted while you are paginating through results, you may encounter duplicate or missing entries.
+
+To partially alleviate this, you can add a `createdbefore` parameter to your query to "freeze" the result set to a specific point in time, though even then, deleted entities may still cause issues.
 ```
 
 ## Working with Results
@@ -72,29 +65,7 @@ for result in results:
 
 ### Error Handling
 
-Check if the query was successful:
-
-```python
-if results.is_success:
-    print("Query successful")
-else:
-    print(f"Errors: {results.errors}")
-```
-
-Or raise an error if not successful:
-
-```python
-results.assert_success()  # Raises RuntimeError if errors occurred
-```
-
-### Pagination
-
-The container tracks pagination information:
-
-```python
-# Number of pages available from the API
-print(f"Total pages: {results.total_pages_api}")
-```
+For detailed information on handling query errors, see {doc}`../../resources/error_handling`.
 
 ## Exporting Results
 
@@ -161,7 +132,7 @@ if exists:
 
 ## Comparison to Entity API
 
-If you find yourself needing any of the following, consider using the {doc}`read_entity_api` instead:
+If you find yourself needing any of the following, consider using the {doc}`entity_api` instead:
 
 - Working with entity objects and their properties
 - Navigating relationships (e.g., project → samples)

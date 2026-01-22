@@ -267,4 +267,4 @@ This includes:
 - `EntityMemoryCache` - In-memory cache implementation
 - `CacheStack` - Stack-based cache management
 
-See {doc}`entity_reference` for complete documentation of all entity types and their features.
+See {doc}`../working_with_entities/entity_types` for complete documentation of all entity types and their features.
