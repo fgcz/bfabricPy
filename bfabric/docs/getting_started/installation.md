@@ -165,7 +165,7 @@ After installing the packages:
    - For Python usage: [Quick Start Tutorial](quick_start)
    - For CLI usage: [bfabric-cli User Guide](../user_guides/bfabric-cli/index)
 
-________________________________________________________________________
+______________________________________________________________________
 
 ## Related Documentation
 
