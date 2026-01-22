@@ -81,7 +81,7 @@ for workunit in results:
 
 Iterate over results like a list.
 
-**Note:** By default, queries raise an error automatically if they fail. See [Error Handling](../resources/error_handling.md) to learn about error handling options.
+**Note:** By default, queries raise an error automatically if they fail. See [Error Handling](../user_guides/error_handling.md) to learn about error handling options.
 
 ______________________________________________________________________
 

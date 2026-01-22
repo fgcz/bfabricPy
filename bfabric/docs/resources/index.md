@@ -4,7 +4,6 @@ Supporting documentation including error handling and good practices.
 
 ```{toctree}
 :maxdepth: 1
-error_handling
 good_to_know
 ../changelog
 ```
@@ -17,7 +16,6 @@ This section contains resources to help you use bfabricPy effectively:
 
 | Resource | Description | For |
 | -------------------------------------------- | ---------------------------------------------------- | --------------------------- |
-| **[Error Handling](error_handling.md)** | Exception types, error patterns, handling strategies | All users |
 | **[Good to Know](good_to_know.md)** | Useful tips and important notes | All users |
 | **[Contributing](../../../CONTRIBUTING.md)** | How to contribute to bfabricPy | Contributors |
 | **[Changelog](../changelog.md)** | Version history and changes | All users |
@@ -28,10 +26,6 @@ This section contains resources to help you use bfabricPy effectively:
 
 - [Quick Start Tutorial](../../getting_started/quick_start.md)
 - [Configuration Guide](../../getting_started/configuration.md)
-
-### I Have a Specific Problem
-
-- [Error Handling](error_handling.md) - Find your error type
 
 ### I Want to Improve My Code
 

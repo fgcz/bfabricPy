@@ -9,6 +9,7 @@ reading_data/index
 writing_data/index
 working_with_entities/index
 bfabric-cli/index
+error_handling
 ```
 
 ## Guides Overview
@@ -20,6 +21,7 @@ bfabric-cli/index
 | [Writing Data](writing_data/index.md) | Create, update, and delete entities | Intermediate |
 | [Working with Entities](working_with_entities/index.md) | Use typed entities and relationships | Intermediate |
 | [bfabric-cli](bfabric-cli/index.md) | Command-line interface for bfabric-cli | All Levels |
+| [Error Handling](error_handling.md) | Error types, patterns, and handling strategies | All Levels |
 
 ## Common Workflows
 
@@ -31,7 +33,7 @@ bfabric-cli/index
 
 - [Quick Start](../getting_started/quick_start.md) - 5-minute tutorial
 - [API Reference](../api_reference/index.md) - Complete API documentation
-- [Error Handling](../../resources/error_handling.md) - Error patterns and solutions
+- [Error Handling](error_handling.md) - Error patterns and solutions
 
 ## Need Help?
 

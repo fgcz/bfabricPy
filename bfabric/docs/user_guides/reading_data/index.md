@@ -34,4 +34,4 @@ bfabricPy provides two complementary APIs for reading data:
 
 - [Working with Entities](../working_with_entities/index.md) - Entity type reference
 - [API Reference: EntityReader](../../api_reference/entity_reader/index.md) - Complete EntityReader documentation
-- [Error Handling](../../resources/error_handling.md) - Query error handling
+- [Error Handling](../error_handling.md) - Query error handling

@@ -1,55 +1,113 @@
-# Bfabric Client
+# Bfabric Client API Reference
 
-Complete reference for the `Bfabric` client class.
+Complete API reference for the `Bfabric` client class, automatically generated from source code documentation.
 
-```{toctree}
-:maxdepth: 1
-overview
-configuration
-methods
+## Quick Links
+
+- **[Creating a Client](../../user_guides/creating_a_client/index.md)** - Step-by-step guides for different use cases
+- **[Configuration](../../getting_started/configuration.md)** - Config file setup and options
+- **[Quick Start](../../getting_started/quick_start.md)** - 5-minute tutorial
+
+## API Overview
+
+The `Bfabric` class provides methods for:
+
+| Category | Methods |
+|----------|---------|
+| Client Creation | `connect()`, `connect_token()`, `from_token_data()` |
+| Read Operations | `read()`, `exists()` |
+| Write Operations | `save()`, `delete()`, `upload_resource()` |
+| Configuration | `config`, `auth`, `config_data` properties |
+| Entity Operations | `reader` property for `EntityReader` |
+| Context Management | `with_auth()` |
+
+______________________________________________________________________
+
+## Bfabric Class
+
+```{eval-rst}
+.. autoclass:: bfabric.Bfabric
+    :members: connect, from_config, from_token_data, connect_webapp, connect_token, connect_token_async, read, save, delete, exists, upload_resource, with_auth, config, auth, config_data, reader
+    :undoc-members:
+    :show-inheritance:
 ```
 
-## Overview
+### Client Creation Methods
 
-The `Bfabric` class is the main entry point for all bfabricPy operations.
+#### For Interactive/Scripted Usage
 
-### Quick Start
-
-```python
-from bfabric import Bfabric
-
-# Create client (uses ~/.bfabricpy.yml)
-client = Bfabric.connect()
-
-# Use the client
-projects = client.read(endpoint="project", obj={}, max_results=10)
-for project in projects:
-    print(project["name"])
+```{eval-rst}
+.. automethod:: bfabric.Bfabric.connect
 ```
 
-### Client Properties
+#### Deprecated Methods
 
-```python
-client = Bfabric.connect()
-
-# Access configuration
-print(client.config.base_url)  # B-Fabric instance URL
-print(client.config.engine)  # "zeep" or "suds"
-print(client.auth.login)  # User login
+```{eval-rst}
+.. automethod:: bfabric.Bfabric.from_config
+.. automethod:: bfabric.Bfabric.connect_webapp
 ```
 
-### Accessing EntityReader
+#### For Server/Webapp Usage
 
-```python
-# Get EntityReader for entity-based operations
-reader = client.reader
-
-# Read entities as typed objects
-project = reader.read_id(entity_type="project", entity_id=123)
+```{eval-rst}
+.. automethod:: bfabric.Bfabric.connect_token
 ```
 
-## See Also
+```{eval-rst}
+.. automethod:: bfabric.Bfabric.from_token_data
+```
 
-- [Configuration](configuration.md) - Client configuration options
-- [Methods](methods.md) - All read/write methods
-- [Creating a Client Guide](../../../user_guides/creating_a_client/index.md) - Choose authentication method
+### Read Operations
+
+```{eval-rst}
+.. automethod:: bfabric.Bfabric.read
+```
+
+```{eval-rst}
+.. automethod:: bfabric.Bfabric.exists
+```
+
+### Write Operations
+
+```{eval-rst}
+.. automethod:: bfabric.Bfabric.save
+```
+
+```{eval-rst}
+.. automethod:: bfabric.Bfabric.delete
+```
+
+```{eval-rst}
+.. automethod:: bfabric.Bfabric.upload_resource
+```
+
+### Configuration and Authentication
+
+```{eval-rst}
+.. autoattribute:: bfabric.Bfabric.config
+```
+
+```{eval-rst}
+.. autoattribute:: bfabric.Bfabric.auth
+```
+
+```{eval-rst}
+.. autoattribute:: bfabric.Bfabric.config_data
+```
+
+### Context Management
+
+```{eval-rst}
+.. automethod:: bfabric.Bfabric.with_auth
+```
+
+### EntityReader Access
+
+```{eval-rst}
+.. autoattribute:: bfabric.Bfabric.reader
+```
+
+## Related Documentation
+
+- [User Guides](../../user_guides/index.md) - Practical usage examples
+- [Getting Started](../../getting_started/index.md) - Setup and basics

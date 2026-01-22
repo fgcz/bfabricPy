@@ -165,7 +165,7 @@ Still stuck?
 2. **Use API Inspection**: `bfabric-cli api inspect` to understand what you're querying
 3. **Review configuration**: Verify all settings are correct
 4. **Consult related docs**:
-   - [Error Handling](../resources/error_handling.md) - Complete error types and handling
+   - [Error Handling](../user_guides/error_handling.md) - Complete error types and handling
    - [API Inspection Guide](api_inspection.md) - Discovering endpoints and parameters
    - [Configuration Guide](configuration.md) - Config file structure
 

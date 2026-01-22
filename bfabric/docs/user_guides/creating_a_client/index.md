@@ -27,4 +27,4 @@ After creating your client, learn how to work with B-Fabric:
 
 - [Configuration Guide](../../getting_started/configuration.md) - Setting up config files
 - [API Reference: Bfabric Client](../../api_reference/bfabric_client/index.md) - Complete client documentation
-- [Error Handling](../../resources/error_handling.md) - Authentication errors
+- [Error Handling](../error_handling.md) - Authentication errors

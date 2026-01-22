@@ -244,7 +244,7 @@ else:
         print(f"  - {error.message}")
 ```
 
-See [Error Handling](../../resources/error_handling.md) for comprehensive error handling patterns.
+See [Error Handling](../error_handling.md) for comprehensive error handling patterns.
 
 ## Real-World Patterns
 
@@ -298,4 +298,4 @@ client.save(
 
 ## Error Handling
 
-See [Error Handling](../../resources/error_handling.md) for comprehensive error handling patterns and `ResultContainer` API documentation.
+See [Error Handling](../error_handling.md) for comprehensive error handling patterns and `ResultContainer` API documentation.

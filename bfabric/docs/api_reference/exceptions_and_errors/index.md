@@ -22,5 +22,5 @@ Complete reference for all exception types in bfabricPy.
 
 ## See Also
 
-- [Error Handling](../../resources/error_handling.md) - Complete error handling guide
-- [Troubleshooting](../../resources/troubleshooting.md) - Solutions to common issues
+- [Error Handling](../../user_guides/error_handling.md) - Complete error handling guide
+- [Troubleshooting](../../getting_started/troubleshooting.md) - Solutions to common issues
