@@ -16,9 +16,12 @@ where:
 
 ## Token-Based Authentication Methods
 
-### `Bfabric.connect_token()` - Synchronous Token Authentication
+### `connect_token()` / `connect_token_async()` - Token Authentication
 
-Use this method for synchronous code or when not using an async framework:
+These methods create a client from a B-Fabric webapp token. They are functionally equivalent:
+
+- `connect_token()` - Synchronous wrapper that runs an event loop internally. Use in synchronous code or outside async contexts.
+- `connect_token_async()` - Native async version. Use in async functions or with async web frameworks.
 
 ```python
 from bfabric import Bfabric
@@ -33,45 +36,25 @@ settings = TokenValidationSettings(
     ],
 )
 
-# Create client from token received from B-Fabric webapp
+# Synchronous usage
 token = "your_token_here"
 client, token_data = Bfabric.connect_token(token=token, settings=settings)
+
+# Asynchronous usage
+# client, token_data = await Bfabric.connect_token_async(token=token, settings=settings)
 
 print(f"Authenticated as: {token_data.user}")
 print(f"Token expires: {token_data.token_expires}")
 print(f"Token caller: {token_data.caller}")
 ```
 
-### `Bfabric.connect_token_async()` - Asynchronous Token Authentication
+### `from_token_data()` - Create Client from Validated Token
 
-Use this method when working with async code or frameworks:
-
-```python
-import asyncio
-from bfabric import Bfabric
-from bfabric.experimental.webapp_integration_settings import TokenValidationSettings
-
-
-async def handle_webapp_request(token: str):
-    settings = TokenValidationSettings(
-        validation_bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric/",
-        supported_bfabric_instances=["https://fgcz-bfabric.uzh.ch/bfabric/"],
-    )
-
-    client, token_data = await Bfabric.connect_token_async(
-        token=token, settings=settings
-    )
-    return client, token_data
-
-
-# Usage in an async web framework
-client, token_data = await handle_webapp_request(request_token)
+```{warning}
+This is a niche use case. Use `connect_token()` or `connect_token_async()` unless you have specific validation requirements.
 ```
 
-### `Bfabric.from_token_data()` - Create Client from Validated Token
-
-If you've already validated a token (e.g., using your own validation logic), you can create a client directly from the
-`TokenData`:
+If you need custom token validation logic, you can validate a token yourself and create a client from the `TokenData`:
 
 ```python
 from bfabric import Bfabric
@@ -91,17 +74,11 @@ if token_data.caller not in allowed_instances:
 client = Bfabric.from_token_data(token_data)
 ```
 
-```{note}
-Using `connect_token()` or `connect_token_async()` is recommended over `from_token_data()` because they include
-built-in validation through `TokenValidationSettings`.
-```
-
-## Security Configuration
+## Configuration
 
 ### TokenValidationSettings
 
-The `TokenValidationSettings` class is used to configure which B-Fabric instances are allowed to issue tokens for your
-application. This provides an important security layer by preventing tokens from unauthorized instances.
+The `TokenValidationSettings` class configures which B-Fabric instances are allowed to issue tokens for your application.
 
 ```python
 from bfabric.experimental.webapp_integration_settings import TokenValidationSettings
@@ -117,20 +94,16 @@ settings = TokenValidationSettings(
 
 **Parameters:**
 
-- **`validation_bfabric_instance`** (str): The B-Fabric instance to use for token validation. Must be one of the
-    supported instances.
-- **`supported_bfabric_instances`** (list\[str\]): List of B-Fabric instance URLs that are allowed to issue tokens. If a
-    token originates from an instance not in this list, validation will fail.
+- **`validation_bfabric_instance`** (str): The B-Fabric instance to use for token validation. Must be one of the supported instances.
+- **`supported_bfabric_instances`** (list[str]): List of B-Fabric instance URLs that are allowed to issue tokens.
 
 ```{important}
-The `validation_bfabric_instance` must be included in `supported_bfabric_instances`. This is enforced at
-initialization.
+The `validation_bfabric_instance` must be included in `supported_bfabric_instances`. This is enforced at initialization.
 ```
 
 ### WebappIntegrationSettings
 
-The `WebappIntegrationSettings` class extends `TokenValidationSettings` with `feeder_user_credentials`. This is useful
-when your webapp needs to create or update entities on behalf of users, using a "feeder" user with elevated permissions.
+The `WebappIntegrationSettings` class extends `TokenValidationSettings` with `feeder_user_credentials`. Use this when your webapp needs to create or update entities on behalf of users using a privileged service account.
 
 ```python
 from bfabric.experimental.webapp_integration_settings import WebappIntegrationSettings
@@ -150,12 +123,59 @@ settings = WebappIntegrationSettings(
 **Parameters:**
 
 - Inherits all parameters from `TokenValidationSettings`
-- **`feeder_user_credentials`** (dict\[str, BfabricAuth\]): A dictionary mapping B-Fabric instance URLs to credentials that
-    have permission to create/update entities. All instance keys must be in `supported_bfabric_instances`.
+- **`feeder_user_credentials`** (dict[str, BfabricAuth]): Mapping of B-Fabric instance URLs to credentials with permission to create/update entities. All instance keys must be in `supported_bfabric_instances`.
 
 ```{note}
-Feeder user credentials are typically used when the authenticated user lacks permission to perform certain operations,
-but a privileged service account does.
+Feeder user credentials are typically used when the authenticated user lacks permission to perform certain operations, but a privileged service account does.
+```
+
+## Security Best Practices
+
+### Restrict Token Instances
+
+Always restrict `supported_bfabric_instances` to only the instances you trust:
+
+```python
+settings = TokenValidationSettings(
+    validation_bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric/",
+    supported_bfabric_instances=[
+        "https://fgcz-bfabric.uzh.ch/bfabric/",  # Only allow production
+        # "https://fgcz-bfabric-test.uzh.ch/bfabric/",  # Commented out to prevent test tokens
+    ],
+)
+```
+
+### Check Token Expiration
+
+Verify tokens haven't expired in your application logic:
+
+```python
+from datetime import datetime, timezone
+
+client, token_data = Bfabric.connect_token(token=token, settings=settings)
+
+if token_data.token_expires < datetime.now(timezone.utc):
+    raise ValueError("Token has expired")
+```
+
+### Verify Web Service Permissions
+
+Check if the authenticated user has web service permissions:
+
+```python
+if not token_data.web_service_user:
+    raise PermissionError("User does not have web service permissions")
+```
+
+### Use Secrets for Tokens
+
+For additional security, use `pydantic.SecretStr` when handling tokens:
+
+```python
+from pydantic import SecretStr
+
+secret_token = SecretStr(request_token)
+client, token_data = Bfabric.connect_token(token=secret_token, settings=settings)
 ```
 
 ## Working with Token Data
@@ -177,108 +197,3 @@ print(f"Caller instance: {token_data.caller}")
 # Load the entity associated with the token
 entity = token_data.load_entity(client=client)
 ```
-
-## Security Considerations
-
-### Token Validation
-
-Always validate tokens and restrict to known instances:
-
-```python
-settings = TokenValidationSettings(
-    validation_bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric/",
-    supported_bfabric_instances=[
-        "https://fgcz-bfabric.uzh.ch/bfabric/",  # Only allow production
-        # "https://fgcz-bfabric-test.uzh.ch/bfabric/",  # Commented out to prevent test tokens
-    ],
-)
-```
-
-### Token Expiration
-
-Check token expiration in your application logic:
-
-```python
-from datetime import datetime, timezone
-
-client, token_data = Bfabric.connect_token(token=token, settings=settings)
-
-if token_data.token_expires < datetime.now(timezone.utc):
-    raise ValueError("Token has expired")
-```
-
-### Web Service User Permissions
-
-The `web_service_user` field indicates whether the authenticated user has web service permissions:
-
-```python
-if not token_data.web_service_user:
-    raise PermissionError("User does not have web service permissions")
-```
-
-### Using Secrets for Tokens
-
-For additional security, use `pydantic.SecretStr` when handling tokens in your code:
-
-```python
-from pydantic import SecretStr
-
-secret_token = SecretStr(request_token)
-client, token_data = Bfabric.connect_token(token=secret_token, settings=settings)
-```
-
-## Example: FastAPI Webapp Integration
-
-Here's a complete example of integrating with FastAPI:
-
-```python
-from fastapi import FastAPI, HTTPException, Depends
-from pydantic import BaseModel
-from bfabric import Bfabric
-from bfabric.experimental.webapp_integration_settings import TokenValidationSettings
-
-app = FastAPI()
-
-# Configure security settings
-settings = TokenValidationSettings(
-    validation_bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric/",
-    supported_bfabric_instances=["https://fgcz-bfabric.uzh.ch/bfabric/"],
-)
-
-
-class TokenRequest(BaseModel):
-    token: str
-
-
-@app.post("/process")
-async def process_request(request: TokenRequest):
-    try:
-        # Create client from token (async)
-        client, token_data = await Bfabric.connect_token_async(
-            token=request.token, settings=settings
-        )
-
-        # Use the client to perform operations
-        samples = client.read(endpoint="sample", obj={"id": token_data.entity_id})
-
-        return {"user": token_data.user, "samples": samples.to_list()}
-
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-```
-
-## Comparison: Scripted vs Server Usage
-
-| Feature                  | Interactive/Scripted (`Bfabric.connect()`) | Server/Webapp (`Bfabric.connect_token()`) |
-| ------------------------ | ------------------------------------------ | ----------------------------------------- |
-| **Authentication**       | Config file credentials                    | Token from B-Fabric webapp                |
-| **User Identity**        | Fixed (from config)                        | Dynamic (from token)                      |
-| **Use Case**             | Scripts, local tools                       | Web servers, webapps                      |
-| **Async Support**        | No (synchronous only)                      | Yes (`connect_token_async()`)             |
-| **Instance Restriction** | Via config selection                       | Via `TokenValidationSettings`             |
-| **Token Validation**     | N/A                                        | Built-in, with security checks            |
-
-## Scripted Usage?
-
-If you're writing scripts for interactive use or running in controlled environments, see
-{doc}`client_scripted` for information on config file-based authentication.
