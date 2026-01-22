@@ -38,8 +38,8 @@ This section uses **auto-generated documentation** directly from the Python code
 
 If you're new to bfabricPy, start with:
 
-1. [Quick Start Tutorial](../../getting_started/quick_start.md) - 5-minute tutorial
-2. [User Guides](../../user_guides/index.md) - Task-based guides
+1. [Quick Start Tutorial](../../getting_started/quick_start) - 5-minute tutorial
+2. [User Guides](../../user_guides/index) - Task-based guides
 3. Then return here for detailed API reference
 
 ## Finding What You Need
@@ -48,11 +48,11 @@ If you're new to bfabricPy, start with:
 
 | Task | Relevant Documentation |
 | ------------------ | -------------------------------------------------------------------------------------------- |
-| Create a client | [Bfabric Client](bfabric_client/index.md), [Getting Started](../../getting_started/index.md) |
-| Query B-Fabric | [Bfabric Client: read()](bfabric_client/index.md), [EntityReader](entity_reader/index.md) |
-| Work with entities | [Entity Types](entity_types/index.md), [EntityReader](entity_reader/index.md) |
-| Write data | [Bfabric Client: save()](bfabric_client/index.md) |
-| Handle errors | [Exceptions & Errors](exceptions_and_errors/index.md) |
+| Create a client | [Bfabric Client](bfabric_client/index), [Getting Started](../../getting_started/index) |
+| Query B-Fabric | [Bfabric Client: read()](bfabric_client/index), [EntityReader](entity_reader/index) |
+| Work with entities | [Entity Types](entity_types/index), [EntityReader](entity_reader/index) |
+| Write data | [Bfabric Client: save()](bfabric_client/index) |
+| Handle errors | [Exceptions & Errors](exceptions_and_errors/index) |
 
 ### By Class
 
@@ -75,7 +75,7 @@ bfabricPy follows semantic versioning (`X.Y.Z`):
 - **Minor changes (Y)**: New features, backward compatible
 - **Patch changes (Z)**: Bug fixes, backward compatible
 
-For version history and deprecation notices, see [Changelog](../../resources/changelog.md).
+For version history and deprecation notices, see [Changelog](../../resources/changelog).
 
 ## Contributing to Documentation
 
@@ -86,10 +86,10 @@ Documentation is generated from docstrings in the code. To improve it:
 3. **Run documentation build** to see changes
 4. **Commit documentation** changes along with code changes
 
-See [Contributing Guide](../../../CONTRIBUTING.md) for more details.
+See [Contributing Guide](../../../CONTRIBUTING) for more details.
 
 ## Next Steps
 
-- [Bfabric Client](bfabric_client/index.md) - Start with main client documentation
-- [Entity Types](entity_types/index.md) - See all entity types
-- [User Guides](../../user_guides/index.md) - Return to task-based guides
+- [Bfabric Client](bfabric_client/index) - Start with main client documentation
+- [Entity Types](entity_types/index) - See all entity types
+- [User Guides](../../user_guides/index) - Return to task-based guides

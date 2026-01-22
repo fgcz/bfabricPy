@@ -389,6 +389,6 @@ ______________________________________________________________________
 ## See Also
 
 - [API Operations](api_operations.md) - Generic CRUD operations for finding workunits
-- [Datasets](datasets.md) - Workunits often produce datasets
-- [Executables](executables.md) - Executables used within workunits
-- [Python Workunit API](../../api_reference/entity_types/workunit.md) - Using workunits in Python
+- [Datasets](datasets) - Workunits often produce datasets
+- [Executables](executables) - Executables used within workunits
+- [Python Workunit API](../../api_reference/entity_types/workunit) - Using workunits in Python

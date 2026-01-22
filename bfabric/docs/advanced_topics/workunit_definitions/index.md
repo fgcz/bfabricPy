@@ -199,5 +199,5 @@ workunit_def.to_yaml(output_file)
 
 ## Next Steps
 
-- {doc}`write_data` - Basic save and delete operations
-- {doc}`experimental_data` - Dataset upload and custom attributes
+- {doc}`../../user_guides/writing_data/index` - Basic save and delete operations
+- {doc}`../../user_guides/reading_data/resultcontainer_api` - Dataset operations

@@ -346,6 +346,6 @@ ______________________________________________________________________
 
 ## See Also
 
-- [API Operations](api_operations.md) - Generic CRUD operations
-- [Workunits](workunits.md) - Working with workunits (datasets are often linked to workunits)
-- [Python Dataset API](../../api_reference/entity_types/dataset.md) - Using datasets in Python
+- [API Operations](api_operations) - Generic CRUD operations
+- [Workunits](workunits) - Working with workunits (datasets are often linked to workunits)
+- [Python Dataset API](../../api_reference/entity_types/dataset) - Using datasets in Python

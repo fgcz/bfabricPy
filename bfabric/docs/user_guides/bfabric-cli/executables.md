@@ -297,6 +297,6 @@ ______________________________________________________________________
 
 ## See Also
 
-- [API Operations](api_operations.md) - Generic CRUD operations for finding executables
-- [Workunits](workunits.md) - Executables are used within workunits
-- [Python Executable API](../../api_reference/entity_types/executable.md) - Using executables in Python
+- [API Operations](api_operations) - Generic CRUD operations for finding executables
+- [Workunits](workunits) - Executables are used within workunits
+- [Python Executable API](../../api_reference/entity_types/executable) - Using executables in Python

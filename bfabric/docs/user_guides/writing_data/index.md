@@ -3,7 +3,7 @@
 Learn to create, update, and delete entities in B-Fabric.
 
 ```{note}
-For quick one-off operations, consider using [bfabric-cli API operations](../cli_reference/api_operations.md).
+For quick one-off operations, consider using [bfabric-cli API operations](../bfabric-cli/api_operations).
 ```
 
 ## Understanding the Write API

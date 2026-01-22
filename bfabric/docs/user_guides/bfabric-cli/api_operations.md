@@ -3,7 +3,7 @@
 The `bfabric-cli api` command provides generic CRUD (Create, Read, Update, Delete) operations on all B-Fabric entity types from the command line.
 
 ```{note}
-Use the CLI when you need quick one-off operations, want to test API calls, or prefer working from the terminal. For complex workflows, automated processing, or programmatic logic, use the [Python API](../../api_reference/) instead.
+Use the CLI when you need quick one-off operations, want to test API calls, or prefer working from the terminal. For complex workflows, automated processing, or programmatic logic, use the [Python API](../../api_reference/index) instead.
 ```
 
 ## Overview

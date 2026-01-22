@@ -65,6 +65,11 @@ class TokenData(BaseModel):
 
     # Define a custom serializer method for model_dump
     def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        """Dump the token data to a dictionary, converting datetime fields to ISO format.
+
+        :param kwargs: Additional keyword arguments to pass to parent model_dump
+        :return: A dictionary representation of the token data with ISO-formatted datetime fields
+        """
         data = super().model_dump(**kwargs)
         # Convert datetime to ISO format
         if "token_expires" in data and isinstance(data["token_expires"], datetime):

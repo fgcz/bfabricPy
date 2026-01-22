@@ -143,7 +143,7 @@ bfabric-cli entity show --id 12345
 bfabric-cli entity search --type sample --query "my_sample"
 ```
 
-For comprehensive `bfabric-cli` documentation, see the [CLI Reference](../user_guides/cli_reference/index.md).
+For comprehensive `bfabric-cli` documentation, see the [bfabric-cli User Guide](../user_guides/bfabric-cli/index).
 
 ______________________________________________________________________
 
@@ -162,14 +162,14 @@ After installing the packages:
 
 1. **Configure your credentials**: [Configuration Guide](configuration.md)
 2. **Try it out**:
-   - For Python usage: [Quick Start Tutorial](quick_start.md)
-   - For CLI usage: [bfabric-cli Reference](../user_guides/cli_reference/index.md)
+   - For Python usage: [Quick Start Tutorial](quick_start)
+   - For CLI usage: [bfabric-cli User Guide](../user_guides/bfabric-cli/index)
 
-______________________________________________________________________
+________________________________________________________________________
 
 ## Related Documentation
 
-- [Configuration Guide](configuration.md) - Setting up config files and environment variables
-- [Quick Start Tutorial](quick_start.md) - Your first bfabricPy script
-- [bfabric-cli Reference](../user_guides/cli_reference/index.md) - Command-line interface documentation
-- [Creating a Client](../user_guides/creating_a_client/index.md) - Using bfabric in Python code
+- [Configuration Guide](configuration) - Setting up config files and environment variables
+- [Quick Start Tutorial](quick_start) - Your first bfabricPy script
+- [bfabric-cli User Guide](../user_guides/bfabric-cli/index) - Command-line interface documentation
+- [Creating a Client](../user_guides/creating_a_client/index) - Using bfabric in Python code

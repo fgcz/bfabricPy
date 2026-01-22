@@ -95,7 +95,7 @@ bfabric-cli api inspect workunit
 bfabric-cli api inspect dataset
 ```
 
-See [API Inspection Guide](api_inspection.md) for complete documentation on using the inspect command.
+See [API Inspection Guide](../user_guides/bfabric-cli/api_inspection) for complete documentation on using the inspect command.
 
 ______________________________________________________________________
 
@@ -107,14 +107,14 @@ Now that you've seen the basics, explore further:
 | ------------------------------------- | ---------------------------------------------------------------------- |
 | Understand client authentication | [Creating a Client](../user_guides/creating_a_client/index.md) |
 | Query and retrieve data efficiently | [Reading Data](../user_guides/reading_data/index.md) |
-| Create, update, delete entities | [Writing Data](../user_guides/writing_data/index.md) |
-| Use typed entities with relationships | [Working with Entities](../user_guides/working_with_entities/index.md) |
-| Explore API endpoints | [API Inspection Guide](api_inspection.md) |
+| Create, update, delete entities | [Writing Data](../user_guides/writing_data/index) |
+| Use typed entities with relationships | [Working with Entities](../user_guides/working_with_entities/index) |
+| Explore API endpoints | [API Inspection Guide](../user_guides/bfabric-cli/api_inspection) |
 
 ## See Also
 
-- [Installation Guide](installation.md) - Installation options
-- [Configuration Guide](configuration.md) - Config file structure and options
-- [API Inspection Guide](api_inspection.md) - Discovering API endpoints and parameters
-- [Creating a Client](../user_guides/creating_a_client/index.md) - Authentication methods
-- [Troubleshooting](troubleshooting.md) - Common issues and solutions
+- [Installation Guide](installation) - Installation options
+- [Configuration Guide](configuration) - Config file structure and options
+- [API Inspection Guide](../user_guides/bfabric-cli/api_inspection) - Discovering API endpoints and parameters
+- [Creating a Client](../user_guides/creating_a_client/index) - Authentication methods
+- [Troubleshooting](troubleshooting) - Common issues and solutions

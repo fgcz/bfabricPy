@@ -113,10 +113,11 @@ class Bfabric:
         determined by checking the following in order (picking the first one that is found):
         - The `BFABRICPY_CONFIG_ENV` environment variable
         - The `default_config` field in the config file "GENERAL" section
+
         :param config_env: Configuration environment to use. If not given, it is deduced as described above.
         :param config_path: Path to the config file, in case it is different from default
         :param auth: Authentication to use. If "config" is given, the authentication will be read from the config file.
-            If it is set to None, no authentication will be used.
+             If it is set to None, no authentication will be used.
         :param engine: Engine to use for the API.
         """
         warnings.warn(
@@ -306,7 +307,8 @@ class Bfabric:
         :param obj: the object(s) to save
         :param check: whether to raise an error if the response is not successful
         :param method: the method to use for saving, generally "save", but in some cases e.g. "update" is more
-            appropriate to be used instead.
+        appropriate to be used instead.
+
         :return a ResultContainer describing the saved object if successful
         """
         results = self._engine.save(endpoint=endpoint, obj=obj, auth=self.auth, method=method)

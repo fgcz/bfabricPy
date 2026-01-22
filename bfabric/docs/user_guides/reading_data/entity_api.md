@@ -28,7 +28,9 @@ entities = reader.read_uris(uris)  # Returns dict[URI, Entity]
 
 ```{eval-rst}
 .. automethod:: bfabric.entities.core.entity_reader.EntityReader.read_uri
+    :noindex:
 .. automethod:: bfabric.entities.core.entity_reader.EntityReader.read_uris
+    :noindex:
 ```
 
 ### By ID
@@ -45,7 +47,9 @@ entities = reader.read_ids(entity_type="sample", entity_ids=[123, 456, 789])
 
 ```{eval-rst}
 .. automethod:: bfabric.entities.core.entity_reader.EntityReader.read_id
+    :noindex:
 .. automethod:: bfabric.entities.core.entity_reader.EntityReader.read_ids
+    :noindex:
 ```
 
 ### By Query
@@ -59,6 +63,7 @@ entities = reader.query(entity_type="sample", obj={"name": "MySample"}, max_resu
 
 ```{eval-rst}
 .. automethod:: bfabric.entities.core.entity_reader.EntityReader.query
+    :noindex:
 ```
 
 ## Entity Objects

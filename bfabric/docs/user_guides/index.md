@@ -25,17 +25,17 @@ error_handling
 
 ## Common Workflows
 
-- **[Dataset Features](working_with_entities/index.md#datasets)** - Dataset exports and data access
-- **[Performance Optimization](reading_data/caching_for_performance.md)** - Cache entities for speed
-- **[CLI Quick Operations](bfabric-cli/index.md)** - Quick one-off tasks with bfabric-cli
+- **[Dataset Features](working_with_entities/index#datasets)** - Dataset exports and data access
+- **[Performance Optimization](reading_data/caching_for_performance)** - Cache entities for speed
+- **[CLI Quick Operations](bfabric-cli/index)** - Quick one-off tasks with bfabric-cli
 
 ## Quick Links
 
-- [Quick Start](../getting_started/quick_start.md) - 5-minute tutorial
-- [API Reference](../api_reference/index.md) - Complete API documentation
+- [Quick Start](../getting_started/quick_start) - 5-minute tutorial
+- [API Reference](../api_reference/index) - Complete API documentation
 - [Error Handling](error_handling.md) - Error patterns and solutions
 
 ## Need Help?
 
-- Check [Good to Know](../../resources/good_to_know.md) for useful tips
-- Review [API Reference](../api_reference/index.md) for method details
+- Check [Good to Know](../../resources/good_to_know) for useful tips
+- Review [API Reference](../api_reference/index) for method details

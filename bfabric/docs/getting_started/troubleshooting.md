@@ -102,7 +102,7 @@ bfabric-cli api inspect workunit
 bfabric-cli api read workunit status FINISHED
 ```
 
-See [API Inspection Guide](api_inspection.md) for complete documentation on using the inspect command.
+See [API Inspection Guide](../user_guides/bfabric-cli/api_inspection) for complete documentation on using the inspect command.
 
 ## Installation Issues
 
@@ -165,9 +165,9 @@ Still stuck?
 2. **Use API Inspection**: `bfabric-cli api inspect` to understand what you're querying
 3. **Review configuration**: Verify all settings are correct
 4. **Consult related docs**:
-   - [Error Handling](../user_guides/error_handling.md) - Complete error types and handling
-   - [API Inspection Guide](api_inspection.md) - Discovering endpoints and parameters
-   - [Configuration Guide](configuration.md) - Config file structure
+   - [Error Handling](../user_guides/error_handling) - Complete error types and handling
+   - [API Inspection Guide](../user_guides/bfabric-cli/api_inspection) - Discovering endpoints and parameters
+   - [Configuration Guide](configuration) - Config file structure
 
 ## Common Mistakes
 
@@ -197,6 +197,6 @@ Once you've resolved the issue:
 
 3. **Continue with the tutorials**:
 
-   - [Quick Start](quick_start.md) - Your first script
-   - [API Inspection Guide](api_inspection.md) - Exploring the API
-   - [Reading Data](../user_guides/reading_data/index.md) - Querying data
+   - [Quick Start](quick_start) - Your first script
+   - [API Inspection Guide](../user_guides/bfabric-cli/api_inspection) - Exploring the API
+   - [Reading Data](../user_guides/reading_data/index) - Querying data

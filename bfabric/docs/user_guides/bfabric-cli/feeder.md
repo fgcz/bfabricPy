@@ -332,6 +332,6 @@ ______________________________________________________________________
 
 ## See Also
 
-- [API Operations](api_operations.md) - Generic CRUD operations for working with importresources
-- [Storage Information](../../api_reference/entity_types/storage.md) - Storage entity documentation
-- [Python API](../../api_reference/) - Using bfabric in Python for custom feeder logic
+- [API Operations](api_operations) - Generic CRUD operations for working with importresources
+- [Storage Information](../../api_reference/entity_types/storage) - Storage entity documentation
+- [Python API](../../api_reference/index) - Using bfabric in Python for custom feeder logic

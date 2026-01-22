@@ -44,7 +44,7 @@ Alternatively, you can set the environment variable `LOGURU_LEVEL`, e.g. `LOGURU
 
 ## Error Handling
 
-For comprehensive information about error handling, exception types, and patterns, see {doc}`error_handling`.
+For comprehensive information about error handling, exception types, and patterns, see {doc}`../user_guides/error_handling`.
 
 ### In bfabricPy scripts
 

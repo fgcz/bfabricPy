@@ -84,7 +84,7 @@ export BFABRICPY_CONFIG_OVERRIDE='{"client": {"base_url": "https://fgcz-bfabric.
 python script.py  # Uses this config, ignoring ~/.bfabricpy.yml
 ```
 
-### Priority Order
+### Priority Order {#priority-order}
 
 Configuration is loaded in this order (highest to lowest):
 

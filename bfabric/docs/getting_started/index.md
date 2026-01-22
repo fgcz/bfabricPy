@@ -12,7 +12,7 @@ troubleshooting
 
 ## Next Steps
 
-After getting started, explore our **[User Guides](../user_guides)** for practical examples and workflows.
+After getting started, explore our **[User Guides](../user_guides/index)** for practical examples and workflows.
 
 ## Quick Links
 

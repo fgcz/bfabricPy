@@ -46,4 +46,4 @@ Complete reference for all B-Fabric entity types.
 
 - [Working with Entities](../../user_guides/working_with_entities/index.md) - Guide to using entities
 - [EntityReader](../entity_reader/index.md) - EntityReader API reference
-- [Relationships](../../user_guides/reading_data/entity_relationships.md) - Using entity relationships
+- [Relationships](../../user_guides/reading_data/entity_api) - Using entity relationships

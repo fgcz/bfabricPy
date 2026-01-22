@@ -21,6 +21,7 @@ results = client.read(endpoint="sample", obj={"name": "MySample"}, max_results=1
 
 ```{eval-rst}
 .. automethod:: bfabric.Bfabric.read
+    :noindex:
 ```
 
 ### Example Queries
@@ -65,7 +66,7 @@ for result in results:
 
 ### Error Handling
 
-For detailed information on handling query errors, see {doc}`../../resources/error_handling`.
+For detailed information on handling query errors, see {doc}`../error_handling`.
 
 ## Exporting Results
 

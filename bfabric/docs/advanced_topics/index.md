@@ -19,12 +19,12 @@ data_operations.md
 
 These guides assume familiarity with basic bfabricPy concepts:
 
-- You've completed [Getting Started](../../getting_started/index.md)
-- You're comfortable with [Reading Data](../../user_guides/reading_data/index.md)
-- You've practiced [Writing Data](../../user_guides/writing_data/index.md)
+- You've completed [Getting Started](../../getting_started/index)
+- You're comfortable with [Reading Data](../../user_guides/reading_data/index)
+- You've practiced [Writing Data](../../user_guides/writing_data/index)
 
 ## Related Documentation
 
-- [User Guides](../../user_guides/index.md) - Practical guides
-- [API Reference](../../api_reference/index.md) - Complete API documentation
-- [Changelog](../../resources/changelog.md) - Version history and changes
+- [User Guides](../../user_guides/index) - Practical guides
+- [API Reference](../../api_reference/index) - Complete API documentation
+- [Changelog](../../resources/changelog) - Version history and changes
