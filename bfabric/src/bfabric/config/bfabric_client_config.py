@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 from typing import Annotated
 
-from pydantic import BaseModel, Field, TypeAdapter, AnyHttpUrl, AfterValidator
+from pydantic import AfterValidator, AnyHttpUrl, BaseModel, Field, TypeAdapter
 
 
 def _validate_base_url(value: str) -> str:
@@ -16,7 +16,7 @@ def _validate_base_url(value: str) -> str:
 _ValidatedBaseUrl = Annotated[str, AfterValidator(_validate_base_url)]
 
 
-class BfabricAPIEngineType(str, Enum):
+class BfabricAPIEngineType(StrEnum):
     """Choice of engine to use."""
 
     SUDS = "SUDS"
