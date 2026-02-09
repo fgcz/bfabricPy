@@ -26,6 +26,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 ### Fixed
 
 - `References` correctly handles references with extra fields like `_position`.
+- `ResultContainer.to_polars` sets the schema length to `None` to fix bugs in some cases with more than 100 items.
 
 ## \[1.16.1\] - 2025-12-15
 
