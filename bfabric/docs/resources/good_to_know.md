@@ -2,10 +2,12 @@
 
 ## Updating workunits with many associated resources
 
-!!! note "Summary: Updating workunits and its associated resources"
-    1. Set workunit state to `"processing"`.
-    2. Update workunit and associated resources, as much as you need to.
-    3. Set workunit state to `"available"`.
+```{note}
+**Summary: Updating workunits and its associated resources**
+1. Set workunit state to `"processing"`.
+2. Update workunit and associated resources, as much as you need to.
+3. Set workunit state to `"available"`.
+```
 
 When updating large workunits, it's crucial to prevent state recomputation in B-Fabric by setting the workunit state to `"processing"` before making any changes.
 Failing to do so can lead to significant performance issues and complications, especially during iterative updates.
@@ -39,6 +41,10 @@ Check the documentation for [logger.add](https://loguru.readthedocs.io/en/stable
 By default, the logs go to standard error, which can be useful in some scenarios.
 
 Alternatively, you can set the environment variable `LOGURU_LEVEL`, e.g. `LOGURU_LEVEL=WARNING`. However, this will affect all loguru loggers in your code and may thus not be the preferable approach.
+
+## Error Handling
+
+For comprehensive information about error handling, exception types, and patterns, see {doc}`../user_guides/error_handling`.
 
 ### In bfabricPy scripts
 

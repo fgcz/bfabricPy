@@ -42,11 +42,9 @@ repos:
     hooks:
       - id: yamlfmt
   - repo: https://github.com/executablebooks/mdformat/
-    rev: "0.7.17"
+    rev: "1.0.0"
     hooks:
       - id: mdformat
-        additional_dependencies:
-          - mdformat-mkdocs>=2.1.0
   #- repo: https://github.com/abravalheri/validate-pyproject
   #  rev: "v0.23"
   #  hooks:
