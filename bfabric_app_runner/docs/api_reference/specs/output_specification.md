@@ -48,7 +48,7 @@ Please note:
 
 - The workunit ID needs to be specified, so the correct information can be retrieved. (TODO but instead of the workunit id it should also be possible to pass the ref)
 - Several actions might require a particular user to be possible, e.g. the `bfabric_copy_resource` will require a user
-    with permission to create the particular file over SSH.
+  with permission to create the particular file over SSH.
 
 ## Reference
 
