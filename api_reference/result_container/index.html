@@ -1,0 +1,572 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>ResultContainer API Reference &#8212; bfabricPy 1.16.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=735ab59b"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api_reference/result_container/index';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="API Reference: Token Data" href="../token_data/index.html" />
+    <link rel="prev" title="API Reference: EntityUri" href="../entity_uri/index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">bfabricPy 1.16.1 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../getting_started/index.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/quick_start.html">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/configuration.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/troubleshooting.html">Troubleshooting</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../user_guides/index.html">User Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../user_guides/creating_a_client/index.html">Creating a Client</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/creating_a_client/interactive_scripted_usage.html">Creating a Client for Interactive and Scripted Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/creating_a_client/server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../user_guides/reading_data/index.html">Reading Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/reading_data/resultcontainer_api.html">ResultContainer API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/reading_data/entity_api.html">Entity API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/reading_data/caching_for_performance.html">Entity Caching</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guides/writing_data/index.html">Writing Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guides/working_with_entities/index.html">Entity Features</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../user_guides/bfabric-cli/index.html">bfabric-cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/bfabric-cli/api_operations.html">API Operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/bfabric-cli/api_inspection.html">API Inspection with CLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/bfabric-cli/datasets.html">Datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/bfabric-cli/executables.html">Executables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/bfabric-cli/workunits.html">Workunits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/bfabric-cli/feeder.html">Feeder</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guides/error_handling.html">Error Handling</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../bfabric_client/index.html">Bfabric Client API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../entity_types/index.html">API Reference: Entity Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../entity_reader/index.html">API Reference: EntityReader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../entity_uri/index.html">API Reference: EntityUri</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">ResultContainer API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../token_data/index.html">API Reference: Token Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../exceptions_and_errors/index.html">API Reference: Exceptions and Errors</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../advanced_topics/index.html">Advanced Topics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../advanced_topics/workunit_definitions/index.html">Experimental: Workunit Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../advanced_topics/data_operations.html">Experimental Data Operations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../resources/index.html">Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../resources/good_to_know.html">Good to Know</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/api_reference/result_container/index.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>ResultContainer API Reference</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.results.result_container.ResultContainer"><code class="docutils literal notranslate"><span class="pre">ResultContainer</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.results.result_container.ResultContainer.assert_success"><code class="docutils literal notranslate"><span class="pre">ResultContainer.assert_success()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.results.result_container.ResultContainer.errors"><code class="docutils literal notranslate"><span class="pre">ResultContainer.errors</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.results.result_container.ResultContainer.extend"><code class="docutils literal notranslate"><span class="pre">ResultContainer.extend()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.results.result_container.ResultContainer.get_first_n_results"><code class="docutils literal notranslate"><span class="pre">ResultContainer.get_first_n_results()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.results.result_container.ResultContainer.is_success"><code class="docutils literal notranslate"><span class="pre">ResultContainer.is_success</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.results.result_container.ResultContainer.to_list_dict"><code class="docutils literal notranslate"><span class="pre">ResultContainer.to_list_dict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.results.result_container.ResultContainer.to_polars"><code class="docutils literal notranslate"><span class="pre">ResultContainer.to_polars()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.results.result_container.ResultContainer.total_pages_api"><code class="docutils literal notranslate"><span class="pre">ResultContainer.total_pages_api</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="resultcontainer-api-reference">
+<h1>ResultContainer API Reference<a class="headerlink" href="#resultcontainer-api-reference" title="Link to this heading">#</a></h1>
+<p>Complete API reference for the <code class="docutils literal notranslate"><span class="pre">ResultContainer</span></code> class.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfabric.results.result_container.ResultContainer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric.results.result_container.</span></span><span class="sig-name descname"><span class="pre">ResultContainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ApiResponseObjectType</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_pages_api</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">errors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../exceptions_and_errors/index.html#bfabric.errors.BfabricRequestError" title="bfabric.errors.BfabricRequestError"><span class="pre">BfabricRequestError</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfabric.results.result_container.ResultContainer" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Container structure for query results.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bfabric.results.result_container.ResultContainer.assert_success">
+<span class="sig-name descname"><span class="pre">assert_success</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#bfabric.results.result_container.ResultContainer.assert_success" title="Link to this definition">#</a></dt>
+<dd><p>Asserts that the query was successful. Raises a <cite>RuntimeError</cite> if it was not.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bfabric.results.result_container.ResultContainer.errors">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">errors</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../exceptions_and_errors/index.html#bfabric.errors.BfabricRequestError" title="bfabric.errors.BfabricRequestError"><span class="pre">BfabricRequestError</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric.results.result_container.ResultContainer.errors" title="Link to this definition">#</a></dt>
+<dd><p>List of errors that occurred during the query. An empty list indicates success.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfabric.results.result_container.ResultContainer.extend">
+<span class="sig-name descname"><span class="pre">extend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bfabric.results.result_container.ResultContainer" title="bfabric.results.result_container.ResultContainer"><span class="pre">ResultContainer</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_total_pages_api</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#bfabric.results.result_container.ResultContainer.extend" title="Link to this definition">#</a></dt>
+<dd><p>Merges the results of <cite>other</cite> into this container.
+:param other: The container whose elements to append to the end of this container
+:param reset_total_pages_api: If True, the total_pages_api attribute will be reset to None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfabric.results.result_container.ResultContainer.get_first_n_results">
+<span class="sig-name descname"><span class="pre">get_first_n_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric.results.result_container.ResultContainer" title="bfabric.results.result_container.ResultContainer"><span class="pre">ResultContainer</span></a></span></span><a class="headerlink" href="#bfabric.results.result_container.ResultContainer.get_first_n_results" title="Link to this definition">#</a></dt>
+<dd><p>Returns a shallow copy of self, containing at most <cite>n_results</cite> results.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bfabric.results.result_container.ResultContainer.is_success">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_success</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#bfabric.results.result_container.ResultContainer.is_success" title="Link to this definition">#</a></dt>
+<dd><p>Whether the query was successful.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfabric.results.result_container.ResultContainer.to_list_dict">
+<span class="sig-name descname"><span class="pre">to_list_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">drop_empty</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ApiResponseObjectType</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bfabric.results.result_container.ResultContainer.to_list_dict" title="Link to this definition">#</a></dt>
+<dd><p>Converts the results to a list of dictionaries.
+:param drop_empty: If True, empty attributes will be removed from the results</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfabric.results.result_container.ResultContainer.to_polars">
+<span class="sig-name descname"><span class="pre">to_polars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">drop_empty</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">polars.DataFrame</span></span></span><a class="headerlink" href="#bfabric.results.result_container.ResultContainer.to_polars" title="Link to this definition">#</a></dt>
+<dd><p>Returns the results as a polars DataFrame.
+:param drop_empty: If True, empty attributes will be removed from the results
+:param flatten: If True, flatten struct columns into individual columns</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bfabric.results.result_container.ResultContainer.total_pages_api">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">total_pages_api</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#bfabric.results.result_container.ResultContainer.total_pages_api" title="Link to this definition">#</a></dt>
+<dd><p>Number of pages available from the API.</p>
+</dd></dl>
+
+</dd></dl>
+
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">ResultContainer</span></code> is returned by Bfabric read operations and provides:</p>
+<ul class="simple">
+<li><p><strong>List-like interface</strong>: Iterate over results with indexing</p></li>
+<li><p><strong>Error tracking</strong>: Check if operations succeeded</p></li>
+<li><p><strong>Pagination information</strong>: Total pages available</p></li>
+<li><p><strong>Conversion methods</strong>: Export to various formats (list, Polars DataFrame)</p></li>
+</ul>
+</section>
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../../user_guides/reading_data/resultcontainer_api.html"><span class="std std-doc">ResultContainer User Guide</span></a> - Comprehensive guide with examples</p></li>
+<li><p><a class="reference internal" href="../../user_guides/error_handling.html"><span class="std std-doc">Error Handling</span></a> - Error types and handling patterns</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../entity_uri/index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">API Reference: EntityUri</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../token_data/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">API Reference: Token Data</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.results.result_container.ResultContainer"><code class="docutils literal notranslate"><span class="pre">ResultContainer</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.results.result_container.ResultContainer.assert_success"><code class="docutils literal notranslate"><span class="pre">ResultContainer.assert_success()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.results.result_container.ResultContainer.errors"><code class="docutils literal notranslate"><span class="pre">ResultContainer.errors</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.results.result_container.ResultContainer.extend"><code class="docutils literal notranslate"><span class="pre">ResultContainer.extend()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.results.result_container.ResultContainer.get_first_n_results"><code class="docutils literal notranslate"><span class="pre">ResultContainer.get_first_n_results()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.results.result_container.ResultContainer.is_success"><code class="docutils literal notranslate"><span class="pre">ResultContainer.is_success</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.results.result_container.ResultContainer.to_list_dict"><code class="docutils literal notranslate"><span class="pre">ResultContainer.to_list_dict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.results.result_container.ResultContainer.to_polars"><code class="docutils literal notranslate"><span class="pre">ResultContainer.to_polars()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.results.result_container.ResultContainer.total_pages_api"><code class="docutils literal notranslate"><span class="pre">ResultContainer.total_pages_api</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By the bfabricpy authors
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2014-2026 Functional Genomics Center Zurich.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

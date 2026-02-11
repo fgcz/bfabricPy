@@ -4,6 +4,42 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.5.0\] - 2025-12-15
+
+### Added
+
+- Automatic `chunks.yml` generation when the file is missing, by scanning for folders containing a `inputs.yml` file
+- `CommandPythonEnv` provides more diagnostic output now.
+- `ResolveBfabricResourceDatasetSpecs` has `output_dataset_only` parameter which is useful in some cases.
+
+### Changed
+
+- Add upper bounds to dependencies.
+
+### Fixed
+
+- `ResolveBfabricAnnotationSpec` previously failed, when a resource was not linked with a sample.
+
+## \[0.4.0\] - 2025-09-26
+
+### Added
+
+- **New Input Type**: `BfabricResourceDatasetSpec`
+    - Specifies a dataset which links `Resource` entities with a particular column
+    - Copies all files into a directory (the spec's `filename` field)
+    - Writes the dataset file into the same directory, adding a `File` column (configurable) with the filenames
+
+### Changed
+
+- Automatic Workflow Step Creation moved from `dispatch` action to `stage` action
+    - Prevents creating workflowsteps for failed workunits
+    - Note: This decision may be revisited in the future, as there could be benefits to creating the workflowstep early on
+- Improved error messaging when running "make stage" in read-only mode
+    - Now displays clear warning messages explaining that staging is skipped
+    - Provides guidance on how to remove the --read-only flag
+
+## \[0.3.1\] - 2025-09-01
+
 ### Added
 
 - `CommandPythonEnv` can also execute any tools available in the Python environment (in `.venv/bin`), not just modules.

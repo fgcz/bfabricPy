@@ -1,0 +1,793 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Entity Caching &#8212; bfabricPy 1.16.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=735ab59b"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guides/reading_data/caching_for_performance';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Writing Data" href="../writing_data/index.html" />
+    <link rel="prev" title="Entity API" href="entity_api.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">bfabricPy 1.16.1 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../getting_started/index.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/quick_start.html">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/configuration.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/troubleshooting.html">Troubleshooting</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">User Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../creating_a_client/index.html">Creating a Client</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../creating_a_client/interactive_scripted_usage.html">Creating a Client for Interactive and Scripted Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../creating_a_client/server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Reading Data</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="resultcontainer_api.html">ResultContainer API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="entity_api.html">Entity API</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Entity Caching</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../writing_data/index.html">Writing Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_entities/index.html">Entity Features</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../bfabric-cli/index.html">bfabric-cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/api_operations.html">API Operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/api_inspection.html">API Inspection with CLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/datasets.html">Datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/executables.html">Executables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/workunits.html">Workunits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/feeder.html">Feeder</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../error_handling.html">Error Handling</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api_reference/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/bfabric_client/index.html">Bfabric Client API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/entity_types/index.html">API Reference: Entity Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/entity_reader/index.html">API Reference: EntityReader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/entity_uri/index.html">API Reference: EntityUri</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/result_container/index.html">ResultContainer API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/token_data/index.html">API Reference: Token Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/exceptions_and_errors/index.html">API Reference: Exceptions and Errors</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../advanced_topics/index.html">Advanced Topics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../advanced_topics/workunit_definitions/index.html">Experimental: Workunit Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../advanced_topics/data_operations.html">Experimental Data Operations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../resources/index.html">Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../resources/good_to_know.html">Good to Know</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/user_guides/reading_data/caching_for_performance.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Entity Caching</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic Usage</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cache-a-single-entity-type">Cache a Single Entity Type</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#unlimited-cache-size">Unlimited Cache Size</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cache-multiple-entity-types">Cache Multiple Entity Types</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#different-sizes-per-type">Different Sizes per Type</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-usage">Advanced Usage</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#nested-contexts">Nested Contexts</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#relationship-navigation">Relationship Navigation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-use-caching">When to Use Caching</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#good-use-cases">Good Use Cases</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#when-caching-may-not-help">When Caching May Not Help</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cache-behavior">Cache Behavior</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cache-stack">Cache Stack</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cache-invalidation">Cache Invalidation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-considerations">Performance Considerations</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#memory-vs-speed-trade-off">Memory vs Speed Trade-off</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#choosing-cache-sizes">Choosing Cache Sizes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#complete-example">Complete Example</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#summary">Summary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-cache-internals">Advanced: Cache Internals</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="entity-caching">
+<h1>Entity Caching<a class="headerlink" href="#entity-caching" title="Link to this heading">#</a></h1>
+<p>Entity caching improves performance by storing entities in memory to avoid repeated API calls. This is particularly useful when
+working with the same entities multiple times or navigating complex relationships.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>Caching is enabled through the <code class="docutils literal notranslate"><span class="pre">cache_entities()</span></code> context manager. Within the context, entities are cached according to your
+configuration.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Caching is an optional optimization feature. bfabricPy works perfectly without caching, but performance can be significantly
+improved for complex operations.</p>
+</div>
+</section>
+<section id="basic-usage">
+<h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">#</a></h2>
+<section id="cache-a-single-entity-type">
+<h3>Cache a Single Entity Type<a class="headerlink" href="#cache-a-single-entity-type" title="Link to this heading">#</a></h3>
+<p>Enable caching for a specific entity type with an optional size limit:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bfabric.entities.cache.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">cache_entities</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+<span class="n">reader</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">reader</span>
+
+<span class="k">with</span> <span class="n">cache_entities</span><span class="p">(</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+    <span class="c1"># First call fetches from API</span>
+    <span class="n">sample1</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">123</span><span class="p">)</span>
+
+    <span class="c1"># Second call uses cache (no API call)</span>
+    <span class="n">sample2</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">123</span><span class="p">)</span>
+
+    <span class="c1"># Both are the same object</span>
+    <span class="k">assert</span> <span class="n">sample1</span> <span class="ow">is</span> <span class="n">sample2</span>
+</pre></div>
+</div>
+</section>
+<section id="unlimited-cache-size">
+<h3>Unlimited Cache Size<a class="headerlink" href="#unlimited-cache-size" title="Link to this heading">#</a></h3>
+<p>Set <code class="docutils literal notranslate"><span class="pre">max_size=0</span></code> for unlimited cache size:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">cache_entities</span><span class="p">(</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="c1"># Cache as many samples as needed</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_ids</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_ids</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)))</span>
+</pre></div>
+</div>
+</section>
+<section id="cache-multiple-entity-types">
+<h3>Cache Multiple Entity Types<a class="headerlink" href="#cache-multiple-entity-types" title="Link to this heading">#</a></h3>
+<p>Cache multiple entity types with the same size limit:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">cache_entities</span><span class="p">([</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="s2">&quot;workunit&quot;</span><span class="p">],</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">500</span><span class="p">):</span>
+    <span class="c1"># All three types are cached</span>
+    <span class="n">project</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_ids</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_ids</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+    <span class="n">workunits</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_ids</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;workunit&quot;</span><span class="p">,</span> <span class="n">entity_ids</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="different-sizes-per-type">
+<h3>Different Sizes per Type<a class="headerlink" href="#different-sizes-per-type" title="Link to this heading">#</a></h3>
+<p>Configure different cache sizes for each entity type:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cache_config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;sample&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>  <span class="c1"># Cache up to 1000 samples</span>
+    <span class="s2">&quot;project&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>  <span class="c1"># Cache up to 10 projects</span>
+    <span class="s2">&quot;workunit&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>  <span class="c1"># Cache up to 500 workunits</span>
+<span class="p">}</span>
+
+<span class="k">with</span> <span class="n">cache_entities</span><span class="p">(</span><span class="n">cache_config</span><span class="p">):</span>
+    <span class="c1"># Each type has its own size limit</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="advanced-usage">
+<h2>Advanced Usage<a class="headerlink" href="#advanced-usage" title="Link to this heading">#</a></h2>
+<section id="nested-contexts">
+<h3>Nested Contexts<a class="headerlink" href="#nested-contexts" title="Link to this heading">#</a></h3>
+<p>Cache contexts can be nested. Inner contexts can override or extend outer ones:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Outer context caches samples</span>
+<span class="k">with</span> <span class="n">cache_entities</span><span class="p">(</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+    <span class="n">sample1</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Inner context adds project caching</span>
+    <span class="k">with</span> <span class="n">cache_entities</span><span class="p">(</span><span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="n">project</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># Sample is still cached from outer context</span>
+        <span class="n">sample2</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">sample1</span> <span class="ow">is</span> <span class="n">sample2</span>
+
+    <span class="c1"># Project cache is cleared, sample cache remains</span>
+    <span class="c1"># project = reader.read_id(entity_type=&quot;project&quot;, entity_id=1)  # Would fetch from API</span>
+</pre></div>
+</div>
+</section>
+<section id="relationship-navigation">
+<h3>Relationship Navigation<a class="headerlink" href="#relationship-navigation" title="Link to this heading">#</a></h3>
+<p>Caching is especially beneficial when navigating entity relationships:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bfabric.entities.cache.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">cache_entities</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+<span class="n">reader</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">reader</span>
+
+<span class="k">with</span> <span class="n">cache_entities</span><span class="p">([</span><span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="s2">&quot;workunit&quot;</span><span class="p">],</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="c1"># Load project</span>
+    <span class="n">project</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">123</span><span class="p">)</span>
+
+    <span class="c1"># Navigate to samples (lazy-loaded)</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">refs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;member&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Navigate to workunits for each sample</span>
+    <span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">:</span>
+        <span class="n">workunits</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">refs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;member&quot;</span><span class="p">)</span>
+        <span class="c1"># Entities may be reused across relationships</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sample </span><span class="si">{</span><span class="n">sample</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">workunits</span><span class="p">)</span><span class="si">}</span><span class="s2"> workunits&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In this example, the same entities might be accessed multiple times through different relationships. Caching ensures they’re only
+fetched once from the API.</p>
+</section>
+</section>
+<section id="when-to-use-caching">
+<h2>When to Use Caching<a class="headerlink" href="#when-to-use-caching" title="Link to this heading">#</a></h2>
+<section id="good-use-cases">
+<h3>Good Use Cases<a class="headerlink" href="#good-use-cases" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Complex relationship navigation</strong>: Traversing entity graphs (project → samples → workunits)</p></li>
+<li><p><strong>Repeated queries</strong>: Same entities accessed multiple times in a workflow</p></li>
+<li><p><strong>Batch processing</strong>: Loading entities once for multiple operations</p></li>
+<li><p><strong>Performance-sensitive operations</strong>: When API latency impacts user experience</p></li>
+</ul>
+</section>
+<section id="when-caching-may-not-help">
+<h3>When Caching May Not Help<a class="headerlink" href="#when-caching-may-not-help" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>One-off queries</strong>: Loading each entity only once</p></li>
+<li><p><strong>Large datasets</strong>: Memory may be more limiting than API speed</p></li>
+<li><p><strong>Frequently changing data</strong>: When you always need fresh data</p></li>
+</ul>
+</section>
+</section>
+<section id="cache-behavior">
+<h2>Cache Behavior<a class="headerlink" href="#cache-behavior" title="Link to this heading">#</a></h2>
+<section id="cache-stack">
+<h3>Cache Stack<a class="headerlink" href="#cache-stack" title="Link to this heading">#</a></h3>
+<p>bfabricPy uses a stack-based cache system. When you nest contexts, caches are layered:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">cache_entities</span><span class="p">(</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+    <span class="n">sample1</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">cache_entities</span><span class="p">(</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="n">sample2</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># Returns cached entity from outer context</span>
+        <span class="k">assert</span> <span class="n">sample1</span> <span class="ow">is</span> <span class="n">sample2</span>
+
+        <span class="c1"># New entities go to inner cache (limited to 10)</span>
+        <span class="n">sample3</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># Inner cache cleared, outer cache remains</span>
+</pre></div>
+</div>
+</section>
+<section id="cache-invalidation">
+<h3>Cache Invalidation<a class="headerlink" href="#cache-invalidation" title="Link to this heading">#</a></h3>
+<p>Caches are automatically invalidated when the context exits:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">cache_entities</span><span class="p">(</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+    <span class="n">sample</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># Sample is cached</span>
+
+<span class="c1"># Cache is cleared here</span>
+<span class="n">sample</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="c1"># Sample fetched from API again</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="performance-considerations">
+<h2>Performance Considerations<a class="headerlink" href="#performance-considerations" title="Link to this heading">#</a></h2>
+<section id="memory-vs-speed-trade-off">
+<h3>Memory vs Speed Trade-off<a class="headerlink" href="#memory-vs-speed-trade-off" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Small cache size</strong>: Less memory, more API calls</p></li>
+<li><p><strong>Large cache size</strong>: More memory, fewer API calls</p></li>
+<li><p><strong>Unlimited cache (<code class="docutils literal notranslate"><span class="pre">max_size=0</span></code>)</strong>: Maximum speed, highest memory usage</p></li>
+</ul>
+</section>
+<section id="choosing-cache-sizes">
+<h3>Choosing Cache Sizes<a class="headerlink" href="#choosing-cache-sizes" title="Link to this heading">#</a></h3>
+<p>Consider:</p>
+<ul class="simple">
+<li><p>Number of entities you’ll access</p></li>
+<li><p>Entity size (larger entities = more memory per entity)</p></li>
+<li><p>Available memory in your environment</p></li>
+<li><p>How often entities are reused</p></li>
+</ul>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># High-throughput scenario: larger caches</span>
+<span class="k">with</span> <span class="n">cache_entities</span><span class="p">({</span><span class="s2">&quot;sample&quot;</span><span class="p">:</span> <span class="mi">10000</span><span class="p">,</span> <span class="s2">&quot;project&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">},</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="c1"># Process thousands of entities efficiently</span>
+    <span class="k">pass</span>
+
+<span class="c1"># Memory-constrained scenario: smaller caches</span>
+<span class="k">with</span> <span class="n">cache_entities</span><span class="p">({</span><span class="s2">&quot;sample&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s2">&quot;project&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}):</span>
+    <span class="c1"># Keep memory usage low</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="complete-example">
+<h2>Complete Example<a class="headerlink" href="#complete-example" title="Link to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bfabric.entities.cache.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">cache_entities</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+<span class="n">reader</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">reader</span>
+
+<span class="c1"># Configure caches for your workflow</span>
+<span class="n">cache_config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;project&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>  <span class="c1"># Fewer projects, larger entities</span>
+    <span class="s2">&quot;sample&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>  <span class="c1"># More samples, smaller entities</span>
+    <span class="s2">&quot;workunit&quot;</span><span class="p">:</span> <span class="mi">5000</span><span class="p">,</span>  <span class="c1"># Many workunits, small entities</span>
+<span class="p">}</span>
+
+<span class="k">with</span> <span class="n">cache_entities</span><span class="p">(</span><span class="n">cache_config</span><span class="p">):</span>
+    <span class="c1"># Load a project</span>
+    <span class="n">project</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Get all samples for the project</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">refs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;member&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span><span class="si">}</span><span class="s2"> samples&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Process each sample</span>
+    <span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">:</span>
+        <span class="c1"># Get workunits (may reuse workunits from other samples)</span>
+        <span class="n">workunits</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">refs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;member&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sample </span><span class="si">{</span><span class="n">sample</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">workunits</span><span class="p">)</span><span class="si">}</span><span class="s2"> workunits&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Entities are cached, so repeated accesses are fast</span>
+    <span class="n">project2</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">project</span> <span class="ow">is</span> <span class="n">project2</span>  <span class="c1"># Same object, no API call</span>
+</pre></div>
+</div>
+</section>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">cache_entities()</span></code> to enable entity caching within a context</p></li>
+<li><p>Configure cache sizes based on your memory and performance needs</p></li>
+<li><p>Caching is especially beneficial for relationship navigation and repeated access</p></li>
+<li><p>Cache contexts can be nested for fine-grained control</p></li>
+<li><p>Caches are automatically cleared when the context exits</p></li>
+</ul>
+</section>
+<section id="advanced-cache-internals">
+<h2>Advanced: Cache Internals<a class="headerlink" href="#advanced-cache-internals" title="Link to this heading">#</a></h2>
+<p>For details on cache implementation, see:</p>
+<p id="module-bfabric.entities.cache">This includes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cache_entities()</span></code> - Context manager for enabling caching</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">EntityMemoryCache</span></code> - In-memory cache implementation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CacheStack</span></code> - Stack-based cache management</p></li>
+</ul>
+<p>See <a class="reference internal" href="../working_with_entities/index.html"><span class="doc">Entity Features</span></a> for complete documentation of all entity types and their features.</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="entity_api.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Entity API</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../writing_data/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Writing Data</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic Usage</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cache-a-single-entity-type">Cache a Single Entity Type</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#unlimited-cache-size">Unlimited Cache Size</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cache-multiple-entity-types">Cache Multiple Entity Types</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#different-sizes-per-type">Different Sizes per Type</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-usage">Advanced Usage</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#nested-contexts">Nested Contexts</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#relationship-navigation">Relationship Navigation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-use-caching">When to Use Caching</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#good-use-cases">Good Use Cases</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#when-caching-may-not-help">When Caching May Not Help</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cache-behavior">Cache Behavior</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cache-stack">Cache Stack</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cache-invalidation">Cache Invalidation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-considerations">Performance Considerations</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#memory-vs-speed-trade-off">Memory vs Speed Trade-off</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#choosing-cache-sizes">Choosing Cache Sizes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#complete-example">Complete Example</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#summary">Summary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-cache-internals">Advanced: Cache Internals</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By the bfabricpy authors
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2014-2026 Functional Genomics Center Zurich.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

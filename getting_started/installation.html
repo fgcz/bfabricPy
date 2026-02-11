@@ -1,0 +1,698 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Installation &#8212; bfabricPy 1.16.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=735ab59b"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/installation';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Quick Start" href="quick_start.html" />
+    <link rel="prev" title="Getting Started" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">bfabricPy 1.16.1 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Getting Started</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../user_guides/index.html">User Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/creating_a_client/index.html">Creating a Client</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/creating_a_client/interactive_scripted_usage.html">Creating a Client for Interactive and Scripted Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/creating_a_client/server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/reading_data/index.html">Reading Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/reading_data/resultcontainer_api.html">ResultContainer API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/reading_data/entity_api.html">Entity API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/reading_data/caching_for_performance.html">Entity Caching</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/writing_data/index.html">Writing Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/working_with_entities/index.html">Entity Features</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/bfabric-cli/index.html">bfabric-cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/api_operations.html">API Operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/api_inspection.html">API Inspection with CLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/datasets.html">Datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/executables.html">Executables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/workunits.html">Workunits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/feeder.html">Feeder</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/error_handling.html">Error Handling</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api_reference/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/bfabric_client/index.html">Bfabric Client API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/entity_types/index.html">API Reference: Entity Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/entity_reader/index.html">API Reference: EntityReader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/entity_uri/index.html">API Reference: EntityUri</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/result_container/index.html">ResultContainer API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/token_data/index.html">API Reference: Token Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/exceptions_and_errors/index.html">API Reference: Exceptions and Errors</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../advanced_topics/index.html">Advanced Topics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../advanced_topics/workunit_definitions/index.html">Experimental: Workunit Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../advanced_topics/data_operations.html">Experimental Data Operations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../resources/index.html">Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../resources/good_to_know.html">Good to Know</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/getting_started/installation.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Installation</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-the-core-library-bfabric">Installing the Core Library (<code class="docutils literal notranslate"><span class="pre">bfabric</span></code>)</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#for-python-projects-recommended">For Python Projects (Recommended)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-git">Installing from Git</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#with-pip">With pip</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#with-uv">With uv</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-command-line-tools-bfabric-scripts">Installing Command-Line Tools (<code class="docutils literal notranslate"><span class="pre">bfabric-scripts</span></code>)</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-uv-tool-recommended-for-cli">Using uv tool (Recommended for CLI)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#which-should-you-install">Which Should You Install?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#development-installation">Development Installation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#verifying-installation">Verifying Installation</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#check-the-core-library">Check the Core Library</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#check-command-line-tools">Check Command-Line Tools</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#about-bfabric-cli">About bfabric-cli</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-bfabric-cli-usage">Example bfabric-cli Usage</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#system-requirements">System Requirements</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#related-documentation">Related Documentation</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h1>
+<p>bfabricPy consists of two main packages:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">bfabric</span></code></strong> - The core Python library for programmatic access to the bfabric system</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">bfabric-scripts</span></code></strong> - Optional command-line tools, primarily the useful <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span></code> utility</p></li>
+</ul>
+<p>Choose your installation method based on how you plan to use bfabricPy.</p>
+<hr class="docutils" />
+<section id="installing-the-core-library-bfabric">
+<h2>Installing the Core Library (<code class="docutils literal notranslate"><span class="pre">bfabric</span></code>)<a class="headerlink" href="#installing-the-core-library-bfabric" title="Link to this heading">#</a></h2>
+<p>Use this if you want to write Python scripts or integrate bfabric functionality into your applications.</p>
+<section id="for-python-projects-recommended">
+<h3>For Python Projects (Recommended)<a class="headerlink" href="#for-python-projects-recommended" title="Link to this heading">#</a></h3>
+<p>Add <code class="docutils literal notranslate"><span class="pre">bfabric</span></code> to your project’s dependencies in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[project]</span>
+<span class="n">dependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;bfabric&gt;=1.16.0,&lt;2.0.0&quot;</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>For production use, consider locking to a specific version to avoid unexpected changes.</p>
+</section>
+<section id="installing-from-git">
+<h3>Installing from Git<a class="headerlink" href="#installing-from-git" title="Link to this heading">#</a></h3>
+<p>For development versions or specific commits:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[project]</span>
+<span class="n">dependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;bfabric @ git+https://github.com/fgcz/bfabricPy.git@main&amp;subdirectory=bfabric#egg=bfabric&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="with-pip">
+<h3>With pip<a class="headerlink" href="#with-pip" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>bfabric
+</pre></div>
+</div>
+</section>
+<section id="with-uv">
+<h3>With uv<a class="headerlink" href="#with-uv" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>bfabric
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="installing-command-line-tools-bfabric-scripts">
+<h2>Installing Command-Line Tools (<code class="docutils literal notranslate"><span class="pre">bfabric-scripts</span></code>)<a class="headerlink" href="#installing-command-line-tools-bfabric-scripts" title="Link to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">bfabric-scripts</span></code> package provides the <strong><code class="docutils literal notranslate"><span class="pre">bfabric-cli</span></code></strong> command-line tool, which is useful for:</p>
+<ul class="simple">
+<li><p>Quick one-off queries and operations</p></li>
+<li><p>Batch processing in shell scripts</p></li>
+<li><p>Interactive data exploration</p></li>
+<li><p>Testing API calls without writing Python code</p></li>
+</ul>
+<p><strong>Note:</strong> <code class="docutils literal notranslate"><span class="pre">bfabric-scripts</span></code> also contains legacy scripts that are maintained for compatibility but are not actively developed. The modern and recommended tool is <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span></code>.</p>
+<section id="using-uv-tool-recommended-for-cli">
+<h3>Using uv tool (Recommended for CLI)<a class="headerlink" href="#using-uv-tool-recommended-for-cli" title="Link to this heading">#</a></h3>
+<p>The best way to install command-line tools is using <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">tool</span></code>, which creates an isolated virtual environment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install bfabric-scripts</span>
+uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span>bfabric-scripts
+
+<span class="c1"># Upgrade to latest version</span>
+uv<span class="w"> </span>tool<span class="w"> </span>upgrade<span class="w"> </span>bfabric-scripts
+</pre></div>
+</div>
+<p>This makes <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span></code> available system-wide and simplifies upgrades.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="which-should-you-install">
+<h2>Which Should You Install?<a class="headerlink" href="#which-should-you-install" title="Link to this heading">#</a></h2>
+<p>bfabricPy provides two components that are installed separately:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Component</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Install Method</p></th>
+<th class="head"><p>Best For</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>bfabric</strong></p></td>
+<td><p>Python package</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">bfabric</span></code> or <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">bfabric</span></code></p></td>
+<td><p>Python projects, scripts, applications</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>bfabric-scripts</strong></p></td>
+<td><p>CLI tool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">tool</span> <span class="pre">install</span> <span class="pre">bfabric-scripts</span></code></p></td>
+<td><p>Command-line usage, quick tasks, shell scripts</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Install both if:</strong> You plan to use both Python programming and command-line tools.</p>
+<p><strong>Note:</strong> <code class="docutils literal notranslate"><span class="pre">bfabric</span></code> is a Python package dependency. <code class="docutils literal notranslate"><span class="pre">bfabric-scripts</span></code> is a CLI tool installed separately using <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">tool</span></code>.</p>
+</section>
+<hr class="docutils" />
+<section id="development-installation">
+<h2>Development Installation<a class="headerlink" href="#development-installation" title="Link to this heading">#</a></h2>
+<p>For contributing to bfabricPy, see the <a class="reference external" href="https://github.com/fgcz/bfabricPy/blob/main/CONTRIBUTING.md">Contributing Guide</a>.</p>
+</section>
+<hr class="docutils" />
+<section id="verifying-installation">
+<h2>Verifying Installation<a class="headerlink" href="#verifying-installation" title="Link to this heading">#</a></h2>
+<section id="check-the-core-library">
+<h3>Check the Core Library<a class="headerlink" href="#check-the-core-library" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import bfabric; print(bfabric.__version__)&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="check-command-line-tools">
+<h3>Check Command-Line Tools<a class="headerlink" href="#check-command-line-tools" title="Link to this heading">#</a></h3>
+<p>If you installed <code class="docutils literal notranslate"><span class="pre">bfabric-scripts</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>--version
+bfabric-cli<span class="w"> </span>--help
+</pre></div>
+</div>
+<p>This should display the CLI version and available commands.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="about-bfabric-cli">
+<h2>About bfabric-cli<a class="headerlink" href="#about-bfabric-cli" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">bfabric-cli</span></code> is the modern command-line interface provided by <code class="docutils literal notranslate"><span class="pre">bfabric-scripts</span></code>. It offers:</p>
+<ul class="simple">
+<li><p><strong>Entity queries</strong> - Find and display datasets, samples, workunits, etc.</p></li>
+<li><p><strong>Data retrieval</strong> - Download files and metadata</p></li>
+<li><p><strong>Bulk operations</strong> - Process multiple entities efficiently</p></li>
+<li><p><strong>Convenient output formats</strong> - JSON, tables, CSV</p></li>
+<li><p><strong>Shell-friendly</strong> - Easy to use in scripts and pipelines</p></li>
+</ul>
+<section id="example-bfabric-cli-usage">
+<h3>Example bfabric-cli Usage<a class="headerlink" href="#example-bfabric-cli-usage" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find recent datasets</span>
+bfabric-cli<span class="w"> </span>entity<span class="w"> </span>list<span class="w"> </span>--type<span class="w"> </span>dataset<span class="w"> </span>--limit<span class="w"> </span><span class="m">10</span>
+
+<span class="c1"># Get detailed information about a specific entity</span>
+bfabric-cli<span class="w"> </span>entity<span class="w"> </span>show<span class="w"> </span>--id<span class="w"> </span><span class="m">12345</span>
+
+<span class="c1"># Search for samples by name</span>
+bfabric-cli<span class="w"> </span>entity<span class="w"> </span>search<span class="w"> </span>--type<span class="w"> </span>sample<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;my_sample&quot;</span>
+</pre></div>
+</div>
+<p>For comprehensive <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span></code> documentation, see the <a class="reference internal" href="../user_guides/bfabric-cli/index.html"><span class="doc std std-doc">bfabric-cli User Guide</span></a>.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="system-requirements">
+<h2>System Requirements<a class="headerlink" href="#system-requirements" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Python</strong>: 3.11 or higher</p></li>
+<li><p><strong>Dependencies</strong>: Installed automatically via pip/uv</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">bfabric</span></code> package and <code class="docutils literal notranslate"><span class="pre">bfabric-scripts</span></code> share the same Python version requirements.</p>
+</section>
+<hr class="docutils" />
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
+<p>After installing the packages:</p>
+<ol class="arabic simple">
+<li><p><strong>Configure your credentials</strong>: <a class="reference internal" href="configuration.html"><span class="std std-doc">Configuration Guide</span></a></p></li>
+<li><p><strong>Try it out</strong>:</p>
+<ul class="simple">
+<li><p>For Python usage: <a class="reference internal" href="quick_start.html"><span class="doc std std-doc">Quick Start Tutorial</span></a></p></li>
+<li><p>For CLI usage: <a class="reference internal" href="../user_guides/bfabric-cli/index.html"><span class="doc std std-doc">bfabric-cli User Guide</span></a></p></li>
+</ul>
+</li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="related-documentation">
+<h2>Related Documentation<a class="headerlink" href="#related-documentation" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="configuration.html"><span class="doc std std-doc">Configuration Guide</span></a> - Setting up config files and environment variables</p></li>
+<li><p><a class="reference internal" href="quick_start.html"><span class="doc std std-doc">Quick Start Tutorial</span></a> - Your first bfabricPy script</p></li>
+<li><p><a class="reference internal" href="../user_guides/bfabric-cli/index.html"><span class="doc std std-doc">bfabric-cli User Guide</span></a> - Command-line interface documentation</p></li>
+<li><p><a class="reference internal" href="../user_guides/creating_a_client/index.html"><span class="doc std std-doc">Creating a Client</span></a> - Using bfabric in Python code</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Getting Started</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="quick_start.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Quick Start</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-the-core-library-bfabric">Installing the Core Library (<code class="docutils literal notranslate"><span class="pre">bfabric</span></code>)</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#for-python-projects-recommended">For Python Projects (Recommended)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-git">Installing from Git</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#with-pip">With pip</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#with-uv">With uv</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-command-line-tools-bfabric-scripts">Installing Command-Line Tools (<code class="docutils literal notranslate"><span class="pre">bfabric-scripts</span></code>)</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-uv-tool-recommended-for-cli">Using uv tool (Recommended for CLI)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#which-should-you-install">Which Should You Install?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#development-installation">Development Installation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#verifying-installation">Verifying Installation</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#check-the-core-library">Check the Core Library</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#check-command-line-tools">Check Command-Line Tools</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#about-bfabric-cli">About bfabric-cli</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-bfabric-cli-usage">Example bfabric-cli Usage</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#system-requirements">System Requirements</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#related-documentation">Related Documentation</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By the bfabricpy authors
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2014-2026 Functional Genomics Center Zurich.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

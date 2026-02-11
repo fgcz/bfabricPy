@@ -1,0 +1,702 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>API Inspection with CLI &#8212; bfabricPy 1.16.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=735ab59b"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guides/bfabric-cli/api_inspection';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Datasets" href="datasets.html" />
+    <link rel="prev" title="API Operations" href="api_operations.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">bfabricPy 1.16.1 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../getting_started/index.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/quick_start.html">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/configuration.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/troubleshooting.html">Troubleshooting</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">User Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../creating_a_client/index.html">Creating a Client</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../creating_a_client/interactive_scripted_usage.html">Creating a Client for Interactive and Scripted Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../creating_a_client/server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reading_data/index.html">Reading Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reading_data/resultcontainer_api.html">ResultContainer API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reading_data/entity_api.html">Entity API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reading_data/caching_for_performance.html">Entity Caching</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../writing_data/index.html">Writing Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_entities/index.html">Entity Features</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">bfabric-cli</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="api_operations.html">API Operations</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">API Inspection with CLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="datasets.html">Datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="executables.html">Executables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="workunits.html">Workunits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="feeder.html">Feeder</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../error_handling.html">Error Handling</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api_reference/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/bfabric_client/index.html">Bfabric Client API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/entity_types/index.html">API Reference: Entity Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/entity_reader/index.html">API Reference: EntityReader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/entity_uri/index.html">API Reference: EntityUri</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/result_container/index.html">ResultContainer API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/token_data/index.html">API Reference: Token Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/exceptions_and_errors/index.html">API Reference: Exceptions and Errors</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../advanced_topics/index.html">Advanced Topics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../advanced_topics/workunit_definitions/index.html">Experimental: Workunit Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../advanced_topics/data_operations.html">Experimental Data Operations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../resources/index.html">Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../resources/good_to_know.html">Good to Know</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/user_guides/bfabric-cli/api_inspection.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>API Inspection with CLI</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic Usage</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-patterns">Common Patterns</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inspect-different-methods">Inspect Different Methods</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#discover-available-endpoints">Discover Available Endpoints</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#practical-examples">Practical Examples</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-1-filter-by-date">Example 1: Filter by Date</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-2-filter-by-user">Example 2: Filter by User</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-3-create-new-entity">Example 3: Create New Entity</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tips-and-best-practices">Tips and Best Practices</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#integration-with-cli">Integration with CLI</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="api-inspection-with-cli">
+<h1>API Inspection with CLI<a class="headerlink" href="#api-inspection-with-cli" title="Link to this heading">#</a></h1>
+<p>Use <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">api</span> <span class="pre">inspect</span></code> to discover available endpoints, parameters, and data structures in B-Fabric.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">inspect</span></code> command helps you:</p>
+<ul class="simple">
+<li><p><strong>Discover what entities exist</strong> - Browse all available B-Fabric endpoints</p></li>
+<li><p><strong>Learn valid filters</strong> - See what parameters you can use in queries</p></li>
+<li><p><strong>Understand field types</strong> - Know what data types are expected (string, integer, date, etc.)</p></li>
+<li><p><strong>Find required fields</strong> - Required parameters are marked with <code class="docutils literal notranslate"><span class="pre">*</span></code></p></li>
+</ul>
+</section>
+<section id="basic-usage">
+<h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">#</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Inspect an endpoint&#39;s structure</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class="w"> </span>resource
+
+<span class="c1"># Inspect different methods</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class="w"> </span>resource<span class="w"> </span>save
+
+<span class="c1"># Check multiple endpoints</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class="w"> </span>workunit
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class="w"> </span>dataset
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class="w"> </span>sample
+</pre></div>
+</div>
+<p><strong>Output:</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Namespaces</span><span class="p">:</span>
+  <span class="n">bf</span><span class="p">:</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">endpoint</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">webservice</span><span class="o">.</span><span class="n">bfabric</span><span class="o">.</span><span class="n">org</span><span class="o">/</span>
+  <span class="n">xs</span><span class="p">:</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">www</span><span class="o">.</span><span class="n">w3</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mi">2001</span><span class="o">/</span><span class="n">XMLSchema</span>
+
+<span class="n">Parameter</span><span class="p">:</span> <span class="n">parameters</span>
+<span class="n">Type</span><span class="p">:</span> <span class="n">xmlRequestReadResource</span>
+  <span class="o">-</span> <span class="n">idonly</span><span class="p">:</span> <span class="n">xs</span><span class="p">:</span><span class="n">string</span>
+  <span class="o">-</span> <span class="n">login</span><span class="p">:</span> <span class="n">xs</span><span class="p">:</span><span class="n">string</span> <span class="o">*</span>
+  <span class="o">-</span> <span class="n">password</span><span class="p">:</span> <span class="n">xs</span><span class="p">:</span><span class="n">string</span> <span class="o">*</span>
+  <span class="o">-</span> <span class="n">page</span><span class="p">:</span> <span class="n">xs</span><span class="p">:</span><span class="nb">int</span>
+  <span class="o">-</span> <span class="n">query</span><span class="p">:</span> <span class="n">bf</span><span class="p">:</span><span class="n">xmlRequestParameterReadResource</span>
+    <span class="o">-</span> <span class="nb">id</span><span class="p">:</span> <span class="n">xs</span><span class="p">:</span><span class="n">long</span><span class="p">[]</span>
+    <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">xs</span><span class="p">:</span><span class="n">string</span><span class="p">[]</span>
+    <span class="o">-</span> <span class="n">createdby</span><span class="p">:</span> <span class="n">xs</span><span class="p">:</span><span class="n">string</span><span class="p">[]</span>
+    <span class="o">-</span> <span class="n">createdafter</span><span class="p">:</span> <span class="n">xs</span><span class="p">:</span><span class="n">string</span><span class="p">[]</span>
+    <span class="o">-</span> <span class="n">createdbefore</span><span class="p">:</span> <span class="n">xs</span><span class="p">:</span><span class="n">string</span><span class="p">[]</span>
+    <span class="o">-</span> <span class="n">containerid</span><span class="p">:</span> <span class="n">xs</span><span class="p">:</span><span class="n">long</span><span class="p">[]</span>
+    <span class="n">sampleid</span><span class="p">:</span> <span class="n">xs</span><span class="p">:</span><span class="n">long</span><span class="p">[]</span>
+    <span class="n">status</span><span class="p">:</span> <span class="n">xs</span><span class="p">:</span><span class="n">string</span><span class="p">[]</span>
+    <span class="n">size</span><span class="p">:</span> <span class="n">xs</span><span class="p">:</span><span class="n">long</span><span class="p">[]</span>
+    <span class="o">-</span> <span class="o">...</span><span class="n">more</span> <span class="n">fields</span>
+
+<span class="o">*</span> <span class="n">required</span>
+</pre></div>
+</div>
+</section>
+<section id="common-patterns">
+<h2>Common Patterns<a class="headerlink" href="#common-patterns" title="Link to this heading">#</a></h2>
+<section id="inspect-different-methods">
+<h3>Inspect Different Methods<a class="headerlink" href="#inspect-different-methods" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># See what &#39;read&#39; expects (default method)</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class="w"> </span>resource
+
+<span class="c1"># See what &#39;save&#39; expects (for creating/updating)</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class="w"> </span>resource<span class="w"> </span>save
+
+<span class="c1"># Check workunit structure</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class="w"> </span>workunit
+
+<span class="c1"># Check dataset structure</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class="w"> </span>dataset
+
+<span class="c1"># Check sample structure</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class="w"> </span>sample
+</pre></div>
+</div>
+</section>
+<section id="discover-available-endpoints">
+<h3>Discover Available Endpoints<a class="headerlink" href="#discover-available-endpoints" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Common B-Fabric endpoints to inspect:</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class="w"> </span>sample
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class="w"> </span>workunit
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class="w"> </span>dataset
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class="w"> </span>resource
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class="w"> </span>application
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class="w"> </span>project
+</pre></div>
+</div>
+</section>
+</section>
+<section id="practical-examples">
+<h2>Practical Examples<a class="headerlink" href="#practical-examples" title="Link to this heading">#</a></h2>
+<section id="example-1-filter-by-date">
+<h3>Example 1: Filter by Date<a class="headerlink" href="#example-1-filter-by-date" title="Link to this heading">#</a></h3>
+<p>First, inspect to see available date filters:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class="w"> </span>resource
+</pre></div>
+</div>
+<p>From output, you can see <code class="docutils literal notranslate"><span class="pre">createdafter</span></code> and <code class="docutils literal notranslate"><span class="pre">createdbefore</span></code> are valid filters. Use them in Python:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+<span class="c1"># Find resources created in last 30 days</span>
+<span class="n">date_threshold</span> <span class="o">=</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">30</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+    <span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;resource&quot;</span><span class="p">,</span>
+    <span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;createdafter&quot;</span><span class="p">:</span> <span class="n">date_threshold</span><span class="p">},</span>
+    <span class="n">max_results</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="n">results</span><span class="o">.</span><span class="n">is_success</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="si">}</span><span class="s2"> recent resources:&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">resource</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (ID: </span><span class="si">{</span><span class="n">resource</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="example-2-filter-by-user">
+<h3>Example 2: Filter by User<a class="headerlink" href="#example-2-filter-by-user" title="Link to this heading">#</a></h3>
+<p>Inspect to see what user-related filters exist:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class="w"> </span>workunit
+</pre></div>
+</div>
+<p>If you see <code class="docutils literal notranslate"><span class="pre">createdby</span></code> or <code class="docutils literal notranslate"><span class="pre">modifiedby</span></code>, use them:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+<span class="c1"># Find workunits created by specific user</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+    <span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;workunit&quot;</span><span class="p">,</span>
+    <span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;createdby&quot;</span><span class="p">:</span> <span class="s2">&quot;pfeeder&quot;</span><span class="p">},</span>
+    <span class="n">max_results</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="k">for</span> <span class="n">workunit</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - ID: </span><span class="si">{</span><span class="n">workunit</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, Status: </span><span class="si">{</span><span class="n">workunit</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;status&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;N/A&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="example-3-create-new-entity">
+<h3>Example 3: Create New Entity<a class="headerlink" href="#example-3-create-new-entity" title="Link to this heading">#</a></h3>
+<p>To create an entity, first inspect the <code class="docutils literal notranslate"><span class="pre">save</span></code> method:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class="w"> </span>sample<span class="w"> </span>save
+</pre></div>
+</div>
+<p>This shows required fields and expected types:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+<span class="c1"># Create a new sample (required fields from inspect)</span>
+<span class="n">sample_data</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Test Sample&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;projectid&quot;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>
+    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Biological Sample - Generic&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="n">sample_data</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">results</span><span class="o">.</span><span class="n">is_success</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Created sample ID: </span><span class="si">{</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Errors: </span><span class="si">{</span><span class="n">results</span><span class="o">.</span><span class="n">errors</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="tips-and-best-practices">
+<h2>Tips and Best Practices<a class="headerlink" href="#tips-and-best-practices" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p><strong>Inspect before querying</strong> - Saves trial and error</p></li>
+<li><p><strong>Check field types</strong> - Know if a field is string, integer, list, etc.</p></li>
+<li><p><strong>Look for <code class="docutils literal notranslate"><span class="pre">*</span></code> marks</strong> - These are required fields</p></li>
+<li><p><strong>Explore multiple endpoints</strong> - You might find better ways to query data</p></li>
+<li><p><strong>Use CLI for quick testing</strong> - Test queries from CLI before coding them</p></li>
+</ol>
+</section>
+<section id="integration-with-cli">
+<h2>Integration with CLI<a class="headerlink" href="#integration-with-cli" title="Link to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">inspect</span></code> command integrates well with other CLI commands:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Inspect structure first</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class="w"> </span>sample
+
+<span class="c1"># 2. Test query with CLI</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>sample<span class="w"> </span>projectid<span class="w"> </span><span class="m">123</span><span class="w"> </span>--limit<span class="w"> </span><span class="m">5</span>
+
+<span class="c1"># 3. Use in your Python script</span>
+from<span class="w"> </span>bfabric<span class="w"> </span>import<span class="w"> </span>Bfabric
+<span class="nv">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>Bfabric.connect<span class="o">()</span>
+<span class="nv">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>client.read<span class="o">(</span><span class="nv">endpoint</span><span class="o">=</span><span class="s1">&#39;sample&#39;</span>,<span class="w"> </span><span class="nv">obj</span><span class="o">={</span><span class="s1">&#39;projectid&#39;</span>:<span class="w"> </span><span class="m">123</span><span class="o">}</span>,<span class="w"> </span><span class="nv">max_results</span><span class="o">=</span><span class="m">5</span><span class="o">)</span>
+</pre></div>
+</div>
+<p><strong>Tip:</strong> CLI queries display equivalent Python code, making it easy to test and adapt for your scripts.</p>
+</section>
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="index.html"><span class="std std-doc">bfabric-cli</span></a> - Complete CLI documentation</p></li>
+<li><p><a class="reference internal" href="api_operations.html"><span class="std std-doc">API Operations</span></a> - Generic CRUD operations</p></li>
+<li><p><a class="reference internal" href="../reading_data/index.html"><span class="std std-doc">Reading Data</span></a> - Querying B-Fabric in Python</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="api_operations.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">API Operations</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="datasets.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Datasets</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic Usage</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-patterns">Common Patterns</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inspect-different-methods">Inspect Different Methods</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#discover-available-endpoints">Discover Available Endpoints</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#practical-examples">Practical Examples</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-1-filter-by-date">Example 1: Filter by Date</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-2-filter-by-user">Example 2: Filter by User</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-3-create-new-entity">Example 3: Create New Entity</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tips-and-best-practices">Tips and Best Practices</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#integration-with-cli">Integration with CLI</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By the bfabricpy authors
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2014-2026 Functional Genomics Center Zurich.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

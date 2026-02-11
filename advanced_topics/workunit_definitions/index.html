@@ -1,0 +1,958 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Experimental: Workunit Definitions &#8212; bfabricPy 1.16.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=735ab59b"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'advanced_topics/workunit_definitions/index';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Experimental Data Operations" href="../data_operations.html" />
+    <link rel="prev" title="Advanced Topics" href="../index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">bfabricPy 1.16.1 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../getting_started/index.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/quick_start.html">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/configuration.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/troubleshooting.html">Troubleshooting</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../user_guides/index.html">User Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../user_guides/creating_a_client/index.html">Creating a Client</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/creating_a_client/interactive_scripted_usage.html">Creating a Client for Interactive and Scripted Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/creating_a_client/server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../user_guides/reading_data/index.html">Reading Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/reading_data/resultcontainer_api.html">ResultContainer API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/reading_data/entity_api.html">Entity API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/reading_data/caching_for_performance.html">Entity Caching</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guides/writing_data/index.html">Writing Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guides/working_with_entities/index.html">Entity Features</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../user_guides/bfabric-cli/index.html">bfabric-cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/bfabric-cli/api_operations.html">API Operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/bfabric-cli/api_inspection.html">API Inspection with CLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/bfabric-cli/datasets.html">Datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/bfabric-cli/executables.html">Executables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/bfabric-cli/workunits.html">Workunits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/bfabric-cli/feeder.html">Feeder</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guides/error_handling.html">Error Handling</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api_reference/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/bfabric_client/index.html">Bfabric Client API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/entity_types/index.html">API Reference: Entity Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/entity_reader/index.html">API Reference: EntityReader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/entity_uri/index.html">API Reference: EntityUri</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/result_container/index.html">ResultContainer API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/token_data/index.html">API Reference: Token Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/exceptions_and_errors/index.html">API Reference: Exceptions and Errors</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Advanced Topics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Experimental: Workunit Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_operations.html">Experimental Data Operations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../resources/index.html">Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../resources/good_to_know.html">Good to Know</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/advanced_topics/workunit_definitions/index.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Experimental: Workunit Definitions</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api-reference">API Reference</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#workunitexecutiondefinition">WorkunitExecutionDefinition</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.dataset"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.dataset</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.either_dataset_or_resources"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.either_dataset_or_resources()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.from_workunit"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.from_workunit()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.model_config"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.model_config</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.mutually_exclusive_dataset_resources"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.mutually_exclusive_dataset_resources()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.raw_parameters"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.raw_parameters</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.resources"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.resources</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#workunitregistrationdefinition">WorkunitRegistrationDefinition</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_id"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.application_id</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_name"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.application_name</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_id"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.container_id</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_type"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.container_type</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.from_workunit"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.from_workunit()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.model_config"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.model_config</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_id"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.storage_id</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_output_folder"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.storage_output_folder</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.user_id"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.user_id</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.workunit_id"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.workunit_id</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.workunit_name"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.workunit_name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#workunitdefinition">WorkunitDefinition</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitDefinition"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitDefinition.execution"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition.execution</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitDefinition.from_ref"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition.from_ref()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitDefinition.from_workunit"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition.from_workunit()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitDefinition.from_yaml"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition.from_yaml()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitDefinition.model_config"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition.model_config</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitDefinition.registration"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition.registration</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitDefinition.to_yaml"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition.to_yaml()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-workunit-definitions">Loading Workunit Definitions</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#from-yaml-file">From YAML File</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#from-workunit-id">From Workunit ID</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#with-caching">With Caching</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exporting-workunit-definitions">Exporting Workunit Definitions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#complete-example">Complete Example</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#yaml-definition-file">YAML Definition File</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#python-usage">Python Usage</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices">Best Practices</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="experimental-workunit-definitions">
+<h1>Experimental: Workunit Definitions<a class="headerlink" href="#experimental-workunit-definitions" title="Link to this heading">#</a></h1>
+<p>This guide covers the experimental workunit definition system for defining and managing B-Fabric workunits
+using YAML files.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Experimental features may change or be removed in future versions. Use at your own risk.</p>
+</div>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>Workunit definitions provide a structured way to define workunit execution details and registration information. This is
+particularly useful for:</p>
+<ul class="simple">
+<li><p>Developing and testing B-Fabric applications</p></li>
+<li><p>Defining workflow parameters in a declarative way</p></li>
+<li><p>Persisting workunit configurations in version-controlled YAML files</p></li>
+<li><p>Separating workunit logic from execution code</p></li>
+</ul>
+</section>
+<section id="api-reference">
+<h2>API Reference<a class="headerlink" href="#api-reference" title="Link to this heading">#</a></h2>
+<section id="workunitexecutiondefinition">
+<h3>WorkunitExecutionDefinition<a class="headerlink" href="#workunitexecutiondefinition" title="Link to this heading">#</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitExecutionDefinition">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric.experimental.workunit_definition.</span></span><span class="sig-name descname"><span class="pre">WorkunitExecutionDefinition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Defines the execution details of a workunit, i.e. the inputs necessary to compute the results,
+but not the final details on how to register the results in B-Fabric.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.dataset">
+<span class="sig-name descname"><span class="pre">dataset</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.dataset" title="Link to this definition">#</a></dt>
+<dd><p>Input dataset (for dataset-flow applications)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.either_dataset_or_resources">
+<span class="sig-name descname"><span class="pre">either_dataset_or_resources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition" title="bfabric.experimental.workunit_definition.WorkunitExecutionDefinition"><span class="pre">WorkunitExecutionDefinition</span></a></span></span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.either_dataset_or_resources" title="Link to this definition">#</a></dt>
+<dd><p>Validates that either dataset or resources are provided.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.from_workunit">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_workunit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">workunit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../api_reference/entity_types/index.html#bfabric.entities.Workunit" title="bfabric.entities.workunit.Workunit"><span class="pre">Workunit</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition" title="bfabric.experimental.workunit_definition.WorkunitExecutionDefinition"><span class="pre">WorkunitExecutionDefinition</span></a></span></span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.from_workunit" title="Link to this definition">#</a></dt>
+<dd><p>Loads the workunit execution definition from the provided B-Fabric workunit.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.model_config" title="Link to this definition">#</a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.mutually_exclusive_dataset_resources">
+<span class="sig-name descname"><span class="pre">mutually_exclusive_dataset_resources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition" title="bfabric.experimental.workunit_definition.WorkunitExecutionDefinition"><span class="pre">WorkunitExecutionDefinition</span></a></span></span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.mutually_exclusive_dataset_resources" title="Link to this definition">#</a></dt>
+<dd><p>Validates that dataset and resources are mutually exclusive.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.raw_parameters">
+<span class="sig-name descname"><span class="pre">raw_parameters</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.raw_parameters" title="Link to this definition">#</a></dt>
+<dd><p>The parameters passed to the workunit, in their raw form, i.e. everything is a string or None.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.resources">
+<span class="sig-name descname"><span class="pre">resources</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.resources" title="Link to this definition">#</a></dt>
+<dd><p>Input resources (for resource-flow applications</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="workunitregistrationdefinition">
+<h3>WorkunitRegistrationDefinition<a class="headerlink" href="#workunitregistrationdefinition" title="Link to this heading">#</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric.experimental.workunit_definition.</span></span><span class="sig-name descname"><span class="pre">WorkunitRegistrationDefinition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">application_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">application_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">BeforeValidator</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">func</span></span><span class="o"><span class="pre">=</span></span><span class="pre">path_safe_name</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">json_schema_input_type</span></span><span class="o"><span class="pre">=</span></span><span class="pre">PydanticUndefined</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workunit_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workunit_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">BeforeValidator</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">func</span></span><span class="o"><span class="pre">=</span></span><span class="pre">path_safe_name</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">json_schema_input_type</span></span><span class="o"><span class="pre">=</span></span><span class="pre">PydanticUndefined</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">container_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">container_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'project'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'order'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_output_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Defines the B-Fabric registration details of a workunit.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_id">
+<span class="sig-name descname"><span class="pre">application_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_id" title="Link to this definition">#</a></dt>
+<dd><p>The ID of the executing application.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_name">
+<span class="sig-name descname"><span class="pre">application_name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">PathSafeStr</span></span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_name" title="Link to this definition">#</a></dt>
+<dd><p>The name of the executing application.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_id">
+<span class="sig-name descname"><span class="pre">container_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_id" title="Link to this definition">#</a></dt>
+<dd><p>The ID of the container.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_type">
+<span class="sig-name descname"><span class="pre">container_type</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'project'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'order'</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_type" title="Link to this definition">#</a></dt>
+<dd><p>The type of the container.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.from_workunit">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_workunit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">workunit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../api_reference/entity_types/index.html#bfabric.entities.Workunit" title="bfabric.entities.workunit.Workunit"><span class="pre">Workunit</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition" title="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition"><span class="pre">WorkunitRegistrationDefinition</span></a></span></span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.from_workunit" title="Link to this definition">#</a></dt>
+<dd><p>Loads the workunit registration definition from the provided B-Fabric workunit.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.model_config" title="Link to this definition">#</a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_id">
+<span class="sig-name descname"><span class="pre">storage_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_id" title="Link to this definition">#</a></dt>
+<dd><p>The ID of the storage.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_output_folder">
+<span class="sig-name descname"><span class="pre">storage_output_folder</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_output_folder" title="Link to this definition">#</a></dt>
+<dd><p>The output folder in the storage.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.user_id">
+<span class="sig-name descname"><span class="pre">user_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.user_id" title="Link to this definition">#</a></dt>
+<dd><p>The ID of the user who created the workunit, if available.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.workunit_id">
+<span class="sig-name descname"><span class="pre">workunit_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.workunit_id" title="Link to this definition">#</a></dt>
+<dd><p>The ID of the workunit.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.workunit_name">
+<span class="sig-name descname"><span class="pre">workunit_name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">PathSafeStr</span></span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.workunit_name" title="Link to this definition">#</a></dt>
+<dd><p>The name of the workunit.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="workunitdefinition">
+<h3>WorkunitDefinition<a class="headerlink" href="#workunitdefinition" title="Link to this heading">#</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitDefinition">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric.experimental.workunit_definition.</span></span><span class="sig-name descname"><span class="pre">WorkunitDefinition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition" title="bfabric.experimental.workunit_definition.WorkunitExecutionDefinition"><span class="pre">WorkunitExecutionDefinition</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">registration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition" title="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition"><span class="pre">WorkunitRegistrationDefinition</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitDefinition" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Defines a workunit, including details on how to execute it and where to register it.
+This class provides a simple way for developers to persist and run workunit definitions from YAML files, as well as
+loading the same from B-Fabric workunits. This abstraction ensures easier development and testing of applications.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitDefinition.execution">
+<span class="sig-name descname"><span class="pre">execution</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition" title="bfabric.experimental.workunit_definition.WorkunitExecutionDefinition"><span class="pre">WorkunitExecutionDefinition</span></a></span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitDefinition.execution" title="Link to this definition">#</a></dt>
+<dd><p>Execution details of the workunit.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitDefinition.from_ref">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_ref</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">workunit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../api_reference/bfabric_client/index.html#bfabric.Bfabric" title="bfabric.Bfabric"><span class="pre">Bfabric</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitDefinition" title="bfabric.experimental.workunit_definition.WorkunitDefinition"><span class="pre">WorkunitDefinition</span></a></span></span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitDefinition.from_ref" title="Link to this definition">#</a></dt>
+<dd><p>Loads the workunit definition from the provided reference, which can be a path to a YAML file,
+or a workunit ID.</p>
+<p>If the cache file is provided and exists, it will be loaded directly instead of resolving the reference.
+Otherwise, the result will be cached to the provided file.
+:param workunit: The workunit reference, which can be a path to a YAML file, or a workunit ID.
+:param client: The B-Fabric client to use for resolving the workunit.
+:param cache_file: The path to the cache file, if any.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitDefinition.from_workunit">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_workunit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">workunit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../api_reference/entity_types/index.html#bfabric.entities.Workunit" title="bfabric.entities.workunit.Workunit"><span class="pre">Workunit</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitDefinition" title="bfabric.experimental.workunit_definition.WorkunitDefinition"><span class="pre">WorkunitDefinition</span></a></span></span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitDefinition.from_workunit" title="Link to this definition">#</a></dt>
+<dd><p>Loads the workunit definition from the provided B-Fabric workunit.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitDefinition.from_yaml">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitDefinition" title="bfabric.experimental.workunit_definition.WorkunitDefinition"><span class="pre">WorkunitDefinition</span></a></span></span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitDefinition.from_yaml" title="Link to this definition">#</a></dt>
+<dd><p>Loads the workunit definition from the provided path.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitDefinition.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitDefinition.model_config" title="Link to this definition">#</a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitDefinition.registration">
+<span class="sig-name descname"><span class="pre">registration</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition" title="bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition"><span class="pre">WorkunitRegistrationDefinition</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitDefinition.registration" title="Link to this definition">#</a></dt>
+<dd><p>Registration details of the workunit.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfabric.experimental.workunit_definition.WorkunitDefinition.to_yaml">
+<span class="sig-name descname"><span class="pre">to_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#bfabric.experimental.workunit_definition.WorkunitDefinition.to_yaml" title="Link to this definition">#</a></dt>
+<dd><p>Writes the workunit definition to the provided path.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+<section id="loading-workunit-definitions">
+<h2>Loading Workunit Definitions<a class="headerlink" href="#loading-workunit-definitions" title="Link to this heading">#</a></h2>
+<section id="from-yaml-file">
+<h3>From YAML File<a class="headerlink" href="#from-yaml-file" title="Link to this heading">#</a></h3>
+<p>Create a YAML file with workunit definition:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># workunit.yml</span>
+
+<span class="nt">execution</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">dataset</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12345</span>
+<span class="w">  </span><span class="nt">raw_parameters</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">param1</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;value1&quot;</span>
+<span class="w">    </span><span class="nt">param2</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;value2&quot;</span>
+
+<span class="nt">registration</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">application_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+<span class="w">  </span><span class="nt">application_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;MyApplication&quot;</span>
+<span class="w">  </span><span class="nt">workunit_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">200</span>
+<span class="w">  </span><span class="nt">workunit_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ProcessingJob&quot;</span>
+<span class="w">  </span><span class="nt">container_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span>
+<span class="w">  </span><span class="nt">container_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;project&quot;</span>
+<span class="w">  </span><span class="nt">storage_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">400</span>
+<span class="w">  </span><span class="nt">storage_output_folder</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;output/results&quot;</span>
+<span class="w">  </span><span class="nt">user_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+</pre></div>
+</div>
+<p>Load it in Python:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bfabric.experimental.workunit_definition</span><span class="w"> </span><span class="kn">import</span> <span class="n">WorkunitDefinition</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+<span class="c1"># Load from YAML file</span>
+<span class="n">workunit_def</span> <span class="o">=</span> <span class="n">WorkunitDefinition</span><span class="o">.</span><span class="n">from_ref</span><span class="p">(</span><span class="n">workunit</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;workunit.yml&quot;</span><span class="p">),</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Workunit: </span><span class="si">{</span><span class="n">workunit_def</span><span class="o">.</span><span class="n">workunit_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Application: </span><span class="si">{</span><span class="n">workunit_def</span><span class="o">.</span><span class="n">registration</span><span class="o">.</span><span class="n">application_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dataset: </span><span class="si">{</span><span class="n">workunit_def</span><span class="o">.</span><span class="n">execution</span><span class="o">.</span><span class="n">dataset</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="from-workunit-id">
+<h3>From Workunit ID<a class="headerlink" href="#from-workunit-id" title="Link to this heading">#</a></h3>
+<p>Load definition from a workunit already in B-Fabric:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bfabric.experimental.workunit_definition</span><span class="w"> </span><span class="kn">import</span> <span class="n">WorkunitDefinition</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+<span class="c1"># Load from workunit ID (resolves from B-Fabric)</span>
+<span class="n">workunit_def</span> <span class="o">=</span> <span class="n">WorkunitDefinition</span><span class="o">.</span><span class="n">from_ref</span><span class="p">(</span><span class="n">workunit</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded definition for workunit #</span><span class="si">{</span><span class="n">workunit_def</span><span class="o">.</span><span class="n">registration</span><span class="o">.</span><span class="n">workunit_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="with-caching">
+<h3>With Caching<a class="headerlink" href="#with-caching" title="Link to this heading">#</a></h3>
+<p>Cache the loaded definition to avoid repeated queries:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cache_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;cache/workunit_def.yml&quot;</span><span class="p">)</span>
+
+<span class="c1"># Loads from cache if available, otherwise queries B-Fabric</span>
+<span class="n">workunit_def</span> <span class="o">=</span> <span class="n">WorkunitDefinition</span><span class="o">.</span><span class="n">from_ref</span><span class="p">(</span>
+    <span class="n">workunit</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;workunit.yml&quot;</span><span class="p">),</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="n">cache_file</span><span class="o">=</span><span class="n">cache_file</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="exporting-workunit-definitions">
+<h2>Exporting Workunit Definitions<a class="headerlink" href="#exporting-workunit-definitions" title="Link to this heading">#</a></h2>
+<p>Export a workunit definition to YAML:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+<span class="c1"># Load from workunit ID</span>
+<span class="n">workunit_def</span> <span class="o">=</span> <span class="n">WorkunitDefinition</span><span class="o">.</span><span class="n">from_ref</span><span class="p">(</span><span class="n">workunit</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span>
+
+<span class="c1"># Save to YAML</span>
+<span class="n">output_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;definitions/workunit_200.yml&quot;</span><span class="p">)</span>
+<span class="n">workunit_def</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved definition to </span><span class="si">{</span><span class="n">output_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="complete-example">
+<h2>Complete Example<a class="headerlink" href="#complete-example" title="Link to this heading">#</a></h2>
+<section id="yaml-definition-file">
+<h3>YAML Definition File<a class="headerlink" href="#yaml-definition-file" title="Link to this heading">#</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># proteomics_analysis.yml</span>
+
+<span class="nt">execution</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">dataset</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12345</span>
+<span class="w">  </span><span class="nt">raw_parameters</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">fdr_threshold</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.01&quot;</span>
+<span class="w">    </span><span class="nt">min_peptide_length</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;7&quot;</span>
+<span class="w">    </span><span class="nt">database</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;uniprot_human&quot;</span>
+
+<span class="nt">registration</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">application_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+<span class="w">  </span><span class="nt">application_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ProteomicsProcessor&quot;</span>
+<span class="w">  </span><span class="nt">workunit_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">200</span>
+<span class="w">  </span><span class="nt">workunit_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ProteomicsAnalysis&quot;</span>
+<span class="w">  </span><span class="nt">container_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span>
+<span class="w">  </span><span class="nt">container_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;project&quot;</span>
+<span class="w">  </span><span class="nt">storage_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">400</span>
+<span class="w">  </span><span class="nt">storage_output_folder</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;proteomics/output&quot;</span>
+<span class="w">  </span><span class="nt">user_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+</pre></div>
+</div>
+</section>
+<section id="python-usage">
+<h3>Python Usage<a class="headerlink" href="#python-usage" title="Link to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bfabric.experimental.workunit_definition</span><span class="w"> </span><span class="kn">import</span> <span class="n">WorkunitDefinition</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+<span class="c1"># 1. Load definition from YAML with caching</span>
+<span class="n">yaml_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;workunits/proteomics_analysis.yml&quot;</span><span class="p">)</span>
+<span class="n">workunit_def</span> <span class="o">=</span> <span class="n">WorkunitDefinition</span><span class="o">.</span><span class="n">from_ref</span><span class="p">(</span>
+    <span class="n">workunit</span><span class="o">=</span><span class="n">yaml_file</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="n">cache_file</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;cache/workunit_defs.yml&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># 2. Access components</span>
+<span class="n">execution</span> <span class="o">=</span> <span class="n">workunit_def</span><span class="o">.</span><span class="n">execution</span>
+<span class="n">registration</span> <span class="o">=</span> <span class="n">workunit_def</span><span class="o">.</span><span class="n">registration</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Workunit: </span><span class="si">{</span><span class="n">registration</span><span class="o">.</span><span class="n">workunit_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Application: </span><span class="si">{</span><span class="n">registration</span><span class="o">.</span><span class="n">application_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Input Dataset: </span><span class="si">{</span><span class="n">execution</span><span class="o">.</span><span class="n">dataset</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Parameters: </span><span class="si">{</span><span class="n">execution</span><span class="o">.</span><span class="n">raw_parameters</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># 3. Export definition (e.g., for version control)</span>
+<span class="n">output_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;definitions/proteomics_analysis_export.yml&quot;</span><span class="p">)</span>
+<span class="n">workunit_def</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p><strong>Version control YAML files</strong>: Keep workunit definitions in git</p></li>
+<li><p><strong>Use caching</strong>: Load definitions with <code class="docutils literal notranslate"><span class="pre">cache_file</span></code> to avoid repeated API calls</p></li>
+<li><p><strong>Validate early</strong>: Catch validation errors before execution</p></li>
+<li><p><strong>Document parameters</strong>: Use descriptive parameter names in <code class="docutils literal notranslate"><span class="pre">raw_parameters</span></code></p></li>
+<li><p><strong>Separate concerns</strong>: Keep application logic separate from workunit definitions</p></li>
+</ol>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../../user_guides/writing_data/index.html"><span class="doc">Writing Data</span></a> - Basic save and delete operations</p></li>
+<li><p><a class="reference internal" href="../../user_guides/reading_data/resultcontainer_api.html"><span class="doc">ResultContainer API</span></a> - Dataset operations</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Advanced Topics</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../data_operations.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Experimental Data Operations</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api-reference">API Reference</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#workunitexecutiondefinition">WorkunitExecutionDefinition</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.dataset"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.dataset</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.either_dataset_or_resources"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.either_dataset_or_resources()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.from_workunit"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.from_workunit()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.model_config"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.model_config</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.mutually_exclusive_dataset_resources"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.mutually_exclusive_dataset_resources()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.raw_parameters"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.raw_parameters</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.resources"><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition.resources</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#workunitregistrationdefinition">WorkunitRegistrationDefinition</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_id"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.application_id</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_name"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.application_name</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_id"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.container_id</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_type"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.container_type</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.from_workunit"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.from_workunit()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.model_config"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.model_config</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_id"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.storage_id</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_output_folder"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.storage_output_folder</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.user_id"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.user_id</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.workunit_id"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.workunit_id</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.workunit_name"><code class="docutils literal notranslate"><span class="pre">WorkunitRegistrationDefinition.workunit_name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#workunitdefinition">WorkunitDefinition</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitDefinition"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitDefinition.execution"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition.execution</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitDefinition.from_ref"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition.from_ref()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitDefinition.from_workunit"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition.from_workunit()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitDefinition.from_yaml"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition.from_yaml()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitDefinition.model_config"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition.model_config</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitDefinition.registration"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition.registration</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.experimental.workunit_definition.WorkunitDefinition.to_yaml"><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition.to_yaml()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-workunit-definitions">Loading Workunit Definitions</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#from-yaml-file">From YAML File</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#from-workunit-id">From Workunit ID</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#with-caching">With Caching</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exporting-workunit-definitions">Exporting Workunit Definitions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#complete-example">Complete Example</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#yaml-definition-file">YAML Definition File</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#python-usage">Python Usage</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices">Best Practices</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By the bfabricpy authors
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2014-2026 Functional Genomics Center Zurich.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

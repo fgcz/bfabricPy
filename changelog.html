@@ -1,0 +1,1875 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Changelog &#8212; bfabricPy 1.16.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="_static/autodoc_pydantic.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=735ab59b"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'changelog';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Good to Know" href="resources/good_to_know.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">bfabricPy 1.16.1 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="getting_started/index.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/quick_start.html">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/configuration.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/troubleshooting.html">Troubleshooting</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="user_guides/index.html">User Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="user_guides/creating_a_client/index.html">Creating a Client</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guides/creating_a_client/interactive_scripted_usage.html">Creating a Client for Interactive and Scripted Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guides/creating_a_client/server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="user_guides/reading_data/index.html">Reading Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guides/reading_data/resultcontainer_api.html">ResultContainer API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guides/reading_data/entity_api.html">Entity API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guides/reading_data/caching_for_performance.html">Entity Caching</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guides/writing_data/index.html">Writing Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guides/working_with_entities/index.html">Entity Features</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="user_guides/bfabric-cli/index.html">bfabric-cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guides/bfabric-cli/api_operations.html">API Operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guides/bfabric-cli/api_inspection.html">API Inspection with CLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guides/bfabric-cli/datasets.html">Datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guides/bfabric-cli/executables.html">Executables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guides/bfabric-cli/workunits.html">Workunits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guides/bfabric-cli/feeder.html">Feeder</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guides/error_handling.html">Error Handling</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api_reference/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="api_reference/bfabric_client/index.html">Bfabric Client API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference/entity_types/index.html">API Reference: Entity Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference/entity_reader/index.html">API Reference: EntityReader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference/entity_uri/index.html">API Reference: EntityUri</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference/result_container/index.html">ResultContainer API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference/token_data/index.html">API Reference: Token Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference/exceptions_and_errors/index.html">API Reference: Exceptions and Errors</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="advanced_topics/index.html">Advanced Topics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="advanced_topics/workunit_definitions/index.html">Experimental: Workunit Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced_topics/data_operations.html">Experimental Data Operations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="resources/index.html">Resources</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="resources/good_to_know.html">Good to Know</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Changelog</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/changelog.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Changelog</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unreleased">[Unreleased]</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#added">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecated">Deprecated</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">[1.16.1] - 2025-12-15</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">[1.16.0] - 2025-12-15</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#removed">Removed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Deprecated</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">[1.15.1] - 2025-12-09</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">[1.15.0] - 2025-12-09</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">[1.14.1] - 2025-12-02</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">[1.14.0] - 2025-12-02</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">Removed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">[1.13.36] - 2025-10-27</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">[1.13.35] - 2025-09-22</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">[1.13.34] - 2025-09-19</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id24">Removed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id25">[1.13.33] - 2025-08-26</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id26">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id27">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id28">[1.13.32] - 2025-08-26</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id29">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id30">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id31">[1.13.31] - 2025-09-20</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id32">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id33">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id34">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id35">[1.13.30] - 2025-08-19</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id36">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id37">[1.13.29] - 2025-07-04</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id38">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id39">[1.13.28] - 2025-06-27</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#breaking">Breaking</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id40">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id41">Removed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id42">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id43">[1.13.27] - 2025-05-21</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id44">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id45">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id46">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id47">Deprecated</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id48">[1.13.26] - 2025-04-26</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id49">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id50">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id51">Deprecated</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id52">[1.13.25] - 2025-04-22</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id53">Breaking</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id54">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id55">[1.13.24] - 2025-04-08</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id56">Removed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id57">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id58">[1.13.23] - 2025-03-25</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id59">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id60">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id61">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id62">[1.13.22] - 2025-02-19</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id63">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id64">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id65">[1.13.21] - 2025-02-19</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id66">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id67">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id68">[1.13.20] - 2025-02-10</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id69">Breaking</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id70">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id71">[1.13.19] - 2025-02-06</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id72">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id73">[1.13.18] - 2025-01-28</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id74">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id75">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id76">[1.13.17] - 2025-01-23</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id77">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id78">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id79">[1.13.16] - 2025-01-22</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id80">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id81">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id82">[1.13.15] - 2025-01-15</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id83">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id84">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id85">[1.13.14] - 2025-01-08</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id86">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id87">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id88">[1.13.13] - 2024-12-18</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id89">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id90">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id91">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id92">[1.13.12] - 2024-12-17</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id93">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id94">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id95">[1.13.11] - 2024-12-13</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id96">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id97">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id98">[1.13.10] - 2024-12-13</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id99">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id100">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id101">[1.13.9] - 2024-12-10</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id102">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id103">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id104">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id105">Removed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id106">[1.13.8] - 2024-10-03</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id107">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id108">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id109">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id110">[1.13.7] - 2024-09-17</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id111">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id112">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id113">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id114">Removed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id115">[1.13.6] - 2024-08-29</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id116">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id117">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id118">Removed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id119">[1.13.5] - 2024-08-13</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id120">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id121">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id122">[1.13.4] - 2024-08-05</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id123">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id124">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id125">[1.13.3] - 2024-07-18</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id126">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id127">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id128">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id129">[1.13.2] - 2024-07-11</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id130">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id131">[1.13.1] - 2024-07-02</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id132">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id133">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id134">Removed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id135">[1.13.0] - 2024-05-24</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id136">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id137">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id138">Removed</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading">#</a></h1>
+<p>The format is based on <a class="reference external" href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>.</p>
+<p>Versioning currently follows <code class="docutils literal notranslate"><span class="pre">X.Y.Z</span></code> semantic versioning.
+Historically, before 1.14.0, a different versioning scheme was used.</p>
+<p>Minor breaking changes are still possible in <code class="docutils literal notranslate"><span class="pre">1.X.Y</span></code> but we try to announce them with DeprecationWarnings in the previous <code class="docutils literal notranslate"><span class="pre">Y-1</span></code> release.</p>
+<section id="unreleased">
+<h2>[Unreleased]<a class="headerlink" href="#unreleased" title="Link to this heading">#</a></h2>
+<section id="added">
+<h3>Added<a class="headerlink" href="#added" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Improved token authentication</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.experimental.webapp_integration_settings</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_token</span></code>, <code class="docutils literal notranslate"><span class="pre">Bfabric.connect_token_async</span></code>: this one respects the list of allowed bfabric instances</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.rest.token_data.validate_token</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Bfabric.from_token_data</span></code>: creates a new Bfabric instance from token data.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ResultContainer.to_polars</span></code> now has a <code class="docutils literal notranslate"><span class="pre">flatten</span></code> parameter to flatten struct columns into individual columns.</p></li>
+</ul>
+</section>
+<section id="deprecated">
+<h3>Deprecated<a class="headerlink" href="#deprecated" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Bfabric.from_config</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_webapp</span></code></p></li>
+</ul>
+</section>
+<section id="fixed">
+<h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">References</span></code> correctly handles references with extra fields like <code class="docutils literal notranslate"><span class="pre">_position</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ResultContainer.to_polars</span></code> sets the schema length to <code class="docutils literal notranslate"><span class="pre">None</span></code> to fix bugs in some cases with more than 100 items.</p></li>
+</ul>
+</section>
+</section>
+<section id="id1">
+<h2>[1.16.1] - 2025-12-15<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<section id="id2">
+<h3>Fixed<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Dataset</span></code> correctly handles <code class="docutils literal notranslate"><span class="pre">None</span></code> values in items.</p></li>
+</ul>
+</section>
+</section>
+<section id="id3">
+<h2>[1.16.0] - 2025-12-15<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<section id="id4">
+<h3>Added<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.typing</span></code> with specific types for the API request and response objects.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Executable.decoded_str</span></code>, <code class="docutils literal notranslate"><span class="pre">Executable.decoded_bytes</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Workunit.workunit_parameters</span></code> to list workunit context parameters</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ExternalJob.client_entity</span></code></p></li>
+</ul>
+</section>
+<section id="changed">
+<h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Type hints have been narrowed in the public interfaces of the following classes:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">Bfabric</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ResultContainer</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">References</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Entity</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">EntityReader</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">EngineSuds</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">EngineZeep</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Parameter.value</span></code> returns <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code> for values not specified with <code class="docutils literal notranslate"><span class="pre">required</span></code> = <code class="docutils literal notranslate"><span class="pre">false</span></code>. This solves a few rare compatibility bugs and I do not think having the ability to distinguish between <code class="docutils literal notranslate"><span class="pre">None</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code> makes much sense at this level.</p></li>
+</ul>
+</section>
+<section id="removed">
+<h3>Removed<a class="headerlink" href="#removed" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Legacy workaround for B-Fabric with non-list <code class="docutils literal notranslate"><span class="pre">technology</span></code> field is removed. Assumed to not be breaking since for the current B-Fabric instances, this change should be transparent.</p></li>
+</ul>
+</section>
+<section id="id5">
+<h3>Deprecated<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Executable.decoded</span></code>: misleading name</p></li>
+</ul>
+</section>
+</section>
+<section id="id6">
+<h2>[1.15.1] - 2025-12-09<a class="headerlink" href="#id6" title="Link to this heading">#</a></h2>
+<section id="id7">
+<h3>Fixed<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Allow <code class="docutils literal notranslate"><span class="pre">http://localhost</span></code> for EntityURIs.</p></li>
+</ul>
+</section>
+</section>
+<section id="id8">
+<h2>[1.15.0] - 2025-12-09<a class="headerlink" href="#id8" title="Link to this heading">#</a></h2>
+<section id="id9">
+<h3>Added<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">TokenData.web_service_user</span></code> which indicates whether the user has permission to use webservices API.</p></li>
+</ul>
+</section>
+</section>
+<section id="id10">
+<h2>[1.14.1] - 2025-12-02<a class="headerlink" href="#id10" title="Link to this heading">#</a></h2>
+<section id="id11">
+<h3>Added<a class="headerlink" href="#id11" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">EntityReader.read_</span></code> methods accept a <code class="docutils literal notranslate"><span class="pre">expected_type</span></code> parameter to specify the expected type of the entity (default <code class="docutils literal notranslate"><span class="pre">Entity</span></code>).</p></li>
+</ul>
+</section>
+<section id="id12">
+<h3>Fixed<a class="headerlink" href="#id12" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>A few imports within the package were accidentally broken in 1.14.0 which is resolved now. <code class="docutils literal notranslate"><span class="pre">basedpyright</span></code> has been added to identify issues like this earlier.</p></li>
+</ul>
+</section>
+</section>
+<section id="id13">
+<h2>[1.14.0] - 2025-12-02<a class="headerlink" href="#id13" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The minimal Python version has been updated to 3.11.</p></li>
+<li><p><em>bfabric.entities</em></p>
+<ul>
+<li><p>The read-only API in <code class="docutils literal notranslate"><span class="pre">bfabric.entities</span></code> has been redesigned to support multiple B-Fabric instances cleanly.</p></li>
+<li><p>In particular, when handling configuration files it should now be obvious how to specify entities by their URI rather than having
+to specify instance, classname, and id separately.</p></li>
+<li><p>The main new concept is the <code class="docutils literal notranslate"><span class="pre">EntityUri</span></code> which standardizes the way entities are specified by their URI.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">EntityReader</span></code> is a new class which implements the resolution, currently for only one B-Fabric instance, but extensible to support
+multiple B-Fabric instances in the future.</p></li>
+<li><p>We also remove the reliance on custom entity classes providing generic functionality to read entities and their references.
+This is available through the <code class="docutils literal notranslate"><span class="pre">EntityReader</span></code> class which can be accessed through <code class="docutils literal notranslate"><span class="pre">Bfabric.reader</span></code>.</p></li>
+</ul>
+</li>
+<li><p>Versioning:</p>
+<ul>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">bfabric</span></code> Python package versioning starting with 1.14.0 does not track the B-Fabric server version anymore.</p></li>
+<li><p>This will allow us to adapt to implement a more semantically meaningful versioning, starting with 1.14.0.</p></li>
+<li><p>Applications, like <code class="docutils literal notranslate"><span class="pre">bfabric-scripts</span></code> can instead track the particular version of bfabric against which they are tested/developed
+either in their version (planned for <code class="docutils literal notranslate"><span class="pre">bfabric-scripts</span></code>) or through documentation.</p></li>
+</ul>
+</li>
+</ul>
+<section id="id14">
+<h3>Added<a class="headerlink" href="#id14" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Entity.uri</span></code> property to obtain the URI of an entity.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Entity.refs</span></code> resolves all references of entities generically, writes the data into <code class="docutils literal notranslate"><span class="pre">data_dict</span></code> and is compatible with pre-loaded references from B-Fabric.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.entities.core.uri.EntityUri</span></code> to identify entities regardless of B-Fabric instance.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.entities.core.uri.EntityUriComponents</span></code> to access individual components <code class="docutils literal notranslate"><span class="pre">(bfabric_instance,</span> <span class="pre">entity_type,</span> <span class="pre">entity_id)</span></code> from a URI.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.entities.core.uri.GroupedUris</span></code> helper for looping over lists of <code class="docutils literal notranslate"><span class="pre">EntityUri</span></code>s.- <code class="docutils literal notranslate"><span class="pre">bfabric.entities.core.entity_reader</span></code> which allows reading entities by URI, ID, and general queries.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.entities.cache</span></code> which supersedes <code class="docutils literal notranslate"><span class="pre">bfabric.experimental.cache</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HasOne</span></code> and <code class="docutils literal notranslate"><span class="pre">HasMany</span></code> should be able to use resolved entities when loading with <code class="docutils literal notranslate"><span class="pre">fulldetails=True</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Entity.custom_attributes</span></code> for reading custom attribute values.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.experimental.update_custom_attributes</span></code> for updating custom attributes correctly.</p></li>
+</ul>
+</section>
+<section id="id15">
+<h3>Changed<a class="headerlink" href="#id15" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Minimal Python version is now 3.11.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BFabricClientConfig</span></code> does not allow passing <code class="docutils literal notranslate"><span class="pre">None</span></code> for values anymore.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HasMany</span></code> retains response order, instead of redundant sorting by ID.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.entities</span></code> allows loading entity references without custom definitions in Python.</p></li>
+<li><p>Internal</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">Entity</span></code> has a new constructor parameter <code class="docutils literal notranslate"><span class="pre">bfabric_instance</span></code> which in the future will become mandatory.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BfabricClientConfig.base_url</span></code> always ends with exactly one <code class="docutils literal notranslate"><span class="pre">/</span></code> now.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.entities</span></code> do not define custom constructors anymore, simplifying future changes (and removing tiny inconsistencies).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TokenData</span></code> retrieval uses async httpx internally, but provides a sync interface for compatibility.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id16">
+<h3>Removed<a class="headerlink" href="#id16" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.experimental.cache</span></code> is removed in favor of <code class="docutils literal notranslate"><span class="pre">bfabric.entities.cache</span></code>.</p></li>
+<li><p>Future deprecations:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">Entity.find</span></code>, <code class="docutils literal notranslate"><span class="pre">Entity.find_all</span></code>, <code class="docutils literal notranslate"><span class="pre">Entity.find_by</span></code> will be removed in favor of <code class="docutils literal notranslate"><span class="pre">EntityReader</span></code> methods.</p></li>
+<li><p>Passing entity class to <code class="docutils literal notranslate"><span class="pre">cache_context</span></code> will be removed in favor of their name (this is because not all entities have custom classes).</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="id17">
+<h2>[1.13.36] - 2025-10-27<a class="headerlink" href="#id17" title="Link to this heading">#</a></h2>
+<section id="id18">
+<h3>Changed<a class="headerlink" href="#id18" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>This is the last release supporting Python 3.9. From the next release onwards, Python 3.11 or higher will be required.</p></li>
+<li><p>Flask is not a dependency anymore, as the dependency will be moved to bfabric-scripts.</p></li>
+<li><p>Version upper bounds for dependencies have been defined.</p></li>
+<li><p>More robust URL handling for token authentication.</p></li>
+</ul>
+</section>
+<section id="id19">
+<h3>Fixed<a class="headerlink" href="#id19" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>A test-only incompatibility with Polars was fixed.</p></li>
+</ul>
+</section>
+</section>
+<section id="id20">
+<h2>[1.13.35] - 2025-09-22<a class="headerlink" href="#id20" title="Link to this heading">#</a></h2>
+<section id="id21">
+<h3>Changed<a class="headerlink" href="#id21" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Dataset column type detection now supports case-insensitive entity matching (e.g., “resource” is detected as “Resource” type automatically).</p></li>
+</ul>
+</section>
+</section>
+<section id="id22">
+<h2>[1.13.34] - 2025-09-19<a class="headerlink" href="#id22" title="Link to this heading">#</a></h2>
+<section id="id23">
+<h3>Added<a class="headerlink" href="#id23" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.experimental.cache</span></code> which implements re-entrant lookup caching for entities (when retrieved by ID).</p></li>
+<li><p>Fields <code class="docutils literal notranslate"><span class="pre">filename</span></code>, <code class="docutils literal notranslate"><span class="pre">storage_relative_path</span></code>, <code class="docutils literal notranslate"><span class="pre">storage_absolute_path</span></code> have been added to <code class="docutils literal notranslate"><span class="pre">Resource</span></code>. This should be used
+in the future, to ensure path handling is performed consistently</p></li>
+</ul>
+</section>
+<section id="id24">
+<h3>Removed<a class="headerlink" href="#id24" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.experimental.entity_lookup_cache</span></code> has been removed in favor of the new (experimental) API.</p></li>
+</ul>
+</section>
+</section>
+<section id="id25">
+<h2>[1.13.33] - 2025-08-26<a class="headerlink" href="#id25" title="Link to this heading">#</a></h2>
+<section id="id26">
+<h3>Added<a class="headerlink" href="#id26" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Add new field <code class="docutils literal notranslate"><span class="pre">WorkunitDefinition.registration.user_id</span></code>.</p></li>
+<li><p>Add created/modified fields to <code class="docutils literal notranslate"><span class="pre">Workunit</span></code> entity.</p></li>
+</ul>
+</section>
+<section id="id27">
+<h3>Fixed<a class="headerlink" href="#id27" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Legacy wrapper creator also writes the inputdataset name.</p></li>
+</ul>
+</section>
+</section>
+<section id="id28">
+<h2>[1.13.32] - 2025-08-26<a class="headerlink" href="#id28" title="Link to this heading">#</a></h2>
+<section id="id29">
+<h3>Added<a class="headerlink" href="#id29" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>New entities: <code class="docutils literal notranslate"><span class="pre">Workflow</span></code>, <code class="docutils literal notranslate"><span class="pre">WorkflowStep</span></code>, <code class="docutils literal notranslate"><span class="pre">WorkflowTemplate</span></code>, <code class="docutils literal notranslate"><span class="pre">WorkflowTemplateStep</span></code></p></li>
+<li><p>New relationship: <code class="docutils literal notranslate"><span class="pre">HasUser</span></code> to resolve user references (since these are modeled differently from other relationships).</p></li>
+</ul>
+</section>
+<section id="id30">
+<h3>Fixed<a class="headerlink" href="#id30" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>There was an issue in <code class="docutils literal notranslate"><span class="pre">import_entity.py</span></code> which made loading entities with additional uppercase characters in the type fail.</p></li>
+<li><p>Fix compatibility in legacy wrapper creator for dataset-flow workunits.</p></li>
+</ul>
+</section>
+</section>
+<section id="id31">
+<h2>[1.13.31] - 2025-09-20<a class="headerlink" href="#id31" title="Link to this heading">#</a></h2>
+<section id="id32">
+<h3>Changed<a class="headerlink" href="#id32" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">Bfabric.connect_webapp</span></code> will use the <code class="docutils literal notranslate"><span class="pre">caller</span></code> field from the token data to set the <code class="docutils literal notranslate"><span class="pre">base_url</span></code> of the client.</p>
+<ul>
+<li><p>Existing code should not break, but will emit a deprecation warning as we plan to remove the old parameters.</p></li>
+<li><p>Theoretically, it changes the semantics, but in practice it should yield the same result for all known use cases.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id33">
+<h3>Added<a class="headerlink" href="#id33" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">TokenData</span></code> will include the <code class="docutils literal notranslate"><span class="pre">caller</span></code> url now.</p></li>
+<li><p>Entity <code class="docutils literal notranslate"><span class="pre">User</span></code> has been added.</p></li>
+</ul>
+</section>
+<section id="id34">
+<h3>Fixed<a class="headerlink" href="#id34" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Legacy wrapper creator creates <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code> rather than <code class="docutils literal notranslate"><span class="pre">None</span></code> for empty parameter values.</p></li>
+</ul>
+</section>
+</section>
+<section id="id35">
+<h2>[1.13.30] - 2025-08-19<a class="headerlink" href="#id35" title="Link to this heading">#</a></h2>
+<section id="id36">
+<h3>Fixed<a class="headerlink" href="#id36" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Fix legacy wrapper creator for orders without projects.</p></li>
+</ul>
+</section>
+</section>
+<section id="id37">
+<h2>[1.13.29] - 2025-07-04<a class="headerlink" href="#id37" title="Link to this heading">#</a></h2>
+<section id="id38">
+<h3>Changed<a class="headerlink" href="#id38" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.rest.token_data.get_token_data</span></code> now only requires the base_url instead of the whole config.</p></li>
+</ul>
+</section>
+</section>
+<section id="id39">
+<h2>[1.13.28] - 2025-06-27<a class="headerlink" href="#id39" title="Link to this heading">#</a></h2>
+<section id="breaking">
+<h3>Breaking<a class="headerlink" href="#breaking" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">base_url</span></code> is now a mandatory parameter in the configuration.</p></li>
+</ul>
+</section>
+<section id="id40">
+<h3>Added<a class="headerlink" href="#id40" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>It is now possible to configure <code class="docutils literal notranslate"><span class="pre">~/.bfabricpy.yml</span></code> without a default environment. In that case it will always be
+necessary to specify the requested config environment to be used.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.entities.Executable</span></code> has <code class="docutils literal notranslate"><span class="pre">parameters</span></code> relationship now</p></li>
+</ul>
+</section>
+<section id="id41">
+<h3>Removed<a class="headerlink" href="#id41" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Some old submitter related functionality is deleted.</p></li>
+</ul>
+</section>
+<section id="id42">
+<h3>Changed<a class="headerlink" href="#id42" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Columns of tables named after B-Fabric entities, containing only integers, will be set as the specified type
+when saving to B-Fabric (in <code class="docutils literal notranslate"><span class="pre">experimental.upload_dataset</span></code>).</p></li>
+</ul>
+</section>
+</section>
+<section id="id43">
+<h2>[1.13.27] - 2025-05-21<a class="headerlink" href="#id43" title="Link to this heading">#</a></h2>
+<section id="id44">
+<h3>Added<a class="headerlink" href="#id44" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Attribute <code class="docutils literal notranslate"><span class="pre">Bfabric.config_data</span></code> to obtain a <code class="docutils literal notranslate"><span class="pre">ConfigData</span></code> object directly.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TokenData.load_entity</span></code> convenience method to load an entity from the token data.</p></li>
+<li><p>Entities <code class="docutils literal notranslate"><span class="pre">Instrument</span></code>, <code class="docutils literal notranslate"><span class="pre">Plate</span></code>, <code class="docutils literal notranslate"><span class="pre">Run</span></code> were added (but with no extra functionality).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Workunit.{application_parameters,</span> <span class="pre">submitter_parameters}</span></code> to access parameter values.</p></li>
+</ul>
+</section>
+<section id="id45">
+<h3>Changed<a class="headerlink" href="#id45" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Submitter parameters will not be written any longer to <code class="docutils literal notranslate"><span class="pre">WorkunitExecution</span></code> parameters.</p></li>
+</ul>
+</section>
+<section id="id46">
+<h3>Fixed<a class="headerlink" href="#id46" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Compatibility with upcoming change that <code class="docutils literal notranslate"><span class="pre">Application</span></code> can have multiple <code class="docutils literal notranslate"><span class="pre">technology</span></code> values.</p></li>
+</ul>
+</section>
+<section id="id47">
+<h3>Deprecated<a class="headerlink" href="#id47" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Workunit.parameter_values</span></code> will be removed in favor of <code class="docutils literal notranslate"><span class="pre">Workunit.application_parameters</span></code> and <code class="docutils literal notranslate"><span class="pre">Workunit.submitter_parameters</span></code> in a future version.</p></li>
+</ul>
+</section>
+</section>
+<section id="id48">
+<h2>[1.13.26] - 2025-04-26<a class="headerlink" href="#id48" title="Link to this heading">#</a></h2>
+<p>This release introduces an environment variable <code class="docutils literal notranslate"><span class="pre">BFABRICPY_CONFIG_OVERRIDE</span></code> to configure the <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> client completely,
+along with a new method for creating an instance of the <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> client, <code class="docutils literal notranslate"><span class="pre">Bfabric.connect()</span></code>.
+This will allow us to propagate any configuration to subprocesses reliably. <code class="docutils literal notranslate"><span class="pre">BFABRICPY_CONFIG_ENV</span></code> remains available
+with the same semantics, but lower priority than <code class="docutils literal notranslate"><span class="pre">BFABRICPY_CONFIG_OVERRIDE</span></code>.</p>
+<p>This also simplifies the logic that was present in <code class="docutils literal notranslate"><span class="pre">Bfabric.from_config</span></code> which is why this introduced with a new API
+to prevent configuration mix-ups.</p>
+<section id="id49">
+<h3>Added<a class="headerlink" href="#id49" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>New environment variable <code class="docutils literal notranslate"><span class="pre">BFABRICPY_CONFIG_OVERRIDE</span></code> to configure the <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> client completely</p></li>
+<li><p>New method <code class="docutils literal notranslate"><span class="pre">Bfabric.connect()</span></code> for creating an instance of the <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> client</p></li>
+</ul>
+</section>
+<section id="id50">
+<h3>Changed<a class="headerlink" href="#id50" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Renamed <code class="docutils literal notranslate"><span class="pre">Bfabric.from_token</span></code> to <code class="docutils literal notranslate"><span class="pre">Bfabric.connect_webapp()</span></code> (along with some changes, no known users of this API yet)</p></li>
+<li><p>Disallowed <code class="docutils literal notranslate"><span class="pre">default</span></code> as an environment config name</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.cli_integration.utils.use_client</span></code> uses <code class="docutils literal notranslate"><span class="pre">Bfabric.connect()</span></code> instead of <code class="docutils literal notranslate"><span class="pre">Bfabric.from_config()</span></code></p></li>
+</ul>
+</section>
+<section id="id51">
+<h3>Deprecated<a class="headerlink" href="#id51" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Bfabric.from_config</span></code> is now deprecated in favor of <code class="docutils literal notranslate"><span class="pre">Bfabric.connect()</span></code></p></li>
+</ul>
+</section>
+</section>
+<section id="id52">
+<h2>[1.13.25] - 2025-04-22<a class="headerlink" href="#id52" title="Link to this heading">#</a></h2>
+<section id="id53">
+<h3>Breaking<a class="headerlink" href="#id53" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Bfabric.from_token</span></code> returns the <code class="docutils literal notranslate"><span class="pre">TokenData</span></code> in addition to the client instance. While this is breaking, I’m not aware
+of any existing users of this API and I noticed that this information is going to be needed in this context often.</p></li>
+</ul>
+</section>
+<section id="id54">
+<h3>Added<a class="headerlink" href="#id54" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.experimental.upload_dataset.warn_on_trailing_spaces</span></code> function used by <code class="docutils literal notranslate"><span class="pre">bfabric-scripts</span></code> to validate</p></li>
+</ul>
+</section>
+</section>
+<section id="id55">
+<h2>[1.13.24] - 2025-04-08<a class="headerlink" href="#id55" title="Link to this heading">#</a></h2>
+<section id="id56">
+<h3>Removed<a class="headerlink" href="#id56" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cyclopts</span></code> is not a dependency of <code class="docutils literal notranslate"><span class="pre">bfabric</span></code> anymore, but rather of <code class="docutils literal notranslate"><span class="pre">bfabric-scripts</span></code> and <code class="docutils literal notranslate"><span class="pre">bfabric-app-runner</span></code>.</p></li>
+</ul>
+</section>
+<section id="id57">
+<h3>Changed<a class="headerlink" href="#id57" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> client now does not take <code class="docutils literal notranslate"><span class="pre">engine</span></code> argument anymore, but rather this information comes from <code class="docutils literal notranslate"><span class="pre">ClientConfig</span></code>.
+For compatibility reasons, the <code class="docutils literal notranslate"><span class="pre">engine</span></code> argument is still accepted in <code class="docutils literal notranslate"><span class="pre">Bfabric.from_config</span></code> and
+<code class="docutils literal notranslate"><span class="pre">Bfabric.from_token</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="id58">
+<h2>[1.13.23] - 2025-03-25<a class="headerlink" href="#id58" title="Link to this heading">#</a></h2>
+<section id="id59">
+<h3>Fixed<a class="headerlink" href="#id59" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Unsuccessful deletions are detected by checking the B-Fabric response.</p></li>
+<li><p>Handle problematic characters in <code class="docutils literal notranslate"><span class="pre">Workunit.store_output_folder</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BfabricRequestError</span></code> did not properly subclass RuntimeError.</p></li>
+</ul>
+</section>
+<section id="id60">
+<h3>Changed<a class="headerlink" href="#id60" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition</span></code> uses <code class="docutils literal notranslate"><span class="pre">PathSafeStr</span></code> to normalize app and workunit names.</p></li>
+<li><p>Internal: <code class="docutils literal notranslate"><span class="pre">ResultContainer</span></code> has no optional constructor arguments anymore to avoid confusion.</p></li>
+</ul>
+</section>
+<section id="id61">
+<h3>Added<a class="headerlink" href="#id61" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Generic functionality in <code class="docutils literal notranslate"><span class="pre">bfabric.utils.path_safe_name</span></code> to validate names for use in paths.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.entities.Dataset.{write_parquet,</span> <span class="pre">get_parquet}</span></code> methods for writing parquet</p></li>
+</ul>
+</section>
+</section>
+<section id="id62">
+<h2>[1.13.22] - 2025-02-19<a class="headerlink" href="#id62" title="Link to this heading">#</a></h2>
+<section id="id63">
+<h3>Fixed<a class="headerlink" href="#id63" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Correctly read datasets, if columns were swapped in B-Fabric.</p></li>
+</ul>
+</section>
+<section id="id64">
+<h3>Changed<a class="headerlink" href="#id64" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Dataset.types</span></code> was renamed to <code class="docutils literal notranslate"><span class="pre">Dataset.column_types</span></code>, since there is only 1 usage and it is recent, this is not considered breaking.</p></li>
+</ul>
+</section>
+</section>
+<section id="id65">
+<h2>[1.13.21] - 2025-02-19<a class="headerlink" href="#id65" title="Link to this heading">#</a></h2>
+<section id="id66">
+<h3>Added<a class="headerlink" href="#id66" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Entity.load_yaml</span></code> and <code class="docutils literal notranslate"><span class="pre">Entity.dump_yaml</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Bfabric.from_token</span></code> to create a <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> instance from a token</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.rest.token_data</span></code> to get token data from the REST API, low-level functionality</p></li>
+</ul>
+</section>
+<section id="id67">
+<h3>Changed<a class="headerlink" href="#id67" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Internally, the user password is now in a <code class="docutils literal notranslate"><span class="pre">pydantic.SecretStr</span></code> until we construct the API call. This should prevent some logging related accidents.</p></li>
+</ul>
+</section>
+</section>
+<section id="id68">
+<h2>[1.13.20] - 2025-02-10<a class="headerlink" href="#id68" title="Link to this heading">#</a></h2>
+<section id="id69">
+<h3>Breaking<a class="headerlink" href="#id69" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>the old <code class="docutils literal notranslate"><span class="pre">bfabric.cli_formatting</span></code> and <code class="docutils literal notranslate"><span class="pre">bfabric.bfabric2</span></code> modules have been deleted</p></li>
+</ul>
+</section>
+<section id="id70">
+<h3>Changed<a class="headerlink" href="#id70" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>move <code class="docutils literal notranslate"><span class="pre">use_client</span></code> to <code class="docutils literal notranslate"><span class="pre">bfabric.utils.cli_integration</span></code>: this will allow reuse between bfabric-scripts and bfabric-app-runner</p></li>
+<li><p>move functionality from <code class="docutils literal notranslate"><span class="pre">bfabric.cli_formatting</span></code> to <code class="docutils literal notranslate"><span class="pre">bfabric.utils.cli_integration</span></code></p></li>
+</ul>
+</section>
+</section>
+<section id="id71">
+<h2>[1.13.19] - 2025-02-06<a class="headerlink" href="#id71" title="Link to this heading">#</a></h2>
+<section id="id72">
+<h3>Fixed<a class="headerlink" href="#id72" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Config: Log messages of app runner are shown by default again.</p></li>
+</ul>
+</section>
+</section>
+<section id="id73">
+<h2>[1.13.18] - 2025-01-28<a class="headerlink" href="#id73" title="Link to this heading">#</a></h2>
+<section id="id74">
+<h3>Changed<a class="headerlink" href="#id74" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric_upload_resource.py</span></code> does not print a list anymore, but rather only the dict of the uploaded resource.</p></li>
+</ul>
+</section>
+<section id="id75">
+<h3>Fixed<a class="headerlink" href="#id75" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Some scripts were not Python 3.9 compatible, which is restored now. However, we can consider increasing the Python requirement soon.</p></li>
+</ul>
+</section>
+</section>
+<section id="id76">
+<h2>[1.13.17] - 2025-01-23<a class="headerlink" href="#id76" title="Link to this heading">#</a></h2>
+<section id="id77">
+<h3>Added<a class="headerlink" href="#id77" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">workunit</span> <span class="pre">export-definition</span></code> to export <code class="docutils literal notranslate"><span class="pre">workunit_definition.yml</span></code> files</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Executable.storage</span></code> relationship</p></li>
+</ul>
+</section>
+<section id="id78">
+<h3>Fixed<a class="headerlink" href="#id78" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Workunit.parameters</span></code> and <code class="docutils literal notranslate"><span class="pre">Workunit.resources</span></code> are optional</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric-cli</span></code> had unmet dependencies, that were not caught by the tests either</p></li>
+</ul>
+</section>
+</section>
+<section id="id79">
+<h2>[1.13.16] - 2025-01-22<a class="headerlink" href="#id79" title="Link to this heading">#</a></h2>
+<section id="id80">
+<h3>Added<a class="headerlink" href="#id80" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Add missing <code class="docutils literal notranslate"><span class="pre">Entity.__contains__</span></code> implementation to check if a key is present in an entity.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">polars_utils.py</span></code> which contains functionality to normalize relational fields in tables</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">executable</span> <span class="pre">inspect</span></code> command to inspect executables registered in B-Fabric.</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">executable</span> <span class="pre">upload</span></code> command to upload executables to B-Fabric.</p></li>
+</ul>
+</section>
+<section id="id81">
+<h3>Fixed<a class="headerlink" href="#id81" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Order.project</span></code> is optional</p></li>
+</ul>
+</section>
+</section>
+<section id="id82">
+<h2>[1.13.15] - 2025-01-15<a class="headerlink" href="#id82" title="Link to this heading">#</a></h2>
+<section id="id83">
+<h3>Added<a class="headerlink" href="#id83" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Entity <code class="docutils literal notranslate"><span class="pre">Sample</span></code></p></li>
+<li><p>Relationship <code class="docutils literal notranslate"><span class="pre">Resource.sample</span></code>.</p></li>
+<li><p>Extract logic for container resolution into <code class="docutils literal notranslate"><span class="pre">HasContainerMixin</span></code> which is right now shared between <code class="docutils literal notranslate"><span class="pre">Sample</span></code> and <code class="docutils literal notranslate"><span class="pre">Workunit</span></code>.</p></li>
+</ul>
+</section>
+<section id="id84">
+<h3>Fixed<a class="headerlink" href="#id84" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Fix bug in <code class="docutils literal notranslate"><span class="pre">bfabric_save_fasta.py</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="id85">
+<h2>[1.13.14] - 2025-01-08<a class="headerlink" href="#id85" title="Link to this heading">#</a></h2>
+<section id="id86">
+<h3>Changed<a class="headerlink" href="#id86" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Slurm submitter prints more diagnostics about PATH variable etc.</p></li>
+</ul>
+</section>
+<section id="id87">
+<h3>Fixed<a class="headerlink" href="#id87" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Some commands in bfabric-cli are broken because <code class="docutils literal notranslate"><span class="pre">__future__.annotations</span></code> is imported and this breaks cyclopts.</p></li>
+</ul>
+</section>
+</section>
+<section id="id88">
+<h2>[1.13.13] - 2024-12-18<a class="headerlink" href="#id88" title="Link to this heading">#</a></h2>
+<section id="id89">
+<h3>Changed<a class="headerlink" href="#id89" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Move <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">read</span></code> to <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">api</span> <span class="pre">read</span></code>.</p></li>
+<li><p>(internal) <code class="docutils literal notranslate"><span class="pre">use_client</span></code> decorator is introduced to simplify and standardize the client usage in the new CLI code.</p></li>
+</ul>
+</section>
+<section id="id90">
+<h3>Added<a class="headerlink" href="#id90" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Functionality to log by specifying the workunit instead of external job, which is used in some legacy scripts.</p></li>
+<li><p>Add logging commands to <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">api</span> <span class="pre">log</span></code>.</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">api</span> <span class="pre">save</span></code>.</p></li>
+<li><p>Submitter script prints the id and hostname of apps, which in practice can be very useful.</p></li>
+</ul>
+</section>
+<section id="id91">
+<h3>Fixed<a class="headerlink" href="#id91" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>A bug in bfabric_save_workflowstep.py that crashed the script.</p></li>
+</ul>
+</section>
+</section>
+<section id="id92">
+<h2>[1.13.12] - 2024-12-17<a class="headerlink" href="#id92" title="Link to this heading">#</a></h2>
+<section id="id93">
+<h3>Changed<a class="headerlink" href="#id93" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The submitter ensures that workunits always get set to <code class="docutils literal notranslate"><span class="pre">processing</span></code>.</p></li>
+</ul>
+</section>
+<section id="id94">
+<h3>Fixed<a class="headerlink" href="#id94" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The script <code class="docutils literal notranslate"><span class="pre">bfabric_setResourceStatus_available.py</span></code> and other uses of <code class="docutils literal notranslate"><span class="pre">report_resource</span></code>, correctly search files which
+have a relative path starting with <code class="docutils literal notranslate"><span class="pre">/</span></code> as in the case of the legacy wrapper creator.</p></li>
+</ul>
+</section>
+</section>
+<section id="id95">
+<h2>[1.13.11] - 2024-12-13<a class="headerlink" href="#id95" title="Link to this heading">#</a></h2>
+<section id="id96">
+<h3>Fixed<a class="headerlink" href="#id96" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The script <code class="docutils literal notranslate"><span class="pre">bfabric_setWorkunitStatus.py</span></code> did always set the status to <code class="docutils literal notranslate"><span class="pre">available</span></code>, instead of the specified status.</p></li>
+</ul>
+</section>
+<section id="id97">
+<h3>Changed<a class="headerlink" href="#id97" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric_setResourceStatus_available.py</span></code> calls the <code class="docutils literal notranslate"><span class="pre">report_resource</span></code> function, in general this functionality has been refactored.</p></li>
+</ul>
+</section>
+</section>
+<section id="id98">
+<h2>[1.13.10] - 2024-12-13<a class="headerlink" href="#id98" title="Link to this heading">#</a></h2>
+<section id="id99">
+<h3>Fixed<a class="headerlink" href="#id99" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>If <code class="docutils literal notranslate"><span class="pre">bfabricpy.yml</span></code> contains a root-level key which is not a dictionary, a correct error message is shown instead of raising an exception.</p></li>
+<li><p>A bug introduced while refactoring in <code class="docutils literal notranslate"><span class="pre">slurm.py</span></code> which passed <code class="docutils literal notranslate"><span class="pre">Path</span></code> objects to <code class="docutils literal notranslate"><span class="pre">subprocess</span></code> instead of strings.</p></li>
+<li><p>Submitter</p>
+<ul>
+<li><p>does not use unset <code class="docutils literal notranslate"><span class="pre">JOB_ID</span></code> environment variable anymore.</p></li>
+<li><p>does not set unused <code class="docutils literal notranslate"><span class="pre">STAMP</span></code> environment variable anymore.</p></li>
+</ul>
+</li>
+<li><p>Fix <code class="docutils literal notranslate"><span class="pre">bfabric_save_workflowstep.py</span></code> bugs from refactoring.</p></li>
+</ul>
+</section>
+<section id="id100">
+<h3>Added<a class="headerlink" href="#id100" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Experimental bfabric-cli interface. Please do not use it in production yet as it will need a lot of refinement.</p></li>
+</ul>
+</section>
+</section>
+<section id="id101">
+<h2>[1.13.9] - 2024-12-10<a class="headerlink" href="#id101" title="Link to this heading">#</a></h2>
+<p>From this release onwards, the experimental app runner is not part of the main bfabric package and
+instead a separate Python package with its individual changelog.</p>
+<section id="id102">
+<h3>Added<a class="headerlink" href="#id102" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Relationship: <code class="docutils literal notranslate"><span class="pre">ExternalJob.executable</span></code></p></li>
+<li><p>(experimental) EntityLookupCache that allows to cache entity lookups in a script to avoid redundant requests.</p></li>
+<li><p>Specific use case script: bfabric_save_resource_description.py (the functionality will be available in a future CLI).</p></li>
+</ul>
+</section>
+<section id="id103">
+<h3>Fixed<a class="headerlink" href="#id103" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Entity.find_all</span></code> returns no values when an empty list is passed as an argument.</p></li>
+</ul>
+</section>
+<section id="id104">
+<h3>Changed<a class="headerlink" href="#id104" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Except for macOS x86_64 (which we assume is Rosetta emulation nowadays), we use the faster <code class="docutils literal notranslate"><span class="pre">polars</span></code> instead of <code class="docutils literal notranslate"><span class="pre">polars-lts-cpu</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BfabricRequestError</span></code> is now a <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> subclass.</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">py.typed</span></code> marker.</p></li>
+</ul>
+</section>
+<section id="id105">
+<h3>Removed<a class="headerlink" href="#id105" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric_legacy.py</span></code> has been removed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">math_helper.py</span></code> has been removed.</p></li>
+</ul>
+</section>
+</section>
+<section id="id106">
+<h2>[1.13.8] - 2024-10-03<a class="headerlink" href="#id106" title="Link to this heading">#</a></h2>
+<p>This release contains mainly internal changes and ongoing development on the experimental app interface functionality.</p>
+<section id="id107">
+<h3>Added<a class="headerlink" href="#id107" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Entities can be compared and sorted by ID now.</p></li>
+<li><p>Show Python version in version info string.</p></li>
+<li><p>Caching for bfabric_list_not_existing_storage_directories.py.</p></li>
+<li><p>(experimental) add initial code for a resource based application dispatch</p></li>
+<li><p>(experimental) new app_runner cli that integrates all commands into a single interface</p></li>
+</ul>
+</section>
+<section id="id108">
+<h3>Fixed<a class="headerlink" href="#id108" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>bfabric_read.py is a bit more robust if “name” misses and tabular output is requested.</p></li>
+</ul>
+</section>
+<section id="id109">
+<h3>Changed<a class="headerlink" href="#id109" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.scripts</span></code> has been moved into a namespace package <code class="docutils literal notranslate"><span class="pre">bfabric_scripts</span></code> so we can later split it off.</p></li>
+<li><p>(internal) migrate to src layout</p></li>
+<li><p>(experimental) the former <code class="docutils literal notranslate"><span class="pre">process</span></code> step of the app runner has been split into a <code class="docutils literal notranslate"><span class="pre">process</span></code> and <code class="docutils literal notranslate"><span class="pre">collect</span></code> step where,
+the collect step is responsible for generating the <code class="docutils literal notranslate"><span class="pre">output.yml</span></code> file that will then be used to register the results.</p></li>
+<li><p>(experimental) app runner apps by default reuse the default resource</p></li>
+</ul>
+</section>
+</section>
+<section id="id110">
+<h2>[1.13.7] - 2024-09-17<a class="headerlink" href="#id110" title="Link to this heading">#</a></h2>
+<section id="id111">
+<h3>Fixed<a class="headerlink" href="#id111" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric_save_csv2dataset.py</span></code> considers all rows for schema inference, only considering the first 100 rows did cause problems with some files previously.</p></li>
+</ul>
+</section>
+<section id="id112">
+<h3>Added<a class="headerlink" href="#id112" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Script logging configuration</p>
+<ul>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">BFABRICPY_DEBUG</span></code> environment variable is set, log messages in scripts will be set to debug mode.</p></li>
+<li><p>Log messages from <code class="docutils literal notranslate"><span class="pre">__main__</span></code> will also be shown by default.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.entities.MultiplexKit</span></code> to extract multiplex kit information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.entities.Workunit.store_output_folder</span></code> implements the old rule, but more deterministically and reusable.</p></li>
+<li><p>(Experimental) <code class="docutils literal notranslate"><span class="pre">bfabric.experimental.app_interface</span></code> core functionality is implemented</p>
+<ul>
+<li><p>This can be used as a building block to standardize the input preparation for applications.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id113">
+<h3>Changed<a class="headerlink" href="#id113" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Correctly support optional workunit parameters.</p></li>
+</ul>
+</section>
+<section id="id114">
+<h3>Removed<a class="headerlink" href="#id114" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.entities.Resource</span></code> association <code class="docutils literal notranslate"><span class="pre">application</span></code> has been removed as it does not exist</p></li>
+</ul>
+</section>
+</section>
+<section id="id115">
+<h2>[1.13.6] - 2024-08-29<a class="headerlink" href="#id115" title="Link to this heading">#</a></h2>
+<section id="id116">
+<h3>Added<a class="headerlink" href="#id116" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Entity.find_by</span></code> has new parameter <code class="docutils literal notranslate"><span class="pre">max_results</span></code>.</p></li>
+</ul>
+</section>
+<section id="id117">
+<h3>Changed<a class="headerlink" href="#id117" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric_read.py</span></code> prints non-output information exclusively through logger and does not restrict entity types anymore.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric_delete.py</span></code> accepts multiple ids at once and does not restrict entity types anymore.</p></li>
+<li><p>Both engines raise a <code class="docutils literal notranslate"><span class="pre">BfabricRequestError</span></code> if the endpoint was not found.</p></li>
+</ul>
+</section>
+<section id="id118">
+<h3>Removed<a class="headerlink" href="#id118" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.endpoints</span></code> list is deleted, since it was out of date and generally not so useful.</p></li>
+</ul>
+</section>
+</section>
+<section id="id119">
+<h2>[1.13.5] - 2024-08-13<a class="headerlink" href="#id119" title="Link to this heading">#</a></h2>
+<section id="id120">
+<h3>Added<a class="headerlink" href="#id120" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> instance is now pickleable.</p></li>
+<li><p>Entities mapping:</p>
+<ul>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">Entity.id</span></code> and <code class="docutils literal notranslate"><span class="pre">Entity.web_url</span></code> properties.</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">Entity.__getitem__</span></code> and <code class="docutils literal notranslate"><span class="pre">Entity.get</span></code> to access fields from the data dictionary directly.</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">Entity.find_by</span></code> to find entities by a query.</p></li>
+<li><p>More types and relationships</p></li>
+<li><p>Relationships defer imports to descriptor call, i.e. circular relationships are possible now.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HasOne</span></code> and <code class="docutils literal notranslate"><span class="pre">HasMany</span></code> allow defining <code class="docutils literal notranslate"><span class="pre">optional=True</span></code> to indicate fields which can be missing under some circumstances.</p></li>
+</ul>
+</li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">nodelist</span></code> column and application name to <code class="docutils literal notranslate"><span class="pre">bfabric_list_not_available_proteomics_workunits.py</span></code> output.</p></li>
+</ul>
+</section>
+<section id="id121">
+<h3>Changed<a class="headerlink" href="#id121" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Entity.find_all</span></code> supports more than 100 IDs now by using the experimental MultiQuery API.</p></li>
+</ul>
+</section>
+</section>
+<section id="id122">
+<h2>[1.13.4] - 2024-08-05<a class="headerlink" href="#id122" title="Link to this heading">#</a></h2>
+<section id="id123">
+<h3>Added<a class="headerlink" href="#id123" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">Workunit</span></code>, <code class="docutils literal notranslate"><span class="pre">Parameter</span></code>, and <code class="docutils literal notranslate"><span class="pre">Resource</span></code> entities.</p></li>
+<li><p>Add concept of has_many and has_one relationships to entities.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric_slurm_queue_status.py</span></code> to quickly check slurm queue status.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Bfabric.save</span></code> provides <code class="docutils literal notranslate"><span class="pre">method</span></code> which can be set to <code class="docutils literal notranslate"><span class="pre">checkandinsert</span></code> for specific use cases.</p></li>
+</ul>
+</section>
+<section id="id124">
+<h3>Changed<a class="headerlink" href="#id124" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Most messages are now logged to debug level.</p></li>
+<li><p>The old verbose version information is now always logged, to INFO level, since it could entail useful information for error reporting.</p></li>
+</ul>
+</section>
+</section>
+<section id="id125">
+<h2>[1.13.3] - 2024-07-18<a class="headerlink" href="#id125" title="Link to this heading">#</a></h2>
+<section id="id126">
+<h3>Added<a class="headerlink" href="#id126" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Flask</p>
+<ul>
+<li><p>New endpoint <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/config/remote_base_url</span></code> for testing</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id127">
+<h3>Changed<a class="headerlink" href="#id127" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Flask</p>
+<ul>
+<li><p>Simplify logging by using loguru only.</p></li>
+<li><p>Simplified setup logic since the production use case should use a WSGI server.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id128">
+<h3>Fixed<a class="headerlink" href="#id128" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric_save_csv2dataset.py</span></code> had an undeclared dependency on numpy and a few bugs which was improved.</p></li>
+</ul>
+</section>
+</section>
+<section id="id129">
+<h2>[1.13.2] - 2024-07-11<a class="headerlink" href="#id129" title="Link to this heading">#</a></h2>
+<section id="id130">
+<h3>Added<a class="headerlink" href="#id130" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">bfabric.entities.Dataset</span></code> to easily read datasets.</p></li>
+<li><p>Pydantic-based configuration parsing</p>
+<ul>
+<li><p>The config format did not change.</p></li>
+<li><p>The code is easier to maintain now.</p></li>
+<li><p>Additionally, there is a lot more validation of the configuration file now, that should catch errors early.</p></li>
+</ul>
+</li>
+<li><p>Make host and port configurable in <code class="docutils literal notranslate"><span class="pre">bfabric_flask.py</span></code> (currently only dev mode).</p></li>
+</ul>
+</section>
+</section>
+<section id="id131">
+<h2>[1.13.1] - 2024-07-02<a class="headerlink" href="#id131" title="Link to this heading">#</a></h2>
+<section id="id132">
+<h3>Changed<a class="headerlink" href="#id132" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>bfabric_save_csv2dataset will raise an error if problematic characters are found in any of the cells</p></li>
+<li><p>Correctly define <code class="docutils literal notranslate"><span class="pre">bfabric_setWorkunitStatus_available.py</span></code>, and <code class="docutils literal notranslate"><span class="pre">processing</span></code> and <code class="docutils literal notranslate"><span class="pre">failed</span></code> variants.</p></li>
+</ul>
+</section>
+<section id="id133">
+<h3>Added<a class="headerlink" href="#id133" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Add loguru for future logging refactoring.</p></li>
+<li><p>Easily runnable tests with <code class="docutils literal notranslate"><span class="pre">nox</span></code> and standardized formatting using <code class="docutils literal notranslate"><span class="pre">pre-commit</span></code>.</p></li>
+</ul>
+</section>
+<section id="id134">
+<h3>Removed<a class="headerlink" href="#id134" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Pandas is no longer a dependency, and has been replaced by polars.</p></li>
+</ul>
+</section>
+</section>
+<section id="id135">
+<h2>[1.13.0] - 2024-05-24<a class="headerlink" href="#id135" title="Link to this heading">#</a></h2>
+<p>This is a major release refactoring bfabricPy’s API.</p>
+<section id="id136">
+<h3>Changed<a class="headerlink" href="#id136" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> class operations now return <code class="docutils literal notranslate"><span class="pre">ResultContainer</span></code> objects.</p>
+<ul>
+<li><p>These provide a list-like interface to access individual items or iterate over them.</p></li>
+<li><p>Individual items are a dictionary, potentially nested, and not specific to suds/zeep anymore.</p></li>
+<li><p>Convenience conversions, e.g. to a polars DataFrame, can be provided there.</p></li>
+</ul>
+</li>
+<li><p>Configuration is now defined in <code class="docutils literal notranslate"><span class="pre">~/.bfabricpy.yml</span></code> and supports multiple configurations, which can be selected by the <code class="docutils literal notranslate"><span class="pre">BFABRICPY_CONFIG_ENV</span></code> environment variable. Please consult the README for an example configuration.</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> for package configuration.</p></li>
+<li><p>Scripts have been refactored on a case-by-case basis.</p></li>
+</ul>
+</section>
+<section id="id137">
+<h3>Added<a class="headerlink" href="#id137" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Zeep can be used instead of suds for SOAP communication.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> can be instantiated without authentication, that can be provided later. This is useful in a server setup.</p></li>
+<li><p>Pagination support in <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code>, specify the number of max_results and a potential offset. Pages handling is abstracted away.</p></li>
+<li><p>Detect errors in responses, e.g. invalid login.</p></li>
+</ul>
+</section>
+<section id="id138">
+<h3>Removed<a class="headerlink" href="#id138" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Several old scripts have been moved into a <code class="docutils literal notranslate"><span class="pre">deprecated_scripts</span></code> folder.</p></li>
+<li><p>Wrapper creator related code is currently not updated but has been extracted into a dedicated folder <code class="docutils literal notranslate"><span class="pre">wrapper_creator</span></code> as well.</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="resources/good_to_know.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Good to Know</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unreleased">[Unreleased]</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#added">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecated">Deprecated</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">[1.16.1] - 2025-12-15</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">[1.16.0] - 2025-12-15</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#removed">Removed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Deprecated</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">[1.15.1] - 2025-12-09</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">[1.15.0] - 2025-12-09</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">[1.14.1] - 2025-12-02</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">[1.14.0] - 2025-12-02</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">Removed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">[1.13.36] - 2025-10-27</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">[1.13.35] - 2025-09-22</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">[1.13.34] - 2025-09-19</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id24">Removed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id25">[1.13.33] - 2025-08-26</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id26">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id27">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id28">[1.13.32] - 2025-08-26</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id29">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id30">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id31">[1.13.31] - 2025-09-20</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id32">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id33">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id34">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id35">[1.13.30] - 2025-08-19</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id36">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id37">[1.13.29] - 2025-07-04</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id38">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id39">[1.13.28] - 2025-06-27</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#breaking">Breaking</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id40">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id41">Removed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id42">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id43">[1.13.27] - 2025-05-21</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id44">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id45">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id46">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id47">Deprecated</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id48">[1.13.26] - 2025-04-26</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id49">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id50">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id51">Deprecated</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id52">[1.13.25] - 2025-04-22</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id53">Breaking</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id54">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id55">[1.13.24] - 2025-04-08</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id56">Removed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id57">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id58">[1.13.23] - 2025-03-25</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id59">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id60">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id61">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id62">[1.13.22] - 2025-02-19</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id63">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id64">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id65">[1.13.21] - 2025-02-19</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id66">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id67">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id68">[1.13.20] - 2025-02-10</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id69">Breaking</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id70">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id71">[1.13.19] - 2025-02-06</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id72">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id73">[1.13.18] - 2025-01-28</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id74">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id75">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id76">[1.13.17] - 2025-01-23</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id77">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id78">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id79">[1.13.16] - 2025-01-22</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id80">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id81">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id82">[1.13.15] - 2025-01-15</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id83">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id84">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id85">[1.13.14] - 2025-01-08</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id86">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id87">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id88">[1.13.13] - 2024-12-18</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id89">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id90">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id91">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id92">[1.13.12] - 2024-12-17</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id93">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id94">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id95">[1.13.11] - 2024-12-13</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id96">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id97">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id98">[1.13.10] - 2024-12-13</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id99">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id100">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id101">[1.13.9] - 2024-12-10</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id102">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id103">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id104">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id105">Removed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id106">[1.13.8] - 2024-10-03</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id107">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id108">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id109">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id110">[1.13.7] - 2024-09-17</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id111">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id112">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id113">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id114">Removed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id115">[1.13.6] - 2024-08-29</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id116">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id117">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id118">Removed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id119">[1.13.5] - 2024-08-13</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id120">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id121">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id122">[1.13.4] - 2024-08-05</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id123">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id124">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id125">[1.13.3] - 2024-07-18</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id126">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id127">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id128">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id129">[1.13.2] - 2024-07-11</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id130">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id131">[1.13.1] - 2024-07-02</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id132">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id133">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id134">Removed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id135">[1.13.0] - 2024-05-24</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id136">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id137">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id138">Removed</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By the bfabricpy authors
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2014-2026 Functional Genomics Center Zurich.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

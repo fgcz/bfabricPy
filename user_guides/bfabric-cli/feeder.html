@@ -1,0 +1,908 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Feeder &#8212; bfabricPy 1.16.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=735ab59b"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guides/bfabric-cli/feeder';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Error Handling" href="../error_handling.html" />
+    <link rel="prev" title="Workunits" href="workunits.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">bfabricPy 1.16.1 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../getting_started/index.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/quick_start.html">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/configuration.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/troubleshooting.html">Troubleshooting</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">User Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../creating_a_client/index.html">Creating a Client</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../creating_a_client/interactive_scripted_usage.html">Creating a Client for Interactive and Scripted Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../creating_a_client/server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reading_data/index.html">Reading Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reading_data/resultcontainer_api.html">ResultContainer API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reading_data/entity_api.html">Entity API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reading_data/caching_for_performance.html">Entity Caching</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../writing_data/index.html">Writing Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_entities/index.html">Entity Features</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">bfabric-cli</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="api_operations.html">API Operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api_inspection.html">API Inspection with CLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="datasets.html">Datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="executables.html">Executables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="workunits.html">Workunits</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Feeder</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../error_handling.html">Error Handling</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api_reference/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/bfabric_client/index.html">Bfabric Client API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/entity_types/index.html">API Reference: Entity Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/entity_reader/index.html">API Reference: EntityReader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/entity_uri/index.html">API Reference: EntityUri</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/result_container/index.html">ResultContainer API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/token_data/index.html">API Reference: Token Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/exceptions_and_errors/index.html">API Reference: Exceptions and Errors</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../advanced_topics/index.html">Advanced Topics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../advanced_topics/workunit_definitions/index.html">Experimental: Workunit Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../advanced_topics/data_operations.html">Experimental Data Operations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../resources/index.html">Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../resources/good_to_know.html">Good to Know</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/user_guides/bfabric-cli/feeder.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Feeder</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-importresources">Creating Importresources</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic Usage</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#parameters">Parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">Examples</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-it-does">What It Does</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#path-convention-compms">Path Convention (CompMS)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#output">Output</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-examples">Workflow Examples</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#initial-data-ingestion">Initial Data Ingestion</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#monitoring-file-addition">Monitoring File Addition</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#batch-processing-multiple-storages">Batch Processing Multiple Storages</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#finding-storage-information">Finding Storage Information</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#list-all-storages">List All Storages</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#show-specific-storage">Show Specific Storage</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#check-storage-path-convention">Check Storage Path Convention</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#working-with-importresources">Working with Importresources</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#list-importresources">List Importresources</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#check-importresource-details">Check Importresource Details</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tips-and-best-practices">Tips and Best Practices</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#verify-files-before-processing">Verify Files Before Processing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#use-absolute-paths">Use Absolute Paths</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#process-in-batches">Process in Batches</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#monitor-for-errors">Monitor for Errors</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#test-on-small-batch-first">Test on Small Batch First</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-issues">Common Issues</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#storage-not-found">Storage Not Found</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#files-do-not-exist">Files Do Not Exist</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#application-not-found">Application Not Found</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#path-convention-mismatch">Path Convention Mismatch</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#integration-with-data-ingestion-workflows">Integration with Data Ingestion Workflows</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-ingestion-pipeline">Example Ingestion Pipeline</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="feeder">
+<h1>Feeder<a class="headerlink" href="#feeder" title="Link to this heading">#</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">feeder</span></code> command provides feeder operations, primarily for creating importresources from files.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>feeder<span class="w"> </span>--help
+</pre></div>
+</div>
+<p>Available subcommands:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Subcommand</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">create-importresource</span></code></p></td>
+<td><p>Create importresources for files in a storage</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<hr class="docutils" />
+<section id="creating-importresources">
+<h2>Creating Importresources<a class="headerlink" href="#creating-importresources" title="Link to this heading">#</a></h2>
+<p>Create importresources for one or more files in a B-Fabric storage.</p>
+<section id="basic-usage">
+<h3>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>feeder<span class="w"> </span>create-importresource<span class="w"> </span><span class="o">[</span>STORAGE_ID<span class="o">]</span><span class="w"> </span><span class="o">[</span>FILES<span class="o">]</span>...
+</pre></div>
+</div>
+</section>
+<section id="parameters">
+<h3>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Required</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">storage_id</span></code></p></td>
+<td><p>Yes</p></td>
+<td><p>ID of the target storage</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">files</span></code></p></td>
+<td><p>Yes</p></td>
+<td><p>One or more file paths to create importresources for</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h3>
+<p><strong>Create a single importresource:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>feeder<span class="w"> </span>create-importresource<span class="w"> </span><span class="m">1</span><span class="w"> </span>/path/to/data/file.raw
+</pre></div>
+</div>
+<p><strong>Create importresources for multiple files:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>feeder<span class="w"> </span>create-importresource<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>/path/to/data/file1.raw<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>/path/to/data/file2.raw<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>/path/to/data/file3.raw
+</pre></div>
+</div>
+<p><strong>Use glob pattern for multiple files:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>feeder<span class="w"> </span>create-importresource<span class="w"> </span><span class="m">1</span><span class="w"> </span>/path/to/data/*.raw
+</pre></div>
+</div>
+</section>
+<section id="what-it-does">
+<h3>What It Does<a class="headerlink" href="#what-it-does" title="Link to this heading">#</a></h3>
+<p>The command:</p>
+<ol class="arabic simple">
+<li><p><strong>Validates files</strong> - Checks that the specified files exist</p></li>
+<li><p><strong>Parses file paths</strong> - Analyzes the path structure using the storage’s path convention</p></li>
+<li><p><strong>Computes file metadata</strong> - Calculates MD5 checksum, file size, file date</p></li>
+<li><p><strong>Creates importresources</strong> - Creates importresource entities in B-Fabric for each file</p></li>
+</ol>
+</section>
+<section id="path-convention-compms">
+<h3>Path Convention (CompMS)<a class="headerlink" href="#path-convention-compms" title="Link to this heading">#</a></h3>
+<p>For CompMS (Mass Spectrometry) data, the command uses the <code class="docutils literal notranslate"><span class="pre">PathConventionCompMS</span></code> parser, which expects files to follow a specific directory structure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>/storage_root/
+    ├── application_name/
+    │   ├── container_id/
+    │   │   ├── sample_id/
+    │   │   │   └── file.raw
+</pre></div>
+</div>
+<p>The parser extracts:</p>
+<ul class="simple">
+<li><p><strong>Application name</strong> - From the directory name</p></li>
+<li><p><strong>Container ID</strong> - From the container directory</p></li>
+<li><p><strong>Sample ID</strong> - Optional, if present</p></li>
+<li><p><strong>Relative path</strong> - Path relative to the storage root</p></li>
+</ul>
+</section>
+<section id="output">
+<h3>Output<a class="headerlink" href="#output" title="Link to this heading">#</a></h3>
+<p>The command provides feedback on:</p>
+<ul class="simple">
+<li><p><strong>Successful creations</strong>: “Importresource X created for file /path/to/file.raw”</p></li>
+<li><p><strong>Updates</strong>: “Importresource X updated for file /path/to/file.raw” (if an importresource already exists)</p></li>
+<li><p><strong>Errors</strong>: “Application Y not found in B-Fabric. Skipping file /path/to/file.raw”</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="workflow-examples">
+<h2>Workflow Examples<a class="headerlink" href="#workflow-examples" title="Link to this heading">#</a></h2>
+<section id="initial-data-ingestion">
+<h3>Initial Data Ingestion<a class="headerlink" href="#initial-data-ingestion" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. First, verify the storage exists</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>storage<span class="w"> </span>id<span class="w"> </span><span class="m">1</span>
+
+<span class="c1"># 2. Create importresources for new files</span>
+bfabric-cli<span class="w"> </span>feeder<span class="w"> </span>create-importresource<span class="w"> </span><span class="m">1</span><span class="w"> </span>/data/2025-01/*.raw
+</pre></div>
+</div>
+</section>
+<section id="monitoring-file-addition">
+<h3>Monitoring File Addition<a class="headerlink" href="#monitoring-file-addition" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a script to monitor for new files</span>
+<span class="c1">#!/bin/bash</span>
+<span class="c1"># check_new_files.sh</span>
+<span class="nv">STORAGE_ID</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">DATA_DIR</span><span class="o">=</span><span class="s2">&quot;/data/incoming&quot;</span>
+
+find<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$DATA_DIR</span><span class="s2">&quot;</span><span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.raw&quot;</span><span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>file<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Processing </span><span class="nv">$file</span><span class="s2">...&quot;</span>
+<span class="w">    </span>bfabric-cli<span class="w"> </span>feeder<span class="w"> </span>create-importresource<span class="w"> </span><span class="nv">$STORAGE_ID</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$file</span><span class="s2">&quot;</span>
+<span class="k">done</span>
+</pre></div>
+</div>
+</section>
+<section id="batch-processing-multiple-storages">
+<h3>Batch Processing Multiple Storages<a class="headerlink" href="#batch-processing-multiple-storages" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Process files across multiple storages</span>
+<span class="k">for</span><span class="w"> </span>storage_id<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">3</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span>bfabric-cli<span class="w"> </span>feeder<span class="w"> </span>create-importresource<span class="w"> </span><span class="nv">$storage_id</span><span class="w"> </span>/data/storage_<span class="nv">$storage_id</span>/*.raw
+<span class="k">done</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="finding-storage-information">
+<h2>Finding Storage Information<a class="headerlink" href="#finding-storage-information" title="Link to this heading">#</a></h2>
+<p>Before creating importresources, verify your storage configuration:</p>
+<section id="list-all-storages">
+<h3>List All Storages<a class="headerlink" href="#list-all-storages" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>storage<span class="w"> </span>--limit<span class="w"> </span><span class="m">20</span>
+</pre></div>
+</div>
+</section>
+<section id="show-specific-storage">
+<h3>Show Specific Storage<a class="headerlink" href="#show-specific-storage" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>storage<span class="w"> </span>id<span class="w"> </span><span class="m">1</span>
+</pre></div>
+</div>
+</section>
+<section id="check-storage-path-convention">
+<h3>Check Storage Path Convention<a class="headerlink" href="#check-storage-path-convention" title="Link to this heading">#</a></h3>
+<p>The storage information will show:</p>
+<ul class="simple">
+<li><p>Storage ID and name</p></li>
+<li><p>Base URL/path</p></li>
+<li><p>Path convention type (e.g., CompMS)</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="working-with-importresources">
+<h2>Working with Importresources<a class="headerlink" href="#working-with-importresources" title="Link to this heading">#</a></h2>
+<p>After creating importresources, you can work with them:</p>
+<section id="list-importresources">
+<h3>List Importresources<a class="headerlink" href="#list-importresources" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># List all importresources</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>importresource<span class="w"> </span>--limit<span class="w"> </span><span class="m">50</span>
+
+<span class="c1"># Filter by storage</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>importresource<span class="w"> </span>storageid<span class="w"> </span><span class="m">1</span>
+
+<span class="c1"># Filter by date</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>importresource<span class="w"> </span>createdafter<span class="w"> </span><span class="m">2024</span>-12-01<span class="w"> </span>--limit<span class="w"> </span><span class="m">20</span>
+</pre></div>
+</div>
+</section>
+<section id="check-importresource-details">
+<h3>Check Importresource Details<a class="headerlink" href="#check-importresource-details" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Show specific importresource</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>importresource<span class="w"> </span>id<span class="w"> </span><span class="m">12345</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="tips-and-best-practices">
+<h2>Tips and Best Practices<a class="headerlink" href="#tips-and-best-practices" title="Link to this heading">#</a></h2>
+<section id="verify-files-before-processing">
+<h3>Verify Files Before Processing<a class="headerlink" href="#verify-files-before-processing" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check files exist before creating importresources</span>
+ls<span class="w"> </span>-lh<span class="w"> </span>/data/incoming/*.raw
+
+<span class="c1"># Verify file integrity</span>
+md5sum<span class="w"> </span>/data/incoming/*.raw
+</pre></div>
+</div>
+</section>
+<section id="use-absolute-paths">
+<h3>Use Absolute Paths<a class="headerlink" href="#use-absolute-paths" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use absolute paths to avoid ambiguity</span>
+bfabric-cli<span class="w"> </span>feeder<span class="w"> </span>create-importresource<span class="w"> </span><span class="m">1</span><span class="w"> </span>/full/path/to/data/file.raw
+</pre></div>
+</div>
+</section>
+<section id="process-in-batches">
+<h3>Process in Batches<a class="headerlink" href="#process-in-batches" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># For large numbers of files, process in batches</span>
+find<span class="w"> </span>/data/incoming<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.raw&quot;</span><span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-100<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>file<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span>bfabric-cli<span class="w"> </span>feeder<span class="w"> </span>create-importresource<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$file</span><span class="s2">&quot;</span>
+<span class="k">done</span>
+</pre></div>
+</div>
+</section>
+<section id="monitor-for-errors">
+<h3>Monitor for Errors<a class="headerlink" href="#monitor-for-errors" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Capture and review errors</span>
+bfabric-cli<span class="w"> </span>feeder<span class="w"> </span>create-importresource<span class="w"> </span><span class="m">1</span><span class="w"> </span>/data/*.raw<span class="w"> </span><span class="m">2</span>&gt;<span class="w"> </span>errors.log
+
+<span class="c1"># Review any failures</span>
+grep<span class="w"> </span><span class="s2">&quot;error\|Error\|ERROR&quot;</span><span class="w"> </span>errors.log
+</pre></div>
+</div>
+</section>
+<section id="test-on-small-batch-first">
+<h3>Test on Small Batch First<a class="headerlink" href="#test-on-small-batch-first" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test with a few files before processing everything</span>
+bfabric-cli<span class="w"> </span>feeder<span class="w"> </span>create-importresource<span class="w"> </span><span class="m">1</span><span class="w"> </span>/data/test/*.raw
+
+<span class="c1"># If successful, process the full batch</span>
+bfabric-cli<span class="w"> </span>feeder<span class="w"> </span>create-importresource<span class="w"> </span><span class="m">1</span><span class="w"> </span>/data/production/*.raw
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="common-issues">
+<h2>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading">#</a></h2>
+<section id="storage-not-found">
+<h3>Storage Not Found<a class="headerlink" href="#storage-not-found" title="Link to this heading">#</a></h3>
+<p><strong>Error</strong>: Storage with ID X not found</p>
+<p><strong>Solution</strong>: Verify the storage exists:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>storage<span class="w"> </span>id<span class="w"> </span>&lt;storage-id&gt;
+</pre></div>
+</div>
+</section>
+<section id="files-do-not-exist">
+<h3>Files Do Not Exist<a class="headerlink" href="#files-do-not-exist" title="Link to this heading">#</a></h3>
+<p><strong>Error</strong>: Files /path/to/file1.raw, /path/to/file2.raw do not exist</p>
+<p><strong>Solution</strong>: Check file paths and permissions:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ls<span class="w"> </span>-la<span class="w"> </span>/path/to/
+</pre></div>
+</div>
+</section>
+<section id="application-not-found">
+<h3>Application Not Found<a class="headerlink" href="#application-not-found" title="Link to this heading">#</a></h3>
+<p><strong>Error</strong>: Application X not found in B-Fabric. Skipping file /path/to/file.raw</p>
+<p><strong>Solution</strong>: The application derived from the path doesn’t exist in B-Fabric. Options:</p>
+<ol class="arabic simple">
+<li><p>Create the application in B-Fabric</p></li>
+<li><p>Rename the directory to match an existing application</p></li>
+<li><p>Verify the path convention is correct</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check available applications</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>application
+</pre></div>
+</div>
+</section>
+<section id="path-convention-mismatch">
+<h3>Path Convention Mismatch<a class="headerlink" href="#path-convention-mismatch" title="Link to this heading">#</a></h3>
+<p><strong>Error</strong>: Files don’t follow the expected path structure</p>
+<p><strong>Solution</strong>: Ensure files are organized according to the storage’s path convention:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check storage configuration</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>storage<span class="w"> </span>id<span class="w"> </span>&lt;storage-id&gt;
+
+<span class="c1"># Verify file structure</span>
+tree<span class="w"> </span>/data/
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="integration-with-data-ingestion-workflows">
+<h2>Integration with Data Ingestion Workflows<a class="headerlink" href="#integration-with-data-ingestion-workflows" title="Link to this heading">#</a></h2>
+<p>The feeder command is typically used as part of a larger data ingestion pipeline:</p>
+<ol class="arabic simple">
+<li><p><strong>File Transfer</strong>: Data is transferred to the storage location</p></li>
+<li><p><strong>Validation</strong>: File integrity is verified (checksums, sizes)</p></li>
+<li><p><strong>Importresource Creation</strong>: Feeder command creates importresources</p></li>
+<li><p><strong>Import Process</strong>: B-Fabric imports the data based on importresources</p></li>
+<li><p><strong>Sample Creation</strong>: Associated samples are created/updated</p></li>
+<li><p><strong>Analysis</strong>: Data becomes available for analysis</p></li>
+</ol>
+<section id="example-ingestion-pipeline">
+<h3>Example Ingestion Pipeline<a class="headerlink" href="#example-ingestion-pipeline" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="c1"># ingest_data.sh</span>
+
+<span class="nv">STORAGE_ID</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">SOURCE_DIR</span><span class="o">=</span><span class="s2">&quot;/data/incoming&quot;</span>
+<span class="nv">PROCESSED_DIR</span><span class="o">=</span><span class="s2">&quot;/data/processed&quot;</span>
+
+<span class="c1"># 1. Validate files</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Validating files...&quot;</span>
+<span class="k">for</span><span class="w"> </span>file<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SOURCE_DIR</span><span class="s2">&quot;</span>/*.raw<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$file</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Error: </span><span class="nv">$file</span><span class="s2"> does not exist&quot;</span>
+<span class="w">        </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="k">done</span>
+
+<span class="c1"># 2. Create importresources</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Creating importresources...&quot;</span>
+bfabric-cli<span class="w"> </span>feeder<span class="w"> </span>create-importresource<span class="w"> </span><span class="nv">$STORAGE_ID</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SOURCE_DIR</span><span class="s2">&quot;</span>/*.raw
+
+<span class="c1"># 3. Move to processed directory</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Moving files to processed...&quot;</span>
+mv<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SOURCE_DIR</span><span class="s2">&quot;</span>/*.raw<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$PROCESSED_DIR</span><span class="s2">/&quot;</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Ingestion complete!&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="api_operations.html"><span class="doc std std-doc">API Operations</span></a> - Generic CRUD operations for working with importresources</p></li>
+<li><p><a class="reference internal" href="#../../api_reference/entity_types/storage"><span class="xref myst">Storage Information</span></a> - Storage entity documentation</p></li>
+<li><p><a class="reference internal" href="../../api_reference/index.html"><span class="doc std std-doc">Python API</span></a> - Using bfabric in Python for custom feeder logic</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="workunits.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Workunits</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../error_handling.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Error Handling</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-importresources">Creating Importresources</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic Usage</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#parameters">Parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">Examples</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-it-does">What It Does</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#path-convention-compms">Path Convention (CompMS)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#output">Output</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-examples">Workflow Examples</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#initial-data-ingestion">Initial Data Ingestion</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#monitoring-file-addition">Monitoring File Addition</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#batch-processing-multiple-storages">Batch Processing Multiple Storages</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#finding-storage-information">Finding Storage Information</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#list-all-storages">List All Storages</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#show-specific-storage">Show Specific Storage</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#check-storage-path-convention">Check Storage Path Convention</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#working-with-importresources">Working with Importresources</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#list-importresources">List Importresources</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#check-importresource-details">Check Importresource Details</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tips-and-best-practices">Tips and Best Practices</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#verify-files-before-processing">Verify Files Before Processing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#use-absolute-paths">Use Absolute Paths</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#process-in-batches">Process in Batches</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#monitor-for-errors">Monitor for Errors</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#test-on-small-batch-first">Test on Small Batch First</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-issues">Common Issues</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#storage-not-found">Storage Not Found</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#files-do-not-exist">Files Do Not Exist</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#application-not-found">Application Not Found</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#path-convention-mismatch">Path Convention Mismatch</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#integration-with-data-ingestion-workflows">Integration with Data Ingestion Workflows</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-ingestion-pipeline">Example Ingestion Pipeline</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By the bfabricpy authors
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2014-2026 Functional Genomics Center Zurich.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

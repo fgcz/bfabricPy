@@ -1,0 +1,708 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Entity API &#8212; bfabricPy 1.16.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=735ab59b"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guides/reading_data/entity_api';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Entity Caching" href="caching_for_performance.html" />
+    <link rel="prev" title="ResultContainer API" href="resultcontainer_api.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">bfabricPy 1.16.1 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../getting_started/index.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/quick_start.html">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/configuration.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/troubleshooting.html">Troubleshooting</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">User Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../creating_a_client/index.html">Creating a Client</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../creating_a_client/interactive_scripted_usage.html">Creating a Client for Interactive and Scripted Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../creating_a_client/server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Reading Data</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="resultcontainer_api.html">ResultContainer API</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Entity API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="caching_for_performance.html">Entity Caching</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../writing_data/index.html">Writing Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_entities/index.html">Entity Features</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../bfabric-cli/index.html">bfabric-cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/api_operations.html">API Operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/api_inspection.html">API Inspection with CLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/datasets.html">Datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/executables.html">Executables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/workunits.html">Workunits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/feeder.html">Feeder</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../error_handling.html">Error Handling</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api_reference/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/bfabric_client/index.html">Bfabric Client API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/entity_types/index.html">API Reference: Entity Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/entity_reader/index.html">API Reference: EntityReader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/entity_uri/index.html">API Reference: EntityUri</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/result_container/index.html">ResultContainer API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/token_data/index.html">API Reference: Token Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/exceptions_and_errors/index.html">API Reference: Exceptions and Errors</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../advanced_topics/index.html">Advanced Topics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../advanced_topics/workunit_definitions/index.html">Experimental: Workunit Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../advanced_topics/data_operations.html">Experimental Data Operations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../resources/index.html">Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../resources/good_to_know.html">Good to Know</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/user_guides/reading_data/entity_api.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Entity API</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reading-entities">Reading Entities</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#by-uri">By URI</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#by-id">By ID</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#by-query">By Query</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#entity-objects">Entity Objects</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-properties">Basic Properties</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#accessing-data">Accessing Data</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#relationships-and-references">Relationships and References</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-entity-classes">Custom Entity Classes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#current-limitations">Current Limitations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-to-resultcontainer-api">Comparison to ResultContainer API</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#entity-specific-features">Entity-Specific Features</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="entity-api">
+<h1>Entity API<a class="headerlink" href="#entity-api" title="Link to this heading">#</a></h1>
+<p>The Entity API provides object-oriented access to B-Fabric data with lazy-loading relationships and automatic caching. Access it through <code class="docutils literal notranslate"><span class="pre">client.reader</span></code>, which returns an <code class="docutils literal notranslate"><span class="pre">EntityReader</span></code> instance.</p>
+<section id="reading-entities">
+<h2>Reading Entities<a class="headerlink" href="#reading-entities" title="Link to this heading">#</a></h2>
+<section id="by-uri">
+<h3>By URI<a class="headerlink" href="#by-uri" title="Link to this heading">#</a></h3>
+<p>Read entities by their B-Fabric URIs:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+<span class="n">reader</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">reader</span>
+
+<span class="c1"># Single entity</span>
+<span class="n">uri</span> <span class="o">=</span> <span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric/sample/show.html?id=123&quot;</span>
+<span class="n">sample</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_uri</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
+
+<span class="c1"># Multiple entities (mixed types)</span>
+<span class="n">uris</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric/sample/show.html?id=123&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric/project/show.html?id=456&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">entities</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_uris</span><span class="p">(</span><span class="n">uris</span><span class="p">)</span>  <span class="c1"># Returns dict[URI, Entity]</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">EntityReader.</span></span><span class="sig-name descname"><span class="pre">read_uri</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../api_reference/entity_uri/index.html#bfabric.entities.core.uri.EntityUri" title="bfabric.entities.core.uri.EntityUri"><span class="pre">EntityUri</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">EntityT</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;class</span> <span class="pre">'bfabric.entities.core.entity.Entity'&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">EntityT</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span></dt>
+<dd><p>Read a single entity by its B-Fabric URI.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>uri: B-Fabric URI of the entity (e.g., “<a class="reference external" href="https://.../sample/show.html?id=123">https://…/sample/show.html?id=123</a>”)
+expected_type: Entity class (e.g., <code class="docutils literal notranslate"><span class="pre">Sample</span></code>) for type validation and casting</p>
+</dd>
+<dt>Returns:</dt><dd><p>Entity object or <code class="docutils literal notranslate"><span class="pre">None</span></code> if not found</p>
+</dd>
+<dt>Raises:</dt><dd><p>ValueError: If URI is invalid or from a different B-Fabric instance
+TypeError: If entity exists but doesn’t match <code class="docutils literal notranslate"><span class="pre">expected_type</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">EntityReader.</span></span><span class="sig-name descname"><span class="pre">read_uris</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">uris:</span> <span class="pre">~collections.abc.Iterable[~bfabric.entities.core.uri.EntityUri</span> <span class="pre">|</span> <span class="pre">str],</span> <span class="pre">*,</span> <span class="pre">expected_type:</span> <span class="pre">type[~bfabric.entities.core.entity_reader.EntityT]</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'bfabric.entities.core.entity.Entity'&gt;</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../api_reference/entity_uri/index.html#bfabric.entities.core.uri.EntityUri" title="bfabric.entities.core.uri.EntityUri"><span class="pre">EntityUri</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">EntityT</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span></dt>
+<dd><p>Read multiple entities by their URIs efficiently.</p>
+<p>Entities are grouped by type and retrieved in batches to minimize API calls.
+Uses the cache stack if configured.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>uris: Iterable of B-Fabric URIs (can be different entity types)
+expected_type: Entity class to validate and cast all results</p>
+</dd>
+<dt>Returns:</dt><dd><p>Dictionary mapping each input URI to its entity object (or <code class="docutils literal notranslate"><span class="pre">None</span></code> if not found)</p>
+</dd>
+<dt>Raises:</dt><dd><p>ValueError: If any URI is from a different B-Fabric instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="by-id">
+<h3>By ID<a class="headerlink" href="#by-id" title="Link to this heading">#</a></h3>
+<p>Read entities by type and ID:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Single entity</span>
+<span class="n">sample</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">123</span><span class="p">)</span>
+
+<span class="c1"># Multiple entities of the same type</span>
+<span class="n">entities</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_ids</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_ids</span><span class="o">=</span><span class="p">[</span><span class="mi">123</span><span class="p">,</span> <span class="mi">456</span><span class="p">,</span> <span class="mi">789</span><span class="p">])</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">EntityReader.</span></span><span class="sig-name descname"><span class="pre">read_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bfabric_instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">EntityT</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;class</span> <span class="pre">'bfabric.entities.core.entity.Entity'&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">EntityT</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span></dt>
+<dd><p>Read a single entity by its type and ID.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>entity_type: B-Fabric entity type (e.g., “sample”, “project”)
+entity_id: Numeric ID of entity
+bfabric_instance: B-Fabric instance URL (defaults to client’s configured instance)
+expected_type: Entity class to validate and cast the result</p>
+</dd>
+<dt>Returns:</dt><dd><p>Entity object or <code class="docutils literal notranslate"><span class="pre">None</span></code> if not found</p>
+</dd>
+<dt>Raises:</dt><dd><p>ValueError: If instance doesn’t match the client’s configuration</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">EntityReader.</span></span><span class="sig-name descname"><span class="pre">read_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">entity_type:</span> <span class="pre">str,</span> <span class="pre">entity_ids:</span> <span class="pre">list[int],</span> <span class="pre">bfabric_instance:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">*,</span> <span class="pre">expected_type:</span> <span class="pre">type[~bfabric.entities.core.entity_reader.EntityT]</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'bfabric.entities.core.entity.Entity'&gt;</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../api_reference/entity_uri/index.html#bfabric.entities.core.uri.EntityUri" title="bfabric.entities.core.uri.EntityUri"><span class="pre">EntityUri</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">EntityT</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span></dt>
+<dd><p>Read multiple entities of the same type by their IDs.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>entity_type: B-Fabric entity type (e.g., “sample”)
+entity_ids: List of numeric IDs
+bfabric_instance: B-Fabric instance URL (defaults to client’s configured instance)
+expected_type: Entity class to validate and cast all results</p>
+</dd>
+<dt>Returns:</dt><dd><p>Dictionary mapping entity URIs to their objects (or <code class="docutils literal notranslate"><span class="pre">None</span></code> if not found)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="by-query">
+<h3>By Query<a class="headerlink" href="#by-query" title="Link to this heading">#</a></h3>
+<p>Query entities with search criteria:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find samples by name</span>
+<span class="n">entities</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;MySample&quot;</span><span class="p">},</span> <span class="n">max_results</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">EntityReader.</span></span><span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ApiRequestObjectType</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bfabric_instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../api_reference/entity_uri/index.html#bfabric.entities.core.uri.EntityUri" title="bfabric.entities.core.uri.EntityUri"><span class="pre">EntityUri</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../../api_reference/entity_types/index.html#bfabric.entities.core.entity.Entity" title="bfabric.entities.core.entity.Entity"><span class="pre">Entity</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span></dt>
+<dd><p>Query entities by search criteria and return them as Entity objects.</p>
+<p>Combines <code class="docutils literal notranslate"><span class="pre">client.read()</span></code> with automatic entity instantiation and caching.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>entity_type: B-Fabric entity type to query
+obj: Dictionary of search criteria (e.g., <code class="docutils literal notranslate"><span class="pre">{&quot;name&quot;:</span> <span class="pre">&quot;MySample&quot;}</span></code>)
+bfabric_instance: B-Fabric instance URL (defaults to client’s configured instance)
+max_results: Maximum number of results to return (default: 100, None for all)</p>
+</dd>
+<dt>Returns:</dt><dd><p>Dictionary mapping entity URIs to their objects</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+<section id="entity-objects">
+<h2>Entity Objects<a class="headerlink" href="#entity-objects" title="Link to this heading">#</a></h2>
+<p>When you read entities through the Entity API, you get <code class="docutils literal notranslate"><span class="pre">Entity</span></code> objects with typed properties:</p>
+<section id="basic-properties">
+<h3>Basic Properties<a class="headerlink" href="#basic-properties" title="Link to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sample</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">123</span><span class="p">)</span>
+
+<span class="c1"># Entity identifier</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>  <span class="c1"># 123</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">classname</span><span class="p">)</span>  <span class="c1"># &quot;sample&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">bfabric_instance</span><span class="p">)</span>  <span class="c1"># &quot;https://fgcz-bfabric.uzh.ch/bfabric/&quot;</span>
+
+<span class="c1"># Entity URI</span>
+<span class="n">uri</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">uri</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>  <span class="c1"># EntityUri object</span>
+
+<span class="c1"># Raw data dictionary</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">data_dict</span>
+</pre></div>
+</div>
+</section>
+<section id="accessing-data">
+<h3>Accessing Data<a class="headerlink" href="#accessing-data" title="Link to this heading">#</a></h3>
+<p>Entities support dictionary-like access to their data:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check if a field exists</span>
+<span class="k">if</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">:</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+
+<span class="c1"># Get a field with default</span>
+<span class="n">name</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="relationships-and-references">
+<h2>Relationships and References<a class="headerlink" href="#relationships-and-references" title="Link to this heading">#</a></h2>
+<p>Entities can have relationships to other entities, accessed via the <code class="docutils literal notranslate"><span class="pre">refs</span></code> property. These are <strong>lazy-loaded</strong>, meaning they’re only fetched from B-Fabric when you first access them.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sample</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">123</span><span class="p">)</span>
+
+<span class="c1"># Access a related project (one-to-one)</span>
+<span class="n">project</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">refs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;container&quot;</span><span class="p">)</span>
+
+<span class="c1"># Access related workunits (one-to-many)</span>
+<span class="n">workunits</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">refs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;member&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Check if a reference is already loaded:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">sample</span><span class="o">.</span><span class="n">refs</span><span class="o">.</span><span class="n">is_loaded</span><span class="p">(</span><span class="s2">&quot;container&quot;</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Project already loaded&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="custom-entity-classes">
+<h2>Custom Entity Classes<a class="headerlink" href="#custom-entity-classes" title="Link to this heading">#</a></h2>
+<p>bfabricPy provides custom entity classes for common types (e.g., <code class="docutils literal notranslate"><span class="pre">Project</span></code>, <code class="docutils literal notranslate"><span class="pre">Sample</span></code>, <code class="docutils literal notranslate"><span class="pre">Workunit</span></code>) which provide type-specific methods and properties:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Project</span>
+
+<span class="c1"># Read as specific entity type</span>
+<span class="n">project</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">123</span><span class="p">,</span> <span class="n">expected_type</span><span class="o">=</span><span class="n">Project</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="current-limitations">
+<h2>Current Limitations<a class="headerlink" href="#current-limitations" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p><strong>Single B-Fabric Instance</strong>: Query operations only work with the client’s configured B-Fabric instance.</p></li>
+<li><p><strong>URI Validation</strong>: URIs must match the client’s configured instance.</p></li>
+<li><p><strong>None Returns</strong>: Methods return <code class="docutils literal notranslate"><span class="pre">None</span></code> when an entity is not found, rather than raising an exception.</p></li>
+</ol>
+</section>
+<section id="comparison-to-resultcontainer-api">
+<h2>Comparison to ResultContainer API<a class="headerlink" href="#comparison-to-resultcontainer-api" title="Link to this heading">#</a></h2>
+<p>If you find yourself needing any of the following, consider using <a class="reference internal" href="resultcontainer_api.html"><span class="doc">ResultContainer API</span></a> instead:</p>
+<ul class="simple">
+<li><p>Working with raw dictionary data</p></li>
+<li><p>Exporting directly to DataFrames without entity overhead</p></li>
+<li><p>Simple queries without relationships</p></li>
+</ul>
+</section>
+<section id="entity-specific-features">
+<h2>Entity-Specific Features<a class="headerlink" href="#entity-specific-features" title="Link to this heading">#</a></h2>
+<p>For detailed information about specific entity types and their special features (like <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> export methods, <code class="docutils literal notranslate"><span class="pre">Workunit</span></code> parameter access, <code class="docutils literal notranslate"><span class="pre">Resource</span></code> path methods), see <a class="reference internal" href="../working_with_entities/index.html"><span class="doc">Entity Features</span></a>.</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="resultcontainer_api.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">ResultContainer API</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="caching_for_performance.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Entity Caching</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reading-entities">Reading Entities</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#by-uri">By URI</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#by-id">By ID</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#by-query">By Query</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#entity-objects">Entity Objects</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-properties">Basic Properties</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#accessing-data">Accessing Data</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#relationships-and-references">Relationships and References</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-entity-classes">Custom Entity Classes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#current-limitations">Current Limitations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-to-resultcontainer-api">Comparison to ResultContainer API</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#entity-specific-features">Entity-Specific Features</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By the bfabricpy authors
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2014-2026 Functional Genomics Center Zurich.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,756 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Troubleshooting &#8212; bfabricPy 1.16.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=735ab59b"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/troubleshooting';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="User Guides" href="../user_guides/index.html" />
+    <link rel="prev" title="Configuration" href="configuration.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">bfabricPy 1.16.1 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Getting Started</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Troubleshooting</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../user_guides/index.html">User Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/creating_a_client/index.html">Creating a Client</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/creating_a_client/interactive_scripted_usage.html">Creating a Client for Interactive and Scripted Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/creating_a_client/server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/reading_data/index.html">Reading Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/reading_data/resultcontainer_api.html">ResultContainer API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/reading_data/entity_api.html">Entity API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/reading_data/caching_for_performance.html">Entity Caching</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/writing_data/index.html">Writing Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/working_with_entities/index.html">Entity Features</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/bfabric-cli/index.html">bfabric-cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/api_operations.html">API Operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/api_inspection.html">API Inspection with CLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/datasets.html">Datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/executables.html">Executables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/workunits.html">Workunits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/feeder.html">Feeder</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/error_handling.html">Error Handling</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api_reference/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/bfabric_client/index.html">Bfabric Client API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/entity_types/index.html">API Reference: Entity Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/entity_reader/index.html">API Reference: EntityReader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/entity_uri/index.html">API Reference: EntityUri</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/result_container/index.html">ResultContainer API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/token_data/index.html">API Reference: Token Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/exceptions_and_errors/index.html">API Reference: Exceptions and Errors</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../advanced_topics/index.html">Advanced Topics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../advanced_topics/workunit_definitions/index.html">Experimental: Workunit Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../advanced_topics/data_operations.html">Experimental Data Operations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../resources/index.html">Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../resources/good_to_know.html">Good to Know</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/getting_started/troubleshooting.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Troubleshooting</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#connection-issues">Connection Issues</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cant-connect">Can’t connect?</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-issues">Configuration Issues</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-file-not-found">“Configuration file not found”</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-login-or-password">“Invalid login or password”</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#no-default-config-found">“No default_config found”</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#query-issues">Query Issues</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#query-returns-no-results">Query returns no results?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#query-errors-or-unexpected-results">Query errors or unexpected results?</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-issues">Installation Issues</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#python-import-error">Python import error</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric-cli-not-found">bfabric-cli not found</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-issues">Version Issues</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wrong-b-fabric-instance">Wrong B-Fabric instance</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-help">Getting Help</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-mistakes">Common Mistakes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="troubleshooting">
+<h1>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">#</a></h1>
+<p>Common issues and solutions for getting started with bfabricPy.</p>
+<section id="connection-issues">
+<h2>Connection Issues<a class="headerlink" href="#connection-issues" title="Link to this heading">#</a></h2>
+<section id="cant-connect">
+<h3>Can’t connect?<a class="headerlink" href="#cant-connect" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test your configuration</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;from bfabric import Bfabric; print(Bfabric.connect().config.base_url)&quot;</span>
+</pre></div>
+</div>
+<p>If this fails, check:</p>
+<ul class="simple">
+<li><p><strong>Config file exists</strong>:</p>
+<ul>
+<li><p><strong>Linux/macOS</strong>: <code class="docutils literal notranslate"><span class="pre">~/.bfabricpy.yml</span></code> (in your home directory)</p></li>
+<li><p><strong>Windows</strong>: <code class="docutils literal notranslate"><span class="pre">C:\Users\&lt;username&gt;\.bfabricpy.yml</span></code></p></li>
+</ul>
+</li>
+<li><p><strong>YAML syntax is valid</strong>: Check for proper indentation and no syntax errors</p></li>
+<li><p><strong>Password is correct</strong>:</p>
+<ul>
+<li><p>Verify login is correct (case-sensitive)</p></li>
+<li><p>Ensure you’re using your <strong>web service password</strong>, not your login password</p></li>
+<li><p>Find web service password: Log into B-Fabric web interface → Go to profile → “Web Service Password”</p></li>
+</ul>
+</li>
+</ul>
+<p>See <a class="reference internal" href="configuration.html"><span class="std std-doc">Configuration Guide</span></a> for details.</p>
+</section>
+</section>
+<section id="configuration-issues">
+<h2>Configuration Issues<a class="headerlink" href="#configuration-issues" title="Link to this heading">#</a></h2>
+<section id="configuration-file-not-found">
+<h3>“Configuration file not found”<a class="headerlink" href="#configuration-file-not-found" title="Link to this heading">#</a></h3>
+<p>Ensure your file is at the correct location:</p>
+<ul class="simple">
+<li><p><strong>Linux/macOS</strong>: <code class="docutils literal notranslate"><span class="pre">~/.bfabricpy.yml</span></code> (in your home directory)</p></li>
+<li><p><strong>Windows</strong>: <code class="docutils literal notranslate"><span class="pre">C:\Users\&lt;username&gt;\.bfabricpy.yml</span></code></p></li>
+</ul>
+<p>Check that you haven’t named it incorrectly (e.g., <code class="docutils literal notranslate"><span class="pre">.bfabric.yml</span></code> instead of <code class="docutils literal notranslate"><span class="pre">.bfabricpy.yml</span></code>).</p>
+</section>
+<section id="invalid-login-or-password">
+<h3>“Invalid login or password”<a class="headerlink" href="#invalid-login-or-password" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Verify login is correct (case-sensitive)</p></li>
+<li><p>Ensure you’re using your <strong>web service password</strong>, not your login password</p></li>
+<li><p>Check that password doesn’t contain special characters that need escaping in YAML</p></li>
+</ul>
+</section>
+<section id="no-default-config-found">
+<h3>“No default_config found”<a class="headerlink" href="#no-default-config-found" title="Link to this heading">#</a></h3>
+<p>Add a <code class="docutils literal notranslate"><span class="pre">default_config</span></code> field under the <code class="docutils literal notranslate"><span class="pre">GENERAL</span></code> section in your config file:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># ~/.bfabricpy.yml</span>
+
+<span class="nt">GENERAL</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">default_config</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PRODUCTION</span><span class="w">  </span><span class="c1"># Default environment to use</span>
+
+<span class="nt">PRODUCTION</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">login</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yourBfabricLogin</span>
+<span class="w">  </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yourBfabricWebServicePassword</span>
+<span class="w">  </span><span class="nt">base_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://fgcz-bfabric.uzh.ch/bfabric/</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="query-issues">
+<h2>Query Issues<a class="headerlink" href="#query-issues" title="Link to this heading">#</a></h2>
+<section id="query-returns-no-results">
+<h3>Query returns no results?<a class="headerlink" href="#query-returns-no-results" title="Link to this heading">#</a></h3>
+<p>This is usually normal - the filter simply didn’t match any records. Try:</p>
+<ol class="arabic">
+<li><p><strong>Use broader filters</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;workunit&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{},</span> <span class="n">max_results</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Check filter values</strong>:</p>
+<ul class="simple">
+<li><p>Are IDs correct?</p></li>
+<li><p>Are names spelled correctly?</p></li>
+<li><p>Are date formats correct? (YYYY-MM-DD)</p></li>
+</ul>
+</li>
+<li><p><strong>Use <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">api</span> <span class="pre">inspect</span></code></strong> to discover valid filters:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class="w"> </span>workunit
+</pre></div>
+</div>
+</li>
+<li><p><strong>Check what endpoints are available</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Available endpoints:&quot;</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">endpoints</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="query-errors-or-unexpected-results">
+<h3>Query errors or unexpected results?<a class="headerlink" href="#query-errors-or-unexpected-results" title="Link to this heading">#</a></h3>
+<p>Use <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">api</span> <span class="pre">inspect</span></code> to understand what parameters are available:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># See what parameters an endpoint accepts</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class="w"> </span>workunit
+
+<span class="c1"># Then build your query with the right parameters</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>workunit<span class="w"> </span>status<span class="w"> </span>FINISHED
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="../user_guides/bfabric-cli/api_inspection.html"><span class="doc std std-doc">API Inspection Guide</span></a> for complete documentation on using the inspect command.</p>
+</section>
+</section>
+<section id="installation-issues">
+<h2>Installation Issues<a class="headerlink" href="#installation-issues" title="Link to this heading">#</a></h2>
+<section id="python-import-error">
+<h3>Python import error<a class="headerlink" href="#python-import-error" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Verify installation</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import bfabric; print(bfabric.__version__)&quot;</span>
+</pre></div>
+</div>
+<p>If this fails:</p>
+<ul class="simple">
+<li><p>Check that <code class="docutils literal notranslate"><span class="pre">bfabric</span></code> is installed: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">list</span> <span class="pre">|</span> <span class="pre">grep</span> <span class="pre">bfabric</span></code></p></li>
+<li><p>Try reinstalling: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--force-reinstall</span> <span class="pre">bfabric</span></code></p></li>
+</ul>
+</section>
+<section id="bfabric-cli-not-found">
+<h3>bfabric-cli not found<a class="headerlink" href="#bfabric-cli-not-found" title="Link to this heading">#</a></h3>
+<p>If you installed <code class="docutils literal notranslate"><span class="pre">bfabric-scripts</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>--version
+bfabric-cli<span class="w"> </span>--help
+</pre></div>
+</div>
+<p>If this fails:</p>
+<ul class="simple">
+<li><p>Verify installation: <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">tool</span> <span class="pre">list</span> <span class="pre">|</span> <span class="pre">grep</span> <span class="pre">bfabric-scripts</span></code></p></li>
+<li><p>Reinstall: <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">tool</span> <span class="pre">install</span> <span class="pre">bfabric-scripts</span></code></p></li>
+</ul>
+</section>
+</section>
+<section id="version-issues">
+<h2>Version Issues<a class="headerlink" href="#version-issues" title="Link to this heading">#</a></h2>
+<section id="wrong-b-fabric-instance">
+<h3>Wrong B-Fabric instance<a class="headerlink" href="#wrong-b-fabric-instance" title="Link to this heading">#</a></h3>
+<p>Check your configuration is pointing to the correct instance:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Connected to: </span><span class="si">{</span><span class="n">client</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;User: </span><span class="si">{</span><span class="n">client</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">login</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Common URLs:</p>
+<ul class="simple">
+<li><p><strong>Production</strong>: <code class="docutils literal notranslate"><span class="pre">https://fgcz-bfabric.uzh.ch/bfabric/</span></code></p></li>
+<li><p><strong>Test</strong>: <code class="docutils literal notranslate"><span class="pre">https://fgcz-bfabric-test.uzh.ch/bfabric/</span></code></p></li>
+</ul>
+<p>If you’re connecting to the wrong instance, update your config file or use a different environment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">BFABRICPY_CONFIG_ENV</span><span class="o">=</span>TEST<span class="w">  </span><span class="c1"># or PRODUCTION</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="getting-help">
+<h2>Getting Help<a class="headerlink" href="#getting-help" title="Link to this heading">#</a></h2>
+<p>Still stuck?</p>
+<ol class="arabic simple">
+<li><p><strong>Check error messages</strong>: Look at the specific error message for clues</p></li>
+<li><p><strong>Use API Inspection</strong>: <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">api</span> <span class="pre">inspect</span></code> to understand what you’re querying</p></li>
+<li><p><strong>Review configuration</strong>: Verify all settings are correct</p></li>
+<li><p><strong>Consult related docs</strong>:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../user_guides/error_handling.html"><span class="doc std std-doc">Error Handling</span></a> - Complete error types and handling</p></li>
+<li><p><a class="reference internal" href="../user_guides/bfabric-cli/api_inspection.html"><span class="doc std std-doc">API Inspection Guide</span></a> - Discovering endpoints and parameters</p></li>
+<li><p><a class="reference internal" href="configuration.html"><span class="doc std std-doc">Configuration Guide</span></a> - Config file structure</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="common-mistakes">
+<h2>Common Mistakes<a class="headerlink" href="#common-mistakes" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Mistake</p></th>
+<th class="head"><p>Symptom</p></th>
+<th class="head"><p>Fix</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Using login password instead of web service password</p></td>
+<td><p>“Invalid login or password”</p></td>
+<td><p>Use web service password from B-Fabric profile</p></td>
+</tr>
+<tr class="row-odd"><td><p>Config file in wrong location</p></td>
+<td><p>“Configuration file not found”</p></td>
+<td><p>Ensure <code class="docutils literal notranslate"><span class="pre">~/.bfabricpy.yml</span></code> (not <code class="docutils literal notranslate"><span class="pre">.bfabric.yml</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>Wrong environment variable</p></td>
+<td><p>Querying wrong instance</p></td>
+<td><p>Check <code class="docutils literal notranslate"><span class="pre">BFABRICPY_CONFIG_ENV</span></code> value</p></td>
+</tr>
+<tr class="row-odd"><td><p>Missing default_config</p></td>
+<td><p>“No default_config found”</p></td>
+<td><p>Add <code class="docutils literal notranslate"><span class="pre">default_config</span></code> field under <code class="docutils literal notranslate"><span class="pre">GENERAL</span></code> section</p></td>
+</tr>
+<tr class="row-even"><td><p>Typos in filter names</p></td>
+<td><p>No results or errors</p></td>
+<td><p>Use <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">api</span> <span class="pre">inspect</span></code> to check valid parameter names</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
+<p>Once you’ve resolved the issue:</p>
+<ol class="arabic">
+<li><p><strong>Test your setup</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;from bfabric import Bfabric; print(Bfabric.connect().config.base_url)&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Try a simple query</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>workunit<span class="w"> </span>--limit<span class="w"> </span><span class="m">1</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Continue with the tutorials</strong>:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="quick_start.html"><span class="doc std std-doc">Quick Start</span></a> - Your first script</p></li>
+<li><p><a class="reference internal" href="../user_guides/bfabric-cli/api_inspection.html"><span class="doc std std-doc">API Inspection Guide</span></a> - Exploring the API</p></li>
+<li><p><a class="reference internal" href="../user_guides/reading_data/index.html"><span class="doc std std-doc">Reading Data</span></a> - Querying data</p></li>
+</ul>
+</li>
+</ol>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="configuration.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Configuration</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../user_guides/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">User Guides</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#connection-issues">Connection Issues</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cant-connect">Can’t connect?</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-issues">Configuration Issues</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-file-not-found">“Configuration file not found”</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-login-or-password">“Invalid login or password”</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#no-default-config-found">“No default_config found”</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#query-issues">Query Issues</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#query-returns-no-results">Query returns no results?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#query-errors-or-unexpected-results">Query errors or unexpected results?</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-issues">Installation Issues</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#python-import-error">Python import error</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric-cli-not-found">bfabric-cli not found</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-issues">Version Issues</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wrong-b-fabric-instance">Wrong B-Fabric instance</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-help">Getting Help</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-mistakes">Common Mistakes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By the bfabricpy authors
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2014-2026 Functional Genomics Center Zurich.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
