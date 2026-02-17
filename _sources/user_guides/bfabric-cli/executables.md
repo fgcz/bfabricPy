@@ -289,12 +289,6 @@ bfabric-cli api read executable id <executable-id>
 
 ______________________________________________________________________
 
-## Integration with bfabric-app-runner
-
-Executables uploaded via the CLI can be used with `bfabric-app-runner`. For more information on using executables in workflows, refer to the bfabric-app-runner documentation.
-
-______________________________________________________________________
-
 ## See Also
 
 - [API Operations](api_operations) - Generic CRUD operations for finding executables
