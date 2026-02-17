@@ -130,19 +130,6 @@ ______________________________________________________________________
 - **Convenient output formats** - JSON, tables, CSV
 - **Shell-friendly** - Easy to use in scripts and pipelines
 
-### Example bfabric-cli Usage
-
-```bash
-# Find recent datasets
-bfabric-cli entity list --type dataset --limit 10
-
-# Get detailed information about a specific entity
-bfabric-cli entity show --id 12345
-
-# Search for samples by name
-bfabric-cli entity search --type sample --query "my_sample"
-```
-
 For comprehensive `bfabric-cli` documentation, see the [bfabric-cli User Guide](../user_guides/bfabric-cli/index).
 
 ______________________________________________________________________
