@@ -15,12 +15,7 @@ exceptions_and_errors/index
 
 ## Documentation Style
 
-This section uses **auto-generated documentation** directly from the Python code using Sphinx autodoc and autodoc_pydantic extensions. This ensures:
-
-✅ Documentation is always in sync with the code
-✅ Type signatures are accurate
-✅ Parameters and return types are complete
-✅ No redundant manual maintenance
+This section uses **auto-generated documentation** directly from the Python code using Sphinx autodoc and autodoc_pydantic extensions.
 
 ## Quick Links
 
