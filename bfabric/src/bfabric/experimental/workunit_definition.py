@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Literal, TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import yaml
 from loguru import logger
+from pydantic import BaseModel
 
 from bfabric.entities import Workunit
-from pydantic import BaseModel, model_validator
 from bfabric.utils.path_safe_name import PathSafeStr  # noqa: TC001
 
 if TYPE_CHECKING:
@@ -27,24 +27,6 @@ class WorkunitExecutionDefinition(BaseModel):
 
     resources: list[int] = []
     """Input resources (for resource-flow applications"""
-
-    @model_validator(mode="after")
-    def either_dataset_or_resources(self) -> WorkunitExecutionDefinition:
-        """Validates that either dataset or resources are provided."""
-        if self.dataset is not None and self.resources:
-            raise ValueError("dataset and resources are mutually exclusive")
-        if self.dataset is None and not self.resources:
-            raise ValueError("either dataset or resources must be provided")
-        return self
-
-    @model_validator(mode="after")
-    def mutually_exclusive_dataset_resources(self) -> WorkunitExecutionDefinition:
-        """Validates that dataset and resources are mutually exclusive."""
-        if self.dataset is not None and self.resources:
-            raise ValueError("dataset and resources are mutually exclusive")
-        if self.dataset is None and not self.resources:
-            raise ValueError("either dataset or resources must be provided")
-        return self
 
     @classmethod
     def from_workunit(cls, workunit: Workunit) -> WorkunitExecutionDefinition:
