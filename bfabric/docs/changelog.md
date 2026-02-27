@@ -23,6 +23,10 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 - `Bfabric.from_config`
 - `Bfabric.connect_webapp`
 
+### Changed
+
+- `WorkunitExecutionDefinition` no longer validates that dataset or resources are provided.
+
 ### Fixed
 
 - `References` correctly handles references with extra fields like `_position`.
