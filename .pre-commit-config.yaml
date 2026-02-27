@@ -41,10 +41,10 @@ repos:
     rev: "v0.15.0"
     hooks:
       - id: yamlfmt
-  - repo: https://github.com/executablebooks/mdformat/
-    rev: "1.0.0"
-    hooks:
-      - id: mdformat
+  #- repo: https://github.com/executablebooks/mdformat/
+  #  rev: "1.0.0"
+  #  hooks:
+  #    - id: mdformat
   #- repo: https://github.com/abravalheri/validate-pyproject
   #  rev: "v0.23"
   #  hooks:
