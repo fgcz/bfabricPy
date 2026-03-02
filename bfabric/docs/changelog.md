@@ -9,6 +9,16 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+## \[1.16.2\] - 2026-03-02
+
+### Fixed
+
+- `BfabricAuth` does not prevent users with username shorter than 3 characters from logging in.
+
+### Changed
+
+- `BfabricAPIEngineType` is a `StrEnum` now, rather than `str, Enum` subclass.
+
 ## \[1.16.1\] - 2025-12-15
 
 ### Fixed
