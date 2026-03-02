@@ -2,6 +2,9 @@
 name = "bfabricpy_workspace"
 version = "0.0.0"
 requires-python = ">=3.11"
+dependencies = [
+    "itsdangerous>=2.2.0",
+]
 
 [tool.uv.workspace]
 members = [
@@ -9,6 +12,7 @@ members = [
     "bfabric_scripts",
     "bfabric_app_runner",
     "bfabric_rest_proxy",
+    "bfabric_asgi_auth",
 ]
 
 [tool.uv.sources]
@@ -38,12 +42,13 @@ indent-width = 4
 target-version = "py311"
 
 [tool.uv]
-reinstall-package = ["bfabric", "bfabric_scripts", "bfabric_app_runner", "bfabric_rest_proxy"]
+reinstall-package = ["bfabric", "bfabric_scripts", "bfabric_app_runner", "bfabric_rest_proxy", "bfabric-asgi-auth"]
 
 [tool.basedpyright]
 exclude = [
     "*/tests/*",
     "**/.venv/*",
+    "**/docs/conf.py",
     # TODO this list should ideally not be extended or even consolidated at some point:
     "bfabric/src/bfabric/wrapper_creator/bfabric_submitter.py",
     "bfabric/src/bfabric/wrapper_creator/bfabric_wrapper_creator.py",
@@ -53,3 +58,4 @@ exclude = [
     "bfabric_scripts/src/bfabric_scripts/bfabric_read_samples_from_dataset.py",
     "bfabric_scripts/src/bfabric_scripts/bfabric_read.py",
 ]
+reportImplicitStringConcatenation = false

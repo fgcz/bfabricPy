@@ -11,8 +11,8 @@ if TYPE_CHECKING:
 
     import polars
 
-    from bfabric.typing import ApiResponseObjectType
     from bfabric.errors import BfabricRequestError
+    from bfabric.typing import ApiResponseObjectType
 
 
 class ResultContainer:
@@ -113,10 +113,16 @@ class ResultContainer:
         else:
             return self.results
 
-    def to_polars(self, drop_empty: bool = False) -> polars.DataFrame:
+    def to_polars(self, drop_empty: bool = False, flatten: bool = False) -> polars.DataFrame:
         """Returns the results as a polars DataFrame.
         :param drop_empty: If True, empty attributes will be removed from the results
+        :param flatten: If True, flatten struct columns into individual columns
         """
         import polars
 
-        return polars.DataFrame(self.to_list_dict(drop_empty=drop_empty))
+        from bfabric.utils.polars_utils import flatten_relations
+
+        df = polars.from_dicts(self.to_list_dict(drop_empty=drop_empty), infer_schema_length=None)
+        if flatten:
+            df = flatten_relations(df)
+        return df

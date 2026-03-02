@@ -13,6 +13,7 @@ Authors:
 
 from __future__ import annotations
 
+import asyncio
 import base64
 import importlib.metadata
 import sys
@@ -33,7 +34,7 @@ from bfabric.config.config_data import ConfigData, load_config_data
 from bfabric.config.config_file import read_config_file
 from bfabric.engine.engine_suds import EngineSUDS
 from bfabric.engine.engine_zeep import EngineZeep
-from bfabric.rest.token_data import TokenData, get_token_data
+from bfabric.rest.token_data import TokenData, get_token_data, validate_token
 from bfabric.results.result_container import ResultContainer
 from bfabric.utils.cli_integration import DEFAULT_THEME, HostnameHighlighter
 from bfabric.utils.paginator import BFABRIC_QUERY_LIMIT, compute_requested_pages
@@ -41,7 +42,10 @@ from bfabric.utils.paginator import BFABRIC_QUERY_LIMIT, compute_requested_pages
 if TYPE_CHECKING:
     from collections.abc import Generator
 
+    from pydantic import SecretStr
+
     from bfabric.entities.core.entity_reader import EntityReader
+    from bfabric.experimental.webapp_integration_settings import TokenValidationSettingsProtocol
     from bfabric.typing import ApiRequestObjectType, ApiResponseObjectType
 
 
@@ -109,18 +113,31 @@ class Bfabric:
         determined by checking the following in order (picking the first one that is found):
         - The `BFABRICPY_CONFIG_ENV` environment variable
         - The `default_config` field in the config file "GENERAL" section
+
         :param config_env: Configuration environment to use. If not given, it is deduced as described above.
         :param config_path: Path to the config file, in case it is different from default
         :param auth: Authentication to use. If "config" is given, the authentication will be read from the config file.
-            If it is set to None, no authentication will be used.
+             If it is set to None, no authentication will be used.
         :param engine: Engine to use for the API.
         """
+        warnings.warn(
+            "Bfabric.from_config() is deprecated and will be removed in a future release. "
+            "Use Bfabric.connect() instead."
+        )
         config, auth_config = get_system_auth(config_env=config_env, config_path=config_path)
         auth_used: BfabricAuth | None = auth_config if auth == "config" else auth
         # TODO https://github.com/fgcz/bfabricPy/issues/164
         # if engine is not None:
         #    config = config.copy_with(engine=engine)
         return cls(ConfigData(client=config, auth=auth_used))
+
+    @classmethod
+    def from_token_data(cls, token_data: TokenData) -> Bfabric:
+        """Creates a new Bfabric instance from token data."""
+        config_data_client = BfabricClientConfig.model_validate(dict(base_url=token_data.caller))
+        config_data_auth = BfabricAuth(login=token_data.user, password=token_data.user_ws_password)
+        config_data = ConfigData(client=config_data_client, auth=config_data_auth)
+        return cls(config_data=config_data)
 
     @classmethod
     def connect_webapp(
@@ -138,17 +155,34 @@ class Bfabric:
             validation can be performed on any B-Fabric instance as the token describes the caller too
         :return: a tuple of the Bfabric instance and the token data
         """
-        if config_file_path is not None or config_file_env is not None:
-            # TODO delete these later
-            warnings.warn(
-                "config_file_path and config_file_env are deprecated and will be removed in the future.",
-                DeprecationWarning,
-            )
+        _ = config_file_path, config_file_env
+        warnings.warn(
+            "use Bfabric.connect_token which allows for a more secure set up",
+            DeprecationWarning,
+        )
         token_data = get_token_data(base_url=validation_instance_url, token=token)
-        config_data_client = BfabricClientConfig(base_url=token_data.caller)
-        config_data_auth = BfabricAuth(login=token_data.user, password=token_data.user_ws_password)
-        config_data = ConfigData(client=config_data_client, auth=config_data_auth)
-        return cls(config_data=config_data), token_data
+        return cls.from_token_data(token_data), token_data
+
+    @classmethod
+    def connect_token(
+        cls, token: str | SecretStr, settings: TokenValidationSettingsProtocol
+    ) -> tuple[Bfabric, TokenData]:
+        """Returns a new Bfabric instance configured with the provided token.
+
+        Calls connect_token_async, if you are in a coroutine then you have to call connect_token_async instead.
+        """
+        return asyncio.run(cls.connect_token_async(token=token, settings=settings))
+
+    @classmethod
+    async def connect_token_async(
+        cls, token: str | SecretStr, settings: TokenValidationSettingsProtocol
+    ) -> tuple[Bfabric, TokenData]:
+        """Returns a new Bfabric instance configured with the provided token.
+
+        Settings needs to be configured to allow the desired B-Fabric instances.
+        """
+        token_data = await validate_token(token=token, settings=settings)
+        return cls.from_token_data(token_data), token_data
 
     @property
     def config(self) -> BfabricClientConfig:
@@ -199,19 +233,19 @@ class Bfabric:
         return_id_only: bool = False,
     ) -> ResultContainer:
         """Reads from the specified endpoint matching all specified attributes in `obj`.
+
         By setting `max_results` it is possible to change the number of results that are returned.
-        :param endpoint: the endpoint to read from, e.g. "sample"
-        :param obj: a dictionary containing the query, for every field multiple possible values can be provided, the
-            final query requires the condition for each field to be met
-        :param max_results: cap on the number of results to query. The code will keep reading pages until all pages
-           are read or expected number of results has been reached. If None, load all available pages.
-           NOTE: max_results will be rounded upwards to the nearest multiple of BFABRIC_QUERY_LIMIT, because results
-           come in blocks, and there is little overhead to providing results over integer number of pages.
-        :param offset: the number of elements to skip before starting to return results (useful for pagination, default
-              is 0 which means no skipping)
-        :param check: whether to raise an error if the response is not successful
-        :param return_id_only: whether to return only the ids of the found objects
-        :return: List of responses, packaged in the results container
+
+        :param endpoint: The B-Fabric endpoint to query (e.g., "sample", "project", "workunit").
+        :param obj: A dictionary containing the query criteria. For every field, multiple possible values
+            can be provided as a list (treated as OR). Multiple fields are treated as AND.
+        :param max_results: Maximum number of results to return. The client will automatically handle
+            pagination to reach this limit. Set to ``None`` to retrieve all available results.
+            Note: results are fetched in blocks of 100.
+        :param offset: Number of results to skip before starting to return results.
+        :param check: If ``True`` (default), raises a ``RuntimeError`` if the query fails.
+        :param return_id_only: If ``True``, only returns entity IDs instead of full data (faster).
+        :return: A :class:`ResultContainer` containing the query results.
         """
         # Get the first page.
         logger.debug(f"Reading from endpoint {repr(endpoint)} with query {repr(obj)}")
@@ -273,7 +307,8 @@ class Bfabric:
         :param obj: the object(s) to save
         :param check: whether to raise an error if the response is not successful
         :param method: the method to use for saving, generally "save", but in some cases e.g. "update" is more
-            appropriate to be used instead.
+        appropriate to be used instead.
+
         :return a ResultContainer describing the saved object if successful
         """
         results = self._engine.save(endpoint=endpoint, obj=obj, auth=self.auth, method=method)

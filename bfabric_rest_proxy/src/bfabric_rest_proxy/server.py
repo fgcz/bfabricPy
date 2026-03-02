@@ -5,8 +5,9 @@ from typing import Annotated
 
 import fastapi
 from bfabric.config.config_data import ConfigData
-from bfabric.rest.token_data import get_token_data
+from bfabric.rest.token_data import get_token_data_async
 from fastapi import Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.params import Depends
 from fastapi.responses import JSONResponse
 from loguru import logger
@@ -115,22 +116,44 @@ async def health(settings: ServerSettingsDep):
     }
 
 
+class TokenParam(BaseModel):
+    token: SecretStr
+
+
 @app.post("/validate_token")
-async def validate_token(token: str, bfabric_instance: BfabricInstanceDep):
+async def validate_token(token_param: TokenParam, bfabric_instance: BfabricInstanceDep):
     """Validates a token and returns the token data.
 
     This endpoint is not really necessary since it proxies a REST endpoint, but is added here for consistency to avoid
     shiny apps having to interface with two different APIs.
     """
-    token_data = get_token_data(base_url=bfabric_instance, token=token)
+    token_data = await get_token_data_async(base_url=bfabric_instance, token=token_param.token, http_client=None)
     dump = token_data.model_dump(by_alias=True, mode="json")
     dump["userWsPassword"] = token_data.user_ws_password.get_secret_value()
     return dump
 
 
+@app.exception_handler(RequestValidationError)
+async def handle_validation_error(request: Request, exc: RequestValidationError):
+    """Handles malformed requests (invalid JSON, missing fields, etc.)."""
+    try:
+        body = await request.body()
+        body_str = body.decode(errors="replace")[:1000] if body else "(empty)"
+    except RuntimeError:
+        body_str = "(unavailable)"
+    logger.warning(
+        f"Validation error on {request.method} {request.url.path}\n  Body: {body_str}\n  Errors: {exc.errors()}"
+    )
+    return JSONResponse(status_code=422, content={"detail": exc.errors()})
+
+
 @app.exception_handler(Exception)
-def handle_unknown_exception(request: Request, exc: Exception):
+async def handle_unknown_exception(request: Request, exc: Exception):
     """Handles exceptions which are not handled by a more specific handler."""
-    _ = request
-    logger.exception("Unknown exception", exception=exc)
+    try:
+        body = await request.body()
+        body_str = body.decode(errors="replace")[:1000] if body else "(empty)"
+    except RuntimeError:
+        body_str = "(unavailable)"
+    logger.exception(f"Exception on {request.method} {request.url.path}\n  Body: {body_str}")
     return JSONResponse({"error": f"unknown exception occurred: {exc}"})

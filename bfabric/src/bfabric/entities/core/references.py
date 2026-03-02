@@ -164,6 +164,5 @@ class References:
         entity_id = cast("int", value_dict["id"])
 
         uri = EntityUri.from_components(bfabric_instance, classname, entity_id)
-        # TODO double check if this handles the more complex references
-        is_loaded = len(value_dict) > 2
+        is_loaded = len([key for key in value_dict if not key.startswith("_")]) > 2
         return {"uri": uri, "is_loaded": is_loaded}

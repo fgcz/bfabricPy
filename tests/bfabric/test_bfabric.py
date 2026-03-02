@@ -80,6 +80,40 @@ def test_connect_webapp(mocker, mock_config):
     mock_get_token_data.assert_called_once_with(base_url="https://example.com/validation/", token="test_token")
 
 
+@pytest.fixture
+def token_validation_settings():
+    class MockSettings:
+        validation_bfabric_instance = "https://example.com/bfabric/"
+        supported_bfabric_instances = ["https://example.com/bfabric/"]
+
+    return MockSettings()
+
+
+@pytest.fixture
+def mock_validate_token(mocker):
+    func = mocker.patch("bfabric.bfabric.validate_token")
+    func.return_value.user = "test_user"
+    func.return_value.user_ws_password = SecretStr("x" * 32)
+    func.return_value.caller = "https://example.com/bfabric/"
+    return func
+
+
+def test_connect_token(mock_config, token_validation_settings, mock_validate_token):
+    client, data = Bfabric.connect_token(token="test_token", settings=token_validation_settings)
+    assert client.config.base_url == "https://example.com/bfabric/"
+    assert client.auth.login == "test_user"
+    assert client.auth.password == SecretStr("x" * 32)
+    assert data == mock_validate_token.return_value
+
+
+async def test_connect_token_async(mock_config, token_validation_settings, mock_validate_token):
+    client, data = await Bfabric.connect_token_async(token="test_token", settings=token_validation_settings)
+    assert client.config.base_url == "https://example.com/bfabric/"
+    assert client.auth.login == "test_user"
+    assert client.auth.password == SecretStr("x" * 32)
+    assert data == mock_validate_token.return_value
+
+
 def test_query_counter(bfabric_instance):
     assert bfabric_instance.query_counter == 0
 

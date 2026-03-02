@@ -16,7 +16,7 @@ def refs_loaded(request) -> bool:
 @pytest.fixture
 def entity_data_dict(refs_loaded):
     container = {"id": 3000, "classname": "project"}
-    member = {"id": 1, "classname": "user"}
+    member = {"id": 1, "classname": "user", "_extra": "data"}
     if refs_loaded:
         container["name"] = "Test Project"
         member["name"] = "Test User"
@@ -114,6 +114,7 @@ class TestGet:
             "classname": "user",
             "name": "Test User",
             "email": "test@bfabric.example.org",
+            "_extra": "data",
         }
         assert isinstance(members[0], User)
         assert refs.is_loaded("member") == True
@@ -141,7 +142,7 @@ class TestGet:
         assert len(members) == 1
         assert refs.is_loaded("member") == True
         assert isinstance(members[0], User)
-        assert members[0].data_dict == mock_user.data_dict
+        assert {k: v for k, v in members[0].data_dict.items() if k != "_extra"} == mock_user.data_dict
 
     def test_not_exists(self, refs):
         value = refs.get("nonexistent")

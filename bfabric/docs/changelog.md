@@ -9,6 +9,29 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+### Added
+
+- Improved token authentication
+    - `bfabric.experimental.webapp_integration_settings`
+    - `Bfabric.connect_token`, `Bfabric.connect_token_async`: this one respects the list of allowed bfabric instances
+    - `bfabric.rest.token_data.validate_token`
+    - `Bfabric.from_token_data`: creates a new Bfabric instance from token data.
+- `ResultContainer.to_polars` now has a `flatten` parameter to flatten struct columns into individual columns.
+
+### Deprecated
+
+- `Bfabric.from_config`
+- `Bfabric.connect_webapp`
+
+### Changed
+
+- `WorkunitExecutionDefinition` no longer validates that dataset or resources are provided.
+
+### Fixed
+
+- `References` correctly handles references with extra fields like `_position`.
+- `ResultContainer.to_polars` sets the schema length to `None` to fix bugs in some cases with more than 100 items.
+
 ## \[1.16.2\] - 2026-03-02
 
 ### Fixed
@@ -136,6 +159,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 - This is the last release supporting Python 3.9. From the next release onwards, Python 3.11 or higher will be required.
 - Flask is not a dependency anymore, as the dependency will be moved to bfabric-scripts.
 - Version upper bounds for dependencies have been defined.
+- More robust URL handling for token authentication.
 
 ### Fixed
 
