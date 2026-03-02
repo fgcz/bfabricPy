@@ -1,15 +1,16 @@
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
+from bfabric.entities import Dataset, Resource
 from pydantic import BaseModel, ConfigDict, model_validator
 
-from bfabric.entities import Resource, Dataset
 from bfabric_app_runner.dispatch.generic import write_chunks_file
 from bfabric_app_runner.dispatch.resource_flow import get_resource_flow_input_resources
 
 if TYPE_CHECKING:
     from pathlib import Path
+
     from bfabric import Bfabric
     from bfabric.experimental.workunit_definition import WorkunitDefinition
 
@@ -95,10 +96,11 @@ class DispatchIndividualResources:
             msg = f"Dataset with id {definition.execution.dataset} not found"
             raise ValueError(msg)
         dataset_df = dataset.to_polars()
-        resources = Resource.find_all(ids=dataset_df[config.resource_column].unique().to_list(), client=self._client)
+        resources = self._client.reader.read_ids("resource", dataset_df[config.resource_column].unique().to_list())
+        resources_by_id = {uri.components.entity_id: resource for uri, resource in resources.items()}
         paths = []
         for row in dataset_df.iter_rows(named=True):
             resource_id = int(row[config.resource_column])
             row_params = {name: row[dataset_name] for dataset_name, name in config.param_columns}
-            paths.append(self.dispatch_job(resource=resources[resource_id], params=params | row_params))
+            paths.append(self.dispatch_job(resource=resources_by_id[resource_id], params=params | row_params))
         return paths
