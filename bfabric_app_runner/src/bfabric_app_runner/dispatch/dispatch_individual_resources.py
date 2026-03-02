@@ -96,11 +96,17 @@ class DispatchIndividualResources:
             msg = f"Dataset with id {definition.execution.dataset} not found"
             raise ValueError(msg)
         dataset_df = dataset.to_polars()
-        resources = self._client.reader.read_ids("resource", dataset_df[config.resource_column].unique().to_list())
+        resources = self._client.reader.read_ids(
+            "resource", dataset_df[config.resource_column].unique().to_list(), expected_type=Resource
+        )
         resources_by_id = {uri.components.entity_id: resource for uri, resource in resources.items()}
         paths = []
         for row in dataset_df.iter_rows(named=True):
             resource_id = int(row[config.resource_column])
             row_params = {name: row[dataset_name] for dataset_name, name in config.param_columns}
-            paths.append(self.dispatch_job(resource=resources_by_id[resource_id], params=params | row_params))
+            resource = resources_by_id[resource_id]
+            if resource is None:
+                msg = f"Resource with id {resource_id} not found"
+                raise ValueError(msg)
+            paths.append(self.dispatch_job(resource=resource, params=params | row_params))
         return paths
