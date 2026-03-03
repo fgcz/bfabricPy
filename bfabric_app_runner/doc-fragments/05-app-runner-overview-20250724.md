@@ -1,0 +1,23 @@
+**App Runner Notes:**
+
+- **Update recommended**: If you need to debug an App Runner app, I recommend defining `bfabric_runner: 0.2.1` in the app's app.yml if this isn't already the case (spectronaut, mzmine).
+    - If you have an old Makefile, it should be sufficient to run: "uv venv -p 3.13 && source .venv/bin/activate && uv pip install bfabric-app-runner" and then continue with make help.
+- With version 0.2.1, the Makefile automatically provides the correct version of bfabric-app-runner using uv.
+    - "make help" gives you information about everything following
+    - "make dispatch" loads initial information from bfabric, determines which resources are needed. generates inputs.yml files
+    - "make inputs" loads the required files based on inputs.yml
+    - "make process" the actual work, e.g. snakemake
+    - "make stage" uploads the results
+- In slurmworker you can run nox to validate that the YAML files are correctly structured (`nox`, or, `uv tool run nox`).
+- For problems:
+    - A step temporarily failed: "make run-all" or "make process", "make stage", etc.
+    - A change can be made in an intermediate step: Edit the file and run "make process". Sometimes you need to delete more files.
+    - The app needs to be completely changed: in this case I recommend adapting the "devel" version (see mzmine or spectronaut app.yml), assigning the path to your own path and editing the code there. Either create a new workunit again, or, "uv tool run bfabric-app-runner@0.2.1 prepare workunit --force-app-version devel" and specify the name of your version under "devel").
+- App Yaml Format
+    - https://github.com/fgcz/bfabricPy/blob/8584e2b17b1c560f43699db2215944798e5500bb/bfabric_app_runner/doc-fragments/04-app-config.md
+    - (this link is not permanent, because I'm currently collecting snippets for the new documentation)
+- App Runner Interface:
+    - "uv tool run bfabric-app-runner@0.2.1" or "uv tool run bfabric-app-runner@0.2.1 --help" should already explain quite a bit
+    - "uv tool run bfabric-app-runner@0.2.1 prepare workunit" to prepare the folder with Makefile
+    - "uv tool run bfabric-app-runner@0.2.1 run workunit" is used in the Slurm script, runs the app from start to finish.
+    - There are more commands but I personally only use these and the Makefile.
