@@ -68,7 +68,7 @@ def setup_script_logging(debug: bool = False) -> None:
     env_level = os.environ.get("BFABRICPY_LOG_LEVEL", "").upper()
     valid_levels = {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
 
-    if debug or os.environ.get("BFABRICPY_DEBUG"):
+    if debug or env_level == "DEBUG":
         level = "DEBUG"
     elif env_level in ("OFF", "0"):
         level = "OFF"
