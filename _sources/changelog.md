@@ -9,6 +9,8 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+## \[1.17.0\] - 2026-03-12
+
 ### Added
 
 - Improved token authentication
@@ -23,10 +25,25 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 - `Bfabric.from_config`
 - `Bfabric.connect_webapp`
 
+### Changed
+
+- `WorkunitExecutionDefinition` no longer validates that dataset or resources are provided.
+- `setup_script_logging()` now supports a `BFABRICPY_LOG_LEVEL` environment variable (`DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`, `OFF`/`0`). The previous `BFABRICPY_DEBUG` environment variable has been removed; use `BFABRICPY_LOG_LEVEL=DEBUG` instead.
+
 ### Fixed
 
 - `References` correctly handles references with extra fields like `_position`.
 - `ResultContainer.to_polars` sets the schema length to `None` to fix bugs in some cases with more than 100 items.
+
+## \[1.16.2\] - 2026-03-02
+
+### Fixed
+
+- `BfabricAuth` does not prevent users with username shorter than 3 characters from logging in.
+
+### Changed
+
+- `BfabricAPIEngineType` is a `StrEnum` now, rather than `str, Enum` subclass.
 
 ## \[1.16.1\] - 2025-12-15
 
