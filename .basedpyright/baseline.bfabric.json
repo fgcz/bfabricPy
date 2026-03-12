@@ -6580,22 +6580,6 @@
                     "endColumn": 14,
                     "lineCount": 1
                 }
-            },
-            {
-                "code": "reportUnusedCallResult",
-                "range": {
-                    "startColumn": 12,
-                    "endColumn": 92,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnusedCallResult",
-                "range": {
-                    "startColumn": 12,
-                    "endColumn": 65,
-                    "lineCount": 1
-                }
             }
         ],
         "./bfabric/src/bfabric/utils/paginator.py": [

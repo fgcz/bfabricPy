@@ -63,12 +63,30 @@ def setup_script_logging(debug: bool = False) -> None:
     setup_flag_key = "BFABRICPY_SCRIPT_LOGGING_SETUP"
     if os.environ.get(setup_flag_key, "0") == "1":
         return
-    logger.remove()
+
     packages = ["bfabric", "bfabric_scripts", "bfabric_app_runner", "__main__"]
-    if not (debug or os.environ.get("BFABRICPY_DEBUG")):
+    env_level = os.environ.get("BFABRICPY_LOG_LEVEL", "").upper()
+    valid_levels = {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
+
+    if debug or env_level == "DEBUG":
+        level = "DEBUG"
+    elif env_level in ("OFF", "0"):
+        level = "OFF"
+    elif env_level in valid_levels:
+        level = env_level
+    else:
+        level = "INFO"
+
+    logger.remove()
+
+    if level == "OFF":
         for package in packages:
-            logger.add(sys.stderr, filter=package, level="INFO", format="{level} {message}")
+            logger.disable(package)
+    elif level == "DEBUG":
+        for package in packages:
+            _ = logger.add(sys.stderr, filter=package, level="DEBUG")
     else:
         for package in packages:
-            logger.add(sys.stderr, filter=package, level="DEBUG")
+            _ = logger.add(sys.stderr, filter=package, level=level, format="{level} {message}")
+
     os.environ[setup_flag_key] = "1"

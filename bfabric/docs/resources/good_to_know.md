@@ -56,4 +56,30 @@ from bfabric.utils.cli_integration import setup_script_logging
 setup_script_logging()
 ```
 
-This removes time stamps and line numbers, unless the environment variable `BFABRICPY_DEBUG` is set.
+This removes time stamps and line numbers, unless `BFABRICPY_LOG_LEVEL=DEBUG` is set.
+
+The logging level can be controlled via the `BFABRICPY_LOG_LEVEL` environment variable:
+
+| Value | Effect |
+|-------|--------|
+| `DEBUG` | Show all log messages including debug output (with full loguru format) |
+| `INFO` | Show INFO and above (default) |
+| `WARNING` | Show WARNING and above |
+| `ERROR` | Show ERROR and above |
+| `CRITICAL` | Show CRITICAL only |
+| `OFF` or `0` | Disable all logging completely |
+
+Invalid values fall back silently to `INFO`.
+
+Examples:
+
+```bash
+# Silence all log output (useful for scripting or piping)
+BFABRICPY_LOG_LEVEL=OFF bfabric-cli api read resource
+
+# Show only warnings and errors
+BFABRICPY_LOG_LEVEL=WARNING bfabric-cli api read resource
+
+# Enable full debug output
+BFABRICPY_LOG_LEVEL=DEBUG bfabric-cli api read resource
+```
