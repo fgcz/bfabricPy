@@ -11,8 +11,9 @@ if TYPE_CHECKING:
 def retrieve_application_mapping(client: Bfabric, system_config: SystemConfig) -> pl.DataFrame:
     """Returns the up to date application mapping.
 
-    The table contains rows:
+    The table contains columns:
         - application_id: int - the application's unique identifier
+        - application_uri: str - the application's URI (identifies it uniquely accross B-Fabric instances)
         - application_name: str - the application's name
         - technology_id: int - the technology's unique identifier
         - created: datetime - the date and time the application was created
