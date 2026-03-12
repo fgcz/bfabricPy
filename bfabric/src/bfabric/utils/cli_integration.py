@@ -84,9 +84,9 @@ def setup_script_logging(debug: bool = False) -> None:
             logger.disable(package)
     elif level == "DEBUG":
         for package in packages:
-            logger.add(sys.stderr, filter=package, level="DEBUG")
+            _ = logger.add(sys.stderr, filter=package, level="DEBUG")
     else:
         for package in packages:
-            logger.add(sys.stderr, filter=package, level=level, format="{level} {message}")
+            _ = logger.add(sys.stderr, filter=package, level=level, format="{level} {message}")
 
     os.environ[setup_flag_key] = "1"
