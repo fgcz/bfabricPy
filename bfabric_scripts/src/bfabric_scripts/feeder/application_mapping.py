@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from bfabric import Bfabric
 
 
-def retrieve_application_mapping(client: Bfabric, system_config: SystemConfig) -> pl.DataFrame:
+def _retrieve_application_mapping(client: Bfabric, system_config: SystemConfig) -> pl.DataFrame:
     """Returns the up to date application mapping.
 
     The table contains columns:
@@ -74,7 +74,8 @@ def load_or_update_cache(path: Path, client: Bfabric, config: SystemConfig, ttl_
 
     if requires_update:
         logger.info(f"Updating application mapping cache: {path}")
-        df = retrieve_application_mapping(client, config)
+        df = _retrieve_application_mapping(client, config)
+        # Note: this is currently the only writer of the cache as it's technically an internal detail of application_mapping
         with atomic_save(str(path)) as file:
             df.write_csv(file, separator="\t")
         return df
