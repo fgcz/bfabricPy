@@ -46,7 +46,9 @@ class TestPerformQuery:
         results = perform_query(params, mock_client, mock_console)
 
         # Assert
-        mock_client.read.assert_called_once_with(endpoint="resource", obj={"status": "active"}, max_results=100)
+        mock_client.read.assert_called_once_with(
+            endpoint="resource", obj={"status": "active"}, max_results=100, return_id_only=False
+        )
         assert len(results) == 1
         assert results[0]["id"] == 1
 
@@ -64,9 +66,26 @@ class TestPerformQuery:
 
         # Assert
         mock_client.read.assert_called_once_with(
-            endpoint="resource", obj={"status": ["active", "pending"]}, max_results=10
+            endpoint="resource", obj={"status": ["active", "pending"]}, max_results=10, return_id_only=False
         )
         assert len(results) == 2
+
+    def test_perform_query_return_id_only(self, mock_client, mock_console):
+        # Arrange
+        params = Params(
+            endpoint="resource", query=[("status", "active")], columns=["id"], limit=10, return_id_only=True
+        )
+        mock_client.read.return_value = ResultContainer([{"id": 1}, {"id": 2}], total_pages_api=1, errors=[])
+
+        # Act
+        results = perform_query(params, mock_client, mock_console)
+
+        # Assert
+        mock_client.read.assert_called_once_with(
+            endpoint="resource", obj={"status": "active"}, max_results=10, return_id_only=True
+        )
+        assert len(results) == 2
+        assert all("id" in item for item in results)
 
 
 class TestRenderOutput:

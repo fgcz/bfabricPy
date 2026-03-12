@@ -39,6 +39,8 @@ class Params(BaseModel):
     """Selection of columns to return, comma separated list."""
     cli_max_columns: int | None = 7
     """When showing the results as a table in the console (table-rich), the maximum number of columns to show."""
+    return_id_only: bool = False
+    """If True, only returns entity IDs instead of full data (faster)."""
 
     file: Path | None = None
     """File to write the output to."""
@@ -51,7 +53,7 @@ class Params(BaseModel):
 def perform_query(params: Params, client: Bfabric, console_user: Console) -> list[dict[str, Any]]:
     """Performs the query and returns the results."""
     query = params.query.to_dict(duplicates="collect")
-    query_stmt = f"client.read(endpoint={params.endpoint!r}, obj={query!r}, max_results={params.limit!r})"
+    query_stmt = f"client.read(endpoint={params.endpoint!r}, obj={query!r}, max_results={params.limit!r}, return_id_only={params.return_id_only!r})"
     results = eval(query_stmt)
 
     # Log query and results meta information
