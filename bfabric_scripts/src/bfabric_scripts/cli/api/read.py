@@ -10,7 +10,6 @@ import yaml
 from loguru import logger
 from pydantic import BaseModel
 from rich.console import Console
-from rich.syntax import Syntax
 from rich.table import Table
 
 from bfabric import Bfabric, BfabricClientConfig
@@ -50,7 +49,7 @@ class Params(BaseModel):
         return value[0].split(",") if (len(value) == 1 and "," in value[0]) else value
 
 
-def perform_query(params: Params, client: Bfabric, console_user: Console) -> list[dict[str, Any]]:
+def perform_query(params: Params, client: Bfabric) -> list[dict[str, Any]]:
     """Performs the query and returns the results."""
     query = params.query.to_dict(duplicates="collect")
     query_stmt = f"client.read(endpoint={params.endpoint!r}, obj={query!r}, max_results={params.limit!r}, return_id_only={params.return_id_only!r})"
@@ -62,9 +61,7 @@ def perform_query(params: Params, client: Bfabric, console_user: Console) -> lis
         f"len(results) # {len(results)}\n"
         f"sorted(results.to_polars().columns) # {sorted(results.to_polars().columns)}"
     )
-    console_user.print(
-        Syntax(python_code, "python", theme="solarized-dark", background_color="default", word_wrap=True)
-    )
+    logger.info("\n{}", python_code)
     return results
 
 
@@ -101,11 +98,10 @@ def render_output(results: list[dict[str, Any]], params: Params, client: Bfabric
 @logger.catch(reraise=True)
 def cmd_api_read(params: Annotated[Params, cyclopts.Parameter(name="*")], *, client: Bfabric) -> None | int:
     """Reads entities from B-Fabric."""
-    console_user = Console(stderr=True)
-    console_user.print(params)
+    logger.info("{}", params)
 
     # Perform the query
-    results = perform_query(params=params, client=client, console_user=console_user)
+    results = perform_query(params=params, client=client)
 
     # Handle empty results gracefully for table format
     if not results:
