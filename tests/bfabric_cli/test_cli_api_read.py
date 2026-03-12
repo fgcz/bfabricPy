@@ -13,7 +13,6 @@ from bfabric_scripts.cli.api.read import (
     render_output,
     _determine_output_columns,
 )
-from rich.console import Console
 
 
 @pytest.fixture
@@ -21,11 +20,6 @@ def mock_client(mocker):
     client = mocker.Mock(spec=Bfabric)
     client.config.base_url = "http://test-bfabric.com"
     return client
-
-
-@pytest.fixture
-def mock_console(mocker):
-    return mocker.Mock(spec=Console)
 
 
 @pytest.fixture
@@ -37,13 +31,13 @@ def sample_results():
 
 
 class TestPerformQuery:
-    def test_perform_query_basic(self, mock_client, mock_console):
+    def test_perform_query_basic(self, mock_client):
         # Arrange
         params = Params(endpoint="resource", query=[("status", "active")])
         mock_client.read.return_value = ResultContainer([{"id": 1, "name": "Test"}], total_pages_api=1, errors=[])
 
         # Act
-        results = perform_query(params, mock_client, mock_console)
+        results = perform_query(params, mock_client)
 
         # Assert
         mock_client.read.assert_called_once_with(
@@ -52,7 +46,7 @@ class TestPerformQuery:
         assert len(results) == 1
         assert results[0]["id"] == 1
 
-    def test_perform_query_multiple_values(self, mock_client, mock_console):
+    def test_perform_query_multiple_values(self, mock_client):
         # Arrange
         params = Params(
             endpoint="resource", query=[("status", "active"), ("status", "pending")], columns=["id"], limit=10
@@ -62,7 +56,7 @@ class TestPerformQuery:
         )
 
         # Act
-        results = perform_query(params, mock_client, mock_console)
+        results = perform_query(params, mock_client)
 
         # Assert
         mock_client.read.assert_called_once_with(
@@ -70,7 +64,7 @@ class TestPerformQuery:
         )
         assert len(results) == 2
 
-    def test_perform_query_return_id_only(self, mock_client, mock_console):
+    def test_perform_query_return_id_only(self, mock_client):
         # Arrange
         params = Params(
             endpoint="resource", query=[("status", "active")], columns=["id"], limit=10, return_id_only=True
@@ -78,7 +72,7 @@ class TestPerformQuery:
         mock_client.read.return_value = ResultContainer([{"id": 1}, {"id": 2}], total_pages_api=1, errors=[])
 
         # Act
-        results = perform_query(params, mock_client, mock_console)
+        results = perform_query(params, mock_client)
 
         # Assert
         mock_client.read.assert_called_once_with(
@@ -179,7 +173,7 @@ class TestDetermineOutputColumns:
 
 
 class TestReadFunction:
-    def test_read_json_output(self, mock_client, mock_console, sample_results, mocker):
+    def test_read_json_output(self, mock_client, sample_results, mocker):
         # Arrange
         mock_perform_query = mocker.patch("bfabric_scripts.cli.api.read.perform_query")
         mock_perform_query.return_value = sample_results
@@ -192,10 +186,10 @@ class TestReadFunction:
         result = cmd_api_read(params, client=mock_client)
 
         # Assert
-        mock_perform_query.assert_called_once_with(params=params, client=mock_client, console_user=mocker.ANY)
+        mock_perform_query.assert_called_once_with(params=params, client=mock_client)
         assert result is None  # Function should return None on success
 
-    def test_read_with_file_output(self, mock_client, mock_console, sample_results, mocker, tmp_path):
+    def test_read_with_file_output(self, mock_client, sample_results, mocker, tmp_path):
         # Arrange
         output_file = tmp_path / "test_output.json"
         mock_perform_query = mocker.patch("bfabric_scripts.cli.api.read.perform_query")
@@ -220,7 +214,7 @@ class TestReadFunction:
         assert len(parsed_content) == len(sample_results)
         assert all(set(item.keys()) == {"id", "name"} for item in parsed_content)
 
-    def test_read_with_tsv_format(self, mock_client, mock_console, sample_results, mocker):
+    def test_read_with_tsv_format(self, mock_client, sample_results, mocker):
         # Arrange
         mock_perform_query = mocker.patch("bfabric_scripts.cli.api.read.perform_query")
         mock_perform_query.return_value = sample_results
@@ -242,7 +236,7 @@ class TestReadFunction:
         mock_df.write_csv.assert_called_once_with(separator="\t")
         assert result is None
 
-    def test_read_with_invalid_file_output(self, mock_client, mock_console, sample_results, mocker):
+    def test_read_with_invalid_file_output(self, mock_client, sample_results, mocker):
         # Arrange
         mock_perform_query = mocker.patch("bfabric_scripts.cli.api.read.perform_query")
         mock_perform_query.return_value = sample_results
@@ -271,7 +265,7 @@ class TestReadFunction:
             OutputFormat.TABLE_RICH,
         ],
     )
-    def test_read_with_empty_results(self, mock_client, mock_console, mocker, output_format, caplog):
+    def test_read_with_empty_results(self, mock_client, mocker, output_format, caplog):
         # Arrange
         mock_perform_query = mocker.patch("bfabric_scripts.cli.api.read.perform_query")
         mock_perform_query.return_value = []
@@ -300,4 +294,4 @@ class TestReadFunction:
 
         assert result is None  # Should return None (success) for all formats
 
-        mock_perform_query.assert_called_once_with(params=params, client=mock_client, console_user=mocker.ANY)
+        mock_perform_query.assert_called_once_with(params=params, client=mock_client)

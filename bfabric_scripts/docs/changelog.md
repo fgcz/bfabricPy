@@ -14,6 +14,10 @@ Versioning currently follows `X.Y.Z` where
 
 - `bfabric-cli api read` now supports `--return-id-only` flag to return only entity IDs instead of full data, which is faster for large queries.
 
+### Changed
+
+- `bfabric-cli api read` and `bfabric-cli executable upload` diagnostic/informational output is now routed through loguru, so it can be silenced via `BFABRICPY_LOG_LEVEL=OFF` (or `WARNING`/`ERROR`/`CRITICAL`).
+
 ## \[1.13.40\] - 2025-12-16
 
 ### Added
