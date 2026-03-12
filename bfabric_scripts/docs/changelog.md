@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.14.0\] - 2026-03-12
+
 ### Added
 
 - `bfabric-cli api read` now supports `--return-id-only` flag to return only entity IDs instead of full data, which is faster for large queries.

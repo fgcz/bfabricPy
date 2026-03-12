@@ -9,6 +9,8 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+## \[1.17.0\] - 2026-03-12
+
 ### Added
 
 - Improved token authentication
