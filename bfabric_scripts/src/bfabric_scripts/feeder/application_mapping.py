@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from bfabric.entities.core.uri import EntityUri
 import datetime
 from boltons.fileutils import atomic_save
+from loguru import logger
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
@@ -72,9 +73,11 @@ def load_or_update_cache(path: Path, client: Bfabric, config: SystemConfig, ttl_
             requires_update = False
 
     if requires_update:
+        logger.info(f"Updating application mapping cache: {path}")
         df = retrieve_application_mapping(client, config)
         with atomic_save(str(path)) as file:
             df.write_csv(file, separator="\t")
         return df
     else:
+        logger.info(f"Loading application mapping cache: {path}")
         return pl.read_csv(path, separator="\t")
