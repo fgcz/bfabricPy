@@ -1,8 +1,11 @@
 from __future__ import annotations
+from pathlib import Path
 from typing import TYPE_CHECKING
 import polars as pl
 from pydantic import BaseModel
 from bfabric.entities.core.uri import EntityUri
+import datetime
+from boltons.fileutils import atomic_save
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
@@ -56,3 +59,22 @@ def retrieve_application_mapping(client: Bfabric, system_config: SystemConfig) -
 class SystemConfig(BaseModel):
     storage_id: int = 2
     technology_ids: list[int] = [2, 4]
+
+
+def load_or_update_cache(path: Path, client: Bfabric, config: SystemConfig, ttl_hours: float = 24.0) -> pl.DataFrame:
+    requires_update = True
+    if path.exists():
+        # check the timestamp first
+        st_result = path.stat()
+        if (
+            datetime.datetime.now() - datetime.datetime.fromtimestamp(st_result.st_mtime)
+        ).total_seconds() / 3600 <= ttl_hours:
+            requires_update = False
+
+    if requires_update:
+        df = retrieve_application_mapping(client, config)
+        with atomic_save(str(path)) as file:
+            df.write_csv(file, separator="\t")
+        return df
+    else:
+        return pl.read_csv(path, separator="\t")
