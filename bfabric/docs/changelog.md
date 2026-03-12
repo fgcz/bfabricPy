@@ -26,6 +26,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 ### Changed
 
 - `WorkunitExecutionDefinition` no longer validates that dataset or resources are provided.
+- `setup_script_logging()` now supports a `BFABRICPY_LOG_LEVEL` environment variable (`DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`, `OFF`/`0`). The previous `BFABRICPY_DEBUG` environment variable has been removed; use `BFABRICPY_LOG_LEVEL=DEBUG` instead.
 
 ### Fixed
 
