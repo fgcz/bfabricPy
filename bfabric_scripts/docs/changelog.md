@@ -10,6 +10,12 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Added
+
+- All scripts using the `use_client` decorator now support two new optional CLI parameters:
+    - `config_env`: Override the config environment (e.g. 'TEST'). Falls back to `BFABRICPY_CONFIG_ENV` env var or the config file default.
+    - `config_file`: Override the config file path (default: ~/.bfabricpy.yml).
+
 ## \[1.14.0\] - 2026-03-12
 
 ### Added

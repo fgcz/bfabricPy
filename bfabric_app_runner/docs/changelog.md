@@ -4,6 +4,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Added
+
+- All CLI commands using the `use_client` decorator now support two new optional parameters:
+    - `config_env`: Override the config environment (e.g. 'TEST'). Falls back to `BFABRICPY_CONFIG_ENV` env var or the config file default.
+    - `config_file`: Override the config file path (default: ~/.bfabricpy.yml).
+
 ## \[0.5.1\] - 2026-03-02
 
 ### Fixed
