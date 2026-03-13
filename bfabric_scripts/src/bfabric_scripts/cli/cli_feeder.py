@@ -10,6 +10,7 @@ from bfabric.entities import Storage, Application
 from bfabric.utils.cli_integration import use_client
 from bfabric_scripts.feeder.application_mapping import SystemConfig, load_or_update_cache
 from bfabric_scripts.feeder.file_attributes import FileAttributes
+from bfabric_scripts.feeder.import_resource_db import ImportResourcesDB, RegistrationStatus
 from bfabric_scripts.feeder.path_convention_compms import PathConventionCompMS, ParsedPath
 from bfabric_scripts.feeder.register_importresources import register_import_resources
 
@@ -190,6 +191,55 @@ def cmd_feeder_register_importresources(
     )
 
 
+def _read_file_paths(file_paths: tuple[str, ...]) -> list[str]:
+    """Read file paths from positional args, or from stdin if none are given."""
+    if not file_paths:
+        lines = [line.strip() for line in sys.stdin if line.strip()]
+    else:
+        lines = list(file_paths)
+    return [_parse_input_line(line)["file_path"] for line in lines]
+
+
+def cmd_feeder_db_status(
+    db_path: Path,
+    *file_paths: str,
+) -> None:
+    """Show the registration status of files in the tracking database.
+
+    :param db_path: path to the SQLite tracking database
+    :param file_paths: one or more file paths (or input lines); reads from stdin if omitted
+    """
+    paths = _read_file_paths(file_paths)
+    with ImportResourcesDB(str(db_path)) as db:
+        rows = db.get_entries_by_paths(paths)
+    found = {r["file_path"]: r for r in rows}
+    for path in paths:
+        if path in found:
+            row = found[path]
+            status_name = RegistrationStatus(row["registration_status"]).name
+            updated = datetime.datetime.fromtimestamp(row["status_updated_at"]).isoformat()
+            print(f"{status_name}\t{updated}\t{path}")
+        else:
+            print(f"not_in_db\t-\t{path}")
+
+
+def cmd_feeder_db_delete(
+    db_path: Path,
+    *file_paths: str,
+) -> None:
+    """Delete entries from the tracking database so they will be re-processed on the next run.
+
+    :param db_path: path to the SQLite tracking database
+    :param file_paths: one or more file paths (or input lines); reads from stdin if omitted
+    """
+    paths = _read_file_paths(file_paths)
+    with ImportResourcesDB(str(db_path)) as db:
+        deleted = db.delete_by_paths(paths)
+    print(f"Deleted {deleted} of {len(paths)} entries.")
+
+
 cmd_feeder = cyclopts.App(help="Feeder commands")
 _ = cmd_feeder.command(cmd_feeder_create_importresource, name="create-importresource")
 _ = cmd_feeder.command(cmd_feeder_register_importresources, name="register-importresources")
+_ = cmd_feeder.command(cmd_feeder_db_status, name="db-status")
+_ = cmd_feeder.command(cmd_feeder_db_delete, name="db-delete")

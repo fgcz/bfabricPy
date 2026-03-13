@@ -133,3 +133,30 @@ class ImportResourcesDB:
     def update_status_by_path(self, file_path: str, status: RegistrationStatus) -> None:
         """Update the registration status of an entry by file path."""
         self._update_status("file_path", file_path, status)
+
+    def get_entries_by_paths(self, file_paths: list[str]) -> list[dict]:
+        """Return DB rows for the given file paths (in chunks)."""
+        rows = []
+        for i in range(0, len(file_paths), _CHUNK_SIZE):
+            chunk = file_paths[i : i + _CHUNK_SIZE]
+            placeholders = ",".join("?" for _ in chunk)
+            cursor = self.conn.execute(
+                f"SELECT file_path, registration_status, status_updated_at FROM import_resources WHERE file_path IN ({placeholders})",
+                chunk,
+            )
+            rows.extend({"file_path": r[0], "registration_status": r[1], "status_updated_at": r[2]} for r in cursor)
+        return rows
+
+    def delete_by_paths(self, file_paths: list[str]) -> int:
+        """Delete entries by file path. Returns the number of rows deleted."""
+        deleted = 0
+        for i in range(0, len(file_paths), _CHUNK_SIZE):
+            chunk = file_paths[i : i + _CHUNK_SIZE]
+            placeholders = ",".join("?" for _ in chunk)
+            with self.conn:
+                cursor = self.conn.execute(
+                    f"DELETE FROM import_resources WHERE file_path IN ({placeholders})",
+                    chunk,
+                )
+                deleted += cursor.rowcount
+        return deleted
