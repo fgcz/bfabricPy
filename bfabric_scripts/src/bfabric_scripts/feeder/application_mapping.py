@@ -13,15 +13,14 @@ if TYPE_CHECKING:
 
 
 def _retrieve_application_mapping(client: Bfabric, system_config: SystemConfig) -> pl.DataFrame:
-    """Returns the up to date application mapping.
+    """Retrieve up to date application mapping.
 
-    The table contains columns:
-        - application_id: int - the application's unique identifier
-        - application_uri: str - the application's URI (identifies it uniquely accross B-Fabric instances)
-        - application_name: str - the application's name
-        - technology_id: int - the technology's unique identifier
-        - created: datetime - the date and time the application was created
-        - modified: datetime - the date and time the application was last modified
+    Returns a DataFrame with columns: application_id, application_uri, application_name,
+    technology_id, created, modified. Filters to applications with valid names.
+
+    :param client: Bfabric client for API calls
+    :param system_config: Configuration for filtering applications
+    :return: Filtered application mapping DataFrame
     """
     results_df = client.read(
         endpoint="application",
@@ -58,11 +57,21 @@ def _retrieve_application_mapping(client: Bfabric, system_config: SystemConfig) 
 
 
 class SystemConfig(BaseModel):
+    """Configuration for application filtering."""
+
     storage_id: int = 2
     technology_ids: list[int] = [2, 4]
 
 
 def load_or_update_cache(path: Path, client: Bfabric, config: SystemConfig, ttl_hours: float = 24.0) -> pl.DataFrame:
+    """Load application mapping from cache or update if expired.
+
+    :param path: Path to cache file
+    :param client: Bfabric client for API calls
+    :param config: Configuration for filtering applications
+    :param ttl_hours: Time to live for cache in hours
+    :return: Application mapping DataFrame
+    """
     requires_update = True
     if path.exists():
         # check the timestamp first
