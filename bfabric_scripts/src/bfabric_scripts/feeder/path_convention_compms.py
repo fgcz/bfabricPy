@@ -36,7 +36,7 @@ class PathConventionCompMS:
             f"{self._storage['projectfolderprefix']}"
             r"(?P<container_id>\d+)/"
             r"(?P<technology>[A-Za-z]+)/"
-            r"(?P<application_name>[A-Z_]+_\d+)/"
+            r"(?P<application_name>[A-Z0-9_]+_\d+)/"
             r"[a-z]+_\d{8}(?:_[a-zA-Z0-9_]+)/"
             # TODO consider adding sample parsing later (the rule is currently broken)
             # r"[^/]*"
