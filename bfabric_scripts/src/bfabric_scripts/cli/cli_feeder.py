@@ -1,5 +1,6 @@
 from pathlib import Path
 import datetime
+import sys
 import cyclopts
 from loguru import logger
 from pydantic import BaseModel
@@ -7,8 +8,10 @@ from pydantic import BaseModel
 from bfabric import Bfabric
 from bfabric.entities import Storage, Application
 from bfabric.utils.cli_integration import use_client
-from bfabric_scripts.feeder.path_convention_compms import PathConventionCompMS, ParsedPath
+from bfabric_scripts.feeder.application_mapping import SystemConfig, load_or_update_cache
 from bfabric_scripts.feeder.file_attributes import FileAttributes
+from bfabric_scripts.feeder.path_convention_compms import PathConventionCompMS, ParsedPath
+from bfabric_scripts.feeder.register_importresources import register_import_resources
 
 
 class ImportResourcePath(BaseModel):
@@ -17,7 +20,7 @@ class ImportResourcePath(BaseModel):
 
 
 def _create_importresources(storage_id: int, files: list[Path], client: Bfabric) -> None:
-    storage = Storage.find(id=storage_id, client=client)
+    storage = client.reader.read_id("storage", storage_id, expected_type=Storage)
     if storage is None:
         raise ValueError(f"Storage with ID {storage_id} not found.")
 
@@ -111,5 +114,82 @@ def cmd_feeder_create_importresource(
     _create_importresources(storage_id=storage, files=files, client=client)
 
 
+def _parse_input_line(line: str) -> dict:
+    """Parse a feeder input line into an entry dict.
+
+    Accepts either pre-computed 'md5;timestamp;size;path' or just 'path' (computes attributes on-the-fly).
+    """
+    parts = line.split(";")
+    if len(parts) == 4:
+        md5, timestamp, size, path = parts
+        return {
+            "file_path": path.strip(),
+            "file_size": int(size),
+            "file_unix_timestamp": int(timestamp),
+            "md5_checksum": md5.strip(),
+        }
+    elif len(parts) == 1:
+        attrs = FileAttributes.compute(Path(line))
+        return {
+            "file_path": line,
+            "file_size": attrs.file_size,
+            "file_unix_timestamp": int(attrs.file_date.timestamp()),
+            "md5_checksum": attrs.md5_checksum,
+        }
+    else:
+        raise ValueError(f"Invalid input line format: {line!r}")
+
+
+@use_client
+def cmd_feeder_register_importresources(
+    storage: int,
+    db_path: Path,
+    *,
+    cache_path: Path | None = None,
+    cache_ttl_hours: float = 24.0,
+    client: Bfabric,
+) -> None:
+    """Registers importresources from stdin lines into bfabric with deduplication tracking.
+
+    Each stdin line must be either 'md5;unix_timestamp;size;relative_path'
+    or just 'relative_path' (file attributes are then computed on-the-fly).
+
+    :param storage: the target storage ID
+    :param db_path: path to the SQLite tracking database
+    :param cache_path: path to the application mapping cache (default: db_path with .app_mapping.tsv suffix)
+    :param cache_ttl_hours: how long to reuse the application mapping cache before refreshing it
+    """
+    if cache_path is None:
+        cache_path = db_path.with_suffix(".app_mapping.tsv")
+
+    storage_entity = client.reader.read_id("storage", storage, expected_type=Storage)
+    if storage_entity is None:
+        raise ValueError(f"Storage with ID {storage} not found.")
+
+    feeder_config = SystemConfig(storage_id=storage)
+    path_convention = PathConventionCompMS(storage=storage_entity)
+    app_mapping = load_or_update_cache(path=cache_path, client=client, config=feeder_config, ttl_hours=cache_ttl_hours)
+
+    entries = []
+    for line in sys.stdin:
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            entries.append(_parse_input_line(line))
+        except Exception as e:
+            logger.error(f"Failed to parse input line {line!r}: {e}")
+
+    register_import_resources(
+        entries=entries,
+        db_path=str(db_path),
+        bfabric_client=client,
+        app_mapping=app_mapping,
+        path_convention=path_convention,
+        feeder_config=feeder_config,
+    )
+
+
 cmd_feeder = cyclopts.App(help="Feeder commands")
 _ = cmd_feeder.command(cmd_feeder_create_importresource, name="create-importresource")
+_ = cmd_feeder.command(cmd_feeder_register_importresources, name="register-importresources")
