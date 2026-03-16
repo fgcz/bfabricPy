@@ -16,6 +16,10 @@ Versioning currently follows `X.Y.Z` where
     - `config_env`: Override the config environment (e.g. 'TEST'). Falls back to `BFABRICPY_CONFIG_ENV` env var or the config file default.
     - `config_file`: Override the config file path (default: ~/.bfabricpy.yml).
 
+### Fixed
+
+- Adapt the `PathConventionMS` to also support instruments with a number in the name.
+
 ## \[1.14.0\] - 2026-03-12
 
 ### Added
