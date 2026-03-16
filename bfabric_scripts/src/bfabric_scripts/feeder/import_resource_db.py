@@ -32,7 +32,8 @@ class ImportResourcesDB:
             file_unix_timestamp INT NOT NULL,
             md5_checksum TEXT NOT NULL,
             registration_status INT NOT NULL,
-            status_updated_at INT NOT NULL
+            status_updated_at INT NOT NULL,
+            bfabric_importresource_id INT
         );
 
         CREATE INDEX IF NOT EXISTS import_resources_file_path_idx
@@ -134,6 +135,16 @@ class ImportResourcesDB:
         """Update the registration status of an entry by file path."""
         self._update_status("file_path", file_path, status)
 
+    def update_registered(self, entry_id: int, bfabric_id: int) -> None:
+        """Mark entry as registered and store the bfabric importresource ID."""
+        current_time = int(time.time())
+        with self.conn:
+            self.conn.execute(
+                "UPDATE import_resources SET registration_status = ?, status_updated_at = ?, "
+                "bfabric_importresource_id = ? WHERE id = ?",
+                (RegistrationStatus.registered.value, current_time, bfabric_id, entry_id),
+            )
+
     def get_entries_by_paths(self, file_paths: list[str]) -> list[dict]:
         """Return DB rows for the given file paths (in chunks)."""
         rows = []
@@ -141,10 +152,19 @@ class ImportResourcesDB:
             chunk = file_paths[i : i + _CHUNK_SIZE]
             placeholders = ",".join("?" for _ in chunk)
             cursor = self.conn.execute(
-                f"SELECT file_path, registration_status, status_updated_at FROM import_resources WHERE file_path IN ({placeholders})",
+                f"SELECT file_path, registration_status, status_updated_at, bfabric_importresource_id"
+                f" FROM import_resources WHERE file_path IN ({placeholders})",
                 chunk,
             )
-            rows.extend({"file_path": r[0], "registration_status": r[1], "status_updated_at": r[2]} for r in cursor)
+            rows.extend(
+                {
+                    "file_path": r[0],
+                    "registration_status": r[1],
+                    "status_updated_at": r[2],
+                    "bfabric_importresource_id": r[3],
+                }
+                for r in cursor
+            )
         return rows
 
     def delete_by_paths(self, file_paths: list[str]) -> int:

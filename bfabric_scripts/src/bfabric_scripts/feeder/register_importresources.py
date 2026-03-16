@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime
 import os
 import re
 import time
@@ -91,7 +92,8 @@ def _register_with_bfabric(
     app_mapping: pl.DataFrame,
     path_convention: PathConventionCompMS,
     feeder_config: SystemConfig,
-) -> None:
+) -> tuple[int, bool]:
+    """Save the importresource to bfabric. Returns (bfabric_id, was_updated)."""
     obj = create_importresource_dict(
         app_mapping=app_mapping,
         path_convention=path_convention,
@@ -101,7 +103,12 @@ def _register_with_bfabric(
         file_unix_timestamp=entry["file_unix_timestamp"],
         md5_checksum=entry["md5_checksum"],
     )
-    bfabric_client.save(endpoint="importresource", obj=obj)
+    result = bfabric_client.save(endpoint="importresource", obj=obj)
+    entity = result[0]
+    bfabric_id = entity["id"]
+    created_dt = datetime.datetime.fromisoformat(entity["created"])
+    was_updated = (datetime.datetime.now() - created_dt) > datetime.timedelta(seconds=30)
+    return bfabric_id, was_updated
 
 
 def _process_entry(
@@ -119,9 +126,14 @@ def _process_entry(
         return
 
     try:
-        _register_with_bfabric(entry, bfabric_client, app_mapping, path_convention, feeder_config)
-        db.update_status(entry_id, RegistrationStatus.registered)
-        logger.info(f"Successfully registered: {entry['file_path']}")
+        bfabric_id, was_updated = _register_with_bfabric(
+            entry, bfabric_client, app_mapping, path_convention, feeder_config
+        )
+        db.update_registered(entry_id, bfabric_id)
+        if was_updated:
+            logger.info(f"Updated existing importresource {bfabric_id}: {entry['file_path']}")
+        else:
+            logger.success(f"Created new importresource {bfabric_id}: {entry['file_path']}")
     except UnknownApplicationError as e:
         db.update_status(entry_id, RegistrationStatus.failed_unknown_application)
         logger.warning(f"Unknown application for {entry['file_path']}: {e}")
