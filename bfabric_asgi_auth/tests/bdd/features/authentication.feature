@@ -22,3 +22,9 @@ Feature: Token-based authentication
     When I visit "/landing"
     Then I should receive a 400 status code
     And the response should contain "Missing token parameter"
+
+  Scenario: Token validation failure returns HTML error page
+    When I visit "/landing?token=invalid_token"
+    Then I should receive a 400 status code
+    And the response content-type should be "text/html"
+    And the response should contain "Token validation failed"

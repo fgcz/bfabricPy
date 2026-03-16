@@ -349,6 +349,13 @@ def response_contains(context, text):
     assert text in response.text
 
 
+@then(parsers.parse('the response content-type should be "{content_type}"'))
+def response_content_type(context, content_type):
+    """Check response content-type header."""
+    response = context["response"]
+    assert content_type in response.headers.get("content-type", "")
+
+
 @then("I should have a session cookie")
 def has_session_cookie(context):
     """Check session cookie exists."""
