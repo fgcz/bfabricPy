@@ -18,13 +18,17 @@ def resolver(mock_client):
     return ResolveBfabricResourceArchiveSpecs(mock_client)
 
 
-def test_get_file_source_with_posixpath(resolver, mocker):
+@pytest.fixture
+def mock_storage(mocker):
+    storage = mocker.MagicMock(name="mock_storage")
+    storage.__getitem__ = mocker.MagicMock(side_effect=lambda key: {"host": "example.com"}[key])
+    return storage
+
+
+def test_get_file_source_with_posixpath(resolver, mocker, mock_storage):
     """Regression test: storage_absolute_path is a PosixPath, not a str."""
     mock_resource = mocker.MagicMock(name="mock_resource")
     mock_resource.storage_absolute_path = PosixPath("/srv/www/htdocs/xyz.zip")
-
-    mock_storage = mocker.MagicMock(name="mock_storage")
-    mock_storage.__getitem__ = mocker.MagicMock(side_effect=lambda key: {"host": "example.com"}[key])
 
     result = ResolveBfabricResourceArchiveSpecs._get_file_source(resource=mock_resource, storage=mock_storage)
 
@@ -32,13 +36,10 @@ def test_get_file_source_with_posixpath(resolver, mocker):
     assert result.ssh.path == "/srv/www/htdocs/xyz.zip"
 
 
-def test_call_with_posixpath_storage_path(resolver, mocker, mock_client):
+def test_call_with_posixpath_storage_path(resolver, mocker, mock_client, mock_storage):
     """Integration test: full call path when storage_absolute_path is a PosixPath."""
     storage_uri = EntityUri("https://fgcz-bfabric.uzh.ch/bfabric/storage/show.html?id=1")
     resource_uri = EntityUri("https://fgcz-bfabric.uzh.ch/bfabric/resource/show.html?id=42")
-
-    mock_storage = mocker.MagicMock(name="mock_storage")
-    mock_storage.__getitem__ = mocker.MagicMock(side_effect=lambda key: {"host": "example.com"}[key])
 
     mock_resource = mocker.MagicMock(name="mock_resource")
     mock_resource.id = 42
