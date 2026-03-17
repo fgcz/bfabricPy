@@ -86,7 +86,7 @@ class ResolveBfabricResourceArchiveSpecs:
         if not isinstance(host, str):
             raise ValueError("host must be a string")
 
-        return FileSourceSsh(ssh=FileSourceSshValue.model_validate({"host": host, "path": path}))
+        return FileSourceSsh(ssh=FileSourceSshValue.model_validate({"host": host, "path": str(path)}))
 
 
 def _is_flat_uri_list(uris: list[EntityUri | list[EntityUri]]) -> TypeGuard[list[EntityUri]]:

@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Fixed
+
+- `ResolveBfabricResourceArchiveSpecs` now correctly converts `storage_absolute_path` from `Path` to `str` before constructing `FileSourceSshValue`, fixing a `ValidationError` when resolving resource archives ([#432](https://github.com/fgcz/bfabricPy/issues/432)).
+
 ### Added
 
 - All CLI commands using the `use_client` decorator now support two new optional parameters:
