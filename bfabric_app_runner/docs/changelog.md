@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Fixed
 
 - `ResolveBfabricResourceArchiveSpecs` now correctly converts `storage_absolute_path` from `Path` to `str` before constructing `FileSourceSshValue`, fixing a `ValidationError` when resolving resource archives ([#432](https://github.com/fgcz/bfabricPy/issues/432)).
+- Fixed zip file being written to a doubled path (e.g. `input/input/result.zip`) when a `BfabricResourceArchiveSpec` filename contains a subdirectory component; zip is now correctly placed at `input/result.zip` ([#323](https://github.com/fgcz/bfabricPy/issues/323)).
 
 ### Added
 
