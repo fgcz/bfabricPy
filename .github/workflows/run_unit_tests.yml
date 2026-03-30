@@ -19,7 +19,33 @@ jobs:
       - name: Install nox
         run: pip install nox uv
       - name: Run checks
-        run: nox
+        run: nox --report nox-report.json
+      - name: Summarize nox results
+        if: always()
+        run: |
+          if [ ! -f nox-report.json ]; then exit 0; fi
+          python3 << 'EOF'
+          import json, os
+
+          with open("nox-report.json") as f:
+              sessions = json.load(f)
+
+          lines = ["## Nox Session Results\n"]
+          for s in sessions:
+              result = s.get("result", "unknown")
+              name = s.get("session", "unknown")
+              if result == "success":
+                  icon = "✅"
+              elif result in ("skipped", "skip"):
+                  icon = "⏭️"
+              else:
+                  icon = "❌"
+                  print(f"::error::Nox session failed: {name}")
+              lines.append(f"{icon} `{name}`: {result}")
+
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
+              f.write("\n".join(lines) + "\n")
+          EOF
   code_style:
     name: Code Style
     runs-on: ubuntu-latest
