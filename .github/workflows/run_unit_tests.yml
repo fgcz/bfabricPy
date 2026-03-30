@@ -28,10 +28,10 @@ jobs:
           import json, os
 
           with open("nox-report.json") as f:
-              sessions = json.load(f)
+              data = json.load(f)
 
           lines = ["## Nox Session Results\n"]
-          for s in sessions:
+          for s in data["sessions"]:
               result = s.get("result", "unknown")
               name = s.get("session", "unknown")
               if result == "success":
