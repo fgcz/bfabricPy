@@ -33,7 +33,8 @@ jobs:
           lines = ["## Nox Session Results\n"]
           for s in data["sessions"]:
               result = s.get("result", "unknown")
-              name = s.get("name", "unknown")
+              sigs = s.get("signatures") or []
+              name = sigs[0] if sigs else s.get("name", "unknown")
               if result == "success":
                   icon = "✅"
               elif result in ("skipped", "skip"):
