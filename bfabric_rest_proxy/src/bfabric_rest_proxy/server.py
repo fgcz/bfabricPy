@@ -85,10 +85,10 @@ class ReadParams(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _normalize_empty_query(cls, data: Any) -> Any:
-        if isinstance(data, dict) and data.get("query") == []:
+    def _normalize_empty_query(cls, data: Any) -> Any:  # pyright: ignore[reportAny, reportExplicitAny]
+        if isinstance(data, dict) and data.get("query") == []:  # pyright: ignore[reportUnknownMemberType]
             data["query"] = {}
-        return data
+        return data  # pyright: ignore[reportUnknownVariableType]
 
 
 @app.post("/read")
