@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import datetime
-from typing import Annotated
+from typing import Annotated, Any
 
 import fastapi
 from bfabric.config.config_data import ConfigData
@@ -11,7 +11,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.params import Depends
 from fastapi.responses import JSONResponse
 from loguru import logger
-from pydantic import BaseModel, Field, SecretStr
+from pydantic import BaseModel, Field, SecretStr, model_validator
 
 from bfabric import Bfabric, BfabricAuth, BfabricClientConfig
 from bfabric_rest_proxy.feeder_operations.create_workunit import CreateWorkunitParams, create_workunit
@@ -82,6 +82,13 @@ class ReadParams(BaseModel):
     """The number of items to skip, after which to start reading."""
     page_max_results: int = 100
     """The maximum number of results to return."""
+
+    @model_validator(mode="before")
+    @classmethod
+    def _normalize_empty_query(cls, data: Any) -> Any:
+        if isinstance(data, dict) and data.get("query") == []:
+            data["query"] = {}
+        return data
 
 
 @app.post("/read")
