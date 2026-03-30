@@ -16,7 +16,14 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "bfabric-rest-proxy",
-    "fastapi[standard]"
+    "fastapi[standard]",
+]
+test = [
+    "bfabric-rest-proxy",
+    "pytest>=8.0.0",
+    "pytest-mock>=3.15.1",
+    "pytest-asyncio>=0.21.0",
+    "httpx>=0.28.1",
 ]
 
 [build-system]
