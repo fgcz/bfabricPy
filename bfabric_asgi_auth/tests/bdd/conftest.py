@@ -503,3 +503,82 @@ def hook_received_token_data(context):
     """Verify hook was called with token data."""
     assert "token_data" in context, "Hook did not populate context['token_data']"
     assert context["token_data"] is not None
+
+
+@given(parsers.parse('the application is configured with authenticated_path "{path}"'), target_fixture="app")
+def app_configured_with_authenticated_path(base_app, mock_validator, path):
+    """Configure application with specific authenticated_path."""
+    base_app.add_middleware(
+        BfabricAuthMiddleware,
+        token_validator=mock_validator,
+        landing_path="/landing",
+        token_param="token",
+        authenticated_path=path,
+        logout_path="/logout",
+    )
+    base_app.add_middleware(
+        SessionMiddleware,
+        secret_key="test-secret-key-min-32-characters!!",
+        max_age=3600,
+    )
+    return base_app
+
+
+@when(parsers.parse('I authenticate with proxy headers "X-Forwarded-Proto: {scheme}" and host "{host}"'))
+def authenticate_with_proxy_headers(context, base_app, mock_validator, scheme, host):
+    """Authenticate with custom proxy headers."""
+    from httpx import ASGITransport, AsyncClient
+
+    class Hooks(AuthHooks):
+        async def on_success(self, session: dict[str, JsonRepresentable], token_data: TokenData) -> str | None:
+            context["token_data"] = token_data
+            return None
+
+    if "app" in context:
+        app_to_use = context["app"]
+    else:
+        app_to_use = Starlette(routes=[])
+        app_to_use.add_middleware(
+            BfabricAuthMiddleware,
+            token_validator=mock_validator,
+            landing_path="/landing",
+            token_param="token",
+            authenticated_path="/",
+            logout_path="/logout",
+            hooks=Hooks(),
+        )
+        app_to_use.add_middleware(
+            SessionMiddleware,
+            secret_key="test-secret-key-min-32-characters!!",
+            max_age=3600,
+        )
+
+    async def make_request():
+        async with AsyncClient(transport=ASGITransport(app=app_to_use), base_url="http://test") as ac:
+            headers = {
+                "X-Forwarded-Proto": scheme,
+                "Host": host,
+            }
+            response = await ac.get("/landing?token=valid_test123", headers=headers, follow_redirects=False)
+            return response
+
+    response = run_async(make_request())
+    context["response"] = response
+
+
+@then(parsers.parse('the redirect location should start with "{prefix}"'))
+def redirect_location_starts_with(context, prefix):
+    """Check redirect location starts with prefix."""
+    response = context["response"]
+    assert response.status_code == 302
+    location = response.headers.get("location", "")
+    assert location.startswith(prefix), f"Expected location to start with '{prefix}', got '{location}'"
+
+
+@then(parsers.parse('the redirect location should be "{url}"'))
+def redirect_location_is(context, url):
+    """Check redirect location is exactly the given URL."""
+    response = context["response"]
+    assert response.status_code == 302
+    location = response.headers.get("location", "")
+    assert location == url, f"Expected location to be '{url}', got '{location}'"

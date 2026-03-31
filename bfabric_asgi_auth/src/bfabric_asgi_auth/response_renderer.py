@@ -151,6 +151,26 @@ class ResponseRenderer(Protocol):
         ...
 
 
+def _normalize_redirect_url(url: str, scope: Scope) -> str:
+    """Normalize a redirect URL scheme.
+
+    Preserves relative URLs (starting with '/') as-is.
+    For absolute URLs, ensures the scheme matches the request's scheme
+    (taking into account X-Forwarded-Proto proxy headers).
+
+    :param url: The redirect URL from the response
+    :param scope: ASGI scope dictionary
+    :return: URL with corrected scheme if needed
+    """
+    if not (url.startswith("//") or url.startswith("http://")):
+        return url
+    headers = {k.decode().lower(): v.decode() for k, v in scope.get("headers", [])}
+    scheme = headers.get("x-forwarded-proto", "https")
+    if url.startswith("//"):
+        return f"{scheme}:{url}"
+    return f"{scheme}://{url[7:]}"
+
+
 def _send_http_header(
     status: int,
     headers: list[tuple[bytes, bytes]],
@@ -224,12 +244,13 @@ class PlainTextRenderer:
         self, response: RedirectResponse, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable
     ) -> None:
         """Render HTTP redirect response."""
-        _ = scope, receive
+        _ = receive
+        location = _normalize_redirect_url(response.url, scope).encode("utf-8")
         await send(
             _send_http_header(
                 302,
                 [
-                    (b"location", response.url.encode("utf-8")),
+                    (b"location", location),
                     (b"content-length", b"0"),
                 ],
             )
@@ -404,12 +425,13 @@ class HTMLRenderer:
         self, response: RedirectResponse, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable
     ) -> None:
         """Render HTTP redirect response."""
-        _ = scope, receive
+        _ = receive
+        location = _normalize_redirect_url(response.url, scope).encode("utf-8")
         await send(
             _send_http_header(
                 302,
                 [
-                    (b"location", response.url.encode("utf-8")),
+                    (b"location", location),
                     (b"content-length", b"0"),
                 ],
             )
