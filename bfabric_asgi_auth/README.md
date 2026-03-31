@@ -67,8 +67,18 @@ If you want to raise an error to the browser, you should raise a `VisibleExcepti
 
 ```python
 import secrets
+from loguru import logger
 
-secret_key = secrets.token_hex(32)  # Generate 64-char hex string
+
+def _generate_random_secret_key():
+    logger.warning(
+        "Generating random secret key, cookies will not be persistent across restarts. "
+        "To fix this, set SECRET_KEY in your environment or config file.",
+    )
+    return secrets.token_urlsafe(64)
+
+
+secret_key = _generate_random_secret_key()
 ```
 
 - Minimum 32 characters
