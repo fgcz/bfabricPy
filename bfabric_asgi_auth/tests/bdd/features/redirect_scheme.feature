@@ -23,3 +23,8 @@ Feature: Redirect URL scheme handling
     Given the application is configured with authenticated_path "/custom"
     When I authenticate with proxy headers "X-Forwarded-Proto: https" and host "example.com"
     Then the redirect location should be "/custom"
+
+  Scenario: Protocol-relative redirect URL gets correct scheme
+    Given the application is configured with authenticated_path "//example.com/dashboard"
+    When I authenticate with proxy headers "X-Forwarded-Proto: https" and host "example.com"
+    Then the redirect location should start with "https://"
