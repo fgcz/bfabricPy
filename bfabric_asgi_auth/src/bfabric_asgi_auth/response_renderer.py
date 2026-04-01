@@ -162,13 +162,17 @@ def _normalize_redirect_url(url: str, scope: Scope) -> str:
     :param scope: ASGI scope dictionary
     :return: URL with corrected scheme if needed
     """
-    if not (url.startswith("//") or url.startswith("http://")):
+    if not url.startswith("//") and not url.startswith("http://"):
         return url
+
     headers = {k.decode().lower(): v.decode() for k, v in scope.get("headers", [])}
     scheme = headers.get("x-forwarded-proto", "https")
+
     if url.startswith("//"):
         return f"{scheme}:{url}"
-    return f"{scheme}://{url[7:]}"
+
+    rest = url.removeprefix("http://")
+    return f"{scheme}://{rest}"
 
 
 def _send_http_header(
