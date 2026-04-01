@@ -12,6 +12,8 @@ from bfabric.entities.core.uri import EntityUri, GroupedUris
 from bfabric.experimental import MultiQuery
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from bfabric import Bfabric
     from bfabric.typing import ApiRequestObjectType, ApiResponseDataType, ApiResponseObjectType
 
@@ -115,7 +117,7 @@ class EntityReader:
     def read_id(
         self,
         entity_type: str,
-        entity_id: int,
+        entity_id: int | str,
         bfabric_instance: str | None = None,
         *,
         expected_type: type[EntityT] = Entity,
@@ -136,7 +138,7 @@ class EntityReader:
         """
         results = self.read_ids(
             entity_type=entity_type,
-            entity_ids=[entity_id],
+            entity_ids=[int(entity_id)],
             bfabric_instance=bfabric_instance,
             expected_type=expected_type,
         )
@@ -145,7 +147,7 @@ class EntityReader:
     def read_ids(
         self,
         entity_type: str,
-        entity_ids: list[int],
+        entity_ids: Sequence[int | str],
         bfabric_instance: str | None = None,
         *,
         expected_type: type[EntityT] = Entity,
@@ -163,7 +165,7 @@ class EntityReader:
         """
         bfabric_instance = bfabric_instance if bfabric_instance is not None else self._client.config.base_url
         uris = [
-            EntityUri.from_components(bfabric_instance=bfabric_instance, entity_type=entity_type, entity_id=id)
+            EntityUri.from_components(bfabric_instance=bfabric_instance, entity_type=entity_type, entity_id=int(id))
             for id in entity_ids
         ]
         return self.read_uris(uris, expected_type=expected_type)

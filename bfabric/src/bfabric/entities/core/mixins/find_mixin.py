@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Protocol, TypeVar
 from loguru import logger
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Mapping, Sequence
 
     from bfabric import Bfabric
     from bfabric.typing import ApiRequestObjectType
@@ -31,7 +31,7 @@ class FindMixin:
         return EntityReader.for_client(client=client).read_id(entity_type=cls.ENDPOINT, entity_id=id)
 
     @classmethod
-    def find_all(cls: type[T], ids: list[int], client: Bfabric) -> dict[int, T]:
+    def find_all(cls: type[T], ids: Sequence[int | str], client: Bfabric) -> dict[int, T]:
         """Returns a dictionary of entities with the given IDs. The order will generally match the input, however,
         if some entities are not found they will be omitted and a warning will be logged.
         """
@@ -42,7 +42,7 @@ class FindMixin:
         )
         results = EntityReader.for_client(client=client).read_ids(
             entity_type=cls.ENDPOINT,
-            entity_ids=ids,
+            entity_ids=list(ids),
             expected_type=cls,  # pyright: ignore[reportArgumentType]
         )
         results_by_id = {uri.components.entity_id: item for uri, item in results.items() if item is not None}
@@ -67,11 +67,11 @@ class FindMixin:
 
 
 def _ensure_results_order(
-    ids_requested: list[int],
+    ids_requested: Sequence[int | str],
     results: Mapping[int, T],
 ) -> dict[int, T]:
     """Ensures the results are in the same order as requested and prints a warning if some results are missing."""
-    results = {entity_id: results[entity_id] for entity_id in ids_requested if entity_id in results}
+    results = {int(entity_id): results[int(entity_id)] for entity_id in ids_requested if int(entity_id) in results}
     if len(results) != len(ids_requested):
         logger.warning(f"Only found {len(results)} out of {len(ids_requested)}.")
     return results

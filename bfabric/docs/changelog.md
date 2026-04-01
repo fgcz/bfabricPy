@@ -15,6 +15,10 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
     - `config_env`: Override the config environment (e.g. 'TEST'). Falls back to `BFABRICPY_CONFIG_ENV` env var or the config file default.
     - `config_file`: Override the config file path (default: ~/.bfabricpy.yml).
 
+### Fixed
+
+- `FindMixin.find_all` now correctly handles string IDs (e.g., `["1", "2"]`) in addition to integer IDs.
+
 ## \[1.17.0\] - 2026-03-12
 
 ### Added
