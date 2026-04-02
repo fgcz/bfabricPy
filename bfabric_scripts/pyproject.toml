@@ -28,6 +28,7 @@ test = [
 ]
 excel = [
     "fastexcel>=0.18.0",
+    "xlsxwriter>=3.2.9",
 ]
 
 [project.scripts]
