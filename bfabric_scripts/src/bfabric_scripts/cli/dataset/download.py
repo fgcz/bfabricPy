@@ -1,5 +1,6 @@
 from enum import Enum
 from pathlib import Path
+from typing import Literal, assert_never
 
 import cyclopts
 import sys
@@ -20,21 +21,23 @@ class OutputFormat(Enum):
     EXCEL = "excel"
 
 
-def _infer_format_from_path(path: Path) -> OutputFormat:
+def _infer_format_from_path(
+    path: Path,
+) -> Literal[OutputFormat.CSV, OutputFormat.TSV, OutputFormat.PARQUET, OutputFormat.EXCEL]:
     """Infers the output format from the file extension."""
-    extension_map = {
-        ".csv": OutputFormat.CSV,
-        ".tsv": OutputFormat.TSV,
-        ".parquet": OutputFormat.PARQUET,
-        ".xlsx": OutputFormat.EXCEL,
-    }
-
     suffix = path.suffix.lower()
-    if suffix not in extension_map:
-        msg = f"Cannot infer format from file extension '{suffix}'. Please specify --format explicitly."
-        raise ValueError(msg)
-
-    return extension_map[suffix]
+    match suffix:
+        case ".csv":
+            return OutputFormat.CSV
+        case ".tsv":
+            return OutputFormat.TSV
+        case ".parquet":
+            return OutputFormat.PARQUET
+        case ".xlsx":
+            return OutputFormat.EXCEL
+        case _:
+            msg = f"Cannot infer format from file extension '{suffix}'. Please specify --format explicitly."
+            raise ValueError(msg)
 
 
 @cyclopts.Parameter(name="*")
@@ -60,9 +63,11 @@ def cmd_dataset_download(params: Params, *, client: Bfabric) -> None:
     params.file.parent.mkdir(parents=True, exist_ok=True)
 
     # Infer format if AUTO
-    output_format = params.format
-    if output_format == OutputFormat.AUTO:
+    output_format: OutputFormat
+    if params.format == OutputFormat.AUTO:
         output_format = _infer_format_from_path(params.file)
+    else:
+        output_format = params.format
 
     # Check Excel availability
     if output_format == OutputFormat.EXCEL and not is_excel_available():
@@ -79,5 +84,7 @@ def cmd_dataset_download(params: Params, *, client: Bfabric) -> None:
             case OutputFormat.PARQUET:
                 dataset.to_polars().write_parquet(params.file)
             case OutputFormat.EXCEL:
-                dataset.to_polars().write_excel(params.file)
+                dataset.to_polars().write_excel(params.file)  # pyright: ignore[reportUnknownMemberType]
+            case _:
+                assert_never(output_format)
     logger.info(f"Result written to {params.file} ({params.file.stat().st_size / 1024:.2f} KB)")
