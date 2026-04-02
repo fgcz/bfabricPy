@@ -170,7 +170,7 @@ print(df.head())
 - The default `auto` format automatically detects the format from the file extension
 - Excel format (`.xlsx`) requires the optional `excel` dependency to be installed:
   ```bash
-  pip install 'bfabric_scripts[excel]'
+  uv pip install 'bfabric_scripts[excel]'
   ```
 - Supported extensions for auto format: `.csv`, `.tsv`, `.parquet`, `.xlsx`
 
