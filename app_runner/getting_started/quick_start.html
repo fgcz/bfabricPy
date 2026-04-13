@@ -1,0 +1,585 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Quick Start &#8212; bfabric-app-runner 0.5.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=5f152624"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/quick_start';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Configuration" href="configuration.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.5.1" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">bfabric-app-runner 0.5.1 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Getting Started</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html">Configuration</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../user_guides/index.html">User Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/creating_an_app.html">Creating an App</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/deploying_apps.html">Deploying Apps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/working_with_inputs.html">Working with Inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/working_with_outputs.html">Working with Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/python_environments.html">Python Environments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/cli_reference.html">CLI Reference</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture/overview.html">Architecture Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../specs/input_specification.html">Input specification</a></li>
+
+
+<li class="toctree-l1"><a class="reference internal" href="../specs/output_specification.html">Output specification</a></li>
+
+
+<li class="toctree-l1"><a class="reference internal" href="../specs/app_specification.html">App Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_reference/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/index.html">Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workunit_definition.html">Workunit Definition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/getting_started/quick_start.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Quick Start</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#makefile-workflow-interactive">Makefile Workflow (Interactive)</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-prepare-the-working-directory">Step 1: Prepare the Working Directory</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-explore-available-targets">Step 2: Explore Available Targets</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-run-each-stage">Step 3: Run Each Stage</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-workunit-unattended">Run Workunit (Unattended)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-individual-actions">Running Individual Actions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">Troubleshooting</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#a-step-temporarily-failed">A step temporarily failed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#you-need-to-edit-an-intermediate-result">You need to edit an intermediate result</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-app-needs-major-changes">The app needs major changes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="quick-start">
+<h1>Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading">#</a></h1>
+<p>This tutorial walks through running a B-Fabric application workunit using bfabric-app-runner. There are two workflows: the <strong>Makefile workflow</strong> for interactive development and debugging, and the <strong>run workunit</strong> command for unattended execution.</p>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p><strong>bfabric-app-runner installed</strong>: Follow <a class="reference internal" href="installation.html"><span class="std std-doc">Installation Guide</span></a></p></li>
+<li><p><strong>B-Fabric credentials configured</strong>: <code class="docutils literal notranslate"><span class="pre">~/.bfabricpy.yml</span></code> must contain valid credentials</p></li>
+<li><p><strong>A workunit to process</strong>: You need a workunit ID from B-Fabric</p></li>
+</ol>
+</section>
+<section id="makefile-workflow-interactive">
+<h2>Makefile Workflow (Interactive)<a class="headerlink" href="#makefile-workflow-interactive" title="Link to this heading">#</a></h2>
+<p>The Makefile workflow is the recommended approach for development and debugging. It breaks execution into discrete steps that you can run, inspect, and re-run individually.</p>
+<section id="step-1-prepare-the-working-directory">
+<h3>Step 1: Prepare the Working Directory<a class="headerlink" href="#step-1-prepare-the-working-directory" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-app-runner<span class="w"> </span>prepare<span class="w"> </span>workunit<span class="w"> </span>&lt;app_spec&gt;<span class="w"> </span>&lt;work_dir&gt;<span class="w"> </span>&lt;workunit_ref&gt;
+</pre></div>
+</div>
+<p>For example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-app-runner<span class="w"> </span>prepare<span class="w"> </span>workunit<span class="w"> </span>/path/to/app.yml<span class="w"> </span>./work<span class="w"> </span><span class="m">12345</span>
+</pre></div>
+</div>
+<p>This creates a working directory containing a <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> and configuration files. The <code class="docutils literal notranslate"><span class="pre">&lt;workunit_ref&gt;</span></code> is the workunit ID from B-Fabric.</p>
+<p>Optional flags:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--ssh-user</span> <span class="pre">&lt;user&gt;</span></code> – SSH user for remote file transfers</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--force-storage</span> <span class="pre">&lt;storage_id&gt;</span></code> – Override the default storage</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--force-app-version</span> <span class="pre">&lt;version&gt;</span></code> – Override the app version (useful for testing a <code class="docutils literal notranslate"><span class="pre">devel</span></code> version)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--read-only</span></code> – Prepare in read-only mode</p></li>
+</ul>
+</section>
+<section id="step-2-explore-available-targets">
+<h3>Step 2: Explore Available Targets<a class="headerlink" href="#step-2-explore-available-targets" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>work<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span><span class="nb">help</span>
+</pre></div>
+</div>
+<p>This prints all available Makefile targets and their descriptions.</p>
+</section>
+<section id="step-3-run-each-stage">
+<h3>Step 3: Run Each Stage<a class="headerlink" href="#step-3-run-each-stage" title="Link to this heading">#</a></h3>
+<p>Execute the stages in order:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>dispatch
+</pre></div>
+</div>
+<p>Dispatches the workunit: loads information from B-Fabric, determines which resources are needed, and generates <code class="docutils literal notranslate"><span class="pre">inputs.yml</span></code> files for each chunk.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>inputs
+</pre></div>
+</div>
+<p>Downloads the required input files based on <code class="docutils literal notranslate"><span class="pre">inputs.yml</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>process
+</pre></div>
+</div>
+<p>Runs the actual processing (e.g., a Snakemake pipeline or other computation).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>stage
+</pre></div>
+</div>
+<p>Uploads results back to B-Fabric.</p>
+</section>
+</section>
+<section id="run-workunit-unattended">
+<h2>Run Workunit (Unattended)<a class="headerlink" href="#run-workunit-unattended" title="Link to this heading">#</a></h2>
+<p>For automated execution (e.g., from a Slurm script), use <code class="docutils literal notranslate"><span class="pre">run</span> <span class="pre">workunit</span></code> to execute all stages in sequence:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-app-runner<span class="w"> </span>run<span class="w"> </span>workunit<span class="w"> </span>&lt;app_definition&gt;<span class="w"> </span>&lt;scratch_root&gt;<span class="w"> </span>&lt;workunit_ref&gt;
+</pre></div>
+</div>
+<p>This runs dispatch, inputs, process, and outputs in a single invocation.</p>
+</section>
+<section id="running-individual-actions">
+<h2>Running Individual Actions<a class="headerlink" href="#running-individual-actions" title="Link to this heading">#</a></h2>
+<p>You can also run individual stages using the <code class="docutils literal notranslate"><span class="pre">action</span></code> subcommands, which is useful when re-running a specific stage after a failure:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-app-runner<span class="w"> </span>action<span class="w"> </span>dispatch<span class="w"> </span>&lt;work_dir&gt;
+bfabric-app-runner<span class="w"> </span>action<span class="w"> </span>inputs<span class="w"> </span>&lt;work_dir&gt;
+bfabric-app-runner<span class="w"> </span>action<span class="w"> </span>process<span class="w"> </span>&lt;work_dir&gt;
+bfabric-app-runner<span class="w"> </span>action<span class="w"> </span>outputs<span class="w"> </span>&lt;work_dir&gt;
+</pre></div>
+</div>
+<p>Or run all stages at once:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-app-runner<span class="w"> </span>action<span class="w"> </span>run-all<span class="w"> </span>&lt;work_dir&gt;
+</pre></div>
+</div>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">#</a></h2>
+<section id="a-step-temporarily-failed">
+<h3>A step temporarily failed<a class="headerlink" href="#a-step-temporarily-failed" title="Link to this heading">#</a></h3>
+<p>Re-run the failing stage. For example, if <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">process</span></code> failed:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>process
+</pre></div>
+</div>
+<p>Or run all remaining stages:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>run-all
+</pre></div>
+</div>
+<p>The Makefile targets are idempotent where possible.</p>
+</section>
+<section id="you-need-to-edit-an-intermediate-result">
+<h3>You need to edit an intermediate result<a class="headerlink" href="#you-need-to-edit-an-intermediate-result" title="Link to this heading">#</a></h3>
+<p>Edit the relevant file in the working directory and re-run the stage:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Edit as needed, then re-run</span>
+make<span class="w"> </span>process
+</pre></div>
+</div>
+<p>Sometimes you may need to delete generated files before re-running.</p>
+</section>
+<section id="the-app-needs-major-changes">
+<h3>The app needs major changes<a class="headerlink" href="#the-app-needs-major-changes" title="Link to this heading">#</a></h3>
+<p>For significant changes, use a development version of the app:</p>
+<ol class="arabic simple">
+<li><p>Set up a <code class="docutils literal notranslate"><span class="pre">devel</span></code> version in your <code class="docutils literal notranslate"><span class="pre">app.yml</span></code> pointing to your local source code (see <a class="reference internal" href="configuration.html"><span class="std std-doc">Configuration Guide</span></a>)</p></li>
+<li><p>Re-prepare the workunit with the development version:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-app-runner<span class="w"> </span>prepare<span class="w"> </span>workunit<span class="w"> </span>/path/to/app.yml<span class="w"> </span>./work<span class="w"> </span><span class="m">12345</span><span class="w"> </span>--force-app-version<span class="w"> </span>devel
+</pre></div>
+</div>
+</section>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="configuration.html"><span class="std std-doc">Configuration Guide</span></a> – Learn how to write and customize <code class="docutils literal notranslate"><span class="pre">app.yml</span></code></p></li>
+<li><p><a class="reference internal" href="installation.html"><span class="std std-doc">Installation Guide</span></a> – Other installation options</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="installation.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Installation</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="configuration.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Configuration</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#makefile-workflow-interactive">Makefile Workflow (Interactive)</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-prepare-the-working-directory">Step 1: Prepare the Working Directory</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-explore-available-targets">Step 2: Explore Available Targets</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-run-each-stage">Step 3: Run Each Stage</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-workunit-unattended">Run Workunit (Unattended)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-individual-actions">Running Individual Actions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">Troubleshooting</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#a-step-temporarily-failed">A step temporarily failed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#you-need-to-edit-an-intermediate-result">You need to edit an intermediate result</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-app-needs-major-changes">The app needs major changes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By the bfabricpy authors
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024-2026 Functional Genomics Center Zurich.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

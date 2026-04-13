@@ -1,0 +1,785 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Output specification &#8212; bfabric-app-runner 0.5.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=5f152624"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'specs/output_specification';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="App Specification" href="app_specification.html" />
+    <link rel="prev" title="Input specification" href="input_specification.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.5.1" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">bfabric-app-runner 0.5.1 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../getting_started/index.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/quick_start.html">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/configuration.html">Configuration</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../user_guides/index.html">User Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/creating_an_app.html">Creating an App</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/deploying_apps.html">Deploying Apps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/working_with_inputs.html">Working with Inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/working_with_outputs.html">Working with Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/python_environments.html">Python Environments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/cli_reference.html">CLI Reference</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture/overview.html">Architecture Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input_specification.html">Input specification</a></li>
+
+
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Output specification</a></li>
+
+
+<li class="toctree-l1"><a class="reference internal" href="app_specification.html">App Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_reference/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/index.html">Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workunit_definition.html">Workunit Definition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/specs/output_specification.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Output specification</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Output specification</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#general-structure">General structure</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#commands">Commands</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validation">Validation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#register-files">Register files</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bfabric_app_runner.specs.outputs_spec">Reference</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec"><code class="docutils literal notranslate"><span class="pre">CopyResourceSpec</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.local_path"><code class="docutils literal notranslate"><span class="pre">CopyResourceSpec.local_path</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.model_config"><code class="docutils literal notranslate"><span class="pre">CopyResourceSpec.model_config</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.protocol"><code class="docutils literal notranslate"><span class="pre">CopyResourceSpec.protocol</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.store_entry_path"><code class="docutils literal notranslate"><span class="pre">CopyResourceSpec.store_entry_path</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.store_folder_path"><code class="docutils literal notranslate"><span class="pre">CopyResourceSpec.store_folder_path</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.type"><code class="docutils literal notranslate"><span class="pre">CopyResourceSpec.type</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.update_existing"><code class="docutils literal notranslate"><span class="pre">CopyResourceSpec.update_existing</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.OutputsSpec"><code class="docutils literal notranslate"><span class="pre">OutputsSpec</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.OutputsSpec.model_config"><code class="docutils literal notranslate"><span class="pre">OutputsSpec.model_config</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.OutputsSpec.outputs"><code class="docutils literal notranslate"><span class="pre">OutputsSpec.outputs</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.OutputsSpec.read_yaml"><code class="docutils literal notranslate"><span class="pre">OutputsSpec.read_yaml()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.OutputsSpec.write_yaml"><code class="docutils literal notranslate"><span class="pre">OutputsSpec.write_yaml()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.has_header"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.has_header</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.invalid_characters"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.invalid_characters</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.local_path"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.local_path</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.model_config"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.model_config</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.name"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.separator"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.separator</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.type"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.type</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.entity_id"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec.entity_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.entity_type"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec.entity_type</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.model_config"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec.model_config</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.name"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec.name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.require_entity_id_if_not_workunit"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec.require_entity_id_if_not_workunit()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.type"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec.type</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.update_existing"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec.update_existing</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.url"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec.url</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.UpdateExisting"><code class="docutils literal notranslate"><span class="pre">UpdateExisting</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.UpdateExisting.IF_EXISTS"><code class="docutils literal notranslate"><span class="pre">UpdateExisting.IF_EXISTS</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.UpdateExisting.NO"><code class="docutils literal notranslate"><span class="pre">UpdateExisting.NO</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.UpdateExisting.REQUIRED"><code class="docutils literal notranslate"><span class="pre">UpdateExisting.REQUIRED</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="output-specification">
+<h1>Output specification<a class="headerlink" href="#output-specification" title="Link to this heading">#</a></h1>
+<p>The outputs module provides a specification schema to define the outputs that were created by an app and should be registered.
+The file is usually called <code class="docutils literal notranslate"><span class="pre">outputs.yml</span></code> and lists the different output files, with information how to register them.</p>
+<section id="general-structure">
+<h2>General structure<a class="headerlink" href="#general-structure" title="Link to this heading">#</a></h2>
+<p>Generally the structure is a yaml file containing a key <code class="docutils literal notranslate"><span class="pre">outputs</span></code> which is a list of dictionaries, each representing an
+output file.
+Each output has a <code class="docutils literal notranslate"><span class="pre">type</span></code> key which identifies the output type.
+This will allow us to extend this logic to different sources in the future.</p>
+<p>An example file could look like:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">outputs</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_copy_resource</span>
+<span class="w">  </span><span class="nt">local_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp/work/hello.txt</span>
+<span class="w">  </span><span class="nt">store_entry_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">WU123456_hello.txt</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_dataset</span>
+<span class="w">  </span><span class="nt">local_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp/work/hello.csv</span>
+<span class="w">  </span><span class="nt">separator</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;,&quot;</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Hello Dataset</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_link</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Results Report</span>
+<span class="w">  </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://example.com/report/123</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="commands">
+<h1>Commands<a class="headerlink" href="#commands" title="Link to this heading">#</a></h1>
+<section id="validation">
+<h2>Validation<a class="headerlink" href="#validation" title="Link to this heading">#</a></h2>
+<p>The output file can be validated with the command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-app-runner<span class="w"> </span>validate<span class="w"> </span>outputs-spec<span class="w"> </span>outputs.yml
+</pre></div>
+</div>
+<p>Which on success will output a pretty-printed version of the outputs file.
+Validation will also be performed by all other commands, so this is not strictly necessary.</p>
+</section>
+<section id="register-files">
+<h2>Register files<a class="headerlink" href="#register-files" title="Link to this heading">#</a></h2>
+<p>To perform the registration to B-Fabric the following can be used:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-app-runner<span class="w"> </span>outputs<span class="w"> </span>register<span class="w"> </span>outputs.yml<span class="w"> </span><span class="m">1234</span>
+</pre></div>
+</div>
+<p>Please note:</p>
+<ul class="simple">
+<li><p>The workunit reference (an integer workunit ID or a path to a workunit definition YAML file) must
+be specified, so the correct information can be retrieved.</p></li>
+<li><p>Several actions might require a particular user to be possible, e.g. the <code class="docutils literal notranslate"><span class="pre">bfabric_copy_resource</span></code> will require a user
+with permission to create the particular file over SSH.</p></li>
+</ul>
+</section>
+</section>
+<section id="module-bfabric_app_runner.specs.outputs_spec">
+<span id="reference"></span><h1>Reference<a class="headerlink" href="#module-bfabric_app_runner.specs.outputs_spec" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.CopyResourceSpec">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric_app_runner.specs.outputs_spec.</span></span><span class="sig-name descname"><span class="pre">CopyResourceSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'bfabric_copy_resource'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'bfabric_copy_resource'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_entry_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_folder_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_existing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.UpdateExisting" title="bfabric_app_runner.specs.outputs_spec.UpdateExisting"><span class="pre">UpdateExisting</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">UpdateExisting.IF_EXISTS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'scp'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'scp'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.local_path">
+<span class="sig-name descname"><span class="pre">local_path</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.local_path" title="Link to this definition">#</a></dt>
+<dd><p>The local path to the file to be copied.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'extra':</span> <span class="pre">'forbid'}</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.model_config" title="Link to this definition">#</a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.protocol">
+<span class="sig-name descname"><span class="pre">protocol</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'scp'</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.protocol" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.store_entry_path">
+<span class="sig-name descname"><span class="pre">store_entry_path</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.store_entry_path" title="Link to this definition">#</a></dt>
+<dd><p>The path to the storage entry in the storage folder.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.store_folder_path">
+<span class="sig-name descname"><span class="pre">store_folder_path</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.store_folder_path" title="Link to this definition">#</a></dt>
+<dd><p>The storage folder will be determined by the default rule, but can be specified if needed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.type">
+<span class="sig-name descname"><span class="pre">type</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'bfabric_copy_resource'</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.type" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.update_existing">
+<span class="sig-name descname"><span class="pre">update_existing</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.UpdateExisting" title="bfabric_app_runner.specs.outputs_spec.UpdateExisting"><span class="pre">UpdateExisting</span></a></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.update_existing" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.OutputsSpec">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric_app_runner.specs.outputs_spec.</span></span><span class="sig-name descname"><span class="pre">OutputsSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec" title="bfabric_app_runner.specs.outputs_spec.CopyResourceSpec"><span class="pre">CopyResourceSpec</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec" title="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec"><span class="pre">SaveDatasetSpec</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec" title="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec"><span class="pre">SaveLinkSpec</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">annotation</span></span><span class="o"><span class="pre">=</span></span><span class="pre">NoneType</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">required</span></span><span class="o"><span class="pre">=</span></span><span class="k"><span class="pre">True</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">discriminator</span></span><span class="o"><span class="pre">=</span></span><span class="s"><span class="pre">'type'</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.OutputsSpec" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.OutputsSpec.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'extra':</span> <span class="pre">'forbid'}</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.OutputsSpec.model_config" title="Link to this definition">#</a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.OutputsSpec.outputs">
+<span class="sig-name descname"><span class="pre">outputs</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">SpecType</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.OutputsSpec.outputs" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.OutputsSpec.read_yaml">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">read_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec" title="bfabric_app_runner.specs.outputs_spec.CopyResourceSpec"><span class="pre">CopyResourceSpec</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec" title="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec"><span class="pre">SaveDatasetSpec</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec" title="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec"><span class="pre">SaveLinkSpec</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">annotation</span></span><span class="o"><span class="pre">=</span></span><span class="pre">NoneType</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">required</span></span><span class="o"><span class="pre">=</span></span><span class="k"><span class="pre">True</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">discriminator</span></span><span class="o"><span class="pre">=</span></span><span class="s"><span class="pre">'type'</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.OutputsSpec.read_yaml" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.OutputsSpec.write_yaml">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">write_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">specs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec" title="bfabric_app_runner.specs.outputs_spec.CopyResourceSpec"><span class="pre">CopyResourceSpec</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec" title="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec"><span class="pre">SaveDatasetSpec</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec" title="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec"><span class="pre">SaveLinkSpec</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">annotation</span></span><span class="o"><span class="pre">=</span></span><span class="pre">NoneType</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">required</span></span><span class="o"><span class="pre">=</span></span><span class="k"><span class="pre">True</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">discriminator</span></span><span class="o"><span class="pre">=</span></span><span class="s"><span class="pre">'type'</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.OutputsSpec.write_yaml" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric_app_runner.specs.outputs_spec.</span></span><span class="sig-name descname"><span class="pre">SaveDatasetSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'bfabric_dataset'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'bfabric_dataset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_header</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invalid_characters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.has_header">
+<span class="sig-name descname"><span class="pre">has_header</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.has_header" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.invalid_characters">
+<span class="sig-name descname"><span class="pre">invalid_characters</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.invalid_characters" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.local_path">
+<span class="sig-name descname"><span class="pre">local_path</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.local_path" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'extra':</span> <span class="pre">'forbid'}</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.model_config" title="Link to this definition">#</a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.name" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.separator">
+<span class="sig-name descname"><span class="pre">separator</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.separator" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.type">
+<span class="sig-name descname"><span class="pre">type</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'bfabric_dataset'</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.type" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric_app_runner.specs.outputs_spec.</span></span><span class="sig-name descname"><span class="pre">SaveLinkSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'bfabric_link'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'bfabric_link'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Workunit'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_existing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.UpdateExisting" title="bfabric_app_runner.specs.outputs_spec.UpdateExisting"><span class="pre">UpdateExisting</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">UpdateExisting.IF_EXISTS</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Saves a link to the workunit, or, if desired to an arbitrary entity of type entity_type with id entity_id.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.entity_id">
+<span class="sig-name descname"><span class="pre">entity_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.entity_id" title="Link to this definition">#</a></dt>
+<dd><p>The ID of the entity that will be linked.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.entity_type">
+<span class="sig-name descname"><span class="pre">entity_type</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.entity_type" title="Link to this definition">#</a></dt>
+<dd><p>The type of the entity that will be linked.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'extra':</span> <span class="pre">'forbid'}</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.model_config" title="Link to this definition">#</a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.name" title="Link to this definition">#</a></dt>
+<dd><p>The name of the link.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.require_entity_id_if_not_workunit">
+<span class="sig-name descname"><span class="pre">require_entity_id_if_not_workunit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec" title="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec"><span class="pre">SaveLinkSpec</span></a></span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.require_entity_id_if_not_workunit" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.type">
+<span class="sig-name descname"><span class="pre">type</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'bfabric_link'</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.type" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.update_existing">
+<span class="sig-name descname"><span class="pre">update_existing</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.UpdateExisting" title="bfabric_app_runner.specs.outputs_spec.UpdateExisting"><span class="pre">UpdateExisting</span></a></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.update_existing" title="Link to this definition">#</a></dt>
+<dd><p>Behavior, if a link with the same name already exists.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.url">
+<span class="sig-name descname"><span class="pre">url</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.url" title="Link to this definition">#</a></dt>
+<dd><p>The URL of the link.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.UpdateExisting">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric_app_runner.specs.outputs_spec.</span></span><span class="sig-name descname"><span class="pre">UpdateExisting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.UpdateExisting" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.UpdateExisting.IF_EXISTS">
+<span class="sig-name descname"><span class="pre">IF_EXISTS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'if_exists'</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.UpdateExisting.IF_EXISTS" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.UpdateExisting.NO">
+<span class="sig-name descname"><span class="pre">NO</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'no'</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.UpdateExisting.NO" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.UpdateExisting.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'required'</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.UpdateExisting.REQUIRED" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="input_specification.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Input specification</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="app_specification.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">App Specification</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Output specification</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#general-structure">General structure</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#commands">Commands</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validation">Validation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#register-files">Register files</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bfabric_app_runner.specs.outputs_spec">Reference</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec"><code class="docutils literal notranslate"><span class="pre">CopyResourceSpec</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.local_path"><code class="docutils literal notranslate"><span class="pre">CopyResourceSpec.local_path</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.model_config"><code class="docutils literal notranslate"><span class="pre">CopyResourceSpec.model_config</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.protocol"><code class="docutils literal notranslate"><span class="pre">CopyResourceSpec.protocol</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.store_entry_path"><code class="docutils literal notranslate"><span class="pre">CopyResourceSpec.store_entry_path</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.store_folder_path"><code class="docutils literal notranslate"><span class="pre">CopyResourceSpec.store_folder_path</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.type"><code class="docutils literal notranslate"><span class="pre">CopyResourceSpec.type</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.update_existing"><code class="docutils literal notranslate"><span class="pre">CopyResourceSpec.update_existing</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.OutputsSpec"><code class="docutils literal notranslate"><span class="pre">OutputsSpec</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.OutputsSpec.model_config"><code class="docutils literal notranslate"><span class="pre">OutputsSpec.model_config</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.OutputsSpec.outputs"><code class="docutils literal notranslate"><span class="pre">OutputsSpec.outputs</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.OutputsSpec.read_yaml"><code class="docutils literal notranslate"><span class="pre">OutputsSpec.read_yaml()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.OutputsSpec.write_yaml"><code class="docutils literal notranslate"><span class="pre">OutputsSpec.write_yaml()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.has_header"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.has_header</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.invalid_characters"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.invalid_characters</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.local_path"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.local_path</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.model_config"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.model_config</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.name"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.separator"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.separator</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.type"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.type</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.entity_id"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec.entity_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.entity_type"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec.entity_type</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.model_config"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec.model_config</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.name"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec.name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.require_entity_id_if_not_workunit"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec.require_entity_id_if_not_workunit()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.type"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec.type</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.update_existing"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec.update_existing</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.url"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec.url</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.UpdateExisting"><code class="docutils literal notranslate"><span class="pre">UpdateExisting</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.UpdateExisting.IF_EXISTS"><code class="docutils literal notranslate"><span class="pre">UpdateExisting.IF_EXISTS</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.UpdateExisting.NO"><code class="docutils literal notranslate"><span class="pre">UpdateExisting.NO</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.UpdateExisting.REQUIRED"><code class="docutils literal notranslate"><span class="pre">UpdateExisting.REQUIRED</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By the bfabricpy authors
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024-2026 Functional Genomics Center Zurich.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
