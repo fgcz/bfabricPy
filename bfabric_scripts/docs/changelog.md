@@ -19,6 +19,7 @@ Versioning currently follows `X.Y.Z` where
 
 ### Changed
 - `bfabric-cli dataset download` now defaults to `auto` format which infers the output format from the file extension.
+- Use `hashlib.file_digest` instead of manual chunked `hashlib.md5()` loops where possible ([#349](https://github.com/fgcz/bfabricPy/issues/349)).
 
 ### Fixed
 

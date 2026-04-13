@@ -9,7 +9,7 @@ from bfabric_app_runner.inputs.resolve.resolved_inputs import (
     ResolvedStaticFile,
     ResolvedDirectory,
 )
-from bfabric_app_runner.util.checksums import md5sum
+import hashlib
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -83,7 +83,9 @@ def _check_file_integrity(file: ResolvedFile, local_path: Path) -> IntegrityStat
     if file.checksum is None:
         return IntegrityState.NotChecked
     else:
-        return IntegrityState.Correct if file.checksum == md5sum(local_path) else IntegrityState.Incorrect
+        with local_path.open("rb") as f:
+            actual_checksum = hashlib.file_digest(f, "md5").hexdigest()
+        return IntegrityState.Correct if file.checksum == actual_checksum else IntegrityState.Incorrect
 
 
 def _check_static_file_integrity(file: ResolvedStaticFile, local_path: Path) -> IntegrityState:
@@ -120,7 +122,9 @@ def _check_directory_integrity(file: ResolvedDirectory, local_path: Path) -> Int
             if not cache_file.is_file():
                 return IntegrityState.Incorrect
             # Validate cache file checksum
-            return IntegrityState.Correct if file.checksum == md5sum(cache_file) else IntegrityState.Incorrect
+            with cache_file.open("rb") as f:
+                actual_checksum = hashlib.file_digest(f, "md5").hexdigest()
+            return IntegrityState.Correct if file.checksum == actual_checksum else IntegrityState.Incorrect
         else:
             # Cache file missing but we have checksum - trigger refresh
             return IntegrityState.Incorrect
