@@ -319,17 +319,6 @@ def docs(session):
 
 
 @nox.session(default=False)
-def publish_docs(session):
-    """Publish documentation to GitHub Pages by updating gh-pages branch."""
-    site_dir = Path("site")
-    if not site_dir.exists():
-        session.error("Site directory does not exist. Run 'nox -s docs' first.")
-
-    session.install("ghp-import")
-    session.run("ghp-import", "--force", "--no-jekyll", "--push", "site")
-
-
-@nox.session(default=False)
 def code_style(session):
     session.install("ruff")
     session.run("ruff", "check", "bfabric")
