@@ -15,6 +15,10 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
     - `config_env`: Override the config environment (e.g. 'TEST'). Falls back to `BFABRICPY_CONFIG_ENV` env var or the config file default.
     - `config_file`: Override the config file path (default: ~/.bfabricpy.yml).
 
+### Added
+
+- `BfabricTokenValidationFailedError` exception in `bfabric.errors`: raised by `get_token_data_async` (and `get_token_data`) when token validation fails, with named constructors `expired_token()` and `invalid_token()`.
+
 ### Fixed
 
 - `FindMixin.find_all` now correctly handles string IDs (e.g., `["1", "2"]`) in addition to integer IDs.

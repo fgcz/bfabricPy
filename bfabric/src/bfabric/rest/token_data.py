@@ -17,8 +17,10 @@ from pydantic import (
     WrapValidator,
 )
 
+from pydantic import ValidationError
+
 from bfabric.entities.core.import_entity import import_entity
-from bfabric.errors import BfabricInstanceNotConfiguredError
+from bfabric.errors import BfabricInstanceNotConfiguredError, BfabricTokenValidationFailedError
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
@@ -88,16 +90,25 @@ async def get_token_data_async(
     """Returns the token data for the provided token.
 
     Raises:
-        httpx.HTTPError: If the HTTP request fails (covers connection errors, timeouts, 4xx/5xx status).
-        pydantic.ValidationError: If the response body is not valid JSON or doesn't match the TokenData schema.
+        BfabricTokenValidationFailedError: If token validation fails due to an expired or otherwise invalid token.
     """
     url = urllib.parse.urljoin(f"{base_url}/", "rest/token/validate")
     async with contextlib.nullcontext(http_client) if http_client is not None else httpx.AsyncClient() as client:
         response = await client.get(
             url, params={"token": token.get_secret_value() if isinstance(token, SecretStr) else token}
         )
-    _ = response.raise_for_status()
-    return TokenData.model_validate_json(response.text)
+    try:
+        response.raise_for_status()
+    except httpx.HTTPStatusError as e:
+        if "Token expired" in response.text:
+            raise BfabricTokenValidationFailedError.expired_token() from e
+        raise BfabricTokenValidationFailedError.invalid_token() from e
+    try:
+        return TokenData.model_validate_json(response.text)
+    except ValidationError as e:
+        if "Token expired" in response.text:
+            raise BfabricTokenValidationFailedError.expired_token() from e
+        raise BfabricTokenValidationFailedError.invalid_token() from e
 
 
 def get_token_data(base_url: str, token: str) -> TokenData:
@@ -114,8 +125,7 @@ async def validate_token(
     """Validates the token according to the provided settings.
 
     Raises:
-        httpx.HTTPError: If the HTTP request fails (covers connection errors, timeouts, 4xx/5xx status).
-        pydantic.ValidationError: If the response body is not valid JSON or doesn't match the TokenData schema.
+        BfabricTokenValidationFailedError: If token validation fails due to an expired or otherwise invalid token.
         BfabricInstanceNotConfiguredError: If the caller is not configured as supported.
     """
     token_data = await get_token_data_async(
