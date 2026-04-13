@@ -10,6 +10,9 @@ by configuring the application steps in a YAML configuration files, the so-calle
 The specification can be provided in a YAML file with the following structure:
 
 ```yaml
+bfabric:
+  app_runner: "0.0.17"  # or a git reference
+  workflow_template_step_id: null  # optional
 versions:
   - version: "1.0.0"
     commands:
@@ -17,6 +20,10 @@ versions:
       process: ...
       collect: ...  # Optional
 ```
+
+The top-level `bfabric` section contains metadata relevant to B-Fabric integration (the runner
+version to use and an optional workflow template step ID). The `versions` list defines one or
+more application versions, each with its own set of commands.
 
 ## Commands
 
@@ -68,6 +75,33 @@ commands:
 .. autopydantic_model:: bfabric_app_runner.specs.app.commands_spec.CommandDocker
 
 .. autopydantic_model:: bfabric_app_runner.specs.app.commands_spec.MountOptions
+```
+
+### Shell Commands (deprecated)
+
+The shell command type is deprecated in favor of `exec`. It splits the command string by spaces
+(not using `shlex.split`).
+
+```{eval-rst}
+.. autopydantic_model:: bfabric_app_runner.specs.app.commands_spec.CommandShell
+```
+
+### Python Environment Commands
+
+Provisions a Python virtual environment from a pylock file and runs the command inside it.
+Environments can be cached for reuse across runs.
+
+```yaml
+commands:
+  process:
+    type: "python_env"
+    pylock: "requirements.pylock.toml"
+    command: "python run.py"
+    python_version: "3.12"
+```
+
+```{eval-rst}
+.. autopydantic_model:: bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv
 ```
 
 ## App Versions
