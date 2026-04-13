@@ -5,7 +5,7 @@ from typing import Annotated, Any
 
 import fastapi
 from bfabric.config.config_data import ConfigData
-from bfabric.rest.token_data import get_token_data_async
+from bfabric.rest.token_data import validate_token
 from fastapi import Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.params import Depends
@@ -128,13 +128,13 @@ class TokenParam(BaseModel):
 
 
 @app.post("/validate_token")
-async def validate_token(token_param: TokenParam, bfabric_instance: BfabricInstanceDep):
+async def post_validate_token(token_param: TokenParam, settings: ServerSettingsDep):
     """Validates a token and returns the token data.
 
     This endpoint is not really necessary since it proxies a REST endpoint, but is added here for consistency to avoid
     shiny apps having to interface with two different APIs.
     """
-    token_data = await get_token_data_async(base_url=bfabric_instance, token=token_param.token, http_client=None)
+    token_data = await validate_token(token=token_param.token, settings=settings)
     dump = token_data.model_dump(by_alias=True, mode="json")
     dump["userWsPassword"] = token_data.user_ws_password.get_secret_value()
     return dump
