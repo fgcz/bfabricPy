@@ -26,6 +26,13 @@ def mock_client(mocker: MockerFixture):
     return mocker.Mock(name="mock_client")
 
 
+@pytest.fixture
+def mock_workunit_definition_for_run(mocker):
+    mock_def = mocker.Mock()
+    mock_def.registration.workunit_id = 42
+    return mock_def
+
+
 def test_run(mocker, action_run, mock_client):
     mock_validate_chunks_list = mocker.patch(
         "bfabric_app_runner.actions.execute._validate_chunks_list", return_value=[Path("chunk1")]
@@ -33,6 +40,8 @@ def test_run(mocker, action_run, mock_client):
     mock_execute_inputs = mocker.patch("bfabric_app_runner.actions.execute.execute_inputs")
     mock_execute_process = mocker.patch("bfabric_app_runner.actions.execute.execute_process")
     mock_execute_outputs = mocker.patch("bfabric_app_runner.actions.execute.execute_outputs")
+    mock_wu_def = mocker.patch("bfabric_app_runner.actions.execute.WorkunitDefinition.from_yaml")
+    mock_wu_def.return_value.registration.workunit_id = 42
 
     execute_run(action=action_run, client=mock_client)
 
@@ -64,6 +73,30 @@ def test_run(mocker, action_run, mock_client):
         ),
         client=mock_client,
     )
+    # Verify workunit status set to available
+    mock_client.save.assert_called_once_with("workunit", {"id": 42, "status": "available"})
+
+
+def test_run_read_only_does_not_set_available(mocker, mock_client):
+    """Test that execute_run with read_only=True does not set workunit status."""
+    action = ActionRun(
+        work_dir=Path("/test/work_dir"),
+        chunk=None,
+        ssh_user="ssh_user",
+        filter="filter",
+        app_ref=Path("app_ref"),
+        force_storage=Path("force_storage"),
+        workunit_ref=Path("workunit_ref"),
+        read_only=True,
+    )
+    mocker.patch("bfabric_app_runner.actions.execute._validate_chunks_list", return_value=[Path("chunk1")])
+    mocker.patch("bfabric_app_runner.actions.execute.execute_inputs")
+    mocker.patch("bfabric_app_runner.actions.execute.execute_process")
+    mocker.patch("bfabric_app_runner.actions.execute.execute_outputs")
+
+    execute_run(action=action, client=mock_client)
+
+    mock_client.save.assert_not_called()
 
 
 @pytest.fixture
@@ -200,6 +233,65 @@ def test_execute_outputs_does_not_call_register_workflow_step_when_no_template(
 
     # Verify _register_workflow_step was NOT called
     execute_outputs_common_mocks["register_workflow_step"].assert_not_called()
+
+
+def test_execute_outputs_sets_available_when_chunk_is_none(
+    mock_client, execute_outputs_common_mocks, mock_app_spec_without_workflow_template, mock_workunit_definition
+):
+    """Test that execute_outputs sets workunit status to 'available' when chunk is None (all-chunks mode)."""
+    action = ActionOutputs(
+        work_dir=Path("/test/work_dir"),
+        chunk=None,
+        workunit_ref=Path("workunit_ref"),
+        app_ref=Path("app_ref"),
+        ssh_user="ssh_user",
+        force_storage=None,
+        read_only=False,
+    )
+    execute_outputs_common_mocks["load_workunit_info"].return_value = (
+        mock_client,
+        mock_app_spec_without_workflow_template,
+        mock_client,
+    )
+
+    execute_outputs(action, mock_client)
+
+    mock_client.save.assert_called_with("workunit", {"id": 123, "status": "available"})
+
+
+def test_execute_outputs_does_not_set_available_when_chunk_specified(
+    action_outputs, mock_client, execute_outputs_common_mocks, mock_app_spec_without_workflow_template
+):
+    """Test that execute_outputs does NOT set workunit status when a specific chunk is given."""
+    execute_outputs_common_mocks["load_workunit_info"].return_value = (
+        mock_client,
+        mock_app_spec_without_workflow_template,
+        mock_client,
+    )
+
+    execute_outputs(action_outputs, mock_client)
+
+    # The only save calls should be from register_outputs, not workunit status
+    for call in mock_client.save.call_args_list:
+        assert call != (("workunit", {"id": 123, "status": "available"}),)
+
+
+def test_execute_outputs_read_only_does_not_set_available(mock_client, mocker):
+    """Test that execute_outputs with read_only=True skips everything including status setting."""
+    action = ActionOutputs(
+        work_dir=Path("/test/work_dir"),
+        chunk=None,
+        workunit_ref=Path("workunit_ref"),
+        app_ref=Path("app_ref"),
+        ssh_user="ssh_user",
+        force_storage=None,
+        read_only=True,
+    )
+    mocker.patch("bfabric_app_runner.actions.execute.logger")
+
+    execute_outputs(action, mock_client)
+
+    mock_client.save.assert_not_called()
 
 
 def test_register_workflow_step_creates_workflow_and_step(mocker, mock_client, mock_workunit_definition):
