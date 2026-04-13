@@ -98,7 +98,7 @@ async def get_token_data_async(
             url, params={"token": token.get_secret_value() if isinstance(token, SecretStr) else token}
         )
     try:
-        response.raise_for_status()
+        _ = response.raise_for_status()
         return TokenData.model_validate_json(response.text)
     except (httpx.HTTPStatusError, ValidationError) as e:
         if "Token expired" in response.text:
