@@ -72,7 +72,7 @@ class TokenData(BaseModel):
         :param kwargs: Additional keyword arguments to pass to parent model_dump
         :return: A dictionary representation of the token data with ISO-formatted datetime fields
         """
-        data = super().model_dump(**kwargs)
+        data = super().model_dump(**kwargs)  # pyright: ignore[reportAny]
         # Convert datetime to ISO format
         if "token_expires" in data and isinstance(data["token_expires"], datetime):
             data["token_expires"] = data["token_expires"].isoformat()

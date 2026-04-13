@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- `action outputs` (and `action run-all`) now sets workunit status to "available" after all chunks are processed ([#346](https://github.com/fgcz/bfabricPy/issues/346)).
 - All CLI commands using the `use_client` decorator now support two new optional parameters:
     - `config_env`: Override the config environment (e.g. 'TEST'). Falls back to `BFABRICPY_CONFIG_ENV` env var or the config file default.
     - `config_file`: Override the config file path (default: ~/.bfabricpy.yml).
