@@ -118,8 +118,8 @@ else:
 
 `get_token_data` / `get_token_data_async` (called internally by `Bfabric.connect_token`) raise:
 
-- `BfabricTokenValidationFailedError` — token is expired or otherwise invalid.
-- `BfabricInstanceNotConfiguredError` — token's origin instance is not in `supported_bfabric_instances`.
+- {class}`~bfabric.errors.BfabricTokenValidationFailedError` — token is expired or otherwise invalid.
+- {class}`~bfabric.errors.BfabricInstanceNotConfiguredError` — token's origin instance is not in `supported_bfabric_instances`.
 
 ```python
 from bfabric.errors import (
