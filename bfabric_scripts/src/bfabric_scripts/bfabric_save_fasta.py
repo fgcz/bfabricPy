@@ -23,7 +23,7 @@ def save_fasta(container_id: int, fasta_file: Path) -> None:
         raise FileNotFoundError(fasta_file)
 
     with fasta_file.open("rb") as f:
-        md5 = hashlib.md5(f.read()).hexdigest()
+        md5 = hashlib.file_digest(f, "md5").hexdigest()
 
     resources = client.read(endpoint="resource", obj={"filechecksum": md5}).to_list_dict()
     if resources:
