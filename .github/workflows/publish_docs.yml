@@ -1,0 +1,63 @@
+name: Publish Documentation
+on:
+  push:
+    branches: [main]
+  workflow_run:
+    workflows: ["Release Packages"]
+    branches: [release]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Deploy target'
+        type: choice
+        options:
+          - dev
+          - production
+        default: dev
+jobs:
+  deploy-dev:
+    name: Deploy Dev Preview
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'dev')
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Install nox and uv
+        run: pip install nox uv
+      - name: Build documentation
+        run: nox -s docs
+      - name: Deploy to /dev/ on gh-pages
+        run: |
+          pip install ghp-import
+          ghp-import --force --no-jekyll --no-history \
+            --prefix dev \
+            --message "Update dev docs preview from ${GITHUB_SHA::8}" \
+            --push site
+  deploy-production:
+    name: Deploy Production Docs
+    runs-on: ubuntu-latest
+    if: >
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'production')
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Install nox and uv
+        run: pip install nox uv
+      - name: Build documentation
+        run: nox -s docs
+      - name: Publish documentation to GitHub Pages
+        run: nox -s publish_docs
