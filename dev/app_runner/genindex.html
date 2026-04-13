@@ -1,0 +1,986 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Index &#8212; bfabric-app-runner 0.5.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="_static/autodoc_pydantic.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="_static/documentation_options.js?v=5f152624"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'genindex';</script>
+    <link rel="index" title="Index" href="#" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.5.1" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">bfabric-app-runner 0.5.1 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="getting_started/index.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/quick_start.html">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/configuration.html">Configuration</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="user_guides/index.html">User Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_guides/creating_an_app.html">Creating an App</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guides/deploying_apps.html">Deploying Apps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guides/working_with_inputs.html">Working with Inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guides/working_with_outputs.html">Working with Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guides/python_environments.html">Python Environments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guides/cli_reference.html">CLI Reference</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture/overview.html">Architecture Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="specs/input_specification.html">Input specification</a></li>
+
+
+<li class="toctree-l1"><a class="reference internal" href="specs/output_specification.html">Output specification</a></li>
+
+
+<li class="toctree-l1"><a class="reference internal" href="specs/app_specification.html">App Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resources/index.html">Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workunit_definition.html">Workunit Definition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
+ 
+</div>
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.app_spec.BfabricAppSpec.app_runner">app_runner (bfabric_app_runner.specs.app.app_spec.BfabricAppSpec attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_spec.BfabricAppSpec.app_runner">[1]</a>
+</li>
+      <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_id">application_id (bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition attribute)</a>
+</li>
+      <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_name">application_name (bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition attribute)</a>
+</li>
+      <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_spec.AppSpec">AppSpec (class in bfabric_app_runner.specs.app.app_spec)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate">AppSpecTemplate (class in bfabric_app_runner.specs.app.app_spec)</a>
+</li>
+      <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_version.AppVersion">AppVersion (class in bfabric_app_runner.specs.app.app_version)</a>
+</li>
+      <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate">AppVersionMultiTemplate (class in bfabric_app_runner.specs.app.app_version)</a>
+</li>
+      <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_version.AppVersionTemplate">AppVersionTemplate (class in bfabric_app_runner.specs.app.app_version)</a>
+</li>
+      <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_spec.AppSpec.available_versions">available_versions (bfabric_app_runner.specs.app.app_spec.AppSpec property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.app_spec.AppSpec.bfabric">bfabric (bfabric_app_runner.specs.app.app_spec.AppSpec attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_spec.AppSpec.bfabric">[1]</a>
+
+      <ul>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.bfabric">(bfabric_app_runner.specs.app.app_spec.AppSpecTemplate attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.bfabric">[1]</a>
+</li>
+      </ul></li>
+      <li>
+    bfabric.experimental.workunit_definition
+
+      <ul>
+        <li><a href="workunit_definition.html#module-bfabric.experimental.workunit_definition">module</a>
+</li>
+      </ul></li>
+      <li>
+    bfabric_app_runner.app_runner.runner
+
+      <ul>
+        <li><a href="api_reference/index.html#module-bfabric_app_runner.app_runner.runner">module</a>
+</li>
+      </ul></li>
+      <li>
+    bfabric_app_runner.specs.app.app_spec
+
+      <ul>
+        <li><a href="specs/app_specification.html#module-bfabric_app_runner.specs.app.app_spec">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    bfabric_app_runner.specs.app.app_version
+
+      <ul>
+        <li><a href="specs/app_specification.html#module-bfabric_app_runner.specs.app.app_version">module</a>
+</li>
+      </ul></li>
+      <li>
+    bfabric_app_runner.specs.inputs_spec
+
+      <ul>
+        <li><a href="specs/input_specification.html#module-bfabric_app_runner.specs.inputs_spec">module</a>
+</li>
+      </ul></li>
+      <li>
+    bfabric_app_runner.specs.outputs_spec
+
+      <ul>
+        <li><a href="specs/output_specification.html#module-bfabric_app_runner.specs.outputs_spec">module</a>
+</li>
+      </ul></li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_annotation_spec.BfabricAnnotationSpec">BfabricAnnotationSpec (in module bfabric_app_runner.specs.inputs.bfabric_annotation_spec)</a>
+</li>
+      <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_spec.BfabricAppSpec">BfabricAppSpec (class in bfabric_app_runner.specs.app.app_spec)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_resource_archive_spec.BfabricResourceArchiveSpec.check_checksum">check_checksum (bfabric_app_runner.specs.inputs.bfabric_resource_archive_spec.BfabricResourceArchiveSpec attribute)</a>
+
+      <ul>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_resource_dataset.BfabricResourceDatasetSpec.check_checksum">(bfabric_app_runner.specs.inputs.bfabric_resource_dataset.BfabricResourceDatasetSpec attribute)</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec.check_checksum">(bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.file_spec.FileSpec.checksum">checksum (bfabric_app_runner.specs.inputs.file_spec.FileSpec attribute)</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.app_runner.runner.ChunksFile.chunks">chunks (bfabric_app_runner.app_runner.runner.ChunksFile attribute)</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.app_runner.runner.ChunksFile">ChunksFile (class in bfabric_app_runner.app_runner.runner)</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandsSpec.collect">collect (bfabric_app_runner.specs.app.commands_spec.CommandsSpec attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandsSpec.collect">[1]</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_resource_dataset.BfabricResourceDatasetSpec.column">column (bfabric_app_runner.specs.inputs.bfabric_resource_dataset.BfabricResourceDatasetSpec attribute)</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandDocker.command">command (bfabric_app_runner.specs.app.commands_spec.CommandDocker attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandDocker.command">[1]</a>
+
+      <ul>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandExec.command">(bfabric_app_runner.specs.app.commands_spec.CommandExec attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandExec.command">[1]</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.command">(bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.command">[1]</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandShell.command">(bfabric_app_runner.specs.app.commands_spec.CommandShell attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandShell.command">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.app_version.AppVersion.commands">commands (bfabric_app_runner.specs.app.app_version.AppVersion attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_version.AppVersion.commands">[1]</a>
+
+      <ul>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.commands">(bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.commands">[1]</a>
+</li>
+        <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_version.AppVersionTemplate.commands">(bfabric_app_runner.specs.app.app_version.AppVersionTemplate attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_id">container_id (bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition attribute)</a>
+</li>
+      <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.container_type">container_type (bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition attribute)</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.static_file_spec.StaticFileSpec.content">content (bfabric_app_runner.specs.inputs.static_file_spec.StaticFileSpec attribute)</a>
+</li>
+      <li><a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec">CopyResourceSpec (class in bfabric_app_runner.specs.outputs_spec)</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandDocker.custom_args">custom_args (bfabric_app_runner.specs.app.commands_spec.CommandDocker attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandDocker.custom_args">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.static_yaml_spec.StaticYamlSpec.data">data (bfabric_app_runner.specs.inputs.static_yaml_spec.StaticYamlSpec attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.dataset">dataset (bfabric.experimental.workunit_definition.WorkunitExecutionDefinition attribute)</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandsSpec.dispatch">dispatch (bfabric_app_runner.specs.app.commands_spec.CommandsSpec attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandsSpec.dispatch">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandDocker.engine">engine (bfabric_app_runner.specs.app.commands_spec.CommandDocker attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandDocker.engine">[1]</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec.BfabricOrderFastaSpec.entity">entity (bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec.BfabricOrderFastaSpec attribute)</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.entity_id">entity_id (bfabric_app_runner.specs.outputs_spec.SaveLinkSpec attribute)</a>, <a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.entity_id">[1]</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.entity_type">entity_type (bfabric_app_runner.specs.outputs_spec.SaveLinkSpec attribute)</a>, <a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.entity_type">[1]</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandDocker.entrypoint">entrypoint (bfabric_app_runner.specs.app.commands_spec.CommandDocker attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandDocker.entrypoint">[1]</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandDocker.env">env (bfabric_app_runner.specs.app.commands_spec.CommandDocker attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandDocker.env">[1]</a>
+
+      <ul>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandExec.env">(bfabric_app_runner.specs.app.commands_spec.CommandExec attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandExec.env">[1]</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.env">(bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.env">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.evaluate">evaluate() (bfabric_app_runner.specs.app.app_spec.AppSpecTemplate method)</a>
+
+      <ul>
+        <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_version.AppVersionTemplate.evaluate">(bfabric_app_runner.specs.app.app_version.AppVersionTemplate method)</a>
+</li>
+      </ul></li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_resource_archive_spec.BfabricResourceArchiveSpec.exclude_patterns">exclude_patterns (bfabric_app_runner.specs.inputs.bfabric_resource_archive_spec.BfabricResourceArchiveSpec attribute)</a>
+
+      <ul>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_resource_dataset.BfabricResourceDatasetSpec.exclude_patterns">(bfabric_app_runner.specs.inputs.bfabric_resource_dataset.BfabricResourceDatasetSpec attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitDefinition.execution">execution (bfabric.experimental.workunit_definition.WorkunitDefinition attribute)</a>
+</li>
+      <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.expand_versions">expand_versions() (bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate method)</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_resource_archive_spec.BfabricResourceArchiveSpec.extract">extract (bfabric_app_runner.specs.inputs.bfabric_resource_archive_spec.BfabricResourceArchiveSpec attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_dataset_spec.BfabricDatasetSpec.filename">filename (bfabric_app_runner.specs.inputs.bfabric_dataset_spec.BfabricDatasetSpec attribute)</a>
+
+      <ul>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec.BfabricOrderFastaSpec.filename">(bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec.BfabricOrderFastaSpec attribute)</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_resource_archive_spec.BfabricResourceArchiveSpec.filename">(bfabric_app_runner.specs.inputs.bfabric_resource_archive_spec.BfabricResourceArchiveSpec attribute)</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_resource_dataset.BfabricResourceDatasetSpec.filename">(bfabric_app_runner.specs.inputs.bfabric_resource_dataset.BfabricResourceDatasetSpec attribute)</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec.filename">(bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec attribute)</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.file_spec.FileSpec.filename">(bfabric_app_runner.specs.inputs.file_spec.FileSpec attribute)</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.static_file_spec.StaticFileSpec.filename">(bfabric_app_runner.specs.inputs.static_file_spec.StaticFileSpec attribute)</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.static_yaml_spec.StaticYamlSpec.filename">(bfabric_app_runner.specs.inputs.static_yaml_spec.StaticYamlSpec attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_dataset_spec.BfabricDatasetSpec.format">format (bfabric_app_runner.specs.inputs.bfabric_dataset_spec.BfabricDatasetSpec attribute)</a>
+</li>
+      <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitDefinition.from_ref">from_ref() (bfabric.experimental.workunit_definition.WorkunitDefinition class method)</a>
+</li>
+      <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitDefinition.from_workunit">from_workunit() (bfabric.experimental.workunit_definition.WorkunitDefinition class method)</a>
+
+      <ul>
+        <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.from_workunit">(bfabric.experimental.workunit_definition.WorkunitExecutionDefinition class method)</a>
+</li>
+        <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.from_workunit">(bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition class method)</a>
+</li>
+      </ul></li>
+      <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitDefinition.from_yaml">from_yaml() (bfabric.experimental.workunit_definition.WorkunitDefinition class method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.has_header">has_header (bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec attribute)</a>, <a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.has_header">[1]</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandDocker.hostname">hostname (bfabric_app_runner.specs.app.commands_spec.CommandDocker attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandDocker.hostname">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_dataset_spec.BfabricDatasetSpec.id">id (bfabric_app_runner.specs.inputs.bfabric_dataset_spec.BfabricDatasetSpec attribute)</a>
+
+      <ul>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec.BfabricOrderFastaSpec.id">(bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec.BfabricOrderFastaSpec attribute)</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_resource_archive_spec.BfabricResourceArchiveSpec.id">(bfabric_app_runner.specs.inputs.bfabric_resource_archive_spec.BfabricResourceArchiveSpec attribute)</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_resource_dataset.BfabricResourceDatasetSpec.id">(bfabric_app_runner.specs.inputs.bfabric_resource_dataset.BfabricResourceDatasetSpec attribute)</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec.id">(bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.UpdateExisting.IF_EXISTS">IF_EXISTS (bfabric_app_runner.specs.outputs_spec.UpdateExisting attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandDocker.image">image (bfabric_app_runner.specs.app.commands_spec.CommandDocker attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandDocker.image">[1]</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_resource_archive_spec.BfabricResourceArchiveSpec.include_patterns">include_patterns (bfabric_app_runner.specs.inputs.bfabric_resource_archive_spec.BfabricResourceArchiveSpec attribute)</a>
+
+      <ul>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_resource_dataset.BfabricResourceDatasetSpec.include_patterns">(bfabric_app_runner.specs.inputs.bfabric_resource_dataset.BfabricResourceDatasetSpec attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.app_runner.runner.ChunksFile.infer_from_directory">infer_from_directory() (bfabric_app_runner.app_runner.runner.ChunksFile class method)</a>
+</li>
+      <li><a href="specs/input_specification.html#bfabric_app_runner.specs.inputs_spec.InputsSpec.inputs">inputs (bfabric_app_runner.specs.inputs_spec.InputsSpec attribute)</a>
+</li>
+      <li><a href="specs/input_specification.html#bfabric_app_runner.specs.inputs_spec.InputsSpec">InputsSpec (class in bfabric_app_runner.specs.inputs_spec)</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.invalid_characters">invalid_characters (bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec attribute)</a>, <a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.invalid_characters">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.file_spec.FileSpec.link">link (bfabric_app_runner.specs.inputs.file_spec.FileSpec attribute)</a>
+</li>
+      <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_spec.AppSpec.load_yaml">load_yaml() (bfabric_app_runner.specs.app.app_spec.AppSpec class method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.local_extra_deps">local_extra_deps (bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.local_extra_deps">[1]</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.local_path">local_path (bfabric_app_runner.specs.outputs_spec.CopyResourceSpec attribute)</a>, <a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.local_path">[1]</a>
+
+      <ul>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.local_path">(bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec attribute)</a>, <a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.local_path">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandDocker.mac_address">mac_address (bfabric_app_runner.specs.app.commands_spec.CommandDocker attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandDocker.mac_address">[1]</a>
+</li>
+      <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitDefinition.model_config">model_config (bfabric.experimental.workunit_definition.WorkunitDefinition attribute)</a>
+
+      <ul>
+        <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.model_config">(bfabric.experimental.workunit_definition.WorkunitExecutionDefinition attribute)</a>
+</li>
+        <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.model_config">(bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition attribute)</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.app_runner.runner.ChunksFile.model_config">(bfabric_app_runner.app_runner.runner.ChunksFile attribute)</a>
+</li>
+        <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_spec.AppSpec.model_config">(bfabric_app_runner.specs.app.app_spec.AppSpec attribute)</a>
+</li>
+        <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.model_config">(bfabric_app_runner.specs.app.app_spec.AppSpecTemplate attribute)</a>
+</li>
+        <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_spec.BfabricAppSpec.model_config">(bfabric_app_runner.specs.app.app_spec.BfabricAppSpec attribute)</a>
+</li>
+        <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_version.AppVersion.model_config">(bfabric_app_runner.specs.app.app_version.AppVersion attribute)</a>
+</li>
+        <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.model_config">(bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate attribute)</a>
+</li>
+        <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_version.AppVersionTemplate.model_config">(bfabric_app_runner.specs.app.app_version.AppVersionTemplate attribute)</a>
+</li>
+        <li><a href="specs/input_specification.html#bfabric_app_runner.specs.inputs_spec.InputsSpec.model_config">(bfabric_app_runner.specs.inputs_spec.InputsSpec attribute)</a>
+</li>
+        <li><a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.model_config">(bfabric_app_runner.specs.outputs_spec.CopyResourceSpec attribute)</a>
+</li>
+        <li><a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.OutputsSpec.model_config">(bfabric_app_runner.specs.outputs_spec.OutputsSpec attribute)</a>
+</li>
+        <li><a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.model_config">(bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec attribute)</a>
+</li>
+        <li><a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.model_config">(bfabric_app_runner.specs.outputs_spec.SaveLinkSpec attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    module
+
+      <ul>
+        <li><a href="workunit_definition.html#module-bfabric.experimental.workunit_definition">bfabric.experimental.workunit_definition</a>
+</li>
+        <li><a href="api_reference/index.html#module-bfabric_app_runner.app_runner.runner">bfabric_app_runner.app_runner.runner</a>
+</li>
+        <li><a href="specs/app_specification.html#module-bfabric_app_runner.specs.app.app_spec">bfabric_app_runner.specs.app.app_spec</a>
+</li>
+        <li><a href="specs/app_specification.html#module-bfabric_app_runner.specs.app.app_version">bfabric_app_runner.specs.app.app_version</a>
+</li>
+        <li><a href="specs/input_specification.html#module-bfabric_app_runner.specs.inputs_spec">bfabric_app_runner.specs.inputs_spec</a>
+</li>
+        <li><a href="specs/output_specification.html#module-bfabric_app_runner.specs.outputs_spec">bfabric_app_runner.specs.outputs_spec</a>
+</li>
+      </ul></li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandDocker.mounts">mounts (bfabric_app_runner.specs.app.commands_spec.CommandDocker attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandDocker.mounts">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.name">name (bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec attribute)</a>, <a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.name">[1]</a>
+
+      <ul>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.name">(bfabric_app_runner.specs.outputs_spec.SaveLinkSpec attribute)</a>, <a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.name">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.UpdateExisting.NO">NO (bfabric_app_runner.specs.outputs_spec.UpdateExisting attribute)</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.app_spec.AppSpec.no_duplicate_versions">no_duplicate_versions() (bfabric_app_runner.specs.app.app_spec.AppSpec class method)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_spec.AppSpec.no_duplicate_versions">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_resource_dataset.BfabricResourceDatasetSpec.output_dataset_file_column">output_dataset_file_column (bfabric_app_runner.specs.inputs.bfabric_resource_dataset.BfabricResourceDatasetSpec attribute)</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_resource_dataset.BfabricResourceDatasetSpec.output_dataset_filename">output_dataset_filename (bfabric_app_runner.specs.inputs.bfabric_resource_dataset.BfabricResourceDatasetSpec attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_resource_dataset.BfabricResourceDatasetSpec.output_dataset_only">output_dataset_only (bfabric_app_runner.specs.inputs.bfabric_resource_dataset.BfabricResourceDatasetSpec attribute)</a>
+</li>
+      <li><a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.OutputsSpec.outputs">outputs (bfabric_app_runner.specs.outputs_spec.OutputsSpec attribute)</a>
+</li>
+      <li><a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.OutputsSpec">OutputsSpec (class in bfabric_app_runner.specs.outputs_spec)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandExec.prepend_paths">prepend_paths (bfabric_app_runner.specs.app.commands_spec.CommandExec attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandExec.prepend_paths">[1]</a>
+
+      <ul>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.prepend_paths">(bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.prepend_paths">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandsSpec.process">process (bfabric_app_runner.specs.app.commands_spec.CommandsSpec attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandsSpec.process">[1]</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.protocol">protocol (bfabric_app_runner.specs.outputs_spec.CopyResourceSpec attribute)</a>, <a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.protocol">[1]</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.pylock">pylock (bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.pylock">[1]</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.python_version">python_version (bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.python_version">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.raw_parameters">raw_parameters (bfabric.experimental.workunit_definition.WorkunitExecutionDefinition attribute)</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.app_runner.runner.ChunksFile.read">read() (bfabric_app_runner.app_runner.runner.ChunksFile class method)</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.MountOptions.read_only">read_only (bfabric_app_runner.specs.app.commands_spec.MountOptions attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.MountOptions.read_only">[1]</a>
+</li>
+      <li><a href="specs/input_specification.html#bfabric_app_runner.specs.inputs_spec.InputsSpec.read_yaml">read_yaml() (bfabric_app_runner.specs.inputs_spec.InputsSpec class method)</a>
+
+      <ul>
+        <li><a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.OutputsSpec.read_yaml">(bfabric_app_runner.specs.outputs_spec.OutputsSpec class method)</a>
+</li>
+      </ul></li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.refresh">refresh (bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.refresh">[1]</a>
+</li>
+      <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitDefinition.registration">registration (bfabric.experimental.workunit_definition.WorkunitDefinition attribute)</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.require_entity_id_if_not_workunit">require_entity_id_if_not_workunit() (bfabric_app_runner.specs.outputs_spec.SaveLinkSpec method)</a>, <a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.require_entity_id_if_not_workunit">[1]</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec.BfabricOrderFastaSpec.required">required (bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec.BfabricOrderFastaSpec attribute)</a>
+</li>
+      <li><a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.UpdateExisting.REQUIRED">REQUIRED (bfabric_app_runner.specs.outputs_spec.UpdateExisting attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.resources">resources (bfabric.experimental.workunit_definition.WorkunitExecutionDefinition attribute)</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.app_version.AppVersion.reuse_default_resource">reuse_default_resource (bfabric_app_runner.specs.app.app_version.AppVersion attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_version.AppVersion.reuse_default_resource">[1]</a>
+
+      <ul>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.reuse_default_resource">(bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.reuse_default_resource">[1]</a>
+</li>
+        <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_version.AppVersionTemplate.reuse_default_resource">(bfabric_app_runner.specs.app.app_version.AppVersionTemplate attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.app_runner.runner.run_app">run_app() (in module bfabric_app_runner.app_runner.runner)</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.app_runner.runner.Runner.run_collect">run_collect() (bfabric_app_runner.app_runner.runner.Runner method)</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.app_runner.runner.Runner.run_dispatch">run_dispatch() (bfabric_app_runner.app_runner.runner.Runner method)</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.app_runner.runner.Runner.run_inputs">run_inputs() (bfabric_app_runner.app_runner.runner.Runner method)</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.app_runner.runner.Runner.run_process">run_process() (bfabric_app_runner.app_runner.runner.Runner method)</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.app_runner.runner.Runner">Runner (class in bfabric_app_runner.app_runner.runner)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec">SaveDatasetSpec (class in bfabric_app_runner.specs.outputs_spec)</a>
+</li>
+      <li><a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec">SaveLinkSpec (class in bfabric_app_runner.specs.outputs_spec)</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_dataset_spec.BfabricDatasetSpec.separator">separator (bfabric_app_runner.specs.inputs.bfabric_dataset_spec.BfabricDatasetSpec attribute)</a>
+
+      <ul>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.separator">(bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec attribute)</a>, <a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.separator">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.MountOptions.share_bfabric_config">share_bfabric_config (bfabric_app_runner.specs.app.commands_spec.MountOptions attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.MountOptions.share_bfabric_config">[1]</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.file_spec.FileSpec.source">source (bfabric_app_runner.specs.inputs.file_spec.FileSpec attribute)</a>
+</li>
+      <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_id">storage_id (bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition attribute)</a>
+</li>
+      <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.storage_output_folder">storage_output_folder (bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition attribute)</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.store_entry_path">store_entry_path (bfabric_app_runner.specs.outputs_spec.CopyResourceSpec attribute)</a>, <a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.store_entry_path">[1]</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.store_folder_path">store_folder_path (bfabric_app_runner.specs.outputs_spec.CopyResourceSpec attribute)</a>, <a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.store_folder_path">[1]</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_resource_archive_spec.BfabricResourceArchiveSpec.strip_root">strip_root (bfabric_app_runner.specs.inputs.bfabric_resource_archive_spec.BfabricResourceArchiveSpec attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitDefinition.to_yaml">to_yaml() (bfabric.experimental.workunit_definition.WorkunitDefinition method)</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandDocker.type">type (bfabric_app_runner.specs.app.commands_spec.CommandDocker attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandDocker.type">[1]</a>
+
+      <ul>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandExec.type">(bfabric_app_runner.specs.app.commands_spec.CommandExec attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandExec.type">[1]</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.type">(bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.type">[1]</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.CommandShell.type">(bfabric_app_runner.specs.app.commands_spec.CommandShell attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.CommandShell.type">[1]</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_dataset_spec.BfabricDatasetSpec.type">(bfabric_app_runner.specs.inputs.bfabric_dataset_spec.BfabricDatasetSpec attribute)</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec.BfabricOrderFastaSpec.type">(bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec.BfabricOrderFastaSpec attribute)</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_resource_archive_spec.BfabricResourceArchiveSpec.type">(bfabric_app_runner.specs.inputs.bfabric_resource_archive_spec.BfabricResourceArchiveSpec attribute)</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_resource_dataset.BfabricResourceDatasetSpec.type">(bfabric_app_runner.specs.inputs.bfabric_resource_dataset.BfabricResourceDatasetSpec attribute)</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec.type">(bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec attribute)</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.file_spec.FileSpec.type">(bfabric_app_runner.specs.inputs.file_spec.FileSpec attribute)</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.static_file_spec.StaticFileSpec.type">(bfabric_app_runner.specs.inputs.static_file_spec.StaticFileSpec attribute)</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.static_yaml_spec.StaticYamlSpec.type">(bfabric_app_runner.specs.inputs.static_yaml_spec.StaticYamlSpec attribute)</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.type">(bfabric_app_runner.specs.outputs_spec.CopyResourceSpec attribute)</a>, <a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.type">[1]</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.type">(bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec attribute)</a>, <a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.type">[1]</a>
+</li>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.type">(bfabric_app_runner.specs.outputs_spec.SaveLinkSpec attribute)</a>, <a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.type">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.update_existing">update_existing (bfabric_app_runner.specs.outputs_spec.CopyResourceSpec attribute)</a>, <a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.update_existing">[1]</a>
+
+      <ul>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.update_existing">(bfabric_app_runner.specs.outputs_spec.SaveLinkSpec attribute)</a>, <a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.update_existing">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.UpdateExisting">UpdateExisting (class in bfabric_app_runner.specs.outputs_spec)</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.url">url (bfabric_app_runner.specs.outputs_spec.SaveLinkSpec attribute)</a>, <a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec.url">[1]</a>
+</li>
+      <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.user_id">user_id (bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_ssh">validate_no_link_ssh() (bfabric_app_runner.specs.inputs.file_spec.FileSpec method)</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.app_version.AppVersion.version">version (bfabric_app_runner.specs.app.app_version.AppVersion attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_version.AppVersion.version">[1]</a>
+
+      <ul>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.version">(bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.version">[1]</a>
+</li>
+        <li><a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_version.AppVersionTemplate.version">(bfabric_app_runner.specs.app.app_version.AppVersionTemplate attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.app_spec.AppSpec.versions">versions (bfabric_app_runner.specs.app.app_spec.AppSpec attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_spec.AppSpec.versions">[1]</a>
+
+      <ul>
+        <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.versions">(bfabric_app_runner.specs.app.app_spec.AppSpecTemplate attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.versions">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.MountOptions.work_dir_target">work_dir_target (bfabric_app_runner.specs.app.commands_spec.MountOptions attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.MountOptions.work_dir_target">[1]</a>
+</li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.app_spec.BfabricAppSpec.workflow_template_step_id">workflow_template_step_id (bfabric_app_runner.specs.app.app_spec.BfabricAppSpec attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.app_spec.BfabricAppSpec.workflow_template_step_id">[1]</a>
+</li>
+      <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.workunit_id">workunit_id (bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition attribute)</a>
+</li>
+      <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.workunit_name">workunit_name (bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition attribute)</a>
+</li>
+      <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitDefinition">WorkunitDefinition (class in bfabric.experimental.workunit_definition)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition">WorkunitExecutionDefinition (class in bfabric.experimental.workunit_definition)</a>
+</li>
+      <li><a href="workunit_definition.html#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition">WorkunitRegistrationDefinition (class in bfabric.experimental.workunit_definition)</a>
+</li>
+      <li><a href="specs/input_specification.html#bfabric_app_runner.specs.inputs_spec.InputsSpec.write_yaml">write_yaml() (bfabric_app_runner.specs.inputs_spec.InputsSpec class method)</a>
+
+      <ul>
+        <li><a href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.OutputsSpec.write_yaml">(bfabric_app_runner.specs.outputs_spec.OutputsSpec class method)</a>
+</li>
+      </ul></li>
+      <li><a href="api_reference/index.html#bfabric_app_runner.specs.app.commands_spec.MountOptions.writeable">writeable (bfabric_app_runner.specs.app.commands_spec.MountOptions attribute)</a>, <a href="specs/app_specification.html#bfabric_app_runner.specs.app.commands_spec.MountOptions.writeable">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By the bfabricpy authors
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024-2026 Functional Genomics Center Zurich.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
