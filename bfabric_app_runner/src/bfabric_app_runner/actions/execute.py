@@ -56,6 +56,7 @@ def execute_run(action: ActionRun, client: Bfabric) -> None:
         execute_process(action=ActionProcess.from_action_run(action, chunk=str(chunk_dir_rel)), client=client)
         execute_outputs(action=ActionOutputs.from_action_run(action, chunk=str(chunk_dir_rel)), client=client)
 
+    # chunk=None means all chunks were processed, so it's safe to finalize the workunit.
     if action.chunk is None and not action.read_only:
         workunit_definition = WorkunitDefinition.from_yaml(path=action.work_dir / "workunit_definition.yml")
         logger.info(f"Setting workunit {workunit_definition.registration.workunit_id} status to 'available'")
@@ -129,6 +130,7 @@ def execute_outputs(action: ActionOutputs, client: Bfabric) -> None:
                     client=client,
                 )
 
+    # chunk=None means all chunks were processed, so it's safe to finalize the workunit.
     if action.chunk is None:
         workunit_definition = WorkunitDefinition.from_yaml(path=action.work_dir / "workunit_definition.yml")
         logger.info(f"Setting workunit {workunit_definition.registration.workunit_id} status to 'available'")
