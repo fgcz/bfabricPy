@@ -99,6 +99,27 @@ def test_run_read_only_does_not_set_available(mocker, mock_client):
     mock_client.save.assert_not_called()
 
 
+def test_run_specific_chunk_does_not_set_available(mocker, mock_client):
+    """Test that execute_run with a specific chunk does not set workunit status."""
+    action = ActionRun(
+        work_dir=Path("/test/work_dir"),
+        chunk="chunk1",
+        ssh_user="ssh_user",
+        filter="filter",
+        app_ref=Path("app_ref"),
+        force_storage=Path("force_storage"),
+        workunit_ref=Path("workunit_ref"),
+    )
+    mocker.patch("bfabric_app_runner.actions.execute._validate_chunks_list", return_value=[Path("chunk1")])
+    mocker.patch("bfabric_app_runner.actions.execute.execute_inputs")
+    mocker.patch("bfabric_app_runner.actions.execute.execute_process")
+    mocker.patch("bfabric_app_runner.actions.execute.execute_outputs")
+
+    execute_run(action=action, client=mock_client)
+
+    mock_client.save.assert_not_called()
+
+
 @pytest.fixture
 def action_outputs() -> ActionOutputs:
     """Fixture for ActionOutputs."""

@@ -56,7 +56,7 @@ def execute_run(action: ActionRun, client: Bfabric) -> None:
         execute_process(action=ActionProcess.from_action_run(action, chunk=str(chunk_dir_rel)), client=client)
         execute_outputs(action=ActionOutputs.from_action_run(action, chunk=str(chunk_dir_rel)), client=client)
 
-    if not action.read_only:
+    if action.chunk is None and not action.read_only:
         workunit_definition = WorkunitDefinition.from_yaml(path=action.work_dir / "workunit_definition.yml")
         logger.info(f"Setting workunit {workunit_definition.registration.workunit_id} status to 'available'")
         client.save("workunit", {"id": workunit_definition.registration.workunit_id, "status": "available"})
