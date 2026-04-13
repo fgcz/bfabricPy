@@ -6,6 +6,8 @@ to ensure no real API calls are made during testing.
 
 import pytest
 
+from bfabric.errors import BfabricInstanceNotConfiguredError
+
 
 class TestValidateTokenEndpoint:
     """Tests for the /validate_token endpoint."""
@@ -14,14 +16,13 @@ class TestValidateTokenEndpoint:
     async def test_validate_token_success(self, client, mock_settings, mock_token_data, mocker):
         """Test successful token validation."""
         mocker.patch(
-            "bfabric_rest_proxy.server.get_token_data_async",
+            "bfabric_rest_proxy.server.validate_token",
             return_value=mock_token_data,
         )
 
         response = client.post(
             "/validate_token",
             json={"token": "valid_token_123"},
-            params={"bfabric_instance": "https://test.bfabric.example.com/"},
         )
 
         assert response.status_code == 200
@@ -39,26 +40,27 @@ class TestValidateTokenEndpoint:
         assert data["environment"] == mock_token_data.environment
 
     @pytest.mark.asyncio
-    async def test_validate_token_calls_async_function(self, client, mock_token_data, mocker):
-        """Test that validate_token calls get_token_data_async with correct parameters."""
-        mock_get_token = mocker.patch(
-            "bfabric_rest_proxy.server.get_token_data_async",
+    async def test_validate_token_calls_with_settings(self, client, mock_settings, mock_token_data, mocker):
+        """Test that validate_token is called with settings (not client-provided instance)."""
+        mock_validate = mocker.patch(
+            "bfabric_rest_proxy.server.validate_token",
             return_value=mock_token_data,
         )
 
         client.post(
             "/validate_token",
             json={"token": "test_token"},
-            params={"bfabric_instance": "https://test.bfabric.example.com/"},
         )
 
-        mock_get_token.assert_called_once()
+        mock_validate.assert_called_once()
+        call_kwargs = mock_validate.call_args[1]
+        assert call_kwargs["settings"] is mock_settings
 
     @pytest.mark.asyncio
-    async def test_validate_token_expired_token(self, client, mocker):
+    async def test_validate_token_expired_token(self, client, mock_settings, mocker):
         """Test validation with invalid/expired token."""
         mocker.patch(
-            "bfabric_rest_proxy.server.get_token_data_async",
+            "bfabric_rest_proxy.server.validate_token",
             side_effect=Exception("Token validation failed"),
         )
 
@@ -66,40 +68,18 @@ class TestValidateTokenEndpoint:
             client.post(
                 "/validate_token",
                 json={"token": "expired_token"},
-                params={"bfabric_instance": "https://test.bfabric.example.com/"},
             )
 
     @pytest.mark.asyncio
-    async def test_validate_token_missing_bfabric_instance(self, client, mock_settings, mock_token_data, mocker):
-        """Test that missing bfabric_instance parameter uses default when available."""
-        mock_get_token = mocker.patch(
-            "bfabric_rest_proxy.server.get_token_data_async",
-            return_value=mock_token_data,
-        )
-
-        mock_settings.default_bfabric_instance = "https://test.bfabric.example.com/"
-
-        response = client.post(
-            "/validate_token",
-            json={"token": "test_token"},
-        )
-
-        assert response.status_code == 200
-        mock_get_token.assert_called_once()
-
-    @pytest.mark.asyncio
-    async def test_validate_token_uses_default_instance(self, client, mock_settings, mock_token_data, mocker):
-        """Test that default instance is used when not specified."""
+    async def test_validate_token_unsupported_instance(self, client, mock_settings, mocker):
+        """Test that tokens from unsupported instances are rejected."""
         mocker.patch(
-            "bfabric_rest_proxy.server.get_token_data_async",
-            return_value=mock_token_data,
+            "bfabric_rest_proxy.server.validate_token",
+            side_effect=BfabricInstanceNotConfiguredError("https://evil.example.com/"),
         )
 
-        mock_settings.default_bfabric_instance = "https://test.bfabric.example.com/"
-
-        response = client.post(
-            "/validate_token",
-            json={"token": "test_token"},
-        )
-
-        assert response.status_code == 200
+        with pytest.raises(BfabricInstanceNotConfiguredError):
+            client.post(
+                "/validate_token",
+                json={"token": "test_token"},
+            )
