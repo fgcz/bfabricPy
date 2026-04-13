@@ -62,6 +62,18 @@ class BfabricInstanceNotConfiguredError(RuntimeError):
         super().__init__(f"Instance '{instance_name}' is not configured as supported.")
 
 
+class BfabricTokenValidationFailedError(RuntimeError):
+    """Raised when token validation fails (expired or otherwise invalid)."""
+
+    @classmethod
+    def expired_token(cls) -> BfabricTokenValidationFailedError:
+        return cls("Token validation failed: token has expired.")
+
+    @classmethod
+    def invalid_token(cls) -> BfabricTokenValidationFailedError:
+        return cls("Token validation failed: token is invalid.")
+
+
 # TODO: Also test for response-level errors
 def get_response_errors(response: Any, endpoint: str) -> list[BfabricRequestError]:
     """

@@ -20,6 +20,12 @@ Complete reference for all exception types in bfabricPy.
     :show-inheritance:
 ```
 
+```{eval-rst}
+.. autoclass:: bfabric.errors.BfabricTokenValidationFailedError
+    :members:
+    :show-inheritance:
+```
+
 ## See Also
 
 - [Error Handling](../../user_guides/error_handling.md) - Complete error handling guide
