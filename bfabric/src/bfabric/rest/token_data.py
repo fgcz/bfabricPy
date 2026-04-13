@@ -99,13 +99,8 @@ async def get_token_data_async(
         )
     try:
         response.raise_for_status()
-    except httpx.HTTPStatusError as e:
-        if "Token expired" in response.text:
-            raise BfabricTokenValidationFailedError.expired_token() from e
-        raise BfabricTokenValidationFailedError.invalid_token() from e
-    try:
         return TokenData.model_validate_json(response.text)
-    except ValidationError as e:
+    except (httpx.HTTPStatusError, ValidationError) as e:
         if "Token expired" in response.text:
             raise BfabricTokenValidationFailedError.expired_token() from e
         raise BfabricTokenValidationFailedError.invalid_token() from e
