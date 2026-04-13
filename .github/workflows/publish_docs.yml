@@ -36,7 +36,7 @@ jobs:
       - name: Deploy to /dev/ on gh-pages
         run: |
           pip install ghp-import
-          ghp-import --force --no-jekyll --no-history \
+          ghp-import --no-jekyll \
             --prefix dev \
             --message "Update dev docs preview from ${GITHUB_SHA::8}" \
             --push site
@@ -60,4 +60,8 @@ jobs:
       - name: Build documentation
         run: nox -s docs
       - name: Publish documentation to GitHub Pages
-        run: nox -s publish_docs
+        run: |
+          pip install ghp-import
+          ghp-import --no-jekyll \
+            --message "Update production docs from ${GITHUB_SHA::8}" \
+            --push site
