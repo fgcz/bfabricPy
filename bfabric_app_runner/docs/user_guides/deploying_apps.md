@@ -10,14 +10,18 @@ Use [uv](https://docs.astral.sh/uv/) to create reproducible builds. The process 
 - A **pylock.toml** file that reproducibly specifies all dependencies.
 
 ```bash
-# Update and lock dependencies
+# Get the current package version
+pkg_version=$(uv version --short)
+
+# Build the wheel into a versioned directory
+uv build -o "dist/$pkg_version"
+
+# Lock and export dependencies
 uv lock -U
+uv export --no-emit-project --format pylock.toml > "dist/$pkg_version/pylock.toml"
 
-# Export the lock file in pylock format
-uv export --no-emit-project --format pylock.toml > pylock.toml
-
-# Build the wheel
-uv build
+# Clean up (uv build creates a .gitignore in the output dir)
+rm -f "dist/$pkg_version/.gitignore"
 ```
 
 :::{note}
@@ -89,9 +93,7 @@ The slurmworker repository includes a noxfile that validates all app YAML files 
 
 ## Checklist
 
-1. Run `uv lock -U` to update dependencies.
-2. Export `pylock.toml` with `uv export --no-emit-project --format pylock.toml`.
-3. Build the wheel with `uv build`.
-4. Copy both files to the versioned directory on the server.
-5. Update `app.yml` to reference the new version.
-6. Validate with `bfabric-app-runner validate app-spec`.
+1. Build the wheel and export the lock file using the snippet above.
+2. Copy the `dist/<version>/` directory to the server.
+3. Update `app.yml` to reference the new version.
+4. Validate with `bfabric-app-runner validate app-spec`.
