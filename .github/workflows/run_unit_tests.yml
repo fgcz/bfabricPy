@@ -77,7 +77,7 @@ jobs:
           head-ref: ${{ github.sha }}
       - name: Comment on PR with "TODO" changes
         if: steps.todo-diff.outputs.has-changes == 'true'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const summary = `${{ steps.todo-diff.outputs.summary }}`;
