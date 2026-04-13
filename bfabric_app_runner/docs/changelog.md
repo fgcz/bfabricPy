@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Changed
+
+- Use `hashlib.file_digest` instead of custom `md5sum` implementation; removed `bfabric_app_runner.util.checksums` module ([#349](https://github.com/fgcz/bfabricPy/issues/349)).
+
 ### Fixed
 
 - `ResolveBfabricResourceArchiveSpecs` now correctly converts `storage_absolute_path` from `Path` to `str` before constructing `FileSourceSshValue`, fixing a `ValidationError` when resolving resource archives ([#432](https://github.com/fgcz/bfabricPy/issues/432)).
