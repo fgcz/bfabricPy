@@ -4,6 +4,7 @@ on:
     branches: [main]
   workflow_run:
     workflows: ["Release Packages"]
+    branches: [release]
     types: [completed]
   workflow_dispatch:
     inputs:
