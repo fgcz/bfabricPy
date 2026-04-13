@@ -8,7 +8,6 @@ This tutorial walks through running a B-Fabric application workunit using bfabri
 2. **B-Fabric credentials configured**: `~/.bfabricpy.yml` must contain valid credentials
 3. **A workunit to process**: You need a workunit ID from B-Fabric
 
-______________________________________________________________________
 
 ## Makefile Workflow (Interactive)
 
@@ -71,7 +70,6 @@ make stage
 
 Uploads results back to B-Fabric.
 
-______________________________________________________________________
 
 ## Run Workunit (Unattended)
 
@@ -83,7 +81,6 @@ bfabric-app-runner run workunit <app_definition> <scratch_root> <workunit_ref>
 
 This runs dispatch, inputs, process, and outputs in a single invocation.
 
-______________________________________________________________________
 
 ## Running Individual Actions
 
@@ -102,7 +99,6 @@ Or run all stages at once:
 bfabric-app-runner action run-all <work_dir>
 ```
 
-______________________________________________________________________
 
 ## Troubleshooting
 
@@ -144,7 +140,6 @@ For significant changes, use a development version of the app:
 bfabric-app-runner prepare workunit /path/to/app.yml ./work 12345 --force-app-version devel
 ```
 
-______________________________________________________________________
 
 ## Next Steps
 

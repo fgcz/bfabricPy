@@ -142,9 +142,6 @@ bfabric-app-runner outputs register outputs.yml workunit_ref
 `--force-storage`
 : Override the storage location.
 
-`--reuse-default-resource`
-: Reuse the default resource for the workunit.
-
 ### Register a single file
 
 Register a single output file without an outputs YAML:
@@ -175,9 +172,6 @@ bfabric-app-runner outputs register-single-file results/output.mzML \
 
 `--force-storage`
 : Override the storage location.
-
-`--reuse-default-resource`
-: Reuse the default resource.
 
 ## Validating Output Specs
 

@@ -197,11 +197,11 @@ Downloads annotation data linking resources to samples.
 `filename` (str)
 : Target filename.
 
-`separator` (str, optional)
+`separator` (str, required)
 : Column separator.
 
-`resource_ids` (list of int, optional)
-: Specific resource IDs to include.
+`resource_ids` (list of int, required)
+: Resource IDs to include.
 
 `format` (str, optional)
 : Output format.

@@ -1,22 +1,10 @@
 # API Reference
 
-Complete API documentation for bfabric-app-runner classes and modules.
-
-## Documentation Style
-
-This section uses **auto-generated documentation** directly from the Python code using Sphinx
-autodoc and autodoc_pydantic extensions.
+Auto-generated API documentation from the Python source code.
 
 ## App Specification
 
-The app specification defines application versions, commands, and B-Fabric integration metadata.
-
 ```{eval-rst}
-.. automodule:: bfabric_app_runner.specs.app.app_spec
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 .. autopydantic_model:: bfabric_app_runner.specs.app.app_spec.AppSpec
 .. autopydantic_model:: bfabric_app_runner.specs.app.app_spec.BfabricAppSpec
 .. autopydantic_model:: bfabric_app_runner.specs.app.app_spec.AppSpecTemplate
@@ -25,11 +13,6 @@ The app specification defines application versions, commands, and B-Fabric integ
 ### App Versions
 
 ```{eval-rst}
-.. automodule:: bfabric_app_runner.specs.app.app_version
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 .. autopydantic_model:: bfabric_app_runner.specs.app.app_version.AppVersion
 .. autopydantic_model:: bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate
 ```
@@ -37,11 +20,6 @@ The app specification defines application versions, commands, and B-Fabric integ
 ### Commands
 
 ```{eval-rst}
-.. automodule:: bfabric_app_runner.specs.app.commands_spec
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 .. autopydantic_model:: bfabric_app_runner.specs.app.commands_spec.CommandsSpec
 .. autopydantic_model:: bfabric_app_runner.specs.app.commands_spec.CommandShell
 .. autopydantic_model:: bfabric_app_runner.specs.app.commands_spec.CommandExec
@@ -51,15 +29,6 @@ The app specification defines application versions, commands, and B-Fabric integ
 ```
 
 ## Input Specifications
-
-Input specs define how to retrieve and prepare input files for processing.
-
-```{eval-rst}
-.. automodule:: bfabric_app_runner.specs.inputs_spec
-    :members:
-    :undoc-members:
-    :show-inheritance:
-```
 
 ### Input Types
 
@@ -77,22 +46,13 @@ Input specs define how to retrieve and prepare input files for processing.
 
 ## Output Specifications
 
-Output specs define how to register processing results back into B-Fabric.
-
 ```{eval-rst}
-.. automodule:: bfabric_app_runner.specs.outputs_spec
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 .. autopydantic_model:: bfabric_app_runner.specs.outputs_spec.CopyResourceSpec
 .. autopydantic_model:: bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec
 .. autopydantic_model:: bfabric_app_runner.specs.outputs_spec.SaveLinkSpec
 ```
 
 ## Runner
-
-The runner orchestrates the full application execution lifecycle.
 
 ```{eval-rst}
 .. automodule:: bfabric_app_runner.app_runner.runner

@@ -6,7 +6,6 @@
 - **uv**: [Install uv](https://docs.astral.sh/uv/getting-started/installation/) if you don't have it
 - **B-Fabric account**: You need valid B-Fabric credentials configured in `~/.bfabricpy.yml` (see the [bfabric Configuration Guide](https://fgcz.github.io/bfabricPy/getting_started/configuration.html))
 
-______________________________________________________________________
 
 ## Installing as a CLI Tool (Recommended)
 
@@ -32,7 +31,6 @@ uv tool run bfabric-app-runner@0.2.1 --help
 
 This is useful when an app's `app.yml` specifies a particular `app_runner` version.
 
-______________________________________________________________________
 
 ## Development Installation
 
@@ -44,7 +42,6 @@ cd bfabricPy
 uv sync --package bfabric_app_runner
 ```
 
-______________________________________________________________________
 
 ## Verifying Installation
 
@@ -63,7 +60,6 @@ This displays the top-level command groups:
 - **outputs** -- Register output files
 - **validate** -- Validate spec files (app-spec, inputs-spec, outputs-spec)
 
-______________________________________________________________________
 
 ## Next Steps
 

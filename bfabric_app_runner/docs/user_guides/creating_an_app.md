@@ -77,13 +77,6 @@ When multiple versions share a definition, the following template variables are 
 
 These variables use Mako template interpolation and are resolved when the app spec is loaded.
 
-### Version Options
-
-Each version entry also supports:
-
-`reuse_default_resource`
-: Boolean. Whether to reuse the default resource when registering outputs. Defaults to `false`.
-
 ## Command Types
 
 Each version defines commands for different execution phases. Four command types are available.
