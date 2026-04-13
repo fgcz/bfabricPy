@@ -116,44 +116,21 @@ else:
 
 ## Token Authentication Error Handling
 
-When using token-based authentication via `get_token_data` or `get_token_data_async` (called internally by `Bfabric.connect_token`), two specific exceptions may be raised.
+`get_token_data` / `get_token_data_async` (called internally by `Bfabric.connect_token`) raise:
 
-### BfabricTokenValidationFailedError
-
-Raised when the token is expired or otherwise invalid:
+- `BfabricTokenValidationFailedError` — token is expired or otherwise invalid.
+- `BfabricInstanceNotConfiguredError` — token's origin instance is not in `supported_bfabric_instances`.
 
 ```python
-from bfabric import Bfabric
-from bfabric.errors import BfabricTokenValidationFailedError
-from bfabric.experimental.webapp_integration_settings import TokenValidationSettings
-
-settings = TokenValidationSettings(
-    validation_bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric/",
-    supported_bfabric_instances=["https://fgcz-bfabric.uzh.ch/bfabric/"],
+from bfabric.errors import (
+    BfabricInstanceNotConfiguredError,
+    BfabricTokenValidationFailedError,
 )
 
 try:
     client, token_data = Bfabric.connect_token(token=token, settings=settings)
 except BfabricTokenValidationFailedError as e:
     print(f"Token validation failed: {e}")
-    # e.g. "Token validation failed: token has expired."
-    # e.g. "Token validation failed: token is invalid."
-```
-
-The exception is constructed via two named constructors:
-
-- `BfabricTokenValidationFailedError.expired_token()` — raised when the token has passed its expiration time.
-- `BfabricTokenValidationFailedError.invalid_token()` — raised when the token signature or content is otherwise invalid.
-
-### BfabricInstanceNotConfiguredError
-
-Raised when the B-Fabric instance that issued the token is not listed in `supported_bfabric_instances`:
-
-```python
-from bfabric.errors import BfabricInstanceNotConfiguredError
-
-try:
-    client, token_data = Bfabric.connect_token(token=token, settings=settings)
 except BfabricInstanceNotConfiguredError as e:
     print(f"Instance not supported: {e}")
 ```
