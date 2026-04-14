@@ -17,7 +17,7 @@ from starlette.responses import JSONResponse
 from starlette.routing import Route, WebSocketRoute
 from starlette.websockets import WebSocket
 
-from bfabric_asgi_auth import BfabricAuthMiddleware, create_mock_validator
+from bfabric_asgi_auth import BfabricAuthMiddleware, BfabricUser, create_mock_validator
 
 from bfabric_asgi_auth.typing import AuthHooks, JsonRepresentable
 
@@ -55,12 +55,29 @@ def base_app():
             }
         )
 
+    async def user_info(request: Request):
+        user = request.scope.get("user")
+        if user is None:
+            return JSONResponse({"has_user": False})
+        return JSONResponse(
+            {
+                "has_user": True,
+                "is_bfabric_user": isinstance(user, BfabricUser),
+                "is_authenticated": user.is_authenticated,
+                "display_name": user.display_name,
+                "identity": user.identity,
+                "session_data_login": user.session_data.bfabric_auth_login,
+            }
+        )
+
     async def websocket_endpoint(websocket: WebSocket):
         await websocket.accept()
+        user = websocket.scope.get("user")
         await websocket.send_json(
             {
                 "connected": True,
                 "has_bfabric_session": "bfabric_session" in websocket.scope,
+                "has_user": user is not None,
             }
         )
         await websocket.close()
@@ -68,6 +85,7 @@ def base_app():
     routes = [
         Route("/", homepage),
         Route("/nonexistent", homepage),
+        Route("/user-info", user_info),
         WebSocketRoute("/ws", websocket_endpoint),
     ]
     return Starlette(routes=routes)
@@ -582,3 +600,53 @@ def redirect_location_is(context, url):
     assert response.status_code == 302
     location = response.headers.get("location", "")
     assert location == url, f"Expected location to be '{url}', got '{location}'"
+
+
+# ============================================================================
+# User scope steps
+# ============================================================================
+
+
+@when("I request the user info endpoint")
+def request_user_info(context, client):
+    """Request the user info endpoint."""
+    response = run_async(client.get("/user-info"))
+    context["response"] = response
+    context["user_info"] = response.json()
+
+
+@then("the scope user should be a BfabricUser")
+def scope_user_is_bfabric_user(context):
+    """Check scope user is BfabricUser."""
+    assert context["user_info"]["has_user"] is True
+    assert context["user_info"]["is_bfabric_user"] is True
+
+
+@then("the scope user is_authenticated should be true")
+def scope_user_is_authenticated(context):
+    """Check scope user is authenticated."""
+    assert context["user_info"]["is_authenticated"] is True
+
+
+@then(parsers.parse('the scope user display_name should be "{name}"'))
+def scope_user_display_name(context, name):
+    """Check scope user display_name."""
+    assert context["user_info"]["display_name"] == name
+
+
+@then(parsers.parse('the scope user identity should be "{identity}"'))
+def scope_user_identity(context, identity):
+    """Check scope user identity."""
+    assert context["user_info"]["identity"] == identity
+
+
+@then(parsers.parse('the scope user session_data should contain the login "{login}"'))
+def scope_user_session_data_login(context, login):
+    """Check scope user session_data login."""
+    assert context["user_info"]["session_data_login"] == login
+
+
+@then("the websocket scope user should be set")
+def websocket_scope_user_set(context):
+    """Check WebSocket scope has user set."""
+    assert context["websocket_response"]["has_user"] is True
