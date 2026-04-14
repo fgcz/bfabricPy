@@ -78,7 +78,7 @@ class BfabricAuthMiddleware:
                 session = scope.get("session", {})
                 if "bfabric_session" in session:
                     session_data = SessionData.model_validate(session["bfabric_session"])
-                    scope["user"] = BfabricUser(session_data)
+                    scope["user"] = BfabricUser(session_data)  # pyright: ignore[reportGeneralTypeIssues]
                     return await self.app(scope, receive, send)
                 else:
                     return await self._handle_reject(scope=scope, receive=receive, send=send)
