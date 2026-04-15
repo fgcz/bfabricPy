@@ -68,6 +68,10 @@ def base_app():
                 "identity": user.identity,
                 "login": user.login,
                 "instance": user.instance,
+                "entity_class": user.entity_class,
+                "entity_id": user.entity_id,
+                "job_id": user.job_id,
+                "application_id": user.application_id,
             }
         )
 
@@ -523,6 +527,12 @@ def session_bfabric_session_has_required_fields(context, client):
     # Verify password content matches (not just length)
     assert session_data["bfabric_auth_password"] == token_data.user_ws_password.get_secret_value()
 
+    # Verify token context fields
+    assert session_data["entity_class"] == token_data.entity_class
+    assert session_data["entity_id"] == token_data.entity_id
+    assert session_data["job_id"] == token_data.job_id
+    assert session_data["application_id"] == token_data.application_id
+
 
 @then("the hook should have received token data")
 def hook_received_token_data(context):
@@ -664,3 +674,27 @@ def scope_user_instance(context, instance):
 def websocket_scope_user_set(context):
     """Check WebSocket scope has user set."""
     assert context["websocket_response"]["has_user"] is True
+
+
+@then(parsers.parse('the scope user entity_class should be "{value}"'))
+def scope_user_entity_class(context, value):
+    """Check scope user entity_class."""
+    assert context["user_info"]["entity_class"] == value
+
+
+@then(parsers.parse("the scope user entity_id should be {value:d}"))
+def scope_user_entity_id(context, value):
+    """Check scope user entity_id."""
+    assert context["user_info"]["entity_id"] == value
+
+
+@then(parsers.parse("the scope user job_id should be {value:d}"))
+def scope_user_job_id(context, value):
+    """Check scope user job_id."""
+    assert context["user_info"]["job_id"] == value
+
+
+@then(parsers.parse("the scope user application_id should be {value:d}"))
+def scope_user_application_id(context, value):
+    """Check scope user application_id."""
+    assert context["user_info"]["application_id"] == value

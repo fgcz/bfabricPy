@@ -15,6 +15,10 @@ def session_data() -> SessionData:
         bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric/",
         bfabric_auth_login="testuser",
         bfabric_auth_password="a" * 32,
+        entity_class="Workunit",
+        entity_id=42,
+        job_id=123,
+        application_id=7,
     )
 
 
@@ -38,6 +42,30 @@ class TestBfabricUser:
 
     def test_identity(self, user: BfabricUser) -> None:
         assert user.identity == "testuser@https://fgcz-bfabric.uzh.ch/bfabric/"
+
+    def test_entity_class(self, user: BfabricUser) -> None:
+        assert user.entity_class == "Workunit"
+
+    def test_entity_id(self, user: BfabricUser) -> None:
+        assert user.entity_id == 42
+
+    def test_job_id(self, user: BfabricUser) -> None:
+        assert user.job_id == 123
+
+    def test_application_id(self, user: BfabricUser) -> None:
+        assert user.application_id == 7
+
+    def test_token_fields_optional(self) -> None:
+        session_data = SessionData(
+            bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric/",
+            bfabric_auth_login="testuser",
+            bfabric_auth_password="a" * 32,
+        )
+        user = BfabricUser(session_data)
+        assert user.entity_class is None
+        assert user.entity_id is None
+        assert user.job_id is None
+        assert user.application_id is None
 
     def test_get_bfabric_client(self, user: BfabricUser) -> None:
         client = user.get_bfabric_client()
