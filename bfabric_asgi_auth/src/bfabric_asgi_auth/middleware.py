@@ -136,6 +136,10 @@ class BfabricAuthMiddleware:
             bfabric_instance=result.token_data.caller,
             bfabric_auth_login=result.token_data.user,
             bfabric_auth_password=result.token_data.user_ws_password.get_secret_value(),
+            entity_class=result.token_data.entity_class,
+            entity_id=result.token_data.entity_id,
+            job_id=result.token_data.job_id,
+            application_id=result.token_data.application_id,
         )
 
         # Store session data by modifying scope["session"] directly, this is supported by starlette's SessionMiddleware
