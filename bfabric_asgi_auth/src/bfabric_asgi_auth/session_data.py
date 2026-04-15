@@ -13,6 +13,10 @@ class SessionData(BaseModel):
     :ivar bfabric_instance: Bfabric instance URL
     :ivar bfabric_auth_login: Bfabric authentication login
     :ivar bfabric_auth_password: Bfabric authentication password
+    :ivar entity_class: Target entity class name (e.g. "Workunit")
+    :ivar entity_id: Target entity ID
+    :ivar job_id: ID of the associated job
+    :ivar application_id: ID of the B-Fabric application
     """
 
     bfabric_instance: str
