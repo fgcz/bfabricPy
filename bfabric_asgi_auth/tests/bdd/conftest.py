@@ -66,7 +66,8 @@ def base_app():
                 "is_authenticated": user.is_authenticated,
                 "display_name": user.display_name,
                 "identity": user.identity,
-                "session_data_login": user.session_data.bfabric_auth_login,
+                "login": user.login,
+                "instance": user.instance,
             }
         )
 
@@ -640,10 +641,16 @@ def scope_user_identity(context, identity):
     assert context["user_info"]["identity"] == identity
 
 
-@then(parsers.parse('the scope user session_data should contain the login "{login}"'))
-def scope_user_session_data_login(context, login):
-    """Check scope user session_data login."""
-    assert context["user_info"]["session_data_login"] == login
+@then(parsers.parse('the scope user login should be "{login}"'))
+def scope_user_login(context, login):
+    """Check scope user login."""
+    assert context["user_info"]["login"] == login
+
+
+@then(parsers.parse('the scope user instance should be "{instance}"'))
+def scope_user_instance(context, instance):
+    """Check scope user instance."""
+    assert context["user_info"]["instance"] == instance
 
 
 @then("the websocket scope user should be set")

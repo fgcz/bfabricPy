@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import override
+
 from bfabric import Bfabric, BfabricClientConfig
 from bfabric.config import BfabricAuth
 from bfabric.config.config_data import ConfigData
@@ -18,20 +20,27 @@ class BfabricUser(BaseUser):
         self._session_data = session_data
 
     @property
-    def is_authenticated(self) -> bool:  # pyright: ignore[reportImplicitOverride]
+    @override
+    def is_authenticated(self) -> bool:
         return True
 
     @property
-    def display_name(self) -> str:  # pyright: ignore[reportImplicitOverride]
+    @override
+    def display_name(self) -> str:
+        return self.login
+
+    @property
+    @override
+    def identity(self) -> str:
+        return f"{self.login}@{self.instance}"
+
+    @property
+    def login(self) -> str:
         return self._session_data.bfabric_auth_login
 
     @property
-    def identity(self) -> str:  # pyright: ignore[reportImplicitOverride]
-        return f"{self._session_data.bfabric_instance}:{self._session_data.bfabric_auth_login}"
-
-    @property
-    def session_data(self) -> SessionData:
-        return self._session_data
+    def instance(self) -> str:
+        return self._session_data.bfabric_instance
 
     def get_bfabric_client(self) -> Bfabric:
         """Create a Bfabric client authenticated as this user."""
