@@ -43,19 +43,19 @@ class BfabricUser(BaseUser):
         return self._session_data.bfabric_instance
 
     @property
-    def entity_class(self) -> str | None:
+    def entity_class(self) -> str:
         return self._session_data.entity_class
 
     @property
-    def entity_id(self) -> int | None:
+    def entity_id(self) -> int:
         return self._session_data.entity_id
 
     @property
-    def job_id(self) -> int | None:
+    def job_id(self) -> int:
         return self._session_data.job_id
 
     @property
-    def application_id(self) -> int | None:
+    def application_id(self) -> int:
         return self._session_data.application_id
 
     def get_bfabric_client(self) -> Bfabric:

@@ -55,18 +55,6 @@ class TestBfabricUser:
     def test_application_id(self, user: BfabricUser) -> None:
         assert user.application_id == 7
 
-    def test_token_fields_optional(self) -> None:
-        session_data = SessionData(
-            bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric/",
-            bfabric_auth_login="testuser",
-            bfabric_auth_password="a" * 32,
-        )
-        user = BfabricUser(session_data)
-        assert user.entity_class is None
-        assert user.entity_id is None
-        assert user.job_id is None
-        assert user.application_id is None
-
     def test_get_bfabric_client(self, user: BfabricUser) -> None:
         client = user.get_bfabric_client()
         assert isinstance(client, Bfabric)

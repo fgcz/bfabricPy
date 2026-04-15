@@ -18,7 +18,7 @@ class SessionData(BaseModel):
     bfabric_instance: str
     bfabric_auth_login: str
     bfabric_auth_password: str
-    entity_class: str | None = None
-    entity_id: int | None = None
-    job_id: int | None = None
-    application_id: int | None = None
+    entity_class: str
+    entity_id: int
+    job_id: int
+    application_id: int
