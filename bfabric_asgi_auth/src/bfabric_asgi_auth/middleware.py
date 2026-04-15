@@ -20,6 +20,7 @@ from bfabric_asgi_auth.token_validation.strategy import (
     TokenValidatorStrategy,
 )
 from bfabric_asgi_auth.typing import AuthHooks, is_valid_session_dict
+from bfabric_asgi_auth.user import BfabricUser
 
 
 class BfabricAuthMiddleware:
@@ -76,6 +77,8 @@ class BfabricAuthMiddleware:
                 # Get session data from scope (set by SessionMiddleware)
                 session = scope.get("session", {})
                 if "bfabric_session" in session:
+                    session_data = SessionData.model_validate(session["bfabric_session"])
+                    scope["user"] = BfabricUser(session_data)  # pyright: ignore[reportGeneralTypeIssues]
                     return await self.app(scope, receive, send)
                 else:
                     return await self._handle_reject(scope=scope, receive=receive, send=send)
