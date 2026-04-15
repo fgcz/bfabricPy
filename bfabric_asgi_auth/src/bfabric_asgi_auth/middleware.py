@@ -8,7 +8,7 @@ from pydantic import SecretStr, ValidationError
 
 from bfabric_asgi_auth.response_renderer import (
     ErrorResponse,
-    PlainTextRenderer,
+    HTMLRenderer,
     RedirectResponse,
     ResponseRenderer,
     SuccessResponse,
@@ -51,7 +51,7 @@ class BfabricAuthMiddleware:
         :param token_param: Query parameter name for token (default: token)
         :param authenticated_path: Path to redirect to after successful authentication (default: /)
         :param logout_path: URL path for logout (default: /logout)
-        :param renderer: Response renderer for customizing error/success pages (default: PlainTextRenderer)
+        :param renderer: Response renderer for customizing error/success pages (default: HTMLRenderer)
         """
         self.app: ASGI3Application = app
         self.token_validator: TokenValidatorStrategy = token_validator
@@ -60,7 +60,7 @@ class BfabricAuthMiddleware:
         self.token_param: str = token_param
         self.authenticated_path: str = authenticated_path
         self.logout_path: str = logout_path
-        self.renderer: ResponseRenderer = renderer or PlainTextRenderer()
+        self.renderer: ResponseRenderer = renderer or HTMLRenderer()
 
     async def __call__(self, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
         try:
