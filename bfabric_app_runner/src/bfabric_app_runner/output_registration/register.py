@@ -154,7 +154,7 @@ def _save_link(spec: SaveLinkSpec, client: Bfabric, workunit_definition: Workuni
     if existing_link_id is not None:
         link_data["id"] = existing_link_id
     res = client.save("link", link_data)
-    logger.info(f"Link {spec.name} saved with id {res['id']} for entity {entity_type} with id {entity_id}")
+    logger.info(f"Link {spec.name} saved with id {res[0]['id']} for entity {entity_type} with id {entity_id}")
 
 
 def find_default_resource_id(workunit_definition: WorkunitDefinition, client: Bfabric) -> int | None:

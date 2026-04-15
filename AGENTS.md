@@ -91,6 +91,7 @@ Handles dispatch → process → collect workflow for B-Fabric applications. Use
 - Line length: 120 (ruff and black)
 - basedpyright uses per-package baseline files at `.basedpyright/baseline.{package}.json`
 - Integration tests live in a separate repository
+- Use TDD: write a failing test first, verify it fails, then fix the code, then verify the test passes
 
 ## Branches
 
