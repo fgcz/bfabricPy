@@ -15,6 +15,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
     - `config_env`: Override the config environment (e.g. 'TEST'). Falls back to `BFABRICPY_CONFIG_ENV` env var or the config file default.
     - `config_file`: Override the config file path (default: ~/.bfabricpy.yml).
 - `BfabricTokenValidationFailedError` exception in `bfabric.errors`: raised by `get_token_data_async` (and `get_token_data`) when token validation fails, with named constructors `expired_token()` and `invalid_token()`.
+- `User.is_employee` property: True iff the user's `empdegree` field is present and parses to a float > 0.
 - `EntityReader.query_one(entity_type, obj, *, expected_type=Entity)`: returns at most one entity (or `None`) matching the given query; typed-narrowing wrapper around `EntityReader.query` with `max_results=1`.
 
 ### Changed

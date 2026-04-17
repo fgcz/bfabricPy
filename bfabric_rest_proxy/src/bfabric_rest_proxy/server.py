@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field, SecretStr, model_validator
 from bfabric import Bfabric, BfabricAuth, BfabricClientConfig
 from bfabric_rest_proxy.feeder_operations.create_workunit import CreateWorkunitParams, create_workunit
 from bfabric_rest_proxy.settings import ServerSettings
+from bfabric_rest_proxy.user_operations.is_employee import is_employee
 
 app = fastapi.FastAPI()
 
@@ -111,6 +112,13 @@ def post_create_workunit(
 ):
     workunit = create_workunit(user_client=user_client, feeder_client=feeder_client, params=params)
     return [{**workunit.data_dict, "uri": workunit.uri}]
+
+
+@app.post("/user/is_employee")
+def post_user_is_employee(user_client: BfabricUserClientDep):
+    """Return whether the authenticated user is an employee on the current B-Fabric instance."""
+    logger.info(f"Checking employee status for user {user_client.auth.login}")
+    return {"is_employee": is_employee(user_client)}
 
 
 @app.get("/health")
