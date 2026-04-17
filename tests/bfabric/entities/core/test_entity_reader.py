@@ -459,6 +459,23 @@ class TestQuery:
 
         assert f"Unsupported B-Fabric instance: {different_instance}" in str(exc_info.value)
 
+    def test_expected_type_raises_on_mismatch(
+        self, entity_reader, mock_cache_stack, mock_client, bfabric_instance, mock_instantiate_entity
+    ):
+        from bfabric.entities import User
+
+        mock_cache_stack.item_get_all.return_value = {}
+        mock_client.read.return_value = [{"id": 1, "classname": "project", "name": "p"}]
+        not_a_user = Entity(
+            data_dict={"id": 1, "classname": "project", "name": "p"},
+            client=mock_client,
+            bfabric_instance=bfabric_instance,
+        )
+        mock_instantiate_entity.return_value = not_a_user
+
+        with pytest.raises(TypeError, match="Expected User"):
+            entity_reader.query("user", {"login": "alice"}, expected_type=User)
+
 
 class TestQueryOne:
     def test_returns_entity_when_single_match(
