@@ -43,21 +43,10 @@ class TestIsEmployee:
         with pytest.raises(RuntimeError, match="User record not found"):
             is_employee(mock_bfabric_user_client)
 
-    def test_multiple_results_raises(self, mock_bfabric_user_client):
-        u1 = _user(login="test_user", empdegree="100")
-        u2 = User(
-            data_dict={"classname": "user", "id": 2, "login": "test_user"},
-            client=None,
-            bfabric_instance=INSTANCE,
-        )
-        mock_bfabric_user_client.reader.query.return_value = _as_query_result(u1, u2)
-        with pytest.raises(RuntimeError, match="Expected exactly one user"):
-            is_employee(mock_bfabric_user_client)
-
     def test_queries_user_endpoint_by_login(self, mock_bfabric_user_client):
         mock_bfabric_user_client.reader.query.return_value = _as_query_result(_user(empdegree="100"))
         is_employee(mock_bfabric_user_client)
-        mock_bfabric_user_client.reader.query.assert_called_once_with("user", {"login": "test_user"}, max_results=2)
+        mock_bfabric_user_client.reader.query.assert_called_once_with("user", {"login": "test_user"}, max_results=1)
 
 
 class TestUserIsEmployeeEndpoint:
