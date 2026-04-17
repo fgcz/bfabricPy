@@ -27,7 +27,7 @@ class EntityReader:
     This class provides multiple methods to read entities from B-Fabric:
     - By URI(s): :meth:`read_uri`, :meth:`read_uris`
     - By ID(s): :meth:`read_id`, :meth:`read_ids`
-    - By query criteria: :meth:`query`
+    - By query criteria: :meth:`query`, :meth:`query_one`
 
     All methods use the cache stack when available to minimize API calls.
     """
@@ -176,7 +176,9 @@ class EntityReader:
         obj: ApiRequestObjectType,
         bfabric_instance: str | None = None,
         max_results: int | None = 100,
-    ) -> dict[EntityUri, Entity | None]:
+        *,
+        expected_type: type[EntityT] = Entity,
+    ) -> dict[EntityUri, EntityT]:
         """Query entities by search criteria and return them as Entity objects.
 
         Combines ``client.read()`` with automatic entity instantiation and caching.
@@ -186,9 +188,13 @@ class EntityReader:
             obj: Dictionary of search criteria (e.g., ``{"name": "MySample"}``)
             bfabric_instance: B-Fabric instance URL (defaults to client's configured instance)
             max_results: Maximum number of results to return (default: 100, None for all)
+            expected_type: Entity class to validate and cast all results
 
         Returns:
             Dictionary mapping entity URIs to their objects
+
+        Raises:
+            TypeError: If any matched entity is not an instance of ``expected_type``
         """
         bfabric_instance = bfabric_instance if bfabric_instance is not None else self._client.config.base_url
         # TODO limitation of the current implementation
@@ -204,8 +210,41 @@ class EntityReader:
                 instantiate_entity(data_dict=r, client=self._client, bfabric_instance=bfabric_instance) for r in result
             ]
         }
+        for entity in entities.values():
+            if not isinstance(entity, expected_type):
+                raise TypeError(f"Expected {expected_type.__name__}, got {type(entity).__name__}")
         cache_stack.item_put_all(entities=entities.values())
-        return entities
+        return cast("dict[EntityUri, EntityT]", entities)
+
+    def query_one(
+        self,
+        entity_type: str,
+        obj: ApiRequestObjectType,
+        bfabric_instance: str | None = None,
+        *,
+        expected_type: type[EntityT] = Entity,
+    ) -> EntityT | None:
+        """Query for a single entity by search criteria.
+
+        Thin wrapper over :meth:`query` with ``max_results=1`` for the common
+        look-up-by-field pattern. Returns ``None`` if no match.
+
+        Args:
+            entity_type: B-Fabric entity type to query
+            obj: Dictionary of search criteria (e.g., ``{"login": "alice"}``)
+            bfabric_instance: B-Fabric instance URL (defaults to client's configured instance)
+            expected_type: Entity class to validate and cast the result
+
+        Returns:
+            Entity object (typed as ``expected_type``) or ``None`` if not found
+
+        Raises:
+            TypeError: If the matched entity is not an instance of ``expected_type``
+        """
+        results = self.query(
+            entity_type, obj, bfabric_instance=bfabric_instance, max_results=1, expected_type=expected_type
+        )
+        return next(iter(results.values()), None)
 
     def _retrieve_entities(self, uris: list[EntityUri]) -> dict[EntityUri, Entity]:
         """Retrieve entities from B-Fabric API.

@@ -459,6 +459,84 @@ class TestQuery:
 
         assert f"Unsupported B-Fabric instance: {different_instance}" in str(exc_info.value)
 
+    def test_expected_type_raises_on_mismatch(
+        self, entity_reader, mock_cache_stack, mock_client, bfabric_instance, mock_instantiate_entity
+    ):
+        from bfabric.entities import User
+
+        mock_cache_stack.item_get_all.return_value = {}
+        mock_client.read.return_value = [{"id": 1, "classname": "project", "name": "p"}]
+        not_a_user = Entity(
+            data_dict={"id": 1, "classname": "project", "name": "p"},
+            client=mock_client,
+            bfabric_instance=bfabric_instance,
+        )
+        mock_instantiate_entity.return_value = not_a_user
+
+        with pytest.raises(TypeError, match="Expected User"):
+            entity_reader.query("user", {"login": "alice"}, expected_type=User)
+
+
+class TestQueryOne:
+    def test_returns_entity_when_single_match(
+        self, entity_reader, mock_cache_stack, mock_client, bfabric_instance, mock_instantiate_entity
+    ):
+        mock_cache_stack.item_get_all.return_value = {}
+        mock_client.read.return_value = [{"id": 1, "classname": "user", "login": "alice"}]
+        mock_entity = Entity(
+            data_dict={"id": 1, "classname": "user", "login": "alice"},
+            client=mock_client,
+            bfabric_instance=bfabric_instance,
+        )
+        mock_instantiate_entity.return_value = mock_entity
+
+        result = entity_reader.query_one("user", {"login": "alice"})
+
+        assert result is mock_entity
+        mock_client.read.assert_called_once_with("user", obj={"login": "alice"}, max_results=1)
+
+    def test_returns_none_when_no_match(self, entity_reader, mock_cache_stack, mock_client):
+        mock_cache_stack.item_get_all.return_value = {}
+        mock_client.read.return_value = []
+
+        assert entity_reader.query_one("user", {"login": "nobody"}) is None
+
+    def test_expected_type_narrows_result_type(
+        self, entity_reader, mock_cache_stack, mock_client, bfabric_instance, mock_instantiate_entity
+    ):
+        from bfabric.entities import User
+
+        mock_cache_stack.item_get_all.return_value = {}
+        mock_client.read.return_value = [{"id": 1, "classname": "user", "login": "alice"}]
+        user = User(
+            data_dict={"id": 1, "classname": "user", "login": "alice"},
+            client=mock_client,
+            bfabric_instance=bfabric_instance,
+        )
+        mock_instantiate_entity.return_value = user
+
+        result = entity_reader.query_one("user", {"login": "alice"}, expected_type=User)
+
+        assert isinstance(result, User)
+        assert result is user
+
+    def test_raises_on_type_mismatch(
+        self, entity_reader, mock_cache_stack, mock_client, bfabric_instance, mock_instantiate_entity
+    ):
+        from bfabric.entities import User
+
+        mock_cache_stack.item_get_all.return_value = {}
+        mock_client.read.return_value = [{"id": 1, "classname": "project", "name": "p"}]
+        not_a_user = Entity(
+            data_dict={"id": 1, "classname": "project", "name": "p"},
+            client=mock_client,
+            bfabric_instance=bfabric_instance,
+        )
+        mock_instantiate_entity.return_value = not_a_user
+
+        with pytest.raises(TypeError, match="Expected User"):
+            entity_reader.query_one("user", {"login": "alice"}, expected_type=User)
+
 
 class TestRetrieveEntities:
     def test_retrieve_entities(
