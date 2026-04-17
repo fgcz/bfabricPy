@@ -113,6 +113,28 @@ def post_create_workunit(
     return [{**workunit.data_dict, "uri": workunit.uri}]
 
 
+def _is_employee(user_client: Bfabric) -> bool:
+    """Return True iff the authenticated user has a positive ``empdegree`` in B-Fabric."""
+    res = user_client.read("user", {"login": user_client.auth.login})
+    records = res.to_list_dict()
+    if not records:
+        raise RuntimeError(f"User record not found for login: {user_client.auth.login}")
+    empdegree = records[0].get("empdegree")
+    if not isinstance(empdegree, (str, int, float)) or isinstance(empdegree, bool):
+        return False
+    try:
+        return float(empdegree) > 0
+    except ValueError:
+        return False
+
+
+@app.post("/user/is_employee")
+def post_user_is_employee(user_client: BfabricUserClientDep):
+    """Return whether the authenticated user is an FGCZ employee (empdegree > 0)."""
+    logger.info(f"Checking employee status for user {user_client.auth.login}")
+    return {"is_employee": _is_employee(user_client)}
+
+
 @app.get("/health")
 async def health(settings: ServerSettingsDep):
     """Check server health. It also lists the known bfabric instances."""
