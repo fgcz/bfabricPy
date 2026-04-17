@@ -19,6 +19,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Changed
 
+- `EntityReader.query` now accepts an `expected_type` keyword argument for typed narrowing of results (matches `read_uris`/`read_ids`); raises `TypeError` on mismatch.
 - `User.find_by_login` now delegates to `EntityReader.query_one`; no longer triggers the `FindMixin` deprecation warning.
 
 ### Fixed
