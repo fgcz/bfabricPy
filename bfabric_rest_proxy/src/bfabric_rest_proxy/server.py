@@ -116,7 +116,7 @@ def post_create_workunit(
 
 @app.post("/user/is_employee")
 def post_user_is_employee(user_client: BfabricUserClientDep):
-    """Return whether the authenticated user is an FGCZ employee (empdegree > 0)."""
+    """Return whether the authenticated user is an employee on the current B-Fabric instance."""
     logger.info(f"Checking employee status for user {user_client.auth.login}")
     return {"is_employee": is_employee(user_client)}
 
