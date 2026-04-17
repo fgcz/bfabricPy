@@ -13,7 +13,4 @@ class User(Entity):
     @classmethod
     def find_by_login(cls, login: str, client: Bfabric) -> User | None:
         """Finds a user by their login name."""
-        users = cls.find_by({"login": login}, client=client)
-        if not users:
-            return None
-        return list(users.values())[0]
+        return client.reader.query_one("user", {"login": login}, expected_type=cls)

@@ -33,18 +33,19 @@ class Users:
 
     def get_by_login(self, bfabric_instance: str, login: str) -> User | None:
         """Gets a user by their login name."""
+        from bfabric.entities.user import User as UserEntity
+
         # check if exists
         for user in self._users:
             if user["login"] == login:
                 return user
 
         # retrieve
-        users = self._entity_reader.query(
-            entity_type="user", obj={"login": login}, bfabric_instance=bfabric_instance, max_results=1
+        user = self._entity_reader.query_one(
+            "user", {"login": login}, bfabric_instance=bfabric_instance, expected_type=UserEntity
         )
-        if not users:
+        if user is None:
             return None
-        user = list(users.values())[0]
 
         # store
         self._users.append(user)

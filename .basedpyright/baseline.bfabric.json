@@ -2008,14 +2008,6 @@
                     "endColumn": 26,
                     "lineCount": 1
                 }
-            },
-            {
-                "code": "reportReturnType",
-                "range": {
-                    "startColumn": 15,
-                    "endColumn": 19,
-                    "lineCount": 1
-                }
             }
         ],
         "./bfabric/src/bfabric/entities/dataset.py": [
