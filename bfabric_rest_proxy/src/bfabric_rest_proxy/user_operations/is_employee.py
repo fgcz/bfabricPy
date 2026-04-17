@@ -15,7 +15,7 @@ def is_employee(user_client: Bfabric) -> bool:
     :raises RuntimeError: if no user record is found for the login
     """
     login = user_client.auth.login
-    user = user_client.reader.query_one("user", {"login": login}, expected_type=User)
+    user = User.find_by_login(login=login, client=user_client)
     if user is None:
         raise RuntimeError(f"User record not found for login: {login}")
     return user.is_employee
