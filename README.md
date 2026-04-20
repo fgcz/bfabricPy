@@ -16,6 +16,8 @@
 | bfabric-scripts    | [https://fgcz.github.io/bfabricPy](https://fgcz.github.io/bfabricPy) | [bfabric_scripts/docs/changelog.md](https://github.com/fgcz/bfabricPy/blob/main/bfabric_scripts/docs/changelog.md)       |
 | bfabric-app-runner | https://fgcz.github.io/bfabricPy/app_runner/                         | [bfabric_app_runner/docs/changelog.md](https://github.com/fgcz/bfabricPy/blob/main/bfabric_app_runner/docs/changelog.md) |
 
+Dev preview (from `main`): [https://fgcz.github.io/bfabricPy/dev/](https://fgcz.github.io/bfabricPy/dev/) | [https://fgcz.github.io/bfabricPy/dev/app_runner/](https://fgcz.github.io/bfabricPy/dev/app_runner/)
+
 ## Introduction
 
 This package implements a Python interface to the [B-Fabric](https://fgcz-bfabric.uzh.ch/bfabric/) system.

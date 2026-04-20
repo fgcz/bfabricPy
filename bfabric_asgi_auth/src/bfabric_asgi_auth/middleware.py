@@ -8,7 +8,7 @@ from pydantic import SecretStr, ValidationError
 
 from bfabric_asgi_auth.response_renderer import (
     ErrorResponse,
-    PlainTextRenderer,
+    HTMLRenderer,
     RedirectResponse,
     ResponseRenderer,
     SuccessResponse,
@@ -20,6 +20,7 @@ from bfabric_asgi_auth.token_validation.strategy import (
     TokenValidatorStrategy,
 )
 from bfabric_asgi_auth.typing import AuthHooks, is_valid_session_dict
+from bfabric_asgi_auth.user import BfabricUser
 
 
 class BfabricAuthMiddleware:
@@ -51,7 +52,7 @@ class BfabricAuthMiddleware:
         :param token_param: Query parameter name for token (default: token)
         :param authenticated_path: Path to redirect to after successful authentication (default: /)
         :param logout_path: URL path for logout (default: /logout)
-        :param renderer: Response renderer for customizing error/success pages (default: PlainTextRenderer)
+        :param renderer: Response renderer for customizing error/success pages (default: HTMLRenderer)
         """
         self.app: ASGI3Application = app
         self.token_validator: TokenValidatorStrategy = token_validator
@@ -60,7 +61,7 @@ class BfabricAuthMiddleware:
         self.token_param: str = token_param
         self.authenticated_path: str = authenticated_path
         self.logout_path: str = logout_path
-        self.renderer: ResponseRenderer = renderer or PlainTextRenderer()
+        self.renderer: ResponseRenderer = renderer or HTMLRenderer()
 
     async def __call__(self, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
         try:
@@ -76,6 +77,8 @@ class BfabricAuthMiddleware:
                 # Get session data from scope (set by SessionMiddleware)
                 session = scope.get("session", {})
                 if "bfabric_session" in session:
+                    session_data = SessionData.model_validate(session["bfabric_session"])
+                    scope["user"] = BfabricUser(session_data)  # pyright: ignore[reportGeneralTypeIssues]
                     return await self.app(scope, receive, send)
                 else:
                     return await self._handle_reject(scope=scope, receive=receive, send=send)
@@ -133,6 +136,10 @@ class BfabricAuthMiddleware:
             bfabric_instance=result.token_data.caller,
             bfabric_auth_login=result.token_data.user,
             bfabric_auth_password=result.token_data.user_ws_password.get_secret_value(),
+            entity_class=result.token_data.entity_class,
+            entity_id=result.token_data.entity_id,
+            job_id=result.token_data.job_id,
+            application_id=result.token_data.application_id,
         )
 
         # Store session data by modifying scope["session"] directly, this is supported by starlette's SessionMiddleware

@@ -43,7 +43,7 @@ jobs:
           echo -e "$table" >> $GITHUB_OUTPUT
           echo "TABLE_EOF" >> $GITHUB_OUTPUT
       - name: Create or update PR comment
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const packages = JSON.parse('${{ steps.check-versions.outputs.packages-to-release }}');
@@ -189,7 +189,7 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - uses: actions/github-script@v8
+      - uses: actions/github-script@v9
         with:
           script: |
             const packages = JSON.parse('${{ needs.preview-release.outputs.packages_to_release }}');

@@ -15,7 +15,7 @@ from bfabric_app_runner.specs.outputs_spec import (
     SpecType,
     UpdateExisting,
 )
-from bfabric_app_runner.util.checksums import md5sum
+import hashlib
 from bfabric_app_runner.util.scp import scp
 
 if TYPE_CHECKING:
@@ -43,7 +43,8 @@ def register_file_in_workunit(
     if resource_id is not None and existing_id is not None and resource_id != existing_id:
         raise ValueError(f"Resource id {resource_id} does not match existing resource id {existing_id}")
 
-    checksum = md5sum(spec.local_path)
+    with spec.local_path.open("rb") as f:
+        checksum = hashlib.file_digest(f, "md5").hexdigest()
     output_folder = _get_output_folder(spec, workunit_definition=workunit_definition)
     resource_data = {
         "name": spec.store_entry_path.name,
@@ -153,7 +154,7 @@ def _save_link(spec: SaveLinkSpec, client: Bfabric, workunit_definition: Workuni
     if existing_link_id is not None:
         link_data["id"] = existing_link_id
     res = client.save("link", link_data)
-    logger.info(f"Link {spec.name} saved with id {res['id']} for entity {entity_type} with id {entity_id}")
+    logger.info(f"Link {spec.name} saved with id {res[0]['id']} for entity {entity_type} with id {entity_id}")
 
 
 def find_default_resource_id(workunit_definition: WorkunitDefinition, client: Bfabric) -> int | None:

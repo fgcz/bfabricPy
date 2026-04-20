@@ -1,21 +1,22 @@
 from __future__ import annotations
 
 import datetime
-from typing import Annotated
+from typing import Annotated, Any
 
 import fastapi
 from bfabric.config.config_data import ConfigData
-from bfabric.rest.token_data import get_token_data_async
+from bfabric.rest.token_data import validate_token
 from fastapi import Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.params import Depends
 from fastapi.responses import JSONResponse
 from loguru import logger
-from pydantic import BaseModel, Field, SecretStr
+from pydantic import BaseModel, Field, SecretStr, model_validator
 
 from bfabric import Bfabric, BfabricAuth, BfabricClientConfig
 from bfabric_rest_proxy.feeder_operations.create_workunit import CreateWorkunitParams, create_workunit
 from bfabric_rest_proxy.settings import ServerSettings
+from bfabric_rest_proxy.feeder_operations.is_employee import is_employee
 
 app = fastapi.FastAPI()
 
@@ -83,6 +84,13 @@ class ReadParams(BaseModel):
     page_max_results: int = 100
     """The maximum number of results to return."""
 
+    @model_validator(mode="before")
+    @classmethod
+    def _normalize_empty_query(cls, data: Any) -> Any:  # pyright: ignore[reportAny, reportExplicitAny]
+        if isinstance(data, dict) and data.get("query") == []:  # pyright: ignore[reportUnknownMemberType]
+            data["query"] = {}
+        return data  # pyright: ignore[reportUnknownVariableType]
+
 
 @app.post("/read")
 def read(user_client: BfabricUserClientDep, params: ReadParams):
@@ -106,6 +114,16 @@ def post_create_workunit(
     return [{**workunit.data_dict, "uri": workunit.uri}]
 
 
+@app.post("/user/is_employee")
+def post_user_is_employee(
+    user_client: BfabricUserClientDep,
+    feeder_client: BfabricFeederClientDep,
+):
+    """Return whether the authenticated user is an employee on the current B-Fabric instance."""
+    logger.info(f"Checking employee status for user {user_client.auth.login}")
+    return {"is_employee": is_employee(user_client=user_client, feeder_client=feeder_client)}
+
+
 @app.get("/health")
 async def health(settings: ServerSettingsDep):
     """Check server health. It also lists the known bfabric instances."""
@@ -121,13 +139,13 @@ class TokenParam(BaseModel):
 
 
 @app.post("/validate_token")
-async def validate_token(token_param: TokenParam, bfabric_instance: BfabricInstanceDep):
+async def post_validate_token(token_param: TokenParam, settings: ServerSettingsDep):
     """Validates a token and returns the token data.
 
     This endpoint is not really necessary since it proxies a REST endpoint, but is added here for consistency to avoid
     shiny apps having to interface with two different APIs.
     """
-    token_data = await get_token_data_async(base_url=bfabric_instance, token=token_param.token, http_client=None)
+    token_data = await validate_token(token=token_param.token, settings=settings)
     dump = token_data.model_dump(by_alias=True, mode="json")
     dump["userWsPassword"] = token_data.user_ws_password.get_secret_value()
     return dump

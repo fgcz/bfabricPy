@@ -114,6 +114,27 @@ else:
     print(f"Found sample: {entity['name']}")
 ```
 
+## Token Authentication Error Handling
+
+`get_token_data` / `get_token_data_async` (called internally by `Bfabric.connect_token`) raise:
+
+- {class}`~bfabric.errors.BfabricTokenValidationFailedError` — token is expired or otherwise invalid.
+- {class}`~bfabric.errors.BfabricInstanceNotConfiguredError` — token's origin instance is not in `supported_bfabric_instances`.
+
+```python
+from bfabric.errors import (
+    BfabricInstanceNotConfiguredError,
+    BfabricTokenValidationFailedError,
+)
+
+try:
+    client, token_data = Bfabric.connect_token(token=token, settings=settings)
+except BfabricTokenValidationFailedError as e:
+    print(f"Token validation failed: {e}")
+except BfabricInstanceNotConfiguredError as e:
+    print(f"Instance not supported: {e}")
+```
+
 ## See Also
 
 - [Exceptions and Errors](../api_reference/exceptions_and_errors/index.md) - Complete API reference for exception types

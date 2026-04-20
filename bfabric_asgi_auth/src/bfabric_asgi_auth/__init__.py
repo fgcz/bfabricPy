@@ -14,9 +14,11 @@ from bfabric_asgi_auth.session_data import SessionData
 from bfabric_asgi_auth.token_validation.bfabric_strategy import create_bfabric_validator
 from bfabric_asgi_auth.token_validation.mock_strategy import create_mock_validator
 from bfabric_asgi_auth.token_validation.strategy import TokenValidationResult
+from bfabric_asgi_auth.user import BfabricUser
 
 __all__ = [
     "BfabricAuthMiddleware",
+    "BfabricUser",
     "ErrorResponse",
     "HTMLRenderer",
     "PlainTextRenderer",

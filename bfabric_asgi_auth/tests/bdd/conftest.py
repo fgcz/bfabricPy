@@ -17,7 +17,7 @@ from starlette.responses import JSONResponse
 from starlette.routing import Route, WebSocketRoute
 from starlette.websockets import WebSocket
 
-from bfabric_asgi_auth import BfabricAuthMiddleware, create_mock_validator
+from bfabric_asgi_auth import BfabricAuthMiddleware, BfabricUser, create_mock_validator
 
 from bfabric_asgi_auth.typing import AuthHooks, JsonRepresentable
 
@@ -55,12 +55,34 @@ def base_app():
             }
         )
 
+    async def user_info(request: Request):
+        user = request.scope.get("user")
+        if user is None:
+            return JSONResponse({"has_user": False})
+        return JSONResponse(
+            {
+                "has_user": True,
+                "is_bfabric_user": isinstance(user, BfabricUser),
+                "is_authenticated": user.is_authenticated,
+                "display_name": user.display_name,
+                "identity": user.identity,
+                "login": user.login,
+                "instance": user.instance,
+                "entity_class": user.entity_class,
+                "entity_id": user.entity_id,
+                "job_id": user.job_id,
+                "application_id": user.application_id,
+            }
+        )
+
     async def websocket_endpoint(websocket: WebSocket):
         await websocket.accept()
+        user = websocket.scope.get("user")
         await websocket.send_json(
             {
                 "connected": True,
                 "has_bfabric_session": "bfabric_session" in websocket.scope,
+                "has_user": user is not None,
             }
         )
         await websocket.close()
@@ -68,6 +90,7 @@ def base_app():
     routes = [
         Route("/", homepage),
         Route("/nonexistent", homepage),
+        Route("/user-info", user_info),
         WebSocketRoute("/ws", websocket_endpoint),
     ]
     return Starlette(routes=routes)
@@ -349,6 +372,13 @@ def response_contains(context, text):
     assert text in response.text
 
 
+@then(parsers.parse('the response content-type should be "{content_type}"'))
+def response_content_type(context, content_type):
+    """Check response content-type header."""
+    response = context["response"]
+    assert content_type in response.headers.get("content-type", "")
+
+
 @then("I should have a session cookie")
 def has_session_cookie(context):
     """Check session cookie exists."""
@@ -497,9 +527,174 @@ def session_bfabric_session_has_required_fields(context, client):
     # Verify password content matches (not just length)
     assert session_data["bfabric_auth_password"] == token_data.user_ws_password.get_secret_value()
 
+    # Verify token context fields
+    assert session_data["entity_class"] == token_data.entity_class
+    assert session_data["entity_id"] == token_data.entity_id
+    assert session_data["job_id"] == token_data.job_id
+    assert session_data["application_id"] == token_data.application_id
+
 
 @then("the hook should have received token data")
 def hook_received_token_data(context):
     """Verify hook was called with token data."""
     assert "token_data" in context, "Hook did not populate context['token_data']"
     assert context["token_data"] is not None
+
+
+@given(parsers.parse('the application is configured with authenticated_path "{path}"'), target_fixture="app")
+def app_configured_with_authenticated_path(base_app, mock_validator, path):
+    """Configure application with specific authenticated_path."""
+    base_app.add_middleware(
+        BfabricAuthMiddleware,
+        token_validator=mock_validator,
+        landing_path="/landing",
+        token_param="token",
+        authenticated_path=path,
+        logout_path="/logout",
+    )
+    base_app.add_middleware(
+        SessionMiddleware,
+        secret_key="test-secret-key-min-32-characters!!",
+        max_age=3600,
+    )
+    return base_app
+
+
+@when(parsers.parse('I authenticate with proxy headers "X-Forwarded-Proto: {scheme}" and host "{host}"'))
+def authenticate_with_proxy_headers(context, base_app, mock_validator, scheme, host):
+    """Authenticate with custom proxy headers."""
+    from httpx import ASGITransport, AsyncClient
+
+    class Hooks(AuthHooks):
+        async def on_success(self, session: dict[str, JsonRepresentable], token_data: TokenData) -> str | None:
+            context["token_data"] = token_data
+            return None
+
+    if "app" in context:
+        app_to_use = context["app"]
+    else:
+        app_to_use = Starlette(routes=[])
+        app_to_use.add_middleware(
+            BfabricAuthMiddleware,
+            token_validator=mock_validator,
+            landing_path="/landing",
+            token_param="token",
+            authenticated_path="/",
+            logout_path="/logout",
+            hooks=Hooks(),
+        )
+        app_to_use.add_middleware(
+            SessionMiddleware,
+            secret_key="test-secret-key-min-32-characters!!",
+            max_age=3600,
+        )
+
+    async def make_request():
+        async with AsyncClient(transport=ASGITransport(app=app_to_use), base_url="http://test") as ac:
+            headers = {
+                "X-Forwarded-Proto": scheme,
+                "Host": host,
+            }
+            response = await ac.get("/landing?token=valid_test123", headers=headers, follow_redirects=False)
+            return response
+
+    response = run_async(make_request())
+    context["response"] = response
+
+
+@then(parsers.parse('the redirect location should start with "{prefix}"'))
+def redirect_location_starts_with(context, prefix):
+    """Check redirect location starts with prefix."""
+    response = context["response"]
+    assert response.status_code == 302
+    location = response.headers.get("location", "")
+    assert location.startswith(prefix), f"Expected location to start with '{prefix}', got '{location}'"
+
+
+@then(parsers.parse('the redirect location should be "{url}"'))
+def redirect_location_is(context, url):
+    """Check redirect location is exactly the given URL."""
+    response = context["response"]
+    assert response.status_code == 302
+    location = response.headers.get("location", "")
+    assert location == url, f"Expected location to be '{url}', got '{location}'"
+
+
+# ============================================================================
+# User scope steps
+# ============================================================================
+
+
+@when("I request the user info endpoint")
+def request_user_info(context, client):
+    """Request the user info endpoint."""
+    response = run_async(client.get("/user-info"))
+    context["response"] = response
+    context["user_info"] = response.json()
+
+
+@then("the scope user should be a BfabricUser")
+def scope_user_is_bfabric_user(context):
+    """Check scope user is BfabricUser."""
+    assert context["user_info"]["has_user"] is True
+    assert context["user_info"]["is_bfabric_user"] is True
+
+
+@then("the scope user is_authenticated should be true")
+def scope_user_is_authenticated(context):
+    """Check scope user is authenticated."""
+    assert context["user_info"]["is_authenticated"] is True
+
+
+@then(parsers.parse('the scope user display_name should be "{name}"'))
+def scope_user_display_name(context, name):
+    """Check scope user display_name."""
+    assert context["user_info"]["display_name"] == name
+
+
+@then(parsers.parse('the scope user identity should be "{identity}"'))
+def scope_user_identity(context, identity):
+    """Check scope user identity."""
+    assert context["user_info"]["identity"] == identity
+
+
+@then(parsers.parse('the scope user login should be "{login}"'))
+def scope_user_login(context, login):
+    """Check scope user login."""
+    assert context["user_info"]["login"] == login
+
+
+@then(parsers.parse('the scope user instance should be "{instance}"'))
+def scope_user_instance(context, instance):
+    """Check scope user instance."""
+    assert context["user_info"]["instance"] == instance
+
+
+@then("the websocket scope user should be set")
+def websocket_scope_user_set(context):
+    """Check WebSocket scope has user set."""
+    assert context["websocket_response"]["has_user"] is True
+
+
+@then(parsers.parse('the scope user entity_class should be "{value}"'))
+def scope_user_entity_class(context, value):
+    """Check scope user entity_class."""
+    assert context["user_info"]["entity_class"] == value
+
+
+@then(parsers.parse("the scope user entity_id should be {value:d}"))
+def scope_user_entity_id(context, value):
+    """Check scope user entity_id."""
+    assert context["user_info"]["entity_id"] == value
+
+
+@then(parsers.parse("the scope user job_id should be {value:d}"))
+def scope_user_job_id(context, value):
+    """Check scope user job_id."""
+    assert context["user_info"]["job_id"] == value
+
+
+@then(parsers.parse("the scope user application_id should be {value:d}"))
+def scope_user_application_id(context, value):
+    """Check scope user application_id."""
+    assert context["user_info"]["application_id"] == value

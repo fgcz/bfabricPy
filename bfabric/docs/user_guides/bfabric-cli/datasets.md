@@ -83,9 +83,15 @@ bfabric-cli dataset download [DATASET_ID] [OUTPUT_FILE] [OPTIONS]
 | ------------- | -------- | ----------------------------------------------- |
 | `dataset_id` | Yes | ID of the dataset to download |
 | `output_file` | Yes | Local file path for output |
-| `--format` | No | Format for output file: `parquet`, `csv`, `tsv` |
+| `--format` | No | Format for output file: `auto`, `csv`, `tsv`, `parquet`, `excel` (default: `auto`) |
 
 ### Examples
+
+**Download with automatic format detection (recommended):**
+
+```bash
+bfabric-cli dataset download 12345 my_data.parquet
+```
 
 **Download as Parquet:**
 
@@ -103,6 +109,19 @@ bfabric-cli dataset download 12345 my_data.csv --format csv
 
 ```bash
 bfabric-cli dataset download 12345 my_data.tsv --format tsv
+```
+
+**Download as Excel:**
+
+```bash
+bfabric-cli dataset download 12345 my_data.xlsx --format excel
+```
+
+**Download to Excel with auto format detection:**
+
+```bash
+bfabric-cli dataset download 12345 my_data.xlsx
+# Format is automatically inferred from .xlsx extension
 ```
 
 ### Working with Downloaded Data
@@ -134,11 +153,26 @@ df = pd.read_csv("my_data.tsv", sep="\t")
 print(df.head())
 ```
 
+**Read Excel file:**
+
+```python
+import pandas as pd
+
+df = pd.read_excel("my_data.xlsx")
+print(df.head())
+```
+
 ### Notes
 
-- The file format depends on how the dataset was stored in B-Fabric
+- The file format depends on how of dataset was stored in B-Fabric
 - Parquet is recommended for large datasets
 - Progress is shown during download
+- The default `auto` format automatically detects the format from the file extension
+- Excel format (`.xlsx`) requires the optional `excel` dependency to be installed:
+  ```bash
+  uv pip install 'bfabric_scripts[excel]'
+  ```
+- Supported extensions for auto format: `.csv`, `.tsv`, `.parquet`, `.xlsx`
 
 ______________________________________________________________________
 
@@ -280,6 +314,7 @@ ______________________________________________________________________
 - **Parquet**: Best for large datasets, preserves data types, efficient storage
 - **CSV**: Universal format, easy to share, but slower and no type info
 - **TSV**: Tab-separated, good for tabular data with special characters
+- **Excel (`.xlsx`)**: Good for sharing with non-technical users, supports multiple sheets (though single sheet is downloaded)
 
 ### File Size Considerations
 

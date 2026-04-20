@@ -1,0 +1,89 @@
+name: Publish Documentation
+on:
+  push:
+    branches: [main]
+  workflow_run:
+    workflows: ["Release Packages"]
+    branches: [release]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Deploy target'
+        type: choice
+        options:
+          - dev
+          - production
+        default: dev
+jobs:
+  deploy-dev:
+    name: Deploy Dev Preview
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'dev')
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Install nox and uv
+        run: pip install nox uv
+      - name: Build documentation
+        run: nox -s docs
+      - name: Deploy to /dev/ on gh-pages
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin gh-pages 2>/dev/null \
+            && git worktree add gh-pages origin/gh-pages \
+            || git worktree add --orphan gh-pages gh-pages
+
+          rm -rf gh-pages/dev
+          cp -r site gh-pages/dev
+          touch gh-pages/.nojekyll
+
+          cd gh-pages && git add -A
+          git diff --cached --quiet || git commit -m "docs(dev): ${GITHUB_SHA::8}"
+          git push origin HEAD:gh-pages
+  deploy-production:
+    name: Deploy Production Docs
+    runs-on: ubuntu-latest
+    if: >
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'production')
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Install nox and uv
+        run: pip install nox uv
+      - name: Build documentation
+        run: nox -s docs
+      - name: Deploy production docs to gh-pages
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin gh-pages 2>/dev/null \
+            && git worktree add gh-pages origin/gh-pages \
+            || git worktree add --orphan gh-pages gh-pages
+
+          cd gh-pages
+          find . -maxdepth 1 ! -name '.' ! -name '.git' ! -name 'dev' -exec rm -rf {} +
+          cp -r ../site/* .
+          touch .nojekyll
+
+          git add -A
+          git diff --cached --quiet || git commit -m "docs: ${GITHUB_SHA::8}"
+          git push origin HEAD:gh-pages

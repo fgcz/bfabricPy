@@ -4,6 +4,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.6.0\] - 2026-04-20
+
+### Added
+
+- `action outputs` (and `action run-all`) now set the workunit status to `available` after all chunks have been processed ([#346](https://github.com/fgcz/bfabricPy/issues/346)).
+- CLI commands decorated with `use_client` now accept `--config-env` and `--config-file` flags.
+- User and developer documentation ([#474](https://github.com/fgcz/bfabricPy/pull/474)).
+
+### Changed
+
+- Checksum computation uses `hashlib.file_digest`; `bfabric_app_runner.util.checksums` has been removed ([#349](https://github.com/fgcz/bfabricPy/issues/349)).
+
+### Fixed
+
+- `SaveLinkSpec` output registration no longer crashes ([#476](https://github.com/fgcz/bfabricPy/issues/476)).
+- `ResolveBfabricResourceArchiveSpecs` no longer raises a `ValidationError` when resolving resource archives ([#432](https://github.com/fgcz/bfabricPy/issues/432)).
+- `BfabricResourceArchiveSpec` zip output is no longer written to a doubled path when `filename` contains a subdirectory component ([#323](https://github.com/fgcz/bfabricPy/issues/323)).
+
 ## \[0.5.1\] - 2026-03-02
 
 ### Fixed

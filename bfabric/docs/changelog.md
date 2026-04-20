@@ -9,6 +9,24 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+## \[1.18.0\] - 2026-04-20
+
+### Added
+
+- `EntityReader.query_one`: returns at most one matching entity (or `None`).
+- `User.is_employee` property: `True` iff the user's `empdegree` parses to a value `> 0`.
+- `BfabricTokenValidationFailedError` in `bfabric.errors`: raised when token validation fails.
+- CLI commands decorated with `use_client` now accept `--config-env` and `--config-file` flags.
+
+### Changed
+
+- `EntityReader.query` accepts an `expected_type` keyword for typed narrowing of results.
+- `User.find_by_login` no longer triggers a `FindMixin` deprecation warning.
+
+### Fixed
+
+- `FindMixin.find_all` now correctly handles string IDs.
+
 ## \[1.17.0\] - 2026-03-12
 
 ### Added

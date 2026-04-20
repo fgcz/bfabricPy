@@ -19,7 +19,33 @@ jobs:
       - name: Install nox
         run: pip install nox uv
       - name: Run checks
-        run: nox
+        run: nox --report nox-report.json
+      - name: Summarize nox results
+        if: always()
+        run: |
+          if [ ! -f nox-report.json ]; then exit 0; fi
+          python3 << 'EOF'
+          import json, os
+
+          with open("nox-report.json") as f:
+              data = json.load(f)
+
+          lines = ["## Nox Session Results\n"]
+          for s in data["sessions"]:
+              result = s.get("result", "unknown")
+              name = s["signatures"][0]
+              if result == "success":
+                  icon = "✅"
+              elif result in ("skipped", "skip"):
+                  icon = "⏭️"
+              else:
+                  icon = "❌"
+                  print(f"::error::Nox session failed: {name}")
+              lines.append(f"{icon} `{name}`: {result}")
+
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
+              f.write("\n".join(lines) + "\n")
+          EOF
   code_style:
     name: Code Style
     runs-on: ubuntu-latest
@@ -51,7 +77,7 @@ jobs:
           head-ref: ${{ github.sha }}
       - name: Comment on PR with "TODO" changes
         if: steps.todo-diff.outputs.has-changes == 'true'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const summary = `${{ steps.todo-diff.outputs.summary }}`;
@@ -116,3 +142,16 @@ jobs:
                 body: commentBody
               });
             }
+  docs-build:
+    name: Documentation Build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Install nox and uv
+        run: pip install nox uv
+      - name: Build documentation
+        run: nox -s docs

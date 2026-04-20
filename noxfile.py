@@ -246,6 +246,13 @@ def test_bfabric_asgi_auth(session):
     session.run("pytest", "--gherkin-terminal-reporter", "-v", "bfabric_asgi_auth/tests")
 
 
+@nox.session(python=["3.13"])
+def test_bfabric_rest_proxy(session):
+    session.install("--resolution", "highest", "./bfabric_rest_proxy[test]")
+    session.run("uv", "pip", "list")
+    session.run("pytest", "-v", "bfabric_rest_proxy/tests")
+
+
 @nox.session
 def test_py_typed(session):
     """Verify py.typed is properly installed with the package."""
@@ -309,17 +316,6 @@ def docs(session):
 
         if build_app_runner:
             shutil.copytree(Path(tmpdir) / "build_app_runner" / "html", target_dir / "app_runner")
-
-
-@nox.session(default=False)
-def publish_docs(session):
-    """Publish documentation to GitHub Pages by updating gh-pages branch."""
-    site_dir = Path("site")
-    if not site_dir.exists():
-        session.error("Site directory does not exist. Run 'nox -s docs' first.")
-
-    session.install("ghp-import")
-    session.run("ghp-import", "--force", "--no-jekyll", "--push", "site")
 
 
 @nox.session(default=False)

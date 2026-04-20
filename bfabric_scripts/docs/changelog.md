@@ -10,6 +10,22 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.15.0\] - 2026-04-20
+
+### Added
+
+- All scripts decorated with `use_client` now accept `--config-env` and `--config-file` flags, making it more reliable to target a particular bfabric instance.
+- `bfabric-cli dataset download` supports `excel` format (`.xlsx`) via the `excel` extra.
+
+### Changed
+
+- `bfabric-cli dataset download` now defaults to `auto` format, inferring the output format from the file extension.
+- Use `hashlib.file_digest` for checksum computation ([#349](https://github.com/fgcz/bfabricPy/issues/349)).
+
+### Fixed
+
+- `PathConventionMS` now handles instruments with a number in the name before the underscore character.
+
 ## \[1.14.0\] - 2026-03-12
 
 ### Added
