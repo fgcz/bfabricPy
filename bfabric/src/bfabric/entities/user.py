@@ -17,7 +17,18 @@ class User(Entity):
 
     @property
     def is_employee(self) -> bool:
-        """Whether the user is an employee on the B-Fabric instance (``empdegree`` present and > 0)."""
+        """Whether the user is an employee on the B-Fabric instance (``empdegree`` > 0).
+
+        :raises ValueError: if the ``empdegree`` field is not present on the user record.
+            The field is typically only visible when the record is fetched with feeder
+            credentials; a silent ``False`` would be indistinguishable from a genuine
+            non-employee and mask the permissions issue.
+        """
+        if self.get("empdegree") is None:
+            raise ValueError(
+                "User.is_employee: 'empdegree' is not present on the user record. "
+                "This field typically requires feeder credentials to be visible."
+            )
         empdegree = self.get("empdegree")
         if not isinstance(empdegree, str | int | float) or isinstance(empdegree, bool):
             return False
