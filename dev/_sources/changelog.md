@@ -9,23 +9,23 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+## \[1.18.0\] - 2026-04-20
+
 ### Added
 
-- `use_client` decorator now injects two optional CLI parameters to decorated functions:
-    - `config_env`: Override the config environment (e.g. 'TEST'). Falls back to `BFABRICPY_CONFIG_ENV` env var or the config file default.
-    - `config_file`: Override the config file path (default: ~/.bfabricpy.yml).
-- `BfabricTokenValidationFailedError` exception in `bfabric.errors`: raised by `get_token_data_async` (and `get_token_data`) when token validation fails, with named constructors `expired_token()` and `invalid_token()`.
-- `User.is_employee` property: True iff the user's `empdegree` field is present and parses to a float > 0.
-- `EntityReader.query_one(entity_type, obj, *, expected_type=Entity)`: returns at most one entity (or `None`) matching the given query; typed-narrowing wrapper around `EntityReader.query` with `max_results=1`.
+- `EntityReader.query_one`: returns at most one matching entity (or `None`).
+- `User.is_employee` property: `True` iff the user's `empdegree` parses to a value `> 0`.
+- `BfabricTokenValidationFailedError` in `bfabric.errors`: raised when token validation fails.
+- CLI commands decorated with `use_client` now accept `--config-env` and `--config-file` flags.
 
 ### Changed
 
-- `EntityReader.query` now accepts an `expected_type` keyword argument for typed narrowing of results (matches `read_uris`/`read_ids`); raises `TypeError` on mismatch.
-- `User.find_by_login` now delegates to `EntityReader.query_one`; no longer triggers the `FindMixin` deprecation warning.
+- `EntityReader.query` accepts an `expected_type` keyword for typed narrowing of results.
+- `User.find_by_login` no longer triggers a `FindMixin` deprecation warning.
 
 ### Fixed
 
-- `FindMixin.find_all` now correctly handles string IDs (e.g., `["1", "2"]`) in addition to integer IDs.
+- `FindMixin.find_all` now correctly handles string IDs.
 
 ## \[1.17.0\] - 2026-03-12
 

@@ -4,21 +4,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
-### Changed
-
-- Use `hashlib.file_digest` instead of custom `md5sum` implementation; removed `bfabric_app_runner.util.checksums` module ([#349](https://github.com/fgcz/bfabricPy/issues/349)).
-
-### Fixed
-
-- `ResolveBfabricResourceArchiveSpecs` now correctly converts `storage_absolute_path` from `Path` to `str` before constructing `FileSourceSshValue`, fixing a `ValidationError` when resolving resource archives ([#432](https://github.com/fgcz/bfabricPy/issues/432)).
-- Fixed zip file being written to a doubled path (e.g. `input/input/result.zip`) when a `BfabricResourceArchiveSpec` filename contains a subdirectory component; zip is now correctly placed at `input/result.zip` ([#323](https://github.com/fgcz/bfabricPy/issues/323)).
+## \[0.6.0\] - 2026-04-20
 
 ### Added
 
-- `action outputs` (and `action run-all`) now sets workunit status to "available" after all chunks are processed ([#346](https://github.com/fgcz/bfabricPy/issues/346)).
-- All CLI commands using the `use_client` decorator now support two new optional parameters:
-    - `config_env`: Override the config environment (e.g. 'TEST'). Falls back to `BFABRICPY_CONFIG_ENV` env var or the config file default.
-    - `config_file`: Override the config file path (default: ~/.bfabricpy.yml).
+- `action outputs` (and `action run-all`) now set the workunit status to `available` after all chunks have been processed ([#346](https://github.com/fgcz/bfabricPy/issues/346)).
+- CLI commands decorated with `use_client` now accept `--config-env` and `--config-file` flags.
+- User and developer documentation ([#474](https://github.com/fgcz/bfabricPy/pull/474)).
+
+### Changed
+
+- Checksum computation uses `hashlib.file_digest`; `bfabric_app_runner.util.checksums` has been removed ([#349](https://github.com/fgcz/bfabricPy/issues/349)).
+
+### Fixed
+
+- `SaveLinkSpec` output registration no longer crashes ([#476](https://github.com/fgcz/bfabricPy/issues/476)).
+- `ResolveBfabricResourceArchiveSpecs` no longer raises a `ValidationError` when resolving resource archives ([#432](https://github.com/fgcz/bfabricPy/issues/432)).
+- `BfabricResourceArchiveSpec` zip output is no longer written to a doubled path when `filename` contains a subdirectory component ([#323](https://github.com/fgcz/bfabricPy/issues/323)).
 
 ## \[0.5.1\] - 2026-03-02
 
