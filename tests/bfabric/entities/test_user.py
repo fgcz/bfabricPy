@@ -24,13 +24,17 @@ def _user(bfabric_instance: str, **fields: object) -> User:
         ("-10", False),
         ("", False),
         ("not-a-number", False),
-        (None, False),
     ],
 )
 def test_is_employee(empdegree, expected, bfabric_instance):
-    fields = {} if empdegree is None else {"empdegree": empdegree}
-    assert _user(bfabric_instance, **fields).is_employee is expected
+    assert _user(bfabric_instance, empdegree=empdegree).is_employee is expected
 
 
-def test_is_employee_missing_field(bfabric_instance):
-    assert _user(bfabric_instance).is_employee is False
+def test_is_employee_missing_field_raises(bfabric_instance):
+    with pytest.raises(ValueError, match="empdegree"):
+        _ = _user(bfabric_instance).is_employee
+
+
+def test_is_employee_none_value_raises(bfabric_instance):
+    with pytest.raises(ValueError, match="empdegree"):
+        _ = _user(bfabric_instance, empdegree=None).is_employee
