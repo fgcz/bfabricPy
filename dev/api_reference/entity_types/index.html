@@ -942,7 +942,15 @@ as the file is stored.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="bfabric.entities.User.is_employee">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_employee</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#bfabric.entities.User.is_employee" title="Link to this definition">#</a></dt>
-<dd><p>Whether the user is an employee on the B-Fabric instance (<code class="docutils literal notranslate"><span class="pre">empdegree</span></code> present and &gt; 0).</p>
+<dd><p>Whether the user is an employee on the B-Fabric instance (<code class="docutils literal notranslate"><span class="pre">empdegree</span></code> &gt; 0).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – if the <code class="docutils literal notranslate"><span class="pre">empdegree</span></code> field is not present on the user record.
+The field is typically only visible when the record is fetched with feeder
+credentials; a silent <code class="docutils literal notranslate"><span class="pre">False</span></code> would be indistinguishable from a genuine
+non-employee and mask the permissions issue.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
