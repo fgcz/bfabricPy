@@ -23,20 +23,47 @@ from bfabric_asgi_auth.typing import AuthHooks, is_valid_session_dict
 from bfabric_asgi_auth.user import BfabricUser
 
 
-def _strip_root_path(scope: Scope) -> str:
-    """Return scope["path"] with any leading scope["root_path"] removed.
+def _normalize_root_path(scope: Scope) -> str:
+    """Return scope["root_path"] with any trailing slash removed.
 
-    ASGI servers sometimes deliver scope["path"] including the mount prefix when the
-    reverse proxy forwards the full external path rather than stripping it. Normalizing
-    here lets the middleware compare against logical in-app paths regardless of which
-    shape the proxy delivers.
+    Treats ``""``, ``"/"``, and missing keys as no mount prefix. A trailing slash in
+    root_path (``"/myapp/"``) is equivalent to the slashless form.
     """
-    path = scope.get("path", "")
-    root_path = scope.get("root_path", "") or ""
-    if root_path and path.startswith(root_path):
-        stripped = path[len(root_path) :]
-        return stripped or "/"
+    return (scope.get("root_path") or "").rstrip("/")
+
+
+def _strip_root_path(scope: Scope) -> str:
+    """Return scope["path"] with a leading scope["root_path"] segment removed.
+
+    The match is **boundary-aware**: ``/queue-genesis`` is not stripped when root_path
+    is ``/queue-gen``. An exact match returns ``""``; ``/myapp/`` under root ``/myapp``
+    returns ``"/"``. If root_path is empty or path doesn't sit under it, returns path
+    unchanged.
+    """
+    path = scope.get("path") or ""
+    root_path = _normalize_root_path(scope)
+    if not root_path or not path:
+        return path
+    if path == root_path:
+        return ""
+    if path.startswith(root_path + "/"):
+        return path[len(root_path) :]
     return path
+
+
+def _prepend_root_path(url: str, scope: Scope) -> str:
+    """Prepend scope["root_path"] to a root-relative URL (``/foo``).
+
+    Leaves absolute URLs (``http://``, ``https://``, protocol-relative ``//host``),
+    relative URLs (``foo``, ``./foo``), and empty strings unchanged — the browser
+    either resolves them against the current page or already has full context.
+    """
+    if not url.startswith("/") or url.startswith("//"):
+        return url
+    root_path = _normalize_root_path(scope)
+    if not root_path:
+        return url
+    return f"{root_path}{url}"
 
 
 class BfabricAuthMiddleware:

@@ -169,12 +169,13 @@ def _normalize_redirect_url(url: str, scope: Scope) -> str:
       proxies don't issue an insecure downgrade.
     - Anything else (``https://…``, fragments, relative paths): pass through.
     """
+    from bfabric_asgi_auth.middleware import _prepend_root_path
+
     if url.startswith("//"):
         return f"{_forwarded_scheme(scope)}:{url}"
 
     if url.startswith("/"):
-        root_path = scope.get("root_path", "") or ""
-        return f"{root_path}{url}"
+        return _prepend_root_path(url, scope)
 
     if url.startswith("http://"):
         return f"{_forwarded_scheme(scope)}://{url.removeprefix('http://')}"
