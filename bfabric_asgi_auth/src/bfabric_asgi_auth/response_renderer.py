@@ -10,7 +10,7 @@ from typing import Protocol, cast
 
 from asgiref.typing import ASGIReceiveCallable, ASGISendCallable, ASGISendEvent, Scope
 
-from bfabric_asgi_auth._root_path import _prepend_root_path
+from bfabric_asgi_auth._root_path import prepend_root_path
 
 
 class VisibleException(RuntimeError):
@@ -175,7 +175,7 @@ def _normalize_redirect_url(url: str, scope: Scope) -> str:
         return f"{_forwarded_scheme(scope)}:{url}"
 
     if url.startswith("/"):
-        return _prepend_root_path(url, scope)
+        return prepend_root_path(url, scope)
 
     if url.startswith("http://"):
         return f"{_forwarded_scheme(scope)}://{url.removeprefix('http://')}"

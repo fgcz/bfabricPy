@@ -6,8 +6,8 @@ from asgiref.typing import ASGI3Application, ASGIReceiveCallable, ASGISendCallab
 from loguru import logger
 from pydantic import SecretStr, ValidationError
 
-from bfabric_asgi_auth._root_path import _prepend_root_path as _prepend_root_path
-from bfabric_asgi_auth._root_path import _strip_root_path
+from bfabric_asgi_auth._root_path import prepend_root_path as _prepend_root_path
+from bfabric_asgi_auth._root_path import strip_root_path as _strip_root_path
 from bfabric_asgi_auth.response_renderer import (
     ErrorResponse,
     HTMLRenderer,
