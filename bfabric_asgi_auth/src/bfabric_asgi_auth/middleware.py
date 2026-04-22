@@ -23,6 +23,22 @@ from bfabric_asgi_auth.typing import AuthHooks, is_valid_session_dict
 from bfabric_asgi_auth.user import BfabricUser
 
 
+def _strip_root_path(scope: Scope) -> str:
+    """Return scope["path"] with any leading scope["root_path"] removed.
+
+    ASGI servers sometimes deliver scope["path"] including the mount prefix when the
+    reverse proxy forwards the full external path rather than stripping it. Normalizing
+    here lets the middleware compare against logical in-app paths regardless of which
+    shape the proxy delivers.
+    """
+    path = scope.get("path", "")
+    root_path = scope.get("root_path", "") or ""
+    if root_path and path.startswith(root_path):
+        stripped = path[len(root_path) :]
+        return stripped or "/"
+    return path
+
+
 class BfabricAuthMiddleware:
     """ASGI middleware for Bfabric authentication using session cookies.
 
@@ -67,9 +83,10 @@ class BfabricAuthMiddleware:
         try:
             # Handle middleware-provided operations
             if scope["type"] == "http":
-                if scope["path"] == self.logout_path:
+                app_path = _strip_root_path(scope)
+                if app_path == self.logout_path:
                     return await self._handle_logout(scope, receive, send)
-                if scope["path"] == self.landing_path:
+                if app_path == self.landing_path:
                     return await self._handle_landing(scope, receive, send)
 
             # Ensure authentication is provided

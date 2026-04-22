@@ -152,16 +152,20 @@ class ResponseRenderer(Protocol):
 
 
 def _normalize_redirect_url(url: str, scope: Scope) -> str:
-    """Normalize a redirect URL scheme.
+    """Normalize a redirect URL: prepend root_path for root-relative URLs, fix scheme for absolute URLs.
 
-    Preserves relative URLs (starting with '/') as-is.
-    For absolute URLs, ensures the scheme matches the request's scheme
-    (taking into account X-Forwarded-Proto proxy headers).
+    Root-relative URLs (starting with a single '/') are prefixed with scope["root_path"]
+    so the browser lands at the correct public path when the app is mounted under a sub-path.
+    Absolute URLs get their scheme aligned with X-Forwarded-Proto.
 
     :param url: The redirect URL from the response
     :param scope: ASGI scope dictionary
-    :return: URL with corrected scheme if needed
+    :return: Normalized URL
     """
+    if url.startswith("/") and not url.startswith("//"):
+        root_path = scope.get("root_path", "") or ""
+        return f"{root_path}{url}" if root_path else url
+
     if not url.startswith("//") and not url.startswith("http://"):
         return url
 
