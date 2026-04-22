@@ -6,6 +6,8 @@ from asgiref.typing import ASGI3Application, ASGIReceiveCallable, ASGISendCallab
 from loguru import logger
 from pydantic import SecretStr, ValidationError
 
+from bfabric_asgi_auth._root_path import _prepend_root_path as _prepend_root_path
+from bfabric_asgi_auth._root_path import _strip_root_path
 from bfabric_asgi_auth.response_renderer import (
     ErrorResponse,
     HTMLRenderer,
@@ -22,48 +24,9 @@ from bfabric_asgi_auth.token_validation.strategy import (
 from bfabric_asgi_auth.typing import AuthHooks, is_valid_session_dict
 from bfabric_asgi_auth.user import BfabricUser
 
-
-def _normalize_root_path(scope: Scope) -> str:
-    """Return scope["root_path"] with any trailing slash removed.
-
-    Treats ``""``, ``"/"``, and missing keys as no mount prefix. A trailing slash in
-    root_path (``"/myapp/"``) is equivalent to the slashless form.
-    """
-    return (scope.get("root_path") or "").rstrip("/")
-
-
-def _strip_root_path(scope: Scope) -> str:
-    """Return scope["path"] with a leading scope["root_path"] segment removed.
-
-    The match is **boundary-aware**: ``/queue-genesis`` is not stripped when root_path
-    is ``/queue-gen``. An exact match returns ``""``; ``/myapp/`` under root ``/myapp``
-    returns ``"/"``. If root_path is empty or path doesn't sit under it, returns path
-    unchanged.
-    """
-    path = scope.get("path") or ""
-    root_path = _normalize_root_path(scope)
-    if not root_path or not path:
-        return path
-    if path == root_path:
-        return ""
-    if path.startswith(root_path + "/"):
-        return path[len(root_path) :]
-    return path
-
-
-def _prepend_root_path(url: str, scope: Scope) -> str:
-    """Prepend scope["root_path"] to a root-relative URL (``/foo``).
-
-    Leaves absolute URLs (``http://``, ``https://``, protocol-relative ``//host``),
-    relative URLs (``foo``, ``./foo``), and empty strings unchanged — the browser
-    either resolves them against the current page or already has full context.
-    """
-    if not url.startswith("/") or url.startswith("//"):
-        return url
-    root_path = _normalize_root_path(scope)
-    if not root_path:
-        return url
-    return f"{root_path}{url}"
+# Re-exported so existing imports `from bfabric_asgi_auth.middleware import _strip_root_path`
+# keep working — the helpers themselves live in ._root_path for use by response_renderer too.
+__all__ = ("BfabricAuthMiddleware", "_prepend_root_path", "_strip_root_path")
 
 
 class BfabricAuthMiddleware:

@@ -10,6 +10,8 @@ from typing import Protocol, cast
 
 from asgiref.typing import ASGIReceiveCallable, ASGISendCallable, ASGISendEvent, Scope
 
+from bfabric_asgi_auth._root_path import _prepend_root_path
+
 
 class VisibleException(RuntimeError):
     """Base class for exceptions that should be visible to the user."""
@@ -169,8 +171,6 @@ def _normalize_redirect_url(url: str, scope: Scope) -> str:
       proxies don't issue an insecure downgrade.
     - Anything else (``https://…``, fragments, relative paths): pass through.
     """
-    from bfabric_asgi_auth.middleware import _prepend_root_path
-
     if url.startswith("//"):
         return f"{_forwarded_scheme(scope)}:{url}"
 
