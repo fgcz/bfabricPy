@@ -6,6 +6,8 @@ from asgiref.typing import ASGI3Application, ASGIReceiveCallable, ASGISendCallab
 from loguru import logger
 from pydantic import SecretStr, ValidationError
 
+from bfabric_asgi_auth._root_path import prepend_root_path as _prepend_root_path
+from bfabric_asgi_auth._root_path import strip_root_path as _strip_root_path
 from bfabric_asgi_auth.response_renderer import (
     ErrorResponse,
     HTMLRenderer,
@@ -21,6 +23,10 @@ from bfabric_asgi_auth.token_validation.strategy import (
 )
 from bfabric_asgi_auth.typing import AuthHooks, is_valid_session_dict
 from bfabric_asgi_auth.user import BfabricUser
+
+# Re-exported so existing imports `from bfabric_asgi_auth.middleware import _strip_root_path`
+# keep working — the helpers themselves live in ._root_path for use by response_renderer too.
+__all__ = ("BfabricAuthMiddleware", "_prepend_root_path", "_strip_root_path")
 
 
 class BfabricAuthMiddleware:
@@ -67,9 +73,10 @@ class BfabricAuthMiddleware:
         try:
             # Handle middleware-provided operations
             if scope["type"] == "http":
-                if scope["path"] == self.logout_path:
+                app_path = _strip_root_path(scope)
+                if app_path == self.logout_path:
                     return await self._handle_logout(scope, receive, send)
-                if scope["path"] == self.landing_path:
+                if app_path == self.landing_path:
                     return await self._handle_landing(scope, receive, send)
 
             # Ensure authentication is provided
