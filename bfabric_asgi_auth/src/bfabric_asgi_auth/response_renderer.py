@@ -151,32 +151,35 @@ class ResponseRenderer(Protocol):
         ...
 
 
-def _normalize_redirect_url(url: str, scope: Scope) -> str:
-    """Normalize a redirect URL: prepend root_path for root-relative URLs, fix scheme for absolute URLs.
-
-    Root-relative URLs (starting with a single '/') are prefixed with scope["root_path"]
-    so the browser lands at the correct public path when the app is mounted under a sub-path.
-    Absolute URLs get their scheme aligned with X-Forwarded-Proto.
-
-    :param url: The redirect URL from the response
-    :param scope: ASGI scope dictionary
-    :return: Normalized URL
-    """
-    if url.startswith("/") and not url.startswith("//"):
-        root_path = scope.get("root_path", "") or ""
-        return f"{root_path}{url}" if root_path else url
-
-    if not url.startswith("//") and not url.startswith("http://"):
-        return url
-
+def _forwarded_scheme(scope: Scope) -> str:
+    """Return the external request scheme, preferring X-Forwarded-Proto, else HTTPS."""
     headers = {k.decode().lower(): v.decode() for k, v in scope.get("headers", [])}
-    scheme = headers.get("x-forwarded-proto", "https")
+    return headers.get("x-forwarded-proto", "https")
 
+
+def _normalize_redirect_url(url: str, scope: Scope) -> str:
+    """Rewrite a redirect URL so the browser lands at the correct public location.
+
+    Handles each URL shape once:
+
+    - Protocol-relative (``//host/path``): attach the external scheme.
+    - Root-relative (``/path``): prepend ``scope["root_path"]`` so the browser
+      lands inside the app's mount instead of the origin root.
+    - Explicit HTTP (``http://host/path``): rewrite the scheme so HTTPS-terminating
+      proxies don't issue an insecure downgrade.
+    - Anything else (``https://…``, fragments, relative paths): pass through.
+    """
     if url.startswith("//"):
-        return f"{scheme}:{url}"
+        return f"{_forwarded_scheme(scope)}:{url}"
 
-    rest = url.removeprefix("http://")
-    return f"{scheme}://{rest}"
+    if url.startswith("/"):
+        root_path = scope.get("root_path", "") or ""
+        return f"{root_path}{url}"
+
+    if url.startswith("http://"):
+        return f"{_forwarded_scheme(scope)}://{url.removeprefix('http://')}"
+
+    return url
 
 
 def _send_http_header(
