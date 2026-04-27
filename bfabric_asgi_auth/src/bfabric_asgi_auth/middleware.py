@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import re
 import urllib.parse
-from collections.abc import Sequence
 
 from asgiref.typing import ASGI3Application, ASGIReceiveCallable, ASGISendCallable, HTTPScope, Scope, WebSocketScope
 from loguru import logger
@@ -50,7 +48,6 @@ class BfabricAuthMiddleware:
         authenticated_path: str = "/",
         logout_path: str = "/logout",
         renderer: ResponseRenderer | None = None,
-        unauthenticated_paths: Sequence[str | re.Pattern[str]] = (),
     ) -> None:
         """Initialize the middleware.
 
@@ -62,9 +59,6 @@ class BfabricAuthMiddleware:
         :param authenticated_path: Path to redirect to after successful authentication (default: /)
         :param logout_path: URL path for logout (default: /logout)
         :param renderer: Response renderer for customizing error/success pages (default: HTMLRenderer)
-        :param unauthenticated_paths: Paths that bypass authentication. Each entry is either a string
-            (matched by exact equality on the post-root_path application path) or a compiled
-            ``re.Pattern`` (matched with ``fullmatch``). Useful for healthchecks / public assets.
         """
         self.app: ASGI3Application = app
         self.token_validator: TokenValidatorStrategy = token_validator
@@ -74,7 +68,6 @@ class BfabricAuthMiddleware:
         self.authenticated_path: str = authenticated_path
         self.logout_path: str = logout_path
         self.renderer: ResponseRenderer = renderer or HTMLRenderer()
-        self.unauthenticated_paths: tuple[str | re.Pattern[str], ...] = tuple(unauthenticated_paths)
 
     async def __call__(self, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
         try:
@@ -85,13 +78,9 @@ class BfabricAuthMiddleware:
                     return await self._handle_logout(scope, receive, send)
                 if app_path == self.landing_path:
                     return await self._handle_landing(scope, receive, send)
-                if self._is_unauthenticated_path(app_path):
-                    return await self.app(scope, receive, send)
 
             # Ensure authentication is provided
             if scope["type"] == "http" or scope["type"] == "websocket":
-                if scope["type"] == "websocket" and self._is_unauthenticated_path(_strip_root_path(scope)):
-                    return await self.app(scope, receive, send)
                 # Get session data from scope (set by SessionMiddleware)
                 session = scope.get("session", {})
                 if "bfabric_session" in session:
@@ -114,16 +103,6 @@ class BfabricAuthMiddleware:
             return await self.renderer.render_error(
                 ErrorResponse(str(e), status_code=500, error_type="unknown"), scope, receive, send
             )
-
-    def _is_unauthenticated_path(self, app_path: str) -> bool:
-        """Return True when the given application path matches an entry in ``unauthenticated_paths``."""
-        for entry in self.unauthenticated_paths:
-            if isinstance(entry, str):
-                if entry == app_path:
-                    return True
-            elif entry.fullmatch(app_path) is not None:
-                return True
-        return False
 
     async def _handle_reject(
         self, scope: HTTPScope | WebSocketScope, receive: ASGIReceiveCallable, send: ASGISendCallable

@@ -98,22 +98,6 @@ renderer = HTMLRenderer(
 
 To opt out of B-Fabric branding (e.g. for a non-B-Fabric tenant), pass `bfabric_branding=False`.
 
-### Public paths
-
-Healthchecks and other endpoints that should bypass authentication go on `unauthenticated_paths`:
-
-```python
-import re
-
-app.add_middleware(
-    BfabricAuthMiddleware,
-    token_validator=token_validator,
-    unauthenticated_paths=["/health", re.compile(r"/static/.*")],
-)
-```
-
-String entries match by exact equality (after stripping `root_path`); compiled `re.Pattern`s match with `fullmatch`.
-
 ## Security
 
 ### Secret Key
