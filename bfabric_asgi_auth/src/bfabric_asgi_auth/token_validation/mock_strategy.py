@@ -6,6 +6,7 @@ from bfabric.rest.token_data import TokenData
 from pydantic import BaseModel, SecretStr
 
 from bfabric_asgi_auth.token_validation.strategy import (
+    TokenErrorKind,
     TokenValidationError,
     TokenValidationResult,
     TokenValidationSuccess,
@@ -65,8 +66,8 @@ def create_mock_validator(fixture: MockFixture | None = None) -> TokenValidatorS
                 ),
             )
         elif token_str.startswith("expired_"):
-            return TokenValidationError(error="Token has expired", error_kind="expired")
+            return TokenValidationError(error="Token has expired", error_kind=TokenErrorKind.EXPIRED)
         else:
-            return TokenValidationError(error="Invalid token", error_kind="invalid")
+            return TokenValidationError(error="Invalid token", error_kind=TokenErrorKind.INVALID)
 
     return mock_validation

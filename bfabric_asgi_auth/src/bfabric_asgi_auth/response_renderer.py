@@ -64,12 +64,13 @@ class ErrorResponse:
     def invalid_token(cls, error_kind: str = "unknown", detail: str | None = None) -> ErrorResponse:
         """Error response for when the token is invalid.
 
-        :param error_kind: One of ``expired``, ``invalid``, ``network``, ``unknown``. Drives the
-            structured ``error_type`` (``token_expired`` etc.) so apps can register tailored copy.
+        :param error_kind: A :class:`TokenErrorKind` value (or its string equivalent — ``expired``,
+            ``invalid``, ``network``, ``unknown``). Drives the structured ``error_type``
+            (``token_expired`` etc.) so apps can register tailored copy.
         :param detail: Optional detail string from the validator. Appended to the message when
             present so server logs and UI can surface the underlying cause.
         """
-        kind_to_type = {
+        kind_to_type: dict[str, tuple[str, str]] = {
             "expired": ("token_expired", "Token has expired"),
             "invalid": ("token_invalid", "Token validation failed"),
             "network": ("token_network", "Could not reach B-Fabric to validate token"),

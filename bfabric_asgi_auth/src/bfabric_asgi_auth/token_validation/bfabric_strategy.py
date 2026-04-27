@@ -12,6 +12,7 @@ from loguru import logger
 from pydantic import SecretStr, ValidationError
 
 from bfabric_asgi_auth.token_validation.strategy import (
+    TokenErrorKind,
     TokenValidationError,
     TokenValidationResult,
     TokenValidationSuccess,
@@ -30,19 +31,29 @@ def create_bfabric_validator(settings: TokenValidationSettingsProtocol) -> Token
             token_data = await validate_token(token=token.get_secret_value(), settings=settings)
         except BfabricTokenExpiredError as e:
             logger.exception("Token validation failed.")
-            return TokenValidationError(error=f"Bfabric token validation failed: {e}", error_kind="expired")
+            return TokenValidationError(
+                error=f"Bfabric token validation failed: {e}", error_kind=TokenErrorKind.EXPIRED
+            )
         except BfabricTokenValidationFailedError as e:
             logger.exception("Token validation failed.")
-            return TokenValidationError(error=f"Bfabric token validation failed: {e}", error_kind="invalid")
+            return TokenValidationError(
+                error=f"Bfabric token validation failed: {e}", error_kind=TokenErrorKind.INVALID
+            )
         except BfabricInstanceNotConfiguredError as e:
             logger.exception("Token validation failed.")
-            return TokenValidationError(error=f"Bfabric token validation failed: {e}", error_kind="invalid")
+            return TokenValidationError(
+                error=f"Bfabric token validation failed: {e}", error_kind=TokenErrorKind.INVALID
+            )
         except ValidationError as e:
             logger.exception("Token validation failed.")
-            return TokenValidationError(error=f"Bfabric token validation failed: {e}", error_kind="invalid")
+            return TokenValidationError(
+                error=f"Bfabric token validation failed: {e}", error_kind=TokenErrorKind.INVALID
+            )
         except HTTPError as e:
             logger.exception("Token validation failed.")
-            return TokenValidationError(error=f"Bfabric token validation failed: {e}", error_kind="network")
+            return TokenValidationError(
+                error=f"Bfabric token validation failed: {e}", error_kind=TokenErrorKind.NETWORK
+            )
 
         return TokenValidationSuccess(token_data=token_data)
 

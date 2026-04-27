@@ -1,25 +1,32 @@
 from __future__ import annotations
 
 from collections.abc import Awaitable
+from enum import StrEnum
 from typing import Annotated, Callable, Literal
 
 from bfabric.rest.token_data import TokenData
 from pydantic import BaseModel, Discriminator, SecretStr
 
-TokenErrorKind = Literal["expired", "invalid", "network", "unknown"]
+
+class TokenErrorKind(StrEnum):
+    """Classification of why token validation failed.
+
+    Drives the structured ``error_type`` rendered by :class:`ErrorResponse` so apps can
+    register tailored copy keyed on ``token_expired`` / ``token_invalid`` / etc.
+    """
+
+    EXPIRED = "expired"
+    INVALID = "invalid"
+    NETWORK = "network"
+    UNKNOWN = "unknown"
 
 
 class TokenValidationError(BaseModel):
-    """Error outcome of token validation.
-
-    :ivar error_kind: Classification used by the middleware to pick a structured ``error_type``
-        on the rendered :class:`ErrorResponse`. Apps customize copy off the resulting
-        ``error_type`` (``token_expired`` / ``token_invalid`` / ``token_network`` / ``token_unknown``).
-    """
+    """Error outcome of token validation."""
 
     success: Literal[False] = False
     error: str
-    error_kind: TokenErrorKind = "unknown"
+    error_kind: TokenErrorKind = TokenErrorKind.UNKNOWN
 
 
 class TokenValidationSuccess(BaseModel):
