@@ -63,23 +63,25 @@ class BfabricInstanceNotConfiguredError(RuntimeError):
 
 
 class BfabricTokenValidationFailedError(RuntimeError):
-    """Raised when token validation fails (expired or otherwise invalid).
+    """Raised when token validation fails. Base class for the more specific subclasses below.
 
-    :ivar is_expired: True if the failure was caused by an expired token, False for any other
-        validation failure (malformed, wrong instance, server-side rejection, etc.).
+    Catch this class to handle any validation failure; catch :class:`BfabricTokenExpiredError`
+    or :class:`BfabricTokenInvalidError` to react to a specific kind.
     """
 
-    def __init__(self, message: str, *, is_expired: bool = False) -> None:
+
+class BfabricTokenExpiredError(BfabricTokenValidationFailedError):
+    """Raised when token validation fails because the token has expired."""
+
+    def __init__(self, message: str = "Token validation failed: token has expired.") -> None:
         super().__init__(message)
-        self.is_expired: bool = is_expired
 
-    @classmethod
-    def expired_token(cls) -> BfabricTokenValidationFailedError:
-        return cls("Token validation failed: token has expired.", is_expired=True)
 
-    @classmethod
-    def invalid_token(cls) -> BfabricTokenValidationFailedError:
-        return cls("Token validation failed: token is invalid.", is_expired=False)
+class BfabricTokenInvalidError(BfabricTokenValidationFailedError):
+    """Raised when token validation fails because the token is malformed, unknown, or rejected."""
+
+    def __init__(self, message: str = "Token validation failed: token is invalid.") -> None:
+        super().__init__(message)
 
 
 # TODO: Also test for response-level errors

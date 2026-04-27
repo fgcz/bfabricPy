@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-from bfabric.errors import BfabricInstanceNotConfiguredError, BfabricTokenValidationFailedError
+from bfabric.errors import (
+    BfabricInstanceNotConfiguredError,
+    BfabricTokenExpiredError,
+    BfabricTokenValidationFailedError,
+)
 from bfabric.experimental.webapp_integration_settings import TokenValidationSettingsProtocol
 from bfabric.rest.token_data import validate_token
 from httpx import HTTPError
@@ -24,10 +28,12 @@ def create_bfabric_validator(settings: TokenValidationSettingsProtocol) -> Token
     async def bfabric_validation(token: SecretStr) -> TokenValidationResult:
         try:
             token_data = await validate_token(token=token.get_secret_value(), settings=settings)
+        except BfabricTokenExpiredError as e:
+            logger.exception("Token validation failed.")
+            return TokenValidationError(error=f"Bfabric token validation failed: {e}", error_kind="expired")
         except BfabricTokenValidationFailedError as e:
             logger.exception("Token validation failed.")
-            kind = "expired" if e.is_expired else "invalid"
-            return TokenValidationError(error=f"Bfabric token validation failed: {e}", error_kind=kind)
+            return TokenValidationError(error=f"Bfabric token validation failed: {e}", error_kind="invalid")
         except BfabricInstanceNotConfiguredError as e:
             logger.exception("Token validation failed.")
             return TokenValidationError(error=f"Bfabric token validation failed: {e}", error_kind="invalid")

@@ -4,7 +4,11 @@ from __future__ import annotations
 
 import pytest
 
-from bfabric.errors import BfabricTokenValidationFailedError
+from bfabric.errors import (
+    BfabricTokenExpiredError,
+    BfabricTokenInvalidError,
+    BfabricTokenValidationFailedError,
+)
 from bfabric_asgi_auth.response_renderer import ErrorResponse
 
 
@@ -34,11 +38,26 @@ def test_invalid_token_no_detail_uses_default_message() -> None:
     assert response.message == "Token has expired"
 
 
-def test_bfabric_token_validation_failed_error_carries_is_expired_flag() -> None:
-    expired = BfabricTokenValidationFailedError.expired_token()
-    invalid = BfabricTokenValidationFailedError.invalid_token()
-    plain = BfabricTokenValidationFailedError("some other failure")
+def test_token_expired_error_is_a_validation_failed_error() -> None:
+    expired = BfabricTokenExpiredError()
+    invalid = BfabricTokenInvalidError()
 
-    assert expired.is_expired is True
-    assert invalid.is_expired is False
-    assert plain.is_expired is False
+    assert isinstance(expired, BfabricTokenValidationFailedError)
+    assert isinstance(invalid, BfabricTokenValidationFailedError)
+    assert "expired" in str(expired)
+    assert "invalid" in str(invalid)
+
+
+def test_token_subclass_constructors_accept_custom_message() -> None:
+    expired = BfabricTokenExpiredError("custom: token aged out")
+    assert "custom: token aged out" in str(expired)
+
+
+def test_subclasses_are_distinguishable_via_isinstance() -> None:
+    expired = BfabricTokenExpiredError()
+    invalid = BfabricTokenInvalidError()
+
+    assert isinstance(expired, BfabricTokenExpiredError)
+    assert not isinstance(expired, BfabricTokenInvalidError)
+    assert isinstance(invalid, BfabricTokenInvalidError)
+    assert not isinstance(invalid, BfabricTokenExpiredError)
