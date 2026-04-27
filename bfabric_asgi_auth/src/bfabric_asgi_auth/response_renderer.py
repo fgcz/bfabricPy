@@ -13,6 +13,7 @@ from typing import Protocol, cast
 from asgiref.typing import ASGIReceiveCallable, ASGISendCallable, ASGISendEvent, Scope
 
 from bfabric_asgi_auth._root_path import prepend_root_path
+from bfabric_asgi_auth.token_validation.strategy import TokenErrorKind
 
 ErrorMessageHook = Callable[[str, str], str]
 """Resolve the message body for an error. ``(error_type, default_message) -> rendered``."""
@@ -61,22 +62,23 @@ class ErrorResponse:
         )
 
     @classmethod
-    def invalid_token(cls, error_kind: str = "unknown", detail: str | None = None) -> ErrorResponse:
+    def invalid_token(
+        cls, error_kind: TokenErrorKind = TokenErrorKind.UNKNOWN, detail: str | None = None
+    ) -> ErrorResponse:
         """Error response for when the token is invalid.
 
-        :param error_kind: A :class:`TokenErrorKind` value (or its string equivalent — ``expired``,
-            ``invalid``, ``network``, ``unknown``). Drives the structured ``error_type``
+        :param error_kind: A :class:`TokenErrorKind` value. Drives the structured ``error_type``
             (``token_expired`` etc.) so apps can register tailored copy.
         :param detail: Optional detail string from the validator. Appended to the message when
             present so server logs and UI can surface the underlying cause.
         """
-        kind_to_type: dict[str, tuple[str, str]] = {
-            "expired": ("token_expired", "Token has expired"),
-            "invalid": ("token_invalid", "Token validation failed"),
-            "network": ("token_network", "Could not reach B-Fabric to validate token"),
-            "unknown": ("token_unknown", "Token validation failed"),
+        kind_to_type: dict[TokenErrorKind, tuple[str, str]] = {
+            TokenErrorKind.EXPIRED: ("token_expired", "Token has expired"),
+            TokenErrorKind.INVALID: ("token_invalid", "Token validation failed"),
+            TokenErrorKind.NETWORK: ("token_network", "Could not reach B-Fabric to validate token"),
+            TokenErrorKind.UNKNOWN: ("token_unknown", "Token validation failed"),
         }
-        error_type, default_message = kind_to_type.get(error_kind, kind_to_type["unknown"])
+        error_type, default_message = kind_to_type[error_kind]
         message = f"{default_message}: {detail}" if detail else default_message
         return cls(message=message, status_code=400, error_type=error_type)
 

@@ -10,31 +10,31 @@ from bfabric.errors import (
     BfabricTokenValidationFailedError,
 )
 from bfabric_asgi_auth.response_renderer import ErrorResponse
+from bfabric_asgi_auth.token_validation.strategy import TokenErrorKind
 
 
 @pytest.mark.parametrize(
     "error_kind,expected_type",
     [
-        ("expired", "token_expired"),
-        ("invalid", "token_invalid"),
-        ("network", "token_network"),
-        ("unknown", "token_unknown"),
-        ("garbage", "token_unknown"),
+        (TokenErrorKind.EXPIRED, "token_expired"),
+        (TokenErrorKind.INVALID, "token_invalid"),
+        (TokenErrorKind.NETWORK, "token_network"),
+        (TokenErrorKind.UNKNOWN, "token_unknown"),
     ],
 )
-def test_invalid_token_error_kind_to_error_type(error_kind: str, expected_type: str) -> None:
+def test_invalid_token_error_kind_to_error_type(error_kind: TokenErrorKind, expected_type: str) -> None:
     response = ErrorResponse.invalid_token(error_kind=error_kind)
     assert response.error_type == expected_type
     assert response.status_code == 400
 
 
 def test_invalid_token_detail_is_appended_to_message() -> None:
-    response = ErrorResponse.invalid_token(error_kind="expired", detail="token too old")
+    response = ErrorResponse.invalid_token(error_kind=TokenErrorKind.EXPIRED, detail="token too old")
     assert "token too old" in response.message
 
 
 def test_invalid_token_no_detail_uses_default_message() -> None:
-    response = ErrorResponse.invalid_token(error_kind="expired")
+    response = ErrorResponse.invalid_token(error_kind=TokenErrorKind.EXPIRED)
     assert response.message == "Token has expired"
 
 

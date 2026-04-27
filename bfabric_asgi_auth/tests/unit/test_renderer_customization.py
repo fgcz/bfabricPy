@@ -10,6 +10,7 @@ from bfabric_asgi_auth.response_renderer import (
     PlainTextRenderer,
     RedirectResponse,
 )
+from bfabric_asgi_auth.token_validation.strategy import TokenErrorKind
 
 
 class _Capture:
@@ -57,7 +58,7 @@ async def test_error_message_hook_receives_error_type_and_default() -> None:
 
     capture = _Capture()
     renderer = HTMLRenderer(error_message=hook)
-    response = ErrorResponse.invalid_token(error_kind="expired")
+    response = ErrorResponse.invalid_token(error_kind=TokenErrorKind.EXPIRED)
     await renderer.render_error(response, _scope(), None, capture)  # type: ignore[arg-type]
 
     assert seen == [("token_expired", response.message)]
