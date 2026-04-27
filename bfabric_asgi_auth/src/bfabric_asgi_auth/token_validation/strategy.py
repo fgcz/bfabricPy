@@ -6,12 +6,20 @@ from typing import Annotated, Callable, Literal
 from bfabric.rest.token_data import TokenData
 from pydantic import BaseModel, Discriminator, SecretStr
 
+TokenErrorKind = Literal["expired", "invalid", "network", "unknown"]
+
 
 class TokenValidationError(BaseModel):
-    """Error outcome of token validation."""
+    """Error outcome of token validation.
+
+    :ivar error_kind: Classification used by the middleware to pick a structured ``error_type``
+        on the rendered :class:`ErrorResponse`. Apps customize copy off the resulting
+        ``error_type`` (``token_expired`` / ``token_invalid`` / ``token_network`` / ``token_unknown``).
+    """
 
     success: Literal[False] = False
     error: str
+    error_kind: TokenErrorKind = "unknown"
 
 
 class TokenValidationSuccess(BaseModel):

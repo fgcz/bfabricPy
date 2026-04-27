@@ -354,7 +354,7 @@ def connect_websocket(context, app, client, path):
 def redirected_to(context, url):
     """Check redirect location."""
     response = context["response"]
-    assert response.status_code == 302
+    assert response.status_code == 303
     assert response.headers["location"] == url
 
 
@@ -474,7 +474,7 @@ def token_data_has_field(context, field):
 def token_decoded(context):
     """Check token was decoded (verified by successful redirect)."""
     response = context["response"]
-    assert response.status_code == 302
+    assert response.status_code == 303
 
 
 @then("each user should have an independent session")
@@ -692,7 +692,7 @@ def response_status(context, status_code):
 def redirect_location_starts_with(context, prefix):
     """Check redirect location starts with prefix."""
     response = context["response"]
-    assert response.status_code == 302
+    assert response.status_code == 303
     location = response.headers.get("location", "")
     assert location.startswith(prefix), f"Expected location to start with '{prefix}', got '{location}'"
 
@@ -701,7 +701,7 @@ def redirect_location_starts_with(context, prefix):
 def redirect_location_is(context, url):
     """Check redirect location is exactly the given URL."""
     response = context["response"]
-    assert response.status_code == 302
+    assert response.status_code == 303
     location = response.headers.get("location", "")
     assert location == url, f"Expected location to be '{url}', got '{location}'"
 

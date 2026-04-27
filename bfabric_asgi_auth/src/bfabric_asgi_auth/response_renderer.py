@@ -6,11 +6,19 @@ Users only need to implement two methods: render_error and render_redirect.
 
 from __future__ import annotations
 
+import html as _html
+from collections.abc import Callable
 from typing import Protocol, cast
 
 from asgiref.typing import ASGIReceiveCallable, ASGISendCallable, ASGISendEvent, Scope
 
 from bfabric_asgi_auth._root_path import prepend_root_path
+
+ErrorMessageHook = Callable[[str, str], str]
+"""Resolve the message body for an error. ``(error_type, default_message) -> rendered``."""
+
+ErrorTitleHook = Callable[[str, int, str], str]
+"""Resolve the title for an error. ``(error_type, status_code, default_title) -> rendered``."""
 
 
 class VisibleException(RuntimeError):
@@ -53,13 +61,23 @@ class ErrorResponse:
         )
 
     @classmethod
-    def invalid_token(cls) -> ErrorResponse:
-        """Error response for when the token is invalid."""
-        return cls(
-            message="Token validation failed",
-            status_code=400,
-            error_type="invalid_token",
-        )
+    def invalid_token(cls, error_kind: str = "unknown", detail: str | None = None) -> ErrorResponse:
+        """Error response for when the token is invalid.
+
+        :param error_kind: One of ``expired``, ``invalid``, ``network``, ``unknown``. Drives the
+            structured ``error_type`` (``token_expired`` etc.) so apps can register tailored copy.
+        :param detail: Optional detail string from the validator. Appended to the message when
+            present so server logs and UI can surface the underlying cause.
+        """
+        kind_to_type = {
+            "expired": ("token_expired", "Token has expired"),
+            "invalid": ("token_invalid", "Token validation failed"),
+            "network": ("token_network", "Could not reach B-Fabric to validate token"),
+            "unknown": ("token_unknown", "Token validation failed"),
+        }
+        error_type, default_message = kind_to_type.get(error_kind, kind_to_type["unknown"])
+        message = f"{default_message}: {detail}" if detail else default_message
+        return cls(message=message, status_code=400, error_type=error_type)
 
     @classmethod
     def invalid_session(cls) -> ErrorResponse:
@@ -233,7 +251,13 @@ class PlainTextRenderer:
 
     Renders all responses as plain text with appropriate status codes.
     Uses raw ASGI protocol for full type compatibility.
+
+    :ivar redirect_status: HTTP status code used for redirects (default: 303 See Other).
+        Set to 307 to preserve request method, or 302 for legacy behaviour.
     """
+
+    def __init__(self, redirect_status: int = 303) -> None:
+        self.redirect_status: int = redirect_status
 
     async def render_error(
         self, response: ErrorResponse, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable
@@ -260,7 +284,7 @@ class PlainTextRenderer:
         location = _normalize_redirect_url(response.url, scope).encode("utf-8")
         await send(
             _send_http_header(
-                302,
+                self.redirect_status,
                 [
                     (b"location", location),
                     (b"content-length", b"0"),
@@ -290,10 +314,21 @@ class PlainTextRenderer:
 class HTMLRenderer:
     """Self-contained HTML renderer with inline CSS.
 
-    Renders errors as styled HTML pages with no external dependencies.
+    Renders errors as styled HTML pages with no external dependencies. Ships with B-Fabric
+    branding defaults (footer wordmark, accent colour, optional return-to-B-Fabric link) so
+    apps look consistent with minimal configuration. Override or disable via constructor kwargs.
 
-    :ivar page_title: Title for the HTML page
-    :ivar show_error_details: Whether to show detailed error information
+    :ivar page_title: Title for the HTML page (suffix of the ``<title>`` tag).
+    :ivar show_error_details: Whether to show the structured ``error_type`` line under the message.
+    :ivar redirect_status: HTTP status used for redirects (default ``303``).
+    :ivar bfabric_branding: When True (default), apply the bundled B-Fabric branding (wordmark
+        footer + accent colour). Set False for a plain layout.
+    :ivar bfabric_url: When set together with branding, the default footer becomes a link to this URL.
+    :ivar logo_html: Custom HTML/SVG inserted above the icon. Overrides any default.
+    :ivar footer_html: Custom HTML inserted below the message. Overrides any default footer.
+    :ivar back_link: ``(href, label)`` rendered as a styled link in the container. No default.
+    :ivar error_message: Optional callable ``(error_type, default_message) -> str`` to override copy.
+    :ivar error_title: Optional callable ``(error_type, status_code, default_title) -> str``.
     """
 
     _STATUS_TITLE_MAP: dict[int, str] = {
@@ -301,6 +336,8 @@ class HTMLRenderer:
         401: "Unauthorized",
         500: "Server Error",
     }
+
+    _ACCENT_COLOR: str = "#0b3d6e"
 
     _BASE_STYLES: str = """
         * {
@@ -336,6 +373,36 @@ class HTMLRenderer:
             font-size: 1.1rem;
             color: #495057;
         }
+        .bfabric-logo {
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            color: var(--bfabric-accent);
+            margin-bottom: 1rem;
+        }
+        .bfabric-footer {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e9ecef;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .bfabric-footer a {
+            color: var(--bfabric-accent);
+            text-decoration: none;
+        }
+        .bfabric-footer a:hover {
+            text-decoration: underline;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 1.5rem;
+            color: var(--bfabric-accent);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
     """
 
     _ICON_ERROR: str = """<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" viewBox="0 0 16 16">
@@ -348,9 +415,53 @@ class HTMLRenderer:
                 <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
             </svg>"""
 
-    def __init__(self, page_title: str = "Authentication", show_error_details: bool = True) -> None:
+    def __init__(
+        self,
+        page_title: str = "Authentication",
+        show_error_details: bool = True,
+        redirect_status: int = 303,
+        *,
+        bfabric_branding: bool = True,
+        bfabric_url: str | None = None,
+        logo_html: str | None = None,
+        footer_html: str | None = None,
+        back_link: tuple[str, str] | None = None,
+        error_message: ErrorMessageHook | None = None,
+        error_title: ErrorTitleHook | None = None,
+    ) -> None:
         self.page_title: str = page_title
         self.show_error_details: bool = show_error_details
+        self.redirect_status: int = redirect_status
+        self.bfabric_branding: bool = bfabric_branding
+        self.bfabric_url: str | None = bfabric_url
+        self.logo_html: str | None = logo_html
+        self.footer_html: str | None = footer_html
+        self.back_link: tuple[str, str] | None = back_link
+        self.error_message: ErrorMessageHook | None = error_message
+        self.error_title: ErrorTitleHook | None = error_title
+
+    def _resolve_logo(self) -> str:
+        if self.logo_html is not None:
+            return self.logo_html
+        if self.bfabric_branding:
+            return '<div class="bfabric-logo">B-FABRIC</div>'
+        return ""
+
+    def _resolve_footer(self) -> str:
+        if self.footer_html is not None:
+            return self.footer_html
+        if not self.bfabric_branding:
+            return ""
+        if self.bfabric_url:
+            href = _html.escape(self.bfabric_url, quote=True)
+            return f'<div class="bfabric-footer">Return to <a href="{href}">B-Fabric</a> to launch a session.</div>'
+        return '<div class="bfabric-footer">Return to B-Fabric to launch a session.</div>'
+
+    def _resolve_back_link(self) -> str:
+        if self.back_link is None:
+            return ""
+        href, label = self.back_link
+        return f'<a class="back-link" href="{_html.escape(href, quote=True)}">{_html.escape(label)}</a>'
 
     def _get_html_page(
         self,
@@ -360,31 +471,29 @@ class HTMLRenderer:
         icon_color: str,
         details: str = "",
     ) -> str:
-        """Generate a complete HTML page with shared styling.
-
-        :param title: Page title and heading
-        :param message: Main message to display
-        :param icon_svg: SVG icon markup
-        :param icon_color: CSS color for the icon
-        :param details: Optional additional content
-        :return: Complete HTML document
-        """
+        """Generate a complete HTML page with shared styling and branding slots."""
         icon_style = f"color: {icon_color};"
+        logo = self._resolve_logo()
+        footer = self._resolve_footer()
+        back_link = self._resolve_back_link()
         return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{title} - {self.page_title}</title>
-    <style>{self._BASE_STYLES}
+    <style>:root {{ --bfabric-accent: {self._ACCENT_COLOR}; }}{self._BASE_STYLES}
         .icon {{ {icon_style} }}</style>
 </head>
 <body>
     <div class="container">
+        {logo}
         <div class="icon">{icon_svg}</div>
         <h1>{title}</h1>
         <p>{message}</p>
         {details}
+        {back_link}
+        {footer}
     </div>
 </body>
 </html>"""
@@ -418,7 +527,17 @@ class HTMLRenderer:
     ) -> None:
         """Render self-contained HTML error page."""
         _ = scope, receive
-        title = self._STATUS_TITLE_MAP.get(response.status_code, "Error")
+        default_title = self._STATUS_TITLE_MAP.get(response.status_code, "Error")
+        title = (
+            self.error_title(response.error_type, response.status_code, default_title)
+            if self.error_title is not None
+            else default_title
+        )
+        message = (
+            self.error_message(response.error_type, response.message)
+            if self.error_message is not None
+            else response.message
+        )
         details = (
             f"<p style='color: #666; font-size: 0.9em; margin-top: 1em;'>Error type: {response.error_type}</p>"
             if self.show_error_details
@@ -426,7 +545,7 @@ class HTMLRenderer:
         )
         html = self._get_html_page(
             title=title,
-            message=response.message,
+            message=message,
             icon_svg=self._ICON_ERROR,
             icon_color="#dc3545",
             details=details,
@@ -441,7 +560,7 @@ class HTMLRenderer:
         location = _normalize_redirect_url(response.url, scope).encode("utf-8")
         await send(
             _send_http_header(
-                302,
+                self.redirect_status,
                 [
                     (b"location", location),
                     (b"content-length", b"0"),

@@ -64,7 +64,9 @@ def create_mock_validator(fixture: MockFixture | None = None) -> TokenValidatorS
                     )
                 ),
             )
+        elif token_str.startswith("expired_"):
+            return TokenValidationError(error="Token has expired", error_kind="expired")
         else:
-            return TokenValidationError(error="Invalid token")
+            return TokenValidationError(error="Invalid token", error_kind="invalid")
 
     return mock_validation

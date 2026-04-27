@@ -63,15 +63,23 @@ class BfabricInstanceNotConfiguredError(RuntimeError):
 
 
 class BfabricTokenValidationFailedError(RuntimeError):
-    """Raised when token validation fails (expired or otherwise invalid)."""
+    """Raised when token validation fails (expired or otherwise invalid).
+
+    :ivar is_expired: True if the failure was caused by an expired token, False for any other
+        validation failure (malformed, wrong instance, server-side rejection, etc.).
+    """
+
+    def __init__(self, message: str, *, is_expired: bool = False) -> None:
+        super().__init__(message)
+        self.is_expired: bool = is_expired
 
     @classmethod
     def expired_token(cls) -> BfabricTokenValidationFailedError:
-        return cls("Token validation failed: token has expired.")
+        return cls("Token validation failed: token has expired.", is_expired=True)
 
     @classmethod
     def invalid_token(cls) -> BfabricTokenValidationFailedError:
-        return cls("Token validation failed: token is invalid.")
+        return cls("Token validation failed: token is invalid.", is_expired=False)
 
 
 # TODO: Also test for response-level errors
