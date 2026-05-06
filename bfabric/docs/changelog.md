@@ -9,6 +9,10 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+### Added
+
+- `BfabricTokenExpiredError` and `BfabricTokenInvalidError` in `bfabric.errors`: specific subclasses of `BfabricTokenValidationFailedError`, which will be raised instead of the generic `BfabricTokenValidationFailedError`.
+
 ## \[1.18.0\] - 2026-04-20
 
 ### Added

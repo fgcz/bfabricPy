@@ -20,7 +20,11 @@ from pydantic import (
 from pydantic import ValidationError
 
 from bfabric.entities.core.import_entity import import_entity
-from bfabric.errors import BfabricInstanceNotConfiguredError, BfabricTokenValidationFailedError
+from bfabric.errors import (
+    BfabricInstanceNotConfiguredError,
+    BfabricTokenExpiredError,
+    BfabricTokenInvalidError,
+)
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
@@ -90,7 +94,8 @@ async def get_token_data_async(
     """Returns the token data for the provided token.
 
     Raises:
-        BfabricTokenValidationFailedError: If token validation fails due to an expired or otherwise invalid token.
+        BfabricTokenExpiredError: If the token has expired.
+        BfabricTokenInvalidError: If the token is malformed, unknown, or rejected.
     """
     url = urllib.parse.urljoin(f"{base_url}/", "rest/token/validate")
     async with contextlib.nullcontext(http_client) if http_client is not None else httpx.AsyncClient() as client:
@@ -102,8 +107,8 @@ async def get_token_data_async(
         return TokenData.model_validate_json(response.text)
     except (httpx.HTTPStatusError, ValidationError) as e:
         if "Token expired" in response.text:
-            raise BfabricTokenValidationFailedError.expired_token() from e
-        raise BfabricTokenValidationFailedError.invalid_token() from e
+            raise BfabricTokenExpiredError() from e
+        raise BfabricTokenInvalidError() from e
 
 
 def get_token_data(base_url: str, token: str) -> TokenData:
@@ -120,7 +125,8 @@ async def validate_token(
     """Validates the token according to the provided settings.
 
     Raises:
-        BfabricTokenValidationFailedError: If token validation fails due to an expired or otherwise invalid token.
+        BfabricTokenExpiredError: If the token has expired.
+        BfabricTokenInvalidError: If the token is malformed, unknown, or rejected.
         BfabricInstanceNotConfiguredError: If the caller is not configured as supported.
     """
     token_data = await get_token_data_async(
