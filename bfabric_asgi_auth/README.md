@@ -54,6 +54,27 @@ you should encode this information most likely in the path of the session witth 
 The middleware currently has the behavior, that if the session is already authenticated but with a different user or B-Fabric instance, the session
 will be evicted. This behavior can be changed.
 
+### Multiple apps on one domain
+
+When several B-Fabric apps are mounted behind one reverse proxy on the same hostname (e.g. `example.org/queue-gen` and `example.org/some-other-app`), the auth middleware itself is mount-aware via `scope["root_path"]` and needs no extra configuration. The session **cookie**, however, is owned by your ASGI session middleware (typically starlette's `SessionMiddleware`) and its defaults are not safe for this layout.
+
+Starlette's `SessionMiddleware` defaults to `session_cookie="session"` and `path="/"`. Two apps using those defaults will both write `Set-Cookie: session=…; path=/` on every response, signed with their own `secret_key`. Each app then sees the other's cookie as an invalid signature, silently discards it, and emits a fresh one — so navigating between the apps logs you out of whichever you visited first.
+
+Fix it by giving each app a unique cookie name and scoping the cookie to the mount prefix:
+
+```python
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=os.environ["SESSION_SECRET_KEY"],
+    session_cookie="bfabric_queue_gen",  # unique per app
+    path="/queue-gen",  # match the reverse-proxy mount
+    https_only=True,
+    max_age=3600,
+)
+```
+
+Both values are static — known at startup, no header plumbing required. If you run uvicorn with `--root-path /queue-gen` (or your proxy injects `X-Forwarded-Prefix`), feed the same prefix into `SessionMiddleware`'s `path` argument; `--root-path` only configures the ASGI layer and does **not** propagate to cookie config.
+
 ### Visible errors
 
 If you want to raise an error to the browser from a hook (e.g. inside `on_success`), raise a `VisibleException` with a structured `error_type`. The middleware preserves the type so the renderer can pick the right copy:
