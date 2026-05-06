@@ -2302,14 +2302,6 @@
                 }
             },
             {
-                "code": "reportUnknownMemberType",
-                "range": {
-                    "startColumn": 35,
-                    "endColumn": 68,
-                    "lineCount": 1
-                }
-            },
-            {
                 "code": "reportUnnecessaryComparison",
                 "range": {
                     "startColumn": 13,
