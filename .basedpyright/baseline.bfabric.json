@@ -2010,14 +2010,6 @@
                     "endColumn": 12,
                     "lineCount": 1
                 }
-            },
-            {
-                "code": "reportUnknownMemberType",
-                "range": {
-                    "startColumn": 12,
-                    "endColumn": 23,
-                    "lineCount": 1
-                }
             }
         ],
         "./bfabric/src/bfabric/entities/executable.py": [

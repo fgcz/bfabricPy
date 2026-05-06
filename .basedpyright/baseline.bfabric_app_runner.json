@@ -2302,14 +2302,6 @@
                 }
             },
             {
-                "code": "reportUnknownMemberType",
-                "range": {
-                    "startColumn": 35,
-                    "endColumn": 68,
-                    "lineCount": 1
-                }
-            },
-            {
                 "code": "reportUnnecessaryComparison",
                 "range": {
                     "startColumn": 13,
@@ -2936,22 +2928,6 @@
                 "range": {
                     "startColumn": 53,
                     "endColumn": 64,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportCallIssue",
-                "range": {
-                    "startColumn": 50,
-                    "endColumn": 59,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportArgumentType",
-                "range": {
-                    "startColumn": 50,
-                    "endColumn": 59,
                     "lineCount": 1
                 }
             },
