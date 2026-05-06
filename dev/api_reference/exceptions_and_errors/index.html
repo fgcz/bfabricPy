@@ -394,7 +394,9 @@ supported_bfabric_instances configuration.</p>
 <dt class="sig sig-object py" id="bfabric.errors.BfabricTokenValidationFailedError">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric.errors.</span></span><span class="sig-name descname"><span class="pre">BfabricTokenValidationFailedError</span></span><a class="headerlink" href="#bfabric.errors.BfabricTokenValidationFailedError" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RuntimeError</span></code></p>
-<p>Raised when token validation fails (expired or otherwise invalid).</p>
+<p>Raised when token validation fails. Base class for the more specific subclasses below.</p>
+<p>Catch this class to handle any validation failure; catch <code class="xref py py-class docutils literal notranslate"><span class="pre">BfabricTokenExpiredError</span></code>
+or <code class="xref py py-class docutils literal notranslate"><span class="pre">BfabricTokenInvalidError</span></code> to react to a specific kind.</p>
 </dd></dl>
 
 <section id="see-also">
