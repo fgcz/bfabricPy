@@ -26,10 +26,17 @@ def mock_find_by_login(mocker):
 class TestIsEmployee:
     """Unit tests for the pure `is_employee` helper."""
 
-    def test_empdegree_missing_raises(self, mock_bfabric_user_client, mock_bfabric_feeder_client, mock_find_by_login):
+    def test_empdegree_missing_returns_false(
+        self, mock_bfabric_user_client, mock_bfabric_feeder_client, mock_find_by_login
+    ):
         mock_find_by_login.return_value = _user()
-        with pytest.raises(ValueError, match="empdegree"):
-            is_employee(user_client=mock_bfabric_user_client, feeder_client=mock_bfabric_feeder_client)
+        assert is_employee(user_client=mock_bfabric_user_client, feeder_client=mock_bfabric_feeder_client) is False
+
+    def test_empdegree_none_returns_false(
+        self, mock_bfabric_user_client, mock_bfabric_feeder_client, mock_find_by_login
+    ):
+        mock_find_by_login.return_value = _user(empdegree=None)
+        assert is_employee(user_client=mock_bfabric_user_client, feeder_client=mock_bfabric_feeder_client) is False
 
     def test_empdegree_positive_integer_returns_true(
         self, mock_bfabric_user_client, mock_bfabric_feeder_client, mock_find_by_login
@@ -72,6 +79,17 @@ class TestUserIsEmployeeEndpoint:
 
     def test_non_employee_returns_false(self, client, mock_find_by_login):
         mock_find_by_login.return_value = _user(empdegree="0")
+
+        response = client.post(
+            "/user/is_employee",
+            json={"login": "test_user", "webservicepassword": "y" * 32},
+        )
+
+        assert response.status_code == 200
+        assert response.json() == {"is_employee": False}
+
+    def test_missing_empdegree_returns_false(self, client, mock_find_by_login):
+        mock_find_by_login.return_value = _user()
 
         response = client.post(
             "/user/is_employee",

@@ -13,6 +13,10 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 - `BfabricTokenExpiredError` and `BfabricTokenInvalidError` in `bfabric.errors`: specific subclasses of `BfabricTokenValidationFailedError`, which will be raised instead of the generic `BfabricTokenValidationFailedError`.
 
+### Fixed
+
+- `User.is_employee` returns `False` when `empdegree` is missing or `None`, instead of raising `ValueError`.
+
 ## \[1.18.0\] - 2026-04-20
 
 ### Added
