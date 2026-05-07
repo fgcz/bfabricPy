@@ -30,11 +30,9 @@ def test_is_employee(empdegree, expected, bfabric_instance):
     assert _user(bfabric_instance, empdegree=empdegree).is_employee is expected
 
 
-def test_is_employee_missing_field_raises(bfabric_instance):
-    with pytest.raises(ValueError, match="empdegree"):
-        _ = _user(bfabric_instance).is_employee
+def test_is_employee_missing_field_returns_false(bfabric_instance):
+    assert _user(bfabric_instance).is_employee is False
 
 
-def test_is_employee_none_value_raises(bfabric_instance):
-    with pytest.raises(ValueError, match="empdegree"):
-        _ = _user(bfabric_instance, empdegree=None).is_employee
+def test_is_employee_none_value_returns_false(bfabric_instance):
+    assert _user(bfabric_instance, empdegree=None).is_employee is False
