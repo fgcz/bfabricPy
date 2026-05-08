@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Changed
+
+- `_operation_copy_rsync` now uses `rsync -rltvP` instead of `-Pav`, so staged input files are owned by the user running the app_runner with umask-derived permissions, matching the existing `cp`/`scp` fallbacks.
+
 ## \[0.6.0\] - 2026-04-20
 
 ### Added
