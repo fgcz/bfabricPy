@@ -12,6 +12,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 ### Added
 
 - `BfabricTokenExpiredError` and `BfabricTokenInvalidError` in `bfabric.errors`: specific subclasses of `BfabricTokenValidationFailedError`, which will be raised instead of the generic `BfabricTokenValidationFailedError`.
+- `Job` entity wrapping the B-Fabric `job` endpoint.
 
 ### Fixed
 
