@@ -6,13 +6,23 @@ from typing import Any, Protocol, TypeGuard
 from asgiref.typing import HTTPScope, WebSocketScope
 from bfabric.rest.token_data import TokenData
 
+from bfabric_asgi_auth.response_renderer import ErrorResponse, RedirectResponse
+
 JsonRepresentable = str | int | float | bool | None | Mapping[str, "JsonRepresentable"] | Sequence["JsonRepresentable"]
 
 
 class AuthHooks(Protocol):
-    async def on_reject(self, scope: HTTPScope | WebSocketScope) -> bool:
-        """Called when a request is rejected. If return value is False and scope type is HTTP, a default message will be displayed."""
-        return False
+    async def on_reject(self, scope: HTTPScope | WebSocketScope) -> ErrorResponse | RedirectResponse | None:
+        """Called when an unauthenticated request is rejected.
+
+        Return value:
+        - ``None`` (default): the middleware renders the standard 401 unauthorized page.
+        - :class:`ErrorResponse`: the middleware renders that error response instead.
+        - :class:`RedirectResponse`: the middleware issues a redirect (e.g. to a login page).
+
+        WebSocket scopes ignore the return value and always close with code 1008.
+        """
+        return None
 
     async def on_success(self, session: dict[str, JsonRepresentable], token_data: TokenData) -> str | None:
         """Called on successful authentication. If the return value is not None, it is used as the redirect URL."""

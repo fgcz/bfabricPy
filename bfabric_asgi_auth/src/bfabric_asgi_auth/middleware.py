@@ -107,17 +107,26 @@ class BfabricAuthMiddleware:
     async def _handle_reject(
         self, scope: HTTPScope | WebSocketScope, receive: ASGIReceiveCallable, send: ASGISendCallable
     ) -> None:
-        """Handle rejection of authentication."""
-        if self.hooks:
-            handled = await self.hooks.on_reject(scope=scope)
-            if handled:
-                # If the hook handled the error, we do not display a custom message anymore.
-                return None
+        """Handle rejection of authentication.
 
+        For HTTP scopes, the ``on_reject`` hook may return an :class:`ErrorResponse` or
+        :class:`RedirectResponse` to override the default 401 page. WebSocket scopes always
+        close with code 1008 regardless of hook return value.
+        """
         if scope["type"] == "websocket":
+            if self.hooks is not None:
+                _ = await self.hooks.on_reject(scope=scope)
             return await self._send_websocket_close(send, 1008, "Not authenticated")
-        else:
-            return await self.renderer.render_error(ErrorResponse.unauthorized(), scope, receive, send)
+
+        hook_response: ErrorResponse | RedirectResponse | None = None
+        if self.hooks is not None:
+            hook_response = await self.hooks.on_reject(scope=scope)
+
+        if isinstance(hook_response, RedirectResponse):
+            return await self.renderer.render_redirect(hook_response, scope, receive, send)
+        if isinstance(hook_response, ErrorResponse):
+            return await self.renderer.render_error(hook_response, scope, receive, send)
+        return await self.renderer.render_error(ErrorResponse.unauthorized(), scope, receive, send)
 
     def _get_landing_token(self, scope: Scope) -> SecretStr | None:
         """Get the landing token from the query string."""
@@ -136,7 +145,12 @@ class BfabricAuthMiddleware:
         # Validate the token
         result = await self.token_validator(token)
         if not isinstance(result, TokenValidationSuccess):
-            return await self.renderer.render_error(ErrorResponse.invalid_token(), scope, receive, send)
+            return await self.renderer.render_error(
+                ErrorResponse.invalid_token(error_kind=result.error_kind, detail=result.error),
+                scope,
+                receive,
+                send,
+            )
 
         # Create session data
         session_data = SessionData(
