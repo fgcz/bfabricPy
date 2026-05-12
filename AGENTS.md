@@ -89,7 +89,7 @@ Handles dispatch → process → collect workflow for B-Fabric applications. Use
 - Test conftest sets `BFABRICPY_CONFIG_ENV=__MOCK` to avoid real credentials
 - Ruff linting is currently only enforced on the `bfabric` package (scripts, wrapper_creator, tests, noxfile are excluded via per-file-ignores)
 - Line length: 120 (ruff and black)
-- basedpyright uses per-package baseline files at `.basedpyright/baseline.{package}.json`
+- basedpyright uses per-package baseline files at `.basedpyright/baseline.{package}.json` — **do not edit baseline files to silence new errors**; fix the code or add a targeted `# pyright: ignore[...]` comment on the offending line. Baselines only exist to grandfather in pre-existing errors.
 - Integration tests live in a separate repository
 - Use TDD: write a failing test first, verify it fails, then fix the code, then verify the test passes
 

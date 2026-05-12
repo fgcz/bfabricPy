@@ -4,4 +4,4 @@ from bfabric.entities.core.entity import Entity
 
 
 class Job(Entity):
-    ENDPOINT = "job"
+    ENDPOINT = "job"  # pyright: ignore[reportAssignmentType, reportUnannotatedClassAttribute]
