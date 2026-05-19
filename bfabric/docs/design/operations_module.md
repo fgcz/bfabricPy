@@ -1,7 +1,5 @@
 # `bfabric.operations` Module Design
 
-> **Scope:** this document describes the steady-state shape of the module. The transient migration plan (phasing, deprecation shims, per-PR checklists) lives in `bfabric/docs/_design_notes/_operations_module_implementation_plan.md` — kept out of the published docs because it will be deleted once the migration is complete.
-
 ## Goals
 
 Provide a stable home for **named write capabilities against B-Fabric**, organized by domain. Today these capabilities are spread across `bfabric.experimental` and `bfabric_rest_proxy.feeder_operations`. Consolidating them gives bfabricPy a single, supported surface for non-trivial writes and the helpers they need (transforms, validators, diffing).
