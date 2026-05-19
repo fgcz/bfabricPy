@@ -110,7 +110,7 @@ def parquet(params: Params, *, client: Bfabric) -> None:
 
 def upload_table(table: pl.DataFrame, params: Params, client: Bfabric) -> None:
     if params.forbidden_chars:
-        check_for_invalid_characters(data=table, invalid_characters=params.forbidden_chars)
+        check_for_invalid_characters(table=table, invalid_characters=params.forbidden_chars)
 
     if params.warn_trailing_spaces:
         warn_on_trailing_spaces(table)

@@ -56,7 +56,7 @@ def main(*, client: Bfabric) -> None:
     invalid_characters = cast(str, args.invalid_characters)
 
     table = pl.read_csv(csvfile, separator=sep, has_header=has_header, infer_schema_length=None)
-    check_for_invalid_characters(data=table, invalid_characters=invalid_characters)
+    check_for_invalid_characters(table=table, invalid_characters=invalid_characters)
     dataset = create_dataset(
         client,
         table,

@@ -4,11 +4,11 @@ import polars as pl
 from loguru import logger
 
 
-def check_for_invalid_characters(data: pl.DataFrame, invalid_characters: str) -> None:
+def check_for_invalid_characters(table: pl.DataFrame, invalid_characters: str) -> None:
     """Raises a RuntimeError if any cell in the DataFrame contains an invalid character."""
     if not invalid_characters:
         return
-    invalid_columns_df = data.select(  # pyright: ignore[reportUnknownMemberType]
+    invalid_columns_df = table.select(  # pyright: ignore[reportUnknownMemberType]
         pl.col(pl.String).str.contains_any(list(invalid_characters)).any()  # pyright: ignore[reportUnknownMemberType]
     )
     if invalid_columns_df.is_empty():

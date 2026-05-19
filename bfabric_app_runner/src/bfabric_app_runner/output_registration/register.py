@@ -108,7 +108,7 @@ def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit_definition: W
     if registration is None:
         raise ValueError("workunit_definition has no registration; cannot save dataset")
     table = pl.read_csv(spec.local_path, separator=spec.separator, has_header=spec.has_header, infer_schema_length=None)
-    check_for_invalid_characters(data=table, invalid_characters=spec.invalid_characters)
+    check_for_invalid_characters(table=table, invalid_characters=spec.invalid_characters)
     _ = create_dataset(
         client,
         table,

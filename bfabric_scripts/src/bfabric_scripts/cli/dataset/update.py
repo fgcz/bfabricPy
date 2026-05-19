@@ -108,7 +108,7 @@ def parquet(params: Params, *, client: Bfabric) -> None:
 
 def _apply_update(table: pl.DataFrame, params: Params, client: Bfabric) -> None:
     if params.forbidden_chars:
-        check_for_invalid_characters(data=table, invalid_characters=params.forbidden_chars)
+        check_for_invalid_characters(table=table, invalid_characters=params.forbidden_chars)
     if params.warn_trailing_spaces:
         warn_on_trailing_spaces(table)
 
@@ -120,7 +120,7 @@ def _apply_update(table: pl.DataFrame, params: Params, client: Bfabric) -> None:
     if not params.no_confirm and not _confirm_action(preview.current, preview.changes):
         return
 
-    updated = update_dataset(client, params.dataset_id, table)
+    updated = update_dataset(client, dataset_id=params.dataset_id, table=table)
     logger.success(f"Dataset {updated.uri} updated successfully.")
 
 
