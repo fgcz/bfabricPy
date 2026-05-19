@@ -25,12 +25,13 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Deprecated
 
-- `bfabric.experimental.upload_dataset` — symbols moved to `bfabric.operations.dataset` (deprecation shim emits warnings; will be removed next release). The inner function `bfabric.experimental.upload_dataset.bfabric_save_csv2dataset` is removed outright (hard break — accessing it raises `AttributeError` with a migration hint). The CLI entry-point script `bfabric_save_csv2dataset.py` is preserved and reworked to call the new `create_dataset` API; behavior for end users is unchanged except the dataset URI is now logged via `loguru` instead of printed.
+- `bfabric.experimental.upload_dataset` — symbols moved to `bfabric.operations.dataset`; deprecation shim emits warnings and will be removed in the next release.
+- `bfabric.experimental.upload_dataset.bfabric_save_csv2dataset` (inner function) — removed outright; accessing it raises `AttributeError` with a migration hint.
 - `bfabric.experimental.update_custom_attributes` — moved to `bfabric.operations`.
 
 ### Removed
 
-- `bfabric.experimental.dataset_column_types` — the module backed an internal helper of `upload_dataset` and was never part of the public API. The symbols are now only available under the private path `bfabric.operations.dataset._column_types`.
+- `bfabric.experimental.dataset_column_types` — was an internal implementation detail of `upload_dataset`, never part of the public API; symbols now live at `bfabric.operations.dataset._column_types`.
 
 ### Fixed
 
