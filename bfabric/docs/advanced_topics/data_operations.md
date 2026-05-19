@@ -3,7 +3,10 @@
 ## Upload Datasets
 
 Create a B-Fabric dataset from a CSV (or any Polars DataFrame) by composing the
-operations in `bfabric.operations.dataset`:
+operations in `bfabric.operations.dataset`. If you only need a one-off upload from
+the command line, [`bfabric-cli dataset upload`](../user_guides/bfabric-cli/datasets)
+wraps the same API with format detection (CSV, TSV, Parquet, Excel) and sensible
+validation defaults.
 
 ```python
 import polars as pl
