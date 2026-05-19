@@ -75,7 +75,7 @@ def test_preview_dataset_update_reports_changes(mock_client, mocker):
     mock_client.reader.read_id.return_value = existing
 
     new_table = pl.DataFrame({"a": [1, 2], "b": ["x", "y"]})
-    preview = preview_dataset_update(mock_client, dataset_id=42, new_table=new_table)
+    preview = preview_dataset_update(mock_client, dataset_id=42, table=new_table)
 
     assert preview.current is existing
     assert preview.changes.column_added == ["b"]
@@ -84,4 +84,4 @@ def test_preview_dataset_update_reports_changes(mock_client, mocker):
 def test_preview_dataset_update_raises_on_missing(mock_client):
     mock_client.reader.read_id.return_value = None
     with pytest.raises(RuntimeError, match="Dataset 99 not found"):
-        preview_dataset_update(mock_client, dataset_id=99, new_table=_table())
+        preview_dataset_update(mock_client, dataset_id=99, table=_table())

@@ -112,7 +112,7 @@ def _apply_update(table: pl.DataFrame, params: Params, client: Bfabric) -> None:
     if params.warn_trailing_spaces:
         warn_on_trailing_spaces(table)
 
-    preview = preview_dataset_update(client, params.dataset_id, table)
+    preview = preview_dataset_update(client=client, dataset_id=params.dataset_id, table=table)
     if not preview.changes:
         logger.info("No changes detected.")
         return

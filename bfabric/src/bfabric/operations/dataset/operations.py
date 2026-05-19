@@ -69,9 +69,9 @@ def update_dataset(client: Bfabric, dataset_id: int, table: pl.DataFrame) -> Dat
 def preview_dataset_update(
     client: Bfabric,
     dataset_id: int,
-    new_table: pl.DataFrame,
+    table: pl.DataFrame,
 ) -> DatasetUpdatePreview:
-    """Read the existing dataset and report what would change if updated to `new_table`.
+    """Read the existing dataset and report what would change if updated to `table`.
 
     Does not write. Intended for interactive flows that want to confirm before
     calling `update_dataset`.
@@ -79,5 +79,5 @@ def preview_dataset_update(
     existing = client.reader.read_id("dataset", dataset_id, expected_type=Dataset)
     if existing is None:
         raise RuntimeError(f"Dataset {dataset_id} not found")
-    changes = identify_changes(old_df=existing.to_polars(), new_df=new_table)
+    changes = identify_changes(old_df=existing.to_polars(), new_df=table)
     return DatasetUpdatePreview(current=existing, changes=changes)
