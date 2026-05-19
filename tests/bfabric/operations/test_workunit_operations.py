@@ -8,9 +8,9 @@ from bfabric.operations.workunit import CreateWorkunitParams, create_workunit
 
 
 @pytest.fixture
-def mock_client(mocker):
+def mock_client(mocker, bfabric_instance):
     client = mocker.MagicMock(name="Bfabric")
-    client.config.base_url = "https://test.example.com/bfabric/"
+    client.config.base_url = bfabric_instance
     return client
 
 
@@ -81,7 +81,7 @@ def test_create_workunit_audit_attributes_round_trip(mock_client):
     ]
 
 
-def test_create_workunit_returned_entity_has_usable_uri(mock_client):
+def test_create_workunit_returned_entity_has_usable_uri(mock_client, bfabric_instance):
     """Returned entity must support `.uri` even without a bound client (regression smoke)."""
     mock_client.save.side_effect = [
         _initial_response(42),
@@ -93,7 +93,7 @@ def test_create_workunit_returned_entity_has_usable_uri(mock_client):
 
     workunit = create_workunit(mock_client, _params())
 
-    assert str(workunit.uri) == "https://test.example.com/bfabric/workunit/show.html?id=42"
+    assert str(workunit.uri) == f"{bfabric_instance}workunit/show.html?id=42"
 
 
 def test_create_workunit_returns_metadata_only_entity(mock_client):
