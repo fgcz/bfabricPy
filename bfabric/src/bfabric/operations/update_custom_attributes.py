@@ -14,9 +14,6 @@ def update_custom_attributes(
 ) -> ResultContainer:
     """Updates the custom attributes of the specified entity.
 
-    NOTE: Use in cache contexts may lead to unwanted consequences, if custom attributes are updated by a different
-    application.
-
     :param client: Bfabric client
     :param entity_uri: Entity URI
     :param custom_attributes: Custom attributes to update
