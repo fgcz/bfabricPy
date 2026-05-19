@@ -24,10 +24,10 @@ class PathConventionCompMS:
     """Parses paths according to the CompMS path convention (with slightly relaxed application naming)."""
 
     def __init__(self, storage: Storage) -> None:
-        self._storage = storage
+        self._storage: Storage = storage
 
     def parse_absolute_path(self, absolute_path: Path) -> ParsedPath:
-        relative_path = absolute_path.relative_to(self._storage["basepath"])
+        relative_path = absolute_path.relative_to(self._storage.base_path)
         return self.parse_relative_path(relative_path=relative_path)
 
     def parse_relative_path(self, relative_path: Path) -> ParsedPath:
@@ -36,7 +36,7 @@ class PathConventionCompMS:
             f"{self._storage['projectfolderprefix']}"
             r"(?P<container_id>\d+)/"
             r"(?P<technology>[A-Za-z]+)/"
-            r"(?P<application_name>[A-Z_]+_\d+)/"
+            r"(?P<application_name>[A-Z0-9_]+_\d+)/"
             r"[a-z]+_\d{8}(?:_[a-zA-Z0-9_]+)/"
             # TODO consider adding sample parsing later (the rule is currently broken)
             # r"[^/]*"
@@ -52,7 +52,7 @@ class PathConventionCompMS:
         application_name = match.group("application_name")
 
         return ParsedPath(
-            absolute_path=Path(self._storage["basepath"]) / relative_path,
+            absolute_path=self._storage.base_path / relative_path,
             relative_path=relative_path,
             container_id=container_id,
             technology_name=technology_name,

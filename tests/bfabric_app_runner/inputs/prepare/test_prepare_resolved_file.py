@@ -115,8 +115,8 @@ def test_operation_copy_rsync_local(mock_subprocess, logot: Logot):
     file = ResolvedFile(source={"local": "/source.txt"}, filename="destination.txt", link=False, checksum=None)
     mock_subprocess.return_value.returncode = 0
     result = _operation_copy_rsync(file=file, output_path=Path("mock_output.txt"), ssh_user=None)
-    mock_subprocess.assert_called_once_with(["rsync", "-Pav", "/source.txt", "mock_output.txt"], check=False)
-    logot.assert_logged(logged.info("rsync -Pav /source.txt mock_output.txt"))
+    mock_subprocess.assert_called_once_with(["rsync", "-rltvP", "/source.txt", "mock_output.txt"], check=False)
+    logot.assert_logged(logged.info("rsync -rltvP /source.txt mock_output.txt"))
     assert result
 
 
@@ -126,8 +126,8 @@ def test_operation_copy_rsync_ssh_default(mock_subprocess, logot: Logot):
     )
     mock_subprocess.return_value.returncode = 0
     result = _operation_copy_rsync(file=file, output_path=Path("mock_output.txt"), ssh_user=None)
-    mock_subprocess.assert_called_once_with(["rsync", "-Pav", "host:/source.txt", "mock_output.txt"], check=False)
-    logot.assert_logged(logged.info("rsync -Pav host:/source.txt mock_output.txt"))
+    mock_subprocess.assert_called_once_with(["rsync", "-rltvP", "host:/source.txt", "mock_output.txt"], check=False)
+    logot.assert_logged(logged.info("rsync -rltvP host:/source.txt mock_output.txt"))
     assert result
 
 
@@ -137,8 +137,10 @@ def test_operation_copy_rsync_ssh_custom_user(mock_subprocess, logot: Logot):
     )
     mock_subprocess.return_value.returncode = 0
     result = _operation_copy_rsync(file=file, output_path=Path("mock_output.txt"), ssh_user="user")
-    mock_subprocess.assert_called_once_with(["rsync", "-Pav", "user@host:/source.txt", "mock_output.txt"], check=False)
-    logot.assert_logged(logged.info("rsync -Pav user@host:/source.txt mock_output.txt"))
+    mock_subprocess.assert_called_once_with(
+        ["rsync", "-rltvP", "user@host:/source.txt", "mock_output.txt"], check=False
+    )
+    logot.assert_logged(logged.info("rsync -rltvP user@host:/source.txt mock_output.txt"))
     assert result
 
 

@@ -10,6 +10,46 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Added
+
+- `bfabric-cli dataset update` command: updates an existing dataset with a change preview before confirmation. Supports `csv`/`tsv`/`xlsx`/`parquet` subcommands and the same `forbidden_chars` / `warn_trailing_spaces` validation flags as `dataset upload`.
+
+### Changed
+
+- `bfabric-cli dataset upload` and `bfabric_save_csv2dataset.py` now use `bfabric.operations.dataset.create_dataset` instead of the in-place SOAP assembly that was previously in `bfabric.experimental.upload_dataset`.
+
+## \[1.15.0\] - 2026-04-20
+
+### Added
+
+- All scripts decorated with `use_client` now accept `--config-env` and `--config-file` flags, making it more reliable to target a particular bfabric instance.
+- `bfabric-cli dataset download` supports `excel` format (`.xlsx`) via the `excel` extra.
+
+### Changed
+
+- `bfabric-cli dataset download` now defaults to `auto` format, inferring the output format from the file extension.
+- Use `hashlib.file_digest` for checksum computation ([#349](https://github.com/fgcz/bfabricPy/issues/349)).
+
+### Fixed
+
+- `PathConventionMS` now handles instruments with a number in the name before the underscore character.
+
+## \[1.14.0\] - 2026-03-12
+
+### Added
+
+- `bfabric-cli api read` now supports `--return-id-only` flag to return only entity IDs instead of full data, which is faster for large queries.
+
+### Changed
+
+- `bfabric-cli api read` and `bfabric-cli executable upload` diagnostic/informational output is now routed through loguru, so it can be silenced via `BFABRICPY_LOG_LEVEL=OFF` (or `WARNING`/`ERROR`/`CRITICAL`).
+
+## \[1.13.40\] - 2025-12-16
+
+### Added
+
+- `bfabric-cli api inspect` to inspect various API endpoints directly from the command line.
+
 ## \[1.13.39\] - 2025-12-03
 
 ### Fixed

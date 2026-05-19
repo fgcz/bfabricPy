@@ -1,4 +1,5 @@
 .idea/
+.env
 .nox/
 __pycache__
 *.egg-info/
@@ -8,3 +9,4 @@ dist/
 site/
 feats/
 _build/
+uv.lock

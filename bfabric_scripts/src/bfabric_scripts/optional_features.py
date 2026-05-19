@@ -1,7 +1,7 @@
 def is_excel_available() -> bool:
     """Checks if `excel` support is available."""
     try:
-        import fastexcel
+        import fastexcel  # pyright: ignore[reportMissingImports]
 
         return True
     except ImportError:

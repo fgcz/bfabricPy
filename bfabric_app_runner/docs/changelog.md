@@ -4,6 +4,37 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Changed
+
+- `_operation_copy_rsync` now uses `rsync -rltvP` instead of `-Pav`, so staged input files are owned by the user running the app_runner with umask-derived permissions, matching the existing `cp`/`scp` fallbacks.
+- `output_registration._save_dataset` now uses `bfabric.operations.dataset.create_dataset` instead of the legacy `bfabric_save_csv2dataset` from `bfabric.experimental`.
+
+## \[0.6.0\] - 2026-04-20
+
+### Added
+
+- `action outputs` (and `action run-all`) now set the workunit status to `available` after all chunks have been processed ([#346](https://github.com/fgcz/bfabricPy/issues/346)).
+- CLI commands decorated with `use_client` now accept `--config-env` and `--config-file` flags.
+- User and developer documentation ([#474](https://github.com/fgcz/bfabricPy/pull/474)).
+
+### Changed
+
+- Checksum computation uses `hashlib.file_digest`; `bfabric_app_runner.util.checksums` has been removed ([#349](https://github.com/fgcz/bfabricPy/issues/349)).
+
+### Fixed
+
+- `SaveLinkSpec` output registration no longer crashes ([#476](https://github.com/fgcz/bfabricPy/issues/476)).
+- `ResolveBfabricResourceArchiveSpecs` no longer raises a `ValidationError` when resolving resource archives ([#432](https://github.com/fgcz/bfabricPy/issues/432)).
+- `BfabricResourceArchiveSpec` zip output is no longer written to a doubled path when `filename` contains a subdirectory component ([#323](https://github.com/fgcz/bfabricPy/issues/323)).
+
+## \[0.5.1\] - 2026-03-02
+
+### Fixed
+
+- `DispatchIndividualResources` now correctly handles resource lookups by using `read_ids` instead of `find_all`.
+
+## \[0.5.0\] - 2025-12-15
+
 ### Added
 
 - Automatic `chunks.yml` generation when the file is missing, by scanning for folders containing a `inputs.yml` file

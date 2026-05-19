@@ -328,6 +328,29 @@ def test_should_strip_root_directory_mixed_scenario():
     assert _should_strip_root_directory(files) is False
 
 
+def test_prepare_resolved_directory_subdirectory_filename(temp_zip_file, tmp_path):
+    """Regression test for issue #323: zip written to wrong path when filename has a subdirectory."""
+    directory = ResolvedDirectory(
+        source=FileSourceLocal(local=str(temp_zip_file)),
+        filename="input/result",
+        extract="zip",
+        include_patterns=[],
+        exclude_patterns=[],
+        strip_root=False,
+    )
+
+    prepare_resolved_directory(directory, tmp_path, ssh_user=None)
+
+    # Zip must land at tmp_path/input/result.zip, NOT tmp_path/input/input/result.zip
+    assert (tmp_path / "input" / "result.zip").exists()
+    assert not (tmp_path / "input" / "input").exists()
+
+    # Extraction target
+    extracted_path = tmp_path / "input" / "result"
+    assert extracted_path.exists()
+    assert (extracted_path / "root" / "file1.txt").exists()
+
+
 def test_caching_behavior_zip_file_reuse(temp_zip_file, tmp_path):
     """Test that zip file is left in working directory for caching."""
     directory = ResolvedDirectory(

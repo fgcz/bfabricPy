@@ -9,6 +9,135 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+### Added
+
+- `BfabricTokenExpiredError` and `BfabricTokenInvalidError` in `bfabric.errors`: specific subclasses of `BfabricTokenValidationFailedError` raised for the corresponding failure conditions instead of the generic error.
+- `Job` entity wrapping the B-Fabric `job` endpoint.
+- `bfabric.operations` module: the canonical location for named write capabilities against B-Fabric.
+  - `bfabric.operations.workunit.create_workunit` — creates a workunit with its associated resources, rolling back on failure; accepts caller-supplied `audit_attributes`.
+  - `bfabric.operations.dataset.{create_dataset, update_dataset, preview_dataset_update}` plus helpers `polars_to_dataset_dict`, `check_for_invalid_characters`, `warn_on_trailing_spaces`, `identify_changes`.
+  - `bfabric.operations.update_custom_attributes`.
+- `bfabric-cli dataset update` command for updating an existing dataset with a change preview. Mirrors `bfabric-cli dataset upload` with `csv`/`tsv`/`xlsx`/`parquet` subcommands and the same `forbidden_chars` / `warn_trailing_spaces` validation flags.
+
+### Changed
+
+- `bfabric_save_csv2dataset.py` — reworked to call `create_dataset`; behavior is unchanged except the dataset URI is now logged via `loguru` instead of printed.
+
+### Deprecated
+
+- `bfabric.experimental.upload_dataset` — symbols moved to `bfabric.operations.dataset`; deprecation shim emits warnings and will be removed in the next release.
+- `bfabric.experimental.upload_dataset.bfabric_save_csv2dataset` (inner function) — removed outright; accessing it raises `AttributeError` with a migration hint.
+- `bfabric.experimental.update_custom_attributes` — moved to `bfabric.operations`.
+
+### Removed
+
+- `bfabric.experimental.dataset_column_types` — was an internal implementation detail of `upload_dataset`, never part of the public API; symbols now live at `bfabric.operations.dataset._column_types`.
+
+### Fixed
+
+- `User.is_employee` returns `False` when `empdegree` is missing or `None`, instead of raising `ValueError`.
+
+## \[1.18.0\] - 2026-04-20
+
+### Added
+
+- `EntityReader.query_one`: returns at most one matching entity (or `None`).
+- `User.is_employee` property: `True` iff the user's `empdegree` parses to a value `> 0`.
+- `BfabricTokenValidationFailedError` in `bfabric.errors`: raised when token validation fails.
+- CLI commands decorated with `use_client` now accept `--config-env` and `--config-file` flags.
+
+### Changed
+
+- `EntityReader.query` accepts an `expected_type` keyword for typed narrowing of results.
+- `User.find_by_login` no longer triggers a `FindMixin` deprecation warning.
+
+### Fixed
+
+- `FindMixin.find_all` now correctly handles string IDs.
+
+## \[1.17.0\] - 2026-03-12
+
+### Added
+
+- Improved token authentication
+    - `bfabric.experimental.webapp_integration_settings`
+    - `Bfabric.connect_token`, `Bfabric.connect_token_async`: this one respects the list of allowed bfabric instances
+    - `bfabric.rest.token_data.validate_token`
+    - `Bfabric.from_token_data`: creates a new Bfabric instance from token data.
+- `ResultContainer.to_polars` now has a `flatten` parameter to flatten struct columns into individual columns.
+
+### Deprecated
+
+- `Bfabric.from_config`
+- `Bfabric.connect_webapp`
+
+### Changed
+
+- `WorkunitExecutionDefinition` no longer validates that dataset or resources are provided.
+- `setup_script_logging()` now supports a `BFABRICPY_LOG_LEVEL` environment variable (`DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`, `OFF`/`0`). The previous `BFABRICPY_DEBUG` environment variable has been removed; use `BFABRICPY_LOG_LEVEL=DEBUG` instead.
+
+### Fixed
+
+- `References` correctly handles references with extra fields like `_position`.
+- `ResultContainer.to_polars` sets the schema length to `None` to fix bugs in some cases with more than 100 items.
+
+## \[1.16.2\] - 2026-03-02
+
+### Fixed
+
+- `BfabricAuth` does not prevent users with username shorter than 3 characters from logging in.
+
+### Changed
+
+- `BfabricAPIEngineType` is a `StrEnum` now, rather than `str, Enum` subclass.
+
+## \[1.16.1\] - 2025-12-15
+
+### Fixed
+
+- `Dataset` correctly handles `None` values in items.
+
+## \[1.16.0\] - 2025-12-15
+
+### Added
+
+- `bfabric.typing` with specific types for the API request and response objects.
+- `Executable.decoded_str`, `Executable.decoded_bytes`
+- `Workunit.workunit_parameters` to list workunit context parameters
+- `ExternalJob.client_entity`
+
+### Changed
+
+- Type hints have been narrowed in the public interfaces of the following classes:
+    - `Bfabric`
+    - `ResultContainer`
+    - `References`
+    - `Entity`
+    - `EntityReader`
+    - `EngineSuds`
+    - `EngineZeep`
+- `Parameter.value` returns `""` for values not specified with `required` = `false`. This solves a few rare compatibility bugs and I do not think having the ability to distinguish between `None` and `""` makes much sense at this level.
+
+### Removed
+
+- Legacy workaround for B-Fabric with non-list `technology` field is removed. Assumed to not be breaking since for the current B-Fabric instances, this change should be transparent.
+
+### Deprecated
+
+- `Executable.decoded`: misleading name
+
+## \[1.15.1\] - 2025-12-09
+
+### Fixed
+
+- Allow `http://localhost` for EntityURIs.
+
+## \[1.15.0\] - 2025-12-09
+
+### Added
+
+- `TokenData.web_service_user` which indicates whether the user has permission to use webservices API.
+
 ## \[1.14.1\] - 2025-12-02
 
 ### Added
@@ -79,6 +208,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 - This is the last release supporting Python 3.9. From the next release onwards, Python 3.11 or higher will be required.
 - Flask is not a dependency anymore, as the dependency will be moved to bfabric-scripts.
 - Version upper bounds for dependencies have been defined.
+- More robust URL handling for token authentication.
 
 ### Fixed
 

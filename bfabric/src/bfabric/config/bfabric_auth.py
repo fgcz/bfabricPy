@@ -8,5 +8,5 @@ from pydantic import BaseModel, Field, SecretStr
 class BfabricAuth(BaseModel):
     """Holds the authentication data for the B-Fabric client."""
 
-    login: Annotated[str, Field(min_length=3)]
+    login: Annotated[str, Field(min_length=1)]
     password: Annotated[SecretStr, Field(min_length=32, max_length=32)]

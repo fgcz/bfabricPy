@@ -27,8 +27,7 @@ def prepare_resolved_directory(
 def _prepare_zip_archive(file: ResolvedDirectory, output_path: Path, ssh_user: str | None) -> None:
     """Prepare a zip archive by downloading, extracting, and filtering."""
     # Download zip to permanent location in working directory for caching
-    zip_filename = f"{file.filename}.zip"
-    zip_path = output_path.parent / zip_filename
+    zip_path = output_path.parent / f"{output_path.name}.zip"
     _download_file(file, zip_path, ssh_user)
     _extract_zip_with_filtering(zip_path, output_path, file)
 

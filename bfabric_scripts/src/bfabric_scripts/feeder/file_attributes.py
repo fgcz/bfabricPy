@@ -16,10 +16,8 @@ class FileAttributes(BaseModel):
     @classmethod
     def compute(cls, file: Path) -> FileAttributes:
         """Computes the file attributes from the file at the given path."""
-        hash = hashlib.md5()
         with file.open("rb") as f:
-            for chunk in iter(lambda: f.read(16384), b""):
-                hash.update(chunk)
+            hash = hashlib.file_digest(f, "md5")
         file_stat = file.stat()
         return FileAttributes(
             md5_checksum=hash.hexdigest(),
@@ -42,11 +40,8 @@ def get_file_attributes(file_name_or_attributes: str) -> tuple[str, int, int, st
         file_stat = file_path.stat()
         file_size = file_stat.st_size
         file_unix_timestamp = int(file_stat.st_mtime)
-        hash = hashlib.md5()
         with file_path.open("rb") as f:
-            for chunk in iter(lambda: f.read(16384), b""):
-                hash.update(chunk)
-        md5_checksum = hash.hexdigest()
+            md5_checksum = hashlib.file_digest(f, "md5").hexdigest()
         return md5_checksum, file_unix_timestamp, file_size, filename
     else:
         raise ValueError("Invalid input line format")

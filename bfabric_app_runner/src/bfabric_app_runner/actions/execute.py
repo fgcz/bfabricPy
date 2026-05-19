@@ -56,6 +56,14 @@ def execute_run(action: ActionRun, client: Bfabric) -> None:
         execute_process(action=ActionProcess.from_action_run(action, chunk=str(chunk_dir_rel)), client=client)
         execute_outputs(action=ActionOutputs.from_action_run(action, chunk=str(chunk_dir_rel)), client=client)
 
+    # chunk=None means all chunks were processed, so it's safe to finalize the workunit.
+    if action.chunk is None and not action.read_only:
+        workunit_definition = WorkunitDefinition.from_yaml(path=action.work_dir / "workunit_definition.yml")
+        assert workunit_definition.registration is not None
+        workunit_id = workunit_definition.registration.workunit_id
+        logger.info(f"Setting workunit {workunit_id} status to 'available'")
+        _ = client.save("workunit", {"id": workunit_id, "status": "available"})
+
 
 def execute_inputs(action: ActionInputs, client: Bfabric) -> None:
     """Executes an inputs action."""
@@ -123,6 +131,14 @@ def execute_outputs(action: ActionOutputs, client: Bfabric) -> None:
                     workunit_definition=workunit_definition,
                     client=client,
                 )
+
+    # chunk=None means all chunks were processed, so it's safe to finalize the workunit.
+    if action.chunk is None:
+        workunit_definition = WorkunitDefinition.from_yaml(path=action.work_dir / "workunit_definition.yml")
+        assert workunit_definition.registration is not None
+        workunit_id = workunit_definition.registration.workunit_id
+        logger.info(f"Setting workunit {workunit_id} status to 'available'")
+        _ = client.save("workunit", {"id": workunit_id, "status": "available"})
 
 
 def _register_workflow_step(

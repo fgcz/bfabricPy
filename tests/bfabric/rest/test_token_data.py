@@ -1,10 +1,11 @@
 from typing import Any
-from json import JSONDecodeError
-
+import json
+import datetime
 import pytest
 import httpx
-from pydantic import SecretStr
+from pydantic import SecretStr, ValidationError
 
+from bfabric.errors import BfabricTokenExpiredError, BfabricTokenInvalidError
 from bfabric.rest.token_data import TokenData, get_token_data, get_token_data_async
 
 
@@ -23,6 +24,7 @@ def token_data() -> TokenData:
         user="illegal_mock_user ",
         user_ws_password="password",
         token_expires="2023-10-01T00:00:00Z",
+        web_service_user="true",
         caller="https://example.com/mock-caller",
         environment="mock",
     )
@@ -37,10 +39,16 @@ def token_data_json() -> dict[str, Any]:
         "entityId": 3,
         "user": "illegal_mock_user ",
         "userWsPassword": "password",
+        "webServiceUser": "true",
         "expiryDateTime": "2023-10-01T00:00:00Z",
         "environment": "mock",
         "caller": "https://example.com/mock-caller",
     }
+
+
+@pytest.fixture
+def token_data_json_str(token_data_json) -> str:
+    return json.dumps(token_data_json)
 
 
 def test_str_strip_whitespace(token_data):
@@ -62,6 +70,21 @@ def test_model_dump(token_data):
     assert dumped["user_ws_password"] == SecretStr("password")
     assert dumped["token_expires"] == "2023-10-01T00:00:00+00:00"
     assert dumped["environment"] == "mock"
+    assert dumped["web_service_user"] == True
+
+
+def test_model_dump_by_alias(token_data):
+    dumped = token_data.model_dump(by_alias=True)
+    assert dumped["jobId"] == 1
+    assert dumped["applicationId"] == 2
+    assert dumped["entityClassName"] == "Dataset"
+    assert dumped["entityId"] == 3
+    assert dumped["user"] == "illegal_mock_user"
+    assert dumped["userWsPassword"] == SecretStr("password")
+    assert dumped["expiryDateTime"] == datetime.datetime.fromisoformat("2023-10-01T00:00:00+00:00")
+    assert dumped["environment"] == "mock"
+    assert dumped["caller"] == "https://example.com/mock-caller"
+    assert dumped["webServiceUser"] == True
 
 
 def test_load_entity(mocker, token_data):
@@ -75,10 +98,8 @@ def test_load_entity(mocker, token_data):
 
 @pytest.mark.parametrize("extra_slash", ["", "/"])
 @pytest.mark.asyncio
-async def test_get_token_data_async(mocker, token_data_json, token_data, base_url, extra_slash: str):
-    mock_response = mocker.Mock()
-    mock_response.json.return_value = token_data_json
-    mock_response.raise_for_status = mocker.Mock()
+async def test_get_token_data_async(mocker, token_data, base_url, extra_slash: str, token_data_json_str):
+    mock_response = mocker.Mock(text=token_data_json_str)
 
     mock_client = mocker.AsyncMock()
     mock_client.get.return_value = mock_response
@@ -93,8 +114,8 @@ async def test_get_token_data_async(mocker, token_data_json, token_data, base_ur
 
 
 @pytest.mark.asyncio
-async def test_get_token_data_async_when_response_error(mocker, base_url):
-    mock_response = mocker.Mock()
+async def test_get_token_data_async_when_expired_token_in_http_error(mocker, base_url):
+    mock_response = mocker.Mock(text="Token expired")
     mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
         "Mocked HTTP error", request=mocker.Mock(), response=mocker.Mock()
     )
@@ -102,25 +123,46 @@ async def test_get_token_data_async_when_response_error(mocker, base_url):
     mock_client = mocker.AsyncMock()
     mock_client.get.return_value = mock_response
 
-    with pytest.raises(httpx.HTTPStatusError):
+    with pytest.raises(BfabricTokenExpiredError, match="expired"):
         await get_token_data_async(base_url=base_url, token="mock-token", http_client=mock_client)
-
-    mock_client.get.assert_called_once_with(f"{base_url}/rest/token/validate", params={"token": "mock-token"})
 
 
 @pytest.mark.asyncio
-async def test_get_token_data_async_when_json_decode_error(mocker, base_url):
-    mock_response = mocker.Mock()
-    mock_response.raise_for_status = mocker.Mock()
-    mock_response.json.side_effect = JSONDecodeError("mocked", "mocked", 0)
+async def test_get_token_data_async_when_other_http_error(mocker, base_url):
+    mock_response = mocker.Mock(text="Some other error")
+    mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
+        "Mocked HTTP error", request=mocker.Mock(), response=mocker.Mock()
+    )
 
     mock_client = mocker.AsyncMock()
     mock_client.get.return_value = mock_response
 
-    with pytest.raises(JSONDecodeError):
+    with pytest.raises(BfabricTokenInvalidError, match="invalid"):
         await get_token_data_async(base_url=base_url, token="mock-token", http_client=mock_client)
 
-    mock_client.get.assert_called_once_with(f"{base_url}/rest/token/validate", params={"token": "mock-token"})
+
+@pytest.mark.asyncio
+async def test_get_token_data_async_when_expired_token_in_body(mocker, base_url):
+    mock_response = mocker.Mock(text="Token expired")
+    mock_response.raise_for_status = mocker.Mock()
+
+    mock_client = mocker.AsyncMock()
+    mock_client.get.return_value = mock_response
+
+    with pytest.raises(BfabricTokenExpiredError, match="expired"):
+        await get_token_data_async(base_url=base_url, token="mock-token", http_client=mock_client)
+
+
+@pytest.mark.asyncio
+async def test_get_token_data_async_when_invalid_json_body(mocker, base_url):
+    mock_response = mocker.Mock(text='{"unexpected": "schema"}')
+    mock_response.raise_for_status = mocker.Mock()
+
+    mock_client = mocker.AsyncMock()
+    mock_client.get.return_value = mock_response
+
+    with pytest.raises(BfabricTokenInvalidError, match="invalid"):
+        await get_token_data_async(base_url=base_url, token="mock-token", http_client=mock_client)
 
 
 def test_get_token_data(mocker, token_data, base_url):

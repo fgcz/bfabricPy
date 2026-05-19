@@ -64,6 +64,8 @@ class BfabricWrapperCreator:
                 "relativepath": "/dev/null",
             },
         )[0]["id"]
+        if not isinstance(resource_id, int):
+            raise ValueError(f"Unexpected type for resource_id: {type(resource_id)}")
 
         # Determine the correct path
         output_folder = self._workunit.store_output_folder
@@ -204,13 +206,16 @@ class BfabricWrapperCreator:
                 "version": "10",
             },
         )[0]
+        yaml_workunit_executable_id = yaml_workunit_executable["id"]
+        if not isinstance(yaml_workunit_executable_id, int):
+            raise ValueError(f"Unexpected type for yaml_workunit_executable_id: {type(yaml_workunit_executable_id)}")
         logger.info("Saving external job")
         yaml_workunit_externaljob = self._client.save(
             "externaljob",
             {
                 "workunitid": self.workunit_definition.registration.workunit_id,
                 "status": "new",
-                "executableid": yaml_workunit_executable["id"],
+                "executableid": yaml_workunit_executable_id,
                 "action": "WORKUNIT",
             },
         )[0]

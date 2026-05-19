@@ -1,0 +1,177 @@
+from __future__ import annotations
+
+import datetime
+from typing import Annotated, Any
+
+import fastapi
+from bfabric.config.config_data import ConfigData
+from bfabric.rest.token_data import validate_token
+from fastapi import Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.params import Depends
+from fastapi.responses import JSONResponse
+from loguru import logger
+from pydantic import BaseModel, Field, SecretStr, model_validator
+
+from bfabric import Bfabric, BfabricAuth, BfabricClientConfig
+from bfabric_rest_proxy.feeder_operations.create_workunit import CreateWorkunitParams, create_workunit
+from bfabric_rest_proxy.settings import ServerSettings
+from bfabric_rest_proxy.feeder_operations.is_employee import is_employee
+
+app = fastapi.FastAPI()
+
+
+class BfabricAuthParam(BaseModel):
+    login: str
+    webservicepassword: SecretStr
+
+
+def get_server_settings() -> ServerSettings:
+    return ServerSettings()  # pyright: ignore[reportCallIssue]
+
+
+def get_bfabric_auth(auth: BfabricAuthParam) -> BfabricAuth:
+    return BfabricAuth(login=auth.login, password=auth.webservicepassword)
+
+
+def get_bfabric_instance(settings: ServerSettingsDep, bfabric_instance: str | None = None) -> str:
+    """Specify the B-Fabric instance explicitly. Only configured B-Fabric instances are permitted."""
+    if bfabric_instance is None:
+        # use the default
+        if settings.default_bfabric_instance is None:
+            raise ValueError("server is configured to enforce explicit bfabric_instance parameter")
+        return settings.default_bfabric_instance
+
+    # check the specified value
+    if bfabric_instance not in settings.supported_bfabric_instances:
+        raise ValueError(f"Unknown bfabric instance: {bfabric_instance}")
+
+    return bfabric_instance
+
+
+def get_bfabric_user_client(bfabric_auth: BfabricAuthDep, bfabric_instance: BfabricInstanceDep) -> Bfabric:
+    client_config = BfabricClientConfig.model_validate({"base_url": bfabric_instance})
+    config_data = ConfigData(client=client_config, auth=bfabric_auth)
+    return Bfabric(config_data)
+
+
+def get_bfabric_feeder_client(settings: ServerSettingsDep, bfabric_instance: BfabricInstanceDep) -> Bfabric:
+    client_config = BfabricClientConfig.model_validate({"base_url": bfabric_instance})
+    config_data = ConfigData(
+        client=client_config,
+        auth=settings.feeder_user_credentials[bfabric_instance],
+    )
+
+    return Bfabric(config_data)
+
+
+ServerSettingsDep = Annotated[ServerSettings, Depends(get_server_settings)]
+BfabricAuthDep = Annotated[BfabricAuth, Depends(get_bfabric_auth)]
+BfabricInstanceDep = Annotated[str, Depends(get_bfabric_instance)]
+BfabricUserClientDep = Annotated[Bfabric, Depends(get_bfabric_user_client)]
+BfabricFeederClientDep = Annotated[Bfabric, Depends(get_bfabric_feeder_client)]
+
+
+class ReadParams(BaseModel):
+    endpoint: str
+    """The endpoint to read from."""
+    query: dict[str, str | int | datetime.datetime | list[str | int | datetime.datetime]] = Field(
+        default_factory=dict, max_length=100
+    )
+    """The query which will be passed as-is to the B-Fabric webservices API."""
+    page_offset: int = 0
+    """The number of items to skip, after which to start reading."""
+    page_max_results: int = 100
+    """The maximum number of results to return."""
+
+    @model_validator(mode="before")
+    @classmethod
+    def _normalize_empty_query(cls, data: Any) -> Any:  # pyright: ignore[reportAny, reportExplicitAny]
+        if isinstance(data, dict) and data.get("query") == []:  # pyright: ignore[reportUnknownMemberType]
+            data["query"] = {}
+        return data  # pyright: ignore[reportUnknownVariableType]
+
+
+@app.post("/read")
+def read(user_client: BfabricUserClientDep, params: ReadParams):
+    logger.info(f"Reading from endpoint {params.endpoint} for user {user_client.auth.login}")
+    res = user_client.read(
+        endpoint=params.endpoint,
+        obj=params.query,
+        offset=params.page_offset,
+        max_results=params.page_max_results,
+    )
+    return res.to_list_dict()
+
+
+@app.post("/create/workunit/v1")
+def post_create_workunit(
+    user_client: BfabricUserClientDep,
+    feeder_client: BfabricFeederClientDep,
+    params: CreateWorkunitParams,
+):
+    workunit = create_workunit(user_client=user_client, feeder_client=feeder_client, params=params)
+    return [{**workunit.data_dict, "uri": workunit.uri}]
+
+
+@app.post("/user/is_employee")
+def post_user_is_employee(
+    user_client: BfabricUserClientDep,
+    feeder_client: BfabricFeederClientDep,
+):
+    """Return whether the authenticated user is an employee on the current B-Fabric instance."""
+    logger.info(f"Checking employee status for user {user_client.auth.login}")
+    return {"is_employee": is_employee(user_client=user_client, feeder_client=feeder_client)}
+
+
+@app.get("/health")
+async def health(settings: ServerSettingsDep):
+    """Check server health. It also lists the known bfabric instances."""
+    return {
+        "status": "ok",
+        "date": datetime.datetime.now().isoformat(),
+        "supported_bfabric_instances": settings.supported_bfabric_instances,
+    }
+
+
+class TokenParam(BaseModel):
+    token: SecretStr
+
+
+@app.post("/validate_token")
+async def post_validate_token(token_param: TokenParam, settings: ServerSettingsDep):
+    """Validates a token and returns the token data.
+
+    This endpoint is not really necessary since it proxies a REST endpoint, but is added here for consistency to avoid
+    shiny apps having to interface with two different APIs.
+    """
+    token_data = await validate_token(token=token_param.token, settings=settings)
+    dump = token_data.model_dump(by_alias=True, mode="json")
+    dump["userWsPassword"] = token_data.user_ws_password.get_secret_value()
+    return dump
+
+
+@app.exception_handler(RequestValidationError)
+async def handle_validation_error(request: Request, exc: RequestValidationError):
+    """Handles malformed requests (invalid JSON, missing fields, etc.)."""
+    try:
+        body = await request.body()
+        body_str = body.decode(errors="replace")[:1000] if body else "(empty)"
+    except RuntimeError:
+        body_str = "(unavailable)"
+    logger.warning(
+        f"Validation error on {request.method} {request.url.path}\n  Body: {body_str}\n  Errors: {exc.errors()}"
+    )
+    return JSONResponse(status_code=422, content={"detail": exc.errors()})
+
+
+@app.exception_handler(Exception)
+async def handle_unknown_exception(request: Request, exc: Exception):
+    """Handles exceptions which are not handled by a more specific handler."""
+    try:
+        body = await request.body()
+        body_str = body.decode(errors="replace")[:1000] if body else "(empty)"
+    except RuntimeError:
+        body_str = "(unavailable)"
+    logger.exception(f"Exception on {request.method} {request.url.path}\n  Body: {body_str}")
+    return JSONResponse({"error": f"unknown exception occurred: {exc}"})

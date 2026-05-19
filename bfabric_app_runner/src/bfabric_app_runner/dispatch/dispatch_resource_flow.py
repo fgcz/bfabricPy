@@ -92,7 +92,7 @@ class ResourceDispatcher:
         attributes = [
             {
                 "resource_id": resource["id"],
-                "filename": Path(resource["relativepath"]).name,
+                "filename": resource.filename,
                 "relativepath": resource["relativepath"],
             }
             for resource in resources

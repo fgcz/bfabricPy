@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import hashlib
 from typing import TYPE_CHECKING, assert_never
 
+import polars as pl
 import yaml
 from bfabric.entities import Resource, Storage, Workunit
-from bfabric.experimental.upload_dataset import bfabric_save_csv2dataset
+from bfabric.operations.dataset import CreateDatasetParams, create_dataset
+from bfabric.utils.table_lint import check_for_invalid_characters
 from loguru import logger
 from pydantic import BaseModel
 
@@ -18,7 +21,6 @@ from bfabric_app_runner.specs.outputs_spec import (
     SpecType,
     UpdateExisting,
 )
-from bfabric_app_runner.util.checksums import md5sum
 from bfabric_app_runner.util.scp import scp
 
 if TYPE_CHECKING:
@@ -46,13 +48,14 @@ def register_file_in_workunit(
     if resource_id is not None and existing_id is not None and resource_id != existing_id:
         raise ValueError(f"Resource id {resource_id} does not match existing resource id {existing_id}")
 
-    checksum = md5sum(spec.local_path)
+    with spec.local_path.open("rb") as f:
+        checksum = hashlib.file_digest(f, "md5").hexdigest()
     output_folder = _get_output_folder(spec, workunit_definition=workunit_definition)
     resource_data = {
         "name": spec.store_entry_path.name,
         "workunitid": workunit_definition.registration.workunit_id,
         "storageid": workunit_definition.registration.storage_id,
-        "relativepath": output_folder / spec.store_entry_path,
+        "relativepath": str(output_folder / spec.store_entry_path),
         "filechecksum": checksum,
         "status": "available",
         "size": spec.local_path.stat().st_size,
@@ -102,18 +105,19 @@ def copy_file_to_storage(
 
 def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit_definition: WorkunitDefinition) -> None:
     """Saves a dataset to the bfabric."""
-    # TODO should not print to stdout in the future
-    # TODO also it should not be imported from bfabric_scripts, but rather the generic functionality should be available
-    #      in the main package
-    bfabric_save_csv2dataset(
-        client=client,
-        csv_file=spec.local_path,
-        dataset_name=spec.name or spec.local_path.stem,
-        container_id=workunit_definition.registration.container_id,
-        workunit_id=workunit_definition.registration.workunit_id,
-        sep=spec.separator,
-        has_header=spec.has_header,
-        invalid_characters=spec.invalid_characters,
+    registration = workunit_definition.registration
+    if registration is None:
+        raise ValueError("workunit_definition has no registration; cannot save dataset")
+    table = pl.read_csv(spec.local_path, separator=spec.separator, has_header=spec.has_header, infer_schema_length=None)
+    check_for_invalid_characters(table=table, invalid_characters=spec.invalid_characters)
+    _ = create_dataset(
+        client,
+        table,
+        CreateDatasetParams(
+            name=spec.name or spec.local_path.stem,
+            container_id=registration.container_id,
+            workunit_id=registration.workunit_id,
+        ),
     )
 
 
@@ -131,12 +135,15 @@ def _save_link(spec: SaveLinkSpec, client: Bfabric, workunit_definition: Workuni
     res = client.read("link", {"name": spec.name, "parentid": entity_id, "parentclassname": entity_type})
     existing_link_id = res[0]["id"] if len(res) > 0 else None
     # TODO maybe some of this logic could be extracted generically (i.e. UPDATE_EXISTING logic)
-    if existing_link_id is not None and spec.update_existing == UpdateExisting.NO:
-        msg = (
-            f"Link {spec.name} already exists for entity {entity_type} with id {entity_id}, "
-            f"but existing links should not be updated."
-        )
-        raise ValueError(msg)
+    if existing_link_id is not None:
+        if spec.update_existing == UpdateExisting.NO:
+            msg = (
+                f"Link {spec.name} already exists for entity {entity_type} with id {entity_id}, "
+                f"but existing links should not be updated."
+            )
+            raise ValueError(msg)
+        if not isinstance(existing_link_id, int):
+            raise ValueError("existing_link_id must be an integer")
     elif existing_link_id is None and spec.update_existing == UpdateExisting.REQUIRED:
         msg = (
             f"Link {spec.name} does not exist for entity {entity_type} with id {entity_id}, "
@@ -145,7 +152,12 @@ def _save_link(spec: SaveLinkSpec, client: Bfabric, workunit_definition: Workuni
         raise ValueError(msg)
 
     # Create or update the link
-    link_data = {"name": spec.name, "url": spec.url, "parentid": entity_id, "parentclassname": entity_type}
+    link_data: dict[str, str | int] = {
+        "name": spec.name,
+        "url": spec.url,
+        "parentid": entity_id,
+        "parentclassname": entity_type,
+    }
     if existing_link_id is not None:
         link_data["id"] = existing_link_id
     res = client.save("link", link_data)

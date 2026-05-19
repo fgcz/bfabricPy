@@ -3,14 +3,13 @@ from pathlib import Path
 import pytest
 
 from bfabric_scripts.feeder.path_convention_compms import PathConventionCompMS
+from bfabric.entities import Storage
 
 
 @pytest.fixture
 def mock_storage(mocker):
-    fields = {"projectfolderprefix": "x", "basepath": "/base/path"}
-    mock_storage = mocker.MagicMock(name="mock_storage_p_prefix")
-    mock_storage.__getitem__.side_effect = fields.__getitem__
-    return mock_storage
+    data_dict = {"projectfolderprefix": "x", "basepath": "/base/path"}
+    return Storage(data_dict, client=None, bfabric_instance="https://example.com/bfabric/")
 
 
 @pytest.fixture

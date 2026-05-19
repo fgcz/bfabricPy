@@ -1,10 +1,11 @@
 import base64
+import json
 from pathlib import Path
 from typing import Literal, Any
 from bfabric.entities import Executable
 import xmltodict
 import yaml
-from rich.console import Console
+from loguru import logger
 
 from bfabric import Bfabric
 from bfabric.utils.cli_integration import use_client
@@ -51,16 +52,15 @@ def cmd_executable_upload(
         msg = "Executable data must not contain an 'id' key."
         raise ValueError(msg)
 
-    console = Console()
-    console.print_json(data=executable_data)
+    logger.info("\n{}", json.dumps(executable_data, indent=2))
 
     # Perform the request
     result = client.save("executable", executable_data)
     executable = Executable(data_dict=result[0], bfabric_instance=client.config.base_url)
 
-    console.print("Executable uploaded successfully.")
-    console.print("Executable ID:", executable.id)
-    console.print("Executable URI:", executable.uri)
+    logger.info("Executable uploaded successfully.")
+    logger.info("Executable ID: {}", executable.id)
+    logger.info("Executable URI: {}", executable.uri)
 
 
 def read_executable_data(metadata_file: Path, metadata_file_format: Literal["xml", "yaml"]) -> dict[str, Any]:

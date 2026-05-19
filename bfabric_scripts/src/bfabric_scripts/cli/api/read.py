@@ -1,7 +1,7 @@
 import json
 from enum import Enum
 from pathlib import Path
-from typing import Any, Annotated
+from typing import Annotated, cast
 
 import cyclopts
 import polars as pl
@@ -10,10 +10,10 @@ import yaml
 from loguru import logger
 from pydantic import BaseModel
 from rich.console import Console
-from rich.syntax import Syntax
 from rich.table import Table
 
 from bfabric import Bfabric, BfabricClientConfig
+from bfabric.typing import ApiResponseObjectType
 from bfabric.utils.cli_integration import use_client
 from bfabric.utils.polars_utils import flatten_relations
 from bfabric_scripts.cli.api.query_repr import Query
@@ -39,6 +39,8 @@ class Params(BaseModel):
     """Selection of columns to return, comma separated list."""
     cli_max_columns: int | None = 7
     """When showing the results as a table in the console (table-rich), the maximum number of columns to show."""
+    return_id_only: bool = False
+    """If True, only returns entity IDs instead of full data (faster)."""
 
     file: Path | None = None
     """File to write the output to."""
@@ -48,10 +50,10 @@ class Params(BaseModel):
         return value[0].split(",") if (len(value) == 1 and "," in value[0]) else value
 
 
-def perform_query(params: Params, client: Bfabric, console_user: Console) -> list[dict[str, Any]]:
+def perform_query(params: Params, client: Bfabric) -> list[ApiResponseObjectType]:
     """Performs the query and returns the results."""
     query = params.query.to_dict(duplicates="collect")
-    query_stmt = f"client.read(endpoint={params.endpoint!r}, obj={query!r}, max_results={params.limit!r})"
+    query_stmt = f"client.read(endpoint={params.endpoint!r}, obj={query!r}, max_results={params.limit!r}, return_id_only={params.return_id_only!r})"
     results = eval(query_stmt)
 
     # Log query and results meta information
@@ -60,13 +62,13 @@ def perform_query(params: Params, client: Bfabric, console_user: Console) -> lis
         f"len(results) # {len(results)}\n"
         f"sorted(results.to_polars().columns) # {sorted(results.to_polars().columns)}"
     )
-    console_user.print(
-        Syntax(python_code, "python", theme="solarized-dark", background_color="default", word_wrap=True)
-    )
+    logger.info("\n{}", python_code)
     return results
 
 
-def render_output(results: list[dict[str, Any]], params: Params, client: Bfabric, console: Console) -> str | None:
+def render_output(
+    results: list[ApiResponseObjectType], params: Params, client: Bfabric, console: Console
+) -> str | None:
     """Renders the results in the specified output format."""
     if params.format == OutputFormat.TABLE_RICH:
         output_columns = _determine_output_columns(
@@ -99,11 +101,10 @@ def render_output(results: list[dict[str, Any]], params: Params, client: Bfabric
 @logger.catch(reraise=True)
 def cmd_api_read(params: Annotated[Params, cyclopts.Parameter(name="*")], *, client: Bfabric) -> None | int:
     """Reads entities from B-Fabric."""
-    console_user = Console(stderr=True)
-    console_user.print(params)
+    logger.info("{}", params)
 
     # Perform the query
-    results = perform_query(params=params, client=client, console_user=console_user)
+    results = perform_query(params=params, client=client)
 
     # Handle empty results gracefully for table format
     if not results:
@@ -113,7 +114,7 @@ def cmd_api_read(params: Annotated[Params, cyclopts.Parameter(name="*")], *, cli
         # For other formats (JSON, YAML, TSV), continue to render empty results
 
     # Print/export output
-    results = sorted(results, key=lambda x: x["id"])
+    results = sorted(results, key=lambda x: cast(int, x["id"]))
     console_out = Console()
     output = render_output(results, params=params, client=client, console=console_out)
     if params.file:
@@ -125,7 +126,7 @@ def cmd_api_read(params: Annotated[Params, cyclopts.Parameter(name="*")], *, cli
 
 
 def _determine_output_columns(
-    results: list[dict[str, Any]],
+    results: list[ApiResponseObjectType],
     columns: list[str] | None,
     max_columns: int,
     output_format: OutputFormat,
@@ -146,7 +147,7 @@ def _print_table_rich(
     config: BfabricClientConfig,
     console_out: Console,
     endpoint: str,
-    res: list[dict[str, Any]],
+    res: list[ApiResponseObjectType],
     output_columns: list[str],
 ) -> None:
     """Prints the results as a rich table to the console."""
@@ -158,9 +159,10 @@ def _print_table_rich(
             if column == "id":
                 values.append(f"[link={entry_url}]{x['id']}[/link]")
             elif column == "groupingvar":
-                values.append(x.get(column, {}).get("name", "") or "")
-            elif isinstance(x.get(column), dict):
-                values.append(str(x.get(column, {}).get("id", "")))
+                val = x.get(column)
+                values.append((val.get("name", "") if isinstance(val, dict) else "") or "")
+            elif isinstance(val := x.get(column), dict):
+                values.append(str(val.get("id", "")))
             else:
                 values.append(str(x.get(column, "")))
         table.add_row(*values)

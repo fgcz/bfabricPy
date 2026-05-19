@@ -11,7 +11,7 @@ from bfabric.entities.dataset import Dataset
 
 
 @pytest.fixture()
-def mock_data_dict() -> dict[str, Any]:
+def mock_data_dict() -> dict[str, int | list[dict[str, str]] | list[dict[str, list[dict[str, str | None]]]]]:
     return {
         "id": 1234,
         "attribute": [
@@ -21,21 +21,23 @@ def mock_data_dict() -> dict[str, Any]:
         "item": [
             {"field": [{"value": "Red", "attributeposition": "1"}, {"value": "Square", "attributeposition": "2"}]},
             {"field": [{"value": "Blue", "attributeposition": "1"}, {"value": "Circle", "attributeposition": "2"}]},
+            {"field": [{"value": None, "attributeposition": "1"}, {"attributeposition": "2"}]},
         ],
     }
 
 
 @pytest.fixture()
-def mock_data_dict_rearranged() -> dict[str, Any]:
+def mock_data_dict_rearranged() -> dict[str, int | list[dict[str, str]] | list[dict[str, list[dict[str, str]]]]]:
     return {
         "id": 1234,
         "attribute": [
-            {"name": "Color", "position": "1"},
-            {"name": "Shape", "position": "2"},
+            {"name": "Color", "position": "1", "type": "String"},
+            {"name": "Shape", "position": "2", "type": "String"},
         ],
         "item": [
             {"field": [{"value": "Square", "attributeposition": "2"}, {"value": "Red", "attributeposition": "1"}]},
             {"field": [{"value": "Circle", "attributeposition": "2"}, {"value": "Blue", "attributeposition": "1"}]},
+            {"field": [{"attributeposition": "2"}, {"value": "", "attributeposition": "1"}]},
         ],
     }
 
@@ -46,8 +48,8 @@ def mock_dataset(mock_data_dict: dict[str, Any], mock_client, bfabric_instance) 
 
 
 @pytest.fixture()
-def mock_empty_dataset(mock_client) -> Dataset:
-    return Dataset({"id": 1234, "attribute": [], "item": []}, client=mock_client)
+def mock_empty_dataset(mock_client, bfabric_instance) -> Dataset:
+    return Dataset({"id": 1234, "attribute": [], "item": []}, client=mock_client, bfabric_instance=bfabric_instance)
 
 
 def test_data_dict(mock_dataset: Dataset, mock_data_dict: dict[str, Any]) -> None:
@@ -64,16 +66,16 @@ def test_column_types(mock_dataset: Dataset) -> None:
 
 
 @pytest.mark.parametrize("rearranged_data_dict", [True, False])
-def test_to_polars(request, rearranged_data_dict: bool, mock_client) -> None:
+def test_to_polars(request, rearranged_data_dict: bool, mock_client, bfabric_instance) -> None:
     data_dict = request.getfixturevalue("mock_data_dict_rearranged" if rearranged_data_dict else "mock_data_dict")
-    mock_dataset = Dataset(data_dict, client=mock_client)
+    mock_dataset = Dataset(data_dict, client=mock_client, bfabric_instance=bfabric_instance)
     df = mock_dataset.to_polars()
     pl.testing.assert_frame_equal(
         df,
         pl.DataFrame(
             {
-                "Color": ["Red", "Blue"],
-                "Shape": ["Square", "Circle"],
+                "Color": ["Red", "Blue", ""],
+                "Shape": ["Square", "Circle", ""],
             }
         ),
     )
@@ -91,7 +93,7 @@ def test_write_csv(mocker: MockFixture, mock_dataset: Dataset) -> None:
 
 def test_get_csv(mock_dataset: Dataset) -> None:
     csv = mock_dataset.get_csv()
-    assert csv == "Color,Shape\nRed,Square\nBlue,Circle\n"
+    assert csv == 'Color,Shape\nRed,Square\nBlue,Circle\n"",""\n'
 
 
 def test_get_parquet(mock_dataset: Dataset) -> None:
@@ -101,8 +103,8 @@ def test_get_parquet(mock_dataset: Dataset) -> None:
         df,
         pl.DataFrame(
             {
-                "Color": ["Red", "Blue"],
-                "Shape": ["Square", "Circle"],
+                "Color": ["Red", "Blue", ""],
+                "Shape": ["Square", "Circle", ""],
             }
         ),
     )
@@ -120,4 +122,4 @@ def test_str(mock_empty_dataset: Dataset) -> None:
 
 
 if __name__ == "__main__":
-    pytest.main()
+    pytest.main(["-vv", __file__])

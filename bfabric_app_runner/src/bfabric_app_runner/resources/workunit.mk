@@ -92,7 +92,7 @@ process: check-runner chunks.yml
 stage: check-runner chunks.yml
 	@echo "Step 4/4: Staging results..."
 	$(RUNNER_CMD) action outputs --config "$(CONFIG_FILE)"
-	@echo "✓ Results staged"
+	@echo "✓ Results staged and workunit set to available"
 
 # Run all steps in one command
 run-all: check-runner chunks.yml

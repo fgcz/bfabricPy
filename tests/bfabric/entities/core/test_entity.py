@@ -44,7 +44,7 @@ def test_data_dict(mock_entity, mock_data_dict) -> None:
 
 
 def test_refs(mock_entity, mocker, mock_client, bfabric_instance) -> None:
-    mock_references = mocker.patch("bfabric.entities.core.entity.References")
+    mock_references = mocker.patch("bfabric.entities.core.references.References")
     assert mock_entity.refs == mock_references.return_value
     mock_references.assert_called_once_with(
         client=mock_client, bfabric_instance=bfabric_instance, data_ref=mock_entity.data_dict
@@ -143,6 +143,21 @@ class TestFindMixin:
         assert entities == {}
         mock_client.read.assert_not_called()
         mock_client.assert_not_called()
+
+    @staticmethod
+    def test_find_all_with_string_ids(mocker, mock_client, bfabric_instance) -> None:
+        uri1 = EntityUri.from_components(bfabric_instance, "testendpoint", 1)
+        uri2 = EntityUri.from_components(bfabric_instance, "testendpoint", 2)
+        mock_entity1 = Entity({"id": 1, "name": "Entity 1", "classname": "testendpoint"}, mock_client, bfabric_instance)
+        mock_entity2 = Entity({"id": 2, "name": "Entity 2", "classname": "testendpoint"}, mock_client, bfabric_instance)
+        mocker.patch.object(EntityReader, "read_ids", return_value={uri1: mock_entity1, uri2: mock_entity2})
+
+        entities = Entity.find_all(["1", "2"], mock_client)
+        assert len(entities) == 2
+        assert isinstance(entities[1], Entity)
+        assert isinstance(entities[2], Entity)
+        assert entities[1].data_dict == {"id": 1, "name": "Entity 1", "classname": "testendpoint"}
+        assert entities[2].data_dict == {"id": 2, "name": "Entity 2", "classname": "testendpoint"}
 
     @staticmethod
     def test_find_by_when_found(mocker, mock_client) -> None:

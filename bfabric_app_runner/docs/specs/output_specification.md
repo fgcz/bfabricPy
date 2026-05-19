@@ -21,6 +21,9 @@ outputs:
   local_path: /tmp/work/hello.csv
   separator: ","
   name: Hello Dataset
+- type: bfabric_link
+  name: Results Report
+  url: https://example.com/report/123
 ```
 
 ## Commands
@@ -41,12 +44,13 @@ Validation will also be performed by all other commands, so this is not strictly
 To perform the registration to B-Fabric the following can be used:
 
 ```bash
-bfabric-app-runner outputs register outputs.yml --workunit-id 1234
+bfabric-app-runner outputs register outputs.yml 1234
 ```
 
 Please note:
 
-- The workunit ID needs to be specified, so the correct information can be retrieved. (TODO but instead of the workunit id it should also be possible to pass the ref)
+- The workunit reference (an integer workunit ID or a path to a workunit definition YAML file) must
+  be specified, so the correct information can be retrieved.
 - Several actions might require a particular user to be possible, e.g. the `bfabric_copy_resource` will require a user
     with permission to create the particular file over SSH.
 

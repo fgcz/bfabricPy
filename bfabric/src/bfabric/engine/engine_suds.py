@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import copy
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import suds.transport
 from suds import MethodNotFound
@@ -15,7 +15,9 @@ from bfabric.results.result_container import ResultContainer
 
 if TYPE_CHECKING:
     from suds.serviceproxy import ServiceProxy
+
     from bfabric.config import BfabricAuth
+    from bfabric.typing import ApiRequestObjectType
 
 
 class EngineSUDS:
@@ -29,7 +31,7 @@ class EngineSUDS:
     def read(
         self,
         endpoint: str,
-        obj: dict[str, Any],
+        obj: ApiRequestObjectType,
         auth: BfabricAuth,
         page: int = 1,
         return_id_only: bool = False,
@@ -44,7 +46,7 @@ class EngineSUDS:
         :param return_id_only: whether to return only the ids of the objects
         :param include_deletable_and_updatable_fields: whether to include the deletable and updatable fields
         """
-        query = copy.deepcopy(obj)
+        query = copy.deepcopy(dict(obj))
         query["includedeletableupdateable"] = include_deletable_and_updatable_fields
 
         full_query = {
@@ -58,7 +60,13 @@ class EngineSUDS:
         response = service.read(full_query)
         return self._convert_results(response=response, endpoint=endpoint)
 
-    def save(self, endpoint: str, obj: dict, auth: BfabricAuth, method: str = "save") -> ResultContainer:
+    def save(
+        self,
+        endpoint: str,
+        obj: ApiRequestObjectType | list[ApiRequestObjectType],
+        auth: BfabricAuth,
+        method: str = "save",
+    ) -> ResultContainer:
         """Saves the provided object to the specified endpoint.
         :param endpoint: the endpoint to save to, e.g. "sample"
         :param obj: the object to save

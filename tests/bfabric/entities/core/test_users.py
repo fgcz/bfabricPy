@@ -45,12 +45,14 @@ class TestGetById:
 class TestGetByName:
     @staticmethod
     def test_not_cached(entity_reader, users, bfabric_instance, mock_user):
-        entity_reader.query.return_value = {"mocked_uri": mock_user}
+        from bfabric.entities.user import User as UserEntity
+
+        entity_reader.query_one.return_value = mock_user
         assert mock_user not in users._users
         user = users.get_by_login(bfabric_instance, login="testuser")
         assert user is mock_user
-        entity_reader.query.assert_called_once_with(
-            entity_type="user", obj={"login": "testuser"}, bfabric_instance=bfabric_instance, max_results=1
+        entity_reader.query_one.assert_called_once_with(
+            "user", {"login": "testuser"}, bfabric_instance=bfabric_instance, expected_type=UserEntity
         )
         assert mock_user in users._users
 
@@ -59,4 +61,4 @@ class TestGetByName:
         users._users.append(mock_user)
         user = users.get_by_login(bfabric_instance, login="testuser")
         assert user is mock_user
-        entity_reader.query.assert_not_called()
+        entity_reader.query_one.assert_not_called()

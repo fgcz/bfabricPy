@@ -4,10 +4,19 @@ from typing import Any
 
 
 class BfabricRequestError(RuntimeError):
-    """An error that is returned by the server in response to a full request."""
+    """An error returned by the B-Fabric server in response to a request.
+
+    Typically raised for authentication failures, permission errors, or server-side issues.
+    The error is wrapped in a RuntimeError when automatic error checking is enabled.
+
+    :ivar str message: The error message from the B-Fabric server
+    """
 
     def __init__(self, message: str) -> None:
-        # Call parent class constructor to properly initialize RuntimeError
+        """Initialize with the error message from the B-Fabric server.
+
+        :param str message: The error message returned by the B-Fabric server
+        """
         super().__init__(message)
         self.message = message
 
@@ -27,9 +36,52 @@ class BfabricRequestError(RuntimeError):
 
 
 class BfabricConfigError(RuntimeError):
-    """An error that is raised when the configuration is invalid."""
+    """Raised when the B-Fabric configuration is invalid or cannot be loaded.
+
+    Common causes:
+    - Invalid or missing configuration file
+    - Missing required credentials
+    - Invalid environment name (config_file_env)
+    """
 
     pass
+
+
+class BfabricInstanceNotConfiguredError(RuntimeError):
+    """Raised when token-based authentication is used with an unsupported B-Fabric instance.
+
+    This error occurs during token validation when the instance is not listed in the
+    supported_bfabric_instances configuration.
+    """
+
+    def __init__(self, instance_name: str) -> None:
+        """Initialize with the unsupported B-Fabric instance name.
+
+        :param str instance_name: The URL of the unsupported B-Fabric instance
+        """
+        super().__init__(f"Instance '{instance_name}' is not configured as supported.")
+
+
+class BfabricTokenValidationFailedError(RuntimeError):
+    """Raised when token validation fails. Base class for the more specific subclasses below.
+
+    Catch this class to handle any validation failure; catch :class:`BfabricTokenExpiredError`
+    or :class:`BfabricTokenInvalidError` to react to a specific kind.
+    """
+
+
+class BfabricTokenExpiredError(BfabricTokenValidationFailedError):
+    """Raised when token validation fails because the token has expired."""
+
+    def __init__(self, message: str = "Token validation failed: token has expired.") -> None:
+        super().__init__(message)
+
+
+class BfabricTokenInvalidError(BfabricTokenValidationFailedError):
+    """Raised when token validation fails because the token is malformed, unknown, or rejected."""
+
+    def __init__(self, message: str = "Token validation failed: token is invalid.") -> None:
+        super().__init__(message)
 
 
 # TODO: Also test for response-level errors

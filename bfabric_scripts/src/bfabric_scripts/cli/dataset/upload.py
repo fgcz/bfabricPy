@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from enum import Enum
 from pathlib import Path
 
@@ -5,14 +7,10 @@ import cyclopts
 import polars as pl
 from loguru import logger
 from pydantic import BaseModel, model_validator
-
 from bfabric import Bfabric
-from bfabric.experimental.upload_dataset import (
-    check_for_invalid_characters,
-    polars_to_bfabric_dataset,
-    warn_on_trailing_spaces,
-)
+from bfabric.operations.dataset import CreateDatasetParams, create_dataset
 from bfabric.utils.cli_integration import use_client
+from bfabric.utils.table_lint import check_for_invalid_characters, warn_on_trailing_spaces
 from bfabric_scripts.optional_features import decorate_if_excel
 
 
@@ -108,19 +106,18 @@ def parquet(params: Params, *, client: Bfabric) -> None:
 
 def upload_table(table: pl.DataFrame, params: Params, client: Bfabric) -> None:
     if params.forbidden_chars:
-        check_for_invalid_characters(data=table, invalid_characters=params.forbidden_chars)
+        check_for_invalid_characters(table=table, invalid_characters=params.forbidden_chars)
 
     if params.warn_trailing_spaces:
-        warn_on_trailing_spaces(table)
+        warn_on_trailing_spaces(table=table)
 
-    obj = polars_to_bfabric_dataset(table)
-    obj["name"] = params.dataset_name or params.file.stem
-    obj["containerid"] = params.container_id
-    if params.workunit_id is not None:
-        obj["workunitid"] = params.workunit_id
-    endpoint = "dataset"
-    res = client.save(endpoint=endpoint, obj=obj)
-    logger.success(
-        f"Dataset {res[0]['id']} with name {res[0]['name']} in container {res[0]['container']['id']}"
-        f" has been created successfully."
+    dataset = create_dataset(
+        client=client,
+        table=table,
+        params=CreateDatasetParams(
+            name=params.dataset_name or params.file.stem,
+            container_id=params.container_id,
+            workunit_id=params.workunit_id,
+        ),
     )
+    logger.success(f"Dataset {dataset.uri} successfully created.")

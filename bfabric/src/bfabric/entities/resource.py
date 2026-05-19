@@ -7,9 +7,9 @@ from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.has_one import HasOne
 
 if TYPE_CHECKING:
+    from bfabric.entities import Sample
     from bfabric.entities.storage import Storage
     from bfabric.entities.workunit import Workunit
-    from bfabric.entities import Sample
 
 
 class Resource(Entity):
@@ -22,7 +22,10 @@ class Resource(Entity):
     @property
     def storage_relative_path(self) -> Path:
         """Returns the relative path of the resource in the storage as a Path object."""
-        return Path(self["relativepath"].lstrip("/"))
+        relative_path = self["relativepath"]
+        if not isinstance(relative_path, str):
+            raise ValueError("relativepath value must be a string")
+        return Path(relative_path.lstrip("/"))
 
     @property
     def storage_absolute_path(self) -> Path:
@@ -34,4 +37,4 @@ class Resource(Entity):
         """Returns the filename of the actual path, i.e. not necessarily the resource name but rather the name
         as the file is stored.
         """
-        return self["relativepath"].split("/")[-1]
+        return self.storage_relative_path.name

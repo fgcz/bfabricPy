@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING, overload
+from typing import TYPE_CHECKING, overload
 
 from loguru import logger
 
@@ -8,8 +8,11 @@ import bfabric.results.response_format_dict as formatter
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+
     import polars
+
     from bfabric.errors import BfabricRequestError
+    from bfabric.typing import ApiResponseObjectType
 
 
 class ResultContainer:
@@ -17,32 +20,32 @@ class ResultContainer:
 
     def __init__(
         self,
-        results: list[dict[str, Any]],
+        results: list[ApiResponseObjectType],
         total_pages_api: int | None,
         errors: list[BfabricRequestError],
     ) -> None:
         """
-        :param results:    List of BFabric query results
+        :param results: List of BFabric query results
         :param total_pages_api:  Maximal number of pages that were available for reading.
             NOTE: User may have requested to cap the total number of results. Thus, it may be of interest to know
             the (approximate) total number of results the API had for the query. The total number of results is
             somewhere between max_pages * (BFABRIC_QUERY_LIMIT - 1) and max_pages * BFABRIC_QUERY_LIMIT
-        :param errors:     List of errors that occurred during the query (if any)
+        :param errors: List of errors that occurred during the query (if any)
         """
         self.results = results
         self._total_pages_api = total_pages_api
         self._errors = errors
 
     @overload
-    def __getitem__(self, idx: int) -> dict[str, Any]: ...
+    def __getitem__(self, idx: int) -> ApiResponseObjectType: ...
 
     @overload
-    def __getitem__(self, idx: slice) -> list[dict[str, Any]]: ...
+    def __getitem__(self, idx: slice) -> list[ApiResponseObjectType]: ...
 
-    def __getitem__(self, idx: int | slice) -> dict[str, Any] | list[dict[str, Any]]:
+    def __getitem__(self, idx: int | slice) -> ApiResponseObjectType | list[ApiResponseObjectType]:
         return self.results[idx]
 
-    def __iter__(self) -> Iterator[dict[str, Any]]:
+    def __iter__(self) -> Iterator[ApiResponseObjectType]:
         return iter(self.results)
 
     def __repr__(self) -> str:
@@ -100,7 +103,7 @@ class ResultContainer:
         """Number of pages available from the API."""
         return self._total_pages_api
 
-    def to_list_dict(self, drop_empty: bool = False) -> list[dict[str, Any]]:
+    def to_list_dict(self, drop_empty: bool = False) -> list[ApiResponseObjectType]:
         """
         Converts the results to a list of dictionaries.
         :param drop_empty: If True, empty attributes will be removed from the results
@@ -110,10 +113,16 @@ class ResultContainer:
         else:
             return self.results
 
-    def to_polars(self, drop_empty: bool = False) -> polars.DataFrame:
+    def to_polars(self, drop_empty: bool = False, flatten: bool = False) -> polars.DataFrame:
         """Returns the results as a polars DataFrame.
         :param drop_empty: If True, empty attributes will be removed from the results
+        :param flatten: If True, flatten struct columns into individual columns
         """
         import polars
 
-        return polars.DataFrame(self.to_list_dict(drop_empty=drop_empty))
+        from bfabric.utils.polars_utils import flatten_relations
+
+        df = polars.from_dicts(self.to_list_dict(drop_empty=drop_empty), infer_schema_length=None)
+        if flatten:
+            df = flatten_relations(df)
+        return df
