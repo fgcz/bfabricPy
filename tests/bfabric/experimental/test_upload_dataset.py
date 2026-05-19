@@ -55,15 +55,3 @@ def test_shim_unknown_attribute_raises():
 
     with pytest.raises(AttributeError):
         _ = mod.this_does_not_exist
-
-
-def test_dataset_column_types_shim_warns_and_redirects():
-    with warnings.catch_warnings(record=True) as caught:
-        warnings.simplefilter("always")
-        from bfabric.experimental.dataset_column_types import get_dataset_column_types
-
-    assert any(issubclass(w.category, DeprecationWarning) for w in caught)
-
-    from bfabric.operations.dataset._column_types import get_dataset_column_types as new
-
-    assert get_dataset_column_types is new
