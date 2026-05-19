@@ -39,6 +39,14 @@ def create_workunit(
     `audit_attributes` is written verbatim as workunit custom attributes; this
     operation has no opinion about what keys are used. On any failure after the
     initial workunit creation, the workunit is flipped to status "failed".
+
+    The returned `Workunit` is metadata-only — it carries no bound client, so
+    lazy reference resolution (`.refs`, `.resources`, ...) is unavailable on the
+    returned object. This avoids accidentally leaking the (potentially elevated)
+    `client` credentials used to perform the write into subsequent reads via
+    the returned entity. Callers that need a navigable workunit should re-read
+    it with the appropriate client, e.g.
+    `client.reader.read_id("workunit", wu.id, expected_type=Workunit)`.
     """
     workunit_id = _create_workunit_initial(client=client, params=params, audit_attributes=audit_attributes or {})
     try:
@@ -49,7 +57,9 @@ def create_workunit(
         if params.links:
             _create_workunit_links(client=client, workunit_id=workunit_id, links=params.links)
         return _complete_workunit(client=client, workunit_id=workunit_id)
-    except BaseException:  # noqa: BLE001 — see Failure cleanup pattern in operations_module.md
+    except BaseException:
+        # Catch BaseException (not Exception) so KeyboardInterrupt/SystemExit also trigger cleanup —
+        # see "Failure cleanup pattern" in operations_module.md.
         try:
             _ = client.save("workunit", {"id": workunit_id, "status": "failed"})
         except BaseException as cleanup_error:  # noqa: BLE001 — cleanup must not mask the original error
@@ -70,7 +80,7 @@ def _create_workunit_initial(client: Bfabric, params: CreateWorkunitParams, audi
             "inputresourceid": params.input_resource_ids,
         },
     )
-    return Workunit(result[0], client=client, bfabric_instance=client.config.base_url).id
+    return Workunit(result[0], client=None, bfabric_instance=client.config.base_url).id
 
 
 def _create_workunit_resources(client: Bfabric, workunit_id: int, resources: dict[str, str]) -> None:
@@ -102,4 +112,4 @@ def _create_workunit_links(client: Bfabric, workunit_id: int, links: dict[str, s
 
 def _complete_workunit(client: Bfabric, workunit_id: int) -> Workunit:
     result = client.save("workunit", {"id": workunit_id, "status": "available"})
-    return Workunit(result[0], client=client, bfabric_instance=client.config.base_url)
+    return Workunit(result[0], client=None, bfabric_instance=client.config.base_url)

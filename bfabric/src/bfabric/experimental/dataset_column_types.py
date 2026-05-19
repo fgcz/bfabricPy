@@ -17,8 +17,11 @@ def __getattr__(name: str) -> Any:  # pyright: ignore[reportAny, reportExplicitA
     if name in _NEW_LOCATIONS:
         module_path, new_name = _NEW_LOCATIONS[name]
         warnings.warn(
-            f"bfabric.experimental.dataset_column_types.{name} moved to {module_path}.{new_name} "
-            "(now private); update imports — this shim will be removed in the next release.",
+            f"bfabric.experimental.dataset_column_types.{name} is no longer part of the public API "
+            "(it backed an internal helper of upload_dataset). The shim still resolves to the new "
+            f"internal location ({module_path}.{new_name}) during this release but will be removed "
+            "in the next release. If you depend on this symbol externally, please open an issue so "
+            "we can promote it back to public.",
             DeprecationWarning,
             stacklevel=2,
         )

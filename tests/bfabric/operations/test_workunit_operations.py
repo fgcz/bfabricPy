@@ -10,16 +10,16 @@ from bfabric.operations.workunit import CreateWorkunitParams, create_workunit
 @pytest.fixture
 def mock_client(mocker):
     client = mocker.MagicMock(name="Bfabric")
-    client.config.base_url = "https://test.bfabric.example.com"
+    client.config.base_url = "https://test.example.com/bfabric/"
     return client
 
 
 def _initial_response(workunit_id: int = 42) -> list[dict]:
-    return [{"id": workunit_id, "_entityclass": "workunit"}]
+    return [{"id": workunit_id, "classname": "workunit", "_entityclass": "workunit"}]
 
 
 def _complete_response(workunit_id: int = 42) -> list[dict]:
-    return [{"id": workunit_id, "status": "available", "_entityclass": "workunit"}]
+    return [{"id": workunit_id, "classname": "workunit", "status": "available", "_entityclass": "workunit"}]
 
 
 def _params(**overrides) -> CreateWorkunitParams:
@@ -79,6 +79,42 @@ def test_create_workunit_audit_attributes_round_trip(mock_client):
         {"name": "WebApp User", "value": "alice"},
         {"name": "Source", "value": "proxy"},
     ]
+
+
+def test_create_workunit_returned_entity_has_usable_uri(mock_client):
+    """Returned entity must support `.uri` even without a bound client (regression smoke)."""
+    mock_client.save.side_effect = [
+        _initial_response(42),
+        [{}],
+        [{}],
+        [{}],
+        _complete_response(42),
+    ]
+
+    workunit = create_workunit(mock_client, _params())
+
+    assert str(workunit.uri) == "https://test.example.com/bfabric/workunit/show.html?id=42"
+
+
+def test_create_workunit_returns_metadata_only_entity(mock_client):
+    """The returned Workunit must not carry a bound client — see operations_module.md.
+
+    Lazy reference resolution against the (potentially privileged) `client` used
+    to perform the write would silently leak its credentials into reads done
+    via the returned entity. We guard against the regression by asserting
+    `_client is None` on the result.
+    """
+    mock_client.save.side_effect = [
+        _initial_response(7),
+        [{}],
+        [{}],
+        [{}],
+        _complete_response(7),
+    ]
+
+    workunit = create_workunit(mock_client, _params())
+
+    assert workunit._client is None
 
 
 def test_create_workunit_audit_attributes_default_empty(mock_client):

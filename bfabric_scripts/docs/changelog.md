@@ -12,7 +12,7 @@ Versioning currently follows `X.Y.Z` where
 
 ### Added
 
-- `bfabric-cli dataset update` command: updates an existing dataset from an Excel file with a change preview before confirmation.
+- `bfabric-cli dataset update` command: updates an existing dataset with a change preview before confirmation. Supports `csv`/`tsv`/`xlsx`/`parquet` subcommands and the same `forbidden_chars` / `warn_trailing_spaces` validation flags as `dataset upload`.
 
 ### Changed
 

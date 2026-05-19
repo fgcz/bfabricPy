@@ -25,12 +25,12 @@ def update_custom_attributes(
     entity_uri = EntityUri(entity_uri)
 
     if replace:
-        attributes_dict = {}
+        attributes_dict: dict[str, str] = {}
     else:
         entity = client.reader.read_uri(entity_uri)
         if entity is None:
             raise RuntimeError(f"Entity {entity_uri} not found")
-        attributes_dict = entity.custom_attributes
+        attributes_dict = dict(entity.custom_attributes)
     attributes_dict.update(custom_attributes)
     attributes_list = [{"name": key, "value": value} for key, value in attributes_dict.items()]
     return client.save(

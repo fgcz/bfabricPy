@@ -36,6 +36,11 @@ def create_dataset(
     Validation (forbidden characters, trailing whitespace) is the caller's
     responsibility — apply `check_for_invalid_characters` / `warn_on_trailing_spaces`
     beforehand if needed.
+
+    The returned `Dataset` reflects the SOAP save response (typically metadata
+    only — no attribute/item content). Re-read with
+    `client.reader.read_id("dataset", ds.id, expected_type=Dataset)` if you
+    need the full payload back.
     """
     obj = polars_to_dataset_dict(table)
     obj["name"] = params.name
@@ -50,6 +55,10 @@ def update_dataset(client: Bfabric, dataset_id: int, table: pl.DataFrame) -> Dat
     """Replace the content of an existing dataset with `table`.
 
     Does not diff or confirm. For interactive flows, call `preview_dataset_update` first.
+
+    Like `create_dataset`, the returned `Dataset` reflects the SOAP save response
+    (typically metadata only). Re-read via `client.reader.read_id` if you need
+    the post-update content.
     """
     obj = polars_to_dataset_dict(table)
     obj["id"] = dataset_id

@@ -35,10 +35,7 @@ def _polars_column_to_bfabric_type(
     dtype = dataframe[column_name].dtype
     if dtype.is_integer():
         return "Integer"
-    elif isinstance(dtype, pl.String):
-        return "String"
-    else:
-        return "String"
+    return "String"
 
 
 def polars_to_dataset_dict(data: pl.DataFrame) -> dict[str, ApiRequestDataType]:

@@ -15,7 +15,7 @@ from bfabric.operations.dataset import (
 @pytest.fixture
 def mock_client(mocker):
     client = mocker.MagicMock(name="Bfabric")
-    client.config.base_url = "https://test.bfabric.example.com"
+    client.config.base_url = "https://test.example.com/bfabric/"
     return client
 
 
@@ -24,7 +24,7 @@ def _table() -> pl.DataFrame:
 
 
 def test_create_dataset_payload_shape(mock_client):
-    mock_client.save.return_value = [{"id": 11, "_entityclass": "dataset"}]
+    mock_client.save.return_value = [{"id": 11, "classname": "dataset", "_entityclass": "dataset"}]
     dataset = create_dataset(
         mock_client,
         _table(),
@@ -40,15 +40,26 @@ def test_create_dataset_payload_shape(mock_client):
     assert "attribute" in obj and "item" in obj
 
 
+def test_create_dataset_returned_entity_has_usable_uri(mock_client):
+    """Returned dataset must expose a working `.uri` (regression smoke for SOAP response shape)."""
+    mock_client.save.return_value = [{"id": 11, "classname": "dataset", "_entityclass": "dataset"}]
+    dataset = create_dataset(
+        mock_client,
+        _table(),
+        CreateDatasetParams(name="ds1", container_id=100),
+    )
+    assert str(dataset.uri) == "https://test.example.com/bfabric/dataset/show.html?id=11"
+
+
 def test_create_dataset_without_workunit(mock_client):
-    mock_client.save.return_value = [{"id": 12, "_entityclass": "dataset"}]
+    mock_client.save.return_value = [{"id": 12, "classname": "dataset", "_entityclass": "dataset"}]
     create_dataset(mock_client, _table(), CreateDatasetParams(name="ds", container_id=1))
     _, obj = mock_client.save.call_args.args
     assert "workunitid" not in obj
 
 
 def test_update_dataset_payload_shape(mock_client):
-    mock_client.save.return_value = [{"id": 11, "_entityclass": "dataset"}]
+    mock_client.save.return_value = [{"id": 11, "classname": "dataset", "_entityclass": "dataset"}]
     updated = update_dataset(mock_client, dataset_id=11, table=_table())
 
     assert updated.id == 11

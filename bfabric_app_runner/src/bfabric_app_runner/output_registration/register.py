@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 from typing import TYPE_CHECKING
 
 import polars as pl
@@ -20,7 +21,6 @@ from bfabric_app_runner.specs.outputs_spec import (
     SpecType,
     UpdateExisting,
 )
-import hashlib
 from bfabric_app_runner.util.scp import scp
 
 if TYPE_CHECKING:

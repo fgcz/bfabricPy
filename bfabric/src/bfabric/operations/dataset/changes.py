@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import polars as pl
 from polars.exceptions import InvalidOperationError
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class DatasetChanges(BaseModel):
@@ -12,19 +12,19 @@ class DatasetChanges(BaseModel):
     and notify a user about what has changed at a very basic level.
     """
 
-    column_position: list[str] = []
+    column_position: list[str] = Field(default_factory=list)
     """List of columns whose position has changed."""
 
-    column_added: list[str] = []
+    column_added: list[str] = Field(default_factory=list)
     """List of columns added to the dataframe."""
 
-    column_removed: list[str] = []
+    column_removed: list[str] = Field(default_factory=list)
     """List of columns removed from the dataframe."""
 
     row_count: tuple[int, int] | None = None
     """Tuple of (row count old, row count new) when the number of rows has changed."""
 
-    changed_values: list[str] = []
+    changed_values: list[str] = Field(default_factory=list)
     """List of columns with changed values."""
 
     def __bool__(self) -> bool:
@@ -43,7 +43,7 @@ class DatasetChanges(BaseModel):
         if value is not None:
             if value[0] == value[1]:
                 raise ValueError("When the tuple is set, it must be two distinct values")
-            if value[0] < 0 or value[1] < 0:
+            if min(value) < 0:
                 raise ValueError("Row counts must be non-negative")
         return value
 

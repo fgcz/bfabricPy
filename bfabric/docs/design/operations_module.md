@@ -87,6 +87,7 @@ What each domain decides for itself:
 - Whether to expose pure transforms, validators, or diff helpers (some domains have them, others don't).
 - Whether to take an `audit_attributes` parameter (only delegated writes need one; see workunit example).
 - Internal organization within the sub-package.
+- **Whether the payload is bundled into the params model or passed separately.** Dataset operations take the Polars DataFrame as a separate positional argument and the metadata as a pydantic params model; workunit bundles everything into the params model. The split is deliberate: the DataFrame is a large payload validated by polars, while the dataset metadata is small and validated by pydantic — keeping them apart avoids round-tripping a DataFrame through pydantic and lets previews/dry-runs share the same params model without re-parsing the data. Workunit has no comparable payload — every input is small metadata — so a single params model is the cleaner shape there.
 
 ## Worked example 1 — workunit (single-capability domain)
 
