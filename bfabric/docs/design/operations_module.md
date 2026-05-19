@@ -29,15 +29,3 @@ Within those rules each domain has latitude over its internal organization, whic
 Several things look like operations-module concerns but are deliberately left to consumers, recorded here so a future maintainer doesn't pull them in.
 
 **Authorization** stays in each consumer — every consumer applies its own check before invoking an operation, and the operations module assumes the caller has already decided the write is allowed. **Choosing audit attribute keys** is a deployment decision: operations stamp whatever `dict[str, str]` they're given. **Idempotency / retry safety** is also out of scope — retrying a compound create after a transient error may produce a duplicate, and a consumer that needs deduplication adds a wrapper that searches first; building idempotency in would require a stable client-side key that B-Fabric does not currently expose. **Orphan child cleanup** on failure is similarly the consumer's call: children attached to a failed parent stay attached and the failed-status mark is enough for diagnosis, but a consumer that wants stricter cleanup (e.g. a sandbox container) does it itself.
-
-## Open questions and future work
-
-**OAuth scoping and authorization.** An OAuth extension is on the roadmap. Today the REST proxy's authorization check is a SOAP read against the target entity using the user's credentials; under OAuth, authorization may shift to token-scope inspection without a SOAP call. This is expected to affect the proxy and other consumers — not `bfabric.operations` itself, since operations carry `audit_attributes` (audit identity) rather than credentials (authorization). The verification when OAuth lands is whether the operation signatures still hold without changes; the expected answer is yes, and if not the split between operations and authorize was wrong and the design needs revisiting.
-
-A handful of extensions have been considered but not committed:
-
-- **More domains** (charging, link creation, sample registration) — each evaluated against the inclusion criterion when it arrives.
-- **A shared saga primitive** — only if a compound write arrives that needs reverse-order compensation across multiple distinct steps. The per-operation try/except pattern above is sufficient until then.
-- **A typed `AuditAttributes` model** — if the same audit-attribute keys end up stamped by multiple operations and the dict-of-str shape starts looking ad-hoc, a small pydantic model could replace it. Revisit when a second delegated write appears.
-- **Stateful write helpers** (e.g. a Job logger that batches writes to `job.logthis`) — don't fit the current inclusion criterion. If they arrive, either the criterion expands or they get their own home (e.g. `bfabric.logging.job`).
-- **A "conflict policy" parameter for compound operations.** `bfabric_app_runner` uses an `UpdateExisting` enum (`NO` / `IF_EXISTS` / `REQUIRED`) when registering resources and links. If the same shape appears outside app_runner, the enum (or an equivalent vocabulary) may move here so consumers can share it. Today it stays in app_runner.
