@@ -6,17 +6,12 @@ from typing import ClassVar, Literal
 
 from pydantic import BaseModel, model_validator
 
-from bfabric_app_runner.specs.outputs_spec import UpdateExisting
-
 
 class IncludeDatasetRef(BaseModel):
     Formats: ClassVar = Literal["csv", "tsv", "parquet"]
 
     local_path: Path
     format: Formats | None = None
-
-    # TODO decide if this is the correct place or it should be a level higher
-    update_existing: UpdateExisting = UpdateExisting.IF_EXISTS
 
     def get_format(self) -> Formats:
         """Returns the format inferring the type from the filename if not specified explicitly."""
@@ -35,18 +30,16 @@ class IncludeDatasetRef(BaseModel):
 
 class IncludeResourceRef(BaseModel):
     store_entry_path: Path
-    # TODO None vs empty string
-    anchor: str | None = None
+    anchor: str = ""
     metadata: dict[str, str] = {}
 
 
 class BfabricOutputDataset(BaseModel):
-    # TODO since there is only one output annotation, we cannot set the default value yet, because
-    #      adding more types later would be a breaking change otherwise.
-    # type: Literal["bfabric_output_dataset"] = "bfabric_output_dataset"
+    # Single discriminator value for now; when a second annotation type lands, add a default and migrate consumers.
     type: Literal["bfabric_output_dataset"]
-    include_tables: list[IncludeDatasetRef]
-    include_resources: list[IncludeResourceRef]
+    name: str | None = None
+    include_tables: list[IncludeDatasetRef] = []
+    include_resources: list[IncludeResourceRef] = []
 
 
 AnnotationType = BfabricOutputDataset

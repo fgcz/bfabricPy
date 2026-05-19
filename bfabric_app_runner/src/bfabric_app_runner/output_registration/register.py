@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+from pathlib import Path  # noqa: TC003  # used at runtime by RegisterAllOutputs pydantic model
 from typing import TYPE_CHECKING, assert_never
 
 import polars as pl
@@ -24,8 +25,6 @@ from bfabric_app_runner.specs.outputs_spec import (
 from bfabric_app_runner.util.scp import scp
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from bfabric import Bfabric
     from bfabric.experimental.workunit_definition import WorkunitDefinition
 
@@ -195,8 +194,6 @@ def register_all(
     storage = _get_storage(client, force_storage, specs_list, workunit_definition)
     logger.info(f"Using storage: {storage}")
 
-    # TODO maybe the naming "created" is a bit confusing, because it could have existed beforehand
-    # created_resources_mapping: dict[Path, int] = {}
     outputs = RegisterAllOutputs()
 
     for spec in specs_list:
@@ -229,10 +226,6 @@ def register_all(
 
     return outputs
 
-    # TODO register the dataset... now this gets tricky, how should we handle the case when there is existing dataset
-    #      - it could be modifiable or it could not be modifiable anymore
-    #  -> recompute and then have a logic for handling
-
 
 def _get_storage(
     client: Bfabric, force_storage: Path | None, specs_list: list[SpecType], workunit_definition: WorkunitDefinition
@@ -247,20 +240,34 @@ def _get_storage(
     return None
 
 
-def _save_annotations(outputs: RegisterAllOutputs, annotations: list[AnnotationType], client: Bfabric) -> None:
+def _save_annotations(
+    outputs: RegisterAllOutputs,
+    annotations: list[AnnotationType],
+    client: Bfabric,
+    workunit_definition: WorkunitDefinition,
+) -> None:
+    # Create-only for now: if an output dataset already exists on the workunit, `create_dataset` will
+    # surface the SOAP error. Updating an existing dataset is a follow-up (no Workunit.output_dataset
+    # field today, so locating the prior dataset requires its own design).
+    registration = workunit_definition.registration
+    if registration is None:
+        raise ValueError("workunit_definition has no registration; cannot save annotations")
     for annotation in annotations:
         if isinstance(annotation, BfabricOutputDataset):
             output_df = generate_output_table(config=annotation, resource_mapping=outputs.resources_mapping)
-
-            # TODO we should also check if there is id already
-            existing_dataset = None
-            # TODO and now we need to handle this maybe with the old logic of save/update from savedataset
-            # TODO but it will need some logic for handling the existing dataset already
-            # TODO the final step will be attaching this dataset to the workunit
-
-            _ = output_df
-            _ = existing_dataset
-            raise NotImplementedError
+            check_for_invalid_characters(table=output_df, invalid_characters="")
+            dataset = create_dataset(
+                client,
+                output_df,
+                CreateDatasetParams(
+                    name=annotation.name or f"Output Dataset (workunit {registration.workunit_id})",
+                    container_id=registration.container_id,
+                    workunit_id=registration.workunit_id,
+                ),
+            )
+            logger.info(f"Output dataset saved with id {dataset.id} for workunit {registration.workunit_id}")
+        else:
+            assert_never(type(annotation))
 
 
 def register_outputs(
@@ -272,9 +279,7 @@ def register_outputs(
     force_storage: Path | None,
 ) -> None:
     """Registers outputs to the workunit."""
-    with outputs_yaml.open("r") as file:
-        spec = OutputsSpec.model_validate(yaml.safe_load(file))
-
+    spec = OutputsSpec.read_yaml(outputs_yaml)
     outputs = register_all(
         client=client,
         workunit_definition=workunit_definition,
@@ -283,5 +288,4 @@ def register_outputs(
         reuse_default_resource=reuse_default_resource,
         force_storage=force_storage,
     )
-    # TODO and here we create the dataset mapping
-    _save_annotations(outputs, spec.annotations, client=client)
+    _save_annotations(outputs, spec.annotations, client=client, workunit_definition=workunit_definition)

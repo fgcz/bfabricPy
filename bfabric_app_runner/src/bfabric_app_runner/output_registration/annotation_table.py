@@ -58,16 +58,12 @@ def generate_output_table(config: BfabricOutputDataset, resource_mapping: dict[P
     :param resource_mapping: a mapping of store_entry_path to resource_id of the resources which were created
     :return: the output table contents
     """
-    # read the input tables
-    tables_df = pl.concat([_load_table(ref) for ref in config.include_tables], how="diagonal_relaxed")
-
-    # generate the rows for the resources
-    resource_rows = []
-    for resource in config.include_resources:
-        resource_rows.append(_get_resource_row(resource, resource_mapping))
-    resources_df = pl.from_dicts(resource_rows, strict=False)
-    _validate_table_schema(resources_df)
-
-    # TODO the schema handling could maybe be relaxed a tiny bit
-    # concatenate these two dataframes now
-    return pl.concat([tables_df, resources_df], how="diagonal_relaxed")
+    parts: list[pl.DataFrame] = [_load_table(ref) for ref in config.include_tables]
+    if config.include_resources:
+        resource_rows = [_get_resource_row(r, resource_mapping) for r in config.include_resources]
+        resources_df = pl.from_dicts(resource_rows, strict=False)
+        _validate_table_schema(resources_df)
+        parts.append(resources_df)
+    if not parts:
+        raise ValueError("BfabricOutputDataset requires at least one include_tables or include_resources entry")
+    return pl.concat(parts, how="diagonal_relaxed")

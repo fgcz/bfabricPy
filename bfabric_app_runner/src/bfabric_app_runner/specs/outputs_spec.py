@@ -80,10 +80,9 @@ class OutputsSpec(BaseModel):
     outputs: list[SpecType]
     annotations: list[AnnotationType] = []
 
-    # @classmethod
-    # def read_yaml(cls, path: Path) -> list[SpecType]:
-    #    model = cls.model_validate(yaml.safe_load(path.read_text()))
-    #    return model.outputs
+    @classmethod
+    def read_yaml(cls, path: Path) -> OutputsSpec:
+        return cls.model_validate(yaml.safe_load(path.read_text()))
 
     @classmethod
     def write_yaml(cls, specs: list[SpecType], path: Path) -> None:

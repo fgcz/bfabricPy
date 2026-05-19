@@ -2,6 +2,7 @@ import pytest
 import yaml
 
 from bfabric_app_runner.specs.outputs_spec import OutputsSpec, CopyResourceSpec, SaveDatasetSpec
+from pathlib import Path
 
 
 @pytest.fixture()
@@ -50,3 +51,9 @@ def test_serialize(parsed, serialized):
 
 def test_parse(parsed, serialized):
     assert OutputsSpec.model_validate(yaml.safe_load(serialized)) == parsed
+
+
+def test_read_yaml(tmp_path: Path, parsed: OutputsSpec, serialized: str) -> None:
+    path = tmp_path / "outputs.yml"
+    path.write_text(serialized)
+    assert OutputsSpec.read_yaml(path) == parsed

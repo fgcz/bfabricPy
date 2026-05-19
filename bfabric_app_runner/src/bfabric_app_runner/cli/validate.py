@@ -28,5 +28,5 @@ def cmd_validate_inputs_spec(yaml_file: Path) -> None:
 
 def cmd_validate_outputs_spec(yaml_file: Path) -> None:
     """Validate an outputs spec file."""
-    outputs_spec = OutputsSpec.model_validate(yaml.safe_load(yaml_file.read_text()))
+    outputs_spec = OutputsSpec.read_yaml(yaml_file)
     pprint(outputs_spec)
