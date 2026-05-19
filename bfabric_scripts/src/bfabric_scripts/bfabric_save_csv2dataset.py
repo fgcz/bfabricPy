@@ -19,12 +19,9 @@ import polars as pl
 from loguru import logger
 
 from bfabric import Bfabric
-from bfabric.operations.dataset import (
-    CreateDatasetParams,
-    check_for_invalid_characters,
-    create_dataset,
-)
+from bfabric.operations.dataset import CreateDatasetParams, create_dataset
 from bfabric.utils.cli_integration import use_client
+from bfabric.utils.table_lint import check_for_invalid_characters
 
 
 @use_client

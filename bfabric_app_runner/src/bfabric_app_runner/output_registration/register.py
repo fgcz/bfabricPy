@@ -6,11 +6,8 @@ from typing import TYPE_CHECKING
 import polars as pl
 import yaml
 from bfabric.entities import Resource, Storage, Workunit
-from bfabric.operations.dataset import (
-    CreateDatasetParams,
-    check_for_invalid_characters,
-    create_dataset,
-)
+from bfabric.operations.dataset import CreateDatasetParams, create_dataset
+from bfabric.utils.table_lint import check_for_invalid_characters
 from loguru import logger
 
 from bfabric_app_runner.specs.outputs_spec import (

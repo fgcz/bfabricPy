@@ -26,7 +26,7 @@ def test_shim_warns_and_redirects_check_for_invalid_characters():
 
     assert any(issubclass(w.category, DeprecationWarning) for w in caught)
 
-    from bfabric.operations.dataset.validation import check_for_invalid_characters as new
+    from bfabric.utils.table_lint import check_for_invalid_characters as new
 
     assert check_for_invalid_characters is new
 
@@ -38,7 +38,7 @@ def test_shim_warns_and_redirects_warn_on_trailing_spaces():
 
     assert any(issubclass(w.category, DeprecationWarning) for w in caught)
 
-    from bfabric.operations.dataset.validation import warn_on_trailing_spaces as new
+    from bfabric.utils.table_lint import warn_on_trailing_spaces as new
 
     assert warn_on_trailing_spaces is new
 

@@ -2,7 +2,7 @@ import polars as pl
 import pytest
 from logot import Logot, logged
 
-from bfabric.operations.dataset import check_for_invalid_characters, warn_on_trailing_spaces
+from bfabric.utils.table_lint import check_for_invalid_characters, warn_on_trailing_spaces
 
 
 def test_warn_on_trailing_spaces_when_no(logot: Logot):

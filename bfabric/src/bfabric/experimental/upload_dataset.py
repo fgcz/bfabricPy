@@ -9,8 +9,8 @@ from typing import Any
 _NEW_LOCATIONS: dict[str, tuple[str, str]] = {
     "polars_to_bfabric_dataset": ("bfabric.operations.dataset.transforms", "polars_to_dataset_dict"),
     "polars_column_to_bfabric_type": ("bfabric.operations.dataset.transforms", "_polars_column_to_bfabric_type"),
-    "check_for_invalid_characters": ("bfabric.operations.dataset.validation", "check_for_invalid_characters"),
-    "warn_on_trailing_spaces": ("bfabric.operations.dataset.validation", "warn_on_trailing_spaces"),
+    "check_for_invalid_characters": ("bfabric.utils.table_lint", "check_for_invalid_characters"),
+    "warn_on_trailing_spaces": ("bfabric.utils.table_lint", "warn_on_trailing_spaces"),
 }
 
 
@@ -28,7 +28,7 @@ def __getattr__(name: str) -> Any:  # pyright: ignore[reportAny, reportExplicitA
         raise AttributeError(
             "bfabric_save_csv2dataset has been removed. Compose the operation directly: "
             "polars.read_csv(...) → "
-            "bfabric.operations.dataset.check_for_invalid_characters(...) → "
+            "bfabric.utils.table_lint.check_for_invalid_characters(...) → "
             "bfabric.operations.dataset.create_dataset(...)."
         )
     raise AttributeError(f"module 'bfabric.experimental.upload_dataset' has no attribute {name!r}")

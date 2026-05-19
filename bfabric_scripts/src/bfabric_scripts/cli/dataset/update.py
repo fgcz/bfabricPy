@@ -13,14 +13,9 @@ from rich.pretty import Pretty
 
 from bfabric import Bfabric
 from bfabric.entities import Dataset
-from bfabric.operations.dataset import (
-    DatasetChanges,
-    check_for_invalid_characters,
-    preview_dataset_update,
-    update_dataset,
-    warn_on_trailing_spaces,
-)
+from bfabric.operations.dataset import DatasetChanges, preview_dataset_update, update_dataset
 from bfabric.utils.cli_integration import use_client
+from bfabric.utils.table_lint import check_for_invalid_characters, warn_on_trailing_spaces
 from bfabric_scripts.optional_features import decorate_if_excel  # pyright: ignore[reportUnknownVariableType]
 
 

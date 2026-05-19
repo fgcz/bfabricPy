@@ -8,13 +8,9 @@ import polars as pl
 from loguru import logger
 from pydantic import BaseModel, model_validator
 from bfabric import Bfabric
-from bfabric.operations.dataset import (
-    CreateDatasetParams,
-    check_for_invalid_characters,
-    create_dataset,
-    warn_on_trailing_spaces,
-)
+from bfabric.operations.dataset import CreateDatasetParams, create_dataset
 from bfabric.utils.cli_integration import use_client
+from bfabric.utils.table_lint import check_for_invalid_characters, warn_on_trailing_spaces
 from bfabric_scripts.optional_features import decorate_if_excel
 
 

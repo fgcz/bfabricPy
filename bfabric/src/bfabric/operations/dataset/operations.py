@@ -34,8 +34,8 @@ def create_dataset(
     """Create a new B-Fabric dataset from a Polars DataFrame.
 
     Validation (forbidden characters, trailing whitespace) is the caller's
-    responsibility — apply `check_for_invalid_characters` / `warn_on_trailing_spaces`
-    beforehand if needed.
+    responsibility — apply `bfabric.utils.table_lint.check_for_invalid_characters`
+    / `warn_on_trailing_spaces` beforehand if needed.
 
     The returned `Dataset` reflects the SOAP save response (typically metadata
     only — no attribute/item content). Re-read with
