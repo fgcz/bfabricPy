@@ -11,17 +11,17 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Added
 
-- `BfabricTokenExpiredError` and `BfabricTokenInvalidError` in `bfabric.errors`: specific subclasses of `BfabricTokenValidationFailedError`, which will be raised instead of the generic `BfabricTokenValidationFailedError`.
+- `BfabricTokenExpiredError` and `BfabricTokenInvalidError` in `bfabric.errors`: specific subclasses of `BfabricTokenValidationFailedError` raised for the corresponding failure conditions instead of the generic error.
 - `Job` entity wrapping the B-Fabric `job` endpoint.
-- `bfabric.operations` module: a stable home for named write capabilities against B-Fabric.
-  - `bfabric.operations.workunit.create_workunit` — compound workunit creation with failure cleanup; accepts caller-supplied `audit_attributes`.
+- `bfabric.operations` module: the canonical location for named write capabilities against B-Fabric.
+  - `bfabric.operations.workunit.create_workunit` — creates a workunit with its associated resources, rolling back on failure; accepts caller-supplied `audit_attributes`.
   - `bfabric.operations.dataset.{create_dataset, update_dataset, preview_dataset_update}` plus helpers `polars_to_dataset_dict`, `check_for_invalid_characters`, `warn_on_trailing_spaces`, `identify_changes`.
   - `bfabric.operations.update_custom_attributes`.
 - `bfabric-cli dataset update` command for updating an existing dataset with a change preview. Mirrors `bfabric-cli dataset upload` with `csv`/`tsv`/`xlsx`/`parquet` subcommands and the same `forbidden_chars` / `warn_trailing_spaces` validation flags.
 
 ### Changed
 
-- `bfabric_save_csv2dataset.py` no longer prints the raw save result; it now logs the created dataset URI via `loguru`.
+- `bfabric_save_csv2dataset.py` — reworked to call `create_dataset`; behavior is unchanged except the dataset URI is now logged via `loguru` instead of printed.
 
 ### Deprecated
 
