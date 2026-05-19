@@ -22,6 +22,16 @@ def _complete_response(workunit_id: int = 42) -> list[dict]:
     return [{"id": workunit_id, "classname": "workunit", "status": "available", "_entityclass": "workunit"}]
 
 
+def _arm_happy_path(mock_client, workunit_id: int = 42) -> None:
+    mock_client.save.side_effect = [
+        _initial_response(workunit_id),
+        [{}],  # resources
+        [{}],  # parameters
+        [{}],  # links
+        _complete_response(workunit_id),
+    ]
+
+
 def _params(**overrides) -> CreateWorkunitParams:
     defaults = dict(
         container_id=100,
@@ -41,13 +51,7 @@ def test_params_requires_at_least_one_data_kind():
 
 
 def test_create_workunit_happy_path(mock_client):
-    mock_client.save.side_effect = [
-        _initial_response(42),
-        [{}],  # resources
-        [{}],  # parameters
-        [{}],  # links
-        _complete_response(42),
-    ]
+    _arm_happy_path(mock_client, workunit_id=42)
     params = _params()
 
     workunit = create_workunit(mock_client, params, audit_attributes={"WebApp User": "alice"})
@@ -62,14 +66,40 @@ def test_create_workunit_happy_path(mock_client):
     assert save_calls[4].args == ("workunit", {"id": 42, "status": "available"})
 
 
+def test_create_workunit_save_payloads(mock_client):
+    _arm_happy_path(mock_client, workunit_id=42)
+
+    create_workunit(mock_client, _params())
+
+    save_calls = mock_client.save.call_args_list
+    assert save_calls[0].args == (
+        "workunit",
+        {
+            "containerid": 100,
+            "applicationid": 5,
+            "name": "WU",
+            "description": "",
+            "status": "processing",
+            "customattribute": [],
+            "inputresourceid": [],
+        },
+    )
+    assert save_calls[1].args == (
+        "resource",
+        [{"base64": "base64", "name": "r", "workunitid": 42}],
+    )
+    assert save_calls[2].args == (
+        "parameter",
+        [{"key": "p", "label": "p", "value": "v", "context": "workunit", "workunitid": 42}],
+    )
+    assert save_calls[3].args == (
+        "link",
+        [{"parentclassname": "workunit", "parentid": 42, "name": "GitHub", "url": "https://example.com"}],
+    )
+
+
 def test_create_workunit_audit_attributes_round_trip(mock_client):
-    mock_client.save.side_effect = [
-        _initial_response(7),
-        [{}],
-        [{}],
-        [{}],
-        _complete_response(7),
-    ]
+    _arm_happy_path(mock_client, workunit_id=7)
     audit = {"WebApp User": "alice", "Source": "proxy"}
 
     create_workunit(mock_client, _params(), audit_attributes=audit)
@@ -83,13 +113,7 @@ def test_create_workunit_audit_attributes_round_trip(mock_client):
 
 def test_create_workunit_returned_entity_has_usable_uri(mock_client, bfabric_instance):
     """Returned entity must support `.uri` even without a bound client (regression smoke)."""
-    mock_client.save.side_effect = [
-        _initial_response(42),
-        [{}],
-        [{}],
-        [{}],
-        _complete_response(42),
-    ]
+    _arm_happy_path(mock_client, workunit_id=42)
 
     workunit = create_workunit(mock_client, _params())
 
@@ -104,13 +128,7 @@ def test_create_workunit_returns_metadata_only_entity(mock_client):
     via the returned entity. We guard against the regression by asserting
     `_client is None` on the result.
     """
-    mock_client.save.side_effect = [
-        _initial_response(7),
-        [{}],
-        [{}],
-        [{}],
-        _complete_response(7),
-    ]
+    _arm_happy_path(mock_client, workunit_id=7)
 
     workunit = create_workunit(mock_client, _params())
 
@@ -118,13 +136,7 @@ def test_create_workunit_returns_metadata_only_entity(mock_client):
 
 
 def test_create_workunit_audit_attributes_default_empty(mock_client):
-    mock_client.save.side_effect = [
-        _initial_response(7),
-        [{}],
-        [{}],
-        [{}],
-        _complete_response(7),
-    ]
+    _arm_happy_path(mock_client, workunit_id=7)
 
     create_workunit(mock_client, _params())
 
