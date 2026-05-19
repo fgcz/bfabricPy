@@ -1,28 +1,10 @@
 #!/usr/bin/env python3
-"""
-Author:
-     Maria d'Errico <maria.derrico@fgcz.ethz.ch>
+"""Create a B-Fabric dataset from a CSV file.
 
-
-Description:
- The following script gets a csv file as input and automatically
- generates a json structure with attributes accepted by B-Fabric for
- the creation of datasets.
-
- Example of input file:
+Example of input file:
   attr1, attr2
   "1", "1"
   "2", "2"
-
- Example of json output:
-  obj['attribute'] = [ {'name':'attr1', 'position':1},
-                       {'name':'attr2', 'position':2} ]
-  obj['item'] = [ {'field': [{'value': 1, 'attributeposition':1},
-                             {'value': 1,  'attributeposition':2 }],
-                   'position':1},
-                  {'field': [{'value': 2, 'attributeposition':1},
-                          {'value': 2,  'attributeposition':2 }],
-                   'position':2}]
 
 Usage: bfabric_save_csv2dataset.py [-h] --csvfile CSVFILE --name NAME --containerid int [--workunitid int]
 """
@@ -31,54 +13,56 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
+from typing import cast
+
+import polars as pl
+from loguru import logger
 
 from bfabric import Bfabric
+from bfabric.operations.dataset import (
+    CreateDatasetParams,
+    check_for_invalid_characters,
+    create_dataset,
+)
 from bfabric.utils.cli_integration import use_client
-from bfabric.experimental.upload_dataset import bfabric_save_csv2dataset
 
 
 @use_client
 def main(*, client: Bfabric) -> None:
-    """Parses command line arguments and calls `bfabric_save_csv2dataset`."""
     parser = argparse.ArgumentParser(description="Create a B-Fabric dataset")
-    parser.add_argument(
-        "--csvfile",
-        required=True,
-        help="the path to the csv file to be uploaded as dataset",
-        type=Path,
+    _ = parser.add_argument(
+        "--csvfile", required=True, type=Path, help="the path to the csv file to be uploaded as dataset"
     )
-    parser.add_argument("--name", required=True, help="dataset name as a string")
-    parser.add_argument("--containerid", type=int, required=True, help="container id")
-    parser.add_argument("--workunitid", type=int, required=False, help="workunit id")
-    parser.add_argument(
-        "--sep",
-        type=str,
-        default=",",
-        help="the separator to use in the csv file e.g. ',' or '\\t'",
+    _ = parser.add_argument("--name", required=True, help="dataset name as a string")
+    _ = parser.add_argument("--containerid", type=int, required=True, help="container id")
+    _ = parser.add_argument("--workunitid", type=int, required=False, help="workunit id")
+    _ = parser.add_argument(
+        "--sep", type=str, default=",", help="the separator to use in the csv file e.g. ',' or '\\t'"
     )
-    parser.add_argument(
-        "--no-header",
-        action="store_false",
-        dest="has_header",
-        help="the csv file has no header",
-    )
-    parser.add_argument(
+    _ = parser.add_argument("--no-header", action="store_false", dest="has_header", help="the csv file has no header")
+    _ = parser.add_argument(
         "--invalid-characters",
         type=str,
         default=",\t",
         help="characters which are not permitted in a cell (set to empty string to deactivate)",
     )
     args = parser.parse_args()
-    bfabric_save_csv2dataset(
-        client=client,
-        csv_file=args.csvfile,
-        dataset_name=args.name,
-        container_id=args.containerid,
-        workunit_id=args.workunitid,
-        sep=args.sep,
-        has_header=args.has_header,
-        invalid_characters=args.invalid_characters,
+    csvfile = cast(Path, args.csvfile)
+    name = cast(str, args.name)
+    container_id = cast(int, args.containerid)
+    workunit_id = cast("int | None", args.workunitid)
+    sep = cast(str, args.sep)
+    has_header = cast(bool, args.has_header)
+    invalid_characters = cast(str, args.invalid_characters)
+
+    table = pl.read_csv(csvfile, separator=sep, has_header=has_header, infer_schema_length=None)
+    check_for_invalid_characters(data=table, invalid_characters=invalid_characters)
+    dataset = create_dataset(
+        client,
+        table,
+        CreateDatasetParams(name=name, container_id=container_id, workunit_id=workunit_id),
     )
+    logger.success(f"Dataset {dataset.uri} successfully created.")
 
 
 if __name__ == "__main__":

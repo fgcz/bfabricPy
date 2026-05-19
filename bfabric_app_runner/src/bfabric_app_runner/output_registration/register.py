@@ -2,9 +2,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import polars as pl
 import yaml
 from bfabric.entities import Resource, Storage, Workunit
-from bfabric.experimental.upload_dataset import bfabric_save_csv2dataset
+from bfabric.operations.dataset import (
+    CreateDatasetParams,
+    check_for_invalid_characters,
+    create_dataset,
+)
 from loguru import logger
 
 from bfabric_app_runner.specs.outputs_spec import (
@@ -99,18 +104,19 @@ def copy_file_to_storage(
 
 def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit_definition: WorkunitDefinition) -> None:
     """Saves a dataset to the bfabric."""
-    # TODO should not print to stdout in the future
-    # TODO also it should not be imported from bfabric_scripts, but rather the generic functionality should be available
-    #      in the main package
-    bfabric_save_csv2dataset(
-        client=client,
-        csv_file=spec.local_path,
-        dataset_name=spec.name or spec.local_path.stem,
-        container_id=workunit_definition.registration.container_id,
-        workunit_id=workunit_definition.registration.workunit_id,
-        sep=spec.separator,
-        has_header=spec.has_header,
-        invalid_characters=spec.invalid_characters,
+    registration = workunit_definition.registration
+    if registration is None:
+        raise ValueError("workunit_definition has no registration; cannot save dataset")
+    table = pl.read_csv(spec.local_path, separator=spec.separator, has_header=spec.has_header, infer_schema_length=None)
+    check_for_invalid_characters(data=table, invalid_characters=spec.invalid_characters)
+    _ = create_dataset(
+        client,
+        table,
+        CreateDatasetParams(
+            name=spec.name or spec.local_path.stem,
+            container_id=registration.container_id,
+            workunit_id=registration.workunit_id,
+        ),
     )
 
 

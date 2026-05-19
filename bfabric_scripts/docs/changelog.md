@@ -10,6 +10,14 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+### Added
+
+- `bfabric-cli dataset update` command: updates an existing dataset from an Excel file with a change preview before confirmation.
+
+### Changed
+
+- `bfabric-cli dataset upload` and `bfabric_save_csv2dataset.py` now use `bfabric.operations.dataset.create_dataset` instead of the in-place SOAP assembly that was previously in `bfabric.experimental.upload_dataset`.
+
 ## \[1.15.0\] - 2026-04-20
 
 ### Added

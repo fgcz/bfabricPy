@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 
 - `_operation_copy_rsync` now uses `rsync -rltvP` instead of `-Pav`, so staged input files are owned by the user running the app_runner with umask-derived permissions, matching the existing `cp`/`scp` fallbacks.
+- `output_registration._save_dataset` now uses `bfabric.operations.dataset.create_dataset` instead of the legacy `bfabric_save_csv2dataset` from `bfabric.experimental`.
 
 ## \[0.6.0\] - 2026-04-20
 

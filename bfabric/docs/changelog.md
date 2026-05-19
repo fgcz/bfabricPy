@@ -13,6 +13,21 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 - `BfabricTokenExpiredError` and `BfabricTokenInvalidError` in `bfabric.errors`: specific subclasses of `BfabricTokenValidationFailedError`, which will be raised instead of the generic `BfabricTokenValidationFailedError`.
 - `Job` entity wrapping the B-Fabric `job` endpoint.
+- `bfabric.operations` module: a stable home for named write capabilities against B-Fabric.
+  - `bfabric.operations.workunit.create_workunit` — compound workunit creation with failure cleanup; accepts caller-supplied `audit_attributes`.
+  - `bfabric.operations.dataset.{create_dataset, update_dataset, preview_dataset_update}` plus helpers `polars_to_dataset_dict`, `check_for_invalid_characters`, `warn_on_trailing_spaces`, `identify_changes`.
+  - `bfabric.operations.update_custom_attributes`.
+- `bfabric-cli dataset update` command for updating an existing dataset from an Excel file with a change preview.
+
+### Changed
+
+- `bfabric_save_csv2dataset.py` no longer prints the raw save result; it now logs the created dataset URI via `loguru`.
+
+### Deprecated
+
+- `bfabric.experimental.upload_dataset` — symbols moved to `bfabric.operations.dataset` (deprecation shim emits warnings; will be removed next release). `bfabric_save_csv2dataset` (the inner function) is removed without replacement; compose the operation manually.
+- `bfabric.experimental.dataset_column_types` — moved (now private) to `bfabric.operations.dataset._column_types`.
+- `bfabric.experimental.update_custom_attributes` — moved to `bfabric.operations`.
 
 ### Fixed
 
