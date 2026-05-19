@@ -33,16 +33,12 @@ beforehand if you need those checks.
 
 ## Update Custom Attributes
 
-```{warning}
-`update_custom_attributes` is experimental and may change or be removed in future versions.
-```
-
 Update custom attributes on any entity by its URI.
 
 ```python
 from bfabric import Bfabric
 from bfabric.entities.core.uri import EntityUri
-from bfabric.experimental.update_custom_attributes import update_custom_attributes
+from bfabric.operations import update_custom_attributes
 
 client = Bfabric.connect()
 
