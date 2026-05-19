@@ -1,43 +1,41 @@
-# Experimental Data Operations
-
-```{warning}
-Experimental features may change or be removed in future versions. Use at your own risk.
-```
+# Data Operations
 
 ## Upload Datasets
 
-The `upload_dataset` feature allows you to create B-Fabric datasets from CSV files.
+Create a B-Fabric dataset from a CSV (or any Polars DataFrame) by composing the
+operations in `bfabric.operations.dataset`:
 
 ```python
-from pathlib import Path
+import polars as pl
 from bfabric import Bfabric
-from bfabric.experimental.upload_dataset import bfabric_save_csv2dataset
+from bfabric.operations.dataset import (
+    CreateDatasetParams,
+    check_for_invalid_characters,
+    create_dataset,
+)
 
 client = Bfabric.connect()
 
-csv_file = Path("data/measurements.csv")
-result = bfabric_save_csv2dataset(
-    client=client,
-    csv_file=csv_file,
-    dataset_name="MyMeasurements",
-    container_id=123,
-    sep=",",
-)
+table = pl.read_csv("data/measurements.csv")
+check_for_invalid_characters(table)  # raises on forbidden characters
 
-if result.is_success:
-    print(f"Dataset created with ID: {result[0]['id']}")
+dataset = create_dataset(
+    client=client,
+    table=table,
+    params=CreateDatasetParams(name="MyMeasurements", container_id=123),
+)
+print(f"Dataset created with ID: {dataset.id}")
 ```
 
-### Parameters
-
-- `client`: Bfabric client instance
-- `csv_file`: Path to CSV file
-- `dataset_name`: Name for the new dataset
-- `container_id`: Container (project/order) ID to associate with
-- `sep`: CSV separator (default: comma)
-- `check`: Raise errors on failure (default: `True`)
+`create_dataset` does not validate input — apply `check_for_invalid_characters`
+and/or `warn_on_trailing_spaces` from `bfabric.operations.dataset.validation`
+beforehand if you need those checks.
 
 ## Update Custom Attributes
+
+```{warning}
+`update_custom_attributes` is experimental and may change or be removed in future versions.
+```
 
 Update custom attributes on any entity by its URI.
 

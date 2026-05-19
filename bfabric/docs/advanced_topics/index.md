@@ -13,7 +13,7 @@ data_operations.md
 | Topic | Description | Skill Level |
 | ----------------------------------------------------- | -------------------------------------------- | ------------ |
 | **[Workunit Definitions](workunit_definitions/index.md)** | YAML-based workunit configuration | Intermediate |
-| **[Data Operations](data_operations.md)** | Experimental features for datasets and custom attributes | Advanced |
+| **[Data Operations](data_operations.md)** | Dataset uploads and (experimental) custom-attribute updates | Advanced |
 
 ## Advanced Guides
 
