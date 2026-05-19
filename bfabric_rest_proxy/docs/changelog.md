@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Changed
+
+- `feeder_operations.create_workunit` is now a thin authorization + audit-stamping wrapper around `bfabric.operations.workunit.create_workunit`. The workunit creation now flips the workunit to status `failed` on any error after initial creation (was: orphaned in `processing` status).
+
 ### Fixed
 
 - `/validate_token` now uses the server-configured `validation_bfabric_instance` instead of the client-provided instance.
