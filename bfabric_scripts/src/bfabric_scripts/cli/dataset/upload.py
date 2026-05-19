@@ -109,12 +109,12 @@ def upload_table(table: pl.DataFrame, params: Params, client: Bfabric) -> None:
         check_for_invalid_characters(table=table, invalid_characters=params.forbidden_chars)
 
     if params.warn_trailing_spaces:
-        warn_on_trailing_spaces(table)
+        warn_on_trailing_spaces(table=table)
 
     dataset = create_dataset(
-        client,
-        table,
-        CreateDatasetParams(
+        client=client,
+        table=table,
+        params=CreateDatasetParams(
             name=params.dataset_name or params.file.stem,
             container_id=params.container_id,
             workunit_id=params.workunit_id,
