@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Good to Know &#8212; bfabricPy 1.18.0 documentation</title>
+    <title>Design Notes &#8212; bfabricPy 1.18.0 documentation</title>
   
   
   
@@ -44,11 +44,11 @@
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'resources/good_to_know';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'design/index';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Changelog" href="../changelog.html" />
-    <link rel="prev" title="Resources" href="index.html" />
+    <link rel="next" title="bfabric.operations Module Design" href="operations_module.html" />
+    <link rel="prev" title="Data Operations" href="../advanced_topics/data_operations.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="1.18.0" />
@@ -187,12 +187,12 @@
 <li class="toctree-l2"><a class="reference internal" href="../advanced_topics/data_operations.html">Data Operations</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../design/index.html">Design Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../design/operations_module.html"><code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code> Module Design</a></li>
+<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Design Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="operations_module.html"><code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code> Module Design</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Resources</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Good to Know</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../resources/index.html">Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../resources/good_to_know.html">Good to Know</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 </ul>
 </details></li>
@@ -255,7 +255,7 @@
       
       
       
-      <li><a href="../_sources/resources/good_to_know.md" target="_blank"
+      <li><a href="../_sources/design/index.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -331,7 +331,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Good to Know</h1>
+    <h1>Design Notes</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -341,15 +341,7 @@
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-workunits-with-many-associated-resources">Updating workunits with many associated resources</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#logging-level">Logging level</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#in-your-code">In your code</a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#error-handling">Error Handling</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#in-bfabricpy-scripts">In bfabricPy scripts</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pages">Pages</a></li>
 </ul>
             </nav>
         </div>
@@ -361,102 +353,30 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="good-to-know">
-<h1>Good to Know<a class="headerlink" href="#good-to-know" title="Link to this heading">#</a></h1>
-<section id="updating-workunits-with-many-associated-resources">
-<h2>Updating workunits with many associated resources<a class="headerlink" href="#updating-workunits-with-many-associated-resources" title="Link to this heading">#</a></h2>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p><strong>Summary: Updating workunits and its associated resources</strong></p>
-<ol class="arabic simple">
-<li><p>Set workunit state to <code class="docutils literal notranslate"><span class="pre">&quot;processing&quot;</span></code>.</p></li>
-<li><p>Update workunit and associated resources, as much as you need to.</p></li>
-<li><p>Set workunit state to <code class="docutils literal notranslate"><span class="pre">&quot;available&quot;</span></code>.</p></li>
-</ol>
+  <section id="design-notes">
+<h1>Design Notes<a class="headerlink" href="#design-notes" title="Link to this heading">#</a></h1>
+<p>Architectural decisions and design rationale for bfabricPy. Each page documents the <em>why</em> behind a module — the constraints that shaped it, alternatives that were considered, and the conventions future contributions are expected to follow.</p>
+<p>These are contributor-facing references, not user guides. If you’re looking for how to <em>use</em> a feature, start with <a class="reference internal" href="../user_guides/index.html"><span class="doc std std-doc">User Guides</span></a> or <a class="reference internal" href="../advanced_topics/index.html"><span class="doc std std-doc">Advanced Topics</span></a>.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="operations_module.html"><code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code> Module Design</a></li>
+</ul>
 </div>
-<p>When updating large workunits, it’s crucial to prevent state recomputation in B-Fabric by setting the workunit state to <code class="docutils literal notranslate"><span class="pre">&quot;processing&quot;</span></code> before making any changes.
-Failing to do so can lead to significant performance issues and complications, especially during iterative updates.</p>
-<p>After all entities have been saved, you can set the workunit state to <code class="docutils literal notranslate"><span class="pre">&quot;available&quot;</span></code>.
-However, be aware that B-Fabric will still perform a state recomputation at this stage, which might result in a different inferred state, such as <code class="docutils literal notranslate"><span class="pre">&quot;failed&quot;</span></code>.
-The <code class="docutils literal notranslate"><span class="pre">&quot;processing&quot;</span></code> state is the only one that ensures state recomputation is bypassed during the saving process.</p>
-</section>
-<section id="logging-level">
-<h2>Logging level<a class="headerlink" href="#logging-level" title="Link to this heading">#</a></h2>
-<p>BfabricPy uses <a class="reference external" href="https://github.com/Delgan/loguru">loguru</a> for logging, since it makes logging very simple and informative.
-While it is recommended by its developers to make it opt-in, our logging is opt-out, but this can easily be adjusted as needed.</p>
-<section id="in-your-code">
-<h3>In your code<a class="headerlink" href="#in-your-code" title="Link to this heading">#</a></h3>
-<p>You can configure loguru in your code:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">loguru</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
-
-<span class="c1"># Configure a logger with custom settings (requires first removing the default logger)</span>
-<span class="n">logger</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
-<span class="n">logger</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="s2">&quot;bfabric&quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;WARNING&quot;</span><span class="p">,</span> <span class="n">colorize</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-<span class="c1"># Alternative: completely deactivate logs for bfabricPy</span>
-<span class="n">logger</span><span class="o">.</span><span class="n">disable</span><span class="p">(</span><span class="s2">&quot;bfabric&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Check the documentation for <a class="reference external" href="https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.add">logger.add</a> for more options.
-By default, the logs go to standard error, which can be useful in some scenarios.</p>
-<p>Alternatively, you can set the environment variable <code class="docutils literal notranslate"><span class="pre">LOGURU_LEVEL</span></code>, e.g. <code class="docutils literal notranslate"><span class="pre">LOGURU_LEVEL=WARNING</span></code>. However, this will affect all loguru loggers in your code and may thus not be the preferable approach.</p>
-</section>
-</section>
-<section id="error-handling">
-<h2>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading">#</a></h2>
-<p>For comprehensive information about error handling, exception types, and patterns, see <a class="reference internal" href="../user_guides/error_handling.html"><span class="doc">Error Handling</span></a>.</p>
-<section id="in-bfabricpy-scripts">
-<h3>In bfabricPy scripts<a class="headerlink" href="#in-bfabricpy-scripts" title="Link to this heading">#</a></h3>
-<p>Generally, to achieve a consistent output in our scripts, we initialize the logger by the following function:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric.utils.cli_integration</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_script_logging</span>
-
-<span class="n">setup_script_logging</span><span class="p">()</span>
-</pre></div>
-</div>
-<p>This removes time stamps and line numbers, unless <code class="docutils literal notranslate"><span class="pre">BFABRICPY_LOG_LEVEL=DEBUG</span></code> is set.</p>
-<p>The logging level can be controlled via the <code class="docutils literal notranslate"><span class="pre">BFABRICPY_LOG_LEVEL</span></code> environment variable:</p>
+<section id="pages">
+<h2>Pages<a class="headerlink" href="#pages" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
-<tr class="row-odd"><th class="head"><p>Value</p></th>
-<th class="head"><p>Effect</p></th>
+<tr class="row-odd"><th class="head"><p>Topic</p></th>
+<th class="head"><p>Scope</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">DEBUG</span></code></p></td>
-<td><p>Show all log messages including debug output (with full loguru format)</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">INFO</span></code></p></td>
-<td><p>Show INFO and above (default)</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">WARNING</span></code></p></td>
-<td><p>Show WARNING and above</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ERROR</span></code></p></td>
-<td><p>Show ERROR and above</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CRITICAL</span></code></p></td>
-<td><p>Show CRITICAL only</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">OFF</span></code> or <code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
-<td><p>Disable all logging completely</p></td>
+<tr class="row-even"><td><p><strong><a class="reference internal" href="operations_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code> Module</span></a></strong></p></td>
+<td><p>Conventions and worked examples for named write capabilities (<code class="docutils literal notranslate"><span class="pre">create_workunit</span></code>, <code class="docutils literal notranslate"><span class="pre">create_dataset</span></code>, …), including the failure-cleanup pattern and the audit-vs-authorization split.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>Invalid values fall back silently to <code class="docutils literal notranslate"><span class="pre">INFO</span></code>.</p>
-<p>Examples:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Silence all log output (useful for scripting or piping)</span>
-<span class="nv">BFABRICPY_LOG_LEVEL</span><span class="o">=</span>OFF<span class="w"> </span>bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>resource
-
-<span class="c1"># Show only warnings and errors</span>
-<span class="nv">BFABRICPY_LOG_LEVEL</span><span class="o">=</span>WARNING<span class="w"> </span>bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>resource
-
-<span class="c1"># Enable full debug output</span>
-<span class="nv">BFABRICPY_LOG_LEVEL</span><span class="o">=</span>DEBUG<span class="w"> </span>bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>resource
-</pre></div>
-</div>
-</section>
 </section>
 </section>
 
@@ -472,20 +392,20 @@ By default, the logs go to standard error, which can be useful in some scenarios
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="index.html"
+       href="../advanced_topics/data_operations.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Resources</p>
+        <p class="prev-next-title">Data Operations</p>
       </div>
     </a>
     <a class="right-next"
-       href="../changelog.html"
+       href="operations_module.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Changelog</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code> Module Design</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -507,15 +427,7 @@ By default, the logs go to standard error, which can be useful in some scenarios
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-workunits-with-many-associated-resources">Updating workunits with many associated resources</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#logging-level">Logging level</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#in-your-code">In your code</a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#error-handling">Error Handling</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#in-bfabricpy-scripts">In bfabricPy scripts</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pages">Pages</a></li>
 </ul>
   </nav></div>
 

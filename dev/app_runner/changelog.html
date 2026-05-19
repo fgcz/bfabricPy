@@ -497,6 +497,7 @@
 <h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">_operation_copy_rsync</span></code> now uses <code class="docutils literal notranslate"><span class="pre">rsync</span> <span class="pre">-rltvP</span></code> instead of <code class="docutils literal notranslate"><span class="pre">-Pav</span></code>, so staged input files are owned by the user running the app_runner with umask-derived permissions, matching the existing <code class="docutils literal notranslate"><span class="pre">cp</span></code>/<code class="docutils literal notranslate"><span class="pre">scp</span></code> fallbacks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">output_registration._save_dataset</span></code> now uses <code class="docutils literal notranslate"><span class="pre">bfabric.operations.dataset.create_dataset</span></code> instead of the legacy <code class="docutils literal notranslate"><span class="pre">bfabric_save_csv2dataset</span></code> from <code class="docutils literal notranslate"><span class="pre">bfabric.experimental</span></code>.</p></li>
 </ul>
 </section>
 </section>
