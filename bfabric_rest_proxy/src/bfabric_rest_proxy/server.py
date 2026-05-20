@@ -14,7 +14,7 @@ from loguru import logger
 from pydantic import BaseModel, Field, SecretStr, model_validator
 
 from bfabric import Bfabric, BfabricAuth, BfabricClientConfig
-from bfabric_rest_proxy.feeder_operations.create_workunit import CreateWorkunitParams, create_workunit
+from bfabric_rest_proxy.feeder_operations.create_workunit import CreateWorkunitRequest, create_workunit
 from bfabric_rest_proxy.settings import ServerSettings
 from bfabric_rest_proxy.feeder_operations.is_employee import is_employee
 
@@ -108,9 +108,9 @@ def read(user_client: BfabricUserClientDep, params: ReadParams):
 def post_create_workunit(
     user_client: BfabricUserClientDep,
     feeder_client: BfabricFeederClientDep,
-    params: CreateWorkunitParams,
+    params: CreateWorkunitRequest,
 ):
-    workunit = create_workunit(user_client=user_client, feeder_client=feeder_client, params=params)
+    workunit = create_workunit(user_client=user_client, feeder_client=feeder_client, request=params)
     return [{**workunit.data_dict, "uri": workunit.uri}]
 
 
