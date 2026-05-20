@@ -108,9 +108,9 @@ def read(user_client: BfabricUserClientDep, params: ReadParams):
 def post_create_workunit(
     user_client: BfabricUserClientDep,
     feeder_client: BfabricFeederClientDep,
-    request: CreateWorkunitRequest,
+    params: CreateWorkunitRequest,
 ):
-    workunit = create_workunit(user_client=user_client, feeder_client=feeder_client, request=request)
+    workunit = create_workunit(user_client=user_client, feeder_client=feeder_client, request=params)
     return [{**workunit.data_dict, "uri": workunit.uri}]
 
 
