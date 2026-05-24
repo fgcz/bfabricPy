@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import hashlib
-from typing import TYPE_CHECKING
+from pathlib import Path  # noqa: TC003  # used at runtime by RegisterAllOutputs pydantic model
+from typing import TYPE_CHECKING, assert_never
 
 import polars as pl
 import yaml
@@ -9,7 +10,10 @@ from bfabric.entities import Resource, Storage, Workunit
 from bfabric.operations.dataset import CreateDatasetParams, create_dataset
 from bfabric.utils.table_lint import check_for_invalid_characters
 from loguru import logger
+from pydantic import BaseModel
 
+from bfabric_app_runner.output_registration.annotation_table import generate_output_table
+from bfabric_app_runner.specs.outputs.annotations import AnnotationType, BfabricOutputDataset
 from bfabric_app_runner.specs.outputs_spec import (
     CopyResourceSpec,
     OutputsSpec,
@@ -21,8 +25,6 @@ from bfabric_app_runner.specs.outputs_spec import (
 from bfabric_app_runner.util.scp import scp
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from bfabric import Bfabric
     from bfabric.experimental.workunit_definition import WorkunitDefinition
 
@@ -39,8 +41,8 @@ def register_file_in_workunit(
     client: Bfabric,
     workunit_definition: WorkunitDefinition,
     resource_id: int | None = None,
-) -> None:
-    """Registers a file in the workunit."""
+) -> int:
+    """Registers a file in the workunit and returns the resource ID."""
     existing_id = _identify_existing_resource_id(client, spec, workunit_definition)
     if resource_id is not None and existing_id is not None and resource_id != existing_id:
         raise ValueError(f"Resource id {resource_id} does not match existing resource id {existing_id}")
@@ -62,7 +64,8 @@ def register_file_in_workunit(
     if existing_id is not None:
         resource_data["id"] = existing_id
 
-    _ = client.save("resource", resource_data)
+    result = client.save("resource", resource_data)
+    return result[0]["id"]
 
 
 def _identify_existing_resource_id(
@@ -172,6 +175,11 @@ def find_default_resource_id(workunit_definition: WorkunitDefinition, client: Bf
     return None
 
 
+class RegisterAllOutputs(BaseModel):
+    resources_mapping: dict[Path, int] = {}
+    """This maps the store_entry_path to the ids of the resources which were created or updated"""
+
+
 def register_all(
     client: Bfabric,
     workunit_definition: WorkunitDefinition,
@@ -179,12 +187,14 @@ def register_all(
     ssh_user: str | None,
     reuse_default_resource: bool,
     force_storage: Path | None,
-) -> None:
+) -> RegisterAllOutputs:
     """Registers all the output specs to the workunit."""
     default_resource_was_reused = not reuse_default_resource
 
     storage = _get_storage(client, force_storage, specs_list, workunit_definition)
     logger.info(f"Using storage: {storage}")
+
+    outputs = RegisterAllOutputs()
 
     for spec in specs_list:
         logger.debug(f"Registering {spec}")
@@ -200,7 +210,8 @@ def register_all(
                 default_resource_was_reused = True
             else:
                 resource_id = None
-            register_file_in_workunit(
+
+            outputs.resources_mapping[spec.store_entry_path] = register_file_in_workunit(
                 spec,
                 client=client,
                 workunit_definition=workunit_definition,
@@ -211,7 +222,9 @@ def register_all(
         elif isinstance(spec, SaveLinkSpec):
             _save_link(spec, client, workunit_definition=workunit_definition)
         else:
-            raise ValueError(f"Unknown spec type: {type(spec)}")
+            assert_never(type(spec))
+
+    return outputs
 
 
 def _get_storage(
@@ -227,6 +240,36 @@ def _get_storage(
     return None
 
 
+def _save_annotations(
+    outputs: RegisterAllOutputs,
+    annotations: list[AnnotationType],
+    client: Bfabric,
+    workunit_definition: WorkunitDefinition,
+) -> None:
+    # Create-only for now: if an output dataset already exists on the workunit, `create_dataset` will
+    # surface the SOAP error. Updating an existing dataset is a follow-up (no Workunit.output_dataset
+    # field today, so locating the prior dataset requires its own design).
+    registration = workunit_definition.registration
+    if registration is None:
+        raise ValueError("workunit_definition has no registration; cannot save annotations")
+    for annotation in annotations:
+        if isinstance(annotation, BfabricOutputDataset):
+            output_df = generate_output_table(config=annotation, resource_mapping=outputs.resources_mapping)
+            check_for_invalid_characters(table=output_df, invalid_characters="")
+            dataset = create_dataset(
+                client,
+                output_df,
+                CreateDatasetParams(
+                    name=annotation.name or f"Output Dataset (workunit {registration.workunit_id})",
+                    container_id=registration.container_id,
+                    workunit_id=registration.workunit_id,
+                ),
+            )
+            logger.info(f"Output dataset saved with id {dataset.id} for workunit {registration.workunit_id}")
+        else:
+            assert_never(type(annotation))
+
+
 def register_outputs(
     outputs_yaml: Path,
     workunit_definition: WorkunitDefinition,
@@ -236,12 +279,13 @@ def register_outputs(
     force_storage: Path | None,
 ) -> None:
     """Registers outputs to the workunit."""
-    specs_list = OutputsSpec.read_yaml(outputs_yaml)
-    register_all(
+    spec = OutputsSpec.read_yaml(outputs_yaml)
+    outputs = register_all(
         client=client,
         workunit_definition=workunit_definition,
-        specs_list=specs_list,
+        specs_list=spec.outputs,
         ssh_user=ssh_user,
         reuse_default_resource=reuse_default_resource,
         force_storage=force_storage,
     )
+    _save_annotations(outputs, spec.annotations, client=client, workunit_definition=workunit_definition)
