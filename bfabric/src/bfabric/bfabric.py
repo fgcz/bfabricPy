@@ -46,6 +46,8 @@ if TYPE_CHECKING:
 
     from bfabric.entities.core.entity_reader import EntityReader
     from bfabric.experimental.webapp_integration_settings import TokenValidationSettingsProtocol
+    from bfabric.oauth._credential_provider import OAuthCredentialProvider
+    from bfabric.oauth._url_token import UrlTokenContext
     from bfabric.typing import ApiRequestObjectType, ApiResponseObjectType
 
 
@@ -56,10 +58,18 @@ class Bfabric:
     more details on how to use.
     """
 
-    def __init__(self, config_data: ConfigData) -> None:
+    _credential_provider: OAuthCredentialProvider | None
+
+    def __init__(
+        self,
+        config_data: ConfigData,
+        *,
+        _credential_provider: OAuthCredentialProvider | None = None,
+    ) -> None:
         self.query_counter = 0
         self._config = config_data.client
         self._auth = config_data.auth
+        self._credential_provider = _credential_provider
         self._log_version_message()
 
     @cached_property
@@ -184,6 +194,251 @@ class Bfabric:
         token_data = await validate_token(token=token, settings=settings)
         return cls.from_token_data(token_data), token_data
 
+    @classmethod
+    def connect_oauth(
+        cls,
+        client_id: str,
+        client_secret: str,
+        base_url: str,
+        *,
+        scope: str = "api:read api:write",
+        token_cache_path: Path | None = None,
+    ) -> Bfabric:
+        """Returns a new Bfabric instance that authenticates via OAuth 2.0 client credentials.
+
+        Tokens are fetched and refreshed automatically. Every SOAP call gets a
+        fresh ``BfabricAuth(login="__oauth__", password=<jwt>)`` via the
+        credential provider.
+
+        :param client_id: OAuth client ID (from ``register_client`` or admin setup)
+        :param client_secret: OAuth client secret
+        :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
+        :param scope: OAuth scope (default ``"api:read api:write"``)
+        :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
+        """
+        from bfabric.oauth._credential_provider import OAuthCredentialProvider
+
+        base_url = base_url.rstrip("/")
+        token_url = f"{base_url}/rest/oauth/token"
+        provider = OAuthCredentialProvider(
+            client_id=client_id,
+            client_secret=client_secret,
+            token_url=token_url,
+            scope=scope,
+            grant_type="client_credentials",
+            token_cache_path=token_cache_path,
+        )
+        config = BfabricClientConfig(base_url=base_url)  # pyright: ignore[reportCallIssue]
+        config_data = ConfigData(client=config, auth=None)
+        return cls(config_data=config_data, _credential_provider=provider)
+
+    @classmethod
+    def from_url_token(
+        cls,
+        base_url: str,
+        jwt: str,
+        refresh_token: str | None = None,
+        *,
+        token_cache_path: Path | None = None,
+    ) -> tuple[Bfabric, UrlTokenContext]:
+        """Creates a new Bfabric instance from a B-Fabric URL token JWT.
+
+        Verifies the JWT signature via JWKS and extracts entity context
+        (entity_id, application_id, etc.) from the token claims.
+
+        If *refresh_token* is provided, the access token is automatically
+        refreshed when it expires. Without a refresh token, the JWT is used
+        as-is and the caller must handle expiry.
+
+        :param base_url: B-Fabric instance URL
+        :param jwt: The raw JWT string from the URL ``jwt`` parameter
+        :param refresh_token: Optional refresh token for automatic renewal
+        :param token_cache_path: Optional path to cache tokens on disk
+        :returns: Tuple of ``(Bfabric, UrlTokenContext)``
+        """
+        from bfabric.config.bfabric_auth import OAUTH_LOGIN
+        from bfabric.oauth._url_token import parse_url_token
+
+        base_url = base_url.rstrip("/")
+        context = parse_url_token(base_url, jwt)
+
+        provider: OAuthCredentialProvider | None = None
+        if refresh_token is not None:
+            from bfabric.oauth._credential_provider import OAuthCredentialProvider
+
+            token_url = f"{base_url}/rest/oauth/token"
+            # client_id is embedded in the JWT by B-Fabric; public client (no secret)
+            client_id = context.client_id or ""
+            token_dict: dict[str, object] = {
+                "access_token": jwt,
+                "refresh_token": refresh_token,
+                "token_type": "Bearer",
+            }
+            if context.expires_at is not None:
+                token_dict["expires_at"] = context.expires_at.timestamp()
+            provider = OAuthCredentialProvider(
+                client_id=client_id,
+                client_secret="",
+                token_url=token_url,
+                token=token_dict,
+                grant_type="refresh_token",
+                token_cache_path=token_cache_path,
+            )
+
+        config = BfabricClientConfig(base_url=base_url)  # pyright: ignore[reportCallIssue]
+        if provider is not None:
+            config_data = ConfigData(client=config, auth=None)
+            return cls(config_data=config_data, _credential_provider=provider), context
+        else:
+            auth = BfabricAuth(login=OAUTH_LOGIN, password=jwt)  # pyright: ignore[reportArgumentType]
+            config_data = ConfigData(client=config, auth=auth)
+            return cls(config_data=config_data), context
+
+    @classmethod
+    def connect_pkce(
+        cls,
+        base_url: str,
+        *,
+        client_id: str = "bfabric-cli",
+        scope: str = "api:read api:write",
+        port: int = 0,
+        open_browser: bool = True,
+        timeout: float = 120.0,
+        token_cache_path: Path | None = None,
+    ) -> Bfabric:
+        """Returns a new Bfabric instance after interactive browser-based PKCE login.
+
+        Opens the user's browser to the B-Fabric authorization page.  After
+        the user logs in, tokens are exchanged automatically and the returned
+        client uses :class:`OAuthCredentialProvider` for transparent refresh.
+
+        :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
+        :param client_id: OAuth client ID (default ``"bfabric-cli"``)
+        :param scope: OAuth scope (default ``"api:read api:write"``)
+        :param port: Local port for the callback server (``0`` = auto-assign)
+        :param open_browser: Whether to open the authorization URL in the browser
+        :param timeout: Seconds to wait for the user to complete login
+        :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
+        """
+        from bfabric.oauth._credential_provider import OAuthCredentialProvider
+        from bfabric.oauth._pkce import pkce_login
+
+        base_url = base_url.rstrip("/")
+        token = pkce_login(
+            base_url,
+            client_id=client_id,
+            scope=scope,
+            port=port,
+            open_browser=open_browser,
+            timeout=timeout,
+        )
+        token_url = f"{base_url}/rest/oauth/token"
+        provider = OAuthCredentialProvider(
+            client_id=client_id,
+            client_secret="",
+            token_url=token_url,
+            token=token,
+            grant_type="refresh_token",
+            scope=scope,
+            token_cache_path=token_cache_path,
+        )
+        config = BfabricClientConfig(base_url=base_url)  # pyright: ignore[reportCallIssue]
+        config_data = ConfigData(client=config, auth=None)
+        return cls(config_data=config_data, _credential_provider=provider)
+
+    @classmethod
+    def connect_device_code(
+        cls,
+        base_url: str,
+        *,
+        client_id: str = "bfabric-cli",
+        scope: str = "api:read api:write",
+        timeout: float = 600.0,
+        token_cache_path: Path | None = None,
+    ) -> Bfabric:
+        """Returns a new Bfabric instance after device code authorization (RFC 8628).
+
+        Displays a user code and verification URI on stderr.  The user
+        visits the URI, enters the code, and authorizes the device.  The
+        returned client uses :class:`OAuthCredentialProvider` for transparent
+        token refresh.
+
+        This flow is suitable for headless environments (SSH, containers)
+        where a localhost redirect is not feasible.
+
+        :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
+        :param client_id: OAuth client ID (default ``"bfabric-cli"``)
+        :param scope: OAuth scope (default ``"api:read api:write"``)
+        :param timeout: Seconds to wait for the user to authorize (default 600)
+        :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
+        """
+        from bfabric.oauth._credential_provider import OAuthCredentialProvider
+        from bfabric.oauth._device_code import device_code_login
+
+        base_url = base_url.rstrip("/")
+        token = device_code_login(
+            base_url,
+            client_id=client_id,
+            scope=scope,
+            timeout=timeout,
+        )
+        token_url = f"{base_url}/rest/oauth/token"
+        provider = OAuthCredentialProvider(
+            client_id=client_id,
+            client_secret="",
+            token_url=token_url,
+            token=token,
+            grant_type="refresh_token",
+            scope=scope,
+            token_cache_path=token_cache_path,
+        )
+        config = BfabricClientConfig(base_url=base_url)  # pyright: ignore[reportCallIssue]
+        config_data = ConfigData(client=config, auth=None)
+        return cls(config_data=config_data, _credential_provider=provider)
+
+    @classmethod
+    def connect_pat(
+        cls,
+        base_url: str,
+        pat: str | SecretStr,
+    ) -> Bfabric:
+        """Returns a new Bfabric instance that authenticates via a Personal Access Token.
+
+        PATs are opaque bearer tokens issued by B-Fabric. Unlike JWTs they
+        cannot be verified locally, but they also don't need to be — the SOAP
+        API accepts them directly. There is no automatic refresh; if the token
+        expires a new one must be obtained.
+
+        :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
+        :param pat: Personal Access Token (string or ``SecretStr``)
+        """
+        from pydantic import SecretStr as _SecretStr
+
+        from bfabric.config.bfabric_auth import OAUTH_LOGIN
+
+        base_url = base_url.rstrip("/")
+        pat_value = pat.get_secret_value() if isinstance(pat, _SecretStr) else pat
+        auth = BfabricAuth(login=OAUTH_LOGIN, password=pat_value)  # pyright: ignore[reportArgumentType]
+        config = BfabricClientConfig(base_url=base_url)  # pyright: ignore[reportCallIssue]
+        config_data = ConfigData(client=config, auth=auth)
+        return cls(config_data=config_data)
+
+    @staticmethod
+    def parse_url_token(base_url: str, jwt: str) -> UrlTokenContext:
+        """Verify and parse a B-Fabric URL token without creating a Bfabric instance.
+
+        Useful when a webapp needs to read context from the URL token
+        (entity_id, user, application_id) but uses its own client credentials
+        (via :meth:`connect_oauth`) for API calls.
+
+        :param base_url: B-Fabric instance URL
+        :param jwt: The raw JWT string from the URL ``jwt`` parameter
+        :returns: :class:`UrlTokenContext` with the extracted claims
+        """
+        from bfabric.oauth._url_token import parse_url_token
+
+        return parse_url_token(base_url.rstrip("/"), jwt)
+
     @property
     def config(self) -> BfabricClientConfig:
         """Returns the config object."""
@@ -192,8 +447,14 @@ class Bfabric:
     @property
     def auth(self) -> BfabricAuth:
         """Returns the auth object.
+
+        When a credential provider is present (OAuth), it returns a fresh
+        :class:`BfabricAuth` with the current access token.
+
         :raises ValueError: If authentication is not available
         """
+        if self._credential_provider is not None:
+            return self._credential_provider.get_auth()
         if self._auth is None:
             raise ValueError("Authentication not available")
         return self._auth
@@ -208,13 +469,19 @@ class Bfabric:
         """Context manager that temporarily (within the scope of the context) sets the authentication for
         the Bfabric object to the provided value. This is useful when authenticating multiple users, to avoid accidental
         use of the wrong credentials.
+
+        When a credential provider is active, it is temporarily disabled so the
+        explicit *auth* takes priority.
         """
         old_auth = self._auth
+        old_provider = self._credential_provider
         self._auth = auth
+        self._credential_provider = None
         try:
             yield
         finally:
             self._auth = old_auth
+            self._credential_provider = old_provider
 
     @cached_property
     def reader(self) -> EntityReader:
@@ -414,6 +681,7 @@ class Bfabric:
         self._config = state["config"]
         self._auth = state["auth"]
         self.query_counter = state["query_counter"]
+        self._credential_provider = None
 
 
 def get_system_auth(
