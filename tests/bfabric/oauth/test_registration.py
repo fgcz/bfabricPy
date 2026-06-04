@@ -4,12 +4,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from bfabric.oauth._registration import register_client
+from bfabric._oauth.registration import register_client
 
 
 @pytest.fixture
 def mock_httpx_post():
-    with patch("bfabric.oauth._registration.httpx.post") as mock_post:
+    with patch("bfabric._oauth.registration.httpx.post") as mock_post:
         mock_response = MagicMock()
         mock_response.json.return_value = {
             "client_id": "new-client-id",
@@ -88,7 +88,7 @@ class TestRegisterClient:
         assert url == "https://example.com/bfabric/rest/oauth/register"
 
     def test_raises_on_http_error(self):
-        with patch("bfabric.oauth._registration.httpx.post") as mock_post:
+        with patch("bfabric._oauth.registration.httpx.post") as mock_post:
             import httpx
 
             mock_response = MagicMock()

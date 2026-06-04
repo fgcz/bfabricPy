@@ -7,6 +7,7 @@ from bfabric_scripts.cli.cli_dataset import cmd_dataset
 from bfabric_scripts.cli.cli_executable import cmd_executable
 from bfabric_scripts.cli.cli_external_job import app as _app_external_job
 from bfabric_scripts.cli.cli_feeder import cmd_feeder
+from bfabric_scripts.cli.cli_auth import cmd_auth
 from bfabric_scripts.cli.cli_workunit import cmd_workunit
 
 package_version = importlib.metadata.version("bfabric_scripts")
@@ -17,6 +18,7 @@ app.command(cmd_dataset, name="dataset")
 app.command(cmd_executable, name="executable")
 app.command(cmd_workunit, name="workunit")
 app.command(cmd_feeder, name="feeder")
+app.command(cmd_auth, name="auth")
 
 # TODO delete after transitory release
 app.command(_app_external_job, name="external-job")

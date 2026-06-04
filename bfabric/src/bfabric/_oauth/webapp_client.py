@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from bfabric.bfabric import Bfabric
-    from bfabric.oauth._url_token import UrlTokenContext
+    from bfabric._oauth.url_token import UrlTokenContext
 
 
 @dataclass(frozen=True)

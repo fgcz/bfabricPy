@@ -6,7 +6,7 @@ import stat
 
 import pytest
 
-from bfabric.oauth._token_cache import TokenCache
+from bfabric._oauth.token_cache import TokenCache, compute_token_cache_path
 
 
 @pytest.fixture
@@ -49,3 +49,36 @@ class TestTokenCache:
 
     def test_clear_when_no_file(self, cache):
         cache.clear()  # should not raise
+
+
+class TestComputeTokenCachePath:
+    def test_deterministic(self):
+        p1 = compute_token_cache_path("https://example.com/bfabric", "my-client", "PROD")
+        p2 = compute_token_cache_path("https://example.com/bfabric", "my-client", "PROD")
+        assert p1 == p2
+
+    def test_trailing_slash_ignored(self):
+        p1 = compute_token_cache_path("https://example.com/bfabric", "c", "PROD")
+        p2 = compute_token_cache_path("https://example.com/bfabric/", "c", "PROD")
+        assert p1 == p2
+
+    def test_different_client_id_gives_different_path(self):
+        p1 = compute_token_cache_path("https://example.com/bfabric", "client-a", "PROD")
+        p2 = compute_token_cache_path("https://example.com/bfabric", "client-b", "PROD")
+        assert p1 != p2
+
+    def test_different_base_url_gives_different_path(self):
+        p1 = compute_token_cache_path("https://prod.example.com/bfabric", "c", "PROD")
+        p2 = compute_token_cache_path("https://test.example.com/bfabric", "c", "PROD")
+        assert p1 != p2
+
+    def test_different_env_name_gives_different_path(self):
+        p1 = compute_token_cache_path("https://example.com/bfabric", "c", "USER")
+        p2 = compute_token_cache_path("https://example.com/bfabric", "c", "ADMIN")
+        assert p1 != p2
+
+    def test_path_under_bfabric_tokens(self):
+        p = compute_token_cache_path("https://example.com/bfabric", "c", "PROD")
+        assert p.parent.name == "tokens"
+        assert p.parent.parent.name == ".bfabric"
+        assert p.suffix == ".json"

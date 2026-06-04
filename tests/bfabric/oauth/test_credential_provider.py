@@ -7,12 +7,12 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
-from bfabric.oauth._credential_provider import OAuthCredentialProvider
+from bfabric._oauth.credential_provider import OAuthCredentialProvider
 
 
 @pytest.fixture
 def mock_oauth2_session():
-    with patch("bfabric.oauth._credential_provider.OAuth2Session") as cls:
+    with patch("bfabric._oauth.credential_provider.OAuth2Session") as cls:
         session = MagicMock(name="session")
         session.token = None
         session.metadata = {"token_endpoint": "https://example.com/rest/oauth/token"}
@@ -114,7 +114,7 @@ class TestRefreshToken:
 
     def test_session_configured_for_refresh(self, mock_oauth2_session):
         """The OAuth2Session is constructed with the right grant_type for refresh."""
-        with patch("bfabric.oauth._credential_provider.OAuth2Session") as cls:
+        with patch("bfabric._oauth.credential_provider.OAuth2Session") as cls:
             cls.return_value = mock_oauth2_session
             OAuthCredentialProvider(
                 client_id="app-id",
@@ -151,7 +151,7 @@ class TestDiskCache:
 
         cache_path = tmp_path / "token.json"
 
-        with patch("bfabric.oauth._credential_provider.OAuth2Session") as cls:
+        with patch("bfabric._oauth.credential_provider.OAuth2Session") as cls:
             cls.return_value = mock_oauth2_session
             provider = OAuthCredentialProvider(
                 client_id="id",

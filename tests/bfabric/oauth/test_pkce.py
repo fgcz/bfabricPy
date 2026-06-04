@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 import httpx
 import pytest
 
-from bfabric.oauth._pkce import (
+from bfabric._oauth.pkce import (
     _AuthorizationResult,
     _CallbackServer,
     _exchange_code,
@@ -111,7 +111,7 @@ class TestExchangeCode:
         mock_response = MagicMock()
         mock_response.json.return_value = {"access_token": "at", "refresh_token": "rt"}
 
-        with patch("bfabric.oauth._pkce.httpx.post", return_value=mock_response) as mock_post:
+        with patch("bfabric._oauth.pkce.httpx.post", return_value=mock_response) as mock_post:
             result = _exchange_code(
                 token_url="https://example.com/rest/oauth/token",
                 client_id="my-client",
@@ -138,7 +138,7 @@ class TestExchangeCode:
             "401", request=MagicMock(), response=MagicMock()
         )
 
-        with patch("bfabric.oauth._pkce.httpx.post", return_value=mock_response):
+        with patch("bfabric._oauth.pkce.httpx.post", return_value=mock_response):
             with pytest.raises(httpx.HTTPStatusError):
                 _exchange_code(
                     token_url="https://example.com/rest/oauth/token",
@@ -154,12 +154,12 @@ class TestPkceLogin:
         token_dict = {"access_token": "jwt_here", "refresh_token": "rt_here"}
 
         with (
-            patch("bfabric.oauth._pkce._CallbackServer") as mock_server_cls,
-            patch("bfabric.oauth._pkce._exchange_code", return_value=token_dict) as mock_exchange,
-            patch("bfabric.oauth._pkce.webbrowser.open", return_value=True),
-            patch("bfabric.oauth._pkce.secrets.token_urlsafe", return_value="fixed_state"),
-            patch("bfabric.oauth._pkce._generate_verifier", return_value="fixed_verifier"),
-            patch("bfabric.oauth._pkce._generate_challenge", return_value="fixed_challenge"),
+            patch("bfabric._oauth.pkce._CallbackServer") as mock_server_cls,
+            patch("bfabric._oauth.pkce._exchange_code", return_value=token_dict) as mock_exchange,
+            patch("bfabric._oauth.pkce.webbrowser.open", return_value=True),
+            patch("bfabric._oauth.pkce.secrets.token_urlsafe", return_value="fixed_state"),
+            patch("bfabric._oauth.pkce._generate_verifier", return_value="fixed_verifier"),
+            patch("bfabric._oauth.pkce._generate_challenge", return_value="fixed_challenge"),
         ):
             mock_server = MagicMock()
             mock_server.redirect_uri = "http://127.0.0.1:9999/callback"
@@ -182,11 +182,11 @@ class TestPkceLogin:
 
     def test_state_mismatch_raises(self):
         with (
-            patch("bfabric.oauth._pkce._CallbackServer") as mock_server_cls,
-            patch("bfabric.oauth._pkce.webbrowser.open", return_value=True),
-            patch("bfabric.oauth._pkce.secrets.token_urlsafe", return_value="expected_state"),
-            patch("bfabric.oauth._pkce._generate_verifier", return_value="v"),
-            patch("bfabric.oauth._pkce._generate_challenge", return_value="c"),
+            patch("bfabric._oauth.pkce._CallbackServer") as mock_server_cls,
+            patch("bfabric._oauth.pkce.webbrowser.open", return_value=True),
+            patch("bfabric._oauth.pkce.secrets.token_urlsafe", return_value="expected_state"),
+            patch("bfabric._oauth.pkce._generate_verifier", return_value="v"),
+            patch("bfabric._oauth.pkce._generate_challenge", return_value="c"),
         ):
             mock_server = MagicMock()
             mock_server.redirect_uri = "http://127.0.0.1:9999/callback"
@@ -201,11 +201,11 @@ class TestPkceLogin:
 
     def test_error_from_server_raises(self):
         with (
-            patch("bfabric.oauth._pkce._CallbackServer") as mock_server_cls,
-            patch("bfabric.oauth._pkce.webbrowser.open", return_value=True),
-            patch("bfabric.oauth._pkce.secrets.token_urlsafe", return_value="state"),
-            patch("bfabric.oauth._pkce._generate_verifier", return_value="v"),
-            patch("bfabric.oauth._pkce._generate_challenge", return_value="c"),
+            patch("bfabric._oauth.pkce._CallbackServer") as mock_server_cls,
+            patch("bfabric._oauth.pkce.webbrowser.open", return_value=True),
+            patch("bfabric._oauth.pkce.secrets.token_urlsafe", return_value="state"),
+            patch("bfabric._oauth.pkce._generate_verifier", return_value="v"),
+            patch("bfabric._oauth.pkce._generate_challenge", return_value="c"),
         ):
             mock_server = MagicMock()
             mock_server.redirect_uri = "http://127.0.0.1:9999/callback"
@@ -222,12 +222,12 @@ class TestPkceLogin:
 
     def test_timeout_raises(self):
         with (
-            patch("bfabric.oauth._pkce._CallbackServer") as mock_server_cls,
-            patch("bfabric.oauth._pkce.webbrowser.open", return_value=True),
-            patch("bfabric.oauth._pkce.secrets.token_urlsafe", return_value="state"),
-            patch("bfabric.oauth._pkce._generate_verifier", return_value="v"),
-            patch("bfabric.oauth._pkce._generate_challenge", return_value="c"),
-            patch("bfabric.oauth._pkce.threading.Thread") as mock_thread_cls,
+            patch("bfabric._oauth.pkce._CallbackServer") as mock_server_cls,
+            patch("bfabric._oauth.pkce.webbrowser.open", return_value=True),
+            patch("bfabric._oauth.pkce.secrets.token_urlsafe", return_value="state"),
+            patch("bfabric._oauth.pkce._generate_verifier", return_value="v"),
+            patch("bfabric._oauth.pkce._generate_challenge", return_value="c"),
+            patch("bfabric._oauth.pkce.threading.Thread") as mock_thread_cls,
         ):
             mock_server = MagicMock()
             mock_server.redirect_uri = "http://127.0.0.1:9999/callback"
@@ -242,12 +242,12 @@ class TestPkceLogin:
 
     def test_browser_fallback_prints_url(self, capsys):
         with (
-            patch("bfabric.oauth._pkce._CallbackServer") as mock_server_cls,
-            patch("bfabric.oauth._pkce._exchange_code", return_value={"access_token": "t"}),
-            patch("bfabric.oauth._pkce.webbrowser.open", return_value=False),
-            patch("bfabric.oauth._pkce.secrets.token_urlsafe", return_value="state"),
-            patch("bfabric.oauth._pkce._generate_verifier", return_value="v"),
-            patch("bfabric.oauth._pkce._generate_challenge", return_value="c"),
+            patch("bfabric._oauth.pkce._CallbackServer") as mock_server_cls,
+            patch("bfabric._oauth.pkce._exchange_code", return_value={"access_token": "t"}),
+            patch("bfabric._oauth.pkce.webbrowser.open", return_value=False),
+            patch("bfabric._oauth.pkce.secrets.token_urlsafe", return_value="state"),
+            patch("bfabric._oauth.pkce._generate_verifier", return_value="v"),
+            patch("bfabric._oauth.pkce._generate_challenge", return_value="c"),
         ):
             mock_server = MagicMock()
             mock_server.redirect_uri = "http://127.0.0.1:9999/callback"
@@ -263,11 +263,11 @@ class TestPkceLogin:
 
     def test_open_browser_false_prints_url(self, capsys):
         with (
-            patch("bfabric.oauth._pkce._CallbackServer") as mock_server_cls,
-            patch("bfabric.oauth._pkce._exchange_code", return_value={"access_token": "t"}),
-            patch("bfabric.oauth._pkce.secrets.token_urlsafe", return_value="state"),
-            patch("bfabric.oauth._pkce._generate_verifier", return_value="v"),
-            patch("bfabric.oauth._pkce._generate_challenge", return_value="c"),
+            patch("bfabric._oauth.pkce._CallbackServer") as mock_server_cls,
+            patch("bfabric._oauth.pkce._exchange_code", return_value={"access_token": "t"}),
+            patch("bfabric._oauth.pkce.secrets.token_urlsafe", return_value="state"),
+            patch("bfabric._oauth.pkce._generate_verifier", return_value="v"),
+            patch("bfabric._oauth.pkce._generate_challenge", return_value="c"),
         ):
             mock_server = MagicMock()
             mock_server.redirect_uri = "http://127.0.0.1:9999/callback"

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 
 import yaml
 from loguru import logger
@@ -20,6 +20,8 @@ class GeneralConfig(BaseModel):
 class EnvironmentConfig(BaseModel):
     config: BfabricClientConfig
     auth: BfabricAuth | None = None
+    auth_method: Literal["password", "oauth"] | None = None
+    client_id: str | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -27,7 +29,11 @@ class EnvironmentConfig(BaseModel):
         """Gathers all configs into the config field."""
         if not isinstance(values, dict):
             return values
-        values["config"] = {key: value for key, value in values.items() if key not in ["login", "password"]}
+        values["config"] = {
+            key: value
+            for key, value in values.items()
+            if key not in ["login", "password", "auth_method", "client_id"]
+        }
         return values
 
     @model_validator(mode="before")

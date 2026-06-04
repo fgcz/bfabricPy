@@ -46,8 +46,8 @@ if TYPE_CHECKING:
 
     from bfabric.entities.core.entity_reader import EntityReader
     from bfabric.experimental.webapp_integration_settings import TokenValidationSettingsProtocol
-    from bfabric.oauth._credential_provider import OAuthCredentialProvider
-    from bfabric.oauth._url_token import UrlTokenContext
+    from bfabric._oauth.credential_provider import OAuthCredentialProvider
+    from bfabric._oauth.url_token import UrlTokenContext
     from bfabric.typing import ApiRequestObjectType, ApiResponseObjectType
 
 
@@ -108,7 +108,35 @@ class Bfabric:
         config_data = load_config_data(
             config_file_path=config_file_path, include_auth=include_auth, config_file_env=config_file_env
         )
+        if config_data.auth_method == "oauth":
+            return cls._connect_oauth_from_config(config_data)
         return cls(config_data=config_data)
+
+    @classmethod
+    def _connect_oauth_from_config(cls, config_data: ConfigData) -> Bfabric:
+        """Create a Bfabric instance from a config with ``auth_method: oauth``.
+
+        Loads tokens from the disk cache keyed on ``base_url`` + ``client_id``.
+        """
+        from bfabric._oauth.credential_provider import OAuthCredentialProvider
+        from bfabric._oauth.token_cache import TokenCache, compute_token_cache_path
+
+        base_url = config_data.client.base_url.rstrip("/")
+        client_id = config_data.client_id or "bfabric-cli"
+        env_name = config_data.env_name or "default"
+        cache_path = compute_token_cache_path(base_url, client_id, env_name).expanduser()
+        if not TokenCache(cache_path).load():
+            raise ValueError(
+                "No OAuth tokens found. Run 'bfabric-cli auth pkce' or 'bfabric-cli auth device-code'."
+            )
+        provider = OAuthCredentialProvider(
+            client_id=client_id,
+            client_secret="",
+            token_url=f"{base_url}/rest/oauth/token",
+            grant_type="refresh_token",
+            token_cache_path=cache_path,
+        )
+        return cls(config_data=config_data, _credential_provider=provider)
 
     @classmethod
     def from_config(
@@ -216,7 +244,7 @@ class Bfabric:
         :param scope: OAuth scope (default ``"api:read api:write"``)
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
-        from bfabric.oauth._credential_provider import OAuthCredentialProvider
+        from bfabric._oauth.credential_provider import OAuthCredentialProvider
 
         base_url = base_url.rstrip("/")
         token_url = f"{base_url}/rest/oauth/token"
@@ -257,14 +285,14 @@ class Bfabric:
         :returns: Tuple of ``(Bfabric, UrlTokenContext)``
         """
         from bfabric.config.bfabric_auth import OAUTH_LOGIN
-        from bfabric.oauth._url_token import parse_url_token
+        from bfabric._oauth.url_token import parse_url_token
 
         base_url = base_url.rstrip("/")
         context = parse_url_token(base_url, jwt)
 
         provider: OAuthCredentialProvider | None = None
         if refresh_token is not None:
-            from bfabric.oauth._credential_provider import OAuthCredentialProvider
+            from bfabric._oauth.credential_provider import OAuthCredentialProvider
 
             token_url = f"{base_url}/rest/oauth/token"
             # client_id is embedded in the JWT by B-Fabric; public client (no secret)
@@ -320,8 +348,8 @@ class Bfabric:
         :param timeout: Seconds to wait for the user to complete login
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
-        from bfabric.oauth._credential_provider import OAuthCredentialProvider
-        from bfabric.oauth._pkce import pkce_login
+        from bfabric._oauth.credential_provider import OAuthCredentialProvider
+        from bfabric._oauth.pkce import pkce_login
 
         base_url = base_url.rstrip("/")
         token = pkce_login(
@@ -372,8 +400,8 @@ class Bfabric:
         :param timeout: Seconds to wait for the user to authorize (default 600)
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
-        from bfabric.oauth._credential_provider import OAuthCredentialProvider
-        from bfabric.oauth._device_code import device_code_login
+        from bfabric._oauth.credential_provider import OAuthCredentialProvider
+        from bfabric._oauth.device_code import device_code_login
 
         base_url = base_url.rstrip("/")
         token = device_code_login(
@@ -435,7 +463,7 @@ class Bfabric:
         :param jwt: The raw JWT string from the URL ``jwt`` parameter
         :returns: :class:`UrlTokenContext` with the extracted claims
         """
-        from bfabric.oauth._url_token import parse_url_token
+        from bfabric._oauth.url_token import parse_url_token
 
         return parse_url_token(base_url.rstrip("/"), jwt)
 

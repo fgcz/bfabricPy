@@ -5,8 +5,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from bfabric.oauth._url_token import UrlTokenContext
-from bfabric.oauth._webapp_client import WebappClient
+from bfabric._oauth.url_token import UrlTokenContext
+from bfabric._oauth.webapp_client import WebappClient
 
 _PATCH_FROM_URL_TOKEN = "bfabric.bfabric.Bfabric.from_url_token"
 _PATCH_CONNECT_OAUTH = "bfabric.bfabric.Bfabric.connect_oauth"

@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from bfabric.oauth._url_token import UrlTokenContext, _jwks_cache, parse_url_token, verify_jwt
+from bfabric._oauth.url_token import UrlTokenContext, _jwks_cache, parse_url_token, verify_jwt
 
 
 @pytest.fixture(autouse=True)
@@ -29,7 +29,7 @@ SAMPLE_CLAIMS = {
 
 @pytest.fixture
 def mock_httpx_get():
-    with patch("bfabric.oauth._url_token.httpx.get") as mock_get:
+    with patch("bfabric._oauth.url_token.httpx.get") as mock_get:
         mock_response = MagicMock()
         mock_response.json.return_value = {"keys": [{"kty": "RSA", "kid": "1"}]}
         mock_response.raise_for_status.return_value = None
@@ -40,8 +40,8 @@ def mock_httpx_get():
 @pytest.fixture
 def mock_joserfc():
     with (
-        patch("bfabric.oauth._url_token.KeySet") as mock_key_set,
-        patch("bfabric.oauth._url_token.joserfc_jwt") as mock_jwt,
+        patch("bfabric._oauth.url_token.KeySet") as mock_key_set,
+        patch("bfabric._oauth.url_token.joserfc_jwt") as mock_jwt,
     ):
         mock_result = MagicMock()
         mock_result.claims = dict(SAMPLE_CLAIMS)
@@ -96,8 +96,8 @@ class TestParseUrlToken:
     def test_handles_missing_optional_claims(self, mock_httpx_get):
         minimal_claims = {"sub": "user", "exp": 1999999999}
         with (
-            patch("bfabric.oauth._url_token.KeySet"),
-            patch("bfabric.oauth._url_token.joserfc_jwt") as mock_jwt,
+            patch("bfabric._oauth.url_token.KeySet"),
+            patch("bfabric._oauth.url_token.joserfc_jwt") as mock_jwt,
         ):
             mock_result = MagicMock()
             mock_result.claims = dict(minimal_claims)

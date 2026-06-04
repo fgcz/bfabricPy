@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING
 from authlib.integrations.requests_client import OAuth2Session  # pyright: ignore[reportMissingTypeStubs]
 
 from bfabric.config.bfabric_auth import OAUTH_LOGIN, BfabricAuth
-from bfabric.oauth._token_cache import TokenCache
+from bfabric._oauth.token_cache import TokenCache
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -80,6 +80,7 @@ class OAuthCredentialProvider:
                 initial = cached
         if initial is not None:
             self._session.token = initial
+            self._persist()
 
     def get_auth(self) -> BfabricAuth:
         """Return a :class:`BfabricAuth` with a valid access token.
