@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import threading
 import time
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -9,6 +10,7 @@ from datetime import UTC, datetime
 import httpx
 from joserfc import jwt as joserfc_jwt
 from joserfc.jwk import KeySet
+from loguru import logger
 
 
 @dataclass(frozen=True)
@@ -26,23 +28,28 @@ class UrlTokenContext:
 
 # Module-level JWKS cache: {base_url: (jwks_dict, fetched_at)}
 _jwks_cache: dict[str, tuple[dict[str, object], float]] = {}
+_jwks_lock = threading.Lock()
 _JWKS_CACHE_TTL = 3600  # 1 hour
 
 
 def _fetch_jwks(base_url: str) -> dict[str, object]:
     """Fetch (and cache for 1 hour) the JWKS from the B-Fabric server."""
     now = time.time()
-    cached = _jwks_cache.get(base_url)
-    if cached is not None:
-        jwks, fetched_at = cached
-        if now - fetched_at < _JWKS_CACHE_TTL:
-            return jwks
+    with _jwks_lock:
+        cached = _jwks_cache.get(base_url)
+        if cached is not None:
+            jwks, fetched_at = cached
+            if now - fetched_at < _JWKS_CACHE_TTL:
+                logger.debug("JWKS cache hit for {}", base_url)
+                return jwks
 
+    logger.debug("Fetching JWKS from {}", base_url)
     url = f"{base_url.rstrip('/')}/rest/oauth/jwks"
-    response = httpx.get(url)
+    response = httpx.get(url, timeout=30)
     _ = response.raise_for_status()
     jwks: dict[str, object] = response.json()  # pyright: ignore[reportAny]
-    _jwks_cache[base_url] = (jwks, now)
+    with _jwks_lock:
+        _jwks_cache[base_url] = (jwks, time.time())
     return jwks
 
 

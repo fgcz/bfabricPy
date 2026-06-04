@@ -9,6 +9,8 @@ from typing import Annotated
 import cyclopts
 import yaml
 
+from bfabric._oauth._constants import DEFAULT_CLIENT_ID
+
 from bfabric.config.config_file import ConfigFile
 from bfabric._oauth.token_cache import TokenCache, compute_token_cache_path
 
@@ -39,7 +41,7 @@ def cmd_login_status(
     print(f"Base URL:     {env.config.base_url}")
 
     if env.auth_method == "oauth":
-        client_id = env.client_id or "bfabric-cli"
+        client_id = env.client_id or DEFAULT_CLIENT_ID
         print(f"Auth method:  oauth")
         print(f"Client ID:    {client_id}")
         cache_path = compute_token_cache_path(env.config.base_url.rstrip("/"), client_id, resolved_env).expanduser()

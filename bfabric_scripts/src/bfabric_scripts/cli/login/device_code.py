@@ -7,19 +7,20 @@ from typing import Annotated
 
 import cyclopts
 
-from bfabric.config.config_writer import write_environment_to_config
+from bfabric._oauth._constants import DEFAULT_CLIENT_ID, DEFAULT_OAUTH_SCOPE
 from bfabric._oauth.credential_provider import OAuthCredentialProvider
 from bfabric._oauth.device_code import device_code_login
 from bfabric._oauth.token_cache import compute_token_cache_path
+from bfabric.config.config_writer import write_environment_to_config
 
 
 def cmd_login_device_code(
     base_url: Annotated[str, cyclopts.Parameter(help="B-Fabric instance URL.")],
     *,
-    client_id: Annotated[str, cyclopts.Parameter(help="OAuth client ID.")] = "bfabric-cli",
+    client_id: Annotated[str, cyclopts.Parameter(help="OAuth client ID.")] = DEFAULT_CLIENT_ID,
     env_name: Annotated[str, cyclopts.Parameter(help="Environment name in the config file.")] = "PRODUCTION",
     config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = Path("~/.bfabricpy.yml"),
-    scope: Annotated[str, cyclopts.Parameter(help="OAuth scope.")] = "api:read api:write",
+    scope: Annotated[str, cyclopts.Parameter(help="OAuth scope.")] = DEFAULT_OAUTH_SCOPE,
     timeout: Annotated[float, cyclopts.Parameter(help="Seconds to wait for authorization.")] = 600.0,
 ) -> None:
     """Authenticate via device code flow (for headless environments)."""

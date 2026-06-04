@@ -8,6 +8,7 @@ from unittest.mock import MagicMock, patch
 import httpx
 import pytest
 
+from bfabric.errors import BfabricOAuthError
 from bfabric._oauth.pkce import (
     _AuthorizationResult,
     _CallbackServer,
@@ -37,6 +38,14 @@ class TestGenerateVerifier:
         v1 = _generate_verifier()
         v2 = _generate_verifier()
         assert v1 != v2
+
+    def test_rejects_length_below_43(self):
+        with pytest.raises(ValueError, match="43..128"):
+            _generate_verifier(length=42)
+
+    def test_rejects_length_above_128(self):
+        with pytest.raises(ValueError, match="43..128"):
+            _generate_verifier(length=129)
 
 
 class TestGenerateChallenge:
@@ -129,6 +138,7 @@ class TestExchangeCode:
                 "redirect_uri": "http://127.0.0.1:12345/callback",
                 "code_verifier": "my_verifier",
             },
+            timeout=30,
         )
         assert result == {"access_token": "at", "refresh_token": "rt"}
 
@@ -196,8 +206,11 @@ class TestPkceLogin:
             mock_server.serve_forever = MagicMock()
             mock_server_cls.return_value = mock_server
 
-            with pytest.raises(RuntimeError, match="CSRF state mismatch"):
+            with pytest.raises(BfabricOAuthError, match="CSRF state mismatch") as exc_info:
                 pkce_login("https://example.com/bfabric")
+            # State values must NOT appear in the error message (security)
+            assert "expected_state" not in str(exc_info.value)
+            assert "wrong_state" not in str(exc_info.value)
 
     def test_error_from_server_raises(self):
         with (

@@ -499,7 +499,7 @@ class TestFromUrlToken:
     def test_without_refresh_token(self, mocker):
         mocker.patch.object(Bfabric, "_log_version_message")
         mock_parse = mocker.patch("bfabric._oauth.url_token.parse_url_token")
-        mock_context = MagicMock(name="context")
+        mock_context = MagicMock(name="context", expires_at=None)
         mock_parse.return_value = mock_context
 
         client, context = Bfabric.from_url_token(
@@ -541,7 +541,7 @@ class TestFromUrlToken:
     def test_strips_trailing_slash(self, mocker):
         mocker.patch.object(Bfabric, "_log_version_message")
         mock_parse = mocker.patch("bfabric._oauth.url_token.parse_url_token")
-        mock_parse.return_value = MagicMock()
+        mock_parse.return_value = MagicMock(expires_at=None)
 
         client, _ = Bfabric.from_url_token(
             base_url="https://example.com/bfabric///",
@@ -550,6 +550,42 @@ class TestFromUrlToken:
 
         assert client.config.base_url == "https://example.com/bfabric/"
         mock_parse.assert_called_once_with("https://example.com/bfabric", "tok")
+
+    def test_expired_jwt_without_refresh_token_raises(self, mocker):
+        from datetime import UTC, datetime, timedelta
+
+        from bfabric.errors import BfabricTokenExpiredError
+
+        mocker.patch.object(Bfabric, "_log_version_message")
+        mock_parse = mocker.patch("bfabric._oauth.url_token.parse_url_token")
+        mock_context = MagicMock(
+            name="context",
+            expires_at=datetime.now(tz=UTC) - timedelta(hours=1),
+        )
+        mock_parse.return_value = mock_context
+
+        with pytest.raises(BfabricTokenExpiredError):
+            Bfabric.from_url_token(
+                base_url="https://example.com/bfabric",
+                jwt="expired.jwt.here",
+            )
+
+    def test_unexpired_jwt_without_refresh_token_succeeds(self, mocker):
+        from datetime import UTC, datetime, timedelta
+
+        mocker.patch.object(Bfabric, "_log_version_message")
+        mock_parse = mocker.patch("bfabric._oauth.url_token.parse_url_token")
+        mock_context = MagicMock(
+            name="context",
+            expires_at=datetime.now(tz=UTC) + timedelta(hours=1),
+        )
+        mock_parse.return_value = mock_context
+
+        client, _ = Bfabric.from_url_token(
+            base_url="https://example.com/bfabric",
+            jwt="valid.jwt.here",
+        )
+        assert client.auth.password.get_secret_value() == "valid.jwt.here"
 
 
 class TestParseUrlToken:

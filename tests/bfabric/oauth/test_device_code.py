@@ -36,6 +36,7 @@ class TestRequestDeviceCode:
                 "client_id": "test-cli",
                 "scope": "api:read api:write",
             },
+            timeout=30,
         )
         assert result == mock_response.json.return_value
 
@@ -78,6 +79,7 @@ class TestPollForToken:
                 "device_code": "dc_123",
                 "client_id": "test-cli",
             },
+            timeout=30,
         )
 
     def test_authorization_pending_then_success(self):

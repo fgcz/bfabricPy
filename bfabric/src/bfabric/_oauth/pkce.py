@@ -20,13 +20,13 @@ import threading
 import webbrowser
 from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from typing import TYPE_CHECKING, Any
 from urllib.parse import parse_qs, urlencode, urlparse
 
 import httpx
+from loguru import logger
 
-if TYPE_CHECKING:
-    pass
+from bfabric._oauth._constants import DEFAULT_CLIENT_ID, DEFAULT_OAUTH_SCOPE
+from bfabric.errors import BfabricOAuthError
 
 
 def _generate_verifier(length: int = 128) -> str:
@@ -34,6 +34,8 @@ def _generate_verifier(length: int = 128) -> str:
 
     Returns a URL-safe string of the requested *length* (43..128 chars).
     """
+    if not (43 <= length <= 128):
+        raise ValueError(f"PKCE verifier length must be 43..128, got {length}")
     # token_urlsafe produces ~4/3 * nbytes chars; generate enough then truncate.
     return secrets.token_urlsafe(96)[:length]
 
@@ -60,7 +62,7 @@ class _AuthorizationResult:
 class _CallbackHandler(BaseHTTPRequestHandler):
     """HTTP request handler that captures the OAuth authorization callback."""
 
-    server: _CallbackServer  # type: ignore[assignment]
+    server: _CallbackServer  # pyright: ignore[reportIncompatibleVariableOverride]
 
     def do_GET(self) -> None:  # noqa: N802
         qs = parse_qs(urlparse(self.path).query)
@@ -74,7 +76,7 @@ class _CallbackHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", "text/html")
         self.end_headers()
-        self.wfile.write(
+        _ = self.wfile.write(
             b"<html><body><h1>Login successful</h1>"
             b"<p>You can close this tab.</p></body></html>"
         )
@@ -82,7 +84,7 @@ class _CallbackHandler(BaseHTTPRequestHandler):
         # Shut down the server from a daemon thread so this handler can return.
         threading.Thread(target=self.server.shutdown, daemon=True).start()
 
-    def log_message(self, format: str, *args: Any) -> None:  # noqa: A002
+    def log_message(self, format: str, *args: object) -> None:  # noqa: A002  # pyright: ignore[reportImplicitOverride]
         """Suppress default stderr logging."""
 
 
@@ -119,16 +121,18 @@ def _exchange_code(
             "redirect_uri": redirect_uri,
             "code_verifier": code_verifier,
         },
+        timeout=30,
     )
-    response.raise_for_status()
-    return response.json()  # pyright: ignore[reportReturnType]
+    _ = response.raise_for_status()
+    result: dict[str, object] = response.json()  # pyright: ignore[reportAny]
+    return result
 
 
 def pkce_login(
     base_url: str,
     *,
-    client_id: str = "bfabric-cli",
-    scope: str = "api:read api:write",
+    client_id: str = DEFAULT_CLIENT_ID,
+    scope: str = DEFAULT_OAUTH_SCOPE,
     port: int = 0,
     open_browser: bool = True,
     timeout: float = 120.0,
@@ -150,6 +154,7 @@ def pkce_login(
     :raises RuntimeError: On timeout, CSRF state mismatch, or authorization error
     """
     base_url = base_url.rstrip("/")
+    logger.debug("Starting PKCE login flow for {}", base_url)
     verifier = _generate_verifier()
     challenge = _generate_challenge(verifier)
     state = secrets.token_urlsafe(32)
@@ -180,27 +185,27 @@ def pkce_login(
 
     if server_thread.is_alive():
         server.shutdown()
-        raise RuntimeError(f"PKCE login timed out after {timeout} seconds")
+        raise BfabricOAuthError(f"PKCE login timed out after {timeout} seconds")
 
     result = server.result
 
     # Validate CSRF state.
     if result.state != state:
-        raise RuntimeError(
-            f"CSRF state mismatch: expected {state!r}, got {result.state!r}"
-        )
+        logger.debug("CSRF state mismatch: expected {!r}, got {!r}", state, result.state)
+        raise BfabricOAuthError("CSRF state mismatch in OAuth callback")
 
     # Check for authorization errors.
     if result.error is not None:
         msg = f"Authorization error: {result.error}"
         if result.error_description:
             msg += f" — {result.error_description}"
-        raise RuntimeError(msg)
+        raise BfabricOAuthError(msg)
 
     if result.code is None:
-        raise RuntimeError("No authorization code received")
+        raise BfabricOAuthError("No authorization code received")
 
     # Exchange the code for tokens.
+    logger.debug("Exchanging authorization code for tokens")
     token_url = f"{base_url}/rest/oauth/token"
     return _exchange_code(
         token_url=token_url,

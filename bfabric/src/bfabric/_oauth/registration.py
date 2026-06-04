@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import httpx
+from loguru import logger
 
 
 def register_client(
@@ -36,10 +37,12 @@ def register_client(
     if service_user is not None:
         body["service_user_login"] = service_user
 
+    logger.debug("Registering OAuth client '{}' at {}", client_name, url)
     response = httpx.post(
         url,
         json=body,
         headers={"Authorization": f"Bearer {token}"},
+        timeout=30,
     )
     _ = response.raise_for_status()
     result: dict[str, object] = response.json()  # pyright: ignore[reportAny]

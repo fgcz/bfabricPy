@@ -31,7 +31,7 @@ class EnvironmentConfig(BaseModel):
             return values
         values["config"] = {
             key: value
-            for key, value in values.items()
+            for key, value in values.items()  # pyright: ignore[reportAny]
             if key not in ["login", "password", "auth_method", "client_id"]
         }
         return values

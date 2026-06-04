@@ -56,7 +56,7 @@ class TestVerifyJwt:
 
         result = verify_jwt("https://example.com/bfabric", "some.jwt.token")
 
-        mock_httpx_get.assert_called_once_with("https://example.com/bfabric/rest/oauth/jwks")
+        mock_httpx_get.assert_called_once_with("https://example.com/bfabric/rest/oauth/jwks", timeout=30)
         mock_key_set.import_key_set.assert_called_once()
         mock_jwt.decode.assert_called_once_with("some.jwt.token", mock_key_set.import_key_set.return_value)
         assert result == dict(SAMPLE_CLAIMS)
@@ -78,7 +78,7 @@ class TestVerifyJwt:
 
     def test_normalizes_trailing_slash(self, mock_httpx_get, mock_joserfc):
         verify_jwt("https://example.com/bfabric/", "token")
-        mock_httpx_get.assert_called_once_with("https://example.com/bfabric/rest/oauth/jwks")
+        mock_httpx_get.assert_called_once_with("https://example.com/bfabric/rest/oauth/jwks", timeout=30)
 
 
 class TestParseUrlToken:

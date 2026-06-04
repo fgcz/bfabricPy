@@ -36,6 +36,7 @@ class TestRegisterClient:
                 "redirect_uris": ["http://localhost:8050/callback"],
             },
             headers={"Authorization": "Bearer bearer-token"},
+            timeout=30,
         )
         assert result["client_id"] == "new-client-id"
         assert result["client_secret"] == "new-client-secret"

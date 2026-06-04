@@ -28,6 +28,16 @@ class TestTokenCache:
         mode = stat.S_IMODE(os.stat(cache._path).st_mode)
         assert mode == 0o600
 
+    def test_save_creates_file_with_secure_permissions(self, tmp_path):
+        """File is created with 0o600 from the start (no race window)."""
+        cache = TokenCache(tmp_path / "secure.json")
+        cache.save({"access_token": "secret"})
+        mode = stat.S_IMODE(os.stat(cache._path).st_mode)
+        # Must be owner-only from creation, not set after the fact
+        assert mode == 0o600
+        assert not (mode & stat.S_IRGRP)
+        assert not (mode & stat.S_IROTH)
+
     def test_save_creates_parent_dirs(self, tmp_path):
         cache = TokenCache(tmp_path / "sub" / "dir" / "token.json")
         cache.save({"access_token": "x"})

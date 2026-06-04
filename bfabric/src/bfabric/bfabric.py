@@ -28,6 +28,8 @@ from typing import TYPE_CHECKING, Any, Literal
 from loguru import logger
 from rich.console import Console
 
+from bfabric._oauth._constants import DEFAULT_CLIENT_ID, DEFAULT_OAUTH_SCOPE
+
 from bfabric.config import BfabricAuth, BfabricClientConfig
 from bfabric.config.bfabric_client_config import BfabricAPIEngineType
 from bfabric.config.config_data import ConfigData, load_config_data
@@ -122,7 +124,7 @@ class Bfabric:
         from bfabric._oauth.token_cache import TokenCache, compute_token_cache_path
 
         base_url = config_data.client.base_url.rstrip("/")
-        client_id = config_data.client_id or "bfabric-cli"
+        client_id = config_data.client_id or DEFAULT_CLIENT_ID
         env_name = config_data.env_name or "default"
         cache_path = compute_token_cache_path(base_url, client_id, env_name).expanduser()
         if not TokenCache(cache_path).load():
@@ -229,7 +231,7 @@ class Bfabric:
         client_secret: str,
         base_url: str,
         *,
-        scope: str = "api:read api:write",
+        scope: str = DEFAULT_OAUTH_SCOPE,
         token_cache_path: Path | None = None,
     ) -> Bfabric:
         """Returns a new Bfabric instance that authenticates via OAuth 2.0 client credentials.
@@ -318,6 +320,10 @@ class Bfabric:
             config_data = ConfigData(client=config, auth=None)
             return cls(config_data=config_data, _credential_provider=provider), context
         else:
+            if context.expires_at is not None and context.expires_at <= datetime.now(tz=context.expires_at.tzinfo):
+                from bfabric.errors import BfabricTokenExpiredError
+
+                raise BfabricTokenExpiredError()
             auth = BfabricAuth(login=OAUTH_LOGIN, password=jwt)  # pyright: ignore[reportArgumentType]
             config_data = ConfigData(client=config, auth=auth)
             return cls(config_data=config_data), context
@@ -327,8 +333,8 @@ class Bfabric:
         cls,
         base_url: str,
         *,
-        client_id: str = "bfabric-cli",
-        scope: str = "api:read api:write",
+        client_id: str = DEFAULT_CLIENT_ID,
+        scope: str = DEFAULT_OAUTH_SCOPE,
         port: int = 0,
         open_browser: bool = True,
         timeout: float = 120.0,
@@ -379,8 +385,8 @@ class Bfabric:
         cls,
         base_url: str,
         *,
-        client_id: str = "bfabric-cli",
-        scope: str = "api:read api:write",
+        client_id: str = DEFAULT_CLIENT_ID,
+        scope: str = DEFAULT_OAUTH_SCOPE,
         timeout: float = 600.0,
         token_cache_path: Path | None = None,
     ) -> Bfabric:

@@ -29,6 +29,29 @@ def provider(mock_oauth2_session):
     )
 
 
+class TestValidation:
+    def test_client_credentials_requires_secret(self, mock_oauth2_session):
+        with pytest.raises(ValueError, match="client_secret is required"):
+            OAuthCredentialProvider(
+                client_id="test-id",
+                client_secret="",
+                token_url="https://example.com/rest/oauth/token",
+                grant_type="client_credentials",
+            )
+
+    def test_refresh_token_allows_empty_secret(self, mock_oauth2_session):
+        """refresh_token grant type does not require client_secret (public clients)."""
+        mock_oauth2_session.token = {"access_token": "t", "refresh_token": "rt", "expires_at": 9999999999}
+        provider = OAuthCredentialProvider(
+            client_id="test-id",
+            client_secret="",
+            token_url="https://example.com/rest/oauth/token",
+            grant_type="refresh_token",
+            token={"access_token": "t", "refresh_token": "rt", "expires_at": 9999999999},
+        )
+        assert provider.get_auth() is not None
+
+
 class TestClientCredentials:
     def test_get_auth_fetches_token_on_first_call(self, provider, mock_oauth2_session):
         def do_fetch(*args, **kwargs):
@@ -205,6 +228,7 @@ class TestDiskCache:
             client_secret="",
             token_url="https://example.com/rest/oauth/token",
             token={"access_token": "from_caller", "refresh_token": "rt", "expires_at": time.time() + 3600},
+            grant_type="refresh_token",
             token_cache_path=cache_path,
         )
 

@@ -4,11 +4,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from pathlib import Path
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    pass
+from loguru import logger
 
 
 def compute_token_cache_path(base_url: str, client_id: str, env_name: str) -> Path:
@@ -41,16 +40,28 @@ class TokenCache:
         try:
             data: object = json.loads(self._path.read_text())  # pyright: ignore[reportAny]
         except (FileNotFoundError, json.JSONDecodeError):
+            logger.debug("Token cache miss: {}", self._path)
             return None
         if not isinstance(data, dict):
+            logger.debug("Token cache invalid (not a dict): {}", self._path)
             return None
+        logger.debug("Token cache hit: {}", self._path)
         return data  # pyright: ignore[reportUnknownVariableType]
 
     def save(self, token: dict[str, object]) -> None:
-        """Write *token* to disk, creating parent directories as needed."""
+        """Write *token* to disk, creating parent directories as needed.
+
+        The file is created with 0o600 permissions atomically (via
+        ``os.open``) so that tokens are never world-readable, even briefly.
+        """
+        logger.debug("Saving token cache to {}", self._path)
         self._path.parent.mkdir(parents=True, exist_ok=True)
-        _ = self._path.write_text(json.dumps(token))
-        self._path.chmod(0o600)
+        data = json.dumps(token).encode()
+        fd = os.open(str(self._path), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        try:
+            _ = os.write(fd, data)
+        finally:
+            os.close(fd)
 
     def clear(self) -> None:
         """Remove the cache file if it exists."""

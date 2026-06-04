@@ -84,6 +84,10 @@ class BfabricTokenInvalidError(BfabricTokenValidationFailedError):
         super().__init__(message)
 
 
+class BfabricOAuthError(RuntimeError):
+    """Raised when an OAuth operation fails (token exchange, device code flow, PKCE, etc.)."""
+
+
 # TODO: Also test for response-level errors
 def get_response_errors(response: Any, endpoint: str) -> list[BfabricRequestError]:
     """

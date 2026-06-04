@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path
 from typing import TYPE_CHECKING
 
+from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
+
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from bfabric.bfabric import Bfabric
     from bfabric._oauth.url_token import UrlTokenContext
 
@@ -33,9 +36,9 @@ class WebappClient:
         *,
         client_id: str,
         client_secret: str,
-        scope: str = "api:read api:write",
-        user_token_cache_path: Path | str | None = None,
-        service_token_cache_path: Path | str | None = None,
+        scope: str = DEFAULT_OAUTH_SCOPE,
+        user_token_cache_path: Path | None = None,
+        service_token_cache_path: Path | None = None,
     ) -> WebappClient:
         """Create a ``WebappClient`` from URL token parameters and service credentials.
 
@@ -57,8 +60,8 @@ class WebappClient:
             token_cache_path=user_token_cache_path,
         )
         service_client = Bfabric.connect_oauth(
-                client_id=client_id,
-                client_secret=client_secret,
+            client_id=client_id,
+            client_secret=client_secret,
             base_url=base_url,
             scope=scope,
             token_cache_path=service_token_cache_path,

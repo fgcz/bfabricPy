@@ -1,9 +1,13 @@
-"""Write environment entries to the bfabricpy YAML config file."""
+"""Write environment entries to the bfabricpy YAML config file.
+
+Note: ``yaml.dump`` does not preserve YAML comments — any comments in the
+existing config file will be lost when the file is rewritten.
+"""
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
-from typing import Any
 
 import yaml
 
@@ -11,7 +15,7 @@ import yaml
 def write_environment_to_config(
     config_path: Path,
     env_name: str,
-    env_data: dict[str, Any],
+    env_data: dict[str, object],
     *,
     set_default: bool = True,
 ) -> None:
@@ -33,7 +37,8 @@ def write_environment_to_config(
     config_path.parent.mkdir(parents=True, exist_ok=True)
 
     if config_path.is_file():
-        existing: dict[str, Any] = yaml.safe_load(config_path.read_text()) or {}
+        loaded: object = yaml.safe_load(config_path.read_text())  # pyright: ignore[reportAny]
+        existing: dict[str, dict[str, object]] = loaded if isinstance(loaded, dict) else {}  # pyright: ignore[reportUnknownVariableType]
     else:
         existing = {}
 
@@ -45,5 +50,9 @@ def write_environment_to_config(
 
     existing[env_name] = env_data
 
-    config_path.write_text(yaml.dump(existing, default_flow_style=False, sort_keys=False))
-    config_path.chmod(0o600)
+    data = yaml.dump(existing, default_flow_style=False, sort_keys=False).encode()
+    fd = os.open(str(config_path), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    try:
+        _ = os.write(fd, data)
+    finally:
+        os.close(fd)

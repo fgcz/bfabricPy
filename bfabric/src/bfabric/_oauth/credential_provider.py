@@ -20,7 +20,10 @@ from typing import TYPE_CHECKING
 
 from authlib.integrations.requests_client import OAuth2Session  # pyright: ignore[reportMissingTypeStubs]
 
+from loguru import logger
+
 from bfabric.config.bfabric_auth import OAUTH_LOGIN, BfabricAuth
+from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
 from bfabric._oauth.token_cache import TokenCache
 
 if TYPE_CHECKING:
@@ -52,13 +55,15 @@ class OAuthCredentialProvider:
         client_secret: str,
         token_url: str,
         *,
-        scope: str = "api:read api:write",
+        scope: str = DEFAULT_OAUTH_SCOPE,
         token: dict[str, object] | None = None,
         grant_type: str = "client_credentials",
         token_cache_path: Path | None = None,
         leeway: int = 30,
     ) -> None:
         self._lock = threading.Lock()
+        if grant_type == "client_credentials" and not client_secret:
+            raise ValueError("client_secret is required for the client_credentials grant type")
         self._cache = TokenCache(token_cache_path) if token_cache_path else None
 
         self._session = OAuth2Session(
@@ -90,7 +95,8 @@ class OAuthCredentialProvider:
         """
         with self._lock:
             self._ensure_token()
-            access_token: str = self._session.token["access_token"]  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+            token_data: dict[str, object] = self._session.token  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+            access_token = str(token_data["access_token"])  # pyright: ignore[reportUnknownArgumentType]
         return BfabricAuth(login=OAUTH_LOGIN, password=access_token)  # pyright: ignore[reportArgumentType]
 
     def _ensure_token(self) -> None:
@@ -98,18 +104,19 @@ class OAuthCredentialProvider:
 
         Must be called while holding ``self._lock``.
         """
-        token = self._session.token  # pyright: ignore[reportUnknownMemberType]
+        token: dict[str, object] | None = self._session.token  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
         if token:
             # Let authlib check expiry + refresh/re-fetch as appropriate.
+            logger.debug("Ensuring token is active (refresh if needed)")
             self._session.ensure_active_token(token)  # pyright: ignore[reportUnknownMemberType]
         else:
             # No token at all — perform the initial fetch.
-            self._session.fetch_token(  # pyright: ignore[reportUnknownMemberType]
-                self._session.metadata.get("token_endpoint"),  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType]
-            )
+            logger.debug("No token present, fetching initial token")
+            token_endpoint: str | None = self._session.metadata.get("token_endpoint")  # pyright: ignore[reportAny]
+            self._session.fetch_token(token_endpoint)  # pyright: ignore[reportUnknownMemberType]
             self._persist()
 
-    def _on_token_update(self, new_token: dict[str, object], **_kwargs: object) -> None:  # pyright: ignore[reportUnknownParameterType]
+    def _on_token_update(self, _new_token: dict[str, object], **_kwargs: object) -> None:
         """Callback invoked by authlib after a token refresh/re-fetch."""
         self._persist()
 
