@@ -30,7 +30,7 @@ class TestCmdLoginPkce:
             cmd_login_pkce(
                 base_url="https://example.com/bfabric",
                 client_id="test-client",
-                env_name="PROD",
+                config_env="PROD",
                 config_file=config_file,
             )
             mock_pkce.assert_called_once()

@@ -18,7 +18,7 @@ def cmd_login_device_code(
     base_url: Annotated[str, cyclopts.Parameter(help="B-Fabric instance URL.")],
     *,
     client_id: Annotated[str, cyclopts.Parameter(help="OAuth client ID.")] = DEFAULT_CLIENT_ID,
-    env_name: Annotated[str, cyclopts.Parameter(help="Environment name in the config file.")] = "PRODUCTION",
+    config_env: Annotated[str, cyclopts.Parameter(help="Environment name in the config file.")] = "PRODUCTION",
     config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = Path("~/.bfabricpy.yml"),
     scope: Annotated[str, cyclopts.Parameter(help="OAuth scope.")] = DEFAULT_OAUTH_SCOPE,
     timeout: Annotated[float, cyclopts.Parameter(help="Seconds to wait for authorization.")] = 600.0,
@@ -37,7 +37,7 @@ def cmd_login_device_code(
     except RuntimeError as e:
         print(f"Error: {e}", file=sys.stderr)
         raise SystemExit(1) from None
-    cache_path = compute_token_cache_path(base_url, client_id, env_name).expanduser()
+    cache_path = compute_token_cache_path(base_url, client_id, config_env).expanduser()
     token_url = f"{base_url}/rest/oauth/token"
     OAuthCredentialProvider(
         client_id=client_id,
@@ -53,6 +53,6 @@ def cmd_login_device_code(
         "auth_method": "oauth",
         "client_id": client_id,
     }
-    write_environment_to_config(config_file, env_name, env_data)
+    write_environment_to_config(config_file, config_env, env_data)
     print(f"Authenticated successfully.")
-    print(f"Config saved to environment '{env_name}' in {config_file}")
+    print(f"Config saved to environment '{config_env}' in {config_file}")

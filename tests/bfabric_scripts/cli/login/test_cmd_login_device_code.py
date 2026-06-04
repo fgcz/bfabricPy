@@ -29,7 +29,7 @@ class TestCmdLoginDeviceCode:
             cmd_login_device_code(
                 base_url="https://example.com/bfabric",
                 client_id="test-client",
-                env_name="PROD",
+                config_env="PROD",
                 config_file=config_file,
             )
             mock_dc.assert_called_once()

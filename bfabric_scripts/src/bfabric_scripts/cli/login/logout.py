@@ -18,7 +18,7 @@ from bfabric._oauth.token_cache import TokenCache, compute_token_cache_path
 def cmd_login_logout(
     *,
     config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = Path("~/.bfabricpy.yml"),
-    env_name: Annotated[str | None, cyclopts.Parameter(help="Environment name (default: auto-detect).")] = None,
+    config_env: Annotated[str | None, cyclopts.Parameter(help="Environment name (default: auto-detect).")] = None,
 ) -> None:
     """Clear cached OAuth tokens for an environment."""
     config_path = Path(config_file).expanduser()
@@ -27,7 +27,7 @@ def cmd_login_logout(
         return
 
     config_file_obj = ConfigFile.model_validate(yaml.safe_load(config_path.read_text()))
-    resolved_env = env_name or os.environ.get("BFABRICPY_CONFIG_ENV") or config_file_obj.general.default_config
+    resolved_env = config_env or os.environ.get("BFABRICPY_CONFIG_ENV") or config_file_obj.general.default_config
     if resolved_env is None:
         print("No environment specified and no default configured.")
         return

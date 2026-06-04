@@ -17,7 +17,7 @@ def cmd_login_pat(
     base_url: Annotated[str, cyclopts.Parameter(help="B-Fabric instance URL.")],
     *,
     pat: Annotated[str | None, cyclopts.Parameter(help="Personal Access Token (prompted if omitted).")] = None,
-    env_name: Annotated[str, cyclopts.Parameter(help="Environment name in the config file.")] = "PRODUCTION",
+    config_env: Annotated[str, cyclopts.Parameter(help="Environment name in the config file.")] = "PRODUCTION",
     config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = Path("~/.bfabricpy.yml"),
 ) -> None:
     """Authenticate with a Personal Access Token (PAT)."""
@@ -30,6 +30,6 @@ def cmd_login_pat(
         "login": OAUTH_LOGIN,
         "password": pat,
     }
-    write_environment_to_config(config_file, env_name, env_data)
+    write_environment_to_config(config_file, config_env, env_data)
     print("Authenticated successfully.")
-    print(f"Config saved to environment '{env_name}' in {config_file}")
+    print(f"Config saved to environment '{config_env}' in {config_file}")

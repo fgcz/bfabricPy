@@ -14,7 +14,7 @@ class TestCmdLoginPat:
         cmd_login_pat(
             base_url="https://example.com/bfabric",
             pat="my-pat-token",
-            env_name="PROD",
+            config_env="PROD",
             config_file=config_file,
         )
         data = yaml.safe_load(config_file.read_text())
@@ -31,7 +31,7 @@ class TestCmdLoginPat:
         cmd_login_pat(
             base_url="https://example.com/bfabric/",
             pat="tok",
-            env_name="PROD",
+            config_env="PROD",
             config_file=config_file,
         )
         data = yaml.safe_load(config_file.read_text())
@@ -42,7 +42,7 @@ class TestCmdLoginPat:
         with patch("bfabric_scripts.cli.login.pat.getpass.getpass", return_value="prompted-token"):
             cmd_login_pat(
                 base_url="https://example.com/bfabric",
-                env_name="PROD",
+                config_env="PROD",
                 config_file=config_file,
             )
         data = yaml.safe_load(config_file.read_text())
