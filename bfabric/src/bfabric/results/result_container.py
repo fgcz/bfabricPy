@@ -71,7 +71,8 @@ class ResultContainer:
     def assert_success(self) -> None:
         """Asserts that the query was successful. Raises a `RuntimeError` if it was not."""
         if not self.is_success:
-            raise RuntimeError("Query was not successful", self._errors)
+            details = "; ".join(str(e) for e in self._errors)
+            raise RuntimeError(f"Query was not successful: {details}")
 
     @property
     def is_success(self) -> bool:

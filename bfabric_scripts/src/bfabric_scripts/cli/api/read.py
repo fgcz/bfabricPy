@@ -98,7 +98,6 @@ def render_output(
 
 
 @use_client
-@logger.catch(reraise=True)
 def cmd_api_read(params: Annotated[Params, cyclopts.Parameter(name="*")], *, client: Bfabric) -> None | int:
     """Reads entities from B-Fabric."""
     logger.info("{}", params)

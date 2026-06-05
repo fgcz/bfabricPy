@@ -29,7 +29,6 @@ class Params(BaseModel):
 
 @app.default
 @use_client
-@logger.catch(reraise=True)
 def cmd_api_create(params: Params, *, client: Bfabric) -> None:
     """Creates a new entity in B-Fabric."""
     attributes_dict = params.attributes.to_dict(duplicates="error")
