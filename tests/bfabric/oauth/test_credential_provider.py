@@ -215,21 +215,25 @@ class TestDiskCache:
         saved = json.loads(cache_path.read_text())
         assert saved["access_token"] == "fresh"
 
-    def test_disk_cache_preferred_over_supplied_token(self, tmp_path, mock_oauth2_session):
-        """Disk cache takes precedence over the token= parameter."""
+    def test_supplied_token_preferred_over_disk_cache(self, tmp_path, mock_oauth2_session):
+        """Explicitly provided token takes precedence over stale disk cache."""
         import json
 
         cache_path = tmp_path / "token.json"
         cached = {"access_token": "from_disk", "expires_at": time.time() + 3600}
         cache_path.write_text(json.dumps(cached))
 
+        supplied = {"access_token": "from_caller", "refresh_token": "rt", "expires_at": time.time() + 3600}
         provider = OAuthCredentialProvider(
             client_id="id",
             client_secret="",
             token_url="https://example.com/rest/oauth/token",
-            token={"access_token": "from_caller", "refresh_token": "rt", "expires_at": time.time() + 3600},
+            token=supplied,
             grant_type="refresh_token",
             token_cache_path=cache_path,
         )
 
-        assert mock_oauth2_session.token == cached
+        assert mock_oauth2_session.token == supplied
+        # Fresh token should also be persisted to cache
+        saved = json.loads(cache_path.read_text())
+        assert saved["access_token"] == "from_caller"

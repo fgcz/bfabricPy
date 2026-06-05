@@ -78,8 +78,10 @@ class OAuthCredentialProvider:
         )
 
         # Seed the session with an existing token (from caller or disk).
+        # An explicitly provided token (e.g. fresh from PKCE) always takes
+        # priority over a stale cache entry.
         initial = token
-        if self._cache:
+        if initial is None and self._cache:
             cached = self._cache.load()
             if cached is not None:
                 initial = cached
