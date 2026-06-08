@@ -58,6 +58,10 @@ def write_environment_to_config(
     data = yaml.dump(existing, default_flow_style=False, sort_keys=False).encode()
     fd = os.open(str(config_path), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
     try:
+        # The mode passed to os.open is only honored when the file is created; an existing
+        # config keeps its old (possibly group/world-readable) permissions. Tighten explicitly
+        # so a secret written here (e.g. a PAT) never lands in a readable file.
+        os.fchmod(fd, 0o600)
         _ = os.write(fd, data)
     finally:
         os.close(fd)

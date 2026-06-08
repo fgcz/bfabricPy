@@ -23,6 +23,18 @@ class TestWriteEnvironmentToConfig:
         mode = stat.S_IMODE(os.stat(config_path).st_mode)
         assert mode == 0o600
 
+    def test_tightens_permissions_on_existing_file(self, tmp_path):
+        # A pre-existing config (e.g. created before OAuth support) may be group/world-readable.
+        # os.open's mode argument is only honored when the file is *created*, so writing into an
+        # existing file must explicitly tighten the permissions or a secret (e.g. a PAT) would be
+        # written into a world-readable file.
+        config_path = tmp_path / "config.yml"
+        config_path.write_text("GENERAL: {}\n")
+        config_path.chmod(0o644)
+        write_environment_to_config(config_path, "PROD", {"login": "__oauth__", "password": "secret-pat"})
+        mode = stat.S_IMODE(os.stat(config_path).st_mode)
+        assert mode == 0o600
+
     def test_merges_with_existing(self, tmp_path):
         config_path = tmp_path / "config.yml"
         config_path.write_text(
@@ -49,9 +61,7 @@ class TestWriteEnvironmentToConfig:
     def test_set_default_false(self, tmp_path):
         config_path = tmp_path / "config.yml"
         write_environment_to_config(config_path, "PROD", {"base_url": "https://example.com"})
-        write_environment_to_config(
-            config_path, "TEST", {"base_url": "https://test.example.com"}, set_default=False
-        )
+        write_environment_to_config(config_path, "TEST", {"base_url": "https://test.example.com"}, set_default=False)
         data = yaml.safe_load(config_path.read_text())
         assert data["GENERAL"]["default_config"] == "PROD"
         assert "TEST" in data
