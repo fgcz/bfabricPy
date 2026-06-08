@@ -74,5 +74,11 @@ def export_config_data(config_data: ConfigData) -> str:
     auth_data = config_data.auth.model_dump() if config_data.auth else None
     if auth_data is not None:
         auth_data["password"] = auth_data["password"].get_secret_value()
-    data = {"client": config_data.client.model_dump(mode="json", round_trip=True), "auth": auth_data}
+    data = {
+        "client": config_data.client.model_dump(mode="json", round_trip=True),
+        "auth": auth_data,
+        "auth_method": config_data.auth_method,
+        "client_id": config_data.client_id,
+        "env_name": config_data.env_name,
+    }
     return json.dumps(data)
