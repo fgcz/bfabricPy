@@ -13,11 +13,12 @@ from bfabric._oauth._constants import DEFAULT_CLIENT_ID
 
 from bfabric.config.config_file import ConfigFile
 from bfabric._oauth.token_cache import TokenCache, compute_token_cache_path
+from bfabric_scripts.cli.login import DEFAULT_CONFIG_FILE
 
 
 def cmd_login_logout(
     *,
-    config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = Path("~/.bfabricpy.yml"),
+    config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = DEFAULT_CONFIG_FILE,
     config_env: Annotated[str | None, cyclopts.Parameter(help="Environment name (default: auto-detect).")] = None,
 ) -> None:
     """Clear cached OAuth tokens for an environment."""

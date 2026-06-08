@@ -12,6 +12,7 @@ from bfabric._oauth.credential_provider import OAuthCredentialProvider
 from bfabric._oauth.pkce import pkce_login
 from bfabric._oauth.token_cache import compute_token_cache_path
 from bfabric.config.config_writer import write_environment_to_config
+from bfabric_scripts.cli.login import DEFAULT_CONFIG_FILE
 
 
 def cmd_login_pkce(
@@ -19,7 +20,7 @@ def cmd_login_pkce(
     *,
     client_id: Annotated[str, cyclopts.Parameter(help="OAuth client ID.")] = DEFAULT_CLIENT_ID,
     config_env: Annotated[str, cyclopts.Parameter(help="Environment name in the config file.")] = "PRODUCTION",
-    config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = Path("~/.bfabricpy.yml"),
+    config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = DEFAULT_CONFIG_FILE,
     scope: Annotated[str, cyclopts.Parameter(help="OAuth scope.")] = DEFAULT_OAUTH_SCOPE,
     port: Annotated[int, cyclopts.Parameter(help="Local port for callback (0 = auto).")] = 0,
     timeout: Annotated[float, cyclopts.Parameter(help="Seconds to wait for login.")] = 120.0,
@@ -43,7 +44,8 @@ def cmd_login_pkce(
         raise SystemExit(1) from None
     cache_path = compute_token_cache_path(base_url, client_id, config_env).expanduser()
     token_url = f"{base_url}/rest/oauth/token"
-    OAuthCredentialProvider(
+    # Constructed for its side effect: persists the fresh token to the disk cache.
+    _ = OAuthCredentialProvider(
         client_id=client_id,
         client_secret="",
         token_url=token_url,

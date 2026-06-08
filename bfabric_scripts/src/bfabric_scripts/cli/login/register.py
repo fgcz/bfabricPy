@@ -11,6 +11,7 @@ from typing import Annotated
 import cyclopts
 
 from bfabric._oauth.registration import register_client
+from bfabric_scripts.cli.login import DEFAULT_CONFIG_FILE
 
 
 def _resolve_token_from_config(config_env: str, config_file: Path) -> tuple[str, str]:
@@ -66,12 +67,18 @@ def _resolve_token_from_config(config_env: str, config_file: Path) -> tuple[str,
 def cmd_login_register(
     client_name: Annotated[str, cyclopts.Parameter(help="Human-readable name for the client.")],
     redirect_uri: Annotated[str, cyclopts.Parameter(help="OAuth redirect URI for the client.")],
-    base_url: Annotated[str | None, cyclopts.Parameter(help="B-Fabric instance URL (inferred from --config-env if omitted).")] = None,
+    base_url: Annotated[
+        str | None, cyclopts.Parameter(help="B-Fabric instance URL (inferred from --config-env if omitted).")
+    ] = None,
     *,
-    token: Annotated[str | None, cyclopts.Parameter(help="Employee Bearer token (prompted if omitted and --config-env not given).")] = None,
+    token: Annotated[
+        str | None, cyclopts.Parameter(help="Employee Bearer token (prompted if omitted and --config-env not given).")
+    ] = None,
     config_env: Annotated[str | None, cyclopts.Parameter(help="Reuse OAuth token from this environment.")] = None,
-    config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = Path("~/.bfabricpy.yml"),
-    service_user: Annotated[str | None, cyclopts.Parameter(help="Service user login (enables client_credentials grant).")] = None,
+    config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = DEFAULT_CONFIG_FILE,
+    service_user: Annotated[
+        str | None, cyclopts.Parameter(help="Service user login (enables client_credentials grant).")
+    ] = None,
     scope: Annotated[str | None, cyclopts.Parameter(help="OAuth scope (defaults to server default).")] = None,
 ) -> None:
     """Register a new OAuth client with the B-Fabric server."""
@@ -91,6 +98,8 @@ def cmd_login_register(
     if resolved_base_url is None:
         print("Error: base_url is required when --config-env is not provided.", file=sys.stderr)
         raise SystemExit(1)
+
+    assert resolved_token is not None  # narrowed: set by every branch above
 
     try:
         result = register_client(

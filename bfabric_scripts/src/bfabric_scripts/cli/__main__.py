@@ -18,7 +18,7 @@ app.command(cmd_dataset, name="dataset")
 app.command(cmd_executable, name="executable")
 app.command(cmd_workunit, name="workunit")
 app.command(cmd_feeder, name="feeder")
-app.command(cmd_auth, name="auth")
+_ = app.command(cmd_auth, name="auth")
 
 # TODO delete after transitory release
 app.command(_app_external_job, name="external-job")

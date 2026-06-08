@@ -11,6 +11,7 @@ import cyclopts
 
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.config.config_writer import write_environment_to_config
+from bfabric_scripts.cli.login import DEFAULT_CONFIG_FILE
 
 
 def cmd_login_pat(
@@ -18,7 +19,7 @@ def cmd_login_pat(
     *,
     pat: Annotated[str | None, cyclopts.Parameter(help="Personal Access Token (prompted if omitted).")] = None,
     config_env: Annotated[str, cyclopts.Parameter(help="Environment name in the config file.")] = "PRODUCTION",
-    config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = Path("~/.bfabricpy.yml"),
+    config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = DEFAULT_CONFIG_FILE,
 ) -> None:
     """Authenticate with a Personal Access Token (PAT)."""
     if pat is None:

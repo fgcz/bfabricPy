@@ -8,14 +8,18 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import yaml
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 
 def write_environment_to_config(
     config_path: Path,
     env_name: str,
-    env_data: dict[str, object],
+    env_data: Mapping[str, object],
     *,
     set_default: bool = True,
 ) -> None:
@@ -36,9 +40,10 @@ def write_environment_to_config(
     config_path = Path(config_path).expanduser()
     config_path.parent.mkdir(parents=True, exist_ok=True)
 
+    existing: dict[str, dict[str, object]]
     if config_path.is_file():
         loaded: object = yaml.safe_load(config_path.read_text())  # pyright: ignore[reportAny]
-        existing: dict[str, dict[str, object]] = loaded if isinstance(loaded, dict) else {}  # pyright: ignore[reportUnknownVariableType]
+        existing = loaded if isinstance(loaded, dict) else {}  # pyright: ignore[reportUnknownVariableType]
     else:
         existing = {}
 
@@ -48,7 +53,7 @@ def write_environment_to_config(
     if set_default:
         existing["GENERAL"]["default_config"] = env_name
 
-    existing[env_name] = env_data
+    existing[env_name] = dict(env_data)
 
     data = yaml.dump(existing, default_flow_style=False, sort_keys=False).encode()
     fd = os.open(str(config_path), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
