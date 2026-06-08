@@ -1,6 +1,4 @@
-# OAuth Integration — Branch Summary
-
-Branch: `oauth-integration` (8 commits, ~4000 lines added across 49 files)
+# OAuth Integration
 
 ## Overview
 
