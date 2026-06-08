@@ -51,17 +51,20 @@ class TokenCache:
     def save(self, token: dict[str, object]) -> None:
         """Write *token* to disk, creating parent directories as needed.
 
-        The file is created with 0o600 permissions atomically (via
-        ``os.open``) so that tokens are never world-readable, even briefly.
+        The write is atomic: data is written to a temporary file (0o600) and
+        then ``Path.replace``-d into place, so a concurrent reader (possibly in
+        another process sharing this cache path) never sees a torn file.
         """
         logger.debug("Saving token cache to {}", self._path)
         self._path.parent.mkdir(parents=True, exist_ok=True)
         data = json.dumps(token).encode()
-        fd = os.open(str(self._path), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        tmp = self._path.with_name(f".{self._path.name}.{os.getpid()}.tmp")
+        fd = os.open(str(tmp), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
         try:
             _ = os.write(fd, data)
         finally:
             os.close(fd)
+        tmp.replace(self._path)
 
     def clear(self) -> None:
         """Remove the cache file if it exists."""
