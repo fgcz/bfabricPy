@@ -13,15 +13,15 @@ from bfabric_scripts.cli.cli_workunit import cmd_workunit
 package_version = importlib.metadata.version("bfabric_scripts")
 
 app = cyclopts.App(version=package_version)
-app.command(cmd_api, name="api")
-app.command(cmd_dataset, name="dataset")
-app.command(cmd_executable, name="executable")
-app.command(cmd_workunit, name="workunit")
-app.command(cmd_feeder, name="feeder")
+_ = app.command(cmd_api, name="api")
+_ = app.command(cmd_dataset, name="dataset")
+_ = app.command(cmd_executable, name="executable")
+_ = app.command(cmd_workunit, name="workunit")
+_ = app.command(cmd_feeder, name="feeder")
 _ = app.command(cmd_auth, name="auth")
 
 # TODO delete after transitory release
-app.command(_app_external_job, name="external-job")
+_ = app.command(_app_external_job, name="external-job")
 
 if __name__ == "__main__":
     app()

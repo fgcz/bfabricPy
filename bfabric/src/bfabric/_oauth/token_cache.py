@@ -64,7 +64,7 @@ class TokenCache:
             _ = os.write(fd, data)
         finally:
             os.close(fd)
-        tmp.replace(self._path)
+        _ = tmp.replace(self._path)
 
     def clear(self) -> None:
         """Remove the cache file if it exists."""
