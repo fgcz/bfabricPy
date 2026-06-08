@@ -4,26 +4,34 @@ from __future__ import annotations
 
 import threading
 import time
-from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import datetime  # noqa: TC003  # runtime import: pydantic resolves field annotations
 
 import httpx
 from joserfc import jwt as joserfc_jwt
 from joserfc.jwk import KeySet
 from loguru import logger
+from pydantic import BaseModel, ConfigDict, Field
 
 
-@dataclass(frozen=True)
-class UrlTokenContext:
-    """Claims extracted from a B-Fabric URL token JWT."""
+class UrlTokenContext(BaseModel):
+    """Claims extracted from a B-Fabric URL token JWT.
 
-    entity_id: int | None
-    entity_class_name: str | None
-    application_id: int | None
-    job_id: int | None
-    client_id: str | None
-    subject: str | None
-    expires_at: datetime | None
+    Validates and coerces the raw JWT claims into typed fields. Field aliases map the
+    JWT claim names (e.g. ``entityId``) to the Python attribute names (e.g. ``entity_id``);
+    ``expires_at`` is built from the ``exp`` Unix timestamp.
+    """
+
+    model_config: ConfigDict = ConfigDict(  # pyright: ignore[reportIncompatibleVariableOverride]
+        frozen=True, populate_by_name=True, extra="allow"
+    )
+
+    entity_id: int | None = Field(default=None, alias="entityId")
+    entity_class_name: str | None = Field(default=None, alias="entityClassName")
+    application_id: int | None = Field(default=None, alias="applicationId")
+    job_id: int | None = Field(default=None, alias="jobId")
+    client_id: str | None = None
+    subject: str | None = Field(default=None, alias="sub")
+    expires_at: datetime | None = Field(default=None, alias="exp")
 
 
 # Module-level JWKS cache: {base_url: (jwks_dict, fetched_at)}
@@ -77,15 +85,4 @@ def parse_url_token(base_url: str, token: str) -> UrlTokenContext:
     :returns: :class:`UrlTokenContext` with the extracted claims
     """
     claims = verify_jwt(base_url, token)
-    expires_at = None
-    if "exp" in claims:
-        expires_at = datetime.fromtimestamp(float(claims["exp"]), tz=UTC)  # pyright: ignore[reportArgumentType]
-    return UrlTokenContext(
-        entity_id=claims.get("entityId"),  # pyright: ignore[reportArgumentType]
-        entity_class_name=claims.get("entityClassName"),  # pyright: ignore[reportArgumentType]
-        application_id=claims.get("applicationId"),  # pyright: ignore[reportArgumentType]
-        job_id=claims.get("jobId"),  # pyright: ignore[reportArgumentType]
-        client_id=claims.get("client_id"),  # pyright: ignore[reportArgumentType]
-        subject=claims.get("sub"),  # pyright: ignore[reportArgumentType]
-        expires_at=expires_at,
-    )
+    return UrlTokenContext.model_validate(claims)
