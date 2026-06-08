@@ -827,21 +827,43 @@ class TestConnectPat:
 
 
 class TestPickling:
-    def test_credential_provider_excluded(self, mocker):
+    def test_oauth_only_client_survives_pickle(self, mocker):
+        # An OAuth client has no static auth — its credentials live entirely in the
+        # credential provider. If pickling drops the provider, the restored client can no
+        # longer authenticate (this is the regression being guarded against). A real provider
+        # is used (not a mock) because the provider itself must round-trip through pickle
+        # despite holding a threading.Lock and an OAuth2Session. Seeding a far-future
+        # expires_at keeps authlib from attempting a network refresh.
         mocker.patch.object(Bfabric, "_log_version_message")
-        mock_provider = MagicMock()
+        from bfabric._oauth.credential_provider import OAuthCredentialProvider
 
+        provider = OAuthCredentialProvider(
+            client_id="cid",
+            client_secret="",
+            token_url="https://example.com/bfabric/rest/oauth/token",
+            grant_type="refresh_token",
+            token={"access_token": "tok-abc", "token_type": "Bearer", "expires_at": 9999999999},
+        )
+        config_data = ConfigData(
+            client=BfabricClientConfig(base_url="https://example.com/bfabric"),
+            auth=None,
+        )
+        client = Bfabric(config_data=config_data, _credential_provider=provider)
+        assert client.auth.login == OAUTH_LOGIN
+        assert client.auth.password.get_secret_value() == "tok-abc"
+
+        restored = pickle.loads(pickle.dumps(client))  # noqa: S301
+        assert restored.auth.login == OAUTH_LOGIN
+        assert restored.auth.password.get_secret_value() == "tok-abc"
+
+    def test_password_client_round_trip(self, mocker):
+        mocker.patch.object(Bfabric, "_log_version_message")
         config_data = ConfigData(
             client=BfabricClientConfig(base_url="https://example.com/bfabric"),
             auth=BfabricAuth(login="user", password="x" * 32),
         )
-        client = Bfabric(config_data=config_data, _credential_provider=mock_provider)
+        client = Bfabric(config_data=config_data)
 
-        state = client.__getstate__()
-        assert "_credential_provider" not in state
-
-        # Round-trip through pickle
-        data = pickle.dumps(client)
-        restored = pickle.loads(data)  # noqa: S301
+        restored = pickle.loads(pickle.dumps(client))  # noqa: S301
         assert restored._credential_provider is None
         assert restored.auth.login == "user"

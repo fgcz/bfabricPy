@@ -48,6 +48,13 @@ class OAuthCredentialProvider:
     _lock: threading.Lock
     _session: OAuth2Session
     _cache: TokenCache | None
+    _client_id: str
+    _client_secret: str
+    _token_url: str
+    _scope: str
+    _grant_type: str
+    _leeway: int
+    _token_cache_path: Path | None
 
     def __init__(
         self,
@@ -64,6 +71,15 @@ class OAuthCredentialProvider:
         self._lock = threading.Lock()
         if grant_type == "client_credentials" and not client_secret:
             raise ValueError("client_secret is required for the client_credentials grant type")
+        # Retained so the provider can be reconstructed after pickling (see __getstate__):
+        # threading.Lock and OAuth2Session are not picklable, so we rebuild them from inputs.
+        self._client_id = client_id
+        self._client_secret = client_secret
+        self._token_url = token_url
+        self._scope = scope
+        self._grant_type = grant_type
+        self._leeway = leeway
+        self._token_cache_path = token_cache_path
         self._cache = TokenCache(token_cache_path) if token_cache_path else None
 
         self._session = OAuth2Session(
@@ -97,7 +113,7 @@ class OAuthCredentialProvider:
         """
         with self._lock:
             self._ensure_token()
-            token_data: dict[str, object] = self._session.token  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+            token_data = self._session.token  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
             access_token = str(token_data["access_token"])  # pyright: ignore[reportUnknownArgumentType]
         return BfabricAuth(login=OAUTH_LOGIN, password=access_token)  # pyright: ignore[reportArgumentType]
 
@@ -106,11 +122,11 @@ class OAuthCredentialProvider:
 
         Must be called while holding ``self._lock``.
         """
-        token: dict[str, object] | None = self._session.token  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+        token = self._session.token  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
         if token:
-            # Let authlib check expiry + refresh/re-fetch as appropriate.
+            # Let authlib check expiry + refresh/re-fetch as appropriate (operates on self.token).
             logger.debug("Ensuring token is active (refresh if needed)")
-            self._session.ensure_active_token(token)  # pyright: ignore[reportUnknownMemberType]
+            self._session.ensure_active_token()  # pyright: ignore[reportUnknownMemberType]
         else:
             # No token at all — perform the initial fetch.
             logger.debug("No token present, fetching initial token")
@@ -125,4 +141,39 @@ class OAuthCredentialProvider:
     def _persist(self) -> None:
         """Write the current token to disk cache if configured."""
         if self._cache and self._session.token:  # pyright: ignore[reportUnknownMemberType]
-            self._cache.save(dict(self._session.token))  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType]
+            self._cache.save(
+                dict(self._session.token)  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType]
+            )
+
+    def __getstate__(self) -> dict[str, object]:  # pyright: ignore[reportImplicitOverride]
+        """Return a picklable representation.
+
+        ``threading.Lock`` and ``OAuth2Session`` cannot be pickled, so instead of the live
+        objects we persist the inputs needed to rebuild the session plus the current token.
+        """
+        with self._lock:
+            raw = self._session.token  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+            token: dict[str, object] | None = dict(raw) if raw else None  # pyright: ignore[reportUnknownArgumentType]
+        return {
+            "client_id": self._client_id,
+            "client_secret": self._client_secret,
+            "token_url": self._token_url,
+            "scope": self._scope,
+            "grant_type": self._grant_type,
+            "leeway": self._leeway,
+            "token_cache_path": self._token_cache_path,
+            "token": token,
+        }
+
+    def __setstate__(self, state: dict[str, object]) -> None:
+        """Rebuild the lock and session from the pickled inputs (see :meth:`__getstate__`)."""
+        self.__init__(
+            client_id=state["client_id"],  # pyright: ignore[reportArgumentType]
+            client_secret=state["client_secret"],  # pyright: ignore[reportArgumentType]
+            token_url=state["token_url"],  # pyright: ignore[reportArgumentType]
+            scope=state["scope"],  # pyright: ignore[reportArgumentType]
+            token=state["token"],  # pyright: ignore[reportArgumentType]
+            grant_type=state["grant_type"],  # pyright: ignore[reportArgumentType]
+            token_cache_path=state["token_cache_path"],  # pyright: ignore[reportArgumentType]
+            leeway=state["leeway"],  # pyright: ignore[reportArgumentType]
+        )

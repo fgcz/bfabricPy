@@ -128,9 +128,7 @@ class Bfabric:
         env_name = config_data.env_name or "default"
         cache_path = compute_token_cache_path(base_url, client_id, env_name).expanduser()
         if not TokenCache(cache_path).load():
-            raise ValueError(
-                "No OAuth tokens found. Run 'bfabric-cli auth pkce' or 'bfabric-cli auth device-code'."
-            )
+            raise ValueError("No OAuth tokens found. Run 'bfabric-cli auth pkce' or 'bfabric-cli auth device-code'.")
         provider = OAuthCredentialProvider(
             client_id=client_id,
             client_secret="",
@@ -709,13 +707,15 @@ class Bfabric:
             "config": self._config,
             "auth": self._auth,
             "query_counter": self.query_counter,
+            "credential_provider": self._credential_provider,
         }
 
     def __setstate__(self, state: dict[str, Any]) -> None:
         self._config = state["config"]
         self._auth = state["auth"]
         self.query_counter = state["query_counter"]
-        self._credential_provider = None
+        # .get for backward compatibility with pickles created before the provider was retained.
+        self._credential_provider = state.get("credential_provider")
 
 
 def get_system_auth(
