@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 
+from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric_app_runner.commands.command_docker import _collect_mount_options, execute_command_docker, _to_shell
 from bfabric_app_runner.specs.app.commands_spec import (
     CommandDocker,
@@ -25,7 +26,7 @@ class TestCollectMountOptions:
         # Should have 2 default mounts: bfabric config and work dir
         assert len(mounts) == 2
         assert mounts[0] == (
-            Path("~/.bfabricpy.yml").expanduser().absolute(),
+            DEFAULT_CONFIG_FILE.expanduser().absolute(),
             Path("/home/user/.bfabricpy.yml"),
             True,
         )

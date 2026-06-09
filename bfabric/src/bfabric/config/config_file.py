@@ -12,6 +12,10 @@ from pydantic_core import PydanticCustomError
 from bfabric.config import BfabricAuth
 from bfabric.config import BfabricClientConfig
 
+# Canonical default location of the bfabricPy config file. The tilde is kept unexpanded here;
+# callers expand it via Path.expanduser() at the point of use.
+DEFAULT_CONFIG_FILE = Path("~/.bfabricpy.yml")
+
 
 class GeneralConfig(BaseModel):
     default_config: Annotated[str | None, Field(min_length=1)] = None

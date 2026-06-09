@@ -9,9 +9,9 @@ from typing import Annotated
 
 import cyclopts
 
+from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.config.config_writer import write_environment_to_config
-from bfabric_scripts.cli.login import DEFAULT_CONFIG_FILE
 
 
 def cmd_login_pat(

@@ -8,6 +8,7 @@ import pytest
 from pydantic import SecretStr
 
 from bfabric import Bfabric, BfabricAPIEngineType, BfabricClientConfig, BfabricAuth
+from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.config.config_data import ConfigData
 from bfabric.engine.engine_suds import EngineSUDS
@@ -41,7 +42,7 @@ def test_connect_when_no_args(mocker):
     assert client._config == mock_load_config_data.return_value.client
     assert client._auth == mock_load_config_data.return_value.auth
     mock_load_config_data.assert_called_once_with(
-        config_file_path=Path("~/.bfabricpy.yml"),
+        config_file_path=DEFAULT_CONFIG_FILE,
         include_auth=True,
         config_file_env="default",
     )

@@ -23,7 +23,8 @@ class MockCyclopts:
 
 sys.modules["cyclopts"] = MockCyclopts()
 
-from bfabric.utils.cli_integration import use_client, _DEFAULT_CONFIG_FILE
+from bfabric.utils.cli_integration import use_client
+from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric import Bfabric
 
 
@@ -203,7 +204,7 @@ class TestUseClientBehavior:
 
         mock_bfabric_connect.assert_called_once()
         call_kwargs = mock_bfabric_connect.call_args.kwargs
-        assert call_kwargs["config_file_path"] == _DEFAULT_CONFIG_FILE
+        assert call_kwargs["config_file_path"] == DEFAULT_CONFIG_FILE
         assert result == "test"
 
     def test_use_client_passes_default_config_env_when_not_specified(self, mock_bfabric_connect):
@@ -286,13 +287,13 @@ class TestDefaultConfigFile:
     """Tests for the default config file constant."""
 
     def test_default_config_file_is_path(self):
-        """Verify that _DEFAULT_CONFIG_FILE is a Path object."""
-        assert isinstance(_DEFAULT_CONFIG_FILE, Path)
+        """Verify that DEFAULT_CONFIG_FILE is a Path object."""
+        assert isinstance(DEFAULT_CONFIG_FILE, Path)
 
     def test_default_config_file_path(self):
         """Verify the default config file path is correct."""
         expected = Path("~/.bfabricpy.yml")
-        assert _DEFAULT_CONFIG_FILE == expected
+        assert DEFAULT_CONFIG_FILE == expected
 
 
 class TestUseClientSetupLogging:

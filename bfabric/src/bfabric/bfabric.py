@@ -30,7 +30,7 @@ from rich.console import Console
 
 from bfabric._oauth._constants import DEFAULT_CLIENT_ID, DEFAULT_OAUTH_SCOPE
 
-from bfabric.config import BfabricAuth, BfabricClientConfig
+from bfabric.config import BfabricAuth, BfabricClientConfig, DEFAULT_CONFIG_FILE
 from bfabric.config.bfabric_client_config import BfabricAPIEngineType
 from bfabric.config.config_data import ConfigData, load_config_data
 from bfabric.config.config_file import read_config_file
@@ -87,7 +87,7 @@ class Bfabric:
     def connect(
         cls,
         *,
-        config_file_path: Path | str = Path("~/.bfabricpy.yml"),
+        config_file_path: Path | str = DEFAULT_CONFIG_FILE,
         config_file_env: str | Literal["default"] | None = "default",
         include_auth: bool = True,
     ) -> Bfabric:

@@ -11,12 +11,12 @@ from loguru import logger
 from rich.highlighter import RegexHighlighter
 from rich.theme import Theme
 
+from bfabric.config import DEFAULT_CONFIG_FILE
+
 if TYPE_CHECKING:
     from collections.abc import Callable
 
 T = TypeVar("T")
-
-_DEFAULT_CONFIG_FILE = Path("~/.bfabricpy.yml")
 
 
 def use_client(fn: Callable[..., T], setup_logging: bool = True) -> Callable[..., T]:
@@ -90,7 +90,7 @@ def use_client(fn: Callable[..., T], setup_logging: bool = True) -> Callable[...
         else:
             try:
                 client = Bfabric.connect(
-                    config_file_path=config_file or _DEFAULT_CONFIG_FILE,
+                    config_file_path=config_file or DEFAULT_CONFIG_FILE,
                     config_file_env=config_env or "default",
                 )
             except (ValueError, RuntimeError) as e:

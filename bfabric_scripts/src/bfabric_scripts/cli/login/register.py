@@ -11,7 +11,7 @@ from typing import Annotated
 import cyclopts
 
 from bfabric._oauth.registration import register_client
-from bfabric_scripts.cli.login import DEFAULT_CONFIG_FILE
+from bfabric.config import DEFAULT_CONFIG_FILE
 
 
 def _resolve_token_from_config(config_env: str, config_file: Path) -> tuple[str, str]:
