@@ -15,6 +15,14 @@ if TYPE_CHECKING:
 _GRANT_TYPE_TOKEN_EXCHANGE = "urn:ietf:params:oauth:grant-type:token-exchange"
 
 
+def _default_grant_types(service_user: str | None) -> list[str]:
+    """Return the default grant types for webapp registration."""
+    grant_types = [_GRANT_TYPE_TOKEN_EXCHANGE, "refresh_token"]
+    if service_user is not None:
+        grant_types.append("client_credentials")
+    return grant_types
+
+
 def register_client(
     base_url: str,
     token: str,
@@ -23,14 +31,15 @@ def register_client(
     *,
     service_user: str | None = None,
     scope: str = DEFAULT_OAUTH_SCOPE,
+    grant_types: list[str] | None = None,
 ) -> dict[str, object]:
-    """Register a new OAuth webapp client with the B-Fabric server.
+    """Register a new OAuth client with the B-Fabric server.
 
     Requires an employee Bearer token for authorization.
 
-    Automatically requests the grant types needed for webapp operation:
+    By default, requests the grant types needed for webapp operation:
     ``token-exchange`` and ``refresh_token`` always, plus ``client_credentials``
-    when *service_user* is provided.
+    when *service_user* is provided. Pass *grant_types* to override.
 
     :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
     :param token: Employee Bearer token for authorization
@@ -38,16 +47,15 @@ def register_client(
     :param redirect_uri: OAuth redirect URI for the client
     :param service_user: Optional service user login to enable ``client_credentials`` grant
     :param scope: OAuth scope string (default ``"api:read api:write"``)
+    :param grant_types: Explicit list of grant types to request (overrides the default)
     :returns: Registration response containing ``client_id``, ``client_secret``, etc.
     """
     url = f"{base_url.rstrip('/')}/rest/oauth/register"
-    grant_types = [_GRANT_TYPE_TOKEN_EXCHANGE, "refresh_token"]
-    if service_user is not None:
-        grant_types.append("client_credentials")
+    resolved_grant_types = grant_types if grant_types is not None else _default_grant_types(service_user)
     body: dict[str, object] = {
         "client_name": client_name,
         "redirect_uris": [redirect_uri],
-        "grant_types": grant_types,
+        "grant_types": resolved_grant_types,
         "scope": scope,
     }
     if service_user is not None:

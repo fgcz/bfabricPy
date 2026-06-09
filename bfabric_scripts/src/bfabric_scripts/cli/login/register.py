@@ -80,6 +80,10 @@ def cmd_login_register(
         str | None, cyclopts.Parameter(help="Service user login (enables client_credentials grant).")
     ] = None,
     scope: Annotated[str, cyclopts.Parameter(help="OAuth scope.")] = "api:read api:write",
+    grant_types: Annotated[
+        list[str] | None,
+        cyclopts.Parameter(help="Grant types to request (overrides default webapp grants)."),
+    ] = None,
 ) -> None:
     """Register a new OAuth client with the B-Fabric server."""
     resolved_base_url = base_url
@@ -109,6 +113,7 @@ def cmd_login_register(
             redirect_uri=redirect_uri,
             service_user=service_user,
             scope=scope,
+            grant_types=grant_types,
         )
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)

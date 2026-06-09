@@ -83,6 +83,18 @@ class TestRegisterClient:
         call_body = mock_httpx_post.call_args[1]["json"]
         assert call_body["scope"] == "api:read api:write"
 
+    def test_explicit_grant_types_override(self, mock_httpx_post):
+        register_client(
+            base_url="https://example.com/bfabric",
+            token="tok",
+            client_name="app",
+            redirect_uri="http://localhost/cb",
+            grant_types=["authorization_code", "refresh_token"],
+        )
+
+        call_body = mock_httpx_post.call_args[1]["json"]
+        assert call_body["grant_types"] == ["authorization_code", "refresh_token"]
+
     def test_without_optional_params(self, mock_httpx_post):
         register_client(
             base_url="https://example.com/bfabric",
