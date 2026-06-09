@@ -77,12 +77,3 @@ def verify_jwt(base_url: str, token: str) -> dict[str, object]:
     return dict(result.claims)
 
 
-def parse_url_token(base_url: str, token: str) -> UrlTokenContext:
-    """Verify a B-Fabric URL token and extract its claims.
-
-    :param base_url: B-Fabric instance URL
-    :param token: The raw JWT string from the URL ``jwt`` parameter
-    :returns: :class:`UrlTokenContext` with the extracted claims
-    """
-    claims = verify_jwt(base_url, token)
-    return UrlTokenContext.model_validate(claims)

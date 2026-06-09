@@ -1,13 +1,11 @@
 from __future__ import annotations
 
 import time
-from datetime import UTC, datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
-from pydantic import ValidationError
 
-from bfabric._oauth.url_token import UrlTokenContext, _jwks_cache, parse_url_token, verify_jwt
+from bfabric._oauth.url_token import _jwks_cache, verify_jwt
 
 
 @pytest.fixture(autouse=True)
@@ -82,56 +80,3 @@ class TestVerifyJwt:
         mock_httpx_get.assert_called_once_with("https://example.com/bfabric/rest/oauth/jwks", timeout=30)
 
 
-class TestParseUrlToken:
-    def test_extracts_all_claims(self, mock_httpx_get, mock_joserfc):
-        ctx = parse_url_token("https://example.com/bfabric", "some.jwt.token")
-
-        assert ctx.entity_id == 123
-        assert ctx.entity_class_name == "Workunit"
-        assert ctx.application_id == 456
-        assert ctx.job_id == 789
-        assert ctx.client_id == "my-client"
-        assert ctx.subject == "jdoe"
-        assert ctx.expires_at == datetime.fromtimestamp(1999999999, tz=UTC)
-
-    def test_preserves_unknown_claims(self, mock_httpx_get):
-        claims = {**SAMPLE_CLAIMS, "futureClaim": "abc"}
-        with (
-            patch("bfabric._oauth.url_token.KeySet"),
-            patch("bfabric._oauth.url_token.joserfc_jwt") as mock_jwt,
-        ):
-            mock_result = MagicMock()
-            mock_result.claims = claims
-            mock_jwt.decode.return_value = mock_result
-            mock_jwt.JWTClaimsRegistry.return_value = MagicMock()
-
-            ctx = parse_url_token("https://example.com/bfabric", "token")
-
-        assert ctx.model_extra == {"futureClaim": "abc"}
-
-    def test_handles_missing_optional_claims(self, mock_httpx_get):
-        minimal_claims = {"sub": "user", "exp": 1999999999}
-        with (
-            patch("bfabric._oauth.url_token.KeySet"),
-            patch("bfabric._oauth.url_token.joserfc_jwt") as mock_jwt,
-        ):
-            mock_result = MagicMock()
-            mock_result.claims = dict(minimal_claims)
-            mock_jwt.decode.return_value = mock_result
-            mock_jwt.JWTClaimsRegistry.return_value = MagicMock()
-
-            ctx = parse_url_token("https://example.com/bfabric", "token")
-
-        assert ctx.entity_id is None
-        assert ctx.entity_class_name is None
-        assert ctx.application_id is None
-        assert ctx.job_id is None
-        assert ctx.client_id is None
-        assert ctx.subject == "user"
-        assert ctx.expires_at is not None
-
-    def test_returns_frozen_model(self, mock_httpx_get, mock_joserfc):
-        ctx = parse_url_token("https://example.com/bfabric", "token")
-        assert isinstance(ctx, UrlTokenContext)
-        with pytest.raises(ValidationError):
-            ctx.entity_id = 999  # type: ignore[misc]

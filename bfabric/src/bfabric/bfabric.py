@@ -49,7 +49,6 @@ if TYPE_CHECKING:
     from bfabric.entities.core.entity_reader import EntityReader
     from bfabric.experimental.webapp_integration_settings import TokenValidationSettingsProtocol
     from bfabric._oauth.credential_provider import OAuthCredentialProvider
-    from bfabric._oauth.url_token import UrlTokenContext
     from bfabric.typing import ApiRequestObjectType, ApiResponseObjectType
 
 
@@ -261,72 +260,6 @@ class Bfabric:
         return cls(config_data=config_data, _credential_provider=provider)
 
     @classmethod
-    def from_url_token(
-        cls,
-        base_url: str,
-        jwt: str,
-        refresh_token: str | None = None,
-        *,
-        token_cache_path: Path | None = None,
-    ) -> tuple[Bfabric, UrlTokenContext]:
-        """Creates a new Bfabric instance from a B-Fabric URL token JWT.
-
-        Verifies the JWT signature via JWKS and extracts entity context
-        (entity_id, application_id, etc.) from the token claims.
-
-        If *refresh_token* is provided, the access token is automatically
-        refreshed when it expires. Without a refresh token, the JWT is used
-        as-is and the caller must handle expiry.
-
-        :param base_url: B-Fabric instance URL
-        :param jwt: The raw JWT string from the URL ``jwt`` parameter
-        :param refresh_token: Optional refresh token for automatic renewal
-        :param token_cache_path: Optional path to cache tokens on disk
-        :returns: Tuple of ``(Bfabric, UrlTokenContext)``
-        """
-        from bfabric.config.bfabric_auth import OAUTH_LOGIN
-        from bfabric._oauth.url_token import parse_url_token
-
-        base_url = base_url.rstrip("/")
-        context = parse_url_token(base_url, jwt)
-
-        provider: OAuthCredentialProvider | None = None
-        if refresh_token is not None:
-            from bfabric._oauth.credential_provider import OAuthCredentialProvider
-
-            token_url = f"{base_url}/rest/oauth/token"
-            # client_id is embedded in the JWT by B-Fabric; public client (no secret)
-            client_id = context.client_id or ""
-            token_dict: dict[str, object] = {
-                "access_token": jwt,
-                "refresh_token": refresh_token,
-                "token_type": "Bearer",
-            }
-            if context.expires_at is not None:
-                token_dict["expires_at"] = context.expires_at.timestamp()
-            provider = OAuthCredentialProvider(
-                client_id=client_id,
-                client_secret="",
-                token_url=token_url,
-                token=token_dict,
-                grant_type="refresh_token",
-                token_cache_path=token_cache_path,
-            )
-
-        config = BfabricClientConfig(base_url=base_url)  # pyright: ignore[reportCallIssue]
-        if provider is not None:
-            config_data = ConfigData(client=config, auth=None)
-            return cls(config_data=config_data, _credential_provider=provider), context
-        else:
-            if context.expires_at is not None and context.expires_at <= datetime.now(tz=context.expires_at.tzinfo):
-                from bfabric.errors import BfabricTokenExpiredError
-
-                raise BfabricTokenExpiredError()
-            auth = BfabricAuth(login=OAUTH_LOGIN, password=jwt)  # pyright: ignore[reportArgumentType]
-            config_data = ConfigData(client=config, auth=auth)
-            return cls(config_data=config_data), context
-
-    @classmethod
     def connect_pkce(
         cls,
         base_url: str,
@@ -454,22 +387,6 @@ class Bfabric:
         config = BfabricClientConfig(base_url=base_url)  # pyright: ignore[reportCallIssue]
         config_data = ConfigData(client=config, auth=auth)
         return cls(config_data=config_data)
-
-    @staticmethod
-    def parse_url_token(base_url: str, jwt: str) -> UrlTokenContext:
-        """Verify and parse a B-Fabric URL token without creating a Bfabric instance.
-
-        Useful when a webapp needs to read context from the URL token
-        (entity_id, user, application_id) but uses its own client credentials
-        (via :meth:`connect_oauth`) for API calls.
-
-        :param base_url: B-Fabric instance URL
-        :param jwt: The raw JWT string from the URL ``jwt`` parameter
-        :returns: :class:`UrlTokenContext` with the extracted claims
-        """
-        from bfabric._oauth.url_token import parse_url_token
-
-        return parse_url_token(base_url.rstrip("/"), jwt)
 
     @property
     def config(self) -> BfabricClientConfig:

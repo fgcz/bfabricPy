@@ -79,7 +79,7 @@ def cmd_login_register(
     service_user: Annotated[
         str | None, cyclopts.Parameter(help="Service user login (enables client_credentials grant).")
     ] = None,
-    scope: Annotated[str | None, cyclopts.Parameter(help="OAuth scope (defaults to server default).")] = None,
+    scope: Annotated[str, cyclopts.Parameter(help="OAuth scope.")] = "api:read api:write",
 ) -> None:
     """Register a new OAuth client with the B-Fabric server."""
     resolved_base_url = base_url

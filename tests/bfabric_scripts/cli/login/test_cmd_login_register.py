@@ -107,7 +107,7 @@ class TestCmdLoginRegister:
             client_name="My App",
             redirect_uri="http://localhost/callback",
             service_user=None,
-            scope=None,
+            scope="api:read api:write",
         )
         output = capsys.readouterr()
         assert '"client_id": "new-client"' in output.out
@@ -153,7 +153,7 @@ class TestCmdLoginRegister:
             client_name="My App",
             redirect_uri="http://localhost/callback",
             service_user=None,
-            scope=None,
+            scope="api:read api:write",
         )
 
     def test_config_env_missing_env(self, tmp_path, capsys):

@@ -21,11 +21,18 @@ class MockCyclopts:
     Parameter = MockParameter
 
 
+_original_cyclopts = sys.modules.get("cyclopts")
 sys.modules["cyclopts"] = MockCyclopts()
 
 from bfabric.utils.cli_integration import use_client
 from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric import Bfabric
+
+# Restore the real cyclopts module so other tests are not affected
+if _original_cyclopts is not None:
+    sys.modules["cyclopts"] = _original_cyclopts
+else:
+    del sys.modules["cyclopts"]
 
 
 @pytest.fixture(autouse=True)
