@@ -12,8 +12,27 @@ from typing import TYPE_CHECKING
 
 import yaml
 
+from bfabric.config.config_file import EnvironmentConfig
+
 if TYPE_CHECKING:
     from collections.abc import Mapping
+
+
+def _validate_round_trip(env_name: str, env_data: Mapping[str, object]) -> None:
+    """Reject an environment that the reader could not load back.
+
+    Mirrors the reader's invariants so a write either persists a parseable config or fails
+    cleanly without touching the file. Checks two things:
+
+    * The name is not reserved -- the reader treats ``GENERAL`` as the general section and
+      forbids ``default``, so neither can be an environment.
+    * The fields form a valid :class:`EnvironmentConfig` (e.g. ``base_url`` present, auth
+      combination consistent). Only the single environment is validated, not the merged file,
+      so a pre-existing legacy environment can't block writing a new, valid one.
+    """
+    if env_name in ("GENERAL", "default"):
+        raise ValueError(f"Environment name {env_name!r} is reserved and cannot be used.")
+    _ = EnvironmentConfig.model_validate(dict(env_data))
 
 
 def write_environment_to_config(
@@ -21,7 +40,7 @@ def write_environment_to_config(
     env_name: str,
     env_data: Mapping[str, object],
     *,
-    set_default: bool = True,
+    set_default: bool,
 ) -> None:
     """Write (or update) an environment section in the bfabricpy YAML config.
 
@@ -35,8 +54,16 @@ def write_environment_to_config(
     :param config_path: Path to the YAML config file (will be expanded).
     :param env_name: Name of the environment to create / update.
     :param env_data: Dictionary of fields for the environment.
-    :param set_default: If ``True``, set this environment as the default.
+    :param set_default: If ``True``, set this environment as the default. Required: callers must
+        decide explicitly whether the new environment becomes the default.
+    :raises pydantic.ValidationError: If *env_data* would not parse back through the reader
+        (e.g. a missing ``base_url`` or an invalid auth combination). Validated before any
+        filesystem change, so a rejected write leaves an existing config untouched.
     """
+    # Guarantee the round-trip before any filesystem change, so a rejected write leaves an
+    # existing config untouched.
+    _validate_round_trip(env_name, env_data)
+
     config_path = Path(config_path).expanduser()
     config_path.parent.mkdir(parents=True, exist_ok=True)
 

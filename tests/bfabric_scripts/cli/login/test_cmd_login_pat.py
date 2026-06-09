@@ -47,3 +47,16 @@ class TestCmdLoginPat:
             )
         data = yaml.safe_load(config_file.read_text())
         assert data["PROD"]["password"] == "prompted-token"
+
+    def test_set_default_false_does_not_set_default(self, tmp_path):
+        config_file = tmp_path / "config.yml"
+        cmd_login_pat(
+            base_url="https://example.com/bfabric",
+            pat="tok",
+            config_env="PROD",
+            config_file=config_file,
+            set_default=False,
+        )
+        data = yaml.safe_load(config_file.read_text())
+        assert "default_config" not in data["GENERAL"]
+        assert data["PROD"]["login"] == OAUTH_LOGIN

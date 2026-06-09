@@ -20,6 +20,9 @@ def cmd_login_pat(
     pat: Annotated[str | None, cyclopts.Parameter(help="Personal Access Token (prompted if omitted).")] = None,
     config_env: Annotated[str, cyclopts.Parameter(help="Environment name in the config file.")] = "PRODUCTION",
     config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = DEFAULT_CONFIG_FILE,
+    set_default: Annotated[
+        bool, cyclopts.Parameter(help="Set this environment as the default in the config file.")
+    ] = True,
 ) -> None:
     """Authenticate with a Personal Access Token (PAT)."""
     if pat is None:
@@ -31,6 +34,6 @@ def cmd_login_pat(
         "login": OAUTH_LOGIN,
         "password": pat,
     }
-    write_environment_to_config(config_file, config_env, env_data)
+    write_environment_to_config(config_file, config_env, env_data, set_default=set_default)
     print("Authenticated successfully.")
     print(f"Config saved to environment '{config_env}' in {config_file}")

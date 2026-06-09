@@ -24,6 +24,9 @@ def cmd_login_pkce(
     scope: Annotated[str, cyclopts.Parameter(help="OAuth scope.")] = DEFAULT_OAUTH_SCOPE,
     port: Annotated[int, cyclopts.Parameter(help="Local port for callback (0 = auto).")] = 0,
     timeout: Annotated[float, cyclopts.Parameter(help="Seconds to wait for login.")] = 120.0,
+    set_default: Annotated[
+        bool, cyclopts.Parameter(help="Set this environment as the default in the config file.")
+    ] = True,
 ) -> None:
     """Authenticate via browser-based PKCE flow."""
     import sys
@@ -59,6 +62,6 @@ def cmd_login_pkce(
         "auth_method": "oauth",
         "client_id": client_id,
     }
-    write_environment_to_config(config_file, config_env, env_data)
+    write_environment_to_config(config_file, config_env, env_data, set_default=set_default)
     print(f"Authenticated successfully.")
     print(f"Config saved to environment '{config_env}' in {config_file}")

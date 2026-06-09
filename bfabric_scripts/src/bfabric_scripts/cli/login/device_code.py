@@ -23,6 +23,9 @@ def cmd_login_device_code(
     config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = DEFAULT_CONFIG_FILE,
     scope: Annotated[str, cyclopts.Parameter(help="OAuth scope.")] = DEFAULT_OAUTH_SCOPE,
     timeout: Annotated[float, cyclopts.Parameter(help="Seconds to wait for authorization.")] = 600.0,
+    set_default: Annotated[
+        bool, cyclopts.Parameter(help="Set this environment as the default in the config file.")
+    ] = True,
 ) -> None:
     """Authenticate via device code flow (for headless environments)."""
     import sys
@@ -55,6 +58,6 @@ def cmd_login_device_code(
         "auth_method": "oauth",
         "client_id": client_id,
     }
-    write_environment_to_config(config_file, config_env, env_data)
+    write_environment_to_config(config_file, config_env, env_data, set_default=set_default)
     print(f"Authenticated successfully.")
     print(f"Config saved to environment '{config_env}' in {config_file}")
