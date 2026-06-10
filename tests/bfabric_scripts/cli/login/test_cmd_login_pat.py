@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest.mock import patch
-
 import yaml
 
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
@@ -37,14 +35,14 @@ class TestCmdLoginPat:
         data = yaml.safe_load(config_file.read_text())
         assert data["PROD"]["base_url"] == "https://example.com/bfabric"
 
-    def test_prompts_when_pat_omitted(self, tmp_path):
+    def test_prompts_when_pat_omitted(self, tmp_path, mocker):
         config_file = tmp_path / "config.yml"
-        with patch("bfabric_scripts.cli.login.pat.getpass.getpass", return_value="prompted-token"):
-            cmd_login_pat(
-                base_url="https://example.com/bfabric",
-                config_env="PROD",
-                config_file=config_file,
-            )
+        mocker.patch("bfabric_scripts.cli.login.pat.getpass.getpass", return_value="prompted-token")
+        cmd_login_pat(
+            base_url="https://example.com/bfabric",
+            config_env="PROD",
+            config_file=config_file,
+        )
         data = yaml.safe_load(config_file.read_text())
         assert data["PROD"]["password"] == "prompted-token"
 

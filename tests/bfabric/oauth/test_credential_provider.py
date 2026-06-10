@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import threading
 import time
-from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -11,13 +10,13 @@ from bfabric._oauth.credential_provider import OAuthCredentialProvider
 
 
 @pytest.fixture
-def mock_oauth2_session():
-    with patch("bfabric._oauth.credential_provider.OAuth2Session") as cls:
-        session = MagicMock(name="session")
-        session.token = None
-        session.metadata = {"token_endpoint": "https://example.com/rest/oauth/token"}
-        cls.return_value = session
-        yield session
+def mock_oauth2_session(mocker):
+    cls = mocker.patch("bfabric._oauth.credential_provider.OAuth2Session")
+    session = mocker.MagicMock(name="session")
+    session.token = None
+    session.metadata = {"token_endpoint": "https://example.com/rest/oauth/token"}
+    cls.return_value = session
+    return session
 
 
 @pytest.fixture
@@ -135,19 +134,19 @@ class TestRefreshToken:
         mock_oauth2_session.fetch_token.assert_not_called()
         assert auth.password.get_secret_value() == "initial_jwt"
 
-    def test_session_configured_for_refresh(self, mock_oauth2_session):
+    def test_session_configured_for_refresh(self, mock_oauth2_session, mocker):
         """The OAuth2Session is constructed with the right grant_type for refresh."""
-        with patch("bfabric._oauth.credential_provider.OAuth2Session") as cls:
-            cls.return_value = mock_oauth2_session
-            OAuthCredentialProvider(
-                client_id="app-id",
-                client_secret="",
-                token_url="https://example.com/rest/oauth/token",
-                grant_type="refresh_token",
-                token={"access_token": "jwt", "refresh_token": "rt", "expires_at": time.time() + 3600},
-            )
-            call_kwargs = cls.call_args
-            assert call_kwargs[1]["grant_type"] == "refresh_token"
+        cls = mocker.patch("bfabric._oauth.credential_provider.OAuth2Session")
+        cls.return_value = mock_oauth2_session
+        OAuthCredentialProvider(
+            client_id="app-id",
+            client_secret="",
+            token_url="https://example.com/rest/oauth/token",
+            grant_type="refresh_token",
+            token={"access_token": "jwt", "refresh_token": "rt", "expires_at": time.time() + 3600},
+        )
+        call_kwargs = cls.call_args
+        assert call_kwargs[1]["grant_type"] == "refresh_token"
 
 
 class TestDiskCache:
@@ -168,23 +167,23 @@ class TestDiskCache:
         # The cached token should be loaded into the session
         assert mock_oauth2_session.token == cached
 
-    def test_saves_to_disk_via_update_token_callback(self, tmp_path, mock_oauth2_session):
+    def test_saves_to_disk_via_update_token_callback(self, tmp_path, mock_oauth2_session, mocker):
         """The update_token callback (called by authlib on refresh) persists to disk."""
         import json
 
         cache_path = tmp_path / "token.json"
 
-        with patch("bfabric._oauth.credential_provider.OAuth2Session") as cls:
-            cls.return_value = mock_oauth2_session
-            provider = OAuthCredentialProvider(
-                client_id="id",
-                client_secret="secret",
-                token_url="https://example.com/rest/oauth/token",
-                token_cache_path=cache_path,
-            )
-            # Extract the update_token callback that was passed to OAuth2Session
-            call_kwargs = cls.call_args[1]
-            update_fn = call_kwargs["update_token"]
+        cls = mocker.patch("bfabric._oauth.credential_provider.OAuth2Session")
+        cls.return_value = mock_oauth2_session
+        provider = OAuthCredentialProvider(
+            client_id="id",
+            client_secret="secret",
+            token_url="https://example.com/rest/oauth/token",
+            token_cache_path=cache_path,
+        )
+        # Extract the update_token callback that was passed to OAuth2Session
+        call_kwargs = cls.call_args[1]
+        update_fn = call_kwargs["update_token"]
 
         # Simulate authlib calling update_token after a refresh
         mock_oauth2_session.token = {"access_token": "refreshed", "expires_at": time.time() + 3600}

@@ -5,34 +5,25 @@ from __future__ import annotations
 import inspect
 import os
 import sys
+import types
+import typing
 from pathlib import Path
-from typing import Annotated
 
 import pytest
-
-
-# Mock cyclopts before importing cli_integration
-class MockParameter:
-    def __init__(self, help: str):
-        self.help = help
-
-
-class MockCyclopts:
-    Parameter = MockParameter
-
-
-_original_cyclopts = sys.modules.get("cyclopts")
-sys.modules["cyclopts"] = MockCyclopts()
 
 from bfabric.utils.cli_integration import use_client
 from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric import Bfabric
 
-# Restore the real cyclopts module so other tests are not affected
-if _original_cyclopts is not None:
-    sys.modules["cyclopts"] = _original_cyclopts
-else:
-    del sys.modules["cyclopts"]
+
+class _FakeParameter:
+    """Minimal stand-in for cyclopts.Parameter — only stores the help kwarg."""
+
+    def __init__(self, help: str):
+        self.help = help
+
+
+_fake_cyclopts = types.SimpleNamespace(Parameter=_FakeParameter)
 
 
 @pytest.fixture(autouse=True)
@@ -117,20 +108,22 @@ class TestUseClientSignature:
 
         assert config_env_param.default is None
 
-    def test_use_client_with_cyclopts_available(self):
-        """Verify that when cyclopts is available, the parameters have proper annotations for CLI help text."""
+    def test_use_client_with_cyclopts_available(self, mocker):
+        """Verify that when cyclopts is available, the parameters carry Annotated help-text annotations."""
+        mocker.patch.dict(sys.modules, {"cyclopts": _fake_cyclopts})
 
         @use_client
         def my_function(client: Bfabric, arg1: str) -> str:
             return arg1
 
         sig = inspect.signature(my_function)
-        config_env_param = sig.parameters.get("config_env")
-        config_file_param = sig.parameters.get("config_file")
+        config_env_args = typing.get_args(sig.parameters["config_env"].annotation)
+        config_file_args = typing.get_args(sig.parameters["config_file"].annotation)
 
-        # Check that annotations include Annotated with cyclopts.Parameter
-        assert config_env_param.annotation is not None
-        assert config_file_param.annotation is not None
+        assert config_env_args[0] == str | None
+        assert isinstance(config_env_args[1], _FakeParameter)
+        assert config_file_args[0] == Path | None
+        assert isinstance(config_file_args[1], _FakeParameter)
 
     def test_use_client_preserves_function_metadata(self):
         """Verify that the decorator preserves the original function's metadata."""
@@ -271,23 +264,17 @@ class TestUseClientBehavior:
 class TestUseClientWithoutCyclopts:
     """Tests for the use_client decorator when cyclopts is not available."""
 
-    def test_use_client_annotation_without_cyclopts(self):
-        """Verify that annotations work correctly without cyclopts."""
+    def test_use_client_annotation_without_cyclopts(self, mocker):
+        """Verify that annotations fall back to plain types when cyclopts is not available."""
+        mocker.patch.dict(sys.modules, {"cyclopts": None})
 
-        # When cyclopts is available (as mocked at top of file), check that annotations are present
         @use_client
         def my_function(arg1: str, *, client: Bfabric) -> str:
             return arg1
 
         sig = inspect.signature(my_function)
-        config_env_param = sig.parameters.get("config_env")
-        config_file_param = sig.parameters.get("config_file")
-
-        # Verify parameters exist and have annotations
-        assert config_env_param is not None
-        assert config_file_param is not None
-        assert config_env_param.annotation is not None
-        assert config_file_param.annotation is not None
+        assert sig.parameters["config_env"].annotation == (str | None)
+        assert sig.parameters["config_file"].annotation == (Path | None)
 
 
 class TestDefaultConfigFile:

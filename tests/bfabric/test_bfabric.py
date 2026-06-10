@@ -2,8 +2,6 @@ import datetime
 import pickle
 import re
 from pathlib import Path
-from unittest.mock import MagicMock, patch
-
 import pytest
 from pydantic import SecretStr
 
@@ -450,7 +448,7 @@ class TestConnectOAuth:
 
     def test_auth_property_uses_provider(self, mocker):
         mocker.patch.object(Bfabric, "_log_version_message")
-        mock_provider = MagicMock()
+        mock_provider = mocker.MagicMock()
         mock_provider.get_auth.return_value = BfabricAuth(login=OAUTH_LOGIN, password="jwt_token_value")
 
         config_data = ConfigData(
@@ -499,7 +497,7 @@ class TestConnectOAuth:
 class TestWithAuthDisablesProvider:
     def test_disables_provider_during_context(self, mocker):
         mocker.patch.object(Bfabric, "_log_version_message")
-        mock_provider = MagicMock()
+        mock_provider = mocker.MagicMock()
         mock_provider.get_auth.return_value = BfabricAuth(login=OAUTH_LOGIN, password="provider_jwt")
 
         config_data = ConfigData(

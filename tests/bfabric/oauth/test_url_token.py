@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import time
-from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -27,26 +26,24 @@ SAMPLE_CLAIMS = {
 
 
 @pytest.fixture
-def mock_httpx_get():
-    with patch("bfabric._oauth.url_token.httpx.get") as mock_get:
-        mock_response = MagicMock()
-        mock_response.json.return_value = {"keys": [{"kty": "RSA", "kid": "1"}]}
-        mock_response.raise_for_status.return_value = None
-        mock_get.return_value = mock_response
-        yield mock_get
+def mock_httpx_get(mocker):
+    mock_get = mocker.patch("bfabric._oauth.url_token.httpx.get")
+    mock_response = mocker.MagicMock()
+    mock_response.json.return_value = {"keys": [{"kty": "RSA", "kid": "1"}]}
+    mock_response.raise_for_status.return_value = None
+    mock_get.return_value = mock_response
+    return mock_get
 
 
 @pytest.fixture
-def mock_joserfc():
-    with (
-        patch("bfabric._oauth.url_token.KeySet") as mock_key_set,
-        patch("bfabric._oauth.url_token.joserfc_jwt") as mock_jwt,
-    ):
-        mock_result = MagicMock()
-        mock_result.claims = dict(SAMPLE_CLAIMS)
-        mock_jwt.decode.return_value = mock_result
-        mock_jwt.JWTClaimsRegistry.return_value = MagicMock()
-        yield mock_key_set, mock_jwt, mock_result
+def mock_joserfc(mocker):
+    mock_key_set = mocker.patch("bfabric._oauth.url_token.KeySet")
+    mock_jwt = mocker.patch("bfabric._oauth.url_token.joserfc_jwt")
+    mock_result = mocker.MagicMock()
+    mock_result.claims = dict(SAMPLE_CLAIMS)
+    mock_jwt.decode.return_value = mock_result
+    mock_jwt.JWTClaimsRegistry.return_value = mocker.MagicMock()
+    return mock_key_set, mock_jwt, mock_result
 
 
 class TestVerifyJwt:
@@ -78,5 +75,3 @@ class TestVerifyJwt:
     def test_normalizes_trailing_slash(self, mock_httpx_get, mock_joserfc):
         verify_jwt("https://example.com/bfabric/", "token")
         mock_httpx_get.assert_called_once_with("https://example.com/bfabric/rest/oauth/jwks", timeout=30)
-
-

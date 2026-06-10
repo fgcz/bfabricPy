@@ -1,23 +1,21 @@
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
-
 import pytest
 
 from bfabric._oauth.registration import register_client, register_webapp
 
 
 @pytest.fixture
-def mock_httpx_post():
-    with patch("bfabric._oauth.registration.httpx.post") as mock_post:
-        mock_response = MagicMock()
-        mock_response.json.return_value = {
-            "client_id": "new-client-id",
-            "client_secret": "new-client-secret",
-        }
-        mock_response.raise_for_status.return_value = None
-        mock_post.return_value = mock_response
-        yield mock_post
+def mock_httpx_post(mocker):
+    mock_post = mocker.patch("bfabric._oauth.registration.httpx.post")
+    mock_response = mocker.MagicMock()
+    mock_response.json.return_value = {
+        "client_id": "new-client-id",
+        "client_secret": "new-client-secret",
+    }
+    mock_response.raise_for_status.return_value = None
+    mock_post.return_value = mock_response
+    return mock_post
 
 
 _TOKEN_EXCHANGE = "urn:ietf:params:oauth:grant-type:token-exchange"
@@ -118,23 +116,23 @@ class TestRegisterClient:
         url = mock_httpx_post.call_args[0][0]
         assert url == "https://example.com/bfabric/rest/oauth/register"
 
-    def test_raises_on_http_error(self):
-        with patch("bfabric._oauth.registration.httpx.post") as mock_post:
-            import httpx
+    def test_raises_on_http_error(self, mocker):
+        import httpx
 
-            mock_response = MagicMock()
-            mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
-                "Forbidden", request=MagicMock(), response=MagicMock()
+        mock_post = mocker.patch("bfabric._oauth.registration.httpx.post")
+        mock_response = mocker.MagicMock()
+        mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
+            "Forbidden", request=mocker.MagicMock(), response=mocker.MagicMock()
+        )
+        mock_post.return_value = mock_response
+
+        with pytest.raises(httpx.HTTPStatusError):
+            register_client(
+                base_url="https://example.com/bfabric",
+                token="bad-token",
+                client_name="app",
+                redirect_uri="http://localhost/cb",
             )
-            mock_post.return_value = mock_response
-
-            with pytest.raises(httpx.HTTPStatusError):
-                register_client(
-                    base_url="https://example.com/bfabric",
-                    token="bad-token",
-                    client_name="app",
-                    redirect_uri="http://localhost/cb",
-                )
 
 
 _PATCH_REGISTER_CLIENT = "bfabric._oauth.registration.register_client"
@@ -142,21 +140,21 @@ _PATCH_REGISTER_CLIENT = "bfabric._oauth.registration.register_client"
 
 class TestRegisterWebapp:
     @pytest.fixture
-    def mock_client(self):
-        client = MagicMock(name="bfabric_client")
+    def mock_client(self, mocker):
+        client = mocker.MagicMock(name="bfabric_client")
         client.config.base_url = "https://example.com/bfabric/"
-        client.save.return_value = MagicMock(name="save_result")
+        client.save.return_value = mocker.MagicMock(name="save_result")
         return client
 
     @pytest.fixture
-    def mock_register(self):
-        with patch(_PATCH_REGISTER_CLIENT) as mock_rc:
-            mock_rc.return_value = {
-                "id": 258,
-                "client_id": "new-cid",
-                "client_secret": "new-csecret",
-            }
-            yield mock_rc
+    def mock_register(self, mocker):
+        mock_rc = mocker.patch(_PATCH_REGISTER_CLIENT)
+        mock_rc.return_value = {
+            "id": 258,
+            "client_id": "new-cid",
+            "client_secret": "new-csecret",
+        }
+        return mock_rc
 
     def test_calls_register_client_and_saves_application(self, mock_client, mock_register):
         result = register_webapp(
