@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Quick Start &#8212; bfabricPy 1.19.0 documentation</title>
+    <title>Design Notes &#8212; bfabricPy 1.19.0 documentation</title>
   
   
   
@@ -44,11 +44,11 @@
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/quick_start';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'design/index';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Configuration" href="configuration.html" />
-    <link rel="prev" title="Installation" href="installation.html" />
+    <link rel="next" title="bfabric.operations Module Design" href="operations_module.html" />
+    <link rel="prev" title="Data Operations" href="../advanced_topics/data_operations.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="1.19.0" />
@@ -139,11 +139,11 @@
         <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         <ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Getting Started</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Quick Start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="configuration.html">Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../getting_started/index.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/quick_start.html">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/configuration.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../user_guides/index.html">User Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -187,8 +187,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../advanced_topics/data_operations.html">Data Operations</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../design/index.html">Design Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../design/operations_module.html"><code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code> Module Design</a></li>
+<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Design Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="operations_module.html"><code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code> Module Design</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../resources/index.html">Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -255,7 +255,7 @@
       
       
       
-      <li><a href="../_sources/getting_started/quick_start.md" target="_blank"
+      <li><a href="../_sources/design/index.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -331,7 +331,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Quick Start</h1>
+    <h1>Design Notes</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -341,12 +341,7 @@
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#your-first-script">Your First Script</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-just-happened">What Just Happened?</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#explore-the-api">Explore the API</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#whats-next">What’s Next?</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pages">Pages</a></li>
 </ul>
             </nav>
         </div>
@@ -358,125 +353,30 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="quick-start">
-<h1>Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading">#</a></h1>
-<p>This 5-minute tutorial will get you started with bfabricPy by writing your first script.</p>
-<section id="prerequisites">
-<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h2>
-<p>Before starting, make sure you have:</p>
-<ol class="arabic simple">
-<li><p><strong>Installed bfabricPy</strong>: Follow <a class="reference internal" href="installation.html"><span class="std std-doc">Installation Guide</span></a></p></li>
-<li><p><strong>Configured credentials</strong>: Follow <a class="reference internal" href="configuration.html"><span class="std std-doc">Configuration Guide</span></a></p></li>
-</ol>
-</section>
-<hr class="docutils" />
-<section id="your-first-script">
-<h2>Your First Script<a class="headerlink" href="#your-first-script" title="Link to this heading">#</a></h2>
-<p>Create a file called <code class="docutils literal notranslate"><span class="pre">my_first_script.py</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
-
-<span class="c1"># Connect to B-Fabric (uses your config file)</span>
-<span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Connected to: </span><span class="si">{</span><span class="n">client</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="c1"># Query for recent workunits</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;workunit&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{},</span> <span class="n">max_results</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="si">}</span><span class="s2"> recent workunit(s):&quot;</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">workunit</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - ID: </span><span class="si">{</span><span class="n">workunit</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, Status: </span><span class="si">{</span><span class="n">workunit</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;status&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;N/A&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
+  <section id="design-notes">
+<h1>Design Notes<a class="headerlink" href="#design-notes" title="Link to this heading">#</a></h1>
+<p>Architectural decisions and design rationale for bfabricPy. Each page documents the <em>why</em> behind a module — the constraints that shaped it, alternatives that were considered, and the conventions future contributions are expected to follow.</p>
+<p>These are contributor-facing references, not user guides. If you’re looking for how to <em>use</em> a feature, start with <a class="reference internal" href="../user_guides/index.html"><span class="doc std std-doc">User Guides</span></a> or <a class="reference internal" href="../advanced_topics/index.html"><span class="doc std std-doc">Advanced Topics</span></a>.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="operations_module.html"><code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code> Module Design</a></li>
+</ul>
 </div>
-<p><strong>Run it:</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>my_first_script.py
-</pre></div>
-</div>
-<p><strong>Expected output:</strong></p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Connected</span> <span class="n">to</span><span class="p">:</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">fgcz</span><span class="o">-</span><span class="n">bfabric</span><span class="o">-</span><span class="n">test</span><span class="o">.</span><span class="n">uzh</span><span class="o">.</span><span class="n">ch</span><span class="o">/</span><span class="n">bfabric</span>
-
-<span class="n">Found</span> <span class="mi">5</span> <span class="n">recent</span> <span class="n">workunit</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-  <span class="o">-</span> <span class="n">ID</span><span class="p">:</span> <span class="mi">321802</span><span class="p">,</span> <span class="n">Status</span><span class="p">:</span> <span class="n">FINISHED</span>
-  <span class="o">-</span> <span class="n">ID</span><span class="p">:</span> <span class="mi">321801</span><span class="p">,</span> <span class="n">Status</span><span class="p">:</span> <span class="n">FINISHED</span>
-  <span class="o">-</span> <span class="n">ID</span><span class="p">:</span> <span class="mi">321800</span><span class="p">,</span> <span class="n">Status</span><span class="p">:</span> <span class="n">FAILED</span>
-  <span class="o">-</span> <span class="n">ID</span><span class="p">:</span> <span class="mi">321799</span><span class="p">,</span> <span class="n">Status</span><span class="p">:</span> <span class="n">RUNNING</span>
-  <span class="o">-</span> <span class="n">ID</span><span class="p">:</span> <span class="mi">321798</span><span class="p">,</span> <span class="n">Status</span><span class="p">:</span> <span class="n">FINISHED</span>
-</pre></div>
-</div>
-</section>
-<hr class="docutils" />
-<section id="what-just-happened">
-<h2>What Just Happened?<a class="headerlink" href="#what-just-happened" title="Link to this heading">#</a></h2>
-<p>Let’s break down the script:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
-</pre></div>
-</div>
-<p>Import the main Bfabric class.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
-</pre></div>
-</div>
-<p>Create a client using your configuration from <code class="docutils literal notranslate"><span class="pre">~/.bfabricpy.yml</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;workunit&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{},</span> <span class="n">max_results</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Query B-Fabric for workunits. Returns a <code class="docutils literal notranslate"><span class="pre">ResultContainer</span></code> object.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">workunit</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">workunit</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Iterate over results like a list.</p>
-<p><strong>Note:</strong> By default, queries raise an error automatically if they fail. See <a class="reference internal" href="../user_guides/error_handling.html"><span class="std std-doc">Error Handling</span></a> to learn about error handling options.</p>
-</section>
-<hr class="docutils" />
-<section id="explore-the-api">
-<h2>Explore the API<a class="headerlink" href="#explore-the-api" title="Link to this heading">#</a></h2>
-<p>Use <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">api</span> <span class="pre">inspect</span></code> to discover available endpoints, parameters, and data structures:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class="w"> </span>resource
-bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class="w"> </span>workunit
-bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class="w"> </span>dataset
-</pre></div>
-</div>
-<p>See <a class="reference internal" href="../user_guides/bfabric-cli/api_inspection.html"><span class="doc std std-doc">API Inspection Guide</span></a> for complete documentation on using the inspect command.</p>
-</section>
-<hr class="docutils" />
-<section id="whats-next">
-<h2>What’s Next?<a class="headerlink" href="#whats-next" title="Link to this heading">#</a></h2>
-<p>Now that you’ve seen the basics, explore further:</p>
+<section id="pages">
+<h2>Pages<a class="headerlink" href="#pages" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
-<tr class="row-odd"><th class="head"><p>Want to…</p></th>
-<th class="head"><p>Read this guide</p></th>
+<tr class="row-odd"><th class="head"><p>Topic</p></th>
+<th class="head"><p>Scope</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>Understand client authentication</p></td>
-<td><p><a class="reference internal" href="../user_guides/creating_a_client/index.html"><span class="std std-doc">Creating a Client</span></a></p></td>
-</tr>
-<tr class="row-odd"><td><p>Query and retrieve data efficiently</p></td>
-<td><p><a class="reference internal" href="../user_guides/reading_data/index.html"><span class="std std-doc">Reading Data</span></a></p></td>
-</tr>
-<tr class="row-even"><td><p>Create, update, delete entities</p></td>
-<td><p><a class="reference internal" href="../user_guides/writing_data/index.html"><span class="doc std std-doc">Writing Data</span></a></p></td>
-</tr>
-<tr class="row-odd"><td><p>Use typed entities with relationships</p></td>
-<td><p><a class="reference internal" href="../user_guides/working_with_entities/index.html"><span class="doc std std-doc">Working with Entities</span></a></p></td>
-</tr>
-<tr class="row-even"><td><p>Explore API endpoints</p></td>
-<td><p><a class="reference internal" href="../user_guides/bfabric-cli/api_inspection.html"><span class="doc std std-doc">API Inspection Guide</span></a></p></td>
+<tr class="row-even"><td><p><strong><a class="reference internal" href="operations_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code> Module</span></a></strong></p></td>
+<td><p>Conventions and worked examples for named write capabilities (<code class="docutils literal notranslate"><span class="pre">create_workunit</span></code>, <code class="docutils literal notranslate"><span class="pre">create_dataset</span></code>, …), including the failure-cleanup pattern and the audit-vs-authorization split.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-</section>
-<section id="see-also">
-<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
-<ul class="simple">
-<li><p><a class="reference internal" href="installation.html"><span class="doc std std-doc">Installation Guide</span></a> - Installation options</p></li>
-<li><p><a class="reference internal" href="configuration.html"><span class="doc std std-doc">Configuration Guide</span></a> - Config file structure and options</p></li>
-<li><p><a class="reference internal" href="../user_guides/bfabric-cli/api_inspection.html"><span class="doc std std-doc">API Inspection Guide</span></a> - Discovering API endpoints and parameters</p></li>
-<li><p><a class="reference internal" href="../user_guides/creating_a_client/index.html"><span class="doc std std-doc">Creating a Client</span></a> - Authentication methods</p></li>
-<li><p><a class="reference internal" href="troubleshooting.html"><span class="doc std std-doc">Troubleshooting</span></a> - Common issues and solutions</p></li>
-</ul>
 </section>
 </section>
 
@@ -492,20 +392,20 @@ bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="installation.html"
+       href="../advanced_topics/data_operations.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Installation</p>
+        <p class="prev-next-title">Data Operations</p>
       </div>
     </a>
     <a class="right-next"
-       href="configuration.html"
+       href="operations_module.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Configuration</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code> Module Design</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -527,12 +427,7 @@ bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#your-first-script">Your First Script</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-just-happened">What Just Happened?</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#explore-the-api">Explore the API</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#whats-next">What’s Next?</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pages">Pages</a></li>
 </ul>
   </nav></div>
 

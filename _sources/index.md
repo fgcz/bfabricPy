@@ -8,6 +8,7 @@ This documentation is organized primarily by **what you want to do** rather than
 - **[User Guides](user_guides/index)** - Task-based tutorials and examples
 - **[API Reference](api_reference/index)** - Complete, auto-generated documentation
 - **[Advanced Topics](advanced_topics/index)** - Advanced features and patterns
+- **[Design Notes](design/index)** - Architecture and design rationale (for contributors)
 - **[Resources](resources/index)** - Error handling, best practices, contributing
 
 ## Table of Contents
@@ -18,5 +19,6 @@ getting_started/index
 user_guides/index
 api_reference/index
 advanced_topics/index
+design/index
 resources/index
 ```

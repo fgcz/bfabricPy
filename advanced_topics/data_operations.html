@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Experimental Data Operations &#8212; bfabricPy 1.18.0 documentation</title>
+    <title>Data Operations &#8212; bfabricPy 1.19.0 documentation</title>
   
   
   
@@ -40,18 +40,18 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=24fc3749"></script>
+    <script src="../_static/documentation_options.js?v=d82602a5"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'advanced_topics/data_operations';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Resources" href="../resources/index.html" />
+    <link rel="next" title="Design Notes" href="../design/index.html" />
     <link rel="prev" title="Experimental: Workunit Definitions" href="workunit_definitions/index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.18.0" />
+  <meta name="docsearch:version" content="1.19.0" />
   </head>
   
   
@@ -126,7 +126,7 @@
   
   
   
-    <p class="title logo__title">bfabricPy 1.18.0 documentation</p>
+    <p class="title logo__title">bfabricPy 1.19.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -184,7 +184,11 @@
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Advanced Topics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="workunit_definitions/index.html">Experimental: Workunit Definitions</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Experimental Data Operations</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Data Operations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../design/index.html">Design Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../design/operations_module.html"><code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code> Module Design</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../resources/index.html">Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -327,7 +331,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Experimental Data Operations</h1>
+    <h1>Data Operations</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -337,12 +341,9 @@
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#upload-datasets">Upload Datasets</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#parameters">Parameters</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#upload-datasets">Upload Datasets</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#update-custom-attributes">Update Custom Attributes</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#parameters">Parameters</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#use-cases">Use Cases</a><ul class="visible nav section-nav flex-column">
@@ -363,52 +364,46 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="experimental-data-operations">
-<h1>Experimental Data Operations<a class="headerlink" href="#experimental-data-operations" title="Link to this heading">#</a></h1>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Experimental features may change or be removed in future versions. Use at your own risk.</p>
-</div>
+  <section id="data-operations">
+<h1>Data Operations<a class="headerlink" href="#data-operations" title="Link to this heading">#</a></h1>
 <section id="upload-datasets">
 <h2>Upload Datasets<a class="headerlink" href="#upload-datasets" title="Link to this heading">#</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">upload_dataset</span></code> feature allows you to create B-Fabric datasets from CSV files.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<p>Create a B-Fabric dataset from a CSV (or any Polars DataFrame) by composing the
+operations in <code class="docutils literal notranslate"><span class="pre">bfabric.operations.dataset</span></code>. If you only need a one-off upload from
+the command line, <a class="reference internal" href="../user_guides/bfabric-cli/datasets.html"><span class="doc std std-doc"><code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">dataset</span> <span class="pre">upload</span></code></span></a>
+wraps the same API with format detection (CSV, TSV, Parquet, Excel) and sensible
+validation defaults.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">bfabric.experimental.upload_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">bfabric_save_csv2dataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bfabric.operations.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CreateDatasetParams</span><span class="p">,</span>
+    <span class="n">check_for_invalid_characters</span><span class="p">,</span>
+    <span class="n">create_dataset</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 
-<span class="n">csv_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data/measurements.csv&quot;</span><span class="p">)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">bfabric_save_csv2dataset</span><span class="p">(</span>
-    <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span>
-    <span class="n">csv_file</span><span class="o">=</span><span class="n">csv_file</span><span class="p">,</span>
-    <span class="n">dataset_name</span><span class="o">=</span><span class="s2">&quot;MyMeasurements&quot;</span><span class="p">,</span>
-    <span class="n">container_id</span><span class="o">=</span><span class="mi">123</span><span class="p">,</span>
-    <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="n">table</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;data/measurements.csv&quot;</span><span class="p">)</span>
+<span class="n">check_for_invalid_characters</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>  <span class="c1"># raises on forbidden characters</span>
 
-<span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">is_success</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dataset created with ID: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">create_dataset</span><span class="p">(</span>
+    <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span>
+    <span class="n">table</span><span class="o">=</span><span class="n">table</span><span class="p">,</span>
+    <span class="n">params</span><span class="o">=</span><span class="n">CreateDatasetParams</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;MyMeasurements&quot;</span><span class="p">,</span> <span class="n">container_id</span><span class="o">=</span><span class="mi">123</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dataset created with ID: </span><span class="si">{</span><span class="n">dataset</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<section id="parameters">
-<h3>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">#</a></h3>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">client</span></code>: Bfabric client instance</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">csv_file</span></code>: Path to CSV file</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">dataset_name</span></code>: Name for the new dataset</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">container_id</span></code>: Container (project/order) ID to associate with</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sep</span></code>: CSV separator (default: comma)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">check</span></code>: Raise errors on failure (default: <code class="docutils literal notranslate"><span class="pre">True</span></code>)</p></li>
-</ul>
-</section>
+<p><code class="docutils literal notranslate"><span class="pre">create_dataset</span></code> does not validate input — apply <code class="docutils literal notranslate"><span class="pre">check_for_invalid_characters</span></code>
+and/or <code class="docutils literal notranslate"><span class="pre">warn_on_trailing_spaces</span></code> from <code class="docutils literal notranslate"><span class="pre">bfabric.operations.dataset.validation</span></code>
+beforehand if you need those checks.</p>
 </section>
 <section id="update-custom-attributes">
 <h2>Update Custom Attributes<a class="headerlink" href="#update-custom-attributes" title="Link to this heading">#</a></h2>
 <p>Update custom attributes on any entity by its URI.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bfabric.entities.core.uri</span><span class="w"> </span><span class="kn">import</span> <span class="n">EntityUri</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">bfabric.experimental.update_custom_attributes</span><span class="w"> </span><span class="kn">import</span> <span class="n">update_custom_attributes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bfabric.operations</span><span class="w"> </span><span class="kn">import</span> <span class="n">update_custom_attributes</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 
@@ -426,8 +421,8 @@
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Custom attributes updated&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<section id="id1">
-<h3>Parameters<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<section id="parameters">
+<h3>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">client</span></code>: Bfabric client instance</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">entity_uri</span></code>: Entity URI of the entity to update</p></li>
@@ -511,11 +506,11 @@
       </div>
     </a>
     <a class="right-next"
-       href="../resources/index.html"
+       href="../design/index.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Resources</p>
+        <p class="prev-next-title">Design Notes</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -537,12 +532,9 @@
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#upload-datasets">Upload Datasets</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#parameters">Parameters</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#upload-datasets">Upload Datasets</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#update-custom-attributes">Update Custom Attributes</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#parameters">Parameters</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#use-cases">Use Cases</a><ul class="visible nav section-nav flex-column">

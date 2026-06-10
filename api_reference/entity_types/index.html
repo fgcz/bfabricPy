@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>API Reference: Entity Types &#8212; bfabricPy 1.18.0 documentation</title>
+    <title>API Reference: Entity Types &#8212; bfabricPy 1.19.0 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=24fc3749"></script>
+    <script src="../../_static/documentation_options.js?v=d82602a5"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -51,7 +51,7 @@
     <link rel="prev" title="Bfabric Client API Reference" href="../bfabric_client/index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.18.0" />
+  <meta name="docsearch:version" content="1.19.0" />
   </head>
   
   
@@ -126,7 +126,7 @@
   
   
   
-    <p class="title logo__title">bfabricPy 1.18.0 documentation</p>
+    <p class="title logo__title">bfabricPy 1.19.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -184,7 +184,11 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../advanced_topics/index.html">Advanced Topics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../advanced_topics/workunit_definitions/index.html">Experimental: Workunit Definitions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../advanced_topics/data_operations.html">Experimental Data Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../advanced_topics/data_operations.html">Data Operations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../design/index.html">Design Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../design/operations_module.html"><code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code> Module Design</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../resources/index.html">Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -388,6 +392,10 @@
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Instrument"><code class="docutils literal notranslate"><span class="pre">Instrument</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Instrument.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Instrument.ENDPOINT</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Job"><code class="docutils literal notranslate"><span class="pre">Job</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Job.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Job.ENDPOINT</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.MultiplexId"><code class="docutils literal notranslate"><span class="pre">MultiplexId</span></code></a><ul class="visible nav section-nav flex-column">
@@ -740,6 +748,17 @@ TODO this logic should probably be improved in the future</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="bfabric.entities.Job">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric.entities.</span></span><span class="sig-name descname"><span class="pre">Job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ApiResponseObjectType</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../bfabric_client/index.html#bfabric.Bfabric" title="bfabric.Bfabric"><span class="pre">Bfabric</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bfabric_instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfabric.entities.Job" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfabric.entities.core.entity.Entity" title="bfabric.entities.core.entity.Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfabric.entities.Job.ENDPOINT">
+<span class="sig-name descname"><span class="pre">ENDPOINT</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'job'</span></span><a class="headerlink" href="#bfabric.entities.Job.ENDPOINT" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="bfabric.entities.MultiplexId">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric.entities.</span></span><span class="sig-name descname"><span class="pre">MultiplexId</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ApiResponseObjectType</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../bfabric_client/index.html#bfabric.Bfabric" title="bfabric.Bfabric"><span class="pre">Bfabric</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bfabric_instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfabric.entities.MultiplexId" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bfabric.entities.core.entity.Entity" title="bfabric.entities.core.entity.Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a></p>
@@ -943,14 +962,12 @@ as the file is stored.</p>
 <dt class="sig sig-object py" id="bfabric.entities.User.is_employee">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_employee</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#bfabric.entities.User.is_employee" title="Link to this definition">#</a></dt>
 <dd><p>Whether the user is an employee on the B-Fabric instance (<code class="docutils literal notranslate"><span class="pre">empdegree</span></code> &gt; 0).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ValueError</strong> – if the <code class="docutils literal notranslate"><span class="pre">empdegree</span></code> field is not present on the user record.
-The field is typically only visible when the record is fetched with feeder
-credentials; a silent <code class="docutils literal notranslate"><span class="pre">False</span></code> would be indistinguishable from a genuine
-non-employee and mask the permissions issue.</p>
-</dd>
-</dl>
+<p>The <code class="docutils literal notranslate"><span class="pre">empdegree</span></code> field is typically only readable with feeder credentials,
+so this property only returns a meaningful answer when the user record was
+fetched with such credentials. If <code class="docutils literal notranslate"><span class="pre">empdegree</span></code> is missing or <code class="docutils literal notranslate"><span class="pre">None</span></code> (either
+because the field is genuinely unset or because the caller lacks permission
+to read it), this returns <code class="docutils literal notranslate"><span class="pre">False</span></code>. Callers that need authoritative employee
+status must fetch the user record with feeder credentials.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1311,6 +1328,10 @@ non-employee and mask the permissions issue.</p>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Instrument"><code class="docutils literal notranslate"><span class="pre">Instrument</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Instrument.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Instrument.ENDPOINT</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Job"><code class="docutils literal notranslate"><span class="pre">Job</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Job.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Job.ENDPOINT</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.MultiplexId"><code class="docutils literal notranslate"><span class="pre">MultiplexId</span></code></a><ul class="visible nav section-nav flex-column">
