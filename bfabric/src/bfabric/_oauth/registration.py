@@ -95,6 +95,7 @@ def register_webapp(
     application_id: int | None = None,
     technology_id: int | None = None,
     description: str | None = None,
+    hidden: bool = False,
 ) -> RegisterWebappResult:
     """Register a webapp: create the OAuth client and link it to a B-Fabric application.
 
@@ -112,6 +113,7 @@ def register_webapp(
     :param application_id: Existing application ID to update (omit to create a new application)
     :param technology_id: Technology ID for the application
     :param description: Application description
+    :param hidden: Whether the application should be flagged as hidden, i.e. only supervisor can see it
     :returns: Dict with ``"oauth"`` (registration response) and ``"application"``
         (save response) keys
     """
@@ -139,6 +141,8 @@ def register_webapp(
         app_obj["technologyid"] = technology_id
     if description is not None:
         app_obj["description"] = description
+    if hidden:
+        app_obj["hidden"] = "true"
 
     logger.debug("Saving application '{}' with oauthclientid={}", app_name, str(oauth_client_id))
     app_result = client.save("application", app_obj)

@@ -25,6 +25,7 @@ from urllib.parse import parse_qs, urlparse
 from bfabric import Bfabric
 from bfabric._oauth.registration import register_webapp
 from bfabric._oauth.webapp_client import WebappClient
+from bfabric.entities.core.uri import EntityUri
 
 PORT = 19876
 REDIRECT_PATH = "/callback"
@@ -54,7 +55,8 @@ def main() -> None:
         token=bearer_token,
         app_name=app_name,
         web_url=web_url,
-        service_user="leonardoschwarz",
+        service_user="itfeeder",
+        hidden=True,
     )
     oauth_info = result["oauth"]
     app_result = result["application"]
@@ -64,16 +66,19 @@ def main() -> None:
     oauth_internal_id = oauth_info["id"]
 
     # Extract the application ID from the save result
-    app_id: int | None = None
-    if len(app_result):
-        saved_id = app_result[0].get("id")
-        if isinstance(saved_id, int):
-            app_id = saved_id
+    if len(app_result) > 0:
+        app_id = int(app_result[0]["id"])  # pyright: ignore[reportArgumentType]
+    else:
+        app_id = None
 
     print(f"  OAuth client_id: {oauth_client_id}")
     print(f"  OAuth internal id: {oauth_internal_id}")
     print(f"  Application ID: {app_id}")
     print(f"  client_secret: {oauth_client_secret[:8]}...")
+
+    if app_id is None:
+        print("  Application registration failed.")
+        return
 
     # Prepare to receive the callback
     received_token: dict[str, str | None] = {"jwt": None}
@@ -119,9 +124,7 @@ def main() -> None:
     print(f"\n{'=' * 60}")
     print(f"Local server listening on http://localhost:{PORT}")
     print(f"\nNow go to B-Fabric and launch application ID={app_id}:")
-    # EntityURI
-    # print(f"  {EntityURI.from_components()
-    print(f"  {base_url}/application/show.html?id={app_id}")
+    print(f"  {EntityUri.from_components(base_url, 'application', app_id)}")
     print(f"\nOr, if your app is launched from a workunit, run it from there.")
     print(f"B-Fabric will redirect to: {web_url}?jwt=...")
     print(f"{'=' * 60}\n")
