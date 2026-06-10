@@ -3,7 +3,10 @@ on:
   pull_request:
     branches:
       - release
-    types: [opened, synchronize, reopened]
+    # `edited` is required to catch PR base-branch retargeting (e.g. a PR first
+    # opened against `main` and later retargeted to `release`); GitHub fires
+    # `edited` rather than `synchronize` for that. See #409.
+    types: [opened, synchronize, reopened, edited]
 jobs:
   preview-release:
     runs-on: ubuntu-latest
@@ -96,7 +99,10 @@ jobs:
             }
   validate-and-test-release:
     needs: preview-release
-    if: ${{ needs.preview-release.outputs.packages_to_release != '[]' }}
+    # Skip the (expensive) build/test matrix on title/body edits; only re-run it
+    # for real changes — i.e. anything except an `edited` event whose `changes`
+    # don't include the base branch.
+    if: ${{ needs.preview-release.outputs.packages_to_release != '[]' && (github.event.action != 'edited' || github.event.changes.base != null) }}
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -184,7 +190,9 @@ jobs:
             --resolution ${{ matrix.resolution }}
   comment-test-results:
     needs: [preview-release, validate-and-test-release]
-    if: always() && needs.preview-release.outputs.packages_to_release != '[]'
+    # Mirror the guard on validate-and-test-release so we don't post a stale
+    # "tests failed" comment when the matrix was intentionally skipped.
+    if: always() && needs.preview-release.outputs.packages_to_release != '[]' && (github.event.action != 'edited' || github.event.changes.base != null)
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write

@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import importlib.resources
+
 import yaml
 from pydantic import BaseModel
 
@@ -13,6 +16,6 @@ class DatasetColumnTypesFile(BaseModel):
 
 
 def get_dataset_column_types() -> DatasetColumnTypes:
-    """Parses the default dataset_column_types.yml file from the package."""
-    with importlib.resources.open_text("bfabric.experimental", "dataset_column_types.yml") as f:
+    """Parses the default `_column_types.yml` file from the package."""
+    with importlib.resources.open_text("bfabric.operations.dataset", "_column_types.yml") as f:
         return DatasetColumnTypesFile.model_validate(yaml.safe_load(f)).dataset_column_types

@@ -65,7 +65,7 @@ class Dataset(Entity):
     def to_polars(self) -> DataFrame:
         """Returns a Polars DataFrame representation of the dataset."""
         column_names = self.column_names
-        data = []
+        data: list[dict[str, str]] = []
         for item in self._item_data:
             row_values = [item.value for item in sorted(item.field, key=lambda x: x.attributeposition)]
             data.append(dict(zip(column_names, row_values)))

@@ -3,7 +3,7 @@ import pytest
 from bfabric import Bfabric
 from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.uri import EntityUri
-from bfabric.experimental.update_custom_attributes import update_custom_attributes
+from bfabric.operations import update_custom_attributes
 
 
 @pytest.fixture

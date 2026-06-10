@@ -5,7 +5,7 @@ import pytest
 import httpx
 from pydantic import SecretStr, ValidationError
 
-from bfabric.errors import BfabricTokenValidationFailedError
+from bfabric.errors import BfabricTokenExpiredError, BfabricTokenInvalidError
 from bfabric.rest.token_data import TokenData, get_token_data, get_token_data_async
 
 
@@ -123,7 +123,7 @@ async def test_get_token_data_async_when_expired_token_in_http_error(mocker, bas
     mock_client = mocker.AsyncMock()
     mock_client.get.return_value = mock_response
 
-    with pytest.raises(BfabricTokenValidationFailedError, match="expired"):
+    with pytest.raises(BfabricTokenExpiredError, match="expired"):
         await get_token_data_async(base_url=base_url, token="mock-token", http_client=mock_client)
 
 
@@ -137,7 +137,7 @@ async def test_get_token_data_async_when_other_http_error(mocker, base_url):
     mock_client = mocker.AsyncMock()
     mock_client.get.return_value = mock_response
 
-    with pytest.raises(BfabricTokenValidationFailedError, match="invalid"):
+    with pytest.raises(BfabricTokenInvalidError, match="invalid"):
         await get_token_data_async(base_url=base_url, token="mock-token", http_client=mock_client)
 
 
@@ -149,7 +149,7 @@ async def test_get_token_data_async_when_expired_token_in_body(mocker, base_url)
     mock_client = mocker.AsyncMock()
     mock_client.get.return_value = mock_response
 
-    with pytest.raises(BfabricTokenValidationFailedError, match="expired"):
+    with pytest.raises(BfabricTokenExpiredError, match="expired"):
         await get_token_data_async(base_url=base_url, token="mock-token", http_client=mock_client)
 
 
@@ -161,7 +161,7 @@ async def test_get_token_data_async_when_invalid_json_body(mocker, base_url):
     mock_client = mocker.AsyncMock()
     mock_client.get.return_value = mock_response
 
-    with pytest.raises(BfabricTokenValidationFailedError, match="invalid"):
+    with pytest.raises(BfabricTokenInvalidError, match="invalid"):
         await get_token_data_async(base_url=base_url, token="mock-token", http_client=mock_client)
 
 

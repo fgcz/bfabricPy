@@ -542,8 +542,9 @@ def hook_received_token_data(context):
 
 
 @given(parsers.parse('the application is configured with authenticated_path "{path}"'), target_fixture="app")
-def app_configured_with_authenticated_path(base_app, mock_validator, path):
+def app_configured_with_authenticated_path(base_app, mock_validator, path, context):
     """Configure application with specific authenticated_path."""
+    context["authenticated_path"] = path
     base_app.add_middleware(
         BfabricAuthMiddleware,
         token_validator=mock_validator,
@@ -600,6 +601,91 @@ def authenticate_with_proxy_headers(context, base_app, mock_validator, scheme, h
 
     response = run_async(make_request())
     context["response"] = response
+
+
+def _build_root_path_app(mock_validator, context, authenticated_path: str):
+    """Build an app with the given authenticated_path and an on_success hook that records token data."""
+
+    class Hooks(AuthHooks):
+        async def on_success(self, session: dict[str, JsonRepresentable], token_data: TokenData) -> str | None:
+            context["token_data"] = token_data
+            return None
+
+    app = Starlette(routes=[])
+    app.add_middleware(
+        BfabricAuthMiddleware,
+        token_validator=mock_validator,
+        landing_path="/landing",
+        token_param="token",
+        authenticated_path=authenticated_path,
+        logout_path="/logout",
+        hooks=Hooks(),
+    )
+    app.add_middleware(
+        SessionMiddleware,
+        secret_key="test-secret-key-min-32-characters!!",
+        max_age=3600,
+    )
+    return app
+
+
+@when(parsers.parse('I authenticate with root_path "{root_path}" and path "{path}"'))
+def authenticate_with_root_path(context, base_app, mock_validator, root_path, path):
+    """Authenticate via an ASGITransport configured with a specific root_path."""
+    from httpx import ASGITransport, AsyncClient
+
+    authenticated_path = context.get("authenticated_path", "/")
+    app_to_use = _build_root_path_app(mock_validator, context, authenticated_path)
+
+    async def make_request():
+        transport = ASGITransport(app=app_to_use, root_path=root_path)
+        async with AsyncClient(transport=transport, base_url="http://test") as ac:
+            return await ac.get(path, follow_redirects=False)
+
+    context["response"] = run_async(make_request())
+
+
+@given(parsers.parse('I am authenticated with root_path "{root_path}" and token "{token}"'), target_fixture="context")
+def authenticated_with_root_path_and_token(context, base_app, mock_validator, root_path, token):
+    """Perform a landing request with root_path set, persist session cookies in context."""
+    from httpx import ASGITransport, AsyncClient
+
+    app_to_use = _build_root_path_app(mock_validator, context, context.get("authenticated_path", "/"))
+    context["root_path_app"] = app_to_use
+
+    async def make_request():
+        transport = ASGITransport(app=app_to_use, root_path=root_path)
+        async with AsyncClient(transport=transport, base_url="http://test") as ac:
+            response = await ac.get(f"{root_path}/landing?token={token}", follow_redirects=False)
+            return {name: value for name, value in ac.cookies.items()}
+
+    context["cookies"] = run_async(make_request())
+    return context
+
+
+@when(parsers.parse('I request with root_path "{root_path}" and path "{path}"'))
+def request_with_root_path(context, root_path, path):
+    """Make a request at the given path with root_path set, using cookies from prior auth."""
+    from httpx import ASGITransport, AsyncClient
+
+    app_to_use = context["root_path_app"]
+    cookies = context.get("cookies", {})
+
+    async def make_request():
+        transport = ASGITransport(app=app_to_use, root_path=root_path)
+        async with AsyncClient(transport=transport, base_url="http://test", cookies=cookies) as ac:
+            return await ac.get(path, follow_redirects=False)
+
+    context["response"] = run_async(make_request())
+
+
+@then(parsers.parse("the response status should be {status_code:d}"))
+def response_status(context, status_code):
+    """Check response status code."""
+    response = context["response"]
+    assert (
+        response.status_code == status_code
+    ), f"Expected status {status_code}, got {response.status_code}. Body: {response.text[:200]}"
 
 
 @then(parsers.parse('the redirect location should start with "{prefix}"'))

@@ -83,13 +83,23 @@ Modern CLI built with **cyclopts**: `bfabric-cli api|dataset|executable|workunit
 
 Handles dispatch → process → collect workflow for B-Fabric applications. Uses pydantic for spec validation, mako for templating.
 
+## Documentation
+
+Each package's docs live alongside its source. Skim the index when working in a package — it links to user guides, API reference, and changelog.
+
+- `bfabric/docs/index.md` — core client (getting started, user guides, API reference, advanced topics, design)
+- `bfabric_app_runner/docs/index.md` — app runner (getting started, user guides, API reference)
+- `bfabric_scripts/docs/changelog.md` — scripts (changelog only; no full docs site)
+- `bfabric_rest_proxy/README.md`, `bfabric_rest_proxy/docs/changelog.md` — REST proxy
+- `bfabric_asgi_auth/README.md`, `bfabric_asgi_auth/docs/changelog.md` — ASGI auth middleware
+
 ## Key Conventions
 
 - Tests must NOT contain `__init__.py` files (enforced by `check_test_inits` nox session)
 - Test conftest sets `BFABRICPY_CONFIG_ENV=__MOCK` to avoid real credentials
 - Ruff linting is currently only enforced on the `bfabric` package (scripts, wrapper_creator, tests, noxfile are excluded via per-file-ignores)
 - Line length: 120 (ruff and black)
-- basedpyright uses per-package baseline files at `.basedpyright/baseline.{package}.json`
+- basedpyright uses per-package baseline files at `.basedpyright/baseline.{package}.json` — **do not edit baseline files to silence new errors**; fix the code or add a targeted `# pyright: ignore[...]` comment on the offending line. Baselines only exist to grandfather in pre-existing errors.
 - Integration tests live in a separate repository
 - Use TDD: write a failing test first, verify it fails, then fix the code, then verify the test passes
 

@@ -39,7 +39,7 @@ def _operation_copy_rsync(file: ResolvedFile, output_path: Path, ssh_user: str |
             source_str = f"{ssh_user}@{host}:{path}" if ssh_user else f"{host}:{path}"
         case _:
             assert_never(file.source)
-    cmd = ["rsync", "-Pav", source_str, str(output_path)]
+    cmd = ["rsync", "-rltvP", source_str, str(output_path)]
     logger.info(shlex.join(cmd))
     result = subprocess.run(cmd, check=False)
     return result.returncode == 0

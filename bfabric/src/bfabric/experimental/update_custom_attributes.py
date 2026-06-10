@@ -1,39 +1,24 @@
+"""Deprecation shim — symbol moved to `bfabric.operations`."""
+
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import importlib
+import warnings
+from typing import Any
 
-from bfabric.entities.core.uri import EntityUri
-
-if TYPE_CHECKING:
-    from bfabric import Bfabric
-    from bfabric.results.result_container import ResultContainer
+_NEW_LOCATIONS: dict[str, tuple[str, str]] = {
+    "update_custom_attributes": ("bfabric.operations", "update_custom_attributes"),
+}
 
 
-def update_custom_attributes(
-    client: Bfabric, entity_uri: EntityUri | str, custom_attributes: dict[str, str], *, replace: bool = False
-) -> ResultContainer:
-    """Updates the custom attributes of the specified entity.
-
-    NOTE: Use in cache contexts may lead to unwanted consequences, if custom attributes are updated by a different
-    application.
-
-    :param client: Bfabric client
-    :param entity_uri: Entity URI
-    :param custom_attributes: Custom attributes to update
-    :param replace: Replace existing custom attributes mapping, or update/add only the specified ones.
-    """
-    entity_uri = EntityUri(entity_uri)
-
-    # read the current custom attributes (if requested)
-    if replace:
-        attributes_dict = {}
-    else:
-        entity = client.reader.read_uri(entity_uri)
-        attributes_dict = entity.custom_attributes
-    # merge new args
-    attributes_dict.update(custom_attributes)
-    # write the result
-    attributes_list = [{"name": key, "value": value} for key, value in attributes_dict.items()]
-    return client.save(
-        entity_uri.components.entity_type, {"id": entity_uri.components.entity_id, "customattribute": attributes_list}
-    )
+def __getattr__(name: str) -> Any:  # pyright: ignore[reportAny, reportExplicitAny]
+    if name in _NEW_LOCATIONS:
+        module_path, new_name = _NEW_LOCATIONS[name]
+        warnings.warn(
+            f"bfabric.experimental.update_custom_attributes.{name} moved to {module_path}.{new_name}; "
+            "update imports — this shim will be removed in the next release.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return getattr(importlib.import_module(module_path), new_name)  # pyright: ignore[reportAny]
+    raise AttributeError(f"module 'bfabric.experimental.update_custom_attributes' has no attribute {name!r}")

@@ -3,6 +3,7 @@ from .dataset import Dataset
 from .executable import Executable
 from .externaljob import ExternalJob
 from .instrument import Instrument
+from .job import Job
 from .multiplexid import MultiplexId
 from .multiplexkit import MultiplexKit
 from .order import Order
@@ -26,6 +27,7 @@ __all__ = [
     "Executable",
     "ExternalJob",
     "Instrument",
+    "Job",
     "MultiplexId",
     "MultiplexKit",
     "Order",
