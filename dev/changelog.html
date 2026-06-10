@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Changelog &#8212; bfabricPy 1.18.0 documentation</title>
+    <title>Changelog &#8212; bfabricPy 1.19.0 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="_static/documentation_options.js?v=24fc3749"></script>
+    <script src="_static/documentation_options.js?v=d82602a5"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -50,7 +50,7 @@
     <link rel="prev" title="Good to Know" href="resources/good_to_know.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.18.0" />
+  <meta name="docsearch:version" content="1.19.0" />
   </head>
   
   
@@ -125,7 +125,7 @@
   
   
   
-    <p class="title logo__title">bfabricPy 1.18.0 documentation</p>
+    <p class="title logo__title">bfabricPy 1.19.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -340,17 +340,17 @@
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unreleased">[Unreleased]</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unreleased">[Unreleased]</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">[1.19.0] - 2026-06-10</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#added">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecated">Deprecated</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#removed">Removed</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed">Fixed</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">[1.18.0] - 2026-04-20</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Changed</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">[1.18.0] - 2026-04-20</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Fixed</a></li>
 </ul>
 </li>
@@ -612,39 +612,35 @@ Historically, before 1.14.0, a different versioning scheme was used.</p>
 <p>Minor breaking changes are still possible in <code class="docutils literal notranslate"><span class="pre">1.X.Y</span></code> but we try to announce them with DeprecationWarnings in the previous <code class="docutils literal notranslate"><span class="pre">Y-1</span></code> release.</p>
 <section id="unreleased">
 <h2>[Unreleased]<a class="headerlink" href="#unreleased" title="Link to this heading">#</a></h2>
+</section>
+<section id="id1">
+<h2>[1.19.0] - 2026-06-10<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
 <section id="added">
 <h3>Added<a class="headerlink" href="#added" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">BfabricTokenExpiredError</span></code> and <code class="docutils literal notranslate"><span class="pre">BfabricTokenInvalidError</span></code> in <code class="docutils literal notranslate"><span class="pre">bfabric.errors</span></code>: specific subclasses of <code class="docutils literal notranslate"><span class="pre">BfabricTokenValidationFailedError</span></code> raised for the corresponding failure conditions instead of the generic error.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Job</span></code> entity wrapping the B-Fabric <code class="docutils literal notranslate"><span class="pre">job</span></code> endpoint.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code> module: the canonical location for named write capabilities against B-Fabric.</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">BfabricTokenExpiredError</span></code> and <code class="docutils literal notranslate"><span class="pre">BfabricTokenInvalidError</span></code> in <code class="docutils literal notranslate"><span class="pre">bfabric.errors</span></code>: specific subclasses of <code class="docutils literal notranslate"><span class="pre">BfabricTokenValidationFailedError</span></code> raised instead of the generic error.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code> module: the canonical location for named write operations against B-Fabric.</p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.operations.workunit.create_workunit</span></code> — creates a workunit with its associated resources, rolling back on failure; accepts caller-supplied <code class="docutils literal notranslate"><span class="pre">audit_attributes</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.operations.dataset.{create_dataset,</span> <span class="pre">update_dataset,</span> <span class="pre">preview_dataset_update}</span></code> plus helpers <code class="docutils literal notranslate"><span class="pre">polars_to_dataset_dict</span></code>, <code class="docutils literal notranslate"><span class="pre">check_for_invalid_characters</span></code>, <code class="docutils literal notranslate"><span class="pre">warn_on_trailing_spaces</span></code>, <code class="docutils literal notranslate"><span class="pre">identify_changes</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.operations.update_custom_attributes</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">operations.workunit.create_workunit</span></code> — creates a workunit with its resources, rolling back on failure; accepts caller-supplied <code class="docutils literal notranslate"><span class="pre">audit_attributes</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">operations.dataset</span></code> — <code class="docutils literal notranslate"><span class="pre">create_dataset</span></code>, <code class="docutils literal notranslate"><span class="pre">update_dataset</span></code>, <code class="docutils literal notranslate"><span class="pre">preview_dataset_update</span></code>, plus <code class="docutils literal notranslate"><span class="pre">polars_to_dataset_dict</span></code> and <code class="docutils literal notranslate"><span class="pre">identify_changes</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">operations.update_custom_attributes</span></code>.</p></li>
 </ul>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">dataset</span> <span class="pre">update</span></code> command for updating an existing dataset with a change preview. Mirrors <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">dataset</span> <span class="pre">upload</span></code> with <code class="docutils literal notranslate"><span class="pre">csv</span></code>/<code class="docutils literal notranslate"><span class="pre">tsv</span></code>/<code class="docutils literal notranslate"><span class="pre">xlsx</span></code>/<code class="docutils literal notranslate"><span class="pre">parquet</span></code> subcommands and the same <code class="docutils literal notranslate"><span class="pre">forbidden_chars</span></code> / <code class="docutils literal notranslate"><span class="pre">warn_trailing_spaces</span></code> validation flags.</p></li>
-</ul>
-</section>
-<section id="changed">
-<h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">bfabric_save_csv2dataset.py</span></code> — reworked to call <code class="docutils literal notranslate"><span class="pre">create_dataset</span></code>; behavior is unchanged except the dataset URI is now logged via <code class="docutils literal notranslate"><span class="pre">loguru</span></code> instead of printed.</p></li>
 </ul>
 </section>
 <section id="deprecated">
 <h3>Deprecated<a class="headerlink" href="#deprecated" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.experimental.upload_dataset</span></code> — symbols moved to <code class="docutils literal notranslate"><span class="pre">bfabric.operations.dataset</span></code>; deprecation shim emits warnings and will be removed in the next release.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.experimental.upload_dataset.bfabric_save_csv2dataset</span></code> (inner function) — removed outright; accessing it raises <code class="docutils literal notranslate"><span class="pre">AttributeError</span></code> with a migration hint.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.experimental.upload_dataset</span></code> — moved to <code class="docutils literal notranslate"><span class="pre">bfabric.operations.dataset</span></code>; deprecation shim emits warnings and will be removed in the next release.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">bfabric.experimental.update_custom_attributes</span></code> — moved to <code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code>.</p></li>
 </ul>
 </section>
 <section id="removed">
 <h3>Removed<a class="headerlink" href="#removed" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.experimental.dataset_column_types</span></code> — was an internal implementation detail of <code class="docutils literal notranslate"><span class="pre">upload_dataset</span></code>, never part of the public API; symbols now live at <code class="docutils literal notranslate"><span class="pre">bfabric.operations.dataset._column_types</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.experimental.upload_dataset.bfabric_save_csv2dataset</span></code> (inner function) — removed outright; accessing it raises <code class="docutils literal notranslate"><span class="pre">AttributeError</span></code> with a migration hint.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric.experimental.dataset_column_types</span></code> — internal implementation detail of <code class="docutils literal notranslate"><span class="pre">upload_dataset</span></code>, never public; symbols now live at <code class="docutils literal notranslate"><span class="pre">bfabric.operations.dataset._column_types</span></code>.</p></li>
 </ul>
 </section>
 <section id="fixed">
@@ -654,10 +650,10 @@ Historically, before 1.14.0, a different versioning scheme was used.</p>
 </ul>
 </section>
 </section>
-<section id="id1">
-<h2>[1.18.0] - 2026-04-20<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
 <section id="id2">
-<h3>Added<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<h2>[1.18.0] - 2026-04-20<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<section id="id3">
+<h3>Added<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">EntityReader.query_one</span></code>: returns at most one matching entity (or <code class="docutils literal notranslate"><span class="pre">None</span></code>).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">User.is_employee</span></code> property: <code class="docutils literal notranslate"><span class="pre">True</span></code> iff the user’s <code class="docutils literal notranslate"><span class="pre">empdegree</span></code> parses to a value <code class="docutils literal notranslate"><span class="pre">&gt;</span> <span class="pre">0</span></code>.</p></li>
@@ -665,8 +661,8 @@ Historically, before 1.14.0, a different versioning scheme was used.</p>
 <li><p>CLI commands decorated with <code class="docutils literal notranslate"><span class="pre">use_client</span></code> now accept <code class="docutils literal notranslate"><span class="pre">--config-env</span></code> and <code class="docutils literal notranslate"><span class="pre">--config-file</span></code> flags.</p></li>
 </ul>
 </section>
-<section id="id3">
-<h3>Changed<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<section id="changed">
+<h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">EntityReader.query</span></code> accepts an <code class="docutils literal notranslate"><span class="pre">expected_type</span></code> keyword for typed narrowing of results.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">User.find_by_login</span></code> no longer triggers a <code class="docutils literal notranslate"><span class="pre">FindMixin</span></code> deprecation warning.</p></li>
@@ -1688,17 +1684,17 @@ the collect step is responsible for generating the <code class="docutils literal
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unreleased">[Unreleased]</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unreleased">[Unreleased]</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">[1.19.0] - 2026-06-10</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#added">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecated">Deprecated</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#removed">Removed</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed">Fixed</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">[1.18.0] - 2026-04-20</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Changed</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">[1.18.0] - 2026-04-20</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Fixed</a></li>
 </ul>
 </li>
