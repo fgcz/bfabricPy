@@ -12,6 +12,7 @@ Versioning currently follows `X.Y.Z` where
 
 ### Added
 
+- `bfabric-cli api create` and `bfabric-cli api update` now accept a `--format json|yaml|tsv|table_rich` flag (default `json`), reusing the same renderer as `bfabric-cli api read`. The output formatting logic is now shared via a new internal `output_format` module.
 - `bfabric-cli dataset update` command: updates an existing dataset with a change preview before confirmation. Supports `csv`/`tsv`/`xlsx`/`parquet` subcommands and the same `forbidden_chars` / `warn_trailing_spaces` validation flags as `dataset upload`.
 - `bfabric-cli auth` command group for OAuth authentication and client management:
     - `auth pkce <base_url>` — browser-based OAuth login; caches tokens and writes the config environment.
@@ -21,6 +22,11 @@ Versioning currently follows `X.Y.Z` where
     - `auth register-webapp` — register an OAuth client together with a linked B-Fabric application.
     - `auth status` — show the current authentication status for an environment.
     - `auth logout` — clear cached OAuth tokens.
+
+### Fixed
+
+- `bfabric-cli api update` and `bfabric-cli api create` previously printed results via `rich.pretty.pprint`, which produced Python `repr` syntax (single-quoted keys). This is not valid JSON, so piping to `jq` failed. Output now defaults to valid JSON. ([#503](https://github.com/fgcz/bfabricPy/issues/503))
+- `bfabric-cli api read --format json` (and the new JSON output paths for `create`/`update`) now serialise non-native types such as `datetime` and `Decimal` (returned by the Zeep engine) to strings instead of raising a `TypeError`.
 
 ### Changed
 

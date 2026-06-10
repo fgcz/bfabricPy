@@ -5,14 +5,8 @@ import pytest
 import yaml
 from bfabric import Bfabric
 from bfabric.results.result_container import ResultContainer
-from bfabric_scripts.cli.api.read import (
-    Params,
-    OutputFormat,
-    perform_query,
-    cmd_api_read,
-    render_output,
-    _determine_output_columns,
-)
+from bfabric_scripts.cli.api.output_format import OutputFormat, _determine_output_columns, render_output
+from bfabric_scripts.cli.api.read import Params, cmd_api_read, perform_query
 
 
 @pytest.fixture
@@ -88,7 +82,14 @@ class TestRenderOutput:
         params = Params(endpoint="resource", columns=["id", "name"], format=OutputFormat.JSON)
 
         # Act
-        output = render_output(sample_results, params, mocker.Mock(), mocker.Mock())
+        output = render_output(
+            sample_results,
+            output_format=params.format,
+            endpoint=params.endpoint,
+            client=mocker.Mock(),
+            console=mocker.Mock(),
+            columns=["id", "name"],
+        )
 
         # Assert
         parsed = json.loads(output)
@@ -100,7 +101,14 @@ class TestRenderOutput:
         params = Params(endpoint="resource", columns=["id", "name"], format=OutputFormat.YAML)
 
         # Act
-        output = render_output(sample_results, params, mocker.Mock(), mocker.Mock())
+        output = render_output(
+            sample_results,
+            output_format=params.format,
+            endpoint=params.endpoint,
+            client=mocker.Mock(),
+            console=mocker.Mock(),
+            columns=["id", "name"],
+        )
 
         # Assert
         parsed = yaml.safe_load(output)
@@ -110,12 +118,19 @@ class TestRenderOutput:
     def test_render_tsv_output(self, sample_results, mocker):
         # Arrange
         params = Params(endpoint="resource", columns=["id", "name"], format=OutputFormat.TSV)
-        mock_flatten = mocker.patch("bfabric_scripts.cli.api.read.flatten_relations")
+        mock_flatten = mocker.patch("bfabric_scripts.cli.api.output_format.flatten_relations")
         mock_df = mocker.Mock()
         mock_flatten.return_value = mock_df
 
         # Act
-        render_output(sample_results, params, mocker.Mock(), mocker.Mock())
+        render_output(
+            sample_results,
+            output_format=params.format,
+            endpoint=params.endpoint,
+            client=mocker.Mock(),
+            console=mocker.Mock(),
+            columns=["id", "name"],
+        )
 
         # Assert
         mock_flatten.assert_called_once()
@@ -129,9 +144,7 @@ class TestDetermineOutputColumns:
         specified_columns = ["id", "name"]
 
         # Act
-        columns = _determine_output_columns(
-            results=results, columns=specified_columns, max_columns=7, output_format=OutputFormat.TABLE_RICH
-        )
+        columns = _determine_output_columns(results=results, columns=specified_columns, max_columns=7)
 
         # Assert
         assert columns == ["id", "name"]
@@ -141,9 +154,7 @@ class TestDetermineOutputColumns:
         results = [{"id": 1, "name": "Test", "status": "active", "type": "sample"}]
 
         # Act
-        columns = _determine_output_columns(
-            results=results, columns=None, max_columns=2, output_format=OutputFormat.TABLE_RICH
-        )
+        columns = _determine_output_columns(results=results, columns=None, max_columns=2)
 
         # Assert
         assert len(columns) == 3  # id + 2 more columns
@@ -155,18 +166,14 @@ class TestDetermineOutputColumns:
 
         # Act/Assert
         with pytest.raises(ValueError, match="max_columns must be at least 1"):
-            _determine_output_columns(
-                results=results, columns=None, max_columns=0, output_format=OutputFormat.TABLE_RICH
-            )
+            _determine_output_columns(results=results, columns=None, max_columns=0)
 
     def test_determine_output_columns_empty_results(self):
         # Arrange
         results = []
 
         # Act
-        columns = _determine_output_columns(
-            results=results, columns=None, max_columns=7, output_format=OutputFormat.TABLE_RICH
-        )
+        columns = _determine_output_columns(results=results, columns=None, max_columns=7)
 
         # Assert
         assert columns == ["id"]  # Should return default columns when no results available
@@ -218,7 +225,7 @@ class TestReadFunction:
         # Arrange
         mock_perform_query = mocker.patch("bfabric_scripts.cli.api.read.perform_query")
         mock_perform_query.return_value = sample_results
-        mock_flatten = mocker.patch("bfabric_scripts.cli.api.read.flatten_relations")
+        mock_flatten = mocker.patch("bfabric_scripts.cli.api.output_format.flatten_relations")
         mock_df = mocker.Mock()
         mock_df.write_csv.return_value = "mocked,csv,content"
         mock_flatten.return_value = mock_df

@@ -1,29 +1,21 @@
-import json
-from enum import Enum
 from pathlib import Path
 from typing import Annotated, cast
 
 import cyclopts
-import polars as pl
 import pydantic
-import yaml
 from loguru import logger
 from pydantic import BaseModel
 from rich.console import Console
-from rich.table import Table
 
-from bfabric import Bfabric, BfabricClientConfig
+from bfabric import Bfabric
 from bfabric.typing import ApiResponseObjectType
 from bfabric.utils.cli_integration import use_client
-from bfabric.utils.polars_utils import flatten_relations
+from bfabric_scripts.cli.api.output_format import OutputFormat, render_output
 from bfabric_scripts.cli.api.query_repr import Query
 
-
-class OutputFormat(Enum):
-    JSON = "json"
-    YAML = "yaml"
-    TSV = "tsv"
-    TABLE_RICH = "table_rich"
+# Re-export so that existing callers (e.g. tests) can still do:
+#   from bfabric_scripts.cli.api.read import OutputFormat, render_output
+__all__ = ["OutputFormat", "render_output"]
 
 
 class Params(BaseModel):
@@ -66,37 +58,6 @@ def perform_query(params: Params, client: Bfabric) -> list[ApiResponseObjectType
     return results
 
 
-def render_output(
-    results: list[ApiResponseObjectType], params: Params, client: Bfabric, console: Console
-) -> str | None:
-    """Renders the results in the specified output format."""
-    if params.format == OutputFormat.TABLE_RICH:
-        output_columns = _determine_output_columns(
-            results=results,
-            columns=params.columns,
-            max_columns=params.cli_max_columns,
-            output_format=params.format,
-        )
-        _print_table_rich(client.config, console, params.endpoint, results, output_columns=output_columns)
-        return None
-    else:
-        if params.columns:
-            results = [{k: x.get(k) for k in params.columns} for x in results]
-
-        if params.format == OutputFormat.JSON:
-            result = json.dumps(results, indent=2)
-        elif params.format == OutputFormat.YAML:
-            result = yaml.dump(results)
-        elif params.format == OutputFormat.TSV:
-            result = flatten_relations(pl.DataFrame(results)).write_csv(separator="\t")
-        else:
-            raise ValueError(f"output format {params.format} not supported")
-
-        # TODO check if we can add back colors (but it broke some stuff, because of forced line breaks, so be careful)
-        print(result)
-        return result
-
-
 @use_client
 def cmd_api_read(params: Annotated[Params, cyclopts.Parameter(name="*")], *, client: Bfabric) -> None | int:
     """Reads entities from B-Fabric."""
@@ -115,54 +76,18 @@ def cmd_api_read(params: Annotated[Params, cyclopts.Parameter(name="*")], *, cli
     # Print/export output
     results = sorted(results, key=lambda x: cast(int, x["id"]))
     console_out = Console()
-    output = render_output(results, params=params, client=client, console=console_out)
+    output = render_output(
+        results,
+        output_format=params.format,
+        endpoint=params.endpoint,
+        client=client,
+        console=console_out,
+        columns=params.columns or None,
+        max_columns=params.cli_max_columns,
+    )
     if params.file:
         if output is None:
             logger.error("File output is not supported for the specified output format.")
             return 1
         params.file.write_text(output)
         logger.info(f"Results written to {params.file} (size: {params.file.stat().st_size} bytes)")
-
-
-def _determine_output_columns(
-    results: list[ApiResponseObjectType],
-    columns: list[str] | None,
-    max_columns: int,
-    output_format: OutputFormat,
-) -> list[str]:
-    if not columns:
-        if max_columns < 1:
-            raise ValueError("max_columns must be at least 1")
-        columns = ["id"]
-        if not results:
-            return columns
-        available_columns = sorted(set(results[0].keys()) - {"id"})
-        columns += available_columns[:max_columns]
-
-    return columns
-
-
-def _print_table_rich(
-    config: BfabricClientConfig,
-    console_out: Console,
-    endpoint: str,
-    res: list[ApiResponseObjectType],
-    output_columns: list[str],
-) -> None:
-    """Prints the results as a rich table to the console."""
-    table = Table(*output_columns)
-    for x in res:
-        entry_url = f"{config.base_url}/{endpoint}/show.html?id={x['id']}"
-        values = []
-        for column in output_columns:
-            if column == "id":
-                values.append(f"[link={entry_url}]{x['id']}[/link]")
-            elif column == "groupingvar":
-                val = x.get(column)
-                values.append((val.get("name", "") if isinstance(val, dict) else "") or "")
-            elif isinstance(val := x.get(column), dict):
-                values.append(str(val.get("id", "")))
-            else:
-                values.append(str(x.get(column, "")))
-        table.add_row(*values)
-    console_out.print(table)
