@@ -9,6 +9,29 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+### Added
+
+- OAuth 2.0 authentication for the `Bfabric` client. New factory methods:
+    - `Bfabric.connect_oauth` — OAuth 2.0 client-credentials grant for service accounts / background jobs, with automatic token refresh and an optional on-disk token cache.
+    - `Bfabric.connect_pkce` — interactive browser login via Authorization Code + PKCE (RFC 7636).
+    - `Bfabric.connect_device_code` — headless interactive login via the Device Authorization Grant (RFC 8628).
+    - `Bfabric.connect_pat` — authenticate with an opaque Personal Access Token (bearer token; not verified locally and not auto-refreshed).
+    - `Bfabric.connect` now routes to OAuth automatically when the selected config environment sets `auth_method: oauth`, loading cached tokens from disk.
+- `WebappClient` and `WebappClient.create` — a dual-identity client bundling a `user` identity (from a B-Fabric URL token, via RFC 8693 token exchange) and a `service` identity (client-credentials), for applications launched from B-Fabric.
+- `BfabricOAuthError` in `bfabric.errors`, raised when an OAuth operation fails (token exchange, device-code, or PKCE flow).
+- Config: new `auth_method` (`"password"` | `"oauth"`) and `client_id` fields on an environment configuration, and `bfabric.config.write_environment_to_config` to create/update an environment section in `~/.bfabricpy.yml` with atomic, `0o600`-permission writes.
+- `bfabric.config.DEFAULT_CONFIG_FILE` constant for the default config path (`~/.bfabricpy.yml`).
+- New dependencies `authlib` and `joserfc` for the OAuth flows and JWT verification.
+
+    The OAuth primitives live in a private `bfabric._oauth` module; it is internal and not yet a stable public API — use the `Bfabric.connect_*` methods above.
+
+### Changed
+
+- `BfabricAuth` no longer requires the password to be exactly 32 characters for OAuth/PAT logins (the `__oauth__` sentinel login); password logins still require the 32-character key.
+- `Bfabric` now preserves its OAuth credential provider across pickling, so OAuth-authenticated clients keep working after a pickle round-trip (e.g. in FastAPI workers).
+- `ResultContainer.assert_success` now raises `RuntimeError` with a single human-readable message (`"Query was not successful: ..."`) instead of a `(message, errors)` tuple.
+- The `@use_client` CLI decorator now catches `ValueError`/`RuntimeError` raised while connecting or inside the wrapped command, printing a concise `Error: ...` to stderr and exiting with status 1 instead of dumping a traceback.
+
 ## \[1.19.0\] - 2026-06-10
 
 ### Added
