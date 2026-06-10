@@ -9,29 +9,26 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+## \[1.19.0\] - 2026-06-10
+
 ### Added
 
-- `BfabricTokenExpiredError` and `BfabricTokenInvalidError` in `bfabric.errors`: specific subclasses of `BfabricTokenValidationFailedError` raised for the corresponding failure conditions instead of the generic error.
 - `Job` entity wrapping the B-Fabric `job` endpoint.
-- `bfabric.operations` module: the canonical location for named write capabilities against B-Fabric.
-  - `bfabric.operations.workunit.create_workunit` — creates a workunit with its associated resources, rolling back on failure; accepts caller-supplied `audit_attributes`.
-  - `bfabric.operations.dataset.{create_dataset, update_dataset, preview_dataset_update}` plus helpers `polars_to_dataset_dict`, `check_for_invalid_characters`, `warn_on_trailing_spaces`, `identify_changes`.
-  - `bfabric.operations.update_custom_attributes`.
-- `bfabric-cli dataset update` command for updating an existing dataset with a change preview. Mirrors `bfabric-cli dataset upload` with `csv`/`tsv`/`xlsx`/`parquet` subcommands and the same `forbidden_chars` / `warn_trailing_spaces` validation flags.
-
-### Changed
-
-- `bfabric_save_csv2dataset.py` — reworked to call `create_dataset`; behavior is unchanged except the dataset URI is now logged via `loguru` instead of printed.
+- `BfabricTokenExpiredError` and `BfabricTokenInvalidError` in `bfabric.errors`: specific subclasses of `BfabricTokenValidationFailedError` raised instead of the generic error.
+- `bfabric.operations` module: the canonical location for named write operations against B-Fabric.
+    - `operations.workunit.create_workunit` — creates a workunit with its resources, rolling back on failure; accepts caller-supplied `audit_attributes`.
+    - `operations.dataset` — `create_dataset`, `update_dataset`, `preview_dataset_update`, plus `polars_to_dataset_dict` and `identify_changes`.
+    - `operations.update_custom_attributes`.
 
 ### Deprecated
 
-- `bfabric.experimental.upload_dataset` — symbols moved to `bfabric.operations.dataset`; deprecation shim emits warnings and will be removed in the next release.
-- `bfabric.experimental.upload_dataset.bfabric_save_csv2dataset` (inner function) — removed outright; accessing it raises `AttributeError` with a migration hint.
+- `bfabric.experimental.upload_dataset` — moved to `bfabric.operations.dataset`; deprecation shim emits warnings and will be removed in the next release.
 - `bfabric.experimental.update_custom_attributes` — moved to `bfabric.operations`.
 
 ### Removed
 
-- `bfabric.experimental.dataset_column_types` — was an internal implementation detail of `upload_dataset`, never part of the public API; symbols now live at `bfabric.operations.dataset._column_types`.
+- `bfabric.experimental.upload_dataset.bfabric_save_csv2dataset` (inner function) — removed outright; accessing it raises `AttributeError` with a migration hint.
+- `bfabric.experimental.dataset_column_types` — internal implementation detail of `upload_dataset`, never public; symbols now live at `bfabric.operations.dataset._column_types`.
 
 ### Fixed
 
