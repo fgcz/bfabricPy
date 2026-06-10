@@ -90,18 +90,16 @@ def _print_table_rich(
     table = Table(*output_columns)
     for x in res:
         entry_url = f"{config.base_url}/{endpoint}/show.html?id={x['id']}"
-        values = []
+        values: list[str] = []
         for column in output_columns:
             if column == "id":
-                values.append(f"[link={entry_url}]{x['id']}[/link]")  # pyright: ignore[reportUnknownMemberType]
+                values.append(f"[link={entry_url}]{x['id']}[/link]")
             elif column == "groupingvar":
                 val = x.get(column)
-                values.append(
-                    (val.get("name", "") if isinstance(val, dict) else "") or ""
-                )  # pyright: ignore[reportUnknownMemberType]
+                values.append(str(val.get("name", "")) if isinstance(val, dict) else "")
             elif isinstance(val := x.get(column), dict):
-                values.append(str(val.get("id", "")))  # pyright: ignore[reportUnknownMemberType]
+                values.append(str(val.get("id", "")))
             else:
-                values.append(str(x.get(column, "")))  # pyright: ignore[reportUnknownMemberType]
-        table.add_row(*values)  # pyright: ignore[reportUnknownArgumentType]
+                values.append(str(x.get(column, "")))
+        table.add_row(*values)
     console_out.print(table)
