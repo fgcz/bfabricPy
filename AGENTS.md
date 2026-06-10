@@ -108,3 +108,4 @@ Each package's docs live alongside its source. Skim the index when working in a 
 
 - `main` — active development
 - `release` — triggers PyPI publish on merge
+- When pushing, give the remote branch a reasonable, descriptive name even if the local branch has an auto-generated worktree name (e.g. `worktree-quiet-gathering-mitten`) — push with an explicit remote ref: `git push -u origin HEAD:feature/short-descriptive-name`.
