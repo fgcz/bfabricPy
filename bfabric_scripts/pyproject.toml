@@ -25,6 +25,7 @@ test = [
     "pyfakefs>=5.10.0",
     "inline-snapshot>=0.30.0",
     "freezegun>=1.5.5",
+    "pytest-random-order>=1.1.0",
 ]
 excel = [
     "fastexcel>=0.18.0",
