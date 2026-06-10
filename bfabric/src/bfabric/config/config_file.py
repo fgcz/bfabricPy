@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 
 import yaml
 from loguru import logger
@@ -12,6 +12,10 @@ from pydantic_core import PydanticCustomError
 from bfabric.config import BfabricAuth
 from bfabric.config import BfabricClientConfig
 
+# Canonical default location of the bfabricPy config file. The tilde is kept unexpanded here;
+# callers expand it via Path.expanduser() at the point of use.
+DEFAULT_CONFIG_FILE = Path("~/.bfabricpy.yml")
+
 
 class GeneralConfig(BaseModel):
     default_config: Annotated[str | None, Field(min_length=1)] = None
@@ -20,6 +24,8 @@ class GeneralConfig(BaseModel):
 class EnvironmentConfig(BaseModel):
     config: BfabricClientConfig
     auth: BfabricAuth | None = None
+    auth_method: Literal["password", "oauth"] | None = None
+    client_id: str | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -27,7 +33,11 @@ class EnvironmentConfig(BaseModel):
         """Gathers all configs into the config field."""
         if not isinstance(values, dict):
             return values
-        values["config"] = {key: value for key, value in values.items() if key not in ["login", "password"]}
+        values["config"] = {
+            key: value
+            for key, value in values.items()  # pyright: ignore[reportAny]
+            if key not in ["login", "password", "auth_method", "client_id"]
+        }
         return values
 
     @model_validator(mode="before")

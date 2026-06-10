@@ -19,6 +19,9 @@ def _get_workspace_packages():
         text=True,
         stdout=subprocess.PIPE,
     ).stdout.splitlines()
+    # uv may colorize its output even when piped; strip ANSI escape codes before parsing paths
+    ansi_escape = re.compile(r"\x1b\[[0-9;]*m")
+    uv_list_paths = [ansi_escape.sub("", p).strip() for p in uv_list_paths]
     uv_list_names = [str(Path(p).relative_to(Path(__file__).parent)) for p in uv_list_paths]
     # exclude the workspace itself
     filtered = set(uv_list_names) - {"."}

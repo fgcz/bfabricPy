@@ -105,13 +105,17 @@ class TestCmdDatasetDownload:
 
         mock_dataset.to_polars.return_value.write_excel.assert_called_once()
 
-    def test_download_excel_format_without_fastexcel(self, mocker, mock_client, mock_dataset):
+    def test_download_excel_format_without_fastexcel(self, mocker, mock_client, mock_dataset, capsys):
         mocker.patch.object(Dataset, "find", return_value=mock_dataset)
         mocker.patch("bfabric_scripts.cli.dataset.download.is_excel_available", return_value=False)
         params = Params(dataset_id=123, file=Path("output.xlsx"), format=OutputFormat.EXCEL)
 
-        with pytest.raises(RuntimeError, match="Excel format requires the 'excel' optional dependency"):
+        # @use_client centralizes error handling: a RuntimeError from the command is
+        # reported to stderr and turned into a clean exit(1).
+        with pytest.raises(SystemExit):
             cmd_dataset_download(params, client=mock_client)
+
+        assert "Excel format requires the 'excel' optional dependency" in capsys.readouterr().err
 
     def test_download_auto_format_csv(self, mocker, mock_client, mock_dataset, tmp_path):
         mocker.patch.object(Dataset, "find", return_value=mock_dataset)

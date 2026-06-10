@@ -1,7 +1,6 @@
 from cyclopts import Parameter
 from pydantic import BaseModel
 from bfabric.utils.cli_integration import use_client
-from loguru import logger
 from bfabric import Bfabric
 from rich.console import Console
 
@@ -111,7 +110,6 @@ def _display_fields(fields: list[FieldModel], indent: int) -> None:
 
 
 @use_client
-@logger.catch(reraise=True)
 def cmd_api_inspect(params: Params, *, client: Bfabric) -> None:
     """Inspect and display the parameter structure of a SOAP endpoint method.
 

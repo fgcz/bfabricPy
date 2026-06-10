@@ -202,5 +202,37 @@ class TestReadConfig:
         )
 
 
+class TestEnvironmentConfigOAuth:
+    def test_auth_method_oauth(self):
+        config = EnvironmentConfig.model_validate({
+            "base_url": "https://example.com",
+            "auth_method": "oauth",
+            "client_id": "my-app",
+        })
+        assert config.auth_method == "oauth"
+        assert config.client_id == "my-app"
+        assert config.auth is None
+
+    def test_auth_method_not_in_client_config(self):
+        """auth_method and client_id should not leak into BfabricClientConfig."""
+        config = EnvironmentConfig.model_validate({
+            "base_url": "https://example.com",
+            "auth_method": "oauth",
+            "client_id": "my-app",
+        })
+        assert not hasattr(config.config, "auth_method")
+        assert not hasattr(config.config, "client_id")
+
+    def test_backward_compat_without_oauth_fields(self):
+        config = EnvironmentConfig.model_validate({
+            "base_url": "https://example.com",
+            "login": "user",
+            "password": "x" * 32,
+        })
+        assert config.auth_method is None
+        assert config.client_id is None
+        assert config.auth is not None
+
+
 if __name__ == "__main__":
     pytest.main()

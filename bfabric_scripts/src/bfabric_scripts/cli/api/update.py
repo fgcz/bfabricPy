@@ -35,7 +35,6 @@ class Params(BaseModel):
 
 
 @use_client
-@logger.catch(reraise=True)
 def cmd_api_update(params: Params, *, client: Bfabric) -> None:
     """Updates an existing entity in B-Fabric."""
     attributes_dict = params.attributes.to_dict(duplicates="error")

@@ -13,10 +13,20 @@ Versioning currently follows `X.Y.Z` where
 ### Added
 
 - `bfabric-cli dataset update` command: updates an existing dataset with a change preview before confirmation. Supports `csv`/`tsv`/`xlsx`/`parquet` subcommands and the same `forbidden_chars` / `warn_trailing_spaces` validation flags as `dataset upload`.
+- `bfabric-cli auth` command group for OAuth authentication and client management:
+    - `auth pkce <base_url>` — browser-based OAuth login; caches tokens and writes the config environment.
+    - `auth device-code <base_url>` — headless OAuth login (device authorization grant).
+    - `auth pat <base_url>` — log in with a Personal Access Token.
+    - `auth register <client_name> <redirect_uri>` — RFC 7591 dynamic client registration (supports `--config-env` to reuse a cached token and `--grant-types` to override).
+    - `auth register-webapp` — register an OAuth client together with a linked B-Fabric application.
+    - `auth status` — show the current authentication status for an environment.
+    - `auth logout` — clear cached OAuth tokens.
 
 ### Changed
 
 - `bfabric-cli dataset upload` and `bfabric_save_csv2dataset.py` now use `bfabric.operations.dataset.create_dataset` instead of the in-place SOAP assembly that was previously in `bfabric.experimental.upload_dataset`.
+- API commands (`api read`, `api save`, `api delete`, `executable inspect`, …) no longer wrap errors with `@logger.catch`; error handling is centralized in `@use_client`, which prints a clean message and exits non-zero.
+- `--config-env` naming is unified across the auth and API commands.
 
 ## \[1.15.0\] - 2026-04-20
 

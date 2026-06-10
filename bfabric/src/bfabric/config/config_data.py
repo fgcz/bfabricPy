@@ -5,19 +5,30 @@ import os
 from pathlib import Path
 from typing import Literal
 
+import yaml
+from loguru import logger
 from pydantic import BaseModel
 
 from bfabric.config import BfabricClientConfig, BfabricAuth  # noqa
-from bfabric.config.config_file import read_config_file
+from bfabric.config.config_file import ConfigFile
 
 
 class ConfigData(BaseModel):
     client: BfabricClientConfig
     auth: BfabricAuth | None
+    auth_method: Literal["password", "oauth"] | None = None
+    client_id: str | None = None
+    env_name: str | None = None
 
     def with_auth(self, auth: BfabricAuth | None) -> ConfigData:
         """Returns a shallow copy of self with the auth field set to the specified value."""
-        return ConfigData(client=self.client, auth=auth)
+        return ConfigData(
+            client=self.client,
+            auth=auth,
+            auth_method=self.auth_method,
+            client_id=self.client_id,
+            env_name=self.env_name,
+        )
 
 
 def _read_config_file(config_path: Path | str, force_config_env: str | None) -> ConfigData:
@@ -27,10 +38,18 @@ def _read_config_file(config_path: Path | str, force_config_env: str | None) -> 
         msg = f"No explicit config provided, and no config file found at {config_file_path}"
         raise OSError(msg)
 
-    config, auth = read_config_file(
-        config_path=config_file_path, config_env=force_config_env or os.environ.get("BFABRICPY_CONFIG_ENV")
+    config_env = force_config_env or os.environ.get("BFABRICPY_CONFIG_ENV")
+    logger.debug(f"Reading configuration from: {config_file_path} {config_env=}")
+    config_file = ConfigFile.model_validate(yaml.safe_load(config_file_path.read_text()))
+    resolved_env = config_file.get_selected_config_env(explicit_config_env=config_env)
+    env_config = config_file.environments[resolved_env]
+    return ConfigData(
+        client=env_config.config,
+        auth=env_config.auth,
+        auth_method=env_config.auth_method,
+        client_id=env_config.client_id,
+        env_name=resolved_env,
     )
-    return ConfigData(client=config, auth=auth)
 
 
 def load_config_data(
@@ -55,5 +74,11 @@ def export_config_data(config_data: ConfigData) -> str:
     auth_data = config_data.auth.model_dump() if config_data.auth else None
     if auth_data is not None:
         auth_data["password"] = auth_data["password"].get_secret_value()
-    data = {"client": config_data.client.model_dump(mode="json", round_trip=True), "auth": auth_data}
+    data = {
+        "client": config_data.client.model_dump(mode="json", round_trip=True),
+        "auth": auth_data,
+        "auth_method": config_data.auth_method,
+        "client_id": config_data.client_id,
+        "env_name": config_data.env_name,
+    }
     return json.dumps(data)

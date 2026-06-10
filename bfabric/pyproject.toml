@@ -26,11 +26,12 @@ dependencies = [
     "polars>=1.30,<2.0; platform_machine != 'x86_64' or platform_system != 'Darwin'",
     "loguru>=0.7,<0.8",
     "pydantic>=2.9.2,<3.0",
-    "eval_type_backport; python_version < '3.10'",
     "python-dateutil>=2.9.0,<3.0",
     "requests>=2.27.0,<3.0",
     "httpx>=0.28.1,<0.29",
     "annotated-types>=0.7.0",
+    "authlib>=1.6.9,<2.0",
+    "joserfc>=1.6.0,<2.0",
 ]
 
 [project.optional-dependencies]

@@ -68,14 +68,6 @@
                 }
             },
             {
-                "code": "reportCallInDefaultInitializer",
-                "range": {
-                    "startColumn": 39,
-                    "endColumn": 63,
-                    "lineCount": 1
-                }
-            },
-            {
                 "code": "reportUnusedParameter",
                 "range": {
                     "startColumn": 8,
@@ -240,14 +232,6 @@
                 "range": {
                     "startColumn": 12,
                     "endColumn": 25,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportAny",
-                "range": {
-                    "startColumn": 48,
-                    "endColumn": 53,
                     "lineCount": 1
                 }
             },
