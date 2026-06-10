@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypedDict, cast
 
 import httpx
 from loguru import logger
@@ -11,6 +11,16 @@ from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
 
 if TYPE_CHECKING:
     from bfabric.bfabric import Bfabric
+    from bfabric.results.result_container import ResultContainer
+    from bfabric.typing import ApiRequestDataType
+
+
+class RegisterWebappResult(TypedDict):
+    """Result of :func:`register_webapp`: the OAuth registration response and the saved application."""
+
+    oauth: dict[str, object]
+    application: ResultContainer
+
 
 _GRANT_TYPE_TOKEN_EXCHANGE = "urn:ietf:params:oauth:grant-type:token-exchange"
 
@@ -85,7 +95,7 @@ def register_webapp(
     application_id: int | None = None,
     technology_id: int | None = None,
     description: str | None = None,
-) -> dict[str, object]:
+) -> RegisterWebappResult:
     """Register a webapp: create the OAuth client and link it to a B-Fabric application.
 
     1. Calls :func:`register_client` to create the OAuth client (with the
@@ -117,10 +127,10 @@ def register_webapp(
     )
     oauth_client_id = oauth_result["id"]
 
-    app_obj: dict[str, object] = {
+    app_obj: dict[str, ApiRequestDataType] = {
         "name": app_name,
         "weburl": web_url,
-        "oauthclientid": oauth_client_id,
+        "oauthclientid": cast("ApiRequestDataType", oauth_client_id),
         "type": "WebApp",
     }
     if application_id is not None:
@@ -133,4 +143,4 @@ def register_webapp(
     logger.debug("Saving application '{}' with oauthclientid={}", app_name, str(oauth_client_id))
     app_result = client.save("application", app_obj)
 
-    return {"oauth": oauth_result, "application": app_result}
+    return RegisterWebappResult(oauth=oauth_result, application=app_result)

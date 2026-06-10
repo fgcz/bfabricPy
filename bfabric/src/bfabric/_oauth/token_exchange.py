@@ -47,7 +47,8 @@ def exchange_token(
     if not response.is_success:
         logger.error("Token exchange failed ({}): {}", response.status_code, response.text)
     _ = response.raise_for_status()
-    return response.json()  # pyright: ignore[reportReturnType]
+    result: dict[str, object] = response.json()  # pyright: ignore[reportAny]
+    return result
 
 
 def introspect_token(
@@ -78,5 +79,5 @@ def introspect_token(
         timeout=30,
     )
     _ = response.raise_for_status()
-    claims: dict[str, object] = response.json()  # pyright: ignore[reportAssignmentType]
+    claims: dict[str, object] = response.json()  # pyright: ignore[reportAny]
     return UrlTokenContext.model_validate(claims)

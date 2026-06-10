@@ -54,7 +54,7 @@ def main() -> None:
         token=bearer_token,
         app_name=app_name,
         web_url=web_url,
-        service_user='itfeeder',
+        service_user="leonardoschwarz",
     )
     oauth_info = result["oauth"]
     app_result = result["application"]
@@ -65,11 +65,10 @@ def main() -> None:
 
     # Extract the application ID from the save result
     app_id: int | None = None
-    if hasattr(app_result, "__getitem__"):
-        for item in app_result:  # type: ignore[union-attr]
-            if hasattr(item, "get"):
-                app_id = item.get("id")  # type: ignore[union-attr]
-                break
+    if len(app_result):
+        saved_id = app_result[0].get("id")
+        if isinstance(saved_id, int):
+            app_id = saved_id
 
     print(f"  OAuth client_id: {oauth_client_id}")
     print(f"  OAuth internal id: {oauth_internal_id}")
@@ -98,13 +97,13 @@ def main() -> None:
             self.send_header("Content-Type", "text/html")
             self.end_headers()
             if received_token["jwt"]:
-                self.wfile.write(b"<h1>Token received! You can close this tab.</h1>")
+                _ = self.wfile.write(b"<h1>Token received! You can close this tab.</h1>")
             else:
-                self.wfile.write(b"<h1>No JWT found in URL parameters.</h1>")
-                self.wfile.write(f"<pre>query: {parsed.query}</pre>".encode())
+                _ = self.wfile.write(b"<h1>No JWT found in URL parameters.</h1>")
+                _ = self.wfile.write(f"<pre>query: {parsed.query}</pre>".encode())
             request_received.set()
 
-        def log_message(self, format: str, *args: object) -> None:
+        def log_message(self, format: str, *args: object) -> None:  # pyright: ignore[reportImplicitOverride]
             pass  # Suppress request logging
 
     server = HTTPServer(("", PORT), CallbackHandler)
@@ -115,18 +114,20 @@ def main() -> None:
 
     server_thread = threading.Thread(target=serve, daemon=True)
     server_thread.start()
-    server_ready.wait()
+    _ = server_ready.wait()
 
     print(f"\n{'=' * 60}")
     print(f"Local server listening on http://localhost:{PORT}")
     print(f"\nNow go to B-Fabric and launch application ID={app_id}:")
-    print(f"  {base_url}/bfabric/application/show.html?id={app_id}")
+    # EntityURI
+    # print(f"  {EntityURI.from_components()
+    print(f"  {base_url}/application/show.html?id={app_id}")
     print(f"\nOr, if your app is launched from a workunit, run it from there.")
     print(f"B-Fabric will redirect to: {web_url}?jwt=...")
     print(f"{'=' * 60}\n")
     print("Waiting for callback...")
 
-    request_received.wait(timeout=300)
+    _ = request_received.wait(timeout=300)
     server.server_close()
 
     jwt = received_token["jwt"]
@@ -187,7 +188,7 @@ def _cleanup(client: Bfabric, app_id: int | None) -> None:
         return
     print(f"\nCleaning up: deleting application {app_id}...")
     try:
-        client.delete("application", app_id)
+        _ = client.delete("application", app_id)
         print("  Deleted.")
     except Exception as e:
         print(f"  Cleanup failed (manual deletion may be needed): {e}")
