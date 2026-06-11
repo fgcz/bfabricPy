@@ -491,9 +491,13 @@ def test_distributions(session):
                 session.log(f"   - {pkg}: {reason}")
         session.log("")
 
-    # Error if nothing is compatible
+    # Skip (don't fail) if nothing is compatible: a release containing only
+    # packages that require a newer Python than this matrix leg is an expected
+    # situation, not an error (e.g. a bfabric_app_runner-only release on the
+    # 3.11 leg). The leg is left untested, which is safe only as long as some
+    # other matrix leg's Python is >= every releasable package's minimum.
     if not compatible_packages:
-        session.error(
+        session.skip(
             f"No packages are compatible with Python {session.python}. "
             f"Requested packages: {', '.join(requested_packages)}"
         )
