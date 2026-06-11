@@ -6,7 +6,6 @@ from typing import Annotated, Callable, Literal
 from bfabric.experimental.webapp_oauth import (
     UrlTokenContext,
 )  # noqa: TC002  # runtime import: pydantic resolves field annotation
-from bfabric.rest.token_data import TokenData
 from pydantic import BaseModel, ConfigDict, Discriminator, SecretStr
 
 
@@ -17,13 +16,6 @@ class TokenValidationError(BaseModel):
     error: str
 
 
-class TokenValidationSuccess(BaseModel):
-    """Successful outcome of token validation (legacy SOAP credential path)."""
-
-    success: Literal[True] = True
-    token_data: TokenData
-
-
 class OAuthExchangeSuccess(BaseModel):
     """Successful outcome of an OAuth token exchange (RFC 8693 path).
 
@@ -31,9 +23,9 @@ class OAuthExchangeSuccess(BaseModel):
     entity context parsed from the access token JWT.
     """
 
-    model_config: ConfigDict = ConfigDict(
+    model_config: ConfigDict = ConfigDict(  # pyright: ignore[reportIncompatibleVariableOverride]
         arbitrary_types_allowed=True
-    )  # pyright: ignore[reportIncompatibleVariableOverride]
+    )
 
     success: Literal[True] = True
     base_url: str
@@ -41,10 +33,6 @@ class OAuthExchangeSuccess(BaseModel):
     context: UrlTokenContext
 
 
-TokenValidationResult = Annotated[
-    TokenValidationSuccess | OAuthExchangeSuccess | TokenValidationError, Discriminator("success")
-]
+TokenValidationResult = Annotated[OAuthExchangeSuccess | TokenValidationError, Discriminator("success")]
 
-TokenValidatorStrategy = Callable[
-    [SecretStr], Awaitable[TokenValidationSuccess | OAuthExchangeSuccess | TokenValidationError]
-]
+TokenValidatorStrategy = Callable[[SecretStr], Awaitable[OAuthExchangeSuccess | TokenValidationError]]

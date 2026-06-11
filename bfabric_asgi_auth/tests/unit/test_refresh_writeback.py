@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import datetime
-from collections.abc import MutableMapping
 
 import itsdangerous
 import pytest
@@ -18,8 +17,7 @@ from starlette.testclient import TestClient
 
 from bfabric._oauth.url_token import UrlTokenContext
 from bfabric_asgi_auth.middleware import BfabricAuthMiddleware
-from bfabric_asgi_auth.oauth_session_data import OAuthSessionData
-from bfabric_asgi_auth.token_validation.strategy import OAuthExchangeSuccess, TokenValidationError
+from bfabric_asgi_auth.token_validation.strategy import OAuthExchangeSuccess
 from bfabric_asgi_auth.user import BfabricOAuthUser
 
 SESSION_SECRET = "test-secret-key-32-bytes-long-ok!"
@@ -44,11 +42,6 @@ def _decode_session_cookie(cookie_value: str, secret: str = SESSION_SECRET) -> d
     return json.loads(base64.b64decode(b64))
 
 
-def _make_initial_session(base_url: str, token: dict, context: UrlTokenContext) -> dict:
-    session_data = OAuthSessionData(base_url=base_url, token=token, context=context)
-    return {"bfabric_session": session_data.model_dump(mode="json")}
-
-
 @pytest.fixture
 def initial_token() -> dict[str, object]:
     return {"access_token": "old_at", "refresh_token": "old_rt", "expires_at": 9999999999}
@@ -70,22 +63,19 @@ class TestRefreshWriteback:
     def _build_app(self, initial_token, initial_context, refresh_token: dict | None):
         """Build a test Starlette app with OAuth middleware.
 
-        If refresh_token is provided, the route handler triggers a token refresh.
+        If refresh_token is provided, the route handler triggers a token refresh by calling
+        ``user._on_token_refresh(refresh_token)`` — the same callback that ``Bfabric`` fires when
+        it exchanges a stale access token via the refresh_token grant.
         """
 
         async def homepage(request: Request):
             user = request.user
             assert isinstance(user, BfabricOAuthUser)
-            # Simulate the route calling get_bfabric_client().get_auth()
-            # which triggers authlib token refresh
+            # Simulate the route triggering authlib token refresh
             if refresh_token is not None:
                 user._on_token_refresh(refresh_token)
             return JSONResponse({"subject": user.subject})
 
-        async def token_exchange(token, *, client_id, client_secret):
-            return initial_token, initial_context
-
-        # Simple OAuth validator that always succeeds
         from pydantic import SecretStr
 
         async def mock_validator(token: SecretStr):
@@ -95,33 +85,15 @@ class TestRefreshWriteback:
                 context=initial_context,
             )
 
-        # Build user_factory that injects the refresh side-effect
-        def session_factory(result):
-            data = OAuthSessionData(
-                base_url=result.base_url,
-                token=result.token,
-                context=result.context,
-            )
-            return data.model_dump(mode="json")
-
-        def user_factory(session_dict: MutableMapping[str, object]) -> BfabricOAuthUser:
-            data = OAuthSessionData.model_validate(dict(session_dict))
-            return BfabricOAuthUser(
-                session_data=data,
-                live_session=session_dict,
-                client_id="app-id",
-                client_secret="app-secret",
-            )
-
         app = Starlette(
-            routes=[Route("/", homepage), Route("/landing", homepage)],
+            routes=[Route("/", homepage)],
             middleware=[
                 Middleware(SessionMiddleware, secret_key=SESSION_SECRET),
                 Middleware(
                     BfabricAuthMiddleware,
                     token_validator=mock_validator,
-                    session_factory=session_factory,
-                    user_factory=user_factory,
+                    client_id="app-id",
+                    client_secret="app-secret",
                 ),
             ],
         )

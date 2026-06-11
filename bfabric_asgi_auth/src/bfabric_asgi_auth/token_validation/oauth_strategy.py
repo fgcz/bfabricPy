@@ -18,7 +18,6 @@ if TYPE_CHECKING:
     from pydantic import SecretStr
 
     from bfabric.experimental.webapp_oauth_settings import WebappOAuthSettings
-    from bfabric_asgi_auth.token_validation.strategy import TokenValidationSuccess
 
 
 def create_oauth_validator(settings: WebappOAuthSettings) -> TokenValidatorStrategy:
@@ -33,7 +32,7 @@ def create_oauth_validator(settings: WebappOAuthSettings) -> TokenValidatorStrat
     client_id = settings.credentials.client_id
     client_secret = settings.credentials.client_secret.get_secret_value()
 
-    async def _validate(token: SecretStr) -> TokenValidationSuccess | OAuthExchangeSuccess | TokenValidationError:
+    async def _validate(token: SecretStr) -> OAuthExchangeSuccess | TokenValidationError:
         launch_jwt = token.get_secret_value()
         try:
             token_dict, context = await asyncio.to_thread(

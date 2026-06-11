@@ -1,16 +1,14 @@
 from __future__ import annotations
 
 import urllib.parse
-from collections.abc import MutableMapping
-from typing import TYPE_CHECKING, Callable
 
 from asgiref.typing import ASGI3Application, ASGIReceiveCallable, ASGISendCallable, HTTPScope, Scope, WebSocketScope
 from loguru import logger
-from pydantic import SecretStr, ValidationError
-from starlette.authentication import BaseUser
+from pydantic import SecretStr
 
 from bfabric_asgi_auth._root_path import prepend_root_path as _prepend_root_path
 from bfabric_asgi_auth._root_path import strip_root_path as _strip_root_path
+from bfabric_asgi_auth.oauth_session_data import OAuthSessionData
 from bfabric_asgi_auth.response_renderer import (
     ErrorResponse,
     HTMLRenderer,
@@ -19,52 +17,20 @@ from bfabric_asgi_auth.response_renderer import (
     SuccessResponse,
     VisibleException,
 )
-from bfabric_asgi_auth.session_data import SessionData
 from bfabric_asgi_auth.token_validation.strategy import (
     TokenValidationError,
-    TokenValidationSuccess,
     TokenValidatorStrategy,
 )
 from bfabric_asgi_auth.typing import AuthHooks, is_valid_session_dict
-from bfabric_asgi_auth.user import BfabricUser
-
-if TYPE_CHECKING:
-    from bfabric_asgi_auth.token_validation.strategy import TokenValidationResult
+from bfabric_asgi_auth.user import BfabricOAuthUser
 
 # Re-exported so existing imports `from bfabric_asgi_auth.middleware import _strip_root_path`
 # keep working — the helpers themselves live in ._root_path for use by response_renderer too.
 __all__ = ("BfabricAuthMiddleware", "_prepend_root_path", "_strip_root_path")
 
-# Type aliases for the factory seam.
-# SessionFactory: converts a successful validation result to a JSON-serializable dict.
-# UserFactory: converts the LIVE mutable session dict to an authenticated user object.
-SessionFactory = Callable[["TokenValidationResult"], dict[str, object]]
-UserFactory = Callable[[MutableMapping[str, object]], BaseUser]
-
-
-def _default_session_factory(result: TokenValidationResult) -> dict[str, object]:
-    """Legacy SOAP path: build a SessionData dict from TokenValidationSuccess."""
-    assert isinstance(result, TokenValidationSuccess), f"Unexpected result type: {type(result)}"
-    token_data = result.token_data
-    session_data = SessionData(
-        bfabric_instance=token_data.caller,
-        bfabric_auth_login=token_data.user,
-        bfabric_auth_password=token_data.user_ws_password.get_secret_value(),
-        entity_class=token_data.entity_class,
-        entity_id=token_data.entity_id,
-        job_id=token_data.job_id,
-        application_id=token_data.application_id,
-    )
-    return session_data.model_dump()
-
-
-def _default_user_factory(session_dict: MutableMapping[str, object]) -> BaseUser:
-    """Legacy SOAP path: build a BfabricUser from the session dict."""
-    return BfabricUser(SessionData.model_validate(dict(session_dict)))
-
 
 class BfabricAuthMiddleware:
-    """ASGI middleware for Bfabric authentication using session cookies.
+    """ASGI middleware for B-Fabric OAuth 2.0 authentication using session cookies.
 
     For starlette/fastapi users:
         This middleware must be added BEFORE SessionMiddleware when using add_middleware()
@@ -76,42 +42,38 @@ class BfabricAuthMiddleware:
         app: ASGI3Application,
         token_validator: TokenValidatorStrategy,
         *,
+        client_id: str,
+        client_secret: str,
         landing_path: str = "/landing",
         hooks: AuthHooks | None = None,
         token_param: str = "token",
         authenticated_path: str = "/",
         logout_path: str = "/logout",
         renderer: ResponseRenderer | None = None,
-        session_factory: SessionFactory | None = None,
-        user_factory: UserFactory | None = None,
     ) -> None:
         """Initialize the middleware.
 
         :param app: The ASGI application to wrap
-        :param token_validator: Token validator instance
+        :param token_validator: OAuth token validator (see :func:`create_oauth_validator`)
+        :param client_id: OAuth client ID — required on every request to rebuild the user client
+        :param client_secret: OAuth client secret — required on every request to rebuild the user client
         :param landing_path: URL path for landing page (default: /landing)
         :param hooks: Authentication hooks for customizing behavior (default: None)
         :param token_param: Query parameter name for token (default: token)
         :param authenticated_path: Path to redirect to after successful authentication (default: /)
         :param logout_path: URL path for logout (default: /logout)
         :param renderer: Response renderer for customizing error/success pages (default: HTMLRenderer)
-        :param session_factory: Converts a successful validation result to a session dict.
-            Defaults to the legacy SOAP path (:class:`SessionData`).
-        :param user_factory: Converts the live mutable session dict to a :class:`BaseUser`.
-            The factory receives the SAME dict object that is stored in ``scope["session"]``,
-            so writing to it during the request persists the change to the cookie on
-            ``http.response.start``.  Defaults to the legacy SOAP path (:class:`BfabricUser`).
         """
         self.app: ASGI3Application = app
         self.token_validator: TokenValidatorStrategy = token_validator
+        self._client_id: str = client_id
+        self._client_secret: str = client_secret
         self.landing_path: str = landing_path
         self.hooks: AuthHooks | None = hooks
         self.token_param: str = token_param
         self.authenticated_path: str = authenticated_path
         self.logout_path: str = logout_path
         self.renderer: ResponseRenderer = renderer or HTMLRenderer()
-        self._session_factory: SessionFactory = session_factory or _default_session_factory
-        self._user_factory: UserFactory = user_factory or _default_user_factory
 
     async def __call__(self, scope: Scope, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None:
         try:
@@ -128,9 +90,16 @@ class BfabricAuthMiddleware:
                 # Get session data from scope (set by SessionMiddleware)
                 session = scope.get("session", {})
                 if "bfabric_session" in session:
-                    # Pass the LIVE inner dict so user factories can write back to it
-                    live_session_dict: MutableMapping[str, object] = session["bfabric_session"]  # type: ignore[assignment]  # pyright: ignore[reportAny]
-                    scope["user"] = self._user_factory(live_session_dict)  # pyright: ignore[reportGeneralTypeIssues]
+                    # Pass the LIVE inner dict so the user can write back a refreshed token.
+                    # Starlette's SessionMiddleware re-serializes scope["session"] on
+                    # http.response.start, so mutating live == mutating what ends up in the cookie.
+                    live = session["bfabric_session"]  # type: ignore[assignment]  # pyright: ignore[reportAny]
+                    scope["user"] = BfabricOAuthUser(  # pyright: ignore[reportGeneralTypeIssues]
+                        session_data=OAuthSessionData.model_validate(dict(live)),  # pyright: ignore[reportAny]
+                        live_session=live,  # pyright: ignore[reportAny]
+                        client_id=self._client_id,
+                        client_secret=self._client_secret,
+                    )
                     return await self.app(scope, receive, send)
                 else:
                     return await self._handle_reject(scope=scope, receive=receive, send=send)
@@ -178,59 +147,32 @@ class BfabricAuthMiddleware:
         if not token:
             return await self.renderer.render_error(ErrorResponse.missing_token(), scope, receive, send)
 
-        # Validate the token
+        # Validate the token via OAuth exchange
         result = await self.token_validator(token)
         if isinstance(result, TokenValidationError):
             return await self.renderer.render_error(ErrorResponse.invalid_token(), scope, receive, send)
 
-        # Convert the validation result to a session dict via the factory
-        new_session_dict = self._session_factory(result)
-
-        # Store session data by modifying scope["session"] directly, this is supported by starlette's SessionMiddleware
+        # result is OAuthExchangeSuccess — store it as the session
         session = scope.get("session")
         if not is_valid_session_dict(session):
             return await self.renderer.render_error(ErrorResponse.invalid_session(), scope, receive, send)
 
-        # If either user or B-Fabric instance is different, evict the session
-        try:
-            existing_bfabric_session = SessionData.model_validate(session.get("bfabric_session"))
-        except ValidationError:
-            existing_bfabric_session = None
-
-        # Build a comparable session dict from the incoming result (for the legacy SOAP eviction check)
-        try:
-            new_session_data_for_eviction = SessionData.model_validate(new_session_dict)
-        except ValidationError:
-            new_session_data_for_eviction = None
-
-        if (
-            existing_bfabric_session is not None
-            and new_session_data_for_eviction is not None
-            and existing_bfabric_session != new_session_data_for_eviction
-        ):
-            session_cleared = False
-            if self.hooks:
-                session_cleared = await self.hooks.on_evict(session=session)
-
-            if not session_cleared:
-                logger.info("Clearing session due to user eviction")
-                session.clear()
+        # Build the OAuth session payload and persist it into the cookie
+        session["bfabric_session"] = OAuthSessionData(
+            base_url=result.base_url,
+            token=result.token,
+            context=result.context,
+        ).model_dump(mode="json")
 
         # Invoke the landing callback, if configured, and determine the redirect URL
         redirect_url = self.authenticated_path
         if self.hooks is not None:
-            token_data = result.token_data if isinstance(result, TokenValidationSuccess) else None  # type: ignore[union-attr]
-            if token_data is not None:
-                callback_result = await self.hooks.on_success(session=session, token_data=token_data)
-
-                if callback_result is not None:
-                    redirect_url = callback_result
-                    logger.debug(f"Landing callback returned {callback_result}, redirecting.")
-                else:
-                    logger.debug("Landing callback returned None, redirecting to default authenticated_path.")
-
-        # update the session
-        session["bfabric_session"] = new_session_dict  # pyright: ignore[reportArgumentType]
+            callback_result = await self.hooks.on_success(session=session, context=result.context)
+            if callback_result is not None:
+                redirect_url = callback_result
+                logger.debug(f"Landing callback returned {callback_result}, redirecting.")
+            else:
+                logger.debug("Landing callback returned None, redirecting to default authenticated_path.")
 
         # Send redirect response
         response = RedirectResponse(url=redirect_url, redirect_type="authenticated")

@@ -21,9 +21,9 @@ class OAuthSessionData(BaseModel):
     :ivar context: Verified JWT claims parsed into a typed model
     """
 
-    model_config: ConfigDict = ConfigDict(
+    model_config: ConfigDict = ConfigDict(  # pyright: ignore[reportIncompatibleVariableOverride]
         arbitrary_types_allowed=True
-    )  # pyright: ignore[reportIncompatibleVariableOverride]
+    )
 
     base_url: str
     token: dict[str, object]

@@ -122,6 +122,36 @@ The `bfabric-cli` default client is pre-registered with: `openid, profile, email
 
 ---
 
+## `bfabric_asgi_auth` — OAuth-only ASGI middleware
+
+`bfabric_asgi_auth` is now **OAuth-only**. The legacy SOAP token-validation path has been removed.
+
+### Refresh token write-back
+
+On each authenticated request the middleware builds a `BfabricOAuthUser` holding:
+- a read-only `OAuthSessionData` snapshot (for property access)
+- a **live reference** to `scope["session"]["bfabric_session"]`
+
+Starlette's `SessionMiddleware` re-serializes `scope["session"]` on `http.response.start` — so any write
+to the live dict during the handler is automatically persisted to the encrypted cookie. When the
+`Bfabric` client silently refreshes the access token, `OAuthCredentialProvider.on_token_refresh` writes
+the new token back through this reference, keeping the cookie current.
+
+**Limits:**
+- No write-back for WebSocket connections (Starlette does not serialize session on WebSocket close).
+- No write-back if the refresh fires after `http.response.start` (e.g. in a background task or
+  streaming response).
+- The full token (including `refresh_token`) lives in the ~4 KB encrypted session cookie. Keep
+  `SessionMiddleware.max_age` reasonably short.
+
+### Unverified JWT claims
+
+`exchange_launch_token` calls `verify_jwt(base_url, access_token)` **without `audience` or `issuer`
+validation** (active `# TODO(confirm aud/iss)` comments). All tests use synthetic RSA keys and mocked
+JWKS endpoints — no round-trip against a real B-Fabric server has been performed. Wire `aud`/`iss`
+once the server-side claims are confirmed via a real exchange or
+`{base_url}/rest/oauth/.well-known/openid-configuration`.
+
 ## How to install from this branch
 
 ```bash

@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import time
 
-from bfabric.rest.token_data import TokenData
+from bfabric.experimental.webapp_oauth import UrlTokenContext
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
@@ -17,7 +17,7 @@ from starlette.responses import JSONResponse
 from starlette.routing import Route, WebSocketRoute
 from starlette.websockets import WebSocket
 
-from bfabric_asgi_auth import BfabricAuthMiddleware, BfabricUser, create_mock_validator
+from bfabric_asgi_auth import BfabricAuthMiddleware, BfabricOAuthUser, create_mock_oauth_validator
 
 from bfabric_asgi_auth.typing import AuthHooks, JsonRepresentable
 
@@ -38,8 +38,8 @@ def context():
 # Application fixtures
 @pytest.fixture
 def mock_validator():
-    """Create a mock token validator."""
-    return create_mock_validator()
+    """Create a mock OAuth token validator."""
+    return create_mock_oauth_validator()
 
 
 @pytest.fixture
@@ -62,12 +62,12 @@ def base_app():
         return JSONResponse(
             {
                 "has_user": True,
-                "is_bfabric_user": isinstance(user, BfabricUser),
+                "is_bfabric_oauth_user": isinstance(user, BfabricOAuthUser),
                 "is_authenticated": user.is_authenticated,
                 "display_name": user.display_name,
                 "identity": user.identity,
-                "login": user.login,
-                "instance": user.instance,
+                "subject": user.subject,
+                "base_url": user.base_url,
                 "entity_class": user.entity_class,
                 "entity_id": user.entity_id,
                 "job_id": user.job_id,
@@ -112,16 +112,19 @@ def app_config():
 @pytest.fixture
 def app(base_app, mock_validator, app_config, context):
     """Create configured application with middleware."""
+    ctx = context  # capture before the inner class shadows the name
 
     class Hooks(AuthHooks):
-        async def on_success(self, session: dict[str, JsonRepresentable], token_data: TokenData) -> str | None:
-            context["token_data"] = token_data
+        async def on_success(self, session: dict[str, JsonRepresentable], context: UrlTokenContext) -> str | None:
+            ctx["token_data"] = context
             return None
 
     # Add BfabricAuthMiddleware
     base_app.add_middleware(
         BfabricAuthMiddleware,
         token_validator=mock_validator,
+        client_id="app-id",
+        client_secret="app-secret",
         landing_path=app_config["landing_path"],
         token_param=app_config["token_param"],
         authenticated_path=app_config["authenticated_path"],
@@ -173,6 +176,8 @@ def app_configured_with_param(base_app, mock_validator, param, value):
     base_app.add_middleware(
         BfabricAuthMiddleware,
         token_validator=mock_validator,
+        client_id="app-id",
+        client_secret="app-secret",
         **config,
     )
     base_app.add_middleware(
@@ -207,6 +212,8 @@ def session_max_age(context, base_app, mock_validator, seconds):
     base_app.add_middleware(
         BfabricAuthMiddleware,
         token_validator=mock_validator,
+        client_id="app-id",
+        client_secret="app-secret",
     )
     base_app.add_middleware(
         SessionMiddleware,
@@ -293,9 +300,9 @@ def validate_token(context, token):
     result = run_async(validator(SecretStr(token)))
     context["validation_result"] = result
 
-    # Extract token_data for easier access in assertions
+    # Store the OAuth context for easier access in assertions
     if result.success:
-        context["token_data"] = result.token_data
+        context["token_data"] = result.context  # type: ignore[union-attr]
 
 
 @when("multiple users authenticate with different tokens")
@@ -435,19 +442,19 @@ def validation_fails(context):
 
 @then("the result should contain client configuration")
 def result_has_client_config(context):
-    """Check validation result has client config."""
+    """Check validation result has client config (base_url for OAuth)."""
     result = context["validation_result"]
     assert result.success is True
-    assert result.token_data.caller is not None
+    assert result.base_url is not None  # type: ignore[union-attr]
 
 
 @then("the result should contain user information")
 def result_has_user_info(context):
-    """Check validation result has user info."""
+    """Check validation result has user info (subject + access_token for OAuth)."""
     result = context["validation_result"]
     assert result.success is True
-    assert result.token_data.user is not None
-    assert result.token_data.user_ws_password is not None
+    assert result.context.subject is not None  # type: ignore[union-attr]
+    assert result.token.get("access_token") is not None  # type: ignore[union-attr]
 
 
 @then(parsers.parse('the error should contain "{text}"'))
@@ -466,7 +473,7 @@ def client_config_has_field(context, field):
 
 @then(parsers.parse('the token data should contain "{field}"'))
 def token_data_has_field(context, field):
-    """Check user info has field."""
+    """Check OAuth context (UrlTokenContext) has field."""
     assert hasattr(context["token_data"], field)
 
 
@@ -507,7 +514,7 @@ def websocket_accepted(context):
 
 @then("the session bfabric_session should contain all required fields")
 def session_bfabric_session_has_required_fields(context, client):
-    """Verify bfabric_session contains all required SessionData fields."""
+    """Verify bfabric_session contains the required OAuth session fields."""
     response = run_async(client.get("/"))
     data = response.json()
 
@@ -515,28 +522,23 @@ def session_bfabric_session_has_required_fields(context, client):
     assert "bfabric_session" in data["session"]
     session_data = data["session"]["bfabric_session"]
 
-    # Verify all required fields exist
-    assert "bfabric_instance" in session_data
-    assert "bfabric_auth_login" in session_data
-    assert "bfabric_auth_password" in session_data
+    # Verify all required OAuth fields exist
+    assert "base_url" in session_data
+    assert "token" in session_data
+    assert "context" in session_data
 
-    # Verify fields are populated correctly from token_data
-    token_data = context["token_data"]
-    assert session_data["bfabric_instance"] == token_data.caller
-    assert session_data["bfabric_auth_login"] == token_data.user
-    # Verify password content matches (not just length)
-    assert session_data["bfabric_auth_password"] == token_data.user_ws_password.get_secret_value()
+    # Verify token has access credentials
+    assert "access_token" in session_data["token"]
+    assert "refresh_token" in session_data["token"]
 
-    # Verify token context fields
-    assert session_data["entity_class"] == token_data.entity_class
-    assert session_data["entity_id"] == token_data.entity_id
-    assert session_data["job_id"] == token_data.job_id
-    assert session_data["application_id"] == token_data.application_id
+    # Verify context has entity information
+    assert "subject" in session_data["context"]
+    assert "entity_id" in session_data["context"]
 
 
 @then("the hook should have received token data")
 def hook_received_token_data(context):
-    """Verify hook was called with token data."""
+    """Verify hook was called with OAuth context data."""
     assert "token_data" in context, "Hook did not populate context['token_data']"
     assert context["token_data"] is not None
 
@@ -548,6 +550,8 @@ def app_configured_with_authenticated_path(base_app, mock_validator, path, conte
     base_app.add_middleware(
         BfabricAuthMiddleware,
         token_validator=mock_validator,
+        client_id="app-id",
+        client_secret="app-secret",
         landing_path="/landing",
         token_param="token",
         authenticated_path=path,
@@ -566,9 +570,11 @@ def authenticate_with_proxy_headers(context, base_app, mock_validator, scheme, h
     """Authenticate with custom proxy headers."""
     from httpx import ASGITransport, AsyncClient
 
+    ctx = context
+
     class Hooks(AuthHooks):
-        async def on_success(self, session: dict[str, JsonRepresentable], token_data: TokenData) -> str | None:
-            context["token_data"] = token_data
+        async def on_success(self, session: dict[str, JsonRepresentable], context: UrlTokenContext) -> str | None:
+            ctx["token_data"] = context
             return None
 
     if "app" in context:
@@ -578,6 +584,8 @@ def authenticate_with_proxy_headers(context, base_app, mock_validator, scheme, h
         app_to_use.add_middleware(
             BfabricAuthMiddleware,
             token_validator=mock_validator,
+            client_id="app-id",
+            client_secret="app-secret",
             landing_path="/landing",
             token_param="token",
             authenticated_path="/",
@@ -604,17 +612,20 @@ def authenticate_with_proxy_headers(context, base_app, mock_validator, scheme, h
 
 
 def _build_root_path_app(mock_validator, context, authenticated_path: str):
-    """Build an app with the given authenticated_path and an on_success hook that records token data."""
+    """Build an app with the given authenticated_path and an on_success hook that records OAuth context."""
+    ctx = context
 
     class Hooks(AuthHooks):
-        async def on_success(self, session: dict[str, JsonRepresentable], token_data: TokenData) -> str | None:
-            context["token_data"] = token_data
+        async def on_success(self, session: dict[str, JsonRepresentable], context: UrlTokenContext) -> str | None:
+            ctx["token_data"] = context
             return None
 
     app = Starlette(routes=[])
     app.add_middleware(
         BfabricAuthMiddleware,
         token_validator=mock_validator,
+        client_id="app-id",
+        client_secret="app-secret",
         landing_path="/landing",
         token_param="token",
         authenticated_path=authenticated_path,
@@ -719,11 +730,11 @@ def request_user_info(context, client):
     context["user_info"] = response.json()
 
 
-@then("the scope user should be a BfabricUser")
-def scope_user_is_bfabric_user(context):
-    """Check scope user is BfabricUser."""
+@then("the scope user should be a BfabricOAuthUser")
+def scope_user_is_bfabric_oauth_user(context):
+    """Check scope user is BfabricOAuthUser."""
     assert context["user_info"]["has_user"] is True
-    assert context["user_info"]["is_bfabric_user"] is True
+    assert context["user_info"]["is_bfabric_oauth_user"] is True
 
 
 @then("the scope user is_authenticated should be true")
@@ -744,16 +755,16 @@ def scope_user_identity(context, identity):
     assert context["user_info"]["identity"] == identity
 
 
-@then(parsers.parse('the scope user login should be "{login}"'))
-def scope_user_login(context, login):
-    """Check scope user login."""
-    assert context["user_info"]["login"] == login
+@then(parsers.parse('the scope user subject should be "{subject}"'))
+def scope_user_subject(context, subject):
+    """Check scope user subject."""
+    assert context["user_info"]["subject"] == subject
 
 
-@then(parsers.parse('the scope user instance should be "{instance}"'))
-def scope_user_instance(context, instance):
-    """Check scope user instance."""
-    assert context["user_info"]["instance"] == instance
+@then(parsers.parse('the scope user base_url should be "{base_url}"'))
+def scope_user_base_url(context, base_url):
+    """Check scope user base_url."""
+    assert context["user_info"]["base_url"] == base_url
 
 
 @then("the websocket scope user should be set")
