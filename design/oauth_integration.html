@@ -1,0 +1,707 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>OAuth Integration &#8212; bfabricPy 1.19.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=d82602a5"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'design/oauth_integration';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Resources" href="../resources/index.html" />
+    <link rel="prev" title="bfabric.operations Module Design" href="operations_module.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.19.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">bfabricPy 1.19.0 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../getting_started/index.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/quick_start.html">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/configuration.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/troubleshooting.html">Troubleshooting</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../user_guides/index.html">User Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/creating_a_client/index.html">Creating a Client</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/creating_a_client/interactive_scripted_usage.html">Creating a Client for Interactive and Scripted Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/creating_a_client/server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/reading_data/index.html">Reading Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/reading_data/resultcontainer_api.html">ResultContainer API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/reading_data/entity_api.html">Entity API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/reading_data/caching_for_performance.html">Entity Caching</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/writing_data/index.html">Writing Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/working_with_entities/index.html">Entity Features</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/bfabric-cli/index.html">bfabric-cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/api_operations.html">API Operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/api_inspection.html">API Inspection with CLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/datasets.html">Datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/executables.html">Executables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/workunits.html">Workunits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/feeder.html">Feeder</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/error_handling.html">Error Handling</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api_reference/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/bfabric_client/index.html">Bfabric Client API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/entity_types/index.html">API Reference: Entity Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/entity_reader/index.html">API Reference: EntityReader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/entity_uri/index.html">API Reference: EntityUri</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/result_container/index.html">ResultContainer API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/token_data/index.html">API Reference: Token Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/exceptions_and_errors/index.html">API Reference: Exceptions and Errors</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../advanced_topics/index.html">Advanced Topics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../advanced_topics/workunit_definitions/index.html">Experimental: Workunit Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../advanced_topics/data_operations.html">Data Operations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Design Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="operations_module.html"><code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code> Module Design</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">OAuth Integration</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../resources/index.html">Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../resources/good_to_know.html">Good to Know</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/design/oauth_integration.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>OAuth Integration</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-bfabric-oauth-module">New: <code class="docutils literal notranslate"><span class="pre">bfabric._oauth</span></code> module</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-factory-methods-on-bfabric">New: Factory methods on <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-cli-commands-bfabric-cli-auth">New: CLI commands (<code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">auth</span></code>)</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#auth-register-enhancements"><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">register</span></code> enhancements</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#config-file-changes">Config file changes</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-fields-in-environment-config">New fields in environment config</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-config-writer-py">New: <code class="docutils literal notranslate"><span class="pre">config_writer.py</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configdata-environmentconfig"><code class="docutils literal notranslate"><span class="pre">ConfigData</span></code> / <code class="docutils literal notranslate"><span class="pre">EnvironmentConfig</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cli-error-handling-improvements">CLI error handling improvements</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dependencies">Dependencies</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#test-coverage">Test coverage</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scope-enforcement-server-side">Scope enforcement (server-side)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-install-from-this-branch">How to install from this branch</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="oauth-integration">
+<h1>OAuth Integration<a class="headerlink" href="#oauth-integration" title="Link to this heading">#</a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>Adds OAuth 2.0 support to bfabricPy. The library can now authenticate via PKCE, device code, client credentials, URL tokens, and personal access tokens — in addition to the existing password-based SOAP auth. All OAuth flows are transparent to downstream code: the SOAP engine receives <code class="docutils literal notranslate"><span class="pre">BfabricAuth(login=&quot;__oauth__&quot;,</span> <span class="pre">password=&lt;jwt&gt;)</span></code> automatically.</p>
+</section>
+<hr class="docutils" />
+<section id="new-bfabric-oauth-module">
+<h2>New: <code class="docutils literal notranslate"><span class="pre">bfabric._oauth</span></code> module<a class="headerlink" href="#new-bfabric-oauth-module" title="Link to this heading">#</a></h2>
+<p>Private module under <code class="docutils literal notranslate"><span class="pre">bfabric/src/bfabric/_oauth/</span></code> implementing all OAuth primitives.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>File</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_constants.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">DEFAULT_CLIENT_ID</span> <span class="pre">=</span> <span class="pre">&quot;bfabric-cli&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">DEFAULT_OAUTH_SCOPE</span> <span class="pre">=</span> <span class="pre">&quot;api:read</span> <span class="pre">api:write&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">credential_provider.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">OAuthCredentialProvider</span></code> — thread-safe token management with automatic refresh and disk caching. Supports both <code class="docutils literal notranslate"><span class="pre">client_credentials</span></code> and <code class="docutils literal notranslate"><span class="pre">refresh_token</span></code> grant types.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pkce.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pkce_login()</span></code> — browser-based PKCE flow. Starts a local HTTP server, opens the browser, exchanges the authorization code for tokens.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">device_code.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">device_code_login()</span></code> — RFC 8628 device authorization flow for headless environments.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">registration.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">register_client()</span></code> — RFC 7591 dynamic client registration via HTTP POST.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">token_cache.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">TokenCache</span></code> — JSON file cache at <code class="docutils literal notranslate"><span class="pre">~/.bfabric/tokens/{hash}.json</span></code> with 0o600 permissions. <code class="docutils literal notranslate"><span class="pre">compute_token_cache_path()</span></code> derives a unique path from <code class="docutils literal notranslate"><span class="pre">(base_url,</span> <span class="pre">client_id,</span> <span class="pre">env_name)</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">url_token.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">UrlTokenContext</span></code> + <code class="docutils literal notranslate"><span class="pre">parse_url_token()</span></code> — extracts entity context (entity_id, application_id, etc.) from B-Fabric URL token JWTs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">webapp_client.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">WebappClient</span></code> — dual-identity client bundling a <code class="docutils literal notranslate"><span class="pre">user</span></code> (from URL token) and <code class="docutils literal notranslate"><span class="pre">service</span></code> (from client credentials) <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> instance.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<hr class="docutils" />
+<section id="new-factory-methods-on-bfabric">
+<h2>New: Factory methods on <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code><a class="headerlink" href="#new-factory-methods-on-bfabric" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Method</p></th>
+<th class="head"><p>Grant type</p></th>
+<th class="head"><p>Use case</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Bfabric.connect()</span></code></p></td>
+<td><p>auto-detect</p></td>
+<td><p>Unchanged API. Now auto-detects <code class="docutils literal notranslate"><span class="pre">auth_method:</span> <span class="pre">&quot;oauth&quot;</span></code> in config and loads cached tokens.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_oauth(client_id,</span> <span class="pre">client_secret,</span> <span class="pre">base_url)</span></code></p></td>
+<td><p>client_credentials</p></td>
+<td><p>Service accounts / background jobs.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_pkce(base_url,</span> <span class="pre">client_id)</span></code></p></td>
+<td><p>authorization_code + PKCE</p></td>
+<td><p>Interactive browser login (programmatic).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_device_code(base_url,</span> <span class="pre">client_id)</span></code></p></td>
+<td><p>device_code</p></td>
+<td><p>Headless interactive login (programmatic).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Bfabric.from_url_token(base_url,</span> <span class="pre">jwt,</span> <span class="pre">refresh_token)</span></code></p></td>
+<td><p>URL token</p></td>
+<td><p>Webapps launched from B-Fabric. Returns <code class="docutils literal notranslate"><span class="pre">(Bfabric,</span> <span class="pre">UrlTokenContext)</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">WebappClient.create(base_url,</span> <span class="pre">jwt,</span> <span class="pre">...,</span> <span class="pre">client_id,</span> <span class="pre">client_secret)</span></code></p></td>
+<td><p>URL token + client_credentials</p></td>
+<td><p>Dual-identity webapp client.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<hr class="docutils" />
+<section id="new-cli-commands-bfabric-cli-auth">
+<h2>New: CLI commands (<code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">auth</span></code>)<a class="headerlink" href="#new-cli-commands-bfabric-cli-auth" title="Link to this heading">#</a></h2>
+<p>All commands registered under <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">auth</span></code> via cyclopts.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Command</p></th>
+<th class="head"><p>File</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">pkce</span> <span class="pre">&lt;base_url&gt;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cli/login/pkce.py</span></code></p></td>
+<td><p>Browser-based OAuth login. Caches tokens + writes config.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">device-code</span> <span class="pre">&lt;base_url&gt;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cli/login/device_code.py</span></code></p></td>
+<td><p>Headless OAuth login.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">pat</span> <span class="pre">&lt;base_url&gt;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cli/login/pat.py</span></code></p></td>
+<td><p>Personal Access Token login.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">register</span> <span class="pre">&lt;client_name&gt;</span> <span class="pre">&lt;redirect_uri&gt;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cli/login/register.py</span></code></p></td>
+<td><p>RFC 7591 dynamic client registration. Outputs JSON.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">status</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cli/login/status.py</span></code></p></td>
+<td><p>Show current auth status for an environment.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">logout</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cli/login/logout.py</span></code></p></td>
+<td><p>Clear cached OAuth tokens.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>All auth commands use <code class="docutils literal notranslate"><span class="pre">--config-env</span></code> (consistent with API commands via <code class="docutils literal notranslate"><span class="pre">&#64;use_client</span></code>).</p>
+<section id="auth-register-enhancements">
+<h3><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">register</span></code> enhancements<a class="headerlink" href="#auth-register-enhancements" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--config-env</span></code> reuses a cached OAuth token from an existing environment (no manual bearer token needed)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--config-file</span></code> specifies the config file path</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">base_url</span></code> is optional when <code class="docutils literal notranslate"><span class="pre">--config-env</span></code> is provided (inferred from config)</p></li>
+<li><p>Token resolution: explicit <code class="docutils literal notranslate"><span class="pre">--token</span></code> &gt; cached OAuth token via <code class="docutils literal notranslate"><span class="pre">--config-env</span></code> &gt; interactive prompt</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="config-file-changes">
+<h2>Config file changes<a class="headerlink" href="#config-file-changes" title="Link to this heading">#</a></h2>
+<section id="new-fields-in-environment-config">
+<h3>New fields in environment config<a class="headerlink" href="#new-fields-in-environment-config" title="Link to this heading">#</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">PRODUCTION</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">base_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://bfabric.example.com/bfabric&quot;</span>
+<span class="w">  </span><span class="nt">auth_method</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;oauth&quot;</span><span class="w">        </span><span class="c1"># NEW — triggers OAuth flow in Bfabric.connect()</span>
+<span class="w">  </span><span class="nt">client_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;bfabric-cli&quot;</span><span class="w">    </span><span class="c1"># NEW — optional, defaults to &quot;bfabric-cli&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="new-config-writer-py">
+<h3>New: <code class="docutils literal notranslate"><span class="pre">config_writer.py</span></code><a class="headerlink" href="#new-config-writer-py" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">write_environment_to_config()</span></code> — creates or updates a YAML environment section with atomic writes (0o600 permissions). Used by all login commands.</p>
+</section>
+<section id="configdata-environmentconfig">
+<h3><code class="docutils literal notranslate"><span class="pre">ConfigData</span></code> / <code class="docutils literal notranslate"><span class="pre">EnvironmentConfig</span></code><a class="headerlink" href="#configdata-environmentconfig" title="Link to this heading">#</a></h3>
+<p>Both models gained <code class="docutils literal notranslate"><span class="pre">auth_method</span></code> and <code class="docutils literal notranslate"><span class="pre">client_id</span></code> fields. <code class="docutils literal notranslate"><span class="pre">Bfabric.connect()</span></code> checks <code class="docutils literal notranslate"><span class="pre">auth_method</span> <span class="pre">==</span> <span class="pre">&quot;oauth&quot;</span></code> to route to <code class="docutils literal notranslate"><span class="pre">_connect_oauth_from_config()</span></code>.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="cli-error-handling-improvements">
+<h2>CLI error handling improvements<a class="headerlink" href="#cli-error-handling-improvements" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&#64;use_client</span></code> decorator now catches <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> / <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> from <code class="docutils literal notranslate"><span class="pre">Bfabric.connect()</span></code> and from the wrapped function, printing clean error messages to stderr and exiting with code 1.</p></li>
+<li><p>Removed <code class="docutils literal notranslate"><span class="pre">&#64;logger.catch(reraise=True)</span></code> from all API commands (create, read, update, delete, inspect) — error handling is now centralized in <code class="docutils literal notranslate"><span class="pre">&#64;use_client</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ResultContainer.assert_success()</span></code> now formats errors inline (<code class="docutils literal notranslate"><span class="pre">&quot;Query</span> <span class="pre">was</span> <span class="pre">not</span> <span class="pre">successful:</span> <span class="pre">Insufficient</span> <span class="pre">scope...&quot;</span></code>) instead of passing a tuple.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">authlib</span></code> — new dependency (added to <code class="docutils literal notranslate"><span class="pre">bfabric/pyproject.toml</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">httpx</span></code> — used by <code class="docutils literal notranslate"><span class="pre">registration.py</span></code> for RFC 7591 HTTP calls</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="test-coverage">
+<h2>Test coverage<a class="headerlink" href="#test-coverage" title="Link to this heading">#</a></h2>
+<p>~1800 lines of new tests across 15 test files covering:</p>
+<ul class="simple">
+<li><p>All OAuth flows (PKCE, device code, client credentials, URL token)</p></li>
+<li><p>Credential provider (token refresh, thread safety, disk caching, cache priority)</p></li>
+<li><p>Token cache (save/load/clear, path computation, permissions)</p></li>
+<li><p>Client registration</p></li>
+<li><p>Webapp client</p></li>
+<li><p>All 6 CLI auth commands</p></li>
+<li><p>Config file parsing with new OAuth fields</p></li>
+<li><p>Config writer</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="scope-enforcement-server-side">
+<h2>Scope enforcement (server-side)<a class="headerlink" href="#scope-enforcement-server-side" title="Link to this heading">#</a></h2>
+<p>B-Fabric now enforces OAuth scopes at the API level:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">api:read</span></code> required for SOAP read operations</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">api:write</span></code> required for SOAP write operations</p></li>
+<li><p>Additional scopes (e.g. <code class="docutils literal notranslate"><span class="pre">tus</span></code>, <code class="docutils literal notranslate"><span class="pre">download</span></code>) can be requested and are enforced by their respective endpoints</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span></code> default client is pre-registered with: <code class="docutils literal notranslate"><span class="pre">openid,</span> <span class="pre">profile,</span> <span class="pre">email,</span> <span class="pre">api:read,</span> <span class="pre">api:write,</span> <span class="pre">tus,</span> <span class="pre">download,</span> <span class="pre">offline_access</span></code>.</p>
+</section>
+<hr class="docutils" />
+<section id="how-to-install-from-this-branch">
+<h2>How to install from this branch<a class="headerlink" href="#how-to-install-from-this-branch" title="Link to this heading">#</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># As a library dependency</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;bfabric @ git+https://github.com/fgcz/bfabricPy.git@oauth-integration#subdirectory=bfabric&quot;</span>
+
+<span class="c1"># As a CLI tool (both packages from branch)</span>
+uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s2">&quot;bfabric-scripts @ git+https://github.com/fgcz/bfabricPy.git@oauth-integration#subdirectory=bfabric_scripts&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--with<span class="w"> </span><span class="s2">&quot;bfabric @ git+https://github.com/fgcz/bfabricPy.git@oauth-integration#subdirectory=bfabric&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--reinstall
+</pre></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="operations_module.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code> Module Design</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../resources/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Resources</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-bfabric-oauth-module">New: <code class="docutils literal notranslate"><span class="pre">bfabric._oauth</span></code> module</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-factory-methods-on-bfabric">New: Factory methods on <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-cli-commands-bfabric-cli-auth">New: CLI commands (<code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">auth</span></code>)</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#auth-register-enhancements"><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">register</span></code> enhancements</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#config-file-changes">Config file changes</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-fields-in-environment-config">New fields in environment config</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-config-writer-py">New: <code class="docutils literal notranslate"><span class="pre">config_writer.py</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configdata-environmentconfig"><code class="docutils literal notranslate"><span class="pre">ConfigData</span></code> / <code class="docutils literal notranslate"><span class="pre">EnvironmentConfig</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cli-error-handling-improvements">CLI error handling improvements</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dependencies">Dependencies</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#test-coverage">Test coverage</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scope-enforcement-server-side">Scope enforcement (server-side)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-install-from-this-branch">How to install from this branch</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By the bfabricpy authors
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2014-2026 Functional Genomics Center Zurich.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

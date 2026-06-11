@@ -189,6 +189,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../design/index.html">Design Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../design/operations_module.html"><code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code> Module Design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../design/oauth_integration.html">OAuth Integration</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../resources/index.html">Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -467,7 +468,7 @@
 <h2>Bfabric Class<a class="headerlink" href="#bfabric-class" title="Link to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="bfabric.Bfabric">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric.</span></span><span class="sig-name descname"><span class="pre">Bfabric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConfigData</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfabric.Bfabric" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric.</span></span><span class="sig-name descname"><span class="pre">Bfabric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConfigData</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">_credential_provider</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">OAuthCredentialProvider</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfabric.Bfabric" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Bfabric client class, providing general functionality for interaction with the B-Fabric API.</p>
 <p>Use <cite>Bfabric.connect()</cite> or <cite>Bfabric.connect_webapp</cite> to create a new instance, and check out their docstrings for
@@ -475,8 +476,14 @@ more details on how to use.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="bfabric.Bfabric.auth">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">auth</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">BfabricAuth</span></span><a class="headerlink" href="#bfabric.Bfabric.auth" title="Link to this definition">#</a></dt>
-<dd><p>Returns the auth object.
-:raises ValueError: If authentication is not available</p>
+<dd><p>Returns the auth object.</p>
+<p>When a credential provider is present (OAuth), it returns a fresh
+<code class="xref py py-class docutils literal notranslate"><span class="pre">BfabricAuth</span></code> with the current access token.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If authentication is not available</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
@@ -655,6 +662,8 @@ and not one of the dedicated experimental data stores.
 <dd><p>Context manager that temporarily (within the scope of the context) sets the authentication for
 the Bfabric object to the provided value. This is useful when authenticating multiple users, to avoid accidental
 use of the wrong credentials.</p>
+<p>When a credential provider is active, it is temporarily disabled so the
+explicit <em>auth</em> takes priority.</p>
 </dd></dl>
 
 </dd></dl>
@@ -833,8 +842,14 @@ and not one of the dedicated experimental data stores.
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric.Bfabric.auth">
 <span class="sig-prename descclassname"><span class="pre">Bfabric.</span></span><span class="sig-name descname"><span class="pre">auth</span></span><a class="headerlink" href="#bfabric.Bfabric.auth" title="Link to this definition">#</a></dt>
-<dd><p>Returns the auth object.
-:raises ValueError: If authentication is not available</p>
+<dd><p>Returns the auth object.</p>
+<p>When a credential provider is present (OAuth), it returns a fresh
+<code class="xref py py-class docutils literal notranslate"><span class="pre">BfabricAuth</span></code> with the current access token.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If authentication is not available</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -852,6 +867,8 @@ and not one of the dedicated experimental data stores.
 <dd><p>Context manager that temporarily (within the scope of the context) sets the authentication for
 the Bfabric object to the provided value. This is useful when authenticating multiple users, to avoid accidental
 use of the wrong credentials.</p>
+<p>When a credential provider is active, it is temporarily disabled so the
+explicit <em>auth</em> takes priority.</p>
 </dd></dl>
 
 </section>
