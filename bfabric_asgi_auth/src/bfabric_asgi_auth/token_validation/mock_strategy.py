@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import datetime
+import zlib
 
 from bfabric.rest.token_data import TokenData
 from pydantic import BaseModel, SecretStr
@@ -45,8 +46,8 @@ def create_mock_validator(fixture: MockFixture | None = None) -> TokenValidatorS
         if token_str.startswith("valid_"):
             # Extract username from token (everything after 'valid_')
             username = token_str[6:] if len(token_str) > 6 else "testuser"
-            # Generate a unique job_id based on the username hash
-            job_id = abs(hash(username)) % 100000
+            # Generate a stable (PYTHONHASHSEED-independent) job_id from the username
+            job_id = zlib.crc32(username.encode()) % 100000
 
             return TokenValidationSuccess(
                 token_data=TokenData.model_validate(

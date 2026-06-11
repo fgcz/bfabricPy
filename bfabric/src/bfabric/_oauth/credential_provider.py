@@ -27,6 +27,7 @@ from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
 from bfabric._oauth.token_cache import TokenCache
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from pathlib import Path
 
 
@@ -55,6 +56,7 @@ class OAuthCredentialProvider:
     _grant_type: str
     _leeway: int
     _token_cache_path: Path | None
+    _on_token_refresh: Callable[[dict[str, object]], None] | None
 
     def __init__(
         self,
@@ -67,6 +69,7 @@ class OAuthCredentialProvider:
         grant_type: str = "client_credentials",
         token_cache_path: Path | None = None,
         leeway: int = 30,
+        on_token_update: Callable[[dict[str, object]], None] | None = None,
     ) -> None:
         self._lock = threading.Lock()
         if grant_type == "client_credentials" and not client_secret:
@@ -81,6 +84,9 @@ class OAuthCredentialProvider:
         self._leeway = leeway
         self._token_cache_path = token_cache_path
         self._cache = TokenCache(token_cache_path) if token_cache_path else None
+        # Per-process callback; deliberately omitted from __getstate__ so it is dropped on pickle.
+        # The callback fires under self._lock and must be fast / non-reentrant.
+        self._on_token_refresh = on_token_update
 
         self._session = OAuth2Session(
             client_id,
@@ -137,6 +143,10 @@ class OAuthCredentialProvider:
     def _on_token_update(self, _new_token: dict[str, object], **_kwargs: object) -> None:
         """Callback invoked by authlib after a token refresh/re-fetch."""
         self._persist()
+        if self._on_token_refresh is not None and self._session.token:  # pyright: ignore[reportUnknownMemberType]
+            self._on_token_refresh(
+                dict(self._session.token)
+            )  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType]
 
     def _persist(self) -> None:
         """Write the current token to disk cache if configured."""

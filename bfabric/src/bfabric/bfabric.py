@@ -42,7 +42,7 @@ from bfabric.utils.cli_integration import DEFAULT_THEME, HostnameHighlighter
 from bfabric.utils.paginator import BFABRIC_QUERY_LIMIT, compute_requested_pages
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Callable, Generator
 
     from pydantic import SecretStr
 
@@ -260,6 +260,50 @@ class Bfabric:
         return cls(config_data=config_data, _credential_provider=provider)
 
     @classmethod
+    def connect_oauth_token(
+        cls,
+        base_url: str,
+        token: dict[str, object],
+        *,
+        client_id: str,
+        client_secret: str = "",
+        scope: str = DEFAULT_OAUTH_SCOPE,
+        token_cache_path: Path | None = None,
+        on_token_refresh: Callable[[dict[str, object]], None] | None = None,
+    ) -> Bfabric:
+        """Return a Bfabric instance that authenticates via OAuth 2.0 refresh-token grant.
+
+        This is the shared builder used by :meth:`connect_pkce`, :meth:`connect_device_code`,
+        and webapp integrations that already hold a token from an RFC 8693 exchange.
+        The returned client transparently refreshes the token on expiry.
+
+        :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
+        :param token: Initial token dict (must include ``refresh_token``)
+        :param client_id: OAuth client ID
+        :param client_secret: OAuth client secret; may be empty for public clients
+        :param scope: OAuth scope (default ``"api:read api:write"``)
+        :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
+        :param on_token_refresh: Optional callback invoked with the full new token dict after
+            each token refresh.  The callback fires while holding the provider's internal lock
+            and must be fast / non-reentrant.  It is **not** preserved across pickle round-trips.
+        """
+        from bfabric._oauth.credential_provider import OAuthCredentialProvider
+
+        base_url = base_url.rstrip("/")
+        provider = OAuthCredentialProvider(
+            client_id=client_id,
+            client_secret=client_secret,
+            token_url=f"{base_url}/rest/oauth/token",
+            token=token,
+            grant_type="refresh_token",
+            scope=scope,
+            token_cache_path=token_cache_path,
+            on_token_update=on_token_refresh,
+        )
+        config = BfabricClientConfig(base_url=base_url)  # pyright: ignore[reportCallIssue]
+        return cls(config_data=ConfigData(client=config, auth=None), _credential_provider=provider)
+
+    @classmethod
     def connect_pkce(
         cls,
         base_url: str,
@@ -285,7 +329,6 @@ class Bfabric:
         :param timeout: Seconds to wait for the user to complete login
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
-        from bfabric._oauth.credential_provider import OAuthCredentialProvider
         from bfabric._oauth.pkce import pkce_login
 
         base_url = base_url.rstrip("/")
@@ -297,19 +340,14 @@ class Bfabric:
             open_browser=open_browser,
             timeout=timeout,
         )
-        token_url = f"{base_url}/rest/oauth/token"
-        provider = OAuthCredentialProvider(
+        return cls.connect_oauth_token(
+            base_url,
+            token,
             client_id=client_id,
             client_secret="",
-            token_url=token_url,
-            token=token,
-            grant_type="refresh_token",
             scope=scope,
             token_cache_path=token_cache_path,
         )
-        config = BfabricClientConfig(base_url=base_url)  # pyright: ignore[reportCallIssue]
-        config_data = ConfigData(client=config, auth=None)
-        return cls(config_data=config_data, _credential_provider=provider)
 
     @classmethod
     def connect_device_code(
@@ -337,7 +375,6 @@ class Bfabric:
         :param timeout: Seconds to wait for the user to authorize (default 600)
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
-        from bfabric._oauth.credential_provider import OAuthCredentialProvider
         from bfabric._oauth.device_code import device_code_login
 
         base_url = base_url.rstrip("/")
@@ -347,19 +384,14 @@ class Bfabric:
             scope=scope,
             timeout=timeout,
         )
-        token_url = f"{base_url}/rest/oauth/token"
-        provider = OAuthCredentialProvider(
+        return cls.connect_oauth_token(
+            base_url,
+            token,
             client_id=client_id,
             client_secret="",
-            token_url=token_url,
-            token=token,
-            grant_type="refresh_token",
             scope=scope,
             token_cache_path=token_cache_path,
         )
-        config = BfabricClientConfig(base_url=base_url)  # pyright: ignore[reportCallIssue]
-        config_data = ConfigData(client=config, auth=None)
-        return cls(config_data=config_data, _credential_provider=provider)
 
     @classmethod
     def connect_pat(
