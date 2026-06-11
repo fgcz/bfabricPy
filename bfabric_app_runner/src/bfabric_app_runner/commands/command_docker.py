@@ -1,7 +1,6 @@
 from pathlib import Path
 import shlex
 import os
-from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric_app_runner.commands.command_exec import execute_command_exec
 from bfabric_app_runner.specs.app.commands_spec import CommandExec, CommandDocker, MountOptions
 
@@ -13,7 +12,7 @@ def _collect_mount_options(options: MountOptions, work_dir: Path) -> list[tuple[
     """
     mounts = []
     if options.share_bfabric_config:
-        mounts.append((DEFAULT_CONFIG_FILE, Path("/home/user/.bfabricpy.yml"), True))
+        mounts.append((Path("~/.bfabricpy.yml"), Path("/home/user/.bfabricpy.yml"), True))
     # TODO reconsider if we ever want work_dir_target to be customizable to be different from host path
     #      (currently things will break down if this is configured)
     work_dir_target = work_dir if options.work_dir_target is None else options.work_dir_target
