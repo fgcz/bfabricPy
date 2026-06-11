@@ -145,8 +145,8 @@ class OAuthCredentialProvider:
         self._persist()
         if self._on_token_refresh is not None and self._session.token:  # pyright: ignore[reportUnknownMemberType]
             self._on_token_refresh(
-                dict(self._session.token)
-            )  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType]
+                dict(self._session.token)  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType]
+            )
 
     def _persist(self) -> None:
         """Write the current token to disk cache if configured."""
