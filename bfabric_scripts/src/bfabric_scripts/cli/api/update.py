@@ -1,11 +1,13 @@
 import rich
 import rich.prompt
+from bfabric_scripts.cli.api.output_format import OutputFormat, render_output
 from bfabric_scripts.cli.api.query_repr import Query
 from cyclopts import Parameter
 from loguru import logger
 from pydantic import BaseModel, model_validator
+from rich.console import Console
 from rich.panel import Panel
-from rich.pretty import Pretty, pprint
+from rich.pretty import Pretty
 
 from bfabric import Bfabric
 from bfabric.utils.cli_integration import use_client
@@ -21,6 +23,8 @@ class Params(BaseModel):
     """List of attribute-value pairs to update the entity with."""
     no_confirm: bool = False
     """If set, the update will be performed without asking for confirmation."""
+    format: OutputFormat = OutputFormat.JSON
+    """Output format."""
 
     @model_validator(mode="after")
     def entity_id_not_in_attributes(self) -> "Params":
@@ -35,7 +39,6 @@ class Params(BaseModel):
 
 
 @use_client
-@logger.catch(reraise=True)
 def cmd_api_update(params: Params, *, client: Bfabric) -> None:
     """Updates an existing entity in B-Fabric."""
     attributes_dict = params.attributes.to_dict(duplicates="error")
@@ -49,7 +52,13 @@ def cmd_api_update(params: Params, *, client: Bfabric) -> None:
 
     result = client.save(params.endpoint, {"id": params.entity_id, **attributes_dict})
     logger.info(f"Entity with ID {params.entity_id} updated successfully.")
-    pprint(result)
+    _ = render_output(
+        result.to_list_dict(),
+        output_format=params.format,
+        endpoint=params.endpoint,
+        client=client,
+        console=Console(),
+    )
 
 
 def _confirm_action(attributes_dict: dict[str, str], client: Bfabric, endpoint: str, entity_id: int) -> bool:

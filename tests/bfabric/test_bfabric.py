@@ -1,11 +1,13 @@
 import datetime
+import pickle
 import re
 from pathlib import Path
-
 import pytest
 from pydantic import SecretStr
 
 from bfabric import Bfabric, BfabricAPIEngineType, BfabricClientConfig, BfabricAuth
+from bfabric.config import DEFAULT_CONFIG_FILE
+from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.config.config_data import ConfigData
 from bfabric.engine.engine_suds import EngineSUDS
 from bfabric.entities.core.entity_reader import EntityReader
@@ -38,7 +40,7 @@ def test_connect_when_no_args(mocker):
     assert client._config == mock_load_config_data.return_value.client
     assert client._auth == mock_load_config_data.return_value.auth
     mock_load_config_data.assert_called_once_with(
-        config_file_path=Path("~/.bfabricpy.yml"),
+        config_file_path=DEFAULT_CONFIG_FILE,
         include_auth=True,
         config_file_env="default",
     )
@@ -416,5 +418,346 @@ def test_repr(bfabric_instance, variant):
     assert (
         variant(bfabric_instance) == "Bfabric(config_data=ConfigData("
         "client=BfabricClientConfig(base_url='https://example.com/api/', application_ids={}, "
-        "job_notification_emails='', engine=BfabricAPIEngineType.SUDS), auth=None))"
+        "job_notification_emails='', engine=BfabricAPIEngineType.SUDS), auth=None, "
+        "auth_method=None, client_id=None, env_name=None))"
     )
+
+
+class TestConnectOAuth:
+    def test_creates_instance_with_provider(self, mocker):
+        mocker.patch.object(Bfabric, "_log_version_message")
+        mock_provider_cls = mocker.patch("bfabric._oauth.credential_provider.OAuthCredentialProvider")
+
+        client = Bfabric.connect_oauth(
+            client_id="my-id",
+            client_secret="my-secret",
+            base_url="https://example.com/bfabric",
+        )
+
+        mock_provider_cls.assert_called_once_with(
+            client_id="my-id",
+            client_secret="my-secret",
+            token_url="https://example.com/bfabric/rest/oauth/token",
+            scope="api:read api:write",
+            grant_type="client_credentials",
+            token_cache_path=None,
+        )
+        assert client._credential_provider == mock_provider_cls.return_value
+        assert client._auth is None
+        assert client.config.base_url == "https://example.com/bfabric/"
+
+    def test_auth_property_uses_provider(self, mocker):
+        mocker.patch.object(Bfabric, "_log_version_message")
+        mock_provider = mocker.MagicMock()
+        mock_provider.get_auth.return_value = BfabricAuth(login=OAUTH_LOGIN, password="jwt_token_value")
+
+        config_data = ConfigData(
+            client=BfabricClientConfig(base_url="https://example.com/bfabric"),
+            auth=None,
+        )
+        client = Bfabric(config_data=config_data, _credential_provider=mock_provider)
+
+        auth = client.auth
+        assert auth.login == OAUTH_LOGIN
+        assert auth.password.get_secret_value() == "jwt_token_value"
+        mock_provider.get_auth.assert_called_once()
+
+    def test_strips_trailing_slash(self, mocker):
+        mocker.patch.object(Bfabric, "_log_version_message")
+        mock_provider_cls = mocker.patch("bfabric._oauth.credential_provider.OAuthCredentialProvider")
+
+        client = Bfabric.connect_oauth(
+            client_id="id",
+            client_secret="secret",
+            base_url="https://example.com/bfabric/",
+        )
+
+        assert client.config.base_url == "https://example.com/bfabric/"
+        call_kwargs = mock_provider_cls.call_args[1]
+        assert call_kwargs["token_url"] == "https://example.com/bfabric/rest/oauth/token"
+
+    def test_custom_scope_and_cache(self, mocker):
+        mocker.patch.object(Bfabric, "_log_version_message")
+        mock_provider_cls = mocker.patch("bfabric._oauth.credential_provider.OAuthCredentialProvider")
+        cache_path = Path("/tmp/test_cache.json")
+
+        Bfabric.connect_oauth(
+            client_id="id",
+            client_secret="secret",
+            base_url="https://example.com/bfabric",
+            scope="api:read",
+            token_cache_path=cache_path,
+        )
+
+        call_kwargs = mock_provider_cls.call_args[1]
+        assert call_kwargs["scope"] == "api:read"
+        assert call_kwargs["token_cache_path"] == cache_path
+
+
+class TestWithAuthDisablesProvider:
+    def test_disables_provider_during_context(self, mocker):
+        mocker.patch.object(Bfabric, "_log_version_message")
+        mock_provider = mocker.MagicMock()
+        mock_provider.get_auth.return_value = BfabricAuth(login=OAUTH_LOGIN, password="provider_jwt")
+
+        config_data = ConfigData(
+            client=BfabricClientConfig(base_url="https://example.com/bfabric"),
+            auth=None,
+        )
+        client = Bfabric(config_data=config_data, _credential_provider=mock_provider)
+
+        # Before: provider is used
+        assert client.auth.login == OAUTH_LOGIN
+
+        # During with_auth: explicit auth takes priority, provider is disabled
+        explicit_auth = BfabricAuth(login="explicit_user", password="x" * 32)
+        with client.with_auth(explicit_auth):
+            assert client.auth.login == "explicit_user"
+            assert client._credential_provider is None
+
+        # After: provider is restored
+        assert client._credential_provider is mock_provider
+        assert client.auth.login == OAUTH_LOGIN
+
+
+class TestConnectPkce:
+    def test_creates_instance_with_provider(self, mocker):
+        mocker.patch.object(Bfabric, "_log_version_message")
+        mock_pkce_login = mocker.patch("bfabric._oauth.pkce.pkce_login")
+        mock_pkce_login.return_value = {
+            "access_token": "jwt_value",
+            "refresh_token": "rt_value",
+            "token_type": "Bearer",
+        }
+        mock_provider_cls = mocker.patch("bfabric._oauth.credential_provider.OAuthCredentialProvider")
+
+        client = Bfabric.connect_pkce(
+            base_url="https://example.com/bfabric",
+        )
+
+        mock_pkce_login.assert_called_once_with(
+            "https://example.com/bfabric",
+            client_id="bfabric-cli",
+            scope="api:read api:write",
+            port=0,
+            open_browser=True,
+            timeout=120.0,
+        )
+        mock_provider_cls.assert_called_once_with(
+            client_id="bfabric-cli",
+            client_secret="",
+            token_url="https://example.com/bfabric/rest/oauth/token",
+            token=mock_pkce_login.return_value,
+            grant_type="refresh_token",
+            scope="api:read api:write",
+            token_cache_path=None,
+        )
+        assert client._credential_provider == mock_provider_cls.return_value
+        assert client._auth is None
+        assert client.config.base_url == "https://example.com/bfabric/"
+
+    def test_parameter_forwarding(self, mocker):
+        mocker.patch.object(Bfabric, "_log_version_message")
+        mock_pkce_login = mocker.patch("bfabric._oauth.pkce.pkce_login")
+        mock_pkce_login.return_value = {"access_token": "at"}
+        mock_provider_cls = mocker.patch("bfabric._oauth.credential_provider.OAuthCredentialProvider")
+        cache_path = Path("/tmp/test_cache.json")
+
+        Bfabric.connect_pkce(
+            base_url="https://example.com/bfabric",
+            client_id="custom-cli",
+            scope="api:read",
+            port=8080,
+            open_browser=False,
+            timeout=60.0,
+            token_cache_path=cache_path,
+        )
+
+        mock_pkce_login.assert_called_once_with(
+            "https://example.com/bfabric",
+            client_id="custom-cli",
+            scope="api:read",
+            port=8080,
+            open_browser=False,
+            timeout=60.0,
+        )
+        call_kwargs = mock_provider_cls.call_args[1]
+        assert call_kwargs["client_id"] == "custom-cli"
+        assert call_kwargs["scope"] == "api:read"
+        assert call_kwargs["token_cache_path"] == cache_path
+
+    def test_strips_trailing_slash(self, mocker):
+        mocker.patch.object(Bfabric, "_log_version_message")
+        mock_pkce_login = mocker.patch("bfabric._oauth.pkce.pkce_login")
+        mock_pkce_login.return_value = {"access_token": "at"}
+        mock_provider_cls = mocker.patch("bfabric._oauth.credential_provider.OAuthCredentialProvider")
+
+        client = Bfabric.connect_pkce(
+            base_url="https://example.com/bfabric///",
+        )
+
+        assert client.config.base_url == "https://example.com/bfabric/"
+        call_kwargs = mock_provider_cls.call_args[1]
+        assert call_kwargs["token_url"] == "https://example.com/bfabric/rest/oauth/token"
+
+
+class TestConnectDeviceCode:
+    def test_creates_instance_with_provider(self, mocker):
+        mocker.patch.object(Bfabric, "_log_version_message")
+        mock_device_code_login = mocker.patch("bfabric._oauth.device_code.device_code_login")
+        mock_device_code_login.return_value = {
+            "access_token": "jwt_value",
+            "refresh_token": "rt_value",
+            "token_type": "Bearer",
+        }
+        mock_provider_cls = mocker.patch("bfabric._oauth.credential_provider.OAuthCredentialProvider")
+
+        client = Bfabric.connect_device_code(
+            base_url="https://example.com/bfabric",
+        )
+
+        mock_device_code_login.assert_called_once_with(
+            "https://example.com/bfabric",
+            client_id="bfabric-cli",
+            scope="api:read api:write",
+            timeout=600.0,
+        )
+        mock_provider_cls.assert_called_once_with(
+            client_id="bfabric-cli",
+            client_secret="",
+            token_url="https://example.com/bfabric/rest/oauth/token",
+            token=mock_device_code_login.return_value,
+            grant_type="refresh_token",
+            scope="api:read api:write",
+            token_cache_path=None,
+        )
+        assert client._credential_provider == mock_provider_cls.return_value
+        assert client._auth is None
+        assert client.config.base_url == "https://example.com/bfabric/"
+
+    def test_parameter_forwarding(self, mocker):
+        mocker.patch.object(Bfabric, "_log_version_message")
+        mock_device_code_login = mocker.patch("bfabric._oauth.device_code.device_code_login")
+        mock_device_code_login.return_value = {"access_token": "at"}
+        mock_provider_cls = mocker.patch("bfabric._oauth.credential_provider.OAuthCredentialProvider")
+        cache_path = Path("/tmp/test_cache.json")
+
+        Bfabric.connect_device_code(
+            base_url="https://example.com/bfabric",
+            client_id="custom-cli",
+            scope="api:read",
+            timeout=60.0,
+            token_cache_path=cache_path,
+        )
+
+        mock_device_code_login.assert_called_once_with(
+            "https://example.com/bfabric",
+            client_id="custom-cli",
+            scope="api:read",
+            timeout=60.0,
+        )
+        call_kwargs = mock_provider_cls.call_args[1]
+        assert call_kwargs["client_id"] == "custom-cli"
+        assert call_kwargs["scope"] == "api:read"
+        assert call_kwargs["token_cache_path"] == cache_path
+
+    def test_strips_trailing_slash(self, mocker):
+        mocker.patch.object(Bfabric, "_log_version_message")
+        mock_device_code_login = mocker.patch("bfabric._oauth.device_code.device_code_login")
+        mock_device_code_login.return_value = {"access_token": "at"}
+        mock_provider_cls = mocker.patch("bfabric._oauth.credential_provider.OAuthCredentialProvider")
+
+        client = Bfabric.connect_device_code(
+            base_url="https://example.com/bfabric///",
+        )
+
+        assert client.config.base_url == "https://example.com/bfabric/"
+        call_kwargs = mock_provider_cls.call_args[1]
+        assert call_kwargs["token_url"] == "https://example.com/bfabric/rest/oauth/token"
+
+
+class TestConnectPat:
+    def test_creates_instance_with_auth(self, mocker):
+        mocker.patch.object(Bfabric, "_log_version_message")
+
+        client = Bfabric.connect_pat(
+            base_url="https://example.com/bfabric",
+            pat="my_personal_access_token",
+        )
+
+        assert client.auth.login == OAUTH_LOGIN
+        assert client.auth.password.get_secret_value() == "my_personal_access_token"
+        assert client.config.base_url == "https://example.com/bfabric/"
+
+    def test_no_credential_provider(self, mocker):
+        mocker.patch.object(Bfabric, "_log_version_message")
+
+        client = Bfabric.connect_pat(
+            base_url="https://example.com/bfabric",
+            pat="my_pat",
+        )
+
+        assert client._credential_provider is None
+
+    def test_strips_trailing_slash(self, mocker):
+        mocker.patch.object(Bfabric, "_log_version_message")
+
+        client = Bfabric.connect_pat(
+            base_url="https://example.com/bfabric///",
+            pat="my_pat",
+        )
+
+        assert client.config.base_url == "https://example.com/bfabric/"
+
+    def test_accepts_secret_str(self, mocker):
+        mocker.patch.object(Bfabric, "_log_version_message")
+
+        client = Bfabric.connect_pat(
+            base_url="https://example.com/bfabric",
+            pat=SecretStr("secret_pat_value"),
+        )
+
+        assert client.auth.password.get_secret_value() == "secret_pat_value"
+
+
+class TestPickling:
+    def test_oauth_only_client_survives_pickle(self, mocker):
+        # An OAuth client has no static auth — its credentials live entirely in the
+        # credential provider. If pickling drops the provider, the restored client can no
+        # longer authenticate (this is the regression being guarded against). A real provider
+        # is used (not a mock) because the provider itself must round-trip through pickle
+        # despite holding a threading.Lock and an OAuth2Session. Seeding a far-future
+        # expires_at keeps authlib from attempting a network refresh.
+        mocker.patch.object(Bfabric, "_log_version_message")
+        from bfabric._oauth.credential_provider import OAuthCredentialProvider
+
+        provider = OAuthCredentialProvider(
+            client_id="cid",
+            client_secret="",
+            token_url="https://example.com/bfabric/rest/oauth/token",
+            grant_type="refresh_token",
+            token={"access_token": "tok-abc", "token_type": "Bearer", "expires_at": 9999999999},
+        )
+        config_data = ConfigData(
+            client=BfabricClientConfig(base_url="https://example.com/bfabric"),
+            auth=None,
+        )
+        client = Bfabric(config_data=config_data, _credential_provider=provider)
+        assert client.auth.login == OAUTH_LOGIN
+        assert client.auth.password.get_secret_value() == "tok-abc"
+
+        restored = pickle.loads(pickle.dumps(client))  # noqa: S301
+        assert restored.auth.login == OAUTH_LOGIN
+        assert restored.auth.password.get_secret_value() == "tok-abc"
+
+    def test_password_client_round_trip(self, mocker):
+        mocker.patch.object(Bfabric, "_log_version_message")
+        config_data = ConfigData(
+            client=BfabricClientConfig(base_url="https://example.com/bfabric"),
+            auth=BfabricAuth(login="user", password="x" * 32),
+        )
+        client = Bfabric(config_data=config_data)
+
+        restored = pickle.loads(pickle.dumps(client))  # noqa: S301
+        assert restored._credential_provider is None
+        assert restored.auth.login == "user"

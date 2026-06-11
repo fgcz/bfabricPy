@@ -4,10 +4,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.6.1\] - 2026-06-11
+
 ### Changed
 
 - `_operation_copy_rsync` now uses `rsync -rltvP` instead of `-Pav`, so staged input files are owned by the user running the app_runner with umask-derived permissions, matching the existing `cp`/`scp` fallbacks.
 - `output_registration._save_dataset` now uses `bfabric.operations.dataset.create_dataset` instead of the legacy `bfabric_save_csv2dataset` from `bfabric.experimental`.
+- Requires `bfabric>=1.19.0` (the operations module). This fixes an `ImportError` for `bfabric_save_csv2dataset` when app_runner 0.6.0 was installed against bfabric 1.19.0.
+- The `bfabric` dependency is now capped at `<1.20` (patch-level upgrades only). app_runner is built against a specific bfabric minor, so this keeps the cross-package coupling explicit and prevents an untested future bfabric minor from being resolved silently.
+
+### Fixed
+
+- `command_docker.py` no longer imports `bfabric.config.DEFAULT_CONFIG_FILE`, which is not present in published bfabric 1.19.0; it uses the literal `Path("~/.bfabricpy.yml")` again (the value `DEFAULT_CONFIG_FILE` is defined as). This fixes an `ImportError` when constructing docker commands and during release validation.
 
 ## \[0.6.0\] - 2026-04-20
 

@@ -11,12 +11,12 @@ from loguru import logger
 from rich.highlighter import RegexHighlighter
 from rich.theme import Theme
 
+from bfabric.config import DEFAULT_CONFIG_FILE
+
 if TYPE_CHECKING:
     from collections.abc import Callable
 
 T = TypeVar("T")
-
-_DEFAULT_CONFIG_FILE = Path("~/.bfabricpy.yml")
 
 
 def use_client(fn: Callable[..., T], setup_logging: bool = True) -> Callable[..., T]:
@@ -88,11 +88,19 @@ def use_client(fn: Callable[..., T], setup_logging: bool = True) -> Callable[...
         if "client" in kwargs:
             client = cast("Bfabric", kwargs.pop("client"))
         else:
-            client = Bfabric.connect(
-                config_file_path=config_file or _DEFAULT_CONFIG_FILE,
-                config_file_env=config_env or "default",
-            )
-        return fn(*args, client=client, **kwargs)  # type: ignore[arg-type]
+            try:
+                client = Bfabric.connect(
+                    config_file_path=config_file or DEFAULT_CONFIG_FILE,
+                    config_file_env=config_env or "default",
+                )
+            except (ValueError, RuntimeError) as e:
+                print(f"Error: {e}", file=sys.stderr)
+                sys.exit(1)
+        try:
+            return fn(*args, client=client, **kwargs)  # type: ignore[arg-type]
+        except RuntimeError as e:
+            print(f"Error: {e}", file=sys.stderr)
+            sys.exit(1)
 
     # Update the signature of the wrapper
     wrapper.__signature__ = new_sig  # type: ignore[reportAttributeAccessIssue]

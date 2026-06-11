@@ -107,3 +107,35 @@ def test_export_roundtrip(config_data):
     exported = export_config_data(config_data)
     loaded_config = ConfigData.model_validate_json(exported)
     assert loaded_config == config_data
+
+
+def test_export_roundtrip_preserves_oauth_fields(client_config):
+    config_data = ConfigData(
+        client=client_config,
+        auth=None,
+        auth_method="oauth",
+        client_id="my-app",
+        env_name="PRODUCTION",
+    )
+    exported = export_config_data(config_data)
+    loaded_config = ConfigData.model_validate_json(exported)
+    assert loaded_config == config_data
+
+
+class TestConfigDataOAuthFields:
+    def test_defaults_none(self, client_config, auth_config):
+        cd = ConfigData(client=client_config, auth=auth_config)
+        assert cd.auth_method is None
+        assert cd.client_id is None
+
+    def test_with_auth_preserves_oauth_fields(self, client_config, auth_config):
+        cd = ConfigData(client=client_config, auth=auth_config, auth_method="oauth", client_id="my-app")
+        new_cd = cd.with_auth(None)
+        assert new_cd.auth is None
+        assert new_cd.auth_method == "oauth"
+        assert new_cd.client_id == "my-app"
+
+    def test_oauth_config_data(self, client_config):
+        cd = ConfigData(client=client_config, auth=None, auth_method="oauth", client_id="my-app")
+        assert cd.auth_method == "oauth"
+        assert cd.client_id == "my-app"

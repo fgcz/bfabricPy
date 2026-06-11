@@ -28,7 +28,6 @@ def _perform_delete(client: Bfabric, endpoint: str, id: list[int]) -> None:
     logger.info(f"{endpoint.capitalize()} with ID(s) {id} deleted successfully.")
 
 
-@logger.catch(reraise=True)
 @use_client
 def cmd_api_delete(params: Params, *, client: Bfabric) -> None:
     """Deletes entities from B-Fabric by id."""
