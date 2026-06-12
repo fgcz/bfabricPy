@@ -1,5 +1,4 @@
 from pathlib import Path
-from unittest.mock import MagicMock, call
 
 import pytest
 
@@ -136,7 +135,7 @@ class TestPythonEnvironment:
     def test_log_packages(self, temp_env_path, sample_command, mock_uv, mocker):
         """Test that log_packages runs pip list command."""
         mock_subprocess = mocker.patch("bfabric_app_runner.commands.command_python_env.subprocess.run")
-        mock_subprocess.return_value = MagicMock(stdout="package1==1.0\npackage2==2.0\n")
+        mock_subprocess.return_value = mocker.MagicMock(stdout="package1==1.0\npackage2==2.0\n")
 
         env = PythonEnvironment(temp_env_path, sample_command)
         env.log_packages()
@@ -247,10 +246,10 @@ class TestCachedEnvironmentStrategy:
         command = CommandPythonEnv(pylock=Path("/test/req.txt"), command="script.py", python_version="3.13")
 
         # Mock different mtimes
-        mocker.patch("pathlib.Path.stat", return_value=MagicMock(st_mtime=1000))
+        mocker.patch("pathlib.Path.stat", return_value=mocker.MagicMock(st_mtime=1000))
         hash1 = strategy._compute_env_hash(command)
 
-        mocker.patch("pathlib.Path.stat", return_value=MagicMock(st_mtime=2000))
+        mocker.patch("pathlib.Path.stat", return_value=mocker.MagicMock(st_mtime=2000))
         hash2 = strategy._compute_env_hash(command)
 
         assert hash1 != hash2
