@@ -1,5 +1,3 @@
-from unittest.mock import MagicMock
-
 import pytest
 import zeep
 from pydantic import SecretStr
@@ -16,13 +14,13 @@ def engine_zeep():
 
 
 @pytest.fixture
-def mock_auth():
-    return MagicMock(login="test_user", password=SecretStr("test_pass"))
+def mock_auth(mocker):
+    return mocker.MagicMock(login="test_user", password=SecretStr("test_pass"))
 
 
 @pytest.fixture
-def mock_zeep_client():
-    return MagicMock(spec=zeep.Client, settings=MagicMock())
+def mock_zeep_client(mocker):
+    return mocker.MagicMock(spec=zeep.Client, settings=mocker.MagicMock())
 
 
 def test_read(engine_zeep, mock_auth, mock_zeep_client, mocker):
@@ -114,7 +112,7 @@ def test_delete_empty_list(engine_zeep, mock_auth, mock_zeep_client, mocker):
 
 
 def test_get_client(engine_zeep, mocker):
-    mock_zeep_client = mocker.patch("zeep.Client", return_value=MagicMock(spec=zeep.Client))
+    mock_zeep_client = mocker.patch("zeep.Client", return_value=mocker.MagicMock(spec=zeep.Client))
 
     client = engine_zeep._get_client("sample")
 
@@ -131,8 +129,8 @@ def test_convert_results(engine_zeep, mocker):
     mock_serialize_object = mocker.patch("bfabric.engine.engine_zeep.serialize_object")
     mock_clean_result = mocker.patch("bfabric.engine.engine_zeep.clean_result")
 
-    mock_response = MagicMock()
-    mock_response.sample = [MagicMock(), MagicMock()]
+    mock_response = mocker.MagicMock()
+    mock_response.sample = [mocker.MagicMock(), mocker.MagicMock()]
     mock_response.__getitem__.side_effect = {
         "sample": mock_response.sample,
         "numberofpages": 2,
@@ -150,8 +148,8 @@ def test_convert_results(engine_zeep, mocker):
     assert mock_clean_result.call_count == 2
 
 
-def test_convert_results_no_results(engine_zeep):
-    mock_response = MagicMock()
+def test_convert_results_no_results(engine_zeep, mocker):
+    mock_response = mocker.MagicMock()
     mock_response.__getitem__.side_effect = {"numberofpages": 0}.__getitem__
     del mock_response.sample
 

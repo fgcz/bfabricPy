@@ -6,8 +6,6 @@ no real API calls are made during testing.
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock
-
 import pytest
 from fastapi.testclient import TestClient
 from pydantic import SecretStr
@@ -26,9 +24,9 @@ from bfabric_rest_proxy.settings import ServerSettings
 
 
 @pytest.fixture
-def mock_settings():
+def mock_settings(mocker):
     """Mock ServerSettings for testing."""
-    settings = MagicMock(spec=ServerSettings)
+    settings = mocker.MagicMock(spec=ServerSettings)
     settings.default_bfabric_instance = "https://test.bfabric.example.com/"
     settings.supported_bfabric_instances = ["https://test.bfabric.example.com/"]
     # BfabricAuth requires passwords of at least 32 characters

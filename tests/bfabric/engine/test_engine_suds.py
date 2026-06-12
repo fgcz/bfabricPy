@@ -1,5 +1,3 @@
-from unittest.mock import MagicMock
-
 import pytest
 from pydantic import SecretStr
 from suds import MethodNotFound
@@ -17,8 +15,8 @@ def engine_suds():
 
 
 @pytest.fixture
-def mock_auth():
-    return MagicMock(login="test_user", password=SecretStr("test_pass"))
+def mock_auth(mocker):
+    return mocker.MagicMock(login="test_user", password=SecretStr("test_pass"))
 
 
 @pytest.fixture
@@ -27,8 +25,8 @@ def mock_suds_service(mocker, engine_suds):
 
 
 @pytest.fixture
-def mock_client(mock_suds_service):
-    mock_client = MagicMock(spec=Client)
+def mock_client(mocker, mock_suds_service):
+    mock_client = mocker.MagicMock(spec=Client)
     mock_client.service = mock_suds_service
     return mock_client
 
@@ -99,8 +97,8 @@ def test_convert_results(engine_suds, mocker):
     mock_suds_asdict = mocker.patch("bfabric.engine.engine_suds.suds_asdict_recursive")
     mock_clean_result = mocker.patch("bfabric.engine.engine_suds.clean_result")
 
-    mock_response = MagicMock()
-    mock_response.sample = [MagicMock(), MagicMock()]
+    mock_response = mocker.MagicMock()
+    mock_response.sample = [mocker.MagicMock(), mocker.MagicMock()]
     mock_response.__getitem__.side_effect = {
         "sample": mock_response.sample,
         "numberofpages": 2,
@@ -126,8 +124,8 @@ def test_get_suds_service(mocker, mock_client, mock_suds_service):
     assert service == mock_suds_service
 
 
-def test_convert_results_no_results(engine_suds):
-    mock_response = MagicMock()
+def test_convert_results_no_results(engine_suds, mocker):
+    mock_response = mocker.MagicMock()
     mock_response.numberofpages = 0
     del mock_response.sample
 
