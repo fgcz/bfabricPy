@@ -3,8 +3,10 @@ from __future__ import annotations
 from collections.abc import Awaitable
 from typing import Annotated, Callable, Literal
 
-from bfabric.rest.token_data import TokenData
-from pydantic import BaseModel, Discriminator, SecretStr
+from bfabric.experimental.webapp_oauth import (
+    UrlTokenContext,
+)  # noqa: TC002  # runtime import: pydantic resolves field annotation
+from pydantic import BaseModel, ConfigDict, Discriminator, SecretStr
 
 
 class TokenValidationError(BaseModel):
@@ -14,13 +16,23 @@ class TokenValidationError(BaseModel):
     error: str
 
 
-class TokenValidationSuccess(BaseModel):
-    """Successful outcome of token validation."""
+class OAuthExchangeSuccess(BaseModel):
+    """Successful outcome of an OAuth token exchange (RFC 8693 path).
+
+    Carries the raw token dict (including ``refresh_token``) and the verified
+    entity context parsed from the access token JWT.
+    """
+
+    model_config: ConfigDict = ConfigDict(  # pyright: ignore[reportIncompatibleVariableOverride]
+        arbitrary_types_allowed=True
+    )
 
     success: Literal[True] = True
-    token_data: TokenData
+    base_url: str
+    token: dict[str, object]
+    context: UrlTokenContext
 
 
-TokenValidationResult = Annotated[TokenValidationSuccess | TokenValidationError, Discriminator("success")]
+TokenValidationResult = Annotated[OAuthExchangeSuccess | TokenValidationError, Discriminator("success")]
 
-TokenValidatorStrategy = Callable[[SecretStr], Awaitable[TokenValidationResult]]
+TokenValidatorStrategy = Callable[[SecretStr], Awaitable[OAuthExchangeSuccess | TokenValidationError]]

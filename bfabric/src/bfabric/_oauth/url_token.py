@@ -61,19 +61,32 @@ def _fetch_jwks(base_url: str) -> dict[str, object]:
     return jwks
 
 
-def verify_jwt(base_url: str, token: str) -> dict[str, object]:
+def verify_jwt(
+    base_url: str,
+    token: str,
+    *,
+    audience: str | None = None,
+    issuer: str | None = None,
+) -> dict[str, object]:
     """Verify the JWT signature + expiry against the B-Fabric JWKS endpoint.
 
     :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
     :param token: The raw JWT string
+    :param audience: Expected ``aud`` claim value (opt-in; default None = not validated).
+        Confirm the server's real audience before enabling.
+    :param issuer: Expected ``iss`` claim value (opt-in; default None = not validated).
+        Confirm via a real exchanged token or ``{base_url}/rest/oauth/.well-known/openid-configuration``.
     :returns: The verified claims dictionary
-    :raises: ``joserfc.errors.JoseError`` subclasses on invalid/expired tokens
+    :raises: ``joserfc.errors.JoseError`` subclasses on invalid/expired/mismatched tokens
     """
     jwks_data = _fetch_jwks(base_url)
     key_set = KeySet.import_key_set(jwks_data)  # pyright: ignore[reportArgumentType]
     result = joserfc_jwt.decode(token, key_set)
-    claims_registry = joserfc_jwt.JWTClaimsRegistry(exp={"essential": True})
+    claims_options: dict[str, object] = {"exp": {"essential": True}}
+    if audience is not None:
+        claims_options["aud"] = {"essential": True, "value": audience}
+    if issuer is not None:
+        claims_options["iss"] = {"essential": True, "value": issuer}
+    claims_registry = joserfc_jwt.JWTClaimsRegistry(**claims_options)  # pyright: ignore[reportArgumentType]
     claims_registry.validate(result.claims)
     return dict(result.claims)
-
-

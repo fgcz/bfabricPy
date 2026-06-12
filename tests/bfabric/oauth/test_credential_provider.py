@@ -236,3 +236,78 @@ class TestDiskCache:
         # Fresh token should also be persisted to cache
         saved = json.loads(cache_path.read_text())
         assert saved["access_token"] == "from_caller"
+
+
+class TestOnTokenRefreshCallback:
+    def test_callback_fires_on_token_update(self, mock_oauth2_session, mocker):
+        """on_token_update callback is invoked with the full new token dict after a refresh."""
+        received: list[dict[str, object]] = []
+        mock_oauth2_session.token = {"access_token": "new_at", "refresh_token": "new_rt", "expires_at": 9999999999}
+
+        cls = mocker.patch("bfabric._oauth.credential_provider.OAuth2Session")
+        cls.return_value = mock_oauth2_session
+
+        provider = OAuthCredentialProvider(
+            client_id="id",
+            client_secret="secret",
+            token_url="https://example.com/rest/oauth/token",
+            on_token_update=received.append,
+        )
+        # Extract and invoke the internal update_token callback that authlib calls
+        update_fn = cls.call_args[1]["update_token"]
+        update_fn({"access_token": "new_at", "refresh_token": "new_rt", "expires_at": 9999999999})
+
+        assert len(received) == 1
+        assert received[0]["access_token"] == "new_at"
+        assert received[0]["refresh_token"] == "new_rt"
+
+    def test_callback_receives_full_token_including_refresh(self, mock_oauth2_session, mocker):
+        """The callback receives the complete token dict, not just the access token."""
+        received: list[dict[str, object]] = []
+        full_token = {"access_token": "at", "refresh_token": "rt_rotated", "expires_at": 9999999999}
+        mock_oauth2_session.token = full_token
+
+        cls = mocker.patch("bfabric._oauth.credential_provider.OAuth2Session")
+        cls.return_value = mock_oauth2_session
+
+        OAuthCredentialProvider(
+            client_id="id",
+            client_secret="secret",
+            token_url="https://example.com/rest/oauth/token",
+            on_token_update=received.append,
+        )
+        update_fn = cls.call_args[1]["update_token"]
+        update_fn(full_token)
+
+        assert received[0] == full_token
+
+    def test_none_callback_is_a_noop(self, mock_oauth2_session, mocker):
+        """When on_token_update is None (default), no error is raised on token update."""
+        cls = mocker.patch("bfabric._oauth.credential_provider.OAuth2Session")
+        cls.return_value = mock_oauth2_session
+
+        provider = OAuthCredentialProvider(
+            client_id="id",
+            client_secret="secret",
+            token_url="https://example.com/rest/oauth/token",
+        )
+        update_fn = cls.call_args[1]["update_token"]
+        # Should not raise
+        update_fn({"access_token": "t", "expires_at": 9999999999})
+
+    def test_callback_dropped_on_pickle(self, mock_oauth2_session, mocker):
+        """After a pickle round-trip the callback is None — it is per-process state."""
+        import pickle
+
+        cls = mocker.patch("bfabric._oauth.credential_provider.OAuth2Session")
+        cls.return_value = mock_oauth2_session
+
+        sentinel = mocker.MagicMock()
+        provider = OAuthCredentialProvider(
+            client_id="id",
+            client_secret="secret",
+            token_url="https://example.com/rest/oauth/token",
+            on_token_update=sentinel,
+        )
+        restored: OAuthCredentialProvider = pickle.loads(pickle.dumps(provider))
+        assert restored._on_token_refresh is None

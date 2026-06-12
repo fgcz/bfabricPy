@@ -1,68 +1,69 @@
 from __future__ import annotations
 
 import datetime
+import zlib
 
-from bfabric.rest.token_data import TokenData
+from bfabric.experimental.webapp_oauth import (
+    UrlTokenContext,
+)  # noqa: TC002  # runtime import: pydantic resolves field annotation
 from pydantic import BaseModel, SecretStr
 
 from bfabric_asgi_auth.token_validation.strategy import (
+    OAuthExchangeSuccess,
     TokenValidationError,
-    TokenValidationResult,
-    TokenValidationSuccess,
     TokenValidatorStrategy,
 )
 
 
-class MockFixture(BaseModel):
-    # exactly mapped to token data
-    application_id: int = 1
-    entity_class: str = "Workunit"
-    entity_id: int = 2
-    web_service_user: bool = True
-    environment: str = "mocked"
-    caller: str = "https://fgcz-bfabric-test.uzh.ch/bfabric/"
-    user_ws_password: SecretStr = SecretStr("_" * 32)
+class OAuthMockFixture(BaseModel):
+    """Default entity values used by the mock OAuth validator."""
 
-    # additional conversion
+    application_id: int = 1
+    entity_class_name: str = "Workunit"
+    entity_id: int = 2
+    base_url: str = "https://fgcz-bfabric-test.uzh.ch/bfabric"
     expires_in: datetime.timedelta = datetime.timedelta(minutes=60)
 
 
-def create_mock_validator(fixture: MockFixture | None = None) -> TokenValidatorStrategy:
-    """Create a mock validator for testing.
+def create_mock_oauth_validator(fixture: OAuthMockFixture | None = None) -> TokenValidatorStrategy:
+    """Create a mock OAuth validator for testing.
 
-    The mock validator accepts any token starting with 'valid_' as valid.
-    User info is extracted from the token value - for example:
-    - 'valid_test123' -> username: 'test123'
-    - 'valid_user1' -> username: 'user1'
+    Accepts any token starting with 'valid_' as valid.
+    The username is extracted from the token value — e.g. ``'valid_test123'`` → username ``'test123'``.
+    ``job_id`` is derived deterministically from the username via :func:`zlib.crc32` so that test
+    assertions are stable across Python processes (PYTHONHASHSEED-independent).
 
-    :returns: TokenValidator configured for mock authentication
+    :param fixture: Entity defaults for the mock context.  Uses :class:`OAuthMockFixture` if not provided.
+    :returns: An async callable matching :class:`TokenValidatorStrategy`.
     """
     if fixture is None:
-        fixture = MockFixture()
+        fixture = OAuthMockFixture()
 
-    async def mock_validation(token: SecretStr) -> TokenValidationResult:
+    async def mock_validation(token: SecretStr) -> OAuthExchangeSuccess | TokenValidationError:
         token_str = token.get_secret_value()
         if token_str.startswith("valid_"):
-            # Extract username from token (everything after 'valid_')
             username = token_str[6:] if len(token_str) > 6 else "testuser"
-            # Generate a unique job_id based on the username hash
-            job_id = abs(hash(username)) % 100000
-
-            return TokenValidationSuccess(
-                token_data=TokenData.model_validate(
-                    dict(
-                        job_id=job_id,
-                        application_id=fixture.application_id,
-                        entity_class=fixture.entity_class,
-                        entity_id=fixture.entity_id,
-                        user=username,
-                        user_ws_password=fixture.user_ws_password,
-                        token_expires=datetime.datetime.now() + fixture.expires_in,
-                        web_service_user=fixture.web_service_user,
-                        caller=fixture.caller,
-                        environment=fixture.environment,
-                    )
-                ),
+            job_id = zlib.crc32(username.encode()) % 100000
+            expires_at = datetime.datetime.now(tz=datetime.timezone.utc) + fixture.expires_in
+            context = UrlTokenContext.model_validate(
+                {
+                    "sub": username,
+                    "entityId": fixture.entity_id,
+                    "entityClassName": fixture.entity_class_name,
+                    "applicationId": fixture.application_id,
+                    "jobId": job_id,
+                    "exp": expires_at,
+                }
+            )
+            token_dict: dict[str, object] = {
+                "access_token": f"mock_at_{username}",
+                "refresh_token": f"mock_rt_{username}",
+                "expires_at": int(expires_at.timestamp()),
+            }
+            return OAuthExchangeSuccess(
+                base_url=fixture.base_url,
+                token=token_dict,
+                context=context,
             )
         else:
             return TokenValidationError(error="Invalid token")

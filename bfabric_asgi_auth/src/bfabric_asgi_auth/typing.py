@@ -4,7 +4,7 @@ from collections.abc import Mapping, Sequence
 from typing import Any, Protocol, TypeGuard
 
 from asgiref.typing import HTTPScope, WebSocketScope
-from bfabric.rest.token_data import TokenData
+from bfabric.experimental.webapp_oauth import UrlTokenContext  # noqa: TC002
 
 JsonRepresentable = str | int | float | bool | None | Mapping[str, "JsonRepresentable"] | Sequence["JsonRepresentable"]
 
@@ -14,7 +14,7 @@ class AuthHooks(Protocol):
         """Called when a request is rejected. If return value is False and scope type is HTTP, a default message will be displayed."""
         return False
 
-    async def on_success(self, session: dict[str, JsonRepresentable], token_data: TokenData) -> str | None:
+    async def on_success(self, session: dict[str, JsonRepresentable], context: UrlTokenContext) -> str | None:
         """Called on successful authentication. If the return value is not None, it is used as the redirect URL."""
         return None
 
@@ -23,10 +23,10 @@ class AuthHooks(Protocol):
         return None
 
     async def on_evict(self, session: dict[str, JsonRepresentable]) -> bool:
-        """Called on user eviction, i.e. when a different B-Fabric instance or user logs in.
+        """Reserved for deferred eviction support (user-switch detection).
 
-        If the return value is False (default), all session data will be cleared. Otherwise, please make sure to prevent
-        problems with multi-instance loopholes.
+        Not currently invoked — eviction is deferred to a follow-up change.
+        When re-enabled, returning True suppresses the default ``session.clear()``.
         """
         return False
 

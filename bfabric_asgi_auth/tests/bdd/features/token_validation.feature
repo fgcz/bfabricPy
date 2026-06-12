@@ -19,8 +19,8 @@ Feature: Token validation
   Scenario: Token validation extracts required fields
     Given I am using the mock validator
     When I validate token "valid_test123"
-    Then the token data should contain "user"
-    And the token data should contain "entity_class"
+    Then the token data should contain "subject"
+    And the token data should contain "entity_class_name"
     And the token data should contain "entity_id"
 
   Scenario: Authentication flow populates session with token data

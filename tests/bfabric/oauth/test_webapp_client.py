@@ -1,3 +1,11 @@
+"""Tests for WebappClient.create after the A4 refactor.
+
+WebappClient.create now delegates to:
+  - exchange_launch_token (bfabric.experimental.webapp_oauth) for steps 1+2
+  - Bfabric.connect_oauth_token for step 3 (user client)
+  - Bfabric.connect_oauth (unchanged) for step 4 (service client)
+"""
+
 from __future__ import annotations
 
 from dataclasses import FrozenInstanceError
@@ -6,10 +14,10 @@ import pytest
 
 from bfabric._oauth.url_token import UrlTokenContext
 from bfabric._oauth.webapp_client import WebappClient
+from bfabric.bfabric import Bfabric
 
-_PATCH_EXCHANGE = "bfabric._oauth.token_exchange.exchange_token"
-_PATCH_VERIFY_JWT = "bfabric._oauth.url_token.verify_jwt"
-_PATCH_PROVIDER = "bfabric._oauth.credential_provider.OAuthCredentialProvider"
+_PATCH_EXCHANGE_LAUNCH = "bfabric.experimental.webapp_oauth.exchange_launch_token"
+_PATCH_CONNECT_OAUTH_TOKEN = "bfabric.bfabric.Bfabric.connect_oauth_token"
 _PATCH_CONNECT_OAUTH = "bfabric.bfabric.Bfabric.connect_oauth"
 _PATCH_LOG = "bfabric.bfabric.Bfabric._log_version_message"
 
@@ -34,15 +42,20 @@ def mock_token_dict() -> dict[str, object]:
 
 
 @pytest.fixture
+def mock_context() -> UrlTokenContext:
+    return UrlTokenContext.model_validate(SAMPLE_CLAIMS)
+
+
+@pytest.fixture
 def mock_service_client(mocker):
     return mocker.MagicMock(name="service_client")
 
 
 class TestWebappClientCreate:
-    def test_returns_correct_user_service_context(self, mocker, mock_token_dict, mock_service_client):
-        mocker.patch(_PATCH_EXCHANGE, return_value=mock_token_dict)
-        mocker.patch(_PATCH_VERIFY_JWT, return_value=dict(SAMPLE_CLAIMS))
-        mock_provider_cls = mocker.patch(_PATCH_PROVIDER)
+    def test_returns_correct_user_service_context(self, mocker, mock_token_dict, mock_context, mock_service_client):
+        mocker.patch(_PATCH_EXCHANGE_LAUNCH, return_value=(mock_token_dict, mock_context))
+        mock_user_client = mocker.MagicMock(name="user_client")
+        mocker.patch(_PATCH_CONNECT_OAUTH_TOKEN, return_value=mock_user_client)
         mocker.patch(_PATCH_CONNECT_OAUTH, return_value=mock_service_client)
         mocker.patch(_PATCH_LOG)
 
@@ -54,14 +67,14 @@ class TestWebappClientCreate:
         )
 
         assert wc.service is mock_service_client
+        assert wc.user is mock_user_client
+        assert wc.context is mock_context
         assert wc.context.entity_id == 123
         assert wc.context.subject == "jdoe"
-        assert wc.user._credential_provider is mock_provider_cls.return_value
 
-    def test_forwards_parameters_to_exchange_token(self, mocker, mock_token_dict):
-        mock_exchange = mocker.patch(_PATCH_EXCHANGE, return_value=mock_token_dict)
-        mocker.patch(_PATCH_VERIFY_JWT, return_value=dict(SAMPLE_CLAIMS))
-        mocker.patch(_PATCH_PROVIDER)
+    def test_forwards_parameters_to_exchange_launch_token(self, mocker, mock_token_dict, mock_context):
+        mock_exchange = mocker.patch(_PATCH_EXCHANGE_LAUNCH, return_value=(mock_token_dict, mock_context))
+        mocker.patch(_PATCH_CONNECT_OAUTH_TOKEN, return_value=mocker.MagicMock())
         mocker.patch(_PATCH_CONNECT_OAUTH, return_value=mocker.MagicMock())
         mocker.patch(_PATCH_LOG)
 
@@ -79,29 +92,9 @@ class TestWebappClientCreate:
             client_secret="csecret",
         )
 
-    def test_verifies_exchanged_access_token_jwt(self, mocker, mock_token_dict):
-        mocker.patch(_PATCH_EXCHANGE, return_value=mock_token_dict)
-        mock_verify = mocker.patch(_PATCH_VERIFY_JWT, return_value=dict(SAMPLE_CLAIMS))
-        mocker.patch(_PATCH_PROVIDER)
-        mocker.patch(_PATCH_CONNECT_OAUTH, return_value=mocker.MagicMock())
-        mocker.patch(_PATCH_LOG)
-
-        WebappClient.create(
-            base_url="https://bfabric.example.com/bfabric",
-            launch_token="jwt",
-            client_id="cid",
-            client_secret="csecret",
-        )
-
-        mock_verify.assert_called_once_with(
-            "https://bfabric.example.com/bfabric",
-            "new_access_token",
-        )
-
-    def test_creates_user_provider_with_refresh_token(self, mocker, mock_token_dict):
-        mocker.patch(_PATCH_EXCHANGE, return_value=mock_token_dict)
-        mocker.patch(_PATCH_VERIFY_JWT, return_value=dict(SAMPLE_CLAIMS))
-        mock_provider_cls = mocker.patch(_PATCH_PROVIDER)
+    def test_forwards_token_and_credentials_to_connect_oauth_token(self, mocker, mock_token_dict, mock_context):
+        mocker.patch(_PATCH_EXCHANGE_LAUNCH, return_value=(mock_token_dict, mock_context))
+        mock_connect_token = mocker.patch(_PATCH_CONNECT_OAUTH_TOKEN, return_value=mocker.MagicMock())
         mocker.patch(_PATCH_CONNECT_OAUTH, return_value=mocker.MagicMock())
         mocker.patch(_PATCH_LOG)
 
@@ -113,19 +106,17 @@ class TestWebappClientCreate:
             user_token_cache_path="/tmp/user_cache",
         )
 
-        mock_provider_cls.assert_called_once_with(
+        mock_connect_token.assert_called_once_with(
+            "https://bfabric.example.com/bfabric",
+            mock_token_dict,
             client_id="cid",
             client_secret="csecret",
-            token_url="https://bfabric.example.com/bfabric/rest/oauth/token",
-            token=mock_token_dict,
-            grant_type="refresh_token",
             token_cache_path="/tmp/user_cache",
         )
 
-    def test_forwards_parameters_to_connect_oauth(self, mocker, mock_token_dict):
-        mocker.patch(_PATCH_EXCHANGE, return_value=mock_token_dict)
-        mocker.patch(_PATCH_VERIFY_JWT, return_value=dict(SAMPLE_CLAIMS))
-        mocker.patch(_PATCH_PROVIDER)
+    def test_forwards_parameters_to_connect_oauth(self, mocker, mock_token_dict, mock_context):
+        mocker.patch(_PATCH_EXCHANGE_LAUNCH, return_value=(mock_token_dict, mock_context))
+        mocker.patch(_PATCH_CONNECT_OAUTH_TOKEN, return_value=mocker.MagicMock())
         mock_connect_oauth = mocker.patch(_PATCH_CONNECT_OAUTH, return_value=mocker.MagicMock())
         mocker.patch(_PATCH_LOG)
 
@@ -146,10 +137,9 @@ class TestWebappClientCreate:
             token_cache_path="/tmp/svc_cache",
         )
 
-    def test_default_scope(self, mocker, mock_token_dict):
-        mocker.patch(_PATCH_EXCHANGE, return_value=mock_token_dict)
-        mocker.patch(_PATCH_VERIFY_JWT, return_value=dict(SAMPLE_CLAIMS))
-        mocker.patch(_PATCH_PROVIDER)
+    def test_default_scope(self, mocker, mock_token_dict, mock_context):
+        mocker.patch(_PATCH_EXCHANGE_LAUNCH, return_value=(mock_token_dict, mock_context))
+        mocker.patch(_PATCH_CONNECT_OAUTH_TOKEN, return_value=mocker.MagicMock())
         mock_connect_oauth = mocker.patch(_PATCH_CONNECT_OAUTH, return_value=mocker.MagicMock())
         mocker.patch(_PATCH_LOG)
 
@@ -195,9 +185,10 @@ class TestWebappClientFrozen:
 class TestWebappClientIndependence:
     def test_user_and_service_are_independent(self, mocker):
         mock_token_dict = {"access_token": "at", "refresh_token": "rt", "token_type": "Bearer"}
-        mocker.patch(_PATCH_EXCHANGE, return_value=mock_token_dict)
-        mocker.patch(_PATCH_VERIFY_JWT, return_value={"sub": "u"})
-        mocker.patch(_PATCH_PROVIDER)
+        mock_context = UrlTokenContext.model_validate({"sub": "u"})
+        mocker.patch(_PATCH_EXCHANGE_LAUNCH, return_value=(mock_token_dict, mock_context))
+        mock_user = mocker.MagicMock(name="user")
+        mocker.patch(_PATCH_CONNECT_OAUTH_TOKEN, return_value=mock_user)
         mocker.patch(_PATCH_CONNECT_OAUTH, return_value=mocker.MagicMock(name="service"))
         mocker.patch(_PATCH_LOG)
 
