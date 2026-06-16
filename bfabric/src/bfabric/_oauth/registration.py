@@ -56,7 +56,7 @@ def register_client(
     :param client_name: Human-readable name for the client
     :param redirect_uri: OAuth redirect URI for the client
     :param service_user: Optional service user login to enable ``client_credentials`` grant
-    :param scope: OAuth scope string (default ``"api:read api:write"``)
+    :param scope: OAuth scope string (default :data:`~bfabric._oauth.DEFAULT_OAUTH_SCOPE`)
     :param grant_types: Explicit list of grant types to request (overrides the default)
     :returns: Registration response containing ``client_id``, ``client_secret``, etc.
     """
@@ -109,7 +109,7 @@ def register_webapp(
     :param app_name: Human-readable name for both the OAuth client and the application
     :param web_url: The webapp URL (used as both OAuth redirect URI and application ``weburl``)
     :param service_user: Optional service user login to enable ``client_credentials`` grant
-    :param scope: OAuth scope string (default ``"api:read api:write"``)
+    :param scope: OAuth scope string (default :data:`~bfabric._oauth.DEFAULT_OAUTH_SCOPE`)
     :param application_id: Existing application ID to update (omit to create a new application)
     :param technology_id: Technology ID for the application
     :param description: Application description
