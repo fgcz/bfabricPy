@@ -38,6 +38,11 @@ class UrlTokenContext(BaseModel):
     name: str | None = Field(default=None)
 
     @property
+    def base_url(self) -> str | None:
+        """B-Fabric instance base URL derived from ``iss``, trailing slash stripped."""
+        return self.issuer.rstrip("/") if self.issuer else None
+
+    @property
     def is_employee(self) -> bool:
         """Whether the token's groups claim includes the ``employee`` group."""
         return self.groups is not None and "employee" in self.groups
