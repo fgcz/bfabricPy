@@ -4,6 +4,7 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
+from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
 from bfabric._oauth.url_token import UrlTokenContext
 from bfabric._oauth.webapp_client import WebappClient
 
@@ -160,7 +161,7 @@ class TestWebappClientCreate:
             client_secret="csecret",
         )
 
-        assert mock_connect_oauth.call_args.kwargs["scope"] == "api:read api:write"
+        assert mock_connect_oauth.call_args.kwargs["scope"] == DEFAULT_OAUTH_SCOPE
 
 
 class TestWebappClientFrozen:

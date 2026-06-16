@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 
+from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
 from bfabric._oauth.registration import register_client, register_webapp
 
 
@@ -36,7 +37,7 @@ class TestRegisterClient:
                 "client_name": "my-app",
                 "redirect_uris": ["http://localhost:8050/callback"],
                 "grant_types": [_TOKEN_EXCHANGE, "refresh_token"],
-                "scope": "api:read api:write",
+                "scope": DEFAULT_OAUTH_SCOPE,
             },
             headers={"Authorization": "Bearer bearer-token"},
             timeout=30,
@@ -103,7 +104,7 @@ class TestRegisterClient:
 
         call_body = mock_httpx_post.call_args[1]["json"]
         assert "service_user_login" not in call_body
-        assert call_body["scope"] == "api:read api:write"
+        assert call_body["scope"] == DEFAULT_OAUTH_SCOPE
 
     def test_normalizes_trailing_slash(self, mock_httpx_post):
         register_client(
@@ -170,7 +171,7 @@ class TestRegisterWebapp:
             client_name="My Webapp",
             redirect_uri="https://myapp.example.com/",
             service_user=None,
-            scope="api:read api:write",
+            scope=DEFAULT_OAUTH_SCOPE,
         )
         mock_client.save.assert_called_once_with(
             "application",
