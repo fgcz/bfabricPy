@@ -36,7 +36,7 @@ class TestRegisterClient:
             json={
                 "client_name": "my-app",
                 "redirect_uris": ["http://localhost:8050/callback"],
-                "grant_types": [_TOKEN_EXCHANGE, "refresh_token"],
+                "grant_types": [_TOKEN_EXCHANGE, "refresh_token", "authorization_code"],
                 "scope": DEFAULT_OAUTH_SCOPE,
             },
             headers={"Authorization": "Bearer bearer-token"},
@@ -56,7 +56,12 @@ class TestRegisterClient:
 
         call_body = mock_httpx_post.call_args[1]["json"]
         assert call_body["service_user_login"] == "gfeeder"
-        assert call_body["grant_types"] == [_TOKEN_EXCHANGE, "refresh_token", "client_credentials"]
+        assert call_body["grant_types"] == [
+            _TOKEN_EXCHANGE,
+            "refresh_token",
+            "authorization_code",
+            "client_credentials",
+        ]
 
     def test_without_service_user_no_client_credentials_grant(self, mock_httpx_post):
         register_client(
@@ -67,7 +72,7 @@ class TestRegisterClient:
         )
 
         call_body = mock_httpx_post.call_args[1]["json"]
-        assert call_body["grant_types"] == [_TOKEN_EXCHANGE, "refresh_token"]
+        assert call_body["grant_types"] == [_TOKEN_EXCHANGE, "refresh_token", "authorization_code"]
         assert "service_user_login" not in call_body
 
     def test_with_scope(self, mock_httpx_post):
