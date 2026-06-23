@@ -27,7 +27,7 @@ _GRANT_TYPE_TOKEN_EXCHANGE = "urn:ietf:params:oauth:grant-type:token-exchange"
 
 def _default_grant_types(service_user: str | None) -> list[str]:
     """Return the default grant types for webapp registration."""
-    grant_types = [_GRANT_TYPE_TOKEN_EXCHANGE, "refresh_token"]
+    grant_types = [_GRANT_TYPE_TOKEN_EXCHANGE, "refresh_token", "authorization_code"]
     if service_user is not None:
         grant_types.append("client_credentials")
     return grant_types
@@ -48,15 +48,15 @@ def register_client(
     Requires an employee Bearer token for authorization.
 
     By default, requests the grant types needed for webapp operation:
-    ``token-exchange`` and ``refresh_token`` always, plus ``client_credentials``
-    when *service_user* is provided. Pass *grant_types* to override.
+    ``token-exchange``, ``refresh_token`` and ``authorization_code`` always, plus
+    ``client_credentials`` when *service_user* is provided. Pass *grant_types* to override.
 
     :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
     :param token: Employee Bearer token for authorization
     :param client_name: Human-readable name for the client
     :param redirect_uri: OAuth redirect URI for the client
     :param service_user: Optional service user login to enable ``client_credentials`` grant
-    :param scope: OAuth scope string (default ``"api:read api:write"``)
+    :param scope: OAuth scope string (default :data:`~bfabric._oauth.DEFAULT_OAUTH_SCOPE`)
     :param grant_types: Explicit list of grant types to request (overrides the default)
     :returns: Registration response containing ``client_id``, ``client_secret``, etc.
     """
@@ -109,7 +109,7 @@ def register_webapp(
     :param app_name: Human-readable name for both the OAuth client and the application
     :param web_url: The webapp URL (used as both OAuth redirect URI and application ``weburl``)
     :param service_user: Optional service user login to enable ``client_credentials`` grant
-    :param scope: OAuth scope string (default ``"api:read api:write"``)
+    :param scope: OAuth scope string (default :data:`~bfabric._oauth.DEFAULT_OAUTH_SCOPE`)
     :param application_id: Existing application ID to update (omit to create a new application)
     :param technology_id: Technology ID for the application
     :param description: Application description

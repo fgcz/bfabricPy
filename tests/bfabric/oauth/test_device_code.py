@@ -3,6 +3,7 @@ from __future__ import annotations
 import httpx
 import pytest
 
+from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
 from bfabric._oauth.device_code import (
     _poll_for_token,
     _request_device_code,
@@ -315,7 +316,7 @@ class TestDeviceCodeLogin:
         mock_request.assert_called_once_with(
             "https://example.com/bfabric",
             client_id="bfabric-cli",
-            scope="api:read api:write",
+            scope=DEFAULT_OAUTH_SCOPE,
         )
         assert mock_poll.call_args[0][0] == "https://example.com/bfabric"
 
