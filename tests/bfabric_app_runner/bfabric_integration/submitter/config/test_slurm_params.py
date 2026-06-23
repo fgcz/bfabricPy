@@ -1,5 +1,4 @@
 from pathlib import Path
-from unittest.mock import Mock
 
 import pytest
 
@@ -42,10 +41,10 @@ def test_slurm_config_template_evaluation(slurm_config_file_template, variables_
     assert config_file.job_script == Path("~/test/job-42").expanduser()
 
 
-def test_slurm_parameters_creation():
+def test_slurm_parameters_creation(mocker):
     """Test SlurmParameters creation and sbatch_params merging."""
     # Mock workunit params
-    mock_workunit_params = Mock(spec=SlurmWorkunitParams)
+    mock_workunit_params = mocker.Mock(spec=SlurmWorkunitParams)
     mock_workunit_params.as_dict.return_value = {"--time": "01:00:00", "--mem": "4G"}
 
     # Create SlurmParameters

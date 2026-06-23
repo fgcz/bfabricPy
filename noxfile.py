@@ -327,7 +327,7 @@ def code_style(session):
     session.run("ruff", "check", "bfabric")
 
 
-@nox.session
+@nox.session(python="3.11")
 @nox.parametrize("package", WORKSPACE_PACKAGES)
 def licensecheck(session, package) -> None:
     """Runs the license check."""

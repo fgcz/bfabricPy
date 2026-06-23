@@ -4,8 +4,6 @@ This module tests the /read endpoint with mocked Bfabric client to ensure
 no real API calls are made during testing.
 """
 
-from unittest.mock import MagicMock
-
 import pytest
 from bfabric.results.result_container import ResultContainer
 
@@ -106,10 +104,10 @@ class TestReadEndpoint:
         assert call_args.kwargs["offset"] == 10
         assert call_args.kwargs["max_results"] == 50
 
-    def test_read_calls_to_list_dict(self, client, mock_bfabric_user_client):
+    def test_read_calls_to_list_dict(self, client, mock_bfabric_user_client, mocker):
         """Test that the response is properly converted to list dict."""
         # Create a mock ResultContainer
-        mock_result = MagicMock()
+        mock_result = mocker.MagicMock()
         mock_result.to_list_dict.return_value = [
             {"id": 1, "name": "test1"},
             {"id": 2, "name": "test2"},

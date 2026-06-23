@@ -17,7 +17,7 @@ jobs:
       pull-requests: write
       contents: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Install hatch
         run: pip install hatch
       - name: Check which packages will be released
@@ -117,7 +117,7 @@ jobs:
           - python-version: "3.13"
             resolution: "lowest-direct"
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v6
         with:

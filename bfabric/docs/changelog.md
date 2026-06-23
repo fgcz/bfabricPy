@@ -9,6 +9,8 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+## \[1.20.0rc1\] - 2026-06-23
+
 ### Added
 
 - OAuth 2.0 authentication for the `Bfabric` client. New factory methods:

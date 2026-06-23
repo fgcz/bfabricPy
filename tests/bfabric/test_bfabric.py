@@ -6,6 +6,7 @@ import pytest
 from pydantic import SecretStr
 
 from bfabric import Bfabric, BfabricAPIEngineType, BfabricClientConfig, BfabricAuth
+from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
 from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.config.config_data import ConfigData
@@ -400,7 +401,9 @@ def test_upload_resource(bfabric_instance, mocker):
 def test_get_version_message(mock_config, bfabric_instance):
     mock_config.base_url = "dummy_url"
     line1, line2 = bfabric_instance._get_version_message()
-    pattern = r"bfabricPy v\d+\.\d+\.\d+ \(EngineSUDS, dummy_url, U=None, PY=\d\.\d+\.\d+\)"
+    # version allows PEP 440 pre/post/dev suffixes (e.g. 1.20.0rc1), not just X.Y.Z
+    version_re = r"\d+\.\d+\.\d+(?:(?:a|b|rc)\d+)?(?:\.post\d+)?(?:\.dev\d+)?"
+    pattern = rf"bfabricPy v{version_re} \(EngineSUDS, dummy_url, U=None, PY=\d\.\d+\.\d+\)"
     assert re.match(pattern, line1)
     year = datetime.datetime.now().year
     assert line2 == f"Copyright (C) 2014-{year} Functional Genomics Center Zurich"
@@ -438,7 +441,7 @@ class TestConnectOAuth:
             client_id="my-id",
             client_secret="my-secret",
             token_url="https://example.com/bfabric/rest/oauth/token",
-            scope="api:read api:write",
+            scope=DEFAULT_OAUTH_SCOPE,
             grant_type="client_credentials",
             token_cache_path=None,
         )
@@ -538,7 +541,7 @@ class TestConnectPkce:
         mock_pkce_login.assert_called_once_with(
             "https://example.com/bfabric",
             client_id="bfabric-cli",
-            scope="api:read api:write",
+            scope=DEFAULT_OAUTH_SCOPE,
             port=0,
             open_browser=True,
             timeout=120.0,
@@ -549,7 +552,7 @@ class TestConnectPkce:
             token_url="https://example.com/bfabric/rest/oauth/token",
             token=mock_pkce_login.return_value,
             grant_type="refresh_token",
-            scope="api:read api:write",
+            scope=DEFAULT_OAUTH_SCOPE,
             token_cache_path=None,
         )
         assert client._credential_provider == mock_provider_cls.return_value
@@ -619,7 +622,7 @@ class TestConnectDeviceCode:
         mock_device_code_login.assert_called_once_with(
             "https://example.com/bfabric",
             client_id="bfabric-cli",
-            scope="api:read api:write",
+            scope=DEFAULT_OAUTH_SCOPE,
             timeout=600.0,
         )
         mock_provider_cls.assert_called_once_with(
@@ -628,7 +631,7 @@ class TestConnectDeviceCode:
             token_url="https://example.com/bfabric/rest/oauth/token",
             token=mock_device_code_login.return_value,
             grant_type="refresh_token",
-            scope="api:read api:write",
+            scope=DEFAULT_OAUTH_SCOPE,
             token_cache_path=None,
         )
         assert client._credential_provider == mock_provider_cls.return_value

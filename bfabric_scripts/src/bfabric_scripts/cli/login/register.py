@@ -10,6 +10,7 @@ from typing import Annotated
 
 import cyclopts
 
+from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
 from bfabric._oauth.registration import register_client
 from bfabric.config import DEFAULT_CONFIG_FILE
 
@@ -79,7 +80,7 @@ def cmd_login_register(
     service_user: Annotated[
         str | None, cyclopts.Parameter(help="Service user login (enables client_credentials grant).")
     ] = None,
-    scope: Annotated[str, cyclopts.Parameter(help="OAuth scope.")] = "api:read api:write",
+    scope: Annotated[str, cyclopts.Parameter(help="OAuth scope.")] = DEFAULT_OAUTH_SCOPE,
     grant_types: Annotated[
         list[str] | None,
         cyclopts.Parameter(help="Grant types to request (overrides default webapp grants)."),

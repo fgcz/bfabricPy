@@ -32,6 +32,20 @@ class UrlTokenContext(BaseModel):
     client_id: str | None = None
     subject: str | None = Field(default=None, alias="sub")
     expires_at: datetime | None = Field(default=None, alias="exp")
+    issuer: str | None = Field(default=None, alias="iss")
+    groups: list[str] | None = Field(default=None)
+    email: str | None = Field(default=None)
+    name: str | None = Field(default=None)
+
+    @property
+    def base_url(self) -> str | None:
+        """B-Fabric instance base URL derived from ``iss``, trailing slash stripped."""
+        return self.issuer.rstrip("/") if self.issuer else None
+
+    @property
+    def is_employee(self) -> bool:
+        """Whether the token's groups claim includes the ``employee`` group."""
+        return self.groups is not None and "employee" in self.groups
 
 
 # Module-level JWKS cache: {base_url: (jwks_dict, fetched_at)}

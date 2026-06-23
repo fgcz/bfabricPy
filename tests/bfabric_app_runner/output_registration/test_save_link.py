@@ -1,5 +1,3 @@
-from unittest.mock import MagicMock
-
 import pytest
 
 from bfabric.results.result_container import ResultContainer
@@ -8,13 +6,13 @@ from bfabric_app_runner.specs.outputs_spec import SaveLinkSpec
 
 
 @pytest.fixture()
-def mock_client():
-    return MagicMock()
+def mock_client(mocker):
+    return mocker.MagicMock()
 
 
 @pytest.fixture()
-def mock_workunit_definition():
-    mock = MagicMock()
+def mock_workunit_definition(mocker):
+    mock = mocker.MagicMock()
     mock.registration.workunit_id = 42
     return mock
 

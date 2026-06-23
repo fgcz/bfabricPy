@@ -1,5 +1,4 @@
 from pathlib import Path
-from unittest.mock import MagicMock
 
 from bfabric_app_runner.actions.config_file import ActionConfig, FromConfigFile
 
@@ -31,7 +30,7 @@ class TestFromConfigFile:
         mocker.patch("yaml.safe_load", return_value=expected_yaml_data)
 
         # Mock ActionConfig.model_validate
-        mock_action_config = MagicMock()
+        mock_action_config = mocker.MagicMock()
         # Set up __iter__ to return key-value pairs
         mock_action_config.__iter__.return_value = [
             ("work_dir", Path("/test/work/dir")),

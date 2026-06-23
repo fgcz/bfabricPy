@@ -98,6 +98,9 @@ Each package's docs live alongside its source. Skim the index when working in a 
 - Tests must NOT contain `__init__.py` files (enforced by `check_test_inits` nox session)
 - Test order is randomised via [pytest-random-order](https://github.com/pytest-dev/pytest-random-order) (`addopts = "--random-order"`), so both modules and the tests within them run in a shuffled order to surface hidden inter-test dependencies. The seed is printed in the pytest header; reproduce a specific order with `pytest --random-order-seed=<N>`. Tests must therefore be isolation-safe; quarantine a genuinely order-dependent module with `pytestmark = pytest.mark.random_order(disabled=True)` only as a last resort.
 - Test conftest sets `BFABRICPY_CONFIG_ENV=__MOCK` to avoid real credentials
+- Tests use the pytest-mock `mocker` fixture for **all** mocking — do not `import unittest.mock`.
+  Use `mocker.patch(...)`, `mocker.patch.object(...)`, `mocker.patch.dict(...)`, `mocker.MagicMock()`,
+  `mocker.Mock()`, `mocker.mock_open(...)`, etc. (`pytest-mock` is a test dependency in every package.)
 - Ruff linting is currently only enforced on the `bfabric` package (scripts, wrapper_creator, tests, noxfile are excluded via per-file-ignores)
 - Line length: 120 (ruff and black)
 - basedpyright uses per-package baseline files at `.basedpyright/baseline.{package}.json` — **do not edit baseline files to silence new errors**; fix the code or add a targeted `# pyright: ignore[...]` comment on the offending line. Baselines only exist to grandfather in pre-existing errors.
