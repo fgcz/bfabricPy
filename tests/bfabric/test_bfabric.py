@@ -401,7 +401,9 @@ def test_upload_resource(bfabric_instance, mocker):
 def test_get_version_message(mock_config, bfabric_instance):
     mock_config.base_url = "dummy_url"
     line1, line2 = bfabric_instance._get_version_message()
-    pattern = r"bfabricPy v\d+\.\d+\.\d+ \(EngineSUDS, dummy_url, U=None, PY=\d\.\d+\.\d+\)"
+    # version allows PEP 440 pre/post/dev suffixes (e.g. 1.20.0rc1), not just X.Y.Z
+    version_re = r"\d+\.\d+\.\d+(?:(?:a|b|rc)\d+)?(?:\.post\d+)?(?:\.dev\d+)?"
+    pattern = rf"bfabricPy v{version_re} \(EngineSUDS, dummy_url, U=None, PY=\d\.\d+\.\d+\)"
     assert re.match(pattern, line1)
     year = datetime.datetime.now().year
     assert line2 == f"Copyright (C) 2014-{year} Functional Genomics Center Zurich"
