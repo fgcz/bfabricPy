@@ -2,13 +2,15 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-Versioning currently follows `X.Y.Z` where
+Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bfabric` core package version:
 
 - `X` is used for major changes, that contain breaking changes
-- `Y` should be the current bfabric release
-- `Z` is increased for feature releases, that should not break the API
+- `Y` is increased for feature releases, that should not break the API
+- `Z` is increased for bug-fix releases
 
 ## \[Unreleased\]
+
+## \[1.16.0rc1\] - 2026-06-23
 
 ### Added
 
