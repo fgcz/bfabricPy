@@ -6,6 +6,7 @@ import pytest
 from pydantic import SecretStr
 
 from bfabric import Bfabric, BfabricAPIEngineType, BfabricClientConfig, BfabricAuth
+from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
 from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.config.config_data import ConfigData
@@ -438,7 +439,7 @@ class TestConnectOAuth:
             client_id="my-id",
             client_secret="my-secret",
             token_url="https://example.com/bfabric/rest/oauth/token",
-            scope="api:read api:write",
+            scope=DEFAULT_OAUTH_SCOPE,
             grant_type="client_credentials",
             token_cache_path=None,
         )
@@ -538,7 +539,7 @@ class TestConnectPkce:
         mock_pkce_login.assert_called_once_with(
             "https://example.com/bfabric",
             client_id="bfabric-cli",
-            scope="api:read api:write",
+            scope=DEFAULT_OAUTH_SCOPE,
             port=0,
             open_browser=True,
             timeout=120.0,
@@ -549,7 +550,7 @@ class TestConnectPkce:
             token_url="https://example.com/bfabric/rest/oauth/token",
             token=mock_pkce_login.return_value,
             grant_type="refresh_token",
-            scope="api:read api:write",
+            scope=DEFAULT_OAUTH_SCOPE,
             token_cache_path=None,
         )
         assert client._credential_provider == mock_provider_cls.return_value
@@ -619,7 +620,7 @@ class TestConnectDeviceCode:
         mock_device_code_login.assert_called_once_with(
             "https://example.com/bfabric",
             client_id="bfabric-cli",
-            scope="api:read api:write",
+            scope=DEFAULT_OAUTH_SCOPE,
             timeout=600.0,
         )
         mock_provider_cls.assert_called_once_with(
@@ -628,7 +629,7 @@ class TestConnectDeviceCode:
             token_url="https://example.com/bfabric/rest/oauth/token",
             token=mock_device_code_login.return_value,
             grant_type="refresh_token",
-            scope="api:read api:write",
+            scope=DEFAULT_OAUTH_SCOPE,
             token_cache_path=None,
         )
         assert client._credential_provider == mock_provider_cls.return_value
