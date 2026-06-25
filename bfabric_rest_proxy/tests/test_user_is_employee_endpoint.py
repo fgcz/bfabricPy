@@ -3,11 +3,7 @@
 from __future__ import annotations
 
 import pytest
-from bfabric import BfabricAuth
-from bfabric._oauth.url_token import UrlTokenContext
-from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.entities import User
-from pydantic import SecretStr
 
 from bfabric_rest_proxy.feeder_operations.is_employee import is_employee
 
@@ -65,26 +61,6 @@ class TestIsEmployee:
         mock_find_by_login.return_value = _user(empdegree="100")
         is_employee(user_client=mock_bfabric_user_client, feeder_client=mock_bfabric_feeder_client)
         mock_find_by_login.assert_called_once_with(login="test_user", client=mock_bfabric_feeder_client)
-
-    def test_resolves_current_identity_subject_not_auth_login(
-        self, mock_bfabric_user_client, mock_bfabric_feeder_client, mock_find_by_login
-    ):
-        # Under OAuth, auth.login is only the "__oauth__" sentinel; the real user is the
-        # token subject. The lookup must follow the subject, not auth.login.
-        mock_bfabric_user_client.auth = BfabricAuth(login=OAUTH_LOGIN, password=SecretStr("q" * 32))
-        mock_bfabric_user_client.current_identity = UrlTokenContext(subject="real_user")
-        mock_find_by_login.return_value = _user(login="real_user", empdegree="100")
-
-        assert is_employee(user_client=mock_bfabric_user_client, feeder_client=mock_bfabric_feeder_client) is True
-        mock_find_by_login.assert_called_once_with(login="real_user", client=mock_bfabric_feeder_client)
-
-    def test_undeterminable_login_raises(
-        self, mock_bfabric_user_client, mock_bfabric_feeder_client, mock_find_by_login
-    ):
-        mock_bfabric_user_client.current_identity = UrlTokenContext(subject=None)
-        with pytest.raises(RuntimeError, match="Could not determine the authenticated user's login"):
-            is_employee(user_client=mock_bfabric_user_client, feeder_client=mock_bfabric_feeder_client)
-        mock_find_by_login.assert_not_called()
 
 
 class TestUserIsEmployeeEndpoint:

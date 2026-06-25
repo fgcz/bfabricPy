@@ -17,23 +17,18 @@ class User(Entity):
 
     @classmethod
     def current(cls, client: Bfabric) -> User | None:
-        """Resolves the ``User`` for the client's current (logged-in) identity.
+        """Resolves the ``User`` for the client's currently authenticated login.
 
-        Resolves the authenticated principal — the token ``subject`` (login) — via
-        :attr:`Bfabric.current_identity`. This works across all auth modes
-        (password, webapp token, and OAuth: PKCE, device code, client
-        credentials). The principal is the *logged-in* user, not the entity an
-        application may have been launched from.
+        Uses :attr:`Bfabric.current_login`, which resolves the logged-in principal
+        across all auth modes (password, webapp token, and OAuth). This is the
+        logged-in user, not the entity an application may have been launched from.
 
-        :returns: the matching ``User``, or ``None`` if the identity is known but
-            no user record matches it (e.g. an OAuth service account).
-        :raises ValueError: if the identity cannot be determined locally, i.e. the
+        :returns: the matching ``User``, or ``None`` if no user record matches the
+            login (e.g. an OAuth service account).
+        :raises ValueError: if the login cannot be determined locally, i.e. the
             client authenticates with an opaque Personal Access Token.
         """
-        identity = client.current_identity
-        if identity.subject:
-            return cls.find_by_login(identity.subject, client)
-        return None
+        return cls.find_by_login(client.current_login, client)
 
     @property
     def is_employee(self) -> bool:

@@ -21,16 +21,11 @@ def create_workunit(
 ) -> Workunit:
     """Create a workunit using the feeder client on behalf of the user client.
 
-    `Created For` is set server-side from the authenticated user, resolved via
-    `user_client.current_identity` so it names the real user across all auth modes
-    (including OAuth, where `user_client.auth.login` is only the `__oauth__` sentinel).
+    `Created For` is set server-side from the authenticated user.
     `Created Using` is set from the (optional) client-supplied field.
     """
     _check_container_access(user_client=user_client, container_id=request.container_id)
-    created_for = user_client.current_identity.subject
-    if created_for is None:
-        raise RuntimeError("Could not determine the authenticated user's login")
-    audit_attributes = {"Created For": created_for}
+    audit_attributes = {"Created For": user_client.auth.login}
     if request.created_using is not None:
         audit_attributes["Created Using"] = request.created_using
     return _create_workunit(

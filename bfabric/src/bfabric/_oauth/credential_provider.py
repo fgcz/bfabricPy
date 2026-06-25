@@ -121,13 +121,8 @@ class OAuthCredentialProvider:
     def get_context(self) -> UrlTokenContext:
         """Decode the current access-token JWT into identity/entity claims.
 
-        Reuses :func:`verify_jwt` — the same local decode path that
-        :meth:`WebappClient.create` uses for the exchanged token. The token is
-        refreshed first (if needed) so the embedded ``exp`` claim is always
-        valid. The base URL is derived from the configured token endpoint.
-
-        For the ``client_credentials`` grant the subject is the *service
-        account*, not a human user.
+        The token is refreshed first (if needed) so its ``exp`` claim is valid;
+        the base URL for verification is derived from the token endpoint.
         """
         with self._lock:
             self._ensure_token()

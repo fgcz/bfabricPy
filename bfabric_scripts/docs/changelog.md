@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 ## \[Unreleased\]
 
+### Changed
+
+- `bfabric-cli auth status` now resolves and prints the logged-in user (`Login`) for OAuth environments, decoding the cached access token via `Bfabric.current_login` (previously it only reported whether a token cache was present).
+
 ## \[1.16.0rc1\] - 2026-06-23
 
 ### Added

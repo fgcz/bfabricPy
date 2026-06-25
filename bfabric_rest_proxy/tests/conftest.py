@@ -11,7 +11,6 @@ from fastapi.testclient import TestClient
 from pydantic import SecretStr
 
 from bfabric import Bfabric, BfabricAuth
-from bfabric._oauth.url_token import UrlTokenContext
 from bfabric.config.config_data import ConfigData
 from bfabric.results.result_container import ResultContainer
 from bfabric_rest_proxy.server import (
@@ -47,9 +46,6 @@ def mock_bfabric_user_client(mocker):
     client = mocker.MagicMock(spec=Bfabric)
     # BfabricAuth requires passwords of at least 32 characters
     client.auth = BfabricAuth(login="test_user", password=SecretStr("y" * 32))
-    # The authenticated principal is resolved via current_identity (not auth.login),
-    # so it stays correct under OAuth where auth.login is the "__oauth__" sentinel.
-    client.current_identity = UrlTokenContext(subject="test_user")
     client.config.base_url = "https://test.bfabric.example.com/"
 
     # Mock read() to return a ResultContainer with empty results by default

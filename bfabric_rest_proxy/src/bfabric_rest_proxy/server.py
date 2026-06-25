@@ -94,7 +94,7 @@ class ReadParams(BaseModel):
 
 @app.post("/read")
 def read(user_client: BfabricUserClientDep, params: ReadParams):
-    logger.info(f"Reading from endpoint {params.endpoint} for user {user_client.current_identity.subject}")
+    logger.info(f"Reading from endpoint {params.endpoint} for user {user_client.auth.login}")
     res = user_client.read(
         endpoint=params.endpoint,
         obj=params.query,
@@ -120,7 +120,7 @@ def post_user_is_employee(
     feeder_client: BfabricFeederClientDep,
 ):
     """Return whether the authenticated user is an employee on the current B-Fabric instance."""
-    logger.info(f"Checking employee status for user {user_client.current_identity.subject}")
+    logger.info(f"Checking employee status for user {user_client.auth.login}")
     return {"is_employee": is_employee(user_client=user_client, feeder_client=feeder_client)}
 
 

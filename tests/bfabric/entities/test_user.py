@@ -1,6 +1,5 @@
 import pytest
 
-from bfabric._oauth.url_token import UrlTokenContext
 from bfabric.entities import User
 
 
@@ -39,10 +38,10 @@ def test_is_employee_none_value_returns_false(bfabric_instance):
     assert _user(bfabric_instance, empdegree=None).is_employee is False
 
 
-def test_current_resolves_subject_via_find_by_login(mocker, bfabric_instance):
+def test_current_resolves_login_via_find_by_login(mocker, bfabric_instance):
     expected = _user(bfabric_instance)
     client = mocker.MagicMock(name="client")
-    client.current_identity = UrlTokenContext(subject="jdoe")
+    client.current_login = "jdoe"
     client.reader.query_one.return_value = expected
 
     result = User.current(client)
@@ -51,17 +50,18 @@ def test_current_resolves_subject_via_find_by_login(mocker, bfabric_instance):
     client.reader.query_one.assert_called_once_with("user", {"login": "jdoe"}, expected_type=User)
 
 
-def test_current_returns_none_when_no_subject(mocker, bfabric_instance):
+def test_current_returns_none_when_no_user_record(mocker, bfabric_instance):
     client = mocker.MagicMock(name="client")
-    client.current_identity = UrlTokenContext(subject=None)
+    client.current_login = "ghost"
+    client.reader.query_one.return_value = None
 
     assert User.current(client) is None
-    client.reader.query_one.assert_not_called()
+    client.reader.query_one.assert_called_once_with("user", {"login": "ghost"}, expected_type=User)
 
 
-def test_current_propagates_identity_error(mocker):
+def test_current_propagates_login_error(mocker):
     client = mocker.MagicMock(name="client")
-    type(client).current_identity = mocker.PropertyMock(side_effect=ValueError("opaque PAT"))
+    type(client).current_login = mocker.PropertyMock(side_effect=ValueError("opaque PAT"))
 
     with pytest.raises(ValueError, match="opaque PAT"):
         User.current(client)

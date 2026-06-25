@@ -141,30 +141,29 @@ def test_config_data(mock_config, mock_auth):
     assert bfabric_instance.config_data == config_data
 
 
-def test_current_identity_with_credential_provider(mocker, mock_config):
+def test_current_login_with_credential_provider(mocker, mock_config):
     provider = mocker.MagicMock(name="provider")
-    context = provider.get_context.return_value
+    provider.get_context.return_value.subject = "jdoe"
     bfabric_instance = Bfabric(config_data=ConfigData(client=mock_config, auth=None), _credential_provider=provider)
-    assert bfabric_instance.current_identity is context
+    assert bfabric_instance.current_login == "jdoe"
     provider.get_context.assert_called_once_with()
 
 
-def test_current_identity_when_missing(bfabric_instance):
+def test_current_login_when_missing(bfabric_instance):
     with pytest.raises(ValueError, match="Authentication not available"):
-        _ = bfabric_instance.current_identity
+        _ = bfabric_instance.current_login
 
 
-def test_current_identity_with_real_login(mock_config, mock_auth):
+def test_current_login_with_real_login(mock_config, mock_auth):
     bfabric_instance = Bfabric(ConfigData(client=mock_config, auth=mock_auth))
-    identity = bfabric_instance.current_identity
-    assert identity.subject == "_test_user"
+    assert bfabric_instance.current_login == "_test_user"
 
 
-def test_current_identity_with_opaque_pat_raises(mock_config):
+def test_current_login_with_opaque_pat_raises(mock_config):
     pat_auth = BfabricAuth(login=OAUTH_LOGIN, password="opaque-pat-token")
     bfabric_instance = Bfabric(ConfigData(client=mock_config, auth=pat_auth))
     with pytest.raises(ValueError, match="opaque personal access token"):
-        _ = bfabric_instance.current_identity
+        _ = bfabric_instance.current_login
 
 
 def test_with_auth(mocker, bfabric_instance):

@@ -9,6 +9,7 @@ from typing import Annotated
 import cyclopts
 import yaml
 
+from bfabric import Bfabric
 from bfabric._oauth._constants import DEFAULT_CLIENT_ID
 
 from bfabric.config import DEFAULT_CONFIG_FILE
@@ -49,6 +50,11 @@ def cmd_login_status(
         cached = TokenCache(cache_path).load()
         if cached:
             print(f"Token cache:  {cache_path} (present)")
+            try:
+                client = Bfabric.connect(config_file_path=config_file, config_file_env=resolved_env)
+                print(f"Login:        {client.current_login}")
+            except Exception as exc:  # noqa: BLE001 - status should still print if resolution fails
+                print(f"Login:        (could not resolve: {exc})")
         else:
             print(f"Token cache:  {cache_path} (missing)")
     elif env.auth is not None:
