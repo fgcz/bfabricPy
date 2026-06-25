@@ -5,7 +5,13 @@ to ensure no real API calls are made during testing.
 """
 
 import pytest
+from bfabric import BfabricAuth
+from bfabric._oauth.url_token import UrlTokenContext
+from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.results.result_container import ResultContainer
+from pydantic import SecretStr
+
+from bfabric_rest_proxy.feeder_operations.create_workunit import CreateWorkunitRequest, create_workunit
 
 
 class TestCreateWorkunitEndpoint:
@@ -182,3 +188,68 @@ class TestCreateWorkunitEndpoint:
         assert mock_create.called
         assert mock_create.call_args[1]["user_client"] == mock_bfabric_user_client
         assert mock_create.call_args[1]["feeder_client"] == mock_bfabric_feeder_client
+
+
+class TestCreateWorkunitAuditAttributes:
+    """Unit tests for the `create_workunit` wrapper's audit stamping."""
+
+    @staticmethod
+    def _request(**overrides):
+        base = dict(
+            container_id=100,
+            application_id=5,
+            workunit_name="Test",
+            parameters={"p": "v"},
+            resources={},
+            links={},
+        )
+        base.update(overrides)
+        return CreateWorkunitRequest(**base)
+
+    def test_created_for_uses_current_identity_subject(
+        self, mock_bfabric_user_client, mock_bfabric_feeder_client, mocker
+    ):
+        # Under OAuth, auth.login is only the "__oauth__" sentinel; "Created For" must name the
+        # real user from current_identity.subject.
+        mock_bfabric_user_client.auth = BfabricAuth(login=OAUTH_LOGIN, password=SecretStr("q" * 32))
+        mock_bfabric_user_client.current_identity = UrlTokenContext(subject="real_user")
+        mock_bfabric_user_client.read.return_value = ResultContainer([{"id": 100}], total_pages_api=1, errors=[])
+        mock_create = mocker.patch("bfabric_rest_proxy.feeder_operations.create_workunit._create_workunit")
+
+        create_workunit(
+            user_client=mock_bfabric_user_client,
+            feeder_client=mock_bfabric_feeder_client,
+            request=self._request(),
+        )
+
+        assert mock_create.call_args.kwargs["audit_attributes"] == {"Created For": "real_user"}
+
+    def test_created_using_recorded_alongside_created_for(
+        self, mock_bfabric_user_client, mock_bfabric_feeder_client, mocker
+    ):
+        mock_bfabric_user_client.read.return_value = ResultContainer([{"id": 100}], total_pages_api=1, errors=[])
+        mock_create = mocker.patch("bfabric_rest_proxy.feeder_operations.create_workunit._create_workunit")
+
+        create_workunit(
+            user_client=mock_bfabric_user_client,
+            feeder_client=mock_bfabric_feeder_client,
+            request=self._request(created_using="my-app/1.0"),
+        )
+
+        assert mock_create.call_args.kwargs["audit_attributes"] == {
+            "Created For": "test_user",
+            "Created Using": "my-app/1.0",
+        }
+
+    def test_undeterminable_login_raises(self, mock_bfabric_user_client, mock_bfabric_feeder_client, mocker):
+        mock_bfabric_user_client.current_identity = UrlTokenContext(subject=None)
+        mock_bfabric_user_client.read.return_value = ResultContainer([{"id": 100}], total_pages_api=1, errors=[])
+        mock_create = mocker.patch("bfabric_rest_proxy.feeder_operations.create_workunit._create_workunit")
+
+        with pytest.raises(RuntimeError, match="Could not determine the authenticated user's login"):
+            create_workunit(
+                user_client=mock_bfabric_user_client,
+                feeder_client=mock_bfabric_feeder_client,
+                request=self._request(),
+            )
+        mock_create.assert_not_called()
