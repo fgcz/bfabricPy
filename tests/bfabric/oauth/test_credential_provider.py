@@ -7,6 +7,7 @@ import pytest
 
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric._oauth.credential_provider import OAuthCredentialProvider
+from bfabric._oauth.url_token import UrlTokenContext
 
 
 @pytest.fixture
@@ -108,6 +109,32 @@ class TestClientCredentials:
 
         # Due to the lock, only 1 fetch should happen (subsequent threads see the valid token)
         assert len(fetch_calls) == 1
+
+
+class TestGetContext:
+    def test_decodes_current_access_token(self, provider, mock_oauth2_session, mocker):
+        mock_oauth2_session.token = {"access_token": "jwt123", "expires_at": time.time() + 3600}
+        mock_verify = mocker.patch(
+            "bfabric._oauth.credential_provider.verify_jwt",
+            return_value={"sub": "jdoe", "email": "jdoe@example.com", "entityClassName": "Workunit"},
+        )
+
+        context = provider.get_context()
+
+        assert isinstance(context, UrlTokenContext)
+        assert context.subject == "jdoe"
+        assert context.email == "jdoe@example.com"
+        # base_url is derived from the token endpoint, not the JWT issuer
+        mock_verify.assert_called_once_with("https://example.com", "jwt123")
+
+    def test_refreshes_before_decoding(self, provider, mock_oauth2_session, mocker):
+        """A present-but-stale token is refreshed via ensure_active_token before decoding."""
+        mock_oauth2_session.token = {"access_token": "jwt123", "expires_at": time.time() + 3600}
+        mocker.patch("bfabric._oauth.credential_provider.verify_jwt", return_value={"sub": "jdoe"})
+
+        provider.get_context()
+
+        mock_oauth2_session.ensure_active_token.assert_called_once()
 
 
 class TestRefreshToken:

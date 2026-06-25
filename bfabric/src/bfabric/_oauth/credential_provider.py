@@ -25,6 +25,7 @@ from loguru import logger
 from bfabric.config.bfabric_auth import OAUTH_LOGIN, BfabricAuth
 from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
 from bfabric._oauth.token_cache import TokenCache
+from bfabric._oauth.url_token import UrlTokenContext, verify_jwt
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -116,6 +117,25 @@ class OAuthCredentialProvider:
             token_data = self._session.token  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
             access_token = str(token_data["access_token"])  # pyright: ignore[reportUnknownArgumentType]
         return BfabricAuth(login=OAUTH_LOGIN, password=access_token)  # pyright: ignore[reportArgumentType]
+
+    def get_context(self) -> UrlTokenContext:
+        """Decode the current access-token JWT into identity/entity claims.
+
+        Reuses :func:`verify_jwt` — the same local decode path that
+        :meth:`WebappClient.create` uses for the exchanged token. The token is
+        refreshed first (if needed) so the embedded ``exp`` claim is always
+        valid. The base URL is derived from the configured token endpoint.
+
+        For the ``client_credentials`` grant the subject is the *service
+        account*, not a human user.
+        """
+        with self._lock:
+            self._ensure_token()
+            token_data = self._session.token  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+            access_token = str(token_data["access_token"])  # pyright: ignore[reportUnknownArgumentType]
+        base_url = self._token_url.removesuffix("/rest/oauth/token")
+        claims = verify_jwt(base_url, access_token)
+        return UrlTokenContext.model_validate(claims)
 
     def _ensure_token(self) -> None:
         """Make sure the session has a valid token, fetching if needed.

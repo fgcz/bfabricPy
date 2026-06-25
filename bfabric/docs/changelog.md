@@ -9,6 +9,12 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+### Added
+
+- `Bfabric.current_identity` — resolve the authenticated principal (as a `UrlTokenContext`) across all auth modes. In OAuth modes the access-token JWT is decoded (`subject`, `groups`, `email`, `entity_*`); in password/webapp-token modes only `subject` (the login) is populated. Raises `ValueError` for opaque Personal Access Tokens (`connect_pat`), whose identity cannot be determined locally.
+- `User.current(client)` — resolve the logged-in user as a `User` entity (via `current_identity` → `find_by_login`). Returns `None` when the identity is known but no user record matches (e.g. an OAuth service account).
+- `OAuthCredentialProvider.get_context()` — decode the current access token into a `UrlTokenContext`, reusing the same `verify_jwt` path as `WebappClient`.
+
 ## \[1.20.0rc1\] - 2026-06-23
 
 ### Added

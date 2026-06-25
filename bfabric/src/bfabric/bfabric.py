@@ -49,6 +49,7 @@ if TYPE_CHECKING:
     from bfabric.entities.core.entity_reader import EntityReader
     from bfabric.experimental.webapp_integration_settings import TokenValidationSettingsProtocol
     from bfabric._oauth.credential_provider import OAuthCredentialProvider
+    from bfabric._oauth.url_token import UrlTokenContext
     from bfabric.typing import ApiRequestObjectType, ApiResponseObjectType
 
 
@@ -407,6 +408,40 @@ class Bfabric:
         if self._auth is None:
             raise ValueError("Authentication not available")
         return self._auth
+
+    @property
+    def current_identity(self) -> UrlTokenContext:
+        """Resolve the identity behind the client's current credentials.
+
+        The returned :class:`~bfabric._oauth.url_token.UrlTokenContext` exposes
+        the authenticated principal as ``subject`` (the login) across all auth
+        modes. How much else is populated depends on the mode:
+
+        * **OAuth** (``connect_oauth``/``connect_pkce``/``connect_device_code``,
+          or ``connect`` with ``auth_method: oauth``): the access-token JWT is
+          decoded, so ``subject``, ``groups``, ``email`` and the ``entity_*``
+          fields are populated. For ``connect_oauth`` (client credentials) the
+          subject is the *service account*, not a human user.
+        * **Password / webapp token** (``connect``/``connect_token``): only
+          ``subject`` is populated; the OAuth-only fields stay ``None`` (so
+          ``groups``/``email``/``is_employee`` are not meaningful here).
+
+        :raises ValueError: if authentication is not available, or if the
+            identity cannot be determined locally — i.e. the client
+            authenticates with an opaque Personal Access Token (``connect_pat``).
+        """
+        from bfabric.config.bfabric_auth import OAUTH_LOGIN
+        from bfabric._oauth.url_token import UrlTokenContext
+
+        if self._credential_provider is not None:
+            return self._credential_provider.get_context()
+        if self._auth is None:
+            raise ValueError("Authentication not available")
+        if self._auth.login != OAUTH_LOGIN:
+            return UrlTokenContext.model_validate({"sub": self._auth.login})
+        raise ValueError(
+            "Cannot resolve the current identity from an opaque personal access token; pass the user explicitly."
+        )
 
     @property
     def config_data(self) -> ConfigData:
