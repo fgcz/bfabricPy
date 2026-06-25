@@ -149,6 +149,59 @@ class TestRefreshToken:
         assert call_kwargs[1]["grant_type"] == "refresh_token"
 
 
+class TestRefreshCallback:
+    def test_callback_fires_with_new_token(self, mock_oauth2_session, mocker):
+        """The user-supplied on_token_update callback fires with the current token after a refresh."""
+        callback = mocker.MagicMock()
+        provider = OAuthCredentialProvider(
+            client_id="id",
+            client_secret="secret",
+            token_url="https://example.com/rest/oauth/token",
+            on_token_update=callback,
+        )
+        new_token = {"access_token": "refreshed", "expires_at": time.time() + 3600}
+        mock_oauth2_session.token = new_token
+
+        # Simulate authlib invoking the update_token callback after a refresh.
+        provider._on_token_update(new_token)
+
+        callback.assert_called_once_with(new_token)
+
+    def test_callback_not_fired_without_token(self, mock_oauth2_session, mocker):
+        callback = mocker.MagicMock()
+        provider = OAuthCredentialProvider(
+            client_id="id",
+            client_secret="secret",
+            token_url="https://example.com/rest/oauth/token",
+            on_token_update=callback,
+        )
+        mock_oauth2_session.token = None
+
+        provider._on_token_update({})
+
+        callback.assert_not_called()
+
+    def test_callback_dropped_on_pickle(self):
+        """The per-process callback is not picklable and is deliberately dropped on round-trip."""
+        import pickle
+
+        provider = OAuthCredentialProvider(
+            client_id="id",
+            client_secret="",
+            token_url="https://example.com/rest/oauth/token",
+            grant_type="refresh_token",
+            token={"access_token": "at", "refresh_token": "rt", "expires_at": 9999999999},
+            on_token_update=lambda _token: None,
+        )
+        assert provider._on_token_refresh is not None
+
+        restored = pickle.loads(pickle.dumps(provider))  # noqa: S301
+
+        assert restored._on_token_refresh is None
+        # The rest of the provider still round-trips.
+        assert restored.get_auth().password.get_secret_value() == "at"
+
+
 class TestDiskCache:
     def test_uses_disk_cache_on_init(self, tmp_path, mock_oauth2_session):
         import json

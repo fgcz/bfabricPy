@@ -3,6 +3,7 @@ from __future__ import annotations
 import time
 
 import pytest
+from joserfc.errors import JoseError
 
 from bfabric._oauth.url_token import _jwks_cache, verify_jwt
 
@@ -75,3 +76,48 @@ class TestVerifyJwt:
     def test_normalizes_trailing_slash(self, mock_httpx_get, mock_joserfc):
         verify_jwt("https://example.com/bfabric/", "token")
         mock_httpx_get.assert_called_once_with("https://example.com/bfabric/rest/oauth/jwks", timeout=30)
+
+
+class TestVerifyJwtClaims:
+    """Tests for opt-in aud/iss validation.
+
+    These deliberately do NOT use the ``mock_joserfc`` fixture: it stubs out
+    ``JWTClaimsRegistry`` wholesale, but the aud/iss behavior lives *inside*
+    ``JWTClaimsRegistry.validate``. We mock only the JWKS fetch + ``decode`` and leave the real
+    registry so ``validate`` genuinely runs the check.
+    """
+
+    EXP = 1999999999  # far-future expiry so the real registry does not reject on expiry
+
+    @staticmethod
+    def _decode_returns(mocker, claims):
+        mocker.patch("bfabric._oauth.url_token._fetch_jwks", return_value={"keys": []})
+        mocker.patch("bfabric._oauth.url_token.KeySet")
+        result = mocker.MagicMock()
+        result.claims = claims
+        mocker.patch("bfabric._oauth.url_token.joserfc_jwt.decode", return_value=result)
+
+    def test_no_validation_by_default(self, mocker):
+        self._decode_returns(mocker, {"sub": "jdoe", "aud": "anything", "exp": self.EXP})
+        result = verify_jwt("https://example.com/bfabric", "tok")
+        assert result["sub"] == "jdoe"
+
+    def test_matching_audience_and_issuer(self, mocker):
+        self._decode_returns(mocker, {"aud": "client-x", "iss": "https://iss", "exp": self.EXP})
+        result = verify_jwt("https://example.com/bfabric", "tok", audience="client-x", issuer="https://iss")
+        assert result["aud"] == "client-x"
+
+    def test_mismatched_audience_raises(self, mocker):
+        self._decode_returns(mocker, {"aud": "other", "exp": self.EXP})
+        with pytest.raises(JoseError):
+            verify_jwt("https://example.com/bfabric", "tok", audience="client-x")
+
+    def test_missing_required_audience_raises(self, mocker):
+        self._decode_returns(mocker, {"sub": "jdoe", "exp": self.EXP})
+        with pytest.raises(JoseError):
+            verify_jwt("https://example.com/bfabric", "tok", audience="client-x")
+
+    def test_mismatched_issuer_raises(self, mocker):
+        self._decode_returns(mocker, {"iss": "https://evil", "exp": self.EXP})
+        with pytest.raises(JoseError):
+            verify_jwt("https://example.com/bfabric", "tok", issuer="https://iss")
