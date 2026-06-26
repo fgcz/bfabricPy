@@ -75,6 +75,16 @@ cd bfabric/docs && make html           # local preview
 - **`results/`** — `ResultContainer` wraps API responses with pagination, error handling, and `to_polars()` conversion.
 - **`utils/cli_integration.py`** — `@use_client` decorator for CLI commands: auto-creates `Bfabric` client, injects config_env/config_file parameters.
 
+### Authentication & OAuth (`bfabric/src/bfabric/_oauth/`)
+
+Auth is the easiest place to reinvent something that already exists — **before adding any new auth/token entry point, check the existing ones in `_oauth/` and the design doc below.** The entry points (one-liners; see the design doc for detail):
+
+- **Password / web-service token** (legacy): `BfabricAuth`; `connect_token()` / `connect_token_async()` (validate a B-Fabric URL token); `from_token_data()`.
+- **OAuth 2.0**: `connect_oauth` (service accounts / client-credentials), `connect_pkce` & `connect_device_code` (interactive login), `connect_pat` (opaque bearer); tokens managed by `OAuthCredentialProvider` (transparent refresh + disk cache).
+- **Webapp launch-token flow: `WebappClient.create()` (`_oauth/webapp_client.py`) is the entry point** — it does the RFC 8693 launch-JWT exchange + local JWT decode into `user`/`service` clients plus `UrlTokenContext`. Reuse or extend it; do **not** re-implement the token exchange or `verify_jwt` decode.
+
+Design & rationale: `bfabric/docs/design/oauth_integration.md`. Note that `bfabric_asgi_auth/docs/design/oauth_simplification_and_migration.md` is a **migration plan/sketch, not current state** — verify it against the code before building on it.
+
 ### CLI (`bfabric_scripts/src/bfabric_scripts/cli/`)
 
 Modern CLI built with **cyclopts**: `bfabric-cli api|dataset|executable|workunit|feeder|external-job`. Legacy scripts (`bfabric_read.py`, etc.) are preserved as entry points.
@@ -92,6 +102,10 @@ Each package's docs live alongside its source. Skim the index when working in a 
 - `bfabric_scripts/docs/changelog.md` — scripts (changelog only; no full docs site)
 - `bfabric_rest_proxy/README.md`, `bfabric_rest_proxy/docs/changelog.md` — REST proxy
 - `bfabric_asgi_auth/README.md`, `bfabric_asgi_auth/docs/changelog.md` — ASGI auth middleware
+
+**Doc types & source of truth.** The human-readable docs above are the source of truth for design and behavior — AGENTS.md only points to them and holds agent-facing conventions, so keep design content there, not duplicated here (duplicates drift). Docs under `*/docs/design/` named for *proposed* or *migration* work describe intended changes, **not** current behavior; verify them against the code before building on them.
+
+**If the docs misled you, fix them.** When you discover an existing capability you nearly duplicated, or a doc statement that contradicts the code (e.g. a documented method that no longer exists), treat it as a doc bug: before finishing, correct that specific doc and any pointer to it here. That is how the map stays trustworthy for the next agent.
 
 ## Key Conventions
 
