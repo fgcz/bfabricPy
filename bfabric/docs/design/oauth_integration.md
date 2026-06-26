@@ -22,6 +22,7 @@ Private module under `bfabric/src/bfabric/_oauth/` implementing all OAuth primit
 | `registration.py` | `register_client()` — RFC 7591 dynamic client registration via HTTP POST. |
 | `token_cache.py` | `TokenCache` — JSON file cache at `~/.bfabric/tokens/{hash}.json` with 0o600 permissions. `compute_token_cache_path()` derives a unique path from `(base_url, client_id, env_name)`. |
 | `url_token.py` | `UrlTokenContext` + `verify_jwt()` — verifies a B-Fabric JWT against the server JWKS and extracts entity context (entity_id, application_id, etc.). |
+| `launch_token.py` | `exchange_launch_token()` — the single RFC 8693 launch-token exchange + local JWT decode to `UrlTokenContext`; shared by `WebappClient` and the public `bfabric.experimental.webapp_oauth` facade. |
 | `webapp_client.py` | `WebappClient` — dual-identity client bundling a `user` (from URL token) and `service` (from client credentials) `Bfabric` instance. |
 
 ---

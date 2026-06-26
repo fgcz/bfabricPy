@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 from bfabric._oauth.url_token import UrlTokenContext
+
+# Imported via the public facade to confirm the re-export works; the implementation lives in
+# bfabric._oauth.launch_token, so the exchange_token/verify_jwt patches target that module.
 from bfabric.experimental.webapp_oauth import exchange_launch_token
 
 
 def test_exchange_launch_token(mocker):
     token_dict = {"access_token": "at-jwt", "refresh_token": "rt"}
-    mock_exchange = mocker.patch("bfabric.experimental.webapp_oauth.exchange_token", return_value=token_dict)
+    mock_exchange = mocker.patch("bfabric._oauth.launch_token.exchange_token", return_value=token_dict)
     claims = {"sub": "jdoe", "entityId": 5, "entityClassName": "Workunit", "applicationId": 9}
-    mock_verify = mocker.patch("bfabric.experimental.webapp_oauth.verify_jwt", return_value=claims)
+    mock_verify = mocker.patch("bfabric._oauth.launch_token.verify_jwt", return_value=claims)
 
     result_token, context = exchange_launch_token(
         "https://example.com/bfabric/",
