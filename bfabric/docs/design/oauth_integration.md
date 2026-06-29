@@ -1,5 +1,8 @@
 # OAuth Integration
 
+> This is a **design / rationale overview**. For exact, current signatures, defer to the API reference
+> and the code in `bfabric/src/bfabric/_oauth/` — method names here may lag the code.
+
 ## Overview
 
 Adds OAuth 2.0 support to bfabricPy. The library can now authenticate via PKCE, device code, client credentials, URL tokens, and personal access tokens — in addition to the existing password-based SOAP auth. All OAuth flows are transparent to downstream code: the SOAP engine receives `BfabricAuth(login="__oauth__", password=<jwt>)` automatically.
@@ -18,7 +21,8 @@ Private module under `bfabric/src/bfabric/_oauth/` implementing all OAuth primit
 | `device_code.py` | `device_code_login()` — RFC 8628 device authorization flow for headless environments. |
 | `registration.py` | `register_client()` — RFC 7591 dynamic client registration via HTTP POST. |
 | `token_cache.py` | `TokenCache` — JSON file cache at `~/.bfabric/tokens/{hash}.json` with 0o600 permissions. `compute_token_cache_path()` derives a unique path from `(base_url, client_id, env_name)`. |
-| `url_token.py` | `UrlTokenContext` + `parse_url_token()` — extracts entity context (entity_id, application_id, etc.) from B-Fabric URL token JWTs. |
+| `url_token.py` | `UrlTokenContext` + `verify_jwt()` — verifies a B-Fabric JWT against the server JWKS and extracts entity context (entity_id, application_id, etc.). |
+| `launch_token.py` | `exchange_launch_token()` — the single RFC 8693 launch-token exchange + local JWT decode to `UrlTokenContext`; shared by `WebappClient` and the public `bfabric.experimental.webapp_oauth` facade. |
 | `webapp_client.py` | `WebappClient` — dual-identity client bundling a `user` (from URL token) and `service` (from client credentials) `Bfabric` instance. |
 
 ---
@@ -31,7 +35,7 @@ Private module under `bfabric/src/bfabric/_oauth/` implementing all OAuth primit
 | `Bfabric.connect_oauth(client_id, client_secret, base_url)` | client_credentials | Service accounts / background jobs. |
 | `Bfabric.connect_pkce(base_url, client_id)` | authorization_code + PKCE | Interactive browser login (programmatic). |
 | `Bfabric.connect_device_code(base_url, client_id)` | device_code | Headless interactive login (programmatic). |
-| `Bfabric.from_url_token(base_url, jwt, refresh_token)` | URL token | Webapps launched from B-Fabric. Returns `(Bfabric, UrlTokenContext)`. |
+| `Bfabric.connect_token(token, settings)` / `connect_token_async(...)` | URL token (validated) | Webapps launched from B-Fabric. Returns `(Bfabric, TokenData)`. |
 | `WebappClient.create(base_url, jwt, ..., client_id, client_secret)` | URL token + client_credentials | Dual-identity webapp client. |
 
 ---

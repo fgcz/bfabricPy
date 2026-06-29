@@ -9,6 +9,15 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+### Added
+
+- Core OAuth primitives for webapp launch-token integrations (foundation for `bfabric_asgi_auth` and other webapp adapters):
+    - `Bfabric.connect_oauth_token` — build a client from an already-exchanged OAuth token via the refresh-token grant (shared builder for webapp integrations and the interactive flows), with an optional `on_token_refresh` callback invoked after each token refresh.
+    - `bfabric.experimental.webapp_oauth.exchange_launch_token` — exchange a short-lived B-Fabric launch JWT for a long-lived access+refresh token pair (RFC 8693) and decode the verified entity context.
+    - `bfabric.experimental.webapp_oauth_settings` — `OAuthClientCredentials` and `WebappOAuthSettings` configuration models for OAuth webapp deployments.
+    - `OAuthCredentialProvider` accepts an optional `on_token_update` callback (per-process; deliberately not preserved across pickle).
+    - `bfabric._oauth.url_token.verify_jwt` accepts optional `audience`/`issuer` arguments to validate the `aud`/`iss` claims (defaults preserve the previous behavior of not validating them).
+
 ## \[1.20.0rc1\] - 2026-06-23
 
 ### Added
