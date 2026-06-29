@@ -124,6 +124,7 @@ class OAuthCredentialProvider:
         """
         token = self._session.token  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
         if token:
+            self._strip_unusable_refresh_token()
             # Let authlib check expiry + refresh/re-fetch as appropriate (operates on self.token).
             logger.debug("Ensuring token is active (refresh if needed)")
             self._session.ensure_active_token()  # pyright: ignore[reportUnknownMemberType]
@@ -132,7 +133,29 @@ class OAuthCredentialProvider:
             logger.debug("No token present, fetching initial token")
             token_endpoint: str | None = self._session.metadata.get("token_endpoint")  # pyright: ignore[reportAny]
             self._session.fetch_token(token_endpoint)  # pyright: ignore[reportUnknownMemberType]
+            self._strip_unusable_refresh_token()
             self._persist()
+
+    def _strip_unusable_refresh_token(self) -> None:
+        """Drop the ``refresh_token`` from a client-credentials session token.
+
+        authlib's :meth:`ensure_active_token` prefers the refresh-token grant whenever the
+        token dict carries a ``refresh_token`` key, *regardless of grant type* (see
+        ``authlib.oauth2.client.OAuth2Client.ensure_active_token``: it checks ``refresh_token``
+        before the ``client_credentials`` branch). Some B-Fabric token endpoints return a
+        ``refresh_token`` alongside a client-credentials access token. Honoring it means that
+        once the refresh token expires — it has its own, shorter lifetime — every call fails with
+        ``invalid_grant`` and the session never falls back to re-fetching with the client secret,
+        wedging the provider until the process restarts. For ``client_credentials`` we therefore
+        strip any ``refresh_token`` so authlib always re-fetches a brand-new token on expiry.
+
+        Must be called while holding ``self._lock``.
+        """
+        if self._grant_type != "client_credentials":
+            return
+        token = self._session.token  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+        if token and token.get("refresh_token"):  # pyright: ignore[reportUnknownMemberType]
+            token.pop("refresh_token", None)  # pyright: ignore[reportUnknownMemberType]
 
     def _on_token_update(self, _new_token: dict[str, object], **_kwargs: object) -> None:
         """Callback invoked by authlib after a token refresh/re-fetch."""
