@@ -30,6 +30,38 @@ inputs:
     filename: test.zip
 ```
 
+### HTTP transport (optional)
+
+By default a `bfabric_resource` is copied from its storage host over SSH (rsync/scp), which needs
+SSH/NFS access to that host. You can instead fetch it over HTTP with `access: http`:
+
+```yaml
+inputs:
+  - type: bfabric_resource
+    id: 2700958
+    filename: test.zip
+    access: http        # default is "ssh"
+```
+
+HTTP is portable (works anywhere with web access, no SSH keys) but slower, so it is an add-on rather
+than a replacement. It requires an **OAuth-backed client whose token carries the `containers` scope**
+(the default `bfabric-cli` scope does not) — with an ordinary config-file (login+password) client
+there is no bearer token and `access: http` fails with a clear error. See the
+`_http_input_transport` design note for details and current limitations.
+
+The generic `file` input also accepts an HTTP source, always fetched anonymously (the bearer token is
+only ever sent to storage-derived URLs):
+
+```yaml
+inputs:
+  - type: file
+    source:
+      http:
+        url: https://example.org/data/reference.fasta
+    filename: reference.fasta
+    checksum: <md5>     # optional; verified after download
+```
+
 ## Commands
 
 ### Validation
