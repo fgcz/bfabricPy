@@ -75,31 +75,46 @@ Key identity difference: **client_credentials tokens carry no user `sub` and no 
 like `containers`.** If a resource server authorizes by *your* container membership, a service
 token won't do — you need a user flow (PKCE or device code).
 
-`DEFAULT_OAUTH_SCOPE` is `"api:read api:write openid profile email groups"` — note it does **not**
-include `containers` or `download`. Pass `scope=` explicitly when you need those.
+`DEFAULT_OAUTH_SCOPE` is `"api:read api:write openid profile email groups"` — it **includes
+`groups`** (the employee file-access path, see below) but not `containers` or `download`.
 
 ---
 
 ## 4. Scopes and claims that gate resource access
 
 Resource servers gate on *claims*, and claims come from *scopes the client is authorized for*.
+File/download access is authorized by **container membership**, which a token can convey two ways:
 
-- The **file/download server authorizes by the `containers` claim** — the list of container IDs the
-  user may access, e.g. `["22", "300", "403"]`. A token without a `containers` claim cannot access
-  files even though it works fine for the SOAP/REST API.
-- The `containers` claim is produced either by requesting the **`containers` scope**, or by a client
-  configured with **"Always Include Claims → containers"** (the latter injects it regardless of the
-  requested scope — this is why a working token can show `containers` while its `scope` string does
-  not list it).
-- **A server only grants scopes the client is registered for; others are silently dropped.** So
-  requesting `containers` on a client that isn't allowed it yields a token *without* the claim and
-  no error.
-- **`bfabric-cli` (the default client) is not authorized for `containers`.** So the default
-  `connect_pkce()` cannot produce a download-capable token. Options: (a) have `containers` added to
-  the `bfabric-cli` client's allowed scopes, or (b) use a dedicated client that is authorized for
-  `containers`.
+- the **`containers` claim** — an explicit list of container IDs, e.g. `["22", "300", "403"]`; or
+- the **`groups` claim** — group membership. **For an employee, the `groups` claim (which includes
+  the `employee` group) grants file access** without needing per-container IDs.
+
+> **Employees: request the `groups` scope — this is the practical PKCE path.**
+> The **`containers` scope cannot be requested via PKCE** (it is restricted; the server silently
+> drops it — which is exactly why requesting `containers` in an interactive flow yields a token
+> *without* the claim and no error). **`groups`, however, is requestable and is already in
+> `DEFAULT_OAUTH_SCOPE`.** So an employee gets file access from a normal user flow as long as
+> `groups` is in the requested scope:
+>
+> ```python
+> client = Bfabric.connect_pkce(
+>     "https://fgcz-bfabric-demo.uzh.ch/bfabric",
+>     scope="openid profile email api:read api:write groups",
+> )
+> ```
+>
+> This works with the default `bfabric-cli` client — no dedicated client needed.
+
+Other notes:
+
+- **A server only grants scopes the client is registered for; others are silently dropped** with no
+  error. `bfabric-cli` is authorized for `groups` but **not** for `containers`.
+- Non-employees who need specific containers rely on the **`containers` claim**, which (since it's
+  not PKCE-requestable) must be supplied another way — e.g. a client configured with **"Always
+  Include Claims → containers"**, which injects it regardless of requested scope. This is why a
+  working token can carry `containers` even though its `scope` string doesn't list it.
 - The `download` scope exists but was **not** required for file access in testing — the
-  discriminator was the `containers` claim, not the `download` scope.
+  discriminator was container membership (`groups` for employees, else `containers`), not `download`.
 
 ### Diagnostic: decode a token locally
 
@@ -198,12 +213,15 @@ private and may change.
 ## 7. Quick decision tree
 
 - **Need a token for the SOAP/REST API only?** Any flow works; `client.auth.password.get_secret_value()`.
-- **Need to download files / hit a resource server?** You need the **access token** (not id_token)
-  with the **`containers` claim** → user flow (`connect_pkce`/`connect_device_code`) with a client
-  **authorized for the `containers` scope** (or "Always Include Claims: containers").
+- **Need to download files / hit a resource server as an employee?** Use a user flow
+  (`connect_pkce`/`connect_device_code`) and request the **`groups` scope** — works with the default
+  `bfabric-cli` client. (`containers` is *not* PKCE-requestable; `groups` is, and employee group
+  membership grants file access.)
+- **Need specific containers as a non-employee?** You need the **`containers` claim**, which isn't
+  PKCE-requestable — it must come from a client with "Always Include Claims: containers".
 - **On a remote host / notebook?** `connect_device_code`, not `connect_pkce`.
 - **Getting HTTP 401 at `/rest/oauth/token` after login?** Check the client's grant types
   (`authorization_code` + `refresh_token` enabled?) and whether it's confidential (has a secret →
   `connect_pkce` can't authenticate it). Capture the OAuth `error` body to be sure.
-- **Token works for API but not files?** Decode it — `containers` claim missing, or you're sending
-  the id_token (`aud != bfabric-api`).
+- **Token works for API but not files?** Decode it — no container access (missing `groups` for an
+  employee, else missing `containers`), or you're sending the id_token (`aud != bfabric-api`).
