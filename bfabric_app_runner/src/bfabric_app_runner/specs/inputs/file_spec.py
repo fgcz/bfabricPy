@@ -28,16 +28,33 @@ class FileSourceSsh(BaseModel):
         return self.ssh.path.split("/")[-1]
 
 
+class FileSourceHttpValue(BaseModel):
+    url: str
+    require_auth: bool = False
+    """Whether a bearer token is required (and should be sent) to download this URL.
+
+    Set for URLs derived from a trusted B-Fabric storage access record. Left ``False`` for arbitrary
+    user-supplied URLs, which are downloaded anonymously (the token is never sent to an untrusted host).
+    """
+
+
+class FileSourceHttp(BaseModel):
+    http: FileSourceHttpValue
+
+    def get_filename(self) -> str:
+        return self.http.url.split("?")[0].rstrip("/").split("/")[-1]
+
+
 class FileSpec(BaseModel):
     type: Literal["file"] = "file"
-    source: FileSourceSsh | FileSourceLocal
+    source: FileSourceSsh | FileSourceLocal | FileSourceHttp
     filename: RelativeFilePath | None = None  # TODO we cannot reuse the same type
     link: bool = False
     checksum: str | None = None
 
     @model_validator(mode="after")
-    def validate_no_link_ssh(self) -> Self:
-        if isinstance(self.source, FileSourceSsh) and self.link:
+    def validate_no_link_remote(self) -> Self:
+        if self.link and not isinstance(self.source, FileSourceLocal):
             raise ValueError("Cannot link to a remote file.")
         return self
 
