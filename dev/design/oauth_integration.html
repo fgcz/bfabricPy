@@ -47,7 +47,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'design/oauth_integration';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Resources" href="../resources/index.html" />
+    <link rel="next" title="OAuth Usage &amp; Troubleshooting" href="oauth_usage_and_troubleshooting.html" />
     <link rel="prev" title="bfabric.operations Module Design" href="operations_module.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -190,6 +190,7 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Design Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="operations_module.html"><code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code> Module Design</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">OAuth Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="oauth_usage_and_troubleshooting.html">OAuth Usage &amp; Troubleshooting</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../resources/index.html">Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -376,6 +377,9 @@
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
 <p>Adds OAuth 2.0 support to bfabricPy. The library can now authenticate via PKCE, device code, client credentials, URL tokens, and personal access tokens — in addition to the existing password-based SOAP auth. All OAuth flows are transparent to downstream code: the SOAP engine receives <code class="docutils literal notranslate"><span class="pre">BfabricAuth(login=&quot;__oauth__&quot;,</span> <span class="pre">password=&lt;jwt&gt;)</span></code> automatically.</p>
+<blockquote>
+<div><p>For task-oriented usage and troubleshooting (obtaining a working token, access_token vs id_token, the <code class="docutils literal notranslate"><span class="pre">containers</span></code> claim for file/download access, PKCE gotchas), see <a class="reference internal" href="oauth_usage_and_troubleshooting.html"><span class="std std-doc">OAuth Usage &amp; Troubleshooting</span></a>.</p>
+</div></blockquote>
 </section>
 <hr class="docutils" />
 <section id="new-bfabric-oauth-module">
@@ -389,7 +393,7 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_constants.py</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">DEFAULT_CLIENT_ID</span> <span class="pre">=</span> <span class="pre">&quot;bfabric-cli&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">DEFAULT_OAUTH_SCOPE</span> <span class="pre">=</span> <span class="pre">&quot;api:read</span> <span class="pre">api:write&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">DEFAULT_CLIENT_ID</span> <span class="pre">=</span> <span class="pre">&quot;bfabric-cli&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">DEFAULT_OAUTH_SCOPE</span> <span class="pre">=</span> <span class="pre">&quot;api:read</span> <span class="pre">api:write</span> <span class="pre">openid</span> <span class="pre">profile</span> <span class="pre">email</span> <span class="pre">groups&quot;</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">credential_provider.py</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">OAuthCredentialProvider</span></code> — thread-safe token management with automatic refresh and disk caching. Supports both <code class="docutils literal notranslate"><span class="pre">client_credentials</span></code> and <code class="docutils literal notranslate"><span class="pre">refresh_token</span></code> grant types.</p></td>
@@ -606,11 +610,11 @@ uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </
       </div>
     </a>
     <a class="right-next"
-       href="../resources/index.html"
+       href="oauth_usage_and_troubleshooting.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Resources</p>
+        <p class="prev-next-title">OAuth Usage &amp; Troubleshooting</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

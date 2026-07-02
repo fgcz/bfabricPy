@@ -4,6 +4,8 @@
 
 Adds OAuth 2.0 support to bfabricPy. The library can now authenticate via PKCE, device code, client credentials, URL tokens, and personal access tokens — in addition to the existing password-based SOAP auth. All OAuth flows are transparent to downstream code: the SOAP engine receives `BfabricAuth(login="__oauth__", password=<jwt>)` automatically.
 
+> For task-oriented usage and troubleshooting (obtaining a working token, access_token vs id_token, the `containers` claim for file/download access, PKCE gotchas), see [OAuth Usage & Troubleshooting](oauth_usage_and_troubleshooting.md).
+
 ---
 
 ## New: `bfabric._oauth` module
@@ -12,7 +14,7 @@ Private module under `bfabric/src/bfabric/_oauth/` implementing all OAuth primit
 
 | File | Purpose |
 |------|---------|
-| `_constants.py` | `DEFAULT_CLIENT_ID = "bfabric-cli"`, `DEFAULT_OAUTH_SCOPE = "api:read api:write"` |
+| `_constants.py` | `DEFAULT_CLIENT_ID = "bfabric-cli"`, `DEFAULT_OAUTH_SCOPE = "api:read api:write openid profile email groups"` |
 | `credential_provider.py` | `OAuthCredentialProvider` — thread-safe token management with automatic refresh and disk caching. Supports both `client_credentials` and `refresh_token` grant types. |
 | `pkce.py` | `pkce_login()` — browser-based PKCE flow. Starts a local HTTP server, opens the browser, exchanges the authorization code for tokens. |
 | `device_code.py` | `device_code_login()` — RFC 8628 device authorization flow for headless environments. |
