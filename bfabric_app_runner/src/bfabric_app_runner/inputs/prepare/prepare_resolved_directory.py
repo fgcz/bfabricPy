@@ -13,26 +13,31 @@ def prepare_resolved_directory(
     file: ResolvedDirectory,
     working_dir: Path,
     ssh_user: str | None,
+    bearer_token: str | None = None,
 ) -> None:
     """Prepares the directory specified by the spec."""
     output_path = working_dir / file.filename
     output_path.parent.mkdir(exist_ok=True, parents=True)
 
     if file.extract == "zip":
-        _prepare_zip_archive(file, output_path, ssh_user)
+        _prepare_zip_archive(file, output_path, ssh_user, bearer_token)
     else:
         raise NotImplementedError(f"Extraction type {file.extract} not supported")
 
 
-def _prepare_zip_archive(file: ResolvedDirectory, output_path: Path, ssh_user: str | None) -> None:
+def _prepare_zip_archive(
+    file: ResolvedDirectory, output_path: Path, ssh_user: str | None, bearer_token: str | None = None
+) -> None:
     """Prepare a zip archive by downloading, extracting, and filtering."""
     # Download zip to permanent location in working directory for caching
     zip_path = output_path.parent / f"{output_path.name}.zip"
-    _download_file(file, zip_path, ssh_user)
+    _download_file(file, zip_path, ssh_user, bearer_token)
     _extract_zip_with_filtering(zip_path, output_path, file)
 
 
-def _download_file(file: ResolvedDirectory, zip_path: Path, ssh_user: str | None) -> None:
+def _download_file(
+    file: ResolvedDirectory, zip_path: Path, ssh_user: str | None, bearer_token: str | None = None
+) -> None:
     """Download the file from the specified source using existing file operations."""
     zip_resolved_file = ResolvedFile(
         source=file.source,
@@ -40,7 +45,9 @@ def _download_file(file: ResolvedDirectory, zip_path: Path, ssh_user: str | None
         link=False,
         checksum=None,
     )
-    prepare_resolved_file(file=zip_resolved_file, working_dir=zip_path.parent, ssh_user=ssh_user)
+    prepare_resolved_file(
+        file=zip_resolved_file, working_dir=zip_path.parent, ssh_user=ssh_user, bearer_token=bearer_token
+    )
 
 
 def _extract_zip_with_filtering(zip_path: Path, output_path: Path, file: ResolvedDirectory) -> None:
