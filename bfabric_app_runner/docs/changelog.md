@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
-- `BfabricResourceSpec` gains an `access` field (`"ssh"` default, or `"http"`) to select the transport used to stage a resource. `access: http` streams the file from the storage's HTTP access endpoint (portable — works anywhere with web access, no SSH/NFS), and requires an OAuth-backed client whose bearer token carries the `containers` scope/claim (the default `bfabric-cli` client scope does not — this is a known first-start limitation; in the usual compute-node run the client is config-file login+password and `access: http` fails loud). A new `FileSourceHttp` source type also makes HTTP downloads available via the generic `file` spec, always fetched anonymously (the bearer token is only ever sent to storage-derived URLs, never to a user-supplied one). Resource-derived HTTP downloads are checksum-verified after download (a generic `file` spec is verified only if it declares a `checksum`).
+- `BfabricResourceSpec` gains an `access` field (`ssh`/`http`) selecting the transport used to stage a resource. `access: http` streams the file from the storage's HTTP endpoint instead of rsync/scp — portable, but requires an OAuth-backed client whose token carries the `containers` scope. The generic `file` spec also gained an HTTP source (`FileSourceHttp`), always fetched anonymously. See the input specification docs for details.
 
 ## \[0.6.1\] - 2026-06-11
 

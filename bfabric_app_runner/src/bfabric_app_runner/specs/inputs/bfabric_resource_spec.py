@@ -23,7 +23,7 @@ class BfabricResourceSpec(BaseModel):
     access: Literal["ssh", "http"] = "ssh"
     """Transport used to fetch the file.
 
-    ``ssh`` (default) copies it from the storage host over rsync/scp and requires SSH/NFS access.
-    ``http`` streams it from the storage's HTTP access endpoint; portable (works anywhere with web
-    access) but slower, and requires an OAuth-backed client to provide a bearer token.
+    ``ssh`` copies it from the storage host over rsync/scp and requires SSH/NFS access. ``http``
+    streams it from the storage's HTTP access endpoint; portable (works anywhere with web access)
+    but slower, and requires an OAuth-backed client to provide a bearer token.
     """
