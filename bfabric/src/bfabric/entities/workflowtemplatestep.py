@@ -13,4 +13,4 @@ if TYPE_CHECKING:
 class WorkflowTemplateStep(Entity, UserCreatedMixin):
     ENDPOINT = "workflowtemplatestep"
 
-    workflow_template: HasOne[WorkflowTemplate] = HasOne(bfabric_field="workflowtemplate", optional=True)
+    workflow_template: HasOne[WorkflowTemplate | None] = HasOne(bfabric_field="workflowtemplate", optional=True)

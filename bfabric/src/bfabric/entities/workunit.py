@@ -3,7 +3,7 @@ from __future__ import annotations
 import warnings
 from functools import cached_property
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.has_many import HasMany
@@ -25,7 +25,7 @@ class Workunit(Entity, UserCreatedMixin):
     parameters: HasMany[Parameter] = HasMany(bfabric_field="parameter", optional=True)
     resources: HasMany[Resource] = HasMany(bfabric_field="resource", optional=True)
     input_resources: HasMany[Resource] = HasMany(bfabric_field="inputresource", optional=True)
-    input_dataset: HasOne[Dataset] = HasOne(bfabric_field="inputdataset", optional=True)
+    input_dataset: HasOne[Dataset | None] = HasOne(bfabric_field="inputdataset", optional=True)
     external_jobs: HasMany[ExternalJob] = HasMany(bfabric_field="externaljob", optional=True)
 
     @cached_property
@@ -55,17 +55,17 @@ class Workunit(Entity, UserCreatedMixin):
 
     @cached_property
     def store_output_folder(self) -> Path:
-        """Relative path in the storage for the workunit output."""
-        if self.application is None:
-            raise ValueError("Cannot determine the storage path without an application.")
-        if self.application.storage is None:
-            raise ValueError("Cannot determine the storage path without an application storage configuration.")
+        """Relative path in the storage for the workunit output.
+
+        ``application`` and ``application.storage`` are required relationships; accessing them raises if the
+        workunit has no application or the application has no storage configured.
+        """
         date = self.created_at
         return Path(
             f"{self.application.storage['projectfolderprefix']}{self.container.id}",
             "bfabric",
             self.application.technology_folder_name,
-            path_safe_name(self.application["name"]),
+            path_safe_name(cast("str", self.application["name"])),
             date.strftime("%Y/%Y-%m/%Y-%m-%d/"),
             f"workunit_{self.id}",
         )

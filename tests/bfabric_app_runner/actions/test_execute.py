@@ -360,3 +360,26 @@ def test_register_workflow_step_creates_workflow_and_step(mocker, mock_client, m
         mocker.call("workflowstep", expected_workflowstep),
     ]
     mock_client.save.assert_has_calls(expected_save_calls)
+
+
+def test_register_workflow_step_raises_when_step_not_found(mocker, mock_client, mock_workunit_definition):
+    """A misconfigured step id must abort (raise), not silently skip and let the workunit finalize."""
+    mock_wts_find = mocker.patch("bfabric_app_runner.actions.execute.WorkflowTemplateStep.find")
+    mock_wts_find.return_value = None
+
+    with pytest.raises(ValueError, match="workflow_template_step_id=789"):
+        _register_workflow_step(789, mock_workunit_definition, mock_client)
+
+    mock_client.save.assert_not_called()
+
+
+def test_register_workflow_step_raises_when_no_workflow_template(mocker, mock_client, mock_workunit_definition):
+    """A step whose workflow template is absent must abort (raise), not create a step against None."""
+    mock_workflow_template_step = mocker.Mock(id=789, workflow_template=None)
+    mock_wts_find = mocker.patch("bfabric_app_runner.actions.execute.WorkflowTemplateStep.find")
+    mock_wts_find.return_value = mock_workflow_template_step
+
+    with pytest.raises(ValueError, match="has no workflow template"):
+        _register_workflow_step(789, mock_workunit_definition, mock_client)
+
+    mock_client.save.assert_not_called()

@@ -15,12 +15,7 @@ def report_resource(client: Bfabric, resource_id: int) -> ResultContainer:
 
     pprint(resource, indent_guides=False)
 
-    if resource.storage is None:
-        # TODO is this possible for a resource to not have a storage?
-        logger.error("Resource does not have a storage")
-        # TODO add the error?
-        return ResultContainer([], total_pages_api=None, errors=[])
-
+    # storage is a required relationship: resource.storage raises if the resource has no storage.
     filename = resource.storage_absolute_path
     logger.info("Testing file: {}", filename)
     if filename.is_file():

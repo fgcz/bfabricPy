@@ -1,6 +1,6 @@
 from __future__ import annotations
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import mako.template
 from loguru import logger
@@ -19,7 +19,7 @@ class WrapAppYamlTemplate:
 
         @classmethod
         def extract_workunit(cls, workunit: Workunit, scratch_root: Path) -> WrapAppYamlTemplate.Params:
-            app_yaml_path = workunit.application.executable["program"]
+            app_yaml_path = cast("str", workunit.application.executable["program"])
             return cls(
                 workunit_id=workunit.id,
                 app_yaml_path=app_yaml_path,

@@ -2828,24 +2828,6 @@
                 }
             }
         ],
-        "./bfabric_scripts/src/bfabric_scripts/feeder/report.py": [
-            {
-                "code": "reportUnknownMemberType",
-                "range": {
-                    "startColumn": 7,
-                    "endColumn": 23,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportAttributeAccessIssue",
-                "range": {
-                    "startColumn": 16,
-                    "endColumn": 23,
-                    "lineCount": 1
-                }
-            }
-        ],
         "./bfabric_scripts/src/bfabric_scripts/fgcz_maxquant_scaffold-wrapper.py": [
             {
                 "code": "reportMissingTypeStubs",
