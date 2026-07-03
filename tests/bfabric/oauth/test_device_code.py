@@ -315,7 +315,7 @@ class TestDeviceCodeLogin:
 
         mock_request.assert_called_once_with(
             "https://example.com/bfabric",
-            client_id="bfabric-cli",
+            client_id="CLI",
             scope=DEFAULT_OAUTH_SCOPE,
         )
         assert mock_poll.call_args[0][0] == "https://example.com/bfabric"

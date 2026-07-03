@@ -49,7 +49,7 @@ class WebappClient:
         :param launch_token: The short-lived JWT from the URL ``jwt`` parameter
         :param client_id: OAuth client ID for the webapp
         :param client_secret: OAuth client secret for the webapp
-        :param scope: OAuth scope for the service account (default :data:`~bfabric._oauth.DEFAULT_OAUTH_SCOPE`)
+        :param scope: OAuth scope for the service account
         :param user_token_cache_path: Optional path to cache user tokens on disk
         :param service_token_cache_path: Optional path to cache service tokens on disk
         """

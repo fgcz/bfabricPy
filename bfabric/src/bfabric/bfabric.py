@@ -240,7 +240,7 @@ class Bfabric:
         :param client_id: OAuth client ID (from ``register_client`` or admin setup)
         :param client_secret: OAuth client secret
         :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
-        :param scope: OAuth scope (default ``"api:read api:write"``)
+        :param scope: OAuth scope
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
         from bfabric._oauth.credential_provider import OAuthCredentialProvider
@@ -278,8 +278,8 @@ class Bfabric:
         client uses :class:`OAuthCredentialProvider` for transparent refresh.
 
         :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
-        :param client_id: OAuth client ID (default ``"bfabric-cli"``)
-        :param scope: OAuth scope (default ``"api:read api:write"``)
+        :param client_id: OAuth client ID
+        :param scope: OAuth scope
         :param port: Local port for the callback server (``0`` = auto-assign)
         :param open_browser: Whether to open the authorization URL in the browser
         :param timeout: Seconds to wait for the user to complete login
@@ -332,9 +332,9 @@ class Bfabric:
         where a localhost redirect is not feasible.
 
         :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
-        :param client_id: OAuth client ID (default ``"bfabric-cli"``)
-        :param scope: OAuth scope (default ``"api:read api:write"``)
-        :param timeout: Seconds to wait for the user to authorize (default 600)
+        :param client_id: OAuth client ID
+        :param scope: OAuth scope
+        :param timeout: Seconds to wait for the user to authorize
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
         from bfabric._oauth.credential_provider import OAuthCredentialProvider
@@ -459,7 +459,7 @@ class Bfabric:
             pagination to reach this limit. Set to ``None`` to retrieve all available results.
             Note: results are fetched in blocks of 100.
         :param offset: Number of results to skip before starting to return results.
-        :param check: If ``True`` (default), raises a ``RuntimeError`` if the query fails.
+        :param check: If ``True``, raises a ``RuntimeError`` if the query fails.
         :param return_id_only: If ``True``, only returns entity IDs instead of full data (faster).
         :return: A :class:`ResultContainer` containing the query results.
         """
