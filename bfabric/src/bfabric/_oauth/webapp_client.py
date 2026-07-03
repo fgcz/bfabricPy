@@ -54,43 +54,28 @@ class WebappClient:
         :param service_token_cache_path: Optional path to cache service tokens on disk
         """
         from bfabric.bfabric import Bfabric
-        from bfabric._oauth.credential_provider import OAuthCredentialProvider
-        from bfabric._oauth.token_exchange import exchange_token
-        from bfabric._oauth.url_token import UrlTokenContext, verify_jwt
-        from bfabric.config import BfabricClientConfig
-        from bfabric.config.config_data import ConfigData
+        from bfabric._oauth.launch_token import exchange_launch_token
 
         base_url = base_url.rstrip("/")
-        token_url = f"{base_url}/rest/oauth/token"
 
-        # 1. Exchange the short-lived launch token for access + refresh tokens
-        token_dict = exchange_token(
+        # 1. Exchange the launch token (RFC 8693) and decode the access token to entity context.
+        token_dict, context = exchange_launch_token(
             base_url,
             launch_token,
             client_id=client_id,
             client_secret=client_secret,
         )
 
-        # 2. Decode the access token JWT locally to extract entity claims
-        claims = verify_jwt(base_url, str(token_dict["access_token"]))
-        context = UrlTokenContext.model_validate(claims)
-
-        # 3. Create user client with OAuthCredentialProvider (refresh_token grant)
-        user_provider = OAuthCredentialProvider(
+        # 2. User client: refresh-token grant seeded with the exchanged token.
+        user_client = Bfabric.connect_oauth_token(
+            base_url,
+            token_dict,
             client_id=client_id,
             client_secret=client_secret,
-            token_url=token_url,
-            token=token_dict,
-            grant_type="refresh_token",
             token_cache_path=user_token_cache_path,
         )
-        config = BfabricClientConfig(base_url=base_url)  # pyright: ignore[reportCallIssue]
-        user_client = Bfabric(
-            config_data=ConfigData(client=config, auth=None),
-            _credential_provider=user_provider,
-        )
 
-        # 4. Create service client via connect_oauth (client_credentials grant)
+        # 3. Service client: client-credentials grant.
         service_client = Bfabric.connect_oauth(
             client_id=client_id,
             client_secret=client_secret,

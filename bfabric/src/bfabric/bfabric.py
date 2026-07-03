@@ -42,7 +42,7 @@ from bfabric.utils.cli_integration import DEFAULT_THEME, HostnameHighlighter
 from bfabric.utils.paginator import BFABRIC_QUERY_LIMIT, compute_requested_pages
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Callable, Generator
 
     from pydantic import SecretStr
 
@@ -254,6 +254,51 @@ class Bfabric:
             scope=scope,
             grant_type="client_credentials",
             token_cache_path=token_cache_path,
+        )
+        config = BfabricClientConfig(base_url=base_url)  # pyright: ignore[reportCallIssue]
+        config_data = ConfigData(client=config, auth=None)
+        return cls(config_data=config_data, _credential_provider=provider)
+
+    @classmethod
+    def connect_oauth_token(
+        cls,
+        base_url: str,
+        token: dict[str, object],
+        *,
+        client_id: str,
+        client_secret: str = "",
+        scope: str = DEFAULT_OAUTH_SCOPE,
+        token_cache_path: Path | None = None,
+        on_token_refresh: Callable[[dict[str, object]], None] | None = None,
+    ) -> Bfabric:
+        """Returns a new Bfabric instance that authenticates via OAuth 2.0 refresh-token grant.
+
+        Shared builder for ``connect_pkce`` / ``connect_device_code`` / webapp integrations that
+        already hold a token from an RFC 8693 exchange. The returned client transparently refreshes
+        the access token on expiry.
+
+        :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
+        :param token: Initial token dict (must include ``refresh_token``)
+        :param client_id: OAuth client ID for the webapp
+        :param client_secret: OAuth client secret (may be empty for public clients)
+        :param scope: OAuth scope (default ``DEFAULT_OAUTH_SCOPE``)
+        :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
+        :param on_token_refresh: Callback invoked with the full new token dict after each refresh;
+            fires under the provider lock (fast / non-reentrant); NOT preserved across pickle.
+        """
+        from bfabric._oauth.credential_provider import OAuthCredentialProvider
+
+        base_url = base_url.rstrip("/")
+        token_url = f"{base_url}/rest/oauth/token"
+        provider = OAuthCredentialProvider(
+            client_id=client_id,
+            client_secret=client_secret,
+            token_url=token_url,
+            token=token,
+            grant_type="refresh_token",
+            scope=scope,
+            token_cache_path=token_cache_path,
+            on_token_update=on_token_refresh,
         )
         config = BfabricClientConfig(base_url=base_url)  # pyright: ignore[reportCallIssue]
         config_data = ConfigData(client=config, auth=None)

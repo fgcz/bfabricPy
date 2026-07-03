@@ -679,6 +679,70 @@ class TestConnectDeviceCode:
         assert call_kwargs["token_url"] == "https://example.com/bfabric/rest/oauth/token"
 
 
+class TestConnectOauthToken:
+    def test_creates_instance_with_provider(self, mocker):
+        mocker.patch.object(Bfabric, "_log_version_message")
+        mock_provider_cls = mocker.patch("bfabric._oauth.credential_provider.OAuthCredentialProvider")
+        token = {"access_token": "at", "refresh_token": "rt", "token_type": "Bearer"}
+
+        client = Bfabric.connect_oauth_token(
+            "https://example.com/bfabric",
+            token,
+            client_id="webapp-client",
+        )
+
+        mock_provider_cls.assert_called_once_with(
+            client_id="webapp-client",
+            client_secret="",
+            token_url="https://example.com/bfabric/rest/oauth/token",
+            token=token,
+            grant_type="refresh_token",
+            scope=DEFAULT_OAUTH_SCOPE,
+            token_cache_path=None,
+            on_token_update=None,
+        )
+        assert client._credential_provider == mock_provider_cls.return_value
+        assert client._auth is None
+        assert client.config.base_url == "https://example.com/bfabric/"
+
+    def test_threads_refresh_callback_and_secret(self, mocker):
+        mocker.patch.object(Bfabric, "_log_version_message")
+        mock_provider_cls = mocker.patch("bfabric._oauth.credential_provider.OAuthCredentialProvider")
+        callback = mocker.MagicMock()
+        cache_path = Path("/tmp/webapp_cache.json")
+
+        Bfabric.connect_oauth_token(
+            "https://example.com/bfabric",
+            {"access_token": "at", "refresh_token": "rt"},
+            client_id="webapp-client",
+            client_secret="shhh",
+            scope="api:read",
+            token_cache_path=cache_path,
+            on_token_refresh=callback,
+        )
+
+        call_kwargs = mock_provider_cls.call_args[1]
+        assert call_kwargs["client_secret"] == "shhh"
+        assert call_kwargs["scope"] == "api:read"
+        assert call_kwargs["token_cache_path"] == cache_path
+        # The public on_token_refresh maps onto the provider's on_token_update parameter.
+        assert call_kwargs["on_token_update"] is callback
+
+    def test_strips_trailing_slash(self, mocker):
+        mocker.patch.object(Bfabric, "_log_version_message")
+        mock_provider_cls = mocker.patch("bfabric._oauth.credential_provider.OAuthCredentialProvider")
+
+        client = Bfabric.connect_oauth_token(
+            "https://example.com/bfabric///",
+            {"access_token": "at", "refresh_token": "rt"},
+            client_id="webapp-client",
+        )
+
+        assert client.config.base_url == "https://example.com/bfabric/"
+        call_kwargs = mock_provider_cls.call_args[1]
+        assert call_kwargs["token_url"] == "https://example.com/bfabric/rest/oauth/token"
+
+
 class TestConnectPat:
     def test_creates_instance_with_auth(self, mocker):
         mocker.patch.object(Bfabric, "_log_version_message")
