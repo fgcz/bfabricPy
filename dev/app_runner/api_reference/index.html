@@ -401,6 +401,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#input-specifications">Input Specifications</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#input-types">Input Types</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec"><code class="docutils literal notranslate"><span class="pre">BfabricResourceSpec</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec.access"><code class="docutils literal notranslate"><span class="pre">BfabricResourceSpec.access</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec.check_checksum"><code class="docutils literal notranslate"><span class="pre">BfabricResourceSpec.check_checksum</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec.filename"><code class="docutils literal notranslate"><span class="pre">BfabricResourceSpec.filename</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec.id"><code class="docutils literal notranslate"><span class="pre">BfabricResourceSpec.id</span></code></a></li>
@@ -454,7 +455,8 @@
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.link"><code class="docutils literal notranslate"><span class="pre">FileSpec.link</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.source"><code class="docutils literal notranslate"><span class="pre">FileSpec.source</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.type"><code class="docutils literal notranslate"><span class="pre">FileSpec.type</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_ssh"><code class="docutils literal notranslate"><span class="pre">FileSpec.validate_no_link_ssh</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_remote"><code class="docutils literal notranslate"><span class="pre">FileSpec.validate_no_link_remote</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_user_supplied_auth"><code class="docutils literal notranslate"><span class="pre">FileSpec.validate_no_user_supplied_auth</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.inputs.static_file_spec.StaticFileSpec"><code class="docutils literal notranslate"><span class="pre">StaticFileSpec</span></code></a><ul class="nav section-nav flex-column">
@@ -3623,6 +3625,15 @@ and don’t leave broken environments in the cache if provisioning fails.</p>
 <span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Check Checksum&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;boolean&quot;</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;access&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ssh&quot;</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;enum&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="s2">&quot;ssh&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;http&quot;</span>
+<span class="w">         </span><span class="p">],</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Access&quot;</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">   </span><span class="p">},</span>
 <span class="w">   </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
@@ -3640,6 +3651,7 @@ and don’t leave broken environments in the cache if provisioning fails.</p>
 </dd>
 <dt class="field-even">Fields<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec.access" title="bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec.access"><code class="xref py py-obj docutils literal notranslate"><span class="pre">access</span> <span class="pre">(Literal['ssh',</span> <span class="pre">'http'])</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec.check_checksum" title="bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec.check_checksum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_checksum</span> <span class="pre">(bool)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec.filename" title="bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec.filename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filename</span> <span class="pre">(str</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec.id" title="bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec.id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">id</span> <span class="pre">(int)</span></code></a></p></li>
@@ -3647,6 +3659,15 @@ and don’t leave broken environments in the cache if provisioning fails.</p>
 </ul>
 </dd>
 </dl>
+<dl class="py attribute pydantic_field">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec.access">
+<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">access</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'ssh'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'http'</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ssh'</span></span><a class="headerlink" href="#bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec.access" title="Link to this definition">#</a></dt>
+<dd><p>Transport used to fetch the file.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ssh</span></code> copies it from the storage host over rsync/scp and requires SSH/NFS access. <code class="docutils literal notranslate"><span class="pre">http</span></code>
+streams it from the storage’s HTTP access endpoint; portable (works anywhere with web access)
+but slower, and requires an OAuth-backed client to provide a bearer token.</p>
+</dd></dl>
+
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec.check_checksum">
 <span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">check_checksum</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec.check_checksum" title="Link to this definition">#</a></dt>
@@ -4212,6 +4233,9 @@ parquet file (see <cite>output_dataset_filename</cite>) which contains the origi
 <span class="w">            </span><span class="p">},</span>
 <span class="w">            </span><span class="p">{</span>
 <span class="w">               </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/FileSourceLocal&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/FileSourceHttp&quot;</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">         </span><span class="p">],</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Source&quot;</span>
@@ -4248,6 +4272,44 @@ parquet file (see <cite>output_dataset_filename</cite>) which contains the origi
 <span class="w">      </span><span class="p">}</span>
 <span class="w">   </span><span class="p">},</span>
 <span class="w">   </span><span class="nt">&quot;$defs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;FileSourceHttp&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;http&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/FileSourceHttpValue&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">         </span><span class="p">},</span>
+<span class="w">         </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="s2">&quot;http&quot;</span>
+<span class="w">         </span><span class="p">],</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;FileSourceHttp&quot;</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;FileSourceHttpValue&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Url&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;auth&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                  </span><span class="p">{</span>
+<span class="w">                     </span><span class="nt">&quot;const&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bfabric&quot;</span><span class="p">,</span>
+<span class="w">                     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">                  </span><span class="p">},</span>
+<span class="w">                  </span><span class="p">{</span>
+<span class="w">                     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;null&quot;</span>
+<span class="w">                  </span><span class="p">}</span>
+<span class="w">               </span><span class="p">],</span>
+<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Auth&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">         </span><span class="p">},</span>
+<span class="w">         </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="s2">&quot;url&quot;</span>
+<span class="w">         </span><span class="p">],</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;FileSourceHttpValue&quot;</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span>
+<span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nt">&quot;FileSourceLocal&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">         </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="nt">&quot;local&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -4306,13 +4368,14 @@ parquet file (see <cite>output_dataset_filename</cite>) which contains the origi
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.checksum" title="bfabric_app_runner.specs.inputs.file_spec.FileSpec.checksum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">checksum</span> <span class="pre">(str</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.filename" title="bfabric_app_runner.specs.inputs.file_spec.FileSpec.filename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filename</span> <span class="pre">(str</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.link" title="bfabric_app_runner.specs.inputs.file_spec.FileSpec.link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">link</span> <span class="pre">(bool)</span></code></a></p></li>
-<li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.source" title="bfabric_app_runner.specs.inputs.file_spec.FileSpec.source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source</span> <span class="pre">(bfabric_app_runner.specs.inputs.file_spec.FileSourceSsh</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.inputs.file_spec.FileSourceLocal)</span></code></a></p></li>
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.source" title="bfabric_app_runner.specs.inputs.file_spec.FileSpec.source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source</span> <span class="pre">(bfabric_app_runner.specs.inputs.file_spec.FileSourceSsh</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.inputs.file_spec.FileSourceLocal</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.inputs.file_spec.FileSourceHttp)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.type" title="bfabric_app_runner.specs.inputs.file_spec.FileSpec.type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">type</span> <span class="pre">(Literal['file'])</span></code></a></p></li>
 </ul>
 </dd>
 <dt class="field-even">Validators<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_ssh" title="bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_ssh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_no_link_ssh</span></code></a> » <code class="xref py py-obj docutils literal notranslate"><span class="pre">all</span> <span class="pre">fields</span></code></p></li>
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_remote" title="bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_remote"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_no_link_remote</span></code></a> » <code class="xref py py-obj docutils literal notranslate"><span class="pre">all</span> <span class="pre">fields</span></code></p></li>
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_user_supplied_auth" title="bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_user_supplied_auth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_no_user_supplied_auth</span></code></a> » <code class="xref py py-obj docutils literal notranslate"><span class="pre">all</span> <span class="pre">fields</span></code></p></li>
 </ul>
 </dd>
 </dl>
@@ -4322,7 +4385,8 @@ parquet file (see <cite>output_dataset_filename</cite>) which contains the origi
 <dd><dl class="field-list simple">
 <dt class="field-odd">Validated by<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_ssh" title="bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_ssh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_no_link_ssh</span></code></a></p></li>
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_remote" title="bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_remote"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_no_link_remote</span></code></a></p></li>
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_user_supplied_auth" title="bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_user_supplied_auth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_no_user_supplied_auth</span></code></a></p></li>
 </ul>
 </dd>
 </dl>
@@ -4334,7 +4398,8 @@ parquet file (see <cite>output_dataset_filename</cite>) which contains the origi
 <dd><dl class="field-list simple">
 <dt class="field-odd">Validated by<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_ssh" title="bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_ssh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_no_link_ssh</span></code></a></p></li>
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_remote" title="bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_remote"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_no_link_remote</span></code></a></p></li>
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_user_supplied_auth" title="bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_user_supplied_auth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_no_user_supplied_auth</span></code></a></p></li>
 </ul>
 </dd>
 </dl>
@@ -4346,7 +4411,8 @@ parquet file (see <cite>output_dataset_filename</cite>) which contains the origi
 <dd><dl class="field-list simple">
 <dt class="field-odd">Validated by<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_ssh" title="bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_ssh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_no_link_ssh</span></code></a></p></li>
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_remote" title="bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_remote"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_no_link_remote</span></code></a></p></li>
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_user_supplied_auth" title="bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_user_supplied_auth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_no_user_supplied_auth</span></code></a></p></li>
 </ul>
 </dd>
 </dl>
@@ -4354,11 +4420,12 @@ parquet file (see <cite>output_dataset_filename</cite>) which contains the origi
 
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.inputs.file_spec.FileSpec.source">
-<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">source</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">FileSourceSsh</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">FileSourceLocal</span></span><span class="property"> <span class="pre">[Required]</span></span><a class="headerlink" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.source" title="Link to this definition">#</a></dt>
+<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">source</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">FileSourceSsh</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">FileSourceLocal</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">FileSourceHttp</span></span><span class="property"> <span class="pre">[Required]</span></span><a class="headerlink" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.source" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Validated by<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_ssh" title="bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_ssh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_no_link_ssh</span></code></a></p></li>
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_remote" title="bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_remote"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_no_link_remote</span></code></a></p></li>
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_user_supplied_auth" title="bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_user_supplied_auth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_no_user_supplied_auth</span></code></a></p></li>
 </ul>
 </dd>
 </dl>
@@ -4370,15 +4437,21 @@ parquet file (see <cite>output_dataset_filename</cite>) which contains the origi
 <dd><dl class="field-list simple">
 <dt class="field-odd">Validated by<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_ssh" title="bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_ssh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_no_link_ssh</span></code></a></p></li>
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_remote" title="bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_remote"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_no_link_remote</span></code></a></p></li>
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_user_supplied_auth" title="bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_user_supplied_auth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_no_user_supplied_auth</span></code></a></p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method pydantic_validator">
-<dt class="sig sig-object py" id="bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_ssh">
-<span class="property"><span class="pre">validator</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">validate_no_link_ssh</span></span><span class="autodoc_pydantic_validator_arrow property">&#160; <span class="pre">»</span>&#160; </span><em class="xref py py-obj"><span class="pre">all</span> <span class="pre">fields</span></em><a class="headerlink" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_ssh" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_remote">
+<span class="property"><span class="pre">validator</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">validate_no_link_remote</span></span><span class="autodoc_pydantic_validator_arrow property">&#160; <span class="pre">»</span>&#160; </span><em class="xref py py-obj"><span class="pre">all</span> <span class="pre">fields</span></em><a class="headerlink" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_remote" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method pydantic_validator">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_user_supplied_auth">
+<span class="property"><span class="pre">validator</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">validate_no_user_supplied_auth</span></span><span class="autodoc_pydantic_validator_arrow property">&#160; <span class="pre">»</span>&#160; </span><em class="xref py py-obj"><span class="pre">all</span> <span class="pre">fields</span></em><a class="headerlink" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_user_supplied_auth" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -5137,6 +5210,7 @@ subdirectories containing inputs.yml and writes the result to chunks.yml.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#input-specifications">Input Specifications</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#input-types">Input Types</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec"><code class="docutils literal notranslate"><span class="pre">BfabricResourceSpec</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec.access"><code class="docutils literal notranslate"><span class="pre">BfabricResourceSpec.access</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec.check_checksum"><code class="docutils literal notranslate"><span class="pre">BfabricResourceSpec.check_checksum</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec.filename"><code class="docutils literal notranslate"><span class="pre">BfabricResourceSpec.filename</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec.id"><code class="docutils literal notranslate"><span class="pre">BfabricResourceSpec.id</span></code></a></li>
@@ -5190,7 +5264,8 @@ subdirectories containing inputs.yml and writes the result to chunks.yml.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.link"><code class="docutils literal notranslate"><span class="pre">FileSpec.link</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.source"><code class="docutils literal notranslate"><span class="pre">FileSpec.source</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.type"><code class="docutils literal notranslate"><span class="pre">FileSpec.type</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_ssh"><code class="docutils literal notranslate"><span class="pre">FileSpec.validate_no_link_ssh</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_link_remote"><code class="docutils literal notranslate"><span class="pre">FileSpec.validate_no_link_remote</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.inputs.file_spec.FileSpec.validate_no_user_supplied_auth"><code class="docutils literal notranslate"><span class="pre">FileSpec.validate_no_user_supplied_auth</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.inputs.static_file_spec.StaticFileSpec"><code class="docutils literal notranslate"><span class="pre">StaticFileSpec</span></code></a><ul class="nav section-nav flex-column">

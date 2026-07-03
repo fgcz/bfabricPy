@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Added
+
+- `BfabricResourceSpec` gains an `access` field (`ssh`/`http`) selecting the transport used to stage a resource. `access: http` streams the file from the storage's HTTP endpoint instead of rsync/scp — portable, but requires an OAuth-backed client whose token carries the `containers` scope. The generic `file` spec also gained an HTTP source (`FileSourceHttp`), always fetched anonymously. See the input specification docs for details.
+
 ## \[0.6.1\] - 2026-06-11
 
 ### Changed
