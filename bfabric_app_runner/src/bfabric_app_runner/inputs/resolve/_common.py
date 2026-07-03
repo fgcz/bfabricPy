@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from bfabric.entities import Resource, Storage
 
 
-def get_file_source(resource: Resource) -> FileSourceSsh:
+def get_ssh_file_source(resource: Resource) -> FileSourceSsh:
     """Get the SSH file source for a given resource."""
     return FileSourceSsh(
         ssh=FileSourceSshValue(host=resource.storage["host"], path=str(resource.storage_absolute_path))
