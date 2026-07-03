@@ -144,17 +144,17 @@ def execute_outputs(action: ActionOutputs, client: Bfabric) -> None:
 def _register_workflow_step(
     workflow_template_step_id: int, workunit_definition: WorkunitDefinition, client: Bfabric
 ) -> None:
-    # Load the workflow template step
+    # Load the workflow template step. A misconfigured step id (or a step without a workflow template) is a
+    # hard error: raising here aborts output registration before the workunit is finalized to 'available',
+    # rather than silently skipping the workflow-step linkage.
     workflow_template_step = WorkflowTemplateStep.find(id=workflow_template_step_id, client=client)
     if not workflow_template_step:
-        logger.error(f"Misconfigured {workflow_template_step_id=}, cannot find it in the database.")
-        return
+        raise ValueError(f"Misconfigured workflow_template_step_id={workflow_template_step_id!r}: not found.")
 
     # Find or create the workflow entity
     workflow_template = workflow_template_step.workflow_template
     if workflow_template is None:
-        logger.error(f"Workflow template step {workflow_template_step_id} has no workflow template, skipping.")
-        return
+        raise ValueError(f"Workflow template step {workflow_template_step_id} has no workflow template.")
     workflow = _find_or_create_workflow(
         workflow_template=workflow_template,
         workunit_definition=workunit_definition,

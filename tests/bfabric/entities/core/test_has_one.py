@@ -30,3 +30,9 @@ def test_get_when_not_exists(entity, mocker, optional):
         assert str(err.value) == "Field 'test_field' is required"
     else:
         assert entity.field is None
+
+
+def test_get_on_class_raises(entity):
+    # Accessing the descriptor on the class (obj is None) is not supported and must not read refs.
+    with pytest.raises(AttributeError):
+        _ = type(entity).field

@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
-- `_register_workflow_step` now skips (with a logged error) when a workflow template step has no workflow template, instead of failing with an `AttributeError` on `None`.
+- `_register_workflow_step` now raises a clear error when the configured workflow template step is missing or has no workflow template, instead of crashing with an `AttributeError` on `None` (missing template) or logging-and-skipping (missing step). Both cases abort output registration before the workunit is finalized to `available`, so the misconfiguration surfaces instead of leaving a finalized workunit with no workflow-step linkage.
 
 ## \[0.6.1\] - 2026-06-11
 

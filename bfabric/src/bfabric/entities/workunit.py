@@ -3,7 +3,7 @@ from __future__ import annotations
 import warnings
 from functools import cached_property
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.has_many import HasMany
@@ -65,7 +65,7 @@ class Workunit(Entity, UserCreatedMixin):
             f"{self.application.storage['projectfolderprefix']}{self.container.id}",
             "bfabric",
             self.application.technology_folder_name,
-            path_safe_name(str(self.application["name"])),
+            path_safe_name(cast("str", self.application["name"])),
             date.strftime("%Y/%Y-%m/%Y-%m-%d/"),
             f"workunit_{self.id}",
         )
