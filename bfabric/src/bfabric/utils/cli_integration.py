@@ -23,7 +23,7 @@ def use_client(fn: Callable[..., T], setup_logging: bool = True) -> Callable[...
     """Decorator that injects a Bfabric client into a function.
 
     The client is automatically created using default configuration if not provided.
-    If setup_logging is True (default), logging is set up using setup_script_logging.
+    If setup_logging is True, logging is set up using setup_script_logging.
 
     The decorator removes the 'client' parameter from the function signature and injects
     two optional keyword parameters into every decorated command:

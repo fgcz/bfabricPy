@@ -240,7 +240,7 @@ class Bfabric:
         :param client_id: OAuth client ID (from ``register_client`` or admin setup)
         :param client_secret: OAuth client secret
         :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
-        :param scope: OAuth scope (default ``"api:read api:write"``)
+        :param scope: OAuth scope
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
         from bfabric._oauth.credential_provider import OAuthCredentialProvider
@@ -459,7 +459,7 @@ class Bfabric:
             pagination to reach this limit. Set to ``None`` to retrieve all available results.
             Note: results are fetched in blocks of 100.
         :param offset: Number of results to skip before starting to return results.
-        :param check: If ``True`` (default), raises a ``RuntimeError`` if the query fails.
+        :param check: If ``True``, raises a ``RuntimeError`` if the query fails.
         :param return_id_only: If ``True``, only returns entity IDs instead of full data (faster).
         :return: A :class:`ResultContainer` containing the query results.
         """
