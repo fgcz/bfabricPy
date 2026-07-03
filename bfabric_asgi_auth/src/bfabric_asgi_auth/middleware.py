@@ -53,12 +53,12 @@ class BfabricAuthMiddleware:
 
         :param app: The ASGI application to wrap
         :param token_validator: Token validator instance
-        :param landing_path: URL path for landing page (default: /landing)
-        :param hooks: Authentication hooks for customizing behavior (default: None)
-        :param token_param: Query parameter name for token (default: token)
-        :param authenticated_path: Path to redirect to after successful authentication (default: /)
-        :param logout_path: URL path for logout (default: /logout)
-        :param renderer: Response renderer for customizing error/success pages (default: HTMLRenderer)
+        :param landing_path: URL path for landing page
+        :param hooks: Authentication hooks for customizing behavior
+        :param token_param: Query parameter name for token
+        :param authenticated_path: Path to redirect to after successful authentication
+        :param logout_path: URL path for logout
+        :param renderer: Response renderer for customizing error/success pages (``None`` uses ``HTMLRenderer``)
         """
         self.app: ASGI3Application = app
         self.token_validator: TokenValidatorStrategy = token_validator

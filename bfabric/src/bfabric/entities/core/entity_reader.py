@@ -187,7 +187,7 @@ class EntityReader:
             entity_type: B-Fabric entity type to query
             obj: Dictionary of search criteria (e.g., ``{"name": "MySample"}``)
             bfabric_instance: B-Fabric instance URL (defaults to client's configured instance)
-            max_results: Maximum number of results to return (default: 100, None for all)
+            max_results: Maximum number of results to return (``None`` for all)
             expected_type: Entity class to validate and cast all results
 
         Returns:

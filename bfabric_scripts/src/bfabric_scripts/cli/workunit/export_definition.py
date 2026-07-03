@@ -12,7 +12,7 @@ def cmd_workunit_export_definition(workunit_id: int, target_path: Path | None = 
     """Exports a workunit_definition.yml file for the specified workunit.
 
     :param workunit_id: the workunit ID
-    :param target_path: the target path for the workunit_definition.yml file (default: workunit_definition.yml)
+    :param target_path: the target path for the workunit_definition.yml file (``None`` = ``workunit_definition.yml``)
     """
     target_path = target_path if target_path is not None else Path("workunit_definition.yml")
     workunit_definition = WorkunitDefinition.from_ref(workunit_id, client=client)
