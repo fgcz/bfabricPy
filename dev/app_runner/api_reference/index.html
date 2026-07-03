@@ -3918,14 +3918,14 @@ and don’t leave broken environments in the cache if provisioning fails.</p>
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.inputs.bfabric_resource_dataset.BfabricResourceDatasetSpec">
 <span class="property"><span class="pre">pydantic</span> <span class="pre">model</span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric_app_runner.specs.inputs.bfabric_resource_dataset.</span></span><span class="sig-name descname"><span class="pre">BfabricResourceDatasetSpec</span></span><a class="headerlink" href="#bfabric_app_runner.specs.inputs.bfabric_resource_dataset.BfabricResourceDatasetSpec" title="Link to this definition">#</a></dt>
 <dd><p>Spec to download all resources listed in a B-Fabric dataset to a folder.</p>
-<p>This requires a column (“Resource” by default) referring to the resource IDs in B-Fabric.</p>
+<p>This requires a column (see <cite>column</cite>) referring to the resource IDs in B-Fabric.</p>
 <p>The output will be saved to a folder (specified by <cite>filename</cite>), containing the selected files, as well as a
-parquet file (by default <cite>dataset.parquet</cite>) which contains the original dataset and an additional column
-(by default “File”) which contains the file names to identify the files.</p>
+parquet file (see <cite>output_dataset_filename</cite>) which contains the original dataset and an additional column
+(see <cite>output_dataset_file_column</cite>) which contains the file names to identify the files.</p>
 <p><details  class="autodoc_pydantic_collapsable_json">
 <summary>Show JSON schema</summary><div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
 <span class="w">   </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;BfabricResourceDatasetSpec&quot;</span><span class="p">,</span>
-<span class="w">   </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Spec to download all resources listed in a B-Fabric dataset to a folder.\n\nThis requires a column (\&quot;Resource\&quot; by default) referring to the resource IDs in B-Fabric.\n\nThe output will be saved to a folder (specified by `filename`), containing the selected files, as well as a\nparquet file (by default `dataset.parquet`) which contains the original dataset and an additional column\n(by default \&quot;File\&quot;) which contains the file names to identify the files.&quot;</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Spec to download all resources listed in a B-Fabric dataset to a folder.\n\nThis requires a column (see `column`) referring to the resource IDs in B-Fabric.\n\nThe output will be saved to a folder (specified by `filename`), containing the selected files, as well as a\nparquet file (see `output_dataset_filename`) which contains the original dataset and an additional column\n(see `output_dataset_file_column`) which contains the file names to identify the files.&quot;</span><span class="p">,</span>
 <span class="w">   </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
 <span class="w">   </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
