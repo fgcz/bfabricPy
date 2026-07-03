@@ -32,3 +32,18 @@ def test_file_spec_rejects_link_for_http_source():
 def test_file_spec_allows_link_for_local_source():
     spec = FileSpec(source=FileSourceLocal(local="/tmp/f.txt"), filename="f.txt", link=True)
     assert spec.link is True
+
+
+def test_file_spec_rejects_user_supplied_auth():
+    with pytest.raises(ValidationError, match="auth"):
+        FileSpec(
+            source=FileSourceHttp(http=FileSourceHttpValue(url="https://host/f.txt", auth="bfabric")),
+            filename="f.txt",
+        )
+
+
+def test_file_spec_accepts_http_source_without_auth():
+    spec = FileSpec(
+        source=FileSourceHttp(http=FileSourceHttpValue(url="https://host/f.txt", auth=None)), filename="f.txt"
+    )
+    assert spec.source.http.auth is None

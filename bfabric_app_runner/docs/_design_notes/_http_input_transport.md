@@ -51,10 +51,11 @@ This is the first use of the `access` endpoint in the codebase.
 ## Trust boundary (security)
 
 - The OAuth token is sent **only** to storage-derived URLs. `auth` on `FileSourceHttp` gates
-  token-sending; it is set `"bfabric"` only by `get_http_file_source` (trusted) and forced `None` for
-  user-authored `file` specs at resolve (`_resolve_file_specs._anonymize_http_source`) — so an `auth`
-  hand-written in an `inputs.yml` can never send the token to an arbitrary host. It is an enum (not a
-  bool) so future credential schemes slot in without a wire-format change.
+  token-sending; it is set `"bfabric"` only by `get_http_file_source` (trusted) and rejected outright
+  for user-authored `file` specs by `FileSpec.validate_no_user_supplied_auth`, which runs on every
+  `FileSpec` construction — so an `auth` hand-written in an `inputs.yml` fails validation instead of
+  being silently dropped, and can never reach a resolver, let alone send the token to an arbitrary
+  host. It is an enum (not a bool) so future credential schemes slot in without a wire-format change.
 - Invariant: the 32-char web-service password is never sent as a bearer (only send when
   `login == "__oauth__"`).
 - httpx strips `Authorization` on cross-origin redirects (defense in depth), covered by

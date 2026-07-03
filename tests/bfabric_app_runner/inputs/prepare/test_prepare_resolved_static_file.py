@@ -35,7 +35,7 @@ def test_prepare_resolved_static_file(fs, mock_logger):
     output_file = working_dir / "test.txt"
     assert output_file.exists()
     assert output_file.read_text() == "test content"
-    mock_logger.info.assert_called_once_with(f"Writen to {output_file}")
+    mock_logger.info.assert_called_once_with(f"Written to {output_file}")
 
 
 def test_prepare_resolved_static_file_nested_path(fs, mock_logger):
@@ -56,7 +56,7 @@ def test_prepare_resolved_static_file_nested_path(fs, mock_logger):
     output_file = nested_dir / "test.txt"
     assert output_file.exists()
     assert output_file.read_text() == "test content"
-    mock_logger.info.assert_called_once_with(f"Writen to {output_file}")
+    mock_logger.info.assert_called_once_with(f"Written to {output_file}")
 
 
 def test_write_file_if_changed_file_does_not_exist(fs, mock_logger):
@@ -72,7 +72,7 @@ def test_write_file_if_changed_file_does_not_exist(fs, mock_logger):
     # Verify the file was created with correct content
     assert path.exists()
     assert path.read_text() == content
-    mock_logger.info.assert_called_once_with(f"Writen to {path}")
+    mock_logger.info.assert_called_once_with(f"Written to {path}")
 
 
 def test_write_file_if_changed_file_exists_with_same_content(fs, mock_logger):
@@ -115,7 +115,7 @@ def test_write_file_if_changed_file_exists_with_different_content(fs, mock_logge
     # Verify modification time changed
     assert path.stat().st_mtime > original_mtime
 
-    mock_logger.info.assert_called_once_with(f"Writen to {path}")
+    mock_logger.info.assert_called_once_with(f"Written to {path}")
 
 
 def test_write_file_if_changed_path_exists_but_not_file(fs):
@@ -143,7 +143,7 @@ def test_write_file_if_changed_binary_content(fs, mock_logger):
     # Verify the file was created with correct content
     assert path.exists()
     assert path.read_bytes() == content
-    mock_logger.info.assert_called_once_with(f"Writen to {path}")
+    mock_logger.info.assert_called_once_with(f"Written to {path}")
 
 
 def test_write_file_if_changed_binary_content_same_content(fs, mock_logger):

@@ -35,8 +35,11 @@ class FileSourceHttpValue(BaseModel):
 
     ``"bfabric"`` is set only for URLs derived from a trusted B-Fabric storage access record; the
     B-Fabric OAuth bearer token is sent. ``None`` downloads anonymously — used for arbitrary
-    user-supplied URLs, so the token is never sent to an untrusted host. Modelled as an enum rather
-    than a boolean so further credential schemes can be added without changing the wire format.
+    user-supplied URLs, so the token is never sent to an untrusted host. A ``file`` spec that sets
+    ``auth`` itself fails validation (see ``FileSpec.validate_no_user_supplied_auth``) rather than
+    having it silently dropped, so a mistaken ``auth: bfabric`` in an ``inputs.yml`` fails loud.
+    Modelled as an enum rather than a boolean so further credential schemes can be added without
+    changing the wire format.
     """
 
 
@@ -58,6 +61,15 @@ class FileSpec(BaseModel):
     def validate_no_link_remote(self) -> Self:
         if self.link and not isinstance(self.source, FileSourceLocal):
             raise ValueError("Cannot link to a remote file.")
+        return self
+
+    @model_validator(mode="after")
+    def validate_no_user_supplied_auth(self) -> Self:
+        if isinstance(self.source, FileSourceHttp) and self.source.http.auth is not None:
+            raise ValueError(
+                "'auth' is reserved for B-Fabric storage-derived URLs and cannot be set on a user-authored "
+                "file spec; omit it to download the URL anonymously."
+            )
         return self
 
     def get_filename(self) -> str:
