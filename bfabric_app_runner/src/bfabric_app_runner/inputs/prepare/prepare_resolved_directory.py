@@ -5,34 +5,31 @@ from pathlib import Path
 from loguru import logger
 
 from bfabric_app_runner.inputs._filter_files import filter_files
+from bfabric_app_runner.inputs.prepare.prepare_context import PrepareContext
 from bfabric_app_runner.inputs.prepare.prepare_resolved_file import prepare_resolved_file
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedDirectory, ResolvedFile
 
 
-def prepare_resolved_directory(
-    file: ResolvedDirectory,
-    working_dir: Path,
-    ssh_user: str | None,
-) -> None:
+def prepare_resolved_directory(file: ResolvedDirectory, working_dir: Path, context: PrepareContext) -> None:
     """Prepares the directory specified by the spec."""
     output_path = working_dir / file.filename
     output_path.parent.mkdir(exist_ok=True, parents=True)
 
     if file.extract == "zip":
-        _prepare_zip_archive(file, output_path, ssh_user)
+        _prepare_zip_archive(file, output_path, context)
     else:
         raise NotImplementedError(f"Extraction type {file.extract} not supported")
 
 
-def _prepare_zip_archive(file: ResolvedDirectory, output_path: Path, ssh_user: str | None) -> None:
+def _prepare_zip_archive(file: ResolvedDirectory, output_path: Path, context: PrepareContext) -> None:
     """Prepare a zip archive by downloading, extracting, and filtering."""
     # Download zip to permanent location in working directory for caching
     zip_path = output_path.parent / f"{output_path.name}.zip"
-    _download_file(file, zip_path, ssh_user)
+    _download_file(file, zip_path, context)
     _extract_zip_with_filtering(zip_path, output_path, file)
 
 
-def _download_file(file: ResolvedDirectory, zip_path: Path, ssh_user: str | None) -> None:
+def _download_file(file: ResolvedDirectory, zip_path: Path, context: PrepareContext) -> None:
     """Download the file from the specified source using existing file operations."""
     zip_resolved_file = ResolvedFile(
         source=file.source,
@@ -40,7 +37,7 @@ def _download_file(file: ResolvedDirectory, zip_path: Path, ssh_user: str | None
         link=False,
         checksum=None,
     )
-    prepare_resolved_file(file=zip_resolved_file, working_dir=zip_path.parent, ssh_user=ssh_user)
+    prepare_resolved_file(file=zip_resolved_file, working_dir=zip_path.parent, context=context)
 
 
 def _extract_zip_with_filtering(zip_path: Path, output_path: Path, file: ResolvedDirectory) -> None:

@@ -5,14 +5,14 @@ from collections import defaultdict
 from typing import Annotated, Literal, Self
 
 from bfabric_app_runner.specs.common_types import RelativeFilePath  # noqa: TC001
-from bfabric_app_runner.specs.inputs.file_spec import FileSourceSsh, FileSourceLocal  # noqa: TC001
+from bfabric_app_runner.specs.inputs.file_spec import FileSourceSsh, FileSourceLocal, FileSourceHttp  # noqa: TC001
 from pydantic import BaseModel, Field, model_validator
 
 
 class ResolvedFile(BaseModel):
     type: Literal["resolved_file"] = "resolved_file"
     filename: RelativeFilePath
-    source: FileSourceSsh | FileSourceLocal
+    source: FileSourceSsh | FileSourceLocal | FileSourceHttp
     # TODO later, we should consider if it would make sense to split linking into a separate class
     link: bool
     checksum: str | None
@@ -27,6 +27,9 @@ class ResolvedStaticFile(BaseModel):
 class ResolvedDirectory(BaseModel):
     type: Literal["resolved_directory"] = "resolved_directory"
     filename: RelativeFilePath
+    # HTTP directory staging is not implemented yet (archive specs resolve to SSH), so it is
+    # intentionally excluded here; re-add FileSourceHttp together with an end-to-end test when
+    # archive-over-HTTP is wired.
     source: FileSourceSsh | FileSourceLocal
     extract: None | Literal["zip"] = None
     include_patterns: list[str] = []

@@ -8,7 +8,7 @@ import polars as pl
 
 from bfabric.entities import Dataset, Resource
 from bfabric_app_runner.inputs._filter_files import filter_dataframe
-from bfabric_app_runner.inputs.resolve._common import get_file_source
+from bfabric_app_runner.inputs.resolve._common import get_ssh_file_source
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedFile, ResolvedStaticFile
 
 if TYPE_CHECKING:
@@ -94,7 +94,7 @@ class ResolveBfabricResourceDatasetSpecs:
                 "tmp_resource_filename": r.filename,
                 "tmp_resource_checksum": r["filechecksum"],
                 "tmp_resource_relative_path": r.storage_relative_path,
-                "tmp_resource_source": get_file_source(r),
+                "tmp_resource_source": get_ssh_file_source(r),
             }
             for r in Resource.find_all(ids=resource_ids, client=self._client).values()
         ]

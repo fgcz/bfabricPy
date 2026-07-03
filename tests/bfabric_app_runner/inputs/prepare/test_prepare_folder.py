@@ -1,12 +1,18 @@
 from pathlib import Path
+from typing import Literal
 
 import pytest
+from bfabric.config.bfabric_auth import OAUTH_LOGIN
+from bfabric_app_runner.inputs.prepare.prepare_context import PrepareContext
 from bfabric_app_runner.inputs.prepare.prepare_folder import (
     prepare_folder,
     _prepare_input_files,
     _clean_input_files,
+    _needs_bearer_token,
+    _resolve_bearer_token,
 )
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedInputs, ResolvedFile, ResolvedStaticFile
+from bfabric_app_runner.specs.inputs.file_spec import FileSourceHttp, FileSourceHttpValue, FileSourceLocal
 from bfabric_app_runner.specs.inputs_spec import InputsSpec
 
 
@@ -62,6 +68,7 @@ def test_prepare_folder_prepare_action(mocker, mock_inputs_spec_read_yaml, mock_
     # Mock Resolver and resolved inputs
     mock_resolver_instance = mock_resolver.return_value
     mock_resolved_inputs = mocker.MagicMock(spec=ResolvedInputs)
+    mock_resolved_inputs.files = []
     mock_resolver_instance.resolve.return_value = mock_resolved_inputs
 
     # Mock _prepare_input_files
@@ -81,7 +88,11 @@ def test_prepare_folder_prepare_action(mocker, mock_inputs_spec_read_yaml, mock_
     mock_inputs_spec_read_yaml.assert_called_once_with(inputs_yaml)
     mock_resolver.assert_called_once_with(client=mock_client)
     mock_resolver_instance.resolve.assert_called_once_with(specs=mock_inputs_spec.inputs)
-    mock_prepare.assert_called_once_with(input_files=mock_resolved_inputs, working_dir=target_folder, ssh_user=ssh_user)
+    mock_prepare.assert_called_once_with(
+        input_files=mock_resolved_inputs,
+        working_dir=target_folder,
+        context=PrepareContext(ssh_user=ssh_user, bearer_token=None),
+    )
 
 
 def test_prepare_folder_clean_action(mocker, mock_inputs_spec_read_yaml, mock_resolver):
@@ -158,7 +169,11 @@ def test_prepare_folder_with_filter(mocker, mock_inputs_spec_read_yaml, mock_res
     mock_resolver.assert_called_once_with(client=mock_client)
     mock_resolver_instance.resolve.assert_called_once_with(specs=mock_inputs_spec.inputs)
     mock_resolved_inputs.apply_filter.assert_called_once_with(filter_files=[file_filter])
-    mock_prepare.assert_called_once_with(input_files=mock_filtered_inputs, working_dir=target_folder, ssh_user=None)
+    mock_prepare.assert_called_once_with(
+        input_files=mock_filtered_inputs,
+        working_dir=target_folder,
+        context=PrepareContext(ssh_user=None, bearer_token=None),
+    )
 
 
 def test_prepare_folder_filter_no_match(mocker, mock_inputs_spec_read_yaml, mock_resolver):
@@ -240,6 +255,7 @@ def test_prepare_folder_default_target_folder(mocker, mock_inputs_spec_read_yaml
     # Mock Resolver and resolved inputs
     mock_resolver_instance = mock_resolver.return_value
     mock_resolved_inputs = mocker.MagicMock(spec=ResolvedInputs)
+    mock_resolved_inputs.files = []
     mock_resolver_instance.resolve.return_value = mock_resolved_inputs
 
     # Mock _prepare_input_files
@@ -260,7 +276,9 @@ def test_prepare_folder_default_target_folder(mocker, mock_inputs_spec_read_yaml
     mock_resolver.assert_called_once_with(client=mock_client)
     mock_resolver_instance.resolve.assert_called_once_with(specs=mock_inputs_spec.inputs)
     mock_prepare.assert_called_once_with(
-        input_files=mock_resolved_inputs, working_dir=inputs_yaml.parent, ssh_user=None
+        input_files=mock_resolved_inputs,
+        working_dir=inputs_yaml.parent,
+        context=PrepareContext(ssh_user=None, bearer_token=None),
     )
 
 
@@ -277,14 +295,89 @@ def test_prepare_input_files(mocker, mock_prepare_resolved_file, mock_prepare_re
     mock_resolved_inputs = mocker.MagicMock(spec=ResolvedInputs)
     mock_resolved_inputs.files = [mock_resolved_file, mock_static_file]
 
+    context = PrepareContext(ssh_user=ssh_user, bearer_token="tok")
+
     # Call the function
-    _prepare_input_files(input_files=mock_resolved_inputs, working_dir=working_dir, ssh_user=ssh_user)
+    _prepare_input_files(input_files=mock_resolved_inputs, working_dir=working_dir, context=context)
 
     # Verify
     mock_prepare_resolved_file.assert_called_once_with(
-        file=mock_resolved_file, working_dir=working_dir, ssh_user=ssh_user
+        file=mock_resolved_file, working_dir=working_dir, context=context
     )
     mock_prepare_resolved_static_file.assert_called_once_with(file=mock_static_file, working_dir=working_dir)
+
+
+def _http_resolved(url: str, auth: Literal["bfabric"] | None) -> ResolvedFile:
+    return ResolvedFile(
+        source=FileSourceHttp(http=FileSourceHttpValue(url=url, auth=auth)),
+        filename="x.txt",
+        link=False,
+        checksum=None,
+    )
+
+
+def test_needs_bearer_token_true_when_auth_http_present():
+    inputs = ResolvedInputs(
+        files=[
+            ResolvedFile(source=FileSourceLocal(local="/a.txt"), filename="a.txt", link=False, checksum=None),
+            _http_resolved("https://host/x", auth="bfabric"),
+        ]
+    )
+    assert _needs_bearer_token(inputs) is True
+
+
+def test_needs_bearer_token_false_for_anonymous_http_and_non_http():
+    inputs = ResolvedInputs(
+        files=[
+            ResolvedFile(source=FileSourceLocal(local="/a.txt"), filename="a.txt", link=False, checksum=None),
+            _http_resolved("https://host/x", auth=None),
+        ]
+    )
+    assert _needs_bearer_token(inputs) is False
+
+
+def test_prepare_folder_skips_token_when_no_http(mocker, mock_inputs_spec_read_yaml, mock_resolver):
+    # An OAuth token fetch must not be triggered (nor crash prepare) when no HTTP input needs it.
+    mock_client = mocker.MagicMock()
+    mock_resolve_token = mocker.patch("bfabric_app_runner.inputs.prepare.prepare_folder._resolve_bearer_token")
+    mocker.patch("bfabric_app_runner.inputs.prepare.prepare_folder._prepare_input_files")
+
+    mock_inputs_spec_read_yaml.return_value = mocker.MagicMock()
+    resolved = ResolvedInputs(
+        files=[ResolvedFile(source=FileSourceLocal(local="/a.txt"), filename="a.txt", link=False, checksum=None)]
+    )
+    mock_resolver.return_value.resolve.return_value = resolved
+
+    prepare_folder(
+        inputs_yaml=Path("/x/inputs.yml"),
+        target_folder=Path("/x"),
+        client=mock_client,
+        ssh_user=None,
+        filter=None,
+        action="prepare",
+    )
+
+    mock_resolve_token.assert_not_called()
+
+
+def test_resolve_bearer_token_when_oauth(mocker):
+    mock_client = mocker.MagicMock()
+    mock_client.auth.login = OAUTH_LOGIN
+    mock_client.auth.password.get_secret_value.return_value = "jwt-token"
+    assert _resolve_bearer_token(mock_client) == "jwt-token"
+
+
+def test_resolve_bearer_token_when_password_login(mocker):
+    mock_client = mocker.MagicMock()
+    mock_client.auth.login = "some_user"
+    assert _resolve_bearer_token(mock_client) is None
+    mock_client.auth.password.get_secret_value.assert_not_called()
+
+
+def test_resolve_bearer_token_when_no_auth(mocker):
+    mock_client = mocker.MagicMock()
+    type(mock_client).auth = mocker.PropertyMock(side_effect=ValueError("Authentication not available"))
+    assert _resolve_bearer_token(mock_client) is None
 
 
 def test_clean_input_files(fs, mocker, mock_logger):

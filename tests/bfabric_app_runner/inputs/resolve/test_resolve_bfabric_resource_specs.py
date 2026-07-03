@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_resource_specs import ResolveBfabricResourceSpecs
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedFile
@@ -138,6 +140,44 @@ def test_get_file_spec(resolver, mocker):
     assert result.checksum == "abc123"
     assert result.source.ssh.host == "example.com"
     assert result.source.ssh.path == "/data/path/to/original.txt"
+
+
+def test_get_file_spec_http_access(resolver, mocker, mock_client):
+    mock_spec = mocker.MagicMock(name="mock_spec")
+    mock_spec.access = "http"
+    mock_spec.filename = "renamed.txt"
+    mock_spec.check_checksum = True
+
+    mock_storage = mocker.MagicMock(name="mock_storage", id=7)
+    mock_resource = mocker.MagicMock(name="mock_resource", storage=mock_storage)
+    mock_resource.storage_relative_path = Path("path/to/original.txt")
+    mock_resource.__getitem__.side_effect = lambda key: {"filechecksum": "abc123"}[key]
+
+    mock_client.read.return_value = [{"protocol": "https", "host": "trace.example.com", "basepath": "/data/"}]
+
+    result = resolver._get_file_spec(spec=mock_spec, resource=mock_resource)
+
+    mock_client.read.assert_called_once_with("access", {"storageid": 7, "type": "HTTP"})
+    assert result.filename == "renamed.txt"
+    assert result.checksum == "abc123"
+    assert result.source.http.url == "https://trace.example.com/data/path/to/original.txt"
+    assert result.source.http.auth == "bfabric"
+
+
+def test_get_file_spec_http_access_no_records_raises(resolver, mocker, mock_client):
+    mock_spec = mocker.MagicMock(name="mock_spec")
+    mock_spec.access = "http"
+    mock_spec.filename = "renamed.txt"
+    mock_spec.check_checksum = True
+
+    mock_storage = mocker.MagicMock(name="mock_storage", id=7)
+    mock_resource = mocker.MagicMock(name="mock_resource", storage=mock_storage, id=99)
+    mock_resource.__getitem__.side_effect = lambda key: {"filechecksum": "abc123"}[key]
+
+    mock_client.read.return_value = []
+
+    with pytest.raises(ValueError, match="no HTTP access configured"):
+        resolver._get_file_spec(spec=mock_spec, resource=mock_resource)
 
 
 def test_get_file_spec_no_filename(resolver, mocker):

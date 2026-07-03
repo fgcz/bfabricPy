@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from bfabric_app_runner.inputs.prepare.prepare_context import PrepareContext
 from bfabric_app_runner.inputs.prepare.prepare_resolved_directory import (
     prepare_resolved_directory,
     _download_file,
@@ -50,7 +51,7 @@ def test_prepare_resolved_directory_zip_extraction(temp_zip_file, tmp_path):
         strip_root=False,
     )
 
-    prepare_resolved_directory(directory, tmp_path, ssh_user=None)
+    prepare_resolved_directory(directory, tmp_path, PrepareContext())
 
     # Check that zip file is left in working directory for caching
     zip_file_path = tmp_path / "extracted.zip"
@@ -80,7 +81,7 @@ def test_prepare_resolved_directory_with_strip_root_multiple_dirs(temp_zip_file,
         strip_root=True,
     )
 
-    prepare_resolved_directory(directory, tmp_path, ssh_user=None)
+    prepare_resolved_directory(directory, tmp_path, PrepareContext())
 
     # Check that zip file is left in working directory for caching
     zip_file_path = tmp_path / "extracted.zip"
@@ -117,7 +118,7 @@ def test_prepare_resolved_directory_with_strip_root_single_dir(tmp_path):
             strip_root=True,
         )
 
-        prepare_resolved_directory(directory, tmp_path, ssh_user=None)
+        prepare_resolved_directory(directory, tmp_path, PrepareContext())
 
         # Check that zip file is left in working directory for caching
         zip_file_path = tmp_path / "extracted.zip"
@@ -151,7 +152,7 @@ def test_prepare_resolved_directory_with_include_patterns(temp_zip_file, tmp_pat
         strip_root=False,
     )
 
-    prepare_resolved_directory(directory, tmp_path, ssh_user=None)
+    prepare_resolved_directory(directory, tmp_path, PrepareContext())
 
     # Check that zip file is left in working directory for caching
     zip_file_path = tmp_path / "extracted.zip"
@@ -177,7 +178,7 @@ def test_prepare_resolved_directory_with_exclude_patterns(temp_zip_file, tmp_pat
         strip_root=False,
     )
 
-    prepare_resolved_directory(directory, tmp_path, ssh_user=None)
+    prepare_resolved_directory(directory, tmp_path, PrepareContext())
 
     # Check that zip file is left in working directory for caching
     zip_file_path = tmp_path / "extracted.zip"
@@ -205,7 +206,7 @@ def test_prepare_resolved_directory_unsupported_extract():
     )
 
     with pytest.raises(NotImplementedError, match="Extraction type None not supported"):
-        prepare_resolved_directory(directory, Path("/tmp"), ssh_user=None)
+        prepare_resolved_directory(directory, Path("/tmp"), PrepareContext())
 
 
 def test_download_file_success(mock_prepare_resolved_file, tmp_path):
@@ -220,7 +221,7 @@ def test_download_file_success(mock_prepare_resolved_file, tmp_path):
     )
 
     # Should not raise an exception
-    _download_file(directory, tmp_path / "test.zip", ssh_user=None)
+    _download_file(directory, tmp_path / "test.zip", PrepareContext())
 
     mock_prepare_resolved_file.assert_called_once()
     # Verify the ResolvedFile was created correctly
@@ -246,7 +247,7 @@ def test_download_file_failure(mock_prepare_resolved_file, tmp_path):
 
     # Should raise RuntimeError
     with pytest.raises(RuntimeError, match="Download failed"):
-        _download_file(directory, tmp_path / "test.zip", ssh_user=None)
+        _download_file(directory, tmp_path / "test.zip", PrepareContext())
 
     mock_prepare_resolved_file.assert_called_once()
 
@@ -263,15 +264,15 @@ def test_download_file_ssh_source(mock_prepare_resolved_file, tmp_path):
     )
 
     # Should not raise an exception
-    _download_file(directory, tmp_path / "test.zip", ssh_user="user")
+    _download_file(directory, tmp_path / "test.zip", PrepareContext(ssh_user="user"))
 
     mock_prepare_resolved_file.assert_called_once()
     # Verify the ResolvedFile was created correctly
     call_args = mock_prepare_resolved_file.call_args
     resolved_file = call_args[1]["file"]  # file keyword argument
     assert resolved_file.source == directory.source
-    # ssh_user is passed as keyword argument to prepare_resolved_file
-    assert call_args[1]["ssh_user"] == "user"
+    # the prepare context (carrying ssh_user) is forwarded to prepare_resolved_file
+    assert call_args[1]["context"] == PrepareContext(ssh_user="user")
 
 
 def test_get_output_file_path_no_strip():
@@ -339,7 +340,7 @@ def test_prepare_resolved_directory_subdirectory_filename(temp_zip_file, tmp_pat
         strip_root=False,
     )
 
-    prepare_resolved_directory(directory, tmp_path, ssh_user=None)
+    prepare_resolved_directory(directory, tmp_path, PrepareContext())
 
     # Zip must land at tmp_path/input/result.zip, NOT tmp_path/input/input/result.zip
     assert (tmp_path / "input" / "result.zip").exists()
@@ -363,7 +364,7 @@ def test_caching_behavior_zip_file_reuse(temp_zip_file, tmp_path):
     )
 
     # First extraction
-    prepare_resolved_directory(directory, tmp_path, ssh_user=None)
+    prepare_resolved_directory(directory, tmp_path, PrepareContext())
 
     # Verify zip file exists and extraction worked
     zip_file_path = tmp_path / "cached_extract.zip"
@@ -377,7 +378,7 @@ def test_caching_behavior_zip_file_reuse(temp_zip_file, tmp_path):
 
     # Second extraction (should reuse zip file via rsync caching)
     # For local files, rsync would detect the file is unchanged and skip download
-    prepare_resolved_directory(directory, tmp_path, ssh_user=None)
+    prepare_resolved_directory(directory, tmp_path, PrepareContext())
 
     # Verify zip file still exists and extraction still works
     assert zip_file_path.exists()
