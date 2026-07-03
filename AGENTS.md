@@ -103,6 +103,7 @@ Each package's docs live alongside its source. Skim the index when working in a 
   `mocker.Mock()`, `mocker.mock_open(...)`, etc. (`pytest-mock` is a test dependency in every package.)
 - Ruff linting is currently only enforced on the `bfabric` package (scripts, wrapper_creator, tests, noxfile are excluded via per-file-ignores)
 - Line length: 120 (ruff and black)
+- Do not restate a parameter's default value in its docstring when the signature already shows it (e.g. `client_id: str = DEFAULT_CLIENT_ID`). Writing `(default "CLI")` in the `:param:` line just duplicates the signature and drifts out of sync when the default changes. Keep notes that explain what a value *means* (e.g. `(``0`` = auto-assign)`), not ones that merely repeat it.
 - basedpyright uses per-package baseline files at `.basedpyright/baseline.{package}.json` — **do not edit baseline files to silence new errors**; fix the code or add a targeted `# pyright: ignore[...]` comment on the offending line. Baselines only exist to grandfather in pre-existing errors.
 - Integration tests live in a separate repository
 - Use TDD: write a failing test first, verify it fails, then fix the code, then verify the test passes
