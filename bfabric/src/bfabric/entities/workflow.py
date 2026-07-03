@@ -16,4 +16,4 @@ class Workflow(Entity, UserCreatedMixin):
 
     container: HasOne[Order | Project] = HasOne(bfabric_field="container")
     workflow_steps: HasMany[WorkflowStep] = HasMany(bfabric_field="workflowstep")
-    workflow_template: HasOne[WorkflowTemplate] = HasOne(bfabric_field="workflowtemplate", optional=True)
+    workflow_template: HasOne[WorkflowTemplate | None] = HasOne(bfabric_field="workflowtemplate", optional=True)

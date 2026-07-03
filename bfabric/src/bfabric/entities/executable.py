@@ -10,13 +10,13 @@ from bfabric.entities.core.has_many import HasMany
 from bfabric.entities.core.has_one import HasOne
 
 if TYPE_CHECKING:
-    from bfabric.entities import Parameter
+    from bfabric.entities import Parameter, Storage
 
 
 class Executable(Entity):
     ENDPOINT = "executable"
 
-    storage = HasOne(bfabric_field="storage", optional=True)
+    storage: HasOne[Storage | None] = HasOne(bfabric_field="storage", optional=True)
     parameters: HasMany[Parameter] = HasMany(bfabric_field="parameter", optional=True)
 
     @cached_property

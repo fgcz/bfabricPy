@@ -31,8 +31,6 @@ class WorkunitExecutionDefinition(BaseModel):
     @classmethod
     def from_workunit(cls, workunit: Workunit) -> WorkunitExecutionDefinition:
         """Loads the workunit execution definition from the provided B-Fabric workunit."""
-        if workunit.application is None:
-            raise ValueError("Workunit does not have an application")
         data = {
             "raw_parameters": workunit.application_parameters,
             "dataset": workunit.input_dataset.id if workunit.input_dataset else None,

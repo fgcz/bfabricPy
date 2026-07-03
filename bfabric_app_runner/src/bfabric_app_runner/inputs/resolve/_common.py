@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from bfabric_app_runner.specs.inputs.file_spec import (
     FileSourceHttp,
@@ -11,22 +11,12 @@ from bfabric_app_runner.specs.inputs.file_spec import (
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
-    from bfabric.entities import Resource, Storage
-
-
-def _storage_of(resource: Resource) -> Storage:
-    """Returns the resource's storage entity.
-
-    The single place that works around the ``HasOne`` descriptor typing quirk (see
-    ``bfabric/entities/core/has_one.py``): every ``resource.storage`` access otherwise raises a
-    ``reportAttributeAccessIssue``, so callers here go through this helper instead of casting inline.
-    """
-    return cast("Storage", resource.storage)  # pyright: ignore[reportAttributeAccessIssue]
+    from bfabric.entities import Resource
 
 
 def get_ssh_file_source(resource: Resource) -> FileSourceSsh:
     """Get the SSH file source for a given resource."""
-    storage = _storage_of(resource)
+    storage = resource.storage
     return FileSourceSsh(ssh=FileSourceSshValue(host=str(storage["host"]), path=str(resource.storage_absolute_path)))
 
 
@@ -36,7 +26,7 @@ def get_http_file_source(resource: Resource, client: Bfabric) -> FileSourceHttp:
     Looks up the storage's HTTP access record and builds the download URL. The token is not resolved here;
     it is applied at prepare time (``auth="bfabric"`` marks the URL as needing the B-Fabric bearer token).
     """
-    storage = _storage_of(resource)
+    storage = resource.storage
     records = client.read("access", {"storageid": storage.id, "type": "HTTP"})
     if not records:
         raise ValueError(

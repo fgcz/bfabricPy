@@ -17,7 +17,7 @@ class Resource(Entity):
 
     storage: HasOne[Storage] = HasOne(bfabric_field="storage")
     workunit: HasOne[Workunit] = HasOne(bfabric_field="workunit")
-    sample: HasOne[Sample] = HasOne(bfabric_field="sample", optional=True)
+    sample: HasOne[Sample | None] = HasOne(bfabric_field="sample", optional=True)
 
     @property
     def storage_relative_path(self) -> Path:

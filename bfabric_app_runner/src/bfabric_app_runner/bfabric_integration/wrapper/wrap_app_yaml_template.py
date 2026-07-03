@@ -19,7 +19,7 @@ class WrapAppYamlTemplate:
 
         @classmethod
         def extract_workunit(cls, workunit: Workunit, scratch_root: Path) -> WrapAppYamlTemplate.Params:
-            app_yaml_path = workunit.application.executable["program"]
+            app_yaml_path = str(workunit.application.executable["program"])
             return cls(
                 workunit_id=workunit.id,
                 app_yaml_path=app_yaml_path,

@@ -67,7 +67,7 @@ def evaluate_slurm_parameters(config_yaml_path: Path, workunit: Workunit) -> Slu
     """Evaluates the Slurm Parameters from the YAML file for a given workunit."""
     config_file_template = _SlurmConfigFileTemplate.for_yaml(config_yaml_path)
     app_variables = VariablesApp(
-        id=workunit.application.id, name=path_safe_name(workunit.application["name"]), version="latest"
+        id=workunit.application.id, name=path_safe_name(str(workunit.application["name"])), version="latest"
     )
     workunit_variables = VariablesWorkunit(id=workunit.id)
     config_file = config_file_template.evaluate(app=app_variables, workunit=workunit_variables)

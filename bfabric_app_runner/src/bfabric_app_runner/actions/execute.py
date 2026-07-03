@@ -151,8 +151,12 @@ def _register_workflow_step(
         return
 
     # Find or create the workflow entity
+    workflow_template = workflow_template_step.workflow_template
+    if workflow_template is None:
+        logger.error(f"Workflow template step {workflow_template_step_id} has no workflow template, skipping.")
+        return
     workflow = _find_or_create_workflow(
-        workflow_template=workflow_template_step.workflow_template,
+        workflow_template=workflow_template,
         workunit_definition=workunit_definition,
         client=client,
     )
