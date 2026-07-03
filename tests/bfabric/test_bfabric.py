@@ -540,14 +540,14 @@ class TestConnectPkce:
 
         mock_pkce_login.assert_called_once_with(
             "https://example.com/bfabric",
-            client_id="bfabric-cli",
+            client_id="CLI",
             scope=DEFAULT_OAUTH_SCOPE,
             port=0,
             open_browser=True,
             timeout=120.0,
         )
         mock_provider_cls.assert_called_once_with(
-            client_id="bfabric-cli",
+            client_id="CLI",
             client_secret="",
             token_url="https://example.com/bfabric/rest/oauth/token",
             token=mock_pkce_login.return_value,
@@ -621,12 +621,12 @@ class TestConnectDeviceCode:
 
         mock_device_code_login.assert_called_once_with(
             "https://example.com/bfabric",
-            client_id="bfabric-cli",
+            client_id="CLI",
             scope=DEFAULT_OAUTH_SCOPE,
             timeout=600.0,
         )
         mock_provider_cls.assert_called_once_with(
-            client_id="bfabric-cli",
+            client_id="CLI",
             client_secret="",
             token_url="https://example.com/bfabric/rest/oauth/token",
             token=mock_device_code_login.return_value,

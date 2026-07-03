@@ -76,10 +76,7 @@ class _CallbackHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", "text/html")
         self.end_headers()
-        _ = self.wfile.write(
-            b"<html><body><h1>Login successful</h1>"
-            b"<p>You can close this tab.</p></body></html>"
-        )
+        _ = self.wfile.write(b"<html><body><h1>Login successful</h1>" b"<p>You can close this tab.</p></body></html>")
 
         # Shut down the server from a daemon thread so this handler can return.
         threading.Thread(target=self.server.shutdown, daemon=True).start()
@@ -144,7 +141,7 @@ def pkce_login(
     exchanges the authorization code for tokens.
 
     :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
-    :param client_id: OAuth client ID (default ``"bfabric-cli"``)
+    :param client_id: OAuth client ID (default ``"CLI"``)
     :param scope: OAuth scope (default :data:`~bfabric._oauth.DEFAULT_OAUTH_SCOPE`)
     :param port: Local port for the callback server (``0`` = auto-assign)
     :param open_browser: Whether to open the authorization URL in the browser.
@@ -161,15 +158,17 @@ def pkce_login(
 
     server = _CallbackServer(port)
 
-    authorize_url = f"{base_url}/rest/oauth/authorize?" + urlencode({
-        "response_type": "code",
-        "client_id": client_id,
-        "redirect_uri": server.redirect_uri,
-        "code_challenge": challenge,
-        "code_challenge_method": "S256",
-        "state": state,
-        "scope": scope,
-    })
+    authorize_url = f"{base_url}/rest/oauth/authorize?" + urlencode(
+        {
+            "response_type": "code",
+            "client_id": client_id,
+            "redirect_uri": server.redirect_uri,
+            "code_challenge": challenge,
+            "code_challenge_method": "S256",
+            "state": state,
+            "scope": scope,
+        }
+    )
 
     # Try to open the browser; fall back to printing the URL.
     browser_opened = False
