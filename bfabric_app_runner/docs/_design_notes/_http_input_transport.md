@@ -69,7 +69,6 @@ This is the first use of the `access` endpoint in the codebase.
   mid-run — upgrade to a token-provider callable if that becomes real.
 - HTTP is wired for `bfabric_resource` only; `bfabric_resource_archive` / `bfabric_resource_dataset`
   still resolve to SSH.
-- No end-to-end run against a live server yet.
 
 ## Dev-environment gotchas (bfabricPy)
 
