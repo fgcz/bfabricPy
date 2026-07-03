@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - `BfabricResourceSpec` gains an `access` field (`ssh`/`http`) selecting the transport used to stage a resource. `access: http` streams the file from the storage's HTTP endpoint instead of rsync/scp — portable, but requires an OAuth-backed client whose token carries the `containers` scope. The generic `file` spec also gained an HTTP source (`FileSourceHttp`), always fetched anonymously. See the input specification docs for details.
 
+### Fixed
+
+- `_register_workflow_step` now raises a clear error when the configured workflow template step is missing or has no workflow template, instead of crashing with an `AttributeError` on `None` (missing template) or logging-and-skipping (missing step). Both cases abort output registration before the workunit is finalized to `available`, so the misconfiguration surfaces instead of leaving a finalized workunit with no workflow-step linkage.
+
 ## \[0.6.1\] - 2026-06-11
 
 ### Changed

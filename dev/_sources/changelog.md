@@ -9,6 +9,14 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+### Fixed
+
+- `HasOne` relationship descriptors are now correctly typed. Accessing a to-one relationship (e.g. `Resource.storage`, `Workunit.application`) resolves to the related entity type instead of raising a `reportAttributeAccessIssue` and degrading to `Unknown`. The descriptor is now generic over its return type, so required relationships are declared `HasOne[Storage]` and optional ones `HasOne[Storage | None]`. This removes the need for `cast` / `# pyright: ignore` workarounds at call sites. Runtime behaviour is unchanged.
+
+### Changed
+
+- Removed dead `if <required relationship> is None` guards (in `Workunit.store_output_folder` and `WorkunitExecutionDefinition.from_workunit`) that could never fire — a missing required relationship already raises `ValueError("Field '<name>' is required")` from the descriptor.
+
 ## \[1.20.0rc1\] - 2026-06-23
 
 ### Added
