@@ -278,8 +278,8 @@ class Bfabric:
         client uses :class:`OAuthCredentialProvider` for transparent refresh.
 
         :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
-        :param client_id: OAuth client ID (default ``"CLI"``)
-        :param scope: OAuth scope (default ``"api:read api:write"``)
+        :param client_id: OAuth client ID
+        :param scope: OAuth scope
         :param port: Local port for the callback server (``0`` = auto-assign)
         :param open_browser: Whether to open the authorization URL in the browser
         :param timeout: Seconds to wait for the user to complete login
@@ -332,9 +332,9 @@ class Bfabric:
         where a localhost redirect is not feasible.
 
         :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
-        :param client_id: OAuth client ID (default ``"CLI"``)
-        :param scope: OAuth scope (default ``"api:read api:write"``)
-        :param timeout: Seconds to wait for the user to authorize (default 600)
+        :param client_id: OAuth client ID
+        :param scope: OAuth scope
+        :param timeout: Seconds to wait for the user to authorize
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
         from bfabric._oauth.credential_provider import OAuthCredentialProvider

@@ -149,9 +149,9 @@ def device_code_login(
     then polls until the user authorizes or the request times out.
 
     :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
-    :param client_id: OAuth client ID (default ``"CLI"``)
-    :param scope: OAuth scope (default :data:`~bfabric._oauth.DEFAULT_OAUTH_SCOPE`)
-    :param timeout: Seconds to wait for the user to authorize (default 600)
+    :param client_id: OAuth client ID
+    :param scope: OAuth scope
+    :param timeout: Seconds to wait for the user to authorize
     :returns: Token dict with ``access_token``, ``refresh_token``, etc.
     :raises RuntimeError: On timeout, expired token, or access denied
     """

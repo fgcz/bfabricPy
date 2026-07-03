@@ -141,8 +141,8 @@ def pkce_login(
     exchanges the authorization code for tokens.
 
     :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
-    :param client_id: OAuth client ID (default ``"CLI"``)
-    :param scope: OAuth scope (default :data:`~bfabric._oauth.DEFAULT_OAUTH_SCOPE`)
+    :param client_id: OAuth client ID
+    :param scope: OAuth scope
     :param port: Local port for the callback server (``0`` = auto-assign)
     :param open_browser: Whether to open the authorization URL in the browser.
         If ``False`` (or if the browser fails to open), the URL is printed to stderr.
