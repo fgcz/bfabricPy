@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_resource_specs import ResolveBfabricResourceSpecs
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedFile
@@ -148,10 +150,8 @@ def test_get_file_spec_http_access(resolver, mocker, mock_client):
 
     mock_storage = mocker.MagicMock(name="mock_storage", id=7)
     mock_resource = mocker.MagicMock(name="mock_resource", storage=mock_storage)
-    mock_resource.__getitem__.side_effect = lambda key: {
-        "filechecksum": "abc123",
-        "relativepath": "path/to/original.txt",
-    }[key]
+    mock_resource.storage_relative_path = Path("path/to/original.txt")
+    mock_resource.__getitem__.side_effect = lambda key: {"filechecksum": "abc123"}[key]
 
     mock_client.read.return_value = [{"protocol": "https", "host": "trace.example.com", "basepath": "/data/"}]
 

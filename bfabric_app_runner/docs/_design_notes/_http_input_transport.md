@@ -76,5 +76,6 @@ This is the first use of the `access` endpoint in the codebase.
   Run app_runner tests with `--python 3.13` (or via `nox`) to avoid false failures.
 - Run `basedpyright` via its `nox` session (isolated env), not the workspace venv.
 - The `HasOne` relationship descriptor (`bfabric/entities/core/has_one.py`) has a `__get__` typing
-  quirk that makes any `resource.storage` access a (baselined) `reportAttributeAccessIssue`; a new
-  access needs a `cast(...)` plus a targeted `# pyright: ignore[reportAttributeAccessIssue]`.
+  quirk that makes any `resource.storage` access a `reportAttributeAccessIssue`. The `_common._storage_of`
+  helper localizes the required `cast(...)` + `# pyright: ignore[reportAttributeAccessIssue]` so the
+  resolve functions don't repeat it.

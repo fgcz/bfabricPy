@@ -2098,32 +2098,6 @@
                 }
             }
         ],
-        "./bfabric_app_runner/src/bfabric_app_runner/inputs/resolve/_common.py": [
-            {
-                "code": "reportUnknownMemberType",
-                "range": {
-                    "startColumn": 36,
-                    "endColumn": 52,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownArgumentType",
-                "range": {
-                    "startColumn": 36,
-                    "endColumn": 60,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportAttributeAccessIssue",
-                "range": {
-                    "startColumn": 45,
-                    "endColumn": 52,
-                    "lineCount": 1
-                }
-            }
-        ],
         "./bfabric_app_runner/src/bfabric_app_runner/inputs/resolve/_resolve_bfabric_annotation_specs.py": [
             {
                 "code": "reportUnannotatedClassAttribute",
