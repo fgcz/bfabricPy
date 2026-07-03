@@ -14,9 +14,9 @@ def test_http_source_get_filename_strips_query():
     assert source.get_filename() == "reads.fastq.gz"
 
 
-def test_http_source_require_auth_defaults_false():
+def test_http_source_auth_defaults_none():
     source = FileSourceHttp(http=FileSourceHttpValue(url="https://host/data/f.txt"))
-    assert source.http.require_auth is False
+    assert source.http.auth is None
 
 
 def test_file_spec_accepts_http_source():

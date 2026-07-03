@@ -25,7 +25,7 @@ def get_http_file_source(resource: Resource, client: Bfabric) -> FileSourceHttp:
     """Get the HTTP file source for a given resource.
 
     Looks up the storage's HTTP access record and builds the download URL. The token is not resolved here;
-    it is applied at prepare time (``require_auth=True`` marks the URL as needing a bearer token).
+    it is applied at prepare time (``auth="bfabric"`` marks the URL as needing the B-Fabric bearer token).
     """
     storage = cast("Storage", resource.storage)  # pyright: ignore[reportAttributeAccessIssue]
     storage_id = storage.id
@@ -40,4 +40,4 @@ def get_http_file_source(resource: Resource, client: Bfabric) -> FileSourceHttp:
     basepath = str(access["basepath"]).rstrip("/")
     relativepath = str(resource["relativepath"]).lstrip("/")
     url = f"{access['protocol']}://{access['host']}{basepath}/{relativepath}"
-    return FileSourceHttp(http=FileSourceHttpValue(url=url, require_auth=True))
+    return FileSourceHttp(http=FileSourceHttpValue(url=url, auth="bfabric"))

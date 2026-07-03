@@ -14,9 +14,12 @@ The existing **resolve → prepare** split is the seam. A new `FileSourceHttp` s
 - **Prepare** (`inputs/prepare/prepare_resolved_file.py:_operation_copy_http`) streams the URL via
   httpx, checksum-verifies, and writes atomically (temp `.part` + rename).
 
-To add another source type later: widen the three unions (`FileSpec.source`, `ResolvedFile.source`,
-`ResolvedDirectory.source`), add a resolve producer, and add a prepare op. The `assert_never` guards
-in the prepare `match` statements make the type-checker enumerate every site you must touch.
+To add another source type later: widen the source unions (`FileSpec.source`, `ResolvedFile.source`,
+and — only if the transport supports directory staging — `ResolvedDirectory.source`), add a resolve
+producer, and add a prepare op. `ResolvedDirectory.source` deliberately omits `FileSourceHttp` today
+(directory-over-HTTP is unimplemented; archive specs resolve to SSH), so re-add it there together with
+an end-to-end test when that lands. The `assert_never` guards in the prepare `match` statements make
+the type-checker enumerate every site you must touch.
 
 ## How B-Fabric HTTP resource access works
 
@@ -47,13 +50,15 @@ This is the first use of the `access` endpoint in the codebase.
 
 ## Trust boundary (security)
 
-- The OAuth token is sent **only** to storage-derived URLs. `require_auth` on `FileSourceHttp` gates
-  token-sending; it is set `True` only by `get_http_file_source` (trusted) and forced `False` for
-  user-authored `file` specs at resolve (`_resolve_file_specs._anonymize_http_source`) — so a
-  `require_auth: true` hand-written in an `inputs.yml` can never send the token to an arbitrary host.
+- The OAuth token is sent **only** to storage-derived URLs. `auth` on `FileSourceHttp` gates
+  token-sending; it is set `"bfabric"` only by `get_http_file_source` (trusted) and forced `None` for
+  user-authored `file` specs at resolve (`_resolve_file_specs._anonymize_http_source`) — so an `auth`
+  hand-written in an `inputs.yml` can never send the token to an arbitrary host. It is an enum (not a
+  bool) so future credential schemes slot in without a wire-format change.
 - Invariant: the 32-char web-service password is never sent as a bearer (only send when
   `login == "__oauth__"`).
-- httpx strips `Authorization` on cross-origin redirects (defense in depth).
+- httpx strips `Authorization` on cross-origin redirects (defense in depth), covered by
+  `test_operation_copy_http_strips_auth_on_cross_origin_redirect`.
 
 ## Follow-ups (not implemented)
 

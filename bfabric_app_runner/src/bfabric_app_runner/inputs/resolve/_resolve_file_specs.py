@@ -28,9 +28,9 @@ def _anonymize_http_source(
     """Forces user-authored HTTP sources to be fetched anonymously.
 
     This is the trust boundary for the bearer token: it is only ever sent to storage-derived URLs built
-    by ``get_http_file_source`` (which sets ``require_auth=True``). A ``require_auth: true`` written in a
-    user ``inputs.yml`` is dropped here so the OAuth token can never be sent to an arbitrary URL.
+    by ``get_http_file_source`` (which sets ``auth="bfabric"``). An ``auth`` written in a user
+    ``inputs.yml`` is dropped here so the OAuth token can never be sent to an arbitrary URL.
     """
-    if isinstance(source, FileSourceHttp) and source.http.require_auth:
-        return FileSourceHttp(http=FileSourceHttpValue(url=source.http.url, require_auth=False))
+    if isinstance(source, FileSourceHttp) and source.http.auth is not None:
+        return FileSourceHttp(http=FileSourceHttpValue(url=source.http.url, auth=None))
     return source

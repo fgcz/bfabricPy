@@ -161,7 +161,7 @@ def test_get_file_spec_http_access(resolver, mocker, mock_client):
     assert result.filename == "renamed.txt"
     assert result.checksum == "abc123"
     assert result.source.http.url == "https://trace.example.com/data/path/to/original.txt"
-    assert result.source.http.require_auth is True
+    assert result.source.http.auth == "bfabric"
 
 
 def test_get_file_spec_http_access_no_records_raises(resolver, mocker, mock_client):

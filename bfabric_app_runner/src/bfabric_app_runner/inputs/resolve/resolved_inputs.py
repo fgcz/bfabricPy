@@ -27,7 +27,10 @@ class ResolvedStaticFile(BaseModel):
 class ResolvedDirectory(BaseModel):
     type: Literal["resolved_directory"] = "resolved_directory"
     filename: RelativeFilePath
-    source: FileSourceSsh | FileSourceLocal | FileSourceHttp
+    # HTTP directory staging is not implemented yet (archive specs resolve to SSH), so it is
+    # intentionally excluded here; re-add FileSourceHttp together with an end-to-end test when
+    # archive-over-HTTP is wired.
+    source: FileSourceSsh | FileSourceLocal
     extract: None | Literal["zip"] = None
     include_patterns: list[str] = []
     exclude_patterns: list[str] = []

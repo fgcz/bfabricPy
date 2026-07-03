@@ -8,6 +8,7 @@ from typing import assert_never
 
 import httpx
 
+from bfabric_app_runner.inputs.prepare.prepare_context import PrepareContext
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedFile
 from bfabric_app_runner.util.checksum import md5_checksum
 from bfabric_app_runner.specs.inputs.file_spec import (
@@ -20,19 +21,17 @@ from bfabric_app_runner.util.scp import scp
 from loguru import logger
 
 
-def prepare_resolved_file(
-    file: ResolvedFile, working_dir: Path, ssh_user: str | None, bearer_token: str | None = None
-) -> None:
+def prepare_resolved_file(file: ResolvedFile, working_dir: Path, context: PrepareContext) -> None:
     """Prepares the file specified by the spec."""
     output_path = working_dir / file.filename
     output_path.parent.mkdir(exist_ok=True, parents=True)
 
     if isinstance(file.source, FileSourceHttp):
-        success = _operation_copy_http(file, output_path, bearer_token)
+        success = _operation_copy_http(file, output_path, context.bearer_token)
     elif not file.link:
-        success = _operation_copy_rsync(file, output_path, ssh_user)
+        success = _operation_copy_rsync(file, output_path, context.ssh_user)
         if not success:
-            success = _operation_copy(file, output_path, ssh_user)
+            success = _operation_copy(file, output_path, context.ssh_user)
     else:
         success = _operation_link_symbolic(file, output_path)
     if not success:
@@ -74,8 +73,9 @@ def _operation_copy_http(file: ResolvedFile, output_path: Path, bearer_token: st
     if not isinstance(file.source, FileSourceHttp):
         raise TypeError(f"Expected FileSourceHttp, got {type(file.source)}")
     source = file.source.http
+    needs_auth = source.auth == "bfabric"
 
-    if source.require_auth and not bearer_token:
+    if needs_auth and not bearer_token:
         raise RuntimeError(
             "HTTP resource access requires an OAuth-backed client (e.g. Bfabric.connect_pkce / connect_oauth) "
             "to provide a bearer token; the current client has none. Use access: ssh, or connect via OAuth."
@@ -84,7 +84,7 @@ def _operation_copy_http(file: ResolvedFile, output_path: Path, bearer_token: st
     # Disable transport compression so the streamed bytes match the file the checksum was computed over.
     headers = {"Accept-Encoding": "identity"}
     # Only send the token for trusted, auth-required URLs; never leak it to arbitrary hosts.
-    if source.require_auth and bearer_token:
+    if needs_auth and bearer_token:
         headers["Authorization"] = f"Bearer {bearer_token}"
 
     # Download to a temporary sibling and rename on success, so a mid-stream failure never leaves a
@@ -102,7 +102,7 @@ def _operation_copy_http(file: ResolvedFile, output_path: Path, bearer_token: st
         if isinstance(error, httpx.HTTPStatusError):
             code = error.response.status_code
             detail = f" (HTTP {code})"
-            if code in (401, 403) and source.require_auth:
+            if code in (401, 403) and needs_auth:
                 detail += "; the bearer token may be missing or lack the required 'containers' scope"
         logger.error(f"HTTP download failed for {source.url}{detail}: {error}")
         return False

@@ -30,11 +30,13 @@ class FileSourceSsh(BaseModel):
 
 class FileSourceHttpValue(BaseModel):
     url: str
-    require_auth: bool = False
-    """Whether a bearer token is required (and should be sent) to download this URL.
+    auth: Literal["bfabric"] | None = None
+    """Which credential scheme to use when downloading this URL.
 
-    Set for URLs derived from a trusted B-Fabric storage access record. Left ``False`` for arbitrary
-    user-supplied URLs, which are downloaded anonymously (the token is never sent to an untrusted host).
+    ``"bfabric"`` is set only for URLs derived from a trusted B-Fabric storage access record; the
+    B-Fabric OAuth bearer token is sent. ``None`` downloads anonymously — used for arbitrary
+    user-supplied URLs, so the token is never sent to an untrusted host. Modelled as an enum rather
+    than a boolean so further credential schemes can be added without changing the wire format.
     """
 
 

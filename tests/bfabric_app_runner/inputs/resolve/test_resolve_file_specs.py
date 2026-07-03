@@ -22,14 +22,14 @@ def test_call(resolver):
 
 
 def test_call_http_source_is_forced_anonymous(resolver):
-    # A user-authored FileSpec must never carry require_auth=True into the resolved source, so the
-    # OAuth bearer token can never be sent to an arbitrary user-supplied URL.
+    # A user-authored FileSpec must never carry auth into the resolved source, so the OAuth bearer
+    # token can never be sent to an arbitrary user-supplied URL.
     spec = FileSpec(
-        source=FileSourceHttp(http=FileSourceHttpValue(url="https://attacker.example/x", require_auth=True)),
+        source=FileSourceHttp(http=FileSourceHttpValue(url="https://attacker.example/x", auth="bfabric")),
         filename="x.txt",
     )
     result = resolver([spec])
 
     assert isinstance(result[0].source, FileSourceHttp)
-    assert result[0].source.http.require_auth is False
+    assert result[0].source.http.auth is None
     assert result[0].source.http.url == "https://attacker.example/x"
