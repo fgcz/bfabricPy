@@ -393,7 +393,7 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_constants.py</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">DEFAULT_CLIENT_ID</span> <span class="pre">=</span> <span class="pre">&quot;bfabric-cli&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">DEFAULT_OAUTH_SCOPE</span> <span class="pre">=</span> <span class="pre">&quot;api:read</span> <span class="pre">api:write</span> <span class="pre">openid</span> <span class="pre">profile</span> <span class="pre">email</span> <span class="pre">groups&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">DEFAULT_CLIENT_ID</span> <span class="pre">=</span> <span class="pre">&quot;CLI&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">DEFAULT_OAUTH_SCOPE</span> <span class="pre">=</span> <span class="pre">&quot;api:read</span> <span class="pre">api:write</span> <span class="pre">openid</span> <span class="pre">profile</span> <span class="pre">email</span> <span class="pre">groups&quot;</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">credential_provider.py</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">OAuthCredentialProvider</span></code> — thread-safe token management with automatic refresh and disk caching. Supports both <code class="docutils literal notranslate"><span class="pre">client_credentials</span></code> and <code class="docutils literal notranslate"><span class="pre">refresh_token</span></code> grant types.</p></td>
@@ -517,7 +517,7 @@
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">PRODUCTION</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">base_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://bfabric.example.com/bfabric&quot;</span>
 <span class="w">  </span><span class="nt">auth_method</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;oauth&quot;</span><span class="w">        </span><span class="c1"># NEW — triggers OAuth flow in Bfabric.connect()</span>
-<span class="w">  </span><span class="nt">client_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;bfabric-cli&quot;</span><span class="w">    </span><span class="c1"># NEW — optional, defaults to &quot;bfabric-cli&quot;</span>
+<span class="w">  </span><span class="nt">client_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CLI&quot;</span><span class="w">    </span><span class="c1"># NEW — optional, defaults to &quot;CLI&quot;</span>
 </pre></div>
 </div>
 </section>
@@ -571,7 +571,7 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">api:write</span></code> required for SOAP write operations</p></li>
 <li><p>Additional scopes (e.g. <code class="docutils literal notranslate"><span class="pre">tus</span></code>, <code class="docutils literal notranslate"><span class="pre">download</span></code>) can be requested and are enforced by their respective endpoints</p></li>
 </ul>
-<p>The <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span></code> default client is pre-registered with: <code class="docutils literal notranslate"><span class="pre">openid,</span> <span class="pre">profile,</span> <span class="pre">email,</span> <span class="pre">api:read,</span> <span class="pre">api:write,</span> <span class="pre">tus,</span> <span class="pre">download,</span> <span class="pre">offline_access</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">CLI</span></code> default client is pre-registered with: <code class="docutils literal notranslate"><span class="pre">openid,</span> <span class="pre">profile,</span> <span class="pre">email,</span> <span class="pre">api:read,</span> <span class="pre">api:write,</span> <span class="pre">tus,</span> <span class="pre">download,</span> <span class="pre">offline_access</span></code>.</p>
 </section>
 <hr class="docutils" />
 <section id="how-to-install-from-this-branch">
