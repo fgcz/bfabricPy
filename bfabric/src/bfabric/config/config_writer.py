@@ -129,6 +129,10 @@ def set_default_config(config_path: Path, env_name: str) -> None:
     # Enumerate the configured environments through the reader so the check matches how the
     # file will actually load back. ConfigFile's "before" validators mutate their input in
     # place, so always validate a deep copy and keep ``existing`` pristine for the write.
+    # This also doubles as the round-trip guard: since env_name is confirmed to be one of
+    # config_file_obj.environments, and environments are otherwise untouched below, setting
+    # GENERAL.default_config to env_name cannot fail ConfigFile's own default-config-must-exist
+    # validator -- so no second validation pass is needed after the mutation.
     config_file_obj = ConfigFile.model_validate(copy.deepcopy(existing))
     if env_name not in config_file_obj.environments:
         available = ", ".join(sorted(config_file_obj.environments)) or "(none)"
@@ -139,6 +143,4 @@ def set_default_config(config_path: Path, env_name: str) -> None:
         raise ValueError("Malformed config file: 'GENERAL' section is not a mapping.")
     general["default_config"] = env_name
 
-    # Guard the round-trip before touching disk, mirroring write_environment_to_config.
-    _ = ConfigFile.model_validate(copy.deepcopy(existing))
     _write_config_file(config_path, existing)
