@@ -1,11 +1,13 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from bfabric.entities.cache._entity_memory_cache import EntityMemoryCache
     from bfabric.entities.core.entity import Entity
     from bfabric.entities.core.uri import EntityUri
-    from bfabric.entities.cache._entity_memory_cache import EntityMemoryCache
-    from collections.abc import Iterable
 
 
 class CacheStack:
@@ -28,7 +30,7 @@ class CacheStack:
     def item_contains(self, uri: EntityUri) -> bool:
         return any(cache.contains(uri) for cache in reversed(self._stack))
 
-    def item_get(self, uri: EntityUri) -> Entity:
+    def item_get(self, uri: EntityUri) -> Entity | None:
         for cache in reversed(self._stack):
             entity = cache.get(uri)
             if entity is not None:

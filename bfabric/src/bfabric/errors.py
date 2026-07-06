@@ -88,7 +88,6 @@ class BfabricOAuthError(RuntimeError):
     """Raised when an OAuth operation fails (token exchange, device code flow, PKCE, etc.)."""
 
 
-# TODO: Also test for response-level errors
 def get_response_errors(response: Any, endpoint: str) -> list[BfabricRequestError]:
     """
     :param response:  A raw response to a query from an underlying engine
@@ -96,9 +95,13 @@ def get_response_errors(response: Any, endpoint: str) -> list[BfabricRequestErro
     :return:          A list of errors for each query result, if that result failed
         Thus, a successful query would result in an empty list
     """
-    if getattr(response, "errorreport", None):
-        return [BfabricRequestError(response.errorreport)]
-    elif endpoint in response:
-        return [BfabricRequestError(r.errorreport) for r in response[endpoint] if getattr(r, "errorreport", None)]
+    if getattr(response, "errorreport", None):  # pyright: ignore[reportAny]
+        return [BfabricRequestError(response.errorreport)]  # pyright: ignore[reportAny]
+    elif hasattr(response, endpoint):  # pyright: ignore[reportAny]
+        return [
+            BfabricRequestError(r.errorreport)  # pyright: ignore[reportAny]
+            for r in getattr(response, endpoint)  # pyright: ignore[reportAny]
+            if getattr(r, "errorreport", None)  # pyright: ignore[reportAny]
+        ]
     else:
         return []

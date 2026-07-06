@@ -6,11 +6,10 @@ from typing import Annotated, Any, Literal
 
 import yaml
 from loguru import logger
-from pydantic import BaseModel, Field, model_validator, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 from pydantic_core import PydanticCustomError
 
-from bfabric.config import BfabricAuth
-from bfabric.config import BfabricClientConfig
+from bfabric.config import BfabricAuth, BfabricClientConfig
 
 # Canonical default location of the bfabricPy config file. The tilde is kept unexpanded here;
 # callers expand it via Path.expanduser() at the point of use.
