@@ -6,16 +6,36 @@ existing config file will be lost when the file is rewritten.
 
 from __future__ import annotations
 
+import copy
 import os
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import yaml
 
-from bfabric.config.config_file import EnvironmentConfig
+from bfabric.config.config_file import ConfigFile, EnvironmentConfig
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
+
+
+def _write_config_file(config_path: Path, data: Mapping[str, object]) -> None:
+    """Serialize *data* to *config_path* as YAML with ``0o600`` permissions.
+
+    Centralizes the secret-safe write shared by every config mutation: creates parent
+    directories, dumps the mapping, and forces ``0o600`` even on a pre-existing file (whose
+    permissions ``os.open`` would otherwise leave untouched) so a secret never lands in a
+    group/world-readable file.
+    """
+    config_path = Path(config_path).expanduser()
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    serialized = yaml.dump(data, default_flow_style=False, sort_keys=False).encode()
+    fd = os.open(str(config_path), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    try:
+        os.fchmod(fd, 0o600)
+        _ = os.write(fd, serialized)
+    finally:
+        os.close(fd)
 
 
 def _validate_round_trip(env_name: str, env_data: Mapping[str, object]) -> None:
@@ -82,13 +102,45 @@ def write_environment_to_config(
 
     existing[env_name] = dict(env_data)
 
-    data = yaml.dump(existing, default_flow_style=False, sort_keys=False).encode()
-    fd = os.open(str(config_path), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-    try:
-        # The mode passed to os.open is only honored when the file is created; an existing
-        # config keeps its old (possibly group/world-readable) permissions. Tighten explicitly
-        # so a secret written here (e.g. a PAT) never lands in a readable file.
-        os.fchmod(fd, 0o600)
-        _ = os.write(fd, data)
-    finally:
-        os.close(fd)
+    _write_config_file(config_path, existing)
+
+
+def set_default_config(config_path: Path, env_name: str) -> None:
+    """Set ``GENERAL.default_config`` to an already-defined environment.
+
+    Unlike :func:`write_environment_to_config`, this only flips the default -- it never
+    creates or modifies an environment. Other environments and the general section are
+    preserved.
+
+    :param config_path: Path to the YAML config file (will be expanded).
+    :param env_name: Name of an existing environment to mark as default.
+    :raises FileNotFoundError: If the config file does not exist.
+    :raises ValueError: If *env_name* is not among the configured environments; the file is
+        left untouched in that case.
+    """
+    config_path = Path(config_path).expanduser()
+    if not config_path.is_file():
+        raise FileNotFoundError(f"Config file not found: {config_path}")
+
+    loaded: object = yaml.safe_load(config_path.read_text())  # pyright: ignore[reportAny]
+    existing: dict[str, object]
+    existing = loaded if isinstance(loaded, dict) else {}  # pyright: ignore[reportUnknownVariableType]
+
+    # Enumerate the configured environments through the reader so the check matches how the
+    # file will actually load back. ConfigFile's "before" validators mutate their input in
+    # place, so always validate a deep copy and keep ``existing`` pristine for the write.
+    # This also doubles as the round-trip guard: since env_name is confirmed to be one of
+    # config_file_obj.environments, and environments are otherwise untouched below, setting
+    # GENERAL.default_config to env_name cannot fail ConfigFile's own default-config-must-exist
+    # validator -- so no second validation pass is needed after the mutation.
+    config_file_obj = ConfigFile.model_validate(copy.deepcopy(existing))
+    if env_name not in config_file_obj.environments:
+        available = ", ".join(sorted(config_file_obj.environments)) or "(none)"
+        raise ValueError(f"Environment {env_name!r} is not defined. Available environments: {available}")
+
+    general = existing.setdefault("GENERAL", {})
+    if not isinstance(general, dict):
+        raise ValueError("Malformed config file: 'GENERAL' section is not a mapping.")
+    general["default_config"] = env_name
+
+    _write_config_file(config_path, existing)
