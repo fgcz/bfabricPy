@@ -10,6 +10,11 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 ## \[Unreleased\]
 
+### Added
+
+- `bfabric-cli auth default` — list the configured environments and show the current default.
+- `bfabric-cli auth default set [CONFIG_ENV]` — set the default environment, non-interactively when a value is passed or via an interactive picker when omitted.
+
 ## \[1.16.0rc1\] - 2026-06-23
 
 ### Added
