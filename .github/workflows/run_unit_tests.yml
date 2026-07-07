@@ -94,7 +94,7 @@ jobs:
             }
 
             if (details.removed && details.removed.length > 0) {
-              commentBody += `### ❌ Removed "TODO"s (${details.removed.length})\n`;
+              commentBody += `### ✅ Removed "TODO"s (${details.removed.length})\n`;
               for (const todo of details.removed) {
                 commentBody += `- \`${todo.file_path}:${todo.line_number}\`: ${todo.content}\n`;
               }
