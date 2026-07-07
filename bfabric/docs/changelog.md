@@ -16,6 +16,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 ### Changed
 
 - Removed dead `if <required relationship> is None` guards (in `Workunit.store_output_folder` and `WorkunitExecutionDefinition.from_workunit`) that could never fire — a missing required relationship already raises `ValueError("Field '<name>' is required")` from the descriptor.
+- Added `runtime-evaluated-base-classes = ["pydantic.BaseModel"]` to the ruff `flake8-type-checking` config, so `TC001`/`TC002`/`TC003` no longer suggest moving imports used only in pydantic `BaseModel` field annotations into `if TYPE_CHECKING:` blocks (which would break at runtime, since pydantic resolves field annotations eagerly). Removed the now-unnecessary `# noqa: TC00x` workarounds this uncovered.
 
 ## \[1.20.0rc1\] - 2026-06-23
 

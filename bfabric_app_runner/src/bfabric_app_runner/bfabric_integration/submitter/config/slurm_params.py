@@ -1,18 +1,20 @@
 from __future__ import annotations
 
 from functools import cached_property
-from typing import cast
-from pathlib import Path  # noqa: TC003
+from typing import TYPE_CHECKING, cast
+from pathlib import Path
 
 import yaml
 from pydantic import BaseModel, field_validator
 
-from bfabric.entities import Workunit  # noqa: TC002
 from bfabric.utils.path_safe_name import path_safe_name
 from bfabric_app_runner.bfabric_integration.submitter.config.slurm_workunit_params import (
-    SlurmWorkunitParams,  # noqa: TC001
-)  # noqa: TC001
+    SlurmWorkunitParams,
+)
 from bfabric_app_runner.specs.config_interpolation import VariablesApp, VariablesWorkunit, interpolate_config_strings
+
+if TYPE_CHECKING:
+    from bfabric.entities import Workunit
 
 
 class SlurmParameters(BaseModel):

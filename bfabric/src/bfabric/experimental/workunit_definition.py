@@ -8,7 +8,7 @@ from loguru import logger
 from pydantic import BaseModel
 
 from bfabric.entities import Workunit
-from bfabric.utils.path_safe_name import PathSafeStr  # noqa: TC001
+from bfabric.utils.path_safe_name import PathSafeStr
 
 if TYPE_CHECKING:
     from bfabric import Bfabric

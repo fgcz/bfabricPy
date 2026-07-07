@@ -1,6 +1,6 @@
 from __future__ import annotations
 from enum import Enum
-from pathlib import Path  # noqa
+from pathlib import Path
 from typing import Literal, Annotated
 
 from pydantic import Field

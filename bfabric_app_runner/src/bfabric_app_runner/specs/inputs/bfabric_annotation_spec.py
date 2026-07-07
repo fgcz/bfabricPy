@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Literal, TYPE_CHECKING, Annotated
 
-from bfabric_app_runner.specs.common_types import RelativeFilePath  # noqa: TC001
+from bfabric_app_runner.specs.common_types import RelativeFilePath
 from pydantic import BaseModel, Field
 
 if TYPE_CHECKING:

@@ -4,7 +4,7 @@ from typing import Any
 
 from pydantic import BaseModel, field_validator
 
-from bfabric_app_runner.specs.app.commands_spec import CommandsSpec  # noqa: TCH001
+from bfabric_app_runner.specs.app.commands_spec import CommandsSpec
 from bfabric_app_runner.specs.config_interpolation import interpolate_config_strings, VariablesApp
 
 

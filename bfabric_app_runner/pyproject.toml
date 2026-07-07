@@ -87,7 +87,9 @@ classmethod-decorators = [
     "pydantic.field_validator",
 ]
 
-[tool.ruff.lint.per-file-ignores]
-# This is needed because of false positives in cyclopts code
-"**/bfabric_app_runner/cli/**" = ["TCH001", "TCH002", "TCH003"]
-"**/bfabric_app_runner/specs/**" = ["TCH001", "TCH002", "TCH003"]
+[tool.ruff.lint.flake8-type-checking]
+# pydantic evaluates model field annotations at runtime, so imports used only in a BaseModel field
+# must stay at runtime -- don't let TC suggest moving them into an `if TYPE_CHECKING:` block.
+# FromConfigFile is listed explicitly because it subclasses BaseModel in another module, and ruff's
+# cross-module base-class resolution doesn't follow that chain on its own.
+runtime-evaluated-base-classes = ["pydantic.BaseModel", "bfabric_app_runner.actions.config_file.FromConfigFile"]

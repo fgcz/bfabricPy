@@ -4,7 +4,7 @@ from typing import Protocol, Self, runtime_checkable
 
 from pydantic import BaseModel, model_validator
 
-from bfabric.config.bfabric_auth import BfabricAuth  # noqa
+from bfabric.config.bfabric_auth import BfabricAuth
 
 
 @runtime_checkable

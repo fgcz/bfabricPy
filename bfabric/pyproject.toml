@@ -77,6 +77,11 @@ target-version = "py311"
 select = ["ANN", "BLE", "D103", "E", "EXE", "F", "N", "PLW", "PTH", "SIM", "TCH", "UP", "W191"]
 ignore = ["ANN401"]
 
+[tool.ruff.lint.flake8-type-checking]
+# pydantic evaluates model field annotations at runtime, so imports used only in a BaseModel field
+# must stay at runtime -- don't let TCH suggest moving them into an `if TYPE_CHECKING:` block.
+runtime-evaluated-base-classes = ["pydantic.BaseModel"]
+
 [tool.ruff.lint.per-file-ignores]
 "**/bfabric_scripts/**" = ["ALL"]
 "**/wrapper_creator/**" = ["ALL"]
