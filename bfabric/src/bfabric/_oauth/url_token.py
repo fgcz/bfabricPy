@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import threading
 import time
-from datetime import datetime  # noqa: TC003  # runtime import: pydantic resolves field annotations
+from datetime import datetime
 
 import httpx
 from joserfc import jwt as joserfc_jwt
@@ -89,5 +89,3 @@ def verify_jwt(base_url: str, token: str) -> dict[str, object]:
     claims_registry = joserfc_jwt.JWTClaimsRegistry(exp={"essential": True})
     claims_registry.validate(result.claims)
     return dict(result.claims)
-
-

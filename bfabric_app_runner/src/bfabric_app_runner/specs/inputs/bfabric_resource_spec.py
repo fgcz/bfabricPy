@@ -4,7 +4,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
-from bfabric_app_runner.specs.common_types import RelativeFilePath  # noqa: TC001
+from bfabric_app_runner.specs.common_types import RelativeFilePath
 
 
 class BfabricResourceSpec(BaseModel):

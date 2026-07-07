@@ -3,7 +3,7 @@ from typing import Literal, TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict
 
-from bfabric_app_runner.specs.common_types import RelativeFilePath  # noqa: TC001
+from bfabric_app_runner.specs.common_types import RelativeFilePath
 
 if TYPE_CHECKING:
     from bfabric import Bfabric

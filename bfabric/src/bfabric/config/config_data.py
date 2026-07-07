@@ -9,7 +9,7 @@ import yaml
 from loguru import logger
 from pydantic import BaseModel
 
-from bfabric.config import BfabricClientConfig, BfabricAuth  # noqa
+from bfabric.config import BfabricClientConfig, BfabricAuth
 from bfabric.config.config_file import ConfigFile
 
 

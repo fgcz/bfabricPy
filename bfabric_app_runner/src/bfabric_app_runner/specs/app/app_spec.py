@@ -6,7 +6,7 @@ from collections import Counter
 import yaml
 from pydantic import BaseModel, field_validator
 
-from bfabric_app_runner.specs.app.app_version import AppVersion, AppVersionMultiTemplate  # noqa: TCH001
+from bfabric_app_runner.specs.app.app_version import AppVersion, AppVersionMultiTemplate
 from bfabric_app_runner.specs.config_interpolation import VariablesApp
 
 if TYPE_CHECKING:

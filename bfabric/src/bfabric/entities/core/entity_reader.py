@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections.abc import Iterable  # noqa
 from typing import TYPE_CHECKING, TypeGuard, TypeVar, cast
 
 from loguru import logger
@@ -12,7 +11,7 @@ from bfabric.entities.core.uri import EntityUri, GroupedUris
 from bfabric.experimental import MultiQuery
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Iterable, Sequence
 
     from bfabric import Bfabric
     from bfabric.typing import ApiRequestObjectType, ApiResponseDataType, ApiResponseObjectType
