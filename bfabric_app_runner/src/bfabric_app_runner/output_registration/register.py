@@ -9,7 +9,7 @@ from bfabric.entities import Dataset, Resource, Storage, Workunit
 from bfabric.operations.dataset import (
     CreateDatasetParams,
     create_dataset,
-    preview_dataset_update,
+    identify_changes,
     update_dataset,
 )
 from bfabric.utils.table_lint import check_for_invalid_characters
@@ -104,11 +104,33 @@ def copy_file_to_storage(
     scp(spec.local_path, output_uri, user=ssh_user)
 
 
+def _find_existing_output_dataset(client: Bfabric, workunit_id: int, name: str) -> Dataset | None:
+    """Return the workunit's output dataset named exactly ``name``, or ``None`` if there is none.
+
+    B-Fabric performs the ``name`` match server-side (which may be a substring/LIKE match), and a
+    workunit may legitimately hold several datasets, so candidates are filtered to an exact-name
+    match here. If more than one dataset qualifies the match is ambiguous and we refuse to guess
+    which one to overwrite.
+    """
+    candidates = client.reader.query(
+        "dataset", {"workunitid": workunit_id, "name": name}, max_results=None, expected_type=Dataset
+    ).values()
+    matches = [dataset for dataset in candidates if dataset["name"] == name]
+    if len(matches) > 1:
+        ids = sorted(dataset.id for dataset in matches)
+        raise ValueError(
+            f"Found {len(matches)} datasets named {name!r} for workunit {workunit_id} (ids {ids}); "
+            f"refusing to guess which one to update."
+        )
+    return matches[0] if matches else None
+
+
 def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit_definition: WorkunitDefinition) -> None:
     """Saves a dataset to the bfabric, updating an existing output dataset if one is already present.
 
-    An existing dataset is matched by ``(workunitid, name)``; the ``update_existing`` policy then decides
-    whether it may be overwritten. When the existing content is identical the update is skipped.
+    An existing dataset is matched by an exact ``(workunitid, name)``; the ``update_existing`` policy
+    then decides whether it may be overwritten. When the existing content is identical the update is
+    skipped.
     """
     registration = workunit_definition.registration
     if registration is None:
@@ -117,9 +139,7 @@ def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit_definition: W
     table = pl.read_csv(spec.local_path, separator=spec.separator, has_header=spec.has_header, infer_schema_length=None)
     check_for_invalid_characters(table=table, invalid_characters=spec.invalid_characters)
 
-    existing = client.reader.query_one(
-        "dataset", {"workunitid": registration.workunit_id, "name": name}, expected_type=Dataset
-    )
+    existing = _find_existing_output_dataset(client, workunit_id=registration.workunit_id, name=name)
 
     if existing is None:
         if spec.update_existing == UpdateExisting.REQUIRED:
@@ -144,8 +164,8 @@ def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit_definition: W
             f"but existing datasets should not be updated."
         )
 
-    preview = preview_dataset_update(client, dataset_id=existing.id, table=table)
-    if not preview.changes:
+    changes = identify_changes(old_df=existing.to_polars(), new_df=table)
+    if not changes:
         logger.info(f"Dataset {name!r} (id {existing.id}) is unchanged, skipping update.")
         return
     updated = update_dataset(client, dataset_id=existing.id, table=table)
