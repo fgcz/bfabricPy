@@ -37,12 +37,13 @@ class SaveDatasetSpec(BaseModel):
     model_config = ConfigDict(extra="forbid")
     type: Literal["bfabric_dataset"] = "bfabric_dataset"
 
-    # TODO this will currently fail if the workunit already has an output dataset -> needs to be handled as well
     local_path: Path
     separator: str
     name: str | None = None
     has_header: bool = True
     invalid_characters: str = ""
+    update_existing: UpdateExisting = UpdateExisting.IF_EXISTS
+    """Behavior if the workunit already has an output dataset with the same name."""
 
 
 class SaveLinkSpec(BaseModel):

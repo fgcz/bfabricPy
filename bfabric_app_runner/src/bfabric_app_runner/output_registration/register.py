@@ -5,8 +5,13 @@ from typing import TYPE_CHECKING
 
 import polars as pl
 import yaml
-from bfabric.entities import Resource, Storage, Workunit
-from bfabric.operations.dataset import CreateDatasetParams, create_dataset
+from bfabric.entities import Dataset, Resource, Storage, Workunit
+from bfabric.operations.dataset import (
+    CreateDatasetParams,
+    create_dataset,
+    preview_dataset_update,
+    update_dataset,
+)
 from bfabric.utils.table_lint import check_for_invalid_characters
 from loguru import logger
 
@@ -100,21 +105,51 @@ def copy_file_to_storage(
 
 
 def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit_definition: WorkunitDefinition) -> None:
-    """Saves a dataset to the bfabric."""
+    """Saves a dataset to the bfabric, updating an existing output dataset if one is already present.
+
+    An existing dataset is matched by ``(workunitid, name)``; the ``update_existing`` policy then decides
+    whether it may be overwritten. When the existing content is identical the update is skipped.
+    """
     registration = workunit_definition.registration
     if registration is None:
         raise ValueError("workunit_definition has no registration; cannot save dataset")
+    name = spec.name or spec.local_path.stem
     table = pl.read_csv(spec.local_path, separator=spec.separator, has_header=spec.has_header, infer_schema_length=None)
     check_for_invalid_characters(table=table, invalid_characters=spec.invalid_characters)
-    _ = create_dataset(
-        client,
-        table,
-        CreateDatasetParams(
-            name=spec.name or spec.local_path.stem,
-            container_id=registration.container_id,
-            workunit_id=registration.workunit_id,
-        ),
+
+    existing = client.reader.query_one(
+        "dataset", {"workunitid": registration.workunit_id, "name": name}, expected_type=Dataset
     )
+
+    if existing is None:
+        if spec.update_existing == UpdateExisting.REQUIRED:
+            raise ValueError(
+                f"Dataset {name!r} does not exist for workunit {registration.workunit_id}, "
+                f"but an existing dataset is required to be updated."
+            )
+        _ = create_dataset(
+            client,
+            table,
+            CreateDatasetParams(
+                name=name,
+                container_id=registration.container_id,
+                workunit_id=registration.workunit_id,
+            ),
+        )
+        return
+
+    if spec.update_existing == UpdateExisting.NO:
+        raise ValueError(
+            f"Dataset {name!r} already exists for workunit {registration.workunit_id}, "
+            f"but existing datasets should not be updated."
+        )
+
+    preview = preview_dataset_update(client, dataset_id=existing.id, table=table)
+    if not preview.changes:
+        logger.info(f"Dataset {name!r} (id {existing.id}) is unchanged, skipping update.")
+        return
+    updated = update_dataset(client, dataset_id=existing.id, table=table)
+    logger.info(f"Dataset {name!r} updated with id {updated.id}")
 
 
 def _save_link(spec: SaveLinkSpec, client: Bfabric, workunit_definition: WorkunitDefinition) -> None:
