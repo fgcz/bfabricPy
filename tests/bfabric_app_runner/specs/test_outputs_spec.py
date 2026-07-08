@@ -40,7 +40,8 @@ def serialized() -> str:
   local_path: local_path
   name: null
   separator: separator
-  type: bfabric_dataset"""
+  type: bfabric_dataset
+  update_existing: if_exists"""
 
 
 def test_serialize(parsed, serialized):
