@@ -171,22 +171,13 @@ def _save_link(spec: SaveLinkSpec, client: Bfabric, workunit_definition: Workuni
     # Check if the link already exists
     res = client.read("link", {"name": spec.name, "parentid": entity_id, "parentclassname": entity_type})
     existing_link_id = res[0]["id"] if len(res) > 0 else None
-    # TODO maybe some of this logic could be extracted generically (i.e. UPDATE_EXISTING logic)
-    if existing_link_id is not None:
-        if spec.update_existing == UpdateExisting.NO:
-            msg = (
-                f"Link {spec.name} already exists for entity {entity_type} with id {entity_id}, "
-                f"but existing links should not be updated."
-            )
-            raise ValueError(msg)
-        if not isinstance(existing_link_id, int):
-            raise ValueError("existing_link_id must be an integer")
-    elif existing_link_id is None and spec.update_existing == UpdateExisting.REQUIRED:
-        msg = (
-            f"Link {spec.name} does not exist for entity {entity_type} with id {entity_id}, "
-            f"but existing links is expected to be updated."
-        )
-        raise ValueError(msg)
+    _check_update_existing_policy(
+        existing_link_id is not None,
+        spec.update_existing,
+        description=f"Link {spec.name!r} for entity {entity_type} with id {entity_id}",
+    )
+    if existing_link_id is not None and not isinstance(existing_link_id, int):
+        raise ValueError("existing_link_id must be an integer")
 
     # Create or update the link
     link_data: dict[str, str | int] = {
