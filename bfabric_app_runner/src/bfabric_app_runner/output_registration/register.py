@@ -39,6 +39,19 @@ def _get_output_folder(spec: CopyResourceSpec, workunit_definition: WorkunitDefi
         return spec.store_folder_path
 
 
+def _check_update_existing_policy(exists: bool, update_existing: UpdateExisting, *, description: str) -> None:
+    """Enforce an ``UpdateExisting`` policy against whether the target already exists.
+
+    Raises ``ValueError`` when the policy forbids the situation (``NO`` with an existing target, or
+    ``REQUIRED`` with none); otherwise returns so the caller can update (when it exists) or create
+    (when it does not).
+    """
+    if exists and update_existing == UpdateExisting.NO:
+        raise ValueError(f"{description} already exists, but existing entries must not be updated.")
+    if not exists and update_existing == UpdateExisting.REQUIRED:
+        raise ValueError(f"{description} does not exist, but an existing entry is required to update.")
+
+
 def register_file_in_workunit(
     spec: CopyResourceSpec,
     client: Bfabric,
@@ -140,13 +153,13 @@ def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit_definition: W
     check_for_invalid_characters(table=table, invalid_characters=spec.invalid_characters)
 
     existing = _find_existing_output_dataset(client, workunit_id=registration.workunit_id, name=name)
+    _check_update_existing_policy(
+        existing is not None,
+        spec.update_existing,
+        description=f"Dataset {name!r} for workunit {registration.workunit_id}",
+    )
 
     if existing is None:
-        if spec.update_existing == UpdateExisting.REQUIRED:
-            raise ValueError(
-                f"Dataset {name!r} does not exist for workunit {registration.workunit_id}, "
-                f"but an existing dataset is required to be updated."
-            )
         _ = create_dataset(
             client,
             table,
@@ -157,12 +170,6 @@ def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit_definition: W
             ),
         )
         return
-
-    if spec.update_existing == UpdateExisting.NO:
-        raise ValueError(
-            f"Dataset {name!r} already exists for workunit {registration.workunit_id}, "
-            f"but existing datasets should not be updated."
-        )
 
     changes = identify_changes(old_df=existing.to_polars(), new_df=table)
     if not changes:
