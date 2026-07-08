@@ -117,33 +117,21 @@ def copy_file_to_storage(
     scp(spec.local_path, output_uri, user=ssh_user)
 
 
-def _find_existing_output_dataset(client: Bfabric, workunit_id: int, name: str) -> Dataset | None:
-    """Return the workunit's output dataset named exactly ``name``, or ``None`` if there is none.
+def _find_existing_output_dataset(client: Bfabric, workunit_id: int) -> Dataset | None:
+    """Return the workunit's output dataset, or ``None`` if it has none.
 
-    B-Fabric performs the ``name`` match server-side (which may be a substring/LIKE match), and a
-    workunit may legitimately hold several datasets, so candidates are filtered to an exact-name
-    match here. If more than one dataset qualifies the match is ambiguous and we refuse to guess
-    which one to overwrite.
+    A B-Fabric workunit has at most one output dataset, so a lookup by ``workunitid`` is
+    unambiguous — there is no need to disambiguate by name or resolve multiple matches.
     """
-    candidates = client.reader.query(
-        "dataset", {"workunitid": workunit_id, "name": name}, max_results=None, expected_type=Dataset
-    ).values()
-    matches = [dataset for dataset in candidates if dataset["name"] == name]
-    if len(matches) > 1:
-        ids = sorted(dataset.id for dataset in matches)
-        raise ValueError(
-            f"Found {len(matches)} datasets named {name!r} for workunit {workunit_id} (ids {ids}); "
-            f"refusing to guess which one to update."
-        )
-    return matches[0] if matches else None
+    return client.reader.query_one("dataset", {"workunitid": workunit_id}, expected_type=Dataset)
 
 
 def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit_definition: WorkunitDefinition) -> None:
-    """Saves a dataset to the bfabric, updating an existing output dataset if one is already present.
+    """Saves a dataset to the bfabric, updating the workunit's output dataset if it already has one.
 
-    An existing dataset is matched by an exact ``(workunitid, name)``; the ``update_existing`` policy
-    then decides whether it may be overwritten. When the existing content is identical the update is
-    skipped.
+    A workunit has at most one output dataset, so the existing one (if any) is found by
+    ``workunitid``; the ``update_existing`` policy then decides whether it may be overwritten, and an
+    unchanged dataset is left untouched.
     """
     registration = workunit_definition.registration
     if registration is None:
@@ -152,7 +140,7 @@ def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit_definition: W
     table = pl.read_csv(spec.local_path, separator=spec.separator, has_header=spec.has_header, infer_schema_length=None)
     check_for_invalid_characters(table=table, invalid_characters=spec.invalid_characters)
 
-    existing = _find_existing_output_dataset(client, workunit_id=registration.workunit_id, name=name)
+    existing = _find_existing_output_dataset(client, workunit_id=registration.workunit_id)
     _check_update_existing_policy(
         existing is not None,
         spec.update_existing,

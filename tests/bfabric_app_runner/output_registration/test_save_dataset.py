@@ -43,28 +43,20 @@ def mock_operations(mocker):
     }
 
 
-def _dataset(mocker, *, id_: int = 555, name: str = "my_dataset"):
-    """Builds a Dataset-like mock supporting ``.id`` and ``["name"]`` lookups."""
+def _dataset(mocker, *, id_: int = 555):
+    """Builds a Dataset-like mock carrying an ``.id``."""
     dataset = mocker.MagicMock()
     dataset.id = id_
-    dataset.__getitem__.side_effect = lambda key: {"name": name}[key]
     return dataset
-
-
-def _query_result(datasets):
-    """Mimics ``EntityReader.query``, which returns a ``dict[EntityUri, Entity]``."""
-    return {dataset.id: dataset for dataset in datasets}
 
 
 def test_save_dataset_no_existing_creates(mock_client, mock_workunit_definition, spec, mock_operations):
     """When no dataset exists yet for the workunit, a new one is created."""
-    mock_client.reader.query.return_value = _query_result([])
+    mock_client.reader.query_one.return_value = None
 
     _save_dataset(spec, mock_client, mock_workunit_definition)
 
-    mock_client.reader.query.assert_called_once_with(
-        "dataset", {"workunitid": 42, "name": "my_dataset"}, max_results=None, expected_type=Dataset
-    )
+    mock_client.reader.query_one.assert_called_once_with("dataset", {"workunitid": 42}, expected_type=Dataset)
     mock_operations["create"].assert_called_once()
     _, table, params = mock_operations["create"].call_args.args
     assert params.name == "my_dataset"
@@ -74,19 +66,9 @@ def test_save_dataset_no_existing_creates(mock_client, mock_workunit_definition,
     mock_operations["update"].assert_not_called()
 
 
-def test_save_dataset_substring_match_is_ignored(mocker, mock_client, mock_workunit_definition, spec, mock_operations):
-    """A server-side substring match on a differently-named dataset is not treated as existing."""
-    mock_client.reader.query.return_value = _query_result([_dataset(mocker, name="my_dataset_v2")])
-
-    _save_dataset(spec, mock_client, mock_workunit_definition)
-
-    mock_operations["create"].assert_called_once()
-    mock_operations["update"].assert_not_called()
-
-
 def test_save_dataset_existing_unchanged_skips(mocker, mock_client, mock_workunit_definition, spec, mock_operations):
     """When an identical dataset already exists, nothing is written."""
-    mock_client.reader.query.return_value = _query_result([_dataset(mocker, id_=555)])
+    mock_client.reader.query_one.return_value = _dataset(mocker, id_=555)
     mock_operations["identify"].return_value = DatasetChanges()
 
     _save_dataset(spec, mock_client, mock_workunit_definition)
@@ -98,7 +80,7 @@ def test_save_dataset_existing_unchanged_skips(mocker, mock_client, mock_workuni
 
 def test_save_dataset_existing_changed_updates(mocker, mock_client, mock_workunit_definition, spec, mock_operations):
     """When the existing dataset differs, it is updated in place."""
-    mock_client.reader.query.return_value = _query_result([_dataset(mocker, id_=555)])
+    mock_client.reader.query_one.return_value = _dataset(mocker, id_=555)
     mock_operations["identify"].return_value = DatasetChanges(column_added=["c"])
 
     _save_dataset(spec, mock_client, mock_workunit_definition)
@@ -111,25 +93,12 @@ def test_save_dataset_existing_changed_updates(mocker, mock_client, mock_workuni
     mock_operations["create"].assert_not_called()
 
 
-def test_save_dataset_multiple_exact_matches_raises(
-    mocker, mock_client, mock_workunit_definition, spec, mock_operations
-):
-    """Two datasets with the same name is ambiguous; we refuse to guess which to update."""
-    mock_client.reader.query.return_value = _query_result([_dataset(mocker, id_=555), _dataset(mocker, id_=556)])
-
-    with pytest.raises(ValueError, match="refusing to guess"):
-        _save_dataset(spec, mock_client, mock_workunit_definition)
-
-    mock_operations["update"].assert_not_called()
-    mock_operations["create"].assert_not_called()
-
-
 def test_save_dataset_existing_with_no_policy_raises(
     mocker, mock_client, mock_workunit_definition, csv_path, mock_operations
 ):
     """update_existing=NO refuses to overwrite an existing dataset."""
     spec = SaveDatasetSpec(local_path=csv_path, separator=",", name="my_dataset", update_existing=UpdateExisting.NO)
-    mock_client.reader.query.return_value = _query_result([_dataset(mocker, id_=555)])
+    mock_client.reader.query_one.return_value = _dataset(mocker, id_=555)
 
     with pytest.raises(ValueError, match="already exists"):
         _save_dataset(spec, mock_client, mock_workunit_definition)
@@ -143,7 +112,7 @@ def test_save_dataset_required_but_missing_raises(mock_client, mock_workunit_def
     spec = SaveDatasetSpec(
         local_path=csv_path, separator=",", name="my_dataset", update_existing=UpdateExisting.REQUIRED
     )
-    mock_client.reader.query.return_value = _query_result([])
+    mock_client.reader.query_one.return_value = None
 
     with pytest.raises(ValueError, match="does not exist"):
         _save_dataset(spec, mock_client, mock_workunit_definition)
