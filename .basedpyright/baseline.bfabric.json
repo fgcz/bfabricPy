@@ -2354,22 +2354,6 @@
                     "endColumn": 16,
                     "lineCount": 1
                 }
-            },
-            {
-                "code": "reportAny",
-                "range": {
-                    "startColumn": 24,
-                    "endColumn": 32,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportExplicitAny",
-                "range": {
-                    "startColumn": 34,
-                    "endColumn": 37,
-                    "lineCount": 1
-                }
             }
         ],
         "./bfabric/src/bfabric/examples/compare_zeep_suds_pagination.py": [
