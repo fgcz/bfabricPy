@@ -492,6 +492,7 @@
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.name"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.name</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.separator"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.separator</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.type"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.type</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.update_existing"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.update_existing</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec</span></code></a><ul class="visible nav section-nav flex-column">
@@ -4756,6 +4757,21 @@ parquet file (see <cite>output_dataset_filename</cite>) which contains the origi
 <span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Invalid Characters&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;update_existing&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/UpdateExisting&quot;</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;if_exists&quot;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">   </span><span class="p">},</span>
+<span class="w">   </span><span class="nt">&quot;$defs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;UpdateExisting&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;enum&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="s2">&quot;no&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;if_exists&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;required&quot;</span>
+<span class="w">         </span><span class="p">],</span>
+<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;UpdateExisting&quot;</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">   </span><span class="p">},</span>
 <span class="w">   </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
@@ -4780,6 +4796,7 @@ parquet file (see <cite>output_dataset_filename</cite>) which contains the origi
 <li><p><a class="reference internal" href="../specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.name" title="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span> <span class="pre">(str</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="../specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.separator" title="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.separator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">separator</span> <span class="pre">(str)</span></code></a></p></li>
 <li><p><a class="reference internal" href="../specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.type" title="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">type</span> <span class="pre">(Literal['bfabric_dataset'])</span></code></a></p></li>
+<li><p><a class="reference internal" href="../specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.update_existing" title="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.update_existing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_existing</span> <span class="pre">(bfabric_app_runner.specs.outputs_spec.UpdateExisting)</span></code></a></p></li>
 </ul>
 </dd>
 </dl>
@@ -4812,6 +4829,12 @@ parquet file (see <cite>output_dataset_filename</cite>) which contains the origi
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.type">
 <span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">type</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'bfabric_dataset'</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'bfabric_dataset'</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.type" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
+
+<dl class="py attribute pydantic_field">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.update_existing">
+<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">update_existing</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.UpdateExisting" title="bfabric_app_runner.specs.outputs_spec.UpdateExisting"><span class="pre">UpdateExisting</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">UpdateExisting.IF_EXISTS</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.update_existing" title="Link to this definition">#</a></dt>
+<dd><p>Behavior if the workunit already has an output dataset with the same name.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -5301,6 +5324,7 @@ subdirectories containing inputs.yml and writes the result to chunks.yml.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.name"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.name</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.separator"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.separator</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.type"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.type</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.update_existing"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.update_existing</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec</span></code></a><ul class="visible nav section-nav flex-column">
