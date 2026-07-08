@@ -117,15 +117,6 @@ def copy_file_to_storage(
     scp(spec.local_path, output_uri, user=ssh_user)
 
 
-def _find_existing_output_dataset(client: Bfabric, workunit_id: int) -> Dataset | None:
-    """Return the workunit's output dataset, or ``None`` if it has none.
-
-    A B-Fabric workunit has at most one output dataset, so a lookup by ``workunitid`` is
-    unambiguous — there is no need to disambiguate by name or resolve multiple matches.
-    """
-    return client.reader.query_one("dataset", {"workunitid": workunit_id}, expected_type=Dataset)
-
-
 def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit_definition: WorkunitDefinition) -> None:
     """Saves a dataset to the bfabric, updating the workunit's output dataset if it already has one.
 
@@ -140,7 +131,7 @@ def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit_definition: W
     table = pl.read_csv(spec.local_path, separator=spec.separator, has_header=spec.has_header, infer_schema_length=None)
     check_for_invalid_characters(table=table, invalid_characters=spec.invalid_characters)
 
-    existing = _find_existing_output_dataset(client, workunit_id=registration.workunit_id)
+    existing = client.reader.query_one("dataset", {"workunitid": registration.workunit_id}, expected_type=Dataset)
     _check_update_existing_policy(
         existing is not None,
         spec.update_existing,
