@@ -27,10 +27,10 @@ class Application(Entity):
         Currently, in case of multiple technologies, the first one (alphabetically) is used.
         TODO this logic should probably be improved in the future
         """
-        technology = self.data_dict["technology"]
-        if not _is_technology_list(technology):
+        technology_raw = self.data_dict["technology"]
+        if not _is_technology_list(technology_raw):
             raise ValueError("Technology must be a list of strings")
-        technology = sorted(technology)[0]
+        technology = sorted(technology_raw)[0]
         return TypeAdapter(PathSafeStr).validate_python(technology)
 
 
