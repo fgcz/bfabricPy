@@ -373,13 +373,13 @@ class Bfabric:
         :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
         :param pat: Personal Access Token (string or ``SecretStr``)
         """
-        from pydantic import SecretStr as _SecretStr
+        from pydantic import SecretStr
 
         from bfabric.config.bfabric_auth import OAUTH_LOGIN
 
         base_url = base_url.rstrip("/")
-        pat_value: str = pat.get_secret_value() if isinstance(pat, _SecretStr) else pat
-        auth = BfabricAuth(login=OAUTH_LOGIN, password=_SecretStr(pat_value))
+        pat_value: str = pat.get_secret_value() if isinstance(pat, SecretStr) else pat
+        auth = BfabricAuth(login=OAUTH_LOGIN, password=SecretStr(pat_value))
         config = BfabricClientConfig(base_url=base_url)  # pyright: ignore[reportCallIssue]
         config_data = ConfigData(client=config, auth=auth)
         return cls(config_data=config_data)
