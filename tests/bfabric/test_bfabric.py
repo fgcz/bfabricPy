@@ -66,6 +66,29 @@ def test_connect_with_custom_args(mocker):
     mock_log_version_message.assert_called_once_with()
 
 
+def test_connect_pat_env_from_config_file(mocker, tmp_path):
+    """A ``auth_method: pat`` env reads back as a plain PAT auth (no OAuth cache path)."""
+    import yaml
+
+    mocker.patch.object(Bfabric, "_log_version_message")
+    config_file = tmp_path / "config.yml"
+    config_file.write_text(
+        yaml.dump(
+            {
+                "GENERAL": {"default_config": "OAUTH"},
+                "OAUTH": {
+                    "base_url": "https://example.com/bfabric",
+                    "auth_method": "pat",
+                    "pat": "short-pat-token",
+                },
+            }
+        )
+    )
+    client = Bfabric.connect(config_file_path=config_file, config_file_env="OAUTH")
+    assert client._auth.login == OAUTH_LOGIN
+    assert client._auth.password.get_secret_value() == "short-pat-token"
+
+
 def test_connect_webapp(mocker, mock_config):
     mock_get_token_data = mocker.patch(
         "bfabric.bfabric.get_token_data",

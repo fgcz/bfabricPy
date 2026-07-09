@@ -15,6 +15,10 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 - `bfabric-cli auth default` — list the configured environments and show the current default.
 - `bfabric-cli auth default set [CONFIG_ENV]` — set the default environment, non-interactively when a value is passed or via an interactive picker when omitted.
 
+### Changed
+
+- `bfabric-cli auth pat` now writes the token under `pat` with `auth_method: pat`, instead of `login: __oauth__` / `password: <token>`. This keeps the shared config file parseable by older (≤1.19.0) bfabricPy clients, which would otherwise reject the non-32-character token and fail to read the whole file. `auth status` reports these environments as `pat`.
+
 ## \[1.16.0rc1\] - 2026-06-23
 
 ### Added
