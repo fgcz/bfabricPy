@@ -15,6 +15,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Changed
 
+- Depend on `polars` (with the `rtcompat` extra on macOS x86_64) instead of the separate `polars-lts-cpu` distribution. Both packages shared the `polars` import name, so on macOS x86_64 they conflicted with `pandera[polars]`'s dependency on `polars`. polars ≥ 1.34's modular runtime (`polars[rtcompat]`) provides the AVX‑free build for Rosetta while keeping a single distribution across the workspace. Minimum polars bumped to 1.34.
 - Removed dead `if <required relationship> is None` guards (in `Workunit.store_output_folder` and `WorkunitExecutionDefinition.from_workunit`) that could never fire — a missing required relationship already raises `ValueError("Field '<name>' is required")` from the descriptor.
 - Added `runtime-evaluated-base-classes = ["pydantic.BaseModel"]` to the ruff `flake8-type-checking` config, so `TC001`/`TC002`/`TC003` no longer suggest moving imports used only in pydantic `BaseModel` field annotations into `if TYPE_CHECKING:` blocks (which would break at runtime, since pydantic resolves field annotations eagerly). Removed the now-unnecessary `# noqa: TC00x` workarounds this uncovered.
 
