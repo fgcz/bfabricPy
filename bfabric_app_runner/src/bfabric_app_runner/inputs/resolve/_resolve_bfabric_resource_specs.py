@@ -40,6 +40,8 @@ class ResolveBfabricResourceSpecs:
             source = get_http_file_source(resource=resource, client=self._client)
         else:
             source = get_ssh_file_source(resource=resource)
+        # filechecksum is always set when a resource is created; None here means check_checksum was
+        # explicitly disabled, not that the checksum is unexpectedly missing.
         checksum = resource["filechecksum"] if spec.check_checksum else None
         if checksum is not None and not isinstance(checksum, str):
             raise ValueError(f"Invalid checksum type for resource {resource.id}: {type(checksum)}")

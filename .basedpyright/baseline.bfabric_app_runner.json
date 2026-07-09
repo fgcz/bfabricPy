@@ -1932,16 +1932,6 @@
                 }
             }
         ],
-        "./bfabric_app_runner/src/bfabric_app_runner/inputs/prepare/prepare_resolved_file.py": [
-            {
-                "code": "reportUnusedCallResult",
-                "range": {
-                    "startColumn": 8,
-                    "endColumn": 29,
-                    "lineCount": 1
-                }
-            }
-        ],
         "./bfabric_app_runner/src/bfabric_app_runner/inputs/prepare/prepare_resolved_static_file.py": [
             {
                 "code": "reportAny",
@@ -3076,24 +3066,6 @@
                 "range": {
                     "startColumn": 8,
                     "endColumn": 65,
-                    "lineCount": 1
-                }
-            }
-        ],
-        "./bfabric_app_runner/src/bfabric_app_runner/util/scp.py": [
-            {
-                "code": "reportUnusedCallResult",
-                "range": {
-                    "startColumn": 12,
-                    "endColumn": 81,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnusedCallResult",
-                "range": {
-                    "startColumn": 4,
-                    "endColumn": 35,
                     "lineCount": 1
                 }
             }

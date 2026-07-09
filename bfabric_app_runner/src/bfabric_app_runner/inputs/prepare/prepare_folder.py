@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, assert_never
 
-from bfabric.config.bfabric_auth import OAUTH_LOGIN
+from bfabric.transfer import ScopeError, check_download_scope, token_provider
 from loguru import logger
 
 from bfabric_app_runner.inputs.prepare.prepare_context import PrepareContext
@@ -22,6 +22,7 @@ from bfabric_app_runner.specs.inputs_spec import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from pathlib import Path
     from bfabric.bfabric import Bfabric
 
@@ -66,8 +67,8 @@ def prepare_folder(
     if action == "prepare":
         # Only touch the client's auth (which may trigger an OAuth token fetch/refresh) when an HTTP input
         # actually needs a bearer token; otherwise SSH/local-only prepares stay independent of auth.
-        bearer_token = _resolve_bearer_token(client) if _needs_bearer_token(input_files) else None
-        context = PrepareContext(ssh_user=ssh_user, bearer_token=bearer_token)
+        provider = _resolve_token_provider(client) if _needs_bearer_token(input_files) else None
+        context = PrepareContext(ssh_user=ssh_user, token_provider=provider)
         _prepare_input_files(input_files=input_files, working_dir=target_folder, context=context)
     elif action == "clean":
         _clean_input_files(input_files=input_files, working_dir=target_folder)
@@ -83,19 +84,26 @@ def _needs_bearer_token(input_files: ResolvedInputs) -> bool:
     )
 
 
-def _resolve_bearer_token(client: Bfabric) -> str | None:
-    """Returns the OAuth bearer token if the client is OAuth-backed, else ``None``.
+def _resolve_token_provider(client: Bfabric) -> Callable[[], str] | None:
+    """Returns a live OAuth bearer-token provider if the client is OAuth-backed, else ``None``.
 
-    HTTP downloads only send a bearer token when it is a genuine OAuth JWT (``login == "__oauth__"``); a
-    config-file client's 32-char web-service password must never be transmitted as a bearer token.
+    The provider reads the client's access token fresh on each call (see
+    :func:`bfabric.transfer.token_provider`), so a long multi-file prepare survives a mid-batch OAuth
+    token refresh. Returns ``None`` for classic login+password / no-auth clients, whose 32-char
+    web-service password must never be transmitted as a bearer token.
     """
+    provider = token_provider(client)
+    if provider is None:
+        return None
+    # Warn (do not fail) if the OAuth token appears to lack the 'containers' scope needed to download
+    # resources over HTTP: the server is authoritative on scope and may authorize via injected claims,
+    # so a missing scope claim is a hint, not a hard failure. Let the download proceed; a genuine
+    # authorization failure still surfaces as a decorated 401/403.
     try:
-        auth = client.auth
-    except ValueError:
-        return None
-    if auth.login != OAUTH_LOGIN:
-        return None
-    return auth.password.get_secret_value()
+        check_download_scope(client)
+    except ScopeError as scope_error:
+        logger.warning(str(scope_error))
+    return provider
 
 
 def _prepare_input_files(input_files: ResolvedInputs, working_dir: Path, context: PrepareContext) -> None:

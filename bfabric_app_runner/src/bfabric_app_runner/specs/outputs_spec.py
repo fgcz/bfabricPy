@@ -30,7 +30,7 @@ class CopyResourceSpec(BaseModel):
     # TODO these need to be implemented properly (e.g. do not scp too early), and tested in integration tests
     update_existing: UpdateExisting = UpdateExisting.IF_EXISTS
 
-    protocol: Literal["scp"] = "scp"
+    protocol: Literal["scp", "tus"] = "scp"
 
 
 class SaveDatasetSpec(BaseModel):
