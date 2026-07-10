@@ -29,28 +29,29 @@ from bfabric.transfer._generic.sources import (
 )
 
 
+@pytest.fixture
+def mock_http_stream(mocker):
+    """Patches httpx.stream to yield a response with the given body; returns the patch factory."""
+
+    def _make(body: bytes = b"hello world", raise_error: BaseException | None = None):
+        response = mocker.MagicMock()
+        response.iter_bytes.return_value = [body]
+        response.raise_for_status.side_effect = raise_error
+        cm = mocker.MagicMock()
+        cm.__enter__.return_value = response
+        cm.__exit__.return_value = False
+        return mocker.patch("bfabric.transfer._generic.fetch.httpx.stream", return_value=cm)
+
+    return _make
+
+
 class TestOperationCopyHttp:
-    @pytest.fixture
-    def mock_http_stream(self, mocker):
-        """Patches httpx.stream to yield a response with the given body; returns (patch, set_body)."""
-
-        def _make(body: bytes = b"hello world", raise_error: BaseException | None = None):
-            response = mocker.MagicMock()
-            response.iter_bytes.return_value = [body]
-            response.raise_for_status.side_effect = raise_error
-            cm = mocker.MagicMock()
-            cm.__enter__.return_value = response
-            cm.__exit__.return_value = False
-            return mocker.patch("bfabric.transfer._generic.fetch.httpx.stream", return_value=cm)
-
-        return _make
-
     def test_anonymous_success(self, mock_http_stream, tmp_path):
         stream = mock_http_stream(body=b"payload")
         output_path = tmp_path / "out.txt"
         source = TransferSourceHttp(url="https://host/data/f.txt", auth=None)
 
-        result = _operation_copy_http(source=source, output_path=output_path, checksum=None, bearer_token=None)
+        result = _operation_copy_http(source=source, output_path=output_path, bearer_token=None)
 
         assert result is True
         assert output_path.read_bytes() == b"payload"
@@ -64,7 +65,7 @@ class TestOperationCopyHttp:
         output_path = tmp_path / "out.txt"
         source = TransferSourceHttp(url="https://host/data/f.txt", auth="bfabric")
 
-        result = _operation_copy_http(source=source, output_path=output_path, checksum=None, bearer_token="jwt-token")
+        result = _operation_copy_http(source=source, output_path=output_path, bearer_token="jwt-token")
 
         assert result is True
         headers = stream.call_args.kwargs["headers"]
@@ -75,14 +76,14 @@ class TestOperationCopyHttp:
         source = TransferSourceHttp(url="https://host/data/f.txt", auth="bfabric")
 
         with pytest.raises(TransferError, match="OAuth-backed client"):
-            _operation_copy_http(source=source, output_path=output_path, checksum=None, bearer_token=None)
+            _operation_copy_http(source=source, output_path=output_path, bearer_token=None)
 
     def test_does_not_send_token_when_not_required(self, mock_http_stream, tmp_path):
         stream = mock_http_stream(body=b"payload")
         output_path = tmp_path / "out.txt"
         source = TransferSourceHttp(url="https://host/data/f.txt", auth=None)
 
-        _operation_copy_http(source=source, output_path=output_path, checksum=None, bearer_token="jwt-token")
+        _operation_copy_http(source=source, output_path=output_path, bearer_token="jwt-token")
 
         # Even if a token is available, an anonymous (auth=None) URL must not receive it.
         headers = stream.call_args.kwargs["headers"]
@@ -93,28 +94,9 @@ class TestOperationCopyHttp:
         output_path = tmp_path / "out.txt"
         source = TransferSourceHttp(url="https://host/data/f.txt", auth=None)
 
-        result = _operation_copy_http(source=source, output_path=output_path, checksum=None, bearer_token=None)
+        result = _operation_copy_http(source=source, output_path=output_path, bearer_token=None)
 
         assert result is False
-
-    def test_checksum_ok(self, mock_http_stream, tmp_path):
-        body = b"payload"
-        checksum = hashlib.md5(body).hexdigest()
-        mock_http_stream(body=body)
-        output_path = tmp_path / "out.txt"
-        source = TransferSourceHttp(url="https://host/data/f.txt", auth=None)
-
-        assert (
-            _operation_copy_http(source=source, output_path=output_path, checksum=checksum, bearer_token=None) is True
-        )
-
-    def test_checksum_mismatch_raises(self, mock_http_stream, tmp_path):
-        mock_http_stream(body=b"payload")
-        output_path = tmp_path / "out.txt"
-        source = TransferSourceHttp(url="https://host/data/f.txt", auth=None)
-
-        with pytest.raises(TransferError, match="Checksum mismatch"):
-            _operation_copy_http(source=source, output_path=output_path, checksum="deadbeef", bearer_token=None)
 
 
 class TestVerifyChecksum:
@@ -135,16 +117,14 @@ class TestVerifyChecksum:
 
         assert not tmp_file.exists()
 
-    def test_none_skips_and_warns(self, tmp_path, logot: Logot):
+    def test_none_skips_and_logs_debug(self, tmp_path, logot: Logot):
         tmp_file = tmp_path / "download.part"
         tmp_file.write_bytes(b"payload")
         output_path = tmp_path / "out.txt"
 
         _verify_checksum(tmp_file, None, output_path)
 
-        logot.assert_logged(
-            logged.warning(f"No checksum available for {output_path}; skipping integrity verification.")
-        )
+        logot.assert_logged(logged.debug(f"No checksum available for {output_path}; skipping integrity verification."))
 
 
 class TestHttpRedirectTrustBoundary:
@@ -181,9 +161,7 @@ class TestHttpRedirectTrustBoundary:
         seen = self._patch_redirecting_stream(mocker, redirect_to="https://cdn.example/redirected")
         source = TransferSourceHttp(url="https://storage.example/file", auth="bfabric")
 
-        result = _operation_copy_http(
-            source=source, output_path=tmp_path / "out.txt", checksum=None, bearer_token="jwt-token"
-        )
+        result = _operation_copy_http(source=source, output_path=tmp_path / "out.txt", bearer_token="jwt-token")
 
         assert result is True
         assert seen["storage.example"]["Authorization"] == "Bearer jwt-token"
@@ -194,9 +172,7 @@ class TestHttpRedirectTrustBoundary:
         seen = self._patch_redirecting_stream(mocker, redirect_to="https://storage.example/redirected")
         source = TransferSourceHttp(url="https://storage.example/file", auth="bfabric")
 
-        result = _operation_copy_http(
-            source=source, output_path=tmp_path / "out.txt", checksum=None, bearer_token="jwt-token"
-        )
+        result = _operation_copy_http(source=source, output_path=tmp_path / "out.txt", bearer_token="jwt-token")
 
         assert result is True
         assert seen["storage.example"]["Authorization"] == "Bearer jwt-token"
@@ -316,7 +292,7 @@ class TestCopyOperations:
 
 
 class TestFetchToPathDispatch:
-    """fetch_to_path dispatch (new; the old dispatch tests stay in app-runner)."""
+    """fetch_to_path transport dispatch (the old dispatch tests stay in app-runner)."""
 
     @pytest.fixture
     def op_rsync(self, mocker):
@@ -334,37 +310,53 @@ class TestFetchToPathDispatch:
     def op_link(self, mocker):
         return mocker.patch("bfabric.transfer._generic.fetch._operation_link_symbolic", return_value=False)
 
+    @staticmethod
+    def _writes(tmp: Path, body: bytes = b"data"):
+        """Returns an op stand-in that writes ``body`` to ``tmp`` and reports success."""
+
+        def _op(*args, **kwargs):
+            tmp.write_bytes(body)
+            return True
+
+        return _op
+
     def test_routes_http(self, mocker, tmp_path, op_rsync):
-        mock_http = mocker.patch("bfabric.transfer._generic.fetch._operation_copy_http", return_value=True)
-        source = TransferSourceHttp(url="https://host/data/f.txt", auth="bfabric")
         dest = tmp_path / "destination.txt"
+        tmp = dest.with_name("destination.txt.part")
+        mock_http = mocker.patch("bfabric.transfer._generic.fetch._operation_copy_http", side_effect=self._writes(tmp))
+        source = TransferSourceHttp(url="https://host/data/f.txt", auth="bfabric")
 
         fetch_to_path(source, dest, Credentials(token_provider=lambda: "tok"))
 
-        mock_http.assert_called_once_with(source=source, output_path=dest, checksum=None, bearer_token="tok")
+        mock_http.assert_called_once_with(source=source, output_path=tmp, bearer_token="tok")
         op_rsync.assert_not_called()
+        assert dest.exists()
 
     def test_local_falls_back_to_cp(self, op_rsync, op_cp, tmp_path):
-        op_rsync.return_value = False
-        op_cp.return_value = True
-        source = TransferSourceLocal(path=Path("/source.txt"))
         dest = tmp_path / "destination.txt"
+        tmp = dest.with_name("destination.txt.part")
+        op_rsync.return_value = False
+        op_cp.side_effect = self._writes(tmp)
+        source = TransferSourceLocal(path=Path("/source.txt"))
 
         fetch_to_path(source, dest, Credentials())
 
-        op_rsync.assert_called_once_with(source, dest, None)
-        op_cp.assert_called_once_with(source, dest)
+        op_rsync.assert_called_once_with(source, tmp, None)
+        op_cp.assert_called_once_with(source, tmp)
+        assert dest.exists()
 
     def test_ssh_falls_back_to_scp(self, op_rsync, op_scp, tmp_path):
-        op_rsync.return_value = False
-        op_scp.return_value = True
-        source = TransferSourceSsh(host="host", path="/source.txt")
         dest = tmp_path / "destination.txt"
+        tmp = dest.with_name("destination.txt.part")
+        op_rsync.return_value = False
+        op_scp.side_effect = self._writes(tmp)
+        source = TransferSourceSsh(host="host", path="/source.txt")
 
         fetch_to_path(source, dest, Credentials(ssh_user="user"))
 
-        op_rsync.assert_called_once_with(source, dest, "user")
-        op_scp.assert_called_once_with(source, dest, "user")
+        op_rsync.assert_called_once_with(source, tmp, "user")
+        op_scp.assert_called_once_with(source, tmp, "user")
+        assert dest.exists()
 
     def test_local_link(self, op_link, tmp_path):
         op_link.return_value = True
@@ -390,3 +382,101 @@ class TestFetchToPathDispatch:
 
         with pytest.raises(TransferError, match="Failed to fetch"):
             fetch_to_path(source, dest, Credentials())
+
+        assert not dest.exists()
+        assert not dest.with_name("destination.txt.part").exists()
+
+
+class TestFetchToPathChecksum:
+    """fetch_to_path verifies the checksum and atomically publishes on every transport."""
+
+    def test_cp_match_publishes(self, mocker, tmp_path):
+        # rsync fails so the real cp path runs, then the real verify + atomic rename.
+        mocker.patch("bfabric.transfer._generic.fetch._operation_copy_rsync", return_value=False)
+        src = tmp_path / "source.txt"
+        src.write_bytes(b"payload")
+        dest = tmp_path / "out" / "destination.txt"
+        source = TransferSourceLocal(path=src)
+
+        fetch_to_path(source, dest, Credentials(), checksum=hashlib.md5(b"payload").hexdigest())
+
+        assert dest.read_bytes() == b"payload"
+        assert not dest.with_name("destination.txt.part").exists()
+
+    def test_cp_mismatch_raises_and_cleans(self, mocker, tmp_path):
+        mocker.patch("bfabric.transfer._generic.fetch._operation_copy_rsync", return_value=False)
+        src = tmp_path / "source.txt"
+        src.write_bytes(b"payload")
+        dest = tmp_path / "out" / "destination.txt"
+        source = TransferSourceLocal(path=src)
+
+        with pytest.raises(TransferError, match="Checksum mismatch"):
+            fetch_to_path(source, dest, Credentials(), checksum="deadbeef")
+
+        assert not dest.exists()
+        assert not dest.with_name("destination.txt.part").exists()
+
+    def test_ssh_scp_mismatch_raises_and_cleans(self, mocker, tmp_path):
+        # rsync fails, scp "succeeds" (writes the temp), then verification rejects the bytes.
+        mocker.patch("bfabric.transfer._generic.fetch._operation_copy_rsync", return_value=False)
+
+        def _scp(source, output_path, ssh_user):
+            output_path.write_bytes(b"payload")
+            return True
+
+        mocker.patch("bfabric.transfer._generic.fetch._operation_copy_scp", side_effect=_scp)
+        dest = tmp_path / "destination.txt"
+        source = TransferSourceSsh(host="host", path="/f.txt")
+
+        with pytest.raises(TransferError, match="Checksum mismatch"):
+            fetch_to_path(source, dest, Credentials(ssh_user="user"), checksum="deadbeef")
+
+        assert not dest.exists()
+        assert not dest.with_name("destination.txt.part").exists()
+
+    def test_http_mismatch_raises_and_cleans(self, mock_http_stream, tmp_path):
+        mock_http_stream(body=b"payload")
+        dest = tmp_path / "destination.txt"
+        source = TransferSourceHttp(url="https://host/f.txt", auth=None)
+
+        with pytest.raises(TransferError, match="Checksum mismatch"):
+            fetch_to_path(source, dest, Credentials(), checksum="deadbeef")
+
+        assert not dest.exists()
+        assert not dest.with_name("destination.txt.part").exists()
+
+    def test_http_match_publishes(self, mock_http_stream, tmp_path):
+        body = b"payload"
+        mock_http_stream(body=body)
+        dest = tmp_path / "sub" / "destination.txt"
+        source = TransferSourceHttp(url="https://host/f.txt", auth=None)
+
+        fetch_to_path(source, dest, Credentials(), checksum=hashlib.md5(body).hexdigest())
+
+        assert dest.read_bytes() == body
+        assert not dest.with_name("destination.txt.part").exists()
+
+    def test_symlink_match_keeps_link(self, tmp_path):
+        src = tmp_path / "source.txt"
+        src.write_bytes(b"payload")
+        dest = tmp_path / "out" / "destination.txt"
+        source = TransferSourceLocal(path=src)
+
+        fetch_to_path(source, dest, Credentials(), checksum=hashlib.md5(b"payload").hexdigest(), link_ok=True)
+
+        assert dest.is_symlink()
+        assert dest.read_bytes() == b"payload"
+
+    def test_symlink_mismatch_removes_link_and_raises(self, tmp_path):
+        src = tmp_path / "source.txt"
+        src.write_bytes(b"payload")
+        dest = tmp_path / "out" / "destination.txt"
+        source = TransferSourceLocal(path=src)
+
+        with pytest.raises(TransferError, match="Checksum mismatch"):
+            fetch_to_path(source, dest, Credentials(), checksum="deadbeef", link_ok=True)
+
+        assert not dest.is_symlink()
+        assert not dest.exists()
+        # The verification failure must remove only the link, never the source file.
+        assert src.read_bytes() == b"payload"
