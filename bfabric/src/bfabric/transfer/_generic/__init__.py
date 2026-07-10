@@ -3,7 +3,7 @@
 This package moves bytes given a transport-only source/sink description plus credentials. It knows
 nothing about B-Fabric: the domain binding (Resource -> source/sink, token acquisition) lives in
 core ``bfabric.transfer``. Base install needs only ``httpx``; the tus resumable-upload mover is
-gated behind the ``[tus]`` extra and is imported lazily, so a download-only consumer never pulls
+gated behind the ``[transfer]`` extra and is imported lazily, so a download-only consumer never pulls
 ``tuspy``.
 """
 

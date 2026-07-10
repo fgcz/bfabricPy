@@ -1,12 +1,12 @@
 # tusclient (the ``tuspy`` package) ships no type information and is an OPTIONAL dependency (the
-# ``[tus]`` extra), so it is unresolved when this package is typechecked without the extra. Disable
+# ``[transfer]`` extra), so it is unresolved when this package is typechecked without the extra. Disable
 # the unknown-type family for this thin wrapper module only, rather than threading casts through
 # every tuspy call.
 # pyright: reportMissingImports=false, reportUnknownMemberType=false, reportUnknownArgumentType=false, reportUnknownVariableType=false
 """The tus resumable-upload mover.
 
 Isolated in its own module because it is the ONLY place that imports ``tusclient`` (from the ``tuspy``
-package, installed via the ``[tus]`` extra). Neither ``bfabric.transfer._generic.__init__`` nor
+package, installed via the ``[transfer]`` extra). Neither ``bfabric.transfer._generic.__init__`` nor
 ``bfabric.transfer._generic.send`` import this module at top level -- ``send_to_sink`` imports it lazily, only
 when a tus sink is actually dispatched -- so a download-only / query install never pulls ``tuspy``.
 """
