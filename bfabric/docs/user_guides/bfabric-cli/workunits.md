@@ -12,6 +12,7 @@ Available subcommands:
 
 | Subcommand | Purpose |
 | ------------------- | --------------------------------------------------------------------------- |
+| `upload` | Upload files to a workunit over tus (resumable) |
 | `not-available` | Check for workunits with missing results (commonly failed CompMS workunits) |
 | `export-definition` | Export workunit definition to a YAML file |
 
@@ -130,6 +131,118 @@ The exported YAML file can be used to run the same analysis:
 ```bash
 bfabric-app-runner run workunit_definition.yml
 ```
+
+______________________________________________________________________
+
+## Uploading Files
+
+Upload files to a workunit over the [tus](https://tus.io/) resumable-upload protocol. This is the
+modern replacement for the base64-over-SOAP `Bfabric.upload_resource` (which is limited to small
+files): it streams in chunks, skips duplicates, and can resume an interrupted transfer.
+
+### Prerequisites
+
+The upload path requires the `tus` optional dependency and an **OAuth-backed** client whose token
+carries the `tus` scope. Install the extra and authenticate once:
+
+```bash
+pip install 'bfabric[transfer]'
+bfabric-cli auth pkce --scope "api:read api:write openid profile email groups tus"
+```
+
+### Basic Usage
+
+```bash
+bfabric-cli workunit upload FILE... --container-id <id> --application-id <id> [OPTIONS]
+```
+
+The pipeline is: compute checksums → check for duplicates → create the workunit and its resource
+records → mint a short-lived tus token → transfer each file → mark the workunit `available`.
+
+### Parameters
+
+| Parameter | Required | Description |
+| ---------------------- | -------- | ----------------------------------------------------------------------- |
+| `FILE...` | Yes | Files and/or directories to upload (positional; directories recurse) |
+| `--container-id` | \* | Container to create the workunit in |
+| `--application-id` | \* | Application the workunit belongs to |
+| `--workunit-id` | \* | Upload into this existing workunit instead of creating one |
+| `--workunit-name` | No | Name for the created workunit (default "File upload") |
+| `--force` | No | Skip the duplicate check and upload every file |
+| `--no-import-resources` | No | Do not create B-Fabric import resources |
+| `--track-job` | No | Create a `TUS_UPLOAD` job; the server flips it to DONE/FAILED |
+| `--no-progress` | No | Disable the live progress bar (auto-off when stderr is not a terminal) |
+
+\* Provide either `--workunit-id` (existing workunit) **or** both `--container-id` and
+`--application-id` (new workunit); the two modes are mutually exclusive.
+
+### Examples
+
+**Upload files to a new workunit:**
+
+```bash
+bfabric-cli workunit upload results.txt report.pdf --container-id 40156 --application-id 447
+```
+
+**Upload a directory (recursed; relative paths are preserved as resource names):**
+
+```bash
+bfabric-cli workunit upload ./output_dir --container-id 40156 --application-id 447
+```
+
+Files identical to ones already in the container are skipped by MD5. Use `--force` to upload them
+anyway.
+
+**Upload into an existing workunit:**
+
+```bash
+bfabric-cli workunit upload extra.txt --workunit-id 336576
+```
+
+**Track the upload as a job:**
+
+```bash
+bfabric-cli workunit upload big.raw --container-id 40156 --application-id 447 --track-job
+```
+
+### Resuming an Interrupted Upload
+
+A tus transfer is resumable: if a connection drops mid-transfer, the server retains the bytes it
+already received. From Python you capture the upload URL (via `on_url`) and pass it back as
+`resume_url` to pick up where you left off instead of re-sending everything. A runnable end-to-end
+proof against a live server -- abort mid-flight, wait, resume -- lives at
+`bfabric/src/bfabric/examples/prove_tus_resume.py`:
+
+```bash
+python -m bfabric.examples.prove_tus_resume --config-env DEMO --container-id 403 --application-id 435
+```
+
+### Using the Python API
+
+The CLI wraps `bfabric.operations.workunit.upload_files`, which you can drive directly -- useful when
+you want to feed progress into your own pipeline runner:
+
+```python
+from pathlib import Path
+
+from bfabric import Bfabric
+from bfabric.operations.workunit import UploadFilesParams, upload_files
+
+client = Bfabric.connect()  # OAuth-backed client with the 'tus' scope
+summary = upload_files(
+    client,
+    files=[Path("results.txt"), Path("output_dir")],
+    params=UploadFilesParams(container_id=40156, application_id=447, track_job=True),
+    on_progress=lambda name, done, total: print(f"{name}: {done}/{total}"),
+)
+print(
+    f"Workunit {summary.workunit_id}: uploaded {summary.uploaded}, skipped {summary.skipped}"
+)
+```
+
+A file whose transfer fails is recorded in `summary.failures` rather than raising; setup failures
+(bad auth, missing scope, resource-creation errors) raise `BfabricTransferError`, and the workunit is
+flipped to `failed` (never deleted) so the partial state stays diagnosable.
 
 ______________________________________________________________________
 
