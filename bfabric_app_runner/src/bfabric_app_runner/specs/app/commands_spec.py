@@ -77,8 +77,8 @@ class CommandPythonEnv(BaseModel):
     command: str
     """The command to run, will be split by `shlex.split` and is not an actual shell script."""
 
-    python_version: str | None = None
-    """The Python version to use."""
+    python_version: str = "3.13"
+    """The Python version to use for the environment (passed to `uv venv -p`)."""
 
     local_extra_deps: list[Path] = []
     """Additional dependencies to install into the environment.
