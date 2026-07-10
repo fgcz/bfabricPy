@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import base64
-import json
 from pathlib import Path
 
 import pytest
@@ -26,22 +24,11 @@ from bfabric.transfer.upload import (
 from bfabric.transfer import FileInfo, TransferSinkTus
 
 
-def _make_jwt(payload: dict) -> str:
-    """Build a fake (unsigned) 3-segment JWT string carrying ``payload`` as its claims."""
-
-    def _b64url(data: bytes) -> str:
-        return base64.urlsafe_b64encode(data).rstrip(b"=").decode("ascii")
-
-    header = _b64url(json.dumps({"alg": "none"}).encode("utf-8"))
-    body = _b64url(json.dumps(payload).encode("utf-8"))
-    return f"{header}.{body}.sig"
-
-
-def _rest_client(mocker, *, scope: str = "api:read tus containers"):
+def _rest_client(mocker, make_jwt, *, scope: str = "api:read tus containers"):
     client = mocker.MagicMock()
     client.config.base_url = "https://host/bfabric/api/"
     client.auth = mocker.MagicMock(login=OAUTH_LOGIN, password=mocker.MagicMock())
-    client.auth.password.get_secret_value.return_value = _make_jwt({"scope": scope})
+    client.auth.password.get_secret_value.return_value = make_jwt({"scope": scope})
     return UploadRestClient(client)
 
 
@@ -78,13 +65,13 @@ class TestRequireTus:
 
 
 class TestCheckDuplicates:
-    def test_maps_response_and_posts_expected_payload(self, mocker):
+    def test_maps_response_and_posts_expected_payload(self, mocker, make_jwt):
         payload = [
             {"name": "a.txt", "category": "new", "action": "upload", "existingResourceId": None},
             {"name": "b.txt", "category": "exact_duplicate", "action": "skip", "existingResourceId": 5},
         ]
         mock_post = _mock_post(mocker, is_success=True, payload=payload)
-        rest = _rest_client(mocker)
+        rest = _rest_client(mocker, make_jwt)
 
         result = rest.check_duplicates(container_id=4, files=[_file_info("a.txt"), _file_info("b.txt")])
 
@@ -103,19 +90,19 @@ class TestCheckDuplicates:
             {"name": "b.txt", "md5": "abc123", "size": 42},
         ]
 
-    def test_failure_raises_duplicate_check_error(self, mocker):
+    def test_failure_raises_duplicate_check_error(self, mocker, make_jwt):
         _mock_post(mocker, is_success=False, status_code=500, text="boom")
-        rest = _rest_client(mocker)
+        rest = _rest_client(mocker, make_jwt)
 
         with pytest.raises(DuplicateCheckError, match="boom"):
             rest.check_duplicates(container_id=4, files=[_file_info()])
 
 
 class TestCreateResources:
-    def test_maps_response(self, mocker):
+    def test_maps_response(self, mocker, make_jwt):
         payload = [{"id": 11, "name": "a.txt", "storagePath": "/store/a.txt", "importResourceId": 99}]
         _mock_post(mocker, is_success=True, payload=payload)
-        rest = _rest_client(mocker)
+        rest = _rest_client(mocker, make_jwt)
 
         result = rest.create_resources(workunit_id=3, files=[_file_info("a.txt")])
 
@@ -125,36 +112,36 @@ class TestCreateResources:
         assert created.storage_path == "/store/a.txt"
         assert created.import_resource_id == 99
 
-    def test_failure_raises_resource_creation_error(self, mocker):
+    def test_failure_raises_resource_creation_error(self, mocker, make_jwt):
         _mock_post(mocker, is_success=False, status_code=500, text="boom")
-        rest = _rest_client(mocker)
+        rest = _rest_client(mocker, make_jwt)
 
         with pytest.raises(ResourceCreationError, match="boom"):
             rest.create_resources(workunit_id=3, files=[_file_info()])
 
 
 class TestGetUploadToken:
-    def test_maps_response(self, mocker):
+    def test_maps_response(self, mocker, make_jwt):
         payload = {"token": "tok", "tusEndpoint": "https://tus/", "expiresIn": 1800}
         _mock_post(mocker, is_success=True, payload=payload)
-        rest = _rest_client(mocker)
+        rest = _rest_client(mocker, make_jwt)
 
         result = rest.get_upload_token(workunit_id=3, resource_ids=[11], import_resource_ids=[99])
 
         assert result == UploadTokenResult(token="tok", tus_endpoint="https://tus/", expires_in=1800)
 
-    def test_scope_check_runs_before_http(self, mocker):
+    def test_scope_check_runs_before_http(self, mocker, make_jwt):
         mock_post = _mock_post(mocker, is_success=True, payload={})
-        rest = _rest_client(mocker, scope="api:read")  # no "tus"
+        rest = _rest_client(mocker, make_jwt, scope="api:read")  # no "tus"
 
         with pytest.raises(ScopeError):
             rest.get_upload_token(workunit_id=3, resource_ids=[11], import_resource_ids=[99])
 
         mock_post.assert_not_called()
 
-    def test_failure_raises_upload_initiation_error(self, mocker):
+    def test_failure_raises_upload_initiation_error(self, mocker, make_jwt):
         _mock_post(mocker, is_success=False, status_code=500, text="boom")
-        rest = _rest_client(mocker)  # token grants tus, so it reaches the http call
+        rest = _rest_client(mocker, make_jwt)  # token grants tus, so it reaches the http call
 
         with pytest.raises(UploadInitiationError, match="boom"):
             rest.get_upload_token(workunit_id=3, resource_ids=[11], import_resource_ids=[99])

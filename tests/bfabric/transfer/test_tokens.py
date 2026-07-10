@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-import base64
-import json
-
 import pytest
 
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
@@ -14,17 +11,6 @@ from bfabric.transfer.tokens import (
     require_scope,
     token_provider,
 )
-
-
-def _make_jwt(payload: object) -> str:
-    """Build a fake (unsigned) 3-segment JWT string carrying ``payload`` as its claims."""
-
-    def _b64url(data: bytes) -> str:
-        return base64.urlsafe_b64encode(data).rstrip(b"=").decode("ascii")
-
-    header = _b64url(json.dumps({"alg": "none"}).encode("utf-8"))
-    body = _b64url(json.dumps(payload).encode("utf-8"))
-    return f"{header}.{body}.sig"
 
 
 def _oauth_client(mocker, token: str):
@@ -67,13 +53,13 @@ class TestTokenProvider:
 
 
 class TestRequireScope:
-    def test_granted_scope_does_not_raise(self, mocker):
-        client = _oauth_client(mocker, _make_jwt({"scope": "api:read tus containers"}))
+    def test_granted_scope_does_not_raise(self, mocker, make_jwt):
+        client = _oauth_client(mocker, make_jwt({"scope": "api:read tus containers"}))
 
         require_scope(client, "tus")
 
-    def test_missing_scope_raises_with_hint(self, mocker):
-        client = _oauth_client(mocker, _make_jwt({"scope": "api:read"}))
+    def test_missing_scope_raises_with_hint(self, mocker, make_jwt):
+        client = _oauth_client(mocker, make_jwt({"scope": "api:read"}))
 
         with pytest.raises(ScopeError) as exc_info:
             require_scope(client, "tus")
@@ -99,20 +85,20 @@ class TestRequireScope:
 
 
 class TestDecodeScopes:
-    def test_scope_as_space_delimited_string(self):
-        token = _make_jwt({"scope": "api:read api:write tus"})
+    def test_scope_as_space_delimited_string(self, make_jwt):
+        token = make_jwt({"scope": "api:read api:write tus"})
         assert _decode_scopes(token) == {"api:read", "api:write", "tus"}
 
-    def test_scope_as_list(self):
-        token = _make_jwt({"scope": ["api:read", "api:write", "tus"]})
+    def test_scope_as_list(self, make_jwt):
+        token = make_jwt({"scope": ["api:read", "api:write", "tus"]})
         assert _decode_scopes(token) == {"api:read", "api:write", "tus"}
 
-    def test_no_scope_claim(self):
-        token = _make_jwt({"sub": "jdoe"})
+    def test_no_scope_claim(self, make_jwt):
+        token = make_jwt({"sub": "jdoe"})
         assert _decode_scopes(token) == set()
 
-    def test_extra_whitespace_in_string_form(self):
-        token = _make_jwt({"scope": "  api:read   api:write \t tus  "})
+    def test_extra_whitespace_in_string_form(self, make_jwt):
+        token = make_jwt({"scope": "  api:read   api:write \t tus  "})
         assert _decode_scopes(token) == {"api:read", "api:write", "tus"}
 
     @pytest.mark.parametrize(
@@ -128,46 +114,46 @@ class TestDecodeScopes:
         with pytest.raises(ValueError):
             _decode_scopes(bad_token)
 
-    def test_payload_not_a_json_object_string(self):
-        token = _make_jwt("just-a-string")
+    def test_payload_not_a_json_object_string(self, make_jwt):
+        token = make_jwt("just-a-string")
         with pytest.raises(ValueError):
             _decode_scopes(token)
 
-    def test_payload_not_a_json_object_number(self):
-        token = _make_jwt(42)
+    def test_payload_not_a_json_object_number(self, make_jwt):
+        token = make_jwt(42)
         with pytest.raises(ValueError):
             _decode_scopes(token)
 
-    def test_payload_requiring_padding_decodes_fine(self):
+    def test_payload_requiring_padding_decodes_fine(self, make_jwt):
         # Chosen so the base64url payload segment length is not a multiple of 4,
         # exercising the padding logic in _decode_scopes.
         payload = {"scope": "a"}
-        token = _make_jwt(payload)
+        token = make_jwt(payload)
         segments = token.split(".")
         assert len(segments[1]) % 4 != 0
         assert _decode_scopes(token) == {"a"}
 
 
 class TestCheckScopeHelpers:
-    def test_check_upload_scope_grants_tus(self, mocker):
-        client = _oauth_client(mocker, _make_jwt({"scope": "api:read tus"}))
+    def test_check_upload_scope_grants_tus(self, mocker, make_jwt):
+        client = _oauth_client(mocker, make_jwt({"scope": "api:read tus"}))
 
         check_upload_scope(client)
 
-    def test_check_upload_scope_missing_tus_raises(self, mocker):
-        client = _oauth_client(mocker, _make_jwt({"scope": "api:read containers"}))
+    def test_check_upload_scope_missing_tus_raises(self, mocker, make_jwt):
+        client = _oauth_client(mocker, make_jwt({"scope": "api:read containers"}))
 
         with pytest.raises(ScopeError) as exc_info:
             check_upload_scope(client)
         assert "tus" in str(exc_info.value)
 
-    def test_check_download_scope_grants_containers(self, mocker):
-        client = _oauth_client(mocker, _make_jwt({"scope": "api:read containers"}))
+    def test_check_download_scope_grants_containers(self, mocker, make_jwt):
+        client = _oauth_client(mocker, make_jwt({"scope": "api:read containers"}))
 
         check_download_scope(client)
 
-    def test_check_download_scope_missing_containers_raises(self, mocker):
-        client = _oauth_client(mocker, _make_jwt({"scope": "api:read tus"}))
+    def test_check_download_scope_missing_containers_raises(self, mocker, make_jwt):
+        client = _oauth_client(mocker, make_jwt({"scope": "api:read tus"}))
 
         with pytest.raises(ScopeError) as exc_info:
             check_download_scope(client)
