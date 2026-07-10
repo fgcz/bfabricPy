@@ -50,7 +50,7 @@ def send_to_sink(
 
             return upload_file(
                 sink.endpoint,
-                sink.token,
+                sink.token.get_secret_value(),
                 src,
                 sink.metadata,
                 on_progress=on_progress,
