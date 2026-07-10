@@ -40,6 +40,27 @@ def sample_command():
     )
 
 
+class TestCommandPythonEnvDefaults:
+    """Tests for CommandPythonEnv spec defaults."""
+
+    def test_python_version_defaults_to_3_13(self):
+        """When omitted (e.g. ScaffoldDIA app.yml), python_version defaults to the tested 3.13.
+
+        Previously it defaulted to None and was passed verbatim to `uv venv -p None`.
+        """
+        command = CommandPythonEnv(pylock=Path("/test/requirements.txt"), command="my_script.py")
+        assert command.python_version == "3.13"
+
+    def test_provision_uses_default_python_version(self, temp_env_path, mock_uv, mock_execute_command_exec):
+        """Provisioning a command without an explicit python_version pins -p 3.13."""
+        temp_env_path.mkdir(parents=True, exist_ok=True)
+        command = CommandPythonEnv(pylock=Path("/test/requirements.txt"), command="my_script.py")
+        PythonEnvironment(temp_env_path, command).provision()
+
+        venv_call = mock_execute_command_exec.call_args_list[0][0][0]
+        assert "uv venv -p 3.13" in venv_call.command
+
+
 class TestPythonEnvironment:
     """Tests for the PythonEnvironment class."""
 
@@ -88,6 +109,10 @@ class TestPythonEnvironment:
         install_call = mock_execute_command_exec.call_args_list[1][0][0]
         assert "uv pip install" in install_call.command
         assert str(sample_command.pylock) in install_call.command
+
+        # Provisioning output should be routed through the logger at DEBUG, not printed directly
+        for call in mock_execute_command_exec.call_args_list:
+            assert call.kwargs["log_output_level"] == "DEBUG"
 
         # Check marker file created
         assert env.is_provisioned is True

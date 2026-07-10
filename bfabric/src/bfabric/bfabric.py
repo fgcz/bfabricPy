@@ -29,8 +29,7 @@ from loguru import logger
 from rich.console import Console
 
 from bfabric._oauth._constants import DEFAULT_CLIENT_ID, DEFAULT_OAUTH_SCOPE
-
-from bfabric.config import BfabricAuth, BfabricClientConfig, DEFAULT_CONFIG_FILE
+from bfabric.config import DEFAULT_CONFIG_FILE, BfabricAuth, BfabricClientConfig
 from bfabric.config.bfabric_client_config import BfabricAPIEngineType
 from bfabric.config.config_data import ConfigData, load_config_data
 from bfabric.config.config_file import read_config_file
@@ -46,9 +45,9 @@ if TYPE_CHECKING:
 
     from pydantic import SecretStr
 
+    from bfabric._oauth.credential_provider import OAuthCredentialProvider
     from bfabric.entities.core.entity_reader import EntityReader
     from bfabric.experimental.webapp_integration_settings import TokenValidationSettingsProtocol
-    from bfabric._oauth.credential_provider import OAuthCredentialProvider
     from bfabric.typing import ApiRequestObjectType, ApiResponseObjectType
 
 
@@ -163,9 +162,6 @@ class Bfabric:
         )
         config, auth_config = get_system_auth(config_env=config_env, config_path=config_path)
         auth_used: BfabricAuth | None = auth_config if auth == "config" else auth
-        # TODO https://github.com/fgcz/bfabricPy/issues/164
-        # if engine is not None:
-        #    config = config.copy_with(engine=engine)
         return cls(ConfigData(client=config, auth=auth_used))
 
     @classmethod
@@ -377,13 +373,13 @@ class Bfabric:
         :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
         :param pat: Personal Access Token (string or ``SecretStr``)
         """
-        from pydantic import SecretStr as _SecretStr
+        from pydantic import SecretStr
 
         from bfabric.config.bfabric_auth import OAUTH_LOGIN
 
         base_url = base_url.rstrip("/")
-        pat_value = pat.get_secret_value() if isinstance(pat, _SecretStr) else pat
-        auth = BfabricAuth(login=OAUTH_LOGIN, password=pat_value)  # pyright: ignore[reportArgumentType]
+        pat_value: str = pat.get_secret_value() if isinstance(pat, SecretStr) else pat
+        auth = BfabricAuth(login=OAUTH_LOGIN, password=SecretStr(pat_value))
         config = BfabricClientConfig(base_url=base_url)  # pyright: ignore[reportCallIssue]
         config_data = ConfigData(client=config, auth=auth)
         return cls(config_data=config_data)

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import yaml
 
-from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric_scripts.cli.login.pat import cmd_login_pat
 
 
@@ -17,9 +16,14 @@ class TestCmdLoginPat:
         )
         data = yaml.safe_load(config_file.read_text())
         assert data["GENERAL"]["default_config"] == "PROD"
-        assert data["PROD"]["login"] == OAUTH_LOGIN
-        assert data["PROD"]["password"] == "my-pat-token"
+        assert data["PROD"]["auth_method"] == "pat"
+        assert data["PROD"]["pat"] == "my-pat-token"
         assert data["PROD"]["base_url"] == "https://example.com/bfabric"
+        # Old-client-safety contract: never inline a (non-32-char) secret under `password`,
+        # and never pair a `login` with it — else an unmodified <=1.19.0 client fails to
+        # parse the whole file.
+        assert "login" not in data["PROD"]
+        assert "password" not in data["PROD"]
         # Warning should be printed when passing via flag
         err = capsys.readouterr().err
         assert "insecure" in err
@@ -44,7 +48,7 @@ class TestCmdLoginPat:
             config_file=config_file,
         )
         data = yaml.safe_load(config_file.read_text())
-        assert data["PROD"]["password"] == "prompted-token"
+        assert data["PROD"]["pat"] == "prompted-token"
 
     def test_set_default_false_does_not_set_default(self, tmp_path):
         config_file = tmp_path / "config.yml"
@@ -57,4 +61,4 @@ class TestCmdLoginPat:
         )
         data = yaml.safe_load(config_file.read_text())
         assert "default_config" not in data["GENERAL"]
-        assert data["PROD"]["login"] == OAUTH_LOGIN
+        assert data["PROD"]["auth_method"] == "pat"

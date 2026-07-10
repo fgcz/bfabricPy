@@ -50,6 +50,7 @@ pytest tests/bfabric -k test_name      # single test
 ```bash
 nox -s basedpyright(bfabric)
 nox -s basedpyright(bfabric_scripts)
+nox -s basedpyright(bfabric_app_runner)
 ```
 
 ### Linting
