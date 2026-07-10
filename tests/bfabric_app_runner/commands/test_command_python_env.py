@@ -110,6 +110,10 @@ class TestPythonEnvironment:
         assert "uv pip install" in install_call.command
         assert str(sample_command.pylock) in install_call.command
 
+        # Provisioning output should be routed through the logger at DEBUG, not printed directly
+        for call in mock_execute_command_exec.call_args_list:
+            assert call.kwargs["log_output_level"] == "DEBUG"
+
         # Check marker file created
         assert env.is_provisioned is True
 

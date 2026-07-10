@@ -1190,16 +1190,6 @@
                 }
             }
         ],
-        "./bfabric_app_runner/src/bfabric_app_runner/commands/command_exec.py": [
-            {
-                "code": "reportUnusedCallResult",
-                "range": {
-                    "startColumn": 4,
-                    "endColumn": 59,
-                    "lineCount": 1
-                }
-            }
-        ],
         "./bfabric_app_runner/src/bfabric_app_runner/commands/command_python_env.py": [
             {
                 "code": "reportUnannotatedClassAttribute",
