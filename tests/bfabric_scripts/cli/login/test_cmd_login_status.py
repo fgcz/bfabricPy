@@ -15,14 +15,16 @@ class TestCmdLoginStatus:
     def test_shows_password_auth(self, tmp_path, capsys):
         config_file = tmp_path / "config.yml"
         config_file.write_text(
-            yaml.dump({
-                "GENERAL": {"default_config": "PROD"},
-                "PROD": {
-                    "base_url": "https://example.com/bfabric",
-                    "login": "testuser",
-                    "password": "x" * 32,
-                },
-            })
+            yaml.dump(
+                {
+                    "GENERAL": {"default_config": "PROD"},
+                    "PROD": {
+                        "base_url": "https://example.com/bfabric",
+                        "login": "testuser",
+                        "password": "x" * 32,
+                    },
+                }
+            )
         )
         cmd_login_status(config_file=config_file)
         output = capsys.readouterr().out
@@ -32,19 +34,41 @@ class TestCmdLoginStatus:
     def test_shows_oauth_auth(self, tmp_path, capsys):
         config_file = tmp_path / "config.yml"
         config_file.write_text(
-            yaml.dump({
-                "GENERAL": {"default_config": "PROD"},
-                "PROD": {
-                    "base_url": "https://example.com/bfabric",
-                    "auth_method": "oauth",
-                    "client_id": "my-app",
-                },
-            })
+            yaml.dump(
+                {
+                    "GENERAL": {"default_config": "PROD"},
+                    "PROD": {
+                        "base_url": "https://example.com/bfabric",
+                        "auth_method": "oauth",
+                        "client_id": "my-app",
+                    },
+                }
+            )
         )
         cmd_login_status(config_file=config_file)
         output = capsys.readouterr().out
         assert "oauth" in output
         assert "my-app" in output
+
+    def test_shows_pat_auth(self, tmp_path, capsys):
+        config_file = tmp_path / "config.yml"
+        config_file.write_text(
+            yaml.dump(
+                {
+                    "GENERAL": {"default_config": "PROD"},
+                    "PROD": {
+                        "base_url": "https://example.com/bfabric",
+                        "auth_method": "pat",
+                        "pat": "short-pat-token",
+                    },
+                }
+            )
+        )
+        cmd_login_status(config_file=config_file)
+        output = capsys.readouterr().out
+        assert "pat" in output
+        # The secret itself must never be printed.
+        assert "short-pat-token" not in output
 
     def test_missing_config_file(self, tmp_path, capsys):
         config_file = tmp_path / "nonexistent.yml"

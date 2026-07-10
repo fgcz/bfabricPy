@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 from pydantic_core import PydanticCustomError
 
 from bfabric.config import BfabricAuth, BfabricClientConfig
+from bfabric.config.bfabric_auth import OAUTH_LOGIN
 
 # Canonical default location of the bfabricPy config file. The tilde is kept unexpanded here;
 # callers expand it via Path.expanduser() at the point of use.
@@ -23,7 +24,7 @@ class GeneralConfig(BaseModel):
 class EnvironmentConfig(BaseModel):
     config: BfabricClientConfig
     auth: BfabricAuth | None = None
-    auth_method: Literal["password", "oauth"] | None = None
+    auth_method: Literal["password", "oauth", "pat"] | None = None
     client_id: str | None = None
 
     @model_validator(mode="before")
@@ -35,15 +36,22 @@ class EnvironmentConfig(BaseModel):
         values["config"] = {
             key: value
             for key, value in values.items()  # pyright: ignore[reportAny]
-            if key not in ["login", "password", "auth_method", "client_id"]
+            if key not in ["login", "password", "auth_method", "client_id", "pat"]
         }
         return values
 
     @model_validator(mode="before")
     @classmethod
     def gather_auth(cls, values: dict[str, Any]) -> dict[str, Any]:
-        if isinstance(values, dict) and "login" in values:
-            values["auth"] = BfabricAuth.model_validate(values)
+        if isinstance(values, dict):
+            if "login" in values:
+                values["auth"] = BfabricAuth.model_validate(values)
+            elif values.get("pat"):
+                # PAT environments store the token under ``pat`` (never ``login``/``password``) so an
+                # unmodified <=1.19.0 client ignores it instead of failing the 32-char password rule
+                # and poisoning the whole file. Reconstruct the OAuth-style auth the token needs.
+                values["auth"] = BfabricAuth.model_validate({"login": OAUTH_LOGIN, "password": values["pat"]})
+            values.pop("pat", None)
         return values
 
 

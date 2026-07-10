@@ -73,13 +73,31 @@ PRODUCTION:
   client_id: "CLI"    # NEW — optional, defaults to "CLI"
 ```
 
+For PAT (Personal Access Token) logins the token is stored inline under `pat` (with
+`auth_method: pat`), never as `login: __oauth__` / `password: <token>`:
+
+```yaml
+PRODUCTION:
+  base_url: "https://bfabric.example.com/bfabric"
+  auth_method: "pat"
+  pat: "<token>"
+```
+
+**Backward-compatibility contract.** A PAT is not 32 characters, and a ≤1.19.0 client
+validates *every* environment eagerly while enforcing an exactly-32-character password — so an
+inline `login: __oauth__` / `password: <PAT>` environment would poison the whole shared
+`~/.bfabricpy.yml` for those clients. Storing the token under `pat` (no `login`/`password`)
+means old clients silently ignore it and keep reading the rest of the file; no fleet-wide
+upgrade is required. The reader still accepts the legacy `login: __oauth__` shape written by
+`1.20.0rc1`.
+
 ### New: `config_writer.py`
 
 `write_environment_to_config()` — creates or updates a YAML environment section with atomic writes (0o600 permissions). Used by all login commands.
 
 ### `ConfigData` / `EnvironmentConfig`
 
-Both models gained `auth_method` and `client_id` fields. `Bfabric.connect()` checks `auth_method == "oauth"` to route to `_connect_oauth_from_config()`.
+Both models gained `auth_method` (`"password"` | `"oauth"` | `"pat"`) and `client_id` fields. `Bfabric.connect()` checks `auth_method == "oauth"` to route to `_connect_oauth_from_config()` (token loaded from the disk cache); `"pat"` and `"password"` environments carry their credential in the config and use the normal auth path.
 
 ---
 
