@@ -82,7 +82,9 @@ class PythonEnvironment:
         exec_command = CommandExec(
             command=shlex.join(dep_install_cmd), env=self.command.env, prepend_paths=self.command.prepend_paths
         )
-        execute_command_exec(exec_command)
+        # Provisioning output (uv venv / pip install) is noisy diagnostic info; route it through the logger at
+        # DEBUG rather than letting it print directly.
+        execute_command_exec(exec_command, log_output_level="DEBUG")
 
     def _mark_provisioned(self) -> None:
         """Mark environment as successfully provisioned."""

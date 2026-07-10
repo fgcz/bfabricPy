@@ -1,3 +1,4 @@
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -48,3 +49,35 @@ def test_execute_full(mocker, command_full, subprocess_run):
         check=True,
         env={"NAME": "sun", "PATH": "/usr/local/bin:/home/user/bin:"},
     )
+
+
+def test_execute_captures_and_logs_output_at_level(command_minimal, subprocess_run, mocker):
+    mock_logger = mocker.patch("bfabric_app_runner.commands.command_exec.logger")
+    subprocess_run.return_value = mocker.MagicMock(returncode=0, stdout="Resolved 1 package\n")
+
+    execute_command_exec(command_minimal, environ={"NAME": "testing"}, log_output_level="DEBUG")
+
+    subprocess_run.assert_called_once_with(
+        ["echo", "hello world"],
+        env={"NAME": "testing"},
+        check=False,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    mock_logger.log.assert_called_once()
+    level, message = mock_logger.log.call_args[0]
+    assert level == "DEBUG"
+    assert "Resolved 1 package" in message
+
+
+def test_execute_capture_mode_raises_and_logs_error_on_failure(command_minimal, subprocess_run, mocker):
+    mock_logger = mocker.patch("bfabric_app_runner.commands.command_exec.logger")
+    subprocess_run.return_value = mocker.MagicMock(returncode=2, stdout="boom\n")
+
+    with pytest.raises(subprocess.CalledProcessError):
+        execute_command_exec(command_minimal, log_output_level="DEBUG")
+
+    mock_logger.error.assert_called_once()
+    assert "boom" in mock_logger.error.call_args[0][0]
+    mock_logger.log.assert_not_called()
