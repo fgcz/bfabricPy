@@ -1,7 +1,7 @@
 # shellcheck disable=SC2016,SC2154
 # Determine app runner version
 get_app_runner_version() {
-    uv run -p 3.13 --with "pyyaml==6.0.2" python - "$1" <<'EOF'
+    uv run -p ${python_version} --with "pyyaml==6.0.2" python - "$1" <<'EOF'
 import yaml
 import sys
 import re
@@ -17,5 +17,5 @@ EOF
 app_runner_version=$(get_app_runner_version "${app_yaml_path}")
 
 # Run
-uv run --with "$app_runner_version" bfabric-app-runner \
+uv run -p ${python_version} --with "$app_runner_version" bfabric-app-runner \
     run workunit --app-definition '${app_yaml_path}' --scratch-root '${scratch_root}' --workunit-ref '${workunit_id}'
