@@ -12,7 +12,7 @@ import importlib
 from typing import TYPE_CHECKING, ClassVar, final
 
 import httpx
-from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, TypeAdapter
 
 from bfabric.transfer.errors import (
     BfabricTransferError,
@@ -194,4 +194,4 @@ def tus_sink_for_resource(
         metadata["importResourceId"] = str(resource.import_resource_id)
     if job_id is not None:
         metadata["jobId"] = str(job_id)
-    return TransferSinkTus(endpoint=token_result.tus_endpoint, metadata=metadata, token=token_result.token)
+    return TransferSinkTus(endpoint=token_result.tus_endpoint, metadata=metadata, token=SecretStr(token_result.token))

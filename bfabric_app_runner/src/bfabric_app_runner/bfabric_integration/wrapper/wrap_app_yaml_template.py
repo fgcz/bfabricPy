@@ -16,6 +16,11 @@ class WrapAppYamlTemplate:
         workunit_id: int
         app_yaml_path: str
         scratch_root: Path
+        python_version: str = "3.13"
+        """Python version the app_runner itself is launched with (independent of the app's venv).
+
+        Pinned so the runner does not float onto an untested interpreter. See issue #494.
+        """
 
         @classmethod
         def extract_workunit(cls, workunit: Workunit, scratch_root: Path) -> WrapAppYamlTemplate.Params:

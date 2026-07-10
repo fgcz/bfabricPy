@@ -85,6 +85,19 @@ def test_send_tus_delegates_to_mover(mocker, tmp_path):
     assert outcome is sentinel
 
 
+def test_send_tus_missing_extra_raises_transfererror(mocker, tmp_path):
+    # A base install lacks tuspy, so importing the mover fails; the user should get a clear pointer
+    # to the extra, not a bare ModuleNotFoundError. Setting the module to None makes the lazy
+    # `from ..._tus_mover import upload_file` raise ImportError regardless of whether tuspy is present.
+    src = tmp_path / "src.bin"
+    src.write_bytes(b"payload")
+    mocker.patch.dict(sys.modules, {"bfabric.transfer._generic._tus_mover": None})
+
+    sink = TransferSinkTus(endpoint="https://tus.example/", metadata={}, token="tus-tok")
+    with pytest.raises(TransferError, match=r"bfabric\[transfer\]"):
+        send_to_sink(sink, src, Credentials())
+
+
 @pytest.mark.slow
 def test_importing_transfer_does_not_import_tuspy():
     # The core lazy-import guarantee: a download-only / query consumer that merely imports the

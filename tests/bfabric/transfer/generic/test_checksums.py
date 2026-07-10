@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 from pathlib import Path
 
 import pytest
@@ -15,22 +14,22 @@ from bfabric.transfer._generic.checksums import (
 
 def test_md5_checksum(tmp_path: Path) -> None:
     f = tmp_path / "data.bin"
-    content = b"some bytes to hash"
-    f.write_bytes(content)
+    f.write_bytes(b"some bytes to hash")
 
-    assert md5_checksum(f) == hashlib.md5(content).hexdigest()
+    # Literal md5 of b"some bytes to hash" -- an independent oracle, not a re-run of the code.
+    assert md5_checksum(f) == "03d01978f780dc8c34c0e279df48a8ce"
 
 
 def test_compute_file_info_basename(tmp_path: Path) -> None:
     f = tmp_path / "hello.txt"
-    content = b"hello world"
-    f.write_bytes(content)
+    f.write_bytes(b"hello world")
 
     fi = compute_file_info(f)
 
     assert fi.name == "hello.txt"
-    assert fi.size == len(content)
-    assert fi.md5 == hashlib.md5(content).hexdigest()
+    assert fi.size == 11
+    # Literal md5 of b"hello world".
+    assert fi.md5 == "5eb63bbbe01eeed093cb22bb8f5acdc3"
     assert fi.path == f
 
 

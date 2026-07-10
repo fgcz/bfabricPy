@@ -50,6 +50,7 @@ pytest tests/bfabric -k test_name      # single test
 ```bash
 nox -s basedpyright(bfabric)
 nox -s basedpyright(bfabric_scripts)
+nox -s basedpyright(bfabric_app_runner)
 ```
 
 ### Linting
@@ -101,6 +102,10 @@ Each package's docs live alongside its source. Skim the index when working in a 
 - Tests use the pytest-mock `mocker` fixture for **all** mocking — do not `import unittest.mock`.
   Use `mocker.patch(...)`, `mocker.patch.object(...)`, `mocker.patch.dict(...)`, `mocker.MagicMock()`,
   `mocker.Mock()`, `mocker.mock_open(...)`, etc. (`pytest-mock` is a test dependency in every package.)
+- Group related tests in a file with plain `class TestXyz:` blocks — do **not** use `# --- section ---`
+  comment banners as separators. A bare class (no base) is all pytest needs; move fixtures used by only
+  one group inside its class so their scope matches the grouping. Keep each method name specific enough to
+  read on its own (drop a prefix only when the class already conveys it).
 - Ruff linting is currently only enforced on the `bfabric` package (scripts, wrapper_creator, tests, noxfile are excluded via per-file-ignores)
 - Line length: 120 (ruff and black)
 - Do not restate a parameter's default value in its docstring when the signature already shows it (e.g. `client_id: str = DEFAULT_CLIENT_ID`). Writing `(default "CLI")` in the `:param:` line just duplicates the signature and drifts out of sync when the default changes. Keep notes that explain what a value *means* (e.g. `(``0`` = auto-assign)`), not ones that merely repeat it. This also applies to class/model docstrings that restate a field's default shown a few lines below (prefer "see `field_name`" over repeating the literal value). Note the common case where the signature default is a sentinel like `None` but the docstring explains what it resolves to at runtime (e.g. `max_results: int | None = 100` documented as `` (``None`` for all) ``, or `path: Path | None = None` documented as `` (``None`` writes to ``./output.yml``) ``) — that is the *meaning* case, not the restatement case, and should be kept; phrase it as "``None`` does/means X", not "(default: X)", so it isn't mistaken for a literal restatement.

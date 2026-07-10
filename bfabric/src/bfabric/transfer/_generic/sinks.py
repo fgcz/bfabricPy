@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, SecretStr
 
 
 class TransferSinkLocal(BaseModel):
@@ -34,7 +34,7 @@ class TransferSinkTus(BaseModel):
     type: Literal["tus"] = "tus"
     endpoint: str
     metadata: dict[str, str]
-    token: str
+    token: SecretStr
 
 
 TransferSink = Annotated[

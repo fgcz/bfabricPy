@@ -51,6 +51,9 @@ def cmd_login_status(
             print(f"Token cache:  {cache_path} (present)")
         else:
             print(f"Token cache:  {cache_path} (missing)")
+    elif env.auth_method == "pat":
+        print("Auth method:  pat")
+        print("Token:        stored in config file")
     elif env.auth is not None:
         print(f"Auth method:  password")
         print(f"Login:        {env.auth.login}")

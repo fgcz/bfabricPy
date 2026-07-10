@@ -150,7 +150,7 @@ class EngineZeep:
             n_available_pages = response["numberofpages"]
         except AttributeError:
             n_available_pages = 0
-        errors = get_response_errors(response, endpoint=endpoint)
+        errors = get_response_errors(response, endpoint=endpoint)  # pyright: ignore[reportAny]
         if not hasattr(response, endpoint):
             return ResultContainer([], total_pages_api=0, errors=errors)
         # TODO up until here it's duplicated with engine_suds

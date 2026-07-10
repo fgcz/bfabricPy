@@ -18,6 +18,10 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
     - `--track-job` creates a `TUS_UPLOAD` job so the upload is visible in B-Fabric.
     - Shows a live progress display (disable with `--no-progress`).
 
+### Changed
+
+- `bfabric-cli auth pat` now writes the token under `pat` with `auth_method: pat`, instead of `login: __oauth__` / `password: <token>`. This keeps the shared config file parseable by older (≤1.19.0) bfabricPy clients, which would otherwise reject the non-32-character token and fail to read the whole file. `auth status` reports these environments as `pat`.
+
 ## \[1.16.0rc1\] - 2026-06-23
 
 ### Added

@@ -45,7 +45,7 @@ from bfabric.transfer.errors import (
     ScopeError,
     UploadInitiationError,
 )
-from bfabric.transfer.sources import http_source, resource_sources, ssh_source
+from bfabric.transfer.sources import Transport, http_source, resource_sources, ssh_source
 from bfabric.transfer.tokens import (
     check_download_scope,
     check_upload_scope,
@@ -81,6 +81,7 @@ __all__ = [
     "TransferSourceHttp",
     "TransferSourceLocal",
     "TransferSourceSsh",
+    "Transport",
     "UploadInitiationError",
     "UploadOutcome",
     "UploadRestClient",

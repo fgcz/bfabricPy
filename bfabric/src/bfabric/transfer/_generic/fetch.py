@@ -36,36 +36,52 @@ def fetch_to_path(
 ) -> None:
     """Fetches ``source`` to ``dest`` using rsync/scp/cp/symlink or a streamed HTTP download.
 
-    The download is atomic and checksum-verified where the transport allows. ``link_ok`` permits
-    symlinking a local source in place of copying it. Raises :class:`TransferError` if the transfer
-    ultimately fails.
+    The fetch is atomic and checksum-verified across all transports: every byte-copy transport writes
+    to a temporary sibling, is verified, then atomically replaces ``dest`` -- so a failed or corrupt
+    transfer never leaves a partial file behind. ``link_ok`` permits symlinking a local source in place
+    of copying it (the linked file is still verified when a checksum is given). Raises
+    :class:`TransferError` if the transfer ultimately fails or the checksum does not match.
 
     :param source: the file to fetch (a single transport-only source; candidate-list negotiation is
         deferred).
     :param dest: the full destination path (not a directory); parent directories are created.
     :param creds: credentials used for the transfer (ssh user, and the bearer-token provider for
         authenticated HTTP).
-    :param checksum: expected MD5 hex digest to verify an HTTP download against, if available.
+    :param checksum: expected MD5 hex digest to verify the fetched file against (all transports), if
+        available.
     :param link_ok: whether a local source may be symlinked instead of copied.
     """
     dest.parent.mkdir(exist_ok=True, parents=True)
 
-    if isinstance(source, TransferSourceHttp):
-        token = creds.token_provider() if creds.token_provider is not None else None
-        success = _operation_copy_http(source=source, output_path=dest, checksum=checksum, bearer_token=token)
-    elif not link_ok:
-        success = _operation_copy_rsync(source, dest, creds.ssh_user)
-        if not success:
-            success = _operation_copy(source, dest, creds.ssh_user)
-    else:
+    if link_ok:
         # A remote source must never reach the symlink branch, which assumes a local path; callers
         # (and the binding) are expected to reject link_ok=True on a remote source before this point.
         if not isinstance(source, TransferSourceLocal):
             raise TransferError(f"Cannot link a non-local file: {source}")
-        success = _operation_link_symbolic(source, dest)
+        if not _operation_link_symbolic(source, dest):
+            raise TransferError(f"Failed to fetch file: {source}")
+        # Verify through the link; a mismatch unlinks it (removing the link, not the source) and raises.
+        _verify_checksum(dest, checksum, dest)
+        return
+
+    # Every transport writes to a temporary sibling first, so verification runs before we publish and a
+    # failed/corrupt transfer never lands at dest. The temp lives in dest's directory so the rename stays
+    # on one filesystem (atomic).
+    tmp = dest.with_name(f"{dest.name}.part")
+    if isinstance(source, TransferSourceHttp):
+        token = creds.token_provider() if creds.token_provider is not None else None
+        success = _operation_copy_http(source=source, output_path=tmp, bearer_token=token)
+    else:
+        success = _operation_copy_rsync(source, tmp, creds.ssh_user)
+        if not success:
+            success = _operation_copy(source, tmp, creds.ssh_user)
 
     if not success:
+        tmp.unlink(missing_ok=True)
         raise TransferError(f"Failed to fetch file: {source}")
+
+    _verify_checksum(tmp, checksum, dest)  # unlinks tmp and raises on mismatch
+    _ = tmp.replace(dest)
 
 
 def _operation_copy_rsync(
@@ -76,7 +92,8 @@ def _operation_copy_rsync(
             source_str = str(Path(path).resolve())
         case TransferSourceSsh(host=host, path=path):
             source_str = f"{ssh_user}@{host}:{path}" if ssh_user else f"{host}:{path}"
-    cmd = ["rsync", "-rltvP", source_str, str(output_path)]
+    # "--" terminates option parsing so a source/dest beginning with "-" can't be read as an rsync flag.
+    cmd = ["rsync", "-rltvP", "--", source_str, str(output_path)]
     logger.info(shlex.join(cmd))
     result = subprocess.run(cmd, check=False)
     return result.returncode == 0
@@ -90,10 +107,8 @@ def _operation_copy(source: TransferSourceSsh | TransferSourceLocal, output_path
             return _operation_copy_scp(source, output_path, ssh_user)
 
 
-def _operation_copy_http(
-    source: TransferSourceHttp, output_path: Path, checksum: str | None, bearer_token: str | None
-) -> bool:
-    """Streams a file from an HTTP(S) URL to ``output_path``, verifying the checksum when available."""
+def _operation_copy_http(source: TransferSourceHttp, output_path: Path, bearer_token: str | None) -> bool:
+    """Streams a file from an HTTP(S) URL to ``output_path`` (checksum verification is the caller's job)."""
     needs_auth = source.auth == "bfabric"
 
     if needs_auth and not bearer_token:
@@ -108,17 +123,15 @@ def _operation_copy_http(
     if needs_auth and bearer_token:
         headers["Authorization"] = f"Bearer {bearer_token}"
 
-    # Download to a temporary sibling and rename on success, so a mid-stream failure never leaves a
-    # truncated file at output_path.
-    tmp_path = output_path.with_name(f"{output_path.name}.part")
+    # output_path is fetch_to_path's temporary sibling; a mid-stream failure leaves a partial there that
+    # the caller cleans up, so dest is never touched.
     logger.info(f"GET {source.url} -> {output_path}")
     try:
         with httpx.stream("GET", source.url, headers=headers, follow_redirects=True) as response:
             _ = response.raise_for_status()
-            with tmp_path.open("wb") as fh:
+            with output_path.open("wb") as fh:
                 fh.writelines(response.iter_bytes())
     except httpx.HTTPError as error:
-        tmp_path.unlink(missing_ok=True)
         detail = ""
         if isinstance(error, httpx.HTTPStatusError):
             code = error.response.status_code
@@ -128,15 +141,14 @@ def _operation_copy_http(
         logger.error(f"HTTP download failed for {source.url}{detail}: {error}")
         return False
 
-    _verify_checksum(tmp_path, checksum, output_path)
-    _ = tmp_path.replace(output_path)
     return True
 
 
 def _verify_checksum(tmp_path: Path, expected: str | None, output_path: Path) -> None:
     """Verifies ``tmp_path`` against ``expected``, raising on mismatch; warns and skips if none was provided."""
     if expected is None:
-        logger.warning(f"No checksum available for {output_path}; skipping integrity verification.")
+        # Runs for every un-checksummed fetch of any transport, so keep it at debug to avoid per-file noise.
+        logger.debug(f"No checksum available for {output_path}; skipping integrity verification.")
         return
     actual_checksum = md5_checksum(tmp_path)
     if actual_checksum != expected:
@@ -169,13 +181,17 @@ def _operation_copy_cp(source: TransferSourceLocal, output_path: Path) -> bool:
 def _operation_link_symbolic(source: TransferSourceLocal, output_path: Path) -> bool:
     # the link is created relative to the output file, so it should be more portable across apptainer images etc.
     # os.path.relpath (rather than Path.relative_to(..., walk_up=True), which is 3.12+) keeps this working on
-    # the Python 3.11 the package supports while still walking up (emitting ``..``) when needed.
-    source_path = Path(os.path.relpath(Path(source.path).resolve(), output_path.resolve().parent))
+    # the Python 3.11 the package supports while still walking up (emitting ``..``) when needed. Relativize
+    # against output_path's own directory -- NOT output_path.resolve().parent, which would follow an already
+    # present link to the source and yield the wrong (source-relative) target.
+    source_abs = Path(source.path).resolve()
+    source_path = Path(os.path.relpath(source_abs, output_path.parent.resolve()))
 
     # if the file exists, and only if it is a link as well
     if output_path.is_symlink():
-        # check if it points to the same file, in which case we don't need to do anything
-        if output_path.resolve() == source_path.resolve():
+        # Compare the link's real target to the source (both absolute). Resolving the *relative* target went
+        # via the process CWD, so a correct link was only recognized when we happened to run from its own dir.
+        if output_path.resolve() == source_abs:
             logger.info("Link already exists and points to the correct file")
             return True
         else:
