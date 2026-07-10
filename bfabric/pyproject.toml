@@ -35,6 +35,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+transfer = ["tuspy>=1.0,<2"]
 dev = [
     "bfabric[doc,test]",
     "black",
@@ -53,7 +54,7 @@ doc = [
     "sphinx-autobuild>=2024.10.3",
     "linkify-it-py",
 ]
-test = ["pytest>=8", "pytest-mock>=3.15", "logot[pytest,loguru]>=1.5.1", "coverage>=7.10.0", "pytest-asyncio>=1.2.0", "dirty-equals>=0.10.0", "pytest-random-order>=1.1.0"]
+test = ["bfabric[transfer]", "pytest>=8", "pytest-mock>=3.15", "logot[pytest,loguru]>=1.5.1", "coverage>=7.10.0", "pytest-asyncio>=1.2.0", "dirty-equals>=0.10.0", "pytest-random-order>=1.1.0"]
 typing = ["mypy", "types-requests", "lxml-stubs", "types-python-dateutil", "types-PyYAML"]
 
 [project.urls]
