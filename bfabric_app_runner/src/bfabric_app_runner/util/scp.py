@@ -29,12 +29,21 @@ def scp(source: str | Path, target: str | Path, *, user: str | None = None, mkdi
     elif user and target_remote:
         target = f"{user}@{target}"
 
+    # scp/ssh parse a leading "-" as an option, so an endpoint like "-oProxyCommand=..." would smuggle
+    # arbitrary options (and thus local command execution) into the invocation. A real path or
+    # ``[user@]host`` never starts with "-", so reject it rather than let it reach the command line.
+    _reject_option_like(source, role="scp source")
+    _reject_option_like(target, role="scp target")
+
     if mkdir:
         if target_remote:
             host, path = target.split(":", 1)
-            parent_path = Path(path).parent
-            logger.debug(f"ssh {host} mkdir -p {parent_path}")
-            subprocess.run(["ssh", host, "mkdir", "-p", parent_path], check=True)
+            # ssh joins its trailing args and runs them through the remote *shell*, so the remote path
+            # must be quoted -- otherwise a path containing shell metacharacters would execute arbitrary
+            # commands on the host.
+            quoted_parent = shlex.quote(str(Path(path).parent))
+            logger.debug(f"ssh {host} mkdir -p {quoted_parent}")
+            _ = subprocess.run(["ssh", host, "mkdir", "-p", quoted_parent], check=True)
         else:
             parent_path = Path(target).parent
             parent_path.mkdir(parents=True, exist_ok=True)
@@ -42,6 +51,12 @@ def scp(source: str | Path, target: str | Path, *, user: str | None = None, mkdi
     cmd = ["scp", source, target]
     logger.info(shlex.join(cmd))
     subprocess.run(cmd, check=True)
+
+
+def _reject_option_like(value: str, *, role: str) -> None:
+    """Reject an scp/ssh endpoint that would be misread as a command-line option (a leading ``-``)."""
+    if value.startswith("-"):
+        raise ValueError(f"{role} must not start with '-': {value!r}")
 
 
 def _is_remote(path: str | Path) -> bool:

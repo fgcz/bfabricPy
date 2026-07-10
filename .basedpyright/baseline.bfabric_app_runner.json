@@ -3094,14 +3094,6 @@
             {
                 "code": "reportUnusedCallResult",
                 "range": {
-                    "startColumn": 12,
-                    "endColumn": 81,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnusedCallResult",
-                "range": {
                     "startColumn": 4,
                     "endColumn": 35,
                     "lineCount": 1

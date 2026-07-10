@@ -49,7 +49,8 @@ def _operation_copy_rsync(source: FileSourceSsh | FileSourceLocal, output_path: 
             source_str = str(Path(local).resolve())
         case FileSourceSsh(ssh=FileSourceSshValue(host=host, path=path)):
             source_str = f"{ssh_user}@{host}:{path}" if ssh_user else f"{host}:{path}"
-    cmd = ["rsync", "-rltvP", source_str, str(output_path)]
+    # "--" terminates option parsing so a source/dest beginning with "-" can't be read as an rsync flag.
+    cmd = ["rsync", "-rltvP", "--", source_str, str(output_path)]
     logger.info(shlex.join(cmd))
     result = subprocess.run(cmd, check=False)
     return result.returncode == 0
@@ -141,13 +142,17 @@ def _operation_copy_cp(source: FileSourceLocal, output_path: Path) -> bool:
 
 
 def _operation_link_symbolic(source: FileSourceLocal, output_path: Path) -> bool:
-    # the link is created relative to the output file, so it should be more portable across apptainer images etc
-    source_path = Path(source.local).resolve().relative_to(output_path.resolve().parent, walk_up=True)
+    # the link is created relative to the output file, so it should be more portable across apptainer images etc.
+    # Relativize against output_path's own directory -- NOT output_path.resolve().parent, which would follow an
+    # already present link to the source and yield the wrong (source-relative) target.
+    source_abs = Path(source.local).resolve()
+    source_path = source_abs.relative_to(output_path.parent.resolve(), walk_up=True)
 
     # if the file exists, and only if it is a link as well
     if output_path.is_symlink():
-        # check if it points to the same file, in which case we don't need to do anything
-        if output_path.resolve() == source_path.resolve():
+        # Compare the link's real target to the source (both absolute). Resolving the *relative* target went
+        # via the process CWD, so a correct link was only recognized when we happened to run from its own dir.
+        if output_path.resolve() == source_abs:
             logger.info("Link already exists and points to the correct file")
             return True
         else:

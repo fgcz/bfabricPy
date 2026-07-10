@@ -1,5 +1,6 @@
 import contextlib
 import hashlib
+import os
 from pathlib import Path
 from shutil import SameFileError
 from subprocess import CalledProcessError
@@ -358,8 +359,8 @@ def test_operation_copy_rsync_local(mock_subprocess, logot: Logot):
     source = FileSourceLocal(local="/source.txt")
     mock_subprocess.return_value.returncode = 0
     result = _operation_copy_rsync(source=source, output_path=Path("mock_output.txt"), ssh_user=None)
-    mock_subprocess.assert_called_once_with(["rsync", "-rltvP", "/source.txt", "mock_output.txt"], check=False)
-    logot.assert_logged(logged.info("rsync -rltvP /source.txt mock_output.txt"))
+    mock_subprocess.assert_called_once_with(["rsync", "-rltvP", "--", "/source.txt", "mock_output.txt"], check=False)
+    logot.assert_logged(logged.info("rsync -rltvP -- /source.txt mock_output.txt"))
     assert result
 
 
@@ -367,8 +368,10 @@ def test_operation_copy_rsync_ssh_default(mock_subprocess, logot: Logot):
     source = FileSourceSsh(ssh=FileSourceSshValue(host="host", path="/source.txt"))
     mock_subprocess.return_value.returncode = 0
     result = _operation_copy_rsync(source=source, output_path=Path("mock_output.txt"), ssh_user=None)
-    mock_subprocess.assert_called_once_with(["rsync", "-rltvP", "host:/source.txt", "mock_output.txt"], check=False)
-    logot.assert_logged(logged.info("rsync -rltvP host:/source.txt mock_output.txt"))
+    mock_subprocess.assert_called_once_with(
+        ["rsync", "-rltvP", "--", "host:/source.txt", "mock_output.txt"], check=False
+    )
+    logot.assert_logged(logged.info("rsync -rltvP -- host:/source.txt mock_output.txt"))
     assert result
 
 
@@ -377,9 +380,9 @@ def test_operation_copy_rsync_ssh_custom_user(mock_subprocess, logot: Logot):
     mock_subprocess.return_value.returncode = 0
     result = _operation_copy_rsync(source=source, output_path=Path("mock_output.txt"), ssh_user="user")
     mock_subprocess.assert_called_once_with(
-        ["rsync", "-rltvP", "user@host:/source.txt", "mock_output.txt"], check=False
+        ["rsync", "-rltvP", "--", "user@host:/source.txt", "mock_output.txt"], check=False
     )
-    logot.assert_logged(logged.info("rsync -rltvP user@host:/source.txt mock_output.txt"))
+    logot.assert_logged(logged.info("rsync -rltvP -- user@host:/source.txt mock_output.txt"))
     assert result
 
 
@@ -430,3 +433,27 @@ def test_operation_link_symbolic(mock_subprocess, logot: Logot, source_path, des
     mock_subprocess.assert_called_once_with(["ln", "-s", expected_target, str(dest)], check=False)
     logot.assert_logged(logged.info(f"ln -s {expected_target} {dest}"))
     assert result
+
+
+def test_operation_link_symbolic_recognizes_existing_correct_link(mock_subprocess, logot: Logot, tmp_path):
+    # An already-correct relative symlink must be recognized regardless of the process CWD. The check
+    # used to resolve the relative target against the CWD (and take output_path.resolve().parent, which
+    # follows the existing link), so a correct link was only recognized when run from its own directory
+    # and was otherwise needlessly torn down and recreated.
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    source_file = src_dir / "source.txt"
+    source_file.write_text("payload")
+    dst_dir = tmp_path / "dst"
+    dst_dir.mkdir()
+    output_path = dst_dir / "destination.txt"
+    # Pre-create exactly the relative link the operation itself would create.
+    output_path.symlink_to(os.path.relpath(source_file, dst_dir))
+
+    source = FileSourceLocal(local=str(source_file))
+    result = _operation_link_symbolic(source=source, output_path=output_path)
+
+    assert result is True
+    logot.assert_logged(logged.info("Link already exists and points to the correct file"))
+    # The link was already correct, so it must not be recreated.
+    mock_subprocess.assert_not_called()
