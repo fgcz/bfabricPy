@@ -44,9 +44,16 @@ def send_to_sink(
         case TransferSinkScp():
             return _send_scp(sink, src, creds, on_progress)
         case TransferSinkTus():
-            # Imported lazily (from the submodule, not the package namespace, to avoid an import
-            # cycle) so a download-only / query install never pulls tuspy -- see _tus_mover.
-            from bfabric.transfer._generic._tus_mover import upload_file
+            # tuspy is optional (the bfabric[transfer] extra). _tus_mover imports tusclient at module
+            # top, so it is imported here -- only when a tus sink is actually dispatched -- keeping a
+            # base / download-only / query install free of tuspy. A missing extra surfaces as a clear
+            # TransferError rather than a bare ModuleNotFoundError.
+            try:
+                from bfabric.transfer._generic._tus_mover import upload_file
+            except ImportError as exc:
+                raise TransferError(
+                    "tus uploads require the optional 'tuspy' dependency; install bfabric[transfer]."
+                ) from exc
 
             return upload_file(
                 sink.endpoint,
