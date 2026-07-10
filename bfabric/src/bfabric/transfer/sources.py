@@ -9,7 +9,7 @@ download-only / query consumer can import this with nothing extra installed.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal, get_args
 
 from bfabric.transfer._generic.sources import TransferSource, TransferSourceHttp, TransferSourceSsh
 
@@ -18,6 +18,13 @@ if TYPE_CHECKING:
 
     from bfabric import Bfabric
     from bfabric.entities import Resource
+
+Transport = Literal["ssh", "http"]
+"""A transport this binding can build a download source for from a B-Fabric resource.
+
+Mirrors the ``type`` discriminators of the generic source models; the single place to add a new
+transport (the ``resource_sources`` default and its ``allow`` filter both derive from it).
+"""
 
 
 def ssh_source(resource: Resource) -> TransferSourceSsh:
@@ -50,7 +57,7 @@ def resource_sources(
     resource: Resource,
     client: Bfabric | None = None,
     *,
-    allow: Iterable[str] | None = None,
+    allow: Iterable[Transport] | None = None,
 ) -> list[TransferSource]:
     """Enumerate the candidate transfer sources for ``resource``, best (fastest) first.
 
@@ -60,7 +67,7 @@ def resource_sources(
     deferred. A ``client`` is required to construct an HTTP source (it reads the storage access
     record).
     """
-    allowed = set(allow) if allow is not None else {"ssh", "http"}
+    allowed = set(allow) if allow is not None else set(get_args(Transport))
     sources: list[TransferSource] = []
     if "ssh" in allowed:
         sources.append(ssh_source(resource))
