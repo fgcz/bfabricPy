@@ -76,7 +76,8 @@ def _operation_copy_rsync(
             source_str = str(Path(path).resolve())
         case TransferSourceSsh(host=host, path=path):
             source_str = f"{ssh_user}@{host}:{path}" if ssh_user else f"{host}:{path}"
-    cmd = ["rsync", "-rltvP", source_str, str(output_path)]
+    # "--" terminates option parsing so a source/dest beginning with "-" can't be read as an rsync flag.
+    cmd = ["rsync", "-rltvP", "--", source_str, str(output_path)]
     logger.info(shlex.join(cmd))
     result = subprocess.run(cmd, check=False)
     return result.returncode == 0
@@ -169,13 +170,17 @@ def _operation_copy_cp(source: TransferSourceLocal, output_path: Path) -> bool:
 def _operation_link_symbolic(source: TransferSourceLocal, output_path: Path) -> bool:
     # the link is created relative to the output file, so it should be more portable across apptainer images etc.
     # os.path.relpath (rather than Path.relative_to(..., walk_up=True), which is 3.12+) keeps this working on
-    # the Python 3.11 the package supports while still walking up (emitting ``..``) when needed.
-    source_path = Path(os.path.relpath(Path(source.path).resolve(), output_path.resolve().parent))
+    # the Python 3.11 the package supports while still walking up (emitting ``..``) when needed. Relativize
+    # against output_path's own directory -- NOT output_path.resolve().parent, which would follow an already
+    # present link to the source and yield the wrong (source-relative) target.
+    source_abs = Path(source.path).resolve()
+    source_path = Path(os.path.relpath(source_abs, output_path.parent.resolve()))
 
     # if the file exists, and only if it is a link as well
     if output_path.is_symlink():
-        # check if it points to the same file, in which case we don't need to do anything
-        if output_path.resolve() == source_path.resolve():
+        # Compare the link's real target to the source (both absolute). Resolving the *relative* target went
+        # via the process CWD, so a correct link was only recognized when we happened to run from its own dir.
+        if output_path.resolve() == source_abs:
             logger.info("Link already exists and points to the correct file")
             return True
         else:

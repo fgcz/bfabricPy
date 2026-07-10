@@ -48,9 +48,32 @@ def test_scp_upload_prepends_user_and_makes_remote_dir(mocker, mock_subprocess):
     scp(source="/local/file.txt", target="host:/remote/dir/file.txt", user="alice")
 
     assert mock_subprocess.call_args_list == [
-        mocker.call(["ssh", "alice@host", "mkdir", "-p", Path("/remote/dir")], check=True),
+        mocker.call(["ssh", "alice@host", "mkdir", "-p", "/remote/dir"], check=True),
         mocker.call(["scp", "/local/file.txt", "alice@host:/remote/dir/file.txt"], check=True),
     ]
+
+
+def test_scp_quotes_remote_mkdir_path(mocker, mock_subprocess):
+    # ssh runs its trailing args through the remote shell, so a directory containing shell
+    # metacharacters must be quoted -- otherwise it would execute arbitrary commands on the host.
+    scp(source="/local/file.txt", target="host:/remote/$(touch pwned)/file.txt")
+
+    ssh_call = mock_subprocess.call_args_list[0]
+    assert ssh_call == mocker.call(["ssh", "host", "mkdir", "-p", "'/remote/$(touch pwned)'"], check=True)
+
+
+def test_scp_rejects_option_like_target(mock_subprocess):
+    # A target beginning with '-' would be parsed by scp/ssh as an option (e.g. -oProxyCommand=...),
+    # smuggling local command execution into the invocation; reject it before it reaches the command line.
+    with pytest.raises(ValueError, match="must not start with '-'"):
+        scp(source="/local/file.txt", target="-oProxyCommand=touch pwned:/x")
+    mock_subprocess.assert_not_called()
+
+
+def test_scp_rejects_option_like_source(mock_subprocess):
+    with pytest.raises(ValueError, match="must not start with '-'"):
+        scp(source="-oProxyCommand=touch pwned:/x", target="/local/file.txt")
+    mock_subprocess.assert_not_called()
 
 
 def test_scp_download_prepends_user_and_makes_local_dir(mock_subprocess, tmp_path):
