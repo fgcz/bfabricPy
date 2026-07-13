@@ -115,13 +115,16 @@ def copy_file_to_storage(
     Only the byte move is delegated to the transfer package; the resource metadata is still
     registered over SOAP by :func:`register_file_in_workunit`.
     """
-    # TODO here some direct uses of storage could still be optimized away
     if spec.protocol == "scp":
+        # The Storage entity is loaded (see `_get_storage`) only for its host:basepath. If
+        # `WorkunitRegistrationDefinition` carried these directly, the entity read (and the
+        # `force_storage` workaround) could be dropped entirely — see TODO in `_get_storage`.
+        if storage.scp_prefix is None:
+            raise ValueError(f"Storage {storage.id} is not configured for scp transfer (no scp_prefix)")
+        host, base_path = storage.scp_prefix.split(":", 1)
         output_folder = _get_output_folder(spec, workunit_definition=workunit_definition)
-        output_uri = f"{storage.scp_prefix}{output_folder / spec.store_entry_path}"
-        host, remote_path = output_uri.split(":", 1)
         _ = send_to_sink(
-            TransferSinkScp(host=host, path=remote_path),
+            TransferSinkScp(host=host, path=f"{base_path}{output_folder / spec.store_entry_path}"),
             spec.local_path,
             Credentials(ssh_user=ssh_user),
         )
