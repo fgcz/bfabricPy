@@ -221,6 +221,19 @@ def test_bfabric(session, resolution):
     session.run("pytest", "--durations=50", "tests/bfabric")
 
 
+@nox.session(python="3.13")
+def test_bfabric_zeep(session):
+    """Run the optional zeep-engine tests with the zeep extra installed.
+
+    The default `test_bfabric` session installs `bfabric[test]` without the `zeep`
+    extra, so the zeep-engine tests skip there (verifying the no-zeep path). This
+    session installs the extra so the engine itself stays covered.
+    """
+    session.install("./bfabric[test,zeep]")
+    session.run("uv", "pip", "list")
+    session.run("pytest", "--durations=50", "tests/bfabric/engine/test_engine_zeep.py")
+
+
 @nox.session(python=["3.11", "3.13"])
 @nox.parametrize("resolution", ["highest", "lowest-direct"])
 def test_bfabric_scripts(session, resolution):
@@ -338,8 +351,11 @@ def licensecheck(session, package) -> None:
 @nox.session(python="3.13")
 @nox.parametrize("package", WORKSPACE_PACKAGES)
 def basedpyright(session, package):
-    # Install the package in editable mode so basedpyright can find it from source
-    session.install("-e", f"./{package}")
+    # Install the package in editable mode so basedpyright can find it from source.
+    # bfabric's zeep engine is an optional extra; install it here so its imports
+    # (engine_zeep, ResponseDelete.from_zeep, the example scripts) still type-check.
+    extras = "[zeep]" if package == "bfabric" else ""
+    session.install("-e", f"./{package}{extras}")
     session.install("basedpyright>=1.34.0,<1.35.0")
     # Use --venvpath to explicitly point to nox's venv directory, avoiding .venv if it exists
     venv_path = Path(session.virtualenv.location).parent
