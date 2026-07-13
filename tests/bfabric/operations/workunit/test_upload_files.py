@@ -19,7 +19,7 @@ from bfabric.operations.workunit import (
     upload_files,
 )
 from bfabric.transfer import CreatedResource, DuplicateResult, FileInfo, TransferError, UploadTokenResult
-from bfabric.transfer.errors import BfabricTransferError, DuplicateCheckError, ResourceCreationError, ScopeError
+from bfabric.transfer.errors import BfabricTransferError, ScopeError
 
 WORKUNIT_ID = 555
 
@@ -176,7 +176,7 @@ class TestDuplicateCheck:
         mock_collect.return_value = _file_infos("a.txt", "b.txt")
         # The server returns a verdict only for a.txt (b.txt omitted / name-normalized away).
         rest.check_duplicates.return_value = _dupes(**{"a.txt": "upload"})
-        with pytest.raises(DuplicateCheckError, match="no verdict"):
+        with pytest.raises(BfabricTransferError, match="no verdict"):
             upload_files(mock_client, [Path("/src/a.txt"), Path("/src/b.txt")], _params())
         # Rejected during dedup, before workunit creation -> no silent drop.
         assert _create_payload(mock_client) is None
@@ -189,7 +189,7 @@ class TestDuplicateCheck:
         # registered yet reported as a success. It must now fail loud instead.
         mock_collect.return_value = _file_infos("a.txt", "b.txt")
         rest.check_duplicates.return_value = _dupes(**{"a.txt": "upload", "b.txt": "link"})
-        with pytest.raises(DuplicateCheckError, match="link"):
+        with pytest.raises(BfabricTransferError, match="link"):
             upload_files(mock_client, [Path("/src/a.txt"), Path("/src/b.txt")], _params())
         # Rejected during dedup, before any workunit creation or transfer -> no silent drop.
         assert _create_payload(mock_client) is None
@@ -199,7 +199,7 @@ class TestDuplicateCheck:
         # Any action the client doesn't understand is treated like "link": fail loud rather than guess.
         mock_collect.return_value = _file_infos("a.txt")
         rest.check_duplicates.return_value = _dupes(**{"a.txt": "quarantine"})
-        with pytest.raises(DuplicateCheckError):
+        with pytest.raises(BfabricTransferError):
             upload_files(mock_client, [Path("/src/a.txt")], _params())
         assert _create_payload(mock_client) is None
         mock_send.assert_not_called()
@@ -243,9 +243,9 @@ class TestFailureCleanup:
     def test_setup_failure_marks_failed_and_reraises(self, mock_client, rest, mock_collect, mock_send):
         mock_collect.return_value = _file_infos("a.txt", "b.txt")
         rest.check_duplicates.return_value = _dupes(**{"a.txt": "upload", "b.txt": "upload"})
-        rest.create_resources.side_effect = ResourceCreationError("create-resources 500")
+        rest.create_resources.side_effect = BfabricTransferError("create-resources 500")
 
-        with pytest.raises(ResourceCreationError, match="create-resources 500"):
+        with pytest.raises(BfabricTransferError, match="create-resources 500"):
             upload_files(mock_client, [Path("/src/a.txt"), Path("/src/b.txt")], _params())
 
         # Workunit was created then flipped to 'failed' during cleanup; never deleted.
@@ -261,7 +261,7 @@ class TestFailureCleanup:
         rest.create_resources.return_value = _created("a.txt")
         rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
 
-        with pytest.raises(ResourceCreationError, match="cannot reliably pair"):
+        with pytest.raises(BfabricTransferError, match="cannot reliably pair"):
             upload_files(mock_client, [Path("/src/a.txt"), Path("/src/b.txt")], _params())
 
         assert _status_updates(mock_client) == ["failed"]
@@ -274,7 +274,7 @@ class TestFailureCleanup:
         rest.check_duplicates.return_value = _dupes(**{"data.txt": "upload"})
         rest.create_resources.return_value = _created("data.txt", "data.txt")
         rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
-        with pytest.raises(ResourceCreationError, match="same resource name"):
+        with pytest.raises(BfabricTransferError, match="same resource name"):
             upload_files(mock_client, [Path("/src/data.txt"), Path("/src/data.txt")], _params())
         assert _status_updates(mock_client) == ["failed"]
         mock_send.assert_not_called()
@@ -448,9 +448,9 @@ class TestReuseExistingWorkunit:
         mock_client.read.return_value = [{"container": {"id": 777}}]
         mock_collect.return_value = _file_infos("a.txt")
         rest.check_duplicates.return_value = _dupes(**{"a.txt": "upload"})
-        rest.create_resources.side_effect = ResourceCreationError("boom")
+        rest.create_resources.side_effect = BfabricTransferError("boom")
 
-        with pytest.raises(ResourceCreationError, match="boom"):
+        with pytest.raises(BfabricTransferError, match="boom"):
             upload_files(mock_client, [Path("/src/a.txt")], _params(workunit_id=999))
 
         assert _status_updates(mock_client) == []

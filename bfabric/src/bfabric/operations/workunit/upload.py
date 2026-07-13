@@ -13,8 +13,6 @@ from bfabric.operations.workunit._common import complete_workunit, mark_workunit
 from bfabric.transfer import (
     BfabricTransferError,
     Credentials,
-    DuplicateCheckError,
-    ResourceCreationError,
     TransferError,
     UploadRestClient,
     check_upload_scope,
@@ -264,7 +262,7 @@ def _select_files_to_upload(
     verdict_names = {r.filename for r in results}
     unaccounted = sorted(fi.name for fi in file_infos if fi.name not in verdict_names)
     if unaccounted:
-        raise DuplicateCheckError(
+        raise BfabricTransferError(
             "check-duplicates returned no verdict for: "
             + ", ".join(unaccounted)
             + " (name mismatch between the request and response); refusing to upload to avoid silently "
@@ -276,7 +274,7 @@ def _select_files_to_upload(
     # silently fail to register a file the user asked for. Fail loud instead.
     unsupported = sorted(r.filename for r in results if r.action not in ("upload", "skip"))
     if unsupported:
-        raise DuplicateCheckError(
+        raise BfabricTransferError(
             "check-duplicates requested an unsupported action (e.g. 'link') for: "
             + ", ".join(unsupported)
             + "; these are content-duplicates the server wants registered as links, which upload_files "
@@ -326,20 +324,20 @@ def _pair_resources_to_files(resources: list[CreatedResource], to_upload: list[F
     name_counts = Counter(fi.name for fi in to_upload)
     duplicate_names = sorted(name for name, count in name_counts.items() if count > 1)
     if duplicate_names:
-        raise ResourceCreationError(
+        raise BfabricTransferError(
             "Cannot upload multiple files that map to the same resource name: "
             + ", ".join(duplicate_names)
             + " (name-based pairing cannot disambiguate them)."
         )
     if len(resources) != len(to_upload):
-        raise ResourceCreationError(
+        raise BfabricTransferError(
             f"create-resources returned {len(resources)} resource(s) for {len(to_upload)} file(s); "
             "cannot reliably pair files to resources."
         )
     by_name = {r.name: r for r in resources}
     missing = [fi.name for fi in to_upload if fi.name not in by_name]
     if missing:
-        raise ResourceCreationError("create-resources returned no resource for: " + ", ".join(missing))
+        raise BfabricTransferError("create-resources returned no resource for: " + ", ".join(missing))
     return by_name
 
 
