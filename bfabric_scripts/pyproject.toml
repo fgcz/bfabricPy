@@ -12,6 +12,7 @@ dependencies = [
     "bfabric>=1.18.0,<2",
     "cyclopts>=4.0,<5.0",
     "Flask>=3.0.3,<4.0",
+    "lxml>=5.0,<7.0",
     "xmltodict>=1.0.0,<2.0.0",
 ]
 
