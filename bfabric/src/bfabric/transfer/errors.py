@@ -17,15 +17,3 @@ class ScopeError(BfabricTransferError):
     the server is the real authority on scope, so this only fires when the token decodes cleanly and
     the required scope is definitively absent.
     """
-
-
-class DuplicateCheckError(BfabricTransferError):
-    """The ``/rest/upload/check-duplicates`` call failed."""
-
-
-class ResourceCreationError(BfabricTransferError):
-    """The ``/rest/upload/create-resources`` call failed (or returned unpairable resources)."""
-
-
-class UploadInitiationError(BfabricTransferError):
-    """The ``/rest/upload/initiate`` call (minting the tus upload token) failed."""

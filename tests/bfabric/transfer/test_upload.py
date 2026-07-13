@@ -5,13 +5,7 @@ from pathlib import Path
 import pytest
 
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
-from bfabric.transfer.errors import (
-    BfabricTransferError,
-    DuplicateCheckError,
-    ResourceCreationError,
-    ScopeError,
-    UploadInitiationError,
-)
+from bfabric.transfer.errors import BfabricTransferError, ScopeError
 from bfabric.transfer.upload import (
     CreatedResource,
     DuplicateResult,
@@ -90,11 +84,11 @@ class TestCheckDuplicates:
             {"name": "b.txt", "md5": "abc123", "size": 42},
         ]
 
-    def test_failure_raises_duplicate_check_error(self, mocker, make_jwt):
+    def test_failure_raises_transfer_error(self, mocker, make_jwt):
         _mock_post(mocker, is_success=False, status_code=500, text="boom")
         rest = _rest_client(mocker, make_jwt)
 
-        with pytest.raises(DuplicateCheckError, match="boom"):
+        with pytest.raises(BfabricTransferError, match="boom"):
             rest.check_duplicates(container_id=4, files=[_file_info()])
 
 
@@ -112,11 +106,11 @@ class TestCreateResources:
         assert created.storage_path == "/store/a.txt"
         assert created.import_resource_id == 99
 
-    def test_failure_raises_resource_creation_error(self, mocker, make_jwt):
+    def test_failure_raises_transfer_error(self, mocker, make_jwt):
         _mock_post(mocker, is_success=False, status_code=500, text="boom")
         rest = _rest_client(mocker, make_jwt)
 
-        with pytest.raises(ResourceCreationError, match="boom"):
+        with pytest.raises(BfabricTransferError, match="boom"):
             rest.create_resources(workunit_id=3, files=[_file_info()])
 
 
@@ -139,11 +133,11 @@ class TestGetUploadToken:
 
         mock_post.assert_not_called()
 
-    def test_failure_raises_upload_initiation_error(self, mocker, make_jwt):
+    def test_failure_raises_transfer_error(self, mocker, make_jwt):
         _mock_post(mocker, is_success=False, status_code=500, text="boom")
         rest = _rest_client(mocker, make_jwt)  # token grants tus, so it reaches the http call
 
-        with pytest.raises(UploadInitiationError, match="boom"):
+        with pytest.raises(BfabricTransferError, match="boom"):
             rest.get_upload_token(workunit_id=3, resource_ids=[11], import_resource_ids=[99])
 
 

@@ -14,13 +14,8 @@ from typing import TYPE_CHECKING, ClassVar, final
 import httpx
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, TypeAdapter
 
-from bfabric.transfer.errors import (
-    BfabricTransferError,
-    DuplicateCheckError,
-    ResourceCreationError,
-    UploadInitiationError,
-)
-from bfabric.transfer.tokens import check_upload_scope, require_oauth
+from bfabric.transfer.errors import BfabricTransferError
+from bfabric.transfer.tokens import check_upload_scope, require_oauth, token_provider
 from bfabric.transfer._generic.sinks import TransferSinkTus
 
 if TYPE_CHECKING:
@@ -104,6 +99,11 @@ class UploadRestClient:
         require_oauth(client)
         self._client = client
         self._rest_base_url = api_to_rest_url(str(client.config.base_url))
+        # require_oauth guarantees an OAuth client, so token_provider never returns None here. The
+        # provider reads the token fresh per call, so a long batch survives a mid-run token refresh.
+        provider = token_provider(client)
+        assert provider is not None
+        self._token = provider
 
     @property
     def rest_base_url(self) -> str:
@@ -111,36 +111,37 @@ class UploadRestClient:
         return self._rest_base_url
 
     def _headers(self) -> dict[str, str]:
-        # Read the token fresh each call so an OAuth client refreshes it under long batches.
         return {
-            "Authorization": f"Bearer {self._client.auth.password.get_secret_value()}",
+            "Authorization": f"Bearer {self._token()}",
             "Content-Type": "application/json",
             "Accept": "application/json",
         }
 
+    def _post(self, path: str, payload: dict[str, object]) -> object:
+        """POST ``payload`` to ``/rest/upload/{path}`` and return the parsed JSON, raising on failure."""
+        resp = httpx.post(
+            f"{self._rest_base_url}/rest/upload/{path}", json=payload, headers=self._headers(), timeout=_TIMEOUT
+        )
+        if not resp.is_success:
+            raise BfabricTransferError(f"{path} REST call failed ({resp.status_code}): {resp.text}")
+        result: object = resp.json()  # pyright: ignore[reportAny]  # httpx .json() is typed -> Any
+        return result
+
     def check_duplicates(self, container_id: int, files: Sequence[FileInfo]) -> list[DuplicateResult]:
         """Call ``/rest/upload/check-duplicates`` to classify each file (new / duplicate / conflict)."""
-        url = f"{self._rest_base_url}/rest/upload/check-duplicates"
         payload: dict[str, object] = {"containerId": container_id, "files": _file_entries(files)}
-        resp = httpx.post(url, json=payload, headers=self._headers(), timeout=_TIMEOUT)
-        if not resp.is_success:
-            raise DuplicateCheckError(f"check-duplicates REST call failed ({resp.status_code}): {resp.text}")
-        return TypeAdapter(list[DuplicateResult]).validate_python(resp.json())
+        return TypeAdapter(list[DuplicateResult]).validate_python(self._post("check-duplicates", payload))
 
     def create_resources(
         self, workunit_id: int, files: Sequence[FileInfo], *, create_import_resources: bool = True
     ) -> list[CreatedResource]:
         """Call ``/rest/upload/create-resources`` to register resource (and import-resource) records."""
-        url = f"{self._rest_base_url}/rest/upload/create-resources"
         payload: dict[str, object] = {
             "workunitId": workunit_id,
             "files": _file_entries(files),
             "createImportResources": create_import_resources,
         }
-        resp = httpx.post(url, json=payload, headers=self._headers(), timeout=_TIMEOUT)
-        if not resp.is_success:
-            raise ResourceCreationError(f"create-resources REST call failed ({resp.status_code}): {resp.text}")
-        return TypeAdapter(list[CreatedResource]).validate_python(resp.json())
+        return TypeAdapter(list[CreatedResource]).validate_python(self._post("create-resources", payload))
 
     def get_upload_token(
         self,
@@ -157,7 +158,6 @@ class UploadRestClient:
         re-auth hint rather than as an opaque 401/403 deep in the transfer.
         """
         check_upload_scope(self._client)
-        url = f"{self._rest_base_url}/rest/upload/initiate"
         payload: dict[str, object] = {
             "workunitId": workunit_id,
             "resourceIds": list(resource_ids),
@@ -165,10 +165,7 @@ class UploadRestClient:
         }
         if job_id is not None:
             payload["jobId"] = job_id
-        resp = httpx.post(url, json=payload, headers=self._headers(), timeout=_TIMEOUT)
-        if not resp.is_success:
-            raise UploadInitiationError(f"initiate REST call failed ({resp.status_code}): {resp.text}")
-        return UploadTokenResult.model_validate(resp.json())
+        return UploadTokenResult.model_validate(self._post("initiate", payload))
 
 
 def tus_sink_for_resource(
