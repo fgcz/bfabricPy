@@ -27,16 +27,26 @@ jobs:
           python3 <<'PY' >> "$GITHUB_OUTPUT"
           import os, json
 
-          # Pass the full session id to `nox -s`, but show a compact label as the check
-          # name: drop the `key='...'` noise from the parametrized id (basedpyright(package='bfabric')
-          # -> "basedpyright (3.13, bfabric)"). Base name stays snake_case on purpose so it
-          # maps 1:1 to a `nox -s <session>` you can rerun locally.
+          # Sessions whose name is in FAST_SESSIONS are bundled into a single "fast checks"
+          # leg -- they're near-instant, so a dedicated job each just pays ~30s of runner
+          # setup and clutters the checks list. Everything else gets its own isolated,
+          # named leg. To move a session in or out of the bundle, edit this set.
+          FAST_SESSIONS = {"changelog", "licensecheck", "check_test_inits", "test_py_typed"}
+
           sessions = json.loads(os.environ["SESSIONS_JSON"])
           include = []
+          fast = []
           for s in sessions:
+              if s["name"] in FAST_SESSIONS:
+                  fast.append(s["session"])
+                  continue
+              # Compact check label; base name stays snake_case so it maps 1:1 to a
+              # `nox -s <session>` you can rerun locally.
               parts = ([s["python"]] if s["python"] else []) + [str(v) for v in s["call_spec"].values()]
               label = s["name"] + (f" ({', '.join(parts)})" if parts else "")
-              include.append({"session": s["session"], "name": label})
+              include.append({"name": label, "sessions_json": json.dumps([s["session"]])})
+          if fast:
+              include.append({"name": "fast checks", "sessions_json": json.dumps(fast)})
           print("matrix=" + json.dumps({"include": include}))
           PY
   unit_tests:
@@ -45,6 +55,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      # Cap concurrent legs: gentler on the org-shared Actions pool and on GitHub's
+      # per-job "resolve action download info" calls (the transient 503s we saw).
+      max-parallel: 5
       matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v7
@@ -55,8 +68,13 @@ jobs:
             3.13
       - name: Install nox
         run: pip install nox uv
-      - name: Run nox session
-        run: nox -s "${{ matrix.session }}"
+      - name: Run nox session(s)
+        env:
+          SESSIONS_JSON: ${{ matrix.sessions_json }}
+        run: |
+          sessions=()
+          while IFS= read -r s; do sessions+=("$s"); done < <(python3 -c "import json, os; [print(s) for s in json.loads(os.environ['SESSIONS_JSON'])]")
+          nox -s "${sessions[@]}"
   code_style:
     name: Code Style
     runs-on: ubuntu-latest
