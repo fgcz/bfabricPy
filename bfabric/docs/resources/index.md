@@ -17,7 +17,7 @@ This section contains resources to help you use bfabricPy effectively:
 | Resource | Description | For |
 | -------------------------------------------- | ---------------------------------------------------- | --------------------------- |
 | **[Good to Know](good_to_know)** | Useful tips and important notes | All users |
-| **[Contributing](../../../CONTRIBUTING)** | How to contribute to bfabricPy | Contributors |
+| **[Contributing](https://github.com/fgcz/bfabricPy/blob/main/CONTRIBUTING.md)** | How to contribute to bfabricPy | Contributors |
 | **[Changelog](../changelog)** | Version history and changes | All users |
 
 ## Quick Links

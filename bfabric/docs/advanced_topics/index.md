@@ -27,4 +27,4 @@ These guides assume familiarity with basic bfabricPy concepts:
 
 - [User Guides](../../user_guides/index) - Practical guides
 - [API Reference](../../api_reference/index) - Complete API documentation
-- [Changelog](../../resources/changelog) - Version history and changes
+- [Changelog](../changelog.md) - Version history and changes

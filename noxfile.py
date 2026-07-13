@@ -322,6 +322,32 @@ def docs(session):
 
 
 @nox.session(default=False)
+def docs_linkcheck(session):
+    """Fails if the docs contain broken internal cross-references.
+
+    Complements ``docs``: MyST only *warns* on unresolvable doc links and missing heading
+    anchors, so a plain build stays green while links rot. This session builds both docs
+    trees and fails on any cross-reference warning (missing target, ambiguous target, or
+    missing local anchor), without being tripped by unrelated warnings.
+    """
+    session.install("./bfabric[doc]", "./bfabric_app_runner[doc]")
+    link_markers = ("xref_missing", "xref_ambiguous", "local id not found")
+    problems = []
+    for name, srcdir in (("bfabric", "bfabric/docs"), ("bfabric_app_runner", "bfabric_app_runner/docs")):
+        with TemporaryDirectory() as tmpdir:
+            warnfile = Path(tmpdir) / "warnings.txt"
+            session.run("sphinx-build", "-b", "html", "-w", str(warnfile), srcdir, str(Path(tmpdir) / "html"))
+            if warnfile.exists():
+                problems += [
+                    f"{name}: {line}"
+                    for line in warnfile.read_text().splitlines()
+                    if any(m in line for m in link_markers)
+                ]
+    if problems:
+        session.error("Broken documentation cross-references found:\n" + "\n".join(problems))
+
+
+@nox.session(default=False)
 def code_style(session):
     session.install("ruff")
     session.run("ruff", "check", "bfabric")

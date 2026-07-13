@@ -27,7 +27,7 @@ ______________________________________________________________________
 
 ```{eval-rst}
 .. autoclass:: bfabric.Bfabric
-    :members: connect, from_config, from_token_data, connect_webapp, connect_token, connect_token_async, read, save, delete, exists, upload_resource, with_auth, config, auth, config_data, reader
+    :members: connect, from_config, from_token_data, connect_webapp, connect_token, connect_token_async, connect_oauth, connect_pkce, connect_device_code, connect_pat, read, save, delete, exists, upload_resource, with_auth, config, auth, config_data, reader
     :undoc-members:
     :show-inheritance:
 ```
