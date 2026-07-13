@@ -6,9 +6,33 @@ on:
     branches: [main, stable, release_*]
   workflow_dispatch:
 jobs:
-  unit_tests:
-    name: Unit Tests
+  # Derive the list of nox sessions so each can run as its own matrix leg (and its
+  # own named check), instead of lumping every session into a single opaque log.
+  discover:
+    name: Discover sessions
     runs-on: ubuntu-latest
+    outputs:
+      sessions: ${{ steps.list.outputs.sessions }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Install nox
+        run: pip install nox uv
+      - name: List nox sessions
+        id: list
+        run: |
+          sessions=$(nox -l --json | python3 -c 'import sys, json; print(json.dumps([s["session"] for s in json.load(sys.stdin)]))')
+          echo "sessions=$sessions" >> "$GITHUB_OUTPUT"
+  unit_tests:
+    name: ${{ matrix.session }}
+    needs: discover
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        session: ${{ fromJSON(needs.discover.outputs.sessions) }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v6
@@ -18,34 +42,22 @@ jobs:
             3.13
       - name: Install nox
         run: pip install nox uv
-      - name: Run checks
-        run: nox --report nox-report.json
-      - name: Summarize nox results
-        if: always()
+      - name: Run nox session
+        run: nox -s "${{ matrix.session }}"
+  # Single stable check name for branch protection: green only if every session passed.
+  unit_tests_gate:
+    name: Unit Tests
+    needs: unit_tests
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify all sessions passed
         run: |
-          if [ ! -f nox-report.json ]; then exit 0; fi
-          python3 << 'EOF'
-          import json, os
-
-          with open("nox-report.json") as f:
-              data = json.load(f)
-
-          lines = ["## Nox Session Results\n"]
-          for s in data["sessions"]:
-              result = s.get("result", "unknown")
-              name = s["signatures"][0]
-              if result == "success":
-                  icon = "✅"
-              elif result in ("skipped", "skip"):
-                  icon = "⏭️"
-              else:
-                  icon = "❌"
-                  print(f"::error::Nox session failed: {name}")
-              lines.append(f"{icon} `{name}`: {result}")
-
-          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
-              f.write("\n".join(lines) + "\n")
-          EOF
+          if [ "${{ needs.unit_tests.result }}" != "success" ]; then
+            echo "One or more nox sessions failed (aggregate result: ${{ needs.unit_tests.result }})."
+            exit 1
+          fi
+          echo "All nox sessions passed."
   code_style:
     name: Code Style
     runs-on: ubuntu-latest
