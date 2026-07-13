@@ -1,6 +1,6 @@
-## Architecture Overview
+# Architecture Overview
 
-### What is bfabric-app-runner?
+## What is bfabric-app-runner?
 
 bfabric-app-runner is a framework for executing computational applications that integrate with B-Fabric,
 a laboratory information management system. It manages the full lifecycle of running an application:
@@ -10,7 +10,7 @@ Applications are defined declaratively through YAML specification files that des
 to run, what inputs to fetch, and how to register outputs. The runner handles orchestration, so
 application developers can focus on their processing logic.
 
-### Workflow Phases
+## Workflow Phases
 
 An application execution proceeds through four phases:
 
@@ -34,7 +34,7 @@ An application execution proceeds through four phases:
    expected to produce `outputs.yml` directly. The runner then registers outputs back into B-Fabric
    (copying resources to storage, saving datasets, creating links).
 
-### Key Components
+## Key Components
 
 **Runner** (`bfabric_app_runner.app_runner.runner.Runner`) orchestrates all four phases. It holds
 a reference to an `AppVersion` (which defines the commands) and a `Bfabric` client instance.
@@ -64,7 +64,7 @@ cleaned.
 are supported: `CopyResourceSpec` (SCP a file to storage), `SaveDatasetSpec` (register a CSV/TSV
 as a dataset), and `SaveLinkSpec` (attach a URL link to an entity).
 
-### How Chunks Work
+## How Chunks Work
 
 The chunking mechanism allows applications to split work into independent units. During dispatch,
 the application creates subdirectories under the work directory -- one per chunk. Each chunk
@@ -77,7 +77,7 @@ that contain an `inputs.yml` file.
 The runner processes chunks sequentially: for each chunk, it prepares inputs, runs the process
 command, runs the optional collect command, and registers outputs.
 
-### Action Types
+## Action Types
 
 The CLI exposes the workflow phases as individual actions:
 
@@ -89,7 +89,7 @@ The CLI exposes the workflow phases as individual actions:
 
 These actions allow developers to test individual phases during development.
 
-### Dispatch Strategies
+## Dispatch Strategies
 
 The `dispatch` module provides reusable dispatch strategies for common patterns:
 
@@ -103,13 +103,13 @@ The `dispatch` module provides reusable dispatch strategies for common patterns:
 These strategies handle the creation of chunk directories, writing `inputs.yml` files, and
 producing the `chunks.yml` manifest.
 
-### App model
+## App model
 
 ```{eval-rst}
 .. uml:: uml/app_model.plantuml
 ```
 
-### App runner activity diagram
+## App runner activity diagram
 
 ```{eval-rst}
 .. uml:: uml/app_runner_activity.plantuml

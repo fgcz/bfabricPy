@@ -8,6 +8,8 @@ if TYPE_CHECKING:
 
 
 class StaticFileSpec(BaseModel):
+    """Writes inline text or binary content, provided in the spec itself, to a local file."""
+
     type: Literal["static_file"] = "static_file"
 
     content: str | bytes

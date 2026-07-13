@@ -1,11 +1,11 @@
-## Input specification
+# Input specification
 
 The inputs module provides a specification schema to define the inputs required by an app.
 You can also use this functionality interactively while prototyping.
 The file is usually called `inputs.yml` and lists the different inputs, with information and how to retrieve them and
 the filename to save them as.
 
-### General structure
+## General structure
 
 Generally the structure is a yaml file containing a key `inputs` which is a list of dictionaries, each representing an
 input file.
@@ -30,7 +30,7 @@ inputs:
     filename: test.zip
 ```
 
-### HTTP transport (optional)
+## HTTP transport (optional)
 
 By default a `bfabric_resource` is copied from its storage host over SSH (rsync/scp), which needs
 SSH/NFS access to that host. You can instead fetch it over HTTP with `access: http`:
@@ -79,10 +79,10 @@ For instance, in the above case this would print:
 
 ```
 InputsSpec(
-│   inputs=[
-│   │   DatasetSpec(type='bfabric_dataset', id=53706, filename='test.csv', separator=','),
-│   │   ResourceSpec(type='bfabric_resource', id=2700958, filename='test.zip', check_checksum=True)
-│   ]
+    inputs=[
+        BfabricDatasetSpec(type='bfabric_dataset', id=53706, filename='test.csv', separator=',', format='csv'),
+        BfabricResourceSpec(type='bfabric_resource', id=2700958, filename='test.zip', check_checksum=True, access='ssh')
+    ]
 )
 ```
 
@@ -116,9 +116,71 @@ bfabric-app-runner inputs list --check inputs.yml .
 
 ## Reference
 
+The file parses into an `InputsSpec` wrapping a list of typed entries; each entry's `type` field
+selects one of the models below.
+
 ```{eval-rst}
-.. automodule:: bfabric_app_runner.specs.inputs_spec
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. autopydantic_model:: bfabric_app_runner.specs.inputs_spec.InputsSpec
+```
+
+### B-Fabric-sourced inputs
+
+Fetched from B-Fabric by ID.
+
+Download a single resource by ID:
+
+```{eval-rst}
+.. autopydantic_model:: bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec
+```
+
+Download a dataset as CSV or Parquet:
+
+```{eval-rst}
+.. autopydantic_model:: bfabric_app_runner.specs.inputs.bfabric_dataset_spec.BfabricDatasetSpec
+```
+
+Download a resource that is an archive and extract it (with include/exclude globs):
+
+```{eval-rst}
+.. autopydantic_model:: bfabric_app_runner.specs.inputs.bfabric_resource_archive_spec.BfabricResourceArchiveSpec
+```
+
+Download every resource referenced by a dataset into a folder, plus a metadata table:
+
+```{eval-rst}
+.. autopydantic_model:: bfabric_app_runner.specs.inputs.bfabric_resource_dataset.BfabricResourceDatasetSpec
+```
+
+Write the FASTA sequence attached to an order (or a workunit's order) to a file:
+
+```{eval-rst}
+.. autopydantic_model:: bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec.BfabricOrderFastaSpec
+```
+
+Write a B-Fabric annotation table (e.g. resource-sample mapping) to a file:
+
+```{eval-rst}
+.. autopydantic_model:: bfabric_app_runner.specs.inputs.bfabric_annotation_spec.BfabricAnnotationSpec
+```
+
+### Local / generic inputs
+
+Sourced from a path, URL, or inline content rather than by B-Fabric ID.
+
+A generic file from a local path, an SSH host, or an HTTP URL:
+
+```{eval-rst}
+.. autopydantic_model:: bfabric_app_runner.specs.inputs.file_spec.FileSpec
+```
+
+Write inline text or binary content straight to a file:
+
+```{eval-rst}
+.. autopydantic_model:: bfabric_app_runner.specs.inputs.static_file_spec.StaticFileSpec
+```
+
+Write an inline YAML document straight to a file:
+
+```{eval-rst}
+.. autopydantic_model:: bfabric_app_runner.specs.inputs.static_yaml_spec.StaticYamlSpec
 ```

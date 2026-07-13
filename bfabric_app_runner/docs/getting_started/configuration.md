@@ -35,7 +35,10 @@ versions:
 
 ## Command Types
 
-Four command types are available: `python_env` (recommended), `shell`, `exec`, and `docker`. For a complete reference of all command types, their fields, and advanced features like multi-version templates and development versions, see the [Creating an App](../user_guides/creating_an_app.md) guide.
+Four command types are available: `python_env` (recommended), `exec`, `docker`, and `shell` (deprecated in
+favor of `exec`). See the [App specification](../specs/app_specification.md) for the full field reference of
+each command type, and [Creating an App](../user_guides/creating_an_app.md) for advanced features like
+multi-version templates and development versions.
 
 ## Validation
 

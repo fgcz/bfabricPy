@@ -8,117 +8,78 @@ After an app finishes processing, its output files and datasets need to be regis
 
 ## Output YAML Format
 
+Outputs are defined under a top-level `outputs:` key, whose value is a list of specifications:
+
 ```yaml
-- type: bfabric_copy_resource
-  local_path: results/output.raw
-  store_entry_path: output.raw
+outputs:
+  - type: bfabric_copy_resource
+    local_path: results/output.raw
+    store_entry_path: output.raw
 
-- type: bfabric_dataset
-  local_path: results/summary.csv
-  separator: ","
-  name: "Results Summary"
+  - type: bfabric_dataset
+    local_path: results/summary.csv
+    separator: ","
+    name: "Results Summary"
 
-- type: bfabric_link
-  name: "Analysis Report"
-  url: "https://example.com/report/123"
+  - type: bfabric_link
+    name: "Analysis Report"
+    url: "https://example.com/report/123"
 ```
 
 ## Output Spec Types
+
+Each type is shown below with a representative example. For the complete field reference, see the
+[Output specification](../specs/output_specification.md).
 
 ### bfabric_copy_resource
 
 Copies a local file to the B-Fabric storage and registers it as a resource.
 
 ```yaml
-- type: bfabric_copy_resource
-  local_path: results/output.mzML
-  store_entry_path: output.mzML
-  store_folder_path: /path/in/store
-  update_existing: NO
-  protocol: scp
+outputs:
+  - type: bfabric_copy_resource
+    local_path: results/output.mzML
+    store_entry_path: output.mzML
+    store_folder_path: /path/in/store
+    update_existing: if_exists
+    protocol: scp
 ```
-
-`local_path` (str, required)
-: Path to the local file (relative to the chunk directory).
-
-`store_entry_path` (str, optional)
-: Filename in the B-Fabric storage.
-
-`store_folder_path` (str, optional)
-: Directory path within the storage.
-
-`update_existing` (str, optional)
-: How to handle existing resources. See [UpdateExisting](#updateexisting-behavior) below.
-
-`protocol` (str, optional)
-: Transfer protocol. Currently `"scp"`.
 
 ### bfabric_dataset
 
 Registers a local tabular file as a B-Fabric dataset.
 
 ```yaml
-- type: bfabric_dataset
-  local_path: results/summary.csv
-  separator: ","
-  name: "Experiment Results"
-  has_header: true
-  invalid_characters: remove
+outputs:
+  - type: bfabric_dataset
+    local_path: results/summary.csv
+    separator: ","
+    name: "Experiment Results"
+    has_header: true
+    invalid_characters: remove
 ```
-
-`local_path` (str, required)
-: Path to the local CSV/TSV file.
-
-`separator` (str, optional)
-: Column separator character.
-
-`name` (str, optional)
-: Display name for the dataset in B-Fabric.
-
-`has_header` (bool, optional)
-: Whether the file has a header row.
-
-`invalid_characters` (str, optional)
-: How to handle invalid characters.
 
 ### bfabric_link
 
 Creates a link resource in B-Fabric pointing to an external URL.
 
 ```yaml
-- type: bfabric_link
-  name: "Interactive Report"
-  url: "https://example.com/report/456"
-  update_existing: IF_EXISTS
+outputs:
+  - type: bfabric_link
+    name: "Interactive Report"
+    url: "https://example.com/report/456"
+    update_existing: if_exists
 ```
 
-`name` (str, required)
-: Display name for the link.
+## The `update_existing` field
 
-`url` (str, required)
-: The URL to link to.
+`update_existing` controls what happens when an entry with the same identity already exists in B-Fabric;
+its accepted values (`"no"`, `if_exists`, `required`) are documented on the
+[Output specification](../specs/output_specification.md). Two things trip people up:
 
-`entity_type` (str, optional)
-: B-Fabric entity type to associate the link with.
-
-`entity_id` (int, optional)
-: B-Fabric entity ID to associate the link with.
-
-`update_existing` (str, optional)
-: How to handle existing links. See [UpdateExisting](#updateexisting-behavior) below.
-
-## UpdateExisting Behavior
-
-The `update_existing` field controls what happens when a resource or link with the same identity already exists in B-Fabric:
-
-`NO`
-: Do not update. Create a new resource (default behavior).
-
-`IF_EXISTS`
-: Update the existing resource if one is found; otherwise create a new one.
-
-`REQUIRED`
-: The resource must already exist. Raises an error if not found.
+- In YAML, `"no"` **must be quoted** — bare `no` parses as the boolean `false` and fails validation.
+- The YAML spec default is `if_exists`, but the `outputs register-single-file` CLI command's
+  `--update-existing` flag defaults to `no`.
 
 ## CLI Commands
 
@@ -141,6 +102,9 @@ bfabric-app-runner outputs register outputs.yml workunit_ref
 
 `--force-storage`
 : Override the storage location.
+
+`--reuse-default-resource` / `--no-reuse-default-resource`
+: Whether to reuse the workunit's auto-created default resource for the first copied file (default: enabled).
 
 ### Register a single file
 
@@ -165,13 +129,16 @@ bfabric-app-runner outputs register-single-file results/output.mzML \
 : Directory path within the storage.
 
 `--update-existing`
-: UpdateExisting behavior (`NO`, `IF_EXISTS`, or `REQUIRED`).
+: UpdateExisting behavior (`no`, `if-exists`, or `required`; default `no`).
 
 `--ssh-user`
 : SSH user for remote transfers.
 
 `--force-storage`
 : Override the storage location.
+
+`--reuse-default-resource` / `--no-reuse-default-resource`
+: Whether to reuse the workunit's auto-created default resource (default: disabled for this command).
 
 ## Validating Output Specs
 

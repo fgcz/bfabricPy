@@ -36,7 +36,10 @@ class AppSpecTemplate(BaseModel):
     """
 
     bfabric: BfabricAppSpec
+    """B-Fabric-related settings shared by all versions (see ``BfabricAppSpec``)."""
+
     versions: list[AppVersionMultiTemplate]
+    """App version templates; each may declare several versions and use ``Variables`` placeholders."""
 
     # TODO this should take the variables as param instead
     def evaluate(self, app_id: int, app_name: str) -> AppSpec:
@@ -54,7 +57,10 @@ class AppSpec(BaseModel):
     """Parsed app versions from the app spec file."""
 
     bfabric: BfabricAppSpec
+    """B-Fabric-related settings shared by all versions (see ``BfabricAppSpec``)."""
+
     versions: list[AppVersion]
+    """The concrete, fully-resolved app versions."""
 
     @field_validator("versions", mode="after")
     def no_duplicate_versions(cls, values: list[AppVersion]) -> list[AppVersion]:

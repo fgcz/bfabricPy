@@ -9,12 +9,24 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class UpdateExisting(enum.Enum):
+    """Policy for what to do when an output with the same identity already exists in B-Fabric.
+
+    Shared by the resource, dataset, and link output specs.
+    """
+
     NO = "no"
+    """Never touch an existing entry; fail if one already exists."""
+
     IF_EXISTS = "if_exists"
+    """Update the entry in place if it exists, otherwise create a new one."""
+
     REQUIRED = "required"
+    """Update an existing entry, failing if none exists to update."""
 
 
 class CopyResourceSpec(BaseModel):
+    """Copies a local file into B-Fabric storage and registers it as a resource of the workunit."""
+
     model_config = ConfigDict(extra="forbid")
     type: Literal["bfabric_copy_resource"] = "bfabric_copy_resource"
 
@@ -29,19 +41,33 @@ class CopyResourceSpec(BaseModel):
 
     # TODO these need to be implemented properly (e.g. do not scp too early), and tested in integration tests
     update_existing: UpdateExisting = UpdateExisting.IF_EXISTS
+    """Behavior if a resource with the same name already exists on the workunit."""
 
     protocol: Literal["scp"] = "scp"
+    """Transfer protocol used to copy the file to storage; currently only ``"scp"`` is supported."""
 
 
 class SaveDatasetSpec(BaseModel):
+    """Uploads a local delimited file as the workunit's output dataset."""
+
     model_config = ConfigDict(extra="forbid")
     type: Literal["bfabric_dataset"] = "bfabric_dataset"
 
     local_path: Path
+    """Path to the local delimited file to upload as the dataset."""
+
     separator: str
+    """Field separator of the local file (e.g. a comma or a tab character)."""
+
     name: str | None = None
+    """Name for the dataset in B-Fabric; ``None`` uses the local file's stem."""
+
     has_header: bool = True
+    """Whether the local file's first row contains column names."""
+
     invalid_characters: str = ""
+    """Characters that must not appear in any cell; upload fails if any occur (empty string disables the check)."""
+
     update_existing: UpdateExisting = UpdateExisting.IF_EXISTS
     """Behavior if the workunit already has an output dataset with the same name."""
 
