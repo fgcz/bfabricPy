@@ -26,7 +26,6 @@ dependencies = [
     "loguru>=0.7,<0.8",
     "pydantic>=2.9.2,<3.0",
     "python-dateutil>=2.9.0,<3.0",
-    "requests>=2.27.0,<3.0",
     "httpx>=0.28.1,<0.29",
     "annotated-types>=0.7.0",
     "authlib>=1.6.9,<2.0",
@@ -35,7 +34,7 @@ dependencies = [
 
 [project.optional-dependencies]
 transfer = ["tuspy>=1.0,<2"]
-zeep = ["zeep>=4.3.2,<5.0"]
+zeep = ["zeep>=4.3.2,<5.0","requests>=2.27.0,<3.0"]
 dev = [
     "bfabric[doc,test]",
     "black",
