@@ -217,8 +217,7 @@ def test_bfabric(session, resolution):
         session.skip("Only testing lowest-direct on Python 3.11")
 
     session.install("--resolution", resolution, "./bfabric[test]")
-    session.run("uv", "pip", "list")
-    session.run("pytest", "--durations=50", "tests/bfabric")
+    session.run("pytest", "--durations=50", "--tb=short", "-ra", "tests/bfabric")
 
 
 @nox.session(python="3.13")
@@ -241,9 +240,8 @@ def test_bfabric_scripts(session, resolution):
         session.skip("Only testing lowest-direct on Python 3.11")
 
     session.install("--resolution", resolution, "./bfabric_scripts[test]")
-    session.run("uv", "pip", "list")
     packages = ["tests/bfabric_scripts", "tests/bfabric_cli"]
-    session.run("pytest", "--durations=50", *packages)
+    session.run("pytest", "--durations=50", "--tb=short", "-ra", *packages)
 
 
 @nox.session(python=["3.13"])
@@ -251,22 +249,19 @@ def test_bfabric_scripts(session, resolution):
 def test_bfabric_app_runner(session, resolution):
     # Both resolutions run for the single Python version
     session.install("--resolution", resolution, "./bfabric_app_runner[test]")
-    session.run("uv", "pip", "list")
-    session.run("pytest", "--durations=50", "tests/bfabric_app_runner")
+    session.run("pytest", "--durations=50", "--tb=short", "-ra", "tests/bfabric_app_runner")
 
 
 @nox.session(python=["3.13"])
 def test_bfabric_asgi_auth(session):
     session.install("--resolution", "highest", "./bfabric_asgi_auth[test]")
-    session.run("uv", "pip", "list")
-    session.run("pytest", "--gherkin-terminal-reporter", "-v", "bfabric_asgi_auth/tests")
+    session.run("pytest", "--gherkin-terminal-reporter", "-v", "--tb=short", "bfabric_asgi_auth/tests")
 
 
 @nox.session(python=["3.13"])
 def test_bfabric_rest_proxy(session):
     session.install("--resolution", "highest", "./bfabric_rest_proxy[test]")
-    session.run("uv", "pip", "list")
-    session.run("pytest", "-v", "bfabric_rest_proxy/tests")
+    session.run("pytest", "-v", "--tb=short", "bfabric_rest_proxy/tests")
 
 
 @nox.session
@@ -542,19 +537,13 @@ def test_distributions(session):
     session.log("Installing wheels...")
     session.install(*compatible_wheels)
 
-    # Show what's installed for debugging
-    session.log("")
-    session.log("Installed packages:")
-    session.run("uv", "pip", "list")
-    session.log("")
-
     # Run tests for each compatible package
     for package, test_paths in compatible_packages.items():
         session.log(f"Running tests for {package}...")
         if isinstance(test_paths, list):
-            session.run("pytest", "--durations=50", *test_paths)
+            session.run("pytest", "--durations=50", "--tb=short", "-ra", *test_paths)
         else:
-            session.run("pytest", "--durations=50", test_paths)
+            session.run("pytest", "--durations=50", "--tb=short", "-ra", test_paths)
         session.log(f"Tests passed for {package}")
         session.log("")
 
