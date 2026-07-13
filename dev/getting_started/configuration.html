@@ -470,7 +470,7 @@ python<span class="w"> </span>script.py<span class="w">  </span><span class="c1"
 <span class="c1"># Create config programmatically</span>
 <span class="n">client_config</span> <span class="o">=</span> <span class="n">BfabricClientConfig</span><span class="p">(</span>
     <span class="n">base_url</span><span class="o">=</span><span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric/&quot;</span><span class="p">,</span>
-    <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;zeep&quot;</span><span class="p">,</span>  <span class="c1"># or &quot;suds&quot;</span>
+    <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;SUDS&quot;</span><span class="p">,</span>  <span class="c1"># default; &quot;ZEEP&quot; is also available but requires `pip install bfabric[zeep]`</span>
 <span class="p">)</span>
 
 <span class="n">auth</span> <span class="o">=</span> <span class="n">BfabricAuth</span><span class="p">(</span>
