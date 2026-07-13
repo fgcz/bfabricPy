@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 import argparse
-import hashlib
 import json
 import sys
 from pathlib import Path
 
 from bfabric import Bfabric
+from bfabric.transfer import md5_checksum
 
 FASTAHTTPROOT = "/fasta/"
 BFABRICSTORAGEID = 2
@@ -22,8 +22,7 @@ def save_fasta(container_id: int, fasta_file: Path) -> None:
     if not fasta_file.exists():
         raise FileNotFoundError(fasta_file)
 
-    with fasta_file.open("rb") as f:
-        md5 = hashlib.file_digest(f, "md5").hexdigest()
+    md5 = md5_checksum(fasta_file)
 
     resources = client.read(endpoint="resource", obj={"filechecksum": md5}).to_list_dict()
     if resources:
