@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 from typing import TYPE_CHECKING
 
 import polars as pl
@@ -12,7 +11,7 @@ from bfabric.operations.dataset import (
     identify_changes,
     update_dataset,
 )
-from bfabric.transfer import Credentials, TransferSinkScp, send_to_sink
+from bfabric.transfer import Credentials, TransferSinkScp, md5_checksum, send_to_sink
 from bfabric.utils.table_lint import check_for_invalid_characters
 from loguru import logger
 
@@ -63,8 +62,7 @@ def register_file_in_workunit(
     if resource_id is not None and existing_id is not None and resource_id != existing_id:
         raise ValueError(f"Resource id {resource_id} does not match existing resource id {existing_id}")
 
-    with spec.local_path.open("rb") as f:
-        checksum = hashlib.file_digest(f, "md5").hexdigest()
+    checksum = md5_checksum(spec.local_path)
     output_folder = _get_output_folder(spec, workunit_definition=workunit_definition)
     resource_data = {
         "name": spec.store_entry_path.name,
