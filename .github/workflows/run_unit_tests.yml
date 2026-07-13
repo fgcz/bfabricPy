@@ -12,7 +12,7 @@ jobs:
     name: Discover sessions
     runs-on: ubuntu-latest
     outputs:
-      sessions: ${{ steps.list.outputs.sessions }}
+      matrix: ${{ steps.list.outputs.matrix }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v6
@@ -20,19 +20,32 @@ jobs:
           python-version: '3.13'
       - name: Install nox
         run: pip install nox uv
-      - name: List nox sessions
+      - name: Build session matrix
         id: list
         run: |
-          sessions=$(nox -l --json | python3 -c 'import sys, json; print(json.dumps([s["session"] for s in json.load(sys.stdin)]))')
-          echo "sessions=$sessions" >> "$GITHUB_OUTPUT"
+          export SESSIONS_JSON="$(nox -l --json)"
+          python3 <<'PY' >> "$GITHUB_OUTPUT"
+          import os, json
+
+          # Pass the full session id to `nox -s`, but show a compact label as the check
+          # name: drop the `key='...'` noise from the parametrized id (basedpyright(package='bfabric')
+          # -> "basedpyright (3.13, bfabric)"). Base name stays snake_case on purpose so it
+          # maps 1:1 to a `nox -s <session>` you can rerun locally.
+          sessions = json.loads(os.environ["SESSIONS_JSON"])
+          include = []
+          for s in sessions:
+              parts = ([s["python"]] if s["python"] else []) + [str(v) for v in s["call_spec"].values()]
+              label = s["name"] + (f" ({', '.join(parts)})" if parts else "")
+              include.append({"session": s["session"], "name": label})
+          print("matrix=" + json.dumps({"include": include}))
+          PY
   unit_tests:
-    name: ${{ matrix.session }}
+    name: ${{ matrix.name }}
     needs: discover
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        session: ${{ fromJSON(needs.discover.outputs.sessions) }}
+      matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v6
@@ -44,20 +57,6 @@ jobs:
         run: pip install nox uv
       - name: Run nox session
         run: nox -s "${{ matrix.session }}"
-  # Single stable check name for branch protection: green only if every session passed.
-  unit_tests_gate:
-    name: Unit Tests
-    needs: unit_tests
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Verify all sessions passed
-        run: |
-          if [ "${{ needs.unit_tests.result }}" != "success" ]; then
-            echo "One or more nox sessions failed (aggregate result: ${{ needs.unit_tests.result }})."
-            exit 1
-          fi
-          echo "All nox sessions passed."
   code_style:
     name: Code Style
     runs-on: ubuntu-latest
@@ -167,3 +166,23 @@ jobs:
         run: pip install nox uv
       - name: Build documentation
         run: nox -s docs
+  # Umbrella gate: one stable status check for branch protection, green only when every
+  # real check passed. Keeps code_style / docs-build as their own named checks while
+  # gathering them (and the unit_tests matrix) into a single required context.
+  ci:
+    name: CI
+    needs: [unit_tests, code_style, docs-build]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify all checks passed
+        run: |
+          echo "unit_tests=${{ needs.unit_tests.result }} code_style=${{ needs.code_style.result }} docs-build=${{ needs.docs-build.result }}"
+          [ "${{ needs.unit_tests.result }}" = "success" ] || exit 1
+          [ "${{ needs.code_style.result }}" = "success" ] || exit 1
+          # docs-build only runs on pull_request; a trigger-skip on push is acceptable.
+          case "${{ needs.docs-build.result }}" in
+            success|skipped) ;;
+            *) exit 1 ;;
+          esac
+          echo "All checks passed."
