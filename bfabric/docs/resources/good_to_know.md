@@ -16,24 +16,6 @@ After all entities have been saved, you can set the workunit state to `"availabl
 However, be aware that B-Fabric will still perform a state recomputation at this stage, which might result in a different inferred state, such as `"failed"`.
 The `"processing"` state is the only one that ensures state recomputation is bypassed during the saving process.
 
-## Jobs
-
-A *job* is a B-Fabric entity (the `job` endpoint, exposed as `bfabric.entities.Job`) that records a
-unit of tracked work. Jobs are created around scenarios like launching a web application or uploading
-a file. Each job carries an **action** that says what kind of work it represents, and a **status**
-that moves from `NEW` to `DONE` or `FAILED` as the work progresses.
-
-B-Fabric only *stores* a job's action and status — it does not act on them itself. It is the service
-interfacing with B-Fabric that reads the action and drives the status. The case relevant to bfabricPy
-is the **`UPLOAD`** action: the tus upload server (not B-Fabric) watches jobs whose action is `UPLOAD`
-and flips them from `NEW` to `DONE` (or `FAILED`) once the files bound to that job have finished
-transferring. A service that doesn't handle a given action simply leaves the job alone.
-
-This is what `bfabric-cli workunit upload --track-job` wires up: it creates an `UPLOAD` job parented to
-the workunit and hands the job id to the tus upload token, so the server can mark the job complete when
-the transfer lands. Without `--track-job` the files still upload — you just don't get a job object
-recording the transfer's outcome. See [Uploading Files](../user_guides/bfabric-cli/workunits.md#uploading-files).
-
 ## Logging level
 
 BfabricPy uses [loguru](https://github.com/Delgan/loguru) for logging, since it makes logging very simple and informative.

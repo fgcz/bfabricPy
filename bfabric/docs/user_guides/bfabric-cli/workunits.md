@@ -198,17 +198,26 @@ anyway.
 bfabric-cli workunit upload extra.txt --workunit-id 336576
 ```
 
-**Track the upload as a job:**
+### Tracking the Upload as a Job
+
+Pass `--track-job` to attach a B-Fabric *job* to the transfer:
 
 ```bash
 bfabric-cli workunit upload big.raw --container-id 40156 --application-id 447 --track-job
 ```
 
-`--track-job` creates a B-Fabric *job* of action `UPLOAD` parented to the workunit and passes its id
-along with the tus token. The tus server — not B-Fabric — then reads that action and flips the job
-from `NEW` to `DONE` (or `FAILED`) once the files finish transferring, giving you a record of the
-upload's outcome. Without the flag the files still upload; you just don't get a job object tracking it.
-See [Jobs](../../resources/good_to_know.md#jobs) for the underlying concept.
+A *job* is a B-Fabric entity that records a unit of tracked work. B-Fabric creates jobs around
+scenarios like launching a web application or uploading a file. Each job carries an **action** that
+says what kind of work it represents, and a **status** that moves from `NEW` to `DONE` or `FAILED`.
+
+B-Fabric only *stores* the action and status — it does not act on them itself. It is the service
+interfacing with B-Fabric that reads the action and drives the status. Here that service is the tus
+upload server: `--track-job` creates a job of action `UPLOAD` parented to the workunit and hands its
+id to the tus token, and the tus server (not B-Fabric) then flips the job from `NEW` to `DONE` (or
+`FAILED`) once the files finish transferring. A service that doesn't handle a job's action leaves it
+alone.
+
+Without `--track-job` the files still upload; you just don't get a job object recording the outcome.
 
 ### Resuming an Interrupted Upload
 
