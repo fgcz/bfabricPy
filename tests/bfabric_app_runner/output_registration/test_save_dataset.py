@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import polars as pl
 import pytest
 
 from bfabric.entities import Dataset
@@ -25,6 +26,13 @@ def mock_workunit_definition(mocker):
 def csv_path(tmp_path) -> Path:
     path = tmp_path / "my_dataset.csv"
     path.write_text("a,b\n1,2\n3,4\n")
+    return path
+
+
+@pytest.fixture()
+def parquet_path(tmp_path) -> Path:
+    path = tmp_path / "my_dataset.parquet"
+    pl.DataFrame({"a": [1, 3], "b": [2, 4]}).write_parquet(path)
     return path
 
 
@@ -63,6 +71,21 @@ def test_save_dataset_no_existing_creates(mock_client, mock_workunit_definition,
     assert params.container_id == 7
     assert params.workunit_id == 42
     assert table.columns == ["a", "b"]
+    mock_operations["update"].assert_not_called()
+
+
+def test_save_dataset_reads_parquet(mock_client, mock_workunit_definition, parquet_path, mock_operations):
+    """A parquet-format spec is read via pl.read_parquet and creates a new dataset."""
+    spec = SaveDatasetSpec(local_path=parquet_path, format="parquet", name="my_dataset")
+    mock_client.reader.query_one.return_value = None
+
+    _save_dataset(spec, mock_client, mock_workunit_definition)
+
+    mock_operations["create"].assert_called_once()
+    _, table, params = mock_operations["create"].call_args.args
+    assert params.name == "my_dataset"
+    assert table.columns == ["a", "b"]
+    assert table.to_dicts() == [{"a": 1, "b": 2}, {"a": 3, "b": 4}]
     mock_operations["update"].assert_not_called()
 
 

@@ -139,6 +139,20 @@ def copy_file_to_storage(
         )
 
 
+def _read_dataset_table(spec: SaveDatasetSpec) -> pl.DataFrame:
+    """Reads the local file into a polars DataFrame according to ``spec.format``.
+
+    New formats slot in as additional branches here (mirroring ``bfabric-cli dataset upload``).
+    """
+    if spec.format == "parquet":
+        return pl.read_parquet(spec.local_path)
+    elif spec.format == "csv":
+        separator = spec.separator if spec.separator is not None else ","
+        return pl.read_csv(spec.local_path, separator=separator, has_header=spec.has_header, infer_schema_length=None)
+    else:
+        raise ValueError(f"Unsupported dataset format: {spec.format!r}")
+
+
 def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit_definition: WorkunitDefinition) -> None:
     """Saves a dataset to the bfabric, updating the workunit's output dataset if it already has one.
 
@@ -150,7 +164,7 @@ def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit_definition: W
     if registration is None:
         raise ValueError("workunit_definition has no registration; cannot save dataset")
     name = spec.name or spec.local_path.stem
-    table = pl.read_csv(spec.local_path, separator=spec.separator, has_header=spec.has_header, infer_schema_length=None)
+    table = _read_dataset_table(spec)
     check_for_invalid_characters(table=table, invalid_characters=spec.invalid_characters)
 
     existing = client.reader.query_one("dataset", {"workunitid": registration.workunit_id}, expected_type=Dataset)

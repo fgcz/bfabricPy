@@ -47,7 +47,8 @@ outputs:
 
 ### bfabric_dataset
 
-Registers a local tabular file as a B-Fabric dataset.
+Registers a local tabular file as a B-Fabric dataset. The `format` field selects the reader
+(`csv`, the default, or `parquet`); `separator` and `has_header` apply to `csv` only.
 
 ```yaml
 outputs:
@@ -57,6 +58,16 @@ outputs:
     name: "Experiment Results"
     has_header: true
     invalid_characters: remove
+```
+
+For a Parquet file, set `format: parquet` (no `separator` needed):
+
+```yaml
+outputs:
+  - type: bfabric_dataset
+    local_path: results/summary.parquet
+    format: parquet
+    name: "Experiment Results"
 ```
 
 ### bfabric_link
