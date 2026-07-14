@@ -12,7 +12,7 @@ dependencies = [
     "bfabric>=1.13.36",
     "pydantic>=2.11,<3",
     "pydantic-settings>=2.12.0,<3",
-    "starlette>=0.50.0,<1",
+    "starlette>=1.0.1,<2",
 ]
 
 [build-system]
