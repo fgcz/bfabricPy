@@ -50,7 +50,7 @@ class UploadParams(BaseModel):
     import_resources: bool = True
     """Also create B-Fabric import resources."""
     track_job: bool = False
-    """Create a ``TUS_UPLOAD`` job tracking the upload; the tus server flips it to DONE/FAILED."""
+    """Create a ``UPLOAD`` job tracking the upload; the tus server flips it to DONE/FAILED."""
     progress: bool = True
     """Show a live upload progress bar. Pass ``--no-progress`` to disable; it is also
     auto-disabled when stderr is not an interactive terminal."""

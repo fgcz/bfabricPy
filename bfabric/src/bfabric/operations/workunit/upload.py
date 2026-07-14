@@ -62,7 +62,7 @@ class UploadFilesParams(BaseModel):
     import_resources: bool = True
     """Also create B-Fabric import resources."""
     track_job: bool = False
-    """Create a ``TUS_UPLOAD`` job under the workunit and attach its id to the upload, so the tus
+    """Create a ``UPLOAD`` job under the workunit and attach its id to the upload, so the tus
     server's hooks flip the job to ``DONE``/``FAILED`` as the transfer progresses. Works on both the
     create and reuse paths (the job is a new entity parented to the workunit, so it never mutates a
     reused workunit)."""
@@ -304,14 +304,14 @@ def _create_upload_workunit(client: Bfabric, params: UploadFilesParams, audit_at
 
 
 def _create_upload_job(client: Bfabric, workunit_id: int) -> int:
-    """Create the ``TUS_UPLOAD`` tracking job parented to ``workunit_id`` and return its id.
+    """Create the ``UPLOAD`` tracking job parented to ``workunit_id`` and return its id.
 
     The job starts at status ``NEW``; the tus server's own hooks move it to ``DONE``/``FAILED`` once
     the transfer runs, so nothing here mutates its status afterwards.
     """
     result = client.save(
         "job",
-        {"action": "TUS_UPLOAD", "status": "NEW", "parentclassname": "Workunit", "parentid": workunit_id},
+        {"action": "UPLOAD", "status": "NEW", "parentclassname": "Workunit", "parentid": workunit_id},
     )
     return Job(result[0], client=None, bfabric_instance=client.config.base_url).id
 
