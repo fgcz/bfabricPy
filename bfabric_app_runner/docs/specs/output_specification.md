@@ -64,7 +64,8 @@ Copy a local file into B-Fabric storage as a resource:
 .. autopydantic_model:: bfabric_app_runner.specs.outputs_spec.CopyResourceSpec
 ```
 
-Register a local table as a B-Fabric dataset:
+Register a local table as a B-Fabric dataset. The `format` field selects the reader — `csv` (the
+default, a delimited text file) or `parquet`; `separator` and `has_header` apply to `csv` only:
 
 ```{eval-rst}
 .. autopydantic_model:: bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec

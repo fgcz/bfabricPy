@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- `SaveDatasetSpec` (the `bfabric_dataset` output) gains a `format` field (`csv`, the default, or `parquet`) so an output dataset can be registered from a Parquet file, consistent with `bfabric-cli dataset upload`. `separator` is now optional (csv-only; defaults to a comma) and, together with `has_header`, is ignored for `format: parquet` ([#359](https://github.com/fgcz/bfabricPy/issues/359)).
 - `BfabricResourceSpec` gains an `access` field (`ssh`/`http`) selecting the transport used to stage a resource. `access: http` streams the file from the storage's HTTP endpoint instead of rsync/scp — portable, but requires an OAuth-backed client whose token carries the `containers` scope. The generic `file` spec also gained an HTTP source (`FileSourceHttp`), always fetched anonymously. See the input specification docs for details.
 
 ### Changed

@@ -50,22 +50,27 @@ class CopyResourceSpec(BaseModel):
 
 
 class SaveDatasetSpec(BaseModel):
-    """Uploads a local delimited file as the workunit's output dataset."""
+    """Uploads a local file as the workunit's output dataset."""
 
     model_config = ConfigDict(extra="forbid")
     type: Literal["bfabric_dataset"] = "bfabric_dataset"
 
     local_path: Path
-    """Path to the local delimited file to upload as the dataset."""
+    """Path to the local file to upload as the dataset."""
 
-    separator: str
-    """Field separator of the local file (e.g. a comma or a tab character)."""
+    format: Literal["csv", "parquet"] = "csv"
+    """Format of the local file. ``csv`` reads a delimited text file (see ``separator``/``has_header``);
+    ``parquet`` reads a Parquet file (``separator``/``has_header`` are ignored)."""
+
+    separator: str | None = None
+    """Field separator of the local file for ``format: csv`` (e.g. a comma or a tab character);
+    ``None`` defaults to a comma. Ignored for other formats."""
 
     name: str | None = None
     """Name for the dataset in B-Fabric; ``None`` uses the local file's stem."""
 
     has_header: bool = True
-    """Whether the local file's first row contains column names."""
+    """Whether the local file's first row contains column names. Applies to ``format: csv`` only."""
 
     invalid_characters: str = ""
     """Characters that must not appear in any cell; upload fails if any occur (empty string disables the check)."""
