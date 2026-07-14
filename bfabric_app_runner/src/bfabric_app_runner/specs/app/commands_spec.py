@@ -5,6 +5,11 @@ from pydantic import BaseModel, Discriminator, ConfigDict
 
 
 class CommandShell(BaseModel):
+    """A command run by splitting a string on spaces (no real shell).
+
+    Deprecated in favor of ``CommandExec``.
+    """
+
     model_config = ConfigDict(extra="forbid")
 
     # TODO: Now deprecated by exec type - we can add a "bash" type later, if needed
@@ -16,6 +21,8 @@ class CommandShell(BaseModel):
 
 
 class CommandExec(BaseModel):
+    """A command run directly (no shell), with its string split via ``shlex.split``."""
+
     model_config = ConfigDict(extra="forbid")
 
     type: Literal["exec"] = "exec"
@@ -35,14 +42,22 @@ class CommandExec(BaseModel):
 
 
 class MountOptions(BaseModel):
+    """Bind mounts to expose inside the container."""
+
     model_config = ConfigDict(extra="forbid")
     work_dir_target: Path | None = None
+    """Container path to mount the work directory at; ``None`` reuses the host work-directory path."""
     read_only: list[tuple[Path, Path]] = []
+    """Read-only bind mounts, each a ``(host_path, container_path)`` pair."""
     writeable: list[tuple[Path, Path]] = []
+    """Writeable bind mounts, each a ``(host_path, container_path)`` pair."""
     share_bfabric_config: bool = True
+    """If True, mount the host's ``~/.bfabricpy.yml`` into the container (read-only)."""
 
 
 class CommandDocker(BaseModel):
+    """A command run inside a container via Docker or Podman."""
+
     model_config = ConfigDict(extra="forbid")
     type: Literal["docker"] = "docker"
     """Identifies the command type."""
@@ -67,6 +82,8 @@ class CommandDocker(BaseModel):
 
 
 class CommandPythonEnv(BaseModel):
+    """A command run inside a uv-provisioned Python environment defined by a pylock file."""
+
     model_config = ConfigDict(extra="forbid")
 
     type: Literal["python_env"] = "python_env"

@@ -4,6 +4,8 @@ from pydantic import BaseModel
 
 
 class StaticYamlSpec(BaseModel):
+    """Writes an inline YAML document, provided in the spec itself, to a local file."""
+
     type: Literal["static_yaml"] = "static_yaml"
 
     data: dict | list

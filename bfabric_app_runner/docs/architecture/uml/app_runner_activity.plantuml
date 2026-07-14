@@ -18,40 +18,38 @@
       end split
 
       :Set workunit processing status;
-      :""app-runner app dispatch"";
+      :""bfabric-app-runner action dispatch"";
       note right
         This step is supposed to be deterministic!
-        To allow distributing the tasks in the future.
+        To allow distributing the chunks in the future.
       end note
       split
-        :tasks.yml]
+        :chunks.yml]
       split again
-        :task1/inputs.yml
-        task1/params.yml]
+        :chunk1/inputs.yml]
       split again
-        :task2/inputs.yml
-        task2/params.yml]
+        :chunk2/inputs.yml]
       end split
     ' Unclear
     '  :Precondition check;
-      :""app-runner chunk process-all""]
+      :""bfabric-app-runner action run-all""]
     }
 
     note right
-       The actual ordering will be decided here.
-       tasks.yml declares task dependencies.
+       chunks.yml lists all chunk directories;
+       run-all processes each chunk in turn.
     end note
     fork
-        :Stage inputs 1;
+        :Stage inputs (chunk 1);
         partition App {
-          :Run task 1;
+          :Process chunk 1;
           :outputs.yml]
         }
         :Register outputs;
     fork again
-        :Stage inputs 2;
+        :Stage inputs (chunk 2);
         partition App {
-          :Run task 2;
+          :Process chunk 2;
           :outputs.yml]
         }
         :Register outputs;

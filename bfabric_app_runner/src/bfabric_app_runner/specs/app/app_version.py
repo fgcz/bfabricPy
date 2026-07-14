@@ -15,16 +15,30 @@ class AppVersion(BaseModel):
     """
 
     version: str = "latest"
+    """Version identifier of this app version (e.g. ``"1.2.0"``)."""
+
     commands: CommandsSpec
+    """The dispatch, process, and (optional) collect commands that implement this version."""
+
     # TODO remove when new submitter becomes available
     reuse_default_resource: bool = True
+    """Legacy flag: reuse the workunit's auto-created default resource for the first copied output
+    instead of creating a new resource entry."""
 
 
 class AppVersionTemplate(BaseModel):
+    """Template for a single app version, expanded to an ``AppVersion`` after variable interpolation."""
+
     version: str
+    """Version identifier of this app version (e.g. ``"1.2.0"``)."""
+
     commands: CommandsSpec
+    """The dispatch, process, and (optional) collect commands that implement this version."""
+
     # TODO remove when new submitter becomes available
     reuse_default_resource: bool = True
+    """Legacy flag: reuse the workunit's auto-created default resource for the first copied output
+    instead of creating a new resource entry."""
 
     def evaluate(self, variables_app: VariablesApp) -> AppVersion:
         """Evaluates the template to a concrete ``AppVersion`` instance."""
@@ -34,11 +48,21 @@ class AppVersionTemplate(BaseModel):
 
 
 class AppVersionMultiTemplate(BaseModel):
+    """App version template that may declare several version strings sharing the same commands.
+
+    A single version string is also accepted and normalized to a one-element list.
+    """
+
     version: list[str]
+    """Version identifiers that share this definition; a single string is coerced to a one-element list."""
+
     commands: CommandsSpec
+    """The dispatch, process, and (optional) collect commands that implement these versions."""
 
     # TODO remove when new submitter becomes available
     reuse_default_resource: bool = True
+    """Legacy flag: reuse the workunit's auto-created default resource for the first copied output
+    instead of creating a new resource entry."""
 
     @field_validator("version", mode="before")
     def _version_ensure_list(cls, values: Any) -> list[str]:

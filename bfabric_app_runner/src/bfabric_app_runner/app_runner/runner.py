@@ -19,16 +19,20 @@ if TYPE_CHECKING:
 
 
 class Runner:
+    """Executes the individual lifecycle steps (dispatch, inputs, process, collect) of a single app version."""
+
     def __init__(self, spec: AppVersion, client: Bfabric, ssh_user: str | None = None) -> None:
         self._app_version = spec
         self._client = client
         self._ssh_user = ssh_user
 
     def run_dispatch(self, workunit_ref: int | Path, work_dir: Path) -> None:
+        """Runs the app's dispatch command, which splits the workunit into chunk directories under ``work_dir``."""
         logger.info(f"Calling dispatch for workunit {workunit_ref} in {work_dir}")
         execute_command(self._app_version.commands.dispatch, str(workunit_ref), str(work_dir))
 
     def run_inputs(self, chunk_dir: Path) -> None:
+        """Stages the input files declared in the chunk's ``inputs.yml`` into the chunk directory."""
         prepare_folder(
             inputs_yaml=chunk_dir / "inputs.yml",
             target_folder=chunk_dir,
@@ -38,10 +42,12 @@ class Runner:
         )
 
     def run_process(self, chunk_dir: Path) -> None:
+        """Runs the app's process command on a single prepared chunk directory."""
         logger.info(f"Calling process for chunk directory {chunk_dir}")
         execute_command(self._app_version.commands.process, str(chunk_dir))
 
     def run_collect(self, workunit_ref: int | Path, chunk_dir: Path) -> None:
+        """Runs the app's collect command for a chunk, or does nothing if the app has no collect step."""
         if self._app_version.commands.collect is not None:
             logger.info(f"Calling collect for workunit {workunit_ref} in {chunk_dir}")
             execute_command(self._app_version.commands.collect, str(workunit_ref), str(chunk_dir))
@@ -50,8 +56,11 @@ class Runner:
 
 
 class ChunksFile(BaseModel):
+    """Lists the chunk subdirectories that make up a workunit's work directory (``chunks.yml``)."""
+
     # TODO move to better location
     chunks: list[Path]
+    """Chunk directories relative to the work directory; each is processed independently."""
 
     @classmethod
     def infer_from_directory(cls, work_dir: Path) -> ChunksFile:
@@ -108,7 +117,20 @@ def run_app(
     read_only: bool = False,
     dispatch_active: bool = True,
 ) -> None:
-    """Executes all steps of the provided app."""
+    """Executes all steps of the provided app: dispatch, then inputs/process/collect for every chunk.
+
+    Unless ``read_only`` is set, the workunit status is set to ``processing`` before the run and to
+    ``available`` once all chunks have been processed.
+
+    :param app_spec: Resolved app version whose commands and settings drive execution.
+    :param workunit_ref: Workunit to run, either a B-Fabric workunit ID or a path to a workunit definition YAML.
+    :param work_dir: Directory in which inputs, chunks, and outputs are staged.
+    :param client: B-Fabric client used to read the workunit and register outputs.
+    :param force_storage: Overrides the storage used for output registration; ``None`` uses the default storage.
+    :param ssh_user: SSH user for staging inputs and copying outputs; ``None`` uses the current user.
+    :param read_only: When True, skips all B-Fabric mutations (workunit status updates and output registration).
+    :param dispatch_active: When True, runs the dispatch step; set False to reuse an existing chunk layout.
+    """
     # TODO would it be possible, to reuse the individual steps commands so there is certainly only one definition?
     work_dir = work_dir.resolve()
     workunit_ref = workunit_ref.resolve() if isinstance(workunit_ref, Path) else workunit_ref

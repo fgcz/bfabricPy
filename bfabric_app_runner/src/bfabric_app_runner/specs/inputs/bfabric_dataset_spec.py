@@ -8,6 +8,8 @@ from bfabric_app_runner.specs.common_types import RelativeFilePath
 
 
 class BfabricDatasetSpec(BaseModel):
+    """Downloads a B-Fabric dataset and writes it to a local CSV or Parquet file."""
+
     model_config = ConfigDict(extra="forbid")
     type: Literal["bfabric_dataset"] = "bfabric_dataset"
 
@@ -21,3 +23,4 @@ class BfabricDatasetSpec(BaseModel):
     """Separator for the CSV file (not relevant for Parquet)"""
 
     format: Literal["csv", "parquet"] = "csv"
+    """Output file format, either ``"csv"`` or ``"parquet"``."""

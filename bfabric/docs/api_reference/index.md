@@ -70,7 +70,7 @@ bfabricPy follows semantic versioning (`X.Y.Z`):
 - **Minor changes (Y)**: New features, backward compatible
 - **Patch changes (Z)**: Bug fixes, backward compatible
 
-For version history and deprecation notices, see [Changelog](../../resources/changelog).
+For version history and deprecation notices, see [Changelog](../changelog.md).
 
 ## Contributing to Documentation
 
@@ -81,7 +81,7 @@ Documentation is generated from docstrings in the code. To improve it:
 3. **Run documentation build** to see changes
 4. **Commit documentation** changes along with code changes
 
-See [Contributing Guide](../../../CONTRIBUTING) for more details.
+See [Contributing Guide](https://github.com/fgcz/bfabricPy/blob/main/CONTRIBUTING.md) for more details.
 
 ## Next Steps
 

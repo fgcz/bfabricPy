@@ -8,6 +8,8 @@ from bfabric_app_runner.specs.common_types import RelativeFilePath
 
 
 class BfabricResourceSpec(BaseModel):
+    """Downloads a single B-Fabric resource to a local file."""
+
     model_config = ConfigDict(extra="forbid")
     type: Literal["bfabric_resource"] = "bfabric_resource"
 

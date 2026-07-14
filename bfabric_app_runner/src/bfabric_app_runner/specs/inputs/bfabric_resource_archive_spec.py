@@ -7,6 +7,8 @@ from pydantic import BaseModel, ConfigDict
 
 
 class BfabricResourceArchiveSpec(BaseModel):
+    """Downloads a B-Fabric resource that is an archive and extracts it into a target directory."""
+
     model_config = ConfigDict(extra="forbid")
     type: Literal["bfabric_resource_archive"] = "bfabric_resource_archive"
 

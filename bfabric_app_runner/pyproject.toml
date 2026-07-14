@@ -41,6 +41,7 @@ allow-direct-references = true
 doc = [
     "sphinx>=8.0.2",
     "myst-parser>=4.0.1",
+    "linkify-it-py",
     "autodoc_pydantic>=2.2.0",
     "sphinx-book-theme>=1.1.4",
     "sphinx-autobuild>=2024.10.3",
