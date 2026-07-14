@@ -204,6 +204,12 @@ bfabric-cli workunit upload extra.txt --workunit-id 336576
 bfabric-cli workunit upload big.raw --container-id 40156 --application-id 447 --track-job
 ```
 
+`--track-job` creates a B-Fabric *job* of action `UPLOAD` parented to the workunit and passes its id
+along with the tus token. The tus server then flips that job from `NEW` to `DONE` (or `FAILED`) once
+the files finish transferring, giving you a server-side record of the upload's outcome. Without the
+flag the files still upload; you just don't get a job object tracking it. See
+[Jobs](../../resources/good_to_know.md#jobs) for the underlying concept.
+
 ### Resuming an Interrupted Upload
 
 A tus transfer is resumable: if a connection drops mid-transfer, the server retains the bytes it
