@@ -13,6 +13,14 @@ Caching is an optional optimization feature. bfabricPy works perfectly without c
 improved for complex operations.
 ```
 
+```{warning}
+A cache serves a **snapshot** of each entity as it was first read within the context. If the underlying data changes in
+B-Fabric while the context is open — whether from another application, another user, or a concurrent write from your own
+code — the cache will keep returning the stale copy. This is easy to overlook when caching entities whose attributes are
+updated out-of-band, such as custom attributes. Only cache within a context if you can tolerate a snapshot that may be
+briefly out of date, and keep the context short-lived (or avoid caching entirely) when you need to observe live updates.
+```
+
 ## Basic Usage
 
 ### Cache a Single Entity Type

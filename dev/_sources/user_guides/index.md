@@ -25,7 +25,7 @@ error_handling
 
 ## Common Workflows
 
-- **[Dataset Features](working_with_entities/index#datasets)** - Dataset exports and data access
+- **[Dataset Features](working_with_entities/index.md#datasets)** - Dataset exports and data access
 - **[Performance Optimization](reading_data/caching_for_performance)** - Cache entities for speed
 - **[CLI Quick Operations](bfabric-cli/index)** - Quick one-off tasks with bfabric-cli
 

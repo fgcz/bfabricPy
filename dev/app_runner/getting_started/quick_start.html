@@ -156,13 +156,12 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../architecture/overview.html">Architecture Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../specs/input_specification.html">Input specification</a></li>
-
-
 <li class="toctree-l1"><a class="reference internal" href="../specs/output_specification.html">Output specification</a></li>
-
-
 <li class="toctree-l1"><a class="reference internal" href="../specs/app_specification.html">App Specification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api_reference/index.html">API Reference</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api_reference/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/runner/index.html">Python Runner API</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1"><a class="reference internal" href="../resources/index.html">Resources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../workunit_definition.html">Workunit Definition</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
@@ -409,17 +408,22 @@
 </section>
 <section id="running-individual-actions">
 <h2>Running Individual Actions<a class="headerlink" href="#running-individual-actions" title="Link to this heading">#</a></h2>
-<p>You can also run individual stages using the <code class="docutils literal notranslate"><span class="pre">action</span></code> subcommands, which is useful when re-running a specific stage after a failure:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-app-runner<span class="w"> </span>action<span class="w"> </span>dispatch<span class="w"> </span>&lt;work_dir&gt;
-bfabric-app-runner<span class="w"> </span>action<span class="w"> </span>inputs<span class="w"> </span>&lt;work_dir&gt;
-bfabric-app-runner<span class="w"> </span>action<span class="w"> </span>process<span class="w"> </span>&lt;work_dir&gt;
-bfabric-app-runner<span class="w"> </span>action<span class="w"> </span>outputs<span class="w"> </span>&lt;work_dir&gt;
+<p>You can also run individual stages with the <code class="docutils literal notranslate"><span class="pre">action</span></code> subcommands (what the Makefile targets call internally),
+useful for re-running a stage after a failure. Each reads its configuration – work directory, app, workunit –
+from the <code class="docutils literal notranslate"><span class="pre">app_env.yml</span></code> file that <code class="docutils literal notranslate"><span class="pre">prepare</span> <span class="pre">workunit</span></code> wrote, so pass it with <code class="docutils literal notranslate"><span class="pre">--config</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>work
+bfabric-app-runner<span class="w"> </span>action<span class="w"> </span>dispatch<span class="w"> </span>--config<span class="w"> </span>app_env.yml
+bfabric-app-runner<span class="w"> </span>action<span class="w"> </span>inputs<span class="w">   </span>--config<span class="w"> </span>app_env.yml
+bfabric-app-runner<span class="w"> </span>action<span class="w"> </span>process<span class="w">  </span>--config<span class="w"> </span>app_env.yml
+bfabric-app-runner<span class="w"> </span>action<span class="w"> </span>outputs<span class="w">  </span>--config<span class="w"> </span>app_env.yml
 </pre></div>
 </div>
 <p>Or run all stages at once:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-app-runner<span class="w"> </span>action<span class="w"> </span>run-all<span class="w"> </span>&lt;work_dir&gt;
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-app-runner<span class="w"> </span>action<span class="w"> </span>run-all<span class="w"> </span>--config<span class="w"> </span>app_env.yml
 </pre></div>
 </div>
+<p>Instead of <code class="docutils literal notranslate"><span class="pre">--config</span></code> you can pass the parameters explicitly, e.g.
+<code class="docutils literal notranslate"><span class="pre">action</span> <span class="pre">dispatch</span> <span class="pre">--work-dir</span> <span class="pre">./work</span> <span class="pre">--app-ref</span> <span class="pre">app.yml</span> <span class="pre">--workunit-ref</span> <span class="pre">12345</span></code>.</p>
 </section>
 <section id="troubleshooting">
 <h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">#</a></h2>

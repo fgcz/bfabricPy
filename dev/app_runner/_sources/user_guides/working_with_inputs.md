@@ -13,269 +13,168 @@ This separation keeps the "what to process" logic independent from "how to proce
 
 ## Input YAML Format
 
-Inputs are defined in a YAML file (typically `inputs.yml`) as a list of specifications:
+Inputs are defined in a YAML file (typically `inputs.yml`) under a top-level `inputs:` key, whose value
+is a list of specifications:
 
 ```yaml
-- type: bfabric_resource
-  id: 12345
-  filename: input_data.raw
-  check_checksum: true
+inputs:
+  - type: bfabric_resource
+    id: 12345
+    filename: input_data.raw
+    check_checksum: true
 
-- type: static_file
-  content: "sample_id,condition\n1,control\n2,treated"
-  filename: metadata.csv
+  - type: static_file
+    content: "sample_id,condition\n1,control\n2,treated"
+    filename: metadata.csv
 
-- type: bfabric_dataset
-  id: 6789
-  filename: samples.csv
-  separator: ","
+  - type: bfabric_dataset
+    id: 6789
+    filename: samples.csv
+    separator: ","
 ```
 
 Each entry must include a `type` field that determines which resolver handles it.
 
 ## Input Spec Types
 
+Each type is shown below with a representative example. For the complete field reference — every option,
+its type, and default — see the [Input specification](../specs/input_specification.md).
+
 ### bfabric_resource
 
 Downloads a resource file from B-Fabric.
 
 ```yaml
-- type: bfabric_resource
-  id: 12345
-  filename: data.raw
-  check_checksum: true
+inputs:
+  - type: bfabric_resource
+    id: 12345
+    filename: data.raw
+    check_checksum: true
 ```
-
-`id` (int)
-: B-Fabric resource ID.
-
-`filename` (str)
-: Target filename in the working directory.
-
-`check_checksum` (bool, optional)
-: Verify the file checksum after download.
 
 ### bfabric_dataset
 
 Downloads a dataset from B-Fabric as a tabular file.
 
 ```yaml
-- type: bfabric_dataset
-  id: 6789
-  filename: samples.csv
-  separator: ","
-  format: csv
+inputs:
+  - type: bfabric_dataset
+    id: 6789
+    filename: samples.csv
+    separator: ","
+    format: csv
 ```
-
-`id` (int)
-: B-Fabric dataset ID.
-
-`filename` (str)
-: Target filename.
-
-`separator` (str, optional)
-: Column separator character.
-
-`format` (str, optional)
-: Output format: `"csv"` or `"parquet"`.
 
 ### bfabric_resource_archive
 
 Downloads a resource and extracts it as an archive.
 
 ```yaml
-- type: bfabric_resource_archive
-  id: 12345
-  filename: extracted_data
-  extract: zip
-  include_patterns:
-    - "*.mzML"
-  strip_root: true
-  check_checksum: true
+inputs:
+  - type: bfabric_resource_archive
+    id: 12345
+    filename: extracted_data
+    extract: zip
+    include_patterns:
+      - "*.mzML"
+    strip_root: true
+    check_checksum: true
 ```
-
-`id` (int)
-: B-Fabric resource ID.
-
-`filename` (str)
-: Target directory name.
-
-`extract` (str)
-: Archive format. Currently only `"zip"` is supported.
-
-`include_patterns` (list of str, optional)
-: Glob patterns for files to include from the archive.
-
-`exclude_patterns` (list of str, optional)
-: Glob patterns for files to exclude from the archive.
-
-`strip_root` (bool, optional)
-: Remove the root directory from extracted paths.
-
-`check_checksum` (bool, optional)
-: Verify the resource checksum.
 
 ### bfabric_resource_dataset
 
-Downloads multiple resources referenced in a dataset column.
+Downloads multiple resources referenced in a dataset column. The optional manifest
+(`output_dataset_filename`) is always written as Parquet, regardless of the extension you give it.
 
 ```yaml
-- type: bfabric_resource_dataset
-  id: 100
-  column: resource_id
-  filename: "{name}.raw"
-  check_checksum: true
-  output_dataset_filename: manifest.csv
-  output_dataset_file_column: local_path
+inputs:
+  - type: bfabric_resource_dataset
+    id: 100
+    column: Resource
+    filename: "{name}.raw"
+    check_checksum: true
+    output_dataset_filename: manifest.parquet
+    output_dataset_file_column: local_path
 ```
-
-`id` (int)
-: B-Fabric dataset ID containing resource references.
-
-`column` (str)
-: Column name containing resource IDs.
-
-`filename` (str)
-: Filename template for downloaded resources.
-
-`include_patterns` / `exclude_patterns` (list of str, optional)
-: Filter which resources to download.
-
-`check_checksum` (bool, optional)
-: Verify checksums.
-
-`output_dataset_filename` (str, optional)
-: Write an output dataset mapping resources to local paths.
-
-`output_dataset_file_column` (str, optional)
-: Column name for local file paths in the output dataset.
-
-`output_dataset_only` (bool, optional)
-: Only generate the output dataset without downloading files.
 
 ### bfabric_order_fasta
 
 Downloads FASTA data associated with an order or workunit.
 
 ```yaml
-- type: bfabric_order_fasta
-  id: 500
-  entity: workunit
-  filename: sequences.fasta
-  required: true
+inputs:
+  - type: bfabric_order_fasta
+    id: 500
+    entity: workunit
+    filename: sequences.fasta
+    required: true
 ```
-
-`id` (int)
-: Entity ID.
-
-`entity` (str)
-: Entity type: `"workunit"` or `"order"`.
-
-`filename` (str)
-: Target filename.
-
-`required` (bool, optional)
-: Whether the FASTA must exist (raises error if missing and required).
 
 ### bfabric_annotation
 
 Downloads annotation data linking resources to samples.
 
 ```yaml
-- type: bfabric_annotation
-  annotation: resource_sample
-  filename: annotations.csv
-  separator: ","
-  resource_ids:
-    - 100
-    - 200
+inputs:
+  - type: bfabric_annotation
+    annotation: resource_sample
+    filename: annotations.csv
+    separator: ","
+    resource_ids:
+      - 100
+      - 200
 ```
-
-`annotation` (str)
-: Annotation type. Currently `"resource_sample"`.
-
-`filename` (str)
-: Target filename.
-
-`separator` (str, required)
-: Column separator.
-
-`resource_ids` (list of int, required)
-: Resource IDs to include.
-
-`format` (str, optional)
-: Output format.
 
 ### file
 
-Copies or links a file from a local or SSH source.
+Copies or links a file from a local or SSH source (an HTTP source is also supported — see the
+[Input specification](../specs/input_specification.md)).
 
 ```yaml
-# Local file
-- type: file
-  source:
-    local: /data/reference/genome.fa
-  filename: genome.fa
-  link: true
+inputs:
+  # Local file
+  - type: file
+    source:
+      local: /data/reference/genome.fa
+    filename: genome.fa
+    link: true
 
-# SSH file
-- type: file
-  source:
-    ssh:
-      host: server.example.com
-      path: /data/reference/genome.fa
-  filename: genome.fa
-  checksum: abc123...
+  # SSH file
+  - type: file
+    source:
+      ssh:
+        host: server.example.com
+        path: /data/reference/genome.fa
+    filename: genome.fa
+    checksum: abc123...
 ```
-
-`source` (object)
-: Either `{local: path}` or `{ssh: {host, path}}`.
-
-`filename` (str)
-: Target filename.
-
-`link` (bool, optional)
-: Create a symlink instead of copying (local sources only).
-
-`checksum` (str, optional)
-: Expected file checksum for verification.
 
 ### static_file
 
 Creates a file with inline content.
 
 ```yaml
-- type: static_file
-  content: "key=value\nother=setting"
-  filename: config.ini
+inputs:
+  - type: static_file
+    content: "key=value\nother=setting"
+    filename: config.ini
 ```
-
-`content` (str or bytes)
-: File content to write.
-
-`filename` (str)
-: Target filename.
 
 ### static_yaml
 
 Creates a YAML file from inline structured data.
 
 ```yaml
-- type: static_yaml
-  data:
-    param1: 100
-    param2: "hello"
-    items:
-      - a
-      - b
-  filename: params.yml
+inputs:
+  - type: static_yaml
+    data:
+      param1: 100
+      param2: "hello"
+      items:
+        - a
+        - b
+    filename: params.yml
 ```
-
-`data` (dict or list)
-: Data to serialize as YAML.
-
-`filename` (str)
-: Target filename.
 
 ## Resolution Pipeline
 

@@ -156,13 +156,12 @@
 </details></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Architecture Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../specs/input_specification.html">Input specification</a></li>
-
-
 <li class="toctree-l1"><a class="reference internal" href="../specs/output_specification.html">Output specification</a></li>
-
-
 <li class="toctree-l1"><a class="reference internal" href="../specs/app_specification.html">App Specification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api_reference/index.html">API Reference</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api_reference/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/runner/index.html">Python Runner API</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1"><a class="reference internal" href="../resources/index.html">Resources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../workunit_definition.html">Workunit Definition</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
@@ -480,8 +479,8 @@ end
 <section id="app-runner-activity-diagram">
 <h2>App runner activity diagram<a class="headerlink" href="#app-runner-activity-diagram" title="Link to this heading">#</a></h2>
 <p class="plantuml">
-<object data="../_images/plantuml-7d5635752d2838cfde6efb99d2cb92f7e0e1493d.svg" type="image/svg+xml" style="width:728px;height:999px;background:#FFFFFF;">
-<img src="../_images/plantuml-7d5635752d2838cfde6efb99d2cb92f7e0e1493d.png" alt="&#64;startuml
+<object data="../_images/plantuml-e30b0044f558fb5bba7998e6690094e5e6963302.svg" type="image/svg+xml" style="width:780px;height:985px;background:#FFFFFF;">
+<img src="../_images/plantuml-e30b0044f558fb5bba7998e6690094e5e6963302.png" alt="&#64;startuml
     title
       App Runner Activity Diagram
     end title
@@ -501,40 +500,38 @@ end
       end split
 
       :Set workunit processing status;
-      :&quot;&quot;app-runner app dispatch&quot;&quot;;
+      :&quot;&quot;bfabric-app-runner action dispatch&quot;&quot;;
       note right
         This step is supposed to be deterministic!
-        To allow distributing the tasks in the future.
+        To allow distributing the chunks in the future.
       end note
       split
-        :tasks.yml]
+        :chunks.yml]
       split again
-        :task1/inputs.yml
-        task1/params.yml]
+        :chunk1/inputs.yml]
       split again
-        :task2/inputs.yml
-        task2/params.yml]
+        :chunk2/inputs.yml]
       end split
     ' Unclear
     '  :Precondition check;
-      :&quot;&quot;app-runner chunk process-all&quot;&quot;]
+      :&quot;&quot;bfabric-app-runner action run-all&quot;&quot;]
     }
 
     note right
-       The actual ordering will be decided here.
-       tasks.yml declares task dependencies.
+       chunks.yml lists all chunk directories;
+       run-all processes each chunk in turn.
     end note
     fork
-        :Stage inputs 1;
+        :Stage inputs (chunk 1);
         partition App {
-          :Run task 1;
+          :Process chunk 1;
           :outputs.yml]
         }
         :Register outputs;
     fork again
-        :Stage inputs 2;
+        :Stage inputs (chunk 2);
         partition App {
-          :Run task 2;
+          :Process chunk 2;
           :outputs.yml]
         }
         :Register outputs;

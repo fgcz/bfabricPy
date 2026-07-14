@@ -144,16 +144,20 @@ if "1.0.0" in app_spec:
 
 ## Reference
 
+The top-level spec (`AppSpecTemplate`) is expanded into a concrete `AppSpec` at load time; the
+`bfabric` section is a `BfabricAppSpec`.
+
 ```{eval-rst}
 .. automodule:: bfabric_app_runner.specs.app.app_spec
-    :members:
-    :undoc-members:
+    :members: AppSpec, AppSpecTemplate, BfabricAppSpec
     :show-inheritance:
 ```
 
+Each entry in `versions` is an `AppVersionMultiTemplate` (which may list several version strings),
+expanded into one concrete `AppVersion` per version.
+
 ```{eval-rst}
 .. automodule:: bfabric_app_runner.specs.app.app_version
-    :members:
-    :undoc-members:
+    :members: AppVersion, AppVersionMultiTemplate
     :show-inheritance:
 ```

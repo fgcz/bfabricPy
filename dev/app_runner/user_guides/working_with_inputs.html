@@ -156,13 +156,12 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../architecture/overview.html">Architecture Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../specs/input_specification.html">Input specification</a></li>
-
-
 <li class="toctree-l1"><a class="reference internal" href="../specs/output_specification.html">Output specification</a></li>
-
-
 <li class="toctree-l1"><a class="reference internal" href="../specs/app_specification.html">App Specification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api_reference/index.html">API Reference</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api_reference/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/runner/index.html">Python Runner API</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1"><a class="reference internal" href="../resources/index.html">Resources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../workunit_definition.html">Workunit Definition</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
@@ -361,237 +360,156 @@
 </section>
 <section id="input-yaml-format">
 <h2>Input YAML Format<a class="headerlink" href="#input-yaml-format" title="Link to this heading">#</a></h2>
-<p>Inputs are defined in a YAML file (typically <code class="docutils literal notranslate"><span class="pre">inputs.yml</span></code>) as a list of specifications:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_resource</span>
-<span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12345</span>
-<span class="w">  </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">input_data.raw</span>
-<span class="w">  </span><span class="nt">check_checksum</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<p>Inputs are defined in a YAML file (typically <code class="docutils literal notranslate"><span class="pre">inputs.yml</span></code>) under a top-level <code class="docutils literal notranslate"><span class="pre">inputs:</span></code> key, whose value
+is a list of specifications:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">inputs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_resource</span>
+<span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12345</span>
+<span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">input_data.raw</span>
+<span class="w">    </span><span class="nt">check_checksum</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">static_file</span>
-<span class="w">  </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sample_id,condition\n1,control\n2,treated&quot;</span>
-<span class="w">  </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">metadata.csv</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">static_file</span>
+<span class="w">    </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sample_id,condition\n1,control\n2,treated&quot;</span>
+<span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">metadata.csv</span>
 
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_dataset</span>
-<span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6789</span>
-<span class="w">  </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">samples.csv</span>
-<span class="w">  </span><span class="nt">separator</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;,&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_dataset</span>
+<span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6789</span>
+<span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">samples.csv</span>
+<span class="w">    </span><span class="nt">separator</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;,&quot;</span>
 </pre></div>
 </div>
 <p>Each entry must include a <code class="docutils literal notranslate"><span class="pre">type</span></code> field that determines which resolver handles it.</p>
 </section>
 <section id="input-spec-types">
 <h2>Input Spec Types<a class="headerlink" href="#input-spec-types" title="Link to this heading">#</a></h2>
+<p>Each type is shown below with a representative example. For the complete field reference — every option,
+its type, and default — see the <a class="reference internal" href="../specs/input_specification.html"><span class="std std-doc">Input specification</span></a>.</p>
 <section id="bfabric-resource">
 <h3>bfabric_resource<a class="headerlink" href="#bfabric-resource" title="Link to this heading">#</a></h3>
 <p>Downloads a resource file from B-Fabric.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_resource</span>
-<span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12345</span>
-<span class="w">  </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">data.raw</span>
-<span class="w">  </span><span class="nt">check_checksum</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">inputs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_resource</span>
+<span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12345</span>
+<span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">data.raw</span>
+<span class="w">    </span><span class="nt">check_checksum</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </pre></div>
 </div>
-<dl class="simple myst">
-<dt><code class="docutils literal notranslate"><span class="pre">id</span></code> (int)</dt><dd><p>B-Fabric resource ID.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">filename</span></code> (str)</dt><dd><p>Target filename in the working directory.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">check_checksum</span></code> (bool, optional)</dt><dd><p>Verify the file checksum after download.</p>
-</dd>
-</dl>
 </section>
 <section id="bfabric-dataset">
 <h3>bfabric_dataset<a class="headerlink" href="#bfabric-dataset" title="Link to this heading">#</a></h3>
 <p>Downloads a dataset from B-Fabric as a tabular file.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_dataset</span>
-<span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6789</span>
-<span class="w">  </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">samples.csv</span>
-<span class="w">  </span><span class="nt">separator</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;,&quot;</span>
-<span class="w">  </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">csv</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">inputs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_dataset</span>
+<span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6789</span>
+<span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">samples.csv</span>
+<span class="w">    </span><span class="nt">separator</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;,&quot;</span>
+<span class="w">    </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">csv</span>
 </pre></div>
 </div>
-<dl class="simple myst">
-<dt><code class="docutils literal notranslate"><span class="pre">id</span></code> (int)</dt><dd><p>B-Fabric dataset ID.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">filename</span></code> (str)</dt><dd><p>Target filename.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">separator</span></code> (str, optional)</dt><dd><p>Column separator character.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">format</span></code> (str, optional)</dt><dd><p>Output format: <code class="docutils literal notranslate"><span class="pre">&quot;csv&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;parquet&quot;</span></code>.</p>
-</dd>
-</dl>
 </section>
 <section id="bfabric-resource-archive">
 <h3>bfabric_resource_archive<a class="headerlink" href="#bfabric-resource-archive" title="Link to this heading">#</a></h3>
 <p>Downloads a resource and extracts it as an archive.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_resource_archive</span>
-<span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12345</span>
-<span class="w">  </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">extracted_data</span>
-<span class="w">  </span><span class="nt">extract</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">zip</span>
-<span class="w">  </span><span class="nt">include_patterns</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;*.mzML&quot;</span>
-<span class="w">  </span><span class="nt">strip_root</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">  </span><span class="nt">check_checksum</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">inputs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_resource_archive</span>
+<span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12345</span>
+<span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">extracted_data</span>
+<span class="w">    </span><span class="nt">extract</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">zip</span>
+<span class="w">    </span><span class="nt">include_patterns</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;*.mzML&quot;</span>
+<span class="w">    </span><span class="nt">strip_root</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">check_checksum</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </pre></div>
 </div>
-<dl class="simple myst">
-<dt><code class="docutils literal notranslate"><span class="pre">id</span></code> (int)</dt><dd><p>B-Fabric resource ID.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">filename</span></code> (str)</dt><dd><p>Target directory name.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">extract</span></code> (str)</dt><dd><p>Archive format. Currently only <code class="docutils literal notranslate"><span class="pre">&quot;zip&quot;</span></code> is supported.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">include_patterns</span></code> (list of str, optional)</dt><dd><p>Glob patterns for files to include from the archive.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">exclude_patterns</span></code> (list of str, optional)</dt><dd><p>Glob patterns for files to exclude from the archive.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">strip_root</span></code> (bool, optional)</dt><dd><p>Remove the root directory from extracted paths.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">check_checksum</span></code> (bool, optional)</dt><dd><p>Verify the resource checksum.</p>
-</dd>
-</dl>
 </section>
 <section id="bfabric-resource-dataset">
 <h3>bfabric_resource_dataset<a class="headerlink" href="#bfabric-resource-dataset" title="Link to this heading">#</a></h3>
-<p>Downloads multiple resources referenced in a dataset column.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_resource_dataset</span>
-<span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
-<span class="w">  </span><span class="nt">column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">resource_id</span>
-<span class="w">  </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{name}.raw&quot;</span>
-<span class="w">  </span><span class="nt">check_checksum</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">  </span><span class="nt">output_dataset_filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">manifest.csv</span>
-<span class="w">  </span><span class="nt">output_dataset_file_column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local_path</span>
+<p>Downloads multiple resources referenced in a dataset column. The optional manifest
+(<code class="docutils literal notranslate"><span class="pre">output_dataset_filename</span></code>) is always written as Parquet, regardless of the extension you give it.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">inputs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_resource_dataset</span>
+<span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+<span class="w">    </span><span class="nt">column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Resource</span>
+<span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{name}.raw&quot;</span>
+<span class="w">    </span><span class="nt">check_checksum</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">output_dataset_filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">manifest.parquet</span>
+<span class="w">    </span><span class="nt">output_dataset_file_column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local_path</span>
 </pre></div>
 </div>
-<dl class="simple myst">
-<dt><code class="docutils literal notranslate"><span class="pre">id</span></code> (int)</dt><dd><p>B-Fabric dataset ID containing resource references.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">column</span></code> (str)</dt><dd><p>Column name containing resource IDs.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">filename</span></code> (str)</dt><dd><p>Filename template for downloaded resources.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">include_patterns</span></code> / <code class="docutils literal notranslate"><span class="pre">exclude_patterns</span></code> (list of str, optional)</dt><dd><p>Filter which resources to download.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">check_checksum</span></code> (bool, optional)</dt><dd><p>Verify checksums.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">output_dataset_filename</span></code> (str, optional)</dt><dd><p>Write an output dataset mapping resources to local paths.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">output_dataset_file_column</span></code> (str, optional)</dt><dd><p>Column name for local file paths in the output dataset.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">output_dataset_only</span></code> (bool, optional)</dt><dd><p>Only generate the output dataset without downloading files.</p>
-</dd>
-</dl>
 </section>
 <section id="bfabric-order-fasta">
 <h3>bfabric_order_fasta<a class="headerlink" href="#bfabric-order-fasta" title="Link to this heading">#</a></h3>
 <p>Downloads FASTA data associated with an order or workunit.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_order_fasta</span>
-<span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">500</span>
-<span class="w">  </span><span class="nt">entity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">workunit</span>
-<span class="w">  </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sequences.fasta</span>
-<span class="w">  </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">inputs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_order_fasta</span>
+<span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">500</span>
+<span class="w">    </span><span class="nt">entity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">workunit</span>
+<span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sequences.fasta</span>
+<span class="w">    </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </pre></div>
 </div>
-<dl class="simple myst">
-<dt><code class="docutils literal notranslate"><span class="pre">id</span></code> (int)</dt><dd><p>Entity ID.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">entity</span></code> (str)</dt><dd><p>Entity type: <code class="docutils literal notranslate"><span class="pre">&quot;workunit&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;order&quot;</span></code>.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">filename</span></code> (str)</dt><dd><p>Target filename.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">required</span></code> (bool, optional)</dt><dd><p>Whether the FASTA must exist (raises error if missing and required).</p>
-</dd>
-</dl>
 </section>
 <section id="bfabric-annotation">
 <h3>bfabric_annotation<a class="headerlink" href="#bfabric-annotation" title="Link to this heading">#</a></h3>
 <p>Downloads annotation data linking resources to samples.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_annotation</span>
-<span class="w">  </span><span class="nt">annotation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">resource_sample</span>
-<span class="w">  </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">annotations.csv</span>
-<span class="w">  </span><span class="nt">separator</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;,&quot;</span>
-<span class="w">  </span><span class="nt">resource_ids</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">200</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">inputs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_annotation</span>
+<span class="w">    </span><span class="nt">annotation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">resource_sample</span>
+<span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">annotations.csv</span>
+<span class="w">    </span><span class="nt">separator</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;,&quot;</span>
+<span class="w">    </span><span class="nt">resource_ids</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">200</span>
 </pre></div>
 </div>
-<dl class="simple myst">
-<dt><code class="docutils literal notranslate"><span class="pre">annotation</span></code> (str)</dt><dd><p>Annotation type. Currently <code class="docutils literal notranslate"><span class="pre">&quot;resource_sample&quot;</span></code>.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">filename</span></code> (str)</dt><dd><p>Target filename.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">separator</span></code> (str, required)</dt><dd><p>Column separator.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">resource_ids</span></code> (list of int, required)</dt><dd><p>Resource IDs to include.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">format</span></code> (str, optional)</dt><dd><p>Output format.</p>
-</dd>
-</dl>
 </section>
 <section id="file">
 <h3>file<a class="headerlink" href="#file" title="Link to this heading">#</a></h3>
-<p>Copies or links a file from a local or SSH source.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Local file</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">file</span>
-<span class="w">  </span><span class="nt">source</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">local</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/data/reference/genome.fa</span>
-<span class="w">  </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">genome.fa</span>
-<span class="w">  </span><span class="nt">link</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<p>Copies or links a file from a local or SSH source (an HTTP source is also supported — see the
+<a class="reference internal" href="../specs/input_specification.html"><span class="std std-doc">Input specification</span></a>).</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">inputs</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># Local file</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">file</span>
+<span class="w">    </span><span class="nt">source</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">local</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/data/reference/genome.fa</span>
+<span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">genome.fa</span>
+<span class="w">    </span><span class="nt">link</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 
-<span class="c1"># SSH file</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">file</span>
-<span class="w">  </span><span class="nt">source</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">ssh</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">server.example.com</span>
-<span class="w">      </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/data/reference/genome.fa</span>
-<span class="w">  </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">genome.fa</span>
-<span class="w">  </span><span class="nt">checksum</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">abc123...</span>
+<span class="w">  </span><span class="c1"># SSH file</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">file</span>
+<span class="w">    </span><span class="nt">source</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">ssh</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">server.example.com</span>
+<span class="w">        </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/data/reference/genome.fa</span>
+<span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">genome.fa</span>
+<span class="w">    </span><span class="nt">checksum</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">abc123...</span>
 </pre></div>
 </div>
-<dl class="simple myst">
-<dt><code class="docutils literal notranslate"><span class="pre">source</span></code> (object)</dt><dd><p>Either <code class="docutils literal notranslate"><span class="pre">{local:</span> <span class="pre">path}</span></code> or <code class="docutils literal notranslate"><span class="pre">{ssh:</span> <span class="pre">{host,</span> <span class="pre">path}}</span></code>.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">filename</span></code> (str)</dt><dd><p>Target filename.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">link</span></code> (bool, optional)</dt><dd><p>Create a symlink instead of copying (local sources only).</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">checksum</span></code> (str, optional)</dt><dd><p>Expected file checksum for verification.</p>
-</dd>
-</dl>
 </section>
 <section id="static-file">
 <h3>static_file<a class="headerlink" href="#static-file" title="Link to this heading">#</a></h3>
 <p>Creates a file with inline content.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">static_file</span>
-<span class="w">  </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;key=value\nother=setting&quot;</span>
-<span class="w">  </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config.ini</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">inputs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">static_file</span>
+<span class="w">    </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;key=value\nother=setting&quot;</span>
+<span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config.ini</span>
 </pre></div>
 </div>
-<dl class="simple myst">
-<dt><code class="docutils literal notranslate"><span class="pre">content</span></code> (str or bytes)</dt><dd><p>File content to write.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">filename</span></code> (str)</dt><dd><p>Target filename.</p>
-</dd>
-</dl>
 </section>
 <section id="static-yaml">
 <h3>static_yaml<a class="headerlink" href="#static-yaml" title="Link to this heading">#</a></h3>
 <p>Creates a YAML file from inline structured data.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">static_yaml</span>
-<span class="w">  </span><span class="nt">data</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">param1</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
-<span class="w">    </span><span class="nt">param2</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hello&quot;</span>
-<span class="w">    </span><span class="nt">items</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">a</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">b</span>
-<span class="w">  </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">params.yml</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">inputs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">static_yaml</span>
+<span class="w">    </span><span class="nt">data</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">param1</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+<span class="w">      </span><span class="nt">param2</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hello&quot;</span>
+<span class="w">      </span><span class="nt">items</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">a</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">b</span>
+<span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">params.yml</span>
 </pre></div>
 </div>
-<dl class="simple myst">
-<dt><code class="docutils literal notranslate"><span class="pre">data</span></code> (dict or list)</dt><dd><p>Data to serialize as YAML.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">filename</span></code> (str)</dt><dd><p>Target filename.</p>
-</dd>
-</dl>
 </section>
 </section>
 <section id="resolution-pipeline">

@@ -365,6 +365,7 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Basic Usage</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Parameters</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Examples</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tracking-the-upload-as-a-job">Tracking the Upload as a Job</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#resuming-an-interrupted-upload">Resuming an Interrupted Upload</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-the-python-api">Using the Python API</a></li>
 </ul>
@@ -655,10 +656,23 @@ anyway.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>workunit<span class="w"> </span>upload<span class="w"> </span>extra.txt<span class="w"> </span>--workunit-id<span class="w"> </span><span class="m">336576</span>
 </pre></div>
 </div>
-<p><strong>Track the upload as a job:</strong></p>
+</section>
+<section id="tracking-the-upload-as-a-job">
+<h3>Tracking the Upload as a Job<a class="headerlink" href="#tracking-the-upload-as-a-job" title="Link to this heading">#</a></h3>
+<p>Pass <code class="docutils literal notranslate"><span class="pre">--track-job</span></code> to attach a B-Fabric <em>job</em> to the transfer:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>workunit<span class="w"> </span>upload<span class="w"> </span>big.raw<span class="w"> </span>--container-id<span class="w"> </span><span class="m">40156</span><span class="w"> </span>--application-id<span class="w"> </span><span class="m">447</span><span class="w"> </span>--track-job
 </pre></div>
 </div>
+<p>A <em>job</em> is a B-Fabric entity that records a unit of tracked work. B-Fabric creates jobs around
+scenarios like launching a web application or uploading a file. Each job carries an <strong>action</strong> that
+says what kind of work it represents, and a <strong>status</strong> that moves from <code class="docutils literal notranslate"><span class="pre">NEW</span></code> to <code class="docutils literal notranslate"><span class="pre">DONE</span></code> or <code class="docutils literal notranslate"><span class="pre">FAILED</span></code>.</p>
+<p>B-Fabric only <em>stores</em> the action and status — it does not act on them itself. It is the service
+interfacing with B-Fabric that reads the action and drives the status. Here that service is the tus
+upload server: <code class="docutils literal notranslate"><span class="pre">--track-job</span></code> creates a job of action <code class="docutils literal notranslate"><span class="pre">UPLOAD</span></code> parented to the workunit and hands its
+id to the tus token, and the tus server (not B-Fabric) then flips the job from <code class="docutils literal notranslate"><span class="pre">NEW</span></code> to <code class="docutils literal notranslate"><span class="pre">DONE</span></code> (or
+<code class="docutils literal notranslate"><span class="pre">FAILED</span></code>) once the files finish transferring. A service that doesn’t handle a job’s action leaves it
+alone.</p>
+<p>Without <code class="docutils literal notranslate"><span class="pre">--track-job</span></code> the files still upload; you just don’t get a job object recording the outcome.</p>
 </section>
 <section id="resuming-an-interrupted-upload">
 <h3>Resuming an Interrupted Upload<a class="headerlink" href="#resuming-an-interrupted-upload" title="Link to this heading">#</a></h3>
@@ -948,7 +962,7 @@ bfabric-app-runner<span class="w"> </span>dry-run<span class="w"> </span>analysi
 <li><p><a class="reference internal" href="api_operations.html"><span class="std std-doc">API Operations</span></a> - Generic CRUD operations for finding workunits</p></li>
 <li><p><a class="reference internal" href="datasets.html"><span class="doc std std-doc">Datasets</span></a> - Workunits often produce datasets</p></li>
 <li><p><a class="reference internal" href="executables.html"><span class="doc std std-doc">Executables</span></a> - Executables used within workunits</p></li>
-<li><p><a class="reference internal" href="#../../api_reference/entity_types/workunit"><span class="xref myst">Python Workunit API</span></a> - Using workunits in Python</p></li>
+<li><p><a class="reference internal" href="../../api_reference/entity_types/index.html"><span class="doc std std-doc">Python Workunit API</span></a> - Using workunits in Python</p></li>
 </ul>
 </section>
 </section>
@@ -1022,6 +1036,7 @@ bfabric-app-runner<span class="w"> </span>dry-run<span class="w"> </span>analysi
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Basic Usage</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Parameters</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Examples</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tracking-the-upload-as-a-job">Tracking the Upload as a Job</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#resuming-an-interrupted-upload">Resuming an Interrupted Upload</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-the-python-api">Using the Python API</a></li>
 </ul>

@@ -156,13 +156,12 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../architecture/overview.html">Architecture Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../specs/input_specification.html">Input specification</a></li>
-
-
 <li class="toctree-l1"><a class="reference internal" href="../specs/output_specification.html">Output specification</a></li>
-
-
 <li class="toctree-l1"><a class="reference internal" href="../specs/app_specification.html">App Specification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api_reference/index.html">API Reference</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api_reference/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/runner/index.html">Python Runner API</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1"><a class="reference internal" href="../resources/index.html">Resources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../workunit_definition.html">Workunit Definition</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
@@ -322,7 +321,7 @@
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#command-types">Command Types</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#shell">shell</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#shell-deprecated">shell (deprecated)</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exec">exec</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#docker">docker</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#python-env">python_env</a></li>
@@ -356,10 +355,10 @@
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;1.0.0&quot;</span>
 <span class="w">    </span><span class="nt">commands</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">dispatch</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shell</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exec</span>
 <span class="w">        </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">echo &quot;dispatching&quot;</span>
 <span class="w">      </span><span class="nt">process</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shell</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exec</span>
 <span class="w">        </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">echo &quot;processing&quot;</span>
 </pre></div>
 </div>
@@ -418,18 +417,19 @@
 </section>
 <section id="command-types">
 <h2>Command Types<a class="headerlink" href="#command-types" title="Link to this heading">#</a></h2>
-<p>Each version defines commands for different execution phases. Four command types are available.</p>
-<section id="shell">
-<h3>shell<a class="headerlink" href="#shell" title="Link to this heading">#</a></h3>
-<p>Runs a command through the system shell.</p>
+<p>Each version defines commands for different execution phases. Four command types are available; the fields
+of each are documented in the <a class="reference internal" href="../specs/app_specification.html"><span class="std std-doc">App specification</span></a>.</p>
+<section id="shell-deprecated">
+<h3>shell (deprecated)<a class="headerlink" href="#shell-deprecated" title="Link to this heading">#</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>Deprecated</strong> – use <code class="docutils literal notranslate"><span class="pre">exec</span></code> instead. <code class="docutils literal notranslate"><span class="pre">shell</span></code> splits the command string on plain spaces (no quoting or shell
+features), which <code class="docutils literal notranslate"><span class="pre">exec</span></code> does more robustly via <code class="docutils literal notranslate"><span class="pre">shlex.split</span></code>.</p>
+</div>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shell</span>
 <span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;echo</span><span class="nv"> </span><span class="s">hello&quot;</span>
 </pre></div>
 </div>
-<p>Fields:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">command</span></code> (str, required): The shell command to execute.</p></li>
-</ul>
 </section>
 <section id="exec">
 <h3>exec<a class="headerlink" href="#exec" title="Link to this heading">#</a></h3>
@@ -442,12 +442,6 @@
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/opt/tools/bin</span>
 </pre></div>
 </div>
-<p>Fields:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">command</span></code> (str, required): The command to execute.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">env</span></code> (dict, optional): Environment variables to set.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">prepend_paths</span></code> (list of paths, optional): Directories to prepend to <code class="docutils literal notranslate"><span class="pre">PATH</span></code>.</p></li>
-</ul>
 </section>
 <section id="docker">
 <h3>docker<a class="headerlink" href="#docker" title="Link to this heading">#</a></h3>
@@ -467,25 +461,6 @@
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">/host/out</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">/container/out</span><span class="p p-Indicator">]</span>
 </pre></div>
 </div>
-<p>Fields:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">image</span></code> (str, required): The container image.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">command</span></code> (str, required): The command to run inside the container.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">entrypoint</span></code> (str, optional): Override the container entrypoint.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">engine</span></code> (str, optional): <code class="docutils literal notranslate"><span class="pre">&quot;docker&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;podman&quot;</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;docker&quot;</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">env</span></code> (dict, optional): Environment variables.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">mac_address</span></code> (str, optional): MAC address for the container.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">hostname</span></code> (str, optional): Hostname for the container.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">custom_args</span></code> (list, optional): Additional arguments passed to the container engine.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">mounts</span></code> (MountOptions, optional): Mount configuration.</p></li>
-</ul>
-<p>MountOptions fields:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">work_dir_target</span></code> (str): Mount point for the working directory inside the container.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">share_bfabric_config</span></code> (bool): Whether to mount the B-Fabric config into the container.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">read_only</span></code> (list of [host, container] pairs): Read-only bind mounts.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">writeable</span></code> (list of [host, container] pairs): Writeable bind mounts.</p></li>
-</ul>
 </section>
 <section id="python-env">
 <h3>python_env<a class="headerlink" href="#python-env" title="Link to this heading">#</a></h3>
@@ -501,16 +476,6 @@
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/opt/tools/bin</span>
 </pre></div>
 </div>
-<p>Fields:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">pylock</span></code> (path, required): Path to the pylock.toml dependency lock file.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">command</span></code> (str, required): The Python command to execute (typically <code class="docutils literal notranslate"><span class="pre">-m</span> <span class="pre">module.name</span></code>).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">python_version</span></code> (str, optional): Python version to use.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">local_extra_deps</span></code> (list of paths, optional): Local wheel files or source paths to install with <code class="docutils literal notranslate"><span class="pre">--no-deps</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">env</span></code> (dict, optional): Environment variables.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">prepend_paths</span></code> (list of paths, optional): Directories to prepend to <code class="docutils literal notranslate"><span class="pre">PATH</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">refresh</span></code> (bool, optional): Use an ephemeral environment instead of cached. Useful for development.</p></li>
-</ul>
 <p>See <a class="reference internal" href="python_environments.html"><span class="std std-doc">Python Environments</span></a> for details on caching and provisioning.</p>
 </section>
 </section>
@@ -535,7 +500,7 @@
 <span class="w">    </span><span class="nt">pylock</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/path/to/pylock.toml</span>
 <span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-m my_app.process</span>
 <span class="w">  </span><span class="nt">collect</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shell</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exec</span>
 <span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;echo</span><span class="nv"> </span><span class="s">&#39;collection</span><span class="nv"> </span><span class="s">complete&#39;&quot;</span>
 </pre></div>
 </div>
@@ -641,7 +606,7 @@ bfabric-app-runner<span class="w"> </span>validate<span class="w"> </span>app-sp
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#command-types">Command Types</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#shell">shell</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#shell-deprecated">shell (deprecated)</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exec">exec</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#docker">docker</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#python-env">python_env</a></li>
