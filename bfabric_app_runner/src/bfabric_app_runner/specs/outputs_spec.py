@@ -44,7 +44,9 @@ class CopyResourceSpec(BaseModel):
     """Behavior if a resource with the same name already exists on the workunit."""
 
     protocol: Literal["scp", "tus"] = "scp"
-    """Transfer protocol used to copy the file to storage (``"scp"`` or ``"tus"``)."""
+    """Transfer protocol used to copy the file to storage. Only ``"scp"`` is wired for app-runner;
+    ``"tus"`` is accepted by the model but its output path is not yet implemented (raises
+    ``NotImplementedError`` at registration)."""
 
 
 class SaveDatasetSpec(BaseModel):
