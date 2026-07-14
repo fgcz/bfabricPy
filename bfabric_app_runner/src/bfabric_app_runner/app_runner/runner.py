@@ -106,6 +106,27 @@ class ChunksFile(BaseModel):
             logger.info(f"Created chunks.yml with {len(chunks.chunks)} chunk(s)")
             return chunks
 
+    @classmethod
+    def needs_dispatch(cls, work_dir: Path) -> bool:
+        """Returns True if dispatch has to (re-)run because the chunk directories are not present.
+
+        ``run-all`` needs the chunk directories (each with an ``inputs.yml``); ``chunks.yml`` is
+        only an index of them. Dispatch is needed when a ``chunks.yml`` manifest references a chunk
+        directory whose ``inputs.yml`` is missing (e.g. the chunk/"work" directory was removed while
+        ``chunks.yml`` survived, see issue #283), or when neither a manifest nor any
+        auto-discoverable chunk directory is present at all. A missing manifest with discoverable
+        chunk directories does *not* need dispatch, since :meth:`read` recovers it via
+        auto-discovery.
+
+        :param work_dir: The work directory containing chunks.yml and/or chunk subdirectories
+        """
+        work_dir = work_dir.resolve()
+        chunks_file = work_dir / "chunks.yml"
+        if chunks_file.exists():
+            manifest = cls.model_validate(yaml.safe_load(chunks_file.read_text()))
+            return not all((work_dir / chunk / "inputs.yml").exists() for chunk in manifest.chunks)
+        return not any(work_dir.glob("*/inputs.yml"))
+
 
 def run_app(
     app_spec: AppVersion,

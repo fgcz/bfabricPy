@@ -1,10 +1,11 @@
 from pathlib import Path
 
 import pytest
+import yaml
 from pytest_mock import MockerFixture
 
-from bfabric_app_runner.actions.execute import execute_run, execute_outputs, _register_workflow_step
-from bfabric_app_runner.actions.types import ActionRun, ActionInputs, ActionProcess, ActionOutputs
+from bfabric_app_runner.actions.execute import execute_run, execute_outputs, _ensure_dispatched, _register_workflow_step
+from bfabric_app_runner.actions.types import ActionDispatch, ActionRun, ActionInputs, ActionProcess, ActionOutputs
 
 
 @pytest.fixture
@@ -34,6 +35,7 @@ def mock_workunit_definition_for_run(mocker):
 
 
 def test_run(mocker, action_run, mock_client):
+    mocker.patch("bfabric_app_runner.actions.execute._ensure_dispatched")
     mock_validate_chunks_list = mocker.patch(
         "bfabric_app_runner.actions.execute._validate_chunks_list", return_value=[Path("chunk1")]
     )
@@ -89,6 +91,7 @@ def test_run_read_only_does_not_set_available(mocker, mock_client):
         workunit_ref=Path("workunit_ref"),
         read_only=True,
     )
+    mocker.patch("bfabric_app_runner.actions.execute._ensure_dispatched")
     mocker.patch("bfabric_app_runner.actions.execute._validate_chunks_list", return_value=[Path("chunk1")])
     mocker.patch("bfabric_app_runner.actions.execute.execute_inputs")
     mocker.patch("bfabric_app_runner.actions.execute.execute_process")
@@ -110,6 +113,7 @@ def test_run_specific_chunk_does_not_set_available(mocker, mock_client):
         force_storage=Path("force_storage"),
         workunit_ref=Path("workunit_ref"),
     )
+    mocker.patch("bfabric_app_runner.actions.execute._ensure_dispatched")
     mocker.patch("bfabric_app_runner.actions.execute._validate_chunks_list", return_value=[Path("chunk1")])
     mocker.patch("bfabric_app_runner.actions.execute.execute_inputs")
     mocker.patch("bfabric_app_runner.actions.execute.execute_process")
@@ -118,6 +122,82 @@ def test_run_specific_chunk_does_not_set_available(mocker, mock_client):
     execute_run(action=action, client=mock_client)
 
     mock_client.save.assert_not_called()
+
+
+class TestEnsureDispatched:
+    """Tests for the self-healing re-dispatch guard used by run-all (issue #283)."""
+
+    def _action_run(self, work_dir: Path, chunk: str | None = None) -> ActionRun:
+        return ActionRun(
+            work_dir=work_dir,
+            chunk=chunk,
+            app_ref=Path("app_ref"),
+            workunit_ref=Path("workunit_ref"),
+        )
+
+    def test_redispatches_when_chunk_dir_removed(self, mocker, mock_client, tmp_path):
+        """chunks.yml survived but its chunk directory was deleted -> dispatch must re-run."""
+        (tmp_path / "chunks.yml").write_text(yaml.safe_dump({"chunks": ["work"]}))
+        mock_dispatch = mocker.patch("bfabric_app_runner.actions.execute.execute_dispatch")
+
+        _ensure_dispatched(self._action_run(tmp_path), client=mock_client)
+
+        mock_dispatch.assert_called_once()
+        dispatched_action = mock_dispatch.call_args.args[0]
+        assert dispatched_action == ActionDispatch(
+            work_dir=tmp_path, app_ref=Path("app_ref"), workunit_ref=Path("workunit_ref")
+        )
+
+    def test_does_not_redispatch_when_chunks_present(self, mocker, mock_client, tmp_path):
+        """A consistent chunk state must not trigger a redundant (networked) dispatch."""
+        (tmp_path / "work").mkdir()
+        (tmp_path / "work" / "inputs.yml").touch()
+        (tmp_path / "chunks.yml").write_text(yaml.safe_dump({"chunks": ["work"]}))
+        mock_dispatch = mocker.patch("bfabric_app_runner.actions.execute.execute_dispatch")
+
+        _ensure_dispatched(self._action_run(tmp_path), client=mock_client)
+
+        mock_dispatch.assert_not_called()
+
+    def test_does_not_redispatch_for_specific_chunk(self, mocker, mock_client, tmp_path):
+        """When a single chunk is requested we do not rebuild the whole manifest."""
+        (tmp_path / "chunks.yml").write_text(yaml.safe_dump({"chunks": ["work"]}))
+        mock_dispatch = mocker.patch("bfabric_app_runner.actions.execute.execute_dispatch")
+
+        _ensure_dispatched(self._action_run(tmp_path, chunk="work"), client=mock_client)
+
+        mock_dispatch.assert_not_called()
+
+
+def test_run_redispatches_and_processes_after_work_dir_removed(mocker, mock_client, tmp_path):
+    """End-to-end regression for #283: run-all re-dispatches and then processes the healed chunk."""
+    # Only chunks.yml survives; the chunk ("work") directory was removed.
+    (tmp_path / "chunks.yml").write_text(yaml.safe_dump({"chunks": ["work"]}))
+    action = ActionRun(
+        work_dir=tmp_path,
+        chunk=None,
+        app_ref=Path("app_ref"),
+        workunit_ref=Path("workunit_ref"),
+    )
+
+    def fake_dispatch(dispatch_action, client):
+        # A real dispatch recreates the chunk directory (and its inputs.yml) from the workunit definition.
+        chunk_dir = tmp_path / "work"
+        chunk_dir.mkdir(exist_ok=True)
+        (chunk_dir / "inputs.yml").touch()
+
+    mock_dispatch = mocker.patch("bfabric_app_runner.actions.execute.execute_dispatch", side_effect=fake_dispatch)
+    mock_execute_inputs = mocker.patch("bfabric_app_runner.actions.execute.execute_inputs")
+    mocker.patch("bfabric_app_runner.actions.execute.execute_process")
+    mocker.patch("bfabric_app_runner.actions.execute.execute_outputs")
+    mock_wu_def = mocker.patch("bfabric_app_runner.actions.execute.WorkunitDefinition.from_yaml")
+    mock_wu_def.return_value.registration.workunit_id = 42
+
+    execute_run(action=action, client=mock_client)
+
+    mock_dispatch.assert_called_once()
+    # After healing, the recreated chunk is processed.
+    assert mock_execute_inputs.call_count == 1
 
 
 @pytest.fixture
