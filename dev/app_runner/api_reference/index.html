@@ -4594,8 +4594,11 @@ parquet file (see <cite>output_dataset_filename</cite>) which contains the origi
 <span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;if_exists&quot;</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nt">&quot;protocol&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;const&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;scp&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;scp&quot;</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;enum&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="s2">&quot;scp&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;tus&quot;</span>
+<span class="w">         </span><span class="p">],</span>
 <span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Protocol&quot;</span><span class="p">,</span>
 <span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
 <span class="w">      </span><span class="p">}</span>
@@ -4628,7 +4631,7 @@ parquet file (see <cite>output_dataset_filename</cite>) which contains the origi
 <dt class="field-even">Fields<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><a class="reference internal" href="../specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.local_path" title="bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.local_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">local_path</span> <span class="pre">(pathlib.Path)</span></code></a></p></li>
-<li><p><a class="reference internal" href="../specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.protocol" title="bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.protocol"><code class="xref py py-obj docutils literal notranslate"><span class="pre">protocol</span> <span class="pre">(Literal['scp'])</span></code></a></p></li>
+<li><p><a class="reference internal" href="../specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.protocol" title="bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.protocol"><code class="xref py py-obj docutils literal notranslate"><span class="pre">protocol</span> <span class="pre">(Literal['scp',</span> <span class="pre">'tus'])</span></code></a></p></li>
 <li><p><a class="reference internal" href="../specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.store_entry_path" title="bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.store_entry_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">store_entry_path</span> <span class="pre">(pathlib.Path)</span></code></a></p></li>
 <li><p><a class="reference internal" href="../specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.store_folder_path" title="bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.store_folder_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">store_folder_path</span> <span class="pre">(pathlib.Path</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="../specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.type" title="bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">type</span> <span class="pre">(Literal['bfabric_copy_resource'])</span></code></a></p></li>
@@ -4644,7 +4647,7 @@ parquet file (see <cite>output_dataset_filename</cite>) which contains the origi
 
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.protocol">
-<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">protocol</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'scp'</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'scp'</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.protocol" title="Link to this definition">#</a></dt>
+<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">protocol</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'scp'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'tus'</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'scp'</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.protocol" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute pydantic_field">
