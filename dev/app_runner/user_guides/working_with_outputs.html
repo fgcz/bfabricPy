@@ -382,7 +382,8 @@
 </section>
 <section id="bfabric-dataset">
 <h3>bfabric_dataset<a class="headerlink" href="#bfabric-dataset" title="Link to this heading">#</a></h3>
-<p>Registers a local tabular file as a B-Fabric dataset.</p>
+<p>Registers a local tabular file as a B-Fabric dataset. The <code class="docutils literal notranslate"><span class="pre">format</span></code> field selects the reader
+(<code class="docutils literal notranslate"><span class="pre">csv</span></code>, the default, or <code class="docutils literal notranslate"><span class="pre">parquet</span></code>); <code class="docutils literal notranslate"><span class="pre">separator</span></code> and <code class="docutils literal notranslate"><span class="pre">has_header</span></code> apply to <code class="docutils literal notranslate"><span class="pre">csv</span></code> only.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">outputs</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_dataset</span>
 <span class="w">    </span><span class="nt">local_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">results/summary.csv</span>
@@ -390,6 +391,14 @@
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Experiment</span><span class="nv"> </span><span class="s">Results&quot;</span>
 <span class="w">    </span><span class="nt">has_header</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">    </span><span class="nt">invalid_characters</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">remove</span>
+</pre></div>
+</div>
+<p>For a Parquet file, set <code class="docutils literal notranslate"><span class="pre">format:</span> <span class="pre">parquet</span></code> (no <code class="docutils literal notranslate"><span class="pre">separator</span></code> needed):</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">outputs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_dataset</span>
+<span class="w">    </span><span class="nt">local_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">results/summary.parquet</span>
+<span class="w">    </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">parquet</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Experiment</span><span class="nv"> </span><span class="s">Results&quot;</span>
 </pre></div>
 </div>
 </section>

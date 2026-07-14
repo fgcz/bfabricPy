@@ -328,6 +328,7 @@
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.format"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.format</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.has_header"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.has_header</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.invalid_characters"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.invalid_characters</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.local_path"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.local_path</span></code></a></li>
@@ -475,28 +476,37 @@ with permission to create the particular file over SSH.</p></li>
 
 </dd></dl>
 
-<p>Register a local table as a B-Fabric dataset:</p>
+<p>Register a local table as a B-Fabric dataset. The <code class="docutils literal notranslate"><span class="pre">format</span></code> field selects the reader — <code class="docutils literal notranslate"><span class="pre">csv</span></code> (the
+default, a delimited text file) or <code class="docutils literal notranslate"><span class="pre">parquet</span></code>; <code class="docutils literal notranslate"><span class="pre">separator</span></code> and <code class="docutils literal notranslate"><span class="pre">has_header</span></code> apply to <code class="docutils literal notranslate"><span class="pre">csv</span></code> only:</p>
 <dl class="py class pydantic_model">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec">
 <span class="property"><span class="pre">pydantic</span> <span class="pre">model</span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric_app_runner.specs.outputs_spec.</span></span><span class="sig-name descname"><span class="pre">SaveDatasetSpec</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec" title="Link to this definition">#</a></dt>
-<dd><p>Uploads a local delimited file as the workunit’s output dataset.</p>
+<dd><p>Uploads a local file as the workunit’s output dataset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Fields<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.format" title="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.format"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format</span> <span class="pre">(Literal['csv',</span> <span class="pre">'parquet'])</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.has_header" title="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.has_header"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_header</span> <span class="pre">(bool)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.invalid_characters" title="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.invalid_characters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">invalid_characters</span> <span class="pre">(str)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.local_path" title="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.local_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">local_path</span> <span class="pre">(Path)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.name" title="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span> <span class="pre">(str</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
-<li><p><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.separator" title="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.separator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">separator</span> <span class="pre">(str)</span></code></a></p></li>
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.separator" title="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.separator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">separator</span> <span class="pre">(str</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.type" title="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">type</span> <span class="pre">(Literal['bfabric_dataset'])</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.update_existing" title="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.update_existing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_existing</span> <span class="pre">(UpdateExisting)</span></code></a></p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute pydantic_field">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.format">
+<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">format</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'csv'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'parquet'</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'csv'</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.format" title="Link to this definition">#</a></dt>
+<dd><p>Format of the local file. <code class="docutils literal notranslate"><span class="pre">csv</span></code> reads a delimited text file (see <code class="docutils literal notranslate"><span class="pre">separator</span></code>/<code class="docutils literal notranslate"><span class="pre">has_header</span></code>);
+<code class="docutils literal notranslate"><span class="pre">parquet</span></code> reads a Parquet file (<code class="docutils literal notranslate"><span class="pre">separator</span></code>/<code class="docutils literal notranslate"><span class="pre">has_header</span></code> are ignored).</p>
+</dd></dl>
+
+<dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.has_header">
 <span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">has_header</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.has_header" title="Link to this definition">#</a></dt>
-<dd><p>Whether the local file’s first row contains column names.</p>
+<dd><p>Whether the local file’s first row contains column names. Applies to <code class="docutils literal notranslate"><span class="pre">format:</span> <span class="pre">csv</span></code> only.</p>
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
@@ -508,7 +518,7 @@ with permission to create the particular file over SSH.</p></li>
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.local_path">
 <span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">local_path</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></span><span class="property"> <span class="pre">[Required]</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.local_path" title="Link to this definition">#</a></dt>
-<dd><p>Path to the local delimited file to upload as the dataset.</p>
+<dd><p>Path to the local file to upload as the dataset.</p>
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
@@ -519,8 +529,9 @@ with permission to create the particular file over SSH.</p></li>
 
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.separator">
-<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">separator</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"> <span class="pre">[Required]</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.separator" title="Link to this definition">#</a></dt>
-<dd><p>Field separator of the local file (e.g. a comma or a tab character).</p>
+<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">separator</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.separator" title="Link to this definition">#</a></dt>
+<dd><p>Field separator of the local file for <code class="docutils literal notranslate"><span class="pre">format:</span> <span class="pre">csv</span></code> (e.g. a comma or a tab character);
+<code class="docutils literal notranslate"><span class="pre">None</span></code> defaults to a comma. Ignored for other formats.</p>
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
@@ -684,6 +695,7 @@ what happens when an output with the same name already exists:</p>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.format"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.format</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.has_header"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.has_header</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.invalid_characters"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.invalid_characters</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec.local_path"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec.local_path</span></code></a></li>
