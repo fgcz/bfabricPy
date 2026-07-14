@@ -205,10 +205,10 @@ bfabric-cli workunit upload big.raw --container-id 40156 --application-id 447 --
 ```
 
 `--track-job` creates a B-Fabric *job* of action `UPLOAD` parented to the workunit and passes its id
-along with the tus token. The tus server then flips that job from `NEW` to `DONE` (or `FAILED`) once
-the files finish transferring, giving you a server-side record of the upload's outcome. Without the
-flag the files still upload; you just don't get a job object tracking it. See
-[Jobs](../../resources/good_to_know.md#jobs) for the underlying concept.
+along with the tus token. The tus server — not B-Fabric — then reads that action and flips the job
+from `NEW` to `DONE` (or `FAILED`) once the files finish transferring, giving you a record of the
+upload's outcome. Without the flag the files still upload; you just don't get a job object tracking it.
+See [Jobs](../../resources/good_to_know.md#jobs) for the underlying concept.
 
 ### Resuming an Interrupted Upload
 
