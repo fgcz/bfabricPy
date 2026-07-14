@@ -295,3 +295,36 @@ class TestChunksFileRead:
 
         assert len(chunks_file.chunks) == 1
         assert chunks_file.chunks == [Path("explicit_chunk")]
+
+
+class TestChunksFileIsStale:
+    """Tests for ChunksFile.is_stale() — the guard that decides whether dispatch must re-run"""
+
+    def test_not_stale_when_manifest_matches_disk(self, work_dir):
+        """A manifest whose listed chunk dirs all have inputs.yml is not stale."""
+        create_chunk(work_dir, "work")
+        (work_dir / "chunks.yml").write_text(yaml.dump({"chunks": ["work"]}))
+
+        assert ChunksFile.is_stale(work_dir) is False
+
+    def test_stale_when_listed_chunk_dir_removed(self, work_dir):
+        """Regression for #283: chunks.yml survives but its chunk directory was deleted."""
+        (work_dir / "chunks.yml").write_text(yaml.dump({"chunks": ["work"]}))
+
+        assert ChunksFile.is_stale(work_dir) is True
+
+    def test_stale_with_absolute_manifest_paths(self, work_dir):
+        """is_stale handles chunks.yml entries stored as absolute paths."""
+        (work_dir / "chunks.yml").write_text(yaml.dump({"chunks": [str(work_dir / "work")]}))
+
+        assert ChunksFile.is_stale(work_dir) is True
+
+    def test_not_stale_when_manifest_missing_but_dirs_discoverable(self, work_dir):
+        """No manifest but discoverable chunk dirs is recovered by read()'s auto-discovery, not stale."""
+        create_chunk(work_dir, "work")
+
+        assert ChunksFile.is_stale(work_dir) is False
+
+    def test_stale_when_nothing_dispatched(self, work_dir):
+        """No manifest and no discoverable chunk dirs means dispatch has to run."""
+        assert ChunksFile.is_stale(work_dir) is True

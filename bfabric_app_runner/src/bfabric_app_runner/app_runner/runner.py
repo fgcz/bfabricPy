@@ -97,6 +97,26 @@ class ChunksFile(BaseModel):
             logger.info(f"Created chunks.yml with {len(chunks.chunks)} chunk(s)")
             return chunks
 
+    @classmethod
+    def is_stale(cls, work_dir: Path) -> bool:
+        """Returns True if the on-disk chunk state requires a (re-)dispatch.
+
+        This is the case when a ``chunks.yml`` manifest exists but references a chunk directory
+        whose ``inputs.yml`` is missing (e.g. the chunk/"work" directory was removed while
+        ``chunks.yml`` survived, see issue #283), or when neither a manifest nor any
+        auto-discoverable chunk directory is present at all. A missing manifest with
+        discoverable chunk directories is *not* stale, since :meth:`read` recovers it via
+        auto-discovery.
+
+        :param work_dir: The work directory containing chunks.yml and/or chunk subdirectories
+        """
+        work_dir = work_dir.resolve()
+        chunks_file = work_dir / "chunks.yml"
+        if chunks_file.exists():
+            manifest = cls.model_validate(yaml.safe_load(chunks_file.read_text()))
+            return not all((work_dir / chunk / "inputs.yml").exists() for chunk in manifest.chunks)
+        return not any(work_dir.glob("*/inputs.yml"))
+
 
 def run_app(
     app_spec: AppVersion,
