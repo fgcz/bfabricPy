@@ -9,6 +9,16 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+### Added
+
+- New `bfabric.transfer` layer for moving files to and from B-Fabric, in a single namespace:
+    - Transport-agnostic movers: `fetch_to_path` (batch download over rsync / scp / cp / symlink / streamed HTTP — atomic and checksum-verified) and `send_to_sink` (resumable tus upload), plus the supporting `TransferSource*` / `TransferSink*` value objects, `Credentials`, `TransferError`, and checksum helpers. The tus mover is lazily imported and gated behind the `bfabric[transfer]` extra (`tuspy`), so download-only consumers never pull it in.
+    - B-Fabric domain binding: `ssh_source` / `http_source` (Resource → download sources), `UploadRestClient` + `tus_sink_for_resource` (`/rest/upload/*` → tus upload sink), `token_provider`, and fail-fast OAuth scope checks (`check_upload_scope` / `check_download_scope`).
+- `bfabric.operations.workunit.upload_files` — create or reuse a workunit and upload files as resources over tus, with duplicate skipping, optional `track_job` (a `TUS_UPLOAD` job flipped to DONE/FAILED), and failure cleanup. Exposed as `bfabric-cli workunit upload` (see the [workunit upload guide](user_guides/bfabric-cli/workunits.md#uploading-files)).
+- `bfabric/src/bfabric/examples/prove_tus_resume.py` — a live end-to-end proof of tus resumability (abort mid-transfer, resume from the saved URL).
+
+> **Note** — ported from the standalone `bfabric-tus-client` prototype. Not carried over: the `get-token` / `check-duplicates` CLI subcommands (the underlying `UploadRestClient` methods remain for library use) and the `workunit_url` helper.
+
 ### Fixed
 
 - `HasOne` relationship descriptors are now correctly typed. Accessing a to-one relationship (e.g. `Resource.storage`, `Workunit.application`) resolves to the related entity type instead of raising a `reportAttributeAccessIssue` and degrading to `Unknown`. The descriptor is now generic over its return type, so required relationships are declared `HasOne[Storage]` and optional ones `HasOne[Storage | None]`. This removes the need for `cast` / `# pyright: ignore` workarounds at call sites. Runtime behaviour is unchanged.
