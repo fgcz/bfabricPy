@@ -132,15 +132,9 @@ class UploadRestClient:
         payload: dict[str, object] = {"containerId": container_id, "files": _file_entries(files)}
         return TypeAdapter(list[DuplicateResult]).validate_python(self._post("check-duplicates", payload))
 
-    def create_resources(
-        self, workunit_id: int, files: Sequence[FileInfo], *, create_import_resources: bool = True
-    ) -> list[CreatedResource]:
+    def create_resources(self, workunit_id: int, files: Sequence[FileInfo]) -> list[CreatedResource]:
         """Call ``/rest/upload/create-resources`` to register resource (and import-resource) records."""
-        payload: dict[str, object] = {
-            "workunitId": workunit_id,
-            "files": _file_entries(files),
-            "createImportResources": create_import_resources,
-        }
+        payload: dict[str, object] = {"workunitId": workunit_id, "files": _file_entries(files)}
         return TypeAdapter(list[CreatedResource]).validate_python(self._post("create-resources", payload))
 
     def get_upload_token(

@@ -14,6 +14,9 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 - `bfabric-cli auth default` — list the configured environments and show the current default.
 - `bfabric-cli auth default set [CONFIG_ENV]` — set the default environment, non-interactively when a value is passed or via an interactive picker when omitted.
+- `bfabric-cli workunit upload FILES...` — upload files and directories to a B-Fabric workunit over tus (resumable, large-file capable), creating a new workunit or targeting an existing one (`--workunit-id`). Registers a resource per file, skips duplicates (unless `--force`), and expands directories recursively. Requires an OAuth client with the `tus` scope.
+    - `--track-job` creates a `UPLOAD` job so the upload is visible in B-Fabric.
+    - Shows a live progress display (disable with `--no-progress`).
 
 ### Fixed
 
