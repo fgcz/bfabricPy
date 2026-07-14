@@ -21,7 +21,6 @@ dependencies = [
     "suds>=1.2.0,<2.0.0",
     "PyYAML>=6.0.2,<7.0",
     "rich>=14.0.0,<15.0.0",
-    "zeep>=4.3.2,<5.0",
     "polars>=1.34,<2.0",
     "polars[rtcompat]>=1.34,<2.0; platform_machine == 'x86_64' and platform_system == 'Darwin'",
     "loguru>=0.7,<0.8",
@@ -36,6 +35,7 @@ dependencies = [
 
 [project.optional-dependencies]
 transfer = ["tuspy>=1.0,<2"]
+zeep = ["zeep>=4.3.2,<5.0"]
 dev = [
     "bfabric[doc,test]",
     "black",

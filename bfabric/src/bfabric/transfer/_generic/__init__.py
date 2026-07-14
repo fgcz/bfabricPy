@@ -15,7 +15,6 @@ from bfabric.transfer._generic.checksums import (
     collect_file_infos,
     compute_file_info,
     md5_checksum,
-    resolve_paths,
 )
 from bfabric.transfer._generic.credentials import Credentials
 from bfabric.transfer._generic.errors import TransferError
@@ -52,7 +51,6 @@ __all__ = [
     "compute_file_info",
     "fetch_to_path",
     "md5_checksum",
-    "resolve_paths",
     "scp",
     "send_to_sink",
 ]

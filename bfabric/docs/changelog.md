@@ -9,12 +9,23 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+### Added
+
+- New `bfabric.transfer` layer for moving files to and from B-Fabric, in a single namespace:
+    - Transport-agnostic movers: `fetch_to_path` (batch download over rsync / scp / cp / symlink / streamed HTTP — atomic and checksum-verified) and `send_to_sink` (resumable tus upload), plus the supporting `TransferSource*` / `TransferSink*` value objects, `Credentials`, `TransferError`, and checksum helpers. The tus mover is lazily imported and gated behind the `bfabric[transfer]` extra (`tuspy`), so download-only consumers never pull it in.
+    - B-Fabric domain binding: `ssh_source` / `http_source` (Resource → download sources), `UploadRestClient` + `tus_sink_for_resource` (`/rest/upload/*` → tus upload sink), `token_provider`, and fail-fast OAuth scope checks (`check_upload_scope` / `check_download_scope`).
+- `bfabric.operations.workunit.upload_files` — create or reuse a workunit and upload files as resources over tus, with duplicate skipping, optional `track_job` (a `UPLOAD` job flipped to DONE/FAILED), and failure cleanup. Exposed as `bfabric-cli workunit upload` (see the [workunit upload guide](user_guides/bfabric-cli/workunits.md#uploading-files)).
+- `bfabric/src/bfabric/examples/prove_tus_resume.py` — a live end-to-end proof of tus resumability (abort mid-transfer, resume from the saved URL).
+
+> **Note** — ported from the standalone `bfabric-tus-client` prototype. Not carried over: the `get-token` / `check-duplicates` CLI subcommands (the underlying `UploadRestClient` methods remain for library use) and the `workunit_url` helper.
+
 ### Fixed
 
 - `HasOne` relationship descriptors are now correctly typed. Accessing a to-one relationship (e.g. `Resource.storage`, `Workunit.application`) resolves to the related entity type instead of raising a `reportAttributeAccessIssue` and degrading to `Unknown`. The descriptor is now generic over its return type, so required relationships are declared `HasOne[Storage]` and optional ones `HasOne[Storage | None]`. This removes the need for `cast` / `# pyright: ignore` workarounds at call sites. Runtime behaviour is unchanged.
 
 ### Changed
 
+- `zeep` is now an optional dependency. The default install no longer pulls it in; install `bfabric[zeep]` to use `engine="zeep"`. Selecting the zeep engine without the extra installed now raises a clear `ImportError`. The default `suds` engine is unaffected.
 - Config: PAT (Personal Access Token) environments now store the token under a `pat` key together with `auth_method: pat`, instead of inlining it as `login: __oauth__` / `password: <token>`. Because a PAT is not 32 characters and an older (≤1.19.0) client validates *every* environment eagerly and enforces a 32-character password, the old shape made a single PAT environment poison the whole shared `~/.bfabricpy.yml` for those clients. The new shape has no `login`/`password`, so old clients ignore it and keep reading the rest of the file. The legacy `login: __oauth__` shape written by `1.20.0rc1` is still read.
 - Depend on `polars` (with the `rtcompat` extra on macOS x86_64) instead of the separate `polars-lts-cpu` distribution. Both packages shared the `polars` import name, so on macOS x86_64 they conflicted with `pandera[polars]`'s dependency on `polars`. polars ≥ 1.34's modular runtime (`polars[rtcompat]`) provides the AVX‑free build for Rosetta while keeping a single distribution across the workspace. Minimum polars bumped to 1.34.
 - Removed dead `if <required relationship> is None` guards (in `Workunit.store_output_folder` and `WorkunitExecutionDefinition.from_workunit`) that could never fire — a missing required relationship already raises `ValueError("Field '<name>' is required")` from the descriptor.

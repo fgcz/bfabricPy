@@ -43,8 +43,8 @@ class CopyResourceSpec(BaseModel):
     update_existing: UpdateExisting = UpdateExisting.IF_EXISTS
     """Behavior if a resource with the same name already exists on the workunit."""
 
-    protocol: Literal["scp"] = "scp"
-    """Transfer protocol used to copy the file to storage; currently only ``"scp"`` is supported."""
+    protocol: Literal["scp", "tus"] = "scp"
+    """Transfer protocol used to copy the file to storage (``"scp"`` or ``"tus"``)."""
 
 
 class SaveDatasetSpec(BaseModel):

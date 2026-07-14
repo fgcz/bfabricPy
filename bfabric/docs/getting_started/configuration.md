@@ -104,7 +104,7 @@ from bfabric.config import BfabricAuth, BfabricClientConfig
 # Create config programmatically
 client_config = BfabricClientConfig(
     base_url="https://fgcz-bfabric.uzh.ch/bfabric/",
-    engine="zeep",  # or "suds"
+    engine="SUDS",  # default; "ZEEP" is also available but requires `pip install bfabric[zeep]`
 )
 
 auth = BfabricAuth(
