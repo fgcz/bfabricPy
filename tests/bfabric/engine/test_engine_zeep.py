@@ -1,4 +1,7 @@
 import pytest
+
+pytest.importorskip("zeep")
+
 import zeep
 from pydantic import SecretStr
 
