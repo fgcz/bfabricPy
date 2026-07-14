@@ -3,13 +3,13 @@ from __future__ import annotations
 from enum import Enum
 from typing import TYPE_CHECKING, assert_never
 
+from bfabric.transfer import md5_checksum
 from bfabric_app_runner.inputs.resolve.resolved_inputs import (
     ResolvedInput,
     ResolvedFile,
     ResolvedStaticFile,
     ResolvedDirectory,
 )
-from bfabric_app_runner.util.checksum import md5_checksum
 
 if TYPE_CHECKING:
     from pathlib import Path

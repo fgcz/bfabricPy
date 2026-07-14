@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 from typing import TYPE_CHECKING
 
 import polars as pl
@@ -12,6 +11,7 @@ from bfabric.operations.dataset import (
     identify_changes,
     update_dataset,
 )
+from bfabric.transfer import Credentials, TransferSinkScp, md5_checksum, send_to_sink
 from bfabric.utils.table_lint import check_for_invalid_characters
 from loguru import logger
 
@@ -23,7 +23,6 @@ from bfabric_app_runner.specs.outputs_spec import (
     SpecType,
     UpdateExisting,
 )
-from bfabric_app_runner.util.scp import scp
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -63,8 +62,7 @@ def register_file_in_workunit(
     if resource_id is not None and existing_id is not None and resource_id != existing_id:
         raise ValueError(f"Resource id {resource_id} does not match existing resource id {existing_id}")
 
-    with spec.local_path.open("rb") as f:
-        checksum = hashlib.file_digest(f, "md5").hexdigest()
+    checksum = md5_checksum(spec.local_path)
     output_folder = _get_output_folder(spec, workunit_definition=workunit_definition)
     resource_data = {
         "name": spec.store_entry_path.name,
@@ -110,11 +108,35 @@ def copy_file_to_storage(
     storage: Storage,
     ssh_user: str | None,
 ) -> None:
-    """Copies a file to the storage, according to the spec."""
-    # TODO here some direct uses of storage could still be optimized away
-    output_folder = _get_output_folder(spec, workunit_definition=workunit_definition)
-    output_uri = f"{storage.scp_prefix}{output_folder / spec.store_entry_path}"
-    scp(spec.local_path, output_uri, user=ssh_user)
+    """Moves a file's bytes to storage via ``bfabric.transfer``, per the spec's ``protocol``.
+
+    Only the byte move is delegated to the transfer package; the resource metadata is still
+    registered over SOAP by :func:`register_file_in_workunit`.
+    """
+    if spec.protocol == "scp":
+        # The Storage entity is loaded (see `_get_storage`) only for its host:basepath. If
+        # `WorkunitRegistrationDefinition` carried these directly, the entity read (and the
+        # `force_storage` workaround) could be dropped entirely — see TODO in `_get_storage`.
+        if storage.scp_prefix is None:
+            raise ValueError(f"Storage {storage.id} is not configured for scp transfer (no scp_prefix)")
+        host, base_path = storage.scp_prefix.split(":", 1)
+        output_folder = _get_output_folder(spec, workunit_definition=workunit_definition)
+        _ = send_to_sink(
+            TransferSinkScp(host=host, path=f"{base_path}{output_folder / spec.store_entry_path}"),
+            spec.local_path,
+            Credentials(ssh_user=ssh_user),
+        )
+    elif spec.protocol == "tus":
+        # The output byte-move now flows through bfabric.transfer, so a tus sink slots in here — but
+        # the end-to-end tus output path is not wired for v1: it needs a scoped JWT delivered to the
+        # (usually credential-less) compute node, and the resource-registration model over tus is
+        # still open (see the design's open questions). Use bfabric.operations.workunit.upload_files
+        # for tus uploads from a JWT-backed session today.
+        raise NotImplementedError(
+            "tus output transport is not yet wired for app-runner (compute-node token delivery and the "
+            "tus resource-registration model are open questions); use "
+            "bfabric.operations.workunit.upload_files from a JWT session for tus uploads."
+        )
 
 
 def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit_definition: WorkunitDefinition) -> None:

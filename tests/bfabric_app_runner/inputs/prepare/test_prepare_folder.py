@@ -9,7 +9,7 @@ from bfabric_app_runner.inputs.prepare.prepare_folder import (
     _prepare_input_files,
     _clean_input_files,
     _needs_bearer_token,
-    _resolve_bearer_token,
+    _resolve_token_provider,
 )
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedInputs, ResolvedFile, ResolvedStaticFile
 from bfabric_app_runner.specs.inputs.file_spec import FileSourceHttp, FileSourceHttpValue, FileSourceLocal
@@ -91,7 +91,7 @@ def test_prepare_folder_prepare_action(mocker, mock_inputs_spec_read_yaml, mock_
     mock_prepare.assert_called_once_with(
         input_files=mock_resolved_inputs,
         working_dir=target_folder,
-        context=PrepareContext(ssh_user=ssh_user, bearer_token=None),
+        context=PrepareContext(ssh_user=ssh_user, token_provider=None),
     )
 
 
@@ -172,7 +172,7 @@ def test_prepare_folder_with_filter(mocker, mock_inputs_spec_read_yaml, mock_res
     mock_prepare.assert_called_once_with(
         input_files=mock_filtered_inputs,
         working_dir=target_folder,
-        context=PrepareContext(ssh_user=None, bearer_token=None),
+        context=PrepareContext(ssh_user=None, token_provider=None),
     )
 
 
@@ -278,7 +278,7 @@ def test_prepare_folder_default_target_folder(mocker, mock_inputs_spec_read_yaml
     mock_prepare.assert_called_once_with(
         input_files=mock_resolved_inputs,
         working_dir=inputs_yaml.parent,
-        context=PrepareContext(ssh_user=None, bearer_token=None),
+        context=PrepareContext(ssh_user=None, token_provider=None),
     )
 
 
@@ -295,7 +295,7 @@ def test_prepare_input_files(mocker, mock_prepare_resolved_file, mock_prepare_re
     mock_resolved_inputs = mocker.MagicMock(spec=ResolvedInputs)
     mock_resolved_inputs.files = [mock_resolved_file, mock_static_file]
 
-    context = PrepareContext(ssh_user=ssh_user, bearer_token="tok")
+    context = PrepareContext(ssh_user=ssh_user, token_provider=lambda: "tok")
 
     # Call the function
     _prepare_input_files(input_files=mock_resolved_inputs, working_dir=working_dir, context=context)
@@ -339,7 +339,7 @@ def test_needs_bearer_token_false_for_anonymous_http_and_non_http():
 def test_prepare_folder_skips_token_when_no_http(mocker, mock_inputs_spec_read_yaml, mock_resolver):
     # An OAuth token fetch must not be triggered (nor crash prepare) when no HTTP input needs it.
     mock_client = mocker.MagicMock()
-    mock_resolve_token = mocker.patch("bfabric_app_runner.inputs.prepare.prepare_folder._resolve_bearer_token")
+    mock_resolve_token = mocker.patch("bfabric_app_runner.inputs.prepare.prepare_folder._resolve_token_provider")
     mocker.patch("bfabric_app_runner.inputs.prepare.prepare_folder._prepare_input_files")
 
     mock_inputs_spec_read_yaml.return_value = mocker.MagicMock()
@@ -360,24 +360,27 @@ def test_prepare_folder_skips_token_when_no_http(mocker, mock_inputs_spec_read_y
     mock_resolve_token.assert_not_called()
 
 
-def test_resolve_bearer_token_when_oauth(mocker):
+def test_resolve_token_provider_when_oauth(mocker):
     mock_client = mocker.MagicMock()
     mock_client.auth.login = OAUTH_LOGIN
     mock_client.auth.password.get_secret_value.return_value = "jwt-token"
-    assert _resolve_bearer_token(mock_client) == "jwt-token"
+    provider = _resolve_token_provider(mock_client)
+    assert provider is not None
+    # The provider reads the token live, so it reflects a refresh under the client.
+    assert provider() == "jwt-token"
 
 
-def test_resolve_bearer_token_when_password_login(mocker):
+def test_resolve_token_provider_when_password_login(mocker):
     mock_client = mocker.MagicMock()
     mock_client.auth.login = "some_user"
-    assert _resolve_bearer_token(mock_client) is None
+    assert _resolve_token_provider(mock_client) is None
     mock_client.auth.password.get_secret_value.assert_not_called()
 
 
-def test_resolve_bearer_token_when_no_auth(mocker):
+def test_resolve_token_provider_when_no_auth(mocker):
     mock_client = mocker.MagicMock()
     type(mock_client).auth = mocker.PropertyMock(side_effect=ValueError("Authentication not available"))
-    assert _resolve_bearer_token(mock_client) is None
+    assert _resolve_token_provider(mock_client) is None
 
 
 def test_clean_input_files(fs, mocker, mock_logger):
