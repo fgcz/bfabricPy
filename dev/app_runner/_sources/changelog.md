@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- `action run-all` now re-runs dispatch when the chunk state is stale instead of failing. Previously, deleting a chunk directory (e.g. the default `work` directory) while `chunks.yml` survived made `make run-all` fail, because `chunks.yml` was treated as the marker that dispatch had already run and the stale manifest still pointed at the removed directory. `run-all` now detects this (`ChunksFile.needs_dispatch`) and re-dispatches to rebuild the missing chunk directories; a consistent chunk state still skips the (networked) re-dispatch ([#283](https://github.com/fgcz/bfabricPy/issues/283)).
 - `_register_workflow_step` now raises a clear error when the configured workflow template step is missing or has no workflow template, instead of crashing with an `AttributeError` on `None` (missing template) or logging-and-skipping (missing step). Both cases abort output registration before the workunit is finalized to `available`, so the misconfiguration surfaces instead of leaving a finalized workunit with no workflow-step linkage.
 - The SLURM integration wrapper now launches `bfabric-app-runner` with `uv run -p 3.13` (previously the launch was unpinned, only the version-detection helper was pinned). This prevents the runner from floating onto an untested Python such as a prerelease 3.14, where pydantic raised `TypeError: _eval_type() got an unexpected keyword argument 'prefer_fwd_module'` ([#494](https://github.com/fgcz/bfabricPy/issues/494)).
 
