@@ -98,14 +98,15 @@ class ChunksFile(BaseModel):
             return chunks
 
     @classmethod
-    def is_stale(cls, work_dir: Path) -> bool:
-        """Returns True if the on-disk chunk state requires a (re-)dispatch.
+    def needs_dispatch(cls, work_dir: Path) -> bool:
+        """Returns True if dispatch has to (re-)run because the chunk directories are not present.
 
-        This is the case when a ``chunks.yml`` manifest exists but references a chunk directory
-        whose ``inputs.yml`` is missing (e.g. the chunk/"work" directory was removed while
+        ``run-all`` needs the chunk directories (each with an ``inputs.yml``); ``chunks.yml`` is
+        only an index of them. Dispatch is needed when a ``chunks.yml`` manifest references a chunk
+        directory whose ``inputs.yml`` is missing (e.g. the chunk/"work" directory was removed while
         ``chunks.yml`` survived, see issue #283), or when neither a manifest nor any
-        auto-discoverable chunk directory is present at all. A missing manifest with
-        discoverable chunk directories is *not* stale, since :meth:`read` recovers it via
+        auto-discoverable chunk directory is present at all. A missing manifest with discoverable
+        chunk directories does *not* need dispatch, since :meth:`read` recovers it via
         auto-discovery.
 
         :param work_dir: The work directory containing chunks.yml and/or chunk subdirectories

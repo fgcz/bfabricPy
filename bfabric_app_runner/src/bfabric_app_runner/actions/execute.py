@@ -205,7 +205,7 @@ def _find_or_create_workflow(
 
 
 def _ensure_dispatched(action: ActionRun, client: Bfabric) -> None:
-    """Re-runs dispatch when the chunk state is stale, so ``run-all`` self-heals.
+    """Re-runs dispatch when the chunk directories are missing, so ``run-all`` self-heals.
 
     The Makefile uses the presence of ``chunks.yml`` as the marker that dispatch already ran.
     Removing a chunk directory (e.g. the default ``work`` directory) while ``chunks.yml`` survives
@@ -216,7 +216,7 @@ def _ensure_dispatched(action: ActionRun, client: Bfabric) -> None:
     if action.chunk is not None:
         # A specific chunk was requested; don't rebuild the whole manifest behind the user's back.
         return
-    if not ChunksFile.is_stale(action.work_dir):
+    if not ChunksFile.needs_dispatch(action.work_dir):
         return
     logger.info("chunks.yml is missing or references removed chunk directories; re-running dispatch.")
     execute_dispatch(
