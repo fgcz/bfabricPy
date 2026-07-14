@@ -59,10 +59,8 @@ class UploadFilesParams(BaseModel):
     """Name for the created workunit (``None`` → "File upload"); mutually exclusive with ``workunit_id``."""
     force: bool = False
     """Skip the duplicate check and upload every file."""
-    import_resources: bool = True
-    """Also create B-Fabric import resources."""
     track_job: bool = False
-    """Create a ``TUS_UPLOAD`` job under the workunit and attach its id to the upload, so the tus
+    """Create a ``UPLOAD`` job under the workunit and attach its id to the upload, so the tus
     server's hooks flip the job to ``DONE``/``FAILED`` as the transfer progresses. Works on both the
     create and reuse paths (the job is a new entity parented to the workunit, so it never mutates a
     reused workunit)."""
@@ -140,7 +138,7 @@ def upload_files(
         their relative path as the resource name.
     :param params: the target workunit -- either an existing ``workunit_id`` or a
         ``container_id``/``application_id`` to create one under -- plus ``force`` /
-        ``import_resources`` / ``track_job`` (see :class:`UploadFilesParams`).
+        ``track_job`` (see :class:`UploadFilesParams`).
     :param on_progress: optional ``(filename, bytes_done, total)`` per-chunk progress callback.
     :param on_start: optional ``(total_files, total_bytes)`` callback fired once after dedup, just
         before the first transfer (never fired when everything is skipped as a duplicate).
@@ -188,7 +186,7 @@ def upload_files(
         # request and every sink's metadata (the server hooks key off that jobId to update status).
         if params.track_job:
             job_id = _create_upload_job(client, workunit_id)
-        resources = rest.create_resources(workunit_id, to_upload, create_import_resources=params.import_resources)
+        resources = rest.create_resources(workunit_id, to_upload)
         resources_by_name = _pair_resources_to_files(resources, to_upload)
         import_resource_ids = [r.import_resource_id for r in resources if r.import_resource_id is not None]
         token_result = rest.get_upload_token(workunit_id, [r.id for r in resources], import_resource_ids, job_id=job_id)
@@ -304,14 +302,14 @@ def _create_upload_workunit(client: Bfabric, params: UploadFilesParams, audit_at
 
 
 def _create_upload_job(client: Bfabric, workunit_id: int) -> int:
-    """Create the ``TUS_UPLOAD`` tracking job parented to ``workunit_id`` and return its id.
+    """Create the ``UPLOAD`` tracking job parented to ``workunit_id`` and return its id.
 
     The job starts at status ``NEW``; the tus server's own hooks move it to ``DONE``/``FAILED`` once
     the transfer runs, so nothing here mutates its status afterwards.
     """
     result = client.save(
         "job",
-        {"action": "TUS_UPLOAD", "status": "NEW", "parentclassname": "Workunit", "parentid": workunit_id},
+        {"action": "UPLOAD", "status": "NEW", "parentclassname": "Workunit", "parentid": workunit_id},
     )
     return Job(result[0], client=None, bfabric_instance=client.config.base_url).id
 

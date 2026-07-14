@@ -466,9 +466,9 @@ class TestJobTracking:
 
         summary = upload_files(mock_client, [Path("/src/a.txt"), Path("/src/b.txt")], _params(track_job=True))
 
-        # A TUS_UPLOAD/NEW job is created, parented to the workunit.
+        # A UPLOAD/NEW job is created, parented to the workunit.
         assert _job_payload(mock_client) == {
-            "action": "TUS_UPLOAD",
+            "action": "UPLOAD",
             "status": "NEW",
             "parentclassname": "Workunit",
             "parentid": WORKUNIT_ID,
