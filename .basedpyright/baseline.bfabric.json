@@ -4868,14 +4868,6 @@
         ],
         "./bfabric/src/bfabric/results/response_delete.py": [
             {
-                "code": "reportUnknownVariableType",
-                "range": {
-                    "startColumn": 25,
-                    "endColumn": 41,
-                    "lineCount": 1
-                }
-            },
-            {
                 "code": "reportAny",
                 "range": {
                     "startColumn": 23,

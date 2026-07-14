@@ -34,7 +34,6 @@ from bfabric.config.bfabric_client_config import BfabricAPIEngineType
 from bfabric.config.config_data import ConfigData, load_config_data
 from bfabric.config.config_file import read_config_file
 from bfabric.engine.engine_suds import EngineSUDS
-from bfabric.engine.engine_zeep import EngineZeep
 from bfabric.rest.token_data import TokenData, get_token_data, validate_token
 from bfabric.results.result_container import ResultContainer
 from bfabric.utils.cli_integration import DEFAULT_THEME, HostnameHighlighter
@@ -46,6 +45,7 @@ if TYPE_CHECKING:
     from pydantic import SecretStr
 
     from bfabric._oauth.credential_provider import OAuthCredentialProvider
+    from bfabric.engine.engine_zeep import EngineZeep
     from bfabric.entities.core.entity_reader import EntityReader
     from bfabric.experimental.webapp_integration_settings import TokenValidationSettingsProtocol
     from bfabric.typing import ApiRequestObjectType, ApiResponseObjectType
@@ -77,6 +77,12 @@ class Bfabric:
         if self.config.engine == BfabricAPIEngineType.SUDS:
             return EngineSUDS(base_url=self._config.base_url)
         elif self.config.engine == BfabricAPIEngineType.ZEEP:
+            try:
+                from bfabric.engine.engine_zeep import EngineZeep
+            except ImportError as e:
+                raise ImportError(
+                    "The zeep engine requires the optional 'zeep' extra: pip install bfabric[zeep]"
+                ) from e
             return EngineZeep(base_url=self._config.base_url)
         else:
             raise ValueError(f"Unexpected engine type: {self.config.engine}")

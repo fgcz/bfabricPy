@@ -31,7 +31,7 @@ runs:
         sudo mv "ripgrep-${RG_VERSION}-${RG_ARCH}/rg" /usr/local/bin/
         rm -rf "ripgrep-${RG_VERSION}-${RG_ARCH}" "ripgrep-${RG_VERSION}-${RG_ARCH}.tar.gz"
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.11'
     - name: Check "TODO" differences
