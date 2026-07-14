@@ -169,7 +169,6 @@ records → mint a short-lived tus token → transfer each file → mark the wor
 | `--workunit-id` | \* | Upload into this existing workunit instead of creating one |
 | `--workunit-name` | No | Name for the created workunit (default "File upload") |
 | `--force` | No | Skip the duplicate check and upload every file |
-| `--no-import-resources` | No | Do not create B-Fabric import resources |
 | `--track-job` | No | Create a `UPLOAD` job; the server flips it to DONE/FAILED |
 | `--no-progress` | No | Disable the live progress bar (auto-off when stderr is not a terminal) |
 
