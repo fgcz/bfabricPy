@@ -4,23 +4,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
-### Added
+## \[0.7.0rc1\] - 2026-07-15
 
-- `SaveDatasetSpec` (the `bfabric_dataset` output) gains a `format` field (`csv`, the default, or `parquet`) so an output dataset can be registered from a Parquet file, consistent with `bfabric-cli dataset upload`. `separator` is now optional (csv-only; defaults to a comma) and, together with `has_header`, is ignored for `format: parquet` ([#359](https://github.com/fgcz/bfabricPy/issues/359)).
-- `BfabricResourceSpec` gains an `access` field (`ssh`/`http`) selecting the transport used to stage a resource. `access: http` streams the file from the storage's HTTP endpoint instead of rsync/scp — portable, but requires an OAuth-backed client whose token carries the `containers` scope. The generic `file` spec also gained an HTTP source (`FileSourceHttp`), always fetched anonymously. See the input specification docs for details.
-
-### Changed
-
-- Input staging and output copying now move bytes and verify checksums through the shared `bfabric.transfer` layer (`fetch_to_path`, `send_to_sink`, `md5_checksum`) instead of app-runner's own copies. The local `bfabric_app_runner.util.scp` and `bfabric_app_runner.util.checksum` modules have been removed (transfer behaviour is unchanged). `CopyResourceSpec.protocol` also accepts `tus` in addition to `scp`, though the tus output path is not yet wired (raises `NotImplementedError`).
-- Added `runtime-evaluated-base-classes` to the ruff `flake8-type-checking` config (matching `bfabric`), listing `pydantic.BaseModel` and `FromConfigFile`, so `TC001`/`TC002`/`TC003` no longer suggest moving imports used only in pydantic model field annotations into `if TYPE_CHECKING:` blocks. Removed the now-unnecessary per-line `# noqa: TC00x` workarounds and the blanket `cli/**`/`specs/**` per-file-ignores this uncovered.
-- `CommandPythonEnv.python_version` now defaults to `"3.13"` instead of `None`. This fixes a `uv venv -p None` failure for app definitions that omit `python_version`, and pins the app environment to the tested interpreter.
-- Python-environment provisioning output (the `uv venv` / `uv pip install` diagnostics such as `Using Python … environment at`, `Resolved/Installed N packages`, `+ workflow==0.0`) is now captured and logged at DEBUG instead of printed directly, so a normal (INFO) run stays quiet while `--debug` still shows it, properly attributed through the logger. If a provisioning command fails, its full output is now logged at ERROR (previously it only appeared because stdio was inherited). The app's own command output continues to stream directly. `execute_command_exec` gains an opt-in `log_output_level` keyword for this.
-
-### Fixed
-
-- `action run-all` now re-runs dispatch when the chunk state is stale instead of failing. Previously, deleting a chunk directory (e.g. the default `work` directory) while `chunks.yml` survived made `make run-all` fail, because `chunks.yml` was treated as the marker that dispatch had already run and the stale manifest still pointed at the removed directory. `run-all` now detects this (`ChunksFile.needs_dispatch`) and re-dispatches to rebuild the missing chunk directories; a consistent chunk state still skips the (networked) re-dispatch ([#283](https://github.com/fgcz/bfabricPy/issues/283)).
-- `_register_workflow_step` now raises a clear error when the configured workflow template step is missing or has no workflow template, instead of crashing with an `AttributeError` on `None` (missing template) or logging-and-skipping (missing step). Both cases abort output registration before the workunit is finalized to `available`, so the misconfiguration surfaces instead of leaving a finalized workunit with no workflow-step linkage.
-- The SLURM integration wrapper now launches `bfabric-app-runner` with `uv run -p 3.13` (previously the launch was unpinned, only the version-detection helper was pinned). This prevents the runner from floating onto an untested Python such as a prerelease 3.14, where pydantic raised `TypeError: _eval_type() got an unexpected keyword argument 'prefer_fwd_module'` ([#494](https://github.com/fgcz/bfabricPy/issues/494)).
+- `SaveDatasetSpec` (the `bfabric_dataset` output) gains a `format` field (`csv` default, or `parquet`), so an output dataset can be registered from Parquet; `separator` is now optional (csv-only) ([#359](https://github.com/fgcz/bfabricPy/issues/359)).
+- `BfabricResourceSpec` gains an `access` field (`ssh`/`http`); `access: http` streams from the storage's HTTP endpoint (needs an OAuth client whose token carries the `containers` scope). The generic `file` spec also gained an HTTP source.
+- Input staging and output copying now go through the shared `bfabric.transfer` layer (checksum-verified) instead of app-runner's own copies; the local `util.scp` / `util.checksum` are removed. `CopyResourceSpec.protocol` also accepts `tus`, but the tus output path isn't wired yet (`NotImplementedError`). Requires `bfabric` 1.20.
+- `action run-all` now re-runs dispatch when the chunk state is stale (e.g. the chunk directory was deleted but `chunks.yml` survived) instead of failing ([#283](https://github.com/fgcz/bfabricPy/issues/283)).
+- Output registration now raises a clear error when the configured workflow template step is missing, instead of an `AttributeError` or silent skip — aborting before the workunit is finalized to `available`.
+- `CommandPythonEnv.python_version` now defaults to `"3.13"` (was `None`), fixing a `uv venv -p None` failure and pinning to the tested interpreter.
+- The SLURM wrapper now launches `bfabric-app-runner` with `uv run -p 3.13`, so it can't float onto an untested Python such as a prerelease 3.14 ([#494](https://github.com/fgcz/bfabricPy/issues/494)).
+- Python-environment provisioning output (`uv venv` / `uv pip install`) is now logged at DEBUG instead of printed (quiet INFO runs); failures are logged in full at ERROR.
+- Internal: ruff `flake8-type-checking` now treats `pydantic.BaseModel` / `FromConfigFile` as runtime-evaluated (dropping `# noqa: TC00x` and blanket per-file ignores).
 
 ## \[0.6.1\] - 2026-06-11
 
