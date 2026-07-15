@@ -10,6 +10,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 ## \[Unreleased\]
 
 - `ResultContainer.to_polars()` returns an empty DataFrame for an empty result set instead of raising `polars.exceptions.NoDataError`, fixing a crash in `bfabric-cli api read` when a query matched no records.
+- OAuth token-acquisition failures (expired/revoked refresh token, unreachable token endpoint) now raise a clear `BfabricOAuthError` instead of leaking an `authlib`/`requests` traceback.
 
 ## \[1.20.0rc2\] - 2026-07-15
 
