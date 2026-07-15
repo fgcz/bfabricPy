@@ -234,7 +234,7 @@ class TestOAuthErrorHandling:
             token={"access_token": "stale", "refresh_token": "rt", "expires_at": 1},
         )
 
-        with pytest.raises(BfabricOAuthError, match="pkce") as exc_info:
+        with pytest.raises(BfabricOAuthError, match="login") as exc_info:
             provider.get_auth()
 
         assert "device-code" in str(exc_info.value)
