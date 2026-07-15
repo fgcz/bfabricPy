@@ -5,18 +5,16 @@ import inspect
 import os
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, Annotated, TypeVar, cast
+from typing import TYPE_CHECKING, Annotated, ClassVar, TypeVar, cast
 
 from loguru import logger
+from rich.highlighter import RegexHighlighter
+from rich.theme import Theme
 
 from bfabric.config import DEFAULT_CONFIG_FILE
 
-# Re-exported for backwards compatibility; the canonical location is bfabric.utils.console.
-from bfabric.utils.console import DEFAULT_THEME as DEFAULT_THEME
-from bfabric.utils.console import HostnameHighlighter as HostnameHighlighter
-
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Sequence
 
 T = TypeVar("T")
 
@@ -109,6 +107,16 @@ def use_client(fn: Callable[..., T], setup_logging: bool = True) -> Callable[...
     return wrapper
 
 
+DEFAULT_THEME = Theme({"bfabric.hostname": "bold red"})
+
+
+class HostnameHighlighter(RegexHighlighter):
+    """Highlights hostnames in URLs."""
+
+    base_style: ClassVar[str] = "bfabric."
+    highlights: ClassVar[Sequence[str]] = [r"https://(?P<hostname>[^.]+)"]
+
+
 def setup_script_logging(debug: bool = False) -> None:
     """Sets up the logging for the command line scripts."""
     setup_flag_key = "BFABRICPY_SCRIPT_LOGGING_SETUP"
@@ -135,9 +143,11 @@ def setup_script_logging(debug: bool = False) -> None:
             logger.disable(package)
     elif level == "DEBUG":
         for package in packages:
+            logger.enable(package)
             _ = logger.add(sys.stderr, filter=package, level="DEBUG")
     else:
         for package in packages:
+            logger.enable(package)
             _ = logger.add(sys.stderr, filter=package, level=level, format="{level} {message}")
 
     os.environ[setup_flag_key] = "1"
