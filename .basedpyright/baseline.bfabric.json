@@ -1530,14 +1530,6 @@
                     "endColumn": 101,
                     "lineCount": 1
                 }
-            },
-            {
-                "code": "reportReturnType",
-                "range": {
-                    "startColumn": 15,
-                    "endColumn": 84,
-                    "lineCount": 1
-                }
             }
         ],
         "./bfabric/src/bfabric/entities/core/mixins/user_created_mixin.py": [

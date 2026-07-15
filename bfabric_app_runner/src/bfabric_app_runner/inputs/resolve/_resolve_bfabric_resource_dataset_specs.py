@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 import polars as pl
 
 from bfabric.entities import Dataset, Resource
+from bfabric.entities.core.reader_utils import present_entities
 from bfabric_app_runner.inputs._filter_files import filter_dataframe
 from bfabric_app_runner.inputs.resolve._common import get_ssh_file_source
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedFile, ResolvedStaticFile
@@ -97,8 +98,7 @@ class ResolveBfabricResourceDatasetSpecs:
                 "tmp_resource_relative_path": r.storage_relative_path,
                 "tmp_resource_source": get_ssh_file_source(r),
             }
-            for r in self._client.reader.read_ids("resource", resource_ids, expected_type=Resource).values()
-            if r is not None
+            for r in present_entities(self._client.reader.read_ids("resource", resource_ids, expected_type=Resource))
         ]
 
         # Merge

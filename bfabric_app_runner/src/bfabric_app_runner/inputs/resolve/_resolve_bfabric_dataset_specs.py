@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, assert_never
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedStaticFile
 
 from bfabric.entities import Dataset
+from bfabric.entities.core.reader_utils import entities_by_id
 
 if TYPE_CHECKING:
     from bfabric_app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
@@ -20,13 +21,10 @@ class ResolveBfabricDatasetSpecs:
         if not specs:
             return []
 
-        # Fetch all datasets in bulk (re-keyed by id; missing ids are dropped, so a downstream
+        # Fetch all datasets in bulk, re-keyed by id (missing ids are dropped, so a downstream
         # ``datasets[dataset_id]`` raises ``KeyError`` for a not-found dataset, as before).
         dataset_ids = [spec.id for spec in specs]
-        datasets_by_uri = self._client.reader.read_ids("dataset", dataset_ids, expected_type=Dataset)
-        datasets = {
-            uri.components.entity_id: dataset for uri, dataset in datasets_by_uri.items() if dataset is not None
-        }
+        datasets = entities_by_id(self._client.reader.read_ids("dataset", dataset_ids, expected_type=Dataset))
 
         # Resolve each dataset specification to its serialized content
         return [

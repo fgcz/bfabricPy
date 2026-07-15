@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final
 
 from bfabric.entities import Resource
+from bfabric.entities.core.reader_utils import entities_by_id
 
 from bfabric_app_runner.inputs.resolve._common import get_http_file_source, get_ssh_file_source
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedFile
@@ -23,14 +24,11 @@ class ResolveBfabricResourceSpecs:
         if not specs:
             return []
 
-        # Fetch all resources and their storage information in bulk (re-keyed by id; missing ids are
+        # Fetch all resources and their storage information in bulk, re-keyed by id (missing ids are
         # dropped, so a downstream ``resources[resource_id]`` raises ``KeyError`` for a not-found
         # resource, as before).
         resource_ids = [spec.id for spec in specs]
-        resources_by_uri = self._client.reader.read_ids("resource", resource_ids, expected_type=Resource)
-        resources = {
-            uri.components.entity_id: resource for uri, resource in resources_by_uri.items() if resource is not None
-        }
+        resources = entities_by_id(self._client.reader.read_ids("resource", resource_ids, expected_type=Resource))
 
         # Create the file specs
         result: list[ResolvedFile] = []

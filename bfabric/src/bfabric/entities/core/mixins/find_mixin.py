@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import warnings
-from typing import TYPE_CHECKING, Protocol, TypeVar
+from typing import TYPE_CHECKING, Protocol, TypeVar, cast
 
 from loguru import logger
+
+from bfabric.entities.core.reader_utils import entities_by_id
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -45,8 +47,9 @@ class FindMixin:
             entity_ids=list(ids),
             expected_type=cls,  # pyright: ignore[reportArgumentType]
         )
-        results_by_id = {uri.components.entity_id: item for uri, item in results.items() if item is not None}
-        return _ensure_results_order(ids, results_by_id)
+        # ``entities_by_id`` is typed for ``Entity`` values, whereas ``FindMixin.T`` is the deprecated
+        # protocol-bound typevar; the runtime dict is correct, so bridge the two with a cast.
+        return _ensure_results_order(ids, cast("dict[int, T]", entities_by_id(results)))
 
     @classmethod
     def find_by(
@@ -63,7 +66,7 @@ class FindMixin:
         results = reader.query(
             entity_type=cls.ENDPOINT, obj=obj, bfabric_instance=bfabric_instance, max_results=max_results
         )
-        return {uri.components.entity_id: entity for uri, entity in results.items()}
+        return cast("dict[int, T]", entities_by_id(results))
 
 
 def _ensure_results_order(
