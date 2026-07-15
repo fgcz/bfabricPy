@@ -75,7 +75,7 @@ def cmd_workunit_upload(params: UploadParams, *, client: Bfabric) -> None:
 
     Creates a new workunit, or uploads into an existing one with ``--workunit-id``. Requires an
     OAuth-backed client with the ``tus`` scope; authenticate with
-    ``bfabric-cli auth pkce --scope "api:read api:write openid profile email groups tus"``.
+    ``bfabric-cli auth login --scope "api:read api:write openid profile email groups tus"``.
     """
     with _upload_progress(enabled=_progress_enabled(requested=params.progress)) as reporter:
         summary = upload_files(

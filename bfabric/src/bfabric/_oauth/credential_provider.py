@@ -149,7 +149,7 @@ class OAuthCredentialProvider:
             if self._grant_type == "refresh_token":
                 raise BfabricOAuthError(
                     f"OAuth session expired ({e}). Re-authenticate with "
-                    "'bfabric-cli auth pkce' or 'bfabric-cli auth device-code'."
+                    "'bfabric-cli auth login' or 'bfabric-cli auth device-code'."
                 ) from e
             raise BfabricOAuthError(f"OAuth token request failed: {e}") from e
         except AuthlibBaseError as e:

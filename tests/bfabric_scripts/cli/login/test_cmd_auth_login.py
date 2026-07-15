@@ -4,10 +4,10 @@ import time
 
 import yaml
 
-from bfabric_scripts.cli.login.pkce import cmd_login_pkce
+from bfabric_scripts.cli.login.pkce import cmd_auth_login
 
 
-class TestCmdLoginPkce:
+class TestCmdAuthLogin:
     def test_writes_config_and_caches_token(self, tmp_path, mocker):
         config_file = tmp_path / "config.yml"
         token = {
@@ -23,7 +23,7 @@ class TestCmdLoginPkce:
 
         mock_pkce = mocker.patch("bfabric_scripts.cli.login.pkce.pkce_login", return_value=token)
         mocker.patch("bfabric._oauth.credential_provider.OAuth2Session", return_value=mock_session)
-        cmd_login_pkce(
+        cmd_auth_login(
             base_url="https://example.com/bfabric",
             client_id="test-client",
             config_env="PROD",
@@ -50,7 +50,7 @@ class TestCmdLoginPkce:
 
         mocker.patch("bfabric_scripts.cli.login.pkce.pkce_login", return_value=token)
         mocker.patch("bfabric._oauth.credential_provider.OAuth2Session", return_value=mock_session)
-        cmd_login_pkce(
+        cmd_auth_login(
             base_url="https://example.com/bfabric",
             client_id="test-client",
             config_env="PROD",
