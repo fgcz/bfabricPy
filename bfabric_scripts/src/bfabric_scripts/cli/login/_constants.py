@@ -16,7 +16,7 @@ DEFAULT_CLIENT_ID = "CLI"
 # ``auth register-webapp``). Broad and OIDC-inclusive on purpose: a registered webapp
 # needs ``openid profile email groups`` for the user-identity claims it reads from the
 # URL-token exchange, which the login presets below intentionally omit.
-DEFAULT_OAUTH_SCOPE = "api:read api:write openid profile email groups"
+DEFAULT_REGISTRATION_SCOPE = "api:read api:write openid profile email groups"
 
 
 class ScopePreset(NamedTuple):

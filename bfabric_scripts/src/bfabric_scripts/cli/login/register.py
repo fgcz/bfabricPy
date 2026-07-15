@@ -12,7 +12,7 @@ import cyclopts
 
 from bfabric._oauth.registration import register_client
 from bfabric.config import DEFAULT_CONFIG_FILE
-from bfabric_scripts.cli.login._constants import DEFAULT_CLIENT_ID, DEFAULT_OAUTH_SCOPE
+from bfabric_scripts.cli.login._constants import DEFAULT_CLIENT_ID, DEFAULT_REGISTRATION_SCOPE
 
 
 def _resolve_token_from_config(config_env: str, config_file: Path) -> tuple[str, str]:
@@ -79,7 +79,7 @@ def cmd_login_register(
     service_user: Annotated[
         str | None, cyclopts.Parameter(help="Service user login (enables client_credentials grant).")
     ] = None,
-    scope: Annotated[str, cyclopts.Parameter(help="OAuth scope.")] = DEFAULT_OAUTH_SCOPE,
+    scope: Annotated[str, cyclopts.Parameter(help="OAuth scope.")] = DEFAULT_REGISTRATION_SCOPE,
     grant_types: Annotated[
         list[str] | None,
         cyclopts.Parameter(help="Grant types to request (overrides default webapp grants)."),
