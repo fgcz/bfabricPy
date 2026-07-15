@@ -617,6 +617,7 @@ Historically, before 1.14.0, a different versioning scheme was used.</p>
 <h2>[Unreleased]<a class="headerlink" href="#unreleased" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">ResultContainer.to_polars()</span></code> returns an empty DataFrame for an empty result set instead of raising <code class="docutils literal notranslate"><span class="pre">polars.exceptions.NoDataError</span></code>, fixing a crash in <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">api</span> <span class="pre">read</span></code> when a query matched no records.</p></li>
+<li><p>PKCE login: the browser callback page now renders a distinct, styled “Login failed” page showing the provider’s error (e.g. a two-factor-enrollment requirement) instead of always claiming “Login successful”.</p></li>
 <li><p>OAuth token-acquisition failures (expired/revoked refresh token, unreachable token endpoint) now raise a clear <code class="docutils literal notranslate"><span class="pre">BfabricOAuthError</span></code> instead of leaking an <code class="docutils literal notranslate"><span class="pre">authlib</span></code>/<code class="docutils literal notranslate"><span class="pre">requests</span></code> traceback.</p></li>
 </ul>
 </section>
