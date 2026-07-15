@@ -2,15 +2,9 @@ from __future__ import annotations
 
 import json
 
-import pytest
 import yaml
 
 from bfabric_scripts.cli.login.logout import cmd_login_logout
-
-
-@pytest.fixture(autouse=True)
-def _clear_config_env(monkeypatch):
-    monkeypatch.delenv("BFABRICPY_CONFIG_ENV", raising=False)
 
 
 def _write_config(config_file, *, default="PROD", extra_prod=None):

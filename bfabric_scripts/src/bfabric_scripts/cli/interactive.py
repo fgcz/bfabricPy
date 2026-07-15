@@ -41,7 +41,7 @@ def select_choice(
         items = [questionary.Choice(title=describe(choice), value=choice) for choice in choices]
     else:
         items = list(choices)
-    # questionary's ``ask()`` is typed ``Any``; the prompt only ever yields a choice or None.
+    # questionary's ``ask()`` is typed ``Any``; every prompt here yields its value or None on cancel.
     # With the search filter on, j/k must stop being navigation keys (they'd be swallowed as
     # filter input) -- questionary raises otherwise. Arrow keys keep working regardless.
     return cast(
@@ -61,7 +61,6 @@ def select_or_input(message: str, choices: Sequence[str], *, default: str | None
     # Autocomplete only reveals suggestions on Tab, which isn't discoverable -- hint it, but only
     # when there actually are suggestions to complete (a first-time prompt with no choices wouldn't).
     prompt = f"{message} (Tab to autocomplete)" if items else message
-    # questionary's ``ask()`` is typed ``Any``; the autocomplete prompt yields the text or None.
     answer = cast("str | None", questionary.autocomplete(prompt, choices=items, default=default or "").ask())
     return answer or None
 
@@ -71,7 +70,6 @@ def text_input(message: str, *, default: str = "") -> str | None:
 
     Returns the entered text, or ``None`` if the user cancels or submits an empty answer.
     """
-    # questionary's ``ask()`` is typed ``Any``; the text prompt yields the entered string or None.
     answer = cast("str | None", questionary.text(message, default=default).ask())
     return answer or None
 
@@ -82,7 +80,6 @@ def confirm(message: str, *, default: bool = False) -> bool:
     A cancel (Ctrl-C / Esc) yields ``None`` from questionary, which is treated as ``False`` --
     the safe answer for the destructive prompts this guards.
     """
-    # questionary's ``ask()`` is typed ``Any``; the confirm prompt yields a bool or None.
     answer = cast("bool | None", questionary.confirm(message, default=default).ask())
     return answer is True
 

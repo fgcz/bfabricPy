@@ -3,16 +3,10 @@ from __future__ import annotations
 import json
 import time
 
-import pytest
 import yaml
 
 from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
 from bfabric_scripts.cli.login.status import cmd_login_status
-
-
-@pytest.fixture(autouse=True)
-def _clear_config_env(monkeypatch):
-    monkeypatch.delenv("BFABRICPY_CONFIG_ENV", raising=False)
 
 
 class TestCmdLoginStatus:
