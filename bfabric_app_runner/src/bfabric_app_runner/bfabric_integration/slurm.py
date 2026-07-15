@@ -37,12 +37,12 @@ def submitter(
     """Submitter implementation for simple_submitter."""
     if entity_type == "externaljob":
         # Find the workunit to process
-        external_job = ExternalJob.find(id=j, client=client)
+        external_job = client.reader.read_id("externaljob", j, expected_type=ExternalJob)
         workunit = external_job.workunit
         if workunit is None:
             raise RuntimeError(f"External job {j} does not belong to a workunit (or it was deleted).")
     else:
-        workunit = Workunit.find(id=j, client=client)
+        workunit = client.reader.read_id("workunit", j, expected_type=Workunit)
 
     _submit_workunit(workunit=workunit, config_path=config_path)
 

@@ -4,6 +4,7 @@ import pytest
 import yaml
 from pytest_mock import MockerFixture
 
+from bfabric.entities import WorkflowStep, WorkflowTemplateStep
 from bfabric_app_runner.actions.execute import execute_run, execute_outputs, _ensure_dispatched, _register_workflow_step
 from bfabric_app_runner.actions.types import ActionDispatch, ActionRun, ActionInputs, ActionProcess, ActionOutputs
 
@@ -401,13 +402,11 @@ def test_register_workflow_step_creates_workflow_and_step(mocker, mock_client, m
     mock_workflow_template = mocker.Mock(id=999)
     mock_workflow_template_step = mocker.Mock(id=789, workflow_template=mock_workflow_template)
 
-    # Mock WorkflowTemplateStep.find
-    mock_wts_find = mocker.patch("bfabric_app_runner.actions.execute.WorkflowTemplateStep.find")
-    mock_wts_find.return_value = mock_workflow_template_step
+    # Mock reader.read_id for the workflow template step
+    mock_client.reader.read_id.return_value = mock_workflow_template_step
 
-    # Mock WorkflowStep.find_by to return None (not found, so will create)
-    mock_ws_find_by = mocker.patch("bfabric_app_runner.actions.execute.WorkflowStep.find_by")
-    mock_ws_find_by.return_value = None
+    # Mock reader.query_one to return None (workflow step not found, so it will be created)
+    mock_client.reader.query_one.return_value = None
 
     # Setup client mock responses for workflow lookup and creation
     mock_client.read.side_effect = [
@@ -429,8 +428,10 @@ def test_register_workflow_step_creates_workflow_and_step(mocker, mock_client, m
         "workunitid": 123,
         "datasetid": 9999,
     }
-    mock_wts_find.assert_called_once_with(id=789, client=mock_client)
-    mock_ws_find_by.assert_called_once_with(expected_workflowstep, client=mock_client)
+    mock_client.reader.read_id.assert_called_once_with("workflowtemplatestep", 789, expected_type=WorkflowTemplateStep)
+    mock_client.reader.query_one.assert_called_once_with(
+        "workflowstep", expected_workflowstep, expected_type=WorkflowStep
+    )
 
     # Verify client calls for workflow creation
     mock_client.read.assert_called_once_with("workflow", {"containerid": 456, "workflowtemplateid": 999})
@@ -444,8 +445,7 @@ def test_register_workflow_step_creates_workflow_and_step(mocker, mock_client, m
 
 def test_register_workflow_step_raises_when_step_not_found(mocker, mock_client, mock_workunit_definition):
     """A misconfigured step id must abort (raise), not silently skip and let the workunit finalize."""
-    mock_wts_find = mocker.patch("bfabric_app_runner.actions.execute.WorkflowTemplateStep.find")
-    mock_wts_find.return_value = None
+    mock_client.reader.read_id.return_value = None
 
     with pytest.raises(ValueError, match="workflow_template_step_id=789"):
         _register_workflow_step(789, mock_workunit_definition, mock_client)
@@ -456,8 +456,7 @@ def test_register_workflow_step_raises_when_step_not_found(mocker, mock_client, 
 def test_register_workflow_step_raises_when_no_workflow_template(mocker, mock_client, mock_workunit_definition):
     """A step whose workflow template is absent must abort (raise), not create a step against None."""
     mock_workflow_template_step = mocker.Mock(id=789, workflow_template=None)
-    mock_wts_find = mocker.patch("bfabric_app_runner.actions.execute.WorkflowTemplateStep.find")
-    mock_wts_find.return_value = mock_workflow_template_step
+    mock_client.reader.read_id.return_value = mock_workflow_template_step
 
     with pytest.raises(ValueError, match="has no workflow template"):
         _register_workflow_step(789, mock_workunit_definition, mock_client)

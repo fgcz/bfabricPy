@@ -91,7 +91,11 @@ class DispatchIndividualResources:
         config = self._config.dataset_flow
         if config is None:
             raise ValueError("dataset_flow is not configured")
-        dataset = Dataset.find(id=definition.execution.dataset, client=self._client)
+        dataset = self._client.reader.read_id(
+            "dataset",
+            definition.execution.dataset,  # pyright: ignore[reportArgumentType]
+            expected_type=Dataset,
+        )
         if dataset is None:
             msg = f"Dataset with id {definition.execution.dataset} not found"
             raise ValueError(msg)

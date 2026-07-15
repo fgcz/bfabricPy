@@ -20,9 +20,13 @@ class ResolveBfabricDatasetSpecs:
         if not specs:
             return []
 
-        # Fetch all datasets in bulk
+        # Fetch all datasets in bulk (re-keyed by id; missing ids are dropped, so a downstream
+        # ``datasets[dataset_id]`` raises ``KeyError`` for a not-found dataset, as before).
         dataset_ids = [spec.id for spec in specs]
-        datasets = Dataset.find_all(ids=dataset_ids, client=self._client)
+        datasets_by_uri = self._client.reader.read_ids("dataset", dataset_ids, expected_type=Dataset)
+        datasets = {
+            uri.components.entity_id: dataset for uri, dataset in datasets_by_uri.items() if dataset is not None
+        }
 
         # Resolve each dataset specification to its serialized content
         return [

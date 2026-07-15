@@ -82,7 +82,8 @@ class ResolveBfabricResourceDatasetSpecs:
         - tmp_resource_source: The source (URL or local path) of the resource
         """
         # Obtain dataset information
-        data = Dataset.find(id=spec.id, client=self._client).to_polars()
+        dataset = self._client.reader.read_id("dataset", spec.id, expected_type=Dataset)
+        data = dataset.to_polars()  # pyright: ignore[reportOptionalMemberAccess]
         input_column = self._select_input_column(data, spec.column)
         data = data.with_columns(pl.col(input_column).cast(pl.Int64))
 
@@ -96,7 +97,8 @@ class ResolveBfabricResourceDatasetSpecs:
                 "tmp_resource_relative_path": r.storage_relative_path,
                 "tmp_resource_source": get_ssh_file_source(r),
             }
-            for r in Resource.find_all(ids=resource_ids, client=self._client).values()
+            for r in self._client.reader.read_ids("resource", resource_ids, expected_type=Resource).values()
+            if r is not None
         ]
 
         # Merge

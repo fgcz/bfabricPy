@@ -4,6 +4,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+- Internal: migrated all read-path call sites off the deprecated `Entity.find`/`find_all`/`find_by` (`FindMixin`) API onto the modern `client.reader` (`read_id`/`read_ids`/`query_one`); no behavior change.
+
 ## \[0.7.0rc1\] - 2026-07-15
 
 - `SaveDatasetSpec` (the `bfabric_dataset` output) gains a `format` field (`csv` default, or `parquet`), so an output dataset can be registered from Parquet; `separator` is now optional (csv-only) ([#359](https://github.com/fgcz/bfabricPy/issues/359)).
