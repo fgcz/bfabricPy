@@ -10,7 +10,7 @@ from typing import Annotated
 import cyclopts
 
 from bfabric.config import DEFAULT_CONFIG_FILE
-from bfabric_scripts.cli.login._constants import DEFAULT_REGISTRATION_SCOPE
+from bfabric_scripts.cli.login._constants import DEFAULT_OAUTH_SCOPE
 
 
 def cmd_login_register_webapp(
@@ -22,7 +22,7 @@ def cmd_login_register_webapp(
     service_user: Annotated[
         str | None, cyclopts.Parameter(help="Service user login (enables client_credentials grant).")
     ] = None,
-    scope: Annotated[str, cyclopts.Parameter(help="OAuth scope.")] = DEFAULT_REGISTRATION_SCOPE,
+    scope: Annotated[str, cyclopts.Parameter(help="OAuth scope.")] = DEFAULT_OAUTH_SCOPE,
     application_id: Annotated[
         int | None, cyclopts.Parameter(help="Existing application ID to update (omit to create new).")
     ] = None,

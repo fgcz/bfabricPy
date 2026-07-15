@@ -25,10 +25,8 @@ if TYPE_CHECKING:
     from bfabric import Bfabric
     from bfabric.config import BfabricAuth
 
-# Re-auth hint shown when a required transfer scope (``tus`` for upload, ``containers`` for download)
-# is missing from the token: request read-write API access (``api:write`` implies ``api:read``) plus
-# the missing scope. ``{scope}`` is filled with whatever the failed operation needed.
-_PKCE_SCOPE_HINT = 'bfabric-cli auth login --scope "api:write {scope}"'
+# Scopes the CLI is pre-registered for but that DEFAULT_OAUTH_SCOPE does not request by default.
+_PKCE_SCOPE_HINT = 'bfabric-cli auth login --scope "api:read api:write openid profile email groups {scope}"'
 
 
 def _safe_auth(client: Bfabric) -> BfabricAuth | None:

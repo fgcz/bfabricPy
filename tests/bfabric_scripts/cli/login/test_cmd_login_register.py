@@ -5,7 +5,7 @@ import time
 import pytest
 import yaml
 
-from bfabric_scripts.cli.login._constants import DEFAULT_REGISTRATION_SCOPE
+from bfabric_scripts.cli.login._constants import DEFAULT_OAUTH_SCOPE
 from bfabric_scripts.cli.login.register import cmd_login_register
 
 
@@ -107,7 +107,7 @@ class TestCmdLoginRegister:
             client_name="My App",
             redirect_uri="http://localhost/callback",
             service_user=None,
-            scope=DEFAULT_REGISTRATION_SCOPE,
+            scope=DEFAULT_OAUTH_SCOPE,
             grant_types=None,
         )
         output = capsys.readouterr()
@@ -154,7 +154,7 @@ class TestCmdLoginRegister:
             client_name="My App",
             redirect_uri="http://localhost/callback",
             service_user=None,
-            scope=DEFAULT_REGISTRATION_SCOPE,
+            scope=DEFAULT_OAUTH_SCOPE,
             grant_types=None,
         )
 
