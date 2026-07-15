@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import time
 from pathlib import Path
 from typing import Annotated
 
@@ -14,6 +15,7 @@ from bfabric._oauth._constants import DEFAULT_CLIENT_ID
 from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric.config.config_file import ConfigFile
 from bfabric._oauth.token_cache import TokenCache, compute_token_cache_path
+from bfabric_scripts.cli.login._common import describe_scope, describe_token_cache
 
 
 def cmd_login_status(
@@ -43,19 +45,17 @@ def cmd_login_status(
 
     if env.auth_method == "oauth":
         client_id = env.client_id or DEFAULT_CLIENT_ID
-        print(f"Auth method:  oauth")
+        print("Auth method:  oauth")
         print(f"Client ID:    {client_id}")
         cache_path = compute_token_cache_path(env.config.base_url.rstrip("/"), client_id, resolved_env).expanduser()
         cached = TokenCache(cache_path).load()
-        if cached:
-            print(f"Token cache:  {cache_path} (present)")
-        else:
-            print(f"Token cache:  {cache_path} (missing)")
+        print(f"Token cache:  {cache_path} ({describe_token_cache(cached, now=time.time())})")
+        print(f"Scope:        {describe_scope(cached.get('scope') if cached else None)}")
     elif env.auth_method == "pat":
         print("Auth method:  pat")
         print("Token:        stored in config file")
     elif env.auth is not None:
-        print(f"Auth method:  password")
+        print("Auth method:  password")
         print(f"Login:        {env.auth.login}")
     else:
         print("Auth method:  none")

@@ -76,6 +76,17 @@ def text_input(message: str, *, default: str = "") -> str | None:
     return answer or None
 
 
+def confirm(message: str, *, default: bool = False) -> bool:
+    """Ask a yes/no question, returning the answer as a bool.
+
+    A cancel (Ctrl-C / Esc) yields ``None`` from questionary, which is treated as ``False`` --
+    the safe answer for the destructive prompts this guards.
+    """
+    # questionary's ``ask()`` is typed ``Any``; the confirm prompt yields a bool or None.
+    answer = cast("bool | None", questionary.confirm(message, default=default).ask())
+    return answer is True
+
+
 def resolve_choice(
     value: str | None,
     choices: Sequence[str],

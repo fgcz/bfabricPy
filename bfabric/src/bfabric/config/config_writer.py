@@ -9,7 +9,7 @@ from __future__ import annotations
 import copy
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import yaml
 
@@ -142,5 +142,45 @@ def set_default_config(config_path: Path, env_name: str) -> None:
     if not isinstance(general, dict):
         raise ValueError("Malformed config file: 'GENERAL' section is not a mapping.")
     general["default_config"] = env_name
+
+    _write_config_file(config_path, existing)
+
+
+def remove_environment_from_config(config_path: Path, env_name: str) -> None:
+    """Delete an environment section from the bfabricpy YAML config.
+
+    Removes the top-level *env_name* section and, if ``GENERAL.default_config`` pointed at it,
+    clears that default -- otherwise the reader (:class:`ConfigFile`) would refuse to load a file
+    whose default names a missing environment. Other environments and general settings are
+    preserved.
+
+    :param config_path: Path to the YAML config file (will be expanded).
+    :param env_name: Name of an existing environment to remove.
+    :raises FileNotFoundError: If the config file does not exist.
+    :raises ValueError: If *env_name* is not among the configured environments; the file is
+        left untouched in that case.
+    """
+    config_path = Path(config_path).expanduser()
+    if not config_path.is_file():
+        raise FileNotFoundError(f"Config file not found: {config_path}")
+
+    loaded: object = yaml.safe_load(config_path.read_text())  # pyright: ignore[reportAny]
+    existing: dict[str, object]
+    existing = loaded if isinstance(loaded, dict) else {}  # pyright: ignore[reportUnknownVariableType]
+
+    # Enumerate through the reader so the membership check matches how the file loads back.
+    # ConfigFile's "before" validators mutate their input in place, so validate a deep copy and
+    # keep ``existing`` pristine for the write.
+    config_file_obj = ConfigFile.model_validate(copy.deepcopy(existing))
+    if env_name not in config_file_obj.environments:
+        available = ", ".join(sorted(config_file_obj.environments)) or "(none)"
+        raise ValueError(f"Environment {env_name!r} is not defined. Available environments: {available}")
+
+    _ = existing.pop(env_name, None)
+    general = existing.get("GENERAL")
+    if isinstance(general, dict):
+        general_map = cast("dict[str, object]", general)
+        if general_map.get("default_config") == env_name:
+            _ = general_map.pop("default_config", None)
 
     _write_config_file(config_path, existing)

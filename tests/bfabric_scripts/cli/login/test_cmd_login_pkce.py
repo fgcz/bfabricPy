@@ -63,6 +63,35 @@ class TestCmdLoginPkce:
         assert "default_config" not in data["GENERAL"]
         assert data["PROD"]["auth_method"] == "oauth"
 
+    def test_prompts_for_default_when_omitted(self, tmp_path, mocker):
+        config_file = tmp_path / "config.yml"
+        token = {
+            "access_token": "jwt123",
+            "refresh_token": "rt456",
+            "token_type": "Bearer",
+            "expires_at": time.time() + 3600,
+        }
+        mock_session = mocker.MagicMock()
+        mock_session.token = None
+        mock_session.metadata = {"token_endpoint": "https://example.com/bfabric/rest/oauth/token"}
+        mocker.patch("bfabric_scripts.cli.login.pkce.pkce_login", return_value=token)
+        mocker.patch("bfabric._oauth.credential_provider.OAuth2Session", return_value=mock_session)
+        # No --set-default given: in a terminal the user is asked; here they decline.
+        mocker.patch("bfabric_scripts.cli.login._common.is_interactive", return_value=True)
+        confirm = mocker.patch("bfabric_scripts.cli.login._common.confirm", return_value=False)
+        cmd_login_pkce(
+            base_url="https://example.com/bfabric",
+            client_id="test-client",
+            config_env="PROD",
+            config_file=config_file,
+            scope="read-write",
+        )
+        confirm.assert_called_once()
+        data = yaml.safe_load(config_file.read_text())
+        # Declining the prompt means the environment is not made the default.
+        assert "default_config" not in data["GENERAL"]
+        assert data["PROD"]["auth_method"] == "oauth"
+
     def test_scope_preset_is_expanded(self, tmp_path, mocker):
         config_file = tmp_path / "config.yml"
         token = {

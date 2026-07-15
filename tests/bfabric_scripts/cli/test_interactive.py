@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import questionary
 
-from bfabric_scripts.cli.interactive import resolve_choice, select_choice, select_or_input, text_input
+from bfabric_scripts.cli.interactive import confirm, resolve_choice, select_choice, select_or_input, text_input
 
 
 class TestResolveChoice:
@@ -80,6 +80,28 @@ class TestSelectOrInput:
         autocomplete = mocker.patch("bfabric_scripts.cli.interactive.questionary.autocomplete", return_value=question)
         assert select_or_input("Pick", []) == "NEW"
         autocomplete.assert_called_once_with("Pick", choices=[], default="")
+
+
+class TestConfirm:
+    def test_returns_true_when_confirmed(self, mocker):
+        question = mocker.MagicMock()
+        question.ask.return_value = True
+        confirm_prompt = mocker.patch("bfabric_scripts.cli.interactive.questionary.confirm", return_value=question)
+        assert confirm("Delete?") is True
+        confirm_prompt.assert_called_once_with("Delete?", default=False)
+
+    def test_returns_false_when_declined(self, mocker):
+        question = mocker.MagicMock()
+        question.ask.return_value = False
+        mocker.patch("bfabric_scripts.cli.interactive.questionary.confirm", return_value=question)
+        assert confirm("Delete?") is False
+
+    def test_cancel_is_treated_as_false(self, mocker):
+        # Ctrl-C / Esc yields None; for a destructive prompt that must mean "no".
+        question = mocker.MagicMock()
+        question.ask.return_value = None
+        mocker.patch("bfabric_scripts.cli.interactive.questionary.confirm", return_value=question)
+        assert confirm("Delete?") is False
 
 
 class TestTextInput:

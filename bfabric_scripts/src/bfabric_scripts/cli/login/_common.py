@@ -1,19 +1,23 @@
-"""Shared parameter resolution for the ``auth`` login commands.
+"""Shared helpers for the ``auth`` command group.
 
-Both the environment name and the OAuth scope may be given on the command line, picked
-interactively, or (for the environment) typed as a new value. This centralizes that logic so
-``pkce`` / ``device_code`` / ``pat`` don't each re-implement it.
+Covers parameter resolution for the login commands (environment name and OAuth scope may be
+given on the command line, picked interactively, or -- for the environment -- typed as a new
+value) plus the rendering used by ``auth default`` / ``auth list`` / ``auth status``, so the
+individual commands don't each re-implement it.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import yaml
+from rich.console import Console
+from rich.text import Text
 
 from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
-from bfabric.config.config_file import ConfigFile
-from bfabric_scripts.cli.interactive import is_interactive, resolve_choice, select_choice, text_input
+from bfabric.config.config_file import ConfigFile, EnvironmentConfig
+from bfabric_scripts.cli.interactive import confirm, is_interactive, resolve_choice, select_choice, text_input
 
 # Named OAuth scope sets. Derived from DEFAULT_OAUTH_SCOPE so the "read-write" baseline and the
 # upload variant can't drift from the core default; only the read-only set drops ``api:write``.
@@ -93,3 +97,108 @@ def resolve_scope(scope: str | None) -> str | None:
     if picked == _CUSTOM:
         return text_input("Enter OAuth scopes (space-separated)", default=DEFAULT_OAUTH_SCOPE)
     return _SCOPE_PRESETS[picked]
+
+
+def resolve_set_default(set_default: bool | None, config_env: str) -> bool:
+    """Resolve whether the freshly-authenticated environment becomes the config default.
+
+    * explicit ``--set-default`` / ``--no-set-default`` (i.e. not ``None``) -> honored verbatim.
+    * otherwise, no TTY -> ``True`` (the historical default).
+    * otherwise -> a yes/no prompt, preselected yes.
+    """
+    if set_default is not None:
+        return set_default
+    if not is_interactive():
+        return True
+    return confirm(f"Set '{config_env}' as the default environment?", default=True)
+
+
+def _normalize_scope(scope: str) -> str:
+    """Order-insensitive form of a scope string for comparing against the presets."""
+    return " ".join(sorted(scope.split()))
+
+
+def describe_scope(scope: object) -> str:
+    """Render a granted OAuth scope for display, annotated with its preset name if it matches.
+
+    * a scope equal to a preset (order-insensitive) -> ``"<scopes>  [<preset>]"``
+    * any other non-empty scope -> the raw string
+    * missing / non-string (a cache without a recorded scope) -> ``"(not recorded)"``
+    """
+    if not isinstance(scope, str) or not scope.strip():
+        return "(not recorded)"
+    normalized = _normalize_scope(scope)
+    for slug, preset in _SCOPE_PRESETS.items():
+        if _normalize_scope(preset) == normalized:
+            return f"{scope}  [{slug}]"
+    return scope
+
+
+def _format_duration(seconds: float) -> str:
+    """A coarse ``~1h05m`` / ``~7m`` / ``<1m`` label for a positive remaining duration."""
+    minutes = int(seconds // 60)
+    if minutes >= 60:
+        hours, mins = divmod(minutes, 60)
+        return f"~{hours}h{mins:02d}m"
+    if minutes >= 1:
+        return f"~{minutes}m"
+    return "<1m"
+
+
+def describe_token_cache(cached: dict[str, object] | None, *, now: float) -> str:
+    """Summarize a cached OAuth token's freshness.
+
+    ``"missing"`` when absent; otherwise ``"present"``, extended with ``expired`` or
+    ``expires in ~…`` when the token carries a numeric ``expires_at`` (Unix seconds).
+    """
+    if cached is None:
+        return "missing"
+    expires_at = cached.get("expires_at")
+    if not isinstance(expires_at, (int, float)):
+        return "present"
+    remaining = float(expires_at) - now
+    if remaining <= 0:
+        return "present, expired"
+    return f"present, expires in {_format_duration(remaining)}"
+
+
+def auth_method_label(env: EnvironmentConfig) -> str:
+    """Label an environment's auth method, mirroring ``auth status``' precedence."""
+    if env.auth_method in ("oauth", "pat"):
+        return env.auth_method
+    if env.auth is not None:
+        return "password"
+    return "none"
+
+
+def environment_summary(env: EnvironmentConfig) -> str:
+    """A compact "host · auth-method" descriptor shown next to each environment name."""
+    base_url = str(env.config.base_url)
+    host = urlsplit(base_url).netloc or base_url
+    return f"{host} · {auth_method_label(env)}"
+
+
+def environment_line(name: str, *, summary: str, width: int, is_default: bool) -> Text:
+    """Render one environment row. Text (not markup) keeps names with "[" literal.
+
+    The current default is prefixed with a bold-green arrow so it stands out in a long list;
+    the "host · auth-method" summary trails the (padded) name.
+    """
+    padded = name.ljust(width)
+    if is_default:
+        # Chained appends (each returns the Text) keep the whole row in one expression.
+        return (
+            Text("→ ", style="bold green")
+            .append(padded, style="bold green")
+            .append(f"   {summary}", style="green")
+            .append("  (default)", style="green")
+        )
+    return Text("  ").append(padded).append(f"   {summary}", style="dim")
+
+
+def print_environments(console: Console, environments: dict[str, EnvironmentConfig], default: str | None) -> None:
+    """List the configured environments with their host/auth summary, marking the default."""
+    console.print("Configuration environments:")
+    width = max(len(name) for name in environments)
+    for name, env in environments.items():
+        console.print(environment_line(name, summary=environment_summary(env), width=width, is_default=name == default))

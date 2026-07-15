@@ -2,6 +2,7 @@ import cyclopts
 
 from bfabric_scripts.cli.login.default_config import cmd_auth_default
 from bfabric_scripts.cli.login.device_code import cmd_login_device_code
+from bfabric_scripts.cli.login.list import cmd_auth_list
 from bfabric_scripts.cli.login.logout import cmd_login_logout
 from bfabric_scripts.cli.login.pat import cmd_login_pat
 from bfabric_scripts.cli.login.pkce import cmd_login_pkce
@@ -18,3 +19,4 @@ _ = cmd_auth.command(cmd_login_register_webapp, name="register-webapp")
 _ = cmd_auth.command(cmd_login_status, name="status")
 _ = cmd_auth.command(cmd_login_logout, name="logout")
 _ = cmd_auth.command(cmd_auth_default, name="default")
+_ = cmd_auth.command(cmd_auth_list, name="list")
