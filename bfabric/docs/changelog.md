@@ -9,52 +9,18 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
-### Added
+## \[1.20.0rc2\] - 2026-07-15
 
-- New `bfabric.transfer` layer for moving files to and from B-Fabric, in a single namespace:
-    - Transport-agnostic movers: `fetch_to_path` (batch download over rsync / scp / cp / symlink / streamed HTTP — atomic and checksum-verified) and `send_to_sink` (resumable tus upload), plus the supporting `TransferSource*` / `TransferSink*` value objects, `Credentials`, `TransferError`, and checksum helpers. The tus mover is lazily imported and gated behind the `bfabric[transfer]` extra (`tuspy`), so download-only consumers never pull it in.
-    - B-Fabric domain binding: `ssh_source` / `http_source` (Resource → download sources), `UploadRestClient` + `tus_sink_for_resource` (`/rest/upload/*` → tus upload sink), `token_provider`, and fail-fast OAuth scope checks (`check_upload_scope` / `check_download_scope`).
-- `bfabric.operations.workunit.upload_files` — create or reuse a workunit and upload files as resources over tus, with duplicate skipping, optional `track_job` (a `UPLOAD` job flipped to DONE/FAILED), and failure cleanup. Exposed as `bfabric-cli workunit upload` (see the [workunit upload guide](user_guides/bfabric-cli/workunits.md#uploading-files)).
-- `bfabric/src/bfabric/examples/prove_tus_resume.py` — a live end-to-end proof of tus resumability (abort mid-transfer, resume from the saved URL).
-
-> **Note** — ported from the standalone `bfabric-tus-client` prototype. Not carried over: the `get-token` / `check-duplicates` CLI subcommands (the underlying `UploadRestClient` methods remain for library use) and the `workunit_url` helper.
-
-### Fixed
-
-- `HasOne` relationship descriptors are now correctly typed. Accessing a to-one relationship (e.g. `Resource.storage`, `Workunit.application`) resolves to the related entity type instead of raising a `reportAttributeAccessIssue` and degrading to `Unknown`. The descriptor is now generic over its return type, so required relationships are declared `HasOne[Storage]` and optional ones `HasOne[Storage | None]`. This removes the need for `cast` / `# pyright: ignore` workarounds at call sites. Runtime behaviour is unchanged.
-
-### Changed
-
-- `zeep` is now an optional dependency. The default install no longer pulls it in; install `bfabric[zeep]` to use `engine="zeep"`. Selecting the zeep engine without the extra installed now raises a clear `ImportError`. The default `suds` engine is unaffected.
-- Config: PAT (Personal Access Token) environments now store the token under a `pat` key together with `auth_method: pat`, instead of inlining it as `login: __oauth__` / `password: <token>`. Because a PAT is not 32 characters and an older (≤1.19.0) client validates *every* environment eagerly and enforces a 32-character password, the old shape made a single PAT environment poison the whole shared `~/.bfabricpy.yml` for those clients. The new shape has no `login`/`password`, so old clients ignore it and keep reading the rest of the file. The legacy `login: __oauth__` shape written by `1.20.0rc1` is still read.
-- Depend on `polars` (with the `rtcompat` extra on macOS x86_64) instead of the separate `polars-lts-cpu` distribution. Both packages shared the `polars` import name, so on macOS x86_64 they conflicted with `pandera[polars]`'s dependency on `polars`. polars ≥ 1.34's modular runtime (`polars[rtcompat]`) provides the AVX‑free build for Rosetta while keeping a single distribution across the workspace. Minimum polars bumped to 1.34.
-- Removed dead `if <required relationship> is None` guards (in `Workunit.store_output_folder` and `WorkunitExecutionDefinition.from_workunit`) that could never fire — a missing required relationship already raises `ValueError("Field '<name>' is required")` from the descriptor.
-- Added `runtime-evaluated-base-classes = ["pydantic.BaseModel"]` to the ruff `flake8-type-checking` config, so `TC001`/`TC002`/`TC003` no longer suggest moving imports used only in pydantic `BaseModel` field annotations into `if TYPE_CHECKING:` blocks (which would break at runtime, since pydantic resolves field annotations eagerly). Removed the now-unnecessary `# noqa: TC00x` workarounds this uncovered.
-
-## \[1.20.0rc1\] - 2026-06-23
-
-### Added
-
-- OAuth 2.0 authentication for the `Bfabric` client. New factory methods:
-    - `Bfabric.connect_oauth` — OAuth 2.0 client-credentials grant for service accounts / background jobs, with automatic token refresh and an optional on-disk token cache.
-    - `Bfabric.connect_pkce` — interactive browser login via Authorization Code + PKCE (RFC 7636).
-    - `Bfabric.connect_device_code` — headless interactive login via the Device Authorization Grant (RFC 8628).
-    - `Bfabric.connect_pat` — authenticate with an opaque Personal Access Token (bearer token; not verified locally and not auto-refreshed).
-    - `Bfabric.connect` now routes to OAuth automatically when the selected config environment sets `auth_method: oauth`, loading cached tokens from disk.
-- `WebappClient` and `WebappClient.create` — a dual-identity client bundling a `user` identity (from a B-Fabric URL token, via RFC 8693 token exchange) and a `service` identity (client-credentials), for applications launched from B-Fabric.
-- `BfabricOAuthError` in `bfabric.errors`, raised when an OAuth operation fails (token exchange, device-code, or PKCE flow).
-- Config: new `auth_method` (`"password"` | `"oauth"`) and `client_id` fields on an environment configuration, and `bfabric.config.write_environment_to_config` to create/update an environment section in `~/.bfabricpy.yml` with atomic, `0o600`-permission writes.
-- `bfabric.config.DEFAULT_CONFIG_FILE` constant for the default config path (`~/.bfabricpy.yml`).
-- New dependencies `authlib` and `joserfc` for the OAuth flows and JWT verification.
-
-    The OAuth primitives live in a private `bfabric._oauth` module; it is internal and not yet a stable public API — use the `Bfabric.connect_*` methods above.
-
-### Changed
-
-- `BfabricAuth` no longer requires the password to be exactly 32 characters for OAuth/PAT logins (the `__oauth__` sentinel login); password logins still require the 32-character key.
-- `Bfabric` now preserves its OAuth credential provider across pickling, so OAuth-authenticated clients keep working after a pickle round-trip (e.g. in FastAPI workers).
-- `ResultContainer.assert_success` now raises `RuntimeError` with a single human-readable message (`"Query was not successful: ..."`) instead of a `(message, errors)` tuple.
-- The `@use_client` CLI decorator now catches `ValueError`/`RuntimeError` raised while connecting or inside the wrapped command, printing a concise `Error: ...` to stderr and exiting with status 1 instead of dumping a traceback.
+- OAuth 2.0 authentication: `connect_oauth` (client-credentials grant, auto-refresh + optional token cache), `connect_pkce` (interactive browser login, PKCE), `connect_device_code` (headless device grant), and `connect_pat` (Personal Access Token). `connect` auto-routes to OAuth when an environment sets `auth_method: oauth`. Adds `BfabricOAuthError` and the `authlib` / `joserfc` dependencies.
+- `WebappClient` — a dual-identity client pairing a token-derived `user` identity with a `service` (client-credentials) identity, for apps launched from B-Fabric.
+- New `bfabric.transfer` layer for moving files to/from B-Fabric: `fetch_to_path` (batch download over rsync / scp / cp / symlink / HTTP, checksum-verified) and `send_to_sink` (resumable tus upload, behind the `bfabric[transfer]` extra), plus the B-Fabric bindings (`ssh_source` / `http_source`, `UploadRestClient`, `token_provider`, OAuth scope checks). Ported from the `bfabric-tus-client` prototype.
+- `bfabric.operations.workunit.upload_files` — create or reuse a workunit and upload files as resources over tus (duplicate-skipping, optional `track_job`, failure cleanup). Exposed as `bfabric-cli workunit upload`.
+- Config: new `auth_method` (`password`/`oauth`) and `client_id` environment fields, plus `write_environment_to_config` and `DEFAULT_CONFIG_FILE`. PAT environments store the token under a `pat` key with `auth_method: pat` (not `login: __oauth__` / `password:`), so they no longer make older (≤1.19.0) clients reject the shared `~/.bfabricpy.yml`.
+- `zeep` is now optional — install `bfabric[zeep]` to use `engine="zeep"`; the default `suds` engine is unaffected.
+- Use `polars` (with the `rtcompat` extra on macOS x86_64) instead of `polars-lts-cpu`, fixing a clash with `pandera[polars]`; minimum polars now 1.34.
+- `ResultContainer.assert_success` now raises `RuntimeError` with a single message instead of a `(message, errors)` tuple.
+- The `@use_client` CLI decorator now catches `ValueError` / `RuntimeError` and prints a concise `Error: ...` (exiting non-zero) instead of a traceback.
+- Internal: `HasOne` descriptors are now generic over their return type, so to-one accesses type-check to the related entity (no more `cast` / `# pyright: ignore`), with no runtime change; removed dead required-relationship guards; ruff now treats `pydantic.BaseModel` as runtime-evaluated (dropping `# noqa: TC00x` workarounds).
 
 ## \[1.19.0\] - 2026-06-10
 
