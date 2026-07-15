@@ -130,7 +130,7 @@ class Bfabric:
         if not config_data.client_id:
             raise ValueError(
                 "OAuth config is missing 'client_id'. Set it in the config environment "
-                "(e.g. re-run 'bfabric-cli auth pkce' or 'bfabric-cli auth device-code')."
+                "(e.g. re-run 'bfabric-cli auth login' or 'bfabric-cli auth device-code')."
             )
         client_id = config_data.client_id
         env_name = config_data.env_name or "default"
