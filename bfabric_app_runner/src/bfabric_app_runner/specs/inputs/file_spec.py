@@ -1,12 +1,9 @@
 from __future__ import annotations
 
-from typing import Literal, TYPE_CHECKING, Self
+from typing import Literal, Self
 
 from bfabric_app_runner.specs.common_types import RelativeFilePath, AbsoluteFilePath
 from pydantic import BaseModel, model_validator
-
-if TYPE_CHECKING:
-    from bfabric import Bfabric
 
 
 class FileSourceLocal(BaseModel):
@@ -104,7 +101,3 @@ class FileSpec(BaseModel):
     def get_filename(self) -> str:
         """Returns the filename, extracting it from the source if it was omitted."""
         return self.filename if self.filename else self.source.get_filename()
-
-    def resolve_filename(self, client: Bfabric) -> str:
-        # TODO delete
-        return self.get_filename()
