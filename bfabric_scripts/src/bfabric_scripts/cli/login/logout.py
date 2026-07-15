@@ -70,6 +70,11 @@ def cmd_login_logout(
         return
 
     env = environments[config_env]
+    # Removing the current default leaves the config with no default (a dangling default would make
+    # it unloadable, so it is cleared). Only worth flagging when other environments remain to
+    # default to; otherwise "no default" is moot.
+    leaves_no_default = config_env == config_file_obj.general.default_config and len(names) > 1
+
     if not no_confirm:
         if not is_interactive():
             print(
@@ -77,17 +82,24 @@ def cmd_login_logout(
                 file=sys.stderr,
             )
             return
-        if not confirm(
+        prompt = (
             f"Remove environment '{config_env}' ({environment_summary(env)})? "
             "This deletes its config entry and any cached OAuth tokens."
-        ):
+        )
+        if leaves_no_default:
+            prompt += " It is the current default; afterwards no default will be set."
+        if not confirm(prompt):
             print("No changes made.")
             return
 
+    # Remove the config entry first: if that write fails, the cached token is left untouched so the
+    # environment stays fully usable, rather than losing its token to a half-completed removal.
+    remove_environment_from_config(config_path, config_env)
     if env.auth_method == "oauth":
         client_id = env.client_id or DEFAULT_CLIENT_ID
         cache_path = compute_token_cache_path(env.config.base_url.rstrip("/"), client_id, config_env).expanduser()
         TokenCache(cache_path).clear()
 
-    remove_environment_from_config(config_path, config_env)
     print(f"Removed environment '{config_env}'.")
+    if leaves_no_default:
+        print("It was the default environment; set a new default with 'bfabric-cli auth default <env>'.")

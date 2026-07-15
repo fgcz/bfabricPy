@@ -30,7 +30,7 @@ def select_choice(
 ) -> str | None:
     """Show an arrow-key menu of *choices* and return the picked value.
 
-    Returns ``None`` if the user cancels (Ctrl-C / Esc). *default* pre-selects an entry and
+    Returns ``None`` if the user cancels (Ctrl-C). *default* pre-selects an entry and
     must be one of *choices* (pass ``None`` otherwise). *describe* maps each value to the label
     shown in the menu (e.g. to append a host or auth method); the return value is still the
     plain choice, never its label. With *search*, the user can type to filter the list live
@@ -77,7 +77,7 @@ def text_input(message: str, *, default: str = "") -> str | None:
 def confirm(message: str, *, default: bool = False) -> bool:
     """Ask a yes/no question, returning the answer as a bool.
 
-    A cancel (Ctrl-C / Esc) yields ``None`` from questionary, which is treated as ``False`` --
+    A cancel (Ctrl-C) yields ``None`` from questionary, which is treated as ``False`` --
     the safe answer for the destructive prompts this guards.
     """
     answer = cast("bool | None", questionary.confirm(message, default=default).ask())

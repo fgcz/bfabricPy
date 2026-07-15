@@ -199,6 +199,6 @@ def environment_line(name: str, *, summary: str, width: int, is_default: bool) -
 def print_environments(console: Console, environments: dict[str, EnvironmentConfig], default: str | None) -> None:
     """List the configured environments with their host/auth summary, marking the default."""
     console.print("Configuration environments:")
-    width = max(len(name) for name in environments)
+    width = max((len(name) for name in environments), default=0)
     for name, env in environments.items():
         console.print(environment_line(name, summary=environment_summary(env), width=width, is_default=name == default))

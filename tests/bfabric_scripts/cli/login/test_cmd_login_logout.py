@@ -44,6 +44,19 @@ class TestCmdLoginLogout:
         data = yaml.safe_load(config_file.read_text())
         assert data.get("GENERAL", {}).get("default_config") is None
 
+    def test_removing_default_env_points_to_auth_default(self, tmp_path, capsys, mocker):
+        config_file = tmp_path / "config.yml"
+        _write_config(config_file, default="PROD")
+        mocker.patch("bfabric_scripts.cli.login.logout.compute_token_cache_path", return_value=tmp_path / "tok.json")
+
+        cmd_login_logout("PROD", config_file=config_file, no_confirm=True)
+
+        output = capsys.readouterr().out
+        # Removing the default while TEST remains must tell the user no default is set and how to fix it.
+        assert "auth default" in output
+        data = yaml.safe_load(config_file.read_text())
+        assert data.get("GENERAL", {}).get("default_config") is None
+
     def test_removes_non_oauth_env_without_touching_cache(self, tmp_path, capsys, mocker):
         config_file = tmp_path / "config.yml"
         _write_config(config_file, default="PROD")
