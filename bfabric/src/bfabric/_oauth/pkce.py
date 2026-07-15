@@ -25,7 +25,6 @@ from urllib.parse import parse_qs, urlencode, urlparse
 import httpx
 from loguru import logger
 
-from bfabric._oauth._constants import DEFAULT_CLIENT_ID, DEFAULT_OAUTH_SCOPE
 from bfabric.errors import BfabricOAuthError
 
 
@@ -128,8 +127,8 @@ def _exchange_code(
 def pkce_login(
     base_url: str,
     *,
-    client_id: str = DEFAULT_CLIENT_ID,
-    scope: str = DEFAULT_OAUTH_SCOPE,
+    client_id: str,
+    scope: str,
     port: int = 0,
     open_browser: bool = True,
     timeout: float = 120.0,

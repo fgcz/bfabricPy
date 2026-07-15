@@ -5,8 +5,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
-
 if TYPE_CHECKING:
     from pathlib import Path
 
@@ -35,7 +33,7 @@ class WebappClient:
         *,
         client_id: str,
         client_secret: str,
-        scope: str = DEFAULT_OAUTH_SCOPE,
+        scope: str,
         user_token_cache_path: Path | None = None,
         service_token_cache_path: Path | None = None,
     ) -> WebappClient:

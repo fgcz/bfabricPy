@@ -10,9 +10,9 @@ from typing import Annotated
 
 import cyclopts
 
-from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
 from bfabric._oauth.registration import register_client
 from bfabric.config import DEFAULT_CONFIG_FILE
+from bfabric_scripts.cli.login._constants import DEFAULT_CLIENT_ID, DEFAULT_OAUTH_SCOPE
 
 
 def _resolve_token_from_config(config_env: str, config_file: Path) -> tuple[str, str]:
@@ -23,7 +23,6 @@ def _resolve_token_from_config(config_env: str, config_file: Path) -> tuple[str,
     """
     import yaml
 
-    from bfabric._oauth._constants import DEFAULT_CLIENT_ID
     from bfabric._oauth.credential_provider import OAuthCredentialProvider
     from bfabric._oauth.token_cache import compute_token_cache_path
     from bfabric.config.config_file import ConfigFile

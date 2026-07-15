@@ -6,12 +6,14 @@ import pytest
 from pydantic import SecretStr
 
 from bfabric import Bfabric, BfabricAPIEngineType, BfabricClientConfig, BfabricAuth
-from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
 from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.config.config_data import ConfigData
 from bfabric.engine.engine_suds import EngineSUDS
 from bfabric.entities.core.entity_reader import EntityReader
+
+# The core OAuth API no longer bakes in a default scope; tests pass it explicitly.
+_TEST_SCOPE = "api:read api:write"
 
 
 @pytest.fixture
@@ -449,6 +451,19 @@ def test_repr(bfabric_instance, variant):
     )
 
 
+class TestConnectOAuthFromConfig:
+    def test_raises_when_client_id_missing(self, mocker):
+        mocker.patch.object(Bfabric, "_log_version_message")
+        config_data = ConfigData(
+            client=BfabricClientConfig(base_url="https://example.com/bfabric"),
+            auth=None,
+            auth_method="oauth",
+            client_id=None,
+        )
+        with pytest.raises(ValueError, match="missing 'client_id'"):
+            Bfabric._connect_oauth_from_config(config_data)
+
+
 class TestConnectOAuth:
     def test_creates_instance_with_provider(self, mocker):
         mocker.patch.object(Bfabric, "_log_version_message")
@@ -458,13 +473,14 @@ class TestConnectOAuth:
             client_id="my-id",
             client_secret="my-secret",
             base_url="https://example.com/bfabric",
+            scope=_TEST_SCOPE,
         )
 
         mock_provider_cls.assert_called_once_with(
             client_id="my-id",
             client_secret="my-secret",
             token_url="https://example.com/bfabric/rest/oauth/token",
-            scope=DEFAULT_OAUTH_SCOPE,
+            scope=_TEST_SCOPE,
             grant_type="client_credentials",
             token_cache_path=None,
         )
@@ -496,6 +512,7 @@ class TestConnectOAuth:
             client_id="id",
             client_secret="secret",
             base_url="https://example.com/bfabric/",
+            scope=_TEST_SCOPE,
         )
 
         assert client.config.base_url == "https://example.com/bfabric/"
@@ -559,23 +576,25 @@ class TestConnectPkce:
 
         client = Bfabric.connect_pkce(
             base_url="https://example.com/bfabric",
+            client_id="my-cli",
+            scope=_TEST_SCOPE,
         )
 
         mock_pkce_login.assert_called_once_with(
             "https://example.com/bfabric",
-            client_id="CLI",
-            scope=DEFAULT_OAUTH_SCOPE,
+            client_id="my-cli",
+            scope=_TEST_SCOPE,
             port=0,
             open_browser=True,
             timeout=120.0,
         )
         mock_provider_cls.assert_called_once_with(
-            client_id="CLI",
+            client_id="my-cli",
             client_secret="",
             token_url="https://example.com/bfabric/rest/oauth/token",
             token=mock_pkce_login.return_value,
             grant_type="refresh_token",
-            scope=DEFAULT_OAUTH_SCOPE,
+            scope=_TEST_SCOPE,
             token_cache_path=None,
         )
         assert client._credential_provider == mock_provider_cls.return_value
@@ -620,6 +639,8 @@ class TestConnectPkce:
 
         client = Bfabric.connect_pkce(
             base_url="https://example.com/bfabric///",
+            client_id="my-cli",
+            scope=_TEST_SCOPE,
         )
 
         assert client.config.base_url == "https://example.com/bfabric/"
@@ -640,21 +661,23 @@ class TestConnectDeviceCode:
 
         client = Bfabric.connect_device_code(
             base_url="https://example.com/bfabric",
+            client_id="my-cli",
+            scope=_TEST_SCOPE,
         )
 
         mock_device_code_login.assert_called_once_with(
             "https://example.com/bfabric",
-            client_id="CLI",
-            scope=DEFAULT_OAUTH_SCOPE,
+            client_id="my-cli",
+            scope=_TEST_SCOPE,
             timeout=600.0,
         )
         mock_provider_cls.assert_called_once_with(
-            client_id="CLI",
+            client_id="my-cli",
             client_secret="",
             token_url="https://example.com/bfabric/rest/oauth/token",
             token=mock_device_code_login.return_value,
             grant_type="refresh_token",
-            scope=DEFAULT_OAUTH_SCOPE,
+            scope=_TEST_SCOPE,
             token_cache_path=None,
         )
         assert client._credential_provider == mock_provider_cls.return_value
@@ -695,6 +718,8 @@ class TestConnectDeviceCode:
 
         client = Bfabric.connect_device_code(
             base_url="https://example.com/bfabric///",
+            client_id="my-cli",
+            scope=_TEST_SCOPE,
         )
 
         assert client.config.base_url == "https://example.com/bfabric/"

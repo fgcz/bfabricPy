@@ -14,7 +14,6 @@ Private module under `bfabric/src/bfabric/_oauth/` implementing all OAuth primit
 
 | File | Purpose |
 |------|---------|
-| `_constants.py` | `DEFAULT_CLIENT_ID = "CLI"`, `DEFAULT_OAUTH_SCOPE = "api:read api:write openid profile email groups"` |
 | `credential_provider.py` | `OAuthCredentialProvider` — thread-safe token management with automatic refresh and disk caching. Supports both `client_credentials` and `refresh_token` grant types. |
 | `pkce.py` | `pkce_login()` — browser-based PKCE flow. Starts a local HTTP server, opens the browser, exchanges the authorization code for tokens. |
 | `device_code.py` | `device_code_login()` — RFC 8628 device authorization flow for headless environments. |
@@ -22,6 +21,8 @@ Private module under `bfabric/src/bfabric/_oauth/` implementing all OAuth primit
 | `token_cache.py` | `TokenCache` — JSON file cache at `~/.bfabric/tokens/{hash}.json` with 0o600 permissions. `compute_token_cache_path()` derives a unique path from `(base_url, client_id, env_name)`. |
 | `url_token.py` | `UrlTokenContext` + `parse_url_token()` — extracts entity context (entity_id, application_id, etc.) from B-Fabric URL token JWTs. |
 | `webapp_client.py` | `WebappClient` — dual-identity client bundling a `user` (from URL token) and `service` (from client credentials) `Bfabric` instance. |
+
+The core `_oauth` API is policy-free: `client_id` and `scope` are **required** arguments on all OAuth entry points — the library does not bake in a default client ID or scope. The CLI-facing defaults (`DEFAULT_CLIENT_ID = "CLI"`, `DEFAULT_OAUTH_SCOPE = "api:read api:write openid profile email groups"`) live with the CLI in `bfabric_scripts/.../cli/login/_constants.py`, where they belong as application policy.
 
 ---
 

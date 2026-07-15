@@ -28,7 +28,6 @@ from typing import TYPE_CHECKING, Any, Literal
 from loguru import logger
 from rich.console import Console
 
-from bfabric._oauth._constants import DEFAULT_CLIENT_ID, DEFAULT_OAUTH_SCOPE
 from bfabric.config import DEFAULT_CONFIG_FILE, BfabricAuth, BfabricClientConfig
 from bfabric.config.bfabric_client_config import BfabricAPIEngineType
 from bfabric.config.config_data import ConfigData, load_config_data
@@ -128,7 +127,12 @@ class Bfabric:
         from bfabric._oauth.token_cache import TokenCache, compute_token_cache_path
 
         base_url = config_data.client.base_url.rstrip("/")
-        client_id = config_data.client_id or DEFAULT_CLIENT_ID
+        if not config_data.client_id:
+            raise ValueError(
+                "OAuth config is missing 'client_id'. Set it in the config environment "
+                "(e.g. re-run 'bfabric-cli auth pkce' or 'bfabric-cli auth device-code')."
+            )
+        client_id = config_data.client_id
         env_name = config_data.env_name or "default"
         cache_path = compute_token_cache_path(base_url, client_id, env_name).expanduser()
         if not TokenCache(cache_path).load():
@@ -230,7 +234,7 @@ class Bfabric:
         client_secret: str,
         base_url: str,
         *,
-        scope: str = DEFAULT_OAUTH_SCOPE,
+        scope: str,
         token_cache_path: Path | None = None,
     ) -> Bfabric:
         """Returns a new Bfabric instance that authenticates via OAuth 2.0 client credentials.
@@ -266,8 +270,8 @@ class Bfabric:
         cls,
         base_url: str,
         *,
-        client_id: str = DEFAULT_CLIENT_ID,
-        scope: str = DEFAULT_OAUTH_SCOPE,
+        client_id: str,
+        scope: str,
         port: int = 0,
         open_browser: bool = True,
         timeout: float = 120.0,
@@ -318,8 +322,8 @@ class Bfabric:
         cls,
         base_url: str,
         *,
-        client_id: str = DEFAULT_CLIENT_ID,
-        scope: str = DEFAULT_OAUTH_SCOPE,
+        client_id: str,
+        scope: str,
         timeout: float = 600.0,
         token_cache_path: Path | None = None,
     ) -> Bfabric:

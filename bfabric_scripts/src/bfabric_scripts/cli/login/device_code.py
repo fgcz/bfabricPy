@@ -7,12 +7,12 @@ from typing import Annotated
 
 import cyclopts
 
-from bfabric._oauth._constants import DEFAULT_CLIENT_ID, DEFAULT_OAUTH_SCOPE
 from bfabric._oauth.credential_provider import OAuthCredentialProvider
 from bfabric._oauth.device_code import device_code_login
 from bfabric._oauth.token_cache import compute_token_cache_path
 from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric.config.config_writer import write_environment_to_config
+from bfabric_scripts.cli.login._constants import DEFAULT_CLIENT_ID, DEFAULT_OAUTH_SCOPE
 
 
 def cmd_login_device_code(
