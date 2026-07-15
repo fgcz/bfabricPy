@@ -136,7 +136,7 @@ class Bfabric:
         env_name = config_data.env_name or "default"
         cache_path = compute_token_cache_path(base_url, client_id, env_name).expanduser()
         if not TokenCache(cache_path).load():
-            raise ValueError("No OAuth tokens found. Run 'bfabric-cli auth pkce' or 'bfabric-cli auth device-code'.")
+            raise ValueError("No OAuth tokens found. Run 'bfabric-cli auth login' or 'bfabric-cli auth device-code'.")
         provider = OAuthCredentialProvider(
             client_id=client_id,
             client_secret="",

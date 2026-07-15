@@ -109,6 +109,41 @@ class TestCallbackServer:
         assert server.result.code is None
         server.server_close()
 
+    @staticmethod
+    def _fetch_callback(query: str) -> str:
+        """Drive one loopback callback request and return the HTML response body."""
+        server = _CallbackServer(port=0)
+        port = server.server_address[1]
+        body = {}
+
+        def make_request():
+            body["text"] = httpx.get(f"http://127.0.0.1:{port}/callback?{query}").text
+
+        server_thread = threading.Thread(target=server.serve_forever, daemon=True)
+        server_thread.start()
+        make_request()
+        server_thread.join(timeout=5)
+        server.server_close()
+        return body["text"]
+
+    def test_success_page_rendered(self):
+        html = self._fetch_callback("code=auth_code_123&state=csrf_state_456")
+        assert "Login successful" in html
+        assert "Login failed" not in html
+
+    def test_error_page_rendered(self):
+        html = self._fetch_callback(
+            "error=access_denied&error_description=Access+requires+two-factor+authentication&state=s"
+        )
+        assert "Login failed" in html
+        assert "Access requires two-factor authentication" in html
+        assert "Login successful" not in html
+
+    def test_error_description_is_html_escaped(self):
+        html = self._fetch_callback("error=access_denied&error_description=<script>alert(1)</script>")
+        assert "&lt;script&gt;" in html
+        assert "<script>alert(1)</script>" not in html
+
 
 class TestExchangeCode:
     def test_posts_correct_params(self, mocker):

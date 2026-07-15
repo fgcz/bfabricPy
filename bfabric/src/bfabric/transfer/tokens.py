@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from bfabric.config import BfabricAuth
 
 # Scopes the CLI is pre-registered for but that DEFAULT_OAUTH_SCOPE does not request by default.
-_PKCE_SCOPE_HINT = 'bfabric-cli auth pkce --scope "api:read api:write openid profile email groups {scope}"'
+_PKCE_SCOPE_HINT = 'bfabric-cli auth login --scope "api:read api:write openid profile email groups {scope}"'
 
 
 def _safe_auth(client: Bfabric) -> BfabricAuth | None:

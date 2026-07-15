@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import html
 import secrets
 import sys
 import threading
@@ -58,6 +59,56 @@ class _AuthorizationResult:
     error_description: str | None = None
 
 
+_PAGE_TEMPLATE = """<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{title}</title>
+<style>
+  :root {{ color-scheme: light dark; }}
+  body {{ font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+          margin: 0; min-height: 100vh; display: flex;
+          align-items: center; justify-content: center; background: #f5f5f7; }}
+  .card {{ max-width: 28rem; padding: 2.5rem 3rem; text-align: center;
+           background: #fff; border-radius: 12px;
+           box-shadow: 0 4px 24px rgba(0,0,0,.08); }}
+  .icon {{ font-size: 3rem; line-height: 1; color: {accent}; }}
+  h1 {{ margin: .75rem 0 .5rem; font-size: 1.4rem; color: {accent}; }}
+  p {{ margin: .25rem 0; color: #555; }}
+  @media (prefers-color-scheme: dark) {{
+    body {{ background: #1c1c1e; }} .card {{ background: #2c2c2e; box-shadow: none; }}
+    p {{ color: #aaa; }}
+  }}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">{icon}</div>
+    <h1>{title}</h1>
+    {body}
+  </div>
+</body>
+</html>"""
+
+
+def _render_callback_page(result: _AuthorizationResult) -> bytes:
+    """Build the HTML page shown in the browser after the OAuth redirect.
+
+    No auto-close / close button: browsers only let scripts close windows they
+    opened themselves, so ``window.close()`` is a no-op for this browser-navigated
+    tab. We just tell the user they can close it.
+    """
+    if result.error is not None or result.code is None:
+        accent, icon, title = "#cf222e", "✕", "Login failed"
+        detail = result.error_description or result.error or "No authorization code was received."
+        body = f"<p>{html.escape(detail)}</p><p>You can close this tab and return to your terminal.</p>"
+    else:
+        accent, icon, title = "#1a7f37", "✓", "Login successful"
+        body = "<p>You can close this tab and return to your terminal.</p>"
+    return _PAGE_TEMPLATE.format(accent=accent, icon=icon, title=title, body=body).encode("utf-8")
+
+
 class _CallbackHandler(BaseHTTPRequestHandler):
     """HTTP request handler that captures the OAuth authorization callback."""
 
@@ -65,17 +116,18 @@ class _CallbackHandler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:  # noqa: N802
         qs = parse_qs(urlparse(self.path).query)
-        self.server.result = _AuthorizationResult(
+        result = _AuthorizationResult(
             code=qs.get("code", [None])[0],
             state=qs.get("state", [None])[0],
             error=qs.get("error", [None])[0],
             error_description=qs.get("error_description", [None])[0],
         )
+        self.server.result = result
 
         self.send_response(200)
-        self.send_header("Content-Type", "text/html")
+        self.send_header("Content-Type", "text/html; charset=utf-8")
         self.end_headers()
-        _ = self.wfile.write(b"<html><body><h1>Login successful</h1>" b"<p>You can close this tab.</p></body></html>")
+        _ = self.wfile.write(_render_callback_page(result))
 
         # Shut down the server from a daemon thread so this handler can return.
         threading.Thread(target=self.server.shutdown, daemon=True).start()

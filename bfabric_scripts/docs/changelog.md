@@ -13,7 +13,7 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 ## \[1.16.0rc2\] - 2026-07-15
 
 - `bfabric-cli auth` command group for OAuth authentication and client management:
-    - Login: `auth pkce` (browser), `auth device-code` (headless), `auth pat` (Personal Access Token).
+    - Login: `auth login` (browser), `auth device-code` (headless), `auth pat` (Personal Access Token).
     - `auth register` / `auth register-webapp` — dynamic client registration, optionally with a linked B-Fabric app.
     - `auth default` / `auth default set [CONFIG_ENV]` — show and set the default environment (interactive picker when no value is given).
     - `auth status` and `auth logout`.
