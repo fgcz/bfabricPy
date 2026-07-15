@@ -21,6 +21,11 @@ def res_with_empty() -> ResultContainer:
     return ResultContainer([{"a": None, "b": 1, "c": []}, {"a": 2, "b": 3, "c": None}], total_pages_api=None, errors=[])
 
 
+@pytest.fixture
+def res_empty() -> ResultContainer:
+    return ResultContainer([], total_pages_api=1, errors=[])
+
+
 def test_str(res1, res2):
     assert str(res1) == "[1, 2, 3]"
     assert str(res2) == "[4, 5]"
@@ -109,6 +114,18 @@ def test_to_list_dict_when_not_drop_empty(res_with_empty, case):
 def test_to_list_dict_when_drop_empty(res_with_empty):
     expected = [{"b": 1}, {"a": 2, "b": 3}]
     assert expected == res_with_empty.to_list_dict(drop_empty=True)
+
+
+def test_to_list_dict_when_empty(res_empty):
+    assert res_empty.to_list_dict() == []
+    assert res_empty.to_list_dict(drop_empty=True) == []
+
+
+@pytest.mark.parametrize("flatten", [False, True])
+def test_to_polars_when_empty(res_empty, flatten):
+    df = res_empty.to_polars(flatten=flatten)
+    assert df.is_empty()
+    assert df.columns == []
 
 
 def test_to_polars(res1):

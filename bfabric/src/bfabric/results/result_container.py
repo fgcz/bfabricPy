@@ -123,7 +123,11 @@ class ResultContainer:
 
         from bfabric.utils.polars_utils import flatten_relations
 
-        df = polars.from_dicts(self.to_list_dict(drop_empty=drop_empty), infer_schema_length=None)
+        records = self.to_list_dict(drop_empty=drop_empty)
+        if not records:
+            # An empty result set has no schema to infer; from_dicts([]) would raise NoDataError.
+            return polars.DataFrame()
+        df = polars.from_dicts(records, infer_schema_length=None)
         if flatten:
             df = flatten_relations(df)
         return df
