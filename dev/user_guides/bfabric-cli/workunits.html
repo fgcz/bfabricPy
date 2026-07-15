@@ -580,7 +580,7 @@ files): it streams in chunks, skips duplicates, and can resume an interrupted tr
 <p>The upload path requires the <code class="docutils literal notranslate"><span class="pre">tus</span></code> optional dependency and an <strong>OAuth-backed</strong> client whose token
 carries the <code class="docutils literal notranslate"><span class="pre">tus</span></code> scope. Install the extra and authenticate once:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">&#39;bfabric[transfer]&#39;</span>
-bfabric-cli<span class="w"> </span>auth<span class="w"> </span>pkce<span class="w"> </span>--scope<span class="w"> </span><span class="s2">&quot;api:read api:write openid profile email groups tus&quot;</span>
+bfabric-cli<span class="w"> </span>auth<span class="w"> </span>login<span class="w"> </span>--scope<span class="w"> </span><span class="s2">&quot;api:read api:write openid profile email groups tus&quot;</span>
 </pre></div>
 </div>
 </section>
