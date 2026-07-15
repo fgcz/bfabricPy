@@ -15,23 +15,15 @@ import yaml
 from rich.console import Console
 from rich.text import Text
 
-from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
 from bfabric.config.config_file import ConfigFile, EnvironmentConfig
 from bfabric_scripts.cli.interactive import confirm, is_interactive, resolve_choice, select_choice, text_input
+from bfabric_scripts.cli.login._constants import (
+    DEFAULT_LOGIN_SCOPE,
+    DEFAULT_SCOPE_PRESET,
+    SCOPE_PRESETS,
+    SCOPE_PRESETS_BY_NAME,
+)
 
-# Named OAuth scope sets. Derived from DEFAULT_OAUTH_SCOPE so the "read-write" baseline and the
-# upload variant can't drift from the core default; only the read-only set drops ``api:write``.
-_SCOPE_PRESETS: dict[str, str] = {
-    "read-only": "api:read openid profile email groups",
-    "read-write": DEFAULT_OAUTH_SCOPE,
-    "read-write-upload": f"{DEFAULT_OAUTH_SCOPE} tus",
-}
-_SCOPE_LABELS: dict[str, str] = {
-    "read-only": "read-only api",
-    "read-write": "read-write api",
-    "read-write-upload": "read-write api + upload (tus)",
-}
-_DEFAULT_SCOPE_PRESET = "read-write"
 # Interactive-only sentinel: choosing it opens a free-text prompt for raw scopes.
 _CUSTOM = "custom"
 
@@ -66,11 +58,12 @@ def resolve_config_env(config_env: str | None, config_file: Path) -> str | None:
 
 
 def _scope_menu_label(choice: str) -> str:
-    """Menu label for a scope preset (name + the scopes it maps to) or the Custom entry."""
-    width = max(len(label) for label in _SCOPE_LABELS.values())
+    """Menu label for a scope preset (description + the scopes it maps to) or the Custom entry."""
+    width = max(len(preset.description) for preset in SCOPE_PRESETS)
     if choice == _CUSTOM:
         return f"{'Custom…'.ljust(width)}   (enter scopes manually)"
-    return f"{_SCOPE_LABELS[choice].ljust(width)}   {_SCOPE_PRESETS[choice]}"
+    preset = SCOPE_PRESETS_BY_NAME[choice]
+    return f"{preset.description.ljust(width)}   {preset.scope}"
 
 
 def resolve_scope(scope: str | None) -> str | None:
@@ -78,25 +71,26 @@ def resolve_scope(scope: str | None) -> str | None:
 
     * *scope* given -> a preset name expands to its scope string; anything else passes through
       as a raw space-separated scope string.
-    * no TTY -> the ``read-write`` default (``DEFAULT_OAUTH_SCOPE``).
+    * no TTY -> the ``read-write`` default (``DEFAULT_LOGIN_SCOPE``).
     * otherwise -> interactive picker of the named presets plus a Custom option that opens a
       free-text prompt. Returns ``None`` if the user cancels.
     """
     if scope is not None:
-        return _SCOPE_PRESETS.get(scope, scope)
+        preset = SCOPE_PRESETS_BY_NAME.get(scope)
+        return preset.scope if preset is not None else scope
     if not is_interactive():
-        return DEFAULT_OAUTH_SCOPE
+        return DEFAULT_LOGIN_SCOPE
     picked = select_choice(
         "Select OAuth scope set",
-        [*_SCOPE_PRESETS, _CUSTOM],
-        default=_DEFAULT_SCOPE_PRESET,
+        [preset.name for preset in SCOPE_PRESETS] + [_CUSTOM],
+        default=DEFAULT_SCOPE_PRESET,
         describe=_scope_menu_label,
     )
     if picked is None:
         return None
     if picked == _CUSTOM:
-        return text_input("Enter OAuth scopes (space-separated)", default=DEFAULT_OAUTH_SCOPE)
-    return _SCOPE_PRESETS[picked]
+        return text_input("Enter OAuth scopes (space-separated)", default=DEFAULT_LOGIN_SCOPE)
+    return SCOPE_PRESETS_BY_NAME[picked].scope
 
 
 def resolve_set_default(set_default: bool | None, config_env: str) -> bool | None:
@@ -128,9 +122,9 @@ def describe_scope(scope: object) -> str:
     if not isinstance(scope, str) or not scope.strip():
         return "(not recorded)"
     normalized = _normalize_scope(scope)
-    for slug, preset in _SCOPE_PRESETS.items():
-        if _normalize_scope(preset) == normalized:
-            return f"{scope}  [{slug}]"
+    for preset in SCOPE_PRESETS:
+        if _normalize_scope(preset.scope) == normalized:
+            return f"{scope}  [{preset.name}]"
     return scope
 
 

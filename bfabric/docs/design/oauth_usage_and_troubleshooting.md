@@ -75,8 +75,10 @@ Key identity difference: **client_credentials tokens carry no user `sub` and no 
 like `containers`.** If a resource server authorizes by *your* container membership, a service
 token won't do — you need a user flow (PKCE or device code).
 
-`DEFAULT_OAUTH_SCOPE` is `"api:read api:write openid profile email groups"` — it **includes
-`groups`** (the employee file-access path, see below) but not `containers` or `download`.
+The core `Bfabric` OAuth methods take `client_id` and `scope` as **required** arguments — there is
+no baked-in default. The `bfabric-cli` login commands default the scope to
+`"api:read api:write openid profile email groups"` — it **includes `groups`** (the employee
+file-access path, see below) but not `containers` or `download`.
 
 ---
 
@@ -92,13 +94,14 @@ File/download access is authorized by **container membership**, which a token ca
 > **Employees: request the `groups` scope — this is the practical PKCE path.**
 > The **`containers` scope cannot be requested via PKCE** (it is restricted; the server silently
 > drops it — which is exactly why requesting `containers` in an interactive flow yields a token
-> *without* the claim and no error). **`groups`, however, is requestable and is already in
-> `DEFAULT_OAUTH_SCOPE`.** So an employee gets file access from a normal user flow as long as
+> *without* the claim and no error). **`groups`, however, is requestable and is in the CLI's
+> default scope.** So an employee gets file access from a normal user flow as long as
 > `groups` is in the requested scope:
 >
 > ```python
 > client = Bfabric.connect_pkce(
 >     "https://fgcz-bfabric-demo.uzh.ch/bfabric",
+>     client_id="CLI",
 >     scope="openid profile email api:read api:write groups",
 > )
 > ```

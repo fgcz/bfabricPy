@@ -4,7 +4,6 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
-from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
 from bfabric._oauth.url_token import UrlTokenContext
 from bfabric._oauth.webapp_client import WebappClient
 
@@ -52,6 +51,7 @@ class TestWebappClientCreate:
             launch_token="short.lived.jwt",
             client_id="app-id",
             client_secret="app-secret",
+            scope="api:read",
         )
 
         assert wc.service is mock_service_client
@@ -71,6 +71,7 @@ class TestWebappClientCreate:
             launch_token="my.launch.jwt",
             client_id="cid",
             client_secret="csecret",
+            scope="api:read",
         )
 
         mock_exchange.assert_called_once_with(
@@ -92,6 +93,7 @@ class TestWebappClientCreate:
             launch_token="jwt",
             client_id="cid",
             client_secret="csecret",
+            scope="api:read",
         )
 
         mock_verify.assert_called_once_with(
@@ -111,6 +113,7 @@ class TestWebappClientCreate:
             launch_token="jwt",
             client_id="cid",
             client_secret="csecret",
+            scope="api:read",
             user_token_cache_path="/tmp/user_cache",
         )
 
@@ -146,22 +149,6 @@ class TestWebappClientCreate:
             scope="api:read",
             token_cache_path="/tmp/svc_cache",
         )
-
-    def test_default_scope(self, mocker, mock_token_dict):
-        mocker.patch(_PATCH_EXCHANGE, return_value=mock_token_dict)
-        mocker.patch(_PATCH_VERIFY_JWT, return_value=dict(SAMPLE_CLAIMS))
-        mocker.patch(_PATCH_PROVIDER)
-        mock_connect_oauth = mocker.patch(_PATCH_CONNECT_OAUTH, return_value=mocker.MagicMock())
-        mocker.patch(_PATCH_LOG)
-
-        WebappClient.create(
-            base_url="https://bfabric.example.com/bfabric",
-            launch_token="jwt",
-            client_id="cid",
-            client_secret="csecret",
-        )
-
-        assert mock_connect_oauth.call_args.kwargs["scope"] == DEFAULT_OAUTH_SCOPE
 
 
 class TestWebappClientFrozen:
@@ -207,6 +194,7 @@ class TestWebappClientIndependence:
             launch_token="jwt",
             client_id="cid",
             client_secret="csecret",
+            scope="api:read",
         )
 
         assert wc.user is not wc.service

@@ -5,7 +5,7 @@ import time
 import pytest
 import yaml
 
-from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
+from bfabric_scripts.cli.login._constants import DEFAULT_OAUTH_SCOPE
 from bfabric_scripts.cli.login.register import cmd_login_register
 
 

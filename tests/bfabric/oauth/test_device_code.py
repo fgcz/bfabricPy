@@ -3,7 +3,6 @@ from __future__ import annotations
 import httpx
 import pytest
 
-from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
 from bfabric._oauth.device_code import (
     _poll_for_token,
     _request_device_code,
@@ -290,7 +289,7 @@ class TestDeviceCodeLogin:
 
         mocker.patch("bfabric._oauth.device_code._request_device_code", return_value=device_response)
         mocker.patch("bfabric._oauth.device_code._poll_for_token", return_value={"access_token": "at"})
-        device_code_login("https://example.com/bfabric")
+        device_code_login("https://example.com/bfabric", client_id="test-cli", scope="api:read")
 
         captured = capsys.readouterr()
         assert "https://example.com/device?user_code=WXYZ-9876" in captured.err
@@ -311,12 +310,12 @@ class TestDeviceCodeLogin:
             "bfabric._oauth.device_code._poll_for_token",
             return_value={"access_token": "at"},
         )
-        device_code_login("https://example.com/bfabric///")
+        device_code_login("https://example.com/bfabric///", client_id="test-cli", scope="api:read")
 
         mock_request.assert_called_once_with(
             "https://example.com/bfabric",
-            client_id="CLI",
-            scope=DEFAULT_OAUTH_SCOPE,
+            client_id="test-cli",
+            scope="api:read",
         )
         assert mock_poll.call_args[0][0] == "https://example.com/bfabric"
 
@@ -332,6 +331,6 @@ class TestDeviceCodeLogin:
             "bfabric._oauth.device_code._poll_for_token",
             return_value={"access_token": "at"},
         )
-        device_code_login("https://example.com/bfabric")
+        device_code_login("https://example.com/bfabric", client_id="test-cli", scope="api:read")
 
         assert mock_poll.call_args[1]["interval"] == 5.0

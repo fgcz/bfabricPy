@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import yaml
 
-from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
+from bfabric_scripts.cli.login._constants import DEFAULT_LOGIN_SCOPE
 from bfabric_scripts.cli.login._common import (
     describe_scope,
     describe_token_cache,
@@ -72,21 +72,21 @@ class TestResolveConfigEnv:
 
 class TestResolveScope:
     def test_preset_slug_expands(self):
-        assert resolve_scope("read-only") == "api:read openid profile email groups"
-        assert resolve_scope("read-write") == DEFAULT_OAUTH_SCOPE
-        assert resolve_scope("read-write-upload") == f"{DEFAULT_OAUTH_SCOPE} tus"
+        assert resolve_scope("read-only") == "api:read"
+        assert resolve_scope("read-write") == "api:write"
+        assert resolve_scope("upload") == "api:write tus"
 
     def test_raw_string_passthrough(self):
         assert resolve_scope("api:read custom:thing") == "api:read custom:thing"
 
     def test_non_interactive_defaults_to_read_write(self, mocker):
         mocker.patch("bfabric_scripts.cli.login._common.is_interactive", return_value=False)
-        assert resolve_scope(None) == DEFAULT_OAUTH_SCOPE
+        assert resolve_scope(None) == DEFAULT_LOGIN_SCOPE
 
     def test_interactive_preset_pick_expands(self, mocker):
         mocker.patch("bfabric_scripts.cli.login._common.is_interactive", return_value=True)
-        mocker.patch("bfabric_scripts.cli.login._common.select_choice", return_value="read-write-upload")
-        assert resolve_scope(None) == f"{DEFAULT_OAUTH_SCOPE} tus"
+        mocker.patch("bfabric_scripts.cli.login._common.select_choice", return_value="upload")
+        assert resolve_scope(None) == "api:write tus"
 
     def test_interactive_custom_prompts_for_raw_scopes(self, mocker):
         mocker.patch("bfabric_scripts.cli.login._common.is_interactive", return_value=True)
@@ -104,9 +104,9 @@ class TestResolveScope:
 class TestDescribeScope:
     def test_matched_preset_is_annotated(self):
         # A granted scope equal to a preset (order-insensitive) is annotated with the preset name.
-        scope = f"tus {DEFAULT_OAUTH_SCOPE}"  # reordered to prove match is order-insensitive
+        scope = "tus api:write"  # reordered to prove match is order-insensitive
         described = describe_scope(scope)
-        assert "read-write-upload" in described
+        assert "upload" in described
         assert "tus" in described
 
     def test_unmatched_scope_shown_raw(self):

@@ -5,7 +5,7 @@ import time
 
 import yaml
 
-from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
+from bfabric_scripts.cli.login._constants import SCOPE_PRESETS_BY_NAME
 from bfabric_scripts.cli.login.status import cmd_login_status
 
 
@@ -105,13 +105,19 @@ class TestCmdLoginStatus:
         )
         cache_path = tmp_path / "tok.json"
         cache_path.write_text(
-            json.dumps({"access_token": "x", "scope": f"{DEFAULT_OAUTH_SCOPE} tus", "expires_at": time.time() + 9000})
+            json.dumps(
+                {
+                    "access_token": "x",
+                    "scope": SCOPE_PRESETS_BY_NAME["upload"].scope,
+                    "expires_at": time.time() + 9000,
+                }
+            )
         )
         mocker.patch("bfabric_scripts.cli.login.status.compute_token_cache_path", return_value=cache_path)
         cmd_login_status(config_file=config_file)
         output = capsys.readouterr().out
-        # The granted scope matches the read-write-upload preset and the token is still valid.
-        assert "read-write-upload" in output
+        # The granted scope matches the upload preset and the token is still valid.
+        assert "upload" in output
         assert "expires in" in output
 
     def test_missing_config_file(self, tmp_path, capsys):

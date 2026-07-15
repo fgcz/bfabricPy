@@ -4,8 +4,11 @@ import threading
 import time
 
 import pytest
+from authlib.integrations.base_client.errors import OAuthError
+from requests.exceptions import ConnectionError as RequestsConnectionError
 
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
+from bfabric.errors import BfabricOAuthError
 from bfabric._oauth.credential_provider import OAuthCredentialProvider
 
 
@@ -211,6 +214,60 @@ class TestRefreshToken:
         )
         call_kwargs = cls.call_args
         assert call_kwargs[1]["grant_type"] == "refresh_token"
+
+
+class TestOAuthErrorHandling:
+    """authlib's OAuthError (extends Exception, not RuntimeError) must be wrapped as
+    BfabricOAuthError so callers get an actionable message and the CLI's RuntimeError
+    handler surfaces it cleanly instead of leaking a traceback."""
+
+    def test_refresh_failure_raises_bfabric_oauth_error(self, mock_oauth2_session):
+        """An expired/revoked refresh token maps to an actionable BfabricOAuthError."""
+        oauth_error = OAuthError(error="invalid_grant", description="Refresh token is invalid, expired, or revoked")
+        mock_oauth2_session.token = {"access_token": "stale", "refresh_token": "rt", "expires_at": 1}
+        mock_oauth2_session.ensure_active_token.side_effect = oauth_error
+        provider = OAuthCredentialProvider(
+            client_id="app-id",
+            client_secret="",
+            token_url="https://example.com/rest/oauth/token",
+            grant_type="refresh_token",
+            token={"access_token": "stale", "refresh_token": "rt", "expires_at": 1},
+        )
+
+        with pytest.raises(BfabricOAuthError, match="login") as exc_info:
+            provider.get_auth()
+
+        assert "device-code" in str(exc_info.value)
+        assert exc_info.value.__cause__ is oauth_error
+
+    def test_initial_fetch_failure_raises_bfabric_oauth_error(self, provider, mock_oauth2_session):
+        """A failing initial client_credentials fetch maps to BfabricOAuthError."""
+        oauth_error = OAuthError(error="invalid_client", description="bad client")
+        mock_oauth2_session.token = None
+        mock_oauth2_session.fetch_token.side_effect = oauth_error
+
+        with pytest.raises(BfabricOAuthError) as exc_info:
+            provider.get_auth()
+
+        assert exc_info.value.__cause__ is oauth_error
+
+    def test_transport_failure_raises_bfabric_oauth_error(self, mock_oauth2_session):
+        """An unreachable token endpoint (requests error) maps to BfabricOAuthError, not a raw traceback."""
+        transport_error = RequestsConnectionError("connection refused")
+        mock_oauth2_session.token = {"access_token": "stale", "refresh_token": "rt", "expires_at": 1}
+        mock_oauth2_session.ensure_active_token.side_effect = transport_error
+        provider = OAuthCredentialProvider(
+            client_id="app-id",
+            client_secret="",
+            token_url="https://example.com/rest/oauth/token",
+            grant_type="refresh_token",
+            token={"access_token": "stale", "refresh_token": "rt", "expires_at": 1},
+        )
+
+        with pytest.raises(BfabricOAuthError, match="Could not reach") as exc_info:
+            provider.get_auth()
+
+        assert exc_info.value.__cause__ is transport_error
 
 
 class TestDiskCache:

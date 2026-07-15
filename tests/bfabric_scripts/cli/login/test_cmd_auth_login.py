@@ -2,15 +2,15 @@ from __future__ import annotations
 
 import yaml
 
-from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
-from bfabric_scripts.cli.login.pkce import cmd_login_pkce
+from bfabric_scripts.cli.login._constants import SCOPE_PRESETS_BY_NAME
+from bfabric_scripts.cli.login.pkce import cmd_auth_login
 
 
-class TestCmdLoginPkce:
+class TestCmdAuthLogin:
     def test_writes_config_and_caches_token(self, tmp_path, mocker, oauth_token, oauth_session):
         config_file = tmp_path / "config.yml"
         mock_pkce = mocker.patch("bfabric_scripts.cli.login.pkce.pkce_login", return_value=oauth_token)
-        cmd_login_pkce(
+        cmd_auth_login(
             base_url="https://example.com/bfabric",
             client_id="test-client",
             config_env="PROD",
@@ -26,7 +26,7 @@ class TestCmdLoginPkce:
     def test_set_default_false_does_not_set_default(self, tmp_path, mocker, oauth_token, oauth_session):
         config_file = tmp_path / "config.yml"
         mocker.patch("bfabric_scripts.cli.login.pkce.pkce_login", return_value=oauth_token)
-        cmd_login_pkce(
+        cmd_auth_login(
             base_url="https://example.com/bfabric",
             client_id="test-client",
             config_env="PROD",
@@ -44,7 +44,7 @@ class TestCmdLoginPkce:
         # No --set-default given: in a terminal the user is asked; here they decline.
         mocker.patch("bfabric_scripts.cli.login._common.is_interactive", return_value=True)
         confirm = mocker.patch("bfabric_scripts.cli.login._common.confirm", return_value=False)
-        cmd_login_pkce(
+        cmd_auth_login(
             base_url="https://example.com/bfabric",
             client_id="test-client",
             config_env="PROD",
@@ -63,7 +63,7 @@ class TestCmdLoginPkce:
         # No --set-default given: the user reaches the confirm prompt and cancels it (Ctrl-C -> None).
         mocker.patch("bfabric_scripts.cli.login._common.is_interactive", return_value=True)
         mocker.patch("bfabric_scripts.cli.login._common.confirm", return_value=None)
-        cmd_login_pkce(
+        cmd_auth_login(
             base_url="https://example.com/bfabric",
             client_id="test-client",
             config_env="PROD",
@@ -78,15 +78,15 @@ class TestCmdLoginPkce:
     def test_scope_preset_is_expanded(self, tmp_path, mocker, oauth_token, oauth_session):
         config_file = tmp_path / "config.yml"
         mock_pkce = mocker.patch("bfabric_scripts.cli.login.pkce.pkce_login", return_value=oauth_token)
-        cmd_login_pkce(
+        cmd_auth_login(
             base_url="https://example.com/bfabric",
             client_id="test-client",
             config_env="PROD",
             config_file=config_file,
-            scope="read-write-upload",
+            scope="upload",
         )
         # The preset name expands to the real scope string requested from the OAuth flow.
-        assert mock_pkce.call_args.kwargs["scope"] == f"{DEFAULT_OAUTH_SCOPE} tus"
+        assert mock_pkce.call_args.kwargs["scope"] == SCOPE_PRESETS_BY_NAME["upload"].scope
 
     def test_config_env_omitted_falls_back_to_current_default(self, tmp_path, mocker, oauth_token, oauth_session):
         config_file = tmp_path / "config.yml"
@@ -101,7 +101,7 @@ class TestCmdLoginPkce:
         mocker.patch("bfabric_scripts.cli.login.pkce.pkce_login", return_value=oauth_token)
         # No TTY (pytest) and no --config-env => reuse the current default env, not PRODUCTION.
         mocker.patch("bfabric_scripts.cli.login._common.is_interactive", return_value=False)
-        cmd_login_pkce(base_url="https://example.com/bfabric", client_id="c", config_file=config_file)
+        cmd_auth_login(base_url="https://example.com/bfabric", client_id="c", config_file=config_file)
         data = yaml.safe_load(config_file.read_text())
         assert data["EXISTING"]["base_url"] == "https://example.com/bfabric"
         assert "PRODUCTION" not in data

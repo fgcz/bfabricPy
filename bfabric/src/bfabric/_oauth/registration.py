@@ -7,8 +7,6 @@ from typing import TYPE_CHECKING, TypedDict, cast
 import httpx
 from loguru import logger
 
-from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
-
 if TYPE_CHECKING:
     from bfabric.bfabric import Bfabric
     from bfabric.results.result_container import ResultContainer
@@ -40,7 +38,7 @@ def register_client(
     redirect_uri: str,
     *,
     service_user: str | None = None,
-    scope: str = DEFAULT_OAUTH_SCOPE,
+    scope: str,
     grant_types: list[str] | None = None,
 ) -> dict[str, object]:
     """Register a new OAuth client with the B-Fabric server.
@@ -91,7 +89,7 @@ def register_webapp(
     web_url: str,
     *,
     service_user: str | None = None,
-    scope: str = DEFAULT_OAUTH_SCOPE,
+    scope: str,
     application_id: int | None = None,
     technology_id: int | None = None,
     description: str | None = None,

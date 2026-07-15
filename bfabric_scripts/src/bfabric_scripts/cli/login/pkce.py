@@ -1,4 +1,4 @@
-"""PKCE (browser-based) login command."""
+"""Browser-based login command (OAuth PKCE flow)."""
 
 from __future__ import annotations
 
@@ -7,16 +7,16 @@ from typing import Annotated
 
 import cyclopts
 
-from bfabric._oauth._constants import DEFAULT_CLIENT_ID
 from bfabric._oauth.credential_provider import OAuthCredentialProvider
 from bfabric._oauth.pkce import pkce_login
 from bfabric._oauth.token_cache import compute_token_cache_path
 from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric.config.config_writer import write_environment_to_config
 from bfabric_scripts.cli.login._common import resolve_config_env, resolve_scope, resolve_set_default
+from bfabric_scripts.cli.login._constants import DEFAULT_CLIENT_ID
 
 
-def cmd_login_pkce(
+def cmd_auth_login(
     base_url: Annotated[str, cyclopts.Parameter(help="B-Fabric instance URL.")],
     *,
     client_id: Annotated[str, cyclopts.Parameter(help="OAuth client ID.")] = DEFAULT_CLIENT_ID,
@@ -27,7 +27,7 @@ def cmd_login_pkce(
     scope: Annotated[
         str | None,
         cyclopts.Parameter(
-            help="OAuth scope preset (read-only | read-write | read-write-upload) or a raw scope string "
+            help="OAuth scope preset (read-only | read-write | upload) or a raw scope string "
             "(interactive picker if omitted)."
         ),
     ] = None,
@@ -38,7 +38,7 @@ def cmd_login_pkce(
         cyclopts.Parameter(help="Set this environment as the default in the config file (prompted if omitted)."),
     ] = None,
 ) -> None:
-    """Authenticate via browser-based PKCE flow."""
+    """Authenticate via browser-based login (OAuth PKCE flow)."""
     import sys
 
     config_env = resolve_config_env(config_env, config_file)

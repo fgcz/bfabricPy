@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import yaml
 
-from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
+from bfabric_scripts.cli.login._constants import SCOPE_PRESETS_BY_NAME
 from bfabric_scripts.cli.login.device_code import cmd_login_device_code
 
 
@@ -64,6 +64,6 @@ class TestCmdLoginDeviceCode:
             client_id="test-client",
             config_env="PROD",
             config_file=config_file,
-            scope="read-write-upload",
+            scope="upload",
         )
-        assert mock_dc.call_args.kwargs["scope"] == f"{DEFAULT_OAUTH_SCOPE} tus"
+        assert mock_dc.call_args.kwargs["scope"] == SCOPE_PRESETS_BY_NAME["upload"].scope

@@ -10,12 +10,12 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 ## \[Unreleased\]
 
-- `auth pkce` / `auth device-code` / `auth pat`: cancelling the interactive "set as default?" prompt (Ctrl-C) now aborts the login instead of silently proceeding as if `--no-set-default` were given.
+- `auth login` / `auth device-code` / `auth pat`: cancelling the interactive "set as default?" prompt (Ctrl-C) now aborts the login instead of silently proceeding as if `--no-set-default` were given.
 
 ## \[1.16.0rc2\] - 2026-07-15
 
 - `bfabric-cli auth` command group for OAuth authentication and client management:
-    - Login: `auth pkce` (browser), `auth device-code` (headless), `auth pat` (Personal Access Token). When `--config-env` is omitted the command prompts for the environment (pick an existing one or type a new name, prefilled with the current default); non-interactively it targets the current default env, else `PRODUCTION`. `auth pkce` / `auth device-code` accept `--scope` as a named preset (`read-only` / `read-write` / `read-write-upload`, the last adding the `tus` upload scope) or a raw scope string, with an interactive picker (plus a Custom option) when omitted. Unless `--set-default` / `--no-set-default` is given, the command asks (default yes) whether the new environment should become the config default.
+    - Login: `auth login` (browser), `auth device-code` (headless), `auth pat` (Personal Access Token). When `--config-env` is omitted the command prompts for the environment (pick an existing one or type a new name, prefilled with the current default); non-interactively it targets the current default env, else `PRODUCTION`. `auth login` / `auth device-code` accept `--scope` as a named preset (`read-only` / `read-write` / `upload`, the last adding the `tus` upload scope) or a raw scope string, with an interactive picker (plus a Custom option) when omitted. Unless `--set-default` / `--no-set-default` is given, the command asks (default yes) whether the new environment should become the config default.
     - `auth register` / `auth register-webapp` — dynamic client registration, optionally with a linked B-Fabric app.
     - `auth default [CONFIG_ENV]` — set the default environment; an arrow-key interactive picker (navigate the list or type to filter, Enter to select; each row shows the host and auth method) opens when no value is given, or lists the environments in a non-interactive context.
     - `auth list` — list the configured environments (host + auth method), marking the default.

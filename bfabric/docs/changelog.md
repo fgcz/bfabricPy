@@ -9,6 +9,11 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+- `ResultContainer.to_polars()` returns an empty DataFrame for an empty result set instead of raising `polars.exceptions.NoDataError`, fixing a crash in `bfabric-cli api read` when a query matched no records.
+- OAuth: `Bfabric.connect_oauth` / `connect_pkce` / `connect_device_code` (and the underlying `_oauth` helpers) now require explicit `client_id` and `scope` — the core library no longer bakes in a `"CLI"` client ID or a default scope. Those defaults are now CLI policy (`bfabric-cli auth …` supplies them unchanged). `connect()` with `auth_method: oauth` now raises if the config environment has no `client_id` instead of falling back to `"CLI"`.
+- PKCE login: the browser callback page now renders a distinct, styled "Login failed" page showing the provider's error (e.g. a two-factor-enrollment requirement) instead of always claiming "Login successful".
+- OAuth token-acquisition failures (expired/revoked refresh token, unreachable token endpoint) now raise a clear `BfabricOAuthError` instead of leaking an `authlib`/`requests` traceback.
+
 ## \[1.20.0rc2\] - 2026-07-15
 
 - OAuth 2.0 authentication: `connect_oauth` (client-credentials grant, auto-refresh + optional token cache), `connect_pkce` (interactive browser login, PKCE), `connect_device_code` (headless device grant), and `connect_pat` (Personal Access Token). `connect` auto-routes to OAuth when an environment sets `auth_method: oauth`. Adds `BfabricOAuthError` and the `authlib` / `joserfc` dependencies.

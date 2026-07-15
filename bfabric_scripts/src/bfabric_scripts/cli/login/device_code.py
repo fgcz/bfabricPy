@@ -7,13 +7,13 @@ from typing import Annotated
 
 import cyclopts
 
-from bfabric._oauth._constants import DEFAULT_CLIENT_ID
 from bfabric._oauth.credential_provider import OAuthCredentialProvider
 from bfabric._oauth.device_code import device_code_login
 from bfabric._oauth.token_cache import compute_token_cache_path
 from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric.config.config_writer import write_environment_to_config
 from bfabric_scripts.cli.login._common import resolve_config_env, resolve_scope, resolve_set_default
+from bfabric_scripts.cli.login._constants import DEFAULT_CLIENT_ID
 
 
 def cmd_login_device_code(
@@ -27,7 +27,7 @@ def cmd_login_device_code(
     scope: Annotated[
         str | None,
         cyclopts.Parameter(
-            help="OAuth scope preset (read-only | read-write | read-write-upload) or a raw scope string "
+            help="OAuth scope preset (read-only | read-write | upload) or a raw scope string "
             "(interactive picker if omitted)."
         ),
     ] = None,

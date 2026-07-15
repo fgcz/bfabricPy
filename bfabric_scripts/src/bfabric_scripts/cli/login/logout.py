@@ -9,14 +9,13 @@ from typing import Annotated
 import cyclopts
 import yaml
 
-from bfabric._oauth._constants import DEFAULT_CLIENT_ID
-
 from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric.config.config_file import ConfigFile
 from bfabric._oauth.token_cache import TokenCache, compute_token_cache_path
 from bfabric.config.config_writer import remove_environment_from_config
 from bfabric_scripts.cli.interactive import confirm, is_interactive, select_choice
 from bfabric_scripts.cli.login._common import environment_summary
+from bfabric_scripts.cli.login._constants import DEFAULT_CLIENT_ID
 
 
 def cmd_login_logout(
