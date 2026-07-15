@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from bfabric.entities import Dataset, Resource
 from pydantic import BaseModel, ConfigDict, model_validator
@@ -91,18 +91,12 @@ class DispatchIndividualResources:
         config = self._config.dataset_flow
         if config is None:
             raise ValueError("dataset_flow is not configured")
-        dataset = self._client.reader.read_id(
-            "dataset",
-            definition.execution.dataset,  # pyright: ignore[reportArgumentType]
-            expected_type=Dataset,
-        )
+        dataset = self._client.reader.read_id(Dataset, cast("int", definition.execution.dataset))
         if dataset is None:
             msg = f"Dataset with id {definition.execution.dataset} not found"
             raise ValueError(msg)
         dataset_df = dataset.to_polars()
-        resources = self._client.reader.read_ids(
-            "resource", dataset_df[config.resource_column].unique().to_list(), expected_type=Resource
-        )
+        resources = self._client.reader.read_ids(Resource, dataset_df[config.resource_column].unique().to_list())
         resources_by_id = {uri.components.entity_id: resource for uri, resource in resources.items()}
         paths = []
         for row in dataset_df.iter_rows(named=True):

@@ -428,10 +428,8 @@ def test_register_workflow_step_creates_workflow_and_step(mocker, mock_client, m
         "workunitid": 123,
         "datasetid": 9999,
     }
-    mock_client.reader.read_id.assert_called_once_with("workflowtemplatestep", 789, expected_type=WorkflowTemplateStep)
-    mock_client.reader.query_one.assert_called_once_with(
-        "workflowstep", expected_workflowstep, expected_type=WorkflowStep
-    )
+    mock_client.reader.read_id.assert_called_once_with(WorkflowTemplateStep, 789)
+    mock_client.reader.query_one.assert_called_once_with(WorkflowStep, expected_workflowstep)
 
     # Verify client calls for workflow creation
     mock_client.read.assert_called_once_with("workflow", {"containerid": 456, "workflowtemplateid": 999})

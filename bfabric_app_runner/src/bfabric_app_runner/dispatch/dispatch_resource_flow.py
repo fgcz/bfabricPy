@@ -87,7 +87,7 @@ class ResourceDispatcher:
     @staticmethod
     def _build_input_resources_df(resource_ids: list[int], client: Bfabric) -> DataFrame[InputTable]:
         """Creates the InputTable DataFrame from the list of resource IDs."""
-        resources = present_entities(client.reader.read_ids("resource", resource_ids, expected_type=Resource))
+        resources = present_entities(client.reader.read_ids(Resource, resource_ids))
         if not resources:
             raise ValueError("No resources to dispatch")
         attributes = [

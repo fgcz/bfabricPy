@@ -345,6 +345,35 @@ class TestReadIds:
             endpoint="project", obj={}, multi_query_key="id", multi_query_vals=[100, 200]
         )
 
+    def test_accepts_entity_class(
+        self,
+        entity_reader,
+        mock_cache_stack,
+        mock_multi_query,
+        mock_instantiate_entity,
+        uri_project_1,
+        mock_client,
+        bfabric_instance,
+    ):
+        """Passing an entity class infers the endpoint string (and the expected type)."""
+        from bfabric.entities.project import Project
+
+        project = Project(
+            data_dict={"id": 100, "classname": "project", "name": "Project 1"},
+            client=mock_client,
+            bfabric_instance=bfabric_instance,
+        )
+        mock_cache_stack.item_get_all.return_value = {}
+        mock_multi_query.read_multi.return_value = [{"id": 100, "classname": "project", "name": "Project 1"}]
+        mock_instantiate_entity.return_value = project
+
+        result = entity_reader.read_ids(Project, [100])
+
+        assert result == {uri_project_1: project}
+        mock_multi_query.read_multi.assert_called_once_with(
+            endpoint="project", obj={}, multi_query_key="id", multi_query_vals=[100]
+        )
+
     def test_some_missing_entities(
         self,
         entity_reader,
@@ -536,6 +565,26 @@ class TestQueryOne:
 
         with pytest.raises(TypeError, match="Expected User"):
             entity_reader.query_one("user", {"login": "alice"}, expected_type=User)
+
+    def test_accepts_entity_class(
+        self, entity_reader, mock_cache_stack, mock_client, bfabric_instance, mock_instantiate_entity
+    ):
+        """Passing an entity class infers the endpoint string (and the expected type)."""
+        from bfabric.entities import User
+
+        mock_cache_stack.item_get_all.return_value = {}
+        mock_client.read.return_value = [{"id": 1, "classname": "user", "login": "alice"}]
+        user = User(
+            data_dict={"id": 1, "classname": "user", "login": "alice"},
+            client=mock_client,
+            bfabric_instance=bfabric_instance,
+        )
+        mock_instantiate_entity.return_value = user
+
+        result = entity_reader.query_one(User, {"login": "alice"})
+
+        assert result is user
+        mock_client.read.assert_called_once_with("user", obj={"login": "alice"}, max_results=1)
 
 
 class TestRetrieveEntities:

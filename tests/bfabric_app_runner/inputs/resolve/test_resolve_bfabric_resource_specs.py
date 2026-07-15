@@ -52,7 +52,7 @@ def test_call(resolver, mocker, mock_client):
     assert result[0].source.ssh.path == "/data/path/to/file.txt"
 
     # Verify the correct methods were called
-    mock_client.reader.read_ids.assert_called_once_with("resource", [42], expected_type=Resource)
+    mock_client.reader.read_ids.assert_called_once_with(Resource, [42])
 
 
 def test_call_when_empty(resolver):

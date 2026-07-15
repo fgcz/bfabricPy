@@ -85,7 +85,7 @@ def client(mocker):
 
 @pytest.fixture
 def resolver(client):
-    return ResolveBfabricResourceDatasetSpecs(client=client)
+    return ResolveBfabricResourceDatasetSpecs(reader=client.reader)
 
 
 class TestInternals:

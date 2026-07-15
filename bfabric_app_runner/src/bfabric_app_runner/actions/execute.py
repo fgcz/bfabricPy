@@ -148,9 +148,7 @@ def _register_workflow_step(
     # Load the workflow template step. A misconfigured step id (or a step without a workflow template) is a
     # hard error: raising here aborts output registration before the workunit is finalized to 'available',
     # rather than silently skipping the workflow-step linkage.
-    workflow_template_step = client.reader.read_id(
-        "workflowtemplatestep", workflow_template_step_id, expected_type=WorkflowTemplateStep
-    )
+    workflow_template_step = client.reader.read_id(WorkflowTemplateStep, workflow_template_step_id)
     if not workflow_template_step:
         raise ValueError(f"Misconfigured workflow_template_step_id={workflow_template_step_id!r}: not found.")
 
@@ -184,7 +182,7 @@ def _register_workflow_step(
 def _create_workflow_step_if_not_exists(
     workflow: dict[str, Any], workflow_step_data: dict[str, Any], workunit_id: int, client: Bfabric
 ) -> None:
-    workflow_step = client.reader.query_one("workflowstep", workflow_step_data, expected_type=WorkflowStep)
+    workflow_step = client.reader.query_one(WorkflowStep, workflow_step_data)
     if workflow_step is not None:
         logger.info(f"Workflow step already exists: {workflow_step}, skipping creation.")
         return

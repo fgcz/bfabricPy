@@ -36,10 +36,10 @@ class Resolver:
 
     def __init__(self, client: Bfabric) -> None:
         self._client = client
-        self._resolve_bfabric_dataset_specs = ResolveBfabricDatasetSpecs(client=client)
+        self._resolve_bfabric_dataset_specs = ResolveBfabricDatasetSpecs(reader=client.reader)
         self._resolve_bfabric_resource_specs = ResolveBfabricResourceSpecs(client=client)
         self._resolve_bfabric_resource_archive_specs = ResolveBfabricResourceArchiveSpecs(client=client)
-        self._resolve_bfabric_resource_dataset_specs = ResolveBfabricResourceDatasetSpecs(client=client)
+        self._resolve_bfabric_resource_dataset_specs = ResolveBfabricResourceDatasetSpecs(reader=client.reader)
         self._resolve_static_yaml_specs = ResolveStaticYamlSpecs()
         self._resolve_static_file_specs = ResolveStaticFileSpecs()
         self._resolve_bfabric_order_fasta_specs = ResolveBfabricOrderFastaSpecs(client=client)

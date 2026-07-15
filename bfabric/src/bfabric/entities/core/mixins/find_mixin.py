@@ -42,11 +42,7 @@ class FindMixin:
         warnings.warn(
             "FindMixin is deprecated and will be removed in future versions.", DeprecationWarning, stacklevel=2
         )
-        results = EntityReader.for_client(client=client).read_ids(
-            entity_type=cls.ENDPOINT,
-            entity_ids=list(ids),
-            expected_type=cls,  # pyright: ignore[reportArgumentType]
-        )
+        results = EntityReader.for_client(client=client).read_ids(cls.ENDPOINT, list(ids))
         # ``entities_by_id`` is typed for ``Entity`` values, whereas ``FindMixin.T`` is the deprecated
         # protocol-bound typevar; the runtime dict is correct, so bridge the two with a cast.
         return _ensure_results_order(ids, cast("dict[int, T]", entities_by_id(results)))

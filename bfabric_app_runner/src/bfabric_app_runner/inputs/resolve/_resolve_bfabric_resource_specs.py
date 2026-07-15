@@ -28,7 +28,7 @@ class ResolveBfabricResourceSpecs:
         # dropped, so a downstream ``resources[resource_id]`` raises ``KeyError`` for a not-found
         # resource, as before).
         resource_ids = [spec.id for spec in specs]
-        resources = entities_by_id(self._client.reader.read_ids("resource", resource_ids, expected_type=Resource))
+        resources = entities_by_id(self._client.reader.read_ids(Resource, resource_ids))
 
         # Create the file specs
         result: list[ResolvedFile] = []

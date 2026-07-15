@@ -16,7 +16,7 @@ def mock_client(mocker):
 
 @pytest.fixture
 def resolver(mock_client):
-    return ResolveBfabricDatasetSpecs(mock_client)
+    return ResolveBfabricDatasetSpecs(mock_client.reader)
 
 
 def test_call(resolver, mocker, mock_client):
@@ -45,7 +45,7 @@ def test_call(resolver, mocker, mock_client):
     assert result[0].content == "csv content"
 
     # Verify the correct methods were called
-    mock_client.reader.read_ids.assert_called_once_with("dataset", [1], expected_type=Dataset)
+    mock_client.reader.read_ids.assert_called_once_with(Dataset, [1])
     mock_dataset.get_csv.assert_called_once_with(separator=",")
 
 

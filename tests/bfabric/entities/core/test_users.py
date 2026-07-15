@@ -52,7 +52,7 @@ class TestGetByName:
         user = users.get_by_login(bfabric_instance, login="testuser")
         assert user is mock_user
         entity_reader.query_one.assert_called_once_with(
-            "user", {"login": "testuser"}, bfabric_instance=bfabric_instance, expected_type=UserEntity
+            UserEntity, {"login": "testuser"}, bfabric_instance=bfabric_instance
         )
         assert mock_user in users._users
 

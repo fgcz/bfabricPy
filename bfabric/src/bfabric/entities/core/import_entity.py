@@ -26,6 +26,16 @@ def import_entity(entity_class_name: str) -> type[Entity]:
         return Entity
 
 
+def entity_type_of(entity_class: type[Entity]) -> str:
+    """The B-Fabric endpoint / ``classname`` string for an entity *class*.
+
+    Class-level counterpart of the instance :attr:`Entity.classname` property, using the same
+    lowercase-class-name convention that :func:`import_entity` relies on for the string→class direction
+    (so the two are inverses).
+    """
+    return entity_class.__name__.lower()
+
+
 def instantiate_entity(data_dict: ApiResponseObjectType, client: Bfabric | None, bfabric_instance: str) -> Entity:
     """Instantiates an entity given its data dictionary with the most specific class possible."""
     entity_class_name = data_dict["classname"]

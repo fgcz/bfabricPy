@@ -41,9 +41,7 @@ class Users:
                 return user
 
         # retrieve
-        user = self._entity_reader.query_one(
-            "user", {"login": login}, bfabric_instance=bfabric_instance, expected_type=UserEntity
-        )
+        user = self._entity_reader.query_one(UserEntity, {"login": login}, bfabric_instance=bfabric_instance)
         if user is None:
             return None
 
