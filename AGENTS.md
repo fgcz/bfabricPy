@@ -113,6 +113,17 @@ Each package's docs live alongside its source. Skim the index when working in a 
 - Integration tests live in a separate repository
 - Use TDD: write a failing test first, verify it fails, then fix the code, then verify the test passes
 
+## Releases
+
+Each package is versioned and released independently (own `pyproject.toml` version, own `docs/changelog.md`, own `<package>/<version>` git tag). Preparing a release means: bump the `version` in that package's `pyproject.toml` and promote its changelog `[Unreleased]` section to a dated version heading. The release pipeline extracts the changelog section matching the tag and publishes it as the GitHub release notes.
+
+Release-candidate (rc) convention — decided 2026-07-15:
+
+- **One cumulative pre-release entry, not a stack.** While a version is in RC, keep a *single* changelog entry for it (e.g. `## [1.20.0rc2]`) that describes the **full** changeset for the upcoming `X.Y.0`. When cutting the next RC, re-date and extend that same entry and bump the `rcN` suffix — do **not** add a separate `[…rcN]` heading below the previous one. Per-RC history is preserved by the already-published git tags and GitHub releases, so the in-repo changelog doesn't need to re-keep it.
+- **Flat, abbreviated bullets, headline-first.** RC entries merge the `Added`/`Changed`/`Fixed` subsections into one abbreviated bullet list, ordered with the user-facing headline changes first. Group dev-facing/typing/tooling changes (e.g. type-only fixes, ruff config, dead-code removal) under a trailing `Internal:` bullet so they don't crowd the main things. The detailed, structured notes live in git history and the GitHub release; the changelog entry is a quick-review summary.
+- **Graduation.** When the RC becomes final, rename the `[X.Y.0rcN]` heading to `[X.Y.0]` with the release date (no content merge needed, since it was cumulative).
+- **Cross-package dependency floors.** When a package uses a feature from an unreleased/RC `bfabric`, pin its floor to the rc (e.g. `bfabric>=1.20.0rc2,<1.21`). A plain `>=1.20.0` **excludes** `1.20.0rc2` under PEP 440, and naming a prerelease in the specifier is also what lets pip/uv resolve to it.
+
 ## Branches
 
 - `main` — active development
