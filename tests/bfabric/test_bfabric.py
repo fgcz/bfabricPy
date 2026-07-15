@@ -436,7 +436,7 @@ def test_log_version_message(mocker, bfabric_instance):
     mocker.patch.object(Bfabric, "_get_version_message", return_value=("line1", "line2"))
     mock_logger = mocker.patch("bfabric.bfabric.logger")
     bfabric_instance._log_version_message()
-    assert mock_logger.info.mock_calls == [mocker.call("line1"), mocker.call("line2")]
+    assert mock_logger.debug.mock_calls == [mocker.call("line1"), mocker.call("line2")]
 
 
 @pytest.mark.parametrize("variant", [repr, str])

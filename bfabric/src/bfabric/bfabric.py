@@ -36,7 +36,7 @@ from bfabric.config.config_file import read_config_file
 from bfabric.engine.engine_suds import EngineSUDS
 from bfabric.rest.token_data import TokenData, get_token_data, validate_token
 from bfabric.results.result_container import ResultContainer
-from bfabric.utils.cli_integration import DEFAULT_THEME, HostnameHighlighter
+from bfabric.utils.console import DEFAULT_THEME, HostnameHighlighter
 from bfabric.utils.paginator import BFABRIC_QUERY_LIMIT, compute_requested_pages
 
 if TYPE_CHECKING:
@@ -613,7 +613,7 @@ class Bfabric:
         for line in self._get_version_message():
             with console.capture() as capture:
                 console.print(line, style="bright_yellow", end="")
-            logger.info(capture.get())
+            logger.debug(capture.get())
 
     def __repr__(self) -> str:
         config_data = ConfigData(client=self._config, auth=self._auth)

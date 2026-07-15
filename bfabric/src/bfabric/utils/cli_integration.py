@@ -8,10 +8,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Annotated, TypeVar, cast
 
 from loguru import logger
-from rich.highlighter import RegexHighlighter
-from rich.theme import Theme
 
 from bfabric.config import DEFAULT_CONFIG_FILE
+
+# Re-exported for backwards compatibility; the canonical location is bfabric.utils.console.
+from bfabric.utils.console import DEFAULT_THEME as DEFAULT_THEME
+from bfabric.utils.console import HostnameHighlighter as HostnameHighlighter
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -105,16 +107,6 @@ def use_client(fn: Callable[..., T], setup_logging: bool = True) -> Callable[...
     # Update the signature of the wrapper
     wrapper.__signature__ = new_sig  # type: ignore[reportAttributeAccessIssue]
     return wrapper
-
-
-DEFAULT_THEME = Theme({"bfabric.hostname": "bold red"})
-
-
-class HostnameHighlighter(RegexHighlighter):
-    """Highlights hostnames in URLs."""
-
-    base_style = "bfabric."
-    highlights = [r"https://(?P<hostname>[^.]+)"]
 
 
 def setup_script_logging(debug: bool = False) -> None:
