@@ -615,6 +615,9 @@ Historically, before 1.14.0, a different versioning scheme was used.</p>
 <p>Minor breaking changes are still possible in <code class="docutils literal notranslate"><span class="pre">1.X.Y</span></code> but we try to announce them with DeprecationWarnings in the previous <code class="docutils literal notranslate"><span class="pre">Y-1</span></code> release.</p>
 <section id="unreleased">
 <h2>[Unreleased]<a class="headerlink" href="#unreleased" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ResultContainer.to_polars()</span></code> returns an empty DataFrame for an empty result set instead of raising <code class="docutils literal notranslate"><span class="pre">polars.exceptions.NoDataError</span></code>, fixing a crash in <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">api</span> <span class="pre">read</span></code> when a query matched no records.</p></li>
+</ul>
 </section>
 <section id="rc2-2026-07-15">
 <h2>[1.20.0rc2] - 2026-07-15<a class="headerlink" href="#rc2-2026-07-15" title="Link to this heading">#</a></h2>

@@ -9,6 +9,8 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+- `ResultContainer.to_polars()` returns an empty DataFrame for an empty result set instead of raising `polars.exceptions.NoDataError`, fixing a crash in `bfabric-cli api read` when a query matched no records.
+
 ## \[1.20.0rc2\] - 2026-07-15
 
 - OAuth 2.0 authentication: `connect_oauth` (client-credentials grant, auto-refresh + optional token cache), `connect_pkce` (interactive browser login, PKCE), `connect_device_code` (headless device grant), and `connect_pat` (Personal Access Token). `connect` auto-routes to OAuth when an environment sets `auth_method: oauth`. Adds `BfabricOAuthError` and the `authlib` / `joserfc` dependencies.
