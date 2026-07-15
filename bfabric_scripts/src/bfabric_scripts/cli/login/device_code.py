@@ -7,21 +7,30 @@ from typing import Annotated
 
 import cyclopts
 
-from bfabric._oauth._constants import DEFAULT_CLIENT_ID, DEFAULT_OAUTH_SCOPE
+from bfabric._oauth._constants import DEFAULT_CLIENT_ID
 from bfabric._oauth.credential_provider import OAuthCredentialProvider
 from bfabric._oauth.device_code import device_code_login
 from bfabric._oauth.token_cache import compute_token_cache_path
 from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric.config.config_writer import write_environment_to_config
+from bfabric_scripts.cli.login._common import resolve_config_env, resolve_scope
 
 
 def cmd_login_device_code(
     base_url: Annotated[str, cyclopts.Parameter(help="B-Fabric instance URL.")],
     *,
     client_id: Annotated[str, cyclopts.Parameter(help="OAuth client ID.")] = DEFAULT_CLIENT_ID,
-    config_env: Annotated[str, cyclopts.Parameter(help="Environment name in the config file.")] = "PRODUCTION",
+    config_env: Annotated[
+        str | None, cyclopts.Parameter(help="Environment name (interactive picker: existing or new, if omitted).")
+    ] = None,
     config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = DEFAULT_CONFIG_FILE,
-    scope: Annotated[str, cyclopts.Parameter(help="OAuth scope.")] = DEFAULT_OAUTH_SCOPE,
+    scope: Annotated[
+        str | None,
+        cyclopts.Parameter(
+            help="OAuth scope preset (read-only | read-write | read-write-upload) or a raw scope string "
+            "(interactive picker if omitted)."
+        ),
+    ] = None,
     timeout: Annotated[float, cyclopts.Parameter(help="Seconds to wait for authorization.")] = 600.0,
     set_default: Annotated[
         bool, cyclopts.Parameter(help="Set this environment as the default in the config file.")
@@ -29,6 +38,12 @@ def cmd_login_device_code(
 ) -> None:
     """Authenticate via device code flow (for headless environments)."""
     import sys
+
+    config_env = resolve_config_env(config_env, config_file)
+    scope = resolve_scope(scope)
+    if config_env is None or scope is None:
+        print("Login aborted.", file=sys.stderr)
+        return
 
     base_url = base_url.rstrip("/")
     try:

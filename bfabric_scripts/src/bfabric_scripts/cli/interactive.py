@@ -57,8 +57,22 @@ def select_or_input(message: str, choices: Sequence[str], *, default: str | None
 
     Returns the entered value, or ``None`` if the user cancels or submits an empty answer.
     """
+    items = list(choices)
+    # Autocomplete only reveals suggestions on Tab, which isn't discoverable -- hint it, but only
+    # when there actually are suggestions to complete (a first-time prompt with no choices wouldn't).
+    prompt = f"{message} (Tab to autocomplete)" if items else message
     # questionary's ``ask()`` is typed ``Any``; the autocomplete prompt yields the text or None.
-    answer = cast("str | None", questionary.autocomplete(message, choices=list(choices), default=default or "").ask())
+    answer = cast("str | None", questionary.autocomplete(prompt, choices=items, default=default or "").ask())
+    return answer or None
+
+
+def text_input(message: str, *, default: str = "") -> str | None:
+    """Prompt for a free-text value, prefilled with *default*.
+
+    Returns the entered text, or ``None`` if the user cancels or submits an empty answer.
+    """
+    # questionary's ``ask()`` is typed ``Any``; the text prompt yields the entered string or None.
+    answer = cast("str | None", questionary.text(message, default=default).ask())
     return answer or None
 
 

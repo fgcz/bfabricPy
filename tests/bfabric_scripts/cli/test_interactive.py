@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import questionary
 
-from bfabric_scripts.cli.interactive import resolve_choice, select_choice, select_or_input
+from bfabric_scripts.cli.interactive import resolve_choice, select_choice, select_or_input, text_input
 
 
 class TestResolveChoice:
@@ -66,9 +66,32 @@ class TestSelectOrInput:
         mocker.patch("bfabric_scripts.cli.interactive.questionary.autocomplete", return_value=question)
         assert select_or_input("Pick", ["PROD"]) is None
 
-    def test_returns_typed_value(self, mocker):
+    def test_returns_typed_value_and_hints_tab_when_choices_present(self, mocker):
         question = mocker.MagicMock()
         question.ask.return_value = "NEW"
         autocomplete = mocker.patch("bfabric_scripts.cli.interactive.questionary.autocomplete", return_value=question)
         assert select_or_input("Pick", ["PROD"], default="X") == "NEW"
-        autocomplete.assert_called_once_with("Pick", choices=["PROD"], default="X")
+        # The Tab-autocomplete hint is appended when there are suggestions to complete.
+        autocomplete.assert_called_once_with("Pick (Tab to autocomplete)", choices=["PROD"], default="X")
+
+    def test_no_hint_when_no_choices(self, mocker):
+        question = mocker.MagicMock()
+        question.ask.return_value = "NEW"
+        autocomplete = mocker.patch("bfabric_scripts.cli.interactive.questionary.autocomplete", return_value=question)
+        assert select_or_input("Pick", []) == "NEW"
+        autocomplete.assert_called_once_with("Pick", choices=[], default="")
+
+
+class TestTextInput:
+    def test_returns_entered_value(self, mocker):
+        question = mocker.MagicMock()
+        question.ask.return_value = "api:read foo"
+        text = mocker.patch("bfabric_scripts.cli.interactive.questionary.text", return_value=question)
+        assert text_input("Scopes", default="api:read") == "api:read foo"
+        text.assert_called_once_with("Scopes", default="api:read")
+
+    def test_maps_empty_answer_to_none(self, mocker):
+        question = mocker.MagicMock()
+        question.ask.return_value = ""
+        mocker.patch("bfabric_scripts.cli.interactive.questionary.text", return_value=question)
+        assert text_input("Scopes") is None
