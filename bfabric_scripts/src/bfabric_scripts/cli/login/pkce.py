@@ -1,4 +1,4 @@
-"""PKCE (browser-based) login command."""
+"""Browser-based login command (OAuth PKCE flow)."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric.config.config_writer import write_environment_to_config
 
 
-def cmd_login_pkce(
+def cmd_auth_login(
     base_url: Annotated[str, cyclopts.Parameter(help="B-Fabric instance URL.")],
     *,
     client_id: Annotated[str, cyclopts.Parameter(help="OAuth client ID.")] = DEFAULT_CLIENT_ID,
@@ -28,7 +28,7 @@ def cmd_login_pkce(
         bool, cyclopts.Parameter(help="Set this environment as the default in the config file.")
     ] = True,
 ) -> None:
-    """Authenticate via browser-based PKCE flow."""
+    """Authenticate via browser-based login (OAuth PKCE flow)."""
     import sys
 
     base_url = base_url.rstrip("/")
