@@ -38,6 +38,24 @@ class TestCmdLoginDeviceCode:
         assert "default_config" not in data["GENERAL"]
         assert data["PROD"]["auth_method"] == "oauth"
 
+    def test_cancel_at_set_default_aborts(self, tmp_path, mocker, capsys):
+        config_file = tmp_path / "config.yml"
+        mock_dc = mocker.patch("bfabric_scripts.cli.login.device_code.device_code_login")
+        # No --set-default given: the user reaches the confirm prompt and cancels it (Ctrl-C -> None).
+        mocker.patch("bfabric_scripts.cli.login._common.is_interactive", return_value=True)
+        mocker.patch("bfabric_scripts.cli.login._common.confirm", return_value=None)
+        cmd_login_device_code(
+            base_url="https://example.com/bfabric",
+            client_id="test-client",
+            config_env="PROD",
+            config_file=config_file,
+            scope="read-write",
+        )
+        # Cancelling aborts the whole login: no device-code flow, no config written.
+        mock_dc.assert_not_called()
+        assert not config_file.exists()
+        assert "Login aborted." in capsys.readouterr().err
+
     def test_scope_preset_is_expanded(self, tmp_path, mocker, oauth_token, oauth_session):
         config_file = tmp_path / "config.yml"
         mock_dc = mocker.patch("bfabric_scripts.cli.login.device_code.device_code_login", return_value=oauth_token)

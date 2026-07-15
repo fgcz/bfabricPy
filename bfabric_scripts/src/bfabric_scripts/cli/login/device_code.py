@@ -46,6 +46,9 @@ def cmd_login_device_code(
         print("Login aborted.", file=sys.stderr)
         return
     set_default = resolve_set_default(set_default, config_env)
+    if set_default is None:
+        print("Login aborted.", file=sys.stderr)
+        return
 
     base_url = base_url.rstrip("/")
     try:

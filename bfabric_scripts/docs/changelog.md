@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 ## \[Unreleased\]
 
+- `auth pkce` / `auth device-code` / `auth pat`: cancelling the interactive "set as default?" prompt (Ctrl-C) now aborts the login instead of silently proceeding as if `--no-set-default` were given.
+
 ## \[1.16.0rc2\] - 2026-07-15
 
 - `bfabric-cli auth` command group for OAuth authentication and client management:

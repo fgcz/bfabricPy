@@ -99,12 +99,12 @@ def resolve_scope(scope: str | None) -> str | None:
     return _SCOPE_PRESETS[picked]
 
 
-def resolve_set_default(set_default: bool | None, config_env: str) -> bool:
+def resolve_set_default(set_default: bool | None, config_env: str) -> bool | None:
     """Resolve whether the freshly-authenticated environment becomes the config default.
 
     * explicit ``--set-default`` / ``--no-set-default`` (i.e. not ``None``) -> honored verbatim.
     * otherwise, no TTY -> ``True`` (the historical default).
-    * otherwise -> a yes/no prompt, preselected yes.
+    * otherwise -> a yes/no prompt, preselected yes; ``None`` if the user cancels (the caller aborts).
     """
     if set_default is not None:
         return set_default

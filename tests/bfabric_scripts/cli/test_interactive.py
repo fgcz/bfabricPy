@@ -96,12 +96,13 @@ class TestConfirm:
         mocker.patch("bfabric_scripts.cli.interactive.questionary.confirm", return_value=question)
         assert confirm("Delete?") is False
 
-    def test_cancel_is_treated_as_false(self, mocker):
-        # Ctrl-C / Esc yields None; for a destructive prompt that must mean "no".
+    def test_cancel_returns_none(self, mocker):
+        # Ctrl-C / Esc yields None from questionary; confirm surfaces it so callers can tell an
+        # aborted prompt apart from an explicit "no".
         question = mocker.MagicMock()
         question.ask.return_value = None
         mocker.patch("bfabric_scripts.cli.interactive.questionary.confirm", return_value=question)
-        assert confirm("Delete?") is False
+        assert confirm("Delete?") is None
 
 
 class TestTextInput:

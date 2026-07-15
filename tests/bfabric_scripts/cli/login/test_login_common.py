@@ -159,3 +159,9 @@ class TestResolveSetDefault:
         assert resolve_set_default(None, "PROD") is False
         # The prompt is preselected to "yes".
         assert confirm.call_args.kwargs["default"] is True
+
+    def test_interactive_cancel_returns_none(self, mocker):
+        # A cancelled prompt (confirm -> None) is propagated so the caller aborts the login.
+        mocker.patch("bfabric_scripts.cli.login._common.is_interactive", return_value=True)
+        mocker.patch("bfabric_scripts.cli.login._common.confirm", return_value=None)
+        assert resolve_set_default(None, "PROD") is None

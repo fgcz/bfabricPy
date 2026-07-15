@@ -74,14 +74,15 @@ def text_input(message: str, *, default: str = "") -> str | None:
     return answer or None
 
 
-def confirm(message: str, *, default: bool = False) -> bool:
-    """Ask a yes/no question, returning the answer as a bool.
+def confirm(message: str, *, default: bool = False) -> bool | None:
+    """Ask a yes/no question.
 
-    A cancel (Ctrl-C) yields ``None`` from questionary, which is treated as ``False`` --
-    the safe answer for the destructive prompts this guards.
+    Returns ``True``/``False`` for an explicit answer, or ``None`` if the user cancels (Ctrl-C) --
+    questionary prints its own cancellation notice and yields ``None``. Like the other wrappers here,
+    cancellation surfaces as ``None`` so callers can tell an aborted prompt apart from a declined
+    "no" (a caller that wants to treat both alike can just check falsiness).
     """
-    answer = cast("bool | None", questionary.confirm(message, default=default).ask())
-    return answer is True
+    return cast("bool | None", questionary.confirm(message, default=default).ask())
 
 
 def resolve_choice(
