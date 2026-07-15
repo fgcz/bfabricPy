@@ -46,7 +46,10 @@ class PythonEnvironment:
 
     @cached_property
     def _uv_bin(self) -> str:
-        return shutil.which("uv")
+        uv = shutil.which("uv")
+        if uv is None:
+            raise RuntimeError("uv executable not found on PATH")
+        return uv
 
     def _create_virtual_environment(self) -> None:
         """Create a virtual environment using uv venv."""
