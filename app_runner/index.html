@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>bfabric-app-runner Documentation &#8212; bfabric-app-runner 0.6.1 documentation</title>
+    <title>bfabric-app-runner Documentation &#8212; bfabric-app-runner 0.7.0rc1 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="_static/documentation_options.js?v=810a7e51"></script>
+    <script src="_static/documentation_options.js?v=b6ddad99"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -50,7 +50,7 @@
     <link rel="next" title="Getting Started" href="getting_started/index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.6.1" />
+  <meta name="docsearch:version" content="0.7.0rc1" />
   </head>
   
   
@@ -127,7 +127,7 @@
   
   
   
-    <p class="title logo__title">bfabric-app-runner 0.6.1 documentation</p>
+    <p class="title logo__title">bfabric-app-runner 0.7.0rc1 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -157,13 +157,12 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="architecture/overview.html">Architecture Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="specs/input_specification.html">Input specification</a></li>
-
-
 <li class="toctree-l1"><a class="reference internal" href="specs/output_specification.html">Output specification</a></li>
-
-
 <li class="toctree-l1"><a class="reference internal" href="specs/app_specification.html">App Specification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api_reference/index.html">API Reference</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api_reference/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="api_reference/runner/index.html">Python Runner API</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1"><a class="reference internal" href="resources/index.html">Resources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workunit_definition.html">Workunit Definition</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
@@ -314,6 +313,7 @@
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation-map">Documentation Map</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">Table of Contents</a></li>
 </ul>
             </nav>
@@ -339,6 +339,18 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span>bfabric_app_runner@git+https://github.com/fgcz/bfabricPy.git@main#egg<span class="o">=</span>bfabric_app_runner<span class="p">&amp;</span><span class="nv">subdirectory</span><span class="o">=</span>bfabric_app_runner
 </pre></div>
 </div>
+</section>
+<section id="documentation-map">
+<h2>Documentation Map<a class="headerlink" href="#documentation-map" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong><a class="reference internal" href="getting_started/index.html"><span class="doc std std-doc">Getting Started</span></a></strong> – Install, configure, and run your first workunit</p></li>
+<li><p><strong><a class="reference internal" href="user_guides/index.html"><span class="doc std std-doc">User Guides</span></a></strong> – Creating apps, working with inputs/outputs, deploying, and the CLI reference</p></li>
+<li><p><strong><a class="reference internal" href="architecture/overview.html"><span class="doc std std-doc">Architecture</span></a></strong> – How the runner orchestrates the dispatch → inputs → process → outputs lifecycle</p></li>
+<li><p><strong><a class="reference internal" href="specs/input_specification.html"><span class="doc std std-doc">Input</span></a> / <a class="reference internal" href="specs/output_specification.html"><span class="doc std std-doc">Output</span></a> / <a class="reference internal" href="specs/app_specification.html"><span class="doc std std-doc">App</span></a> specifications</strong> – Field-level reference for the YAML spec files</p></li>
+<li><p><strong><a class="reference internal" href="api_reference/index.html"><span class="doc std std-doc">API Reference</span></a></strong> – Orientation hub linking the spec references and the Python runner API</p></li>
+<li><p><strong><a class="reference internal" href="workunit_definition.html"><span class="std std-doc">Workunit Definition</span></a></strong> – The persisted workunit definition format</p></li>
+<li><p><strong><a class="reference internal" href="resources/index.html"><span class="doc std std-doc">Resources</span></a></strong> – Links, contributing, and the changelog</p></li>
+</ul>
 </section>
 <section id="table-of-contents">
 <h2>Table of Contents<a class="headerlink" href="#table-of-contents" title="Link to this heading">#</a></h2>
@@ -375,33 +387,15 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="specs/input_specification.html">Input specification</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="specs/input_specification.html#general-structure">General structure</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="specs/input_specification.html#commands">Commands</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="specs/input_specification.html#validation">Validation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="specs/input_specification.html#prepare-files">Prepare files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="specs/input_specification.html#list-files">List files</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="specs/input_specification.html#module-bfabric_app_runner.specs.inputs_spec">Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="specs/input_specification.html#bfabric_app_runner.specs.inputs_spec.InputsSpec"><code class="docutils literal notranslate"><span class="pre">InputsSpec</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="specs/input_specification.html#http-transport-optional">HTTP transport (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="specs/input_specification.html#commands">Commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="specs/input_specification.html#reference">Reference</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="specs/output_specification.html">Output specification</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="specs/output_specification.html#general-structure">General structure</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="specs/output_specification.html#commands">Commands</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="specs/output_specification.html#validation">Validation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="specs/output_specification.html#register-files">Register files</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="specs/output_specification.html#module-bfabric_app_runner.specs.outputs_spec">Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec"><code class="docutils literal notranslate"><span class="pre">CopyResourceSpec</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.OutputsSpec"><code class="docutils literal notranslate"><span class="pre">OutputsSpec</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec"><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.SaveLinkSpec"><code class="docutils literal notranslate"><span class="pre">SaveLinkSpec</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="specs/output_specification.html#bfabric_app_runner.specs.outputs_spec.UpdateExisting"><code class="docutils literal notranslate"><span class="pre">UpdateExisting</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="specs/output_specification.html#commands">Commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="specs/output_specification.html#reference">Reference</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="specs/app_specification.html">App Specification</a><ul>
@@ -411,14 +405,12 @@
 <li class="toctree-l2"><a class="reference internal" href="specs/app_specification.html#app-versions">App Versions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="specs/app_specification.html#variables-and-templating">Variables and Templating</a></li>
 <li class="toctree-l2"><a class="reference internal" href="specs/app_specification.html#loading-and-using-app-specifications">Loading and Using App Specifications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="specs/app_specification.html#module-bfabric_app_runner.specs.app.app_spec">Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="specs/app_specification.html#reference">Reference</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api_reference/index.html">API Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api_reference/index.html#app-specification">App Specification</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api_reference/index.html#input-specifications">Input Specifications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api_reference/index.html#output-specifications">Output Specifications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api_reference/index.html#module-bfabric_app_runner.app_runner.runner">Runner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference/runner/index.html">Python Runner API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference/index.html#where-to-look">Where to look</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="resources/index.html">Resources</a><ul>
@@ -435,6 +427,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#unreleased">[Unreleased]</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#rc1-2026-07-15">[0.7.0rc1] - 2026-07-15</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#id1">[0.6.1] - 2026-06-11</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#id2">[0.6.0] - 2026-04-20</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#id5">[0.5.1] - 2026-03-02</a></li>
@@ -519,6 +512,7 @@
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation-map">Documentation Map</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">Table of Contents</a></li>
 </ul>
   </nav></div>

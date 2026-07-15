@@ -1,0 +1,508 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>HTTP input transport &#8212; bfabric-app-runner 0.7.0rc1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=b6ddad99"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_design_notes/_http_input_transport';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.7.0rc1" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">bfabric-app-runner 0.7.0rc1 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../getting_started/index.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/quick_start.html">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/configuration.html">Configuration</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../user_guides/index.html">User Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/creating_an_app.html">Creating an App</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/deploying_apps.html">Deploying Apps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/working_with_inputs.html">Working with Inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/working_with_outputs.html">Working with Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/python_environments.html">Python Environments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/cli_reference.html">CLI Reference</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture/overview.html">Architecture Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../specs/input_specification.html">Input specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../specs/output_specification.html">Output specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../specs/app_specification.html">App Specification</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api_reference/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/runner/index.html">Python Runner API</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/index.html">Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workunit_definition.html">Workunit Definition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/_design_notes/_http_input_transport.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>HTTP input transport</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-it-fits-the-pipeline">How it fits the pipeline</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-b-fabric-http-resource-access-works">How B-Fabric HTTP resource access works</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-token-deferred-the-crux-of-finishing-this">The token (deferred — the crux of finishing this)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#trust-boundary-security">Trust boundary (security)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#follow-ups-not-implemented">Follow-ups (not implemented)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dev-environment-gotchas-bfabricpy">Dev-environment gotchas (bfabricPy)</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="http-input-transport">
+<h1>HTTP input transport<a class="headerlink" href="#http-input-transport" title="Link to this heading">#</a></h1>
+<p>Opt-in HTTP transport for staging B-Fabric <strong>resource</strong> inputs, as an alternative to the SSH/rsync
+default. Selected per-input via <code class="docutils literal notranslate"><span class="pre">BfabricResourceSpec.access:</span> <span class="pre">&quot;ssh&quot;</span> <span class="pre">|</span> <span class="pre">&quot;http&quot;</span></code> (default <code class="docutils literal notranslate"><span class="pre">ssh</span></code>).
+Portable (works anywhere with web access, no SSH/NFS), but slower — an add-on, not a replacement.</p>
+<section id="how-it-fits-the-pipeline">
+<h2>How it fits the pipeline<a class="headerlink" href="#how-it-fits-the-pipeline" title="Link to this heading">#</a></h2>
+<p>The existing <strong>resolve → prepare</strong> split is the seam. A new <code class="docutils literal notranslate"><span class="pre">FileSourceHttp</span></code> source type joins
+<code class="docutils literal notranslate"><span class="pre">FileSourceSsh</span></code> / <code class="docutils literal notranslate"><span class="pre">FileSourceLocal</span></code> and flows through both phases (same source-type abstraction).</p>
+<ul class="simple">
+<li><p><strong>Resolve</strong> (<code class="docutils literal notranslate"><span class="pre">inputs/resolve/_common.py:get_http_file_source</span></code>) builds the download URL. It is
+non-secret, so it is stored in <code class="docutils literal notranslate"><span class="pre">FileSourceHttp</span></code> and is safe to serialize into resolved inputs.</p></li>
+<li><p><strong>Prepare</strong> (<code class="docutils literal notranslate"><span class="pre">inputs/prepare/prepare_resolved_file.py:_operation_copy_http</span></code>) streams the URL via
+httpx, checksum-verifies, and writes atomically (temp <code class="docutils literal notranslate"><span class="pre">.part</span></code> + rename).</p></li>
+</ul>
+<p>To add another source type later: widen the source unions (<code class="docutils literal notranslate"><span class="pre">FileSpec.source</span></code>, <code class="docutils literal notranslate"><span class="pre">ResolvedFile.source</span></code>,
+and — only if the transport supports directory staging — <code class="docutils literal notranslate"><span class="pre">ResolvedDirectory.source</span></code>), add a resolve
+producer, and add a prepare op. <code class="docutils literal notranslate"><span class="pre">ResolvedDirectory.source</span></code> deliberately omits <code class="docutils literal notranslate"><span class="pre">FileSourceHttp</span></code> today
+(directory-over-HTTP is unimplemented; archive specs resolve to SSH), so re-add it there together with
+an end-to-end test when that lands. The <code class="docutils literal notranslate"><span class="pre">assert_never</span></code> guards in the prepare <code class="docutils literal notranslate"><span class="pre">match</span></code> statements make
+the type-checker enumerate every site you must touch.</p>
+</section>
+<section id="how-b-fabric-http-resource-access-works">
+<h2>How B-Fabric HTTP resource access works<a class="headerlink" href="#how-b-fabric-http-resource-access-works" title="Link to this heading">#</a></h2>
+<p>This is the first use of the <code class="docutils literal notranslate"><span class="pre">access</span></code> endpoint in the codebase.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">client.read(&quot;access&quot;,</span> <span class="pre">{&quot;storageid&quot;:</span> <span class="pre">&lt;storage</span> <span class="pre">id&gt;,</span> <span class="pre">&quot;type&quot;:</span> <span class="pre">&quot;HTTP&quot;})</span></code> returns access records with
+<code class="docutils literal notranslate"><span class="pre">protocol</span></code>, <code class="docutils literal notranslate"><span class="pre">host</span></code>, <code class="docutils literal notranslate"><span class="pre">basepath</span></code>.</p></li>
+<li><p>URL = <code class="docutils literal notranslate"><span class="pre">{protocol}://{host}{basepath}{relativepath}</span></code>, normalized to exactly one slash at the
+<code class="docutils literal notranslate"><span class="pre">basepath</span></code>/<code class="docutils literal notranslate"><span class="pre">relativepath</span></code> boundary (B-Fabric stores <code class="docutils literal notranslate"><span class="pre">relativepath</span></code> with a leading slash — mirror
+<code class="docutils literal notranslate"><span class="pre">Resource.storage_relative_path</span></code>, which <code class="docutils literal notranslate"><span class="pre">lstrip</span></code>s it for the SSH path).</p></li>
+<li><p>A storage may have no HTTP access record → resolve raises.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">access</span></code> field names follow the working reference notebook (<code class="docutils literal notranslate"><span class="pre">leo-scratch/20260702_01_demo.py</span></code>);
+they are <strong>unverified against production</strong> — confirm on the first live run.</p></li>
+</ul>
+</section>
+<section id="the-token-deferred-the-crux-of-finishing-this">
+<h2>The token (deferred — the crux of finishing this)<a class="headerlink" href="#the-token-deferred-the-crux-of-finishing-this" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>HTTP download needs an OAuth <strong>access token</strong> (not the id token), and that token must carry the
+<strong><code class="docutils literal notranslate"><span class="pre">containers</span></code> scope/claim</strong>. The default <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span></code> client scope does <strong>not</strong> include
+<code class="docutils literal notranslate"><span class="pre">containers</span></code>, so <code class="docutils literal notranslate"><span class="pre">Bfabric.connect_pkce(base_url)</span></code> with defaults yields a token that <code class="docutils literal notranslate"><span class="pre">403</span></code>s on the
+download. Request <code class="docutils literal notranslate"><span class="pre">containers</span></code> explicitly in the scope.</p></li>
+<li><p>The token only exists on an OAuth-backed client (<code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code> / <code class="docutils literal notranslate"><span class="pre">connect_oauth</span></code>), where
+<code class="docutils literal notranslate"><span class="pre">client.auth.login</span> <span class="pre">==</span> <span class="pre">&quot;__oauth__&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">client.auth.password</span></code> is the JWT. A config-file
+(login+password) client has no JWT.</p></li>
+<li><p>Production input-prep runs as its own process on the compute node with a config-file client, so
+there is <strong>no token there</strong>. <code class="docutils literal notranslate"><span class="pre">access:</span> <span class="pre">http</span></code> is therefore inert in production until a token-delivery
+mechanism exists; it fails loud rather than mis-authenticating.</p></li>
+<li><p>PKCE is a public-client + loopback-redirect flow only.</p></li>
+</ul>
+</section>
+<section id="trust-boundary-security">
+<h2>Trust boundary (security)<a class="headerlink" href="#trust-boundary-security" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The OAuth token is sent <strong>only</strong> to storage-derived URLs. <code class="docutils literal notranslate"><span class="pre">auth</span></code> on <code class="docutils literal notranslate"><span class="pre">FileSourceHttp</span></code> gates
+token-sending; it is set <code class="docutils literal notranslate"><span class="pre">&quot;bfabric&quot;</span></code> only by <code class="docutils literal notranslate"><span class="pre">get_http_file_source</span></code> (trusted) and rejected outright
+for user-authored <code class="docutils literal notranslate"><span class="pre">file</span></code> specs by <code class="docutils literal notranslate"><span class="pre">FileSpec.validate_no_user_supplied_auth</span></code>, which runs on every
+<code class="docutils literal notranslate"><span class="pre">FileSpec</span></code> construction — so an <code class="docutils literal notranslate"><span class="pre">auth</span></code> hand-written in an <code class="docutils literal notranslate"><span class="pre">inputs.yml</span></code> fails validation instead of
+being silently dropped, and can never reach a resolver, let alone send the token to an arbitrary
+host. It is an enum (not a bool) so future credential schemes slot in without a wire-format change.</p></li>
+<li><p>Invariant: the 32-char web-service password is never sent as a bearer (only send when
+<code class="docutils literal notranslate"><span class="pre">login</span> <span class="pre">==</span> <span class="pre">&quot;__oauth__&quot;</span></code>).</p></li>
+<li><p>httpx strips <code class="docutils literal notranslate"><span class="pre">Authorization</span></code> on cross-origin redirects (defense in depth), covered by
+<code class="docutils literal notranslate"><span class="pre">test_operation_copy_http_strips_auth_on_cross_origin_redirect</span></code>.</p></li>
+</ul>
+</section>
+<section id="follow-ups-not-implemented">
+<h2>Follow-ups (not implemented)<a class="headerlink" href="#follow-ups-not-implemented" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Deliver a <code class="docutils literal notranslate"><span class="pre">containers</span></code>-scoped token to compute-node runs (env var / external-job token / OAuth on
+the node). Until then <code class="docutils literal notranslate"><span class="pre">access:</span> <span class="pre">http</span></code> needs an interactive/OAuth session.</p></li>
+<li><p>The token is resolved once per prepare and reused; a long multi-file batch could hit token expiry
+mid-run — upgrade to a token-provider callable if that becomes real.</p></li>
+<li><p>HTTP is wired for <code class="docutils literal notranslate"><span class="pre">bfabric_resource</span></code> only; <code class="docutils literal notranslate"><span class="pre">bfabric_resource_archive</span></code> / <code class="docutils literal notranslate"><span class="pre">bfabric_resource_dataset</span></code>
+still resolve to SSH.</p></li>
+</ul>
+</section>
+<section id="dev-environment-gotchas-bfabricpy">
+<h2>Dev-environment gotchas (bfabricPy)<a class="headerlink" href="#dev-environment-gotchas-bfabricpy" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The workspace venv may resolve to Python 3.14, where <code class="docutils literal notranslate"><span class="pre">pandera</span></code> breaks unrelated <code class="docutils literal notranslate"><span class="pre">dispatch</span></code> tests.
+Run app_runner tests with <code class="docutils literal notranslate"><span class="pre">--python</span> <span class="pre">3.13</span></code> (or via <code class="docutils literal notranslate"><span class="pre">nox</span></code>) to avoid false failures.</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">basedpyright</span></code> via its <code class="docutils literal notranslate"><span class="pre">nox</span></code> session (isolated env), not the workspace venv.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-it-fits-the-pipeline">How it fits the pipeline</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-b-fabric-http-resource-access-works">How B-Fabric HTTP resource access works</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-token-deferred-the-crux-of-finishing-this">The token (deferred — the crux of finishing this)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#trust-boundary-security">Trust boundary (security)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#follow-ups-not-implemented">Follow-ups (not implemented)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dev-environment-gotchas-bfabricpy">Dev-environment gotchas (bfabricPy)</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By the bfabricpy authors
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024-2026 Functional Genomics Center Zurich.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

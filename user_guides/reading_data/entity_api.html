@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Entity API &#8212; bfabricPy 1.20.0rc1 documentation</title>
+    <title>Entity API &#8212; bfabricPy 1.20.0rc2 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=1ee108fa"></script>
+    <script src="../../_static/documentation_options.js?v=0995889c"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -51,7 +51,7 @@
     <link rel="prev" title="ResultContainer API" href="resultcontainer_api.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.20.0rc1" />
+  <meta name="docsearch:version" content="1.20.0rc2" />
   </head>
   
   
@@ -126,7 +126,7 @@
   
   
   
-    <p class="title logo__title">bfabricPy 1.20.0rc1 documentation</p>
+    <p class="title logo__title">bfabricPy 1.20.0rc2 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -190,6 +190,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../design/index.html">Design Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../design/operations_module.html"><code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code> Module Design</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../design/oauth_integration.html">OAuth Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../design/oauth_usage_and_troubleshooting.html">OAuth Usage &amp; Troubleshooting</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../resources/index.html">Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -412,7 +413,7 @@ TypeError: If entity exists but doesn’t match <code class="docutils literal no
 
 <dl class="py method">
 <dt class="sig sig-object py">
-<span class="sig-prename descclassname"><span class="pre">EntityReader.</span></span><span class="sig-name descname"><span class="pre">read_uris</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">uris:</span> <span class="pre">~collections.abc.Iterable[~bfabric.entities.core.uri.EntityUri</span> <span class="pre">|</span> <span class="pre">str],</span> <span class="pre">*,</span> <span class="pre">expected_type:</span> <span class="pre">type[~bfabric.entities.core.entity_reader.EntityT]</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'bfabric.entities.core.entity.Entity'&gt;</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../api_reference/entity_uri/index.html#bfabric.entities.core.uri.EntityUri" title="bfabric.entities.core.uri.EntityUri"><span class="pre">EntityUri</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">EntityT</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span></dt>
+<span class="sig-prename descclassname"><span class="pre">EntityReader.</span></span><span class="sig-name descname"><span class="pre">read_uris</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">uris:</span> <span class="pre">Iterable[EntityUri</span> <span class="pre">|</span> <span class="pre">str],</span> <span class="pre">*,</span> <span class="pre">expected_type:</span> <span class="pre">type[EntityT]</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'bfabric.entities.core.entity.Entity'&gt;</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../api_reference/entity_uri/index.html#bfabric.entities.core.uri.EntityUri" title="bfabric.entities.core.uri.EntityUri"><span class="pre">EntityUri</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">EntityT</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span></dt>
 <dd><p>Read multiple entities by their URIs efficiently.</p>
 <p>Entities are grouped by type and retrieved in batches to minimize API calls.
 Uses the cache stack if configured.</p>
@@ -487,7 +488,7 @@ expected_type: Entity class to validate and cast all results</p>
 <dt>Args:</dt><dd><p>entity_type: B-Fabric entity type to query
 obj: Dictionary of search criteria (e.g., <code class="docutils literal notranslate"><span class="pre">{&quot;name&quot;:</span> <span class="pre">&quot;MySample&quot;}</span></code>)
 bfabric_instance: B-Fabric instance URL (defaults to client’s configured instance)
-max_results: Maximum number of results to return (default: 100, None for all)
+max_results: Maximum number of results to return (<code class="docutils literal notranslate"><span class="pre">None</span></code> for all)
 expected_type: Entity class to validate and cast all results</p>
 </dd>
 <dt>Returns:</dt><dd><p>Dictionary mapping entity URIs to their objects</p>

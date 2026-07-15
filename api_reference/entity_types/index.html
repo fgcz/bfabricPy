@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>API Reference: Entity Types &#8212; bfabricPy 1.20.0rc1 documentation</title>
+    <title>API Reference: Entity Types &#8212; bfabricPy 1.20.0rc2 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=1ee108fa"></script>
+    <script src="../../_static/documentation_options.js?v=0995889c"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -51,7 +51,7 @@
     <link rel="prev" title="Bfabric Client API Reference" href="../bfabric_client/index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.20.0rc1" />
+  <meta name="docsearch:version" content="1.20.0rc2" />
   </head>
   
   
@@ -126,7 +126,7 @@
   
   
   
-    <p class="title logo__title">bfabricPy 1.20.0rc1 documentation</p>
+    <p class="title logo__title">bfabricPy 1.20.0rc2 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -190,6 +190,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../design/index.html">Design Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../design/operations_module.html"><code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code> Module Design</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../design/oauth_integration.html">OAuth Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../design/oauth_usage_and_troubleshooting.html">OAuth Usage &amp; Troubleshooting</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../resources/index.html">Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -604,12 +605,20 @@ If the field does not exist, an <cite>AttributeError</cite> is raised.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric.entities.Application.executable">
 <span class="sig-name descname"><span class="pre">executable</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">HasOne</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.entities.Executable" title="bfabric.entities.Executable"><span class="pre">Executable</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric.entities.Application.executable" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Descriptor for a to-one relationship, resolving to the related entity.</p>
+<p><code class="docutils literal notranslate"><span class="pre">T</span></code> is the <em>value the attribute yields</em>, so a required field is declared <code class="docutils literal notranslate"><span class="pre">HasOne[Storage]</span></code> and an
+optional one <code class="docutils literal notranslate"><span class="pre">HasOne[Storage</span> <span class="pre">|</span> <span class="pre">None]</span></code> (matching <code class="docutils literal notranslate"><span class="pre">optional=True</span></code>). The related entity is resolved
+lazily from the owner’s <code class="docutils literal notranslate"><span class="pre">refs</span></code>.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric.entities.Application.storage">
 <span class="sig-name descname"><span class="pre">storage</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">HasOne</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.entities.Storage" title="bfabric.entities.Storage"><span class="pre">Storage</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric.entities.Application.storage" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Descriptor for a to-one relationship, resolving to the related entity.</p>
+<p><code class="docutils literal notranslate"><span class="pre">T</span></code> is the <em>value the attribute yields</em>, so a required field is declared <code class="docutils literal notranslate"><span class="pre">HasOne[Storage]</span></code> and an
+optional one <code class="docutils literal notranslate"><span class="pre">HasOne[Storage</span> <span class="pre">|</span> <span class="pre">None]</span></code> (matching <code class="docutils literal notranslate"><span class="pre">optional=True</span></code>). The related entity is resolved
+lazily from the owner’s <code class="docutils literal notranslate"><span class="pre">refs</span></code>.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="bfabric.entities.Application.technology_folder_name">
@@ -706,8 +715,12 @@ TODO this logic should probably be improved in the future</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric.entities.Executable.storage">
-<span class="sig-name descname"><span class="pre">storage</span></span><a class="headerlink" href="#bfabric.entities.Executable.storage" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">storage</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">HasOne</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.entities.Storage" title="bfabric.entities.Storage"><span class="pre">Storage</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric.entities.Executable.storage" title="Link to this definition">#</a></dt>
+<dd><p>Descriptor for a to-one relationship, resolving to the related entity.</p>
+<p><code class="docutils literal notranslate"><span class="pre">T</span></code> is the <em>value the attribute yields</em>, so a required field is declared <code class="docutils literal notranslate"><span class="pre">HasOne[Storage]</span></code> and an
+optional one <code class="docutils literal notranslate"><span class="pre">HasOne[Storage</span> <span class="pre">|</span> <span class="pre">None]</span></code> (matching <code class="docutils literal notranslate"><span class="pre">optional=True</span></code>). The related entity is resolved
+lazily from the owner’s <code class="docutils literal notranslate"><span class="pre">refs</span></code>.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -728,7 +741,11 @@ TODO this logic should probably be improved in the future</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric.entities.ExternalJob.executable">
 <span class="sig-name descname"><span class="pre">executable</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">HasOne</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.entities.Executable" title="bfabric.entities.Executable"><span class="pre">Executable</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric.entities.ExternalJob.executable" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Descriptor for a to-one relationship, resolving to the related entity.</p>
+<p><code class="docutils literal notranslate"><span class="pre">T</span></code> is the <em>value the attribute yields</em>, so a required field is declared <code class="docutils literal notranslate"><span class="pre">HasOne[Storage]</span></code> and an
+optional one <code class="docutils literal notranslate"><span class="pre">HasOne[Storage</span> <span class="pre">|</span> <span class="pre">None]</span></code> (matching <code class="docutils literal notranslate"><span class="pre">optional=True</span></code>). The related entity is resolved
+lazily from the owner’s <code class="docutils literal notranslate"><span class="pre">refs</span></code>.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="bfabric.entities.ExternalJob.workunit">
@@ -802,8 +819,12 @@ TODO this logic should probably be improved in the future</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric.entities.Order.project">
-<span class="sig-name descname"><span class="pre">project</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">HasOne</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.entities.Project" title="bfabric.entities.Project"><span class="pre">Project</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric.entities.Order.project" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">project</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">HasOne</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.entities.Project" title="bfabric.entities.Project"><span class="pre">Project</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric.entities.Order.project" title="Link to this definition">#</a></dt>
+<dd><p>Descriptor for a to-one relationship, resolving to the related entity.</p>
+<p><code class="docutils literal notranslate"><span class="pre">T</span></code> is the <em>value the attribute yields</em>, so a required field is declared <code class="docutils literal notranslate"><span class="pre">HasOne[Storage]</span></code> and an
+optional one <code class="docutils literal notranslate"><span class="pre">HasOne[Storage</span> <span class="pre">|</span> <span class="pre">None]</span></code> (matching <code class="docutils literal notranslate"><span class="pre">optional=True</span></code>). The related entity is resolved
+lazily from the owner’s <code class="docutils literal notranslate"><span class="pre">refs</span></code>.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -868,13 +889,21 @@ as the file is stored.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric.entities.Resource.sample">
-<span class="sig-name descname"><span class="pre">sample</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">HasOne</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.entities.Sample" title="bfabric.entities.Sample"><span class="pre">Sample</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric.entities.Resource.sample" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">sample</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">HasOne</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.entities.Sample" title="bfabric.entities.Sample"><span class="pre">Sample</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric.entities.Resource.sample" title="Link to this definition">#</a></dt>
+<dd><p>Descriptor for a to-one relationship, resolving to the related entity.</p>
+<p><code class="docutils literal notranslate"><span class="pre">T</span></code> is the <em>value the attribute yields</em>, so a required field is declared <code class="docutils literal notranslate"><span class="pre">HasOne[Storage]</span></code> and an
+optional one <code class="docutils literal notranslate"><span class="pre">HasOne[Storage</span> <span class="pre">|</span> <span class="pre">None]</span></code> (matching <code class="docutils literal notranslate"><span class="pre">optional=True</span></code>). The related entity is resolved
+lazily from the owner’s <code class="docutils literal notranslate"><span class="pre">refs</span></code>.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric.entities.Resource.storage">
 <span class="sig-name descname"><span class="pre">storage</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">HasOne</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.entities.Storage" title="bfabric.entities.Storage"><span class="pre">Storage</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric.entities.Resource.storage" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Descriptor for a to-one relationship, resolving to the related entity.</p>
+<p><code class="docutils literal notranslate"><span class="pre">T</span></code> is the <em>value the attribute yields</em>, so a required field is declared <code class="docutils literal notranslate"><span class="pre">HasOne[Storage]</span></code> and an
+optional one <code class="docutils literal notranslate"><span class="pre">HasOne[Storage</span> <span class="pre">|</span> <span class="pre">None]</span></code> (matching <code class="docutils literal notranslate"><span class="pre">optional=True</span></code>). The related entity is resolved
+lazily from the owner’s <code class="docutils literal notranslate"><span class="pre">refs</span></code>.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="bfabric.entities.Resource.storage_absolute_path">
@@ -891,7 +920,11 @@ as the file is stored.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric.entities.Resource.workunit">
 <span class="sig-name descname"><span class="pre">workunit</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">HasOne</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.entities.Workunit" title="bfabric.entities.Workunit"><span class="pre">Workunit</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric.entities.Resource.workunit" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Descriptor for a to-one relationship, resolving to the related entity.</p>
+<p><code class="docutils literal notranslate"><span class="pre">T</span></code> is the <em>value the attribute yields</em>, so a required field is declared <code class="docutils literal notranslate"><span class="pre">HasOne[Storage]</span></code> and an
+optional one <code class="docutils literal notranslate"><span class="pre">HasOne[Storage</span> <span class="pre">|</span> <span class="pre">None]</span></code> (matching <code class="docutils literal notranslate"><span class="pre">optional=True</span></code>). The related entity is resolved
+lazily from the owner’s <code class="docutils literal notranslate"><span class="pre">refs</span></code>.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -918,7 +951,11 @@ as the file is stored.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric.entities.Sample.container">
 <span class="sig-name descname"><span class="pre">container</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">HasOne</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.entities.Order" title="bfabric.entities.Order"><span class="pre">Order</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric.entities.Project" title="bfabric.entities.Project"><span class="pre">Project</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric.entities.Sample.container" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Descriptor for a to-one relationship, resolving to the related entity.</p>
+<p><code class="docutils literal notranslate"><span class="pre">T</span></code> is the <em>value the attribute yields</em>, so a required field is declared <code class="docutils literal notranslate"><span class="pre">HasOne[Storage]</span></code> and an
+optional one <code class="docutils literal notranslate"><span class="pre">HasOne[Storage</span> <span class="pre">|</span> <span class="pre">None]</span></code> (matching <code class="docutils literal notranslate"><span class="pre">optional=True</span></code>). The related entity is resolved
+lazily from the owner’s <code class="docutils literal notranslate"><span class="pre">refs</span></code>.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -985,7 +1022,11 @@ status must fetch the user record with feeder credentials.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric.entities.Workflow.container">
 <span class="sig-name descname"><span class="pre">container</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">HasOne</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.entities.Order" title="bfabric.entities.Order"><span class="pre">Order</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric.entities.Project" title="bfabric.entities.Project"><span class="pre">Project</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric.entities.Workflow.container" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Descriptor for a to-one relationship, resolving to the related entity.</p>
+<p><code class="docutils literal notranslate"><span class="pre">T</span></code> is the <em>value the attribute yields</em>, so a required field is declared <code class="docutils literal notranslate"><span class="pre">HasOne[Storage]</span></code> and an
+optional one <code class="docutils literal notranslate"><span class="pre">HasOne[Storage</span> <span class="pre">|</span> <span class="pre">None]</span></code> (matching <code class="docutils literal notranslate"><span class="pre">optional=True</span></code>). The related entity is resolved
+lazily from the owner’s <code class="docutils literal notranslate"><span class="pre">refs</span></code>.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric.entities.Workflow.workflow_steps">
@@ -994,8 +1035,12 @@ status must fetch the user record with feeder credentials.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric.entities.Workflow.workflow_template">
-<span class="sig-name descname"><span class="pre">workflow_template</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">HasOne</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.entities.WorkflowTemplate" title="bfabric.entities.WorkflowTemplate"><span class="pre">WorkflowTemplate</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric.entities.Workflow.workflow_template" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">workflow_template</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">HasOne</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.entities.WorkflowTemplate" title="bfabric.entities.WorkflowTemplate"><span class="pre">WorkflowTemplate</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric.entities.Workflow.workflow_template" title="Link to this definition">#</a></dt>
+<dd><p>Descriptor for a to-one relationship, resolving to the related entity.</p>
+<p><code class="docutils literal notranslate"><span class="pre">T</span></code> is the <em>value the attribute yields</em>, so a required field is declared <code class="docutils literal notranslate"><span class="pre">HasOne[Storage]</span></code> and an
+optional one <code class="docutils literal notranslate"><span class="pre">HasOne[Storage</span> <span class="pre">|</span> <span class="pre">None]</span></code> (matching <code class="docutils literal notranslate"><span class="pre">optional=True</span></code>). The related entity is resolved
+lazily from the owner’s <code class="docutils literal notranslate"><span class="pre">refs</span></code>.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -1011,7 +1056,11 @@ status must fetch the user record with feeder credentials.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric.entities.WorkflowStep.container">
 <span class="sig-name descname"><span class="pre">container</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">HasOne</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.entities.Order" title="bfabric.entities.Order"><span class="pre">Order</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric.entities.Project" title="bfabric.entities.Project"><span class="pre">Project</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric.entities.WorkflowStep.container" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Descriptor for a to-one relationship, resolving to the related entity.</p>
+<p><code class="docutils literal notranslate"><span class="pre">T</span></code> is the <em>value the attribute yields</em>, so a required field is declared <code class="docutils literal notranslate"><span class="pre">HasOne[Storage]</span></code> and an
+optional one <code class="docutils literal notranslate"><span class="pre">HasOne[Storage</span> <span class="pre">|</span> <span class="pre">None]</span></code> (matching <code class="docutils literal notranslate"><span class="pre">optional=True</span></code>). The related entity is resolved
+lazily from the owner’s <code class="docutils literal notranslate"><span class="pre">refs</span></code>.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -1042,8 +1091,12 @@ status must fetch the user record with feeder credentials.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric.entities.WorkflowTemplateStep.workflow_template">
-<span class="sig-name descname"><span class="pre">workflow_template</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">HasOne</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.entities.WorkflowTemplate" title="bfabric.entities.WorkflowTemplate"><span class="pre">WorkflowTemplate</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric.entities.WorkflowTemplateStep.workflow_template" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">workflow_template</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">HasOne</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.entities.WorkflowTemplate" title="bfabric.entities.WorkflowTemplate"><span class="pre">WorkflowTemplate</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric.entities.WorkflowTemplateStep.workflow_template" title="Link to this definition">#</a></dt>
+<dd><p>Descriptor for a to-one relationship, resolving to the related entity.</p>
+<p><code class="docutils literal notranslate"><span class="pre">T</span></code> is the <em>value the attribute yields</em>, so a required field is declared <code class="docutils literal notranslate"><span class="pre">HasOne[Storage]</span></code> and an
+optional one <code class="docutils literal notranslate"><span class="pre">HasOne[Storage</span> <span class="pre">|</span> <span class="pre">None]</span></code> (matching <code class="docutils literal notranslate"><span class="pre">optional=True</span></code>). The related entity is resolved
+lazily from the owner’s <code class="docutils literal notranslate"><span class="pre">refs</span></code>.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -1060,7 +1113,11 @@ status must fetch the user record with feeder credentials.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric.entities.Workunit.application">
 <span class="sig-name descname"><span class="pre">application</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">HasOne</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.entities.Application" title="bfabric.entities.Application"><span class="pre">Application</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric.entities.Workunit.application" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Descriptor for a to-one relationship, resolving to the related entity.</p>
+<p><code class="docutils literal notranslate"><span class="pre">T</span></code> is the <em>value the attribute yields</em>, so a required field is declared <code class="docutils literal notranslate"><span class="pre">HasOne[Storage]</span></code> and an
+optional one <code class="docutils literal notranslate"><span class="pre">HasOne[Storage</span> <span class="pre">|</span> <span class="pre">None]</span></code> (matching <code class="docutils literal notranslate"><span class="pre">optional=True</span></code>). The related entity is resolved
+lazily from the owner’s <code class="docutils literal notranslate"><span class="pre">refs</span></code>.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="bfabric.entities.Workunit.application_parameters">
@@ -1071,7 +1128,11 @@ status must fetch the user record with feeder credentials.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric.entities.Workunit.container">
 <span class="sig-name descname"><span class="pre">container</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">HasOne</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.entities.Order" title="bfabric.entities.Order"><span class="pre">Order</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric.entities.Project" title="bfabric.entities.Project"><span class="pre">Project</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric.entities.Workunit.container" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Descriptor for a to-one relationship, resolving to the related entity.</p>
+<p><code class="docutils literal notranslate"><span class="pre">T</span></code> is the <em>value the attribute yields</em>, so a required field is declared <code class="docutils literal notranslate"><span class="pre">HasOne[Storage]</span></code> and an
+optional one <code class="docutils literal notranslate"><span class="pre">HasOne[Storage</span> <span class="pre">|</span> <span class="pre">None]</span></code> (matching <code class="docutils literal notranslate"><span class="pre">optional=True</span></code>). The related entity is resolved
+lazily from the owner’s <code class="docutils literal notranslate"><span class="pre">refs</span></code>.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric.entities.Workunit.external_jobs">
@@ -1080,8 +1141,12 @@ status must fetch the user record with feeder credentials.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric.entities.Workunit.input_dataset">
-<span class="sig-name descname"><span class="pre">input_dataset</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">HasOne</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.entities.Dataset" title="bfabric.entities.Dataset"><span class="pre">Dataset</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric.entities.Workunit.input_dataset" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">input_dataset</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">HasOne</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.entities.Dataset" title="bfabric.entities.Dataset"><span class="pre">Dataset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric.entities.Workunit.input_dataset" title="Link to this definition">#</a></dt>
+<dd><p>Descriptor for a to-one relationship, resolving to the related entity.</p>
+<p><code class="docutils literal notranslate"><span class="pre">T</span></code> is the <em>value the attribute yields</em>, so a required field is declared <code class="docutils literal notranslate"><span class="pre">HasOne[Storage]</span></code> and an
+optional one <code class="docutils literal notranslate"><span class="pre">HasOne[Storage</span> <span class="pre">|</span> <span class="pre">None]</span></code> (matching <code class="docutils literal notranslate"><span class="pre">optional=True</span></code>). The related entity is resolved
+lazily from the owner’s <code class="docutils literal notranslate"><span class="pre">refs</span></code>.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric.entities.Workunit.input_resources">
@@ -1107,6 +1172,8 @@ status must fetch the user record with feeder credentials.</p>
 <dt class="sig sig-object py" id="bfabric.entities.Workunit.store_output_folder">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">store_output_folder</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></span><a class="headerlink" href="#bfabric.entities.Workunit.store_output_folder" title="Link to this definition">#</a></dt>
 <dd><p>Relative path in the storage for the workunit output.</p>
+<p><code class="docutils literal notranslate"><span class="pre">application</span></code> and <code class="docutils literal notranslate"><span class="pre">application.storage</span></code> are required relationships; accessing them raises if the
+workunit has no application or the application has no storage configured.</p>
 </dd></dl>
 
 <dl class="py property">

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>App Specification &#8212; bfabric-app-runner 0.6.1 documentation</title>
+    <title>App Specification &#8212; bfabric-app-runner 0.7.0rc1 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=810a7e51"></script>
+    <script src="../_static/documentation_options.js?v=b6ddad99"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -51,7 +51,7 @@
     <link rel="prev" title="Output specification" href="output_specification.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.6.1" />
+  <meta name="docsearch:version" content="0.7.0rc1" />
   </head>
   
   
@@ -126,7 +126,7 @@
   
   
   
-    <p class="title logo__title">bfabric-app-runner 0.6.1 documentation</p>
+    <p class="title logo__title">bfabric-app-runner 0.7.0rc1 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -156,13 +156,12 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../architecture/overview.html">Architecture Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="input_specification.html">Input specification</a></li>
-
-
 <li class="toctree-l1"><a class="reference internal" href="output_specification.html">Output specification</a></li>
-
-
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">App Specification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api_reference/index.html">API Reference</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api_reference/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/runner/index.html">Python Runner API</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1"><a class="reference internal" href="../resources/index.html">Resources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../workunit_definition.html">Workunit Definition</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
@@ -381,7 +380,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#app-versions">App Versions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#variables-and-templating">Variables and Templating</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-and-using-app-specifications">Loading and Using App Specifications</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bfabric_app_runner.specs.app.app_spec">Reference</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reference">Reference</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpec"><code class="docutils literal notranslate"><span class="pre">AppSpec</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpec.available_versions"><code class="docutils literal notranslate"><span class="pre">AppSpec.available_versions</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpec.bfabric"><code class="docutils literal notranslate"><span class="pre">AppSpec.bfabric</span></code></a></li>
@@ -417,14 +416,6 @@
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.model_config"><code class="docutils literal notranslate"><span class="pre">AppVersionMultiTemplate.model_config</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.reuse_default_resource"><code class="docutils literal notranslate"><span class="pre">AppVersionMultiTemplate.reuse_default_resource</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.version"><code class="docutils literal notranslate"><span class="pre">AppVersionMultiTemplate.version</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_version.AppVersionTemplate"><code class="docutils literal notranslate"><span class="pre">AppVersionTemplate</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_version.AppVersionTemplate.commands"><code class="docutils literal notranslate"><span class="pre">AppVersionTemplate.commands</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_version.AppVersionTemplate.evaluate"><code class="docutils literal notranslate"><span class="pre">AppVersionTemplate.evaluate()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_version.AppVersionTemplate.model_config"><code class="docutils literal notranslate"><span class="pre">AppVersionTemplate.model_config</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_version.AppVersionTemplate.reuse_default_resource"><code class="docutils literal notranslate"><span class="pre">AppVersionTemplate.reuse_default_resource</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_version.AppVersionTemplate.version"><code class="docutils literal notranslate"><span class="pre">AppVersionTemplate.version</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -478,422 +469,25 @@ more application versions, each with its own set of commands.</p>
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.commands_spec.CommandsSpec">
 <span class="property"><span class="pre">pydantic</span> <span class="pre">model</span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric_app_runner.specs.app.commands_spec.</span></span><span class="sig-name descname"><span class="pre">CommandsSpec</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.CommandsSpec" title="Link to this definition">#</a></dt>
 <dd><p>Defines the commands that are required to execute an app.</p>
-<p><details  class="autodoc_pydantic_collapsable_json">
-<summary>Show JSON schema</summary><div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">   </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CommandsSpec&quot;</span><span class="p">,</span>
-<span class="w">   </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Defines the commands that are required to execute an app.&quot;</span><span class="p">,</span>
-<span class="w">   </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
-<span class="w">   </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;dispatch&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;discriminator&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;mapping&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;docker&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/CommandDocker&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;exec&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/CommandExec&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;python_env&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/CommandPythonEnv&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;shell&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/CommandShell&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;propertyName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;type&quot;</span>
-<span class="w">         </span><span class="p">},</span>
-<span class="w">         </span><span class="nt">&quot;oneOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">            </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/CommandShell&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/CommandExec&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/CommandDocker&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/CommandPythonEnv&quot;</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">         </span><span class="p">],</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Dispatch&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;process&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;discriminator&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;mapping&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;docker&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/CommandDocker&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;exec&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/CommandExec&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;python_env&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/CommandPythonEnv&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;shell&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/CommandShell&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;propertyName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;type&quot;</span>
-<span class="w">         </span><span class="p">},</span>
-<span class="w">         </span><span class="nt">&quot;oneOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">            </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/CommandShell&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/CommandExec&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/CommandDocker&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/CommandPythonEnv&quot;</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">         </span><span class="p">],</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Process&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;collect&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">            </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;discriminator&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                  </span><span class="nt">&quot;mapping&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                     </span><span class="nt">&quot;docker&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/CommandDocker&quot;</span><span class="p">,</span>
-<span class="w">                     </span><span class="nt">&quot;exec&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/CommandExec&quot;</span><span class="p">,</span>
-<span class="w">                     </span><span class="nt">&quot;python_env&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/CommandPythonEnv&quot;</span><span class="p">,</span>
-<span class="w">                     </span><span class="nt">&quot;shell&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/CommandShell&quot;</span>
-<span class="w">                  </span><span class="p">},</span>
-<span class="w">                  </span><span class="nt">&quot;propertyName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;type&quot;</span>
-<span class="w">               </span><span class="p">},</span>
-<span class="w">               </span><span class="nt">&quot;oneOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">                  </span><span class="p">{</span>
-<span class="w">                     </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/CommandShell&quot;</span>
-<span class="w">                  </span><span class="p">},</span>
-<span class="w">                  </span><span class="p">{</span>
-<span class="w">                     </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/CommandExec&quot;</span>
-<span class="w">                  </span><span class="p">},</span>
-<span class="w">                  </span><span class="p">{</span>
-<span class="w">                     </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/CommandDocker&quot;</span>
-<span class="w">                  </span><span class="p">},</span>
-<span class="w">                  </span><span class="p">{</span>
-<span class="w">                     </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/CommandPythonEnv&quot;</span>
-<span class="w">                  </span><span class="p">}</span>
-<span class="w">               </span><span class="p">]</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;null&quot;</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">         </span><span class="p">],</span>
-<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Collect&quot;</span>
-<span class="w">      </span><span class="p">}</span>
-<span class="w">   </span><span class="p">},</span>
-<span class="w">   </span><span class="nt">&quot;$defs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;CommandDocker&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;const&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;docker&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;docker&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Type&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;image&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Image&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Command&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;entrypoint&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">                  </span><span class="p">{</span>
-<span class="w">                     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">                  </span><span class="p">},</span>
-<span class="w">                  </span><span class="p">{</span>
-<span class="w">                     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;null&quot;</span>
-<span class="w">                  </span><span class="p">}</span>
-<span class="w">               </span><span class="p">],</span>
-<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Entrypoint&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;engine&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;docker&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;enum&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">                  </span><span class="s2">&quot;docker&quot;</span><span class="p">,</span>
-<span class="w">                  </span><span class="s2">&quot;podman&quot;</span>
-<span class="w">               </span><span class="p">],</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Engine&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">               </span><span class="p">},</span>
-<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Env&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;mac_address&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">                  </span><span class="p">{</span>
-<span class="w">                     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">                  </span><span class="p">},</span>
-<span class="w">                  </span><span class="p">{</span>
-<span class="w">                     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;null&quot;</span>
-<span class="w">                  </span><span class="p">}</span>
-<span class="w">               </span><span class="p">],</span>
-<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Mac Address&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;mounts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/MountOptions&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                  </span><span class="nt">&quot;work_dir_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">                  </span><span class="nt">&quot;read_only&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-<span class="w">                  </span><span class="nt">&quot;writeable&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-<span class="w">                  </span><span class="nt">&quot;share_bfabric_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
-<span class="w">               </span><span class="p">}</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;hostname&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">                  </span><span class="p">{</span>
-<span class="w">                     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">                  </span><span class="p">},</span>
-<span class="w">                  </span><span class="p">{</span>
-<span class="w">                     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;null&quot;</span>
-<span class="w">                  </span><span class="p">}</span>
-<span class="w">               </span><span class="p">],</span>
-<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Hostname&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;custom_args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-<span class="w">               </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">               </span><span class="p">},</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Custom Args&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">         </span><span class="p">},</span>
-<span class="w">         </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">            </span><span class="s2">&quot;image&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;command&quot;</span>
-<span class="w">         </span><span class="p">],</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CommandDocker&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;CommandExec&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;const&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;exec&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;exec&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Type&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Command&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">               </span><span class="p">},</span>
-<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Env&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;prepend_paths&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-<span class="w">               </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                  </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-<span class="w">                  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">               </span><span class="p">},</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prepend Paths&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">         </span><span class="p">},</span>
-<span class="w">         </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">            </span><span class="s2">&quot;command&quot;</span>
-<span class="w">         </span><span class="p">],</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CommandExec&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;CommandPythonEnv&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;const&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python_env&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python_env&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Type&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;pylock&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Pylock&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Command&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;python_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">                  </span><span class="p">{</span>
-<span class="w">                     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">                  </span><span class="p">},</span>
-<span class="w">                  </span><span class="p">{</span>
-<span class="w">                     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;null&quot;</span>
-<span class="w">                  </span><span class="p">}</span>
-<span class="w">               </span><span class="p">],</span>
-<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Python Version&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;local_extra_deps&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-<span class="w">               </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                  </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-<span class="w">                  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">               </span><span class="p">},</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Local Extra Deps&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">               </span><span class="p">},</span>
-<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Env&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;prepend_paths&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-<span class="w">               </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                  </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-<span class="w">                  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">               </span><span class="p">},</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prepend Paths&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;refresh&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Refresh&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;boolean&quot;</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">         </span><span class="p">},</span>
-<span class="w">         </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">            </span><span class="s2">&quot;pylock&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;command&quot;</span>
-<span class="w">         </span><span class="p">],</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CommandPythonEnv&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;CommandShell&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;const&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;shell&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;shell&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Type&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Command&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">         </span><span class="p">},</span>
-<span class="w">         </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">            </span><span class="s2">&quot;command&quot;</span>
-<span class="w">         </span><span class="p">],</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CommandShell&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;MountOptions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;work_dir_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">                  </span><span class="p">{</span>
-<span class="w">                     </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-<span class="w">                     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">                  </span><span class="p">},</span>
-<span class="w">                  </span><span class="p">{</span>
-<span class="w">                     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;null&quot;</span>
-<span class="w">                  </span><span class="p">}</span>
-<span class="w">               </span><span class="p">],</span>
-<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Work Dir Target&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;read_only&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-<span class="w">               </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                  </span><span class="nt">&quot;maxItems&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
-<span class="w">                  </span><span class="nt">&quot;minItems&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
-<span class="w">                  </span><span class="nt">&quot;prefixItems&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">                     </span><span class="p">{</span>
-<span class="w">                        </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-<span class="w">                        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">                     </span><span class="p">},</span>
-<span class="w">                     </span><span class="p">{</span>
-<span class="w">                        </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-<span class="w">                        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">                     </span><span class="p">}</span>
-<span class="w">                  </span><span class="p">],</span>
-<span class="w">                  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
-<span class="w">               </span><span class="p">},</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Read Only&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;writeable&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-<span class="w">               </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                  </span><span class="nt">&quot;maxItems&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
-<span class="w">                  </span><span class="nt">&quot;minItems&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
-<span class="w">                  </span><span class="nt">&quot;prefixItems&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">                     </span><span class="p">{</span>
-<span class="w">                        </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-<span class="w">                        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">                     </span><span class="p">},</span>
-<span class="w">                     </span><span class="p">{</span>
-<span class="w">                        </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-<span class="w">                        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">                     </span><span class="p">}</span>
-<span class="w">                  </span><span class="p">],</span>
-<span class="w">                  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
-<span class="w">               </span><span class="p">},</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Writeable&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;share_bfabric_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Share Bfabric Config&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;boolean&quot;</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">         </span><span class="p">},</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MountOptions&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span>
-<span class="w">      </span><span class="p">}</span>
-<span class="w">   </span><span class="p">},</span>
-<span class="w">   </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">   </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="s2">&quot;dispatch&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="s2">&quot;process&quot;</span>
-<span class="w">   </span><span class="p">]</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</details></p><dl class="field-list simple">
-<dt class="field-odd">Config<span class="colon">:</span></dt>
+<dl class="field-list simple">
+<dt class="field-odd">Fields<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>extra</strong>: <em>str = forbid</em></p></li>
-<li><p><strong>populate_by_name</strong>: <em>bool = True</em></p></li>
-<li><p><strong>validate_by_alias</strong>: <em>bool = True</em></p></li>
-<li><p><strong>validate_by_name</strong>: <em>bool = True</em></p></li>
-</ul>
-</dd>
-<dt class="field-even">Fields<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandsSpec.collect" title="bfabric_app_runner.specs.app.commands_spec.CommandsSpec.collect"><code class="xref py py-obj docutils literal notranslate"><span class="pre">collect</span> <span class="pre">(Annotated[bfabric_app_runner.specs.app.commands_spec.CommandShell</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.app.commands_spec.CommandExec</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.app.commands_spec.CommandDocker</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv,</span> <span class="pre">pydantic.types.Discriminator(discriminator=type,</span> <span class="pre">custom_error_type=None,</span> <span class="pre">custom_error_message=None,</span> <span class="pre">custom_error_context=None)]</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
-<li><p><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandsSpec.dispatch" title="bfabric_app_runner.specs.app.commands_spec.CommandsSpec.dispatch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dispatch</span> <span class="pre">(Annotated[bfabric_app_runner.specs.app.commands_spec.CommandShell</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.app.commands_spec.CommandExec</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.app.commands_spec.CommandDocker</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv,</span> <span class="pre">pydantic.types.Discriminator(discriminator=type,</span> <span class="pre">custom_error_type=None,</span> <span class="pre">custom_error_message=None,</span> <span class="pre">custom_error_context=None)])</span></code></a></p></li>
-<li><p><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandsSpec.process" title="bfabric_app_runner.specs.app.commands_spec.CommandsSpec.process"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process</span> <span class="pre">(Annotated[bfabric_app_runner.specs.app.commands_spec.CommandShell</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.app.commands_spec.CommandExec</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.app.commands_spec.CommandDocker</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv,</span> <span class="pre">pydantic.types.Discriminator(discriminator=type,</span> <span class="pre">custom_error_type=None,</span> <span class="pre">custom_error_message=None,</span> <span class="pre">custom_error_context=None)])</span></code></a></p></li>
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandsSpec.collect" title="bfabric_app_runner.specs.app.commands_spec.CommandsSpec.collect"><code class="xref py py-obj docutils literal notranslate"><span class="pre">collect</span> <span class="pre">(bfabric_app_runner.specs.app.commands_spec.CommandShell</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.app.commands_spec.CommandExec</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.app.commands_spec.CommandDocker</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandsSpec.dispatch" title="bfabric_app_runner.specs.app.commands_spec.CommandsSpec.dispatch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dispatch</span> <span class="pre">(bfabric_app_runner.specs.app.commands_spec.CommandShell</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.app.commands_spec.CommandExec</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.app.commands_spec.CommandDocker</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv)</span></code></a></p></li>
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandsSpec.process" title="bfabric_app_runner.specs.app.commands_spec.CommandsSpec.process"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process</span> <span class="pre">(bfabric_app_runner.specs.app.commands_spec.CommandShell</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.app.commands_spec.CommandExec</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.app.commands_spec.CommandDocker</span> <span class="pre">|</span> <span class="pre">bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv)</span></code></a></p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.commands_spec.CommandsSpec.collect">
-<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">collect</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandShell" title="bfabric_app_runner.specs.app.commands_spec.CommandShell"><span class="pre">CommandShell</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandExec" title="bfabric_app_runner.specs.app.commands_spec.CommandExec"><span class="pre">CommandExec</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandDocker" title="bfabric_app_runner.specs.app.commands_spec.CommandDocker"><span class="pre">CommandDocker</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv" title="bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv"><span class="pre">CommandPythonEnv</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Discriminator</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">discriminator</span></span><span class="o"><span class="pre">=</span></span><a class="reference internal" href="output_specification.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.type" title="bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.type"><span class="pre">type</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">custom_error_type</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">custom_error_message</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">custom_error_context</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.CommandsSpec.collect" title="Link to this definition">#</a></dt>
+<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">collect</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandShell" title="bfabric_app_runner.specs.app.commands_spec.CommandShell"><span class="pre">CommandShell</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandExec" title="bfabric_app_runner.specs.app.commands_spec.CommandExec"><span class="pre">CommandExec</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandDocker" title="bfabric_app_runner.specs.app.commands_spec.CommandDocker"><span class="pre">CommandDocker</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv" title="bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv"><span class="pre">CommandPythonEnv</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Discriminator</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">discriminator</span></span><span class="o"><span class="pre">=</span></span><span class="pre">type</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">custom_error_type</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">custom_error_message</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">custom_error_context</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.CommandsSpec.collect" title="Link to this definition">#</a></dt>
 <dd><p>The app collect command, can be omitted if your process command already creates an <cite>outputs.yml</cite> file.</p>
 <p>It will be called with arguments: <cite>$workunit_ref</cite> <cite>$chunk_dir</cite>.</p>
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.commands_spec.CommandsSpec.dispatch">
-<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">dispatch</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandShell" title="bfabric_app_runner.specs.app.commands_spec.CommandShell"><span class="pre">CommandShell</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandExec" title="bfabric_app_runner.specs.app.commands_spec.CommandExec"><span class="pre">CommandExec</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandDocker" title="bfabric_app_runner.specs.app.commands_spec.CommandDocker"><span class="pre">CommandDocker</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv" title="bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv"><span class="pre">CommandPythonEnv</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Discriminator</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">discriminator</span></span><span class="o"><span class="pre">=</span></span><a class="reference internal" href="output_specification.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.type" title="bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.type"><span class="pre">type</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">custom_error_type</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">custom_error_message</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">custom_error_context</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"> <span class="pre">[Required]</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.CommandsSpec.dispatch" title="Link to this definition">#</a></dt>
+<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">dispatch</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandShell" title="bfabric_app_runner.specs.app.commands_spec.CommandShell"><span class="pre">CommandShell</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandExec" title="bfabric_app_runner.specs.app.commands_spec.CommandExec"><span class="pre">CommandExec</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandDocker" title="bfabric_app_runner.specs.app.commands_spec.CommandDocker"><span class="pre">CommandDocker</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv" title="bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv"><span class="pre">CommandPythonEnv</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Discriminator</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">discriminator</span></span><span class="o"><span class="pre">=</span></span><span class="pre">type</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">custom_error_type</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">custom_error_message</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">custom_error_context</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"> <span class="pre">[Required]</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.CommandsSpec.dispatch" title="Link to this definition">#</a></dt>
 <dd><p>The app dispatch command.</p>
 <p>It will be called with arguments: <cite>$workunit_ref</cite> <cite>$work_dir</cite>.</p>
 <dl class="field-list simple">
@@ -907,7 +501,7 @@ more application versions, each with its own set of commands.</p>
 
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.commands_spec.CommandsSpec.process">
-<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">process</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandShell" title="bfabric_app_runner.specs.app.commands_spec.CommandShell"><span class="pre">CommandShell</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandExec" title="bfabric_app_runner.specs.app.commands_spec.CommandExec"><span class="pre">CommandExec</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandDocker" title="bfabric_app_runner.specs.app.commands_spec.CommandDocker"><span class="pre">CommandDocker</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv" title="bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv"><span class="pre">CommandPythonEnv</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Discriminator</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">discriminator</span></span><span class="o"><span class="pre">=</span></span><a class="reference internal" href="output_specification.html#bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.type" title="bfabric_app_runner.specs.outputs_spec.CopyResourceSpec.type"><span class="pre">type</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">custom_error_type</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">custom_error_message</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">custom_error_context</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"> <span class="pre">[Required]</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.CommandsSpec.process" title="Link to this definition">#</a></dt>
+<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">process</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandShell" title="bfabric_app_runner.specs.app.commands_spec.CommandShell"><span class="pre">CommandShell</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandExec" title="bfabric_app_runner.specs.app.commands_spec.CommandExec"><span class="pre">CommandExec</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandDocker" title="bfabric_app_runner.specs.app.commands_spec.CommandDocker"><span class="pre">CommandDocker</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv" title="bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv"><span class="pre">CommandPythonEnv</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Discriminator</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">discriminator</span></span><span class="o"><span class="pre">=</span></span><span class="pre">type</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">custom_error_type</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">custom_error_message</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">custom_error_context</span></span><span class="o"><span class="pre">=</span></span><span class="pre">None</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"> <span class="pre">[Required]</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.CommandsSpec.process" title="Link to this definition">#</a></dt>
 <dd><p>The app process command.</p>
 <p>It will be called with arguments: <cite>$chunk_dir</cite>.</p>
 <dl class="field-list simple">
@@ -933,54 +527,10 @@ more application versions, each with its own set of commands.</p>
 <dl class="py class pydantic_model">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.commands_spec.CommandExec">
 <span class="property"><span class="pre">pydantic</span> <span class="pre">model</span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric_app_runner.specs.app.commands_spec.</span></span><span class="sig-name descname"><span class="pre">CommandExec</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.CommandExec" title="Link to this definition">#</a></dt>
-<dd><p><details  class="autodoc_pydantic_collapsable_json">
-<summary>Show JSON schema</summary><div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">   </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CommandExec&quot;</span><span class="p">,</span>
-<span class="w">   </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
-<span class="w">   </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;const&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;exec&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;exec&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Type&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Command&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">         </span><span class="p">},</span>
-<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Env&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;prepend_paths&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-<span class="w">         </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">         </span><span class="p">},</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prepend Paths&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
-<span class="w">      </span><span class="p">}</span>
-<span class="w">   </span><span class="p">},</span>
-<span class="w">   </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">   </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="s2">&quot;command&quot;</span>
-<span class="w">   </span><span class="p">]</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</details></p><dl class="field-list simple">
-<dt class="field-odd">Config<span class="colon">:</span></dt>
+<dd><p>A command run directly (no shell), with its string split via <code class="docutils literal notranslate"><span class="pre">shlex.split</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Fields<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>extra</strong>: <em>str = forbid</em></p></li>
-</ul>
-</dd>
-<dt class="field-even">Fields<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandExec.command" title="bfabric_app_runner.specs.app.commands_spec.CommandExec.command"><code class="xref py py-obj docutils literal notranslate"><span class="pre">command</span> <span class="pre">(str)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandExec.env" title="bfabric_app_runner.specs.app.commands_spec.CommandExec.env"><code class="xref py py-obj docutils literal notranslate"><span class="pre">env</span> <span class="pre">(dict[str,</span> <span class="pre">str])</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandExec.prepend_paths" title="bfabric_app_runner.specs.app.commands_spec.CommandExec.prepend_paths"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prepend_paths</span> <span class="pre">(list[pathlib.Path])</span></code></a></p></li>
@@ -1035,179 +585,10 @@ more application versions, each with its own set of commands.</p>
 <dl class="py class pydantic_model">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.commands_spec.CommandDocker">
 <span class="property"><span class="pre">pydantic</span> <span class="pre">model</span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric_app_runner.specs.app.commands_spec.</span></span><span class="sig-name descname"><span class="pre">CommandDocker</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.CommandDocker" title="Link to this definition">#</a></dt>
-<dd><p><details  class="autodoc_pydantic_collapsable_json">
-<summary>Show JSON schema</summary><div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">   </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CommandDocker&quot;</span><span class="p">,</span>
-<span class="w">   </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
-<span class="w">   </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;const&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;docker&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;docker&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Type&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;image&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Image&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Command&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;entrypoint&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">            </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;null&quot;</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">         </span><span class="p">],</span>
-<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Entrypoint&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;engine&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;docker&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;enum&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">            </span><span class="s2">&quot;docker&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;podman&quot;</span>
-<span class="w">         </span><span class="p">],</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Engine&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">         </span><span class="p">},</span>
-<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Env&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;mac_address&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">            </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;null&quot;</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">         </span><span class="p">],</span>
-<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Mac Address&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;mounts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/$defs/MountOptions&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;work_dir_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;read_only&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-<span class="w">            </span><span class="nt">&quot;writeable&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-<span class="w">            </span><span class="nt">&quot;share_bfabric_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
-<span class="w">         </span><span class="p">}</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;hostname&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">            </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;null&quot;</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">         </span><span class="p">],</span>
-<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Hostname&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;custom_args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-<span class="w">         </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">         </span><span class="p">},</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Custom Args&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
-<span class="w">      </span><span class="p">}</span>
-<span class="w">   </span><span class="p">},</span>
-<span class="w">   </span><span class="nt">&quot;$defs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;MountOptions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;work_dir_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">                  </span><span class="p">{</span>
-<span class="w">                     </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-<span class="w">                     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">                  </span><span class="p">},</span>
-<span class="w">                  </span><span class="p">{</span>
-<span class="w">                     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;null&quot;</span>
-<span class="w">                  </span><span class="p">}</span>
-<span class="w">               </span><span class="p">],</span>
-<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Work Dir Target&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;read_only&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-<span class="w">               </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                  </span><span class="nt">&quot;maxItems&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
-<span class="w">                  </span><span class="nt">&quot;minItems&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
-<span class="w">                  </span><span class="nt">&quot;prefixItems&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">                     </span><span class="p">{</span>
-<span class="w">                        </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-<span class="w">                        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">                     </span><span class="p">},</span>
-<span class="w">                     </span><span class="p">{</span>
-<span class="w">                        </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-<span class="w">                        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">                     </span><span class="p">}</span>
-<span class="w">                  </span><span class="p">],</span>
-<span class="w">                  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
-<span class="w">               </span><span class="p">},</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Read Only&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;writeable&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-<span class="w">               </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                  </span><span class="nt">&quot;maxItems&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
-<span class="w">                  </span><span class="nt">&quot;minItems&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
-<span class="w">                  </span><span class="nt">&quot;prefixItems&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">                     </span><span class="p">{</span>
-<span class="w">                        </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-<span class="w">                        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">                     </span><span class="p">},</span>
-<span class="w">                     </span><span class="p">{</span>
-<span class="w">                        </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-<span class="w">                        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">                     </span><span class="p">}</span>
-<span class="w">                  </span><span class="p">],</span>
-<span class="w">                  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
-<span class="w">               </span><span class="p">},</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Writeable&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">&quot;share_bfabric_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Share Bfabric Config&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;boolean&quot;</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">         </span><span class="p">},</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MountOptions&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span>
-<span class="w">      </span><span class="p">}</span>
-<span class="w">   </span><span class="p">},</span>
-<span class="w">   </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">   </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="s2">&quot;image&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="s2">&quot;command&quot;</span>
-<span class="w">   </span><span class="p">]</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</details></p><dl class="field-list simple">
-<dt class="field-odd">Config<span class="colon">:</span></dt>
+<dd><p>A command run inside a container via Docker or Podman.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Fields<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>extra</strong>: <em>str = forbid</em></p></li>
-</ul>
-</dd>
-<dt class="field-even">Fields<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandDocker.command" title="bfabric_app_runner.specs.app.commands_spec.CommandDocker.command"><code class="xref py py-obj docutils literal notranslate"><span class="pre">command</span> <span class="pre">(str)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandDocker.custom_args" title="bfabric_app_runner.specs.app.commands_spec.CommandDocker.custom_args"><code class="xref py py-obj docutils literal notranslate"><span class="pre">custom_args</span> <span class="pre">(list[str])</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandDocker.engine" title="bfabric_app_runner.specs.app.commands_spec.CommandDocker.engine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">engine</span> <span class="pre">(Literal['docker',</span> <span class="pre">'podman'])</span></code></a></p></li>
@@ -1286,82 +667,10 @@ more application versions, each with its own set of commands.</p>
 <dl class="py class pydantic_model">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.commands_spec.MountOptions">
 <span class="property"><span class="pre">pydantic</span> <span class="pre">model</span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric_app_runner.specs.app.commands_spec.</span></span><span class="sig-name descname"><span class="pre">MountOptions</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.MountOptions" title="Link to this definition">#</a></dt>
-<dd><p><details  class="autodoc_pydantic_collapsable_json">
-<summary>Show JSON schema</summary><div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">   </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MountOptions&quot;</span><span class="p">,</span>
-<span class="w">   </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
-<span class="w">   </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;work_dir_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">            </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;null&quot;</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">         </span><span class="p">],</span>
-<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Work Dir Target&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;read_only&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-<span class="w">         </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;maxItems&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;minItems&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;prefixItems&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">               </span><span class="p">{</span>
-<span class="w">                  </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-<span class="w">                  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">               </span><span class="p">},</span>
-<span class="w">               </span><span class="p">{</span>
-<span class="w">                  </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-<span class="w">                  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">               </span><span class="p">}</span>
-<span class="w">            </span><span class="p">],</span>
-<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
-<span class="w">         </span><span class="p">},</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Read Only&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;writeable&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-<span class="w">         </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;maxItems&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;minItems&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;prefixItems&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">               </span><span class="p">{</span>
-<span class="w">                  </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-<span class="w">                  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">               </span><span class="p">},</span>
-<span class="w">               </span><span class="p">{</span>
-<span class="w">                  </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-<span class="w">                  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">               </span><span class="p">}</span>
-<span class="w">            </span><span class="p">],</span>
-<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
-<span class="w">         </span><span class="p">},</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Writeable&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;share_bfabric_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Share Bfabric Config&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;boolean&quot;</span>
-<span class="w">      </span><span class="p">}</span>
-<span class="w">   </span><span class="p">},</span>
-<span class="w">   </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</details></p><dl class="field-list simple">
-<dt class="field-odd">Config<span class="colon">:</span></dt>
+<dd><p>Bind mounts to expose inside the container.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Fields<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>extra</strong>: <em>str = forbid</em></p></li>
-</ul>
-</dd>
-<dt class="field-even">Fields<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.MountOptions.read_only" title="bfabric_app_runner.specs.app.commands_spec.MountOptions.read_only"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_only</span> <span class="pre">(list[tuple[pathlib.Path,</span> <span class="pre">pathlib.Path]])</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.MountOptions.share_bfabric_config" title="bfabric_app_runner.specs.app.commands_spec.MountOptions.share_bfabric_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">share_bfabric_config</span> <span class="pre">(bool)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.MountOptions.work_dir_target" title="bfabric_app_runner.specs.app.commands_spec.MountOptions.work_dir_target"><code class="xref py py-obj docutils literal notranslate"><span class="pre">work_dir_target</span> <span class="pre">(pathlib.Path</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
@@ -1372,22 +681,26 @@ more application versions, each with its own set of commands.</p>
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.commands_spec.MountOptions.read_only">
 <span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">read_only</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.MountOptions.read_only" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Read-only bind mounts, each a <code class="docutils literal notranslate"><span class="pre">(host_path,</span> <span class="pre">container_path)</span></code> pair.</p>
+</dd></dl>
 
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.commands_spec.MountOptions.share_bfabric_config">
 <span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">share_bfabric_config</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.MountOptions.share_bfabric_config" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>If True, mount the host’s <code class="docutils literal notranslate"><span class="pre">~/.bfabricpy.yml</span></code> into the container (read-only).</p>
+</dd></dl>
 
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.commands_spec.MountOptions.work_dir_target">
 <span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">work_dir_target</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.MountOptions.work_dir_target" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Container path to mount the work directory at; <code class="docutils literal notranslate"><span class="pre">None</span></code> reuses the host work-directory path.</p>
+</dd></dl>
 
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.commands_spec.MountOptions.writeable">
 <span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">writeable</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.MountOptions.writeable" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Writeable bind mounts, each a <code class="docutils literal notranslate"><span class="pre">(host_path,</span> <span class="pre">container_path)</span></code> pair.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -1399,37 +712,11 @@ more application versions, each with its own set of commands.</p>
 <dl class="py class pydantic_model">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.commands_spec.CommandShell">
 <span class="property"><span class="pre">pydantic</span> <span class="pre">model</span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric_app_runner.specs.app.commands_spec.</span></span><span class="sig-name descname"><span class="pre">CommandShell</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.CommandShell" title="Link to this definition">#</a></dt>
-<dd><p><details  class="autodoc_pydantic_collapsable_json">
-<summary>Show JSON schema</summary><div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">   </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CommandShell&quot;</span><span class="p">,</span>
-<span class="w">   </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
-<span class="w">   </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;const&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;shell&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;shell&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Type&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Command&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">      </span><span class="p">}</span>
-<span class="w">   </span><span class="p">},</span>
-<span class="w">   </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">   </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="s2">&quot;command&quot;</span>
-<span class="w">   </span><span class="p">]</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</details></p><dl class="field-list simple">
-<dt class="field-odd">Config<span class="colon">:</span></dt>
+<dd><p>A command run by splitting a string on spaces (no real shell).</p>
+<p>Deprecated in favor of <code class="docutils literal notranslate"><span class="pre">CommandExec</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Fields<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>extra</strong>: <em>str = forbid</em></p></li>
-</ul>
-</dd>
-<dt class="field-even">Fields<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandShell.command" title="bfabric_app_runner.specs.app.commands_spec.CommandShell.command"><code class="xref py py-obj docutils literal notranslate"><span class="pre">command</span> <span class="pre">(str)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandShell.type" title="bfabric_app_runner.specs.app.commands_spec.CommandShell.type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">type</span> <span class="pre">(Literal['shell'])</span></code></a></p></li>
 </ul>
@@ -1465,92 +752,16 @@ Environments can be cached for reuse across runs.</p>
 <dl class="py class pydantic_model">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv">
 <span class="property"><span class="pre">pydantic</span> <span class="pre">model</span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric_app_runner.specs.app.commands_spec.</span></span><span class="sig-name descname"><span class="pre">CommandPythonEnv</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv" title="Link to this definition">#</a></dt>
-<dd><p><details  class="autodoc_pydantic_collapsable_json">
-<summary>Show JSON schema</summary><div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">   </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CommandPythonEnv&quot;</span><span class="p">,</span>
-<span class="w">   </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
-<span class="w">   </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;const&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python_env&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python_env&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Type&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;pylock&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Pylock&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Command&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;python_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;anyOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">            </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="p">{</span>
-<span class="w">               </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;null&quot;</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">         </span><span class="p">],</span>
-<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Python Version&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;local_extra_deps&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-<span class="w">         </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">         </span><span class="p">},</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Local Extra Deps&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">         </span><span class="p">},</span>
-<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Env&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;prepend_paths&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-<span class="w">         </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<span class="w">         </span><span class="p">},</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prepend Paths&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;refresh&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Refresh&quot;</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;boolean&quot;</span>
-<span class="w">      </span><span class="p">}</span>
-<span class="w">   </span><span class="p">},</span>
-<span class="w">   </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">   </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="s2">&quot;pylock&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="s2">&quot;command&quot;</span>
-<span class="w">   </span><span class="p">]</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</details></p><dl class="field-list simple">
-<dt class="field-odd">Config<span class="colon">:</span></dt>
+<dd><p>A command run inside a uv-provisioned Python environment defined by a pylock file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Fields<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>extra</strong>: <em>str = forbid</em></p></li>
-</ul>
-</dd>
-<dt class="field-even">Fields<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.command" title="bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.command"><code class="xref py py-obj docutils literal notranslate"><span class="pre">command</span> <span class="pre">(str)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.env" title="bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.env"><code class="xref py py-obj docutils literal notranslate"><span class="pre">env</span> <span class="pre">(dict[str,</span> <span class="pre">str])</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.local_extra_deps" title="bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.local_extra_deps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">local_extra_deps</span> <span class="pre">(list[pathlib.Path])</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.prepend_paths" title="bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.prepend_paths"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prepend_paths</span> <span class="pre">(list[pathlib.Path])</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.pylock" title="bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.pylock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pylock</span> <span class="pre">(pathlib.Path)</span></code></a></p></li>
-<li><p><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.python_version" title="bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.python_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">python_version</span> <span class="pre">(str</span> <span class="pre">|</span> <span class="pre">None)</span></code></a></p></li>
+<li><p><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.python_version" title="bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.python_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">python_version</span> <span class="pre">(str)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.refresh" title="bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.refresh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">refresh</span> <span class="pre">(bool)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.type" title="bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">type</span> <span class="pre">(Literal['python_env'])</span></code></a></p></li>
 </ul>
@@ -1593,8 +804,8 @@ in the environment (typically specified in the pylock file).</p>
 
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.python_version">
-<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">python_version</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.python_version" title="Link to this definition">#</a></dt>
-<dd><p>The Python version to use.</p>
+<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">python_version</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'3.13'</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.python_version" title="Link to this definition">#</a></dt>
+<dd><p>The Python version to use for the environment (passed to <cite>uv venv -p</cite>).</p>
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
@@ -1652,9 +863,11 @@ and don’t leave broken environments in the cache if provisioning fails.</p>
 </pre></div>
 </div>
 </section>
-<section id="module-bfabric_app_runner.specs.app.app_spec">
-<span id="reference"></span><h2>Reference<a class="headerlink" href="#module-bfabric_app_runner.specs.app.app_spec" title="Link to this heading">#</a></h2>
-<dl class="py class">
+<section id="reference">
+<h2>Reference<a class="headerlink" href="#reference" title="Link to this heading">#</a></h2>
+<p>The top-level spec (<code class="docutils literal notranslate"><span class="pre">AppSpecTemplate</span></code>) is expanded into a concrete <code class="docutils literal notranslate"><span class="pre">AppSpec</span></code> at load time; the
+<code class="docutils literal notranslate"><span class="pre">bfabric</span></code> section is a <code class="docutils literal notranslate"><span class="pre">BfabricAppSpec</span></code>.</p>
+<dl class="py class" id="module-bfabric_app_runner.specs.app.app_spec">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_spec.AppSpec">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric_app_runner.specs.app.app_spec.</span></span><span class="sig-name descname"><span class="pre">AppSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">bfabric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bfabric_app_runner.specs.app.app_spec.BfabricAppSpec" title="bfabric_app_runner.specs.app.app_spec.BfabricAppSpec"><span class="pre">BfabricAppSpec</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">versions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric_app_runner.specs.app.app_version.AppVersion" title="bfabric_app_runner.specs.app.app_version.AppVersion"><span class="pre">AppVersion</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_spec.AppSpec" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
@@ -1668,7 +881,8 @@ and don’t leave broken environments in the cache if provisioning fails.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_spec.AppSpec.bfabric">
 <span class="sig-name descname"><span class="pre">bfabric</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.app.app_spec.BfabricAppSpec" title="bfabric_app_runner.specs.app.app_spec.BfabricAppSpec"><span class="pre">BfabricAppSpec</span></a></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_spec.AppSpec.bfabric" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>B-Fabric-related settings shared by all versions (see <code class="docutils literal notranslate"><span class="pre">BfabricAppSpec</span></code>).</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_spec.AppSpec.load_yaml">
@@ -1678,7 +892,7 @@ and don’t leave broken environments in the cache if provisioning fails.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_spec.AppSpec.model_config">
-<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_spec.AppSpec.model_config" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_spec.AppSpec.model_config" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
 </dd></dl>
 
@@ -1691,7 +905,8 @@ and don’t leave broken environments in the cache if provisioning fails.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_spec.AppSpec.versions">
 <span class="sig-name descname"><span class="pre">versions</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric_app_runner.specs.app.app_version.AppVersion" title="bfabric_app_runner.specs.app.app_version.AppVersion"><span class="pre">AppVersion</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_spec.AppSpec.versions" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>The concrete, fully-resolved app versions.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -1705,7 +920,8 @@ The main difference is that this may contain usages of <cite>Variables</cite>. T
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.bfabric">
 <span class="sig-name descname"><span class="pre">bfabric</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.app.app_spec.BfabricAppSpec" title="bfabric_app_runner.specs.app.app_spec.BfabricAppSpec"><span class="pre">BfabricAppSpec</span></a></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.bfabric" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>B-Fabric-related settings shared by all versions (see <code class="docutils literal notranslate"><span class="pre">BfabricAppSpec</span></code>).</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.evaluate">
@@ -1715,14 +931,15 @@ The main difference is that this may contain usages of <cite>Variables</cite>. T
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.model_config">
-<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.model_config" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.model_config" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.versions">
 <span class="sig-name descname"><span class="pre">versions</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate" title="bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate"><span class="pre">AppVersionMultiTemplate</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.versions" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>App version templates; each may declare several versions and use <code class="docutils literal notranslate"><span class="pre">Variables</span></code> placeholders.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -1742,7 +959,7 @@ any git reference instead of <cite>main</cite> as needed.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_spec.BfabricAppSpec.model_config">
-<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_spec.BfabricAppSpec.model_config" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_spec.BfabricAppSpec.model_config" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
 </dd></dl>
 
@@ -1754,6 +971,8 @@ any git reference instead of <cite>main</cite> as needed.</p>
 
 </dd></dl>
 
+<p>Each entry in <code class="docutils literal notranslate"><span class="pre">versions</span></code> is an <code class="docutils literal notranslate"><span class="pre">AppVersionMultiTemplate</span></code> (which may list several version strings),
+expanded into one concrete <code class="docutils literal notranslate"><span class="pre">AppVersion</span></code> per version.</p>
 <dl class="py class" id="module-bfabric_app_runner.specs.app.app_version">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_version.AppVersion">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric_app_runner.specs.app.app_version.</span></span><span class="sig-name descname"><span class="pre">AppVersion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'latest'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commands</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandsSpec" title="bfabric_app_runner.specs.app.commands_spec.CommandsSpec"><span class="pre">CommandsSpec</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">reuse_default_resource</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_version.AppVersion" title="Link to this definition">#</a></dt>
@@ -1763,23 +982,27 @@ any git reference instead of <cite>main</cite> as needed.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_version.AppVersion.commands">
 <span class="sig-name descname"><span class="pre">commands</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandsSpec" title="bfabric_app_runner.specs.app.commands_spec.CommandsSpec"><span class="pre">CommandsSpec</span></a></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_version.AppVersion.commands" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>The dispatch, process, and (optional) collect commands that implement this version.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_version.AppVersion.model_config">
-<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_version.AppVersion.model_config" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_version.AppVersion.model_config" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_version.AppVersion.reuse_default_resource">
 <span class="sig-name descname"><span class="pre">reuse_default_resource</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_version.AppVersion.reuse_default_resource" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Legacy flag: reuse the workunit’s auto-created default resource for the first copied output
+instead of creating a new resource entry.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_version.AppVersion.version">
 <span class="sig-name descname"><span class="pre">version</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_version.AppVersion.version" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Version identifier of this app version (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;1.2.0&quot;</span></code>).</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -1787,14 +1010,17 @@ any git reference instead of <cite>main</cite> as needed.</p>
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric_app_runner.specs.app.app_version.</span></span><span class="sig-name descname"><span class="pre">AppVersionMultiTemplate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commands</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandsSpec" title="bfabric_app_runner.specs.app.commands_spec.CommandsSpec"><span class="pre">CommandsSpec</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">reuse_default_resource</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>App version template that may declare several version strings sharing the same commands.</p>
+<p>A single version string is also accepted and normalized to a one-element list.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.commands">
 <span class="sig-name descname"><span class="pre">commands</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandsSpec" title="bfabric_app_runner.specs.app.commands_spec.CommandsSpec"><span class="pre">CommandsSpec</span></a></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.commands" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>The dispatch, process, and (optional) collect commands that implement these versions.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.expand_versions">
-<span class="sig-name descname"><span class="pre">expand_versions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric_app_runner.specs.app.app_version.AppVersionTemplate" title="bfabric_app_runner.specs.app.app_version.AppVersionTemplate"><span class="pre">AppVersionTemplate</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.expand_versions" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">expand_versions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">AppVersionTemplate</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.expand_versions" title="Link to this definition">#</a></dt>
 <dd><p>Returns a list of individual <code class="docutils literal notranslate"><span class="pre">AppVersionTemplate</span></code> instances, expanding each template of multiple versions.
 If substitutions are used they will not be expanded yet but rather when converting the template to a concrete
 AppVersion.</p>
@@ -1802,52 +1028,22 @@ AppVersion.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.model_config">
-<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.model_config" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.model_config" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.reuse_default_resource">
 <span class="sig-name descname"><span class="pre">reuse_default_resource</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.reuse_default_resource" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Legacy flag: reuse the workunit’s auto-created default resource for the first copied output
+instead of creating a new resource entry.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.version">
 <span class="sig-name descname"><span class="pre">version</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.version" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
+<dd><p>Version identifiers that share this definition; a single string is coerced to a one-element list.</p>
 </dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_version.AppVersionTemplate">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric_app_runner.specs.app.app_version.</span></span><span class="sig-name descname"><span class="pre">AppVersionTemplate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commands</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandsSpec" title="bfabric_app_runner.specs.app.commands_spec.CommandsSpec"><span class="pre">CommandsSpec</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">reuse_default_resource</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_version.AppVersionTemplate" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_version.AppVersionTemplate.commands">
-<span class="sig-name descname"><span class="pre">commands</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.app.commands_spec.CommandsSpec" title="bfabric_app_runner.specs.app.commands_spec.CommandsSpec"><span class="pre">CommandsSpec</span></a></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_version.AppVersionTemplate.commands" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_version.AppVersionTemplate.evaluate">
-<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variables_app</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VariablesApp</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric_app_runner.specs.app.app_version.AppVersion" title="bfabric_app_runner.specs.app.app_version.AppVersion"><span class="pre">AppVersion</span></a></span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_version.AppVersionTemplate.evaluate" title="Link to this definition">#</a></dt>
-<dd><p>Evaluates the template to a concrete <code class="docutils literal notranslate"><span class="pre">AppVersion</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_version.AppVersionTemplate.model_config">
-<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_version.AppVersionTemplate.model_config" title="Link to this definition">#</a></dt>
-<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_version.AppVersionTemplate.reuse_default_resource">
-<span class="sig-name descname"><span class="pre">reuse_default_resource</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_version.AppVersionTemplate.reuse_default_resource" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_version.AppVersionTemplate.version">
-<span class="sig-name descname"><span class="pre">version</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_version.AppVersionTemplate.version" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 
@@ -1970,7 +1166,7 @@ AppVersion.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#app-versions">App Versions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#variables-and-templating">Variables and Templating</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-and-using-app-specifications">Loading and Using App Specifications</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bfabric_app_runner.specs.app.app_spec">Reference</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reference">Reference</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpec"><code class="docutils literal notranslate"><span class="pre">AppSpec</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpec.available_versions"><code class="docutils literal notranslate"><span class="pre">AppSpec.available_versions</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpec.bfabric"><code class="docutils literal notranslate"><span class="pre">AppSpec.bfabric</span></code></a></li>
@@ -2006,14 +1202,6 @@ AppVersion.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.model_config"><code class="docutils literal notranslate"><span class="pre">AppVersionMultiTemplate.model_config</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.reuse_default_resource"><code class="docutils literal notranslate"><span class="pre">AppVersionMultiTemplate.reuse_default_resource</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate.version"><code class="docutils literal notranslate"><span class="pre">AppVersionMultiTemplate.version</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_version.AppVersionTemplate"><code class="docutils literal notranslate"><span class="pre">AppVersionTemplate</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_version.AppVersionTemplate.commands"><code class="docutils literal notranslate"><span class="pre">AppVersionTemplate.commands</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_version.AppVersionTemplate.evaluate"><code class="docutils literal notranslate"><span class="pre">AppVersionTemplate.evaluate()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_version.AppVersionTemplate.model_config"><code class="docutils literal notranslate"><span class="pre">AppVersionTemplate.model_config</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_version.AppVersionTemplate.reuse_default_resource"><code class="docutils literal notranslate"><span class="pre">AppVersionTemplate.reuse_default_resource</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_version.AppVersionTemplate.version"><code class="docutils literal notranslate"><span class="pre">AppVersionTemplate.version</span></code></a></li>
 </ul>
 </li>
 </ul>

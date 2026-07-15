@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Design Notes &#8212; bfabricPy 1.20.0rc1 documentation</title>
+    <title>Design Notes &#8212; bfabricPy 1.20.0rc2 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=1ee108fa"></script>
+    <script src="../_static/documentation_options.js?v=0995889c"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -51,7 +51,7 @@
     <link rel="prev" title="Data Operations" href="../advanced_topics/data_operations.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.20.0rc1" />
+  <meta name="docsearch:version" content="1.20.0rc2" />
   </head>
   
   
@@ -126,7 +126,7 @@
   
   
   
-    <p class="title logo__title">bfabricPy 1.20.0rc1 documentation</p>
+    <p class="title logo__title">bfabricPy 1.20.0rc2 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -190,6 +190,7 @@
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Design Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="operations_module.html"><code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code> Module Design</a></li>
 <li class="toctree-l2"><a class="reference internal" href="oauth_integration.html">OAuth Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="oauth_usage_and_troubleshooting.html">OAuth Usage &amp; Troubleshooting</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../resources/index.html">Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -362,6 +363,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="operations_module.html"><code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code> Module Design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="oauth_integration.html">OAuth Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oauth_usage_and_troubleshooting.html">OAuth Usage &amp; Troubleshooting</a></li>
 </ul>
 </div>
 <section id="pages">
@@ -378,6 +380,9 @@
 </tr>
 <tr class="row-odd"><td><p><strong><a class="reference internal" href="oauth_integration.html"><span class="std std-doc">OAuth Integration</span></a></strong></p></td>
 <td><p>The <code class="docutils literal notranslate"><span class="pre">bfabric._oauth</span></code> module and OAuth 2.0 flows (PKCE, device code, client credentials, URL token, PAT), the <code class="docutils literal notranslate"><span class="pre">Bfabric.connect_*</span></code> factory methods, <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">auth</span></code> commands, and the config/scope model.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong><a class="reference internal" href="oauth_usage_and_troubleshooting.html"><span class="std std-doc">OAuth Usage &amp; Troubleshooting</span></a></strong></p></td>
+<td><p>Task-oriented (experimental): obtaining a working token, access_token vs id_token, the <code class="docutils literal notranslate"><span class="pre">containers</span></code> claim for file/download access, <code class="docutils literal notranslate"><span class="pre">.well-known</span></code> discovery, and PKCE gotchas (loopback redirect, public-only clients, remote notebooks).</p></td>
 </tr>
 </tbody>
 </table>

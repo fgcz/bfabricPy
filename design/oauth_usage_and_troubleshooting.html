@@ -1,0 +1,760 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>OAuth Usage &amp; Troubleshooting &#8212; bfabricPy 1.20.0rc2 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=0995889c"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'design/oauth_usage_and_troubleshooting';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Resources" href="../resources/index.html" />
+    <link rel="prev" title="OAuth Integration" href="oauth_integration.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.20.0rc2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">bfabricPy 1.20.0rc2 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../getting_started/index.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/quick_start.html">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/configuration.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/troubleshooting.html">Troubleshooting</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../user_guides/index.html">User Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/creating_a_client/index.html">Creating a Client</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/creating_a_client/interactive_scripted_usage.html">Creating a Client for Interactive and Scripted Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/creating_a_client/server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/reading_data/index.html">Reading Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/reading_data/resultcontainer_api.html">ResultContainer API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/reading_data/entity_api.html">Entity API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/reading_data/caching_for_performance.html">Entity Caching</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/writing_data/index.html">Writing Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/working_with_entities/index.html">Entity Features</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/bfabric-cli/index.html">bfabric-cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/api_operations.html">API Operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/api_inspection.html">API Inspection with CLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/datasets.html">Datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/executables.html">Executables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/workunits.html">Workunits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/feeder.html">Feeder</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guides/error_handling.html">Error Handling</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api_reference/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/bfabric_client/index.html">Bfabric Client API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/entity_types/index.html">API Reference: Entity Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/entity_reader/index.html">API Reference: EntityReader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/entity_uri/index.html">API Reference: EntityUri</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/result_container/index.html">ResultContainer API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/token_data/index.html">API Reference: Token Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/exceptions_and_errors/index.html">API Reference: Exceptions and Errors</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../advanced_topics/index.html">Advanced Topics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../advanced_topics/workunit_definitions/index.html">Experimental: Workunit Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../advanced_topics/data_operations.html">Data Operations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Design Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="operations_module.html"><code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code> Module Design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="oauth_integration.html">OAuth Integration</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">OAuth Usage &amp; Troubleshooting</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../resources/index.html">Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../resources/good_to_know.html">Good to Know</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/design/oauth_usage_and_troubleshooting.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>OAuth Usage & Troubleshooting</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#which-token-do-i-actually-have">1. Which token do I actually have?</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#access-token-vs-id-token-do-not-confuse-them">access_token vs id_token — do not confuse them</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#discovery-find-endpoints-and-supported-scopes-per-instance">2. Discovery: find endpoints and supported scopes per instance</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choosing-a-connect-method">3. Choosing a connect method</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scopes-and-claims-that-gate-resource-access">4. Scopes and claims that gate resource access</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#diagnostic-decode-a-token-locally">Diagnostic: decode a token locally</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pkce-mechanics-and-gotchas">5. PKCE mechanics and gotchas</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#it-is-blocking-but-can-feel-instant">It is blocking, but can feel instant</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#redirect-uri-must-match-exactly-127-0-0-1-not-localhost-and-the-right-port">Redirect URI must match exactly — <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code>, not <code class="docutils literal notranslate"><span class="pre">localhost</span></code>, and the right port</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loopback-redirect-fails-on-remote-hosted-notebooks">Loopback redirect fails on remote/hosted notebooks</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#connect-pkce-only-supports-public-clients-tentative-on-the-401-cause"><code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code> only supports <strong>public</strong> clients (tentative on the 401 cause)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reactive-notebook-caveat">Reactive-notebook caveat</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#refreshing-tokens-manually-rarely-needed">6. Refreshing tokens manually (rarely needed)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-decision-tree">7. Quick decision tree</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="oauth-usage-troubleshooting">
+<h1>OAuth Usage &amp; Troubleshooting<a class="headerlink" href="#oauth-usage-troubleshooting" title="Link to this heading">#</a></h1>
+<blockquote>
+<div><p><strong>⚠️ EXPERIMENTAL / NOT OFFICIALLY SHIPPED.</strong> The <code class="docutils literal notranslate"><span class="pre">bfabric._oauth</span></code> module and the
+<code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code> / <code class="docutils literal notranslate"><span class="pre">connect_device_code</span></code> / <code class="docutils literal notranslate"><span class="pre">connect_oauth</span></code> factory methods are under active
+development (the asgi-auth OAuth migration is still in flight). APIs, defaults, and server-side
+scope enforcement may change. Do not treat this as stable public API yet.</p>
+</div></blockquote>
+<p>A task-oriented companion to <a class="reference internal" href="oauth_integration.html"><span class="std std-doc">OAuth Integration</span></a>: how to obtain a working
+token from a <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> client via OAuth, and the non-obvious failure modes observed on
+<code class="docutils literal notranslate"><span class="pre">fgcz-bfabric-demo</span></code>. For the architecture and module layout, see the integration doc.</p>
+<hr class="docutils" />
+<section id="which-token-do-i-actually-have">
+<h2>1. Which token do I actually have?<a class="headerlink" href="#which-token-do-i-actually-have" title="Link to this heading">#</a></h2>
+<p>An OAuth-connected client exposes its <strong>access token</strong> (a JWT) through the <code class="docutils literal notranslate"><span class="pre">auth</span></code> property.
+Every read runs the credential provider, which refreshes first if the access token is near expiry:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">jwt</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">password</span><span class="o">.</span><span class="n">get_secret_value</span><span class="p">()</span>  <span class="c1"># the OAuth access token, always fresh</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">client.auth</span></code> → <code class="docutils literal notranslate"><span class="pre">OAuthCredentialProvider.get_auth()</span></code> → <code class="docutils literal notranslate"><span class="pre">BfabricAuth(login=&quot;__oauth__&quot;,</span> <span class="pre">password=&lt;jwt&gt;)</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.password</span></code> is a <code class="docutils literal notranslate"><span class="pre">SecretStr</span></code>; <code class="docutils literal notranslate"><span class="pre">.get_secret_value()</span></code> unwraps it.</p></li>
+<li><p><strong>Do not cache the string</strong> — read it at point of use so you benefit from auto-refresh.</p></li>
+</ul>
+<section id="access-token-vs-id-token-do-not-confuse-them">
+<h3>access_token vs id_token — do not confuse them<a class="headerlink" href="#access-token-vs-id-token-do-not-confuse-them" title="Link to this heading">#</a></h3>
+<p>Both are JWTs in the OIDC token response, but they are for different audiences:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head"><p>access_token</p></th>
+<th class="head"><p>id_token</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">aud</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bfabric-api</span></code> (the resource server)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&lt;client_id&gt;</span></code>, e.g. <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>purpose</p></td>
+<td><p>authorize API / resource-server calls</p></td>
+<td><p>tell <em>your app</em> who the user is</p></td>
+</tr>
+<tr class="row-even"><td><p>send to a resource server (API, file/download)?</p></td>
+<td><p><strong>yes</strong></p></td>
+<td><p><strong>no — it will be rejected</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>tell-tale claims</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">scope</span></code>, <code class="docutils literal notranslate"><span class="pre">jti</span></code>, <code class="docutils literal notranslate"><span class="pre">containers</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">at_hash</span></code>, <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">email</span></code>, <code class="docutils literal notranslate"><span class="pre">given_name</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong><code class="docutils literal notranslate"><span class="pre">client.auth.password</span></code> gives you the access token — that is the one to send to servers.</strong>
+The id_token is <em>never</em> the right thing to hand to the file/download server; its <code class="docutils literal notranslate"><span class="pre">aud</span></code> is the
+client, so the resource server refuses it.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="discovery-find-endpoints-and-supported-scopes-per-instance">
+<h2>2. Discovery: find endpoints and supported scopes per instance<a class="headerlink" href="#discovery-find-endpoints-and-supported-scopes-per-instance" title="Link to this heading">#</a></h2>
+<p>Every B-Fabric instance publishes an OpenID Connect discovery document:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">base_url</span><span class="p">}</span><span class="o">/.</span><span class="n">well</span><span class="o">-</span><span class="n">known</span><span class="o">/</span><span class="n">openid</span><span class="o">-</span><span class="n">configuration</span>
+</pre></div>
+</div>
+<p>e.g. <code class="docutils literal notranslate"><span class="pre">https://fgcz-bfabric-demo.uzh.ch/bfabric/.well-known/openid-configuration</span></code></p>
+<p>It lists <code class="docutils literal notranslate"><span class="pre">token_endpoint</span></code>, <code class="docutils literal notranslate"><span class="pre">authorization_endpoint</span></code>, <code class="docutils literal notranslate"><span class="pre">jwks_uri</span></code>, <code class="docutils literal notranslate"><span class="pre">introspection_endpoint</span></code>,
+<code class="docutils literal notranslate"><span class="pre">grant_types_supported</span></code>, and — crucially — <strong><code class="docutils literal notranslate"><span class="pre">scopes_supported</span></code></strong>. On the demo instance that is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">openid</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">email</span><span class="p">,</span> <span class="n">api</span><span class="p">:</span><span class="n">read</span><span class="p">,</span> <span class="n">api</span><span class="p">:</span><span class="n">write</span><span class="p">,</span> <span class="n">tus</span><span class="p">,</span> <span class="n">download</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">containers</span><span class="p">,</span> <span class="n">employee</span>
+</pre></div>
+</div>
+<p>Use this to see which scopes an instance offers before requesting them. <code class="docutils literal notranslate"><span class="pre">token_endpoint</span></code> is
+<code class="docutils literal notranslate"><span class="pre">{base_url}/rest/oauth/token</span></code>.</p>
+</section>
+<hr class="docutils" />
+<section id="choosing-a-connect-method">
+<h2>3. Choosing a connect method<a class="headerlink" href="#choosing-a-connect-method" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Method</p></th>
+<th class="head"><p>Grant</p></th>
+<th class="head"><p>Identity</p></th>
+<th class="head"><p>When</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_oauth(client_id,</span> <span class="pre">client_secret,</span> <span class="pre">base_url,</span> <span class="pre">scope=…)</span></code></p></td>
+<td><p>client_credentials</p></td>
+<td><p><strong>service</strong> (no user <code class="docutils literal notranslate"><span class="pre">sub</span></code>)</p></td>
+<td><p>background jobs, servers</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_pkce(base_url,</span> <span class="pre">client_id=…,</span> <span class="pre">scope=…,</span> <span class="pre">port=…)</span></code></p></td>
+<td><p>authorization_code + PKCE</p></td>
+<td><p><strong>user</strong></p></td>
+<td><p>interactive, local machine</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_device_code(base_url,</span> <span class="pre">client_id=…,</span> <span class="pre">scope=…)</span></code></p></td>
+<td><p>device_code</p></td>
+<td><p><strong>user</strong></p></td>
+<td><p>headless / remote / notebooks</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Key identity difference: <strong>client_credentials tokens carry no user <code class="docutils literal notranslate"><span class="pre">sub</span></code> and no user-scoped claims
+like <code class="docutils literal notranslate"><span class="pre">containers</span></code>.</strong> If a resource server authorizes by <em>your</em> container membership, a service
+token won’t do — you need a user flow (PKCE or device code).</p>
+<p><code class="docutils literal notranslate"><span class="pre">DEFAULT_OAUTH_SCOPE</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;api:read</span> <span class="pre">api:write</span> <span class="pre">openid</span> <span class="pre">profile</span> <span class="pre">email</span> <span class="pre">groups&quot;</span></code> — it <strong>includes
+<code class="docutils literal notranslate"><span class="pre">groups</span></code></strong> (the employee file-access path, see below) but not <code class="docutils literal notranslate"><span class="pre">containers</span></code> or <code class="docutils literal notranslate"><span class="pre">download</span></code>.</p>
+</section>
+<hr class="docutils" />
+<section id="scopes-and-claims-that-gate-resource-access">
+<h2>4. Scopes and claims that gate resource access<a class="headerlink" href="#scopes-and-claims-that-gate-resource-access" title="Link to this heading">#</a></h2>
+<p>Resource servers gate on <em>claims</em>, and claims come from <em>scopes the client is authorized for</em>.
+File/download access is authorized by <strong>container membership</strong>, which a token can convey two ways:</p>
+<ul class="simple">
+<li><p>the <strong><code class="docutils literal notranslate"><span class="pre">containers</span></code> claim</strong> — an explicit list of container IDs, e.g. <code class="docutils literal notranslate"><span class="pre">[&quot;22&quot;,</span> <span class="pre">&quot;300&quot;,</span> <span class="pre">&quot;403&quot;]</span></code>; or</p></li>
+<li><p>the <strong><code class="docutils literal notranslate"><span class="pre">groups</span></code> claim</strong> — group membership. <strong>For an employee, the <code class="docutils literal notranslate"><span class="pre">groups</span></code> claim (which includes
+the <code class="docutils literal notranslate"><span class="pre">employee</span></code> group) grants file access</strong> without needing per-container IDs.</p></li>
+</ul>
+<blockquote>
+<div><p><strong>Employees: request the <code class="docutils literal notranslate"><span class="pre">groups</span></code> scope — this is the practical PKCE path.</strong>
+The <strong><code class="docutils literal notranslate"><span class="pre">containers</span></code> scope cannot be requested via PKCE</strong> (it is restricted; the server silently
+drops it — which is exactly why requesting <code class="docutils literal notranslate"><span class="pre">containers</span></code> in an interactive flow yields a token
+<em>without</em> the claim and no error). <strong><code class="docutils literal notranslate"><span class="pre">groups</span></code>, however, is requestable and is already in
+<code class="docutils literal notranslate"><span class="pre">DEFAULT_OAUTH_SCOPE</span></code>.</strong> So an employee gets file access from a normal user flow as long as
+<code class="docutils literal notranslate"><span class="pre">groups</span></code> is in the requested scope:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect_pkce</span><span class="p">(</span>
+    <span class="s2">&quot;https://fgcz-bfabric-demo.uzh.ch/bfabric&quot;</span><span class="p">,</span>
+    <span class="n">scope</span><span class="o">=</span><span class="s2">&quot;openid profile email api:read api:write groups&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>This works with the default <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span></code> client — no dedicated client needed.</p>
+</div></blockquote>
+<p>Other notes:</p>
+<ul class="simple">
+<li><p><strong>A server only grants scopes the client is registered for; others are silently dropped</strong> with no
+error. <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span></code> is authorized for <code class="docutils literal notranslate"><span class="pre">groups</span></code> but <strong>not</strong> for <code class="docutils literal notranslate"><span class="pre">containers</span></code>.</p></li>
+<li><p>Non-employees who need specific containers rely on the <strong><code class="docutils literal notranslate"><span class="pre">containers</span></code> claim</strong>, which (since it’s
+not PKCE-requestable) must be supplied another way — e.g. a client configured with <strong>“Always
+Include Claims → containers”</strong>, which injects it regardless of requested scope. This is why a
+working token can carry <code class="docutils literal notranslate"><span class="pre">containers</span></code> even though its <code class="docutils literal notranslate"><span class="pre">scope</span></code> string doesn’t list it.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">download</span></code> scope exists but was <strong>not</strong> required for file access in testing — the
+discriminator was container membership (<code class="docutils literal notranslate"><span class="pre">groups</span></code> for employees, else <code class="docutils literal notranslate"><span class="pre">containers</span></code>), not <code class="docutils literal notranslate"><span class="pre">download</span></code>.</p></li>
+</ul>
+<section id="diagnostic-decode-a-token-locally">
+<h3>Diagnostic: decode a token locally<a class="headerlink" href="#diagnostic-decode-a-token-locally" title="Link to this heading">#</a></h3>
+<p>Do <strong>not</strong> paste live tokens into <a class="reference external" href="http://jwt.io">jwt.io</a>. Decode locally:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">base64</span><span class="o">,</span><span class="w"> </span><span class="nn">json</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">claims</span><span class="p">(</span><span class="n">jwt</span><span class="p">):</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">p</span> <span class="o">+=</span> <span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64decode</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">claims</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">password</span><span class="o">.</span><span class="n">get_secret_value</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;aud&quot;</span><span class="p">),</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;scope&quot;</span><span class="p">),</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;containers&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Compare a working token against a failing one — the differing claim (<code class="docutils literal notranslate"><span class="pre">aud</span></code>, <code class="docutils literal notranslate"><span class="pre">scope</span></code>, <code class="docutils literal notranslate"><span class="pre">containers</span></code>)
+is the cause.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="pkce-mechanics-and-gotchas">
+<h2>5. PKCE mechanics and gotchas<a class="headerlink" href="#pkce-mechanics-and-gotchas" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code> → <code class="docutils literal notranslate"><span class="pre">pkce_login</span></code>:</p>
+<ol class="arabic simple">
+<li><p>Binds a local HTTP server on <code class="docutils literal notranslate"><span class="pre">127.0.0.1:{port}</span></code> (<code class="docutils literal notranslate"><span class="pre">port=0</span></code> ⇒ OS picks a random free port).</p></li>
+<li><p>Opens the browser to <code class="docutils literal notranslate"><span class="pre">{base_url}/rest/oauth/authorize</span></code>.</p></li>
+<li><p><strong>Blocks</strong> (<code class="docutils literal notranslate"><span class="pre">server_thread.join(timeout)</span></code>, default 120 s) until the browser redirects back.</p></li>
+<li><p>Catches <code class="docutils literal notranslate"><span class="pre">?code=…</span></code> on the callback, then POSTs to the token endpoint to exchange it.</p></li>
+</ol>
+<section id="it-is-blocking-but-can-feel-instant">
+<h3>It is blocking, but can feel instant<a class="headerlink" href="#it-is-blocking-but-can-feel-instant" title="Link to this heading">#</a></h3>
+<p>The call blocks until the redirect arrives. If your browser already has an active B-Fabric session
+(and the client has consent skipped), <code class="docutils literal notranslate"><span class="pre">/authorize</span></code> redirects back immediately with no login/consent
+UI, so the whole thing completes in a fraction of a second and <em>looks</em> non-blocking. Logged out,
+you’d see the cell hang on the login page.</p>
+</section>
+<section id="redirect-uri-must-match-exactly-127-0-0-1-not-localhost-and-the-right-port">
+<h3>Redirect URI must match exactly — <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code>, not <code class="docutils literal notranslate"><span class="pre">localhost</span></code>, and the right port<a class="headerlink" href="#redirect-uri-must-match-exactly-127-0-0-1-not-localhost-and-the-right-port" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">pkce_login</span></code> builds its redirect as <code class="docutils literal notranslate"><span class="pre">http://127.0.0.1:{port}/callback</span></code>. If you register a fixed
+redirect URI on the OAuth client, it must be <strong><code class="docutils literal notranslate"><span class="pre">http://127.0.0.1:8000/callback</span></code></strong> (127.0.0.1, not
+<code class="docutils literal notranslate"><span class="pre">localhost</span></code>) and you must call <code class="docutils literal notranslate"><span class="pre">connect_pkce(...,</span> <span class="pre">port=8000)</span></code> so the port matches. With <code class="docutils literal notranslate"><span class="pre">port=0</span></code> the
+port is random and cannot match a fixed registration.</p>
+</section>
+<section id="loopback-redirect-fails-on-remote-hosted-notebooks">
+<h3>Loopback redirect fails on remote/hosted notebooks<a class="headerlink" href="#loopback-redirect-fails-on-remote-hosted-notebooks" title="Link to this heading">#</a></h3>
+<p>The callback server listens on the <em>notebook host’s</em> <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code>. If the browser runs on a different
+machine (a remote/hosted marimo, Jupyter on a server, SSH), the redirect to <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code> hits the
+<em>user’s</em> machine where nothing is listening, so the code is never caught and PKCE times out.
+<strong>On remote hosts use <code class="docutils literal notranslate"><span class="pre">connect_device_code</span></code> instead</strong> — it needs no callback server (you get a URL +
+code and the process polls the token endpoint). On a truly local notebook, PKCE works.</p>
+</section>
+<section id="connect-pkce-only-supports-public-clients-tentative-on-the-401-cause">
+<h3><code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code> only supports <strong>public</strong> clients (tentative on the 401 cause)<a class="headerlink" href="#connect-pkce-only-supports-public-clients-tentative-on-the-401-cause" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">_exchange_code</span></code> sends only <code class="docutils literal notranslate"><span class="pre">client_id</span></code> + PKCE <code class="docutils literal notranslate"><span class="pre">code_verifier</span></code> at the token endpoint — <strong>no
+<code class="docutils literal notranslate"><span class="pre">client_secret</span></code></strong>. So it works with <em>public</em> clients (like <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span></code>) but not with a
+<strong>confidential</strong> client that has a secret and requires client authentication.</p>
+<blockquote>
+<div><p><strong>Observed but not fully root-caused:</strong> a freshly UI-created (confidential) client failed the
+code→token exchange with <strong>HTTP 401</strong> at <code class="docutils literal notranslate"><span class="pre">/rest/oauth/token</span></code>, <em>after</em> the browser/redirect half
+succeeded. A 401 there is consistent with <code class="docutils literal notranslate"><span class="pre">invalid_client</span></code> (confidential client needs a secret,
+which <code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code> never sends) — but it is also consistent with <code class="docutils literal notranslate"><span class="pre">unauthorized_client</span></code> (the
+client isn’t allowed the <code class="docutils literal notranslate"><span class="pre">authorization_code</span></code> grant). The discriminator is the OAuth <code class="docutils literal notranslate"><span class="pre">error</span></code> field
+in the 401 body, which bfabricPy does not currently log. To capture it, temporarily print the
+token-endpoint response instead of calling <code class="docutils literal notranslate"><span class="pre">raise_for_status()</span></code>.</p>
+</div></blockquote>
+</section>
+<section id="reactive-notebook-caveat">
+<h3>Reactive-notebook caveat<a class="headerlink" href="#reactive-notebook-caveat" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code> runs the full browser round-trip on <strong>every</strong> call — it does not load-and-skip from a
+cache (the <code class="docutils literal notranslate"><span class="pre">token_cache_path</span></code> cache is only used for <em>refresh after</em> login). In a reactive notebook
+(marimo), re-running that cell re-triggers auth. Silent/fast when the session is warm, but it is a
+real round-trip. Isolate that cell or cache the token yourself if it becomes annoying.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="refreshing-tokens-manually-rarely-needed">
+<h2>6. Refreshing tokens manually (rarely needed)<a class="headerlink" href="#refreshing-tokens-manually-rarely-needed" title="Link to this heading">#</a></h2>
+<p>The provider auto-refreshes the <strong>access token</strong> based on the access token’s own expiry. If you need
+a fresh token out of band (e.g. an id_token whose expiry the provider does <em>not</em> track), drive the
+refresh grant directly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">provider</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">_credential_provider</span>
+<span class="k">with</span> <span class="n">provider</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">_session</span>
+    <span class="n">fresh</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">refresh_token</span><span class="p">(</span>
+        <span class="n">provider</span><span class="o">.</span><span class="n">_token_url</span><span class="p">,</span> <span class="n">refresh_token</span><span class="o">=</span><span class="n">session</span><span class="o">.</span><span class="n">token</span><span class="p">[</span><span class="s2">&quot;refresh_token&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">provider</span><span class="o">.</span><span class="n">_persist</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>If <code class="docutils literal notranslate"><span class="pre">&quot;id_token&quot;</span> <span class="pre">not</span> <span class="pre">in</span> <span class="pre">fresh</span></code> the server didn’t re-issue one; if you get <code class="docutils literal notranslate"><span class="pre">invalid_grant</span></code> the refresh
+token expired — either way, re-run the interactive login. <code class="docutils literal notranslate"><span class="pre">_credential_provider</span></code> / <code class="docutils literal notranslate"><span class="pre">_session</span></code> are
+private and may change.</p>
+</section>
+<hr class="docutils" />
+<section id="quick-decision-tree">
+<h2>7. Quick decision tree<a class="headerlink" href="#quick-decision-tree" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Need a token for the SOAP/REST API only?</strong> Any flow works; <code class="docutils literal notranslate"><span class="pre">client.auth.password.get_secret_value()</span></code>.</p></li>
+<li><p><strong>Need to download files / hit a resource server as an employee?</strong> Use a user flow
+(<code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code>/<code class="docutils literal notranslate"><span class="pre">connect_device_code</span></code>) and request the <strong><code class="docutils literal notranslate"><span class="pre">groups</span></code> scope</strong> — works with the default
+<code class="docutils literal notranslate"><span class="pre">bfabric-cli</span></code> client. (<code class="docutils literal notranslate"><span class="pre">containers</span></code> is <em>not</em> PKCE-requestable; <code class="docutils literal notranslate"><span class="pre">groups</span></code> is, and employee group
+membership grants file access.)</p></li>
+<li><p><strong>Need specific containers as a non-employee?</strong> You need the <strong><code class="docutils literal notranslate"><span class="pre">containers</span></code> claim</strong>, which isn’t
+PKCE-requestable — it must come from a client with “Always Include Claims: containers”.</p></li>
+<li><p><strong>On a remote host / notebook?</strong> <code class="docutils literal notranslate"><span class="pre">connect_device_code</span></code>, not <code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code>.</p></li>
+<li><p><strong>Getting HTTP 401 at <code class="docutils literal notranslate"><span class="pre">/rest/oauth/token</span></code> after login?</strong> Check the client’s grant types
+(<code class="docutils literal notranslate"><span class="pre">authorization_code</span></code> + <code class="docutils literal notranslate"><span class="pre">refresh_token</span></code> enabled?) and whether it’s confidential (has a secret →
+<code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code> can’t authenticate it). Capture the OAuth <code class="docutils literal notranslate"><span class="pre">error</span></code> body to be sure.</p></li>
+<li><p><strong>Token works for API but not files?</strong> Decode it — no container access (missing <code class="docutils literal notranslate"><span class="pre">groups</span></code> for an
+employee, else missing <code class="docutils literal notranslate"><span class="pre">containers</span></code>), or you’re sending the id_token (<code class="docutils literal notranslate"><span class="pre">aud</span> <span class="pre">!=</span> <span class="pre">bfabric-api</span></code>).</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="oauth_integration.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">OAuth Integration</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../resources/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Resources</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#which-token-do-i-actually-have">1. Which token do I actually have?</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#access-token-vs-id-token-do-not-confuse-them">access_token vs id_token — do not confuse them</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#discovery-find-endpoints-and-supported-scopes-per-instance">2. Discovery: find endpoints and supported scopes per instance</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choosing-a-connect-method">3. Choosing a connect method</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scopes-and-claims-that-gate-resource-access">4. Scopes and claims that gate resource access</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#diagnostic-decode-a-token-locally">Diagnostic: decode a token locally</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pkce-mechanics-and-gotchas">5. PKCE mechanics and gotchas</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#it-is-blocking-but-can-feel-instant">It is blocking, but can feel instant</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#redirect-uri-must-match-exactly-127-0-0-1-not-localhost-and-the-right-port">Redirect URI must match exactly — <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code>, not <code class="docutils literal notranslate"><span class="pre">localhost</span></code>, and the right port</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loopback-redirect-fails-on-remote-hosted-notebooks">Loopback redirect fails on remote/hosted notebooks</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#connect-pkce-only-supports-public-clients-tentative-on-the-401-cause"><code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code> only supports <strong>public</strong> clients (tentative on the 401 cause)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reactive-notebook-caveat">Reactive-notebook caveat</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#refreshing-tokens-manually-rarely-needed">6. Refreshing tokens manually (rarely needed)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-decision-tree">7. Quick decision tree</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By the bfabricpy authors
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2014-2026 Functional Genomics Center Zurich.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

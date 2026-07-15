@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Working with Outputs &#8212; bfabric-app-runner 0.6.1 documentation</title>
+    <title>Working with Outputs &#8212; bfabric-app-runner 0.7.0rc1 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=810a7e51"></script>
+    <script src="../_static/documentation_options.js?v=b6ddad99"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -51,7 +51,7 @@
     <link rel="prev" title="Working with Inputs" href="working_with_inputs.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.6.1" />
+  <meta name="docsearch:version" content="0.7.0rc1" />
   </head>
   
   
@@ -126,7 +126,7 @@
   
   
   
-    <p class="title logo__title">bfabric-app-runner 0.6.1 documentation</p>
+    <p class="title logo__title">bfabric-app-runner 0.7.0rc1 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -156,13 +156,12 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../architecture/overview.html">Architecture Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../specs/input_specification.html">Input specification</a></li>
-
-
 <li class="toctree-l1"><a class="reference internal" href="../specs/output_specification.html">Output specification</a></li>
-
-
 <li class="toctree-l1"><a class="reference internal" href="../specs/app_specification.html">App Specification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api_reference/index.html">API Reference</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api_reference/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/runner/index.html">Python Runner API</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1"><a class="reference internal" href="../resources/index.html">Resources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../workunit_definition.html">Workunit Definition</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
@@ -320,7 +319,7 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric-link">bfabric_link</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updateexisting-behavior">UpdateExisting Behavior</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-update-existing-field">The <code class="docutils literal notranslate"><span class="pre">update_existing</span></code> field</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cli-commands">CLI Commands</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#register-all-outputs">Register all outputs</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#register-a-single-file">Register a single file</a></li>
@@ -347,105 +346,84 @@
 </section>
 <section id="output-yaml-format">
 <h2>Output YAML Format<a class="headerlink" href="#output-yaml-format" title="Link to this heading">#</a></h2>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_copy_resource</span>
-<span class="w">  </span><span class="nt">local_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">results/output.raw</span>
-<span class="w">  </span><span class="nt">store_entry_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output.raw</span>
+<p>Outputs are defined under a top-level <code class="docutils literal notranslate"><span class="pre">outputs:</span></code> key, whose value is a list of specifications:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">outputs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_copy_resource</span>
+<span class="w">    </span><span class="nt">local_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">results/output.raw</span>
+<span class="w">    </span><span class="nt">store_entry_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output.raw</span>
 
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_dataset</span>
-<span class="w">  </span><span class="nt">local_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">results/summary.csv</span>
-<span class="w">  </span><span class="nt">separator</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;,&quot;</span>
-<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Results</span><span class="nv"> </span><span class="s">Summary&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_dataset</span>
+<span class="w">    </span><span class="nt">local_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">results/summary.csv</span>
+<span class="w">    </span><span class="nt">separator</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;,&quot;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Results</span><span class="nv"> </span><span class="s">Summary&quot;</span>
 
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_link</span>
-<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Analysis</span><span class="nv"> </span><span class="s">Report&quot;</span>
-<span class="w">  </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://example.com/report/123&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_link</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Analysis</span><span class="nv"> </span><span class="s">Report&quot;</span>
+<span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://example.com/report/123&quot;</span>
 </pre></div>
 </div>
 </section>
 <section id="output-spec-types">
 <h2>Output Spec Types<a class="headerlink" href="#output-spec-types" title="Link to this heading">#</a></h2>
+<p>Each type is shown below with a representative example. For the complete field reference, see the
+<a class="reference internal" href="../specs/output_specification.html"><span class="std std-doc">Output specification</span></a>.</p>
 <section id="bfabric-copy-resource">
 <h3>bfabric_copy_resource<a class="headerlink" href="#bfabric-copy-resource" title="Link to this heading">#</a></h3>
 <p>Copies a local file to the B-Fabric storage and registers it as a resource.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_copy_resource</span>
-<span class="w">  </span><span class="nt">local_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">results/output.mzML</span>
-<span class="w">  </span><span class="nt">store_entry_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output.mzML</span>
-<span class="w">  </span><span class="nt">store_folder_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/path/in/store</span>
-<span class="w">  </span><span class="nt">update_existing</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NO</span>
-<span class="w">  </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">scp</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">outputs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_copy_resource</span>
+<span class="w">    </span><span class="nt">local_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">results/output.mzML</span>
+<span class="w">    </span><span class="nt">store_entry_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output.mzML</span>
+<span class="w">    </span><span class="nt">store_folder_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/path/in/store</span>
+<span class="w">    </span><span class="nt">update_existing</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">if_exists</span>
+<span class="w">    </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">scp</span>
 </pre></div>
 </div>
-<dl class="simple myst">
-<dt><code class="docutils literal notranslate"><span class="pre">local_path</span></code> (str, required)</dt><dd><p>Path to the local file (relative to the chunk directory).</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">store_entry_path</span></code> (str, optional)</dt><dd><p>Filename in the B-Fabric storage.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">store_folder_path</span></code> (str, optional)</dt><dd><p>Directory path within the storage.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">update_existing</span></code> (str, optional)</dt><dd><p>How to handle existing resources. See <a class="reference internal" href="#updateexisting-behavior">UpdateExisting</a> below.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">protocol</span></code> (str, optional)</dt><dd><p>Transfer protocol. Currently <code class="docutils literal notranslate"><span class="pre">&quot;scp&quot;</span></code>.</p>
-</dd>
-</dl>
 </section>
 <section id="bfabric-dataset">
 <h3>bfabric_dataset<a class="headerlink" href="#bfabric-dataset" title="Link to this heading">#</a></h3>
-<p>Registers a local tabular file as a B-Fabric dataset.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_dataset</span>
-<span class="w">  </span><span class="nt">local_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">results/summary.csv</span>
-<span class="w">  </span><span class="nt">separator</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;,&quot;</span>
-<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Experiment</span><span class="nv"> </span><span class="s">Results&quot;</span>
-<span class="w">  </span><span class="nt">has_header</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">  </span><span class="nt">invalid_characters</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">remove</span>
+<p>Registers a local tabular file as a B-Fabric dataset. The <code class="docutils literal notranslate"><span class="pre">format</span></code> field selects the reader
+(<code class="docutils literal notranslate"><span class="pre">csv</span></code>, the default, or <code class="docutils literal notranslate"><span class="pre">parquet</span></code>); <code class="docutils literal notranslate"><span class="pre">separator</span></code> and <code class="docutils literal notranslate"><span class="pre">has_header</span></code> apply to <code class="docutils literal notranslate"><span class="pre">csv</span></code> only.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">outputs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_dataset</span>
+<span class="w">    </span><span class="nt">local_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">results/summary.csv</span>
+<span class="w">    </span><span class="nt">separator</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;,&quot;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Experiment</span><span class="nv"> </span><span class="s">Results&quot;</span>
+<span class="w">    </span><span class="nt">has_header</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">invalid_characters</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">remove</span>
 </pre></div>
 </div>
-<dl class="simple myst">
-<dt><code class="docutils literal notranslate"><span class="pre">local_path</span></code> (str, required)</dt><dd><p>Path to the local CSV/TSV file.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">separator</span></code> (str, optional)</dt><dd><p>Column separator character.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">name</span></code> (str, optional)</dt><dd><p>Display name for the dataset in B-Fabric.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">has_header</span></code> (bool, optional)</dt><dd><p>Whether the file has a header row.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">invalid_characters</span></code> (str, optional)</dt><dd><p>How to handle invalid characters.</p>
-</dd>
-</dl>
+<p>For a Parquet file, set <code class="docutils literal notranslate"><span class="pre">format:</span> <span class="pre">parquet</span></code> (no <code class="docutils literal notranslate"><span class="pre">separator</span></code> needed):</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">outputs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_dataset</span>
+<span class="w">    </span><span class="nt">local_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">results/summary.parquet</span>
+<span class="w">    </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">parquet</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Experiment</span><span class="nv"> </span><span class="s">Results&quot;</span>
+</pre></div>
+</div>
 </section>
 <section id="bfabric-link">
 <h3>bfabric_link<a class="headerlink" href="#bfabric-link" title="Link to this heading">#</a></h3>
 <p>Creates a link resource in B-Fabric pointing to an external URL.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_link</span>
-<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Interactive</span><span class="nv"> </span><span class="s">Report&quot;</span>
-<span class="w">  </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://example.com/report/456&quot;</span>
-<span class="w">  </span><span class="nt">update_existing</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">IF_EXISTS</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">outputs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_link</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Interactive</span><span class="nv"> </span><span class="s">Report&quot;</span>
+<span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://example.com/report/456&quot;</span>
+<span class="w">    </span><span class="nt">update_existing</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">if_exists</span>
 </pre></div>
 </div>
-<dl class="simple myst">
-<dt><code class="docutils literal notranslate"><span class="pre">name</span></code> (str, required)</dt><dd><p>Display name for the link.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">url</span></code> (str, required)</dt><dd><p>The URL to link to.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">entity_type</span></code> (str, optional)</dt><dd><p>B-Fabric entity type to associate the link with.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">entity_id</span></code> (int, optional)</dt><dd><p>B-Fabric entity ID to associate the link with.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">update_existing</span></code> (str, optional)</dt><dd><p>How to handle existing links. See <a class="reference internal" href="#updateexisting-behavior">UpdateExisting</a> below.</p>
-</dd>
-</dl>
 </section>
 </section>
-<section id="updateexisting-behavior">
-<h2>UpdateExisting Behavior<a class="headerlink" href="#updateexisting-behavior" title="Link to this heading">#</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">update_existing</span></code> field controls what happens when a resource or link with the same identity already exists in B-Fabric:</p>
-<dl class="simple myst">
-<dt><code class="docutils literal notranslate"><span class="pre">NO</span></code></dt><dd><p>Do not update. Create a new resource (default behavior).</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">IF_EXISTS</span></code></dt><dd><p>Update the existing resource if one is found; otherwise create a new one.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">REQUIRED</span></code></dt><dd><p>The resource must already exist. Raises an error if not found.</p>
-</dd>
-</dl>
+<section id="the-update-existing-field">
+<h2>The <code class="docutils literal notranslate"><span class="pre">update_existing</span></code> field<a class="headerlink" href="#the-update-existing-field" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">update_existing</span></code> controls what happens when an entry with the same identity already exists in B-Fabric;
+its accepted values (<code class="docutils literal notranslate"><span class="pre">&quot;no&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">if_exists</span></code>, <code class="docutils literal notranslate"><span class="pre">required</span></code>) are documented on the
+<a class="reference internal" href="../specs/output_specification.html"><span class="std std-doc">Output specification</span></a>. Two things trip people up:</p>
+<ul class="simple">
+<li><p>In YAML, <code class="docutils literal notranslate"><span class="pre">&quot;no&quot;</span></code> <strong>must be quoted</strong> — bare <code class="docutils literal notranslate"><span class="pre">no</span></code> parses as the boolean <code class="docutils literal notranslate"><span class="pre">false</span></code> and fails validation.</p></li>
+<li><p>The YAML spec default is <code class="docutils literal notranslate"><span class="pre">if_exists</span></code>, but the <code class="docutils literal notranslate"><span class="pre">outputs</span> <span class="pre">register-single-file</span></code> CLI command’s
+<code class="docutils literal notranslate"><span class="pre">--update-existing</span></code> flag defaults to <code class="docutils literal notranslate"><span class="pre">no</span></code>.</p></li>
+</ul>
 </section>
 <section id="cli-commands">
 <h2>CLI Commands<a class="headerlink" href="#cli-commands" title="Link to this heading">#</a></h2>
@@ -463,6 +441,8 @@
 <dt><code class="docutils literal notranslate"><span class="pre">--ssh-user</span></code></dt><dd><p>SSH user for remote file transfers.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">--force-storage</span></code></dt><dd><p>Override the storage location.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--reuse-default-resource</span></code> / <code class="docutils literal notranslate"><span class="pre">--no-reuse-default-resource</span></code></dt><dd><p>Whether to reuse the workunit’s auto-created default resource for the first copied file (default: enabled).</p>
 </dd>
 </dl>
 </section>
@@ -483,11 +463,13 @@
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">--store-folder-path</span></code></dt><dd><p>Directory path within the storage.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">--update-existing</span></code></dt><dd><p>UpdateExisting behavior (<code class="docutils literal notranslate"><span class="pre">NO</span></code>, <code class="docutils literal notranslate"><span class="pre">IF_EXISTS</span></code>, or <code class="docutils literal notranslate"><span class="pre">REQUIRED</span></code>).</p>
+<dt><code class="docutils literal notranslate"><span class="pre">--update-existing</span></code></dt><dd><p>UpdateExisting behavior (<code class="docutils literal notranslate"><span class="pre">no</span></code>, <code class="docutils literal notranslate"><span class="pre">if-exists</span></code>, or <code class="docutils literal notranslate"><span class="pre">required</span></code>; default <code class="docutils literal notranslate"><span class="pre">no</span></code>).</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">--ssh-user</span></code></dt><dd><p>SSH user for remote transfers.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">--force-storage</span></code></dt><dd><p>Override the storage location.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--reuse-default-resource</span></code> / <code class="docutils literal notranslate"><span class="pre">--no-reuse-default-resource</span></code></dt><dd><p>Whether to reuse the workunit’s auto-created default resource (default: disabled for this command).</p>
 </dd>
 </dl>
 </section>
@@ -556,7 +538,7 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric-link">bfabric_link</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updateexisting-behavior">UpdateExisting Behavior</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-update-existing-field">The <code class="docutils literal notranslate"><span class="pre">update_existing</span></code> field</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cli-commands">CLI Commands</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#register-all-outputs">Register all outputs</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#register-a-single-file">Register a single file</a></li>

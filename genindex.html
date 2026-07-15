@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Index &#8212; bfabricPy 1.20.0rc1 documentation</title>
+    <title>Index &#8212; bfabricPy 1.20.0rc2 documentation</title>
   
   
   
@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="_static/documentation_options.js?v=1ee108fa"></script>
+    <script src="_static/documentation_options.js?v=0995889c"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -48,7 +48,7 @@
     <link rel="search" title="Search" href="search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.20.0rc1" />
+  <meta name="docsearch:version" content="1.20.0rc2" />
   </head>
   
   
@@ -125,7 +125,7 @@
   
   
   
-    <p class="title logo__title">bfabricPy 1.20.0rc1 documentation</p>
+    <p class="title logo__title">bfabricPy 1.20.0rc2 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -189,6 +189,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="design/index.html">Design Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="design/operations_module.html"><code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code> Module Design</a></li>
 <li class="toctree-l2"><a class="reference internal" href="design/oauth_integration.html">OAuth Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="design/oauth_usage_and_troubleshooting.html">OAuth Usage &amp; Troubleshooting</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="resources/index.html">Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -335,10 +336,10 @@
         <li><a href="api_reference/token_data/index.html#bfabric.rest.token_data.TokenData.application_id">(bfabric.rest.token_data.TokenData attribute)</a>
 </li>
       </ul></li>
-      <li><a href="advanced_topics/workunit_definitions/index.html#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_name">application_name (bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="advanced_topics/workunit_definitions/index.html#bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition.application_name">application_name (bfabric.experimental.workunit_definition.WorkunitRegistrationDefinition attribute)</a>
+</li>
       <li><a href="api_reference/entity_types/index.html#bfabric.entities.Workunit.application_parameters">application_parameters (bfabric.entities.Workunit property)</a>
 </li>
       <li><a href="api_reference/entity_uri/index.html#bfabric.entities.core.uri.EntityUriComponents.as_uri">as_uri() (bfabric.entities.core.uri.EntityUriComponents method)</a>
@@ -346,11 +347,7 @@
       <li><a href="api_reference/result_container/index.html#bfabric.results.result_container.ResultContainer.assert_success">assert_success() (bfabric.results.result_container.ResultContainer method)</a>
 </li>
       <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.auth">auth (bfabric.Bfabric attribute)</a>
-
-      <ul>
-        <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.auth">(bfabric.Bfabric property)</a>
 </li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -406,26 +403,26 @@
       <li><a href="api_reference/entity_uri/index.html#bfabric.entities.core.uri.EntityUri.components">components (bfabric.entities.core.uri.EntityUri property)</a>
 </li>
       <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.config">config (bfabric.Bfabric attribute)</a>
-
-      <ul>
-        <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.config">(bfabric.Bfabric property)</a>
 </li>
-      </ul></li>
       <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.config_data">config_data (bfabric.Bfabric attribute)</a>
-
-      <ul>
-        <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.config_data">(bfabric.Bfabric property)</a>
 </li>
-      </ul></li>
+      <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.connect">connect() (bfabric.Bfabric class method)</a>
+</li>
+      <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.connect_device_code">connect_device_code() (bfabric.Bfabric class method)</a>
+</li>
+      <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.connect_oauth">connect_oauth() (bfabric.Bfabric class method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.connect">connect() (bfabric.Bfabric class method)</a>, <a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.connect">[1]</a>
+      <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.connect_pat">connect_pat() (bfabric.Bfabric class method)</a>
 </li>
-      <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.connect_token">connect_token() (bfabric.Bfabric class method)</a>, <a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.connect_token">[1]</a>
+      <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.connect_pkce">connect_pkce() (bfabric.Bfabric class method)</a>
+</li>
+      <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.connect_token">connect_token() (bfabric.Bfabric class method)</a>
 </li>
       <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.connect_token_async">connect_token_async() (bfabric.Bfabric class method)</a>
 </li>
-      <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.connect_webapp">connect_webapp() (bfabric.Bfabric class method)</a>, <a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.connect_webapp">[1]</a>
+      <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.connect_webapp">connect_webapp() (bfabric.Bfabric class method)</a>
 </li>
       <li><a href="api_reference/entity_types/index.html#bfabric.entities.Sample.container">container (bfabric.entities.Sample attribute)</a>
 
@@ -463,7 +460,7 @@
 </li>
       <li><a href="api_reference/entity_types/index.html#bfabric.entities.Executable.decoded_str">decoded_str (bfabric.entities.Executable property)</a>
 </li>
-      <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.delete">delete() (bfabric.Bfabric method)</a>, <a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.delete">[1]</a>
+      <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.delete">delete() (bfabric.Bfabric method)</a>
 </li>
       <li><a href="api_reference/entity_types/index.html#bfabric.entities.core.entity.Entity.dump_yaml">dump_yaml() (bfabric.entities.core.entity.Entity method)</a>
 </li>
@@ -549,7 +546,7 @@
 </li>
       <li><a href="advanced_topics/workunit_definitions/index.html#bfabric.experimental.workunit_definition.WorkunitDefinition.execution">execution (bfabric.experimental.workunit_definition.WorkunitDefinition attribute)</a>
 </li>
-      <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.exists">exists() (bfabric.Bfabric method)</a>, <a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.exists">[1]</a>
+      <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.exists">exists() (bfabric.Bfabric method)</a>
 </li>
       <li><a href="api_reference/result_container/index.html#bfabric.results.result_container.ResultContainer.extend">extend() (bfabric.results.result_container.ResultContainer method)</a>
 </li>
@@ -571,13 +568,13 @@
 </li>
       <li><a href="api_reference/entity_uri/index.html#bfabric.entities.core.uri.EntityUri.from_components">from_components() (bfabric.entities.core.uri.EntityUri class method)</a>
 </li>
-      <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.from_config">from_config() (bfabric.Bfabric class method)</a>, <a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.from_config">[1]</a>
+      <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.from_config">from_config() (bfabric.Bfabric class method)</a>
 </li>
       <li><a href="advanced_topics/workunit_definitions/index.html#bfabric.experimental.workunit_definition.WorkunitDefinition.from_ref">from_ref() (bfabric.experimental.workunit_definition.WorkunitDefinition class method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.from_token_data">from_token_data() (bfabric.Bfabric class method)</a>, <a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.from_token_data">[1]</a>
+      <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.from_token_data">from_token_data() (bfabric.Bfabric class method)</a>
 </li>
       <li><a href="api_reference/entity_uri/index.html#bfabric.entities.core.uri.GroupedUris.from_uris">from_uris() (bfabric.entities.core.uri.GroupedUris class method)</a>
 </li>
@@ -760,7 +757,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="advanced_topics/workunit_definitions/index.html#bfabric.experimental.workunit_definition.WorkunitExecutionDefinition.raw_parameters">raw_parameters (bfabric.experimental.workunit_definition.WorkunitExecutionDefinition attribute)</a>
 </li>
-      <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.read">read() (bfabric.Bfabric method)</a>, <a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.read">[1]</a>
+      <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.read">read() (bfabric.Bfabric method)</a>
 </li>
       <li><a href="api_reference/entity_reader/index.html#bfabric.entities.core.entity_reader.EntityReader.read_id">read_id() (bfabric.entities.core.entity_reader.EntityReader method)</a>
 </li>
@@ -771,11 +768,7 @@
       <li><a href="api_reference/entity_reader/index.html#bfabric.entities.core.entity_reader.EntityReader.read_uris">read_uris() (bfabric.entities.core.entity_reader.EntityReader method)</a>
 </li>
       <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.reader">reader (bfabric.Bfabric attribute)</a>
-
-      <ul>
-        <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.reader">(bfabric.Bfabric property)</a>
 </li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api_reference/entity_types/index.html#bfabric.entities.core.entity.Entity.refs">refs (bfabric.entities.core.entity.Entity property)</a>
@@ -804,7 +797,7 @@
 </li>
       <li><a href="api_reference/entity_types/index.html#bfabric.entities.Sample">Sample (class in bfabric.entities)</a>
 </li>
-      <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.save">save() (bfabric.Bfabric method)</a>, <a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.save">[1]</a>
+      <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.save">save() (bfabric.Bfabric method)</a>
 </li>
       <li><a href="api_reference/entity_types/index.html#bfabric.entities.Storage.scp_prefix">scp_prefix (bfabric.entities.Storage property)</a>
 </li>
@@ -864,7 +857,7 @@
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.upload_resource">upload_resource() (bfabric.Bfabric method)</a>, <a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.upload_resource">[1]</a>
+      <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.upload_resource">upload_resource() (bfabric.Bfabric method)</a>
 </li>
       <li><a href="api_reference/entity_types/index.html#bfabric.entities.core.entity.Entity.uri">uri (bfabric.entities.core.entity.Entity property)</a>
 </li>
@@ -896,7 +889,7 @@
 </li>
       <li><a href="api_reference/entity_types/index.html#bfabric.entities.core.entity.Entity.web_url">web_url (bfabric.entities.core.entity.Entity property)</a>
 </li>
-      <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.with_auth">with_auth() (bfabric.Bfabric method)</a>, <a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.with_auth">[1]</a>
+      <li><a href="api_reference/bfabric_client/index.html#bfabric.Bfabric.with_auth">with_auth() (bfabric.Bfabric method)</a>
 </li>
       <li><a href="api_reference/entity_types/index.html#bfabric.entities.Workflow">Workflow (class in bfabric.entities)</a>
 </li>

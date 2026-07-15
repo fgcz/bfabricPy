@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Changelog &#8212; bfabric-app-runner 0.6.1 documentation</title>
+    <title>Changelog &#8212; bfabric-app-runner 0.7.0rc1 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="_static/documentation_options.js?v=810a7e51"></script>
+    <script src="_static/documentation_options.js?v=b6ddad99"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -50,7 +50,7 @@
     <link rel="prev" title="Workunit Definition" href="workunit_definition.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.6.1" />
+  <meta name="docsearch:version" content="0.7.0rc1" />
   </head>
   
   
@@ -125,7 +125,7 @@
   
   
   
-    <p class="title logo__title">bfabric-app-runner 0.6.1 documentation</p>
+    <p class="title logo__title">bfabric-app-runner 0.7.0rc1 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -155,13 +155,12 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="architecture/overview.html">Architecture Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="specs/input_specification.html">Input specification</a></li>
-
-
 <li class="toctree-l1"><a class="reference internal" href="specs/output_specification.html">Output specification</a></li>
-
-
 <li class="toctree-l1"><a class="reference internal" href="specs/app_specification.html">App Specification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api_reference/index.html">API Reference</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api_reference/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="api_reference/runner/index.html">Python Runner API</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1"><a class="reference internal" href="resources/index.html">Resources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workunit_definition.html">Workunit Definition</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Changelog</a></li>
@@ -313,6 +312,7 @@
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Changelog</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unreleased">[Unreleased]</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rc1-2026-07-15">[0.7.0rc1] - 2026-07-15</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">[0.6.1] - 2026-06-11</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed">Fixed</a></li>
@@ -495,6 +495,20 @@
 <p>The format is based on <a class="reference external" href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>.</p>
 <section id="unreleased">
 <h2>[Unreleased]<a class="headerlink" href="#unreleased" title="Link to this heading">#</a></h2>
+</section>
+<section id="rc1-2026-07-15">
+<h2>[0.7.0rc1] - 2026-07-15<a class="headerlink" href="#rc1-2026-07-15" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">SaveDatasetSpec</span></code> (the <code class="docutils literal notranslate"><span class="pre">bfabric_dataset</span></code> output) gains a <code class="docutils literal notranslate"><span class="pre">format</span></code> field (<code class="docutils literal notranslate"><span class="pre">csv</span></code> default, or <code class="docutils literal notranslate"><span class="pre">parquet</span></code>), so an output dataset can be registered from Parquet; <code class="docutils literal notranslate"><span class="pre">separator</span></code> is now optional (csv-only) (<a class="reference external" href="https://github.com/fgcz/bfabricPy/issues/359">#359</a>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BfabricResourceSpec</span></code> gains an <code class="docutils literal notranslate"><span class="pre">access</span></code> field (<code class="docutils literal notranslate"><span class="pre">ssh</span></code>/<code class="docutils literal notranslate"><span class="pre">http</span></code>); <code class="docutils literal notranslate"><span class="pre">access:</span> <span class="pre">http</span></code> streams from the storage’s HTTP endpoint (needs an OAuth client whose token carries the <code class="docutils literal notranslate"><span class="pre">containers</span></code> scope). The generic <code class="docutils literal notranslate"><span class="pre">file</span></code> spec also gained an HTTP source.</p></li>
+<li><p>Input staging and output copying now go through the shared <code class="docutils literal notranslate"><span class="pre">bfabric.transfer</span></code> layer (checksum-verified) instead of app-runner’s own copies; the local <code class="docutils literal notranslate"><span class="pre">util.scp</span></code> / <code class="docutils literal notranslate"><span class="pre">util.checksum</span></code> are removed. <code class="docutils literal notranslate"><span class="pre">CopyResourceSpec.protocol</span></code> also accepts <code class="docutils literal notranslate"><span class="pre">tus</span></code>, but the tus output path isn’t wired yet (<code class="docutils literal notranslate"><span class="pre">NotImplementedError</span></code>). Requires <code class="docutils literal notranslate"><span class="pre">bfabric</span></code> 1.20.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">action</span> <span class="pre">run-all</span></code> now re-runs dispatch when the chunk state is stale (e.g. the chunk directory was deleted but <code class="docutils literal notranslate"><span class="pre">chunks.yml</span></code> survived) instead of failing (<a class="reference external" href="https://github.com/fgcz/bfabricPy/issues/283">#283</a>).</p></li>
+<li><p>Output registration now raises a clear error when the configured workflow template step is missing, instead of an <code class="docutils literal notranslate"><span class="pre">AttributeError</span></code> or silent skip — aborting before the workunit is finalized to <code class="docutils literal notranslate"><span class="pre">available</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CommandPythonEnv.python_version</span></code> now defaults to <code class="docutils literal notranslate"><span class="pre">&quot;3.13&quot;</span></code> (was <code class="docutils literal notranslate"><span class="pre">None</span></code>), fixing a <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">venv</span> <span class="pre">-p</span> <span class="pre">None</span></code> failure and pinning to the tested interpreter.</p></li>
+<li><p>The SLURM wrapper now launches <code class="docutils literal notranslate"><span class="pre">bfabric-app-runner</span></code> with <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">run</span> <span class="pre">-p</span> <span class="pre">3.13</span></code>, so it can’t float onto an untested Python such as a prerelease 3.14 (<a class="reference external" href="https://github.com/fgcz/bfabricPy/issues/494">#494</a>).</p></li>
+<li><p>Python-environment provisioning output (<code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">venv</span></code> / <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">pip</span> <span class="pre">install</span></code>) is now logged at DEBUG instead of printed (quiet INFO runs); failures are logged in full at ERROR.</p></li>
+<li><p>Internal: ruff <code class="docutils literal notranslate"><span class="pre">flake8-type-checking</span></code> now treats <code class="docutils literal notranslate"><span class="pre">pydantic.BaseModel</span></code> / <code class="docutils literal notranslate"><span class="pre">FromConfigFile</span></code> as runtime-evaluated (dropping <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">noqa:</span> <span class="pre">TC00x</span></code> and blanket per-file ignores).</p></li>
+</ul>
 </section>
 <section id="id1">
 <h2>[0.6.1] - 2026-06-11<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
@@ -1115,6 +1129,7 @@ this type of error early.</p></li>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Changelog</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unreleased">[Unreleased]</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rc1-2026-07-15">[0.7.0rc1] - 2026-07-15</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">[0.6.1] - 2026-06-11</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed">Fixed</a></li>

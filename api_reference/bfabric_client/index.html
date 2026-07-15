@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Bfabric Client API Reference &#8212; bfabricPy 1.20.0rc1 documentation</title>
+    <title>Bfabric Client API Reference &#8212; bfabricPy 1.20.0rc2 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=1ee108fa"></script>
+    <script src="../../_static/documentation_options.js?v=0995889c"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -51,7 +51,7 @@
     <link rel="prev" title="API Reference" href="../index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.20.0rc1" />
+  <meta name="docsearch:version" content="1.20.0rc2" />
   </head>
   
   
@@ -126,7 +126,7 @@
   
   
   
-    <p class="title logo__title">bfabricPy 1.20.0rc1 documentation</p>
+    <p class="title logo__title">bfabricPy 1.20.0rc2 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -190,6 +190,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../design/index.html">Design Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../design/operations_module.html"><code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code> Module Design</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../design/oauth_integration.html">OAuth Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../design/oauth_usage_and_troubleshooting.html">OAuth Usage &amp; Troubleshooting</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../resources/index.html">Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -345,28 +346,17 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-links">Quick Links</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api-overview">API Overview</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric-class">Bfabric Class</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric"><code class="docutils literal notranslate"><span class="pre">Bfabric</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.auth"><code class="docutils literal notranslate"><span class="pre">Bfabric.auth</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.config"><code class="docutils literal notranslate"><span class="pre">Bfabric.config</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.config_data"><code class="docutils literal notranslate"><span class="pre">Bfabric.config_data</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.connect"><code class="docutils literal notranslate"><span class="pre">Bfabric.connect()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.connect_token"><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_token()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.connect_token_async"><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_token_async()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.connect_webapp"><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_webapp()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.delete"><code class="docutils literal notranslate"><span class="pre">Bfabric.delete()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.exists"><code class="docutils literal notranslate"><span class="pre">Bfabric.exists()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.from_config"><code class="docutils literal notranslate"><span class="pre">Bfabric.from_config()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.from_token_data"><code class="docutils literal notranslate"><span class="pre">Bfabric.from_token_data()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.read"><code class="docutils literal notranslate"><span class="pre">Bfabric.read()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.reader"><code class="docutils literal notranslate"><span class="pre">Bfabric.reader</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.save"><code class="docutils literal notranslate"><span class="pre">Bfabric.save()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.upload_resource"><code class="docutils literal notranslate"><span class="pre">Bfabric.upload_resource()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.with_auth"><code class="docutils literal notranslate"><span class="pre">Bfabric.with_auth()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric"><code class="docutils literal notranslate"><span class="pre">Bfabric</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#client-creation-methods">Client Creation Methods</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-interactive-scripted-usage">For Interactive/Scripted Usage</a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.connect"><code class="docutils literal notranslate"><span class="pre">Bfabric.connect()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-oauth-based-usage">For OAuth-based Usage</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.connect_oauth"><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_oauth()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.connect_pkce"><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_pkce()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.connect_device_code"><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_device_code()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.connect_pat"><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_pat()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecated-methods">Deprecated Methods</a><ul class="nav section-nav flex-column">
@@ -376,6 +366,7 @@
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-server-webapp-usage">For Server/Webapp Usage</a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.connect_token"><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_token()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.connect_token_async"><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_token_async()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.from_token_data"><code class="docutils literal notranslate"><span class="pre">Bfabric.from_token_data()</span></code></a></li>
 </ul>
 </li>
@@ -442,7 +433,7 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Client Creation</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">connect()</span></code>, <code class="docutils literal notranslate"><span class="pre">connect_token()</span></code>, <code class="docutils literal notranslate"><span class="pre">from_token_data()</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">connect()</span></code>, <code class="docutils literal notranslate"><span class="pre">connect_oauth()</span></code>, <code class="docutils literal notranslate"><span class="pre">connect_pkce()</span></code>, <code class="docutils literal notranslate"><span class="pre">connect_device_code()</span></code>, <code class="docutils literal notranslate"><span class="pre">connect_pat()</span></code>, <code class="docutils literal notranslate"><span class="pre">connect_token()</span></code>, <code class="docutils literal notranslate"><span class="pre">from_token_data()</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p>Read Operations</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">read()</span></code>, <code class="docutils literal notranslate"><span class="pre">exists()</span></code></p></td>
@@ -473,199 +464,6 @@
 <p>Bfabric client class, providing general functionality for interaction with the B-Fabric API.</p>
 <p>Use <cite>Bfabric.connect()</cite> or <cite>Bfabric.connect_webapp</cite> to create a new instance, and check out their docstrings for
 more details on how to use.</p>
-<dl class="py property">
-<dt class="sig sig-object py" id="bfabric.Bfabric.auth">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">auth</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">BfabricAuth</span></span><a class="headerlink" href="#bfabric.Bfabric.auth" title="Link to this definition">#</a></dt>
-<dd><p>Returns the auth object.</p>
-<p>When a credential provider is present (OAuth), it returns a fresh
-<code class="xref py py-class docutils literal notranslate"><span class="pre">BfabricAuth</span></code> with the current access token.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ValueError</strong> – If authentication is not available</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="bfabric.Bfabric.config">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">config</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">BfabricClientConfig</span></span><a class="headerlink" href="#bfabric.Bfabric.config" title="Link to this definition">#</a></dt>
-<dd><p>Returns the config object.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="bfabric.Bfabric.config_data">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">config_data</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ConfigData</span></span><a class="headerlink" href="#bfabric.Bfabric.config_data" title="Link to this definition">#</a></dt>
-<dd><p>Returns the config data object.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bfabric.Bfabric.connect">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">connect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">PosixPath('~/.bfabricpy.yml')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_file_env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'default'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_auth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric.Bfabric" title="bfabric.bfabric.Bfabric"><span class="pre">Bfabric</span></a></span></span><a class="headerlink" href="#bfabric.Bfabric.connect" title="Link to this definition">#</a></dt>
-<dd><p>Returns a new Bfabric instance.</p>
-<p>If a <cite>BFABRICPY_CONFIG_OVERRIDE</cite> environment variable is set, all configuration will originate from it.</p>
-<p>If it’s not present, and <cite>config_file_env</cite> is not <cite>None</cite>, your config file (<cite>~/.bfabricpy.yml</cite> by default) will
-be used instead.
-If <cite>config_file_env</cite> is <cite>“default”</cite>, then if available the environment according to env variable
-<cite>BFABRICPY_CONFIG_ENV</cite> will be used, otherwise the default environment in the config file will be used.
-Otherwise, <cite>config_file_env</cite> specifies the name of the environment.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>config_file_path</strong> – a non-standard configuration file to use, if config file is selected as a config source</p></li>
-<li><p><strong>config_file_env</strong> – name of environment to use, if config file is selected as a config source.
-if <cite>“default”</cite> is specified, the default environment will be used.
-if <cite>None</cite> is specified, the file will not be used as a config source.</p></li>
-<li><p><strong>include_auth</strong> – whether auth information should be included (for servers, setting this to False is useful)</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bfabric.Bfabric.connect_token">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">connect_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">SecretStr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TokenValidationSettingsProtocol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.Bfabric" title="bfabric.Bfabric"><span class="pre">Bfabric</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../token_data/index.html#bfabric.rest.token_data.TokenData" title="bfabric.rest.token_data.TokenData"><span class="pre">TokenData</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bfabric.Bfabric.connect_token" title="Link to this definition">#</a></dt>
-<dd><p>Returns a new Bfabric instance configured with the provided token.</p>
-<p>Calls connect_token_async, if you are in a coroutine then you have to call connect_token_async instead.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bfabric.Bfabric.connect_token_async">
-<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">connect_token_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">SecretStr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TokenValidationSettingsProtocol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.Bfabric" title="bfabric.Bfabric"><span class="pre">Bfabric</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../token_data/index.html#bfabric.rest.token_data.TokenData" title="bfabric.rest.token_data.TokenData"><span class="pre">TokenData</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bfabric.Bfabric.connect_token_async" title="Link to this definition">#</a></dt>
-<dd><p>Returns a new Bfabric instance configured with the provided token.</p>
-<p>Settings needs to be configured to allow the desired B-Fabric instances.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bfabric.Bfabric.connect_webapp">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">connect_webapp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_instance_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'https://fgcz-bfabric.uzh.ch/bfabric/'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_file_env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.Bfabric" title="bfabric.bfabric.Bfabric"><span class="pre">Bfabric</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../token_data/index.html#bfabric.rest.token_data.TokenData" title="bfabric.rest.token_data.TokenData"><span class="pre">TokenData</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bfabric.Bfabric.connect_webapp" title="Link to this definition">#</a></dt>
-<dd><p>Returns a new Bfabric instance, configured with the user configuration file and the provided token.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>token</strong> – the token to use for authentication</p></li>
-<li><p><strong>validation_instance_url</strong> – the URL of the B-Fabric instance to use for token validation, in principle
-validation can be performed on any B-Fabric instance as the token describes the caller too</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>a tuple of the Bfabric instance and the token data</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bfabric.Bfabric.delete">
-<span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../result_container/index.html#bfabric.results.result_container.ResultContainer" title="bfabric.results.result_container.ResultContainer"><span class="pre">ResultContainer</span></a></span></span><a class="headerlink" href="#bfabric.Bfabric.delete" title="Link to this definition">#</a></dt>
-<dd><p>Deletes the object with the specified ID from the specified endpoint.
-:param endpoint: the endpoint to delete from, e.g. “sample”
-:param id: the ID of the object to delete
-:param check: whether to raise an error if the response is not successful
-:return a ResultContainer describing the deleted object if successful</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bfabric.Bfabric.exists">
-<span class="sig-name descname"><span class="pre">exists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ApiRequestObjectType</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#bfabric.Bfabric.exists" title="Link to this definition">#</a></dt>
-<dd><p>Returns whether an object with the specified key-value pair exists in the specified endpoint.
-Further conditions can be specified in the query.
-:param endpoint: the endpoint to check, e.g. “sample”
-:param key: the key to check, e.g. “id”
-:param value: the value to check, e.g. 123
-:param query: additional query conditions (optional)
-:param check: whether to raise an error if the response is not successful</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bfabric.Bfabric.from_config">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BfabricAuth</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'config'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'config'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BfabricAPIEngineType</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric.Bfabric" title="bfabric.bfabric.Bfabric"><span class="pre">Bfabric</span></a></span></span><a class="headerlink" href="#bfabric.Bfabric.from_config" title="Link to this definition">#</a></dt>
-<dd><p>Returns a new Bfabric instance, configured with the user configuration file.
-If the <cite>config_env</cite> is specified then it will be used, if it is not specified the default environment will be
-determined by checking the following in order (picking the first one that is found):
-- The <cite>BFABRICPY_CONFIG_ENV</cite> environment variable
-- The <cite>default_config</cite> field in the config file “GENERAL” section</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>config_env</strong> – Configuration environment to use. If not given, it is deduced as described above.</p></li>
-<li><p><strong>config_path</strong> – Path to the config file, in case it is different from default</p></li>
-<li><p><strong>auth</strong> – Authentication to use. If “config” is given, the authentication will be read from the config file.
-If it is set to None, no authentication will be used.</p></li>
-<li><p><strong>engine</strong> – Engine to use for the API.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bfabric.Bfabric.from_token_data">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_token_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../token_data/index.html#bfabric.rest.token_data.TokenData" title="bfabric.rest.token_data.TokenData"><span class="pre">TokenData</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric.Bfabric" title="bfabric.bfabric.Bfabric"><span class="pre">Bfabric</span></a></span></span><a class="headerlink" href="#bfabric.Bfabric.from_token_data" title="Link to this definition">#</a></dt>
-<dd><p>Creates a new Bfabric instance from token data.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bfabric.Bfabric.read">
-<span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ApiRequestObjectType</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_id_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../result_container/index.html#bfabric.results.result_container.ResultContainer" title="bfabric.results.result_container.ResultContainer"><span class="pre">ResultContainer</span></a></span></span><a class="headerlink" href="#bfabric.Bfabric.read" title="Link to this definition">#</a></dt>
-<dd><p>Reads from the specified endpoint matching all specified attributes in <cite>obj</cite>.</p>
-<p>By setting <cite>max_results</cite> it is possible to change the number of results that are returned.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>endpoint</strong> – The B-Fabric endpoint to query (e.g., “sample”, “project”, “workunit”).</p></li>
-<li><p><strong>obj</strong> – A dictionary containing the query criteria. For every field, multiple possible values
-can be provided as a list (treated as OR). Multiple fields are treated as AND.</p></li>
-<li><p><strong>max_results</strong> – Maximum number of results to return. The client will automatically handle
-pagination to reach this limit. Set to <code class="docutils literal notranslate"><span class="pre">None</span></code> to retrieve all available results.
-Note: results are fetched in blocks of 100.</p></li>
-<li><p><strong>offset</strong> – Number of results to skip before starting to return results.</p></li>
-<li><p><strong>check</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code> (default), raises a <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> if the query fails.</p></li>
-<li><p><strong>return_id_only</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, only returns entity IDs instead of full data (faster).</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">ResultContainer</span></code> containing the query results.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="bfabric.Bfabric.reader">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">reader</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../entity_reader/index.html#bfabric.entities.core.entity_reader.EntityReader" title="bfabric.entities.core.entity_reader.EntityReader"><span class="pre">EntityReader</span></a></span><a class="headerlink" href="#bfabric.Bfabric.reader" title="Link to this definition">#</a></dt>
-<dd><p>Returns an EntityReader for this client.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bfabric.Bfabric.save">
-<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ApiRequestObjectType</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ApiRequestObjectType</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'save'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../result_container/index.html#bfabric.results.result_container.ResultContainer" title="bfabric.results.result_container.ResultContainer"><span class="pre">ResultContainer</span></a></span></span><a class="headerlink" href="#bfabric.Bfabric.save" title="Link to this definition">#</a></dt>
-<dd><p>Saves the provided object to the specified endpoint.
-:param endpoint: the endpoint to save to, e.g. “sample”
-:param obj: the object(s) to save
-:param check: whether to raise an error if the response is not successful
-:param method: the method to use for saving, generally “save”, but in some cases e.g. “update” is more
-appropriate to be used instead.</p>
-<p>:return a ResultContainer describing the saved object if successful</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bfabric.Bfabric.upload_resource">
-<span class="sig-name descname"><span class="pre">upload_resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resource_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workunit_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../result_container/index.html#bfabric.results.result_container.ResultContainer" title="bfabric.results.result_container.ResultContainer"><span class="pre">ResultContainer</span></a></span></span><a class="headerlink" href="#bfabric.Bfabric.upload_resource" title="Link to this definition">#</a></dt>
-<dd><p>Uploads a resource to B-Fabric, only intended for relatively small files that will be tracked by B-Fabric
-and not one of the dedicated experimental data stores.
-:param resource_name: the name of the resource to create (the same name can only exist once per workunit)
-:param content: the content of the resource as bytes
-:param workunit_id: the workunit ID to which the resource belongs
-:param check: whether to check for errors in the response</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bfabric.Bfabric.with_auth">
-<span class="sig-name descname"><span class="pre">with_auth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">auth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BfabricAuth</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bfabric.Bfabric.with_auth" title="Link to this definition">#</a></dt>
-<dd><p>Context manager that temporarily (within the scope of the context) sets the authentication for
-the Bfabric object to the provided value. This is useful when authenticating multiple users, to avoid accidental
-use of the wrong credentials.</p>
-<p>When a credential provider is active, it is temporarily disabled so the
-explicit <em>auth</em> takes priority.</p>
-</dd></dl>
-
 </dd></dl>
 
 <section id="client-creation-methods">
@@ -690,6 +488,92 @@ Otherwise, <cite>config_file_env</cite> specifies the name of the environment.</
 if <cite>“default”</cite> is specified, the default environment will be used.
 if <cite>None</cite> is specified, the file will not be used as a config source.</p></li>
 <li><p><strong>include_auth</strong> – whether auth information should be included (for servers, setting this to False is useful)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="for-oauth-based-usage">
+<h4>For OAuth-based Usage<a class="headerlink" href="#for-oauth-based-usage" title="Link to this heading">#</a></h4>
+<dl class="py method">
+<dt class="sig sig-object py" id="bfabric.Bfabric.connect_oauth">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">Bfabric.</span></span><span class="sig-name descname"><span class="pre">connect_oauth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_secret</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">scope</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'api:read</span> <span class="pre">api:write</span> <span class="pre">openid</span> <span class="pre">profile</span> <span class="pre">email</span> <span class="pre">groups'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token_cache_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric.Bfabric" title="bfabric.bfabric.Bfabric"><span class="pre">Bfabric</span></a></span></span><a class="headerlink" href="#bfabric.Bfabric.connect_oauth" title="Link to this definition">#</a></dt>
+<dd><p>Returns a new Bfabric instance that authenticates via OAuth 2.0 client credentials.</p>
+<p>Tokens are fetched and refreshed automatically. Every SOAP call gets a
+fresh <code class="docutils literal notranslate"><span class="pre">BfabricAuth(login=&quot;__oauth__&quot;,</span> <span class="pre">password=&lt;jwt&gt;)</span></code> via the
+credential provider.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>client_id</strong> – OAuth client ID (from <code class="docutils literal notranslate"><span class="pre">register_client</span></code> or admin setup)</p></li>
+<li><p><strong>client_secret</strong> – OAuth client secret</p></li>
+<li><p><strong>base_url</strong> – B-Fabric instance URL (e.g. <code class="docutils literal notranslate"><span class="pre">https://bfabric.example.com/bfabric</span></code>)</p></li>
+<li><p><strong>scope</strong> – OAuth scope</p></li>
+<li><p><strong>token_cache_path</strong> – Optional path to cache tokens on disk (survives restarts)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfabric.Bfabric.connect_pkce">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">Bfabric.</span></span><span class="sig-name descname"><span class="pre">connect_pkce</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'CLI'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scope</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'api:read</span> <span class="pre">api:write</span> <span class="pre">openid</span> <span class="pre">profile</span> <span class="pre">email</span> <span class="pre">groups'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">open_browser</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">120.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token_cache_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric.Bfabric" title="bfabric.bfabric.Bfabric"><span class="pre">Bfabric</span></a></span></span><a class="headerlink" href="#bfabric.Bfabric.connect_pkce" title="Link to this definition">#</a></dt>
+<dd><p>Returns a new Bfabric instance after interactive browser-based PKCE login.</p>
+<p>Opens the user’s browser to the B-Fabric authorization page.  After
+the user logs in, tokens are exchanged automatically and the returned
+client uses <code class="xref py py-class docutils literal notranslate"><span class="pre">OAuthCredentialProvider</span></code> for transparent refresh.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_url</strong> – B-Fabric instance URL (e.g. <code class="docutils literal notranslate"><span class="pre">https://bfabric.example.com/bfabric</span></code>)</p></li>
+<li><p><strong>client_id</strong> – OAuth client ID</p></li>
+<li><p><strong>scope</strong> – OAuth scope</p></li>
+<li><p><strong>port</strong> – Local port for the callback server (<code class="docutils literal notranslate"><span class="pre">0</span></code> = auto-assign)</p></li>
+<li><p><strong>open_browser</strong> – Whether to open the authorization URL in the browser</p></li>
+<li><p><strong>timeout</strong> – Seconds to wait for the user to complete login</p></li>
+<li><p><strong>token_cache_path</strong> – Optional path to cache tokens on disk (survives restarts)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfabric.Bfabric.connect_device_code">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">Bfabric.</span></span><span class="sig-name descname"><span class="pre">connect_device_code</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'CLI'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scope</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'api:read</span> <span class="pre">api:write</span> <span class="pre">openid</span> <span class="pre">profile</span> <span class="pre">email</span> <span class="pre">groups'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">600.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token_cache_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric.Bfabric" title="bfabric.bfabric.Bfabric"><span class="pre">Bfabric</span></a></span></span><a class="headerlink" href="#bfabric.Bfabric.connect_device_code" title="Link to this definition">#</a></dt>
+<dd><p>Returns a new Bfabric instance after device code authorization (RFC 8628).</p>
+<p>Displays a user code and verification URI on stderr.  The user
+visits the URI, enters the code, and authorizes the device.  The
+returned client uses <code class="xref py py-class docutils literal notranslate"><span class="pre">OAuthCredentialProvider</span></code> for transparent
+token refresh.</p>
+<p>This flow is suitable for headless environments (SSH, containers)
+where a localhost redirect is not feasible.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_url</strong> – B-Fabric instance URL (e.g. <code class="docutils literal notranslate"><span class="pre">https://bfabric.example.com/bfabric</span></code>)</p></li>
+<li><p><strong>client_id</strong> – OAuth client ID</p></li>
+<li><p><strong>scope</strong> – OAuth scope</p></li>
+<li><p><strong>timeout</strong> – Seconds to wait for the user to authorize</p></li>
+<li><p><strong>token_cache_path</strong> – Optional path to cache tokens on disk (survives restarts)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfabric.Bfabric.connect_pat">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">Bfabric.</span></span><span class="sig-name descname"><span class="pre">connect_pat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">SecretStr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric.Bfabric" title="bfabric.Bfabric"><span class="pre">Bfabric</span></a></span></span><a class="headerlink" href="#bfabric.Bfabric.connect_pat" title="Link to this definition">#</a></dt>
+<dd><p>Returns a new Bfabric instance that authenticates via a Personal Access Token.</p>
+<p>PATs are opaque bearer tokens issued by B-Fabric. Unlike JWTs they
+cannot be verified locally, but they also don’t need to be — the SOAP
+API accepts them directly. There is no automatic refresh; if the token
+expires a new one must be obtained.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_url</strong> – B-Fabric instance URL (e.g. <code class="docutils literal notranslate"><span class="pre">https://bfabric.example.com/bfabric</span></code>)</p></li>
+<li><p><strong>pat</strong> – Personal Access Token (string or <code class="docutils literal notranslate"><span class="pre">SecretStr</span></code>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -748,6 +632,13 @@ validation can be performed on any B-Fabric instance as the token describes the 
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="bfabric.Bfabric.connect_token_async">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">Bfabric.</span></span><span class="sig-name descname"><span class="pre">connect_token_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">SecretStr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TokenValidationSettingsProtocol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.Bfabric" title="bfabric.Bfabric"><span class="pre">Bfabric</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../token_data/index.html#bfabric.rest.token_data.TokenData" title="bfabric.rest.token_data.TokenData"><span class="pre">TokenData</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bfabric.Bfabric.connect_token_async" title="Link to this definition">#</a></dt>
+<dd><p>Returns a new Bfabric instance configured with the provided token.</p>
+<p>Settings needs to be configured to allow the desired B-Fabric instances.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="bfabric.Bfabric.from_token_data">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">Bfabric.</span></span><span class="sig-name descname"><span class="pre">from_token_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../token_data/index.html#bfabric.rest.token_data.TokenData" title="bfabric.rest.token_data.TokenData"><span class="pre">TokenData</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric.Bfabric" title="bfabric.bfabric.Bfabric"><span class="pre">Bfabric</span></a></span></span><a class="headerlink" href="#bfabric.Bfabric.from_token_data" title="Link to this definition">#</a></dt>
 <dd><p>Creates a new Bfabric instance from token data.</p>
@@ -772,7 +663,7 @@ can be provided as a list (treated as OR). Multiple fields are treated as AND.</
 pagination to reach this limit. Set to <code class="docutils literal notranslate"><span class="pre">None</span></code> to retrieve all available results.
 Note: results are fetched in blocks of 100.</p></li>
 <li><p><strong>offset</strong> – Number of results to skip before starting to return results.</p></li>
-<li><p><strong>check</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code> (default), raises a <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> if the query fails.</p></li>
+<li><p><strong>check</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, raises a <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> if the query fails.</p></li>
 <li><p><strong>return_id_only</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, only returns entity IDs instead of full data (faster).</p></li>
 </ul>
 </dd>
@@ -941,28 +832,17 @@ explicit <em>auth</em> takes priority.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-links">Quick Links</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api-overview">API Overview</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric-class">Bfabric Class</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric"><code class="docutils literal notranslate"><span class="pre">Bfabric</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.auth"><code class="docutils literal notranslate"><span class="pre">Bfabric.auth</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.config"><code class="docutils literal notranslate"><span class="pre">Bfabric.config</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.config_data"><code class="docutils literal notranslate"><span class="pre">Bfabric.config_data</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.connect"><code class="docutils literal notranslate"><span class="pre">Bfabric.connect()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.connect_token"><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_token()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.connect_token_async"><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_token_async()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.connect_webapp"><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_webapp()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.delete"><code class="docutils literal notranslate"><span class="pre">Bfabric.delete()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.exists"><code class="docutils literal notranslate"><span class="pre">Bfabric.exists()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.from_config"><code class="docutils literal notranslate"><span class="pre">Bfabric.from_config()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.from_token_data"><code class="docutils literal notranslate"><span class="pre">Bfabric.from_token_data()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.read"><code class="docutils literal notranslate"><span class="pre">Bfabric.read()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.reader"><code class="docutils literal notranslate"><span class="pre">Bfabric.reader</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.save"><code class="docutils literal notranslate"><span class="pre">Bfabric.save()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.upload_resource"><code class="docutils literal notranslate"><span class="pre">Bfabric.upload_resource()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.with_auth"><code class="docutils literal notranslate"><span class="pre">Bfabric.with_auth()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric"><code class="docutils literal notranslate"><span class="pre">Bfabric</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#client-creation-methods">Client Creation Methods</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-interactive-scripted-usage">For Interactive/Scripted Usage</a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.connect"><code class="docutils literal notranslate"><span class="pre">Bfabric.connect()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-oauth-based-usage">For OAuth-based Usage</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.connect_oauth"><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_oauth()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.connect_pkce"><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_pkce()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.connect_device_code"><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_device_code()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.connect_pat"><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_pat()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecated-methods">Deprecated Methods</a><ul class="nav section-nav flex-column">
@@ -972,6 +852,7 @@ explicit <em>auth</em> takes priority.</p>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-server-webapp-usage">For Server/Webapp Usage</a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.connect_token"><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_token()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.connect_token_async"><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_token_async()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.Bfabric.from_token_data"><code class="docutils literal notranslate"><span class="pre">Bfabric.from_token_data()</span></code></a></li>
 </ul>
 </li>

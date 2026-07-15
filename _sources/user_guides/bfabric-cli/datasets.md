@@ -383,4 +383,4 @@ ______________________________________________________________________
 
 - [API Operations](api_operations) - Generic CRUD operations
 - [Workunits](workunits) - Working with workunits (datasets are often linked to workunits)
-- [Python Dataset API](../../api_reference/entity_types/dataset) - Using datasets in Python
+- [Python Dataset API](../../api_reference/entity_types/index) - Using datasets in Python

@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- **Python**: 3.13 or higher
+- **Python**: 3.12 or higher
 - **uv**: [Install uv](https://docs.astral.sh/uv/getting-started/installation/) if you don't have it
 - **B-Fabric account**: You need valid B-Fabric credentials configured in `~/.bfabricpy.yml` (see the [bfabric Configuration Guide](https://fgcz.github.io/bfabricPy/getting_started/configuration.html))
 

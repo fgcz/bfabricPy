@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Entity Caching &#8212; bfabricPy 1.20.0rc1 documentation</title>
+    <title>Entity Caching &#8212; bfabricPy 1.20.0rc2 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=1ee108fa"></script>
+    <script src="../../_static/documentation_options.js?v=0995889c"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -51,7 +51,7 @@
     <link rel="prev" title="Entity API" href="entity_api.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.20.0rc1" />
+  <meta name="docsearch:version" content="1.20.0rc2" />
   </head>
   
   
@@ -126,7 +126,7 @@
   
   
   
-    <p class="title logo__title">bfabricPy 1.20.0rc1 documentation</p>
+    <p class="title logo__title">bfabricPy 1.20.0rc2 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -190,6 +190,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../design/index.html">Design Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../design/operations_module.html"><code class="docutils literal notranslate"><span class="pre">bfabric.operations</span></code> Module Design</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../design/oauth_integration.html">OAuth Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../design/oauth_usage_and_troubleshooting.html">OAuth Usage &amp; Troubleshooting</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../resources/index.html">Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -396,6 +397,14 @@ configuration.</p>
 <p class="admonition-title">Note</p>
 <p>Caching is an optional optimization feature. bfabricPy works perfectly without caching, but performance can be significantly
 improved for complex operations.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>A cache serves a <strong>snapshot</strong> of each entity as it was first read within the context. If the underlying data changes in
+B-Fabric while the context is open — whether from another application, another user, or a concurrent write from your own
+code — the cache will keep returning the stale copy. This is easy to overlook when caching entities whose attributes are
+updated out-of-band, such as custom attributes. Only cache within a context if you can tolerate a snapshot that may be
+briefly out of date, and keep the context short-lived (or avoid caching entirely) when you need to observe live updates.</p>
 </div>
 </section>
 <section id="basic-usage">

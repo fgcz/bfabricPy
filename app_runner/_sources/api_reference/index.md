@@ -1,62 +1,28 @@
 # API Reference
 
-Auto-generated API documentation from the Python source code.
+Orientation hub for the bfabric-app-runner API. An app is described by three YAML specs plus a
+Python execution API:
 
-## App Specification
+- **App spec** (`app.yml`) — the app's versions and its `dispatch`/`process`/`collect` commands.
+- **Input spec** (`inputs.yml`) — the files an app needs and where to fetch them.
+- **Output spec** (`outputs.yml`) — the artifacts an app produces and how to register them.
+- **Python runner API** — `Runner` / `run_app`, for driving the lifecycle programmatically.
 
-```{eval-rst}
-.. autopydantic_model:: bfabric_app_runner.specs.app.app_spec.AppSpec
-.. autopydantic_model:: bfabric_app_runner.specs.app.app_spec.BfabricAppSpec
-.. autopydantic_model:: bfabric_app_runner.specs.app.app_spec.AppSpecTemplate
+Each spec page below is the canonical, field-by-field reference for its models. For how the pieces
+fit together in the dispatch → process → collect lifecycle, see the
+[Architecture Overview](../architecture/overview.md).
+
+```{toctree}
+:maxdepth: 1
+runner/index
 ```
 
-### App Versions
+## Where to look
 
-```{eval-rst}
-.. autopydantic_model:: bfabric_app_runner.specs.app.app_version.AppVersion
-.. autopydantic_model:: bfabric_app_runner.specs.app.app_version.AppVersionMultiTemplate
-```
-
-### Commands
-
-```{eval-rst}
-.. autopydantic_model:: bfabric_app_runner.specs.app.commands_spec.CommandsSpec
-.. autopydantic_model:: bfabric_app_runner.specs.app.commands_spec.CommandShell
-.. autopydantic_model:: bfabric_app_runner.specs.app.commands_spec.CommandExec
-.. autopydantic_model:: bfabric_app_runner.specs.app.commands_spec.CommandDocker
-.. autopydantic_model:: bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv
-.. autopydantic_model:: bfabric_app_runner.specs.app.commands_spec.MountOptions
-```
-
-## Input Specifications
-
-### Input Types
-
-```{eval-rst}
-.. autopydantic_model:: bfabric_app_runner.specs.inputs.bfabric_resource_spec.BfabricResourceSpec
-.. autopydantic_model:: bfabric_app_runner.specs.inputs.bfabric_dataset_spec.BfabricDatasetSpec
-.. autopydantic_model:: bfabric_app_runner.specs.inputs.bfabric_resource_archive_spec.BfabricResourceArchiveSpec
-.. autopydantic_model:: bfabric_app_runner.specs.inputs.bfabric_resource_dataset.BfabricResourceDatasetSpec
-.. autopydantic_model:: bfabric_app_runner.specs.inputs.bfabric_order_fasta_spec.BfabricOrderFastaSpec
-.. autopydantic_model:: bfabric_app_runner.specs.inputs.bfabric_annotation_spec.BfabricAnnotationSpec
-.. autopydantic_model:: bfabric_app_runner.specs.inputs.file_spec.FileSpec
-.. autopydantic_model:: bfabric_app_runner.specs.inputs.static_file_spec.StaticFileSpec
-.. autopydantic_model:: bfabric_app_runner.specs.inputs.static_yaml_spec.StaticYamlSpec
-```
-
-## Output Specifications
-
-```{eval-rst}
-.. autopydantic_model:: bfabric_app_runner.specs.outputs_spec.CopyResourceSpec
-.. autopydantic_model:: bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec
-.. autopydantic_model:: bfabric_app_runner.specs.outputs_spec.SaveLinkSpec
-```
-
-## Runner
-
-```{eval-rst}
-.. automodule:: bfabric_app_runner.app_runner.runner
-    :members:
-    :undoc-members:
-    :show-inheritance:
-```
+| To… | See |
+| --- | --- |
+| Define an app's versions and commands (`app.yml`) | [App specification](../specs/app_specification.md) |
+| Declare and fetch input files (`inputs.yml`) | [Input specification](../specs/input_specification.md) |
+| Register outputs back to B-Fabric (`outputs.yml`) | [Output specification](../specs/output_specification.md) |
+| Run the lifecycle from the shell | [CLI Reference](../user_guides/cli_reference.md) |
+| Drive the lifecycle from Python | [Python runner API](runner/index.md) |
