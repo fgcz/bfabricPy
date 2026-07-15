@@ -6,9 +6,59 @@ on:
     branches: [main, stable, release_*]
   workflow_dispatch:
 jobs:
-  unit_tests:
-    name: Unit Tests
+  # Derive the list of nox sessions so each can run as its own matrix leg (and its
+  # own named check), instead of lumping every session into a single opaque log.
+  discover:
+    name: Discover sessions
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.list.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Install nox
+        run: pip install nox uv
+      - name: Build session matrix
+        id: list
+        run: |
+          export SESSIONS_JSON="$(nox -l --json)"
+          python3 <<'PY' >> "$GITHUB_OUTPUT"
+          import os, json
+
+          # Sessions whose name is in FAST_SESSIONS are bundled into a single "fast checks"
+          # leg -- they're near-instant, so a dedicated job each just pays ~30s of runner
+          # setup and clutters the checks list. Everything else gets its own isolated,
+          # named leg. To move a session in or out of the bundle, edit this set.
+          FAST_SESSIONS = {"changelog", "licensecheck", "check_test_inits", "test_py_typed"}
+
+          sessions = json.loads(os.environ["SESSIONS_JSON"])
+          include = []
+          fast = []
+          for s in sessions:
+              if s["name"] in FAST_SESSIONS:
+                  fast.append(s["session"])
+                  continue
+              # Compact check label; base name stays snake_case so it maps 1:1 to a
+              # `nox -s <session>` you can rerun locally.
+              parts = ([s["python"]] if s["python"] else []) + [str(v) for v in s["call_spec"].values()]
+              label = s["name"] + (f" ({', '.join(parts)})" if parts else "")
+              include.append({"name": label, "sessions_json": json.dumps([s["session"]])})
+          if fast:
+              include.append({"name": "fast checks", "sessions_json": json.dumps(fast)})
+          print("matrix=" + json.dumps({"include": include}))
+          PY
+  unit_tests:
+    name: ${{ matrix.name }}
+    needs: discover
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      # Cap concurrent legs: gentler on the org-shared Actions pool and on GitHub's
+      # per-job "resolve action download info" calls (the transient 503s we saw).
+      max-parallel: 5
+      matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v6
@@ -18,34 +68,13 @@ jobs:
             3.13
       - name: Install nox
         run: pip install nox uv
-      - name: Run checks
-        run: nox --report nox-report.json
-      - name: Summarize nox results
-        if: always()
+      - name: Run nox session(s)
+        env:
+          SESSIONS_JSON: ${{ matrix.sessions_json }}
         run: |
-          if [ ! -f nox-report.json ]; then exit 0; fi
-          python3 << 'EOF'
-          import json, os
-
-          with open("nox-report.json") as f:
-              data = json.load(f)
-
-          lines = ["## Nox Session Results\n"]
-          for s in data["sessions"]:
-              result = s.get("result", "unknown")
-              name = s["signatures"][0]
-              if result == "success":
-                  icon = "✅"
-              elif result in ("skipped", "skip"):
-                  icon = "⏭️"
-              else:
-                  icon = "❌"
-                  print(f"::error::Nox session failed: {name}")
-              lines.append(f"{icon} `{name}`: {result}")
-
-          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
-              f.write("\n".join(lines) + "\n")
-          EOF
+          sessions=()
+          while IFS= read -r s; do sessions+=("$s"); done < <(python3 -c "import json, os; [print(s) for s in json.loads(os.environ['SESSIONS_JSON'])]")
+          nox -s "${sessions[@]}"
   code_style:
     name: Code Style
     runs-on: ubuntu-latest
@@ -94,7 +123,7 @@ jobs:
             }
 
             if (details.removed && details.removed.length > 0) {
-              commentBody += `### ❌ Removed "TODO"s (${details.removed.length})\n`;
+              commentBody += `### ✅ Removed "TODO"s (${details.removed.length})\n`;
               for (const todo of details.removed) {
                 commentBody += `- \`${todo.file_path}:${todo.line_number}\`: ${todo.content}\n`;
               }
@@ -155,3 +184,23 @@ jobs:
         run: pip install nox uv
       - name: Build documentation
         run: nox -s docs
+  # Umbrella gate: one stable status check for branch protection, green only when every
+  # real check passed. Keeps code_style / docs-build as their own named checks while
+  # gathering them (and the unit_tests matrix) into a single required context.
+  ci:
+    name: CI
+    needs: [unit_tests, code_style, docs-build]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify all checks passed
+        run: |
+          echo "unit_tests=${{ needs.unit_tests.result }} code_style=${{ needs.code_style.result }} docs-build=${{ needs.docs-build.result }}"
+          [ "${{ needs.unit_tests.result }}" = "success" ] || exit 1
+          [ "${{ needs.code_style.result }}" = "success" ] || exit 1
+          # docs-build only runs on pull_request; a trigger-skip on push is acceptable.
+          case "${{ needs.docs-build.result }}" in
+            success|skipped) ;;
+            *) exit 1 ;;
+          esac
+          echo "All checks passed."

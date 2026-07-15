@@ -50,6 +50,7 @@ def execute_dispatch(action: ActionDispatch, client: Bfabric) -> None:
 
 def execute_run(action: ActionRun, client: Bfabric) -> None:
     """Executes a run action."""
+    _ensure_dispatched(action, client=client)
     chunk_dirs = _validate_chunks_list(action.work_dir, action.chunk)
     for chunk_dir_rel in chunk_dirs:
         execute_inputs(action=ActionInputs.from_action_run(action, chunk=str(chunk_dir_rel)), client=client)
@@ -144,15 +145,19 @@ def execute_outputs(action: ActionOutputs, client: Bfabric) -> None:
 def _register_workflow_step(
     workflow_template_step_id: int, workunit_definition: WorkunitDefinition, client: Bfabric
 ) -> None:
-    # Load the workflow template step
+    # Load the workflow template step. A misconfigured step id (or a step without a workflow template) is a
+    # hard error: raising here aborts output registration before the workunit is finalized to 'available',
+    # rather than silently skipping the workflow-step linkage.
     workflow_template_step = WorkflowTemplateStep.find(id=workflow_template_step_id, client=client)
     if not workflow_template_step:
-        logger.error(f"Misconfigured {workflow_template_step_id=}, cannot find it in the database.")
-        return
+        raise ValueError(f"Misconfigured workflow_template_step_id={workflow_template_step_id!r}: not found.")
 
     # Find or create the workflow entity
+    workflow_template = workflow_template_step.workflow_template
+    if workflow_template is None:
+        raise ValueError(f"Workflow template step {workflow_template_step_id} has no workflow template.")
     workflow = _find_or_create_workflow(
-        workflow_template=workflow_template_step.workflow_template,
+        workflow_template=workflow_template,
         workunit_definition=workunit_definition,
         client=client,
     )
@@ -197,6 +202,32 @@ def _find_or_create_workflow(
         resp = client.save("workflow", workflow_data)
         workflow = resp[0]
     return workflow
+
+
+def _ensure_dispatched(action: ActionRun, client: Bfabric) -> None:
+    """Re-runs dispatch when the chunk directories are missing, so ``run-all`` self-heals.
+
+    The Makefile uses the presence of ``chunks.yml`` as the marker that dispatch already ran.
+    Removing a chunk directory (e.g. the default ``work`` directory) while ``chunks.yml`` survives
+    would otherwise make ``make run-all`` fail, because the manifest still points at directories
+    whose ``inputs.yml`` is gone (issue #283). Re-dispatching rebuilds the missing chunk directories
+    from the workunit definition.
+    """
+    if action.chunk is not None:
+        # A specific chunk was requested; don't rebuild the whole manifest behind the user's back.
+        return
+    if not ChunksFile.needs_dispatch(action.work_dir):
+        return
+    logger.info("chunks.yml is missing or references removed chunk directories; re-running dispatch.")
+    execute_dispatch(
+        ActionDispatch(
+            work_dir=action.work_dir,
+            app_ref=action.app_ref,
+            workunit_ref=action.workunit_ref,
+            read_only=action.read_only,
+        ),
+        client=client,
+    )
 
 
 def _validate_chunks_list(work_dir: Path, chunk: str | None) -> list[Path]:

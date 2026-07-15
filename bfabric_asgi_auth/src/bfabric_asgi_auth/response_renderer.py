@@ -192,7 +192,7 @@ def _send_http_header(
 
     :param status: HTTP status code
     :param headers: List of header tuples
-    :param include_cache_control: Whether to include cache control headers (default: True)
+    :param include_cache_control: Whether to include cache control headers
     :return: ASGI response start event
     """
     # Add cache control headers to prevent caching of authentication responses

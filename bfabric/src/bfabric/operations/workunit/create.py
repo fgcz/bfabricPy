@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from loguru import logger
 from pydantic import BaseModel, Field, model_validator
 
 from bfabric.entities import Workunit
+from bfabric.operations.workunit._common import complete_workunit, mark_workunit_failed
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
@@ -56,14 +56,11 @@ def create_workunit(
             _create_workunit_parameters(client=client, workunit_id=workunit_id, parameters=params.parameters)
         if params.links:
             _create_workunit_links(client=client, workunit_id=workunit_id, links=params.links)
-        return _complete_workunit(client=client, workunit_id=workunit_id)
+        return complete_workunit(client=client, workunit_id=workunit_id)
     except BaseException:
         # Catch BaseException (not Exception) so KeyboardInterrupt/SystemExit also trigger cleanup —
         # see "Failure cleanup pattern" in operations_module.md.
-        try:
-            _ = client.save("workunit", {"id": workunit_id, "status": "failed"})
-        except BaseException as cleanup_error:  # noqa: BLE001 — cleanup must not mask the original error
-            logger.error(f"Failed to mark workunit {workunit_id} failed during cleanup: {cleanup_error!r}")
+        mark_workunit_failed(client, workunit_id)
         raise
 
 
@@ -108,8 +105,3 @@ def _create_workunit_links(client: Bfabric, workunit_id: int, links: dict[str, s
             for link_name, link_url in links.items()
         ],
     )
-
-
-def _complete_workunit(client: Bfabric, workunit_id: int) -> Workunit:
-    result = client.save("workunit", {"id": workunit_id, "status": "available"})
-    return Workunit(result[0], client=None, bfabric_instance=client.config.base_url)

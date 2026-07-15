@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 from logot import logged, Logot
 
+from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.config.config_file import ConfigFile, GeneralConfig, EnvironmentConfig, read_config_file
 
 
@@ -70,6 +71,34 @@ def test_environment_config_when_no_auth(data_no_auth):
     config = EnvironmentConfig.model_validate(data_no_auth["PRODUCTION"])
     assert config.config.base_url == "https://example.com/"
     assert config.auth is None
+
+
+def test_environment_config_when_pat():
+    """A PAT env (``auth_method: pat`` + inline ``pat``) builds an OAuth-style auth."""
+    config = EnvironmentConfig.model_validate(
+        {
+            "base_url": "https://example.com",
+            "auth_method": "pat",
+            "pat": "short-pat-token",
+        }
+    )
+    assert config.config.base_url == "https://example.com/"
+    assert config.auth_method == "pat"
+    assert config.auth.login == OAUTH_LOGIN
+    assert config.auth.password.get_secret_value() == "short-pat-token"
+
+
+def test_environment_config_when_legacy_oauth_login():
+    """The legacy 1.20.0rc1 PAT shape (``login: __oauth__`` + inline ``password``) still reads."""
+    config = EnvironmentConfig.model_validate(
+        {
+            "base_url": "https://example.com",
+            "login": OAUTH_LOGIN,
+            "password": "short-pat-token",
+        }
+    )
+    assert config.auth.login == OAUTH_LOGIN
+    assert config.auth.password.get_secret_value() == "short-pat-token"
 
 
 def test_config_file_when_auth(data_with_auth):
@@ -204,31 +233,37 @@ class TestReadConfig:
 
 class TestEnvironmentConfigOAuth:
     def test_auth_method_oauth(self):
-        config = EnvironmentConfig.model_validate({
-            "base_url": "https://example.com",
-            "auth_method": "oauth",
-            "client_id": "my-app",
-        })
+        config = EnvironmentConfig.model_validate(
+            {
+                "base_url": "https://example.com",
+                "auth_method": "oauth",
+                "client_id": "my-app",
+            }
+        )
         assert config.auth_method == "oauth"
         assert config.client_id == "my-app"
         assert config.auth is None
 
     def test_auth_method_not_in_client_config(self):
         """auth_method and client_id should not leak into BfabricClientConfig."""
-        config = EnvironmentConfig.model_validate({
-            "base_url": "https://example.com",
-            "auth_method": "oauth",
-            "client_id": "my-app",
-        })
+        config = EnvironmentConfig.model_validate(
+            {
+                "base_url": "https://example.com",
+                "auth_method": "oauth",
+                "client_id": "my-app",
+            }
+        )
         assert not hasattr(config.config, "auth_method")
         assert not hasattr(config.config, "client_id")
 
     def test_backward_compat_without_oauth_fields(self):
-        config = EnvironmentConfig.model_validate({
-            "base_url": "https://example.com",
-            "login": "user",
-            "password": "x" * 32,
-        })
+        config = EnvironmentConfig.model_validate(
+            {
+                "base_url": "https://example.com",
+                "login": "user",
+                "password": "x" * 32,
+            }
+        )
         assert config.auth_method is None
         assert config.client_id is None
         assert config.auth is not None

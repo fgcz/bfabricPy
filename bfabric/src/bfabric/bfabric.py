@@ -29,13 +29,11 @@ from loguru import logger
 from rich.console import Console
 
 from bfabric._oauth._constants import DEFAULT_CLIENT_ID, DEFAULT_OAUTH_SCOPE
-
-from bfabric.config import BfabricAuth, BfabricClientConfig, DEFAULT_CONFIG_FILE
+from bfabric.config import DEFAULT_CONFIG_FILE, BfabricAuth, BfabricClientConfig
 from bfabric.config.bfabric_client_config import BfabricAPIEngineType
 from bfabric.config.config_data import ConfigData, load_config_data
 from bfabric.config.config_file import read_config_file
 from bfabric.engine.engine_suds import EngineSUDS
-from bfabric.engine.engine_zeep import EngineZeep
 from bfabric.rest.token_data import TokenData, get_token_data, validate_token
 from bfabric.results.result_container import ResultContainer
 from bfabric.utils.cli_integration import DEFAULT_THEME, HostnameHighlighter
@@ -46,9 +44,10 @@ if TYPE_CHECKING:
 
     from pydantic import SecretStr
 
+    from bfabric._oauth.credential_provider import OAuthCredentialProvider
+    from bfabric.engine.engine_zeep import EngineZeep
     from bfabric.entities.core.entity_reader import EntityReader
     from bfabric.experimental.webapp_integration_settings import TokenValidationSettingsProtocol
-    from bfabric._oauth.credential_provider import OAuthCredentialProvider
     from bfabric.typing import ApiRequestObjectType, ApiResponseObjectType
 
 
@@ -78,6 +77,12 @@ class Bfabric:
         if self.config.engine == BfabricAPIEngineType.SUDS:
             return EngineSUDS(base_url=self._config.base_url)
         elif self.config.engine == BfabricAPIEngineType.ZEEP:
+            try:
+                from bfabric.engine.engine_zeep import EngineZeep
+            except ImportError as e:
+                raise ImportError(
+                    "The zeep engine requires the optional 'zeep' extra: pip install bfabric[zeep]"
+                ) from e
             return EngineZeep(base_url=self._config.base_url)
         else:
             raise ValueError(f"Unexpected engine type: {self.config.engine}")
@@ -163,9 +168,6 @@ class Bfabric:
         )
         config, auth_config = get_system_auth(config_env=config_env, config_path=config_path)
         auth_used: BfabricAuth | None = auth_config if auth == "config" else auth
-        # TODO https://github.com/fgcz/bfabricPy/issues/164
-        # if engine is not None:
-        #    config = config.copy_with(engine=engine)
         return cls(ConfigData(client=config, auth=auth_used))
 
     @classmethod
@@ -240,7 +242,7 @@ class Bfabric:
         :param client_id: OAuth client ID (from ``register_client`` or admin setup)
         :param client_secret: OAuth client secret
         :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
-        :param scope: OAuth scope (default ``"api:read api:write"``)
+        :param scope: OAuth scope
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
         from bfabric._oauth.credential_provider import OAuthCredentialProvider
@@ -278,8 +280,8 @@ class Bfabric:
         client uses :class:`OAuthCredentialProvider` for transparent refresh.
 
         :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
-        :param client_id: OAuth client ID (default ``"bfabric-cli"``)
-        :param scope: OAuth scope (default ``"api:read api:write"``)
+        :param client_id: OAuth client ID
+        :param scope: OAuth scope
         :param port: Local port for the callback server (``0`` = auto-assign)
         :param open_browser: Whether to open the authorization URL in the browser
         :param timeout: Seconds to wait for the user to complete login
@@ -332,9 +334,9 @@ class Bfabric:
         where a localhost redirect is not feasible.
 
         :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
-        :param client_id: OAuth client ID (default ``"bfabric-cli"``)
-        :param scope: OAuth scope (default ``"api:read api:write"``)
-        :param timeout: Seconds to wait for the user to authorize (default 600)
+        :param client_id: OAuth client ID
+        :param scope: OAuth scope
+        :param timeout: Seconds to wait for the user to authorize
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
         from bfabric._oauth.credential_provider import OAuthCredentialProvider
@@ -377,13 +379,13 @@ class Bfabric:
         :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
         :param pat: Personal Access Token (string or ``SecretStr``)
         """
-        from pydantic import SecretStr as _SecretStr
+        from pydantic import SecretStr
 
         from bfabric.config.bfabric_auth import OAUTH_LOGIN
 
         base_url = base_url.rstrip("/")
-        pat_value = pat.get_secret_value() if isinstance(pat, _SecretStr) else pat
-        auth = BfabricAuth(login=OAUTH_LOGIN, password=pat_value)  # pyright: ignore[reportArgumentType]
+        pat_value: str = pat.get_secret_value() if isinstance(pat, SecretStr) else pat
+        auth = BfabricAuth(login=OAUTH_LOGIN, password=SecretStr(pat_value))
         config = BfabricClientConfig(base_url=base_url)  # pyright: ignore[reportCallIssue]
         config_data = ConfigData(client=config, auth=auth)
         return cls(config_data=config_data)
@@ -459,7 +461,7 @@ class Bfabric:
             pagination to reach this limit. Set to ``None`` to retrieve all available results.
             Note: results are fetched in blocks of 100.
         :param offset: Number of results to skip before starting to return results.
-        :param check: If ``True`` (default), raises a ``RuntimeError`` if the query fails.
+        :param check: If ``True``, raises a ``RuntimeError`` if the query fails.
         :param return_id_only: If ``True``, only returns entity IDs instead of full data (faster).
         :return: A :class:`ResultContainer` containing the query results.
         """

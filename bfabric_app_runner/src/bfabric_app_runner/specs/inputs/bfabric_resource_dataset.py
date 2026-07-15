@@ -10,11 +10,11 @@ from bfabric_app_runner.specs.common_types import RelativeFilePath
 class BfabricResourceDatasetSpec(BaseModel):
     """Spec to download all resources listed in a B-Fabric dataset to a folder.
 
-    This requires a column ("Resource" by default) referring to the resource IDs in B-Fabric.
+    This requires a column (see `column`) referring to the resource IDs in B-Fabric.
 
     The output will be saved to a folder (specified by `filename`), containing the selected files, as well as a
-    parquet file (by default `dataset.parquet`) which contains the original dataset and an additional column
-    (by default "File") which contains the file names to identify the files.
+    parquet file (see `output_dataset_filename`) which contains the original dataset and an additional column
+    (see `output_dataset_file_column`) which contains the file names to identify the files.
     """
 
     model_config = ConfigDict(extra="forbid")

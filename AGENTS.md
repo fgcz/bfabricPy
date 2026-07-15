@@ -50,6 +50,7 @@ pytest tests/bfabric -k test_name      # single test
 ```bash
 nox -s basedpyright(bfabric)
 nox -s basedpyright(bfabric_scripts)
+nox -s basedpyright(bfabric_app_runner)
 ```
 
 ### Linting
@@ -70,7 +71,7 @@ cd bfabric/docs && make html           # local preview
 
 - **`bfabric.py`** — `Bfabric` class: the main client. Create via `Bfabric.connect()` (config file) or `Bfabric.connect_webapp()` (token auth). Provides `read()`, `save()`, `delete()`, `exists()`, `upload_resource()`.
 - **`config/`** — Pydantic-based config: `BfabricAuth` (login + 32-char SecretStr password), `BfabricClientConfig` (base_url, engine choice), loaded from `~/.bfabricpy.yml`. Environment selection via `BFABRICPY_CONFIG_ENV`. Override via `BFABRICPY_CONFIG_OVERRIDE` (JSON).
-- **`engine/`** — Strategy pattern for SOAP transport: `EngineSUDS` (default, suds library) and `EngineZeep` (zeep library). Both implement the same read/save/delete interface.
+- **`engine/`** — Strategy pattern for SOAP transport: `EngineSUDS` (default, suds library) and `EngineZeep` (optional zeep library, install via `bfabric[zeep]`). Both implement the same read/save/delete interface.
 - **`entities/`** — Entity models with `HasOne`/`HasMany` relationship descriptors and lazy loading. `EntityReader` provides ORM-like access with caching (`cache_entities()` context manager).
 - **`results/`** — `ResultContainer` wraps API responses with pagination, error handling, and `to_polars()` conversion.
 - **`utils/cli_integration.py`** — `@use_client` decorator for CLI commands: auto-creates `Bfabric` client, injects config_env/config_file parameters.
@@ -101,11 +102,27 @@ Each package's docs live alongside its source. Skim the index when working in a 
 - Tests use the pytest-mock `mocker` fixture for **all** mocking — do not `import unittest.mock`.
   Use `mocker.patch(...)`, `mocker.patch.object(...)`, `mocker.patch.dict(...)`, `mocker.MagicMock()`,
   `mocker.Mock()`, `mocker.mock_open(...)`, etc. (`pytest-mock` is a test dependency in every package.)
+- Group related tests in a file with plain `class TestXyz:` blocks — do **not** use `# --- section ---`
+  comment banners as separators. A bare class (no base) is all pytest needs; move fixtures used by only
+  one group inside its class so their scope matches the grouping. Keep each method name specific enough to
+  read on its own (drop a prefix only when the class already conveys it).
 - Ruff linting is currently only enforced on the `bfabric` package (scripts, wrapper_creator, tests, noxfile are excluded via per-file-ignores)
 - Line length: 120 (ruff and black)
+- Do not restate a parameter's default value in its docstring when the signature already shows it (e.g. `client_id: str = DEFAULT_CLIENT_ID`). Writing `(default "CLI")` in the `:param:` line just duplicates the signature and drifts out of sync when the default changes. Keep notes that explain what a value *means* (e.g. `(``0`` = auto-assign)`), not ones that merely repeat it. This also applies to class/model docstrings that restate a field's default shown a few lines below (prefer "see `field_name`" over repeating the literal value). Note the common case where the signature default is a sentinel like `None` but the docstring explains what it resolves to at runtime (e.g. `max_results: int | None = 100` documented as `` (``None`` for all) ``, or `path: Path | None = None` documented as `` (``None`` writes to ``./output.yml``) ``) — that is the *meaning* case, not the restatement case, and should be kept; phrase it as "``None`` does/means X", not "(default: X)", so it isn't mistaken for a literal restatement.
 - basedpyright uses per-package baseline files at `.basedpyright/baseline.{package}.json` — **do not edit baseline files to silence new errors**; fix the code or add a targeted `# pyright: ignore[...]` comment on the offending line. Baselines only exist to grandfather in pre-existing errors.
 - Integration tests live in a separate repository
 - Use TDD: write a failing test first, verify it fails, then fix the code, then verify the test passes
+
+## Releases
+
+Each package is versioned and released independently (own `pyproject.toml` version, own `docs/changelog.md`, own `<package>/<version>` git tag). Preparing a release means: bump the `version` in that package's `pyproject.toml` and promote its changelog `[Unreleased]` section to a dated version heading. The release pipeline extracts the changelog section matching the tag and publishes it as the GitHub release notes.
+
+Release-candidate (rc) convention — decided 2026-07-15:
+
+- **One cumulative pre-release entry, not a stack.** While a version is in RC, keep a *single* changelog entry for it (e.g. `## [1.20.0rc2]`) that describes the **full** changeset for the upcoming `X.Y.0`. When cutting the next RC, re-date and extend that same entry and bump the `rcN` suffix — do **not** add a separate `[…rcN]` heading below the previous one. Per-RC history is preserved by the already-published git tags and GitHub releases, so the in-repo changelog doesn't need to re-keep it.
+- **Flat, abbreviated bullets, headline-first.** RC entries merge the `Added`/`Changed`/`Fixed` subsections into one abbreviated bullet list, ordered with the user-facing headline changes first. Group dev-facing/typing/tooling changes (e.g. type-only fixes, ruff config, dead-code removal) under a trailing `Internal:` bullet so they don't crowd the main things. The detailed, structured notes live in git history and the GitHub release; the changelog entry is a quick-review summary.
+- **Graduation.** When the RC becomes final, rename the `[X.Y.0rcN]` heading to `[X.Y.0]` with the release date (no content merge needed, since it was cumulative).
+- **Cross-package dependency floors.** When a package uses a feature from an unreleased/RC `bfabric`, pin its floor to the rc (e.g. `bfabric>=1.20.0rc2,<1.21`). A plain `>=1.20.0` **excludes** `1.20.0rc2` under PEP 440, and naming a prerelease in the specifier is also what lets pip/uv resolve to it.
 
 ## Branches
 

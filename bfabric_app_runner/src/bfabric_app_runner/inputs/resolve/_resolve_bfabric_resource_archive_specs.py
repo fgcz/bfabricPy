@@ -63,6 +63,8 @@ class ResolveBfabricResourceArchiveSpecs:
     def _get_directory_spec(
         self, spec: BfabricResourceArchiveSpec, resource: Resource, storage: Storage
     ) -> ResolvedDirectory:
+        # filechecksum is always set when a resource is created; None here means check_checksum was
+        # explicitly disabled, not that the checksum is unexpectedly missing.
         checksum = resource["filechecksum"] if spec.check_checksum else None
 
         if checksum is not None and not isinstance(checksum, str):

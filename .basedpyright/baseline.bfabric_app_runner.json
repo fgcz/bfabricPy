@@ -590,30 +590,6 @@
                 }
             },
             {
-                "code": "reportUnknownMemberType",
-                "range": {
-                    "startColumn": 26,
-                    "endColumn": 66,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownArgumentType",
-                "range": {
-                    "startColumn": 26,
-                    "endColumn": 66,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportAttributeAccessIssue",
-                "range": {
-                    "startColumn": 49,
-                    "endColumn": 66,
-                    "lineCount": 1
-                }
-            },
-            {
                 "code": "reportOptionalMemberAccess",
                 "range": {
                     "startColumn": 51,
@@ -844,62 +820,6 @@
                     "endColumn": 12,
                     "lineCount": 1
                 }
-            },
-            {
-                "code": "reportUnknownMemberType",
-                "range": {
-                    "startColumn": 11,
-                    "endColumn": 31,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownMemberType",
-                "range": {
-                    "startColumn": 11,
-                    "endColumn": 34,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownArgumentType",
-                "range": {
-                    "startColumn": 11,
-                    "endColumn": 34,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportAttributeAccessIssue",
-                "range": {
-                    "startColumn": 20,
-                    "endColumn": 31,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownMemberType",
-                "range": {
-                    "startColumn": 56,
-                    "endColumn": 76,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownArgumentType",
-                "range": {
-                    "startColumn": 56,
-                    "endColumn": 84,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportAttributeAccessIssue",
-                "range": {
-                    "startColumn": 65,
-                    "endColumn": 76,
-                    "lineCount": 1
-                }
             }
         ],
         "./bfabric_app_runner/src/bfabric_app_runner/bfabric_integration/submitter/config/slurm_workunit_params.py": [
@@ -984,46 +904,6 @@
                 "range": {
                     "startColumn": 7,
                     "endColumn": 20,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownVariableType",
-                "range": {
-                    "startColumn": 12,
-                    "endColumn": 25,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownMemberType",
-                "range": {
-                    "startColumn": 28,
-                    "endColumn": 48,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownMemberType",
-                "range": {
-                    "startColumn": 28,
-                    "endColumn": 59,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportAttributeAccessIssue",
-                "range": {
-                    "startColumn": 37,
-                    "endColumn": 48,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownArgumentType",
-                "range": {
-                    "startColumn": 30,
-                    "endColumn": 43,
                     "lineCount": 1
                 }
             },
@@ -1310,16 +1190,6 @@
                 }
             }
         ],
-        "./bfabric_app_runner/src/bfabric_app_runner/commands/command_exec.py": [
-            {
-                "code": "reportUnusedCallResult",
-                "range": {
-                    "startColumn": 4,
-                    "endColumn": 59,
-                    "lineCount": 1
-                }
-            }
-        ],
         "./bfabric_app_runner/src/bfabric_app_runner/commands/command_python_env.py": [
             {
                 "code": "reportUnannotatedClassAttribute",
@@ -1358,14 +1228,6 @@
                 "range": {
                     "startColumn": 15,
                     "endColumn": 33,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportArgumentType",
-                "range": {
-                    "startColumn": 32,
-                    "endColumn": 40,
                     "lineCount": 1
                 }
             },
@@ -2070,112 +1932,6 @@
                 }
             }
         ],
-        "./bfabric_app_runner/src/bfabric_app_runner/inputs/prepare/prepare_resolved_file.py": [
-            {
-                "code": "reportUnknownMemberType",
-                "range": {
-                    "startColumn": 24,
-                    "endColumn": 39,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownMemberType",
-                "range": {
-                    "startColumn": 24,
-                    "endColumn": 44,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportAttributeAccessIssue",
-                "range": {
-                    "startColumn": 36,
-                    "endColumn": 39,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownMemberType",
-                "range": {
-                    "startColumn": 47,
-                    "endColumn": 62,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownMemberType",
-                "range": {
-                    "startColumn": 47,
-                    "endColumn": 67,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportAttributeAccessIssue",
-                "range": {
-                    "startColumn": 59,
-                    "endColumn": 62,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownMemberType",
-                "range": {
-                    "startColumn": 20,
-                    "endColumn": 37,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownArgumentType",
-                "range": {
-                    "startColumn": 20,
-                    "endColumn": 37,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportAttributeAccessIssue",
-                "range": {
-                    "startColumn": 32,
-                    "endColumn": 37,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnusedCallResult",
-                "range": {
-                    "startColumn": 8,
-                    "endColumn": 29,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownMemberType",
-                "range": {
-                    "startColumn": 23,
-                    "endColumn": 40,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownArgumentType",
-                "range": {
-                    "startColumn": 23,
-                    "endColumn": 40,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportAttributeAccessIssue",
-                "range": {
-                    "startColumn": 35,
-                    "endColumn": 40,
-                    "lineCount": 1
-                }
-            }
-        ],
         "./bfabric_app_runner/src/bfabric_app_runner/inputs/prepare/prepare_resolved_static_file.py": [
             {
                 "code": "reportAny",
@@ -2190,32 +1946,6 @@
                 "range": {
                     "startColumn": 8,
                     "endColumn": 24,
-                    "lineCount": 1
-                }
-            }
-        ],
-        "./bfabric_app_runner/src/bfabric_app_runner/inputs/resolve/_common.py": [
-            {
-                "code": "reportUnknownMemberType",
-                "range": {
-                    "startColumn": 36,
-                    "endColumn": 52,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownArgumentType",
-                "range": {
-                    "startColumn": 36,
-                    "endColumn": 60,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportAttributeAccessIssue",
-                "range": {
-                    "startColumn": 45,
-                    "endColumn": 52,
                     "lineCount": 1
                 }
             }
@@ -2346,34 +2076,10 @@
                 }
             },
             {
-                "code": "reportUnknownMemberType",
-                "range": {
-                    "startColumn": 30,
-                    "endColumn": 48,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportAttributeAccessIssue",
-                "range": {
-                    "startColumn": 39,
-                    "endColumn": 48,
-                    "lineCount": 1
-                }
-            },
-            {
                 "code": "reportOptionalMemberAccess",
                 "range": {
                     "startColumn": 39,
                     "endColumn": 48,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportAttributeAccessIssue",
-                "range": {
-                    "startColumn": 29,
-                    "endColumn": 38,
                     "lineCount": 1
                 }
             },
@@ -3360,24 +3066,6 @@
                 "range": {
                     "startColumn": 8,
                     "endColumn": 65,
-                    "lineCount": 1
-                }
-            }
-        ],
-        "./bfabric_app_runner/src/bfabric_app_runner/util/scp.py": [
-            {
-                "code": "reportUnusedCallResult",
-                "range": {
-                    "startColumn": 12,
-                    "endColumn": 81,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnusedCallResult",
-                "range": {
-                    "startColumn": 4,
-                    "endColumn": 35,
                     "lineCount": 1
                 }
             }

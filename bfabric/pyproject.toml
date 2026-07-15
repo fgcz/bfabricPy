@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "bfabric"
 description = "Python client for the B-Fabric API"
 readme = "../README.md"
-version = "1.20.0rc1"
+version = "1.20.0rc2"
 license = { text = "GPL-3.0" }
 authors = [
     { name = "Christian Panse", email = "cp@fgcz.ethz.ch" },
@@ -21,9 +21,8 @@ dependencies = [
     "suds>=1.2.0,<2.0.0",
     "PyYAML>=6.0.2,<7.0",
     "rich>=14.0.0,<15.0.0",
-    "zeep>=4.3.2,<5.0",
-    "polars-lts-cpu>=1.30,<2.0; platform_machine == 'x86_64' and platform_system == 'Darwin'",
-    "polars>=1.30,<2.0; platform_machine != 'x86_64' or platform_system != 'Darwin'",
+    "polars>=1.34,<2.0",
+    "polars[rtcompat]>=1.34,<2.0; platform_machine == 'x86_64' and platform_system == 'Darwin'",
     "loguru>=0.7,<0.8",
     "pydantic>=2.9.2,<3.0",
     "python-dateutil>=2.9.0,<3.0",
@@ -35,6 +34,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+transfer = ["tuspy>=1.0,<2"]
+zeep = ["zeep>=4.3.2,<5.0"]
 dev = [
     "bfabric[doc,test]",
     "black",
@@ -53,7 +54,7 @@ doc = [
     "sphinx-autobuild>=2024.10.3",
     "linkify-it-py",
 ]
-test = ["pytest>=8", "pytest-mock>=3.15", "logot[pytest,loguru]>=1.5.1", "coverage>=7.10.0", "pytest-asyncio>=1.2.0", "dirty-equals>=0.10.0", "pytest-random-order>=1.1.0"]
+test = ["bfabric[transfer]", "pytest>=8", "pytest-mock>=3.15", "logot[pytest,loguru]>=1.5.1", "coverage>=7.10.0", "pytest-asyncio>=1.2.0", "dirty-equals>=0.10.0", "pytest-random-order>=1.1.0"]
 typing = ["mypy", "types-requests", "lxml-stubs", "types-python-dateutil", "types-PyYAML"]
 
 [project.urls]
@@ -76,6 +77,11 @@ target-version = "py311"
 [tool.ruff.lint]
 select = ["ANN", "BLE", "D103", "E", "EXE", "F", "N", "PLW", "PTH", "SIM", "TCH", "UP", "W191"]
 ignore = ["ANN401"]
+
+[tool.ruff.lint.flake8-type-checking]
+# pydantic evaluates model field annotations at runtime, so imports used only in a BaseModel field
+# must stay at runtime -- don't let TCH suggest moving them into an `if TYPE_CHECKING:` block.
+runtime-evaluated-base-classes = ["pydantic.BaseModel"]
 
 [tool.ruff.lint.per-file-ignores]
 "**/bfabric_scripts/**" = ["ALL"]

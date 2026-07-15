@@ -295,3 +295,36 @@ class TestChunksFileRead:
 
         assert len(chunks_file.chunks) == 1
         assert chunks_file.chunks == [Path("explicit_chunk")]
+
+
+class TestChunksFileNeedsDispatch:
+    """Tests for ChunksFile.needs_dispatch() — the guard that decides whether dispatch must re-run"""
+
+    def test_no_dispatch_when_manifest_matches_disk(self, work_dir):
+        """A manifest whose listed chunk dirs all have inputs.yml does not need dispatch."""
+        create_chunk(work_dir, "work")
+        (work_dir / "chunks.yml").write_text(yaml.dump({"chunks": ["work"]}))
+
+        assert ChunksFile.needs_dispatch(work_dir) is False
+
+    def test_dispatch_when_listed_chunk_dir_removed(self, work_dir):
+        """Regression for #283: chunks.yml survives but its chunk directory was deleted."""
+        (work_dir / "chunks.yml").write_text(yaml.dump({"chunks": ["work"]}))
+
+        assert ChunksFile.needs_dispatch(work_dir) is True
+
+    def test_dispatch_with_absolute_manifest_paths(self, work_dir):
+        """needs_dispatch handles chunks.yml entries stored as absolute paths."""
+        (work_dir / "chunks.yml").write_text(yaml.dump({"chunks": [str(work_dir / "work")]}))
+
+        assert ChunksFile.needs_dispatch(work_dir) is True
+
+    def test_no_dispatch_when_manifest_missing_but_dirs_discoverable(self, work_dir):
+        """No manifest but discoverable chunk dirs is recovered by read()'s auto-discovery."""
+        create_chunk(work_dir, "work")
+
+        assert ChunksFile.needs_dispatch(work_dir) is False
+
+    def test_dispatch_when_nothing_dispatched(self, work_dir):
+        """No manifest and no discoverable chunk dirs means dispatch has to run."""
+        assert ChunksFile.needs_dispatch(work_dir) is True

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 
 class BfabricRequestError(RuntimeError):
@@ -88,17 +88,22 @@ class BfabricOAuthError(RuntimeError):
     """Raised when an OAuth operation fails (token exchange, device code flow, PKCE, etc.)."""
 
 
-# TODO: Also test for response-level errors
-def get_response_errors(response: Any, endpoint: str) -> list[BfabricRequestError]:
+def get_response_errors(response: object, endpoint: str) -> list[BfabricRequestError]:
     """
     :param response:  A raw response to a query from an underlying engine
     :param endpoint:  The target endpoint
     :return:          A list of errors for each query result, if that result failed
         Thus, a successful query would result in an empty list
     """
-    if getattr(response, "errorreport", None):
-        return [BfabricRequestError(response.errorreport)]
-    elif endpoint in response:
-        return [BfabricRequestError(r.errorreport) for r in response[endpoint] if getattr(r, "errorreport", None)]
-    else:
+    top_error = cast("str | None", getattr(response, "errorreport", None))
+    if top_error:
+        return [BfabricRequestError(top_error)]
+    if not hasattr(response, endpoint):
         return []
+    results = cast("list[object]", getattr(response, endpoint))
+    errors: list[BfabricRequestError] = []
+    for result in results:
+        message = cast("str | None", getattr(result, "errorreport", None))
+        if message:
+            errors.append(BfabricRequestError(message))
+    return errors

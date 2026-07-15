@@ -14,7 +14,7 @@ The `Bfabric` class provides methods for:
 
 | Category | Methods |
 |----------|---------|
-| Client Creation | `connect()`, `connect_token()`, `from_token_data()` |
+| Client Creation | `connect()`, `connect_oauth()`, `connect_pkce()`, `connect_device_code()`, `connect_pat()`, `connect_token()`, `from_token_data()` |
 | Read Operations | `read()`, `exists()` |
 | Write Operations | `save()`, `delete()`, `upload_resource()` |
 | Configuration | `config`, `auth`, `config_data` properties |
@@ -27,8 +27,6 @@ ______________________________________________________________________
 
 ```{eval-rst}
 .. autoclass:: bfabric.Bfabric
-    :members: connect, from_config, from_token_data, connect_webapp, connect_token, connect_token_async, read, save, delete, exists, upload_resource, with_auth, config, auth, config_data, reader
-    :undoc-members:
     :show-inheritance:
 ```
 
@@ -38,6 +36,15 @@ ______________________________________________________________________
 
 ```{eval-rst}
 .. automethod:: bfabric.Bfabric.connect
+```
+
+#### For OAuth-based Usage
+
+```{eval-rst}
+.. automethod:: bfabric.Bfabric.connect_oauth
+.. automethod:: bfabric.Bfabric.connect_pkce
+.. automethod:: bfabric.Bfabric.connect_device_code
+.. automethod:: bfabric.Bfabric.connect_pat
 ```
 
 #### Deprecated Methods
@@ -51,6 +58,7 @@ ______________________________________________________________________
 
 ```{eval-rst}
 .. automethod:: bfabric.Bfabric.connect_token
+.. automethod:: bfabric.Bfabric.connect_token_async
 ```
 
 ```{eval-rst}

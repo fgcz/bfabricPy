@@ -10,7 +10,6 @@ from typing import Annotated
 import cyclopts
 
 from bfabric.config import DEFAULT_CONFIG_FILE
-from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.config.config_writer import write_environment_to_config
 
 
@@ -29,10 +28,13 @@ def cmd_login_pat(
         pat = getpass.getpass("Personal Access Token: ")
     else:
         print("Warning: passing secrets via CLI flags is insecure (visible in ps, shell history).", file=sys.stderr)
+    # Store the PAT under ``pat`` (not ``login``/``password``): a PAT is not 32 characters, and an
+    # unmodified <=1.19.0 client validates every environment eagerly and would reject a short
+    # password — poisoning the whole shared config file. Under ``pat`` old clients ignore it.
     env_data = {
         "base_url": base_url.rstrip("/"),
-        "login": OAUTH_LOGIN,
-        "password": pat,
+        "auth_method": "pat",
+        "pat": pat,
     }
     write_environment_to_config(config_file, config_env, env_data, set_default=set_default)
     print("Authenticated successfully.")

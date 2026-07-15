@@ -8,7 +8,7 @@ import yaml
 
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.config.config_file import ConfigFile
-from bfabric.config.config_writer import write_environment_to_config
+from bfabric.config.config_writer import set_default_config, write_environment_to_config
 
 
 class TestWriteEnvironmentToConfig:
@@ -141,3 +141,55 @@ class TestRoundTrip:
         with pytest.raises(ValueError):
             write_environment_to_config(config_path, reserved, {"base_url": "https://example.com"}, set_default=True)
         assert not config_path.exists()
+
+
+class TestSetDefaultConfig:
+    @staticmethod
+    def _write_two_env_config(config_path):
+        config_path.write_text(
+            yaml.dump(
+                {
+                    "GENERAL": {"default_config": "PROD"},
+                    "PROD": {"base_url": "https://prod.example.com"},
+                    "TEST": {"base_url": "https://test.example.com"},
+                }
+            )
+        )
+
+    def test_sets_default_to_existing_env(self, tmp_path):
+        config_path = tmp_path / "config.yml"
+        self._write_two_env_config(config_path)
+        set_default_config(config_path, "TEST")
+        data = yaml.safe_load(config_path.read_text())
+        assert data["GENERAL"]["default_config"] == "TEST"
+
+    def test_preserves_other_environments(self, tmp_path):
+        config_path = tmp_path / "config.yml"
+        self._write_two_env_config(config_path)
+        set_default_config(config_path, "TEST")
+        data = yaml.safe_load(config_path.read_text())
+        assert data["PROD"]["base_url"] == "https://prod.example.com"
+        assert data["TEST"]["base_url"] == "https://test.example.com"
+
+    def test_raises_on_unknown_env_and_leaves_file_unchanged(self, tmp_path):
+        config_path = tmp_path / "config.yml"
+        self._write_two_env_config(config_path)
+        before = config_path.read_text()
+        with pytest.raises(ValueError):
+            set_default_config(config_path, "NOPE")
+        assert config_path.read_text() == before
+
+    def test_raises_on_missing_file(self, tmp_path):
+        config_path = tmp_path / "nonexistent.yml"
+        with pytest.raises(FileNotFoundError):
+            set_default_config(config_path, "PROD")
+
+    def test_tightens_permissions(self, tmp_path):
+        # Switching the default must not loosen an already-strict file, and should tighten a
+        # pre-existing group/world-readable one (a config may hold a PAT in another environment).
+        config_path = tmp_path / "config.yml"
+        self._write_two_env_config(config_path)
+        config_path.chmod(0o644)
+        set_default_config(config_path, "TEST")
+        mode = stat.S_IMODE(os.stat(config_path).st_mode)
+        assert mode == 0o600

@@ -71,3 +71,12 @@ myst_enable_extensions = [
 # Support for admonitions (from MkDocs)
 myst_enable_checkboxes = True
 myst_heading_anchors = 3
+
+# -- autodoc_pydantic configuration ------------------------------------------
+# Keep the field list/table (the useful part) but suppress the noisier
+# auto-generated sections: JSON schema, config summary, and validator listings.
+autodoc_pydantic_model_show_json = False
+autodoc_pydantic_model_show_config_summary = False
+autodoc_pydantic_model_show_validator_summary = False
+autodoc_pydantic_model_show_validator_members = False
+autodoc_pydantic_field_list_validators = False

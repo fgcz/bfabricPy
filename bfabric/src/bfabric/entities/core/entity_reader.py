@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections.abc import Iterable  # noqa
 from typing import TYPE_CHECKING, TypeGuard, TypeVar, cast
 
 from loguru import logger
@@ -12,7 +11,7 @@ from bfabric.entities.core.uri import EntityUri, GroupedUris
 from bfabric.experimental import MultiQuery
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Iterable, Sequence
 
     from bfabric import Bfabric
     from bfabric.typing import ApiRequestObjectType, ApiResponseDataType, ApiResponseObjectType
@@ -187,7 +186,7 @@ class EntityReader:
             entity_type: B-Fabric entity type to query
             obj: Dictionary of search criteria (e.g., ``{"name": "MySample"}``)
             bfabric_instance: B-Fabric instance URL (defaults to client's configured instance)
-            max_results: Maximum number of results to return (default: 100, None for all)
+            max_results: Maximum number of results to return (``None`` for all)
             expected_type: Entity class to validate and cast all results
 
         Returns:

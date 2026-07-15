@@ -1,197 +1,133 @@
+"""Tests for the thin app-runner adapter over ``bfabric.transfer.fetch_to_path``.
+
+The byte-moving operations themselves (rsync/scp/cp/symlink/HTTP + checksum verification) now live
+in ``bfabric.transfer._generic`` and are tested there; here we only cover the spec->transport adapter,
+the ``PrepareContext``->``Credentials`` mapping, and that ``prepare_resolved_file`` delegates correctly.
+"""
+
 from pathlib import Path
-from shutil import SameFileError
-from subprocess import CalledProcessError
+from typing import Literal
 
 import pytest
+from bfabric_app_runner.inputs.prepare.prepare_context import PrepareContext
 from bfabric_app_runner.inputs.prepare.prepare_resolved_file import (
+    _to_credentials,
+    _to_transfer_source,
     prepare_resolved_file,
-    _operation_copy_rsync,
-    _operation_copy_cp,
-    _operation_link_symbolic,
-    _operation_copy_scp,
 )
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedFile
-from logot import Logot, logged
-
-from bfabric import Bfabric
-
-
-@pytest.fixture
-def mock_subprocess(mocker):
-    return mocker.patch("subprocess.run")
-
-
-@pytest.fixture
-def mock_shutil_copyfile(mocker):
-    return mocker.patch("shutil.copyfile")
-
-
-@pytest.fixture
-def mock_scp(mocker):
-    return mocker.patch("bfabric_app_runner.inputs.prepare.prepare_resolved_file.scp")
-
-
-@pytest.fixture
-def mock_client(mocker):
-    return mocker.MagicMock(spec=Bfabric)
-
-
-@pytest.fixture
-def operation_copy_rsync(mocker):
-    return mocker.patch(
-        "bfabric_app_runner.inputs.prepare.prepare_resolved_file._operation_copy_rsync", return_value=False
-    )
-
-
-@pytest.fixture
-def operation_copy_scp(mocker):
-    return mocker.patch(
-        "bfabric_app_runner.inputs.prepare.prepare_resolved_file._operation_copy_scp", return_value=False
-    )
-
-
-@pytest.fixture
-def operation_copy_cp(mocker):
-    return mocker.patch(
-        "bfabric_app_runner.inputs.prepare.prepare_resolved_file._operation_copy_cp", return_value=False
-    )
-
-
-@pytest.fixture
-def operation_link_symbolic(mocker):
-    return mocker.patch(
-        "bfabric_app_runner.inputs.prepare.prepare_resolved_file._operation_link_symbolic", return_value=False
-    )
-
-
-def test_prepare_local_copy_when_rsync_success(operation_copy_rsync) -> None:
-    file = ResolvedFile(source={"local": "/source.txt"}, filename="destination.txt", link=False, checksum=None)
-    operation_copy_rsync.return_value = True
-    prepare_resolved_file(file=file, working_dir=Path("../../integration/working_dir"), ssh_user=None)
-    operation_copy_rsync.assert_called_once_with(file, Path("../../integration/working_dir") / "destination.txt", None)
-
-
-def test_prepare_local_copy_when_fallback_success(operation_copy_rsync, operation_copy_cp) -> None:
-    file = ResolvedFile(source={"local": "/source.txt"}, filename="destination.txt", link=False, checksum=None)
-    operation_copy_rsync.return_value = False
-    operation_copy_cp.return_value = True
-    prepare_resolved_file(file=file, working_dir=Path("../../integration/working_dir"), ssh_user=None)
-    operation_copy_rsync.assert_called_once_with(file, Path("../../integration/working_dir") / "destination.txt", None)
-    operation_copy_cp.assert_called_once_with(file, Path("../../integration/working_dir") / "destination.txt")
-
-
-def test_prepare_local_link_when_success(operation_link_symbolic):
-    file = ResolvedFile(source={"local": "/source.txt"}, filename="destination.txt", link=True, checksum=None)
-    operation_link_symbolic.return_value = True
-    prepare_resolved_file(file=file, working_dir=Path("../../integration/working_dir"), ssh_user=None)
-    operation_link_symbolic.assert_called_once_with(file, Path("../../integration/working_dir") / "destination.txt")
-
-
-def test_prepare_remote_copy_when_rsync_success(operation_copy_rsync):
-    file = ResolvedFile(
-        source={"ssh": {"host": "host", "path": "/source.txt"}}, filename="destination.txt", link=False, checksum=None
-    )
-    operation_copy_rsync.return_value = True
-    prepare_resolved_file(file=file, working_dir=Path("../../integration/working_dir"), ssh_user="user")
-    operation_copy_rsync.assert_called_once_with(
-        file, Path("../../integration/working_dir") / "destination.txt", "user"
-    )
-
-
-def test_prepare_remote_copy_when_fallback_success(operation_copy_rsync, operation_copy_scp):
-    file = ResolvedFile(
-        source={"ssh": {"host": "host", "path": "/source.txt"}}, filename="destination.txt", link=False, checksum=None
-    )
-    operation_copy_rsync.return_value = False
-    operation_copy_scp.return_value = True
-    prepare_resolved_file(file=file, working_dir=Path("../../integration/working_dir"), ssh_user="user")
-    operation_copy_rsync.assert_called_once_with(
-        file, Path("../../integration/working_dir") / "destination.txt", "user"
-    )
-    operation_copy_scp.assert_called_once_with(file, Path("../../integration/working_dir") / "destination.txt", "user")
-
-
-def test_operation_copy_rsync_local(mock_subprocess, logot: Logot):
-    file = ResolvedFile(source={"local": "/source.txt"}, filename="destination.txt", link=False, checksum=None)
-    mock_subprocess.return_value.returncode = 0
-    result = _operation_copy_rsync(file=file, output_path=Path("mock_output.txt"), ssh_user=None)
-    mock_subprocess.assert_called_once_with(["rsync", "-rltvP", "/source.txt", "mock_output.txt"], check=False)
-    logot.assert_logged(logged.info("rsync -rltvP /source.txt mock_output.txt"))
-    assert result
-
-
-def test_operation_copy_rsync_ssh_default(mock_subprocess, logot: Logot):
-    file = ResolvedFile(
-        source={"ssh": {"host": "host", "path": "/source.txt"}}, filename="destination.txt", link=False, checksum=None
-    )
-    mock_subprocess.return_value.returncode = 0
-    result = _operation_copy_rsync(file=file, output_path=Path("mock_output.txt"), ssh_user=None)
-    mock_subprocess.assert_called_once_with(["rsync", "-rltvP", "host:/source.txt", "mock_output.txt"], check=False)
-    logot.assert_logged(logged.info("rsync -rltvP host:/source.txt mock_output.txt"))
-    assert result
-
-
-def test_operation_copy_rsync_ssh_custom_user(mock_subprocess, logot: Logot):
-    file = ResolvedFile(
-        source={"ssh": {"host": "host", "path": "/source.txt"}}, filename="destination.txt", link=False, checksum=None
-    )
-    mock_subprocess.return_value.returncode = 0
-    result = _operation_copy_rsync(file=file, output_path=Path("mock_output.txt"), ssh_user="user")
-    mock_subprocess.assert_called_once_with(
-        ["rsync", "-rltvP", "user@host:/source.txt", "mock_output.txt"], check=False
-    )
-    logot.assert_logged(logged.info("rsync -rltvP user@host:/source.txt mock_output.txt"))
-    assert result
-
-
-def test_operation_copy_scp(mock_scp):
-    file = ResolvedFile(
-        source={"ssh": {"host": "host", "path": "/source.txt"}}, filename="destination.txt", link=False, checksum=None
-    )
-    result = _operation_copy_scp(file=file, output_path=Path("mock_output.txt"), ssh_user="user")
-    mock_scp.assert_called_once_with(source="host:/source.txt", target=Path("mock_output.txt"), user="user")
-    assert result
-
-
-def test_operation_copy_scp_when_error(mock_scp):
-    mock_scp.side_effect = CalledProcessError(1, "scp")
-    file = ResolvedFile(
-        source={"ssh": {"host": "host", "path": "/source.txt"}}, filename="destination.txt", link=False, checksum=None
-    )
-    result = _operation_copy_scp(file=file, output_path=Path("mock_output.txt"), ssh_user="user")
-    mock_scp.assert_called_once_with(source="host:/source.txt", target=Path("mock_output.txt"), user="user")
-    assert not result
-
-
-def test_operation_copy_cp(mock_shutil_copyfile, logot: Logot):
-    file = ResolvedFile(source={"local": "/source.txt"}, filename="destination.txt", link=False, checksum=None)
-    result = _operation_copy_cp(file=file, output_path=Path("mock_output.txt"))
-    mock_shutil_copyfile.assert_called_once_with("/source.txt", "mock_output.txt")
-    logot.assert_logged(logged.info("cp /source.txt mock_output.txt"))
-    assert result
-
-
-def test_operation_copy_cp_when_error(mock_shutil_copyfile, logot: Logot):
-    mock_shutil_copyfile.side_effect = SameFileError
-    file = ResolvedFile(source={"local": "/source.txt"}, filename="destination.txt", link=False, checksum=None)
-    result = _operation_copy_cp(file=file, output_path=Path("mock_output.txt"))
-    mock_shutil_copyfile.assert_called_once_with("/source.txt", "mock_output.txt")
-    logot.assert_logged(logged.info("cp /source.txt mock_output.txt"))
-    assert not result
-
-
-@pytest.mark.parametrize(
-    "source,dest,expected_target",
-    [
-        ("/E/source.txt", "/E/dir/destination.txt", "../source.txt"),
-        ("/X/source.txt", "/E/dir/destination.txt", "../../X/source.txt"),
-        ("/work/source.txt", "/work/destination.txt", "source.txt"),
-    ],
+from bfabric_app_runner.specs.inputs.file_spec import (
+    FileSourceHttp,
+    FileSourceHttpValue,
+    FileSourceLocal,
+    FileSourceSsh,
+    FileSourceSshValue,
 )
-def test_operation_link_symbolic(mock_subprocess, logot: Logot, source, dest, expected_target):
-    file = ResolvedFile(source={"local": source}, filename="destination.txt", link=True, checksum=None)
-    mock_subprocess.return_value.returncode = 0
-    result = _operation_link_symbolic(file=file, output_path=Path(dest))
-    mock_subprocess.assert_called_once_with(["ln", "-s", expected_target, str(dest)], check=False)
-    logot.assert_logged(logged.info(f"ln -s {expected_target} {dest}"))
-    assert result
+from bfabric.transfer import (
+    TransferSourceHttp,
+    TransferSourceLocal,
+    TransferSourceSsh,
+)
+
+
+def _http_source(url: str, *, auth: Literal["bfabric"] | None) -> FileSourceHttp:
+    return FileSourceHttp(http=FileSourceHttpValue(url=url, auth=auth))
+
+
+def _http_file(url: str, *, auth: Literal["bfabric"] | None, checksum: str | None = None) -> ResolvedFile:
+    return ResolvedFile(source=_http_source(url, auth=auth), filename="destination.txt", link=False, checksum=checksum)
+
+
+# --- adapter: spec FileSource* -> flat TransferSource ---
+
+
+def test_to_transfer_source_local():
+    assert _to_transfer_source(FileSourceLocal(local="/source.txt")) == TransferSourceLocal(path=Path("/source.txt"))
+
+
+def test_to_transfer_source_ssh():
+    source = FileSourceSsh(ssh=FileSourceSshValue(host="host", path="/source.txt"))
+    assert _to_transfer_source(source) == TransferSourceSsh(host="host", path="/source.txt")
+
+
+@pytest.mark.parametrize("auth", [None, "bfabric"])
+def test_to_transfer_source_http(auth):
+    source = FileSourceHttp(http=FileSourceHttpValue(url="https://host/f.txt", auth=auth))
+    assert _to_transfer_source(source) == TransferSourceHttp(url="https://host/f.txt", auth=auth)
+
+
+# --- credentials mapping ---
+
+
+def test_to_credentials_without_token():
+    creds = _to_credentials(PrepareContext(ssh_user="user"))
+    assert creds.ssh_user == "user"
+    assert creds.token_provider is None
+
+
+def test_to_credentials_with_token():
+    creds = _to_credentials(PrepareContext(ssh_user="user", token_provider=lambda: "tok"))
+    assert creds.ssh_user == "user"
+    assert creds.token_provider is not None
+    assert creds.token_provider() == "tok"
+
+
+# --- prepare_resolved_file delegates to fetch_to_path ---
+
+
+@pytest.fixture
+def mock_fetch(mocker):
+    return mocker.patch("bfabric_app_runner.inputs.prepare.prepare_resolved_file.fetch_to_path")
+
+
+def test_prepare_resolved_file_routes_http(mock_fetch, tmp_path):
+    file = _http_file("https://host/data/f.txt", auth="bfabric")
+    prepare_resolved_file(file=file, working_dir=tmp_path, context=PrepareContext(token_provider=lambda: "tok"))
+
+    (source, dest, creds), kwargs = mock_fetch.call_args
+    assert source == TransferSourceHttp(url="https://host/data/f.txt", auth="bfabric")
+    assert dest == tmp_path / "destination.txt"
+    assert creds.token_provider() == "tok"
+    assert kwargs == {"checksum": None, "link_ok": False}
+
+
+def test_prepare_resolved_file_local(mock_fetch, tmp_path):
+    file = ResolvedFile(source={"local": "/source.txt"}, filename="destination.txt", link=False, checksum="abc")
+    prepare_resolved_file(file=file, working_dir=tmp_path, context=PrepareContext(ssh_user="user"))
+
+    (source, dest, creds), kwargs = mock_fetch.call_args
+    assert source == TransferSourceLocal(path=Path("/source.txt"))
+    assert dest == tmp_path / "destination.txt"
+    assert creds.ssh_user == "user"
+    assert kwargs == {"checksum": "abc", "link_ok": False}
+
+
+def test_prepare_resolved_file_ssh(mock_fetch, tmp_path):
+    file = ResolvedFile(
+        source={"ssh": {"host": "host", "path": "/source.txt"}}, filename="destination.txt", link=False, checksum=None
+    )
+    prepare_resolved_file(file=file, working_dir=tmp_path, context=PrepareContext(ssh_user="user"))
+
+    (source, _dest, creds), kwargs = mock_fetch.call_args
+    assert source == TransferSourceSsh(host="host", path="/source.txt")
+    assert creds.ssh_user == "user"
+    assert kwargs == {"checksum": None, "link_ok": False}
+
+
+def test_prepare_resolved_file_link(mock_fetch, tmp_path):
+    file = ResolvedFile(source={"local": "/source.txt"}, filename="destination.txt", link=True, checksum=None)
+    prepare_resolved_file(file=file, working_dir=tmp_path, context=PrepareContext())
+
+    (source, _dest, _creds), kwargs = mock_fetch.call_args
+    assert source == TransferSourceLocal(path=Path("/source.txt"))
+    assert kwargs == {"checksum": None, "link_ok": True}
+
+
+def test_prepare_link_raises_for_non_local_source(tmp_path):
+    # End-to-end (real fetch_to_path): a link=True with a remote source must fail loud rather than
+    # attempting to symlink a remote path. Guards the invariant FileSpec.validate_no_link_remote sets.
+    file = ResolvedFile(
+        source={"ssh": {"host": "host", "path": "/source.txt"}}, filename="destination.txt", link=True, checksum=None
+    )
+    with pytest.raises(RuntimeError, match="Cannot link a non-local file"):
+        prepare_resolved_file(file=file, working_dir=tmp_path, context=PrepareContext())

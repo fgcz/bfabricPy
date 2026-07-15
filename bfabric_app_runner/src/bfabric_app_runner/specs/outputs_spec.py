@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import enum
-from pathlib import Path  # noqa: TCH003
+from pathlib import Path
 from typing import Literal, Annotated
 
 import yaml
@@ -9,12 +9,24 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class UpdateExisting(enum.Enum):
+    """Policy for what to do when an output with the same identity already exists in B-Fabric.
+
+    Shared by the resource, dataset, and link output specs.
+    """
+
     NO = "no"
+    """Never touch an existing entry; fail if one already exists."""
+
     IF_EXISTS = "if_exists"
+    """Update the entry in place if it exists, otherwise create a new one."""
+
     REQUIRED = "required"
+    """Update an existing entry, failing if none exists to update."""
 
 
 class CopyResourceSpec(BaseModel):
+    """Copies a local file into B-Fabric storage and registers it as a resource of the workunit."""
+
     model_config = ConfigDict(extra="forbid")
     type: Literal["bfabric_copy_resource"] = "bfabric_copy_resource"
 
@@ -29,20 +41,42 @@ class CopyResourceSpec(BaseModel):
 
     # TODO these need to be implemented properly (e.g. do not scp too early), and tested in integration tests
     update_existing: UpdateExisting = UpdateExisting.IF_EXISTS
+    """Behavior if a resource with the same name already exists on the workunit."""
 
-    protocol: Literal["scp"] = "scp"
+    protocol: Literal["scp", "tus"] = "scp"
+    """Transfer protocol used to copy the file to storage. Only ``"scp"`` is wired for app-runner;
+    ``"tus"`` is accepted by the model but its output path is not yet implemented (raises
+    ``NotImplementedError`` at registration)."""
 
 
 class SaveDatasetSpec(BaseModel):
+    """Uploads a local file as the workunit's output dataset."""
+
     model_config = ConfigDict(extra="forbid")
     type: Literal["bfabric_dataset"] = "bfabric_dataset"
 
-    # TODO this will currently fail if the workunit already has an output dataset -> needs to be handled as well
     local_path: Path
-    separator: str
+    """Path to the local file to upload as the dataset."""
+
+    format: Literal["csv", "parquet"] = "csv"
+    """Format of the local file. ``csv`` reads a delimited text file (see ``separator``/``has_header``);
+    ``parquet`` reads a Parquet file (``separator``/``has_header`` are ignored)."""
+
+    separator: str | None = None
+    """Field separator of the local file for ``format: csv`` (e.g. a comma or a tab character);
+    ``None`` defaults to a comma. Ignored for other formats."""
+
     name: str | None = None
+    """Name for the dataset in B-Fabric; ``None`` uses the local file's stem."""
+
     has_header: bool = True
+    """Whether the local file's first row contains column names. Applies to ``format: csv`` only."""
+
     invalid_characters: str = ""
+    """Characters that must not appear in any cell; upload fails if any occur (empty string disables the check)."""
+
+    update_existing: UpdateExisting = UpdateExisting.IF_EXISTS
+    """Behavior if the workunit already has an output dataset with the same name."""
 
 
 class SaveLinkSpec(BaseModel):

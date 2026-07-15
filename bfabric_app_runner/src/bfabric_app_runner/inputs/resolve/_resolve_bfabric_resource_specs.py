@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, final
 
 from bfabric.entities import Resource
 
-from bfabric_app_runner.inputs.resolve._common import get_file_source
+from bfabric_app_runner.inputs.resolve._common import get_http_file_source, get_ssh_file_source
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedFile
 
 if TYPE_CHECKING:
@@ -36,7 +36,12 @@ class ResolveBfabricResourceSpecs:
         return result
 
     def _get_file_spec(self, spec: BfabricResourceSpec, resource: Resource) -> ResolvedFile:
-        source = get_file_source(resource=resource)
+        if spec.access == "http":
+            source = get_http_file_source(resource=resource, client=self._client)
+        else:
+            source = get_ssh_file_source(resource=resource)
+        # filechecksum is always set when a resource is created; None here means check_checksum was
+        # explicitly disabled, not that the checksum is unexpectedly missing.
         checksum = resource["filechecksum"] if spec.check_checksum else None
         if checksum is not None and not isinstance(checksum, str):
             raise ValueError(f"Invalid checksum type for resource {resource.id}: {type(checksum)}")

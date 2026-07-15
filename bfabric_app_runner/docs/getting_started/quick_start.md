@@ -84,20 +84,26 @@ This runs dispatch, inputs, process, and outputs in a single invocation.
 
 ## Running Individual Actions
 
-You can also run individual stages using the `action` subcommands, which is useful when re-running a specific stage after a failure:
+You can also run individual stages with the `action` subcommands (what the Makefile targets call internally),
+useful for re-running a stage after a failure. Each reads its configuration -- work directory, app, workunit --
+from the `app_env.yml` file that `prepare workunit` wrote, so pass it with `--config`:
 
 ```bash
-bfabric-app-runner action dispatch <work_dir>
-bfabric-app-runner action inputs <work_dir>
-bfabric-app-runner action process <work_dir>
-bfabric-app-runner action outputs <work_dir>
+cd work
+bfabric-app-runner action dispatch --config app_env.yml
+bfabric-app-runner action inputs   --config app_env.yml
+bfabric-app-runner action process  --config app_env.yml
+bfabric-app-runner action outputs  --config app_env.yml
 ```
 
 Or run all stages at once:
 
 ```bash
-bfabric-app-runner action run-all <work_dir>
+bfabric-app-runner action run-all --config app_env.yml
 ```
+
+Instead of `--config` you can pass the parameters explicitly, e.g.
+`action dispatch --work-dir ./work --app-ref app.yml --workunit-ref 12345`.
 
 
 ## Troubleshooting

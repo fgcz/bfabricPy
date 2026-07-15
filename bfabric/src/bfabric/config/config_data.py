@@ -9,14 +9,14 @@ import yaml
 from loguru import logger
 from pydantic import BaseModel
 
-from bfabric.config import BfabricClientConfig, BfabricAuth  # noqa
+from bfabric.config import BfabricClientConfig, BfabricAuth
 from bfabric.config.config_file import ConfigFile
 
 
 class ConfigData(BaseModel):
     client: BfabricClientConfig
     auth: BfabricAuth | None
-    auth_method: Literal["password", "oauth"] | None = None
+    auth_method: Literal["password", "oauth", "pat"] | None = None
     client_id: str | None = None
     env_name: str | None = None
 

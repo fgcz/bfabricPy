@@ -1,6 +1,6 @@
 from __future__ import annotations
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import mako.template
 from loguru import logger
@@ -16,10 +16,15 @@ class WrapAppYamlTemplate:
         workunit_id: int
         app_yaml_path: str
         scratch_root: Path
+        python_version: str = "3.13"
+        """Python version the app_runner itself is launched with (independent of the app's venv).
+
+        Pinned so the runner does not float onto an untested interpreter. See issue #494.
+        """
 
         @classmethod
         def extract_workunit(cls, workunit: Workunit, scratch_root: Path) -> WrapAppYamlTemplate.Params:
-            app_yaml_path = workunit.application.executable["program"]
+            app_yaml_path = cast("str", workunit.application.executable["program"])
             return cls(
                 workunit_id=workunit.id,
                 app_yaml_path=app_yaml_path,

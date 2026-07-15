@@ -1,12 +1,17 @@
 from __future__ import annotations
 
-import hashlib
 from typing import TYPE_CHECKING
 
 import polars as pl
 import yaml
-from bfabric.entities import Resource, Storage, Workunit
-from bfabric.operations.dataset import CreateDatasetParams, create_dataset
+from bfabric.entities import Dataset, Resource, Storage, Workunit
+from bfabric.operations.dataset import (
+    CreateDatasetParams,
+    create_dataset,
+    identify_changes,
+    update_dataset,
+)
+from bfabric.transfer import Credentials, TransferSinkScp, md5_checksum, send_to_sink
 from bfabric.utils.table_lint import check_for_invalid_characters
 from loguru import logger
 
@@ -18,7 +23,6 @@ from bfabric_app_runner.specs.outputs_spec import (
     SpecType,
     UpdateExisting,
 )
-from bfabric_app_runner.util.scp import scp
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -34,6 +38,19 @@ def _get_output_folder(spec: CopyResourceSpec, workunit_definition: WorkunitDefi
         return spec.store_folder_path
 
 
+def _check_update_existing_policy(exists: bool, update_existing: UpdateExisting, *, description: str) -> None:
+    """Enforce an ``UpdateExisting`` policy against whether the target already exists.
+
+    Raises ``ValueError`` when the policy forbids the situation (``NO`` with an existing target, or
+    ``REQUIRED`` with none); otherwise returns so the caller can update (when it exists) or create
+    (when it does not).
+    """
+    if exists and update_existing == UpdateExisting.NO:
+        raise ValueError(f"{description} already exists, but existing entries must not be updated.")
+    if not exists and update_existing == UpdateExisting.REQUIRED:
+        raise ValueError(f"{description} does not exist, but an existing entry is required to update.")
+
+
 def register_file_in_workunit(
     spec: CopyResourceSpec,
     client: Bfabric,
@@ -45,8 +62,7 @@ def register_file_in_workunit(
     if resource_id is not None and existing_id is not None and resource_id != existing_id:
         raise ValueError(f"Resource id {resource_id} does not match existing resource id {existing_id}")
 
-    with spec.local_path.open("rb") as f:
-        checksum = hashlib.file_digest(f, "md5").hexdigest()
+    checksum = md5_checksum(spec.local_path)
     output_folder = _get_output_folder(spec, workunit_definition=workunit_definition)
     resource_data = {
         "name": spec.store_entry_path.name,
@@ -92,29 +108,90 @@ def copy_file_to_storage(
     storage: Storage,
     ssh_user: str | None,
 ) -> None:
-    """Copies a file to the storage, according to the spec."""
-    # TODO here some direct uses of storage could still be optimized away
-    output_folder = _get_output_folder(spec, workunit_definition=workunit_definition)
-    output_uri = f"{storage.scp_prefix}{output_folder / spec.store_entry_path}"
-    scp(spec.local_path, output_uri, user=ssh_user)
+    """Moves a file's bytes to storage via ``bfabric.transfer``, per the spec's ``protocol``.
+
+    Only the byte move is delegated to the transfer package; the resource metadata is still
+    registered over SOAP by :func:`register_file_in_workunit`.
+    """
+    if spec.protocol == "scp":
+        # The Storage entity is loaded (see `_get_storage`) only for its host:basepath. If
+        # `WorkunitRegistrationDefinition` carried these directly, the entity read (and the
+        # `force_storage` workaround) could be dropped entirely — see TODO in `_get_storage`.
+        if storage.scp_prefix is None:
+            raise ValueError(f"Storage {storage.id} is not configured for scp transfer (no scp_prefix)")
+        host, base_path = storage.scp_prefix.split(":", 1)
+        output_folder = _get_output_folder(spec, workunit_definition=workunit_definition)
+        _ = send_to_sink(
+            TransferSinkScp(host=host, path=f"{base_path}{output_folder / spec.store_entry_path}"),
+            spec.local_path,
+            Credentials(ssh_user=ssh_user),
+        )
+    elif spec.protocol == "tus":
+        # The output byte-move now flows through bfabric.transfer, so a tus sink slots in here — but
+        # the end-to-end tus output path is not wired for v1: it needs a scoped JWT delivered to the
+        # (usually credential-less) compute node, and the resource-registration model over tus is
+        # still open (see the design's open questions). Use bfabric.operations.workunit.upload_files
+        # for tus uploads from a JWT-backed session today.
+        raise NotImplementedError(
+            "tus output transport is not yet wired for app-runner (compute-node token delivery and the "
+            "tus resource-registration model are open questions); use "
+            "bfabric.operations.workunit.upload_files from a JWT session for tus uploads."
+        )
+
+
+def _read_dataset_table(spec: SaveDatasetSpec) -> pl.DataFrame:
+    """Reads the local file into a polars DataFrame according to ``spec.format``.
+
+    New formats slot in as additional branches here (mirroring ``bfabric-cli dataset upload``).
+    """
+    if spec.format == "parquet":
+        return pl.read_parquet(spec.local_path)
+    elif spec.format == "csv":
+        separator = spec.separator if spec.separator is not None else ","
+        return pl.read_csv(spec.local_path, separator=separator, has_header=spec.has_header, infer_schema_length=None)
+    else:
+        raise ValueError(f"Unsupported dataset format: {spec.format!r}")
 
 
 def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit_definition: WorkunitDefinition) -> None:
-    """Saves a dataset to the bfabric."""
+    """Saves a dataset to the bfabric, updating the workunit's output dataset if it already has one.
+
+    A workunit has at most one output dataset, so the existing one (if any) is found by
+    ``workunitid``; the ``update_existing`` policy then decides whether it may be overwritten, and an
+    unchanged dataset is left untouched.
+    """
     registration = workunit_definition.registration
     if registration is None:
         raise ValueError("workunit_definition has no registration; cannot save dataset")
-    table = pl.read_csv(spec.local_path, separator=spec.separator, has_header=spec.has_header, infer_schema_length=None)
+    name = spec.name or spec.local_path.stem
+    table = _read_dataset_table(spec)
     check_for_invalid_characters(table=table, invalid_characters=spec.invalid_characters)
-    _ = create_dataset(
-        client,
-        table,
-        CreateDatasetParams(
-            name=spec.name or spec.local_path.stem,
-            container_id=registration.container_id,
-            workunit_id=registration.workunit_id,
-        ),
+
+    existing = client.reader.query_one("dataset", {"workunitid": registration.workunit_id}, expected_type=Dataset)
+    _check_update_existing_policy(
+        existing is not None,
+        spec.update_existing,
+        description=f"Dataset {name!r} for workunit {registration.workunit_id}",
     )
+
+    if existing is None:
+        _ = create_dataset(
+            client,
+            table,
+            CreateDatasetParams(
+                name=name,
+                container_id=registration.container_id,
+                workunit_id=registration.workunit_id,
+            ),
+        )
+        return
+
+    changes = identify_changes(old_df=existing.to_polars(), new_df=table)
+    if not changes:
+        logger.info(f"Dataset {name!r} (id {existing.id}) is unchanged, skipping update.")
+        return
+    updated = update_dataset(client, dataset_id=existing.id, table=table)
+    logger.info(f"Dataset {name!r} updated with id {updated.id}")
 
 
 def _save_link(spec: SaveLinkSpec, client: Bfabric, workunit_definition: WorkunitDefinition) -> None:
@@ -130,22 +207,13 @@ def _save_link(spec: SaveLinkSpec, client: Bfabric, workunit_definition: Workuni
     # Check if the link already exists
     res = client.read("link", {"name": spec.name, "parentid": entity_id, "parentclassname": entity_type})
     existing_link_id = res[0]["id"] if len(res) > 0 else None
-    # TODO maybe some of this logic could be extracted generically (i.e. UPDATE_EXISTING logic)
-    if existing_link_id is not None:
-        if spec.update_existing == UpdateExisting.NO:
-            msg = (
-                f"Link {spec.name} already exists for entity {entity_type} with id {entity_id}, "
-                f"but existing links should not be updated."
-            )
-            raise ValueError(msg)
-        if not isinstance(existing_link_id, int):
-            raise ValueError("existing_link_id must be an integer")
-    elif existing_link_id is None and spec.update_existing == UpdateExisting.REQUIRED:
-        msg = (
-            f"Link {spec.name} does not exist for entity {entity_type} with id {entity_id}, "
-            f"but existing links is expected to be updated."
-        )
-        raise ValueError(msg)
+    _check_update_existing_policy(
+        existing_link_id is not None,
+        spec.update_existing,
+        description=f"Link {spec.name!r} for entity {entity_type} with id {entity_id}",
+    )
+    if existing_link_id is not None and not isinstance(existing_link_id, int):
+        raise ValueError("existing_link_id must be an integer")
 
     # Create or update the link
     link_data: dict[str, str | int] = {

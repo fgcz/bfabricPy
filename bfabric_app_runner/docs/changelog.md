@@ -4,6 +4,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.7.0rc1\] - 2026-07-15
+
+- `SaveDatasetSpec` (the `bfabric_dataset` output) gains a `format` field (`csv` default, or `parquet`), so an output dataset can be registered from Parquet; `separator` is now optional (csv-only) ([#359](https://github.com/fgcz/bfabricPy/issues/359)).
+- `BfabricResourceSpec` gains an `access` field (`ssh`/`http`); `access: http` streams from the storage's HTTP endpoint (needs an OAuth client whose token carries the `containers` scope). The generic `file` spec also gained an HTTP source.
+- Input staging and output copying now go through the shared `bfabric.transfer` layer (checksum-verified) instead of app-runner's own copies; the local `util.scp` / `util.checksum` are removed. `CopyResourceSpec.protocol` also accepts `tus`, but the tus output path isn't wired yet (`NotImplementedError`). Requires `bfabric` 1.20.
+- `action run-all` now re-runs dispatch when the chunk state is stale (e.g. the chunk directory was deleted but `chunks.yml` survived) instead of failing ([#283](https://github.com/fgcz/bfabricPy/issues/283)).
+- Output registration now raises a clear error when the configured workflow template step is missing, instead of an `AttributeError` or silent skip — aborting before the workunit is finalized to `available`.
+- `CommandPythonEnv.python_version` now defaults to `"3.13"` (was `None`), fixing a `uv venv -p None` failure and pinning to the tested interpreter.
+- The SLURM wrapper now launches `bfabric-app-runner` with `uv run -p 3.13`, so it can't float onto an untested Python such as a prerelease 3.14 ([#494](https://github.com/fgcz/bfabricPy/issues/494)).
+- Python-environment provisioning output (`uv venv` / `uv pip install`) is now logged at DEBUG instead of printed (quiet INFO runs); failures are logged in full at ERROR.
+- Internal: ruff `flake8-type-checking` now treats `pydantic.BaseModel` / `FromConfigFile` as runtime-evaluated (dropping `# noqa: TC00x` and blanket per-file ignores).
+
 ## \[0.6.1\] - 2026-06-11
 
 ### Changed

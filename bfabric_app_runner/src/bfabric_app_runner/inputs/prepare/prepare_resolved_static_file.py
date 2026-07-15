@@ -40,4 +40,4 @@ def _write_file_if_changed(content: str | bytes, path: Path) -> None:
     # write the file
     with path.open(f"w{binary_flag}") as f:
         f.write(content)
-    logger.info(f"Writen to {path}")
+    logger.info(f"Written to {path}")

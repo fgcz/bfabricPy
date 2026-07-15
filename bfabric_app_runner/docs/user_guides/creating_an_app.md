@@ -15,10 +15,10 @@ versions:
       - "1.0.0"
     commands:
       dispatch:
-        type: shell
+        type: exec
         command: echo "dispatching"
       process:
-        type: shell
+        type: exec
         command: echo "processing"
 ```
 
@@ -79,19 +79,20 @@ These variables use Mako template interpolation and are resolved when the app sp
 
 ## Command Types
 
-Each version defines commands for different execution phases. Four command types are available.
+Each version defines commands for different execution phases. Four command types are available; the fields
+of each are documented in the [App specification](../specs/app_specification.md).
 
-### shell
+### shell (deprecated)
 
-Runs a command through the system shell.
+:::{note}
+**Deprecated** -- use `exec` instead. `shell` splits the command string on plain spaces (no quoting or shell
+features), which `exec` does more robustly via `shlex.split`.
+:::
 
 ```yaml
 type: shell
 command: "echo hello"
 ```
-
-Fields:
-- `command` (str, required): The shell command to execute.
 
 ### exec
 
@@ -105,11 +106,6 @@ env:
 prepend_paths:
   - /opt/tools/bin
 ```
-
-Fields:
-- `command` (str, required): The command to execute.
-- `env` (dict, optional): Environment variables to set.
-- `prepend_paths` (list of paths, optional): Directories to prepend to `PATH`.
 
 ### docker
 
@@ -131,23 +127,6 @@ mounts:
     - [/host/out, /container/out]
 ```
 
-Fields:
-- `image` (str, required): The container image.
-- `command` (str, required): The command to run inside the container.
-- `entrypoint` (str, optional): Override the container entrypoint.
-- `engine` (str, optional): `"docker"` or `"podman"`. Defaults to `"docker"`.
-- `env` (dict, optional): Environment variables.
-- `mac_address` (str, optional): MAC address for the container.
-- `hostname` (str, optional): Hostname for the container.
-- `custom_args` (list, optional): Additional arguments passed to the container engine.
-- `mounts` (MountOptions, optional): Mount configuration.
-
-MountOptions fields:
-- `work_dir_target` (str): Mount point for the working directory inside the container.
-- `share_bfabric_config` (bool): Whether to mount the B-Fabric config into the container.
-- `read_only` (list of [host, container] pairs): Read-only bind mounts.
-- `writeable` (list of [host, container] pairs): Writeable bind mounts.
-
 ### python_env
 
 Creates a managed Python virtual environment and runs a command in it. This is the recommended type for reproducible deployments.
@@ -163,15 +142,6 @@ env:
 prepend_paths:
   - /opt/tools/bin
 ```
-
-Fields:
-- `pylock` (path, required): Path to the pylock.toml dependency lock file.
-- `command` (str, required): The Python command to execute (typically `-m module.name`).
-- `python_version` (str, optional): Python version to use.
-- `local_extra_deps` (list of paths, optional): Local wheel files or source paths to install with `--no-deps`.
-- `env` (dict, optional): Environment variables.
-- `prepend_paths` (list of paths, optional): Directories to prepend to `PATH`.
-- `refresh` (bool, optional): Use an ephemeral environment instead of cached. Useful for development.
 
 See [Python Environments](python_environments.md) for details on caching and provisioning.
 
@@ -199,7 +169,7 @@ commands:
     pylock: /path/to/pylock.toml
     command: -m my_app.process
   collect:
-    type: shell
+    type: exec
     command: "echo 'collection complete'"
 ```
 

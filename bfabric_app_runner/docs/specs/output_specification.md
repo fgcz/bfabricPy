@@ -1,9 +1,9 @@
-## Output specification
+# Output specification
 
 The outputs module provides a specification schema to define the outputs that were created by an app and should be registered.
 The file is usually called `outputs.yml` and lists the different output files, with information how to register them.
 
-### General structure
+## General structure
 
 Generally the structure is a yaml file containing a key `outputs` which is a list of dictionaries, each representing an
 output file.
@@ -56,9 +56,32 @@ Please note:
 
 ## Reference
 
+Each entry's `type` field selects one of the models below.
+
+Copy a local file into B-Fabric storage as a resource:
+
 ```{eval-rst}
-.. automodule:: bfabric_app_runner.specs.outputs_spec
+.. autopydantic_model:: bfabric_app_runner.specs.outputs_spec.CopyResourceSpec
+```
+
+Register a local table as a B-Fabric dataset. The `format` field selects the reader — `csv` (the
+default, a delimited text file) or `parquet`; `separator` and `has_header` apply to `csv` only:
+
+```{eval-rst}
+.. autopydantic_model:: bfabric_app_runner.specs.outputs_spec.SaveDatasetSpec
+```
+
+Attach a link to the workunit (or another entity):
+
+```{eval-rst}
+.. autopydantic_model:: bfabric_app_runner.specs.outputs_spec.SaveLinkSpec
+```
+
+The `update_existing` field on each output uses the shared `UpdateExisting` enum, which controls
+what happens when an output with the same name already exists:
+
+```{eval-rst}
+.. autoclass:: bfabric_app_runner.specs.outputs_spec.UpdateExisting
     :members:
     :undoc-members:
-    :show-inheritance:
 ```

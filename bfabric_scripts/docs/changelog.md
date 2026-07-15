@@ -10,31 +10,19 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 ## \[Unreleased\]
 
-## \[1.16.0rc1\] - 2026-06-23
+## \[1.16.0rc2\] - 2026-07-15
 
-### Added
-
-- `bfabric-cli api create` and `bfabric-cli api update` now accept a `--format json|yaml|tsv|table_rich` flag (default `json`), reusing the same renderer as `bfabric-cli api read`. The output formatting logic is now shared via a new internal `output_format` module.
-- `bfabric-cli dataset update` command: updates an existing dataset with a change preview before confirmation. Supports `csv`/`tsv`/`xlsx`/`parquet` subcommands and the same `forbidden_chars` / `warn_trailing_spaces` validation flags as `dataset upload`.
 - `bfabric-cli auth` command group for OAuth authentication and client management:
-    - `auth pkce <base_url>` — browser-based OAuth login; caches tokens and writes the config environment.
-    - `auth device-code <base_url>` — headless OAuth login (device authorization grant).
-    - `auth pat <base_url>` — log in with a Personal Access Token.
-    - `auth register <client_name> <redirect_uri>` — RFC 7591 dynamic client registration (supports `--config-env` to reuse a cached token and `--grant-types` to override).
-    - `auth register-webapp` — register an OAuth client together with a linked B-Fabric application.
-    - `auth status` — show the current authentication status for an environment.
-    - `auth logout` — clear cached OAuth tokens.
-
-### Fixed
-
-- `bfabric-cli api update` and `bfabric-cli api create` previously printed results via `rich.pretty.pprint`, which produced Python `repr` syntax (single-quoted keys). This is not valid JSON, so piping to `jq` failed. Output now defaults to valid JSON. ([#503](https://github.com/fgcz/bfabricPy/issues/503))
-- `bfabric-cli api read --format json` (and the new JSON output paths for `create`/`update`) now serialise non-native types such as `datetime` and `Decimal` (returned by the Zeep engine) to strings instead of raising a `TypeError`.
-
-### Changed
-
-- `bfabric-cli dataset upload` and `bfabric_save_csv2dataset.py` now use `bfabric.operations.dataset.create_dataset` instead of the in-place SOAP assembly that was previously in `bfabric.experimental.upload_dataset`.
-- API commands (`api read`, `api save`, `api delete`, `executable inspect`, …) no longer wrap errors with `@logger.catch`; error handling is centralized in `@use_client`, which prints a clean message and exits non-zero.
-- `--config-env` naming is unified across the auth and API commands.
+    - Login: `auth pkce` (browser), `auth device-code` (headless), `auth pat` (Personal Access Token).
+    - `auth register` / `auth register-webapp` — dynamic client registration, optionally with a linked B-Fabric app.
+    - `auth default` / `auth default set [CONFIG_ENV]` — show and set the default environment (interactive picker when no value is given).
+    - `auth status` and `auth logout`.
+    - `auth pat` stores the token under a `pat` key with `auth_method: pat` (not `login: __oauth__` / `password:`), keeping the shared config parseable by older (≤1.19.0) clients; `auth status` reports these as `pat`.
+- `bfabric-cli workunit upload FILES...` — upload files and directories to a workunit over tus (resumable, large-file capable), creating a new workunit or targeting `--workunit-id`. One resource per file, skips duplicates (unless `--force`), expands directories, live progress (`--no-progress`); `--track-job` records an `UPLOAD` job. Requires an OAuth client with the `tus` scope.
+- `bfabric-cli api create` / `api update` accept `--format json|yaml|tsv|table_rich` (default `json`), matching `api read`.
+- `bfabric-cli dataset update` — update an existing dataset with a change preview before confirming (`csv`/`tsv`/`xlsx`/`parquet`, same validation flags as `dataset upload`).
+- `api create` / `api update` now emit valid JSON (was Python `repr` via `rich.pretty.pprint`, breaking `jq`) and serialise `datetime` / `Decimal` to strings instead of raising `TypeError` ([#503](https://github.com/fgcz/bfabricPy/issues/503)).
+- Internal: `dataset upload` and `bfabric_save_csv2dataset.py` now use `bfabric.operations.dataset.create_dataset`; API error handling is centralized in `@use_client` (no more `@logger.catch`); `--config-env` naming unified. Declares `lxml` as an explicit dependency (was transitive via the now-optional `zeep`) and requires `bfabric[transfer]` >= 1.20 (for `upload_files` / tus).
 
 ## \[1.15.0\] - 2026-04-20
 
