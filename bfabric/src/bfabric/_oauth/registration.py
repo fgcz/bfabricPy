@@ -37,8 +37,8 @@ def register_client(
     client_name: str,
     redirect_uri: str,
     *,
-    service_user: str | None = None,
     scope: str,
+    service_user: str | None = None,
     grant_types: list[str] | None = None,
 ) -> dict[str, object]:
     """Register a new OAuth client with the B-Fabric server.
@@ -53,8 +53,8 @@ def register_client(
     :param token: Employee Bearer token for authorization
     :param client_name: Human-readable name for the client
     :param redirect_uri: OAuth redirect URI for the client
-    :param service_user: Optional service user login to enable ``client_credentials`` grant
     :param scope: OAuth scope string
+    :param service_user: Optional service user login to enable ``client_credentials`` grant
     :param grant_types: Explicit list of grant types to request (overrides the default)
     :returns: Registration response containing ``client_id``, ``client_secret``, etc.
     """
@@ -88,8 +88,8 @@ def register_webapp(
     app_name: str,
     web_url: str,
     *,
-    service_user: str | None = None,
     scope: str,
+    service_user: str | None = None,
     application_id: int | None = None,
     technology_id: int | None = None,
     description: str | None = None,
@@ -106,8 +106,8 @@ def register_webapp(
     :param token: Employee Bearer token for the OAuth registration endpoint
     :param app_name: Human-readable name for both the OAuth client and the application
     :param web_url: The webapp URL (used as both OAuth redirect URI and application ``weburl``)
-    :param service_user: Optional service user login to enable ``client_credentials`` grant
     :param scope: OAuth scope string
+    :param service_user: Optional service user login to enable ``client_credentials`` grant
     :param application_id: Existing application ID to update (omit to create a new application)
     :param technology_id: Technology ID for the application
     :param description: Application description
