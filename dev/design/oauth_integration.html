@@ -392,33 +392,31 @@
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_constants.py</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">DEFAULT_CLIENT_ID</span> <span class="pre">=</span> <span class="pre">&quot;CLI&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">DEFAULT_OAUTH_SCOPE</span> <span class="pre">=</span> <span class="pre">&quot;api:read</span> <span class="pre">api:write</span> <span class="pre">openid</span> <span class="pre">profile</span> <span class="pre">email</span> <span class="pre">groups&quot;</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">credential_provider.py</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">credential_provider.py</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">OAuthCredentialProvider</span></code> — thread-safe token management with automatic refresh and disk caching. Supports both <code class="docutils literal notranslate"><span class="pre">client_credentials</span></code> and <code class="docutils literal notranslate"><span class="pre">refresh_token</span></code> grant types.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pkce.py</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pkce.py</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">pkce_login()</span></code> — browser-based PKCE flow. Starts a local HTTP server, opens the browser, exchanges the authorization code for tokens.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">device_code.py</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">device_code.py</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">device_code_login()</span></code> — RFC 8628 device authorization flow for headless environments.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">registration.py</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">registration.py</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">register_client()</span></code> — RFC 7591 dynamic client registration via HTTP POST.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">token_cache.py</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">token_cache.py</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">TokenCache</span></code> — JSON file cache at <code class="docutils literal notranslate"><span class="pre">~/.bfabric/tokens/{hash}.json</span></code> with 0o600 permissions. <code class="docutils literal notranslate"><span class="pre">compute_token_cache_path()</span></code> derives a unique path from <code class="docutils literal notranslate"><span class="pre">(base_url,</span> <span class="pre">client_id,</span> <span class="pre">env_name)</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">url_token.py</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">url_token.py</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">UrlTokenContext</span></code> + <code class="docutils literal notranslate"><span class="pre">parse_url_token()</span></code> — extracts entity context (entity_id, application_id, etc.) from B-Fabric URL token JWTs.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">webapp_client.py</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">webapp_client.py</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">WebappClient</span></code> — dual-identity client bundling a <code class="docutils literal notranslate"><span class="pre">user</span></code> (from URL token) and <code class="docutils literal notranslate"><span class="pre">service</span></code> (from client credentials) <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> instance.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
+<p>The core <code class="docutils literal notranslate"><span class="pre">_oauth</span></code> API requires explicit <code class="docutils literal notranslate"><span class="pre">client_id</span></code> and <code class="docutils literal notranslate"><span class="pre">scope</span></code> arguments on all OAuth entry points. The library does not bake in a default client ID or scope. Tools like the CLI specify these values explicitly.</p>
 </section>
 <hr class="docutils" />
 <section id="new-factory-methods-on-bfabric">

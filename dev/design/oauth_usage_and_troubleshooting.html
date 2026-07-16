@@ -482,8 +482,14 @@ client, so the resource server refuses it.</p>
 <p>Key identity difference: <strong>client_credentials tokens carry no user <code class="docutils literal notranslate"><span class="pre">sub</span></code> and no user-scoped claims
 like <code class="docutils literal notranslate"><span class="pre">containers</span></code>.</strong> If a resource server authorizes by <em>your</em> container membership, a service
 token won’t do — you need a user flow (PKCE or device code).</p>
-<p><code class="docutils literal notranslate"><span class="pre">DEFAULT_OAUTH_SCOPE</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;api:read</span> <span class="pre">api:write</span> <span class="pre">openid</span> <span class="pre">profile</span> <span class="pre">email</span> <span class="pre">groups&quot;</span></code> — it <strong>includes
-<code class="docutils literal notranslate"><span class="pre">groups</span></code></strong> (the employee file-access path, see below) but not <code class="docutils literal notranslate"><span class="pre">containers</span></code> or <code class="docutils literal notranslate"><span class="pre">download</span></code>.</p>
+<p>The core <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> OAuth methods take <code class="docutils literal notranslate"><span class="pre">client_id</span></code> and <code class="docutils literal notranslate"><span class="pre">scope</span></code> as <strong>required</strong> arguments — there is
+no baked-in default. The <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span></code> login commands (<code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">login</span></code> / <code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">device-code</span></code>) likewise
+<strong>require</strong> an explicit <code class="docutils literal notranslate"><span class="pre">--scope</span></code>: pick a named preset — <code class="docutils literal notranslate"><span class="pre">read-only</span></code> (<code class="docutils literal notranslate"><span class="pre">api:read</span></code>), <code class="docutils literal notranslate"><span class="pre">read-write</span></code>
+(<code class="docutils literal notranslate"><span class="pre">api:write</span></code>, which implies <code class="docutils literal notranslate"><span class="pre">api:read</span></code>), or <code class="docutils literal notranslate"><span class="pre">upload</span></code> (<code class="docutils literal notranslate"><span class="pre">api:write</span> <span class="pre">tus</span></code>) — or pass any scope string.
+These login presets are <strong>minimal API scopes</strong> — they do <strong>not</strong> include <code class="docutils literal notranslate"><span class="pre">groups</span></code> (the employee
+file-access path, see below) or the OIDC scopes, so request those explicitly when you need them.
+Client/webapp registration (<code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">register</span></code> / <code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">register-webapp</span></code>) keeps the broader
+OIDC-inclusive default.</p>
 </section>
 <hr class="docutils" />
 <section id="scopes-and-claims-that-gate-resource-access">
@@ -499,11 +505,12 @@ the <code class="docutils literal notranslate"><span class="pre">employee</span>
 <div><p><strong>Employees: request the <code class="docutils literal notranslate"><span class="pre">groups</span></code> scope — this is the practical PKCE path.</strong>
 The <strong><code class="docutils literal notranslate"><span class="pre">containers</span></code> scope cannot be requested via PKCE</strong> (it is restricted; the server silently
 drops it — which is exactly why requesting <code class="docutils literal notranslate"><span class="pre">containers</span></code> in an interactive flow yields a token
-<em>without</em> the claim and no error). <strong><code class="docutils literal notranslate"><span class="pre">groups</span></code>, however, is requestable and is already in
-<code class="docutils literal notranslate"><span class="pre">DEFAULT_OAUTH_SCOPE</span></code>.</strong> So an employee gets file access from a normal user flow as long as
-<code class="docutils literal notranslate"><span class="pre">groups</span></code> is in the requested scope:</p>
+<em>without</em> the claim and no error). <strong><code class="docutils literal notranslate"><span class="pre">groups</span></code>, however, is requestable.</strong> It is <strong>not</strong> part of
+the CLI’s login presets (those are minimal API scopes), so pass it explicitly to get file access
+from a normal user flow:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect_pkce</span><span class="p">(</span>
     <span class="s2">&quot;https://fgcz-bfabric-demo.uzh.ch/bfabric&quot;</span><span class="p">,</span>
+    <span class="n">client_id</span><span class="o">=</span><span class="s2">&quot;CLI&quot;</span><span class="p">,</span>
     <span class="n">scope</span><span class="o">=</span><span class="s2">&quot;openid profile email api:read api:write groups&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
