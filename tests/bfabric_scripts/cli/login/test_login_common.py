@@ -28,9 +28,9 @@ def _write_config(config_file, default="PROD"):
 class TestResolveConfigEnv:
     def test_explicit_value_returned_as_is(self, tmp_path, mocker):
         # An explicit value short-circuits: no file read, no prompt.
-        resolve = mocker.patch("bfabric_scripts.cli.login._common.resolve_choice")
+        prompt = mocker.patch("bfabric_scripts.cli.login._common.select_or_input")
         assert resolve_config_env("STAGE", tmp_path / "missing.yml") == "STAGE"
-        resolve.assert_not_called()
+        prompt.assert_not_called()
 
     def test_non_interactive_uses_current_default(self, tmp_path, mocker):
         config_file = tmp_path / "config.yml"
@@ -52,21 +52,19 @@ class TestResolveConfigEnv:
         config_file = tmp_path / "config.yml"
         _write_config(config_file, default="PROD")
         mocker.patch("bfabric_scripts.cli.login._common.is_interactive", return_value=True)
-        resolve = mocker.patch("bfabric_scripts.cli.login._common.resolve_choice", return_value="NEWENV")
+        prompt = mocker.patch("bfabric_scripts.cli.login._common.select_or_input", return_value="NEWENV")
         assert resolve_config_env(None, config_file) == "NEWENV"
-        args = resolve.call_args.args
-        kwargs = resolve.call_args.kwargs
-        assert args[0] is None
+        args = prompt.call_args.args
+        # select_or_input offers the existing names as suggestions but lets the user type a new one.
         assert set(args[1]) == {"PROD", "TEST"}
-        assert kwargs["allow_new"] is True
         # The current default is prefilled.
-        assert kwargs["default"] == "PROD"
+        assert prompt.call_args.kwargs["default"] == "PROD"
 
     def test_interactive_cancel_returns_none(self, tmp_path, mocker):
         config_file = tmp_path / "config.yml"
         _write_config(config_file, default="PROD")
         mocker.patch("bfabric_scripts.cli.login._common.is_interactive", return_value=True)
-        mocker.patch("bfabric_scripts.cli.login._common.resolve_choice", return_value=None)
+        mocker.patch("bfabric_scripts.cli.login._common.select_or_input", return_value=None)
         assert resolve_config_env(None, config_file) is None
 
 

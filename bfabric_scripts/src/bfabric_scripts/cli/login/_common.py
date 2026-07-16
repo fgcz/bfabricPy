@@ -16,7 +16,7 @@ from rich.console import Console
 from rich.text import Text
 
 from bfabric.config.config_file import ConfigFile, EnvironmentConfig
-from bfabric_scripts.cli.interactive import confirm, is_interactive, resolve_choice, select_choice, text_input
+from bfabric_scripts.cli.interactive import confirm, is_interactive, select_choice, select_or_input, text_input
 from bfabric_scripts.cli.login._constants import (
     DEFAULT_LOGIN_SCOPE,
     DEFAULT_SCOPE_PRESET,
@@ -31,15 +31,6 @@ _CUSTOM = "custom"
 _FALLBACK_ENV = "PRODUCTION"
 
 
-def _existing_environments(config_file: Path) -> tuple[list[str], str | None]:
-    """Return the configured environment names and the current default (``[]``, ``None`` if absent)."""
-    config_path = Path(config_file).expanduser()
-    if not config_path.is_file():
-        return [], None
-    config_file_obj = ConfigFile.model_validate(yaml.safe_load(config_path.read_text()))
-    return list(config_file_obj.environments), config_file_obj.general.default_config
-
-
 def resolve_config_env(config_env: str | None, config_file: Path) -> str | None:
     """Resolve the target environment name.
 
@@ -50,11 +41,16 @@ def resolve_config_env(config_env: str | None, config_file: Path) -> str | None:
     """
     if config_env is not None:
         return config_env
-    names, current = _existing_environments(config_file)
+    config_path = Path(config_file).expanduser()
+    if config_path.is_file():
+        loaded = ConfigFile.model_validate(yaml.safe_load(config_path.read_text()))
+        names, current = list(loaded.environments), loaded.general.default_config
+    else:
+        names, current = [], None
     fallback = current or _FALLBACK_ENV
     if not is_interactive():
         return fallback
-    return resolve_choice(None, names, message="Environment name", allow_new=True, default=fallback)
+    return select_or_input("Environment name", names, default=fallback)
 
 
 def _scope_menu_label(choice: str) -> str:
@@ -156,43 +152,37 @@ def describe_token_cache(cached: dict[str, object] | None, *, now: float) -> str
     return f"present, expires in {_format_duration(remaining)}"
 
 
-def auth_method_label(env: EnvironmentConfig) -> str:
-    """Label an environment's auth method, mirroring ``auth status``' precedence."""
-    if env.auth_method in ("oauth", "pat"):
-        return env.auth_method
-    if env.auth is not None:
-        return "password"
-    return "none"
-
-
 def environment_summary(env: EnvironmentConfig) -> str:
     """A compact "host · auth-method" descriptor shown next to each environment name."""
+    if env.auth_method in ("oauth", "pat"):
+        method = env.auth_method
+    elif env.auth is not None:
+        method = "password"
+    else:
+        method = "none"
     base_url = str(env.config.base_url)
     host = urlsplit(base_url).netloc or base_url
-    return f"{host} · {auth_method_label(env)}"
-
-
-def environment_line(name: str, *, summary: str, width: int, is_default: bool) -> Text:
-    """Render one environment row. Text (not markup) keeps names with "[" literal.
-
-    The current default is prefixed with a bold-green arrow so it stands out in a long list;
-    the "host · auth-method" summary trails the (padded) name.
-    """
-    padded = name.ljust(width)
-    if is_default:
-        # Chained appends (each returns the Text) keep the whole row in one expression.
-        return (
-            Text("→ ", style="bold green")
-            .append(padded, style="bold green")
-            .append(f"   {summary}", style="green")
-            .append("  (default)", style="green")
-        )
-    return Text("  ").append(padded).append(f"   {summary}", style="dim")
+    return f"{host} · {method}"
 
 
 def print_environments(console: Console, environments: dict[str, EnvironmentConfig], default: str | None) -> None:
-    """List the configured environments with their host/auth summary, marking the default."""
+    """List the configured environments with their host/auth summary, marking the default.
+
+    Rows are built as ``Text`` (not console markup) so a name containing "[" stays literal; the
+    current default gets a bold-green arrow so it stands out in a long list.
+    """
     console.print("Configuration environments:")
     width = max((len(name) for name in environments), default=0)
     for name, env in environments.items():
-        console.print(environment_line(name, summary=environment_summary(env), width=width, is_default=name == default))
+        padded = name.ljust(width)
+        summary = environment_summary(env)
+        if name == default:
+            row = (
+                Text("→ ", style="bold green")
+                .append(padded, style="bold green")
+                .append(f"   {summary}", style="green")
+                .append("  (default)", style="green")
+            )
+        else:
+            row = Text("  ").append(padded).append(f"   {summary}", style="dim")
+        console.print(row)

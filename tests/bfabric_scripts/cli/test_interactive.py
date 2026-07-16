@@ -2,31 +2,7 @@ from __future__ import annotations
 
 import questionary
 
-from bfabric_scripts.cli.interactive import confirm, resolve_choice, select_choice, select_or_input, text_input
-
-
-class TestResolveChoice:
-    def test_returns_explicit_value_verbatim(self, mocker):
-        # An explicit value short-circuits: no interactivity check, no prompt.
-        select = mocker.patch("bfabric_scripts.cli.interactive.select_choice")
-        assert resolve_choice("TEST", ["PROD", "TEST"], message="Pick") == "TEST"
-        select.assert_not_called()
-
-    def test_returns_none_when_not_interactive(self, mocker):
-        mocker.patch("bfabric_scripts.cli.interactive.is_interactive", return_value=False)
-        assert resolve_choice(None, ["PROD", "TEST"], message="Pick") is None
-
-    def test_interactive_uses_select_choice(self, mocker):
-        mocker.patch("bfabric_scripts.cli.interactive.is_interactive", return_value=True)
-        select = mocker.patch("bfabric_scripts.cli.interactive.select_choice", return_value="PROD")
-        assert resolve_choice(None, ["PROD", "TEST"], message="Pick", default="PROD") == "PROD"
-        select.assert_called_once_with("Pick", ["PROD", "TEST"], default="PROD", describe=None, search=False)
-
-    def test_allow_new_uses_select_or_input(self, mocker):
-        mocker.patch("bfabric_scripts.cli.interactive.is_interactive", return_value=True)
-        prompt = mocker.patch("bfabric_scripts.cli.interactive.select_or_input", return_value="NEW")
-        assert resolve_choice(None, ["PROD"], message="Pick", allow_new=True) == "NEW"
-        prompt.assert_called_once_with("Pick", ["PROD"], default=None)
+from bfabric_scripts.cli.interactive import confirm, select_choice, select_or_input, text_input
 
 
 class TestSelectChoice:

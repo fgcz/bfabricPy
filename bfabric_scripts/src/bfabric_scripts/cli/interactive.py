@@ -1,9 +1,8 @@
 """Reusable interactive prompt helpers built on ``questionary``.
 
-These wrap the recurring CLI pattern where a value may be supplied on the command line,
-selected from a menu, or (optionally) typed as a new value not in the list. Interactive
-prompts require a TTY; call sites in non-interactive contexts (pipes, CI) either pass an
-explicit value or handle the ``None`` returned by :func:`resolve_choice`.
+These wrap the recurring CLI pattern where a value is selected from a menu or (optionally)
+typed as a new value not in the list. Interactive prompts require a TTY; callers guard with
+:func:`is_interactive` and handle the ``None`` a cancelled prompt returns.
 """
 
 from __future__ import annotations
@@ -83,30 +82,3 @@ def confirm(message: str, *, default: bool = False) -> bool | None:
     "no" (a caller that wants to treat both alike can just check falsiness).
     """
     return cast("bool | None", questionary.confirm(message, default=default).ask())
-
-
-def resolve_choice(
-    value: str | None,
-    choices: Sequence[str],
-    *,
-    message: str,
-    allow_new: bool = False,
-    default: str | None = None,
-    describe: Callable[[str], str] | None = None,
-    search: bool = False,
-) -> str | None:
-    """Resolve a choice from an explicit *value* or, failing that, an interactive prompt.
-
-    * *value* given -> return it verbatim (the caller validates membership if it needs to).
-    * else, no TTY -> return ``None`` (the caller reports the non-interactive case).
-    * else, *allow_new* -> :func:`select_or_input` (pick a suggestion or type a new value).
-    * else -> :func:`select_choice` (menu; *describe* labels each entry, *search* enables
-      type-to-filter).
-    """
-    if value is not None:
-        return value
-    if not is_interactive():
-        return None
-    if allow_new:
-        return select_or_input(message, choices, default=default)
-    return select_choice(message, choices, default=default, describe=describe, search=search)

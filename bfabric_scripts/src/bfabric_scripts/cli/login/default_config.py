@@ -12,7 +12,7 @@ from rich.console import Console
 from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric.config.config_file import ConfigFile
 from bfabric.config.config_writer import set_default_config
-from bfabric_scripts.cli.interactive import is_interactive, resolve_choice
+from bfabric_scripts.cli.interactive import is_interactive, select_choice
 from bfabric_scripts.cli.login._common import environment_summary, print_environments
 
 
@@ -42,14 +42,14 @@ def cmd_auth_default(
 
     default = config_file_obj.general.default_config
     width = max(len(name) for name in names)
-    config_env = resolve_choice(
-        config_env,
-        names,
-        message="Select the default environment",
-        default=default if default in names else None,
-        describe=lambda name: f"{name.ljust(width)}   {environment_summary(config_file_obj.environments[name])}",
-        search=True,
-    )
+    if config_env is None and is_interactive():
+        config_env = select_choice(
+            "Select the default environment",
+            names,
+            default=default if default in names else None,
+            describe=lambda name: f"{name.ljust(width)}   {environment_summary(config_file_obj.environments[name])}",
+            search=True,
+        )
     if config_env is None:
         # None means either the user cancelled the picker or there is no TTY to prompt on.
         console = Console()

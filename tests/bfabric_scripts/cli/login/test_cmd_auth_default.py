@@ -46,7 +46,8 @@ class TestInteractivePicker:
         config_file = tmp_path / "config.yml"
         _write_config(config_file, default="PROD")
         # The picker runs only when no value is passed; it returns the chosen environment.
-        picker = mocker.patch("bfabric_scripts.cli.login.default_config.resolve_choice", return_value="TEST")
+        mocker.patch("bfabric_scripts.cli.login.default_config.is_interactive", return_value=True)
+        picker = mocker.patch("bfabric_scripts.cli.login.default_config.select_choice", return_value="TEST")
         cmd_auth_default(config_file=config_file)
         data = yaml.safe_load(config_file.read_text())
         assert data["GENERAL"]["default_config"] == "TEST"
@@ -57,7 +58,7 @@ class TestInteractivePicker:
         config_file = tmp_path / "config.yml"
         _write_config(config_file, default="PROD")
         before = config_file.read_text()
-        mocker.patch("bfabric_scripts.cli.login.default_config.resolve_choice", return_value=None)
+        mocker.patch("bfabric_scripts.cli.login.default_config.select_choice", return_value=None)
         mocker.patch("bfabric_scripts.cli.login.default_config.is_interactive", return_value=True)
         cmd_auth_default(config_file=config_file)
         assert "No changes made" in capsys.readouterr().out
@@ -69,7 +70,6 @@ class TestNonInteractiveListing:
         config_file = tmp_path / "config.yml"
         _write_config(config_file, default="PROD")
         before = config_file.read_text()
-        mocker.patch("bfabric_scripts.cli.login.default_config.resolve_choice", return_value=None)
         mocker.patch("bfabric_scripts.cli.login.default_config.is_interactive", return_value=False)
         cmd_auth_default(config_file=config_file)
         output = capsys.readouterr().out
