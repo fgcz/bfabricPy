@@ -206,7 +206,7 @@ class TestPkceLogin:
         mock_server.serve_forever = mocker.MagicMock()
         mock_server_cls.return_value = mock_server
 
-        result = pkce_login("https://example.com/bfabric", client_id="test-cli")
+        result = pkce_login("https://example.com/bfabric", client_id="test-cli", scope="api:read")
 
         assert result == token_dict
         mock_exchange.assert_called_once_with(
@@ -231,7 +231,7 @@ class TestPkceLogin:
         mock_server_cls.return_value = mock_server
 
         with pytest.raises(BfabricOAuthError, match="CSRF state mismatch") as exc_info:
-            pkce_login("https://example.com/bfabric")
+            pkce_login("https://example.com/bfabric", client_id="test-cli", scope="api:read")
         # State values must NOT appear in the error message (security)
         assert "expected_state" not in str(exc_info.value)
         assert "wrong_state" not in str(exc_info.value)
@@ -254,7 +254,7 @@ class TestPkceLogin:
         mock_server_cls.return_value = mock_server
 
         with pytest.raises(RuntimeError, match="Authorization error: access_denied"):
-            pkce_login("https://example.com/bfabric")
+            pkce_login("https://example.com/bfabric", client_id="test-cli", scope="api:read")
 
     def test_timeout_raises(self, mocker):
         mock_server_cls = mocker.patch("bfabric._oauth.pkce._CallbackServer")
@@ -273,7 +273,7 @@ class TestPkceLogin:
         mock_thread_cls.return_value = mock_thread
 
         with pytest.raises(RuntimeError, match="timed out"):
-            pkce_login("https://example.com/bfabric", timeout=0.1)
+            pkce_login("https://example.com/bfabric", client_id="test-cli", scope="api:read", timeout=0.1)
 
     def test_browser_fallback_prints_url(self, mocker, capsys):
         mock_server_cls = mocker.patch("bfabric._oauth.pkce._CallbackServer")
@@ -289,7 +289,7 @@ class TestPkceLogin:
         mock_server.serve_forever = mocker.MagicMock()
         mock_server_cls.return_value = mock_server
 
-        pkce_login("https://example.com/bfabric")
+        pkce_login("https://example.com/bfabric", client_id="test-cli", scope="api:read")
 
         captured = capsys.readouterr()
         assert "Open this URL to log in:" in captured.err
@@ -308,7 +308,7 @@ class TestPkceLogin:
         mock_server.serve_forever = mocker.MagicMock()
         mock_server_cls.return_value = mock_server
 
-        pkce_login("https://example.com/bfabric", open_browser=False)
+        pkce_login("https://example.com/bfabric", client_id="test-cli", scope="api:read", open_browser=False)
 
         captured = capsys.readouterr()
         assert "Open this URL to log in:" in captured.err

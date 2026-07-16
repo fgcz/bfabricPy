@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 ## \[Unreleased\]
 
+- `auth login` / `auth device-code` now **require** an explicit `--scope` (no default). Named presets document the useful sets — `read-only` (`api:read`), `read-write` (`api:write`), `upload` (`api:write tus`) — or pass any scope string. Client/webapp registration (`auth register` / `auth register-webapp`) keeps the OIDC-inclusive default, which webapps need for user-identity claims.
+
 ## \[1.16.0rc2\] - 2026-07-15
 
 - `bfabric-cli auth` command group for OAuth authentication and client management:
