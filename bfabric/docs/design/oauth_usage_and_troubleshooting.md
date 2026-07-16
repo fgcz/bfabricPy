@@ -77,7 +77,7 @@ token won't do — you need a user flow (PKCE or device code).
 
 The core `Bfabric` OAuth methods take `client_id` and `scope` as **required** arguments — there is
 no baked-in default. The `bfabric-cli` login commands (`auth login` / `auth device-code`) default to
-the **`read-write`** scope preset (`api:write`, which implies `api:read`); `read-only` (`api:read`)
+the **`read-only`** scope preset (`api:read`); `read-write` (`api:write`, which implies `api:read`)
 and `upload` (`api:write tus`) presets are also available, and any scope can be passed with `--scope`.
 These login presets are **minimal API scopes** — they do **not** include `groups` (the employee
 file-access path, see below) or the OIDC scopes, so request those explicitly when you need them.

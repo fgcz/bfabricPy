@@ -36,8 +36,5 @@ SCOPE_PRESETS: tuple[ScopePreset, ...] = (
     ScopePreset("upload", "api:write tus", "Upload files to the API (includes read and write API)"),
 )
 
-SCOPE_PRESETS_BY_NAME: dict[str, ScopePreset] = {preset.name: preset for preset in SCOPE_PRESETS}
-
-# The preset requested by default when the user does not pick one.
-DEFAULT_SCOPE_PRESET = "read-write"
-DEFAULT_LOGIN_SCOPE = SCOPE_PRESETS_BY_NAME[DEFAULT_SCOPE_PRESET].scope
+# The first (least-privilege) preset is requested by default when the user does not pick one.
+DEFAULT_LOGIN_SCOPE = SCOPE_PRESETS[0].scope

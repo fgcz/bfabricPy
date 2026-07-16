@@ -786,6 +786,7 @@ class TestPickling:
             client_id="cid",
             client_secret="",
             token_url="https://example.com/bfabric/rest/oauth/token",
+            scope="",
             grant_type="refresh_token",
             token={"access_token": "tok-abc", "token_type": "Bearer", "expires_at": 9999999999},
         )

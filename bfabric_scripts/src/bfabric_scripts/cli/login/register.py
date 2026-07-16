@@ -53,6 +53,7 @@ def _resolve_token_from_config(config_env: str, config_file: Path) -> tuple[str,
             client_id=client_id,
             client_secret="",
             token_url=token_url,
+            scope="",
             grant_type="refresh_token",
             token_cache_path=cache_path,
         )
