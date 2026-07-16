@@ -12,7 +12,7 @@ from bfabric._oauth.pkce import pkce_login
 from bfabric._oauth.token_cache import compute_token_cache_path
 from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric.config.config_writer import write_environment_to_config
-from bfabric_scripts.cli.login._constants import DEFAULT_CLIENT_ID, DEFAULT_OAUTH_SCOPE
+from bfabric_scripts.cli.login._constants import DEFAULT_CLIENT_ID, DEFAULT_LOGIN_SCOPE
 
 
 def cmd_auth_login(
@@ -21,7 +21,7 @@ def cmd_auth_login(
     client_id: Annotated[str, cyclopts.Parameter(help="OAuth client ID.")] = DEFAULT_CLIENT_ID,
     config_env: Annotated[str, cyclopts.Parameter(help="Environment name in the config file.")] = "PRODUCTION",
     config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = DEFAULT_CONFIG_FILE,
-    scope: Annotated[str, cyclopts.Parameter(help="OAuth scope.")] = DEFAULT_OAUTH_SCOPE,
+    scope: Annotated[str, cyclopts.Parameter(help="OAuth scope.")] = DEFAULT_LOGIN_SCOPE,
     port: Annotated[int, cyclopts.Parameter(help="Local port for callback (0 = auto).")] = 0,
     timeout: Annotated[float, cyclopts.Parameter(help="Seconds to wait for login.")] = 120.0,
     set_default: Annotated[
