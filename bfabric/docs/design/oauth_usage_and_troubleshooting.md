@@ -76,9 +76,9 @@ like `containers`.** If a resource server authorizes by *your* container members
 token won't do — you need a user flow (PKCE or device code).
 
 The core `Bfabric` OAuth methods take `client_id` and `scope` as **required** arguments — there is
-no baked-in default. The `bfabric-cli` login commands (`auth login` / `auth device-code`) default to
-the **`read-only`** scope preset (`api:read`); `read-write` (`api:write`, which implies `api:read`)
-and `upload` (`api:write tus`) presets are also available, and any scope can be passed with `--scope`.
+no baked-in default. The `bfabric-cli` login commands (`auth login` / `auth device-code`) likewise
+**require** an explicit `--scope`: pick a named preset — `read-only` (`api:read`), `read-write`
+(`api:write`, which implies `api:read`), or `upload` (`api:write tus`) — or pass any scope string.
 These login presets are **minimal API scopes** — they do **not** include `groups` (the employee
 file-access path, see below) or the OIDC scopes, so request those explicitly when you need them.
 Client/webapp registration (`auth register` / `auth register-webapp`) keeps the broader

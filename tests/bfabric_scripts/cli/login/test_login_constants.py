@@ -1,9 +1,6 @@
 from __future__ import annotations
 
-from bfabric_scripts.cli.login._constants import (
-    DEFAULT_LOGIN_SCOPE,
-    SCOPE_PRESETS,
-)
+from bfabric_scripts.cli.login._constants import SCOPE_PRESETS
 
 
 class TestScopePresets:
@@ -19,6 +16,3 @@ class TestScopePresets:
 
     def test_every_preset_has_a_description(self):
         assert all(preset.description for preset in SCOPE_PRESETS)
-
-    def test_default_login_scope_is_read_only(self):
-        assert DEFAULT_LOGIN_SCOPE == SCOPE_PRESETS[0].scope == "api:read"

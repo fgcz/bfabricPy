@@ -25,6 +25,7 @@ class TestCmdLoginDeviceCode:
         mocker.patch("bfabric._oauth.credential_provider.OAuth2Session", return_value=mock_session)
         cmd_login_device_code(
             base_url="https://example.com/bfabric",
+            scope="api:read",
             client_id="test-client",
             config_env="PROD",
             config_file=config_file,
@@ -52,6 +53,7 @@ class TestCmdLoginDeviceCode:
         mocker.patch("bfabric._oauth.credential_provider.OAuth2Session", return_value=mock_session)
         cmd_login_device_code(
             base_url="https://example.com/bfabric",
+            scope="api:read",
             client_id="test-client",
             config_env="PROD",
             config_file=config_file,

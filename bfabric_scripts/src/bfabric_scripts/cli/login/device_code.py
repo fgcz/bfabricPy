@@ -12,16 +12,16 @@ from bfabric._oauth.device_code import device_code_login
 from bfabric._oauth.token_cache import compute_token_cache_path
 from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric.config.config_writer import write_environment_to_config
-from bfabric_scripts.cli.login._constants import DEFAULT_CLIENT_ID, DEFAULT_LOGIN_SCOPE
+from bfabric_scripts.cli.login._constants import DEFAULT_CLIENT_ID
 
 
 def cmd_login_device_code(
     base_url: Annotated[str, cyclopts.Parameter(help="B-Fabric instance URL.")],
     *,
+    scope: Annotated[str, cyclopts.Parameter(help="OAuth scope.")],
     client_id: Annotated[str, cyclopts.Parameter(help="OAuth client ID.")] = DEFAULT_CLIENT_ID,
     config_env: Annotated[str, cyclopts.Parameter(help="Environment name in the config file.")] = "PRODUCTION",
     config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = DEFAULT_CONFIG_FILE,
-    scope: Annotated[str, cyclopts.Parameter(help="OAuth scope.")] = DEFAULT_LOGIN_SCOPE,
     timeout: Annotated[float, cyclopts.Parameter(help="Seconds to wait for authorization.")] = 600.0,
     set_default: Annotated[
         bool, cyclopts.Parameter(help="Set this environment as the default in the config file.")
