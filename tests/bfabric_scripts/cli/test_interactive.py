@@ -11,8 +11,10 @@ class TestSelectChoice:
         question.ask.return_value = "TEST"
         select = mocker.patch("bfabric_scripts.cli.interactive.questionary.select", return_value=question)
         assert select_choice("Pick", ["PROD", "TEST"], default="TEST") == "TEST"
+        # j/k are always disabled so ↑/↓ are the sole navigation keys (and never clash with the
+        # search filter, which questionary would otherwise reject).
         select.assert_called_once_with(
-            "Pick", choices=["PROD", "TEST"], default="TEST", use_search_filter=False, use_jk_keys=True
+            "Pick", choices=["PROD", "TEST"], default="TEST", use_search_filter=False, use_jk_keys=False
         )
 
     def test_describe_builds_labelled_choices_but_returns_plain_value(self, mocker):
@@ -31,7 +33,7 @@ class TestSelectChoice:
         select = mocker.patch("bfabric_scripts.cli.interactive.questionary.select", return_value=question)
         select_choice("Pick", ["PROD", "TEST"], search=True)
         assert select.call_args.kwargs["use_search_filter"] is True
-        # j/k must be released as navigation keys so they can be typed into the filter.
+        # j/k stay off (as always) so they don't clash with typing into the search filter.
         assert select.call_args.kwargs["use_jk_keys"] is False
 
 
