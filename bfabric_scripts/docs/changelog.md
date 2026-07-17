@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 ## \[Unreleased\]
 
+## \[1.16.0rc2\] - 2026-07-15
+
 - `bfabric-cli auth` — OAuth authentication & client management. Login: `login` (browser), `device-code` (headless), `pat`; client registration: `register` / `register-webapp`; environment management: `default`, `list`, `status`, `logout`. Scope presets (`read-only` / `read-write` / `upload`) or a raw scope, via an interactive picker when `--scope` is omitted in a terminal; no baked-in default scope, so a headless run must pass `--scope` (registration keeps the OIDC-inclusive default webapps need). When `--config-env` is omitted it prompts for the environment (else targets the current default / `PRODUCTION`); unless `--set-default` / `--no-set-default` is given it asks (default yes) whether to make the env the default, and cancelling that prompt aborts the login. `status` reports an OAuth env's cached-token freshness and granted scope (annotated with the matching preset); `logout` removes an env's config entry and cached tokens (confirmation required). PATs are stored under a `pat` key (`auth_method: pat`), keeping the config parseable by ≤1.19.0 clients.
 - `bfabric-cli workunit upload FILES...` — upload files/directories to a workunit over tus (resumable, large-file capable): new or `--workunit-id`, one resource per file, skips duplicates (`--force`), live progress (`--no-progress`), optional `--track-job`. Requires an OAuth client with the `tus` scope.
 - `bfabric-cli api create` / `api update` — accept `--format json|yaml|tsv|table_rich` (default `json`); now emit valid JSON and serialise `datetime` / `Decimal` (was Python `repr`, breaking `jq`) ([#503](https://github.com/fgcz/bfabricPy/issues/503)).
