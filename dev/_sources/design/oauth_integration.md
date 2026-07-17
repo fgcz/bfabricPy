@@ -45,8 +45,8 @@ All commands registered under `bfabric-cli auth` via cyclopts.
 
 | Command | File | Description |
 |---------|------|-------------|
-| `auth login <base_url>` | `cli/login/pkce.py` | Browser-based OAuth login. Caches tokens + writes config. |
-| `auth device-code <base_url>` | `cli/login/device_code.py` | Headless OAuth login. |
+| `auth login <base_url>` | `cli/login/oauth_login.py` | Browser-based OAuth login. Caches tokens + writes config. |
+| `auth device-code <base_url>` | `cli/login/oauth_login.py` | Headless OAuth login. |
 | `auth pat <base_url>` | `cli/login/pat.py` | Personal Access Token login. |
 | `auth register <client_name> <redirect_uri>` | `cli/login/register.py` | RFC 7591 dynamic client registration. Outputs JSON. |
 | `auth status` | `cli/login/status.py` | Show current auth status for an environment. |
