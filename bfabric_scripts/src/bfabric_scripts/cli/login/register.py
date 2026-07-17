@@ -16,9 +16,8 @@ from bfabric_scripts.cli.login._constants import DEFAULT_CLIENT_ID, DEFAULT_REGI
 
 
 def _resolve_token_from_config(config_env: str, config_file: Path) -> tuple[str, str]:
-    """Load a cached OAuth access token and base_url for the given environment.
+    """Load the cached OAuth access token and base_url for *config_env* as ``(token, base_url)``.
 
-    Returns ``(access_token, base_url)``.
     Raises :class:`SystemExit` on failure.
     """
     import yaml

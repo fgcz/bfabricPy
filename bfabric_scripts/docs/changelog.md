@@ -10,21 +10,13 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 ## \[Unreleased\]
 
-- `auth login` / `auth device-code` now **require** an explicit `--scope` (no default). Named presets document the useful sets — `read-only` (`api:read`), `read-write` (`api:write`), `upload` (`api:write tus`) — or pass any scope string. Client/webapp registration (`auth register` / `auth register-webapp`) keeps the OIDC-inclusive default, which webapps need for user-identity claims.
-
 ## \[1.16.0rc2\] - 2026-07-15
 
-- `bfabric-cli auth` command group for OAuth authentication and client management:
-    - Login: `auth login` (browser), `auth device-code` (headless), `auth pat` (Personal Access Token).
-    - `auth register` / `auth register-webapp` — dynamic client registration, optionally with a linked B-Fabric app.
-    - `auth default` / `auth default set [CONFIG_ENV]` — show and set the default environment (interactive picker when no value is given).
-    - `auth status` and `auth logout`.
-    - `auth pat` stores the token under a `pat` key with `auth_method: pat` (not `login: __oauth__` / `password:`), keeping the shared config parseable by older (≤1.19.0) clients; `auth status` reports these as `pat`.
-- `bfabric-cli workunit upload FILES...` — upload files and directories to a workunit over tus (resumable, large-file capable), creating a new workunit or targeting `--workunit-id`. One resource per file, skips duplicates (unless `--force`), expands directories, live progress (`--no-progress`); `--track-job` records an `UPLOAD` job. Requires an OAuth client with the `tus` scope.
-- `bfabric-cli api create` / `api update` accept `--format json|yaml|tsv|table_rich` (default `json`), matching `api read`.
-- `bfabric-cli dataset update` — update an existing dataset with a change preview before confirming (`csv`/`tsv`/`xlsx`/`parquet`, same validation flags as `dataset upload`).
-- `api create` / `api update` now emit valid JSON (was Python `repr` via `rich.pretty.pprint`, breaking `jq`) and serialise `datetime` / `Decimal` to strings instead of raising `TypeError` ([#503](https://github.com/fgcz/bfabricPy/issues/503)).
-- Internal: `dataset upload` and `bfabric_save_csv2dataset.py` now use `bfabric.operations.dataset.create_dataset`; API error handling is centralized in `@use_client` (no more `@logger.catch`); `--config-env` naming unified. Declares `lxml` as an explicit dependency (was transitive via the now-optional `zeep`) and requires `bfabric[transfer]` >= 1.20 (for `upload_files` / tus).
+- `bfabric-cli auth` — OAuth authentication & client management. Login: `login` (browser), `device-code` (headless), `pat`; client registration: `register` / `register-webapp`; environment management: `default`, `list`, `status`, `logout`. Scope presets (`read-only` / `read-write` / `upload`) or a raw scope, via an interactive picker when `--scope` is omitted in a terminal; no baked-in default scope, so a headless run must pass `--scope` (registration keeps the OIDC-inclusive default webapps need). When `--config-env` is omitted it prompts for the environment (else targets the current default / `PRODUCTION`); unless `--set-default` / `--no-set-default` is given it asks (default yes) whether to make the env the default, and cancelling that prompt aborts the login. `status` reports an OAuth env's cached-token freshness and granted scope (annotated with the matching preset); `logout` removes an env's config entry and cached tokens (confirmation required). PATs are stored under a `pat` key (`auth_method: pat`), keeping the config parseable by ≤1.19.0 clients.
+- `bfabric-cli workunit upload FILES...` — upload files/directories to a workunit over tus (resumable, large-file capable): new or `--workunit-id`, one resource per file, skips duplicates (`--force`), live progress (`--no-progress`), optional `--track-job`. Requires an OAuth client with the `tus` scope.
+- `bfabric-cli api create` / `api update` — accept `--format json|yaml|tsv|table_rich` (default `json`); now emit valid JSON and serialise `datetime` / `Decimal` (was Python `repr`, breaking `jq`) ([#503](https://github.com/fgcz/bfabricPy/issues/503)).
+- `bfabric-cli dataset update` — update an existing dataset with a change preview before confirming (`csv`/`tsv`/`xlsx`/`parquet`).
+- Internal: `dataset upload` / `bfabric_save_csv2dataset.py` use `bfabric.operations.dataset.create_dataset`; API error handling centralized in `@use_client` (dropped `@logger.catch`); `--config-env` naming unified; `lxml` now an explicit dep (was transitive via optional `zeep`); requires `bfabric[transfer]>=1.20`; adds `questionary`-based `cli.interactive` helpers and `config_writer.remove_environment_from_config`.
 
 ## \[1.15.0\] - 2026-04-20
 

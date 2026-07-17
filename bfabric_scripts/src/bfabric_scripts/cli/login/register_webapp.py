@@ -29,10 +29,9 @@ def cmd_login_register_webapp(
     technology_id: Annotated[int | None, cyclopts.Parameter(help="Technology ID for the application.")] = None,
     description: Annotated[str | None, cyclopts.Parameter(help="Application description.")] = None,
 ) -> None:
-    """Register a new OAuth webapp: create OAuth client and B-Fabric application.
+    """Register a new OAuth webapp: create the OAuth client and the B-Fabric application.
 
-    Uses the current config environment's credentials for both the OAuth
-    registration endpoint (Bearer token) and the SOAP application save.
+    Uses the config environment's credentials for both the registration endpoint and the SOAP save.
     """
     from bfabric import Bfabric
     from bfabric._oauth.registration import register_webapp
