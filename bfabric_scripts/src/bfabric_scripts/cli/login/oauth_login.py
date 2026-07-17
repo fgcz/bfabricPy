@@ -42,16 +42,13 @@ def _resolve_params(
 def _persist(
     base_url: str,
     client_id: str,
-    scope: str,
     token: dict[str, object],
     config_env: str,
     config_file: Path,
     set_default: bool,
 ) -> None:
     """Cache the fresh OAuth *token* and record the environment in the config."""
-    _ = OAuthCredentialProvider.cache_login_token(
-        base_url, client_id=client_id, scope=scope, token=token, env_name=config_env
-    )
+    _ = OAuthCredentialProvider.cache_login_token(base_url, client_id=client_id, token=token, env_name=config_env)
     env_data = {"base_url": base_url, "auth_method": "oauth", "client_id": client_id}
     write_environment_to_config(config_file, config_env, env_data, set_default=set_default)
     print("Authenticated successfully.")
@@ -83,7 +80,7 @@ def cmd_auth_login(
     except RuntimeError as e:
         print(f"Error: {e}", file=sys.stderr)
         raise SystemExit(1) from None
-    _persist(base_url, client_id, scope, token, config_env, config_file, set_default)
+    _persist(base_url, client_id, token, config_env, config_file, set_default)
 
 
 def cmd_login_device_code(
@@ -108,4 +105,4 @@ def cmd_login_device_code(
     except RuntimeError as e:
         print(f"Error: {e}", file=sys.stderr)
         raise SystemExit(1) from None
-    _persist(base_url, client_id, scope, token, config_env, config_file, set_default)
+    _persist(base_url, client_id, token, config_env, config_file, set_default)

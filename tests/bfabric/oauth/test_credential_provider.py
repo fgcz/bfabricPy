@@ -385,12 +385,13 @@ class TestCacheLoginToken:
         returned = OAuthCredentialProvider.cache_login_token(
             "https://example.com/bfabric",
             client_id="CLI",
-            scope="api:read",
             token=raw,
             env_name="TRACE",
         )
         assert returned == cache_path
         cached = json.loads(cache_path.read_text())
         assert cached["access_token"] == "a"
+        # The granted scope is preserved from the token itself (not a separate parameter).
+        assert cached["scope"] == "api:read"
         # expires_in is normalized to an absolute expires_at so `auth status` can report freshness.
         assert isinstance(cached["expires_at"], (int, float))

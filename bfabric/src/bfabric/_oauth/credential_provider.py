@@ -21,6 +21,7 @@ from typing import TYPE_CHECKING
 from authlib.common.errors import AuthlibBaseError
 from authlib.integrations.base_client.errors import OAuthError
 from authlib.integrations.requests_client import OAuth2Session  # pyright: ignore[reportMissingTypeStubs]
+from authlib.oauth2.rfc6749 import OAuth2Token
 from requests.exceptions import RequestException
 
 from loguru import logger
@@ -109,9 +110,7 @@ class OAuthCredentialProvider:
             self._persist()
 
     @classmethod
-    def cache_login_token(
-        cls, base_url: str, *, client_id: str, scope: str, token: dict[str, object], env_name: str
-    ) -> Path:
+    def cache_login_token(cls, base_url: str, *, client_id: str, token: dict[str, object], env_name: str) -> Path:
         """Normalize and cache a freshly obtained login *token*, returning its cache path.
 
         Ingesting the token derives its absolute ``expires_at`` (from ``expires_in``) and writes the
@@ -119,16 +118,9 @@ class OAuthCredentialProvider:
         Used by the CLI ``auth login`` / ``auth device-code`` commands once their flow returns a token.
         """
         cache_path = compute_token_cache_path(base_url, client_id, env_name).expanduser()
-        # Constructing the provider ingests the token (deriving expires_at) and persists it to the cache.
-        _ = cls(
-            client_id=client_id,
-            client_secret="",
-            token_url=f"{base_url}/rest/oauth/token",
-            token=token,
-            grant_type="refresh_token",
-            scope=scope,
-            token_cache_path=cache_path,
-        )
+        # OAuth2Token derives an absolute expires_at from expires_in, matching what the live session
+        # writes on ingest, so `auth status` can read the cached token's freshness.
+        TokenCache(cache_path).save(dict(OAuth2Token(dict(token))))
         return cache_path
 
     def get_auth(self) -> BfabricAuth:
