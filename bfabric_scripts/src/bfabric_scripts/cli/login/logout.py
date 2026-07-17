@@ -31,9 +31,8 @@ def cmd_login_logout(
 ) -> None:
     """Remove an environment: delete its config entry and clear any cached OAuth tokens.
 
-    With no *config_env*, opens an interactive picker in a terminal. Because this deletes
-    credentials, a non-interactive run must name the environment (``--config-env``) and pass
-    ``--no-confirm`` to skip the confirmation it cannot prompt for.
+    With no *config_env*, opens an interactive picker. A non-interactive run must name the
+    environment and pass ``--no-confirm`` (it cannot prompt for the destructive confirmation).
     """
     config_path = Path(config_file).expanduser()
     if not config_path.is_file():
@@ -69,9 +68,8 @@ def cmd_login_logout(
         return
 
     env = environments[config_env]
-    # Removing the current default leaves the config with no default (a dangling default would make
-    # it unloadable, so it is cleared). Only worth flagging when other environments remain to
-    # default to; otherwise "no default" is moot.
+    # Removing the current default clears it (a dangling default makes the config unloadable). Only
+    # worth flagging when other environments remain to default to.
     leaves_no_default = config_env == config_file_obj.general.default_config and len(names) > 1
 
     if not no_confirm:
@@ -91,8 +89,8 @@ def cmd_login_logout(
             print("No changes made.")
             return
 
-    # Remove the config entry first: if that write fails, the cached token is left untouched so the
-    # environment stays fully usable, rather than losing its token to a half-completed removal.
+    # Remove the config entry first: if that write fails, the cached token is left intact so the
+    # environment stays usable, rather than half-removed.
     remove_environment_from_config(config_path, config_env)
     if env.auth_method == "oauth":
         client_id = env.client_id or DEFAULT_CLIENT_ID

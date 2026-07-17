@@ -1,9 +1,7 @@
 """Shared helpers for the ``auth`` command group.
 
-Covers parameter resolution for the login commands (environment name and OAuth scope may be
-given on the command line, picked interactively, or -- for the environment -- typed as a new
-value) plus the rendering used by ``auth default`` / ``auth list`` / ``auth status``, so the
-individual commands don't each re-implement it.
+Parameter resolution (environment name, OAuth scope, set-default) plus the environment rendering
+shared by ``auth default`` / ``auth list`` / ``auth status``.
 """
 
 from __future__ import annotations
@@ -29,10 +27,9 @@ _FALLBACK_ENV = "PRODUCTION"
 def resolve_config_env(config_env: str | None, config_file: Path) -> str | None:
     """Resolve the target environment name.
 
-    * *config_env* given -> use it verbatim.
-    * no TTY -> the current default environment if set, else ``"PRODUCTION"``.
-    * otherwise -> interactive picker: choose an existing environment or type a new name,
-      prefilled with that same fallback. Returns ``None`` if the user cancels.
+    Explicit *config_env* wins; non-interactive falls back to the current default (else
+    ``"PRODUCTION"``); interactive picks an existing name or a typed new one, prefilled with that
+    fallback. ``None`` if cancelled.
     """
     if config_env is not None:
         return config_env
@@ -60,12 +57,10 @@ def _scope_menu_label(choice: str) -> str:
 def resolve_scope(scope: str | None) -> str | None:
     """Resolve the OAuth scope string.
 
-    * *scope* given -> a preset name expands to its scope string; anything else passes through
-      as a raw space-separated scope string.
-    * no TTY -> ``None``: there is no baked-in default scope, so a headless login must pass
-      ``--scope`` explicitly (the caller aborts).
-    * otherwise -> interactive picker of the named presets (least-privilege preselected) plus a
-      Custom option that opens a free-text prompt. Returns ``None`` if the user cancels.
+    A given *scope* expands preset names and passes anything else through as a raw scope string.
+    Non-interactive returns ``None`` (no default scope, so a headless login must pass ``--scope``;
+    the caller aborts). Interactive picks a preset (least-privilege preselected) or Custom
+    free-text. ``None`` if cancelled.
     """
     if scope is not None:
         preset = SCOPE_PRESETS_BY_NAME.get(scope)
@@ -88,9 +83,8 @@ def resolve_scope(scope: str | None) -> str | None:
 def resolve_set_default(set_default: bool | None, config_env: str) -> bool | None:
     """Resolve whether the freshly-authenticated environment becomes the config default.
 
-    * explicit ``--set-default`` / ``--no-set-default`` (i.e. not ``None``) -> honored verbatim.
-    * otherwise, no TTY -> ``True`` (the historical default).
-    * otherwise -> a yes/no prompt, preselected yes; ``None`` if the user cancels (the caller aborts).
+    Explicit *set_default* wins; non-interactive defaults to ``True``; interactive prompts (yes
+    preselected). ``None`` if cancelled (the caller aborts).
     """
     if set_default is not None:
         return set_default
@@ -107,9 +101,8 @@ def _normalize_scope(scope: str) -> str:
 def describe_scope(scope: object) -> str:
     """Render a granted OAuth scope for display, annotated with its preset name if it matches.
 
-    * a scope equal to a preset (order-insensitive) -> ``"<scopes>  [<preset>]"``
-    * any other non-empty scope -> the raw string
-    * missing / non-string (a cache without a recorded scope) -> ``"(not recorded)"``
+    A preset match (order-insensitive) appends ``[<preset>]``; other non-empty scopes render raw;
+    missing / non-string input (a cache without a recorded scope) renders ``"(not recorded)"``.
     """
     if not isinstance(scope, str) or not scope.strip():
         return "(not recorded)"
@@ -132,10 +125,8 @@ def _format_duration(seconds: float) -> str:
 
 
 def describe_token_cache(cached: dict[str, object] | None, *, now: float) -> str:
-    """Summarize a cached OAuth token's freshness.
-
-    ``"missing"`` when absent; otherwise ``"present"``, extended with ``expired`` or
-    ``expires in ~…`` when the token carries a numeric ``expires_at`` (Unix seconds).
+    """Summarize a cached OAuth token's freshness: ``"missing"`` when absent, else ``"present"``,
+    extended with ``expired`` / ``expires in ~…`` when it carries a numeric ``expires_at``.
     """
     if cached is None:
         return "missing"
@@ -164,8 +155,7 @@ def environment_summary(env: EnvironmentConfig) -> str:
 def print_environments(console: Console, environments: dict[str, EnvironmentConfig], default: str | None) -> None:
     """List the configured environments with their host/auth summary, marking the default.
 
-    Rows are built as ``Text`` (not console markup) so a name containing "[" stays literal; the
-    current default gets a bold-green arrow so it stands out in a long list.
+    Rows are built as ``Text`` (not console markup) so a name containing "[" stays literal.
     """
     console.print("Configuration environments:")
     width = max((len(name) for name in environments), default=0)

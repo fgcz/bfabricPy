@@ -26,8 +26,8 @@ def cmd_auth_default(
 ) -> None:
     """Set the default configuration environment.
 
-    With no *config_env*, opens an interactive picker (arrow keys to navigate, Enter to select)
-    in a terminal, or lists the environments in a non-interactive context.
+    With no *config_env*, opens an interactive picker in a terminal, or lists the environments
+    non-interactively.
     """
     config_path = Path(config_file).expanduser()
     if not config_path.is_file():
@@ -51,7 +51,7 @@ def cmd_auth_default(
             search=True,
         )
     if config_env is None:
-        # None means either the user cancelled the picker or there is no TTY to prompt on.
+        # None: the user cancelled the picker, or there's no TTY to prompt on.
         console = Console()
         if is_interactive():
             console.print("No changes made.")

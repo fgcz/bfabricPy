@@ -41,9 +41,9 @@ def cmd_login_pat(
         pat = getpass.getpass("Personal Access Token: ")
     else:
         print("Warning: passing secrets via CLI flags is insecure (visible in ps, shell history).", file=sys.stderr)
-    # Store the PAT under ``pat`` (not ``login``/``password``): a PAT is not 32 characters, and an
-    # unmodified <=1.19.0 client validates every environment eagerly and would reject a short
-    # password — poisoning the whole shared config file. Under ``pat`` old clients ignore it.
+    # Store under ``pat``, not ``login``/``password``: a PAT isn't 32 chars, so an old (<=1.19.0)
+    # client eagerly validating every environment would reject a short password and poison the
+    # shared config; old clients ignore an unknown ``pat`` key.
     env_data = {
         "base_url": base_url.rstrip("/"),
         "auth_method": "pat",
