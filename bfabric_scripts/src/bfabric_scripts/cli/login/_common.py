@@ -17,12 +17,7 @@ from rich.text import Text
 
 from bfabric.config.config_file import ConfigFile, EnvironmentConfig
 from bfabric_scripts.cli.interactive import confirm, is_interactive, select_choice, select_or_input, text_input
-from bfabric_scripts.cli.login._constants import (
-    DEFAULT_LOGIN_SCOPE,
-    DEFAULT_SCOPE_PRESET,
-    SCOPE_PRESETS,
-    SCOPE_PRESETS_BY_NAME,
-)
+from bfabric_scripts.cli.login._constants import SCOPE_PRESETS, SCOPE_PRESETS_BY_NAME
 
 # Interactive-only sentinel: choosing it opens a free-text prompt for raw scopes.
 _CUSTOM = "custom"
@@ -67,25 +62,26 @@ def resolve_scope(scope: str | None) -> str | None:
 
     * *scope* given -> a preset name expands to its scope string; anything else passes through
       as a raw space-separated scope string.
-    * no TTY -> the ``read-write`` default (``DEFAULT_LOGIN_SCOPE``).
-    * otherwise -> interactive picker of the named presets plus a Custom option that opens a
-      free-text prompt. Returns ``None`` if the user cancels.
+    * no TTY -> ``None``: there is no baked-in default scope, so a headless login must pass
+      ``--scope`` explicitly (the caller aborts).
+    * otherwise -> interactive picker of the named presets (least-privilege preselected) plus a
+      Custom option that opens a free-text prompt. Returns ``None`` if the user cancels.
     """
     if scope is not None:
         preset = SCOPE_PRESETS_BY_NAME.get(scope)
         return preset.scope if preset is not None else scope
     if not is_interactive():
-        return DEFAULT_LOGIN_SCOPE
+        return None
     picked = select_choice(
         "Select OAuth scope set",
         [preset.name for preset in SCOPE_PRESETS] + [_CUSTOM],
-        default=DEFAULT_SCOPE_PRESET,
+        default=SCOPE_PRESETS[0].name,
         describe=_scope_menu_label,
     )
     if picked is None:
         return None
     if picked == _CUSTOM:
-        return text_input("Enter OAuth scopes (space-separated)", default=DEFAULT_LOGIN_SCOPE)
+        return text_input("Enter OAuth scopes (space-separated)")
     return SCOPE_PRESETS_BY_NAME[picked].scope
 
 

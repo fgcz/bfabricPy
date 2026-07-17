@@ -141,6 +141,7 @@ class Bfabric:
             client_id=client_id,
             client_secret="",
             token_url=f"{base_url}/rest/oauth/token",
+            scope="",
             grant_type="refresh_token",
             token_cache_path=cache_path,
         )

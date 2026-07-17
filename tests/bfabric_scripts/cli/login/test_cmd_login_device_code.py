@@ -12,6 +12,7 @@ class TestCmdLoginDeviceCode:
         mock_dc = mocker.patch("bfabric_scripts.cli.login.device_code.device_code_login", return_value=oauth_token)
         cmd_login_device_code(
             base_url="https://example.com/bfabric",
+            scope="api:read",
             client_id="test-client",
             config_env="PROD",
             config_file=config_file,
@@ -28,6 +29,7 @@ class TestCmdLoginDeviceCode:
         mocker.patch("bfabric_scripts.cli.login.device_code.device_code_login", return_value=oauth_token)
         cmd_login_device_code(
             base_url="https://example.com/bfabric",
+            scope="api:read",
             client_id="test-client",
             config_env="PROD",
             config_file=config_file,

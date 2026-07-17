@@ -12,6 +12,7 @@ class TestCmdAuthLogin:
         mock_pkce = mocker.patch("bfabric_scripts.cli.login.pkce.pkce_login", return_value=oauth_token)
         cmd_auth_login(
             base_url="https://example.com/bfabric",
+            scope="api:read",
             client_id="test-client",
             config_env="PROD",
             config_file=config_file,
@@ -28,6 +29,7 @@ class TestCmdAuthLogin:
         mocker.patch("bfabric_scripts.cli.login.pkce.pkce_login", return_value=oauth_token)
         cmd_auth_login(
             base_url="https://example.com/bfabric",
+            scope="api:read",
             client_id="test-client",
             config_env="PROD",
             config_file=config_file,
@@ -101,7 +103,7 @@ class TestCmdAuthLogin:
         mocker.patch("bfabric_scripts.cli.login.pkce.pkce_login", return_value=oauth_token)
         # No TTY (pytest) and no --config-env => reuse the current default env, not PRODUCTION.
         mocker.patch("bfabric_scripts.cli.login._common.is_interactive", return_value=False)
-        cmd_auth_login(base_url="https://example.com/bfabric", client_id="c", config_file=config_file)
+        cmd_auth_login(base_url="https://example.com/bfabric", client_id="c", config_file=config_file, scope="api:read")
         data = yaml.safe_load(config_file.read_text())
         assert data["EXISTING"]["base_url"] == "https://example.com/bfabric"
         assert "PRODUCTION" not in data

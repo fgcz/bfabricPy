@@ -78,6 +78,7 @@ class WebappClient:
             client_id=client_id,
             client_secret=client_secret,
             token_url=token_url,
+            scope="",
             token=token_dict,
             grant_type="refresh_token",
             token_cache_path=user_token_cache_path,

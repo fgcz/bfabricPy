@@ -65,7 +65,7 @@ class OAuthCredentialProvider:
         client_secret: str,
         token_url: str,
         *,
-        scope: str = "",
+        scope: str,
         token: dict[str, object] | None = None,
         grant_type: str = "client_credentials",
         token_cache_path: Path | None = None,

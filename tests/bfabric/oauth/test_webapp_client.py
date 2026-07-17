@@ -121,6 +121,7 @@ class TestWebappClientCreate:
             client_id="cid",
             client_secret="csecret",
             token_url="https://bfabric.example.com/bfabric/rest/oauth/token",
+            scope="",
             token=mock_token_dict,
             grant_type="refresh_token",
             token_cache_path="/tmp/user_cache",

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import yaml
 
-from bfabric_scripts.cli.login._constants import DEFAULT_LOGIN_SCOPE
 from bfabric_scripts.cli.login._common import (
     describe_scope,
     describe_token_cache,
@@ -77,9 +76,10 @@ class TestResolveScope:
     def test_raw_string_passthrough(self):
         assert resolve_scope("api:read custom:thing") == "api:read custom:thing"
 
-    def test_non_interactive_defaults_to_read_write(self, mocker):
+    def test_non_interactive_without_scope_returns_none(self, mocker):
+        # No baked-in default: a headless login must pass --scope explicitly.
         mocker.patch("bfabric_scripts.cli.login._common.is_interactive", return_value=False)
-        assert resolve_scope(None) == DEFAULT_LOGIN_SCOPE
+        assert resolve_scope(None) is None
 
     def test_interactive_preset_pick_expands(self, mocker):
         mocker.patch("bfabric_scripts.cli.login._common.is_interactive", return_value=True)

@@ -10,7 +10,7 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 ## \[Unreleased\]
 
-- `auth login` / `auth device-code` now request a minimal, use-case-oriented scope by default: read-write (`api:write`, which implies `api:read`) instead of the previous broad `api:read api:write openid profile email groups`. Named presets are available — `read-only` (`api:read`), `read-write` (`api:write`), `upload` (`api:write tus`) — and any scope can still be passed explicitly via `--scope`. Client/webapp registration (`auth register` / `auth register-webapp`) keeps the OIDC-inclusive default, which webapps need for user-identity claims.
+- `auth login` / `auth device-code` scope selection: named presets — `read-only` (`api:read`), `read-write` (`api:write`), `upload` (`api:write tus`) — offered via an interactive picker (plus a Custom option for a raw scope string) when `--scope` is omitted in a terminal; a preset name or a raw scope string can also be passed explicitly. There is no baked-in default scope, so a non-interactive run must pass `--scope`. Client/webapp registration (`auth register` / `auth register-webapp`) keeps the OIDC-inclusive default, which webapps need for user-identity claims.
 - `auth login` / `auth device-code` / `auth pat`: cancelling the interactive "set as default?" prompt (Ctrl-C) now aborts the login instead of silently proceeding as if `--no-set-default` were given.
 
 ## \[1.16.0rc2\] - 2026-07-15

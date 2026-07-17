@@ -37,7 +37,3 @@ SCOPE_PRESETS: tuple[ScopePreset, ...] = (
 )
 
 SCOPE_PRESETS_BY_NAME: dict[str, ScopePreset] = {preset.name: preset for preset in SCOPE_PRESETS}
-
-# The preset requested by default when the user does not pick one.
-DEFAULT_SCOPE_PRESET = "read-write"
-DEFAULT_LOGIN_SCOPE = SCOPE_PRESETS_BY_NAME[DEFAULT_SCOPE_PRESET].scope
