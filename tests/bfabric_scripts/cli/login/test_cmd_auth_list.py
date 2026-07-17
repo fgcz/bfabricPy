@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import yaml
 
-from bfabric_scripts.cli.login.list import cmd_auth_list
+from bfabric_scripts.cli.login.manage import cmd_auth_list
 
 
 class TestCmdAuthList:

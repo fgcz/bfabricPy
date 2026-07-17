@@ -1,19 +1,17 @@
-"""Shared helpers for the ``auth`` command group.
+"""Shared login-parameter resolution for the ``auth`` login commands.
 
-Parameter resolution (environment name, OAuth scope, set-default) plus the environment rendering
-shared by ``auth default`` / ``auth list`` / ``auth status``.
+An environment name and OAuth scope may be given on the command line, picked interactively, or --
+for the environment -- typed as a new value; whether the environment becomes the config default
+is likewise resolved here. Used by ``auth pat`` / ``auth login`` / ``auth device-code``.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
-from urllib.parse import urlsplit
 
 import yaml
-from rich.console import Console
-from rich.text import Text
 
-from bfabric.config.config_file import ConfigFile, EnvironmentConfig
+from bfabric.config.config_file import ConfigFile
 from bfabric_scripts.cli.interactive import confirm, is_interactive, select_choice, select_or_input, text_input
 from bfabric_scripts.cli.login._constants import SCOPE_PRESETS, SCOPE_PRESETS_BY_NAME
 
@@ -91,84 +89,3 @@ def resolve_set_default(set_default: bool | None, config_env: str) -> bool | Non
     if not is_interactive():
         return True
     return confirm(f"Set '{config_env}' as the default environment?", default=True)
-
-
-def _normalize_scope(scope: str) -> str:
-    """Order-insensitive form of a scope string for comparing against the presets."""
-    return " ".join(sorted(scope.split()))
-
-
-def describe_scope(scope: object) -> str:
-    """Render a granted OAuth scope for display, annotated with its preset name if it matches.
-
-    A preset match (order-insensitive) appends ``[<preset>]``; other non-empty scopes render raw;
-    missing / non-string input (a cache without a recorded scope) renders ``"(not recorded)"``.
-    """
-    if not isinstance(scope, str) or not scope.strip():
-        return "(not recorded)"
-    normalized = _normalize_scope(scope)
-    for preset in SCOPE_PRESETS:
-        if _normalize_scope(preset.scope) == normalized:
-            return f"{scope}  [{preset.name}]"
-    return scope
-
-
-def _format_duration(seconds: float) -> str:
-    """A coarse ``~1h05m`` / ``~7m`` / ``<1m`` label for a positive remaining duration."""
-    minutes = int(seconds // 60)
-    if minutes >= 60:
-        hours, mins = divmod(minutes, 60)
-        return f"~{hours}h{mins:02d}m"
-    if minutes >= 1:
-        return f"~{minutes}m"
-    return "<1m"
-
-
-def describe_token_cache(cached: dict[str, object] | None, *, now: float) -> str:
-    """Summarize a cached OAuth token's freshness: ``"missing"`` when absent, else ``"present"``,
-    extended with ``expired`` / ``expires in ~…`` when it carries a numeric ``expires_at``.
-    """
-    if cached is None:
-        return "missing"
-    expires_at = cached.get("expires_at")
-    if not isinstance(expires_at, (int, float)):
-        return "present"
-    remaining = float(expires_at) - now
-    if remaining <= 0:
-        return "present, expired"
-    return f"present, expires in {_format_duration(remaining)}"
-
-
-def environment_summary(env: EnvironmentConfig) -> str:
-    """A compact "host · auth-method" descriptor shown next to each environment name."""
-    if env.auth_method in ("oauth", "pat"):
-        method = env.auth_method
-    elif env.auth is not None:
-        method = "password"
-    else:
-        method = "none"
-    base_url = str(env.config.base_url)
-    host = urlsplit(base_url).netloc or base_url
-    return f"{host} · {method}"
-
-
-def print_environments(console: Console, environments: dict[str, EnvironmentConfig], default: str | None) -> None:
-    """List the configured environments with their host/auth summary, marking the default.
-
-    Rows are built as ``Text`` (not console markup) so a name containing "[" stays literal.
-    """
-    console.print("Configuration environments:")
-    width = max((len(name) for name in environments), default=0)
-    for name, env in environments.items():
-        padded = name.ljust(width)
-        summary = environment_summary(env)
-        if name == default:
-            row = (
-                Text("→ ", style="bold green")
-                .append(padded, style="bold green")
-                .append(f"   {summary}", style="green")
-                .append("  (default)", style="green")
-            )
-        else:
-            row = Text("  ").append(padded).append(f"   {summary}", style="dim")
-        console.print(row)

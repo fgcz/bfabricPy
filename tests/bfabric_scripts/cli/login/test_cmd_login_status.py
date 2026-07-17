@@ -6,7 +6,7 @@ import time
 import yaml
 
 from bfabric_scripts.cli.login._constants import SCOPE_PRESETS_BY_NAME
-from bfabric_scripts.cli.login.status import cmd_login_status
+from bfabric_scripts.cli.login.manage import cmd_login_status, describe_scope, describe_token_cache
 
 
 class TestCmdLoginStatus:
@@ -83,7 +83,7 @@ class TestCmdLoginStatus:
             )
         )
         # No cache file on disk -> missing token, no scope to report.
-        mocker.patch("bfabric_scripts.cli.login.status.compute_token_cache_path", return_value=tmp_path / "absent.json")
+        mocker.patch("bfabric_scripts.cli.login.manage.compute_token_cache_path", return_value=tmp_path / "absent.json")
         cmd_login_status(config_file=config_file)
         output = capsys.readouterr().out
         assert "missing" in output
@@ -113,7 +113,7 @@ class TestCmdLoginStatus:
                 }
             )
         )
-        mocker.patch("bfabric_scripts.cli.login.status.compute_token_cache_path", return_value=cache_path)
+        mocker.patch("bfabric_scripts.cli.login.manage.compute_token_cache_path", return_value=cache_path)
         cmd_login_status(config_file=config_file)
         output = capsys.readouterr().out
         # The granted scope matches the upload preset and the token is still valid.
@@ -125,3 +125,38 @@ class TestCmdLoginStatus:
         cmd_login_status(config_file=config_file)
         output = capsys.readouterr().out
         assert "not found" in output
+
+
+class TestDescribeScope:
+    def test_matched_preset_is_annotated(self):
+        # A granted scope equal to a preset (order-insensitive) is annotated with the preset name.
+        scope = "tus api:write"  # reordered to prove match is order-insensitive
+        described = describe_scope(scope)
+        assert "upload" in described
+        assert "tus" in described
+
+    def test_unmatched_scope_shown_raw(self):
+        assert describe_scope("api:read custom:thing") == "api:read custom:thing"
+
+    def test_absent_scope_is_not_recorded(self):
+        assert describe_scope(None) == "(not recorded)"
+        assert describe_scope("") == "(not recorded)"
+        # A non-string (unexpected cache shape) must not blow up.
+        assert describe_scope(123) == "(not recorded)"
+
+
+class TestDescribeTokenCache:
+    def test_missing_cache(self):
+        assert describe_token_cache(None, now=1000.0) == "missing"
+
+    def test_present_without_expiry(self):
+        assert describe_token_cache({"access_token": "x"}, now=1000.0) == "present"
+
+    def test_expired(self):
+        assert "expired" in describe_token_cache({"access_token": "x", "expires_at": 900}, now=1000.0)
+
+    def test_valid_reports_remaining(self):
+        # 2h30m from now.
+        described = describe_token_cache({"access_token": "x", "expires_at": 1000 + 9000}, now=1000.0)
+        assert "present" in described
+        assert "2h" in described

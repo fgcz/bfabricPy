@@ -4,7 +4,7 @@ import json
 
 import yaml
 
-from bfabric_scripts.cli.login.logout import cmd_login_logout
+from bfabric_scripts.cli.login.manage import cmd_login_logout
 
 
 def _write_config(config_file, *, default="PROD", extra_prod=None):
@@ -32,7 +32,7 @@ class TestCmdLoginLogout:
         _write_config(config_file, default="PROD")
         cache_path = tmp_path / "tok.json"
         cache_path.write_text(json.dumps({"access_token": "tok"}))
-        mocker.patch("bfabric_scripts.cli.login.logout.compute_token_cache_path", return_value=cache_path)
+        mocker.patch("bfabric_scripts.cli.login.manage.compute_token_cache_path", return_value=cache_path)
 
         cmd_login_logout("PROD", config_file=config_file, no_confirm=True)
 
@@ -47,7 +47,7 @@ class TestCmdLoginLogout:
     def test_removing_default_env_points_to_auth_default(self, tmp_path, capsys, mocker):
         config_file = tmp_path / "config.yml"
         _write_config(config_file, default="PROD")
-        mocker.patch("bfabric_scripts.cli.login.logout.compute_token_cache_path", return_value=tmp_path / "tok.json")
+        mocker.patch("bfabric_scripts.cli.login.manage.compute_token_cache_path", return_value=tmp_path / "tok.json")
 
         cmd_login_logout("PROD", config_file=config_file, no_confirm=True)
 
@@ -60,7 +60,7 @@ class TestCmdLoginLogout:
     def test_removes_non_oauth_env_without_touching_cache(self, tmp_path, capsys, mocker):
         config_file = tmp_path / "config.yml"
         _write_config(config_file, default="PROD")
-        clear = mocker.patch("bfabric_scripts.cli.login.logout.TokenCache")
+        clear = mocker.patch("bfabric_scripts.cli.login.manage.TokenCache")
 
         cmd_login_logout("TEST", config_file=config_file, no_confirm=True)
 
@@ -71,8 +71,8 @@ class TestCmdLoginLogout:
     def test_confirmation_declined_keeps_env(self, tmp_path, capsys, mocker):
         config_file = tmp_path / "config.yml"
         _write_config(config_file, default="PROD")
-        mocker.patch("bfabric_scripts.cli.login.logout.is_interactive", return_value=True)
-        mocker.patch("bfabric_scripts.cli.login.logout.confirm", return_value=False)
+        mocker.patch("bfabric_scripts.cli.login.manage.is_interactive", return_value=True)
+        mocker.patch("bfabric_scripts.cli.login.manage.confirm", return_value=False)
 
         cmd_login_logout("PROD", config_file=config_file)
 
@@ -83,9 +83,9 @@ class TestCmdLoginLogout:
     def test_interactive_picker_selects_env(self, tmp_path, mocker):
         config_file = tmp_path / "config.yml"
         _write_config(config_file, default="PROD")
-        mocker.patch("bfabric_scripts.cli.login.logout.is_interactive", return_value=True)
-        pick = mocker.patch("bfabric_scripts.cli.login.logout.select_choice", return_value="TEST")
-        mocker.patch("bfabric_scripts.cli.login.logout.confirm", return_value=True)
+        mocker.patch("bfabric_scripts.cli.login.manage.is_interactive", return_value=True)
+        pick = mocker.patch("bfabric_scripts.cli.login.manage.select_choice", return_value="TEST")
+        mocker.patch("bfabric_scripts.cli.login.manage.confirm", return_value=True)
 
         cmd_login_logout(config_file=config_file)
 
@@ -97,8 +97,8 @@ class TestCmdLoginLogout:
     def test_interactive_picker_cancel_keeps_all(self, tmp_path, capsys, mocker):
         config_file = tmp_path / "config.yml"
         _write_config(config_file, default="PROD")
-        mocker.patch("bfabric_scripts.cli.login.logout.is_interactive", return_value=True)
-        mocker.patch("bfabric_scripts.cli.login.logout.select_choice", return_value=None)
+        mocker.patch("bfabric_scripts.cli.login.manage.is_interactive", return_value=True)
+        mocker.patch("bfabric_scripts.cli.login.manage.select_choice", return_value=None)
 
         cmd_login_logout(config_file=config_file)
 
@@ -107,7 +107,7 @@ class TestCmdLoginLogout:
     def test_non_interactive_without_env_aborts(self, tmp_path, capsys, mocker):
         config_file = tmp_path / "config.yml"
         _write_config(config_file, default="PROD")
-        mocker.patch("bfabric_scripts.cli.login.logout.is_interactive", return_value=False)
+        mocker.patch("bfabric_scripts.cli.login.manage.is_interactive", return_value=False)
 
         cmd_login_logout(config_file=config_file)
 
@@ -118,7 +118,7 @@ class TestCmdLoginLogout:
     def test_non_interactive_without_no_confirm_refuses(self, tmp_path, capsys, mocker):
         config_file = tmp_path / "config.yml"
         _write_config(config_file, default="PROD")
-        mocker.patch("bfabric_scripts.cli.login.logout.is_interactive", return_value=False)
+        mocker.patch("bfabric_scripts.cli.login.manage.is_interactive", return_value=False)
 
         cmd_login_logout("PROD", config_file=config_file)
 

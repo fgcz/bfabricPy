@@ -2,13 +2,7 @@ from __future__ import annotations
 
 import yaml
 
-from bfabric_scripts.cli.login._common import (
-    describe_scope,
-    describe_token_cache,
-    resolve_config_env,
-    resolve_scope,
-    resolve_set_default,
-)
+from bfabric_scripts.cli.login._common import resolve_config_env, resolve_scope, resolve_set_default
 
 
 def _write_config(config_file, default="PROD"):
@@ -97,41 +91,6 @@ class TestResolveScope:
         mocker.patch("bfabric_scripts.cli.login._common.is_interactive", return_value=True)
         mocker.patch("bfabric_scripts.cli.login._common.select_choice", return_value=None)
         assert resolve_scope(None) is None
-
-
-class TestDescribeScope:
-    def test_matched_preset_is_annotated(self):
-        # A granted scope equal to a preset (order-insensitive) is annotated with the preset name.
-        scope = "tus api:write"  # reordered to prove match is order-insensitive
-        described = describe_scope(scope)
-        assert "upload" in described
-        assert "tus" in described
-
-    def test_unmatched_scope_shown_raw(self):
-        assert describe_scope("api:read custom:thing") == "api:read custom:thing"
-
-    def test_absent_scope_is_not_recorded(self):
-        assert describe_scope(None) == "(not recorded)"
-        assert describe_scope("") == "(not recorded)"
-        # A non-string (unexpected cache shape) must not blow up.
-        assert describe_scope(123) == "(not recorded)"
-
-
-class TestDescribeTokenCache:
-    def test_missing_cache(self):
-        assert describe_token_cache(None, now=1000.0) == "missing"
-
-    def test_present_without_expiry(self):
-        assert describe_token_cache({"access_token": "x"}, now=1000.0) == "present"
-
-    def test_expired(self):
-        assert "expired" in describe_token_cache({"access_token": "x", "expires_at": 900}, now=1000.0)
-
-    def test_valid_reports_remaining(self):
-        # 2h30m from now.
-        described = describe_token_cache({"access_token": "x", "expires_at": 1000 + 9000}, now=1000.0)
-        assert "present" in described
-        assert "2h" in described
 
 
 class TestResolveSetDefault:
