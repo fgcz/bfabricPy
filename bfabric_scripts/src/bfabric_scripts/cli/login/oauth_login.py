@@ -1,8 +1,7 @@
 """Interactive OAuth login commands: browser (PKCE) and device-code flows.
 
-Both resolve the same env/scope/set-default parameters and persist the resulting token
-identically; they differ only in how the token is obtained (``_resolve_params`` / ``_persist``
-hold the shared parts).
+They share param resolution and token persistence (``_resolve_params`` / ``_persist``); only the
+token-acquisition step differs.
 """
 
 from __future__ import annotations
@@ -22,9 +21,7 @@ from bfabric.config.config_writer import write_environment_to_config
 from bfabric_scripts.cli.login._common import resolve_config_env, resolve_scope, resolve_set_default
 from bfabric_scripts.cli.login._constants import DEFAULT_CLIENT_ID
 
-_SCOPE_HELP = (
-    "OAuth scope preset (read-only | read-write | upload) or a raw scope string " "(interactive picker if omitted)."
-)
+_SCOPE_HELP = "Scope preset (read-only|read-write|upload) or a raw scope string (interactive picker if omitted)."
 _CONFIG_ENV_HELP = "Environment name (interactive picker: existing or new, if omitted)."
 _SET_DEFAULT_HELP = "Set this environment as the default in the config file (prompted if omitted)."
 
@@ -32,14 +29,12 @@ _SET_DEFAULT_HELP = "Set this environment as the default in the config file (pro
 def _resolve_params(
     config_env: str | None, scope: str | None, set_default: bool | None, config_file: Path
 ) -> tuple[str, str, bool] | None:
-    """Resolve env/scope/set-default, or return ``None`` (after printing "Login aborted.") on cancel."""
+    """Resolve env/scope/set-default, or print "Login aborted." and return ``None`` on cancel."""
     config_env = resolve_config_env(config_env, config_file)
     scope = resolve_scope(scope)
-    if config_env is None or scope is None:
-        print("Login aborted.", file=sys.stderr)
-        return None
-    set_default = resolve_set_default(set_default, config_env)
-    if set_default is None:
+    # Only prompt for set-default once env and scope are settled, so a cancel there doesn't prompt.
+    set_default = resolve_set_default(set_default, config_env) if config_env and scope else None
+    if config_env is None or scope is None or set_default is None:
         print("Login aborted.", file=sys.stderr)
         return None
     return config_env, scope, set_default

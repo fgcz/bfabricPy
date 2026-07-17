@@ -65,23 +65,16 @@ class TestInteractivePicker:
         assert config_file.read_text() == before
 
 
-class TestNonInteractiveListing:
-    def test_lists_environments_when_no_tty_and_no_value(self, tmp_path, mocker, capsys):
+class TestNonInteractiveNoValue:
+    def test_reports_no_value_and_leaves_file_unchanged(self, tmp_path, mocker, capsys):
         config_file = tmp_path / "config.yml"
         _write_config(config_file, default="PROD")
         before = config_file.read_text()
         mocker.patch("bfabric_scripts.cli.login.manage.is_interactive", return_value=False)
         cmd_auth_default(config_file=config_file)
         output = capsys.readouterr().out
-        assert "PROD" in output
-        assert "TEST" in output
-        # The current default is still marked prominently.
-        assert "→ PROD" in output
-        # Each row shows the host and auth method so the environments are distinguishable.
-        assert "prod.example.com" in output
-        assert "oauth" in output
-        assert "test.example.com" in output
-        assert "pat" in output
+        # Without a TTY to prompt on, it can't pick for the user: report and change nothing.
+        assert "No environment specified" in output
         assert config_file.read_text() == before
 
     def test_empty_config_reports_no_environments(self, tmp_path, capsys):

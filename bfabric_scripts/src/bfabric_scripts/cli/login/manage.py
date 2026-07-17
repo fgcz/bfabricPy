@@ -1,7 +1,6 @@
 """Auth commands that inspect or manage existing config environments: list, default, status, logout.
 
-All four load the config file and act on a named environment, so the config-load, environment
-picker, and host/auth/scope rendering helpers live here alongside them.
+Their shared config-load, environment picker, and host/auth/scope rendering helpers live here too.
 """
 
 from __future__ import annotations
@@ -15,8 +14,6 @@ from urllib.parse import urlsplit
 
 import cyclopts
 import yaml
-from rich.console import Console
-from rich.text import Text
 
 from bfabric._oauth.token_cache import TokenCache, compute_token_cache_path
 from bfabric.config import DEFAULT_CONFIG_FILE
@@ -35,39 +32,44 @@ def _load_config(config_file: Path) -> ConfigFile | None:
     return ConfigFile.model_validate(yaml.safe_load(config_path.read_text()))
 
 
+def _require_environments(config_file: Path) -> ConfigFile | None:
+    """Like :func:`_load_config`, but also prints a notice and returns ``None`` if no environments exist."""
+    config = _load_config(config_file)
+    if config is None:
+        return None
+    if not config.environments:
+        print("No environments configured.")
+        return None
+    return config
+
+
+def _auth_method(env: EnvironmentConfig) -> str:
+    """Effective auth method; falls back to ``auth``'s presence for legacy envs without ``auth_method``."""
+    if env.auth_method in ("oauth", "pat"):
+        return env.auth_method
+    return "password" if env.auth is not None else "none"
+
+
+def _oauth_cache_path(env: EnvironmentConfig, env_name: str) -> Path:
+    """Disk path of *env_name*'s cached OAuth token (keyed by base URL + client ID)."""
+    client_id = env.client_id or DEFAULT_CLIENT_ID
+    return compute_token_cache_path(env.config.base_url.rstrip("/"), client_id, env_name).expanduser()
+
+
 def environment_summary(env: EnvironmentConfig) -> str:
     """A compact "host · auth-method" descriptor shown next to each environment name."""
-    if env.auth_method in ("oauth", "pat"):
-        method = env.auth_method
-    elif env.auth is not None:
-        method = "password"
-    else:
-        method = "none"
     base_url = str(env.config.base_url)
     host = urlsplit(base_url).netloc or base_url
-    return f"{host} · {method}"
+    return f"{host} · {_auth_method(env)}"
 
 
-def print_environments(console: Console, environments: dict[str, EnvironmentConfig], default: str | None) -> None:
-    """List the configured environments with their host/auth summary, marking the default.
-
-    Rows are built as ``Text`` (not console markup) so a name containing "[" stays literal.
-    """
-    console.print("Configuration environments:")
+def print_environments(environments: dict[str, EnvironmentConfig], default: str | None) -> None:
+    """List the configured environments with their host/auth summary, marking the default."""
+    print("Configuration environments:")
     width = max((len(name) for name in environments), default=0)
     for name, env in environments.items():
-        padded = name.ljust(width)
-        summary = environment_summary(env)
-        if name == default:
-            row = (
-                Text("→ ", style="bold green")
-                .append(padded, style="bold green")
-                .append(f"   {summary}", style="green")
-                .append("  (default)", style="green")
-            )
-        else:
-            row = Text("  ").append(padded).append(f"   {summary}", style="dim")
-        console.print(row)
+        marker, tag = ("→", "  (default)") if name == default else (" ", "")
+        print(f"{marker} {name.ljust(width)}   {environment_summary(env)}{tag}")
 
 
 def _select_environment(message: str, config: ConfigFile) -> str | None:
@@ -90,11 +92,7 @@ def _normalize_scope(scope: str) -> str:
 
 
 def describe_scope(scope: object) -> str:
-    """Render a granted OAuth scope for display, annotated with its preset name if it matches.
-
-    A preset match (order-insensitive) appends ``[<preset>]``; other non-empty scopes render raw;
-    missing / non-string input (a cache without a recorded scope) renders ``"(not recorded)"``.
-    """
+    """Render a granted scope, appending ``[<preset>]`` on match; ``"(not recorded)"`` if missing/non-string."""
     if not isinstance(scope, str) or not scope.strip():
         return "(not recorded)"
     normalized = _normalize_scope(scope)
@@ -104,21 +102,8 @@ def describe_scope(scope: object) -> str:
     return scope
 
 
-def _format_duration(seconds: float) -> str:
-    """A coarse ``~1h05m`` / ``~7m`` / ``<1m`` label for a positive remaining duration."""
-    minutes = int(seconds // 60)
-    if minutes >= 60:
-        hours, mins = divmod(minutes, 60)
-        return f"~{hours}h{mins:02d}m"
-    if minutes >= 1:
-        return f"~{minutes}m"
-    return "<1m"
-
-
 def describe_token_cache(cached: dict[str, object] | None, *, now: float) -> str:
-    """Summarize a cached OAuth token's freshness: ``"missing"`` when absent, else ``"present"``,
-    extended with ``expired`` / ``expires in ~…`` when it carries a numeric ``expires_at``.
-    """
+    """Summarize a cached token's freshness: ``missing`` / ``present`` (+ expiry when ``expires_at`` is set)."""
     if cached is None:
         return "missing"
     expires_at = cached.get("expires_at")
@@ -127,7 +112,9 @@ def describe_token_cache(cached: dict[str, object] | None, *, now: float) -> str
     remaining = float(expires_at) - now
     if remaining <= 0:
         return "present, expired"
-    return f"present, expires in {_format_duration(remaining)}"
+    minutes = int(remaining // 60)
+    label = f"~{minutes // 60}h" if minutes >= 60 else f"~{minutes}m"
+    return f"present, expires in {label}"
 
 
 def cmd_auth_list(
@@ -135,13 +122,10 @@ def cmd_auth_list(
     config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = DEFAULT_CONFIG_FILE,
 ) -> None:
     """List the configured environments, marking the default and showing each host / auth method."""
-    config = _load_config(config_file)
+    config = _require_environments(config_file)
     if config is None:
         return
-    if not config.environments:
-        print("No environments configured.")
-        return
-    print_environments(Console(), config.environments, config.general.default_config)
+    print_environments(config.environments, config.general.default_config)
 
 
 def cmd_auth_default(
@@ -157,24 +141,19 @@ def cmd_auth_default(
     With no *config_env*, opens an interactive picker in a terminal, or lists the environments
     non-interactively.
     """
-    config = _load_config(config_file)
+    config = _require_environments(config_file)
     if config is None:
         return
     names = list(config.environments)
-    if not names:
-        print("No environments configured.")
-        return
 
     if config_env is None and is_interactive():
         config_env = _select_environment("Select the default environment", config)
     if config_env is None:
-        # None: the user cancelled the picker, or there's no TTY to prompt on.
-        console = Console()
+        # Cancelled picker, or no TTY to prompt on.
         if is_interactive():
-            console.print("No changes made.")
+            print("No changes made.")
         else:
-            print_environments(console, config.environments, config.general.default_config)
-            console.print("Run in an interactive terminal or pass an environment name to set the default.")
+            print("No environment specified. Pass an environment name or run in an interactive terminal.")
         return
 
     if config_env not in config.environments:
@@ -205,23 +184,19 @@ def cmd_login_status(
     env = config.environments[resolved_env]
     print(f"Environment:  {resolved_env}")
     print(f"Base URL:     {env.config.base_url}")
+    print(f"Auth method:  {_auth_method(env)}")
 
     if env.auth_method == "oauth":
         client_id = env.client_id or DEFAULT_CLIENT_ID
-        print("Auth method:  oauth")
-        print(f"Client ID:    {client_id}")
-        cache_path = compute_token_cache_path(env.config.base_url.rstrip("/"), client_id, resolved_env).expanduser()
+        cache_path = _oauth_cache_path(env, resolved_env)
         cached = TokenCache(cache_path).load()
+        print(f"Client ID:    {client_id}")
         print(f"Token cache:  {cache_path} ({describe_token_cache(cached, now=time.time())})")
         print(f"Scope:        {describe_scope(cached.get('scope') if cached else None)}")
     elif env.auth_method == "pat":
-        print("Auth method:  pat")
         print("Token:        stored in config file")
     elif env.auth is not None:
-        print("Auth method:  password")
         print(f"Login:        {env.auth.login}")
-    else:
-        print("Auth method:  none")
 
 
 def cmd_login_logout(
@@ -240,14 +215,11 @@ def cmd_login_logout(
     With no *config_env*, opens an interactive picker. A non-interactive run must name the
     environment and pass ``--no-confirm`` (it cannot prompt for the destructive confirmation).
     """
-    config = _load_config(config_file)
+    config = _require_environments(config_file)
     if config is None:
         return
     environments = config.environments
     names = list(environments)
-    if not names:
-        print("No environments configured.")
-        return
 
     if config_env is None:
         if not is_interactive():
@@ -288,9 +260,7 @@ def cmd_login_logout(
     # environment stays usable, rather than half-removed.
     remove_environment_from_config(config_file, config_env)
     if env.auth_method == "oauth":
-        client_id = env.client_id or DEFAULT_CLIENT_ID
-        cache_path = compute_token_cache_path(env.config.base_url.rstrip("/"), client_id, config_env).expanduser()
-        TokenCache(cache_path).clear()
+        TokenCache(_oauth_cache_path(env, config_env)).clear()
 
     print(f"Removed environment '{config_env}'.")
     if leaves_no_default:

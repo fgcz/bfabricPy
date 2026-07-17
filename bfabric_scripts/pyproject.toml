@@ -36,7 +36,7 @@ excel = [
 ]
 
 [project.scripts]
-"bfabric-cli" = "bfabric_scripts.cli.__main__:app"
+"bfabric-cli" = "bfabric_scripts.cli.__main__:main"
 
 # TODO scripts for feeder
 "bfabric_list_not_existing_storage_directories.py" = "bfabric_scripts.bfabric_list_not_existing_storage_directories:app"
