@@ -27,7 +27,7 @@ from loguru import logger
 
 from bfabric.config.bfabric_auth import OAUTH_LOGIN, BfabricAuth
 from bfabric.errors import BfabricOAuthError
-from bfabric._oauth.token_cache import TokenCache
+from bfabric._oauth.token_cache import TokenCache, compute_token_cache_path
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -107,6 +107,29 @@ class OAuthCredentialProvider:
         if initial is not None:
             self._session.token = initial
             self._persist()
+
+    @classmethod
+    def cache_login_token(
+        cls, base_url: str, *, client_id: str, scope: str, token: dict[str, object], env_name: str
+    ) -> Path:
+        """Normalize and cache a freshly obtained login *token*, returning its cache path.
+
+        Ingesting the token derives its absolute ``expires_at`` (from ``expires_in``) and writes the
+        result to the per-identity disk cache, so a later process finds a complete, reusable token.
+        Used by the CLI ``auth login`` / ``auth device-code`` commands once their flow returns a token.
+        """
+        cache_path = compute_token_cache_path(base_url, client_id, env_name).expanduser()
+        # Constructing the provider ingests the token (deriving expires_at) and persists it to the cache.
+        _ = cls(
+            client_id=client_id,
+            client_secret="",
+            token_url=f"{base_url}/rest/oauth/token",
+            token=token,
+            grant_type="refresh_token",
+            scope=scope,
+            token_cache_path=cache_path,
+        )
+        return cache_path
 
     def get_auth(self) -> BfabricAuth:
         """Return a :class:`BfabricAuth` with a valid access token.

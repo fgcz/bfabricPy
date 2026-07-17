@@ -370,3 +370,27 @@ class TestDiskCache:
         # Fresh token should also be persisted to cache
         saved = json.loads(cache_path.read_text())
         assert saved["access_token"] == "from_caller"
+
+
+class TestCacheLoginToken:
+    def test_normalizes_and_caches_fresh_login_token(self, tmp_path, mocker):
+        import json
+
+        cache_path = tmp_path / "tok.json"
+        mocker.patch(
+            "bfabric._oauth.credential_provider.compute_token_cache_path",
+            return_value=cache_path,
+        )
+        raw = {"access_token": "a", "refresh_token": "r", "expires_in": 3600, "scope": "api:read"}
+        returned = OAuthCredentialProvider.cache_login_token(
+            "https://example.com/bfabric",
+            client_id="CLI",
+            scope="api:read",
+            token=raw,
+            env_name="TRACE",
+        )
+        assert returned == cache_path
+        cached = json.loads(cache_path.read_text())
+        assert cached["access_token"] == "a"
+        # expires_in is normalized to an absolute expires_at so `auth status` can report freshness.
+        assert isinstance(cached["expires_at"], (int, float))
