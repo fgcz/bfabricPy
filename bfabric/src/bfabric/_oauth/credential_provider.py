@@ -34,6 +34,16 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
+def _canonical_token(token: dict[str, object]) -> dict[str, object]:
+    """The canonical on-disk form of an OAuth *token*.
+
+    ``OAuth2Token`` derives an absolute ``expires_at`` from ``expires_in`` (matching what a live
+    session writes on ingest), so ``auth status`` can read a cached token's freshness. This is the
+    single normalization rule shared by every code path that persists a token to the cache.
+    """
+    return dict(OAuth2Token(dict(token)))
+
+
 class OAuthCredentialProvider:
     """Manages an OAuth 2.0 token and exposes it as :class:`BfabricAuth`.
 
@@ -118,9 +128,7 @@ class OAuthCredentialProvider:
         Used by the CLI ``auth login`` / ``auth device-code`` commands once their flow returns a token.
         """
         cache_path = compute_token_cache_path(base_url, client_id, env_name).expanduser()
-        # OAuth2Token derives an absolute expires_at from expires_in, matching what the live session
-        # writes on ingest, so `auth status` can read the cached token's freshness.
-        TokenCache(cache_path).save(dict(OAuth2Token(dict(token))))
+        TokenCache(cache_path).save(_canonical_token(token))
         return cache_path
 
     def get_auth(self) -> BfabricAuth:
@@ -198,10 +206,9 @@ class OAuthCredentialProvider:
 
     def _persist(self) -> None:
         """Write the current token to disk cache if configured."""
-        if self._cache and self._session.token:  # pyright: ignore[reportUnknownMemberType]
-            self._cache.save(
-                dict(self._session.token)  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType]
-            )
+        token = self._session.token  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+        if self._cache and token:
+            self._cache.save(_canonical_token(token))  # pyright: ignore[reportUnknownArgumentType]
 
     def __getstate__(self) -> dict[str, object]:  # pyright: ignore[reportImplicitOverride]
         """Return a picklable representation.
