@@ -97,7 +97,7 @@ def use_client(fn: Callable[..., T], setup_logging: bool = True) -> Callable[...
                 print(f"Error: {e}", file=sys.stderr)
                 sys.exit(1)
         try:
-            # Establish the ambient BfabricSession so entity navigation (e.g. `workunit.application`)
+            # Establish the ambient ReadScope so entity navigation (e.g. `workunit.application`)
             # works throughout the command without each command opening one explicitly.
             with client.reader:
                 return fn(*args, client=client, **kwargs)  # type: ignore[arg-type]

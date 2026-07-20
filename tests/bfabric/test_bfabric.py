@@ -189,7 +189,7 @@ def test_with_auth_when_exception(mocker, bfabric_instance):
 
 
 def test_reader(mocker, bfabric_instance):
-    constructor = mocker.patch("bfabric.entities.core.session.BfabricSession")
+    constructor = mocker.patch("bfabric.entities.core.read_scope.ReadScope")
     for _ in range(2):
         assert bfabric_instance.reader == constructor.return_value
     constructor.assert_called_once_with(bfabric_instance)

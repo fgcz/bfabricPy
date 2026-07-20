@@ -9,13 +9,13 @@ def mock_client(mocker, bfabric_instance):
 
 
 @pytest.fixture
-def mock_session(mocker):
-    """Install a mock ``BfabricSession`` as the ambient session.
+def mock_read_scope(mocker):
+    """Install a mock ``ReadScope`` as the ambient read scope.
 
     Lazy entity navigation (unloaded refs, ``created_by``, ``ExternalJob.client_entity``) resolves the
-    connection via ``get_session()``; patching it here lets tests drive ``read_uris`` / ``read_id`` /
+    connection via ``get_read_scope()``; patching it here lets tests drive ``read_uris`` / ``read_id`` /
     ``query_one`` return values and assert on the calls.
     """
-    session = mocker.MagicMock(name="BfabricSession")
-    mocker.patch("bfabric.entities.core.session.get_session", return_value=session)
-    return session
+    read_scope = mocker.MagicMock(name="ReadScope")
+    mocker.patch("bfabric.entities.core.read_scope.get_read_scope", return_value=read_scope)
+    return read_scope

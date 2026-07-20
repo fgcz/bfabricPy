@@ -24,27 +24,27 @@ if TYPE_CHECKING:
 
 EntityT = TypeVar("EntityT", bound="Entity")
 
-_session_var: ContextVar[BfabricSession | None] = ContextVar("bfabric_session", default=None)
+_read_scope_var: ContextVar[ReadScope | None] = ContextVar("bfabric_read_scope", default=None)
 
 
-def get_session() -> BfabricSession:
-    """Return the ambient :class:`BfabricSession` for the current context.
+def get_read_scope() -> ReadScope:
+    """Return the ambient :class:`ReadScope` for the current context.
 
     Unlike the cache stack, there is no lazy default: entity navigation is explicit-only, so this
-    raises when no session is active rather than silently creating an unconnected one.
+    raises when no read scope is active rather than silently creating an unconnected one.
     """
-    session = _session_var.get()
-    if session is None:
+    scope = _read_scope_var.get()
+    if scope is None:
         raise LookupError(
-            "No active BfabricSession. Wrap entity navigation in `with client.reader:` "
-            "(or `with BfabricSession([client_a, client_b]):` for multiple instances)."
+            "No active ReadScope. Wrap entity navigation in `with client.reader:` "
+            "(or `with ReadScope([client_a, client_b]):` for multiple instances)."
         )
-    return session
+    return scope
 
 
-def _reset_session() -> None:  # pyright: ignore[reportUnusedFunction]
-    """Reset the ambient session for the current context (for testing)."""
-    _ = _session_var.set(None)
+def _reset_read_scope() -> None:  # pyright: ignore[reportUnusedFunction]
+    """Reset the ambient read scope for the current context (for testing)."""
+    _ = _read_scope_var.set(None)
 
 
 def _build_cache_config(entities: str | list[str] | dict[str, int], max_size: int) -> dict[str, int]:
@@ -57,14 +57,14 @@ def _build_cache_config(entities: str | list[str] | dict[str, int], max_size: in
     return {key.lower(): value for key, value in config.items()}
 
 
-class BfabricSession:
-    """Ambient, read-only hub that routes reads to the right B-Fabric connection by instance.
+class ReadScope:
+    """Ambient, read-only scope that routes reads to the right B-Fabric connection by instance.
 
-    A session holds one :class:`EntityReader` per registered instance and a shared entity cache.
+    A read scope holds one :class:`EntityReader` per registered instance and a shared entity cache.
     Reads are dispatched to the reader whose ``bfabric_instance`` matches the requested URI, so a
-    single session can serve **multiple B-Fabric instances** simultaneously. Entities themselves
-    are pure data; lazy relationship loading resolves the connection from the *active* session
-    (see :func:`get_session`), which is set with ``with session:``.
+    single read scope can serve **multiple B-Fabric instances** simultaneously. Entities themselves
+    are pure data; lazy relationship loading resolves the connection from the *active* read scope
+    (see :func:`get_read_scope`), which is set with ``with scope:``.
 
     Writes (``save``/``delete``) are intentionally **not** exposed here — they must go through an
     explicit :class:`~bfabric.Bfabric` client so the acting authority is always visible.
@@ -78,9 +78,9 @@ class BfabricSession:
         self._readers: dict[str, EntityReader] = {}
         for client in client_list:
             self.add_client(client)
-        # One (parent, token) frame per active `with` — a stack so the same session object can be
+        # One (parent, token) frame per active `with` — a stack so the same read scope object can be
         # re-entered (e.g. `client.reader` is cached, so a nested `with client.reader:` re-enters it).
-        self._frames: list[tuple[BfabricSession | None, Token[BfabricSession | None]]] = []
+        self._frames: list[tuple[ReadScope | None, Token[ReadScope | None]]] = []
 
     def add_client(self, client: Bfabric) -> None:
         """Register (or replace) the connection for ``client``'s instance."""
@@ -88,12 +88,12 @@ class BfabricSession:
 
     @property
     def instances(self) -> list[str]:
-        """The B-Fabric instance URLs this session can read from."""
+        """The B-Fabric instance URLs this read scope can read from."""
         return list(self._readers)
 
     @property
-    def _parent(self) -> BfabricSession | None:
-        """The session active when this one was most recently entered, for instance delegation."""
+    def _parent(self) -> ReadScope | None:
+        """The read scope active when this one was most recently entered, for instance delegation."""
         return self._frames[-1][0] if self._frames else None
 
     def _reader_for(self, instance: str) -> EntityReader:
@@ -105,14 +105,14 @@ class BfabricSession:
         known = ", ".join(sorted(self._readers)) or "(none)"
         raise LookupError(
             f"No B-Fabric connection registered for instance {instance!r}. Known: {known}. "
-            f"Enter `with BfabricSession([...])` including that instance."
+            f"Enter `with ReadScope([...])` including that instance."
         )
 
     def _default_instance(self) -> str:
         if len(self._readers) == 1:
             return next(iter(self._readers))
         raise LookupError(
-            f"This session serves {len(self._readers)} instances ({self.instances}); "
+            f"This read scope serves {len(self._readers)} instances ({self.instances}); "
             f"pass bfabric_instance= to disambiguate."
         )
 
@@ -277,16 +277,16 @@ class BfabricSession:
         finally:
             self._cache.cache_pop()
 
-    def __enter__(self) -> BfabricSession:
-        parent = _session_var.get()
-        # On re-entry of an already-active session, recording ``self`` as parent would recurse in
+    def __enter__(self) -> ReadScope:
+        parent = _read_scope_var.get()
+        # On re-entry of an already-active read scope, recording ``self`` as parent would recurse in
         # `_reader_for`; keep the existing parent instead so instance delegation still works inside
         # the nested `with` (recording ``None`` here would drop it).
         effective_parent = self._parent if parent is self else parent
-        self._frames.append((effective_parent, _session_var.set(self)))
+        self._frames.append((effective_parent, _read_scope_var.set(self)))
         return self
 
     def __exit__(self, *exc: object) -> None:
         if self._frames:
             _, token = self._frames.pop()
-            _session_var.reset(token)
+            _read_scope_var.reset(token)

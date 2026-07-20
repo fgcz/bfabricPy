@@ -6,7 +6,7 @@ These are contributor-facing references, not user guides. If you're looking for 
 
 ```{toctree}
 :maxdepth: 1
-entity_session
+entity_read_scope
 operations_module
 oauth_integration
 oauth_usage_and_troubleshooting
@@ -16,7 +16,7 @@ oauth_usage_and_troubleshooting
 
 | Topic | Scope |
 | --- | --- |
-| **[Entities and `BfabricSession`](entity_session.md)** | Why entities are pure data and the connection lives in an ambient, read-only, per-instance `BfabricSession`; explicit-only navigation, multi-instance routing, cache co-scoping, the `@use_client` anchor, and the server-anchor recipe. |
+| **[Entities and `ReadScope`](entity_read_scope.md)** | Why entities are pure data and the connection lives in an ambient, read-only, per-instance `ReadScope`; explicit-only navigation, multi-instance routing, cache co-scoping, the `@use_client` anchor, and the server-anchor recipe. |
 | **[`bfabric.operations` Module](operations_module.md)** | Conventions and worked examples for named write capabilities (`create_workunit`, `create_dataset`, …), including the failure-cleanup pattern and the audit-vs-authorization split. |
 | **[OAuth Integration](oauth_integration.md)** | The `bfabric._oauth` module and OAuth 2.0 flows (PKCE, device code, client credentials, URL token, PAT), the `Bfabric.connect_*` factory methods, `bfabric-cli auth` commands, and the config/scope model. |
 | **[OAuth Usage & Troubleshooting](oauth_usage_and_troubleshooting.md)** | Task-oriented (experimental): obtaining a working token, access_token vs id_token, the `containers` claim for file/download access, `.well-known` discovery, and PKCE gotchas (loopback redirect, public-only clients, remote notebooks). |

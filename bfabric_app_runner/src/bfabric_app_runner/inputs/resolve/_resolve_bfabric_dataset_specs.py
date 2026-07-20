@@ -8,11 +8,11 @@ from bfabric.entities import Dataset
 
 if TYPE_CHECKING:
     from bfabric_app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
-    from bfabric.entities.core.session import BfabricSession
+    from bfabric.entities.core.read_scope import ReadScope
 
 
 class ResolveBfabricDatasetSpecs:
-    def __init__(self, reader: BfabricSession) -> None:
+    def __init__(self, reader: ReadScope) -> None:
         self._reader = reader
 
     def __call__(self, specs: list[BfabricDatasetSpec]) -> list[ResolvedStaticFile]:

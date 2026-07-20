@@ -1,6 +1,6 @@
 import pytest
 
-from bfabric.entities.core.session import _build_cache_config
+from bfabric.entities.core.read_scope import _build_cache_config
 
 
 @pytest.fixture(params=["single", "list", "dict"])

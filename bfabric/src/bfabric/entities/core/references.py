@@ -109,9 +109,9 @@ class References:
                 ref_data_list[indices_map[entry_uri]].update(entity.data_dict)
 
     def __load(self, ref_info: _ReferenceInformation) -> None:
-        from bfabric.entities.core.session import get_session
+        from bfabric.entities.core.read_scope import get_read_scope
 
-        entities = get_session().read_uris(ref_info.uris)
+        entities = get_read_scope().read_uris(ref_info.uris)
 
         self.__update_ref_data(ref_info, entities)
         ref_info.is_loaded = True

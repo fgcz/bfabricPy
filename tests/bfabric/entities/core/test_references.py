@@ -37,10 +37,10 @@ def entity(entity_data_dict, bfabric_instance):
 
 
 @pytest.fixture
-def entity_reader(mock_session):
-    # References.__load resolves the connection via get_session(); the mock session's read_uris is
+def entity_reader(mock_read_scope):
+    # References.__load resolves the connection via get_read_scope(); the mock read scope's read_uris is
     # what the lazy-load tests drive.
-    return mock_session
+    return mock_read_scope
 
 
 @pytest.fixture

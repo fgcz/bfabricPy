@@ -47,11 +47,11 @@ class Resolver:
 
     def resolve(self, specs: list[InputSpecType]) -> ResolvedInputs:
         """Convert input specifications to resolved file specifications."""
-        # Establish (or nest into) the session so entity navigation + caching work whether or not the
+        # Establish (or nest into) the read scope so entity navigation + caching work whether or not the
         # caller already opened one (e.g. the @use_client CLI decorator).
         with (
-            self._client.reader as session,
-            session.cache_entities(entities=["application", "dataset", "resource", "storage"], max_size=500),
+            self._client.reader as scope,
+            scope.cache_entities(entities=["application", "dataset", "resource", "storage"], max_size=500),
         ):
             grouped_specs = self._group_specs_by_type(specs=specs)
             files = []

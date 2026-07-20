@@ -46,7 +46,7 @@ if TYPE_CHECKING:
 
     from bfabric._oauth.credential_provider import OAuthCredentialProvider
     from bfabric.engine.engine_zeep import EngineZeep
-    from bfabric.entities.core.session import BfabricSession
+    from bfabric.entities.core.read_scope import ReadScope
     from bfabric.experimental.webapp_integration_settings import TokenValidationSettingsProtocol
     from bfabric.typing import ApiRequestObjectType, ApiResponseObjectType
 
@@ -441,11 +441,11 @@ class Bfabric:
             self._credential_provider = old_provider
 
     @cached_property
-    def reader(self) -> BfabricSession:
-        """Returns a single-client :class:`BfabricSession` for reading entities from this instance."""
-        from bfabric.entities.core.session import BfabricSession
+    def reader(self) -> ReadScope:
+        """Returns a single-client :class:`ReadScope` for reading entities from this instance."""
+        from bfabric.entities.core.read_scope import ReadScope
 
-        return BfabricSession(self)
+        return ReadScope(self)
 
     def read(
         self,

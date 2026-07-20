@@ -50,10 +50,10 @@ def _resolve_entity_type(entity_type: str | type[EntityT], expected_type: type[E
 
 
 class EntityReader:
-    """Internal per-client fetch engine used by :class:`~bfabric.entities.BfabricSession`.
+    """Internal per-client fetch engine used by :class:`~bfabric.entities.ReadScope`.
 
     Handles a **single** B-Fabric client: batches API calls (by entity type) and reads/writes the
-    session-owned cache stack. Instance routing and the ambient context live in ``BfabricSession``;
+    scope-owned cache stack. Instance routing and the ambient context live in ``ReadScope``;
     this class assumes every URI it is given belongs to ``client``'s instance.
     """
 
@@ -61,7 +61,7 @@ class EntityReader:
         """Initialize the EntityReader.
 
         :param client: The B-Fabric client to use for API calls.
-        :param cache_stack: The (session-owned) cache stack consulted on every read.
+        :param cache_stack: The (scope-owned) cache stack consulted on every read.
         """
         self._client = client
         self._cache_stack: CacheStack = cache_stack
@@ -88,8 +88,8 @@ class EntityReader:
         """Read multiple entities by their URIs efficiently.
 
         Entities are grouped by type and retrieved in batches to minimize API calls, consulting the
-        session-owned cache stack. All URIs are assumed to belong to this reader's instance (the
-        owning :class:`~bfabric.entities.BfabricSession` routes by instance before calling this).
+        scope-owned cache stack. All URIs are assumed to belong to this reader's instance (the
+        owning :class:`~bfabric.entities.ReadScope` routes by instance before calling this).
 
         Args:
             uris: Iterable of B-Fabric URIs (can be different entity types)

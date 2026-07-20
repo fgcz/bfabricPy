@@ -20,7 +20,7 @@ class Entity:
     """A single generic entity, read from B-Fabric.
 
     Entities are pure data: a data dictionary plus the ``bfabric_instance`` they belong to. Related
-    entities are loaded lazily via the active :class:`~bfabric.entities.BfabricSession` (see
+    entities are loaded lazily via the active :class:`~bfabric.entities.ReadScope` (see
     :attr:`refs`), not through a client stored on the entity.
     """
 

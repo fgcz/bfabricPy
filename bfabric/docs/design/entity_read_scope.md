@@ -1,4 +1,4 @@
-# Entities and `BfabricSession`
+# Entities and `ReadScope`
 
 ## The problem
 
@@ -15,46 +15,46 @@ known design mistake:
 ## The design
 
 Entities are now **pure data**: a `data_dict` plus a required `bfabric_instance` string, nothing
-else. The connection lives in a **`BfabricSession`** — an ambient, read-only hub that:
+else. The connection lives in a **`ReadScope`** — an ambient, read-only hub that:
 
-1. **Routes reads by instance.** A session holds one internal `EntityReader` per registered
+1. **Routes reads by instance.** A read scope holds one internal `EntityReader` per registered
    client. `read_uris` groups its URIs by instance and dispatches each group to the matching
-   reader, so one session can read from several instances at once. `query` (which targets a single
+   reader, so one read scope can read from several instances at once. `query` (which targets a single
    SOAP endpoint) is routed to the reader for the named instance.
-2. **Owns the entity cache.** The cache stack is a member of the session, so its lifetime is bounded
-   by the session — a cache can never outlive the connection/authority scope, which closes a
+2. **Owns the entity cache.** The cache stack is a member of the read scope, so its lifetime is bounded
+   by the read scope — a cache can never outlive the connection/authority scope, which closes a
    cross-user cache-leak hole (pure-data entities are otherwise freely shareable).
 3. **Is the ambient context for lazy navigation.** `workunit.application`, `created_by`,
-   `ExternalJob.client_entity`, and unloaded `refs` resolve the connection via `get_session()`.
+   `ExternalJob.client_entity`, and unloaded `refs` resolve the connection via `get_read_scope()`.
 
-`client.reader` returns a single-client `BfabricSession`; `BfabricSession([client_a, client_b])`
+`client.reader` returns a single-client `ReadScope`; `ReadScope([client_a, client_b])`
 builds a multi-instance one.
 
 ### Explicit-only, read-only
 
 - **Explicit-only.** There is no implicit auto-registration. Navigation works only inside an active
-  session (`with client.reader:` / `with BfabricSession([...]):`); outside one, `get_session()`
+  read scope (`with client.reader:` / `with ReadScope([...]):`); outside one, `get_read_scope()`
   raises a self-explaining `LookupError`. This is deliberate: the resolver key is an instance *URL*,
   which names a *server*, not an *authority*. Auto-registering "the last reader that ran" would let a
   user's lazy navigation silently execute with, e.g., a privileged feeder client on the same
-  instance. Making the caller name the session's client keeps "whose credentials does navigation
+  instance. Making the caller name the read scope's client keeps "whose credentials does navigation
   use" a visible decision.
-- **Read-only.** The session exposes no `save`/`delete`. Writes always go through an explicit
+- **Read-only.** The read scope exposes no `save`/`delete`. Writes always go through an explicit
   `Bfabric` client, so a write can never accidentally run under the ambient (possibly wrong) identity.
 
 ### Nesting merges by instance
 
-`with` nesting merges by instance: an inner session resolves its own instances first and falls back
-to the enclosing session for others. This is what lets code establish a session for its own client
+`with` nesting merges by instance: an inner read scope resolves its own instances first and falls back
+to the enclosing read scope for others. This is what lets code establish a read scope for its own client
 (e.g. `Resolver.resolve` does `with self._client.reader:`) whether or not a caller already opened one.
 
-## Where sessions are established
+## Where read scopes are established
 
 - **CLI + app-runner:** the `@use_client` decorator wraps each command body in `with client.reader:`,
   so commands (and any entity navigation inside them) need no change.
 - **Library / notebook use:** wrap navigation in `with client.reader:` (explicit reads via
-  `client.reader.read_*` work without it; only lazy navigation needs the ambient session).
-- **Web servers (recommended pattern):** open the session per request, bound to the *user's* client,
+  `client.reader.read_*` work without it; only lazy navigation needs the ambient read scope).
+- **Web servers (recommended pattern):** open the read scope per request, bound to the *user's* client,
   inside the request task — e.g. a FastAPI dependency:
 
   ```python
@@ -63,8 +63,8 @@ to the enclosing session for others. This is what lets code establish a session 
           yield
   ```
 
-  Push the session inside the per-request task (not at app construction) so it rides the request's
-  `contextvars` context; never register a privileged/service client as the request's ambient session.
+  Push the read scope inside the per-request task (not at app construction) so it rides the request's
+  `contextvars` context; never register a privileged/service client as the request's ambient read scope.
 
 ## Alternatives considered
 
@@ -76,6 +76,6 @@ to the enclosing session for others. This is what lets code establish a session 
   destroys the `HasOne`/`HasMany` attribute-navigation API the whole library depends on, and every
   consumer changes.
 
-The `ContextVar`-based ambient session was chosen because it keeps *both* pure-data entities and the
+The `ContextVar`-based ambient read scope was chosen because it keeps *both* pure-data entities and the
 attribute-navigation ergonomics, at the cost of a single visible boundary — and it mirrors the
 existing cache-stack `ContextVar` precedent in `entities/cache/`.

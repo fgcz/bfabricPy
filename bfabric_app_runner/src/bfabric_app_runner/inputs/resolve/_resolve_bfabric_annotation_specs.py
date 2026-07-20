@@ -11,7 +11,7 @@ from bfabric.utils.polars_utils import flatten_relations
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
-    from bfabric.entities.core.session import BfabricSession
+    from bfabric.entities.core.read_scope import ReadScope
     from bfabric_app_runner.specs.inputs.bfabric_annotation_spec import (
         BfabricAnnotationSpec,
         BfabricAnnotationResourceSampleSpec,
@@ -33,7 +33,7 @@ class ResolveBfabricAnnotationSpecs:
 
 
 def _get_resource_sample_annotation(
-    spec: BfabricAnnotationResourceSampleSpec, entity_reader: BfabricSession
+    spec: BfabricAnnotationResourceSampleSpec, entity_reader: ReadScope
 ) -> pl.DataFrame:
     """Returns the annotation content for the resource_sample annotation type."""
     # load entities

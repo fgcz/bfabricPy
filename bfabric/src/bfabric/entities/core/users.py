@@ -7,10 +7,10 @@ if TYPE_CHECKING:
 
 
 class Users:
-    """An interface for resolving users by ID or login name via the active session.
+    """An interface for resolving users by ID or login name via the active read scope.
 
     Resolved users are memoized on the instance; the connection is looked up from the ambient
-    :class:`~bfabric.entities.BfabricSession` at each miss, so this holds no client itself.
+    :class:`~bfabric.entities.ReadScope` at each miss, so this holds no client itself.
 
     The memoization keys on id/login only, so a single ``Users`` instance assumes one B-Fabric
     instance. That holds today (one is created per entity via ``UserCreatedMixin``, and an entity
@@ -22,14 +22,14 @@ class Users:
 
     def get_by_id(self, bfabric_instance: str, id: int) -> User | None:
         """Gets a user by their ID."""
-        from bfabric.entities.core.session import get_session
+        from bfabric.entities.core.read_scope import get_read_scope
         from bfabric.entities.user import User as UserEntity
 
         for user in self._users:
             if user.id == id:
                 return user
 
-        user = get_session().read_id(UserEntity, id, bfabric_instance=bfabric_instance)
+        user = get_read_scope().read_id(UserEntity, id, bfabric_instance=bfabric_instance)
         if user is None:
             return None
 
@@ -38,14 +38,14 @@ class Users:
 
     def get_by_login(self, bfabric_instance: str, login: str) -> User | None:
         """Gets a user by their login name."""
-        from bfabric.entities.core.session import get_session
+        from bfabric.entities.core.read_scope import get_read_scope
         from bfabric.entities.user import User as UserEntity
 
         for user in self._users:
             if user["login"] == login:
                 return user
 
-        user = get_session().query_one(UserEntity, {"login": login}, bfabric_instance=bfabric_instance)
+        user = get_read_scope().query_one(UserEntity, {"login": login}, bfabric_instance=bfabric_instance)
         if user is None:
             return None
 

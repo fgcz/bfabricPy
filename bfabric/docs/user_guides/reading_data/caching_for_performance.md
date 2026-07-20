@@ -5,10 +5,10 @@ working with the same entities multiple times or navigating complex relationship
 
 ## Overview
 
-Caching is owned by the active [`BfabricSession`](../../design/entity_session.md) (`client.reader`). Enable it with the
-session's `cache_entities()` context manager — `with client.reader.cache_entities("sample", max_size=100): ...` — within
-which entities read through that session are cached according to your configuration. The free
-`bfabric.entities.cache.context.cache_entities()` helper does the same for the *currently active* session, so it must be
+Caching is owned by the active [`ReadScope`](../../design/entity_read_scope.md) (`client.reader`). Enable it with the
+read scope's `cache_entities()` context manager — `with client.reader.cache_entities("sample", max_size=100): ...` — within
+which entities read through that read scope are cached according to your configuration. The free
+`bfabric.entities.cache.context.cache_entities()` helper does the same for the *currently active* read scope, so it must be
 used inside a `with client.reader:` block (outside one it raises `LookupError`). The examples below use `reader.cache_entities(...)`
 where `reader = client.reader`.
 

@@ -7,7 +7,7 @@ from bfabric.entities.core.uri import EntityUri
 
 @pytest.fixture
 def mock_cache_stack(mocker):
-    """The (session-owned) cache stack injected into the reader."""
+    """The (scope-owned) cache stack injected into the reader."""
     return mocker.MagicMock(name="mock_cache_stack")
 
 
