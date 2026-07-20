@@ -1,7 +1,7 @@
 import pytest
 
 from bfabric.entities.core.entity import Entity
-from bfabric.entities.core.entity_reader import EntityReader
+from bfabric.entities.core.entity_reader import EntityReader, EntityResult
 from bfabric.entities.core.uri import EntityUri
 
 
@@ -615,3 +615,36 @@ class TestRetrieveEntities:
         result = entity_reader._retrieve_entities([])
 
         assert result == {}
+
+
+class TestEntityResult:
+    @pytest.fixture
+    def uri(self, bfabric_instance):
+        def _make(entity_id: int, entity_type: str = "resource") -> EntityUri:
+            return EntityUri(f"{bfabric_instance}{entity_type}/show.html?id={entity_id}")
+
+        return _make
+
+    def test_by_id_rekeys_by_int_id(self, mocker, uri):
+        a, b = mocker.MagicMock(name="a"), mocker.MagicMock(name="b")
+        assert EntityResult({uri(1): a, uri(2): b}).by_id == {1: a, 2: b}
+
+    def test_by_id_drops_missing_entries(self, mocker, uri):
+        found = mocker.MagicMock(name="found")
+        assert EntityResult({uri(1): found, uri(2): None}).by_id == {1: found}
+
+    def test_by_id_empty_input(self):
+        assert EntityResult({}).by_id == {}
+
+    def test_by_id_all_missing(self, uri):
+        assert EntityResult({uri(1): None, uri(2): None}).by_id == {}
+
+    def test_present_drops_missing_and_preserves_order(self, mocker, uri):
+        a, b = mocker.MagicMock(name="a"), mocker.MagicMock(name="b")
+        assert EntityResult({uri(1): a, uri(2): None, uri(3): b}).present == [a, b]
+
+    def test_present_empty_input(self):
+        assert EntityResult({}).present == []
+
+    def test_present_all_missing(self, uri):
+        assert EntityResult({uri(1): None, uri(2): None}).present == []

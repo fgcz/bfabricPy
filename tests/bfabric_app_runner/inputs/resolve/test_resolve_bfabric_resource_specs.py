@@ -5,6 +5,7 @@ from bfabric_app_runner.inputs.resolve._resolve_bfabric_resource_specs import Re
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedFile
 
 from bfabric.entities import Resource
+from bfabric.entities.core.entity_reader import EntityResult
 from bfabric.entities.core.uri import EntityUri
 
 
@@ -34,7 +35,7 @@ def test_call(resolver, mocker, mock_client):
     mock_resource.__getitem__.side_effect = lambda key: {"filechecksum": "abc123"}[key]
 
     # Mock reader.read_ids to return our mock resource keyed by URI
-    mock_client.reader.read_ids.return_value = {_resource_uri(42): mock_resource}
+    mock_client.reader.read_ids.return_value = EntityResult({_resource_uri(42): mock_resource})
 
     # Create mock spec
     mock_spec = mocker.MagicMock(name="mock_spec", id=42, filename="renamed_file.txt", check_checksum=True)
@@ -87,9 +88,9 @@ def test_call_multiple_resources(resolver, mocker, mock_client):
     mock_resources[102].__getitem__.side_effect = lambda key: {"filechecksum": "def456"}[key]
 
     # Mock reader.read_ids to return the resources keyed by URI
-    mock_client.reader.read_ids.return_value = {
-        _resource_uri(resource_id): resource for resource_id, resource in mock_resources.items()
-    }
+    mock_client.reader.read_ids.return_value = EntityResult(
+        {_resource_uri(resource_id): resource for resource_id, resource in mock_resources.items()}
+    )
 
     # Create mock specs
     mock_spec1 = mocker.MagicMock(name="mock_spec1")
@@ -132,7 +133,9 @@ def test_call_when_resource_missing_raises_key_error(resolver, mocker, mock_clie
     )
     mock_resource.__getitem__.side_effect = lambda key: {"filechecksum": "abc123"}[key]
     # id=101 found, id=102 missing (None)
-    mock_client.reader.read_ids.return_value = {_resource_uri(101): mock_resource, _resource_uri(102): None}
+    mock_client.reader.read_ids.return_value = EntityResult(
+        {_resource_uri(101): mock_resource, _resource_uri(102): None}
+    )
 
     spec_found = mocker.MagicMock(name="spec_found", id=101, filename="found.txt", check_checksum=True)
     spec_missing = mocker.MagicMock(name="spec_missing", id=102, filename="missing.txt", check_checksum=True)

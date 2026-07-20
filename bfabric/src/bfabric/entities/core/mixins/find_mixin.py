@@ -5,8 +5,6 @@ from typing import TYPE_CHECKING, Protocol, TypeVar, cast
 
 from loguru import logger
 
-from bfabric.entities.core.reader_utils import entities_by_id
-
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
@@ -43,9 +41,9 @@ class FindMixin:
             "FindMixin is deprecated and will be removed in future versions.", DeprecationWarning, stacklevel=2
         )
         results = EntityReader.for_client(client=client).read_ids(cls.ENDPOINT, list(ids))
-        # ``entities_by_id`` is typed for ``Entity`` values, whereas ``FindMixin.T`` is the deprecated
+        # ``results.by_id`` is typed for ``Entity`` values, whereas ``FindMixin.T`` is the deprecated
         # protocol-bound typevar; the runtime dict is correct, so bridge the two with a cast.
-        return _ensure_results_order(ids, cast("dict[int, T]", entities_by_id(results)))
+        return _ensure_results_order(ids, cast("dict[int, T]", results.by_id))
 
     @classmethod
     def find_by(
@@ -62,7 +60,7 @@ class FindMixin:
         results = reader.query(
             entity_type=cls.ENDPOINT, obj=obj, bfabric_instance=bfabric_instance, max_results=max_results
         )
-        return cast("dict[int, T]", entities_by_id(results))
+        return cast("dict[int, T]", {uri.components.entity_id: entity for uri, entity in results.items()})
 
 
 def _ensure_results_order(

@@ -2,6 +2,7 @@ import pytest
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_dataset_specs import ResolveBfabricDatasetSpecs
 
 from bfabric.entities import Dataset
+from bfabric.entities.core.entity_reader import EntityResult
 from bfabric.entities.core.uri import EntityUri
 
 
@@ -25,7 +26,7 @@ def test_call(resolver, mocker, mock_client):
     mock_dataset.get_csv.return_value = "csv content"
 
     # Mock reader.read_ids to return our mock dataset keyed by URI
-    mock_client.reader.read_ids.return_value = {_dataset_uri(1): mock_dataset}
+    mock_client.reader.read_ids.return_value = EntityResult({_dataset_uri(1): mock_dataset})
 
     # Create mock specs
     mock_spec = mocker.MagicMock(name="mock_spec")
@@ -55,7 +56,7 @@ def test_call_when_dataset_missing_raises_key_error(resolver, mocker, mock_clien
     found = mocker.MagicMock(name="found_dataset")
     found.get_csv.return_value = "csv content"
     # id=1 found, id=2 missing (None)
-    mock_client.reader.read_ids.return_value = {_dataset_uri(1): found, _dataset_uri(2): None}
+    mock_client.reader.read_ids.return_value = EntityResult({_dataset_uri(1): found, _dataset_uri(2): None})
 
     spec_found = mocker.MagicMock(name="spec_found")
     spec_found.id = 1
