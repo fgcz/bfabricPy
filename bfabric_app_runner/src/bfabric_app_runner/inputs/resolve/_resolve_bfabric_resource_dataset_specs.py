@@ -14,7 +14,7 @@ from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedFile, Reso
 
 if TYPE_CHECKING:
     from bfabric.entities.core.entity_reader import EntityReader
-    from bfabric_app_runner.specs.inputs.bfabric_resource_dataset import BfabricResourceDatasetSpec
+    from bfabric_app_runner.specs.inputs.bfabric_resource_dataset_spec import BfabricResourceDatasetSpec
 
 
 class ResolveBfabricResourceDatasetSpecs:

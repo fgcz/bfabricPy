@@ -5,7 +5,7 @@ from inline_snapshot import snapshot
 from bfabric.entities.core.uri import EntityUri
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_resource_dataset_specs import ResolveBfabricResourceDatasetSpecs
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedFile
-from bfabric_app_runner.specs.inputs.bfabric_resource_dataset import BfabricResourceDatasetSpec
+from bfabric_app_runner.specs.inputs.bfabric_resource_dataset_spec import BfabricResourceDatasetSpec
 from bfabric_app_runner.specs.inputs.file_spec import FileSourceSsh, FileSourceSshValue
 
 

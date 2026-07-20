@@ -5728,22 +5728,6 @@
                     "endColumn": 25,
                     "lineCount": 1
                 }
-            },
-            {
-                "code": "reportUnannotatedClassAttribute",
-                "range": {
-                    "startColumn": 4,
-                    "endColumn": 14,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnannotatedClassAttribute",
-                "range": {
-                    "startColumn": 4,
-                    "endColumn": 14,
-                    "lineCount": 1
-                }
             }
         ],
         "./bfabric/src/bfabric/utils/paginator.py": [

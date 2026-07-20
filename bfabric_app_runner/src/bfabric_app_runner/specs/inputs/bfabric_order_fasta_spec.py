@@ -1,12 +1,9 @@
 from __future__ import annotations
-from typing import Literal, TYPE_CHECKING
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
 from bfabric_app_runner.specs.common_types import RelativeFilePath
-
-if TYPE_CHECKING:
-    from bfabric import Bfabric
 
 
 class BfabricOrderFastaSpec(BaseModel):
@@ -27,7 +24,3 @@ class BfabricOrderFastaSpec(BaseModel):
 
     required: bool = False
     """If True, a missing order or FASTA sequence raises an error; otherwise an empty file is written."""
-
-    def resolve_filename(self, client: Bfabric) -> str:
-        """Returns the target filename for this input."""
-        return self.filename

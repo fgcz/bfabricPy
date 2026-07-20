@@ -328,3 +328,20 @@ class TestUseClientSetupLogging:
         mock_setup_logging.assert_called_once()
         # Verify the function still works
         assert result == "test"
+
+
+class TestSetupScriptLogging:
+    """Tests for setup_script_logging's loguru configuration."""
+
+    def test_enables_bfabric_logging(self, mocker):
+        """bfabric is disabled at import; the CLI must re-enable it so its logs (incl. the version banner) show."""
+        from bfabric.utils.cli_integration import setup_script_logging
+
+        os.environ.pop("BFABRICPY_SCRIPT_LOGGING_SETUP", None)
+        mock_enable = mocker.patch("bfabric.utils.cli_integration.logger.enable")
+        mocker.patch("bfabric.utils.cli_integration.logger.add")
+        mocker.patch("bfabric.utils.cli_integration.logger.remove")
+
+        setup_script_logging()
+
+        assert mocker.call("bfabric") in mock_enable.mock_calls

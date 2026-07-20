@@ -113,10 +113,31 @@ Each package's docs live alongside its source. Skim the index when working in a 
   read on its own (drop a prefix only when the class already conveys it).
 - Ruff linting is currently only enforced on the `bfabric` package (scripts, wrapper_creator, tests, noxfile are excluded via per-file-ignores)
 - Line length: 120 (ruff and black)
-- Do not restate a parameter's default value in its docstring when the signature already shows it (e.g. `client_id: str = DEFAULT_CLIENT_ID`). Writing `(default "CLI")` in the `:param:` line just duplicates the signature and drifts out of sync when the default changes. Keep notes that explain what a value *means* (e.g. `(``0`` = auto-assign)`), not ones that merely repeat it. This also applies to class/model docstrings that restate a field's default shown a few lines below (prefer "see `field_name`" over repeating the literal value). Note the common case where the signature default is a sentinel like `None` but the docstring explains what it resolves to at runtime (e.g. `max_results: int | None = 100` documented as `` (``None`` for all) ``, or `path: Path | None = None` documented as `` (``None`` writes to ``./output.yml``) ``) — that is the *meaning* case, not the restatement case, and should be kept; phrase it as "``None`` does/means X", not "(default: X)", so it isn't mistaken for a literal restatement.
+- Docstrings should explain what a value *means*, never restate a default the signature already shows. Drop `(default "CLI")` for `client_id: str = DEFAULT_CLIENT_ID`; keep `(``0`` = auto-assign)`. Same for model fields (prefer "see `field_name`" over repeating the literal). The exception is a sentinel default whose runtime meaning differs — document `max_results: int | None = 100` as `` (``None`` for all) `` — but phrase it as "``None`` means X", not "(default: X)".
 - basedpyright uses per-package baseline files at `.basedpyright/baseline.{package}.json` — **do not edit baseline files to silence new errors**; fix the code or add a targeted `# pyright: ignore[...]` comment on the offending line. Baselines only exist to grandfather in pre-existing errors.
 - Integration tests live in a separate repository
 - Use TDD: write a failing test first, verify it fails, then fix the code, then verify the test passes
+
+## Production code conventions
+
+Machine-enforced style (annotations, `X | None` over `Optional`, `pathlib` over `os.path`, naming) is
+covered by ruff (`nox -s code_style`) and basedpyright — don't re-document it here. These are the
+conventions the tooling *doesn't* catch:
+
+- **Entity access** — read entities via the client's `EntityReader`: `client.reader.query(...)` /
+  `query_one(...)` / `read_ids(...)`, then use the entity's typed properties and `HasOne`/`HasMany`
+  relationships. Do **not** use the deprecated `FindMixin` (`Entity.find*`) or `ResultContainer`'s
+  `to_list_dict()` for new code.
+- **Client construction** — obtain a `Bfabric` via `Bfabric.connect()` (config file) or
+  `Bfabric.connect_webapp()` (token auth); in CLI commands take it from the `@use_client` decorator
+  rather than constructing one by hand. `Bfabric` and the OAuth credential provider must stay
+  picklable (used across FastAPI workers / interactive sessions).
+- **Exceptions** — raise a specific `Bfabric*Error` subclass of `RuntimeError` from the package's
+  `errors.py` (core: `bfabric/errors.py`; subpackages keep their own, e.g. `transfer/errors.py`).
+  Subclass an existing error to refine it (`BfabricTokenExpiredError(BfabricTokenValidationFailedError)`)
+  rather than raising a bare `RuntimeError`/`ValueError` for a domain failure.
+- **Logging** — use loguru (`from loguru import logger`); never `print()` for diagnostics and don't
+  create stdlib `logging.getLogger(...)` loggers.
 
 ## Releases
 

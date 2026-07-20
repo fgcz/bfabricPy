@@ -80,11 +80,32 @@ def test_resolver_initialization(
     mock_annotation_resolver,
 ):
     assert resolver._client == mock_bfabric
-    assert resolver._resolve_bfabric_dataset_specs == mock_dataset_resolver
-    assert resolver._resolve_bfabric_resource_specs == mock_resource_resolver
-    assert resolver._resolve_static_yaml_specs == mock_yaml_resolver
-    assert resolver._resolve_bfabric_order_fasta_specs == mock_order_fasta_resolver
-    assert resolver._resolve_bfabric_annotation_specs == mock_annotation_resolver
+    assert resolver._registry[BfabricDatasetSpec] == mock_dataset_resolver
+    assert resolver._registry[BfabricResourceSpec] == mock_resource_resolver
+    assert resolver._registry[StaticYamlSpec] == mock_yaml_resolver
+    assert resolver._registry[BfabricOrderFastaSpec] == mock_order_fasta_resolver
+    assert resolver._registry[BfabricAnnotationSpec] == mock_annotation_resolver
+
+
+def test_registry_covers_all_input_spec_types(resolver) -> None:
+    """The registry must have an entry for every InputSpecType member (enforced at construction)."""
+    from typing import get_args
+
+    from bfabric_app_runner.specs.inputs_spec import InputSpecType
+
+    union_members = get_args(get_args(InputSpecType)[0])
+    for member in union_members:
+        assert any(issubclass(member, base) for base in resolver._registry)
+
+
+def test_resolver_for_unregistered_type_raises(resolver) -> None:
+    """A spec type with no registered resolver fails loudly."""
+
+    class UnregisteredSpec:
+        pass
+
+    with pytest.raises(TypeError, match="No resolver registered"):
+        resolver._resolver_for(UnregisteredSpec)
 
 
 def test_group_specs_by_type(mocker) -> None:

@@ -14,6 +14,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 - OAuth token-acquisition failures (expired/revoked refresh token, unreachable token endpoint) now raise a clear `BfabricOAuthError` instead of leaking an `authlib`/`requests` traceback.
 - `EntityReader` lookups (`read_id` / `read_ids` / `query` / `query_one`) now accept an entity **class** in place of the endpoint string — e.g. `client.reader.read_id(Resource, id)` — inferring both the endpoint and the result type; the string form (with optional `expected_type`) still works.
 - Internal: new `bfabric.entities.core.reader_utils` helpers `entities_by_id` / `present_entities` to reshape `EntityReader` results (re-key by id dropping not-found, or drop not-found from the values); the deprecated `FindMixin` now delegates to them. Class→endpoint inference is centralized in `import_entity.entity_type_of` (the inverse of `import_entity`).
+- bfabric now follows loguru's convention for libraries and emits **no log records by default** — including the version banner previously logged at `INFO` on every client construction — so library, server, and test contexts stay quiet. The command-line tools re-enable it automatically; other applications can opt in with `logger.enable("bfabric")`.
 
 ## \[1.20.0rc2\] - 2026-07-15
 

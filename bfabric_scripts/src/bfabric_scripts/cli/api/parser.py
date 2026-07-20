@@ -16,6 +16,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from suds.xsd.query import TypeQuery  # pyright: ignore[reportMissingTypeStubs]
 
 from bfabric import Bfabric
+from bfabric.config.bfabric_client_config import BfabricAPIEngineType
 
 from bfabric_scripts.cli.api.namespaces import NAMESPACES
 
@@ -61,10 +62,19 @@ def parse_method_signature(
         Dictionary mapping parameter names to ParameterModel instances.
 
     Raises:
+        RuntimeError: If the client is not configured to use the SUDS engine.
         AttributeError: If endpoint or method doesn't exist
     """
+    # WSDL introspection below is written against SUDS internals and has no Zeep
+    # equivalent, so reject other engines up front with a clear message instead of
+    # leaking an AttributeError from the private engine internals.
+    if client.config.engine != BfabricAPIEngineType.SUDS:
+        raise RuntimeError(
+            f"'api inspect' is only supported with the SUDS engine (got: {client.config.engine}). "
+            f"Set engine: SUDS in your bfabricpy config."
+        )
+
     # Get the SUDS service
-    # Note: This only works with EngineSuds, not EngineZeep
     service = client._engine._get_suds_service(endpoint)  # type: ignore[attr-defined]  # pyright: ignore[reportPrivateUsage,reportAttributeAccessIssue,reportUnknownVariableType,reportUnknownMemberType]
 
     # Get the specified method
