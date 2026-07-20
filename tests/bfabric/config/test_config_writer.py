@@ -8,7 +8,11 @@ import yaml
 
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.config.config_file import ConfigFile
-from bfabric.config.config_writer import set_default_config, write_environment_to_config
+from bfabric.config.config_writer import (
+    remove_environment_from_config,
+    set_default_config,
+    write_environment_to_config,
+)
 
 
 class TestWriteEnvironmentToConfig:
@@ -191,5 +195,63 @@ class TestSetDefaultConfig:
         self._write_two_env_config(config_path)
         config_path.chmod(0o644)
         set_default_config(config_path, "TEST")
+        mode = stat.S_IMODE(os.stat(config_path).st_mode)
+        assert mode == 0o600
+
+
+class TestRemoveEnvironmentFromConfig:
+    @staticmethod
+    def _write_two_env_config(config_path, default="PROD"):
+        config_path.write_text(
+            yaml.dump(
+                {
+                    "GENERAL": {"default_config": default},
+                    "PROD": {"base_url": "https://prod.example.com"},
+                    "TEST": {"base_url": "https://test.example.com"},
+                }
+            )
+        )
+
+    def test_removes_env_and_preserves_others(self, tmp_path):
+        config_path = tmp_path / "config.yml"
+        self._write_two_env_config(config_path, default="PROD")
+        remove_environment_from_config(config_path, "TEST")
+        data = yaml.safe_load(config_path.read_text())
+        assert "TEST" not in data
+        assert data["PROD"]["base_url"] == "https://prod.example.com"
+        # Removing a non-default env leaves the default untouched.
+        assert data["GENERAL"]["default_config"] == "PROD"
+
+    def test_removing_default_env_clears_default(self, tmp_path):
+        # A dangling default_config would make ConfigFile refuse to load the file, so removing the
+        # environment that is the default must also clear the default.
+        config_path = tmp_path / "config.yml"
+        self._write_two_env_config(config_path, default="PROD")
+        remove_environment_from_config(config_path, "PROD")
+        data = yaml.safe_load(config_path.read_text())
+        assert "PROD" not in data
+        assert data.get("GENERAL", {}).get("default_config") is None
+        # The result must still parse back through the reader.
+        config_file = ConfigFile.model_validate(data)
+        assert set(config_file.environments) == {"TEST"}
+
+    def test_raises_on_unknown_env_and_leaves_file_unchanged(self, tmp_path):
+        config_path = tmp_path / "config.yml"
+        self._write_two_env_config(config_path)
+        before = config_path.read_text()
+        with pytest.raises(ValueError):
+            remove_environment_from_config(config_path, "NOPE")
+        assert config_path.read_text() == before
+
+    def test_raises_on_missing_file(self, tmp_path):
+        config_path = tmp_path / "nonexistent.yml"
+        with pytest.raises(FileNotFoundError):
+            remove_environment_from_config(config_path, "PROD")
+
+    def test_tightens_permissions(self, tmp_path):
+        config_path = tmp_path / "config.yml"
+        self._write_two_env_config(config_path)
+        config_path.chmod(0o644)
+        remove_environment_from_config(config_path, "TEST")
         mode = stat.S_IMODE(os.stat(config_path).st_mode)
         assert mode == 0o600

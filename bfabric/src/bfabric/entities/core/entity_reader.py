@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeGuard, TypeVar, cast, overload
+from typing import TYPE_CHECKING, Generic, TypeGuard, TypeVar, cast, overload
 
 from loguru import logger
 
@@ -18,6 +18,24 @@ if TYPE_CHECKING:
 
 
 EntityT = TypeVar("EntityT", bound="Entity")
+
+
+class EntityResult(dict[EntityUri, "EntityT | None"], Generic[EntityT]):
+    """A URI-keyed entity-reader result.
+
+    Still a plain ``dict`` (``.items()``, ``result[uri]`` and ``None`` for not-found ids all behave as
+    before); the two properties expose the reshaped views callers most often want.
+    """
+
+    @property
+    def present(self) -> list[EntityT]:
+        """Found entities, in insertion order, dropping not-found (``None``) entries."""
+        return [entity for entity in self.values() if entity is not None]
+
+    @property
+    def by_id(self) -> dict[int, EntityT]:
+        """Found entities re-keyed by integer entity id, dropping not-found (``None``) entries."""
+        return {uri.components.entity_id: entity for uri, entity in self.items() if entity is not None}
 
 
 def _resolve_entity_type(entity_type: str | type[EntityT], expected_type: type[EntityT]) -> tuple[str, type[EntityT]]:
@@ -67,7 +85,7 @@ class EntityReader:
 
     def read_uris(
         self, uris: Iterable[EntityUri | str], *, expected_type: type[EntityT] = Entity
-    ) -> dict[EntityUri, EntityT | None]:
+    ) -> EntityResult[EntityT]:
         """Read multiple entities by their URIs efficiently.
 
         Entities are grouped by type and retrieved in batches to minimize API calls.
@@ -110,7 +128,7 @@ class EntityReader:
         if not all(isinstance(entity, expected_type) or entity is None for entity in results.values()):
             raise ValueError("Unexpected entity type in results")
 
-        return cast("dict[EntityUri, EntityT | None]", results)
+        return cast("EntityResult[EntityT]", EntityResult(results))
 
     @overload
     def read_id(
@@ -162,7 +180,7 @@ class EntityReader:
     @overload
     def read_ids(
         self, entity_type: type[EntityT], entity_ids: Sequence[int | str], bfabric_instance: str | None = None
-    ) -> dict[EntityUri, EntityT | None]: ...
+    ) -> EntityResult[EntityT]: ...
     @overload
     def read_ids(
         self,
@@ -171,11 +189,11 @@ class EntityReader:
         bfabric_instance: str | None = None,
         *,
         expected_type: type[EntityT],
-    ) -> dict[EntityUri, EntityT | None]: ...
+    ) -> EntityResult[EntityT]: ...
     @overload
     def read_ids(
         self, entity_type: str, entity_ids: Sequence[int | str], bfabric_instance: str | None = None
-    ) -> dict[EntityUri, Entity | None]: ...
+    ) -> EntityResult[Entity]: ...
     def read_ids(
         self,
         entity_type: str | type[EntityT],
@@ -183,7 +201,7 @@ class EntityReader:
         bfabric_instance: str | None = None,
         *,
         expected_type: type[EntityT] = Entity,
-    ) -> dict[EntityUri, EntityT | None]:
+    ) -> EntityResult[EntityT]:
         """Read multiple entities of the same type by their IDs.
 
         Args:

@@ -8,7 +8,6 @@ from loguru import logger
 
 from bfabric.bfabric import Bfabric
 from bfabric.entities import ExternalJob, Executable
-from bfabric.entities.core.reader_utils import present_entities
 from bfabric.wrapper_creator.slurm import SLURM
 
 
@@ -239,7 +238,7 @@ exit 0
 
         return None
         """
-        executables = present_entities(self._client.reader.query(Executable, {"workunitid": self.workunit.id}))
+        executables = list(self._client.reader.query(Executable, {"workunitid": self.workunit.id}).values())
         for executable in executables:
             if not executable["base64"]:
                 continue

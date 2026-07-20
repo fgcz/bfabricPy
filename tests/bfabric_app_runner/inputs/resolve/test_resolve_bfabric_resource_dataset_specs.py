@@ -2,6 +2,7 @@ import polars as pl
 import pytest
 from inline_snapshot import snapshot
 
+from bfabric.entities.core.entity_reader import EntityResult
 from bfabric.entities.core.uri import EntityUri
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_resource_dataset_specs import ResolveBfabricResourceDatasetSpecs
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedFile
@@ -62,7 +63,7 @@ def original_resources(mocker, storage, client):
 
     def mock_read_ids(entity_type, entity_ids, *args, **kwargs):
         # URI-keyed like the real reader; misses would be absent (and None-filtered downstream).
-        return {_resource_uri(r.id): r for r in resources if r.id in entity_ids}
+        return EntityResult({_resource_uri(r.id): r for r in resources if r.id in entity_ids})
 
     client.reader.read_ids.side_effect = mock_read_ids
     return resources

@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, TypeVar, overload
 from bfabric.entities.cache._cache_stack import CacheStack
 from bfabric.entities.cache._entity_memory_cache import EntityMemoryCache
 from bfabric.entities.core.entity import Entity
-from bfabric.entities.core.entity_reader import EntityReader
+from bfabric.entities.core.entity_reader import EntityReader, EntityResult
 from bfabric.entities.core.entity_reader import _resolve_entity_type  # pyright: ignore[reportPrivateUsage]
 from bfabric.entities.core.uri import EntityUri
 
@@ -116,7 +116,7 @@ class BfabricSession:
 
     def read_uris(
         self, uris: Iterable[EntityUri | str], *, expected_type: type[EntityT] = Entity
-    ) -> dict[EntityUri, EntityT | None]:
+    ) -> EntityResult[EntityT]:
         """Read entities by URI, routing each to the reader for its instance (may span instances)."""
         uris = [EntityUri(uri) for uri in uris]
         by_instance: dict[str, list[EntityUri]] = defaultdict(list)
@@ -126,7 +126,7 @@ class BfabricSession:
         merged: dict[EntityUri, EntityT | None] = {}
         for instance, group in by_instance.items():
             merged.update(self._reader_for(instance).read_uris(group, expected_type=expected_type))
-        return {uri: merged.get(uri) for uri in uris}
+        return EntityResult({uri: merged.get(uri) for uri in uris})
 
     @overload
     def read_id(
@@ -159,7 +159,7 @@ class BfabricSession:
     @overload
     def read_ids(
         self, entity_type: type[EntityT], entity_ids: Sequence[int | str], bfabric_instance: str | None = None
-    ) -> dict[EntityUri, EntityT | None]: ...
+    ) -> EntityResult[EntityT]: ...
     @overload
     def read_ids(
         self,
@@ -168,11 +168,11 @@ class BfabricSession:
         bfabric_instance: str | None = None,
         *,
         expected_type: type[EntityT],
-    ) -> dict[EntityUri, EntityT | None]: ...
+    ) -> EntityResult[EntityT]: ...
     @overload
     def read_ids(
         self, entity_type: str, entity_ids: Sequence[int | str], bfabric_instance: str | None = None
-    ) -> dict[EntityUri, Entity | None]: ...
+    ) -> EntityResult[Entity]: ...
     def read_ids(
         self,
         entity_type: str | type[EntityT],
@@ -180,7 +180,7 @@ class BfabricSession:
         bfabric_instance: str | None = None,
         *,
         expected_type: type[EntityT] = Entity,
-    ) -> dict[EntityUri, EntityT | None]:
+    ) -> EntityResult[EntityT]:
         """Read entities of one type by IDs, from ``bfabric_instance`` (defaults to the sole instance)."""
         endpoint, expected_type = _resolve_entity_type(entity_type, expected_type)
         instance = bfabric_instance if bfabric_instance is not None else self._default_instance()

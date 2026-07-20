@@ -7,7 +7,6 @@ import yaml
 
 from bfabric import Bfabric
 from bfabric.entities import Executable
-from bfabric.entities.core.reader_utils import present_entities
 from bfabric.utils.cli_integration import use_client
 
 
@@ -64,10 +63,9 @@ def cmd_executable_dump(
         else:
             raise ValueError(f"Unknown file extension: {path.suffix}. Please specify --format.")
 
-    results = present_entities(client.reader.query(Executable, {"id": executable_id, "fulldetails": "true"}))
-    if not results:
+    executable = client.reader.query_one(Executable, {"id": executable_id, "fulldetails": "true"})
+    if executable is None:
         raise ValueError(f"Executable with ID {executable_id} not found.")
-    executable = results[0]
     data = executable.data_dict
     data["parameter"] = [p.data_dict for p in executable.parameters.list]
     if clean:

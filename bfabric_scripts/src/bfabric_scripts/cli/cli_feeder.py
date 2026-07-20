@@ -6,7 +6,6 @@ from pydantic import BaseModel
 
 from bfabric import Bfabric
 from bfabric.entities import Storage, Application
-from bfabric.entities.core.reader_utils import entities_by_id
 from bfabric.utils.cli_integration import use_client
 from bfabric_scripts.feeder.path_convention_compms import PathConventionCompMS, ParsedPath
 from bfabric_scripts.feeder.file_attributes import FileAttributes
@@ -60,8 +59,8 @@ def _get_application_mapping(parsed_paths: list[ParsedPath], client: Bfabric) ->
         # Could be demoted to empty dictionary later.
         raise RuntimeError("Nothing to be processed.")
     # TODO this will have to be cached in the future and only request if there is anything missing
-    result = entities_by_id(client.reader.query(Application, {"name": sorted(unique_app_names)}, max_results=None))
-    return {str(app["name"]): id for id, app in result.items()}
+    apps = client.reader.query(Application, {"name": sorted(unique_app_names)}, max_results=None).values()
+    return {str(app["name"]): app.id for app in apps}
 
 
 def _generate_importresource_object(

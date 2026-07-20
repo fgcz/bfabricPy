@@ -7,7 +7,6 @@ import polars as pl
 import yaml
 from bfabric import Bfabric
 from bfabric.entities import Resource
-from bfabric.entities.core.reader_utils import present_entities
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric.utils.cli_integration import use_client
 from pandera import Field
@@ -87,7 +86,7 @@ class ResourceDispatcher:
     @staticmethod
     def _build_input_resources_df(resource_ids: list[int], client: Bfabric) -> DataFrame[InputTable]:
         """Creates the InputTable DataFrame from the list of resource IDs."""
-        resources = present_entities(client.reader.read_ids(Resource, resource_ids))
+        resources = client.reader.read_ids(Resource, resource_ids).present
         if not resources:
             raise ValueError("No resources to dispatch")
         attributes = [

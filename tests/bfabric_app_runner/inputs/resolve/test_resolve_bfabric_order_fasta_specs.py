@@ -38,7 +38,7 @@ def test_call(resolver, mocker, mock_client):
     assert len(result) == 1
     assert result[0].filename == "test.fasta"
     assert result[0].content == "ACGT"
-    mock_client.reader.read_id.assert_called_once_with("workunit", 1, expected_type=Workunit)
+    mock_client.reader.read_id.assert_called_once_with(Workunit, 1)
 
 
 def test_call_when_empty(resolver):
@@ -68,7 +68,7 @@ def test_get_order_fasta_when_workunit(mocker, resolver, mock_client):
 
     # Assert the result
     assert result == "ACGT"
-    mock_client.reader.read_id.assert_called_once_with("workunit", 1, expected_type=Workunit)
+    mock_client.reader.read_id.assert_called_once_with(Workunit, 1)
 
 
 def test_get_order_fasta_when_order(mocker, resolver, mock_client):
@@ -87,4 +87,4 @@ def test_get_order_fasta_when_order(mocker, resolver, mock_client):
 
     # Assert the result
     assert result == "TAGC"
-    mock_client.reader.read_id.assert_called_once_with("order", 2, expected_type=Order)
+    mock_client.reader.read_id.assert_called_once_with(Order, 2)

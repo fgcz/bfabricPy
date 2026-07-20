@@ -3,6 +3,7 @@ import polars.testing
 import pytest
 
 from bfabric.entities import Workunit, Application
+from bfabric.entities.core.entity_reader import EntityResult
 from bfabric.entities.core.uri import EntityUri
 from bfabric_scripts.bfabric_slurm_queue_status import (
     get_slurm_jobs,
@@ -42,16 +43,20 @@ def test_get_workunit_infos(mocker):
     workunit_ids = [5000, 5001]
 
     # `get_workunit_infos` calls `client.reader.read_ids` for the Workunit and Application types and
-    # reshapes the results with `entities_by_id` (keyed by URI id) and `present_entities`. The URI id
-    # (5001) deliberately differs from the workunit's own data id (5000) to pin down which one is used.
-    workunit_result = {
-        EntityUri.from_components(instance, "workunit", 5001): Workunit(
-            {"id": 5000, "status": "RUNNING", "application": {"id": 1}}, bfabric_instance=instance
-        ),
-    }
-    application_result = {
-        EntityUri.from_components(instance, "application", 1): {"id": 1, "name": "myapp"},
-    }
+    # reshapes the results with the `.by_id` (keyed by URI id) and `.present` views of EntityResult. The
+    # URI id (5001) deliberately differs from the workunit's own data id (5000) to pin down which one is used.
+    workunit_result = EntityResult(
+        {
+            EntityUri.from_components(instance, "workunit", 5001): Workunit(
+                {"id": 5000, "status": "RUNNING", "application": {"id": 1}}, bfabric_instance=instance
+            ),
+        }
+    )
+    application_result = EntityResult(
+        {
+            EntityUri.from_components(instance, "application", 1): {"id": 1, "name": "myapp"},
+        }
+    )
 
     def fake_read_ids(entity_type, ids, *args, **kwargs):
         if entity_type is Workunit:

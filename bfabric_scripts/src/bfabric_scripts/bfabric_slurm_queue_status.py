@@ -12,7 +12,6 @@ from loguru import logger
 
 from bfabric import Bfabric
 from bfabric.entities import Workunit, Application
-from bfabric.entities.core.reader_utils import entities_by_id, present_entities
 from bfabric.utils.cli_integration import use_client
 
 
@@ -44,11 +43,11 @@ def get_workunit_infos(client: Bfabric, workunit_ids: list[int]) -> list[dict[st
     If a workunit was deleted, but it is in the slurm queue, it will be considered a zombie.
     """
     # Find the workunits which actually exist.
-    workunits = entities_by_id(client.reader.read_ids(Workunit, workunit_ids))
+    workunits = client.reader.read_ids(Workunit, workunit_ids).by_id
 
     # Retrieve application id -> name mapping.
     app_ids = {wu["application"]["id"] for wu in workunits.values()}
-    apps = present_entities(client.reader.read_ids(Application, list(app_ids)))
+    apps = client.reader.read_ids(Application, list(app_ids)).present
     app_names = {app["id"]: app["name"] for app in apps}
 
     return [

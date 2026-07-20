@@ -12,6 +12,7 @@ dependencies = [
     "bfabric[transfer]>=1.20.0rc2,<2",
     "cyclopts>=4.0,<5.0",
     "Flask>=3.0.3,<4.0",
+    "questionary>=2.0,<3",
     "rich>=13.0,<15",
     "lxml>=5.0,<7.0",
     "xmltodict>=1.0.0,<2.0.0",
@@ -35,7 +36,7 @@ excel = [
 ]
 
 [project.scripts]
-"bfabric-cli" = "bfabric_scripts.cli.__main__:app"
+"bfabric-cli" = "bfabric_scripts.cli.__main__:main"
 
 # TODO scripts for feeder
 "bfabric_list_not_existing_storage_directories.py" = "bfabric_scripts.bfabric_list_not_existing_storage_directories:app"
