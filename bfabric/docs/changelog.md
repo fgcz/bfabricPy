@@ -10,6 +10,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 ## \[Unreleased\]
 
 - `ResultContainer.to_polars()` returns an empty DataFrame for an empty result set instead of raising `polars.exceptions.NoDataError`, fixing a crash in `bfabric-cli api read` when a query matched no records.
+- OAuth: `Bfabric.connect_oauth` / `connect_pkce` / `connect_device_code` (and the underlying `_oauth` helpers) now require explicit `client_id` and `scope` — the core library no longer bakes in a `"CLI"` client ID or a default scope. Those defaults are now CLI policy (`bfabric-cli auth …` supplies them unchanged). `connect()` with `auth_method: oauth` now raises if the config environment has no `client_id` instead of falling back to `"CLI"`.
 - PKCE login: the browser callback page now renders a distinct, styled "Login failed" page showing the provider's error (e.g. a two-factor-enrollment requirement) instead of always claiming "Login successful".
 - OAuth token-acquisition failures (expired/revoked refresh token, unreachable token endpoint) now raise a clear `BfabricOAuthError` instead of leaking an `authlib`/`requests` traceback.
 - `EntityReader` lookups (`read_id` / `read_ids` / `query` / `query_one`) now accept an entity **class** in place of the endpoint string — e.g. `client.reader.read_id(Resource, id)` — inferring both the endpoint and the result type; the string form (with optional `expected_type`) still works.

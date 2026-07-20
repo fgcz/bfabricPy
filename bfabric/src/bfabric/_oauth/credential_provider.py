@@ -27,7 +27,6 @@ from loguru import logger
 
 from bfabric.config.bfabric_auth import OAUTH_LOGIN, BfabricAuth
 from bfabric.errors import BfabricOAuthError
-from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
 from bfabric._oauth.token_cache import TokenCache
 
 if TYPE_CHECKING:
@@ -66,7 +65,7 @@ class OAuthCredentialProvider:
         client_secret: str,
         token_url: str,
         *,
-        scope: str = DEFAULT_OAUTH_SCOPE,
+        scope: str,
         token: dict[str, object] | None = None,
         grant_type: str = "client_credentials",
         token_cache_path: Path | None = None,
@@ -149,7 +148,7 @@ class OAuthCredentialProvider:
             if self._grant_type == "refresh_token":
                 raise BfabricOAuthError(
                     f"OAuth session expired ({e}). Re-authenticate with "
-                    "'bfabric-cli auth pkce' or 'bfabric-cli auth device-code'."
+                    "'bfabric-cli auth login' or 'bfabric-cli auth device-code'."
                 ) from e
             raise BfabricOAuthError(f"OAuth token request failed: {e}") from e
         except AuthlibBaseError as e:

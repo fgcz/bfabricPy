@@ -28,6 +28,7 @@ def provider(mock_oauth2_session):
         client_id="test-id",
         client_secret="test-secret",
         token_url="https://example.com/rest/oauth/token",
+        scope="",
     )
 
 
@@ -38,6 +39,7 @@ class TestValidation:
                 client_id="test-id",
                 client_secret="",
                 token_url="https://example.com/rest/oauth/token",
+                scope="",
                 grant_type="client_credentials",
             )
 
@@ -48,6 +50,7 @@ class TestValidation:
             client_id="test-id",
             client_secret="",
             token_url="https://example.com/rest/oauth/token",
+            scope="",
             grant_type="refresh_token",
             token={"access_token": "t", "refresh_token": "rt", "expires_at": 9999999999},
         )
@@ -101,6 +104,7 @@ class TestClientCredentials:
             client_id="id",
             client_secret="secret",
             token_url="https://example.com/rest/oauth/token",
+            scope="",
         )
 
         threads = [threading.Thread(target=provider.get_auth) for _ in range(5)]
@@ -168,6 +172,7 @@ class TestClientCredentialsRefreshTokenStripping:
             client_id="app-id",
             client_secret="",
             token_url="https://example.com/rest/oauth/token",
+            scope="",
             grant_type="refresh_token",
             token={"access_token": "jwt", "refresh_token": "keep_me", "expires_at": time.time() + 3600},
         )
@@ -190,6 +195,7 @@ class TestRefreshToken:
             client_id="app-id",
             client_secret="",
             token_url="https://example.com/rest/oauth/token",
+            scope="",
             token=token,
             grant_type="refresh_token",
         )
@@ -209,6 +215,7 @@ class TestRefreshToken:
             client_id="app-id",
             client_secret="",
             token_url="https://example.com/rest/oauth/token",
+            scope="",
             grant_type="refresh_token",
             token={"access_token": "jwt", "refresh_token": "rt", "expires_at": time.time() + 3600},
         )
@@ -230,11 +237,12 @@ class TestOAuthErrorHandling:
             client_id="app-id",
             client_secret="",
             token_url="https://example.com/rest/oauth/token",
+            scope="",
             grant_type="refresh_token",
             token={"access_token": "stale", "refresh_token": "rt", "expires_at": 1},
         )
 
-        with pytest.raises(BfabricOAuthError, match="pkce") as exc_info:
+        with pytest.raises(BfabricOAuthError, match="login") as exc_info:
             provider.get_auth()
 
         assert "device-code" in str(exc_info.value)
@@ -260,6 +268,7 @@ class TestOAuthErrorHandling:
             client_id="app-id",
             client_secret="",
             token_url="https://example.com/rest/oauth/token",
+            scope="",
             grant_type="refresh_token",
             token={"access_token": "stale", "refresh_token": "rt", "expires_at": 1},
         )
@@ -282,6 +291,7 @@ class TestDiskCache:
             client_id="id",
             client_secret="secret",
             token_url="https://example.com/rest/oauth/token",
+            scope="",
             token_cache_path=cache_path,
         )
 
@@ -300,6 +310,7 @@ class TestDiskCache:
             client_id="id",
             client_secret="secret",
             token_url="https://example.com/rest/oauth/token",
+            scope="",
             token_cache_path=cache_path,
         )
         # Extract the update_token callback that was passed to OAuth2Session
@@ -328,6 +339,7 @@ class TestDiskCache:
             client_id="id",
             client_secret="secret",
             token_url="https://example.com/rest/oauth/token",
+            scope="",
             token_cache_path=cache_path,
         )
         provider.get_auth()
@@ -348,6 +360,7 @@ class TestDiskCache:
             client_id="id",
             client_secret="",
             token_url="https://example.com/rest/oauth/token",
+            scope="",
             token=supplied,
             grant_type="refresh_token",
             token_cache_path=cache_path,

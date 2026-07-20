@@ -18,7 +18,6 @@ import time
 import httpx
 from loguru import logger
 
-from bfabric._oauth._constants import DEFAULT_CLIENT_ID, DEFAULT_OAUTH_SCOPE
 from bfabric.errors import BfabricOAuthError
 
 
@@ -139,8 +138,8 @@ def _poll_for_token(
 def device_code_login(
     base_url: str,
     *,
-    client_id: str = DEFAULT_CLIENT_ID,
-    scope: str = DEFAULT_OAUTH_SCOPE,
+    client_id: str,
+    scope: str,
     timeout: float = 600.0,
 ) -> dict[str, object]:
     """Perform an OAuth 2.0 Device Authorization Grant flow (RFC 8628).
