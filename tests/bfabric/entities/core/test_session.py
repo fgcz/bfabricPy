@@ -48,6 +48,20 @@ class TestAmbientContext:
             assert get_session() is inner
         assert True  # both contexts exited cleanly
 
+    def test_reentry_same_session_restores_cleanly(self, client_a):
+        # ``client.reader`` is a cached_property, so a nested ``with client.reader:`` (e.g. the
+        # app-runner resolver running inside the @use_client CLI decorator) re-enters the *same*
+        # session object. Both exits must succeed and the context must be fully cleared.
+        session = BfabricSession(client_a)
+        with session:
+            with session:
+                assert get_session() is session
+            # inner exit must not clear the still-active outer context
+            assert get_session() is session
+        # outer exit restores to no-session and must not raise on a reused token
+        with pytest.raises(LookupError):
+            get_session()
+
 
 class TestConstruction:
     def test_single_client(self, client_a):

@@ -78,8 +78,9 @@ class BfabricSession:
         self._readers: dict[str, EntityReader] = {}
         for client in client_list:
             self.add_client(client)
-        self._parent: BfabricSession | None = None
-        self._token: Token[BfabricSession | None] | None = None
+        # One (parent, token) frame per active `with` — a stack so the same session object can be
+        # re-entered (e.g. `client.reader` is cached, so a nested `with client.reader:` re-enters it).
+        self._frames: list[tuple[BfabricSession | None, Token[BfabricSession | None]]] = []
 
     def add_client(self, client: Bfabric) -> None:
         """Register (or replace) the connection for ``client``'s instance."""
@@ -89,6 +90,11 @@ class BfabricSession:
     def instances(self) -> list[str]:
         """The B-Fabric instance URLs this session can read from."""
         return list(self._readers)
+
+    @property
+    def _parent(self) -> BfabricSession | None:
+        """The session active when this one was most recently entered, for instance delegation."""
+        return self._frames[-1][0] if self._frames else None
 
     def _reader_for(self, instance: str) -> EntityReader:
         reader = self._readers.get(instance)
@@ -273,10 +279,12 @@ class BfabricSession:
 
     def __enter__(self) -> BfabricSession:
         parent = _session_var.get()
-        self._parent = parent if parent is not self else None
-        self._token = _session_var.set(self)
+        # A session entered while already active (re-entry of the same object) has no distinct
+        # parent to delegate to — using itself would recurse in `_reader_for`, so record ``None``.
+        self._frames.append((parent if parent is not self else None, _session_var.set(self)))
         return self
 
     def __exit__(self, *exc: object) -> None:
-        if self._token is not None:
-            _session_var.reset(self._token)
+        if self._frames:
+            _, token = self._frames.pop()
+            _session_var.reset(token)
