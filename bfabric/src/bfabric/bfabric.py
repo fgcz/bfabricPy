@@ -668,8 +668,7 @@ def get_system_auth(
         if config_path:
             # NOTE: If user explicitly specifies a path to a wrong config file, this has to be an exception
             raise OSError(f"Explicitly specified config file does not exist: {resolved_path}")
-        # TODO: Convert to log
-        print(f"Warning: could not find the config file in the default location: {resolved_path}")
+        logger.warning(f"could not find the config file in the default location: {resolved_path}")
         config = BfabricClientConfig(base_url=base_url)
         auth = None if login is None or password is None else BfabricAuth(login=login, password=password)
 

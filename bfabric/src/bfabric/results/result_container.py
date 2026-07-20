@@ -5,13 +5,13 @@ from typing import TYPE_CHECKING, overload
 from loguru import logger
 
 import bfabric.results.response_format_dict as formatter
+from bfabric.errors import BfabricRequestError
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
     import polars
 
-    from bfabric.errors import BfabricRequestError
     from bfabric.typing import ApiResponseObjectType
 
 
@@ -72,7 +72,7 @@ class ResultContainer:
         """Asserts that the query was successful. Raises a `RuntimeError` if it was not."""
         if not self.is_success:
             details = "; ".join(str(e) for e in self._errors)
-            raise RuntimeError(f"Query was not successful: {details}")
+            raise BfabricRequestError(f"Query was not successful: {details}")
 
     @property
     def is_success(self) -> bool:

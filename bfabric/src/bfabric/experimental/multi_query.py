@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from copy import deepcopy
 
+from loguru import logger
+
 from bfabric.results.result_container import ResultContainer
 from bfabric.utils.paginator import page_iter
 from typing import TYPE_CHECKING
@@ -82,7 +84,7 @@ class MultiQuery:
         response_tot = ResultContainer([], total_pages_api=0, errors=[])
 
         if not id_list:
-            print("Warning, empty list provided for deletion, ignoring")
+            logger.warning("empty list provided for deletion, ignoring")
             return response_tot
 
         # Iterate over request chunks that fit into a single API page
@@ -100,7 +102,7 @@ class MultiQuery:
         :return:          Return a single bool or a list of bools for each value
             For each value, test if a key with that value is found in the API.
         """
-        is_scalar = isinstance(value, (int, str))
+        is_scalar = isinstance(value, int | str)
         if is_scalar:
             return self._client.exists(endpoint=endpoint, key=key, value=value, check=True)
         elif not isinstance(value, list):
