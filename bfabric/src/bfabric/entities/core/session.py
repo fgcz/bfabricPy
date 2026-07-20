@@ -279,9 +279,11 @@ class BfabricSession:
 
     def __enter__(self) -> BfabricSession:
         parent = _session_var.get()
-        # A session entered while already active (re-entry of the same object) has no distinct
-        # parent to delegate to — using itself would recurse in `_reader_for`, so record ``None``.
-        self._frames.append((parent if parent is not self else None, _session_var.set(self)))
+        # On re-entry of an already-active session, recording ``self`` as parent would recurse in
+        # `_reader_for`; keep the existing parent instead so instance delegation still works inside
+        # the nested `with` (recording ``None`` here would drop it).
+        effective_parent = self._parent if parent is self else parent
+        self._frames.append((effective_parent, _session_var.set(self)))
         return self
 
     def __exit__(self, *exc: object) -> None:

@@ -77,8 +77,7 @@ class EntityReader:
             Entity object or ``None`` if not found
 
         Raises:
-            ValueError: If URI is invalid or from a different B-Fabric instance
-            TypeError: If entity exists but doesn't match ``expected_type``
+            ValueError: If the matched entity does not match ``expected_type``
         """
         logger.debug(f"Reading entity for URI: {uri}")
         return list(self.read_uris([uri], expected_type=expected_type).values())[0]
@@ -88,8 +87,9 @@ class EntityReader:
     ) -> EntityResult[EntityT]:
         """Read multiple entities by their URIs efficiently.
 
-        Entities are grouped by type and retrieved in batches to minimize API calls.
-        Uses the cache stack if configured.
+        Entities are grouped by type and retrieved in batches to minimize API calls, consulting the
+        session-owned cache stack. All URIs are assumed to belong to this reader's instance (the
+        owning :class:`~bfabric.entities.BfabricSession` routes by instance before calling this).
 
         Args:
             uris: Iterable of B-Fabric URIs (can be different entity types)
@@ -99,7 +99,7 @@ class EntityReader:
             Dictionary mapping each input URI to its entity object (or ``None`` if not found)
 
         Raises:
-            ValueError: If any URI is from a different B-Fabric instance
+            ValueError: If any matched entity does not match ``expected_type``
         """
         uris = [EntityUri(uri) for uri in uris]
         logger.debug(f"Reading entities for URIs: {uris}")
@@ -166,7 +166,7 @@ class EntityReader:
             Entity object or ``None`` if not found
 
         Raises:
-            ValueError: If instance doesn't match the client's configuration
+            ValueError: If the matched entity does not match ``expected_type``
         """
         entity_type, expected_type = _resolve_entity_type(entity_type, expected_type)
         results = self.read_ids(

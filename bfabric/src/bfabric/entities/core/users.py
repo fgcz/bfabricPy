@@ -11,6 +11,10 @@ class Users:
 
     Resolved users are memoized on the instance; the connection is looked up from the ambient
     :class:`~bfabric.entities.BfabricSession` at each miss, so this holds no client itself.
+
+    The memoization keys on id/login only, so a single ``Users`` instance assumes one B-Fabric
+    instance. That holds today (one is created per entity via ``UserCreatedMixin``, and an entity
+    belongs to a single instance); reusing one across instances would need instance-aware keys.
     """
 
     def __init__(self) -> None:

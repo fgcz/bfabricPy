@@ -62,6 +62,18 @@ class TestAmbientContext:
         with pytest.raises(LookupError):
             get_session()
 
+    def test_reentry_preserves_parent_delegation(self, client_a, client_b):
+        # Re-entering a session that has a parent must keep delegating unknown instances to that
+        # parent (regression: recording ``None`` on re-entry dropped the delegation, so a read for
+        # the parent's instance raised LookupError inside the nested ``with``).
+        outer = BfabricSession(client_a)
+        inner = BfabricSession(client_b)
+        with outer, inner:
+            with inner:  # re-enter inner while outer is still its parent
+                assert inner._reader_for(INSTANCE_A) is outer._readers[INSTANCE_A]
+            # delegation still works once the re-entry has exited
+            assert inner._reader_for(INSTANCE_A) is outer._readers[INSTANCE_A]
+
 
 class TestConstruction:
     def test_single_client(self, client_a):
