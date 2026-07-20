@@ -27,24 +27,25 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=4418a689" />
     <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
     <script src="../../_static/documentation_options.js?v=0995889c"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api_reference/entity_types/index';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="API Reference: EntityReader" href="../entity_reader/index.html" />
@@ -52,20 +53,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="1.20.0rc2" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
   </head>
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
-
+  <body data-default-mode="">
   
   
   <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
   
   <div id="pst-scroll-pixel-helper"></div>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -91,7 +98,51 @@
 </div>
 
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
     </header>
   
 
@@ -310,11 +361,18 @@
 
 
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div>
 
 
 <button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
@@ -342,8 +400,8 @@
                 <h2> Contents </h2>
             </div>
             <nav aria-label="Page">
-                <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.core.entity.Entity"><code class="docutils literal notranslate"><span class="pre">Entity</span></code></a><ul class="visible nav section-nav flex-column">
+                <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.core.entity.Entity"><code class="docutils literal notranslate"><span class="pre">Entity</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.core.entity.Entity.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Entity.ENDPOINT()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.core.entity.Entity.bfabric_instance"><code class="docutils literal notranslate"><span class="pre">Entity.bfabric_instance</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.core.entity.Entity.classname"><code class="docutils literal notranslate"><span class="pre">Entity.classname</span></code></a></li>
@@ -358,14 +416,14 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.core.entity.Entity.web_url"><code class="docutils literal notranslate"><span class="pre">Entity.web_url</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Application"><code class="docutils literal notranslate"><span class="pre">Application</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Application"><code class="docutils literal notranslate"><span class="pre">Application</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Application.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Application.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Application.executable"><code class="docutils literal notranslate"><span class="pre">Application.executable</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Application.storage"><code class="docutils literal notranslate"><span class="pre">Application.storage</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Application.technology_folder_name"><code class="docutils literal notranslate"><span class="pre">Application.technology_folder_name</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Dataset"><code class="docutils literal notranslate"><span class="pre">Dataset</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Dataset"><code class="docutils literal notranslate"><span class="pre">Dataset</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Dataset.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Dataset.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Dataset.column_names"><code class="docutils literal notranslate"><span class="pre">Dataset.column_names</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Dataset.column_types"><code class="docutils literal notranslate"><span class="pre">Dataset.column_types</span></code></a></li>
@@ -376,7 +434,7 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Dataset.write_parquet"><code class="docutils literal notranslate"><span class="pre">Dataset.write_parquet()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Executable"><code class="docutils literal notranslate"><span class="pre">Executable</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Executable"><code class="docutils literal notranslate"><span class="pre">Executable</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Executable.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Executable.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Executable.decoded"><code class="docutils literal notranslate"><span class="pre">Executable.decoded</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Executable.decoded_bytes"><code class="docutils literal notranslate"><span class="pre">Executable.decoded_bytes</span></code></a></li>
@@ -385,51 +443,51 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Executable.storage"><code class="docutils literal notranslate"><span class="pre">Executable.storage</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.ExternalJob"><code class="docutils literal notranslate"><span class="pre">ExternalJob</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.ExternalJob"><code class="docutils literal notranslate"><span class="pre">ExternalJob</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.ExternalJob.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">ExternalJob.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.ExternalJob.client_entity"><code class="docutils literal notranslate"><span class="pre">ExternalJob.client_entity</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.ExternalJob.executable"><code class="docutils literal notranslate"><span class="pre">ExternalJob.executable</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.ExternalJob.workunit"><code class="docutils literal notranslate"><span class="pre">ExternalJob.workunit</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Instrument"><code class="docutils literal notranslate"><span class="pre">Instrument</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Instrument"><code class="docutils literal notranslate"><span class="pre">Instrument</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Instrument.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Instrument.ENDPOINT</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Job"><code class="docutils literal notranslate"><span class="pre">Job</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Job"><code class="docutils literal notranslate"><span class="pre">Job</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Job.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Job.ENDPOINT</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.MultiplexId"><code class="docutils literal notranslate"><span class="pre">MultiplexId</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.MultiplexId"><code class="docutils literal notranslate"><span class="pre">MultiplexId</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.MultiplexId.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">MultiplexId.ENDPOINT</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.MultiplexKit"><code class="docutils literal notranslate"><span class="pre">MultiplexKit</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.MultiplexKit"><code class="docutils literal notranslate"><span class="pre">MultiplexKit</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.MultiplexKit.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">MultiplexKit.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.MultiplexKit.ids"><code class="docutils literal notranslate"><span class="pre">MultiplexKit.ids</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.MultiplexKit.multiplex_ids"><code class="docutils literal notranslate"><span class="pre">MultiplexKit.multiplex_ids</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Order"><code class="docutils literal notranslate"><span class="pre">Order</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Order"><code class="docutils literal notranslate"><span class="pre">Order</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Order.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Order.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Order.project"><code class="docutils literal notranslate"><span class="pre">Order.project</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Parameter"><code class="docutils literal notranslate"><span class="pre">Parameter</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Parameter"><code class="docutils literal notranslate"><span class="pre">Parameter</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Parameter.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Parameter.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Parameter.key"><code class="docutils literal notranslate"><span class="pre">Parameter.key</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Parameter.value"><code class="docutils literal notranslate"><span class="pre">Parameter.value</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Plate"><code class="docutils literal notranslate"><span class="pre">Plate</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Plate"><code class="docutils literal notranslate"><span class="pre">Plate</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Plate.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Plate.ENDPOINT</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Project"><code class="docutils literal notranslate"><span class="pre">Project</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Project"><code class="docutils literal notranslate"><span class="pre">Project</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Project.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Project.ENDPOINT</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Resource"><code class="docutils literal notranslate"><span class="pre">Resource</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Resource"><code class="docutils literal notranslate"><span class="pre">Resource</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Resource.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Resource.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Resource.filename"><code class="docutils literal notranslate"><span class="pre">Resource.filename</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Resource.sample"><code class="docutils literal notranslate"><span class="pre">Resource.sample</span></code></a></li>
@@ -439,50 +497,50 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Resource.workunit"><code class="docutils literal notranslate"><span class="pre">Resource.workunit</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Run"><code class="docutils literal notranslate"><span class="pre">Run</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Run"><code class="docutils literal notranslate"><span class="pre">Run</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Run.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Run.ENDPOINT</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Sample"><code class="docutils literal notranslate"><span class="pre">Sample</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Sample"><code class="docutils literal notranslate"><span class="pre">Sample</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Sample.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Sample.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Sample.container"><code class="docutils literal notranslate"><span class="pre">Sample.container</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Storage"><code class="docutils literal notranslate"><span class="pre">Storage</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Storage"><code class="docutils literal notranslate"><span class="pre">Storage</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Storage.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Storage.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Storage.base_path"><code class="docutils literal notranslate"><span class="pre">Storage.base_path</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Storage.scp_prefix"><code class="docutils literal notranslate"><span class="pre">Storage.scp_prefix</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.User"><code class="docutils literal notranslate"><span class="pre">User</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.User"><code class="docutils literal notranslate"><span class="pre">User</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.User.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">User.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.User.find_by_login"><code class="docutils literal notranslate"><span class="pre">User.find_by_login()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.User.is_employee"><code class="docutils literal notranslate"><span class="pre">User.is_employee</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Workflow"><code class="docutils literal notranslate"><span class="pre">Workflow</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Workflow"><code class="docutils literal notranslate"><span class="pre">Workflow</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Workflow.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Workflow.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Workflow.container"><code class="docutils literal notranslate"><span class="pre">Workflow.container</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Workflow.workflow_steps"><code class="docutils literal notranslate"><span class="pre">Workflow.workflow_steps</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Workflow.workflow_template"><code class="docutils literal notranslate"><span class="pre">Workflow.workflow_template</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.WorkflowStep"><code class="docutils literal notranslate"><span class="pre">WorkflowStep</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.WorkflowStep"><code class="docutils literal notranslate"><span class="pre">WorkflowStep</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.WorkflowStep.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">WorkflowStep.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.WorkflowStep.container"><code class="docutils literal notranslate"><span class="pre">WorkflowStep.container</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.WorkflowTemplate"><code class="docutils literal notranslate"><span class="pre">WorkflowTemplate</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.WorkflowTemplate"><code class="docutils literal notranslate"><span class="pre">WorkflowTemplate</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.WorkflowTemplate.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">WorkflowTemplate.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.WorkflowTemplate.workflow_template_steps"><code class="docutils literal notranslate"><span class="pre">WorkflowTemplate.workflow_template_steps</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.WorkflowTemplateStep"><code class="docutils literal notranslate"><span class="pre">WorkflowTemplateStep</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.WorkflowTemplateStep"><code class="docutils literal notranslate"><span class="pre">WorkflowTemplateStep</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.WorkflowTemplateStep.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">WorkflowTemplateStep.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.WorkflowTemplateStep.workflow_template"><code class="docutils literal notranslate"><span class="pre">WorkflowTemplateStep.workflow_template</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Workunit"><code class="docutils literal notranslate"><span class="pre">Workunit</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Workunit"><code class="docutils literal notranslate"><span class="pre">Workunit</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Workunit.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Workunit.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Workunit.application"><code class="docutils literal notranslate"><span class="pre">Workunit.application</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Workunit.application_parameters"><code class="docutils literal notranslate"><span class="pre">Workunit.application_parameters</span></code></a></li>
@@ -1344,8 +1402,8 @@ workunit has no application or the application has no storage configured.</p>
     <i class="fa-solid fa-list"></i> Contents
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.core.entity.Entity"><code class="docutils literal notranslate"><span class="pre">Entity</span></code></a><ul class="visible nav section-nav flex-column">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.core.entity.Entity"><code class="docutils literal notranslate"><span class="pre">Entity</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.core.entity.Entity.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Entity.ENDPOINT()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.core.entity.Entity.bfabric_instance"><code class="docutils literal notranslate"><span class="pre">Entity.bfabric_instance</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.core.entity.Entity.classname"><code class="docutils literal notranslate"><span class="pre">Entity.classname</span></code></a></li>
@@ -1360,14 +1418,14 @@ workunit has no application or the application has no storage configured.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.core.entity.Entity.web_url"><code class="docutils literal notranslate"><span class="pre">Entity.web_url</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Application"><code class="docutils literal notranslate"><span class="pre">Application</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Application"><code class="docutils literal notranslate"><span class="pre">Application</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Application.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Application.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Application.executable"><code class="docutils literal notranslate"><span class="pre">Application.executable</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Application.storage"><code class="docutils literal notranslate"><span class="pre">Application.storage</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Application.technology_folder_name"><code class="docutils literal notranslate"><span class="pre">Application.technology_folder_name</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Dataset"><code class="docutils literal notranslate"><span class="pre">Dataset</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Dataset"><code class="docutils literal notranslate"><span class="pre">Dataset</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Dataset.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Dataset.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Dataset.column_names"><code class="docutils literal notranslate"><span class="pre">Dataset.column_names</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Dataset.column_types"><code class="docutils literal notranslate"><span class="pre">Dataset.column_types</span></code></a></li>
@@ -1378,7 +1436,7 @@ workunit has no application or the application has no storage configured.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Dataset.write_parquet"><code class="docutils literal notranslate"><span class="pre">Dataset.write_parquet()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Executable"><code class="docutils literal notranslate"><span class="pre">Executable</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Executable"><code class="docutils literal notranslate"><span class="pre">Executable</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Executable.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Executable.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Executable.decoded"><code class="docutils literal notranslate"><span class="pre">Executable.decoded</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Executable.decoded_bytes"><code class="docutils literal notranslate"><span class="pre">Executable.decoded_bytes</span></code></a></li>
@@ -1387,51 +1445,51 @@ workunit has no application or the application has no storage configured.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Executable.storage"><code class="docutils literal notranslate"><span class="pre">Executable.storage</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.ExternalJob"><code class="docutils literal notranslate"><span class="pre">ExternalJob</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.ExternalJob"><code class="docutils literal notranslate"><span class="pre">ExternalJob</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.ExternalJob.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">ExternalJob.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.ExternalJob.client_entity"><code class="docutils literal notranslate"><span class="pre">ExternalJob.client_entity</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.ExternalJob.executable"><code class="docutils literal notranslate"><span class="pre">ExternalJob.executable</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.ExternalJob.workunit"><code class="docutils literal notranslate"><span class="pre">ExternalJob.workunit</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Instrument"><code class="docutils literal notranslate"><span class="pre">Instrument</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Instrument"><code class="docutils literal notranslate"><span class="pre">Instrument</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Instrument.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Instrument.ENDPOINT</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Job"><code class="docutils literal notranslate"><span class="pre">Job</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Job"><code class="docutils literal notranslate"><span class="pre">Job</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Job.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Job.ENDPOINT</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.MultiplexId"><code class="docutils literal notranslate"><span class="pre">MultiplexId</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.MultiplexId"><code class="docutils literal notranslate"><span class="pre">MultiplexId</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.MultiplexId.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">MultiplexId.ENDPOINT</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.MultiplexKit"><code class="docutils literal notranslate"><span class="pre">MultiplexKit</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.MultiplexKit"><code class="docutils literal notranslate"><span class="pre">MultiplexKit</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.MultiplexKit.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">MultiplexKit.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.MultiplexKit.ids"><code class="docutils literal notranslate"><span class="pre">MultiplexKit.ids</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.MultiplexKit.multiplex_ids"><code class="docutils literal notranslate"><span class="pre">MultiplexKit.multiplex_ids</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Order"><code class="docutils literal notranslate"><span class="pre">Order</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Order"><code class="docutils literal notranslate"><span class="pre">Order</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Order.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Order.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Order.project"><code class="docutils literal notranslate"><span class="pre">Order.project</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Parameter"><code class="docutils literal notranslate"><span class="pre">Parameter</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Parameter"><code class="docutils literal notranslate"><span class="pre">Parameter</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Parameter.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Parameter.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Parameter.key"><code class="docutils literal notranslate"><span class="pre">Parameter.key</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Parameter.value"><code class="docutils literal notranslate"><span class="pre">Parameter.value</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Plate"><code class="docutils literal notranslate"><span class="pre">Plate</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Plate"><code class="docutils literal notranslate"><span class="pre">Plate</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Plate.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Plate.ENDPOINT</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Project"><code class="docutils literal notranslate"><span class="pre">Project</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Project"><code class="docutils literal notranslate"><span class="pre">Project</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Project.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Project.ENDPOINT</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Resource"><code class="docutils literal notranslate"><span class="pre">Resource</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Resource"><code class="docutils literal notranslate"><span class="pre">Resource</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Resource.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Resource.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Resource.filename"><code class="docutils literal notranslate"><span class="pre">Resource.filename</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Resource.sample"><code class="docutils literal notranslate"><span class="pre">Resource.sample</span></code></a></li>
@@ -1441,50 +1499,50 @@ workunit has no application or the application has no storage configured.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Resource.workunit"><code class="docutils literal notranslate"><span class="pre">Resource.workunit</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Run"><code class="docutils literal notranslate"><span class="pre">Run</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Run"><code class="docutils literal notranslate"><span class="pre">Run</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Run.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Run.ENDPOINT</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Sample"><code class="docutils literal notranslate"><span class="pre">Sample</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Sample"><code class="docutils literal notranslate"><span class="pre">Sample</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Sample.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Sample.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Sample.container"><code class="docutils literal notranslate"><span class="pre">Sample.container</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Storage"><code class="docutils literal notranslate"><span class="pre">Storage</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Storage"><code class="docutils literal notranslate"><span class="pre">Storage</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Storage.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Storage.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Storage.base_path"><code class="docutils literal notranslate"><span class="pre">Storage.base_path</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Storage.scp_prefix"><code class="docutils literal notranslate"><span class="pre">Storage.scp_prefix</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.User"><code class="docutils literal notranslate"><span class="pre">User</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.User"><code class="docutils literal notranslate"><span class="pre">User</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.User.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">User.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.User.find_by_login"><code class="docutils literal notranslate"><span class="pre">User.find_by_login()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.User.is_employee"><code class="docutils literal notranslate"><span class="pre">User.is_employee</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Workflow"><code class="docutils literal notranslate"><span class="pre">Workflow</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Workflow"><code class="docutils literal notranslate"><span class="pre">Workflow</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Workflow.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Workflow.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Workflow.container"><code class="docutils literal notranslate"><span class="pre">Workflow.container</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Workflow.workflow_steps"><code class="docutils literal notranslate"><span class="pre">Workflow.workflow_steps</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Workflow.workflow_template"><code class="docutils literal notranslate"><span class="pre">Workflow.workflow_template</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.WorkflowStep"><code class="docutils literal notranslate"><span class="pre">WorkflowStep</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.WorkflowStep"><code class="docutils literal notranslate"><span class="pre">WorkflowStep</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.WorkflowStep.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">WorkflowStep.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.WorkflowStep.container"><code class="docutils literal notranslate"><span class="pre">WorkflowStep.container</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.WorkflowTemplate"><code class="docutils literal notranslate"><span class="pre">WorkflowTemplate</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.WorkflowTemplate"><code class="docutils literal notranslate"><span class="pre">WorkflowTemplate</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.WorkflowTemplate.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">WorkflowTemplate.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.WorkflowTemplate.workflow_template_steps"><code class="docutils literal notranslate"><span class="pre">WorkflowTemplate.workflow_template_steps</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.WorkflowTemplateStep"><code class="docutils literal notranslate"><span class="pre">WorkflowTemplateStep</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.WorkflowTemplateStep"><code class="docutils literal notranslate"><span class="pre">WorkflowTemplateStep</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.WorkflowTemplateStep.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">WorkflowTemplateStep.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.WorkflowTemplateStep.workflow_template"><code class="docutils literal notranslate"><span class="pre">WorkflowTemplateStep.workflow_template</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Workunit"><code class="docutils literal notranslate"><span class="pre">Workunit</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Workunit"><code class="docutils literal notranslate"><span class="pre">Workunit</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Workunit.ENDPOINT"><code class="docutils literal notranslate"><span class="pre">Workunit.ENDPOINT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Workunit.application"><code class="docutils literal notranslate"><span class="pre">Workunit.application</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.Workunit.application_parameters"><code class="docutils literal notranslate"><span class="pre">Workunit.application_parameters</span></code></a></li>
@@ -1550,8 +1608,8 @@ By the bfabricpy authors
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
 
   <footer class="bd-footer">
   </footer>
