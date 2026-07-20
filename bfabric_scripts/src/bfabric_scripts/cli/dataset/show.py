@@ -30,9 +30,9 @@ def _print_table(dataframe: pl.DataFrame, types: dict[str, str], client: Bfabric
             entity_class = defined_entities.get(types.get(col))
             if entity_class is not None:
                 # entity_class is dynamically resolved from the column type, so it is statically Any
-                entity = entity_class(
+                entity = entity_class(  # pyright: ignore[reportAny]
                     {"id": col_value}, bfabric_instance=client.config.base_url
-                )  # pyright: ignore[reportAny]
+                )
                 url = str(entity.uri)  # pyright: ignore[reportAny]
                 out_row.append(f"[link={url}]{col_value}[/link]")
             else:
