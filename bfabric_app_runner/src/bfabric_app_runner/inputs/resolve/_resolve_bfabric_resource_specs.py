@@ -23,9 +23,11 @@ class ResolveBfabricResourceSpecs:
         if not specs:
             return []
 
-        # Fetch all resources and their storage information in bulk
+        # Fetch all resources and their storage information in bulk, re-keyed by id (missing ids are
+        # dropped, so a downstream ``resources[resource_id]`` raises ``KeyError`` for a not-found
+        # resource, as before).
         resource_ids = [spec.id for spec in specs]
-        resources = Resource.find_all(ids=resource_ids, client=self._client)
+        resources = self._client.reader.read_ids(Resource, resource_ids).by_id
 
         # Create the file specs
         result: list[ResolvedFile] = []

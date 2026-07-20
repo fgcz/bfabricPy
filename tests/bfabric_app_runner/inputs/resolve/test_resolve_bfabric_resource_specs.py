@@ -4,7 +4,13 @@ import pytest
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_resource_specs import ResolveBfabricResourceSpecs
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedFile
 
-from bfabric.entities import Resource, Storage
+from bfabric.entities import Resource
+from bfabric.entities.core.entity_reader import EntityResult
+from bfabric.entities.core.uri import EntityUri
+
+
+def _resource_uri(resource_id: int) -> EntityUri:
+    return EntityUri(f"https://fgcz-bfabric.uzh.ch/bfabric/resource/show.html?id={resource_id}")
 
 
 @pytest.fixture
@@ -28,8 +34,8 @@ def test_call(resolver, mocker, mock_client):
     )
     mock_resource.__getitem__.side_effect = lambda key: {"filechecksum": "abc123"}[key]
 
-    # Mock Resource.find_all to return our mock resource
-    mocker.patch.object(Resource, "find_all", return_value={42: mock_resource})
+    # Mock reader.read_ids to return our mock resource keyed by URI
+    mock_client.reader.read_ids.return_value = EntityResult({_resource_uri(42): mock_resource})
 
     # Create mock spec
     mock_spec = mocker.MagicMock(name="mock_spec", id=42, filename="renamed_file.txt", check_checksum=True)
@@ -47,7 +53,7 @@ def test_call(resolver, mocker, mock_client):
     assert result[0].source.ssh.path == "/data/path/to/file.txt"
 
     # Verify the correct methods were called
-    Resource.find_all.assert_called_once_with(ids=[42], client=mock_client)
+    mock_client.reader.read_ids.assert_called_once_with(Resource, [42])
 
 
 def test_call_when_empty(resolver):
@@ -81,9 +87,10 @@ def test_call_multiple_resources(resolver, mocker, mock_client):
     mock_resources[101].__getitem__.side_effect = lambda key: {"filechecksum": "abc123"}[key]
     mock_resources[102].__getitem__.side_effect = lambda key: {"filechecksum": "def456"}[key]
 
-    # Mock find_all methods
-    mocker.patch.object(Resource, "find_all", return_value=mock_resources)
-    mocker.patch.object(Storage, "find_all", return_value=mock_storages)
+    # Mock reader.read_ids to return the resources keyed by URI
+    mock_client.reader.read_ids.return_value = EntityResult(
+        {_resource_uri(resource_id): resource for resource_id, resource in mock_resources.items()}
+    )
 
     # Create mock specs
     mock_spec1 = mocker.MagicMock(name="mock_spec1")
@@ -113,6 +120,28 @@ def test_call_multiple_resources(resolver, mocker, mock_client):
     assert result[1].checksum is None  # Should be None since check_checksum is False
     assert result[1].source.ssh.host == "example2.com"
     assert result[1].source.ssh.path == "/data2/path/to/file2.txt"
+
+
+def test_call_when_resource_missing_raises_key_error(resolver, mocker, mock_client):
+    """A not-found resource is None in read_ids' result and filtered out on re-key, so indexing it by
+    id raises KeyError downstream (matching the previous find_all behavior of dropping misses)."""
+    mock_resource = mocker.MagicMock(
+        name="mock_resource",
+        storage={"host": "example.com", "basepath": "/data"},
+        storage_absolute_path="/data/path/to/file.txt",
+        spec=["storage", "storage_absolute_path", "__getitem__"],
+    )
+    mock_resource.__getitem__.side_effect = lambda key: {"filechecksum": "abc123"}[key]
+    # id=101 found, id=102 missing (None)
+    mock_client.reader.read_ids.return_value = EntityResult(
+        {_resource_uri(101): mock_resource, _resource_uri(102): None}
+    )
+
+    spec_found = mocker.MagicMock(name="spec_found", id=101, filename="found.txt", check_checksum=True)
+    spec_missing = mocker.MagicMock(name="spec_missing", id=102, filename="missing.txt", check_checksum=True)
+
+    with pytest.raises(KeyError):
+        resolver([spec_found, spec_missing])
 
 
 def test_get_file_spec(resolver, mocker):

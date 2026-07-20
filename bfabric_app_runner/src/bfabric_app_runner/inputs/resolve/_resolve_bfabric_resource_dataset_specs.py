@@ -12,13 +12,13 @@ from bfabric_app_runner.inputs.resolve._common import get_ssh_file_source
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedFile, ResolvedStaticFile
 
 if TYPE_CHECKING:
-    from bfabric import Bfabric
+    from bfabric.entities.core.entity_reader import EntityReader
     from bfabric_app_runner.specs.inputs.bfabric_resource_dataset import BfabricResourceDatasetSpec
 
 
 class ResolveBfabricResourceDatasetSpecs:
-    def __init__(self, client: Bfabric) -> None:
-        self._client = client
+    def __init__(self, reader: EntityReader) -> None:
+        self._reader = reader
 
     def __call__(self, specs: list[BfabricResourceDatasetSpec]) -> list[ResolvedFile | ResolvedStaticFile]:
         # Note: We process each spec individually here, this could be optimized should it become necessary
@@ -82,7 +82,8 @@ class ResolveBfabricResourceDatasetSpecs:
         - tmp_resource_source: The source (URL or local path) of the resource
         """
         # Obtain dataset information
-        data = Dataset.find(id=spec.id, client=self._client).to_polars()
+        dataset = self._reader.read_id(Dataset, spec.id)
+        data = dataset.to_polars()  # pyright: ignore[reportOptionalMemberAccess]
         input_column = self._select_input_column(data, spec.column)
         data = data.with_columns(pl.col(input_column).cast(pl.Int64))
 
@@ -96,7 +97,7 @@ class ResolveBfabricResourceDatasetSpecs:
                 "tmp_resource_relative_path": r.storage_relative_path,
                 "tmp_resource_source": get_ssh_file_source(r),
             }
-            for r in Resource.find_all(ids=resource_ids, client=self._client).values()
+            for r in self._reader.read_ids(Resource, resource_ids).present
         ]
 
         # Merge

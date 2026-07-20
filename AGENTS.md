@@ -46,6 +46,11 @@ pytest tests/bfabric/test_something.py # single file
 pytest tests/bfabric -k test_name      # single test
 ```
 
+Run each package's suite in a **separate** `pytest` invocation (as nox does). Passing
+multiple package trees to one invocation (e.g. `pytest tests/bfabric tests/bfabric_app_runner`)
+fails at collection with a basename clash, because tests have no `__init__.py` (see the
+convention below) so identically-named modules across trees collide.
+
 ### Type Checking
 ```bash
 nox -s basedpyright(bfabric)

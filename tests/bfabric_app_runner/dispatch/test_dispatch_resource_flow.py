@@ -8,10 +8,16 @@ import yaml
 
 from bfabric import Bfabric
 from bfabric.entities import Resource
+from bfabric.entities.core.entity_reader import EntityResult
+from bfabric.entities.core.uri import EntityUri
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric_app_runner.dispatch.dispatch_resource_flow import (
     ResourceDispatcher,
 )
+
+
+def _resource_uri(resource_id: int) -> EntityUri:
+    return EntityUri(f"https://fgcz-bfabric.uzh.ch/bfabric/resource/show.html?id={resource_id}")
 
 
 @pytest.fixture
@@ -38,8 +44,10 @@ def sample_resources():
 
 
 @pytest.fixture
-def mock_resource_find_all(mocker, sample_resources):
-    mocker.patch.object(Resource, "find_all", return_value=sample_resources)
+def mock_resource_find_all(mock_bfabric, sample_resources):
+    mock_bfabric.reader.read_ids.return_value = EntityResult(
+        {_resource_uri(resource_id): resource for resource_id, resource in sample_resources.items()}
+    )
 
 
 @pytest.fixture
@@ -96,10 +104,24 @@ def test_build_input_resources_df(resource_dispatcher, mock_bfabric, mock_resour
     pl.testing.assert_frame_equal(result, expected)
 
 
-def test_build_input_resources_df_when_empty(resource_dispatcher, mock_bfabric, mocker):
-    mocker.patch.object(Resource, "find_all", return_value={})
+def test_build_input_resources_df_when_empty(resource_dispatcher, mock_bfabric):
+    mock_bfabric.reader.read_ids.return_value = EntityResult({})
     with pytest.raises(ValueError, match="No resources to dispatch"):
         resource_dispatcher._build_input_resources_df([1, 2, 3], mock_bfabric)
+
+
+def test_build_input_resources_df_drops_missing_resources(resource_dispatcher, mock_bfabric, sample_resources):
+    """A not-found resource is None in read_ids' result and must be filtered out (matching the previous
+    find_all behavior of silently dropping misses), so only found resources reach the DataFrame."""
+    mock_bfabric.reader.read_ids.return_value = EntityResult(
+        {
+            _resource_uri(1): sample_resources[1],
+            _resource_uri(2): None,  # id=2 not found
+            _resource_uri(3): sample_resources[3],
+        }
+    )
+    result = resource_dispatcher._build_input_resources_df([1, 2, 3], mock_bfabric)
+    assert result["resource_id"].to_list() == [1, 3]
 
 
 def test_build_inputs_spec(resource_dispatcher, sample_output_df):

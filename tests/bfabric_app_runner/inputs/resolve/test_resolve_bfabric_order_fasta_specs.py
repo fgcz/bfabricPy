@@ -19,10 +19,10 @@ def test_call(resolver, mocker, mock_client):
     mock_order = mocker.MagicMock(name="mock_order", spec=Order)
     mock_order.data_dict = {"fastasequence": "ACGT"}
 
-    # Mock Workunit.find to return a workunit with our mock order
+    # Mock reader.read_id to return a workunit with our mock order
     mock_workunit = mocker.MagicMock(name="mock_workunit")
     mock_workunit.container = mock_order
-    mocker.patch.object(Workunit, "find", return_value=mock_workunit)
+    mock_client.reader.read_id.return_value = mock_workunit
 
     # Create mock spec
     mock_spec = mocker.MagicMock(name="mock_spec")
@@ -38,7 +38,7 @@ def test_call(resolver, mocker, mock_client):
     assert len(result) == 1
     assert result[0].filename == "test.fasta"
     assert result[0].content == "ACGT"
-    Workunit.find.assert_called_once_with(id=1, client=mock_client)
+    mock_client.reader.read_id.assert_called_once_with(Workunit, 1)
 
 
 def test_call_when_empty(resolver):
@@ -52,10 +52,10 @@ def test_get_order_fasta_when_workunit(mocker, resolver, mock_client):
     mock_order = mocker.MagicMock(name="mock_order", spec=Order)
     mock_order.data_dict = {"fastasequence": "ACGT"}
 
-    # Mock Workunit.find to return a workunit with our mock order
+    # Mock reader.read_id to return a workunit with our mock order
     mock_workunit = mocker.MagicMock(name="mock_workunit")
     mock_workunit.container = mock_order
-    mocker.patch.object(Workunit, "find", return_value=mock_workunit)
+    mock_client.reader.read_id.return_value = mock_workunit
 
     # Create mock spec
     mock_spec = mocker.MagicMock(name="mock_spec")
@@ -68,14 +68,14 @@ def test_get_order_fasta_when_workunit(mocker, resolver, mock_client):
 
     # Assert the result
     assert result == "ACGT"
-    Workunit.find.assert_called_once_with(id=1, client=mock_client)
+    mock_client.reader.read_id.assert_called_once_with(Workunit, 1)
 
 
 def test_get_order_fasta_when_order(mocker, resolver, mock_client):
     # Mock the Order with a FASTA sequence
     mock_order = mocker.MagicMock(name="mock_order")
     mock_order.data_dict = {"fastasequence": "TAGC"}
-    mocker.patch.object(Order, "find", return_value=mock_order)
+    mock_client.reader.read_id.return_value = mock_order
 
     # Create mock spec
     mock_spec = mocker.MagicMock(name="mock_spec")
@@ -87,4 +87,4 @@ def test_get_order_fasta_when_order(mocker, resolver, mock_client):
 
     # Assert the result
     assert result == "TAGC"
-    Order.find.assert_called_once_with(id=2, client=mock_client)
+    mock_client.reader.read_id.assert_called_once_with(Order, 2)

@@ -21,6 +21,6 @@ class DispatchSingleDatasetFlow:
             logger.error("No dataset found in workunit.")
             return
 
-        dataset = Dataset.find(id=workunit.execution.dataset, client=self._client)
+        dataset = self._client.reader.read_id(Dataset, workunit.execution.dataset)
         path = self.dispatch_job(dataset=dataset, workunit=workunit)
         write_chunks_file(out_dir=self._out_dir, chunks=[path])

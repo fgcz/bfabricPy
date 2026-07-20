@@ -1,7 +1,7 @@
 import pytest
 
 from bfabric.entities.core.entity import Entity
-from bfabric.entities.core.entity_reader import EntityReader
+from bfabric.entities.core.entity_reader import EntityReader, EntityResult
 from bfabric.entities.core.uri import EntityUri
 
 
@@ -345,6 +345,35 @@ class TestReadIds:
             endpoint="project", obj={}, multi_query_key="id", multi_query_vals=[100, 200]
         )
 
+    def test_accepts_entity_class(
+        self,
+        entity_reader,
+        mock_cache_stack,
+        mock_multi_query,
+        mock_instantiate_entity,
+        uri_project_1,
+        mock_client,
+        bfabric_instance,
+    ):
+        """Passing an entity class infers the endpoint string (and the expected type)."""
+        from bfabric.entities.project import Project
+
+        project = Project(
+            data_dict={"id": 100, "classname": "project", "name": "Project 1"},
+            client=mock_client,
+            bfabric_instance=bfabric_instance,
+        )
+        mock_cache_stack.item_get_all.return_value = {}
+        mock_multi_query.read_multi.return_value = [{"id": 100, "classname": "project", "name": "Project 1"}]
+        mock_instantiate_entity.return_value = project
+
+        result = entity_reader.read_ids(Project, [100])
+
+        assert result == {uri_project_1: project}
+        mock_multi_query.read_multi.assert_called_once_with(
+            endpoint="project", obj={}, multi_query_key="id", multi_query_vals=[100]
+        )
+
     def test_some_missing_entities(
         self,
         entity_reader,
@@ -537,6 +566,26 @@ class TestQueryOne:
         with pytest.raises(TypeError, match="Expected User"):
             entity_reader.query_one("user", {"login": "alice"}, expected_type=User)
 
+    def test_accepts_entity_class(
+        self, entity_reader, mock_cache_stack, mock_client, bfabric_instance, mock_instantiate_entity
+    ):
+        """Passing an entity class infers the endpoint string (and the expected type)."""
+        from bfabric.entities import User
+
+        mock_cache_stack.item_get_all.return_value = {}
+        mock_client.read.return_value = [{"id": 1, "classname": "user", "login": "alice"}]
+        user = User(
+            data_dict={"id": 1, "classname": "user", "login": "alice"},
+            client=mock_client,
+            bfabric_instance=bfabric_instance,
+        )
+        mock_instantiate_entity.return_value = user
+
+        result = entity_reader.query_one(User, {"login": "alice"})
+
+        assert result is user
+        mock_client.read.assert_called_once_with("user", obj={"login": "alice"}, max_results=1)
+
 
 class TestRetrieveEntities:
     def test_retrieve_entities(
@@ -566,3 +615,36 @@ class TestRetrieveEntities:
         result = entity_reader._retrieve_entities([])
 
         assert result == {}
+
+
+class TestEntityResult:
+    @pytest.fixture
+    def uri(self, bfabric_instance):
+        def _make(entity_id: int, entity_type: str = "resource") -> EntityUri:
+            return EntityUri(f"{bfabric_instance}{entity_type}/show.html?id={entity_id}")
+
+        return _make
+
+    def test_by_id_rekeys_by_int_id(self, mocker, uri):
+        a, b = mocker.MagicMock(name="a"), mocker.MagicMock(name="b")
+        assert EntityResult({uri(1): a, uri(2): b}).by_id == {1: a, 2: b}
+
+    def test_by_id_drops_missing_entries(self, mocker, uri):
+        found = mocker.MagicMock(name="found")
+        assert EntityResult({uri(1): found, uri(2): None}).by_id == {1: found}
+
+    def test_by_id_empty_input(self):
+        assert EntityResult({}).by_id == {}
+
+    def test_by_id_all_missing(self, uri):
+        assert EntityResult({uri(1): None, uri(2): None}).by_id == {}
+
+    def test_present_drops_missing_and_preserves_order(self, mocker, uri):
+        a, b = mocker.MagicMock(name="a"), mocker.MagicMock(name="b")
+        assert EntityResult({uri(1): a, uri(2): None, uri(3): b}).present == [a, b]
+
+    def test_present_empty_input(self):
+        assert EntityResult({}).present == []
+
+    def test_present_all_missing(self, uri):
+        assert EntityResult({uri(1): None, uri(2): None}).present == []

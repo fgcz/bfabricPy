@@ -88,15 +88,15 @@ def _identify_existing_resource_id(
     if spec.update_existing in (UpdateExisting.IF_EXISTS, UpdateExisting.REQUIRED):
         # TODO maybe it would be more accurate to use relativepath here, however historically it would often start
         #      with `/` which can be confusing.
-        resources = Resource.find_by(
+        resource = client.reader.query_one(
+            Resource,
             {
                 "name": spec.store_entry_path.name,
                 "workunitid": workunit_definition.registration.workunit_id,
             },
-            client=client,
-        ).values()
-        if resources:
-            return list(resources)[0].id
+        )
+        if resource is not None:
+            return resource.id
         elif spec.update_existing == UpdateExisting.REQUIRED:
             raise ValueError(f"Resource {spec.store_entry_path.name} not found in workunit {workunit_definition.id}")
     return None
@@ -167,7 +167,7 @@ def _save_dataset(spec: SaveDatasetSpec, client: Bfabric, workunit_definition: W
     table = _read_dataset_table(spec)
     check_for_invalid_characters(table=table, invalid_characters=spec.invalid_characters)
 
-    existing = client.reader.query_one("dataset", {"workunitid": registration.workunit_id}, expected_type=Dataset)
+    existing = client.reader.query_one(Dataset, {"workunitid": registration.workunit_id})
     _check_update_existing_policy(
         existing is not None,
         spec.update_existing,
@@ -230,7 +230,8 @@ def _save_link(spec: SaveLinkSpec, client: Bfabric, workunit_definition: Workuni
 
 def find_default_resource_id(workunit_definition: WorkunitDefinition, client: Bfabric) -> int | None:
     """Finds the default resource's id for the workunit. Maybe in the future, this will be always `None`."""
-    workunit = Workunit.find(id=workunit_definition.registration.workunit_id, client=client)
+    workunit_id = workunit_definition.registration.workunit_id  # pyright: ignore[reportOptionalMemberAccess]
+    workunit = client.reader.read_id(Workunit, workunit_id)
     candidate_resources = [
         resource for resource in workunit.resources if resource["name"] not in ["slurm_stdout", "slurm_stderr"]
     ]
@@ -287,7 +288,8 @@ def _get_storage(
 ) -> Storage | None:
     if any(isinstance(spec, CopyResourceSpec) for spec in specs_list):
         if force_storage is None:
-            return Storage.find(workunit_definition.registration.storage_id, client=client)
+            storage_id = workunit_definition.registration.storage_id  # pyright: ignore[reportOptionalMemberAccess]
+            return client.reader.read_id(Storage, storage_id)
         else:
             return Storage(yaml.safe_load(force_storage.read_text()), client=client)
             # TODO replace this later (to avoid versioning issues, i hardcode the above)

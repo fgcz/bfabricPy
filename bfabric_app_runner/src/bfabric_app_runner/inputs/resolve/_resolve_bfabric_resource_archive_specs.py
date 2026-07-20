@@ -49,7 +49,7 @@ class ResolveBfabricResourceArchiveSpecs:
 
     def _get_resources(self, specs: list[BfabricResourceArchiveSpec]) -> dict[EntityUri, Resource]:
         resource_ids = [spec.id for spec in specs]
-        resources = self._reader.read_ids("resource", resource_ids, expected_type=Resource)
+        resources = self._reader.read_ids(Resource, resource_ids)
         if not _no_none_value(resources):
             raise ValueError("Some resource IDs are invalid")
         return resources
