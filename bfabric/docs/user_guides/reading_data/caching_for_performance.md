@@ -5,8 +5,12 @@ working with the same entities multiple times or navigating complex relationship
 
 ## Overview
 
-Caching is enabled through the `cache_entities()` context manager. Within the context, entities are cached according to your
-configuration.
+Caching is owned by the active [`BfabricSession`](../../design/entity_session.md) (`client.reader`). Enable it with the
+session's `cache_entities()` context manager — `with client.reader.cache_entities("sample", max_size=100): ...` — within
+which entities read through that session are cached according to your configuration. The free
+`bfabric.entities.cache.context.cache_entities()` helper does the same for the *currently active* session, so it must be
+used inside a `with client.reader:` block (outside one it raises `LookupError`). The examples below use `reader.cache_entities(...)`
+where `reader = client.reader`.
 
 ```{note}
 Caching is an optional optimization feature. bfabricPy works perfectly without caching, but performance can be significantly
@@ -29,12 +33,11 @@ Enable caching for a specific entity type with an optional size limit:
 
 ```python
 from bfabric import Bfabric
-from bfabric.entities.cache.context import cache_entities
 
 client = Bfabric.connect()
 reader = client.reader
 
-with cache_entities("sample", max_size=100):
+with reader.cache_entities("sample", max_size=100):
     # First call fetches from API
     sample1 = reader.read_id(entity_type="sample", entity_id=123)
 
@@ -50,7 +53,7 @@ with cache_entities("sample", max_size=100):
 Set `max_size=0` for unlimited cache size:
 
 ```python
-with cache_entities("sample", max_size=0):
+with reader.cache_entities("sample", max_size=0):
     # Cache as many samples as needed
     samples = reader.read_ids(entity_type="sample", entity_ids=list(range(1, 1000)))
 ```
@@ -60,7 +63,7 @@ with cache_entities("sample", max_size=0):
 Cache multiple entity types with the same size limit:
 
 ```python
-with cache_entities(["sample", "project", "workunit"], max_size=500):
+with reader.cache_entities(["sample", "project", "workunit"], max_size=500):
     # All three types are cached
     project = reader.read_id(entity_type="project", entity_id=1)
     samples = reader.read_ids(entity_type="sample", entity_ids=[1, 2, 3])
@@ -78,7 +81,7 @@ cache_config = {
     "workunit": 500,  # Cache up to 500 workunits
 }
 
-with cache_entities(cache_config):
+with reader.cache_entities(cache_config):
     # Each type has its own size limit
     pass
 ```
@@ -91,11 +94,11 @@ Cache contexts can be nested. Inner contexts can override or extend outer ones:
 
 ```python
 # Outer context caches samples
-with cache_entities("sample", max_size=100):
+with reader.cache_entities("sample", max_size=100):
     sample1 = reader.read_id(entity_type="sample", entity_id=1)
 
     # Inner context adds project caching
-    with cache_entities("project", max_size=10):
+    with reader.cache_entities("project", max_size=10):
         project = reader.read_id(entity_type="project", entity_id=1)
         # Sample is still cached from outer context
         sample2 = reader.read_id(entity_type="sample", entity_id=1)
@@ -111,12 +114,11 @@ Caching is especially beneficial when navigating entity relationships:
 
 ```python
 from bfabric import Bfabric
-from bfabric.entities.cache.context import cache_entities
 
 client = Bfabric.connect()
 reader = client.reader
 
-with cache_entities(["project", "sample", "workunit"], max_size=0):
+with reader.cache_entities(["project", "sample", "workunit"], max_size=0):
     # Load project
     project = reader.read_id(entity_type="project", entity_id=123)
 
@@ -155,10 +157,10 @@ fetched once from the API.
 bfabricPy uses a stack-based cache system. When you nest contexts, caches are layered:
 
 ```python
-with cache_entities("sample", max_size=100):
+with reader.cache_entities("sample", max_size=100):
     sample1 = reader.read_id(entity_type="sample", entity_id=1)
 
-    with cache_entities("sample", max_size=10):
+    with reader.cache_entities("sample", max_size=10):
         sample2 = reader.read_id(entity_type="sample", entity_id=1)
         # Returns cached entity from outer context
         assert sample1 is sample2
@@ -174,7 +176,7 @@ with cache_entities("sample", max_size=100):
 Caches are automatically invalidated when the context exits:
 
 ```python
-with cache_entities("sample", max_size=100):
+with reader.cache_entities("sample", max_size=100):
     sample = reader.read_id(entity_type="sample", entity_id=1)
     # Sample is cached
 
@@ -204,12 +206,12 @@ Example:
 
 ```python
 # High-throughput scenario: larger caches
-with cache_entities({"sample": 10000, "project": 100}, max_size=0):
+with reader.cache_entities({"sample": 10000, "project": 100}, max_size=0):
     # Process thousands of entities efficiently
     pass
 
 # Memory-constrained scenario: smaller caches
-with cache_entities({"sample": 100, "project": 10}):
+with reader.cache_entities({"sample": 100, "project": 10}):
     # Keep memory usage low
     pass
 ```
@@ -218,7 +220,6 @@ with cache_entities({"sample": 100, "project": 10}):
 
 ```python
 from bfabric import Bfabric
-from bfabric.entities.cache.context import cache_entities
 
 client = Bfabric.connect()
 reader = client.reader
@@ -230,7 +231,7 @@ cache_config = {
     "workunit": 5000,  # Many workunits, small entities
 }
 
-with cache_entities(cache_config):
+with reader.cache_entities(cache_config):
     # Load a project
     project = reader.read_id(entity_type="project", entity_id=1)
 

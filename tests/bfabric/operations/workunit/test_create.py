@@ -120,21 +120,6 @@ def test_create_workunit_returned_entity_has_usable_uri(mock_client, bfabric_ins
     assert str(workunit.uri) == f"{bfabric_instance}workunit/show.html?id=42"
 
 
-def test_create_workunit_returns_metadata_only_entity(mock_client):
-    """The returned Workunit must not carry a bound client — see operations_module.md.
-
-    Lazy reference resolution against the (potentially privileged) `client` used
-    to perform the write would silently leak its credentials into reads done
-    via the returned entity. We guard against the regression by asserting
-    `_client is None` on the result.
-    """
-    _arm_happy_path(mock_client, workunit_id=7)
-
-    workunit = create_workunit(mock_client, _params())
-
-    assert workunit._client is None
-
-
 def test_create_workunit_audit_attributes_default_empty(mock_client):
     _arm_happy_path(mock_client, workunit_id=7)
 

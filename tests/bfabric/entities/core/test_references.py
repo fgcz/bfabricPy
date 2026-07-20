@@ -2,7 +2,6 @@ import pytest
 
 from bfabric.entities import User, Project
 from bfabric.entities.core.entity import Entity
-from bfabric.entities.core.entity_reader import EntityReader
 from bfabric.entities.core.references import References
 
 
@@ -33,20 +32,15 @@ def entity_data_dict(refs_loaded):
 
 
 @pytest.fixture
-def entity(entity_data_dict, mock_client, bfabric_instance):
-    return Entity(data_dict=entity_data_dict, client=mock_client, bfabric_instance=bfabric_instance)
+def entity(entity_data_dict, bfabric_instance):
+    return Entity(data_dict=entity_data_dict, bfabric_instance=bfabric_instance)
 
 
 @pytest.fixture
-def entity_reader_constructor(mocker):
-    return mocker.patch.object(EntityReader, "for_client", autospec=True)
-
-
-@pytest.fixture
-def entity_reader(mocker, entity_reader_constructor):
-    reader_instance = mocker.MagicMock(name="entity_reader")
-    entity_reader_constructor.return_value = reader_instance
-    return reader_instance
+def entity_reader(mock_session):
+    # References.__load resolves the connection via get_session(); the mock session's read_uris is
+    # what the lazy-load tests drive.
+    return mock_session
 
 
 @pytest.fixture
@@ -66,8 +60,8 @@ def mock_user(mocker, bfabric_instance):
 
 
 @pytest.fixture
-def refs(mock_client, entity_data_dict, bfabric_instance):
-    return References(client=mock_client, data_ref=entity_data_dict, bfabric_instance=bfabric_instance)
+def refs(entity_data_dict, bfabric_instance):
+    return References(data_ref=entity_data_dict, bfabric_instance=bfabric_instance)
 
 
 def test_uris(refs):

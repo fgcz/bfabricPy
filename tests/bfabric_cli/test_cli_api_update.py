@@ -9,7 +9,7 @@ from bfabric_scripts.cli.api.output_format import OutputFormat
 
 @pytest.fixture
 def mock_client(mocker):
-    client = mocker.Mock(spec=Bfabric)
+    client = mocker.MagicMock(spec=Bfabric)
     client.config.base_url = "http://test-bfabric.com"
     return client
 

@@ -43,13 +43,13 @@ def mock_data_dict_rearranged() -> dict[str, int | list[dict[str, str]] | list[d
 
 
 @pytest.fixture()
-def mock_dataset(mock_data_dict: dict[str, Any], mock_client, bfabric_instance) -> Dataset:
-    return Dataset(mock_data_dict, client=mock_client, bfabric_instance=bfabric_instance)
+def mock_dataset(mock_data_dict: dict[str, Any], bfabric_instance) -> Dataset:
+    return Dataset(mock_data_dict, bfabric_instance=bfabric_instance)
 
 
 @pytest.fixture()
-def mock_empty_dataset(mock_client, bfabric_instance) -> Dataset:
-    return Dataset({"id": 1234, "attribute": [], "item": []}, client=mock_client, bfabric_instance=bfabric_instance)
+def mock_empty_dataset(bfabric_instance) -> Dataset:
+    return Dataset({"id": 1234, "attribute": [], "item": []}, bfabric_instance=bfabric_instance)
 
 
 def test_data_dict(mock_dataset: Dataset, mock_data_dict: dict[str, Any]) -> None:
@@ -66,9 +66,9 @@ def test_column_types(mock_dataset: Dataset) -> None:
 
 
 @pytest.mark.parametrize("rearranged_data_dict", [True, False])
-def test_to_polars(request, rearranged_data_dict: bool, mock_client, bfabric_instance) -> None:
+def test_to_polars(request, rearranged_data_dict: bool, bfabric_instance) -> None:
     data_dict = request.getfixturevalue("mock_data_dict_rearranged" if rearranged_data_dict else "mock_data_dict")
-    mock_dataset = Dataset(data_dict, client=mock_client, bfabric_instance=bfabric_instance)
+    mock_dataset = Dataset(data_dict, bfabric_instance=bfabric_instance)
     df = mock_dataset.to_polars()
     pl.testing.assert_frame_equal(
         df,

@@ -29,7 +29,11 @@ def _print_table(dataframe: pl.DataFrame, types: dict[str, str], client: Bfabric
         for col, col_value in zip(dataframe.columns, row):
             entity_class = defined_entities.get(types.get(col))
             if entity_class is not None:
-                url = entity_class({"id": col_value}, client=client).web_url
+                # entity_class is dynamically resolved from the column type, so it is statically Any
+                entity = entity_class(
+                    {"id": col_value}, bfabric_instance=client.config.base_url
+                )  # pyright: ignore[reportAny]
+                url = str(entity.uri)  # pyright: ignore[reportAny]
                 out_row.append(f"[link={url}]{col_value}[/link]")
             else:
                 out_row.append(col_value)
@@ -44,7 +48,7 @@ def _print_yaml(dataframe: pl.DataFrame) -> None:
 @use_client
 def cmd_dataset_show(dataset_id: int, format: OutputFormat = OutputFormat.TABLE, *, client: Bfabric) -> None:
     """Show a dataset in the console."""
-    dataset = Dataset.find(id=dataset_id, client=client)
+    dataset = client.reader.read_id(Dataset, dataset_id)
     types = dataset.column_types
     dataframe = dataset.to_polars()
 

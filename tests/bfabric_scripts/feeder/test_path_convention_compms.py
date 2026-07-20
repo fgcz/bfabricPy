@@ -9,7 +9,7 @@ from bfabric.entities import Storage
 @pytest.fixture
 def mock_storage(mocker):
     data_dict = {"projectfolderprefix": "x", "basepath": "/base/path"}
-    return Storage(data_dict, client=None, bfabric_instance="https://example.com/bfabric/")
+    return Storage(data_dict, bfabric_instance="https://example.com/bfabric/")
 
 
 @pytest.fixture

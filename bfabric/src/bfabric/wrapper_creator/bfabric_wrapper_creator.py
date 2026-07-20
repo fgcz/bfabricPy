@@ -49,7 +49,7 @@ class BfabricWrapperCreator:
     @cached_property
     def _log_storage(self) -> Storage:
         # this is SlurmLog
-        return Storage.find(id=13, client=self._client)
+        return self._client.reader.read_id(Storage, 13)
 
     def create_output_resource(self) -> Resource:
         # Since we use the id of the output resource in the path, we have to save it twice.
@@ -112,7 +112,7 @@ class BfabricWrapperCreator:
     @cached_property
     def _input_dataset(self) -> Dataset | None:
         if self.workunit_definition.execution.dataset is not None:
-            return Dataset.find(id=self.workunit_definition.execution.dataset, client=self._client)
+            return self._client.reader.read_id(Dataset, self.workunit_definition.execution.dataset)
         return None
 
     def get_job_configuration_section(

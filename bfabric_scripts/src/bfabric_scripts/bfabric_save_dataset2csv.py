@@ -28,7 +28,7 @@ def bfabric_save_dataset2csv(client: Bfabric, dataset_id: int, out_dir: Path, ou
     """Saves the dataset with id `dataset_id` to a csv file at `out_dir/out_filename` or `out_filename` if it's an
     absolute path.
     """
-    dataset = Dataset.find(id=dataset_id, client=client)
+    dataset = client.reader.read_id(Dataset, dataset_id)
     if not dataset:
         raise ValueError(f"Dataset with id '{dataset_id}' not found.")
     output_path = out_dir / out_filename

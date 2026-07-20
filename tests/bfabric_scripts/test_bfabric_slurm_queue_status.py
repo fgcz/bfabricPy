@@ -3,6 +3,7 @@ import polars.testing
 import pytest
 
 from bfabric.entities import Workunit, Application
+from bfabric.entities.core.uri import EntityUri
 from bfabric_scripts.bfabric_slurm_queue_status import (
     get_slurm_jobs,
     get_workunit_infos,
@@ -37,19 +38,37 @@ def test_get_slurm_jobs_when_local(mocker, command_output):
 
 def test_get_workunit_infos(mocker):
     mock_client = mocker.Mock(name="mock_client")
-    mock_workunit_find_all = mocker.patch.object(Workunit, "find_all")
+    instance = "https://example.com/bfabric/"
     workunit_ids = [5000, 5001]
-    mock_workunit_find_all.return_value = {
-        5001: Workunit({"id": 5000, "status": "RUNNING", "application": {"id": 1}}),
+
+    # `get_workunit_infos` calls `client.reader.read_ids` for the Workunit and Application types and
+    # reshapes the results with `entities_by_id` (keyed by URI id) and `present_entities`. The URI id
+    # (5001) deliberately differs from the workunit's own data id (5000) to pin down which one is used.
+    workunit_result = {
+        EntityUri.from_components(instance, "workunit", 5001): Workunit(
+            {"id": 5000, "status": "RUNNING", "application": {"id": 1}}, bfabric_instance=instance
+        ),
     }
-    mock_app_find_all = mocker.patch.object(Application, "find_all")
-    mock_app_find_all.return_value = {1: {"id": 1, "name": "myapp"}}
+    application_result = {
+        EntityUri.from_components(instance, "application", 1): {"id": 1, "name": "myapp"},
+    }
+
+    def fake_read_ids(entity_type, ids, *args, **kwargs):
+        if entity_type is Workunit:
+            return workunit_result
+        if entity_type is Application:
+            return application_result
+        raise AssertionError(f"unexpected entity type: {entity_type!r}")
+
+    mock_client.reader.read_ids.side_effect = fake_read_ids
+
     infos = get_workunit_infos(mock_client, workunit_ids)
     assert infos == [
         {"workunit_id": 5000, "status": "ZOMBIE", "application_name": "N/A"},
         {"workunit_id": 5001, "status": "RUNNING", "application_name": "myapp"},
     ]
-    mock_workunit_find_all.assert_called_once_with(ids=workunit_ids, client=mock_client)
+    mock_client.reader.read_ids.assert_any_call(Workunit, workunit_ids)
+    mock_client.reader.read_ids.assert_any_call(Application, [1])
 
 
 if __name__ == "__main__":

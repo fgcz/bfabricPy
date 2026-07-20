@@ -8,6 +8,7 @@ from loguru import logger
 
 from bfabric.bfabric import Bfabric
 from bfabric.entities import ExternalJob, Executable
+from bfabric.entities.core.reader_utils import present_entities
 from bfabric.wrapper_creator.slurm import SLURM
 
 
@@ -69,7 +70,7 @@ class BfabricSubmitter:
         self.user = user
         self._script_dir = script_dir
 
-        self.external_job = ExternalJob.find(id=externaljobid, client=client)
+        self.external_job = client.reader.read_id(ExternalJob, externaljobid)
         self.workunit = self.external_job.workunit
         self.parameters = self.workunit.parameter_values
         self.application = self.workunit.application
@@ -238,7 +239,7 @@ exit 0
 
         return None
         """
-        executables = Executable.find_by({"workunitid": self.workunit.id}, client=self._client).values()
+        executables = present_entities(self._client.reader.query(Executable, {"workunitid": self.workunit.id}))
         for executable in executables:
             if not executable["base64"]:
                 continue

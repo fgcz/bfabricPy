@@ -6,16 +6,14 @@ from bfabric.entities.core.uri import EntityUri
 
 
 @pytest.fixture
-def entity_reader(mock_client):
-    return EntityReader.for_client(client=mock_client)
+def mock_cache_stack(mocker):
+    """The (session-owned) cache stack injected into the reader."""
+    return mocker.MagicMock(name="mock_cache_stack")
 
 
 @pytest.fixture
-def mock_cache_stack(mocker):
-    """Mock the cache stack returned by get_cache_stack()."""
-    mock_stack = mocker.MagicMock(name="mock_cache_stack")
-    mocker.patch("bfabric.entities.core.entity_reader.get_cache_stack", return_value=mock_stack)
-    return mock_stack
+def entity_reader(mock_client, mock_cache_stack):
+    return EntityReader(mock_client, cache_stack=mock_cache_stack)
 
 
 @pytest.fixture
@@ -51,11 +49,6 @@ def uri_user_1(bfabric_instance):
 @pytest.fixture
 def uri_user_2(bfabric_instance):
     return EntityUri(f"{bfabric_instance}user/show.html?id=2")
-
-
-@pytest.fixture
-def uri_wrong_instance():
-    return EntityUri("https://other-instance.example.org/bfabric/project/show.html?id=100")
 
 
 @pytest.fixture
@@ -254,16 +247,6 @@ class TestReadUris:
 
         assert uri_project_1 in result
 
-    def test_unsupported_instance_raises_error(
-        self, entity_reader, uri_project_1, uri_wrong_instance, mock_cache_stack
-    ):
-        """Test that URIs from unsupported instances raise ValueError."""
-        with pytest.raises(ValueError) as exc_info:
-            entity_reader.read_uris([uri_project_1, uri_wrong_instance])
-
-        assert "Unsupported B-Fabric instances" in str(exc_info.value)
-        assert "https://other-instance.example.org/bfabric/" in str(exc_info.value)
-
 
 class TestReadId:
     def test_read_single_entity(
@@ -360,7 +343,6 @@ class TestReadIds:
 
         project = Project(
             data_dict={"id": 100, "classname": "project", "name": "Project 1"},
-            client=mock_client,
             bfabric_instance=bfabric_instance,
         )
         mock_cache_stack.item_get_all.return_value = {}
@@ -448,12 +430,10 @@ class TestQuery:
 
         mock_entity_1 = Entity(
             data_dict={"id": 100, "classname": "project", "name": "Project 1"},
-            client=mock_client,
             bfabric_instance=bfabric_instance,
         )
         mock_entity_2 = Entity(
             data_dict={"id": 200, "classname": "project", "name": "Project 2"},
-            client=mock_client,
             bfabric_instance=bfabric_instance,
         )
         mock_instantiate_entity.side_effect = [mock_entity_1, mock_entity_2]
@@ -479,15 +459,6 @@ class TestQuery:
 
         assert result == {}
 
-    def test_instance_mismatch_raises_error(self, entity_reader, mock_client, bfabric_instance):
-        """Test that querying a different instance raises ValueError."""
-        different_instance = "https://other-instance.example.org/bfabric/"
-
-        with pytest.raises(ValueError) as exc_info:
-            entity_reader.query(entity_type="project", obj={}, bfabric_instance=different_instance, max_results=100)
-
-        assert f"Unsupported B-Fabric instance: {different_instance}" in str(exc_info.value)
-
     def test_expected_type_raises_on_mismatch(
         self, entity_reader, mock_cache_stack, mock_client, bfabric_instance, mock_instantiate_entity
     ):
@@ -497,7 +468,6 @@ class TestQuery:
         mock_client.read.return_value = [{"id": 1, "classname": "project", "name": "p"}]
         not_a_user = Entity(
             data_dict={"id": 1, "classname": "project", "name": "p"},
-            client=mock_client,
             bfabric_instance=bfabric_instance,
         )
         mock_instantiate_entity.return_value = not_a_user
@@ -514,7 +484,6 @@ class TestQueryOne:
         mock_client.read.return_value = [{"id": 1, "classname": "user", "login": "alice"}]
         mock_entity = Entity(
             data_dict={"id": 1, "classname": "user", "login": "alice"},
-            client=mock_client,
             bfabric_instance=bfabric_instance,
         )
         mock_instantiate_entity.return_value = mock_entity
@@ -539,7 +508,6 @@ class TestQueryOne:
         mock_client.read.return_value = [{"id": 1, "classname": "user", "login": "alice"}]
         user = User(
             data_dict={"id": 1, "classname": "user", "login": "alice"},
-            client=mock_client,
             bfabric_instance=bfabric_instance,
         )
         mock_instantiate_entity.return_value = user
@@ -558,7 +526,6 @@ class TestQueryOne:
         mock_client.read.return_value = [{"id": 1, "classname": "project", "name": "p"}]
         not_a_user = Entity(
             data_dict={"id": 1, "classname": "project", "name": "p"},
-            client=mock_client,
             bfabric_instance=bfabric_instance,
         )
         mock_instantiate_entity.return_value = not_a_user
@@ -576,7 +543,6 @@ class TestQueryOne:
         mock_client.read.return_value = [{"id": 1, "classname": "user", "login": "alice"}]
         user = User(
             data_dict={"id": 1, "classname": "user", "login": "alice"},
-            client=mock_client,
             bfabric_instance=bfabric_instance,
         )
         mock_instantiate_entity.return_value = user

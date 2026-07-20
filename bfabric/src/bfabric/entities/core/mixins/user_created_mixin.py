@@ -15,7 +15,7 @@ class UserCreatedMixin:
     def _users(self) -> Users:
         from bfabric.entities.core.users import Users
 
-        return Users(entity_reader=self._client.reader)
+        return Users()
 
     @property
     def created_at(self: EntityProtocol) -> datetime.datetime:

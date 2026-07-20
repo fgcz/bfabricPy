@@ -9,11 +9,11 @@ from bfabric.entities.core.reader_utils import entities_by_id
 
 if TYPE_CHECKING:
     from bfabric_app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
-    from bfabric.entities.core.entity_reader import EntityReader
+    from bfabric.entities.core.session import BfabricSession
 
 
 class ResolveBfabricDatasetSpecs:
-    def __init__(self, reader: EntityReader) -> None:
+    def __init__(self, reader: BfabricSession) -> None:
         self._reader = reader
 
     def __call__(self, specs: list[BfabricDatasetSpec]) -> list[ResolvedStaticFile]:

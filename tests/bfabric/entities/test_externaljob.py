@@ -21,22 +21,20 @@ def data_dict() -> ApiResponseObjectType:
 
 
 def test_workunit_when_available(
-    mocker: MockerFixture, mock_client, data_dict: ApiResponseObjectType, bfabric_instance
+    mocker: MockerFixture, mock_session, data_dict: ApiResponseObjectType, bfabric_instance
 ) -> None:
     workunit = mocker.Mock(name="workunit", spec=Workunit)
-    mock_client.reader.read_id.return_value = workunit
-    external_job = ExternalJob(data_dict, mock_client, bfabric_instance=bfabric_instance)
+    mock_session.read_id.return_value = workunit
+    external_job = ExternalJob(data_dict, bfabric_instance=bfabric_instance)
     assert external_job.workunit == workunit
-    mock_client.reader.read_id.assert_called_once_with(
-        entity_type="workunit", entity_id=5, bfabric_instance=bfabric_instance
-    )
+    mock_session.read_id.assert_called_once_with(entity_type="workunit", entity_id=5, bfabric_instance=bfabric_instance)
 
 
 def test_workunit_when_wrong_class(
-    mocker: MockerFixture, mock_client, data_dict: ApiResponseObjectType, bfabric_instance
+    mocker: MockerFixture, mock_session, data_dict: ApiResponseObjectType, bfabric_instance
 ) -> None:
     other_entity = mocker.Mock(name="other_entity")
-    mock_client.reader.read_id.return_value = other_entity
+    mock_session.read_id.return_value = other_entity
     data_dict["cliententityclassname"] = "WrongClass"
-    external_job = ExternalJob(data_dict, mock_client, bfabric_instance=bfabric_instance)
+    external_job = ExternalJob(data_dict, bfabric_instance=bfabric_instance)
     assert external_job.workunit is None

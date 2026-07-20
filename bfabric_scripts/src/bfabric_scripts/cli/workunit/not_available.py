@@ -8,6 +8,7 @@ from rich.table import Column, Table
 
 from bfabric import Bfabric
 from bfabric.entities import Parameter, Workunit, Application
+from bfabric.entities.core.reader_utils import entities_by_id, present_entities
 from bfabric.utils.cli_integration import use_client
 
 
@@ -26,9 +27,11 @@ def render_output(workunits: list[Workunit], client: Bfabric) -> None:
     workunit_ids = [wu.id for wu in workunits]
     app_ids = {wu["application"]["id"] for wu in workunits}
 
-    nodelist_params = Parameter.find_by({"workunitid": workunit_ids, "key": ["nodelist", "--nodelist"]}, client)
-    nodelist_values = {param["workunit"]["id"]: param.value for param in nodelist_params.values()}
-    application_values = Application.find_all(ids=sorted(app_ids), client=client)
+    nodelist_params = present_entities(
+        client.reader.query(Parameter, {"workunitid": workunit_ids, "key": ["nodelist", "--nodelist"]})
+    )
+    nodelist_values = {param["workunit"]["id"]: param.value for param in nodelist_params}
+    application_values = entities_by_id(client.reader.read_ids(Application, sorted(app_ids)))
 
     status_colors = {
         "PENDING": "yellow",
@@ -105,14 +108,16 @@ def cmd_workunit_not_available(
     extra_query = {}
     if include_user:
         extra_query["createdby"] = include_user
-    workunits = Workunit.find_by(
-        {
-            "status": ["Pending", "Processing", "Failed"],
-            "createdafter": date_cutoff.isoformat(),
-            **extra_query,
-        },
-        client=client,
-    ).values()
+    workunits = present_entities(
+        client.reader.query(
+            Workunit,
+            {
+                "status": ["Pending", "Processing", "Failed"],
+                "createdafter": date_cutoff.isoformat(),
+                **extra_query,
+            },
+        )
+    )
     workunits = sort_workunits_by(workunits, sort_by)
     if not include_user and not exclude_user:
         exclude_user = ["gfeeder", "itfeeder"]

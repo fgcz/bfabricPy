@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 def complete_workunit(client: Bfabric, workunit_id: int) -> Workunit:
     result = client.save("workunit", {"id": workunit_id, "status": "available"})
-    return Workunit(result[0], client=None, bfabric_instance=client.config.base_url)
+    return Workunit(result[0], bfabric_instance=client.config.base_url)
 
 
 def mark_workunit_failed(client: Bfabric, workunit_id: int) -> None:

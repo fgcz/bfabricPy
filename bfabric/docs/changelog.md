@@ -9,6 +9,11 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+- **Breaking:** entities no longer carry a live `Bfabric` client. `Entity(...)` and every subclass now take only `data_dict` + a **required** `bfabric_instance`; the `client=` parameter, the `Entity._client` property, and `Entity.load_yaml(client=...)` are removed. Lazy relationship navigation (`workunit.application`, `created_by`, `ExternalJob.client_entity`, …) resolves the connection from the active session instead.
+- **New `BfabricSession`** — `client.reader` now returns one. It is an ambient, read-only hub that routes reads to the right connection **by instance** (a single process can read from multiple B-Fabric instances, including multi-instance `query`) and owns the entity cache. Enter it with `with client.reader:` (or `with BfabricSession([client_a, client_b]):`); navigating a relationship outside an active session raises a clear `LookupError`. The `@use_client` CLI decorator opens one automatically, so CLI/app-runner commands need no change.
+- The two `EntityReader` cross-instance guards (which raised `ValueError` on a mismatched `bfabric_instance`) are gone — cross-instance reads are routed rather than rejected. `EntityReader` is now an internal per-client detail behind `BfabricSession`.
+- Caching is now session-scoped: `cache_entities(...)` operates on the active session's cache (its lifetime bounded by the session, avoiding cross-request reuse) and must be called inside an active session.
+- **Breaking:** the deprecated `FindMixin` (`Entity.find` / `find_all` / `find_by`) is removed — use `client.reader.read_id` / `read_ids` / `query` (with the `reader_utils` helpers to reshape results).
 - `ResultContainer.to_polars()` returns an empty DataFrame for an empty result set instead of raising `polars.exceptions.NoDataError`, fixing a crash in `bfabric-cli api read` when a query matched no records.
 - PKCE login: the browser callback page now renders a distinct, styled "Login failed" page showing the provider's error (e.g. a two-factor-enrollment requirement) instead of always claiming "Login successful".
 - OAuth token-acquisition failures (expired/revoked refresh token, unreachable token endpoint) now raise a clear `BfabricOAuthError` instead of leaking an `authlib`/`requests` traceback.
