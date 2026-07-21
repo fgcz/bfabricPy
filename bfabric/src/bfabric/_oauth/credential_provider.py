@@ -21,16 +21,27 @@ from typing import TYPE_CHECKING
 from authlib.common.errors import AuthlibBaseError
 from authlib.integrations.base_client.errors import OAuthError
 from authlib.integrations.requests_client import OAuth2Session  # pyright: ignore[reportMissingTypeStubs]
+from authlib.oauth2.rfc6749 import OAuth2Token
 from requests.exceptions import RequestException
 
 from loguru import logger
 
 from bfabric.config.bfabric_auth import OAUTH_LOGIN, BfabricAuth
 from bfabric.errors import BfabricOAuthError
-from bfabric._oauth.token_cache import TokenCache
+from bfabric._oauth.token_cache import TokenCache, compute_token_cache_path
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+
+def _canonical_token(token: dict[str, object]) -> dict[str, object]:
+    """The canonical on-disk form of an OAuth *token*.
+
+    ``OAuth2Token`` derives an absolute ``expires_at`` from ``expires_in`` (matching what a live
+    session writes on ingest), so ``auth status`` can read a cached token's freshness. This is the
+    single normalization rule shared by every code path that persists a token to the cache.
+    """
+    return dict(OAuth2Token(dict(token)))
 
 
 class OAuthCredentialProvider:
@@ -108,6 +119,18 @@ class OAuthCredentialProvider:
             self._session.token = initial
             self._persist()
 
+    @classmethod
+    def cache_login_token(cls, base_url: str, *, client_id: str, token: dict[str, object], env_name: str) -> Path:
+        """Normalize and cache a freshly obtained login *token*, returning its cache path.
+
+        Ingesting the token derives its absolute ``expires_at`` (from ``expires_in``) and writes the
+        result to the per-identity disk cache, so a later process finds a complete, reusable token.
+        Used by the CLI ``auth login`` / ``auth device-code`` commands once their flow returns a token.
+        """
+        cache_path = compute_token_cache_path(base_url, client_id, env_name).expanduser()
+        TokenCache(cache_path).save(_canonical_token(token))
+        return cache_path
+
     def get_auth(self) -> BfabricAuth:
         """Return a :class:`BfabricAuth` with a valid access token.
 
@@ -183,10 +206,9 @@ class OAuthCredentialProvider:
 
     def _persist(self) -> None:
         """Write the current token to disk cache if configured."""
-        if self._cache and self._session.token:  # pyright: ignore[reportUnknownMemberType]
-            self._cache.save(
-                dict(self._session.token)  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType]
-            )
+        token = self._session.token  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+        if self._cache and token:
+            self._cache.save(_canonical_token(token))  # pyright: ignore[reportUnknownArgumentType]
 
     def __getstate__(self) -> dict[str, object]:  # pyright: ignore[reportImplicitOverride]
         """Return a picklable representation.
