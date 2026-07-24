@@ -17,9 +17,9 @@ def entity_uri(bfabric_instance):
 
 
 @pytest.fixture
-def existing_entity(client, bfabric_instance):
+def existing_entity(bfabric_instance):
     data_dict = {"classname": "mockentity", "id": 1234, "customattribute": [{"name": "species", "value": "quokka"}]}
-    return Entity(data_dict, client=client, bfabric_instance=bfabric_instance)
+    return Entity(data_dict, bfabric_instance=bfabric_instance)
 
 
 def test_update_merge(client, entity_uri, existing_entity):

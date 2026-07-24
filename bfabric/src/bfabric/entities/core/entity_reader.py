@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Generic, TypeGuard, TypeVar, cast, overload
 
 from loguru import logger
 
-from bfabric.entities.cache.context import get_cache_stack
 from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.import_entity import entity_type_of, instantiate_entity
 from bfabric.entities.core.uri import EntityUri, GroupedUris
@@ -14,6 +13,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
     from bfabric import Bfabric
+    from bfabric.entities.cache._cache_stack import CacheStack
     from bfabric.typing import ApiRequestObjectType, ApiResponseDataType, ApiResponseObjectType
 
 
@@ -50,27 +50,21 @@ def _resolve_entity_type(entity_type: str | type[EntityT], expected_type: type[E
 
 
 class EntityReader:
-    """Reads entities from B-Fabric by URI or ID, respecting the cache stack if configured.
+    """Internal per-client fetch engine used by :class:`~bfabric.entities.ReadScope`.
 
-    This class provides multiple methods to read entities from B-Fabric:
-    - By URI(s): :meth:`read_uri`, :meth:`read_uris`
-    - By ID(s): :meth:`read_id`, :meth:`read_ids`
-    - By query criteria: :meth:`query`, :meth:`query_one`
-
-    All methods use the cache stack when available to minimize API calls.
+    Handles a **single** B-Fabric client: batches API calls (by entity type) and reads/writes the
+    scope-owned cache stack. Instance routing and the ambient context live in ``ReadScope``;
+    this class assumes every URI it is given belongs to ``client``'s instance.
     """
 
-    def __init__(self, client: Bfabric, *, _private: bool) -> None:
+    def __init__(self, client: Bfabric, cache_stack: CacheStack) -> None:
         """Initialize the EntityReader.
 
         :param client: The B-Fabric client to use for API calls.
+        :param cache_stack: The (scope-owned) cache stack consulted on every read.
         """
         self._client = client
-
-    @classmethod
-    def for_client(cls, client: Bfabric) -> EntityReader:
-        """Create an EntityReader for a single B-Fabric client."""
-        return cls(client=client, _private=True)
+        self._cache_stack: CacheStack = cache_stack
 
     def read_uri(self, uri: EntityUri | str, *, expected_type: type[EntityT] = Entity) -> EntityT | None:
         """Read a single entity by its B-Fabric URI.
@@ -83,8 +77,7 @@ class EntityReader:
             Entity object or ``None`` if not found
 
         Raises:
-            ValueError: If URI is invalid or from a different B-Fabric instance
-            TypeError: If entity exists but doesn't match ``expected_type``
+            ValueError: If the matched entity does not match ``expected_type``
         """
         logger.debug(f"Reading entity for URI: {uri}")
         return list(self.read_uris([uri], expected_type=expected_type).values())[0]
@@ -94,8 +87,9 @@ class EntityReader:
     ) -> EntityResult[EntityT]:
         """Read multiple entities by their URIs efficiently.
 
-        Entities are grouped by type and retrieved in batches to minimize API calls.
-        Uses the cache stack if configured.
+        Entities are grouped by type and retrieved in batches to minimize API calls, consulting the
+        scope-owned cache stack. All URIs are assumed to belong to this reader's instance (the
+        owning :class:`~bfabric.entities.ReadScope` routes by instance before calling this).
 
         Args:
             uris: Iterable of B-Fabric URIs (can be different entity types)
@@ -105,24 +99,18 @@ class EntityReader:
             Dictionary mapping each input URI to its entity object (or ``None`` if not found)
 
         Raises:
-            ValueError: If any URI is from a different B-Fabric instance
+            ValueError: If any matched entity does not match ``expected_type``
         """
         uris = [EntityUri(uri) for uri in uris]
         logger.debug(f"Reading entities for URIs: {uris}")
 
-        # group uris
+        # group uris by entity type for batched retrieval (all URIs belong to this reader's instance)
         grouped_uris = GroupedUris.from_uris(uris)
 
         # retrieve each group separately
-        cache_stack = get_cache_stack()
+        cache_stack = self._cache_stack
         results: dict[EntityUri, Entity | None] = {}
-        for group_key, group_uris in grouped_uris.items():
-            if group_key.bfabric_instance != self._client.config.base_url:
-                # NOTE this is a limitation of the current design, but could be extended in the future
-                raise ValueError(
-                    f"Unsupported B-Fabric instances: {group_key.bfabric_instance} != {self._client.config.base_url}"
-                )
-
+        for group_uris in grouped_uris.groups.values():
             results_cached = cache_stack.item_get_all(group_uris)
             uris_to_retrieve = [uri for uri in group_uris if uri not in results_cached]
             results_fresh = self._retrieve_entities(uris_to_retrieve)
@@ -178,7 +166,7 @@ class EntityReader:
             Entity object or ``None`` if not found
 
         Raises:
-            ValueError: If instance doesn't match the client's configuration
+            ValueError: If the matched entity does not match ``expected_type``
         """
         entity_type, expected_type = _resolve_entity_type(entity_type, expected_type)
         results = self.read_ids(
@@ -289,18 +277,12 @@ class EntityReader:
         """
         entity_type, expected_type = _resolve_entity_type(entity_type, expected_type)
         bfabric_instance = bfabric_instance if bfabric_instance is not None else self._client.config.base_url
-        # TODO limitation of the current implementation
-        if bfabric_instance != self._client.config.base_url:
-            raise ValueError(f"Unsupported B-Fabric instance: {bfabric_instance} != {self._client.config.base_url}")
 
         logger.debug(f"Querying {entity_type} by {obj}")
         result = self._client.read(entity_type, obj=obj, max_results=max_results)
-        cache_stack = get_cache_stack()
+        cache_stack = self._cache_stack
         entities = {
-            x.uri: x
-            for x in [
-                instantiate_entity(data_dict=r, client=self._client, bfabric_instance=bfabric_instance) for r in result
-            ]
+            x.uri: x for x in [instantiate_entity(data_dict=r, bfabric_instance=bfabric_instance) for r in result]
         }
         for entity in entities.values():
             if not isinstance(entity, expected_type):
@@ -385,10 +367,9 @@ class EntityReader:
         if not _is_id_dict(result_by_id):
             raise ValueError("All entity IDs must be integers")
 
+        bfabric_instance = str(uris[0].components.bfabric_instance)
         return {
-            id_to_uri_map[id]: instantiate_entity(
-                data_dict=data_dict, client=self._client, bfabric_instance=self._client.config.base_url
-            )
+            id_to_uri_map[id]: instantiate_entity(data_dict=data_dict, bfabric_instance=bfabric_instance)
             for id, data_dict in result_by_id.items()
         }
 

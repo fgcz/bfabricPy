@@ -48,7 +48,7 @@ def create_dataset(
     if params.workunit_id is not None:
         obj["workunitid"] = params.workunit_id
     result = client.save("dataset", obj)
-    return Dataset(result[0], client=client, bfabric_instance=client.config.base_url)
+    return Dataset(result[0], bfabric_instance=client.config.base_url)
 
 
 def update_dataset(client: Bfabric, dataset_id: int, table: pl.DataFrame) -> Dataset:
@@ -63,7 +63,7 @@ def update_dataset(client: Bfabric, dataset_id: int, table: pl.DataFrame) -> Dat
     obj = polars_to_dataset_dict(table)
     obj["id"] = dataset_id
     result = client.save("dataset", obj)
-    return Dataset(result[0], client=client, bfabric_instance=client.config.base_url)
+    return Dataset(result[0], bfabric_instance=client.config.base_url)
 
 
 def preview_dataset_update(

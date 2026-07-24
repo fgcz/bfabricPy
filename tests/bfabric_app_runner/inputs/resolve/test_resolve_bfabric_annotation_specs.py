@@ -111,10 +111,16 @@ class TestGetResourceSampleAnnotation:
         )
 
     @pytest.fixture
-    def all_samples(self):
+    def all_samples(self, bfabric_instance):
         return {
-            101: Entity({"classname": "sample", "id": 101, "name": "test101", "groupingvar": "x"}),
-            201: Entity({"classname": "sample", "id": 201, "name": "test201", "groupingvar": "x"}),
+            101: Entity(
+                {"classname": "sample", "id": 101, "name": "test101", "groupingvar": "x"},
+                bfabric_instance=bfabric_instance,
+            ),
+            201: Entity(
+                {"classname": "sample", "id": 201, "name": "test201", "groupingvar": "x"},
+                bfabric_instance=bfabric_instance,
+            ),
         }
 
     @pytest.fixture

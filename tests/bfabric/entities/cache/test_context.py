@@ -1,38 +1,22 @@
 import pytest
 
-from bfabric.entities.cache.context import _get_config_dict
-
-
-class _Mocky:
-    ENDPOINT = "mocky"
-
-
-@pytest.fixture(params=["str", "entity_type"])
-def entity_ref(request):
-    # NOTE: entity_type is deprecated
-    match request.param:
-        case "str":
-            return "mocky"
-        case "entity_type":
-            return _Mocky
+from bfabric.entities.core.read_scope import _build_cache_config
 
 
 @pytest.fixture(params=["single", "list", "dict"])
-def cache_config(request, entity_ref):
+def cache_config(request):
     match request.param:
         case "single":
-            return entity_ref
+            return "mocky"
         case "list":
-            return [entity_ref]
+            return ["mocky"]
         case "dict":
-            return {entity_ref: 3}
+            return {"mocky": 3}
 
 
-def test_get_config_dict(cache_config):
-    config_dict = _get_config_dict(cache_config, max_size=3)
-    assert config_dict == {"mocky": 3}
+def test_build_cache_config(cache_config):
+    assert _build_cache_config(cache_config, max_size=3) == {"mocky": 3}
 
 
-def test_get_config_dict_lower_case():
-    config_dict = _get_config_dict({"MoCkY": 5}, max_size=0)
-    assert config_dict == {"mocky": 5}
+def test_build_cache_config_lower_case():
+    assert _build_cache_config({"MoCkY": 5}, max_size=0) == {"mocky": 5}

@@ -298,7 +298,7 @@ def _create_upload_workunit(client: Bfabric, params: UploadFilesParams, audit_at
             "customattribute": [{"name": key, "value": value} for key, value in audit_attributes.items()],
         },
     )
-    return Workunit(result[0], client=None, bfabric_instance=client.config.base_url).id
+    return Workunit(result[0], bfabric_instance=client.config.base_url).id
 
 
 def _create_upload_job(client: Bfabric, workunit_id: int) -> int:
@@ -311,7 +311,7 @@ def _create_upload_job(client: Bfabric, workunit_id: int) -> int:
         "job",
         {"action": "UPLOAD", "status": "NEW", "parentclassname": "Workunit", "parentid": workunit_id},
     )
-    return Job(result[0], client=None, bfabric_instance=client.config.base_url).id
+    return Job(result[0], bfabric_instance=client.config.base_url).id
 
 
 def _pair_resources_to_files(resources: list[CreatedResource], to_upload: list[FileInfo]) -> dict[str, CreatedResource]:

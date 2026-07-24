@@ -2,49 +2,52 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-
 if TYPE_CHECKING:
-    from bfabric.entities.core.entity_reader import EntityReader
     from bfabric.entities.user import User
 
 
 class Users:
-    """An interface for resolving users by ID or login name."""
+    """An interface for resolving users by ID or login name via the active read scope.
 
-    def __init__(self, entity_reader: EntityReader) -> None:
-        self._users = []
-        self._entity_reader = entity_reader
+    Resolved users are memoized on the instance; the connection is looked up from the ambient
+    :class:`~bfabric.entities.ReadScope` at each miss, so this holds no client itself.
+
+    The memoization keys on id/login only, so a single ``Users`` instance assumes one B-Fabric
+    instance. That holds today (one is created per entity via ``UserCreatedMixin``, and an entity
+    belongs to a single instance); reusing one across instances would need instance-aware keys.
+    """
+
+    def __init__(self) -> None:
+        self._users: list[User] = []
 
     def get_by_id(self, bfabric_instance: str, id: int) -> User | None:
         """Gets a user by their ID."""
-        # check if exists
+        from bfabric.entities.core.read_scope import get_read_scope
+        from bfabric.entities.user import User as UserEntity
+
         for user in self._users:
             if user.id == id:
                 return user
 
-        # retrieve
-        user = self._entity_reader.read_id(entity_type="user", entity_id=id, bfabric_instance=bfabric_instance)
+        user = get_read_scope().read_id(UserEntity, id, bfabric_instance=bfabric_instance)
         if user is None:
             return None
 
-        # store
         self._users.append(user)
         return user
 
     def get_by_login(self, bfabric_instance: str, login: str) -> User | None:
         """Gets a user by their login name."""
+        from bfabric.entities.core.read_scope import get_read_scope
         from bfabric.entities.user import User as UserEntity
 
-        # check if exists
         for user in self._users:
             if user["login"] == login:
                 return user
 
-        # retrieve
-        user = self._entity_reader.query_one(UserEntity, {"login": login}, bfabric_instance=bfabric_instance)
+        user = get_read_scope().query_one(UserEntity, {"login": login}, bfabric_instance=bfabric_instance)
         if user is None:
             return None
 
-        # store
         self._users.append(user)
         return user

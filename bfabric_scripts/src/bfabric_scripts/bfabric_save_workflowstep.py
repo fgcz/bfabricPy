@@ -49,7 +49,7 @@ def save_workflowstep(workunit_id: int, config: SaveWorkflowStepConfig) -> None:
     workflowtemplatestep_ids = config.template_step_ids
     workflowtemplate_ids = config.template_ids
 
-    workunit = Workunit.find(id=workunit_id, client=client)
+    workunit = client.reader.read_id(Workunit, workunit_id)
     user_id = _get_user_id(login=workunit["createdby"], client=client)
 
     application_id = workunit["application"]["id"]

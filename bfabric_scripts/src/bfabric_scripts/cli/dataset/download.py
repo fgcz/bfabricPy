@@ -54,7 +54,7 @@ class Params(BaseModel):
 def cmd_dataset_download(params: Params, *, client: Bfabric) -> None:
     """Download a dataset from B-Fabric."""
     # Find the dataset
-    dataset = Dataset.find(id=params.dataset_id, client=client)
+    dataset = client.reader.read_id(Dataset, params.dataset_id)
     if not dataset:
         msg = f"Dataset with id {params.dataset_id!r} not found."
         raise ValueError(msg)

@@ -1,11 +1,9 @@
-from typing import Protocol, Any
-
-from bfabric import Bfabric
+from typing import Any, Protocol
 
 
 class EntityProtocol(Protocol):
     @property
-    def _client(self) -> Bfabric | None: ...
+    def bfabric_instance(self) -> str: ...
 
     @property
     def data_dict(self) -> dict[str, Any]: ...

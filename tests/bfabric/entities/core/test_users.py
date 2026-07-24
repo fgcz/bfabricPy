@@ -1,17 +1,11 @@
 import pytest
 
-from bfabric.entities.core.entity_reader import EntityReader
 from bfabric.entities.core.users import Users
 
 
 @pytest.fixture
-def entity_reader(mocker):
-    return mocker.MagicMock(spec=EntityReader, autospec=True, name="entity_reader")
-
-
-@pytest.fixture
-def users(entity_reader):
-    return Users(entity_reader=entity_reader)
+def users():
+    return Users()
 
 
 @pytest.fixture
@@ -24,41 +18,41 @@ def mock_user(mocker):
 
 class TestGetById:
     @staticmethod
-    def test_not_cached(entity_reader, users, bfabric_instance, mock_user):
-        entity_reader.read_id.return_value = mock_user
+    def test_not_cached(mock_read_scope, users, bfabric_instance, mock_user):
+        from bfabric.entities.user import User as UserEntity
+
+        mock_read_scope.read_id.return_value = mock_user
         assert mock_user not in users._users
         user = users.get_by_id(bfabric_instance, id=100)
         assert user is mock_user
-        entity_reader.read_id.assert_called_once_with(
-            entity_type="user", entity_id=100, bfabric_instance=bfabric_instance
-        )
+        mock_read_scope.read_id.assert_called_once_with(UserEntity, 100, bfabric_instance=bfabric_instance)
         assert mock_user in users._users
 
     @staticmethod
-    def test_cached(entity_reader, users, bfabric_instance, mock_user):
+    def test_cached(mock_read_scope, users, bfabric_instance, mock_user):
         users._users.append(mock_user)
         user = users.get_by_id(bfabric_instance, id=100)
         assert user is mock_user
-        entity_reader.read_id.assert_not_called()
+        mock_read_scope.read_id.assert_not_called()
 
 
 class TestGetByName:
     @staticmethod
-    def test_not_cached(entity_reader, users, bfabric_instance, mock_user):
+    def test_not_cached(mock_read_scope, users, bfabric_instance, mock_user):
         from bfabric.entities.user import User as UserEntity
 
-        entity_reader.query_one.return_value = mock_user
+        mock_read_scope.query_one.return_value = mock_user
         assert mock_user not in users._users
         user = users.get_by_login(bfabric_instance, login="testuser")
         assert user is mock_user
-        entity_reader.query_one.assert_called_once_with(
+        mock_read_scope.query_one.assert_called_once_with(
             UserEntity, {"login": "testuser"}, bfabric_instance=bfabric_instance
         )
         assert mock_user in users._users
 
     @staticmethod
-    def test_cached(entity_reader, users, bfabric_instance, mock_user):
+    def test_cached(mock_read_scope, users, bfabric_instance, mock_user):
         users._users.append(mock_user)
         user = users.get_by_login(bfabric_instance, login="testuser")
         assert user is mock_user
-        entity_reader.query_one.assert_not_called()
+        mock_read_scope.query_one.assert_not_called()

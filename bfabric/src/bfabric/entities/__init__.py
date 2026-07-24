@@ -1,4 +1,5 @@
 from .application import Application
+from .core.read_scope import ReadScope
 from .dataset import Dataset
 from .executable import Executable
 from .externaljob import ExternalJob
@@ -23,6 +24,7 @@ from .workunit import Workunit
 
 __all__ = [
     "Application",
+    "ReadScope",
     "Dataset",
     "Executable",
     "ExternalJob",

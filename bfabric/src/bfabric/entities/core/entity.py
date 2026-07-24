@@ -6,40 +6,26 @@ import warnings
 from functools import cached_property
 from typing import TYPE_CHECKING, Self, TypeGuard
 
-from bfabric.entities.core.mixins.find_mixin import FindMixin
 from bfabric.entities.core.uri import EntityUri
 
 if TYPE_CHECKING:
     from pathlib import Path
     from typing import Any
 
-    from bfabric import Bfabric
     from bfabric.entities.core.references import References
     from bfabric.typing import ApiResponseDataType, ApiResponseObjectType
 
 
-class Entity(FindMixin):
-    """A single generic entity, read from B-Fabric."""
+class Entity:
+    """A single generic entity, read from B-Fabric.
 
-    def __init__(
-        self,
-        data_dict: ApiResponseObjectType,
-        client: Bfabric | None = None,
-        bfabric_instance: str | None = None,
-    ) -> None:
-        # note: client may be removed completely in the future,
-        #       as I think it is a design mistake to have put them into these classes
-        #       we rather need a registry of authenticated clients for different bfabric instances, to allow web apps
-        #       serve multiple bfabric instances simultaneously.
-        if bfabric_instance is None:
-            warnings.warn(
-                "In the future, creating an Entity object without bfabric_instance will not be supported.",
-                DeprecationWarning,
-            )
-            bfabric_instance = client.config.base_url if client is not None else None
+    Entities are pure data: a data dictionary plus the ``bfabric_instance`` they belong to. Related
+    entities are loaded lazily via the active :class:`~bfabric.entities.ReadScope` (see
+    :attr:`refs`), not through a client stored on the entity.
+    """
 
+    def __init__(self, data_dict: ApiResponseObjectType, bfabric_instance: str) -> None:
         self.__data_dict = data_dict
-        self.__client = client
         self.__bfabric_instance = bfabric_instance
 
     @property
@@ -90,7 +76,7 @@ class Entity(FindMixin):
         """Returns the entity's references manager."""
         from bfabric.entities.core.references import References
 
-        return References(client=self._client, bfabric_instance=self.__bfabric_instance, data_ref=self.__data_dict)
+        return References(bfabric_instance=self.__bfabric_instance, data_ref=self.__data_dict)
 
     @property
     def custom_attributes(self) -> dict[str, str]:
@@ -108,11 +94,6 @@ class Entity(FindMixin):
             raise ValueError("invalid type for customattribute")
 
         return {attr["name"]: attr["value"] for attr in custom_attributes_list}
-
-    @property
-    def _client(self) -> Bfabric | None:
-        """Returns the client associated with the entity."""
-        return self.__client
 
     def __contains__(self, key: str) -> bool:
         """Checks if a key is present in the data dictionary."""
@@ -148,14 +129,14 @@ class Entity(FindMixin):
             yaml.safe_dump(self.__data_dict, file)
 
     @classmethod
-    def load_yaml(cls, path: Path, client: Bfabric | None = None, bfabric_instance: str | None = None) -> Self:
+    def load_yaml(cls, path: Path, bfabric_instance: str) -> Self:
         """Loads an entity from a YAML file."""
         # TODO (#351): to be extended
         import yaml
 
         with path.open("r") as file:
             data = yaml.safe_load(file)
-        return cls(data, client=client, bfabric_instance=bfabric_instance)
+        return cls(data, bfabric_instance=bfabric_instance)
 
 
 def _is_custom_attributes_list(custom_attributes: ApiResponseDataType) -> TypeGuard[list[dict[str, str]]]:

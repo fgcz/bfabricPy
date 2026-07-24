@@ -11,7 +11,6 @@ from bfabric.entities.core.import_entity import instantiate_entity
 from bfabric.entities.core.uri import EntityUri
 
 if TYPE_CHECKING:
-    from bfabric import Bfabric
     from bfabric.entities.core.entity import Entity
     from bfabric.typing import ApiResponseDataType, ApiResponseObjectType
 
@@ -34,8 +33,7 @@ class References:
     This class receives a reference to the entity's data dictionary, updating it in-place when references are loaded.
     """
 
-    def __init__(self, client: Bfabric, bfabric_instance: str, data_ref: ApiResponseObjectType) -> None:
-        self._client: Bfabric = client
+    def __init__(self, bfabric_instance: str, data_ref: ApiResponseObjectType) -> None:
         self._bfabric_instance: str = bfabric_instance
         self._data_ref: ApiResponseObjectType = data_ref
 
@@ -68,8 +66,7 @@ class References:
 
         data_dicts = self.__get_ref_data_dicts(name, ref_info.is_singular)
         entities = [
-            instantiate_entity(data_dict=data_dict, client=self._client, bfabric_instance=self._bfabric_instance)
-            for data_dict in data_dicts
+            instantiate_entity(data_dict=data_dict, bfabric_instance=self._bfabric_instance) for data_dict in data_dicts
         ]
 
         self._cache[name] = entities[0] if ref_info.is_singular else entities
@@ -112,10 +109,9 @@ class References:
                 ref_data_list[indices_map[entry_uri]].update(entity.data_dict)
 
     def __load(self, ref_info: _ReferenceInformation) -> None:
-        from bfabric.entities.core.entity_reader import EntityReader
+        from bfabric.entities.core.read_scope import get_read_scope
 
-        reader = EntityReader.for_client(self._client)
-        entities = reader.read_uris(ref_info.uris)
+        entities = get_read_scope().read_uris(ref_info.uris)
 
         self.__update_ref_data(ref_info, entities)
         ref_info.is_loaded = True

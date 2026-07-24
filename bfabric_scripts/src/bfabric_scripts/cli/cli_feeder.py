@@ -17,7 +17,7 @@ class ImportResourcePath(BaseModel):
 
 
 def _create_importresources(storage_id: int, files: list[Path], client: Bfabric) -> None:
-    storage = Storage.find(id=storage_id, client=client)
+    storage = client.reader.read_id(Storage, storage_id)
     if storage is None:
         raise ValueError(f"Storage with ID {storage_id} not found.")
 
@@ -59,8 +59,8 @@ def _get_application_mapping(parsed_paths: list[ParsedPath], client: Bfabric) ->
         # Could be demoted to empty dictionary later.
         raise RuntimeError("Nothing to be processed.")
     # TODO this will have to be cached in the future and only request if there is anything missing
-    result = Application.find_by({"name": sorted(unique_app_names)}, client=client, max_results=None)
-    return {str(app["name"]): id for id, app in result.items()}
+    apps = client.reader.query(Application, {"name": sorted(unique_app_names)}, max_results=None).values()
+    return {str(app["name"]): app.id for app in apps}
 
 
 def _generate_importresource_object(
