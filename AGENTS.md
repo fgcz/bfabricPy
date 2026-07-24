@@ -129,6 +129,13 @@ Release-candidate (rc) convention — decided 2026-07-15:
 - **Graduation.** When the RC becomes final, rename the `[X.Y.0rcN]` heading to `[X.Y.0]` with the release date (no content merge needed, since it was cumulative).
 - **Cross-package dependency floors.** When a package uses a feature from an unreleased/RC `bfabric`, pin its floor to the rc (e.g. `bfabric>=1.20.0rc2,<1.21`). A plain `>=1.20.0` **excludes** `1.20.0rc2` under PEP 440, and naming a prerelease in the specifier is also what lets pip/uv resolve to it.
 
+Hotfix convention (patch release of an older line) — decided 2026-07-24:
+
+- **Branch from the version tag, not `main`/`release`.** When the newest line is unreleased or in RC, `release`/`main` have moved ahead, so a patch of the last stable (e.g. `1.19.1` while `main` is `1.20.0rc`) must be cut from that stable tag: `git checkout -b hotfix/<pkg>-X.Y.Z <pkg>/X.Y.(Z-1)`.
+- **The hotfix branch is authoritative for its release.** Bump the patch version and add the `## [X.Y.Z]` changelog section there. This is what the pipeline extracts into the `<pkg>/X.Y.Z` tag and GitHub Release — the canonical record of what shipped.
+- **Publish out-of-band, don't merge into `release`.** Merging a hotfix into `release` (ahead on a newer line) would mislabel that tree. Instead trigger the publish workflow against the hotfix ref: `gh workflow run publish_release.yml --ref hotfix/<pkg>-X.Y.Z -f environment=production -f force_packages=<pkg>`. The branch then lives on as the release record; it has no merge target.
+- **Forward-port the fix to `main` as a normal PR, `[Unreleased]` only.** Cherry-pick the fix (`git cherry-pick -x`) so `1.X.0` doesn't regress. On `main` the entry stays under `[Unreleased]` with an inline note (e.g. "(also released as the X.Y.Z hotfix)") — do **not** backfill a `## [X.Y.Z]` section into `main`. A past-line patch can't sit in `main`'s version-descending changelog without breaking either version or date order, and it would duplicate the bullet; the tag + GitHub Release are where `X.Y.Z` is recorded.
+
 ## Branches
 
 - `main` — active development
