@@ -15,6 +15,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 - OAuth token-acquisition failures (expired/revoked refresh token, unreachable token endpoint) now raise a clear `BfabricOAuthError` instead of leaking an `authlib`/`requests` traceback.
 - `EntityReader` lookups (`read_id` / `read_ids` / `query` / `query_one`) now accept an entity **class** in place of the endpoint string — e.g. `client.reader.read_id(Resource, id)` — inferring both the endpoint and the result type; the string form (with optional `expected_type`) still works.
 - The id/URI `EntityReader` lookups (`read_ids` / `read_uris`) now return an `EntityResult` — a `dict[EntityUri, Entity | None]` subclass with `.present` (found entities as a list) and `.by_id` (found entities re-keyed by integer id) properties, so callers write `reader.read_ids(Resource, ids).present` instead of wrapping the result in a helper. Class→endpoint inference is centralized in `import_entity.entity_type_of` (the inverse of `import_entity`).
+- `flatten_relations` (and `ResultContainer.to_polars(flatten=True)`) now recursively flattens nested struct columns instead of only one level, so a nested `b.inner.p` field becomes the `b_inner_p` column. Also shipped as the `1.19.1` hotfix.
 
 ## \[1.20.0rc2\] - 2026-07-15
 
