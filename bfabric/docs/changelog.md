@@ -9,6 +9,12 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+## \[1.19.1\] - 2026-07-24
+
+### Fixed
+
+- `flatten_relations` (and `ResultContainer.to_polars(flatten=True)`) now recursively flattens nested struct columns instead of only one level, so a nested `b.inner.p` field becomes the `b_inner_p` column.
+
 ## \[1.19.0\] - 2026-06-10
 
 ### Added
