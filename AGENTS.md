@@ -122,6 +122,20 @@ Each package's docs live alongside its source. Skim the index when working in a 
 
 Each package is versioned and released independently (own `pyproject.toml` version, own `docs/changelog.md`, own `<package>/<version>` git tag). Preparing a release means: bump the `version` in that package's `pyproject.toml` and promote its changelog `[Unreleased]` section to a dated version heading. The release pipeline extracts the changelog section matching the tag and publishes it as the GitHub release notes.
 
+Dispatch mechanics of `publish_release.yml` — apply to every package:
+
+- **Never dispatch `environment: test` as a dry run.** That input switches only the PyPI URL. *Create and push tag* and *Create GitHub Release* are ungated and run **before** the publish step, so a `test` run pushes the real `<pkg>/<version>` tag and opens the draft release — and the follow-up `production` run then dies at `git tag -a` ("already exists") before anything reaches PyPI. Verify locally instead (below) and dispatch straight to `production`.
+- **Pass `force_packages` explicitly.** A non-empty value makes `check_versions.py` skip the PyPI version comparison entirely, so only the named packages build. Confirm via `Forcing release of <pkg>` in the `check-packages` log.
+- **Verify the built package offline before dispatching** — install it the way a user gets it, then import whatever the release touched:
+    ```bash
+    uv venv /tmp/rel -p 3.11
+    uv pip install --python /tmp/rel --no-sources ./<package>   # --no-sources: ignore workspace tool.uv.sources, resolve deps from PyPI
+    uv pip list --python /tmp/rel | grep -i bfabric             # check the resolved dependency floor
+    /tmp/rel/bin/python -c "import <module>"
+    ```
+    Check entry points by **module import, not `--help`**: `@use_client` calls `Bfabric.connect()` before the wrapped function runs, and the legacy argparse scripts build their parser inside the body, so `--help` reads `~/.bfabricpy.yml` first and can fail for config reasons unrelated to the release. Import is also where import-time breakage (a removed symbol, a deprecation shim) actually surfaces. After publishing, PyPI's index needs ~a minute before `uv pip install <pkg>==<new>` resolves.
+- **Leave "Set as the latest release" unchecked when publishing the draft, except for `bfabric` stable.** GitHub keeps one repo-wide "Latest release", so a stable non-core release — or a patch of an older line — would take the badge from the core library. `rcN` and `0.x` tags are auto-flagged as prereleases and never compete for it.
+
 Release-candidate (rc) convention — decided 2026-07-15:
 
 - **One cumulative pre-release entry, not a stack.** While a version is in RC, keep a *single* changelog entry for it (e.g. `## [1.20.0rc2]`) that describes the **full** changeset for the upcoming `X.Y.0`. When cutting the next RC, re-date and extend that same entry and bump the `rcN` suffix — do **not** add a separate `[…rcN]` heading below the previous one. Per-RC history is preserved by the already-published git tags and GitHub releases, so the in-repo changelog doesn't need to re-keep it.
@@ -135,6 +149,8 @@ Hotfix convention (patch release of an older line) — decided 2026-07-24:
 - **The hotfix branch is authoritative for its release.** Bump the patch version and add the `## [X.Y.Z]` changelog section there. This is what the pipeline extracts into the `<pkg>/X.Y.Z` tag and GitHub Release — the canonical record of what shipped.
 - **Publish out-of-band, don't merge into `release`.** Merging a hotfix into `release` (ahead on a newer line) would mislabel that tree. Instead trigger the publish workflow against the hotfix ref: `gh workflow run publish_release.yml --ref hotfix/<pkg>-X.Y.Z -f environment=production -f force_packages=<pkg>`. The branch then lives on as the release record; it has no merge target.
 - **Forward-port the fix to `main` as a normal PR, `[Unreleased]` only.** Cherry-pick the fix (`git cherry-pick -x`) so `1.X.0` doesn't regress. On `main` the entry stays under `[Unreleased]` with an inline note (e.g. "(also released as the X.Y.Z hotfix)") — do **not** backfill a `## [X.Y.Z]` section into `main`. A past-line patch can't sit in `main`'s version-descending changelog without breaking either version or date order, and it would duplicate the bullet; the tag + GitHub Release are where `X.Y.Z` is recorded.
+- **A fix that can't apply to `main` leaves `main`'s changelog alone.** Some hotfixes only constrain the old line — a dependency cap, say, when `main` has already migrated past the broken API. With nothing to forward-port there is nothing to document, and an `[Unreleased]` bullet would be promoted into the next release's notes, describing a change that release doesn't contain. The tag and GitHub Release are the record; that is what they are for.
+- **No PR from the hotfix branch itself.** Its diff against `main` reads as a mass revert, and PR CI would run the old line's whole nox suite. Push the branch and let the tag and GitHub Release be the record (precedent: `hotfix/bfabric-1.19.1`, `hotfix/bfabric-scripts-1.15.1`). Open a PR only for the forward-port, if there is one.
 
 ## Branches
 
