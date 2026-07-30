@@ -10,6 +10,10 @@ Versioning currently follows `X.Y.Z` where
 
 ## \[Unreleased\]
 
+## \[1.15.1\] - 2026-07-30
+
+- Cap `bfabric` at `<1.19`: `bfabric` 1.19.0 removed `bfabric.experimental.upload_dataset.bfabric_save_csv2dataset`, which `bfabric_save_csv2dataset.py` imports, so 1.15.0 installs broken against 1.19.x. Use `bfabric-scripts` 1.16.0+ with `bfabric` 1.20+.
+
 ## \[1.15.0\] - 2026-04-20
 
 ### Added
