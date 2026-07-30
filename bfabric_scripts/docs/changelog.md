@@ -10,7 +10,7 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 ## \[Unreleased\]
 
-- `bfabric-cli workunit diff REF1 REF2` — compare two workunits side by side (name, parameters, output/input resources, status, application, container, input dataset), highlighting differences in rich tables. Each reference is an entity URI or a numeric workunit ID; `--only-diff` collapses the output to just the differing rows.
+- `bfabric-cli workunit diff REF1 REF2` — compare two workunits side by side (name, parameters, output/input resources, status, application, container, input dataset), highlighting differences in rich tables. Each reference is a numeric workunit ID or a workunit URL, including one copied straight from the browser (extra query parameters such as `&tab=details` are accepted); `--only-diff` collapses the output to just the differing rows.
 
 ## \[1.16.0rc2\] - 2026-07-15
 

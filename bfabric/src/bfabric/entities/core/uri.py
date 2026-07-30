@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import re
 import urllib.parse
 from collections import defaultdict
 from typing import TYPE_CHECKING, Annotated, Any
@@ -19,9 +18,7 @@ from pydantic_core import core_schema
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-_URI_REGEX = re.compile(
-    r"^(?P<bfabric_instance>(https://[^/]+/bfabric/|http://localhost(:\d+)?/bfabric/))(?P<entity_type>\w+)/show\.html\?id=(?P<entity_id>\d+)$"
-)
+_NORMALIZE_HINT = "use EntityUri.from_web_url to normalize a browser URL"
 
 
 def _validate_entity_uri(uri: str) -> str:
@@ -29,11 +26,54 @@ def _validate_entity_uri(uri: str) -> str:
     return uri
 
 
-def _parse_uri_components(uri: str) -> EntityUriComponents:
-    match = _URI_REGEX.match(uri)
-    if not match:
-        raise ValueError(f"Invalid Entity URI: {uri}")
-    return EntityUriComponents.model_validate(match.groupdict())
+def _parse_uri_components(uri: str, *, allow_extra_query: bool = False) -> EntityUriComponents:
+    """Parse a B-Fabric entity URI into its components.
+
+    :param uri: the URI to parse
+    :param allow_extra_query: ignore query parameters other than ``id``, and any fragment, instead of
+        rejecting them (i.e. accept a URL as copied from the browser)
+    :raises ValueError: if the URI is not a valid entity URI
+    """
+
+    def invalid(reason: str) -> ValueError:
+        return ValueError(f"Invalid Entity URI: {uri} ({reason})")
+
+    parsed = urllib.parse.urlsplit(uri)
+    host = (parsed.hostname or "").lower()
+    if not host or (parsed.scheme != "https" and not (parsed.scheme == "http" and host == "localhost")):
+        raise invalid("expected https://<instance> or http://localhost")
+    if parsed.username or parsed.password:
+        raise invalid("credentials are not allowed")
+
+    segments = parsed.path.split("/")[1:]
+    if len(segments) != 3 or segments[0] != "bfabric" or segments[2] != "show.html":
+        raise invalid("expected path /bfabric/<entity_type>/show.html")
+
+    if allow_extra_query:
+        entity_ids = set(urllib.parse.parse_qs(parsed.query).get("id", []))
+        if len(entity_ids) != 1:
+            raise invalid("conflicting 'id' query parameters" if entity_ids else "missing 'id' query parameter")
+        entity_id = entity_ids.pop()
+        if not entity_id.isdigit():
+            raise invalid("entity id must be a positive integer")
+    else:
+        key, separator, entity_id = parsed.query.partition("=")
+        if key != "id" or not separator or not entity_id.isdigit():
+            raise invalid(f"expected query 'id=<entity_id>'; {_NORMALIZE_HINT}")
+        if parsed.fragment:
+            raise invalid(f"unexpected URL fragment; {_NORMALIZE_HINT}")
+
+    try:
+        port = f":{parsed.port}" if parsed.port else ""
+    except ValueError as error:
+        raise invalid("invalid port") from error
+    return EntityUriComponents.model_validate(
+        {
+            "bfabric_instance": f"{parsed.scheme}://{host}{port}/bfabric/",
+            "entity_type": segments[1],
+            "entity_id": entity_id,
+        }
+    )
 
 
 ValidatedEntityUri = Annotated[str, AfterValidator(_validate_entity_uri)]
@@ -82,6 +122,27 @@ class EntityUri(str):
         return EntityUriComponents(
             bfabric_instance=bfabric_instance, entity_type=entity_type, entity_id=entity_id
         ).as_uri()
+
+    @classmethod
+    def from_web_url(cls, url: str) -> EntityUri:
+        """Create an EntityUri from a B-Fabric web URL, e.g. one copied from the browser.
+
+        Unlike the constructor, extra query parameters and a fragment are dropped, and the host case and
+        a default port are normalized, so the result is the canonical URI of the referenced entity::
+
+            >>> EntityUri.from_web_url("https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=123&tab=details")
+            'https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=123'
+
+        Args:
+            url: B-Fabric web URL of an entity
+
+        Returns:
+            Canonical EntityUri of the referenced entity
+
+        Raises:
+            ValueError: if the URL does not reference a B-Fabric entity
+        """
+        return _parse_uri_components(url, allow_extra_query=True).as_uri()
 
     @property
     def components(self) -> EntityUriComponents:

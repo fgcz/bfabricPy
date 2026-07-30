@@ -52,7 +52,8 @@ def diff_rows(left: dict[KeyT, str], right: dict[KeyT, str]) -> list[DiffRow]:
 def _resolve_workunit(reference: str, *, client: Bfabric) -> Workunit:
     """Resolve a workunit reference (entity URI or numeric ID) to a ``Workunit``."""
     try:
-        uri = EntityUri(reference)
+        # Lenient parse, so a URL copied from the browser (with e.g. "&tab=details") is accepted.
+        uri = EntityUri.from_web_url(reference)
     except ValueError:
         uri = None
 
@@ -140,8 +141,8 @@ def render_section(
 def cmd_workunit_diff(workunit1: str, workunit2: str, *, client: Bfabric, only_diff: bool = False) -> None:
     """Compare two workunits (name, parameters, resources, and key fields) side by side.
 
-    :param workunit1: first workunit — an entity URI or a numeric ID
-    :param workunit2: second workunit — an entity URI or a numeric ID
+    :param workunit1: first workunit — a numeric ID or a workunit URL (as copied from the browser)
+    :param workunit2: second workunit — a numeric ID or a workunit URL (as copied from the browser)
     :param only_diff: show only fields/parameters/resources that differ
     """
     wu1 = _resolve_workunit(workunit1, client=client)

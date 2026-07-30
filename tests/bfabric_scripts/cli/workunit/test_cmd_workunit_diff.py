@@ -115,9 +115,24 @@ class TestResolveWorkunit:
         assert result is expected
         mock_client.reader.read_id.assert_called_once_with(Workunit, 123)
 
+    def test_resolve_by_browser_url(self, mock_client, mocker):
+        """A URL copied from the browser carries extra query parameters and must still resolve."""
+        expected = mocker.Mock(spec=Workunit)
+        mock_client.reader.read_uri.return_value = expected
+
+        result = _resolve_workunit(f"{WORKUNIT_URI}&tab=details", client=mock_client)
+
+        assert result is expected
+        mock_client.reader.read_uri.assert_called_once_with(WORKUNIT_URI, expected_type=Workunit)
+
     def test_non_workunit_uri_raises(self, mock_client):
         with pytest.raises(ValueError, match="Not a workunit URI"):
             _resolve_workunit(SAMPLE_URI, client=mock_client)
+
+    def test_non_workunit_browser_url_raises(self, mock_client):
+        # Anchored on the colon: the "or numeric ID" fallback message must not satisfy this.
+        with pytest.raises(ValueError, match="Not a workunit URI: "):
+            _resolve_workunit(f"{SAMPLE_URI}&tab=details", client=mock_client)
 
     def test_invalid_reference_raises(self, mock_client):
         with pytest.raises(ValueError, match="Not a workunit URI or numeric ID"):
