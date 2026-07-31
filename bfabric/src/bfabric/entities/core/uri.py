@@ -40,7 +40,7 @@ def _parse_uri_components(uri: str, *, allow_extra_query: bool = False) -> Entit
 
     parsed = urllib.parse.urlsplit(uri)
     host = (parsed.hostname or "").lower()
-    if not host or (parsed.scheme != "https" and not (parsed.scheme == "http" and host == "localhost")):
+    if not host or (parsed.scheme != "https" and (parsed.scheme, host) != ("http", "localhost")):
         raise invalid("expected https://<instance> or http://localhost")
     if parsed.username or parsed.password:
         raise invalid("credentials are not allowed")
@@ -49,30 +49,20 @@ def _parse_uri_components(uri: str, *, allow_extra_query: bool = False) -> Entit
     if len(segments) != 3 or segments[0] != "bfabric" or segments[2] != "show.html":
         raise invalid("expected path /bfabric/<entity_type>/show.html")
 
-    if allow_extra_query:
-        entity_ids = set(urllib.parse.parse_qs(parsed.query).get("id", []))
-        if len(entity_ids) != 1:
-            raise invalid("conflicting 'id' query parameters" if entity_ids else "missing 'id' query parameter")
-        entity_id = entity_ids.pop()
-        if not entity_id.isdigit():
-            raise invalid("entity id must be a positive integer")
-    else:
-        key, separator, entity_id = parsed.query.partition("=")
-        if key != "id" or not separator or not entity_id.isdigit():
-            raise invalid(f"expected query 'id=<entity_id>'; {_NORMALIZE_HINT}")
-        if parsed.fragment:
-            raise invalid(f"unexpected URL fragment; {_NORMALIZE_HINT}")
+    entity_ids = set(urllib.parse.parse_qs(parsed.query).get("id", []))
+    if len(entity_ids) != 1:
+        raise invalid("conflicting 'id' query parameters" if entity_ids else "missing 'id' query parameter")
+    entity_id = entity_ids.pop()
+    if not entity_id.isdigit():
+        raise invalid("entity id must be a positive integer")
+    # Strict mode parses the same way, then insists the URI was canonical to begin with.
+    if not allow_extra_query and (parsed.query != f"id={entity_id}" or parsed.fragment):
+        raise invalid(f"expected query exactly 'id=<entity_id>' and no fragment; {_NORMALIZE_HINT}")
 
-    try:
-        port = f":{parsed.port}" if parsed.port else ""
-    except ValueError as error:
-        raise invalid("invalid port") from error
-    return EntityUriComponents.model_validate(
-        {
-            "bfabric_instance": f"{parsed.scheme}://{host}{port}/bfabric/",
-            "entity_type": segments[1],
-            "entity_id": entity_id,
-        }
+    return EntityUriComponents(
+        bfabric_instance=HttpUrl(f"{parsed.scheme}://{parsed.netloc.lower()}/bfabric/"),
+        entity_type=segments[1],
+        entity_id=int(entity_id),
     )
 
 
