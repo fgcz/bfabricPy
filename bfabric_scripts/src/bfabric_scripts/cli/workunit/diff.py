@@ -50,21 +50,19 @@ def diff_rows(left: dict[KeyT, str], right: dict[KeyT, str]) -> list[DiffRow]:
 
 
 def _resolve_workunit(reference: str, *, client: Bfabric) -> Workunit:
-    """Resolve a workunit reference (entity URI or numeric ID) to a ``Workunit``."""
-    try:
-        # Lenient parse, so a URL copied from the browser (with e.g. "&tab=details") is accepted.
-        uri = EntityUri.normalize(reference)
-    except ValueError:
-        uri = None
-
-    if uri is not None:
+    """Resolve a workunit reference (numeric ID or workunit URL) to a ``Workunit``."""
+    if reference.isdigit():
+        workunit = client.reader.read_id(Workunit, int(reference))
+    else:
+        try:
+            # Lenient parse, so a URL copied from the browser (with e.g. "&tab=details") is accepted.
+            uri = EntityUri.normalize(reference)
+        except ValueError as error:
+            # The parser's complaint is about URL syntax; the user needs to know an ID would do too.
+            raise ValueError(f"Not a workunit URI or numeric ID: {reference}") from error
         if uri.components.entity_type != "workunit":
             raise ValueError(f"Not a workunit URI: {reference}")
         workunit = client.reader.read_uri(uri, expected_type=Workunit)
-    elif reference.isdigit():
-        workunit = client.reader.read_id(Workunit, int(reference))
-    else:
-        raise ValueError(f"Not a workunit URI or numeric ID: {reference}")
 
     if workunit is None:
         raise ValueError(f"Workunit not found: {reference}")
