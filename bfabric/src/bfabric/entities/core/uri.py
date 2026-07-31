@@ -18,7 +18,7 @@ from pydantic_core import core_schema
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-_NORMALIZE_HINT = "use EntityUri.from_web_url to normalize a browser URL"
+_NORMALIZE_HINT = "use EntityUri.normalize to accept a browser URL"
 
 
 def _validate_entity_uri(uri: str) -> str:
@@ -114,23 +114,11 @@ class EntityUri(str):
         ).as_uri()
 
     @classmethod
-    def from_web_url(cls, url: str) -> EntityUri:
-        """Create an EntityUri from a B-Fabric web URL, e.g. one copied from the browser.
+    def normalize(cls, url: str) -> EntityUri:
+        """Normalize a B-Fabric web URL, e.g. one copied from the browser, to a canonical EntityUri.
 
-        Unlike the constructor, extra query parameters and a fragment are dropped, and the host case and
-        a default port are normalized, so the result is the canonical URI of the referenced entity::
-
-            >>> EntityUri.from_web_url("https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=123&tab=details")
-            'https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=123'
-
-        Args:
-            url: B-Fabric web URL of an entity
-
-        Returns:
-            Canonical EntityUri of the referenced entity
-
-        Raises:
-            ValueError: if the URL does not reference a B-Fabric entity
+        Extra query parameters and the fragment are dropped, so unlike the constructor this accepts
+        ``.../show.html?id=123&tab=details``, returning the canonical URI of the referenced entity.
         """
         return _parse_uri_components(url, allow_extra_query=True).as_uri()
 

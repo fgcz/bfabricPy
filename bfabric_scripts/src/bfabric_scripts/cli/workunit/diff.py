@@ -53,7 +53,7 @@ def _resolve_workunit(reference: str, *, client: Bfabric) -> Workunit:
     """Resolve a workunit reference (entity URI or numeric ID) to a ``Workunit``."""
     try:
         # Lenient parse, so a URL copied from the browser (with e.g. "&tab=details") is accepted.
-        uri = EntityUri.from_web_url(reference)
+        uri = EntityUri.normalize(reference)
     except ValueError:
         uri = None
 

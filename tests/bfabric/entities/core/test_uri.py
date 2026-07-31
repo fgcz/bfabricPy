@@ -36,7 +36,7 @@ class TestEntityUri:
     )
     def test_non_canonical_rejected_with_hint(self, uri):
         """The constructor stays strict, but points at the lenient entry point."""
-        with pytest.raises(ValueError, match="from_web_url"):
+        with pytest.raises(ValueError, match="EntityUri.normalize"):
             EntityUri(uri)
 
     def test_components_property(self):
@@ -57,7 +57,7 @@ class TestEntityUri:
         assert isinstance(entity_uri, EntityUri)
 
 
-class TestFromWebUrl:
+class TestNormalize:
     @pytest.mark.parametrize(
         "url",
         [
@@ -71,26 +71,26 @@ class TestFromWebUrl:
         ],
     )
     def test_normalizes_to_canonical(self, url):
-        uri = EntityUri.from_web_url(url)
+        uri = EntityUri.normalize(url)
         assert uri == CANONICAL_URI
         assert isinstance(uri, EntityUri)
 
     def test_keeps_explicit_non_default_port(self):
-        uri = EntityUri.from_web_url("http://localhost:8080/bfabric/project/show.html?id=3000&tab=details")
+        uri = EntityUri.normalize("http://localhost:8080/bfabric/project/show.html?id=3000&tab=details")
         assert uri == "http://localhost:8080/bfabric/project/show.html?id=3000"
 
     def test_idempotent_on_entity_uri(self):
-        assert EntityUri.from_web_url(EntityUri(CANONICAL_URI)) == CANONICAL_URI
+        assert EntityUri.normalize(EntityUri(CANONICAL_URI)) == CANONICAL_URI
 
     def test_components(self):
-        components = EntityUri.from_web_url(f"{CANONICAL_URI}&tab=details").components
+        components = EntityUri.normalize(f"{CANONICAL_URI}&tab=details").components
         assert components.bfabric_instance == HttpUrl("https://fgcz-bfabric.uzh.ch/bfabric/")
         assert components.entity_type == "workunit"
         assert components.entity_id == 346001
 
     def test_keys_dict_like_canonical(self):
         """Normalization is what makes a pasted URL usable as an EntityResult / cache key."""
-        uri = EntityUri.from_web_url(f"{CANONICAL_URI}&tab=details")
+        uri = EntityUri.normalize(f"{CANONICAL_URI}&tab=details")
         assert hash(uri) == hash(EntityUri(CANONICAL_URI))
         assert len({uri, EntityUri(CANONICAL_URI)}) == 1
 
@@ -115,7 +115,7 @@ class TestFromWebUrl:
     )
     def test_invalid(self, url):
         with pytest.raises(ValueError):
-            EntityUri.from_web_url(url)
+            EntityUri.normalize(url)
 
 
 class TestEntityUriComponents:

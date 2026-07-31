@@ -38,7 +38,7 @@ The instance must be served over `https`; `http` is accepted for `localhost` onl
 instances).
 
 The constructor is strict: it accepts exactly this canonical form. To accept a URL as a user copied
-it out of the browser, use [`from_web_url`](#normalize-a-web-url).
+it out of the browser, use [`normalize`](#normalize-a-web-url).
 
 ### Key Features
 
@@ -68,12 +68,12 @@ print(uri.components.entity_id)  # 123
 ### Normalize a Web URL
 
 A URL copied from the browser usually carries extra query parameters (e.g. the selected tab), which
-the constructor rejects. `EntityUri.from_web_url` normalizes it instead:
+the constructor rejects. `EntityUri.normalize` accepts it instead:
 
 ```python
 from bfabric.entities.core.uri import EntityUri
 
-uri = EntityUri.from_web_url(
+uri = EntityUri.normalize(
     "https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=346001&tab=details"
 )
 print(uri)  # "https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=346001"
