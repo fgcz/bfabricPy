@@ -404,6 +404,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.core.uri.EntityUri"><code class="docutils literal notranslate"><span class="pre">EntityUri</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.core.uri.EntityUri.components"><code class="docutils literal notranslate"><span class="pre">EntityUri.components</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.core.uri.EntityUri.from_components"><code class="docutils literal notranslate"><span class="pre">EntityUri.from_components()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.core.uri.EntityUri.normalize"><code class="docutils literal notranslate"><span class="pre">EntityUri.normalize()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.core.uri.EntityUriComponents"><code class="docutils literal notranslate"><span class="pre">EntityUriComponents</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
@@ -428,6 +429,7 @@
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage-examples">Usage Examples</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#parse-existing-uri">Parse Existing URI</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#normalize-a-web-url">Normalize a Web URL</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#construct-uri-from-components">Construct URI from Components</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#with-entityreader">With EntityReader</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#read-multiple-uris">Read Multiple URIs</a></li>
@@ -488,6 +490,14 @@ entity_id: Numeric ID of the entity</p>
 <dt>Returns:</dt><dd><p>Validated EntityUri string</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfabric.entities.core.uri.EntityUri.normalize">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric.entities.core.uri.EntityUri" title="bfabric.entities.core.uri.EntityUri"><span class="pre">EntityUri</span></a></span></span><a class="headerlink" href="#bfabric.entities.core.uri.EntityUri.normalize" title="Link to this definition">#</a></dt>
+<dd><p>Normalize a B-Fabric web URL, e.g. one copied from the browser, to a canonical EntityUri.</p>
+<p>Extra query parameters and the fragment are dropped, so unlike the constructor this accepts
+<code class="docutils literal notranslate"><span class="pre">.../show.html?id=123&amp;tab=details</span></code>, returning the canonical URI of the referenced entity.</p>
 </dd></dl>
 
 </dd></dl>
@@ -572,6 +582,10 @@ entity_id: Numeric entity ID (must be positive)</p>
 </pre></div>
 </div>
 <p>Example: <code class="docutils literal notranslate"><span class="pre">https://fgcz-bfabric.uzh.ch/bfabric/sample/show.html?id=123</span></code></p>
+<p>The instance must be served over <code class="docutils literal notranslate"><span class="pre">https</span></code>; <code class="docutils literal notranslate"><span class="pre">http</span></code> is accepted for <code class="docutils literal notranslate"><span class="pre">localhost</span></code> only (development
+instances).</p>
+<p>The constructor is strict: it accepts exactly this canonical form. To accept a URL as a user copied
+it out of the browser, use <a class="reference internal" href="#normalize-a-web-url"><code class="docutils literal notranslate"><span class="pre">normalize</span></code></a>.</p>
 </section>
 <section id="key-features">
 <h3>Key Features<a class="headerlink" href="#key-features" title="Link to this heading">#</a></h3>
@@ -579,6 +593,7 @@ entity_id: Numeric entity ID (must be positive)</p>
 <li><p><strong>Validation</strong>: Automatic validation of URI format and structure</p></li>
 <li><p><strong>Parsing</strong>: Extract entity type and ID from URIs</p></li>
 <li><p><strong>Construction</strong>: Create URIs from components</p></li>
+<li><p><strong>Normalization</strong>: Turn a B-Fabric web URL into the canonical URI</p></li>
 <li><p><strong>Cross-instance</strong>: Reference entities from any B-Fabric instance</p></li>
 </ul>
 </section>
@@ -598,6 +613,25 @@ entity_id: Numeric entity ID (must be positive)</p>
 <span class="nb">print</span><span class="p">(</span><span class="n">uri</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">entity_id</span><span class="p">)</span>  <span class="c1"># 123</span>
 </pre></div>
 </div>
+</section>
+<section id="normalize-a-web-url">
+<span id="id1"></span><h3>Normalize a Web URL<a class="headerlink" href="#normalize-a-web-url" title="Link to this heading">#</a></h3>
+<p>A URL copied from the browser usually carries extra query parameters (e.g. the selected tab), which
+the constructor rejects. <code class="docutils literal notranslate"><span class="pre">EntityUri.normalize</span></code> accepts it instead:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric.entities.core.uri</span><span class="w"> </span><span class="kn">import</span> <span class="n">EntityUri</span>
+
+<span class="n">uri</span> <span class="o">=</span> <span class="n">EntityUri</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span>
+    <span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=346001&amp;tab=details&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>  <span class="c1"># &quot;https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=346001&quot;</span>
+</pre></div>
+</div>
+<p>Dropped: every query parameter except <code class="docutils literal notranslate"><span class="pre">id</span></code>, and the fragment. Normalized: host case and a default
+port (<code class="docutils literal notranslate"><span class="pre">:443</span></code> on <code class="docutils literal notranslate"><span class="pre">https</span></code>). Everything else is still validated as strictly as in the constructor — the
+path must be <code class="docutils literal notranslate"><span class="pre">/bfabric/&lt;entity_type&gt;/show.html</span></code>, and <code class="docutils literal notranslate"><span class="pre">id</span></code> must be present exactly once (repeated
+<code class="docutils literal notranslate"><span class="pre">id</span></code> parameters with conflicting values are an error) and a positive integer.</p>
+<p>Because the result is canonical, it compares and hashes equal to the same entity’s <code class="docutils literal notranslate"><span class="pre">EntityUri</span></code>, so a
+pasted URL can be used as an <code class="docutils literal notranslate"><span class="pre">EntityResult</span></code> or cache key.</p>
 </section>
 <section id="construct-uri-from-components">
 <h3>Construct URI from Components<a class="headerlink" href="#construct-uri-from-components" title="Link to this heading">#</a></h3>
@@ -751,6 +785,7 @@ entity_id: Numeric entity ID (must be positive)</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.core.uri.EntityUri"><code class="docutils literal notranslate"><span class="pre">EntityUri</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.core.uri.EntityUri.components"><code class="docutils literal notranslate"><span class="pre">EntityUri.components</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.core.uri.EntityUri.from_components"><code class="docutils literal notranslate"><span class="pre">EntityUri.from_components()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.core.uri.EntityUri.normalize"><code class="docutils literal notranslate"><span class="pre">EntityUri.normalize()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric.entities.core.uri.EntityUriComponents"><code class="docutils literal notranslate"><span class="pre">EntityUriComponents</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
@@ -775,6 +810,7 @@ entity_id: Numeric entity ID (must be positive)</p>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage-examples">Usage Examples</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#parse-existing-uri">Parse Existing URI</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#normalize-a-web-url">Normalize a Web URL</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#construct-uri-from-components">Construct URI from Components</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#with-entityreader">With EntityReader</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#read-multiple-uris">Read Multiple URIs</a></li>
