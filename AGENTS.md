@@ -113,6 +113,17 @@ Each package's docs live alongside its source. Skim the index when working in a 
   read on its own (drop a prefix only when the class already conveys it).
 - Ruff linting is currently only enforced on the `bfabric` package (scripts, wrapper_creator, tests, noxfile are excluded via per-file-ignores)
 - Line length: 120 (ruff and black)
+- Docstrings use Sphinx `:param:` / `:raises:`; Google-style `Args:` / `Returns:` blocks survive in a
+  few older modules (e.g. `entities/core/uri.py`, `entities/core/entity_reader.py`) — don't add more.
+  Keep them at the lowest useful altitude: one summary line by default, plus a short paragraph only for
+  a contract the signature cannot show (why this exists beside a similar function, a gotcha, an ordering
+  constraint). Skip `Returns:` blocks that restate the return annotation and `:param:` lines that re-say
+  the name and type. Avoid `>>>` examples: no session collects doctests, so they read as tested without
+  being tested — put a short example inline in the prose instead.
+- Exception: a cyclopts command function's docstring **is** its `--help` text — the summary line becomes
+  the command description and each `:param:` line becomes that option's help (see
+  `bfabric-cli workunit not-available --help`). Those are user-facing copy: keep them complete and clear
+  rather than terse, and trim the internal helpers around them instead.
 - Do not restate a parameter's default value in its docstring when the signature already shows it (e.g. `client_id: str = DEFAULT_CLIENT_ID`). Writing `(default "CLI")` in the `:param:` line just duplicates the signature and drifts out of sync when the default changes. Keep notes that explain what a value *means* (e.g. `(``0`` = auto-assign)`), not ones that merely repeat it. This also applies to class/model docstrings that restate a field's default shown a few lines below (prefer "see `field_name`" over repeating the literal value). Note the common case where the signature default is a sentinel like `None` but the docstring explains what it resolves to at runtime (e.g. `max_results: int | None = 100` documented as `` (``None`` for all) ``, or `path: Path | None = None` documented as `` (``None`` writes to ``./output.yml``) ``) — that is the *meaning* case, not the restatement case, and should be kept; phrase it as "``None`` does/means X", not "(default: X)", so it isn't mistaken for a literal restatement.
 - basedpyright uses per-package baseline files at `.basedpyright/baseline.{package}.json` — **do not edit baseline files to silence new errors**; fix the code or add a targeted `# pyright: ignore[...]` comment on the offending line. Baselines only exist to grandfather in pre-existing errors.
 - Integration tests live in a separate repository
