@@ -75,8 +75,14 @@ Key identity difference: **client_credentials tokens carry no user `sub` and no 
 like `containers`.** If a resource server authorizes by *your* container membership, a service
 token won't do — you need a user flow (PKCE or device code).
 
-`DEFAULT_OAUTH_SCOPE` is `"api:read api:write openid profile email groups"` — it **includes
-`groups`** (the employee file-access path, see below) but not `containers` or `download`.
+The core `Bfabric` OAuth methods take `client_id` and `scope` as **required** arguments — there is
+no baked-in default. The `bfabric-cli` login commands (`auth login` / `auth device-code`) likewise
+**require** an explicit `--scope`: pick a named preset — `read-only` (`api:read`), `read-write`
+(`api:write`, which implies `api:read`), or `upload` (`api:write tus`) — or pass any scope string.
+These login presets are **minimal API scopes** — they do **not** include `groups` (the employee
+file-access path, see below) or the OIDC scopes, so request those explicitly when you need them.
+Client/webapp registration (`auth register` / `auth register-webapp`) keeps the broader
+OIDC-inclusive default.
 
 ---
 
@@ -92,13 +98,14 @@ File/download access is authorized by **container membership**, which a token ca
 > **Employees: request the `groups` scope — this is the practical PKCE path.**
 > The **`containers` scope cannot be requested via PKCE** (it is restricted; the server silently
 > drops it — which is exactly why requesting `containers` in an interactive flow yields a token
-> *without* the claim and no error). **`groups`, however, is requestable and is already in
-> `DEFAULT_OAUTH_SCOPE`.** So an employee gets file access from a normal user flow as long as
-> `groups` is in the requested scope:
+> *without* the claim and no error). **`groups`, however, is requestable.** It is **not** part of
+> the CLI's login presets (those are minimal API scopes), so pass it explicitly to get file access
+> from a normal user flow:
 >
 > ```python
 > client = Bfabric.connect_pkce(
 >     "https://fgcz-bfabric-demo.uzh.ch/bfabric",
+>     client_id="CLI",
 >     scope="openid profile email api:read api:write groups",
 > )
 > ```
