@@ -8,21 +8,22 @@ from bfabric.entities import Dataset
 
 if TYPE_CHECKING:
     from bfabric_app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
-    from bfabric import Bfabric
+    from bfabric.entities.core.entity_reader import EntityReader
 
 
 class ResolveBfabricDatasetSpecs:
-    def __init__(self, client: Bfabric) -> None:
-        self._client = client
+    def __init__(self, reader: EntityReader) -> None:
+        self._reader = reader
 
     def __call__(self, specs: list[BfabricDatasetSpec]) -> list[ResolvedStaticFile]:
         """Convert dataset specifications to file specifications."""
         if not specs:
             return []
 
-        # Fetch all datasets in bulk
+        # Fetch all datasets in bulk, re-keyed by id (missing ids are dropped, so a downstream
+        # ``datasets[dataset_id]`` raises ``KeyError`` for a not-found dataset, as before).
         dataset_ids = [spec.id for spec in specs]
-        datasets = Dataset.find_all(ids=dataset_ids, client=self._client)
+        datasets = self._reader.read_ids(Dataset, dataset_ids).by_id
 
         # Resolve each dataset specification to its serialized content
         return [

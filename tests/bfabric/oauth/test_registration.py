@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import pytest
 
-from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
 from bfabric._oauth.registration import register_client, register_webapp
+
+# register_client/register_webapp now require an explicit scope; tests pass this.
+_TEST_SCOPE = "api:read api:write"
 
 
 @pytest.fixture
@@ -29,6 +31,7 @@ class TestRegisterClient:
             token="bearer-token",
             client_name="my-app",
             redirect_uri="http://localhost:8050/callback",
+            scope=_TEST_SCOPE,
         )
 
         mock_httpx_post.assert_called_once_with(
@@ -37,7 +40,7 @@ class TestRegisterClient:
                 "client_name": "my-app",
                 "redirect_uris": ["http://localhost:8050/callback"],
                 "grant_types": [_TOKEN_EXCHANGE, "refresh_token", "authorization_code"],
-                "scope": DEFAULT_OAUTH_SCOPE,
+                "scope": _TEST_SCOPE,
             },
             headers={"Authorization": "Bearer bearer-token"},
             timeout=30,
@@ -52,6 +55,7 @@ class TestRegisterClient:
             client_name="app",
             redirect_uri="http://localhost/cb",
             service_user="gfeeder",
+            scope=_TEST_SCOPE,
         )
 
         call_body = mock_httpx_post.call_args[1]["json"]
@@ -69,6 +73,7 @@ class TestRegisterClient:
             token="tok",
             client_name="app",
             redirect_uri="http://localhost/cb",
+            scope=_TEST_SCOPE,
         )
 
         call_body = mock_httpx_post.call_args[1]["json"]
@@ -94,6 +99,7 @@ class TestRegisterClient:
             client_name="app",
             redirect_uri="http://localhost/cb",
             grant_types=["authorization_code", "refresh_token"],
+            scope=_TEST_SCOPE,
         )
 
         call_body = mock_httpx_post.call_args[1]["json"]
@@ -105,11 +111,12 @@ class TestRegisterClient:
             token="tok",
             client_name="app",
             redirect_uri="http://localhost/cb",
+            scope=_TEST_SCOPE,
         )
 
         call_body = mock_httpx_post.call_args[1]["json"]
         assert "service_user_login" not in call_body
-        assert call_body["scope"] == DEFAULT_OAUTH_SCOPE
+        assert call_body["scope"] == _TEST_SCOPE
 
     def test_normalizes_trailing_slash(self, mock_httpx_post):
         register_client(
@@ -117,6 +124,7 @@ class TestRegisterClient:
             token="tok",
             client_name="app",
             redirect_uri="http://localhost/cb",
+            scope=_TEST_SCOPE,
         )
 
         url = mock_httpx_post.call_args[0][0]
@@ -138,6 +146,7 @@ class TestRegisterClient:
                 token="bad-token",
                 client_name="app",
                 redirect_uri="http://localhost/cb",
+                scope=_TEST_SCOPE,
             )
 
 
@@ -168,6 +177,7 @@ class TestRegisterWebapp:
             token="bearer-tok",
             app_name="My Webapp",
             web_url="https://myapp.example.com/",
+            scope=_TEST_SCOPE,
         )
 
         mock_register.assert_called_once_with(
@@ -176,7 +186,7 @@ class TestRegisterWebapp:
             client_name="My Webapp",
             redirect_uri="https://myapp.example.com/",
             service_user=None,
-            scope=DEFAULT_OAUTH_SCOPE,
+            scope=_TEST_SCOPE,
         )
         mock_client.save.assert_called_once_with(
             "application",
@@ -197,6 +207,7 @@ class TestRegisterWebapp:
             app_name="app",
             web_url="https://app.example.com/",
             service_user="svc",
+            scope=_TEST_SCOPE,
         )
 
         assert mock_register.call_args[1]["service_user"] == "svc"
@@ -219,6 +230,7 @@ class TestRegisterWebapp:
             app_name="app",
             web_url="https://app.example.com/",
             application_id=42,
+            scope=_TEST_SCOPE,
         )
 
         save_obj = mock_client.save.call_args[0][1]
@@ -232,6 +244,7 @@ class TestRegisterWebapp:
             web_url="https://app.example.com/",
             technology_id=7,
             description="A test app",
+            scope=_TEST_SCOPE,
         )
 
         save_obj = mock_client.save.call_args[0][1]
@@ -244,6 +257,7 @@ class TestRegisterWebapp:
             token="tok",
             app_name="app",
             web_url="https://app.example.com/",
+            scope=_TEST_SCOPE,
         )
 
         save_obj = mock_client.save.call_args[0][1]

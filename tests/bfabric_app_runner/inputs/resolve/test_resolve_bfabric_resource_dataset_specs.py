@@ -2,11 +2,16 @@ import polars as pl
 import pytest
 from inline_snapshot import snapshot
 
-from bfabric.entities import Dataset, Resource
+from bfabric.entities.core.entity_reader import EntityResult
+from bfabric.entities.core.uri import EntityUri
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_resource_dataset_specs import ResolveBfabricResourceDatasetSpecs
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedFile
 from bfabric_app_runner.specs.inputs.bfabric_resource_dataset import BfabricResourceDatasetSpec
 from bfabric_app_runner.specs.inputs.file_spec import FileSourceSsh, FileSourceSshValue
+
+
+def _resource_uri(resource_id: int) -> EntityUri:
+    return EntityUri(f"https://fgcz-bfabric.uzh.ch/bfabric/resource/show.html?id={resource_id}")
 
 
 @pytest.fixture
@@ -25,10 +30,10 @@ def original_dataset_df(scenario):
 
 
 @pytest.fixture(autouse=True)
-def original_dataset(mocker, original_dataset_df):
+def original_dataset(mocker, original_dataset_df, client):
     dataset = mocker.MagicMock(nmae="original_dataset_entity", spec=["to_polars"])
     dataset.to_polars.return_value = original_dataset_df
-    mocker.patch.object(Dataset, "find").return_value = dataset
+    client.reader.read_id.return_value = dataset
     return dataset
 
 
@@ -40,7 +45,7 @@ def storage(mocker):
 
 
 @pytest.fixture(autouse=True)
-def original_resources(mocker, storage):
+def original_resources(mocker, storage, client):
     resources = []
     for i in range(10, 13):
         resource = mocker.MagicMock(
@@ -56,10 +61,11 @@ def original_resources(mocker, storage):
         resource.__getitem__.side_effect = lambda key, _attrs=attrs: _attrs[key]
         resources.append(resource)
 
-    def mock_find_all(ids, client):
-        return {r.id: r for r in resources if r.id in ids}
+    def mock_read_ids(entity_type, entity_ids, *args, **kwargs):
+        # URI-keyed like the real reader; misses would be absent (and None-filtered downstream).
+        return EntityResult({_resource_uri(r.id): r for r in resources if r.id in entity_ids})
 
-    mocker.patch.object(Resource, "find_all").side_effect = mock_find_all
+    client.reader.read_ids.side_effect = mock_read_ids
     return resources
 
 
@@ -75,12 +81,12 @@ def spec(scenario):
 
 @pytest.fixture
 def client(mocker):
-    return mocker.MagicMock(name="client", spec=[])
+    return mocker.MagicMock(name="client")
 
 
 @pytest.fixture
 def resolver(client):
-    return ResolveBfabricResourceDatasetSpecs(client=client)
+    return ResolveBfabricResourceDatasetSpecs(reader=client.reader)
 
 
 class TestInternals:

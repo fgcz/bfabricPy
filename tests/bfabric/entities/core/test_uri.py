@@ -4,6 +4,8 @@ from pydantic import HttpUrl, BaseModel
 from bfabric.entities.core.uri import EntityUri, EntityUriComponents, GroupedUris
 from bfabric.entities.core.uri import _parse_uri_components
 
+CANONICAL_URI = "https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=346001"
+
 
 class TestEntityUri:
     @pytest.mark.parametrize(
@@ -24,6 +26,19 @@ class TestEntityUri:
             EntityUri(uri)
         assert "Invalid Entity URI" in str(error.value)
 
+    @pytest.mark.parametrize(
+        "uri",
+        [
+            f"{CANONICAL_URI}&tab=details",
+            f"{CANONICAL_URI}#tab",
+            f"{CANONICAL_URI}&id=346001",
+        ],
+    )
+    def test_non_canonical_rejected_with_hint(self, uri):
+        """The constructor stays strict, but points at the lenient entry point."""
+        with pytest.raises(ValueError, match="EntityUri.normalize"):
+            EntityUri(uri)
+
     def test_components_property(self):
         uri = "https://fgcz-bfabric.uzh.ch/bfabric/project/show.html?id=3000"
         entity_uri = EntityUri(uri)
@@ -40,6 +55,67 @@ class TestEntityUri:
         expected_uri = "https://bfabric.example.com/bfabric/dataset/show.html?id=1234"
         assert entity_uri == expected_uri
         assert isinstance(entity_uri, EntityUri)
+
+
+class TestNormalize:
+    @pytest.mark.parametrize(
+        "url",
+        [
+            CANONICAL_URI,
+            f"{CANONICAL_URI}&tab=details",
+            "https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?tab=details&id=346001",
+            f"{CANONICAL_URI}#tab",
+            f"{CANONICAL_URI}&id=346001",
+            "https://FGCZ-Bfabric.UZH.ch/bfabric/workunit/show.html?id=346001",
+            "https://fgcz-bfabric.uzh.ch:443/bfabric/workunit/show.html?id=346001",
+        ],
+    )
+    def test_normalizes_to_canonical(self, url):
+        uri = EntityUri.normalize(url)
+        assert uri == CANONICAL_URI
+        assert isinstance(uri, EntityUri)
+
+    def test_keeps_explicit_non_default_port(self):
+        uri = EntityUri.normalize("http://localhost:8080/bfabric/project/show.html?id=3000&tab=details")
+        assert uri == "http://localhost:8080/bfabric/project/show.html?id=3000"
+
+    def test_idempotent_on_entity_uri(self):
+        assert EntityUri.normalize(EntityUri(CANONICAL_URI)) == CANONICAL_URI
+
+    def test_components(self):
+        components = EntityUri.normalize(f"{CANONICAL_URI}&tab=details").components
+        assert components.bfabric_instance == HttpUrl("https://fgcz-bfabric.uzh.ch/bfabric/")
+        assert components.entity_type == "workunit"
+        assert components.entity_id == 346001
+
+    def test_keys_dict_like_canonical(self):
+        """Normalization is what makes a pasted URL usable as an EntityResult / cache key."""
+        uri = EntityUri.normalize(f"{CANONICAL_URI}&tab=details")
+        assert hash(uri) == hash(EntityUri(CANONICAL_URI))
+        assert len({uri, EntityUri(CANONICAL_URI)}) == 1
+
+    @pytest.mark.parametrize(
+        "url",
+        [
+            "http://example.com/bfabric/workunit/show.html?id=346001",
+            "ftp://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=346001",
+            "https://user:pw@fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=346001",
+            "https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html",
+            "https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?tab=details",
+            "https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=abc",
+            "https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=0",
+            "https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=346001&id=346002",
+            "https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.htm?id=346001",
+            "https://fgcz-bfabric.uzh.ch/lims/bfabric/workunit/show.html?id=346001",
+            "https://fgcz-bfabric.uzh.ch/bfabric/Workunit/show.html?id=346001",
+            "https://example.com/invalid/uri",
+            "not-a-url",
+            "",
+        ],
+    )
+    def test_invalid(self, url):
+        with pytest.raises(ValueError):
+            EntityUri.normalize(url)
 
 
 class TestEntityUriComponents:

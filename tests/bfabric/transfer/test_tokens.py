@@ -66,7 +66,7 @@ class TestRequireScope:
 
         message = str(exc_info.value)
         assert "tus" in message
-        assert "bfabric-cli auth pkce --scope" in message
+        assert "bfabric-cli auth login --scope" in message
 
     def test_non_oauth_client_skips(self, mocker):
         client = _login_client(mocker, "someuser")

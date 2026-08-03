@@ -10,7 +10,7 @@ def get_resource_flow_input_resources(
     filter_suffix: str | None,
 ) -> list[Resource]:
     """Returns the input resources for a resource flow workunit, applying e.g. a filter suffix."""
-    all_resources = client.reader.read_ids("resource", definition.execution.resources, expected_type=Resource)
+    all_resources = client.reader.read_ids(Resource, definition.execution.resources)
     result_resources: list[Resource] = []
     for resource_uri, resource in all_resources.items():
         if resource is None:

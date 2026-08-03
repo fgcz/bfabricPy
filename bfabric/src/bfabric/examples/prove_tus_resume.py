@@ -25,7 +25,7 @@ It exercises the same path ``bfabric.operations.workunit.upload_files`` uses:
 Prerequisites: an OAuth-backed config env with the ``tus`` scope. Authenticate once
 with::
 
-    bfabric-cli auth pkce --scope "api:read api:write openid profile email groups tus"
+    bfabric-cli auth login --scope "api:write tus"
 
 then run like the equivalent CLI upload::
 

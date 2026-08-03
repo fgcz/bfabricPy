@@ -26,6 +26,7 @@ from bfabric import Bfabric
 from bfabric._oauth.registration import register_webapp
 from bfabric._oauth.webapp_client import WebappClient
 from bfabric.entities.core.uri import EntityUri
+from bfabric_scripts.cli.login._constants import DEFAULT_REGISTRATION_SCOPE
 
 PORT = 19876
 REDIRECT_PATH = "/callback"
@@ -56,6 +57,7 @@ def main() -> None:
         app_name=app_name,
         web_url=web_url,
         service_user="itfeeder",
+        scope=DEFAULT_REGISTRATION_SCOPE,
         hidden=True,
     )
     oauth_info = result["oauth"]
@@ -149,6 +151,7 @@ def main() -> None:
             launch_token=jwt,
             client_id=oauth_client_id,
             client_secret=oauth_client_secret,
+            scope=DEFAULT_REGISTRATION_SCOPE,
         )
     except Exception as e:
         print(f"\nERROR: Token exchange failed: {e}", file=sys.stderr)

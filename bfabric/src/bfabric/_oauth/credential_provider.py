@@ -18,16 +18,30 @@ from __future__ import annotations
 import threading
 from typing import TYPE_CHECKING
 
+from authlib.common.errors import AuthlibBaseError
+from authlib.integrations.base_client.errors import OAuthError
 from authlib.integrations.requests_client import OAuth2Session  # pyright: ignore[reportMissingTypeStubs]
+from authlib.oauth2.rfc6749 import OAuth2Token
+from requests.exceptions import RequestException
 
 from loguru import logger
 
 from bfabric.config.bfabric_auth import OAUTH_LOGIN, BfabricAuth
-from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
-from bfabric._oauth.token_cache import TokenCache
+from bfabric.errors import BfabricOAuthError
+from bfabric._oauth.token_cache import TokenCache, compute_token_cache_path
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+
+def _canonical_token(token: dict[str, object]) -> dict[str, object]:
+    """The canonical on-disk form of an OAuth *token*.
+
+    ``OAuth2Token`` derives an absolute ``expires_at`` from ``expires_in`` (matching what a live
+    session writes on ingest), so ``auth status`` can read a cached token's freshness. This is the
+    single normalization rule shared by every code path that persists a token to the cache.
+    """
+    return dict(OAuth2Token(dict(token)))
 
 
 class OAuthCredentialProvider:
@@ -62,7 +76,7 @@ class OAuthCredentialProvider:
         client_secret: str,
         token_url: str,
         *,
-        scope: str = DEFAULT_OAUTH_SCOPE,
+        scope: str,
         token: dict[str, object] | None = None,
         grant_type: str = "client_credentials",
         token_cache_path: Path | None = None,
@@ -105,6 +119,18 @@ class OAuthCredentialProvider:
             self._session.token = initial
             self._persist()
 
+    @classmethod
+    def cache_login_token(cls, base_url: str, *, client_id: str, token: dict[str, object], env_name: str) -> Path:
+        """Normalize and cache a freshly obtained login *token*, returning its cache path.
+
+        Ingesting the token derives its absolute ``expires_at`` (from ``expires_in``) and writes the
+        result to the per-identity disk cache, so a later process finds a complete, reusable token.
+        Used by the CLI ``auth login`` / ``auth device-code`` commands once their flow returns a token.
+        """
+        cache_path = compute_token_cache_path(base_url, client_id, env_name).expanduser()
+        TokenCache(cache_path).save(_canonical_token(token))
+        return cache_path
+
     def get_auth(self) -> BfabricAuth:
         """Return a :class:`BfabricAuth` with a valid access token.
 
@@ -123,18 +149,35 @@ class OAuthCredentialProvider:
         Must be called while holding ``self._lock``.
         """
         token = self._session.token  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-        if token:
-            self._strip_unusable_refresh_token()
-            # Let authlib check expiry + refresh/re-fetch as appropriate (operates on self.token).
-            logger.debug("Ensuring token is active (refresh if needed)")
-            self._session.ensure_active_token()  # pyright: ignore[reportUnknownMemberType]
-        else:
-            # No token at all — perform the initial fetch.
-            logger.debug("No token present, fetching initial token")
-            token_endpoint: str | None = self._session.metadata.get("token_endpoint")  # pyright: ignore[reportAny]
-            self._session.fetch_token(token_endpoint)  # pyright: ignore[reportUnknownMemberType]
-            self._strip_unusable_refresh_token()
-            self._persist()
+        try:
+            if token:
+                self._strip_unusable_refresh_token()
+                # Let authlib check expiry + refresh/re-fetch as appropriate (operates on self.token).
+                logger.debug("Ensuring token is active (refresh if needed)")
+                self._session.ensure_active_token()  # pyright: ignore[reportUnknownMemberType]
+            else:
+                # No token at all — perform the initial fetch.
+                logger.debug("No token present, fetching initial token")
+                token_endpoint: str | None = self._session.metadata.get("token_endpoint")  # pyright: ignore[reportAny]
+                self._session.fetch_token(token_endpoint)  # pyright: ignore[reportUnknownMemberType]
+                self._strip_unusable_refresh_token()
+                self._persist()
+        # authlib's errors extend Exception (not RuntimeError) and transport failures raise requests
+        # exceptions, so either would otherwise escape the CLI's error handling as a raw traceback.
+        # Wrap them in the domain error (a RuntimeError) with an actionable message.
+        except OAuthError as e:
+            # An OAuthError under the refresh_token grant means the stored session can no longer be
+            # refreshed (expired/revoked refresh token) — the user must re-authenticate.
+            if self._grant_type == "refresh_token":
+                raise BfabricOAuthError(
+                    f"OAuth session expired ({e}). Re-authenticate with "
+                    "'bfabric-cli auth login' or 'bfabric-cli auth device-code'."
+                ) from e
+            raise BfabricOAuthError(f"OAuth token request failed: {e}") from e
+        except AuthlibBaseError as e:
+            raise BfabricOAuthError(f"OAuth token request failed: {e}") from e
+        except RequestException as e:
+            raise BfabricOAuthError(f"Could not reach the OAuth token endpoint ({self._token_url}): {e}") from e
 
     def _strip_unusable_refresh_token(self) -> None:
         """Drop the ``refresh_token`` from a client-credentials session token.
@@ -163,10 +206,9 @@ class OAuthCredentialProvider:
 
     def _persist(self) -> None:
         """Write the current token to disk cache if configured."""
-        if self._cache and self._session.token:  # pyright: ignore[reportUnknownMemberType]
-            self._cache.save(
-                dict(self._session.token)  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType]
-            )
+        token = self._session.token  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+        if self._cache and token:
+            self._cache.save(_canonical_token(token))  # pyright: ignore[reportUnknownArgumentType]
 
     def __getstate__(self) -> dict[str, object]:  # pyright: ignore[reportImplicitOverride]
         """Return a picklable representation.

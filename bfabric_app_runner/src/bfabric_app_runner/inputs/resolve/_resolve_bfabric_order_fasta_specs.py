@@ -27,7 +27,7 @@ class ResolveBfabricOrderFastaSpecs:
         """Extract FASTA sequence from an order or workunit."""
         # find the order
         if spec.entity == "workunit":
-            workunit = Workunit.find(id=spec.id, client=self._client)
+            workunit = self._client.reader.read_id(Workunit, spec.id)
             if not isinstance(workunit.container, Order):
                 msg = f"Workunit {spec.id} is not associated with an order"
                 if spec.required:
@@ -36,7 +36,7 @@ class ResolveBfabricOrderFastaSpecs:
                 return ""
             order = workunit.container
         elif spec.entity == "order":
-            order = Order.find(id=spec.id, client=self._client)
+            order = self._client.reader.read_id(Order, spec.id)
             if order is None:
                 msg = f"Order {spec.id} not found"
                 if spec.required:

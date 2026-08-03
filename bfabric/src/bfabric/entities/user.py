@@ -13,7 +13,7 @@ class User(Entity):
     @classmethod
     def find_by_login(cls, login: str, client: Bfabric) -> User | None:
         """Finds a user by their login name."""
-        return client.reader.query_one("user", {"login": login}, expected_type=cls)
+        return client.reader.query_one(cls, {"login": login})
 
     @property
     def is_employee(self) -> bool:

@@ -1,30 +1,18 @@
 from __future__ import annotations
 
-import time
-
 import yaml
 
-from bfabric_scripts.cli.login.device_code import cmd_login_device_code
+from bfabric_scripts.cli.login._constants import SCOPE_PRESETS_BY_NAME
+from bfabric_scripts.cli.login.oauth_login import cmd_login_device_code
 
 
 class TestCmdLoginDeviceCode:
-    def test_writes_config_and_caches_token(self, tmp_path, mocker):
+    def test_writes_config_and_caches_token(self, tmp_path, mocker, oauth_token, oauth_session):
         config_file = tmp_path / "config.yml"
-        token = {
-            "access_token": "jwt123",
-            "refresh_token": "rt456",
-            "token_type": "Bearer",
-            "expires_at": time.time() + 3600,
-        }
-
-        mock_session = mocker.MagicMock()
-        mock_session.token = None
-        mock_session.metadata = {"token_endpoint": "https://example.com/bfabric/rest/oauth/token"}
-
-        mock_dc = mocker.patch("bfabric_scripts.cli.login.device_code.device_code_login", return_value=token)
-        mocker.patch("bfabric._oauth.credential_provider.OAuth2Session", return_value=mock_session)
+        mock_dc = mocker.patch("bfabric_scripts.cli.login.oauth_login.device_code_login", return_value=oauth_token)
         cmd_login_device_code(
             base_url="https://example.com/bfabric",
+            scope="api:read",
             client_id="test-client",
             config_env="PROD",
             config_file=config_file,
@@ -36,22 +24,12 @@ class TestCmdLoginDeviceCode:
         assert data["PROD"]["client_id"] == "test-client"
         assert data["PROD"]["base_url"] == "https://example.com/bfabric"
 
-    def test_set_default_false_does_not_set_default(self, tmp_path, mocker):
+    def test_set_default_false_does_not_set_default(self, tmp_path, mocker, oauth_token, oauth_session):
         config_file = tmp_path / "config.yml"
-        token = {
-            "access_token": "jwt123",
-            "refresh_token": "rt456",
-            "token_type": "Bearer",
-            "expires_at": time.time() + 3600,
-        }
-        mock_session = mocker.MagicMock()
-        mock_session.token = None
-        mock_session.metadata = {"token_endpoint": "https://example.com/bfabric/rest/oauth/token"}
-
-        mocker.patch("bfabric_scripts.cli.login.device_code.device_code_login", return_value=token)
-        mocker.patch("bfabric._oauth.credential_provider.OAuth2Session", return_value=mock_session)
+        mocker.patch("bfabric_scripts.cli.login.oauth_login.device_code_login", return_value=oauth_token)
         cmd_login_device_code(
             base_url="https://example.com/bfabric",
+            scope="api:read",
             client_id="test-client",
             config_env="PROD",
             config_file=config_file,
@@ -61,3 +39,33 @@ class TestCmdLoginDeviceCode:
         data = yaml.safe_load(config_file.read_text())
         assert "default_config" not in data["GENERAL"]
         assert data["PROD"]["auth_method"] == "oauth"
+
+    def test_cancel_at_set_default_aborts(self, tmp_path, mocker, capsys):
+        config_file = tmp_path / "config.yml"
+        mock_dc = mocker.patch("bfabric_scripts.cli.login.oauth_login.device_code_login")
+        # No --set-default given: the user reaches the confirm prompt and cancels it (Ctrl-C -> None).
+        mocker.patch("bfabric_scripts.cli.login._common.is_interactive", return_value=True)
+        mocker.patch("bfabric_scripts.cli.login._common.confirm", return_value=None)
+        cmd_login_device_code(
+            base_url="https://example.com/bfabric",
+            client_id="test-client",
+            config_env="PROD",
+            config_file=config_file,
+            scope="read-write",
+        )
+        # Cancelling aborts the whole login: no device-code flow, no config written.
+        mock_dc.assert_not_called()
+        assert not config_file.exists()
+        assert "Login aborted." in capsys.readouterr().err
+
+    def test_scope_preset_is_expanded(self, tmp_path, mocker, oauth_token, oauth_session):
+        config_file = tmp_path / "config.yml"
+        mock_dc = mocker.patch("bfabric_scripts.cli.login.oauth_login.device_code_login", return_value=oauth_token)
+        cmd_login_device_code(
+            base_url="https://example.com/bfabric",
+            client_id="test-client",
+            config_env="PROD",
+            config_file=config_file,
+            scope="upload",
+        )
+        assert mock_dc.call_args.kwargs["scope"] == SCOPE_PRESETS_BY_NAME["upload"].scope

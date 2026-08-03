@@ -76,7 +76,7 @@ def preview_dataset_update(
     Does not write. Intended for interactive flows that want to confirm before
     calling `update_dataset`.
     """
-    existing = client.reader.read_id("dataset", dataset_id, expected_type=Dataset)
+    existing = client.reader.read_id(Dataset, dataset_id)
     if existing is None:
         raise RuntimeError(f"Dataset {dataset_id} not found")
     changes = identify_changes(old_df=existing.to_polars(), new_df=table)

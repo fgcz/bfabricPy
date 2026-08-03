@@ -64,7 +64,7 @@ def test_save_dataset_no_existing_creates(mock_client, mock_workunit_definition,
 
     _save_dataset(spec, mock_client, mock_workunit_definition)
 
-    mock_client.reader.query_one.assert_called_once_with("dataset", {"workunitid": 42}, expected_type=Dataset)
+    mock_client.reader.query_one.assert_called_once_with(Dataset, {"workunitid": 42})
     mock_operations["create"].assert_called_once()
     _, table, params = mock_operations["create"].call_args.args
     assert params.name == "my_dataset"

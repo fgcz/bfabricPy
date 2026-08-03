@@ -109,6 +109,41 @@ class TestCallbackServer:
         assert server.result.code is None
         server.server_close()
 
+    @staticmethod
+    def _fetch_callback(query: str) -> str:
+        """Drive one loopback callback request and return the HTML response body."""
+        server = _CallbackServer(port=0)
+        port = server.server_address[1]
+        body = {}
+
+        def make_request():
+            body["text"] = httpx.get(f"http://127.0.0.1:{port}/callback?{query}").text
+
+        server_thread = threading.Thread(target=server.serve_forever, daemon=True)
+        server_thread.start()
+        make_request()
+        server_thread.join(timeout=5)
+        server.server_close()
+        return body["text"]
+
+    def test_success_page_rendered(self):
+        html = self._fetch_callback("code=auth_code_123&state=csrf_state_456")
+        assert "Login successful" in html
+        assert "Login failed" not in html
+
+    def test_error_page_rendered(self):
+        html = self._fetch_callback(
+            "error=access_denied&error_description=Access+requires+two-factor+authentication&state=s"
+        )
+        assert "Login failed" in html
+        assert "Access requires two-factor authentication" in html
+        assert "Login successful" not in html
+
+    def test_error_description_is_html_escaped(self):
+        html = self._fetch_callback("error=access_denied&error_description=<script>alert(1)</script>")
+        assert "&lt;script&gt;" in html
+        assert "<script>alert(1)</script>" not in html
+
 
 class TestExchangeCode:
     def test_posts_correct_params(self, mocker):
@@ -171,7 +206,7 @@ class TestPkceLogin:
         mock_server.serve_forever = mocker.MagicMock()
         mock_server_cls.return_value = mock_server
 
-        result = pkce_login("https://example.com/bfabric", client_id="test-cli")
+        result = pkce_login("https://example.com/bfabric", client_id="test-cli", scope="api:read")
 
         assert result == token_dict
         mock_exchange.assert_called_once_with(
@@ -196,7 +231,7 @@ class TestPkceLogin:
         mock_server_cls.return_value = mock_server
 
         with pytest.raises(BfabricOAuthError, match="CSRF state mismatch") as exc_info:
-            pkce_login("https://example.com/bfabric")
+            pkce_login("https://example.com/bfabric", client_id="test-cli", scope="api:read")
         # State values must NOT appear in the error message (security)
         assert "expected_state" not in str(exc_info.value)
         assert "wrong_state" not in str(exc_info.value)
@@ -219,7 +254,7 @@ class TestPkceLogin:
         mock_server_cls.return_value = mock_server
 
         with pytest.raises(RuntimeError, match="Authorization error: access_denied"):
-            pkce_login("https://example.com/bfabric")
+            pkce_login("https://example.com/bfabric", client_id="test-cli", scope="api:read")
 
     def test_timeout_raises(self, mocker):
         mock_server_cls = mocker.patch("bfabric._oauth.pkce._CallbackServer")
@@ -238,7 +273,7 @@ class TestPkceLogin:
         mock_thread_cls.return_value = mock_thread
 
         with pytest.raises(RuntimeError, match="timed out"):
-            pkce_login("https://example.com/bfabric", timeout=0.1)
+            pkce_login("https://example.com/bfabric", client_id="test-cli", scope="api:read", timeout=0.1)
 
     def test_browser_fallback_prints_url(self, mocker, capsys):
         mock_server_cls = mocker.patch("bfabric._oauth.pkce._CallbackServer")
@@ -254,7 +289,7 @@ class TestPkceLogin:
         mock_server.serve_forever = mocker.MagicMock()
         mock_server_cls.return_value = mock_server
 
-        pkce_login("https://example.com/bfabric")
+        pkce_login("https://example.com/bfabric", client_id="test-cli", scope="api:read")
 
         captured = capsys.readouterr()
         assert "Open this URL to log in:" in captured.err
@@ -273,7 +308,7 @@ class TestPkceLogin:
         mock_server.serve_forever = mocker.MagicMock()
         mock_server_cls.return_value = mock_server
 
-        pkce_login("https://example.com/bfabric", open_browser=False)
+        pkce_login("https://example.com/bfabric", client_id="test-cli", scope="api:read", open_browser=False)
 
         captured = capsys.readouterr()
         assert "Open this URL to log in:" in captured.err

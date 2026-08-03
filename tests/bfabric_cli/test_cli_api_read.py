@@ -75,6 +75,24 @@ class TestPerformQuery:
         assert len(results) == 2
         assert all("id" in item for item in results)
 
+    def test_perform_query_empty_results(self, mock_client):
+        # Regression: an empty result set must not raise polars NoDataError from the log line.
+        # Arrange
+        params = Params(
+            endpoint="importresource",
+            query=[("name", "%RData")],
+            format=OutputFormat.TSV,
+            columns=["id", "relativepath"],
+            limit=1000,
+        )
+        mock_client.read.return_value = ResultContainer([], total_pages_api=1, errors=[])
+
+        # Act
+        results = perform_query(params, mock_client)
+
+        # Assert
+        assert len(results) == 0
+
 
 class TestRenderOutput:
     def test_render_json_output(self, mocker, sample_results):

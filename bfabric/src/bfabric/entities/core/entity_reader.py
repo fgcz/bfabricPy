@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeGuard, TypeVar, cast
+from typing import TYPE_CHECKING, Generic, TypeGuard, TypeVar, cast, overload
 
 from loguru import logger
 
 from bfabric.entities.cache.context import get_cache_stack
 from bfabric.entities.core.entity import Entity
-from bfabric.entities.core.import_entity import instantiate_entity
+from bfabric.entities.core.import_entity import entity_type_of, instantiate_entity
 from bfabric.entities.core.uri import EntityUri, GroupedUris
 from bfabric.experimental import MultiQuery
 
@@ -18,6 +18,35 @@ if TYPE_CHECKING:
 
 
 EntityT = TypeVar("EntityT", bound="Entity")
+
+
+class EntityResult(dict[EntityUri, "EntityT | None"], Generic[EntityT]):
+    """A URI-keyed entity-reader result.
+
+    Still a plain ``dict`` (``.items()``, ``result[uri]`` and ``None`` for not-found ids all behave as
+    before); the two properties expose the reshaped views callers most often want.
+    """
+
+    @property
+    def present(self) -> list[EntityT]:
+        """Found entities, in insertion order, dropping not-found (``None``) entries."""
+        return [entity for entity in self.values() if entity is not None]
+
+    @property
+    def by_id(self) -> dict[int, EntityT]:
+        """Found entities re-keyed by integer entity id, dropping not-found (``None``) entries."""
+        return {uri.components.entity_id: entity for uri, entity in self.items() if entity is not None}
+
+
+def _resolve_entity_type(entity_type: str | type[EntityT], expected_type: type[EntityT]) -> tuple[str, type[EntityT]]:
+    """Normalize the ``entity_type`` argument of the reader lookups.
+
+    An entity *class* infers its endpoint string (via :func:`entity_type_of`) and doubles as the
+    ``expected_type``; a *string* endpoint is returned unchanged alongside the given ``expected_type``.
+    """
+    if isinstance(entity_type, type):
+        return entity_type_of(entity_type), entity_type
+    return entity_type, expected_type
 
 
 class EntityReader:
@@ -62,7 +91,7 @@ class EntityReader:
 
     def read_uris(
         self, uris: Iterable[EntityUri | str], *, expected_type: type[EntityT] = Entity
-    ) -> dict[EntityUri, EntityT | None]:
+    ) -> EntityResult[EntityT]:
         """Read multiple entities by their URIs efficiently.
 
         Entities are grouped by type and retrieved in batches to minimize API calls.
@@ -111,11 +140,26 @@ class EntityReader:
         if not all(isinstance(entity, expected_type) or entity is None for entity in results.values()):
             raise ValueError("Unexpected entity type in results")
 
-        return cast("dict[EntityUri, EntityT | None]", results)
+        return cast("EntityResult[EntityT]", EntityResult(results))
 
+    @overload
+    def read_id(
+        self, entity_type: type[EntityT], entity_id: int | str, bfabric_instance: str | None = None
+    ) -> EntityT | None: ...
+    @overload
     def read_id(
         self,
         entity_type: str,
+        entity_id: int | str,
+        bfabric_instance: str | None = None,
+        *,
+        expected_type: type[EntityT],
+    ) -> EntityT | None: ...
+    @overload
+    def read_id(self, entity_type: str, entity_id: int | str, bfabric_instance: str | None = None) -> Entity | None: ...
+    def read_id(
+        self,
+        entity_type: str | type[EntityT],
         entity_id: int | str,
         bfabric_instance: str | None = None,
         *,
@@ -124,10 +168,11 @@ class EntityReader:
         """Read a single entity by its type and ID.
 
         Args:
-            entity_type: B-Fabric entity type (e.g., "sample", "project")
+            entity_type: B-Fabric entity type — either the endpoint string (e.g. ``"sample"``) or an
+                entity class (e.g. ``Sample``), in which case the endpoint and ``expected_type`` are inferred
             entity_id: Numeric ID of entity
             bfabric_instance: B-Fabric instance URL (defaults to client's configured instance)
-            expected_type: Entity class to validate and cast the result
+            expected_type: Entity class to validate and cast the result (ignored when a class is passed)
 
         Returns:
             Entity object or ``None`` if not found
@@ -135,6 +180,7 @@ class EntityReader:
         Raises:
             ValueError: If instance doesn't match the client's configuration
         """
+        entity_type, expected_type = _resolve_entity_type(entity_type, expected_type)
         results = self.read_ids(
             entity_type=entity_type,
             entity_ids=[int(entity_id)],
@@ -143,25 +189,44 @@ class EntityReader:
         )
         return list(results.values())[0]
 
+    @overload
+    def read_ids(
+        self, entity_type: type[EntityT], entity_ids: Sequence[int | str], bfabric_instance: str | None = None
+    ) -> EntityResult[EntityT]: ...
+    @overload
     def read_ids(
         self,
         entity_type: str,
         entity_ids: Sequence[int | str],
         bfabric_instance: str | None = None,
         *,
+        expected_type: type[EntityT],
+    ) -> EntityResult[EntityT]: ...
+    @overload
+    def read_ids(
+        self, entity_type: str, entity_ids: Sequence[int | str], bfabric_instance: str | None = None
+    ) -> EntityResult[Entity]: ...
+    def read_ids(
+        self,
+        entity_type: str | type[EntityT],
+        entity_ids: Sequence[int | str],
+        bfabric_instance: str | None = None,
+        *,
         expected_type: type[EntityT] = Entity,
-    ) -> dict[EntityUri, EntityT | None]:
+    ) -> EntityResult[EntityT]:
         """Read multiple entities of the same type by their IDs.
 
         Args:
-            entity_type: B-Fabric entity type (e.g., "sample")
+            entity_type: B-Fabric entity type — either the endpoint string (e.g. ``"sample"``) or an
+                entity class (e.g. ``Sample``), in which case the endpoint and ``expected_type`` are inferred
             entity_ids: List of numeric IDs
             bfabric_instance: B-Fabric instance URL (defaults to client's configured instance)
-            expected_type: Entity class to validate and cast all results
+            expected_type: Entity class to validate and cast all results (ignored when a class is passed)
 
         Returns:
             Dictionary mapping entity URIs to their objects (or ``None`` if not found)
         """
+        entity_type, expected_type = _resolve_entity_type(entity_type, expected_type)
         bfabric_instance = bfabric_instance if bfabric_instance is not None else self._client.config.base_url
         uris = [
             EntityUri.from_components(bfabric_instance=bfabric_instance, entity_type=entity_type, entity_id=int(id))
@@ -169,9 +234,35 @@ class EntityReader:
         ]
         return self.read_uris(uris, expected_type=expected_type)
 
+    @overload
+    def query(
+        self,
+        entity_type: type[EntityT],
+        obj: ApiRequestObjectType,
+        bfabric_instance: str | None = None,
+        max_results: int | None = 100,
+    ) -> dict[EntityUri, EntityT]: ...
+    @overload
     def query(
         self,
         entity_type: str,
+        obj: ApiRequestObjectType,
+        bfabric_instance: str | None = None,
+        max_results: int | None = 100,
+        *,
+        expected_type: type[EntityT],
+    ) -> dict[EntityUri, EntityT]: ...
+    @overload
+    def query(
+        self,
+        entity_type: str,
+        obj: ApiRequestObjectType,
+        bfabric_instance: str | None = None,
+        max_results: int | None = 100,
+    ) -> dict[EntityUri, Entity]: ...
+    def query(
+        self,
+        entity_type: str | type[EntityT],
         obj: ApiRequestObjectType,
         bfabric_instance: str | None = None,
         max_results: int | None = 100,
@@ -183,11 +274,12 @@ class EntityReader:
         Combines ``client.read()`` with automatic entity instantiation and caching.
 
         Args:
-            entity_type: B-Fabric entity type to query
+            entity_type: B-Fabric entity type — either the endpoint string (e.g. ``"sample"``) or an
+                entity class (e.g. ``Sample``), in which case the endpoint and ``expected_type`` are inferred
             obj: Dictionary of search criteria (e.g., ``{"name": "MySample"}``)
             bfabric_instance: B-Fabric instance URL (defaults to client's configured instance)
             max_results: Maximum number of results to return (``None`` for all)
-            expected_type: Entity class to validate and cast all results
+            expected_type: Entity class to validate and cast all results (ignored when a class is passed)
 
         Returns:
             Dictionary mapping entity URIs to their objects
@@ -195,6 +287,7 @@ class EntityReader:
         Raises:
             TypeError: If any matched entity is not an instance of ``expected_type``
         """
+        entity_type, expected_type = _resolve_entity_type(entity_type, expected_type)
         bfabric_instance = bfabric_instance if bfabric_instance is not None else self._client.config.base_url
         # TODO limitation of the current implementation
         if bfabric_instance != self._client.config.base_url:
@@ -215,9 +308,26 @@ class EntityReader:
         cache_stack.item_put_all(entities=entities.values())
         return cast("dict[EntityUri, EntityT]", entities)
 
+    @overload
+    def query_one(
+        self, entity_type: type[EntityT], obj: ApiRequestObjectType, bfabric_instance: str | None = None
+    ) -> EntityT | None: ...
+    @overload
     def query_one(
         self,
         entity_type: str,
+        obj: ApiRequestObjectType,
+        bfabric_instance: str | None = None,
+        *,
+        expected_type: type[EntityT],
+    ) -> EntityT | None: ...
+    @overload
+    def query_one(
+        self, entity_type: str, obj: ApiRequestObjectType, bfabric_instance: str | None = None
+    ) -> Entity | None: ...
+    def query_one(
+        self,
+        entity_type: str | type[EntityT],
         obj: ApiRequestObjectType,
         bfabric_instance: str | None = None,
         *,
@@ -229,10 +339,11 @@ class EntityReader:
         look-up-by-field pattern. Returns ``None`` if no match.
 
         Args:
-            entity_type: B-Fabric entity type to query
+            entity_type: B-Fabric entity type — either the endpoint string (e.g. ``"user"``) or an
+                entity class (e.g. ``User``), in which case the endpoint and ``expected_type`` are inferred
             obj: Dictionary of search criteria (e.g., ``{"login": "alice"}``)
             bfabric_instance: B-Fabric instance URL (defaults to client's configured instance)
-            expected_type: Entity class to validate and cast the result
+            expected_type: Entity class to validate and cast the result (ignored when a class is passed)
 
         Returns:
             Entity object (typed as ``expected_type``) or ``None`` if not found
@@ -240,6 +351,7 @@ class EntityReader:
         Raises:
             TypeError: If the matched entity is not an instance of ``expected_type``
         """
+        entity_type, expected_type = _resolve_entity_type(entity_type, expected_type)
         results = self.query(
             entity_type, obj, bfabric_instance=bfabric_instance, max_results=1, expected_type=expected_type
         )

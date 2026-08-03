@@ -9,34 +9,29 @@ from typing import Annotated
 
 import cyclopts
 
-from bfabric._oauth._constants import DEFAULT_OAUTH_SCOPE
 from bfabric.config import DEFAULT_CONFIG_FILE
+from bfabric_scripts.cli.login._constants import DEFAULT_REGISTRATION_SCOPE
 
 
 def cmd_login_register_webapp(
     app_name: Annotated[str, cyclopts.Parameter(help="Human-readable name for the webapp.")],
     web_url: Annotated[str, cyclopts.Parameter(help="The webapp URL (used as redirect URI and application weburl).")],
     *,
-    config_env: Annotated[
-        str | None, cyclopts.Parameter(help="Config environment to use.")
-    ] = None,
+    config_env: Annotated[str | None, cyclopts.Parameter(help="Config environment to use.")] = None,
     config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = DEFAULT_CONFIG_FILE,
     service_user: Annotated[
         str | None, cyclopts.Parameter(help="Service user login (enables client_credentials grant).")
     ] = None,
-    scope: Annotated[str, cyclopts.Parameter(help="OAuth scope.")] = DEFAULT_OAUTH_SCOPE,
+    scope: Annotated[str, cyclopts.Parameter(help="OAuth scope.")] = DEFAULT_REGISTRATION_SCOPE,
     application_id: Annotated[
         int | None, cyclopts.Parameter(help="Existing application ID to update (omit to create new).")
     ] = None,
-    technology_id: Annotated[
-        int | None, cyclopts.Parameter(help="Technology ID for the application.")
-    ] = None,
+    technology_id: Annotated[int | None, cyclopts.Parameter(help="Technology ID for the application.")] = None,
     description: Annotated[str | None, cyclopts.Parameter(help="Application description.")] = None,
 ) -> None:
-    """Register a new OAuth webapp: create OAuth client and B-Fabric application.
+    """Register a new OAuth webapp: create the OAuth client and the B-Fabric application.
 
-    Uses the current config environment's credentials for both the OAuth
-    registration endpoint (Bearer token) and the SOAP application save.
+    Uses the config environment's credentials for both the registration endpoint and the SOAP save.
     """
     from bfabric import Bfabric
     from bfabric._oauth.registration import register_webapp

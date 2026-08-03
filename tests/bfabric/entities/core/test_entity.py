@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from bfabric.entities.core.entity import Entity
-from bfabric.entities.core.entity_reader import EntityReader
+from bfabric.entities.core.entity_reader import EntityReader, EntityResult
 from bfabric.entities.core.uri import EntityUri
 
 
@@ -116,7 +116,7 @@ class TestFindMixin:
         mock_entity = Entity(
             {"id": 1, "name": "Test Entity", "classname": "testendpoint"}, mock_client, bfabric_instance
         )
-        mocker.patch.object(EntityReader, "read_ids", return_value={uri: mock_entity})
+        mocker.patch.object(EntityReader, "read_ids", return_value=EntityResult({uri: mock_entity}))
 
         entities = Entity.find_all([1], mock_client)
         assert len(entities) == 1
@@ -131,7 +131,7 @@ class TestFindMixin:
         mock_entity = Entity(
             {"id": 5, "name": "Test Entity", "classname": "testendpoint"}, mock_client, bfabric_instance
         )
-        mocker.patch.object(EntityReader, "read_ids", return_value={uri1: None, uri5: mock_entity})
+        mocker.patch.object(EntityReader, "read_ids", return_value=EntityResult({uri1: None, uri5: mock_entity}))
 
         entities = Entity.find_all([1, 5], mock_client)
         assert len(entities) == 1
@@ -150,7 +150,9 @@ class TestFindMixin:
         uri2 = EntityUri.from_components(bfabric_instance, "testendpoint", 2)
         mock_entity1 = Entity({"id": 1, "name": "Entity 1", "classname": "testendpoint"}, mock_client, bfabric_instance)
         mock_entity2 = Entity({"id": 2, "name": "Entity 2", "classname": "testendpoint"}, mock_client, bfabric_instance)
-        mocker.patch.object(EntityReader, "read_ids", return_value={uri1: mock_entity1, uri2: mock_entity2})
+        mocker.patch.object(
+            EntityReader, "read_ids", return_value=EntityResult({uri1: mock_entity1, uri2: mock_entity2})
+        )
 
         entities = Entity.find_all(["1", "2"], mock_client)
         assert len(entities) == 2
