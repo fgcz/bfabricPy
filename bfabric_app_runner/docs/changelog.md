@@ -4,9 +4,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
-- Internal: migrated all read-path call sites off the deprecated `Entity.find`/`find_all`/`find_by` (`FindMixin`) API onto the modern `client.reader` (`read_id`/`read_ids`/`query_one`); no behavior change.
-
-## \[0.7.0rc1\] - 2026-07-15
+## \[0.7.0\] - 2026-08-03
 
 - `SaveDatasetSpec` (the `bfabric_dataset` output) gains a `format` field (`csv` default, or `parquet`), so an output dataset can be registered from Parquet; `separator` is now optional (csv-only) ([#359](https://github.com/fgcz/bfabricPy/issues/359)).
 - `BfabricResourceSpec` gains an `access` field (`ssh`/`http`); `access: http` streams from the storage's HTTP endpoint (needs an OAuth client whose token carries the `containers` scope). The generic `file` spec also gained an HTTP source.
@@ -16,7 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `CommandPythonEnv.python_version` now defaults to `"3.13"` (was `None`), fixing a `uv venv -p None` failure and pinning to the tested interpreter.
 - The SLURM wrapper now launches `bfabric-app-runner` with `uv run -p 3.13`, so it can't float onto an untested Python such as a prerelease 3.14 ([#494](https://github.com/fgcz/bfabricPy/issues/494)).
 - Python-environment provisioning output (`uv venv` / `uv pip install`) is now logged at DEBUG instead of printed (quiet INFO runs); failures are logged in full at ERROR.
-- Internal: ruff `flake8-type-checking` now treats `pydantic.BaseModel` / `FromConfigFile` as runtime-evaluated (dropping `# noqa: TC00x` and blanket per-file ignores).
+- Internal: all read-path call sites migrated off the deprecated `Entity.find`/`find_all`/`find_by` (`FindMixin`) API onto `client.reader` (`read_id`/`read_ids`/`query_one`), with no behavior change; ruff `flake8-type-checking` now treats `pydantic.BaseModel` / `FromConfigFile` as runtime-evaluated (dropping `# noqa: TC00x` and blanket per-file ignores).
 
 ## \[0.6.1\] - 2026-06-11
 
