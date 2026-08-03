@@ -13,7 +13,7 @@ def data_dict() -> dict[str, str | int]:
 
 @pytest.fixture
 def executable(data_dict: dict[str, str | int], bfabric_instance: str) -> Executable:
-    return Executable(data_dict, client=None, bfabric_instance=bfabric_instance)
+    return Executable(data_dict, bfabric_instance=bfabric_instance)
 
 
 def test_decoded_bytes(executable):

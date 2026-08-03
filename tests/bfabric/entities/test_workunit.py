@@ -38,8 +38,8 @@ def data_dict() -> dict[str, Any]:
 
 
 @pytest.fixture()
-def workunit(data_dict, mock_client, bfabric_instance) -> Workunit:
-    return Workunit(data_dict, client=mock_client, bfabric_instance=bfabric_instance)
+def workunit(data_dict, bfabric_instance) -> Workunit:
+    return Workunit(data_dict, bfabric_instance=bfabric_instance)
 
 
 def test_data_dict(workunit: Workunit, data_dict) -> None:
@@ -109,13 +109,15 @@ def test_store_output_folder(workunit) -> None:
     assert Path("xyz3000/bfabric/Tech/my_app/2024/2024-01/2024-01-02/workunit_30000") == workunit.store_output_folder
 
 
-def test_repr() -> None:
-    workunit = Workunit({"id": 30000}, client=None)
-    assert repr(workunit) == "Workunit(data_dict={'id': 30000}, bfabric_instance=None)"
+def test_repr(bfabric_instance) -> None:
+    workunit = Workunit({"id": 30000}, bfabric_instance=bfabric_instance)
+    assert repr(workunit) == (
+        "Workunit(data_dict={'id': 30000}, bfabric_instance='https://bfabric.example.org/bfabric/')"
+    )
 
 
-def test_str() -> None:
-    workunit = Workunit({"id": 30000}, client=None)
+def test_str(bfabric_instance) -> None:
+    workunit = Workunit({"id": 30000}, bfabric_instance=bfabric_instance)
     assert str(workunit) == repr(workunit)
 
 

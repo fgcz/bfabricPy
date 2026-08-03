@@ -21,8 +21,8 @@ def data_dict():
 
 
 @pytest.fixture
-def entity(data_dict, mock_client, bfabric_instance):
-    return MockEntity(data_dict=data_dict, client=mock_client, bfabric_instance=bfabric_instance)
+def entity(data_dict, bfabric_instance):
+    return MockEntity(data_dict=data_dict, bfabric_instance=bfabric_instance)
 
 
 @pytest.fixture

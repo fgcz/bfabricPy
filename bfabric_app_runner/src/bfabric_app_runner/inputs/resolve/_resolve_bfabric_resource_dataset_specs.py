@@ -12,12 +12,12 @@ from bfabric_app_runner.inputs.resolve._common import get_ssh_file_source
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedFile, ResolvedStaticFile
 
 if TYPE_CHECKING:
-    from bfabric.entities.core.entity_reader import EntityReader
+    from bfabric.entities.core.read_scope import ReadScope
     from bfabric_app_runner.specs.inputs.bfabric_resource_dataset import BfabricResourceDatasetSpec
 
 
 class ResolveBfabricResourceDatasetSpecs:
-    def __init__(self, reader: EntityReader) -> None:
+    def __init__(self, reader: ReadScope) -> None:
         self._reader = reader
 
     def __call__(self, specs: list[BfabricResourceDatasetSpec]) -> list[ResolvedFile | ResolvedStaticFile]:

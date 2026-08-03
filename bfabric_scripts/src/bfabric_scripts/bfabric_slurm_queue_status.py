@@ -43,12 +43,12 @@ def get_workunit_infos(client: Bfabric, workunit_ids: list[int]) -> list[dict[st
     If a workunit was deleted, but it is in the slurm queue, it will be considered a zombie.
     """
     # Find the workunits which actually exist.
-    workunits = Workunit.find_all(ids=workunit_ids, client=client)
+    workunits = client.reader.read_ids(Workunit, workunit_ids).by_id
 
     # Retrieve application id -> name mapping.
     app_ids = {wu["application"]["id"] for wu in workunits.values()}
-    apps = Application.find_all(ids=list(app_ids), client=client)
-    app_names = {app["id"]: app["name"] for app in apps.values()}
+    apps = client.reader.read_ids(Application, list(app_ids)).present
+    app_names = {app["id"]: app["name"] for app in apps}
 
     return [
         {

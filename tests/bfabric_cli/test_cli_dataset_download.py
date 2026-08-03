@@ -14,7 +14,7 @@ from pytest_mock import MockFixture
 
 @pytest.fixture
 def mock_client(mocker):
-    client = mocker.Mock(spec=Bfabric)
+    client = mocker.MagicMock(spec=Bfabric)
     client.config.base_url = "http://test-bfabric.com"
     return client
 
@@ -61,7 +61,7 @@ class TestInferFormatFromPath:
 
 class TestCmdDatasetDownload:
     def test_download_csv_format(self, mocker, mock_client, mock_dataset, tmp_path):
-        mocker.patch.object(Dataset, "find", return_value=mock_dataset)
+        mock_client.reader.read_id.return_value = mock_dataset
         output_file = tmp_path / "output.csv"
         output_file.touch()
         params = Params(dataset_id=123, file=output_file, format=OutputFormat.CSV)
@@ -73,7 +73,7 @@ class TestCmdDatasetDownload:
         assert kwargs["separator"] == ","
 
     def test_download_tsv_format(self, mocker, mock_client, mock_dataset, tmp_path):
-        mocker.patch.object(Dataset, "find", return_value=mock_dataset)
+        mock_client.reader.read_id.return_value = mock_dataset
         output_file = tmp_path / "output.tsv"
         output_file.touch()
         params = Params(dataset_id=123, file=output_file, format=OutputFormat.TSV)
@@ -85,7 +85,7 @@ class TestCmdDatasetDownload:
         assert kwargs["separator"] == "\t"
 
     def test_download_parquet_format(self, mocker, mock_client, mock_dataset, tmp_path):
-        mocker.patch.object(Dataset, "find", return_value=mock_dataset)
+        mock_client.reader.read_id.return_value = mock_dataset
         output_file = tmp_path / "output.parquet"
         output_file.touch()
         params = Params(dataset_id=123, file=output_file, format=OutputFormat.PARQUET)
@@ -95,7 +95,7 @@ class TestCmdDatasetDownload:
         mock_dataset.to_polars.return_value.write_parquet.assert_called_once()
 
     def test_download_excel_format_with_fastexcel(self, mocker, mock_client, mock_dataset, tmp_path):
-        mocker.patch.object(Dataset, "find", return_value=mock_dataset)
+        mock_client.reader.read_id.return_value = mock_dataset
         mocker.patch("bfabric_scripts.cli.dataset.download.is_excel_available", return_value=True)
         output_file = tmp_path / "output.xlsx"
         output_file.touch()
@@ -106,7 +106,7 @@ class TestCmdDatasetDownload:
         mock_dataset.to_polars.return_value.write_excel.assert_called_once()
 
     def test_download_excel_format_without_fastexcel(self, mocker, mock_client, mock_dataset, capsys):
-        mocker.patch.object(Dataset, "find", return_value=mock_dataset)
+        mock_client.reader.read_id.return_value = mock_dataset
         mocker.patch("bfabric_scripts.cli.dataset.download.is_excel_available", return_value=False)
         params = Params(dataset_id=123, file=Path("output.xlsx"), format=OutputFormat.EXCEL)
 
@@ -118,7 +118,7 @@ class TestCmdDatasetDownload:
         assert "Excel format requires the 'excel' optional dependency" in capsys.readouterr().err
 
     def test_download_auto_format_csv(self, mocker, mock_client, mock_dataset, tmp_path):
-        mocker.patch.object(Dataset, "find", return_value=mock_dataset)
+        mock_client.reader.read_id.return_value = mock_dataset
         output_file = tmp_path / "output.csv"
         output_file.touch()
         params = Params(dataset_id=123, file=output_file, format=OutputFormat.AUTO)
@@ -128,7 +128,7 @@ class TestCmdDatasetDownload:
         mock_dataset.write_csv.assert_called_once()
 
     def test_download_auto_format_excel(self, mocker, mock_client, mock_dataset, tmp_path):
-        mocker.patch.object(Dataset, "find", return_value=mock_dataset)
+        mock_client.reader.read_id.return_value = mock_dataset
         mocker.patch("bfabric_scripts.cli.dataset.download.is_excel_available", return_value=True)
         output_file = tmp_path / "output.xlsx"
         output_file.touch()
@@ -139,21 +139,21 @@ class TestCmdDatasetDownload:
         mock_dataset.to_polars.return_value.write_excel.assert_called_once()
 
     def test_download_auto_format_unknown_extension(self, mocker, mock_client, mock_dataset):
-        mocker.patch.object(Dataset, "find", return_value=mock_dataset)
+        mock_client.reader.read_id.return_value = mock_dataset
         params = Params(dataset_id=123, file=Path("output.txt"), format=OutputFormat.AUTO)
 
         with pytest.raises(ValueError, match="Cannot infer format from file extension"):
             cmd_dataset_download(params, client=mock_client)
 
     def test_download_dataset_not_found(self, mocker, mock_client):
-        mocker.patch.object(Dataset, "find", return_value=None)
+        mock_client.reader.read_id.return_value = None
         params = Params(dataset_id=999, file=Path("output.csv"), format=OutputFormat.CSV)
 
         with pytest.raises(ValueError, match="Dataset with id 999 not found"):
             cmd_dataset_download(params, client=mock_client)
 
     def test_download_creates_directory(self, mocker, mock_client, mock_dataset, tmp_path):
-        mocker.patch.object(Dataset, "find", return_value=mock_dataset)
+        mock_client.reader.read_id.return_value = mock_dataset
         output_dir = tmp_path / "subdir" / "nested"
         output_file = output_dir / "output.csv"
         output_file.parent.mkdir(parents=True, exist_ok=True)
@@ -166,7 +166,7 @@ class TestCmdDatasetDownload:
         assert output_dir.is_dir()
 
     def test_download_explicit_format_overrides_extension(self, mocker, mock_client, mock_dataset, tmp_path):
-        mocker.patch.object(Dataset, "find", return_value=mock_dataset)
+        mock_client.reader.read_id.return_value = mock_dataset
         output_file = tmp_path / "output.csv"
         output_file.touch()
         params = Params(dataset_id=123, file=output_file, format=OutputFormat.TSV)

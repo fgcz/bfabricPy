@@ -91,9 +91,13 @@ def test_load_entity(mocker, token_data):
     mock_client = mocker.Mock(name="mock_client")
     mock_import_entity = mocker.patch("bfabric.rest.token_data.import_entity")
     entity = token_data.load_entity(client=mock_client)
-    assert entity == mock_import_entity.return_value.find.return_value
+    assert entity == mock_client.reader.read_id.return_value
     mock_import_entity.assert_called_once_with(entity_class_name=token_data.entity_class)
-    mock_import_entity.return_value.find.assert_called_once_with(token_data.entity_id, client=mock_client)
+    mock_client.reader.read_id.assert_called_once_with(
+        entity_type=token_data.entity_class.lower(),
+        entity_id=token_data.entity_id,
+        expected_type=mock_import_entity.return_value,
+    )
 
 
 @pytest.mark.parametrize("extra_slash", ["", "/"])

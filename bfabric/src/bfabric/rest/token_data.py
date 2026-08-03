@@ -85,7 +85,9 @@ class TokenData(BaseModel):
     def load_entity(self, client: Bfabric) -> Entity | None:
         """Loads the entity associated with this token."""
         entity_class = import_entity(entity_class_name=self.entity_class)
-        return entity_class.find(self.entity_id, client=client)
+        return client.reader.read_id(
+            entity_type=self.entity_class.lower(), entity_id=self.entity_id, expected_type=entity_class
+        )
 
 
 async def get_token_data_async(

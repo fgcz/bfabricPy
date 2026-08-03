@@ -291,9 +291,9 @@ def _get_storage(
             storage_id = workunit_definition.registration.storage_id  # pyright: ignore[reportOptionalMemberAccess]
             return client.reader.read_id(Storage, storage_id)
         else:
-            return Storage(yaml.safe_load(force_storage.read_text()), client=client)
+            return Storage(yaml.safe_load(force_storage.read_text()), bfabric_instance=client.config.base_url)
             # TODO replace this later (to avoid versioning issues, i hardcode the above)
-            # return Storage.load_yaml(force_storage, client=client)
+            # return Storage.load_yaml(force_storage, bfabric_instance=client.config.base_url)
     return None
 
 
