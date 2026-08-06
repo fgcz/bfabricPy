@@ -158,6 +158,9 @@ for canonicalising a bare host, and for suggesting an env name.
 Lives in `bfabric_scripts/.../cli/login/_instances.py`, next to `DEFAULT_CLIENT_ID` — this is CLI
 policy, not core-library policy.
 
+All four are OAuth-capable with the default `CLI` client: it is the standard anonymous public client,
+registered on every B-Fabric instance, so the picker needs no per-instance capability caveat.
+
 ## 2.5 Identity display needs no scope change
 
 Checked empirically against the local token cache: every access token is a JWT carrying `sub`, `iss`,
@@ -173,8 +176,11 @@ no API lookup. Bonus: `iss` carries the instance URL and `client_id` the client,
 cross-checked against the env that claims it — useful, because the cache filename is an opaque hash
 and nothing verifies the pairing today.
 
-Caveat: two caches on the dev machine hold non-JWT access tokens (older server?), so the display must
-degrade to "unknown" rather than raise.
+Caveat: two caches on the dev machine hold non-JWT access tokens, and *why* is unknown (older server?
+some other flow?). So the display degrades to "unknown" rather than raising. To be clear this is **not**
+back-compat scaffolding of the kind §2.2 rules out — a display helper that raises on input it cannot
+parse is just a partial function on the critical path of `auth list`, and the uncertainty about the
+cause is itself the argument for tolerating it. Cost is one `except`.
 
 ## 2.6 Sanitise `base_url` *before* any network call
 
@@ -190,6 +196,18 @@ validate through `EnvironmentConfig` up front, then **pre-flight**
 The discovery endpoint is documented but used by no code. It is the only cheap check that catches the
 likeliest typo — a host without the `/bfabric` path segment — and turns a two-minute browser dead end
 into instant feedback.
+
+**The pre-flight advises, it does not gate:**
+
+- base_url answers → use it.
+- base_url 404s and `+/bfabric` answers → correct it and say so. This is the positive case, and it is
+  where all the value is.
+- **neither answers → warn and proceed** with the normalised URL. Do *not* raise.
+
+A both-404 does not actually mean "bad URL" — it also covers a reachable instance that happens not to
+publish the document, and a proxy that eats the path. Hard-failing there would block a login that
+would have worked, on the happy path, before the browser, with no override; a typo-catcher must fail
+open, which is also the rule already stated for `fetch_discovery_document` in §3.1.
 
 ## 2.7 One env resolver for all auth commands, and make the "why" visible
 
@@ -442,8 +460,10 @@ def resolve_base_url(base_url: str, *, timeout: float = 10.0) -> str
 
 - `fetch_discovery_document` returns `None` on any transport error / non-200 / non-JSON. **Never
   raises** — a pre-flight that fails closed would make the CLI unusable behind a flaky network.
-- `resolve_base_url` tries `base_url`, retries once with `/bfabric` appended on 404, returns whichever
-  worked, else raises `BfabricOAuthError` naming both attempts.
+- `resolve_base_url` tries `base_url`, retries once with `/bfabric` appended on 404, and returns
+  whichever answered. **When neither answers it returns the input unchanged** plus a flag the caller
+  reports as a warning (§2.6) — it does not raise. Signature therefore
+  `-> tuple[str, bool]` (resolved url, confirmed).
 
 Two functions only: the module is justified by the base_url pre-flight alone, and per §2.9 there is no
 `revoke_token` to write.
@@ -473,8 +493,8 @@ says "keyed on `base_url` + `client_id`", but the key is `(base_url, client_id, 
   currently encodes replace. Add: unrelated keys (`application_ids`, `engine`) survive a re-login; a
   `pat` env re-logged-in as OAuth has no `pat` key left; `clear_environment_credentials` strips `pat`
   and leaves `base_url` / `client_id` / `scope`.
-- `tests/bfabric/oauth/test_discovery.py` (new) — 200; 404-then-`/bfabric`; both-404 raises; transport
-  error returns `None`.
+- `tests/bfabric/oauth/test_discovery.py` (new) — 200; 404-then-`/bfabric` corrects; **both-404 returns
+  the input with `confirmed=False` and does not raise**; transport error returns `None`.
 - `test_pkce.py` — assert both new hints, and close the weak spot at `:298`, where
   `test_open_browser_false_prints_url` never asserts `webbrowser.open` was skipped.
 
@@ -518,7 +538,8 @@ raising.
 
 - `base_url` becomes `str | None = None` (still positional).
 - `_resolve_params` order: env → base_url → scope → set_default. Pre-flight the resolved base_url
-  through `discovery.resolve_base_url` **before** starting the browser flow.
+  through `discovery.resolve_base_url` **before** starting the browser flow — report a correction, warn
+  on `confirmed=False`, and continue either way (§2.6: never block a login on the pre-flight).
 - Refuse to silently repoint: if an explicit `base_url` differs from the env's recorded one, require
   confirmation or a different `--config-env`; refuse non-interactively. This deliberately changes the
   behaviour pinned by `test_cmd_auth_login.py:93-109`.
