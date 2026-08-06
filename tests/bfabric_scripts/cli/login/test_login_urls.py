@@ -51,6 +51,3 @@ class TestSuggestEnvName:
 
     def test_derives_a_name_from_an_unknown_host(self):
         assert suggest_env_name("https://bfabric.example.com/bfabric") == "bfabric-example-com"
-
-    def test_falls_back_when_there_is_no_host(self):
-        assert suggest_env_name("") == "bfabric"

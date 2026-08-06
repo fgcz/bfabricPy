@@ -4,6 +4,7 @@ remove. Their shared config-load, environment picker and rendering helpers live 
 
 from __future__ import annotations
 
+import os
 import sys
 import time
 from pathlib import Path
@@ -21,10 +22,11 @@ from bfabric.config.config_writer import (
 )
 from bfabric_scripts.cli.interactive import confirm, is_interactive, select_choice
 from bfabric_scripts.cli.login._common import (
+    CONFIG_ENV_VAR,
+    active_config_env,
     describe_active_reason,
     load_config_file,
     require_mutable_config,
-    resolve_config_env,
 )
 from bfabric_scripts.cli.login._constants import DEFAULT_CLIENT_ID, SCOPE_PRESETS
 from bfabric_scripts.cli.login._urls import instance_host
@@ -108,9 +110,9 @@ def _select_environment(message: str, config: ConfigFile) -> str | None:
     )
 
 
-def describe_scope(scope: object) -> str:
-    """Render a scope, appending ``[<preset>]`` on match; ``"(not recorded)"`` if missing/non-string."""
-    if not isinstance(scope, str) or not scope.strip():
+def describe_scope(scope: str | None) -> str:
+    """Render a scope, appending ``[<preset>]`` on match; ``"(not recorded)"`` if absent."""
+    if not scope or not scope.strip():
         return "(not recorded)"
     requested = sorted(scope.split())
     for preset in SCOPE_PRESETS:
@@ -186,10 +188,10 @@ def cmd_auth_activate(
 
     set_default_config(config_file, config_env)
     print(f"Activated environment '{config_env}'.")
-    # An active BFABRICPY_CONFIG_ENV outranks what was just written, which is the whole "I activated
-    # it and nothing changed" confusion; say so instead of leaving it to be discovered.
-    if describe_active_reason(config_env, config_env) == "":
-        print("It is not in effect: BFABRICPY_CONFIG_ENV names a different environment.")
+    # An active BFABRICPY_CONFIG_ENV outranks what was just written — the whole "I activated it and
+    # nothing changed" confusion.
+    if os.environ.get(CONFIG_ENV_VAR) not in (None, config_env):
+        print(f"It is not in effect: {CONFIG_ENV_VAR} names a different environment.")
 
 
 def cmd_auth_status(
@@ -201,7 +203,7 @@ def cmd_auth_status(
     config = _load_config(config_file)
     if config is None:
         return
-    resolved_env = config_env or resolve_config_env(None, config_file)
+    resolved_env = active_config_env(config_env, config)
     if resolved_env is None:
         print("No environment specified and no default configured.")
         return
@@ -280,7 +282,7 @@ def cmd_auth_logout(
     else:
         # Default to the environment in effect rather than prompting: leaving a shared machine is the
         # case this exists for, and an extra question there is an invitation to skip it.
-        resolved = config_env or resolve_config_env(None, config_file)
+        resolved = active_config_env(config_env, config)
         if resolved is None:
             print("No environment specified and no default configured.")
             return

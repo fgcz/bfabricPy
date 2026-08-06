@@ -15,7 +15,7 @@ import yaml
 from bfabric.config.config_file import ConfigFile, EnvironmentConfig
 from bfabric_scripts.cli.interactive import confirm, is_interactive, select_choice, select_or_input, text_input
 from bfabric_scripts.cli.login._constants import SCOPE_PRESETS, SCOPE_PRESETS_BY_NAME
-from bfabric_scripts.cli.login._urls import KNOWN_INSTANCES, normalize_base_url, suggest_env_name
+from bfabric_scripts.cli.login._urls import KNOWN_INSTANCES, normalize_base_url
 
 # Interactive-only sentinel: choosing it opens a free-text prompt.
 _CUSTOM = "custom"
@@ -57,11 +57,20 @@ def resolve_config_env(config_env: str | None, config_file: Path) -> str | None:
     return select_or_input("Environment name", names, default=_FALLBACK_ENV)
 
 
+def active_config_env(config_env: str | None, config: ConfigFile) -> str | None:
+    """The environment a non-login command should act on, without prompting; ``None`` if undetermined.
+
+    Same precedence as :func:`resolve_config_env` minus the prompt and the ``PRODUCTION`` fallback:
+    inventing a name for a command that only inspects or deletes would report a missing environment
+    where the honest answer is that no default is configured.
+    """
+    return config_env or os.environ.get(CONFIG_ENV_VAR) or config.general.default_config
+
+
 def resolve_base_url(base_url: str | None, env: EnvironmentConfig | None) -> str | None:
     """Resolve the instance URL: explicit, else the environment's recorded one, else a picker.
 
-    The recorded fallback is what removes the retype from a re-login. ``None`` if cancelled, or if a
-    first login has no URL and no terminal to ask on.
+    ``None`` if cancelled, or if a first login has no URL and no terminal to ask on.
     """
     if base_url is not None:
         return normalize_base_url(base_url)
@@ -102,9 +111,8 @@ def _scope_menu_label(choice: str) -> str:
 def resolve_scope(scope: str | None, env: EnvironmentConfig | None = None) -> str | None:
     """Resolve the OAuth scope string, expanding a preset name; ``None`` if cancelled or headless.
 
-    Falls back to the environment's *requested* scope, which is what makes a re-login prompt-free.
-    Never the cached token's *granted* scope: that reflects what the server allowed, so replaying it
-    would silently bake in a dropped scope forever. There is deliberately no default scope.
+    Falls back to the environment's *requested* scope — never the token's granted scope, which would
+    bake a server-side drop in forever. There is deliberately no default scope.
     """
     if scope is not None:
         preset = SCOPE_PRESETS_BY_NAME.get(scope)
@@ -139,14 +147,6 @@ def resolve_set_default(set_default: bool | None, config_env: str, *, is_new_env
     if not is_interactive():
         return True
     return confirm(f"Set '{config_env}' as the default environment?", default=True)
-
-
-def suggest_config_env(base_url: str, existing: list[str]) -> str:
-    """A free environment name derived from *base_url*, suffixed if the derived one is taken."""
-    name = suggest_env_name(base_url)
-    if name not in existing:
-        return name
-    return next(f"{name}-{suffix}" for suffix in range(2, len(existing) + 3) if f"{name}-{suffix}" not in existing)
 
 
 def require_mutable_config() -> bool:

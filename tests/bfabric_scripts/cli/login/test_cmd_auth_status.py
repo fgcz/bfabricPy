@@ -144,8 +144,7 @@ class TestDescribeScope:
     def test_absent_scope_is_not_recorded(self):
         assert describe_scope(None) == "(not recorded)"
         assert describe_scope("") == "(not recorded)"
-        # A non-string (unexpected cache shape) must not blow up.
-        assert describe_scope(123) == "(not recorded)"
+        assert describe_scope("   ") == "(not recorded)"
 
 
 class TestDescribeTokenCache:

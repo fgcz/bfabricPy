@@ -27,10 +27,9 @@ from bfabric_scripts.cli.login._common import (
     resolve_config_env,
     resolve_scope,
     resolve_set_default,
-    suggest_config_env,
 )
 from bfabric_scripts.cli.login._constants import DEFAULT_CLIENT_ID
-from bfabric_scripts.cli.login._urls import normalize_base_url
+from bfabric_scripts.cli.login._urls import normalize_base_url, suggest_env_name
 
 _SCOPE_HELP = (
     "Scope preset (read-only|read-write|upload) or a raw scope string. "
@@ -40,6 +39,7 @@ _CONFIG_ENV_HELP = "Environment name (defaults to BFABRICPY_CONFIG_ENV or the co
 _SET_DEFAULT_HELP = "Set this environment as the default in the config file (prompted for a new environment)."
 _BASE_URL_HELP = "B-Fabric instance URL. Omit to reuse the environment's recorded URL."
 _NO_BROWSER_HELP = "Print the authorization URL instead of opening a browser."
+_CLIENT_ID_HELP = "OAuth client ID. Omit to reuse the environment's recorded ID, or the default 'CLI'."
 
 
 @dataclass(frozen=True)
@@ -48,6 +48,7 @@ class _LoginParams:
 
     config_env: str
     base_url: str
+    client_id: str
     scope: str
     set_default: bool
 
@@ -77,6 +78,7 @@ def _abort(message: str | None = None) -> None:
 
 def _resolve_params(
     base_url: str | None,
+    client_id: str | None,
     config_env: str | None,
     scope: str | None,
     set_default: bool | None,
@@ -99,7 +101,7 @@ def _resolve_params(
                 _abort("No instance selected. Pass the instance URL as an argument.")
                 return None
             # Derived, not prompted for: a first-time user has no basis for inventing a name.
-            config_env = suggest_config_env(resolved_base_url, existing_names)
+            config_env = suggest_env_name(resolved_base_url)
         else:
             config_env = resolve_config_env(config_env, config_file)
             if config_env is None:
@@ -135,24 +137,21 @@ def _resolve_params(
         _abort()
         return None
 
-    return _LoginParams(config_env, resolved_base_url, resolved_scope, resolved_set_default)
+    # Recorded like the base URL and scope, so a re-login of an environment registered under a
+    # non-default client keeps it instead of silently reverting to DEFAULT_CLIENT_ID.
+    resolved_client_id = client_id or (env.client_id if env is not None else None) or DEFAULT_CLIENT_ID
+    return _LoginParams(config_env, resolved_base_url, resolved_client_id, resolved_scope, resolved_set_default)
 
 
-def _persist(
-    base_url: str,
-    client_id: str,
-    token: dict[str, object],
-    params: _LoginParams,
-    config_file: Path,
-) -> None:
+def _persist(token: dict[str, object], params: _LoginParams, config_file: Path) -> None:
     """Cache the fresh OAuth *token* and record the environment as a replayable login recipe."""
     _ = OAuthCredentialProvider.cache_login_token(
-        base_url, client_id=client_id, token=token, env_name=params.config_env
+        params.base_url, client_id=params.client_id, token=token, env_name=params.config_env
     )
     env_data = {
-        "base_url": base_url,
+        "base_url": params.base_url,
         "auth_method": "oauth",
-        "client_id": client_id,
+        "client_id": params.client_id,
         "scope": params.scope,
     }
     write_environment_to_config(config_file, params.config_env, env_data, set_default=params.set_default)
@@ -163,7 +162,7 @@ def _persist(
 def cmd_auth_login(
     base_url: Annotated[str | None, cyclopts.Parameter(help=_BASE_URL_HELP)] = None,
     *,
-    client_id: Annotated[str, cyclopts.Parameter(help="OAuth client ID.")] = DEFAULT_CLIENT_ID,
+    client_id: Annotated[str | None, cyclopts.Parameter(help=_CLIENT_ID_HELP)] = None,
     config_env: Annotated[str | None, cyclopts.Parameter(help=_CONFIG_ENV_HELP)] = None,
     config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = DEFAULT_CONFIG_FILE,
     scope: Annotated[str | None, cyclopts.Parameter(help=_SCOPE_HELP)] = None,
@@ -180,7 +179,7 @@ def cmd_auth_login(
     """
     if not require_mutable_config():
         return
-    params = _resolve_params(base_url, config_env, scope, set_default, config_file)
+    params = _resolve_params(base_url, client_id, config_env, scope, set_default, config_file)
     if params is None:
         return
 
@@ -190,7 +189,7 @@ def cmd_auth_login(
     try:
         token = pkce_login(
             params.base_url,
-            client_id=client_id,
+            client_id=params.client_id,
             scope=params.scope,
             port=port,
             open_browser=not no_browser,
@@ -199,13 +198,13 @@ def cmd_auth_login(
     except RuntimeError as e:
         print(f"Error: {e}", file=sys.stderr)
         raise SystemExit(1) from None
-    _persist(params.base_url, client_id, token, params, config_file)
+    _persist(token, params, config_file)
 
 
 def cmd_auth_device_code(
     base_url: Annotated[str | None, cyclopts.Parameter(help=_BASE_URL_HELP)] = None,
     *,
-    client_id: Annotated[str, cyclopts.Parameter(help="OAuth client ID.")] = DEFAULT_CLIENT_ID,
+    client_id: Annotated[str | None, cyclopts.Parameter(help=_CLIENT_ID_HELP)] = None,
     config_env: Annotated[str | None, cyclopts.Parameter(help=_CONFIG_ENV_HELP)] = None,
     config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = DEFAULT_CONFIG_FILE,
     scope: Annotated[str | None, cyclopts.Parameter(help=_SCOPE_HELP)] = None,
@@ -219,14 +218,14 @@ def cmd_auth_device_code(
     """
     if not require_mutable_config():
         return
-    params = _resolve_params(base_url, config_env, scope, set_default, config_file)
+    params = _resolve_params(base_url, client_id, config_env, scope, set_default, config_file)
     if params is None:
         return
 
     print(f"Requesting scope: {params.scope}", file=sys.stderr)
     try:
-        token = device_code_login(params.base_url, client_id=client_id, scope=params.scope, timeout=timeout)
+        token = device_code_login(params.base_url, client_id=params.client_id, scope=params.scope, timeout=timeout)
     except RuntimeError as e:
         print(f"Error: {e}", file=sys.stderr)
         raise SystemExit(1) from None
-    _persist(params.base_url, client_id, token, params, config_file)
+    _persist(token, params, config_file)

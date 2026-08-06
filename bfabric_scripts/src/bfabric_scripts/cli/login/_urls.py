@@ -1,11 +1,8 @@
 """The one definition of base-URL handling for the ``auth`` commands: canonicalisation plus the
 instances the CLI knows about.
 
-Advisory, not restrictive: any base URL is still accepted. Knowing the common ones just means a
-first-time user picks from a list instead of finding the URL, a bare host expands to a full base URL,
-and a new environment gets a sensible suggested name.
-
-CLI policy, like :data:`DEFAULT_CLIENT_ID` — the core library hardcodes no instances.
+The instance list is advisory, not restrictive — any base URL is still accepted. It lives here rather
+than in the core library because it is CLI policy, like :data:`DEFAULT_CLIENT_ID`.
 """
 
 from __future__ import annotations
@@ -22,8 +19,8 @@ KNOWN_INSTANCES: dict[str, str] = {
 
 
 def instance_host(base_url: str) -> str:
-    """The lowercased host of *base_url*, which need not carry a scheme."""
-    return urlsplit(base_url if "//" in base_url else f"//{base_url}").netloc.lower()
+    """The lowercased host of *base_url*, which callers have already given a scheme."""
+    return urlsplit(base_url).netloc.lower()
 
 
 def normalize_base_url(raw: str) -> str:
@@ -54,13 +51,11 @@ def normalize_base_url(raw: str) -> str:
 
 
 def suggest_env_name(base_url: str) -> str:
-    """A default environment name for *base_url*: the known instance's name, else its host.
-
-    Derived rather than prompted for, so a first-time user never has to invent one. Dots become
-    dashes because a name is also a YAML key users type on the command line.
+    """A default environment name for a canonicalised *base_url*: the known instance's name, else its
+    host with dots replaced by dashes, since a name is also a YAML key users type on the command line.
     """
     host = instance_host(base_url)
     for name, url in KNOWN_INSTANCES.items():
         if instance_host(url) == host:
             return name
-    return host.replace(".", "-") if host else "bfabric"
+    return host.replace(".", "-")

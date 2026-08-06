@@ -221,9 +221,7 @@ def pkce_login(
         }
     )
 
-    # Try to open the browser; fall back to printing the URL. The caveat is about *where* the browser
-    # runs, not whether one exists: the redirect below lands on this host's loopback, so opening the
-    # URL on another machine (the SSH case) can never complete the flow.
+    # Try to open the browser; fall back to printing the URL.
     browser_opened = False
     if open_browser:
         browser_opened = webbrowser.open(authorize_url)
@@ -242,10 +240,8 @@ def pkce_login(
 
     if server_thread.is_alive():
         server.shutdown()
-        # Name the likeliest cause here rather than only in the fallback message above: this is where
-        # a stuck user looks, and it also covers the case where a browser *was* opened (a terminal
-        # browser, or a desktop browser on the wrong host) so nothing gated on ``browser_opened``
-        # would have fired.
+        # Repeat the remote-host caveat: this is where a stuck user looks, and it also covers the case
+        # where a browser *was* opened, so nothing gated on ``browser_opened`` would have fired.
         raise BfabricOAuthError(
             f"PKCE login timed out after {timeout} seconds. The login must be completed in a browser "
             f"on this machine, because the redirect goes to {server.redirect_uri}. On a remote host, "

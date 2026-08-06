@@ -6,13 +6,11 @@ import yaml
 from bfabric.config.config_file import EnvironmentConfig
 from bfabric_scripts.cli.login._common import (
     describe_active_reason,
-    normalize_base_url,
     require_mutable_config,
     resolve_base_url,
     resolve_config_env,
     resolve_scope,
     resolve_set_default,
-    suggest_config_env,
 )
 
 
@@ -223,21 +221,6 @@ class TestResolveScopeFromEnvironment:
         env = EnvironmentConfig.model_validate({"base_url": "https://example.com", "auth_method": "oauth"})
         mocker.patch("bfabric_scripts.cli.login._common.is_interactive", return_value=False)
         assert resolve_scope(None, env) is None
-
-
-class TestSuggestConfigEnv:
-    def test_derives_from_a_known_instance(self):
-        assert suggest_config_env("https://fgcz-bfabric-demo.uzh.ch/bfabric", []) == "fgcz-demo"
-
-    def test_derives_from_the_host_for_an_unknown_instance(self):
-        assert suggest_config_env("https://bfabric.example.com/bfabric", []) == "bfabric-example-com"
-
-    def test_suffixes_when_the_name_is_taken(self):
-        assert suggest_config_env("https://fgcz-bfabric-demo.uzh.ch/bfabric", ["fgcz-demo"]) == "fgcz-demo-2"
-        assert (
-            suggest_config_env("https://fgcz-bfabric-demo.uzh.ch/bfabric", ["fgcz-demo", "fgcz-demo-2"])
-            == "fgcz-demo-3"
-        )
 
 
 class TestRequireMutableConfig:

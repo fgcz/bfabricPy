@@ -121,6 +121,32 @@ def write_environment_to_config(
     _write_config_file(config_path, existing)
 
 
+def _load_for_edit(config_path: Path, env_name: str) -> tuple[Path, dict[str, object]]:
+    """Raw YAML mapping for an in-place edit of *env_name*, with its expanded path.
+
+    Membership is checked through the reader — on a deep copy, since ``ConfigFile``'s "before"
+    validators mutate their input — so it matches how the file loads back while leaving the returned
+    mapping pristine for the write. Not used by :func:`write_environment_to_config`, which tolerates a
+    missing file and a not-yet-defined environment.
+
+    :raises FileNotFoundError: If the config file does not exist.
+    :raises ValueError: If *env_name* is not among the configured environments.
+    """
+    config_path = Path(config_path).expanduser()
+    if not config_path.is_file():
+        raise FileNotFoundError(f"Config file not found: {config_path}")
+
+    loaded: object = yaml.safe_load(config_path.read_text())  # pyright: ignore[reportAny]
+    existing: dict[str, object]
+    existing = loaded if isinstance(loaded, dict) else {}  # pyright: ignore[reportUnknownVariableType]
+
+    config_file_obj = ConfigFile.model_validate(copy.deepcopy(existing))
+    if env_name not in config_file_obj.environments:
+        available = ", ".join(sorted(config_file_obj.environments)) or "(none)"
+        raise ValueError(f"Environment {env_name!r} is not defined. Available environments: {available}")
+    return config_path, existing
+
+
 def set_default_config(config_path: Path, env_name: str) -> None:
     """Set ``GENERAL.default_config`` to an already-defined environment.
 
@@ -132,22 +158,9 @@ def set_default_config(config_path: Path, env_name: str) -> None:
     :raises ValueError: If *env_name* is not among the configured environments; the file is left
         untouched.
     """
-    config_path = Path(config_path).expanduser()
-    if not config_path.is_file():
-        raise FileNotFoundError(f"Config file not found: {config_path}")
-
-    loaded: object = yaml.safe_load(config_path.read_text())  # pyright: ignore[reportAny]
-    existing: dict[str, object]
-    existing = loaded if isinstance(loaded, dict) else {}  # pyright: ignore[reportUnknownVariableType]
-
-    # Validate through the reader (on a deep copy — ConfigFile's "before" validators mutate their
-    # input in place) so the membership check matches how the file loads back, keeping ``existing``
-    # pristine for the write. This doubles as the round-trip guard: env_name is a known environment
-    # and the environments are untouched below, so setting the default can't fail the reader after.
-    config_file_obj = ConfigFile.model_validate(copy.deepcopy(existing))
-    if env_name not in config_file_obj.environments:
-        available = ", ".join(sorted(config_file_obj.environments)) or "(none)"
-        raise ValueError(f"Environment {env_name!r} is not defined. Available environments: {available}")
+    # The membership check doubles as the round-trip guard here: env_name is a known environment and
+    # the environments are untouched below, so setting the default cannot fail the reader afterwards.
+    config_path, existing = _load_for_edit(config_path, env_name)
 
     general = existing.setdefault("GENERAL", {})
     if not isinstance(general, dict):
@@ -172,21 +185,7 @@ def clear_environment_credentials(config_path: Path, env_name: str) -> tuple[str
     :raises ValueError: If *env_name* is not among the configured environments; the file is left
         untouched.
     """
-    config_path = Path(config_path).expanduser()
-    if not config_path.is_file():
-        raise FileNotFoundError(f"Config file not found: {config_path}")
-
-    loaded: object = yaml.safe_load(config_path.read_text())  # pyright: ignore[reportAny]
-    existing: dict[str, object]
-    existing = loaded if isinstance(loaded, dict) else {}  # pyright: ignore[reportUnknownVariableType]
-
-    # Enumerate through the reader so the membership check matches how the file loads back, on a deep
-    # copy because ConfigFile's "before" validators mutate their input in place — ``existing`` has to
-    # stay pristine for the write.
-    config_file_obj = ConfigFile.model_validate(copy.deepcopy(existing))
-    if env_name not in config_file_obj.environments:
-        available = ", ".join(sorted(config_file_obj.environments)) or "(none)"
-        raise ValueError(f"Environment {env_name!r} is not defined. Available environments: {available}")
+    config_path, existing = _load_for_edit(config_path, env_name)
 
     env = existing.get(env_name)
     if not isinstance(env, dict):
@@ -213,21 +212,7 @@ def remove_environment_from_config(config_path: Path, env_name: str) -> None:
     :raises ValueError: If *env_name* is not among the configured environments; the file is left
         untouched.
     """
-    config_path = Path(config_path).expanduser()
-    if not config_path.is_file():
-        raise FileNotFoundError(f"Config file not found: {config_path}")
-
-    loaded: object = yaml.safe_load(config_path.read_text())  # pyright: ignore[reportAny]
-    existing: dict[str, object]
-    existing = loaded if isinstance(loaded, dict) else {}  # pyright: ignore[reportUnknownVariableType]
-
-    # Enumerate through the reader so the membership check matches how the file loads back.
-    # ConfigFile's "before" validators mutate their input in place, so validate a deep copy and
-    # keep ``existing`` pristine for the write.
-    config_file_obj = ConfigFile.model_validate(copy.deepcopy(existing))
-    if env_name not in config_file_obj.environments:
-        available = ", ".join(sorted(config_file_obj.environments)) or "(none)"
-        raise ValueError(f"Environment {env_name!r} is not defined. Available environments: {available}")
+    config_path, existing = _load_for_edit(config_path, env_name)
 
     _ = existing.pop(env_name, None)
     general = existing.get("GENERAL")

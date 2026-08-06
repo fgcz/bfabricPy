@@ -164,6 +164,24 @@ class TestZeroArgumentReLogin:
             )
         )
 
+    def test_replays_a_recorded_non_default_client_id(self, tmp_path, mocker, oauth_token, oauth_session):
+        """Without this the re-login reverts the environment to DEFAULT_CLIENT_ID and caches the token
+        under a different key, silently breaking an environment registered under its own client."""
+        config_file = tmp_path / "config.yml"
+        self._write_env(config_file, client_id="custom-client", scope="api:read")
+        mock_pkce = mocker.patch("bfabric_scripts.cli.login.oauth_login.pkce_login", return_value=oauth_token)
+        cmd_auth_login(config_file=config_file)
+        assert mock_pkce.call_args.kwargs["client_id"] == "custom-client"
+        assert yaml.safe_load(config_file.read_text())["PROD"]["client_id"] == "custom-client"
+
+    def test_explicit_client_id_overrides_the_recorded_one(self, tmp_path, mocker, oauth_token, oauth_session):
+        config_file = tmp_path / "config.yml"
+        self._write_env(config_file, client_id="custom-client", scope="api:read")
+        mock_pkce = mocker.patch("bfabric_scripts.cli.login.oauth_login.pkce_login", return_value=oauth_token)
+        cmd_auth_login(config_file=config_file, client_id="other-client")
+        assert mock_pkce.call_args.kwargs["client_id"] == "other-client"
+        assert yaml.safe_load(config_file.read_text())["PROD"]["client_id"] == "other-client"
+
     def test_replays_recorded_base_url_and_scope_without_prompting(self, tmp_path, mocker, oauth_token, oauth_session):
         config_file = tmp_path / "config.yml"
         self._write_env(config_file, scope="api:write tus")

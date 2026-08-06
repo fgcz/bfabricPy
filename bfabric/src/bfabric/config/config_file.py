@@ -30,8 +30,8 @@ class EnvironmentConfig(BaseModel):
     """OAuth scope *requested* at login, so a re-login can be replayed without retyping it.
 
     Deliberately the requested rather than the granted value: the server silently drops scopes the
-    client isn't registered for, and the cached token records only what was granted. Keeping both
-    separate is what makes drift visible. ``None`` for environments written before 1.17.0.
+    client isn't registered for, so replaying the granted scope would bake that drop in permanently.
+    ``None`` for environments written before this field existed.
     """
 
     @model_validator(mode="before")

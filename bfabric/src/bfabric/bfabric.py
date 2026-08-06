@@ -141,8 +141,7 @@ class Bfabric:
                 "configuring via BFABRICPY_CONFIG_OVERRIDE, include 'env_name' naming the "
                 "environment whose cached token should be used."
             )
-        env_name = config_data.env_name
-        cache_path = compute_token_cache_path(base_url, client_id, env_name).expanduser()
+        cache_path = compute_token_cache_path(base_url, client_id, config_data.env_name).expanduser()
         if not TokenCache(cache_path).load():
             raise ValueError("No OAuth tokens found. Run 'bfabric-cli auth login' or 'bfabric-cli auth device-code'.")
         provider = OAuthCredentialProvider(
