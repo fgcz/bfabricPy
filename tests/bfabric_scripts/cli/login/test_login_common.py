@@ -179,34 +179,6 @@ class TestResolveConfigEnvEnvironmentVariable:
         prompt.assert_not_called()
 
 
-class TestNormalizeBaseUrl:
-    @pytest.mark.parametrize(
-        ("raw", "expected"),
-        [
-            ("https://example.com/bfabric", "https://example.com/bfabric"),
-            ("https://example.com/bfabric/", "https://example.com/bfabric"),
-            ("  https://example.com/bfabric  ", "https://example.com/bfabric"),
-            ("https://EXAMPLE.com/bfabric", "https://example.com/bfabric"),
-            ("example.com/bfabric", "https://example.com/bfabric"),
-            ("http://example.com/bfabric", "http://example.com/bfabric"),
-        ],
-    )
-    def test_normalizes(self, raw, expected):
-        assert normalize_base_url(raw) == expected
-
-    def test_expands_a_bare_known_host(self):
-        assert normalize_base_url("fgcz-bfabric-demo.uzh.ch") == "https://fgcz-bfabric-demo.uzh.ch/bfabric"
-
-    def test_keeps_an_explicit_path_on_a_known_host(self):
-        """Canonicalisation may add information, never overwrite a path the user typed."""
-        assert normalize_base_url("https://fgcz-bfabric-demo.uzh.ch/other") == "https://fgcz-bfabric-demo.uzh.ch/other"
-
-    @pytest.mark.parametrize("raw", ["", "   ", "ftp://example.com", "https://"])
-    def test_rejects_unusable_input(self, raw):
-        with pytest.raises(ValueError):
-            normalize_base_url(raw)
-
-
 class TestResolveBaseUrl:
     def test_explicit_value_is_normalized(self):
         assert resolve_base_url("example.com/bfabric/", None) == "https://example.com/bfabric"

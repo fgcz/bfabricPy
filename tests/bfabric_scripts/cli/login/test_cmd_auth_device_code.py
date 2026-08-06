@@ -7,15 +7,6 @@ from bfabric_scripts.cli.login._constants import SCOPE_PRESETS_BY_NAME
 from bfabric_scripts.cli.login.oauth_login import cmd_auth_device_code
 
 
-@pytest.fixture(autouse=True)
-def _confirmed_discovery(mocker):
-    """Skip the network pre-flight; it is advisory and covered by its own tests."""
-    return mocker.patch(
-        "bfabric_scripts.cli.login.oauth_login.discovery.resolve_base_url",
-        side_effect=lambda base_url, **_: (base_url, True),
-    )
-
-
 class TestCmdAuthDeviceCode:
     def test_writes_config_and_caches_token(self, tmp_path, mocker, oauth_token, oauth_session):
         config_file = tmp_path / "config.yml"

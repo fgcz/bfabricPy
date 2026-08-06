@@ -10,15 +10,6 @@ from bfabric_scripts.cli.login._constants import SCOPE_PRESETS_BY_NAME
 from bfabric_scripts.cli.login.oauth_login import cmd_auth_login
 
 
-@pytest.fixture(autouse=True)
-def _confirmed_discovery(mocker):
-    """Skip the network pre-flight; it is advisory and covered by its own tests."""
-    return mocker.patch(
-        "bfabric_scripts.cli.login.oauth_login.discovery.resolve_base_url",
-        side_effect=lambda base_url, **_: (base_url, True),
-    )
-
-
 class TestCmdAuthLogin:
     def test_writes_config_and_caches_token(self, tmp_path, mocker, oauth_token, oauth_session):
         config_file = tmp_path / "config.yml"
@@ -200,22 +191,6 @@ class TestZeroArgumentReLogin:
         cmd_auth_login(config_file=config_file)
         assert "Requesting scope: api:read" in capsys.readouterr().err
 
-    def test_flags_a_scope_the_server_previously_dropped(self, tmp_path, mocker, capsys, oauth_token, oauth_session):
-        config_file = tmp_path / "config.yml"
-        self._write_env(config_file, scope="api:write tus")
-        # A cached token granted less than the environment asks for: the server dropped a scope.
-        cache_path = tmp_path / "token.json"
-        cache_path.write_text(json.dumps({"access_token": "t", "scope": "api:write", "expires_at": time.time() + 60}))
-        mocker.patch(
-            "bfabric_scripts.cli.login.oauth_login.compute_token_cache_path",
-            return_value=cache_path,
-        )
-        mocker.patch("bfabric_scripts.cli.login.oauth_login.pkce_login", return_value=oauth_token)
-        mocker.patch("bfabric_scripts.cli.login._common.is_interactive", return_value=False)
-        cmd_auth_login(config_file=config_file)
-        err = capsys.readouterr().err
-        assert "granted 'api:write'" in err
-
     def test_environment_without_a_recorded_scope_prompts_once_and_records_it(
         self, tmp_path, mocker, oauth_token, oauth_session
     ):
@@ -358,7 +333,7 @@ class TestFirstLogin:
         assert "Pass the instance URL" in capsys.readouterr().err
 
 
-class TestBaseUrlPreflight:
+class TestBaseUrl:
     def test_normalizes_a_bare_host_before_the_browser_opens(self, tmp_path, mocker, oauth_token, oauth_session):
         config_file = tmp_path / "config.yml"
         mock_pkce = mocker.patch("bfabric_scripts.cli.login.oauth_login.pkce_login", return_value=oauth_token)
@@ -370,34 +345,7 @@ class TestBaseUrlPreflight:
         )
         assert mock_pkce.call_args.args[0] == "https://fgcz-bfabric-demo.uzh.ch/bfabric"
 
-    def test_applies_a_discovery_correction(self, tmp_path, mocker, oauth_token, oauth_session, capsys):
-        config_file = tmp_path / "config.yml"
-        mocker.patch(
-            "bfabric_scripts.cli.login.oauth_login.discovery.resolve_base_url",
-            return_value=("https://example.com/bfabric", True),
-        )
-        mock_pkce = mocker.patch("bfabric_scripts.cli.login.oauth_login.pkce_login", return_value=oauth_token)
-        cmd_auth_login(base_url="https://example.com", config_env="PROD", config_file=config_file, scope="api:read")
-        assert mock_pkce.call_args.args[0] == "https://example.com/bfabric"
-        assert yaml.safe_load(config_file.read_text())["PROD"]["base_url"] == "https://example.com/bfabric"
-
-    def test_warns_but_proceeds_when_discovery_finds_nothing(
-        self, tmp_path, mocker, oauth_token, oauth_session, capsys
-    ):
-        """Advisory, not a gate: a miss also covers an instance that publishes no metadata."""
-        config_file = tmp_path / "config.yml"
-        mocker.patch(
-            "bfabric_scripts.cli.login.oauth_login.discovery.resolve_base_url",
-            return_value=("https://example.com/bfabric", False),
-        )
-        mock_pkce = mocker.patch("bfabric_scripts.cli.login.oauth_login.pkce_login", return_value=oauth_token)
-        cmd_auth_login(
-            base_url="https://example.com/bfabric", config_env="PROD", config_file=config_file, scope="api:read"
-        )
-        mock_pkce.assert_called_once()
-        assert "no OAuth metadata found" in capsys.readouterr().err
-
-    def test_rejects_a_non_http_url_before_any_network_call(self, tmp_path, mocker, capsys):
+    def test_rejects_a_non_http_url(self, tmp_path, mocker, capsys):
         """A typo is reported as rejected input, not as a traceback."""
         config_file = tmp_path / "config.yml"
         mock_pkce = mocker.patch("bfabric_scripts.cli.login.oauth_login.pkce_login")

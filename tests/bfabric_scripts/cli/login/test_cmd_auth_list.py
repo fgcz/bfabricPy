@@ -81,18 +81,14 @@ class TestListDisplay:
         assert output.index("prod.example.com") < output.index("prod-ro")
         assert "other.example.com" in output
 
-    def test_shows_the_account_and_scope_of_each_cached_token(self, tmp_path, capsys, mocker):
+    def test_shows_the_scope_and_expiry_of_each_cached_token(self, tmp_path, capsys, mocker):
         config_file = tmp_path / "config.yml"
         self._write(config_file)
         cache_path = tmp_path / "tok.json"
-        payload = base64.urlsafe_b64encode(json.dumps({"sub": "someone"}).encode()).decode().rstrip("=")
-        cache_path.write_text(
-            json.dumps({"access_token": f"h.{payload}.s", "scope": "api:read", "expires_at": time.time() + 3600})
-        )
+        cache_path.write_text(json.dumps({"access_token": "t", "expires_at": time.time() + 3600}))
         mocker.patch("bfabric_scripts.cli.login.manage.compute_token_cache_path", return_value=cache_path)
         cmd_auth_list(config_file=config_file)
         output = capsys.readouterr().out
-        assert "someone" in output
         assert "api:read" in output
         assert "expires in" in output
 

@@ -30,15 +30,13 @@ bfabric-cli auth status     # the active environment in detail
 bfabric-cli auth list       # every environment, grouped by instance
 ```
 
-`auth list` shows the account each cached token belongs to, its scope and expiry. That is what tells
-two logins on the same instance apart — e.g. a read-only and a read-write environment on production.
-
-Both commands also say *why* an environment is the active one. This matters because
+`auth list` shows each environment's scope and token expiry, which is what tells two logins on the
+same instance apart. Both commands also say *why* an environment is the active one, because
 `BFABRICPY_CONFIG_ENV` silently outranks the configured default:
 
 ```
-prod-ro   oauth · someone · api:read · present, expires in ~7h  (default)
-prod-rw   oauth · someone · api:write · present, expires in ~7h  (active via BFABRICPY_CONFIG_ENV)
+prod-ro   oauth · api:read · present, expires in ~7h  (default)
+prod-rw   oauth · api:write · present, expires in ~7h  (active via BFABRICPY_CONFIG_ENV)
 ```
 
 ## Scopes
@@ -57,11 +55,8 @@ bfabric-cli auth login --scope "api:read containers"
 ```
 
 There is no default scope: a non-interactive login must pass `--scope`. The requested scope is
-recorded in the config, and a later login replays it.
-
-The server drops scopes the client is not registered for, so what you asked for and what you got can
-differ. `auth status` shows both when they do — the requested scope from the config, and the granted
-scope from the token.
+recorded in the config and a later login replays it. Note that the server silently drops scopes the
+client is not registered for, so what you asked for is not necessarily what you got.
 
 ## Several instances or several logins
 
@@ -143,11 +138,7 @@ works but is visible in `ps` and your shell history.
 
 ## Environment variables
 
-| Variable | Effect |
-| --------------------------- | ---------------------------------------------------------------------- |
-| `BFABRICPY_CONFIG_ENV` | Selects the environment, outranking the configured default |
-| `BFABRICPY_CONFIG_OVERRIDE` | Supplies the whole config as JSON, ignoring the file |
-
-Every `auth` command honours `BFABRICPY_CONFIG_ENV`. Because `BFABRICPY_CONFIG_OVERRIDE` replaces the
-config file entirely, commands that would write to that file refuse to run while it is set rather
-than writing a change that has no effect.
+Every `auth` command honours `BFABRICPY_CONFIG_ENV` and `BFABRICPY_CONFIG_OVERRIDE` (see
+[Configuration](../../getting_started/configuration.md)). Because the override replaces the config
+file entirely, commands that would write to that file refuse to run while it is set rather than
+writing a change that has no effect.

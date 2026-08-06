@@ -50,26 +50,24 @@ All commands registered under `bfabric-cli auth` via cyclopts.
 | `auth pat <base_url>` | `cli/login/pat.py` | Personal Access Token login. |
 | `auth register <client_name> <redirect_uri>` | `cli/login/register.py` | RFC 7591 dynamic client registration. Outputs JSON. |
 | `auth register-webapp <client_name> <redirect_uri>` | `cli/login/register_webapp.py` | Registration preset for webapps (OIDC-inclusive scope). |
-| `auth status` | `cli/login/manage.py` | Show auth status for an environment, incl. account and requested-vs-granted scope. |
-| `auth list` | `cli/login/manage.py` | List environments grouped by instance, with account / scope / expiry / why-active. |
+| `auth status` | `cli/login/manage.py` | Show auth status for an environment. |
+| `auth list` | `cli/login/manage.py` | List environments grouped by instance, with scope / expiry / why-active. |
 | `auth activate [env]` | `cli/login/manage.py` | Make an environment the config default. |
 | `auth logout [env]` | `cli/login/manage.py` | Remove stored credentials for this machine, keeping the environment. `--all` for every environment. |
 | `auth remove [env]` | `cli/login/manage.py` | Delete an environment: config entry plus cached tokens. |
 
-`base_url` is optional for the login commands: omitted, it is read back from the target environment,
-which is what makes a zero-argument re-login work. See
-[the CLI authentication guide](../user_guides/bfabric-cli/authentication.md) for the user-facing view.
+See [the CLI authentication guide](../user_guides/bfabric-cli/authentication.md) for the user-facing
+view; this section covers only what is not visible from the outside.
 
-All auth commands use `--config-env` (consistent with API commands via `@use_client`) and resolve the
-environment as `--config-env` > `BFABRICPY_CONFIG_ENV` > `GENERAL.default_config`, matching
-`ConfigFile.get_selected_config_env`. Commands that write to the config refuse to run while
-`BFABRICPY_CONFIG_OVERRIDE` is set, since the file would not be the config in effect.
+All auth commands resolve the environment as `--config-env` > `BFABRICPY_CONFIG_ENV` >
+`GENERAL.default_config`, matching `ConfigFile.get_selected_config_env`, and `base_url` is optional
+for the login commands because it is read back from that environment. Commands that write to the
+config refuse to run while `BFABRICPY_CONFIG_OVERRIDE` is set, since the file would not be the config
+in effect.
 
 `auth logout` removes credentials per auth method — the token cache for `oauth`, the inline `pat` or
-`login`/`password` keys for the others (via `clear_environment_credentials`). B-Fabric exposes no
-revocation or end-session endpoint, so it states in its own output that an issued token stays valid
-until it expires; there is deliberately no client-side revocation code for an endpoint that does not
-exist.
+`login`/`password` keys for the others (via `clear_environment_credentials`). There is deliberately no
+client-side revocation code, because B-Fabric exposes no revocation or end-session endpoint.
 
 ### `auth register` enhancements
 
@@ -94,9 +92,8 @@ PRODUCTION:
 
 `scope` is what makes a login replayable from disk, and it is deliberately the **requested** value
 rather than the granted one: the server drops scopes the client isn't registered for, so replaying the
-granted scope would bake that drop in permanently. The granted scope lives in the token cache, and
-keeping the two apart is what lets `auth status` report a drift. Only the CLI reads the key — it is
-excluded from `BfabricClientConfig` and not plumbed through `ConfigData` / `export_config_data`.
+granted scope would bake that drop in permanently. Only the CLI reads the key — it is excluded from
+`BfabricClientConfig` and not plumbed through `ConfigData` / `export_config_data`.
 
 A re-login **merges** into an existing environment section rather than replacing it, so hand-written
 keys (`application_ids`, `engine`, `job_notification_emails`, …) survive. The auth-owned keys

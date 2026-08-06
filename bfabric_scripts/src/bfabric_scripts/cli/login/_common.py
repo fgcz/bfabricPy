@@ -1,25 +1,23 @@
 """Shared parameter resolution for the ``auth`` commands.
 
-Everything a login needs — environment, base URL, scope, whether it becomes the default — may come
-from the command line, from the environment already recorded in the config, or from an interactive
-prompt. Resolving all of it in one place is what makes a zero-argument re-login possible: the
-recorded environment *is* the login recipe.
+Environment, base URL, scope and default-ness may each come from the command line, from the
+environment already recorded in the config, or from a prompt. Resolving all of it in one place is what
+makes a zero-argument re-login possible: the recorded environment *is* the login recipe.
 """
 
 from __future__ import annotations
 
 import os
 from pathlib import Path
-from urllib.parse import urlsplit, urlunsplit
 
 import yaml
 
 from bfabric.config.config_file import ConfigFile, EnvironmentConfig
 from bfabric_scripts.cli.interactive import confirm, is_interactive, select_choice, select_or_input, text_input
 from bfabric_scripts.cli.login._constants import SCOPE_PRESETS, SCOPE_PRESETS_BY_NAME
-from bfabric_scripts.cli.login._instances import KNOWN_INSTANCES, match_instance, suggest_env_name
+from bfabric_scripts.cli.login._urls import KNOWN_INSTANCES, normalize_base_url, suggest_env_name
 
-# Interactive-only sentinel: choosing it opens a free-text prompt for raw scopes.
+# Interactive-only sentinel: choosing it opens a free-text prompt.
 _CUSTOM = "custom"
 
 # Fallback environment name when none is configured and none is given (historical default).
@@ -38,15 +36,11 @@ def load_config_file(config_file: Path) -> ConfigFile | None:
 
 
 def resolve_config_env(config_env: str | None, config_file: Path) -> str | None:
-    """Resolve the target environment name.
+    """Resolve the target environment name; ``None`` if cancelled.
 
-    The precedence matches :meth:`ConfigFile.get_selected_config_env` and ``Bfabric.connect()`` —
-    explicit, then ``BFABRICPY_CONFIG_ENV``, then the configured default — so a login lands in the
-    same environment a subsequent connect would read, and a re-login needs no argument.
-
-    Only a genuinely ambiguous case prompts: environments exist but none is the default, so there is
-    nothing to resolve to. Otherwise the resolution is used as-is, because asking about it on every
-    login is the prompt a zero-argument re-login exists to avoid. ``None`` if cancelled.
+    Precedence matches ``Bfabric.connect()`` — explicit, ``BFABRICPY_CONFIG_ENV``, configured default
+    — so a login lands where a later connect reads. Prompting happens only when environments exist
+    but none is the default, since asking on every login is the prompt a re-login exists to avoid.
     """
     if config_env is not None:
         return config_env
@@ -61,34 +55,6 @@ def resolve_config_env(config_env: str | None, config_file: Path) -> str | None:
     if not is_interactive():
         return _FALLBACK_ENV
     return select_or_input("Environment name", names, default=_FALLBACK_ENV)
-
-
-def normalize_base_url(raw: str) -> str:
-    """Normalise a typed base URL deterministically and offline.
-
-    Defaults the scheme to https, lowercases the host, drops a trailing slash, and expands a bare
-    known host to that instance's full base URL.
-
-    :raises ValueError: If *raw* is empty or not http(s) — rejected here rather than several minutes
-        later, after the browser flow, where the only signal today is an ``httpx.InvalidURL``.
-    """
-    candidate = raw.strip()
-    if not candidate:
-        raise ValueError("Base URL must not be empty.")
-    if "//" not in candidate:
-        candidate = f"https://{candidate}"
-    parts = urlsplit(candidate)
-    if parts.scheme not in ("http", "https"):
-        raise ValueError(f"Base URL must use http or https, got {parts.scheme!r}.")
-    if not parts.netloc:
-        raise ValueError(f"Base URL {raw!r} has no host.")
-    normalized = urlunsplit((parts.scheme, parts.netloc.lower(), parts.path.rstrip("/"), "", ""))
-    instance = match_instance(normalized)
-    # Only expand a bare host: an explicit path is the user's, and rewriting it would turn a correct
-    # URL for an unusual deployment into a broken one.
-    if instance is not None and not parts.path.strip("/"):
-        return instance.base_url
-    return normalized
 
 
 def resolve_base_url(base_url: str | None, env: EnvironmentConfig | None) -> str | None:
@@ -107,13 +73,13 @@ def resolve_base_url(base_url: str | None, env: EnvironmentConfig | None) -> str
 
 
 def select_instance() -> str | None:
-    """First-login instance picker over :data:`KNOWN_INSTANCES`, plus a free-text entry for any other."""
-    labels = {instance.name: f"{instance.name.ljust(10)} {instance.base_url}" for instance in KNOWN_INSTANCES}
+    """First-login instance picker over :data:`KNOWN_INSTANCES`, plus free-text entry for any other."""
+    labels = {name: f"{name.ljust(10)} {url}" for name, url in KNOWN_INSTANCES.items()}
     labels[_CUSTOM] = f"{'other…'.ljust(10)} (enter a URL)"
     picked = select_choice(
         "Select the B-Fabric instance",
-        [instance.name for instance in KNOWN_INSTANCES] + [_CUSTOM],
-        default=KNOWN_INSTANCES[0].name,
+        [*KNOWN_INSTANCES, _CUSTOM],
+        default=next(iter(KNOWN_INSTANCES)),
         describe=lambda choice: labels[choice],
     )
     if picked is None:
@@ -121,7 +87,7 @@ def select_instance() -> str | None:
     if picked == _CUSTOM:
         typed = text_input("B-Fabric instance URL")
         return normalize_base_url(typed) if typed else None
-    return next(instance.base_url for instance in KNOWN_INSTANCES if instance.name == picked)
+    return KNOWN_INSTANCES[picked]
 
 
 def _scope_menu_label(choice: str) -> str:
@@ -134,15 +100,11 @@ def _scope_menu_label(choice: str) -> str:
 
 
 def resolve_scope(scope: str | None, env: EnvironmentConfig | None = None) -> str | None:
-    """Resolve the OAuth scope string.
+    """Resolve the OAuth scope string, expanding a preset name; ``None`` if cancelled or headless.
 
-    A given *scope* expands preset names and passes anything else through unchanged; otherwise the
-    environment's recorded scope is replayed, which is what makes a re-login prompt-free. Failing
-    both, an interactive run picks a preset (least-privilege preselected) or types raw scopes, and a
-    headless one returns ``None`` so the caller can abort — there is deliberately no default scope.
-
-    The cached token's *granted* scope is never used here: it reflects what the server allowed, so
-    replaying it would silently bake in a dropped scope forever.
+    Falls back to the environment's *requested* scope, which is what makes a re-login prompt-free.
+    Never the cached token's *granted* scope: that reflects what the server allowed, so replaying it
+    would silently bake in a dropped scope forever. There is deliberately no default scope.
     """
     if scope is not None:
         preset = SCOPE_PRESETS_BY_NAME.get(scope)
@@ -167,9 +129,8 @@ def resolve_scope(scope: str | None, env: EnvironmentConfig | None = None) -> st
 def resolve_set_default(set_default: bool | None, config_env: str, *, is_new_env: bool = False) -> bool | None:
     """Resolve whether the freshly-authenticated environment becomes the config default.
 
-    Explicit *set_default* wins. A re-login into an existing environment doesn't ask — it changes no
-    defaults, so the answer is "leave it as it is"; a brand-new environment prompts (yes preselected)
-    or, headless, becomes the default. ``None`` if cancelled (the caller aborts).
+    A re-login into an existing environment doesn't ask, since it changes no defaults; a brand-new one
+    prompts, or becomes the default when headless. ``None`` if cancelled.
     """
     if set_default is not None:
         return set_default
@@ -191,9 +152,8 @@ def suggest_config_env(base_url: str, existing: list[str]) -> str:
 def require_mutable_config() -> bool:
     """Whether config-changing commands may run, printing why not when they may not.
 
-    ``BFABRICPY_CONFIG_OVERRIDE`` supplies the whole configuration from the environment, so the file
-    a mutating command would write is not the config in effect — a silent write to an ignored file is
-    worse than a refusal.
+    ``BFABRICPY_CONFIG_OVERRIDE`` supplies the whole configuration, so the file a mutating command
+    would write is not the config in effect; a silent write to an ignored file is worse than refusing.
     """
     if os.environ.get(CONFIG_OVERRIDE_VAR):
         print(

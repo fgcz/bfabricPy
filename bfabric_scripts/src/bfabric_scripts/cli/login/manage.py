@@ -1,7 +1,5 @@
 """Auth commands that inspect or manage existing config environments: list, activate, status, logout,
-remove.
-
-Their shared config-load, environment picker, and host/auth/scope rendering helpers live here too.
+remove. Their shared config-load, environment picker and rendering helpers live here too.
 """
 
 from __future__ import annotations
@@ -10,7 +8,6 @@ import sys
 import time
 from pathlib import Path
 from typing import Annotated
-from urllib.parse import urlsplit
 
 import cyclopts
 
@@ -30,32 +27,23 @@ from bfabric_scripts.cli.login._common import (
     resolve_config_env,
 )
 from bfabric_scripts.cli.login._constants import DEFAULT_CLIENT_ID, SCOPE_PRESETS
-from bfabric_scripts.cli.login._identity import describe_identity, granted_scope
+from bfabric_scripts.cli.login._urls import instance_host
 
-# B-Fabric exposes no token-revocation or end-session endpoint, so removing local credentials is not
-# revocation. Said in the command's own output, not just the docs: someone logging out of a shared
-# machine has done the responsible thing and would otherwise reasonably believe they were covered.
+# Said in the command's own output, not just the docs: someone logging out of a shared machine has
+# done the responsible thing and would otherwise reasonably believe they were covered.
 _NO_REVOCATION_NOTICE = (
     "Note: B-Fabric has no token revocation endpoint, so any token already issued stays valid "
     "server-side until it expires. Local credentials are gone from this machine."
 )
 
 
-def _load_config(config_file: Path) -> ConfigFile | None:
-    """Load and validate the config file, or print a "not found" notice and return ``None``."""
+def _load_config(config_file: Path, *, require_environments: bool = False) -> ConfigFile | None:
+    """Load the config file, or print why it is unusable and return ``None``."""
     config = load_config_file(config_file)
     if config is None:
         print(f"Config file not found: {Path(config_file).expanduser()}")
         return None
-    return config
-
-
-def _require_environments(config_file: Path) -> ConfigFile | None:
-    """Like :func:`_load_config`, but also prints a notice and returns ``None`` if no environments exist."""
-    config = _load_config(config_file)
-    if config is None:
-        return None
-    if not config.environments:
+    if require_environments and not config.environments:
         print("No environments configured.")
         return None
     return config
@@ -71,36 +59,23 @@ def _auth_method(env: EnvironmentConfig) -> str:
 def _oauth_cache_path(env: EnvironmentConfig, env_name: str) -> Path:
     """Disk path of *env_name*'s cached OAuth token (keyed by base URL + client ID + env name)."""
     client_id = env.client_id or DEFAULT_CLIENT_ID
-    return compute_token_cache_path(env.config.base_url.rstrip("/"), client_id, env_name).expanduser()
-
-
-def _cached_token(env: EnvironmentConfig, env_name: str) -> dict[str, object] | None:
-    """*env_name*'s cached OAuth token, or ``None`` for a non-OAuth or logged-out environment."""
-    if env.auth_method != "oauth":
-        return None
-    return TokenCache(_oauth_cache_path(env, env_name)).load()
-
-
-def _host(env: EnvironmentConfig) -> str:
-    base_url = str(env.config.base_url)
-    return urlsplit(base_url).netloc or base_url
+    return compute_token_cache_path(env.config.base_url, client_id, env_name).expanduser()
 
 
 def environment_summary(env: EnvironmentConfig) -> str:
     """A compact "host · auth-method" descriptor shown next to each environment name."""
-    return f"{_host(env)} · {_auth_method(env)}"
+    return f"{instance_host(str(env.config.base_url))} · {_auth_method(env)}"
 
 
 def _environment_detail(env: EnvironmentConfig, env_name: str, *, now: float) -> str:
-    """The account / scope / token state of one environment, for a listing row."""
-    if _auth_method(env) != "oauth":
-        return _auth_method(env)
-    cached = _cached_token(env, env_name)
+    """The scope and token state of one environment, for a listing row."""
+    method = _auth_method(env)
+    if method != "oauth":
+        return method
+    cached = TokenCache(_oauth_cache_path(env, env_name)).load()
     if cached is None:
         return "oauth · logged out"
-    scope = env.scope or granted_scope(cached) or "(scope not recorded)"
-    freshness = describe_token_cache(cached, now=now)
-    return f"oauth · {describe_identity(cached)} · {scope} · {freshness}"
+    return f"oauth · {env.scope or '(scope not recorded)'} · {describe_token_cache(cached, now=now)}"
 
 
 def print_environments(environments: dict[str, EnvironmentConfig], default: str | None, *, now: float) -> None:
@@ -109,7 +84,7 @@ def print_environments(environments: dict[str, EnvironmentConfig], default: str 
     width = max((len(name) for name in environments), default=0)
     by_host: dict[str, list[str]] = {}
     for name, env in environments.items():
-        by_host.setdefault(_host(env), []).append(name)
+        by_host.setdefault(instance_host(str(env.config.base_url)), []).append(name)
     for host, names in by_host.items():
         print(f"\n{host}")
         for name in names:
@@ -133,18 +108,13 @@ def _select_environment(message: str, config: ConfigFile) -> str | None:
     )
 
 
-def _normalize_scope(scope: str) -> str:
-    """Order-insensitive form of a scope string for comparing against the presets."""
-    return " ".join(sorted(scope.split()))
-
-
 def describe_scope(scope: object) -> str:
     """Render a scope, appending ``[<preset>]`` on match; ``"(not recorded)"`` if missing/non-string."""
     if not isinstance(scope, str) or not scope.strip():
         return "(not recorded)"
-    normalized = _normalize_scope(scope)
+    requested = sorted(scope.split())
     for preset in SCOPE_PRESETS:
-        if _normalize_scope(preset.scope) == normalized:
+        if sorted(preset.scope.split()) == requested:
             return f"{scope}  [{preset.name}]"
     return scope
 
@@ -170,11 +140,11 @@ def cmd_auth_list(
 ) -> None:
     """List the configured environments, grouped by instance.
 
-    Each row shows the account the cached token belongs to, its scope and expiry, and why an
-    environment is the one currently in effect — ``BFABRICPY_CONFIG_ENV`` silently outranks the
-    configured default, which is otherwise invisible.
+    Each row shows the environment's scope and token expiry, and why an environment is the one
+    currently in effect — ``BFABRICPY_CONFIG_ENV`` silently outranks the configured default, which is
+    otherwise invisible.
     """
-    config = _require_environments(config_file)
+    config = _load_config(config_file, require_environments=True)
     if config is None:
         return
     print_environments(config.environments, config.general.default_config, now=time.time())
@@ -195,7 +165,7 @@ def cmd_auth_activate(
     """
     if not require_mutable_config():
         return
-    config = _require_environments(config_file)
+    config = _load_config(config_file, require_environments=True)
     if config is None:
         return
     names = list(config.environments)
@@ -245,20 +215,11 @@ def cmd_auth_status(
     print(f"Auth method:  {_auth_method(env)}")
 
     if env.auth_method == "oauth":
-        client_id = env.client_id or DEFAULT_CLIENT_ID
         cache_path = _oauth_cache_path(env, resolved_env)
         cached = TokenCache(cache_path).load()
-        print(f"Client ID:    {client_id}")
-        print(f"Account:      {describe_identity(cached)}")
+        print(f"Client ID:    {env.client_id or DEFAULT_CLIENT_ID}")
         print(f"Token cache:  {cache_path} ({describe_token_cache(cached, now=time.time())})")
         print(f"Scope:        {describe_scope(env.scope)}")
-        # Requested vs granted: the server drops scopes the client isn't registered for, and that is
-        # only visible because the two are recorded separately.
-        granted = granted_scope(cached)
-        if granted is not None and env.scope and set(granted.split()) != set(env.scope.split()):
-            print(f"Granted:      {describe_scope(granted)}  (differs from the requested scope)")
-        elif granted is not None and not env.scope:
-            print(f"Granted:      {describe_scope(granted)}")
     elif env.auth_method == "pat":
         print("Token:        stored in config file")
     elif env.auth is not None:
@@ -310,7 +271,7 @@ def cmd_auth_logout(
     """
     if not require_mutable_config():
         return
-    config = _require_environments(config_file)
+    config = _load_config(config_file, require_environments=True)
     if config is None:
         return
 
@@ -355,7 +316,7 @@ def cmd_auth_remove(
     """
     if not require_mutable_config():
         return
-    config = _require_environments(config_file)
+    config = _load_config(config_file, require_environments=True)
     if config is None:
         return
     environments = config.environments

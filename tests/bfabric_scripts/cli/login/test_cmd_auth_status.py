@@ -40,6 +40,7 @@ class TestCmdAuthStatus:
                         "base_url": "https://example.com/bfabric",
                         "auth_method": "oauth",
                         "client_id": "my-app",
+                        "scope": SCOPE_PRESETS_BY_NAME["upload"].scope,
                     },
                 }
             )
@@ -100,6 +101,7 @@ class TestCmdAuthStatus:
                         "base_url": "https://example.com/bfabric",
                         "auth_method": "oauth",
                         "client_id": "my-app",
+                        "scope": SCOPE_PRESETS_BY_NAME["upload"].scope,
                     },
                 }
             )
@@ -117,7 +119,7 @@ class TestCmdAuthStatus:
         mocker.patch("bfabric_scripts.cli.login.manage.compute_token_cache_path", return_value=cache_path)
         cmd_auth_status(config_file=config_file)
         output = capsys.readouterr().out
-        # The granted scope matches the upload preset and the token is still valid.
+        # The recorded scope matches the upload preset and the token is still valid.
         assert "upload" in output
         assert "expires in" in output
 
@@ -186,23 +188,6 @@ class TestStatusDisplay:
         mocker.patch("bfabric_scripts.cli.login.manage.compute_token_cache_path", return_value=cache_path)
         return cache_path
 
-    def test_shows_the_account_from_the_token(self, tmp_path, capsys, mocker):
-        config_file = tmp_path / "config.yml"
-        self._write(config_file, scope="api:read")
-        self._cache(tmp_path, mocker, {"sub": "someone"}, scope="api:read")
-        cmd_auth_status(config_file=config_file)
-        assert "someone" in capsys.readouterr().out
-
-    def test_account_is_unknown_for_an_opaque_token(self, tmp_path, capsys, mocker):
-        """Some cached access tokens are not JWTs; the display degrades instead of raising."""
-        config_file = tmp_path / "config.yml"
-        self._write(config_file, scope="api:read")
-        cache_path = tmp_path / "tok.json"
-        cache_path.write_text(json.dumps({"access_token": "opaque", "scope": "api:read"}))
-        mocker.patch("bfabric_scripts.cli.login.manage.compute_token_cache_path", return_value=cache_path)
-        cmd_auth_status(config_file=config_file)
-        assert "unknown" in capsys.readouterr().out
-
     def test_shows_the_requested_scope_from_the_config(self, tmp_path, capsys, mocker):
         config_file = tmp_path / "config.yml"
         self._write(config_file, scope="api:write tus")
@@ -211,22 +196,6 @@ class TestStatusDisplay:
         output = capsys.readouterr().out
         assert "api:write tus" in output
         assert "upload" in output
-
-    def test_flags_a_granted_scope_that_differs_from_the_requested_one(self, tmp_path, capsys, mocker):
-        """Only possible because the requested scope is recorded separately from the granted one."""
-        config_file = tmp_path / "config.yml"
-        self._write(config_file, scope="api:write tus")
-        self._cache(tmp_path, mocker, {"sub": "someone"}, scope="api:write")
-        cmd_auth_status(config_file=config_file)
-        output = capsys.readouterr().out
-        assert "differs from the requested scope" in output
-
-    def test_does_not_flag_a_reordered_scope(self, tmp_path, capsys, mocker):
-        config_file = tmp_path / "config.yml"
-        self._write(config_file, scope="api:write tus")
-        self._cache(tmp_path, mocker, {"sub": "someone"}, scope="tus api:write")
-        cmd_auth_status(config_file=config_file)
-        assert "differs" not in capsys.readouterr().out
 
     def test_annotates_the_active_reason(self, tmp_path, capsys, mocker, monkeypatch):
         config_file = tmp_path / "config.yml"

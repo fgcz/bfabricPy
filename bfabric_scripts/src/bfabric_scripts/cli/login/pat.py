@@ -13,11 +13,11 @@ from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric.config.config_writer import write_environment_to_config
 from bfabric_scripts.cli.login._common import (
     load_config_file,
-    normalize_base_url,
     require_mutable_config,
     resolve_config_env,
     resolve_set_default,
 )
+from bfabric_scripts.cli.login._urls import normalize_base_url
 
 
 def cmd_auth_pat(
