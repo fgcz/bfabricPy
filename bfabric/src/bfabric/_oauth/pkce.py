@@ -221,12 +221,19 @@ def pkce_login(
         }
     )
 
-    # Try to open the browser; fall back to printing the URL.
+    # Try to open the browser; fall back to printing the URL. The caveat is about *where* the browser
+    # runs, not whether one exists: the redirect below lands on this host's loopback, so opening the
+    # URL on another machine (the SSH case) can never complete the flow.
     browser_opened = False
     if open_browser:
         browser_opened = webbrowser.open(authorize_url)
     if not browser_opened:
-        print(f"Open this URL to log in:\n{authorize_url}", file=sys.stderr)
+        print(
+            f"Open this URL to log in:\n{authorize_url}\n"
+            f"After logging in you are redirected to {server.redirect_uri}, which only works in a "
+            f"browser on this machine. From a remote host, use 'bfabric-cli auth device-code' instead.",
+            file=sys.stderr,
+        )
 
     # Run the server in a daemon thread and wait for the callback.
     server_thread = threading.Thread(target=server.serve_forever, daemon=True)
@@ -235,7 +242,15 @@ def pkce_login(
 
     if server_thread.is_alive():
         server.shutdown()
-        raise BfabricOAuthError(f"PKCE login timed out after {timeout} seconds")
+        # Name the likeliest cause here rather than only in the fallback message above: this is where
+        # a stuck user looks, and it also covers the case where a browser *was* opened (a terminal
+        # browser, or a desktop browser on the wrong host) so nothing gated on ``browser_opened``
+        # would have fired.
+        raise BfabricOAuthError(
+            f"PKCE login timed out after {timeout} seconds. The login must be completed in a browser "
+            f"on this machine, because the redirect goes to {server.redirect_uri}. On a remote host, "
+            f"use 'bfabric-cli auth device-code' instead."
+        )
 
     result = server.result
 

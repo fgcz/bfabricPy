@@ -26,6 +26,13 @@ class EnvironmentConfig(BaseModel):
     auth: BfabricAuth | None = None
     auth_method: Literal["password", "oauth", "pat"] | None = None
     client_id: str | None = None
+    scope: str | None = None
+    """OAuth scope *requested* at login, so a re-login can be replayed without retyping it.
+
+    Deliberately the requested rather than the granted value: the server silently drops scopes the
+    client isn't registered for, and the cached token records only what was granted. Keeping both
+    separate is what makes drift visible. ``None`` for environments written before 1.17.0.
+    """
 
     @model_validator(mode="before")
     @classmethod
@@ -36,7 +43,7 @@ class EnvironmentConfig(BaseModel):
         values["config"] = {
             key: value
             for key, value in values.items()  # pyright: ignore[reportAny]
-            if key not in ["login", "password", "auth_method", "client_id", "pat"]
+            if key not in ["login", "password", "auth_method", "client_id", "pat", "scope"]
         }
         return values
 

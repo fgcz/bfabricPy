@@ -147,8 +147,10 @@ carries the `tus` scope. Install the extra and authenticate once:
 
 ```bash
 pip install 'bfabric[transfer]'
-bfabric-cli auth login --scope "api:write tus"
+bfabric-cli auth login --scope upload
 ```
+
+See [Authentication](authentication.md) for the scope presets and the rest of the login lifecycle.
 
 ### Basic Usage
 

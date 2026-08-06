@@ -1,11 +1,11 @@
-"""Auth commands that inspect or manage existing config environments: list, default, status, logout.
+"""Auth commands that inspect or manage existing config environments: list, activate, status, logout,
+remove.
 
 Their shared config-load, environment picker, and host/auth/scope rendering helpers live here too.
 """
 
 from __future__ import annotations
 
-import os
 import sys
 import time
 from pathlib import Path
@@ -13,23 +13,41 @@ from typing import Annotated
 from urllib.parse import urlsplit
 
 import cyclopts
-import yaml
 
 from bfabric._oauth.token_cache import TokenCache, compute_token_cache_path
 from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric.config.config_file import ConfigFile, EnvironmentConfig
-from bfabric.config.config_writer import remove_environment_from_config, set_default_config
+from bfabric.config.config_writer import (
+    clear_environment_credentials,
+    remove_environment_from_config,
+    set_default_config,
+)
 from bfabric_scripts.cli.interactive import confirm, is_interactive, select_choice
+from bfabric_scripts.cli.login._common import (
+    describe_active_reason,
+    load_config_file,
+    require_mutable_config,
+    resolve_config_env,
+)
 from bfabric_scripts.cli.login._constants import DEFAULT_CLIENT_ID, SCOPE_PRESETS
+from bfabric_scripts.cli.login._identity import describe_identity, granted_scope
+
+# B-Fabric exposes no token-revocation or end-session endpoint, so removing local credentials is not
+# revocation. Said in the command's own output, not just the docs: someone logging out of a shared
+# machine has done the responsible thing and would otherwise reasonably believe they were covered.
+_NO_REVOCATION_NOTICE = (
+    "Note: B-Fabric has no token revocation endpoint, so any token already issued stays valid "
+    "server-side until it expires. Local credentials are gone from this machine."
+)
 
 
 def _load_config(config_file: Path) -> ConfigFile | None:
     """Load and validate the config file, or print a "not found" notice and return ``None``."""
-    config_path = Path(config_file).expanduser()
-    if not config_path.is_file():
-        print(f"Config file not found: {config_path}")
+    config = load_config_file(config_file)
+    if config is None:
+        print(f"Config file not found: {Path(config_file).expanduser()}")
         return None
-    return ConfigFile.model_validate(yaml.safe_load(config_path.read_text()))
+    return config
 
 
 def _require_environments(config_file: Path) -> ConfigFile | None:
@@ -51,25 +69,54 @@ def _auth_method(env: EnvironmentConfig) -> str:
 
 
 def _oauth_cache_path(env: EnvironmentConfig, env_name: str) -> Path:
-    """Disk path of *env_name*'s cached OAuth token (keyed by base URL + client ID)."""
+    """Disk path of *env_name*'s cached OAuth token (keyed by base URL + client ID + env name)."""
     client_id = env.client_id or DEFAULT_CLIENT_ID
     return compute_token_cache_path(env.config.base_url.rstrip("/"), client_id, env_name).expanduser()
 
 
+def _cached_token(env: EnvironmentConfig, env_name: str) -> dict[str, object] | None:
+    """*env_name*'s cached OAuth token, or ``None`` for a non-OAuth or logged-out environment."""
+    if env.auth_method != "oauth":
+        return None
+    return TokenCache(_oauth_cache_path(env, env_name)).load()
+
+
+def _host(env: EnvironmentConfig) -> str:
+    base_url = str(env.config.base_url)
+    return urlsplit(base_url).netloc or base_url
+
+
 def environment_summary(env: EnvironmentConfig) -> str:
     """A compact "host · auth-method" descriptor shown next to each environment name."""
-    base_url = str(env.config.base_url)
-    host = urlsplit(base_url).netloc or base_url
-    return f"{host} · {_auth_method(env)}"
+    return f"{_host(env)} · {_auth_method(env)}"
 
 
-def print_environments(environments: dict[str, EnvironmentConfig], default: str | None) -> None:
-    """List the configured environments with their host/auth summary, marking the default."""
+def _environment_detail(env: EnvironmentConfig, env_name: str, *, now: float) -> str:
+    """The account / scope / token state of one environment, for a listing row."""
+    if _auth_method(env) != "oauth":
+        return _auth_method(env)
+    cached = _cached_token(env, env_name)
+    if cached is None:
+        return "oauth · logged out"
+    scope = env.scope or granted_scope(cached) or "(scope not recorded)"
+    freshness = describe_token_cache(cached, now=now)
+    return f"oauth · {describe_identity(cached)} · {scope} · {freshness}"
+
+
+def print_environments(environments: dict[str, EnvironmentConfig], default: str | None, *, now: float) -> None:
+    """List the configured environments grouped by host, annotating which one is in effect and why."""
     print("Configuration environments:")
     width = max((len(name) for name in environments), default=0)
+    by_host: dict[str, list[str]] = {}
     for name, env in environments.items():
-        marker, tag = ("→", "  (default)") if name == default else (" ", "")
-        print(f"{marker} {name.ljust(width)}   {environment_summary(env)}{tag}")
+        by_host.setdefault(_host(env), []).append(name)
+    for host, names in by_host.items():
+        print(f"\n{host}")
+        for name in names:
+            env = environments[name]
+            marker = "→" if name == default else " "
+            reason = describe_active_reason(name, default)
+            print(f"{marker} {name.ljust(width)}   {_environment_detail(env, name, now=now)}{reason}")
 
 
 def _select_environment(message: str, config: ConfigFile) -> str | None:
@@ -92,7 +139,7 @@ def _normalize_scope(scope: str) -> str:
 
 
 def describe_scope(scope: object) -> str:
-    """Render a granted scope, appending ``[<preset>]`` on match; ``"(not recorded)"`` if missing/non-string."""
+    """Render a scope, appending ``[<preset>]`` on match; ``"(not recorded)"`` if missing/non-string."""
     if not isinstance(scope, str) or not scope.strip():
         return "(not recorded)"
     normalized = _normalize_scope(scope)
@@ -121,33 +168,40 @@ def cmd_auth_list(
     *,
     config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = DEFAULT_CONFIG_FILE,
 ) -> None:
-    """List the configured environments, marking the default and showing each host / auth method."""
+    """List the configured environments, grouped by instance.
+
+    Each row shows the account the cached token belongs to, its scope and expiry, and why an
+    environment is the one currently in effect — ``BFABRICPY_CONFIG_ENV`` silently outranks the
+    configured default, which is otherwise invisible.
+    """
     config = _require_environments(config_file)
     if config is None:
         return
-    print_environments(config.environments, config.general.default_config)
+    print_environments(config.environments, config.general.default_config, now=time.time())
 
 
-def cmd_auth_default(
+def cmd_auth_activate(
     config_env: Annotated[
         str | None,
-        cyclopts.Parameter(help="Environment to set as default (interactive picker if omitted)."),
+        cyclopts.Parameter(help="Environment to make the default (interactive picker if omitted)."),
     ] = None,
     *,
     config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = DEFAULT_CONFIG_FILE,
 ) -> None:
-    """Set the default configuration environment.
+    """Make an environment the default one.
 
     With no *config_env*, opens an interactive picker in a terminal, or lists the environments
     non-interactively.
     """
+    if not require_mutable_config():
+        return
     config = _require_environments(config_file)
     if config is None:
         return
     names = list(config.environments)
 
     if config_env is None and is_interactive():
-        config_env = _select_environment("Select the default environment", config)
+        config_env = _select_environment("Select the environment to activate", config)
     if config_env is None:
         # Cancelled picker, or no TTY to prompt on.
         if is_interactive():
@@ -161,10 +215,14 @@ def cmd_auth_default(
         return
 
     set_default_config(config_file, config_env)
-    print(f"Default environment set to '{config_env}'.")
+    print(f"Activated environment '{config_env}'.")
+    # An active BFABRICPY_CONFIG_ENV outranks what was just written, which is the whole "I activated
+    # it and nothing changed" confusion; say so instead of leaving it to be discovered.
+    if describe_active_reason(config_env, config_env) == "":
+        print("It is not in effect: BFABRICPY_CONFIG_ENV names a different environment.")
 
 
-def cmd_login_status(
+def cmd_auth_status(
     *,
     config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = DEFAULT_CONFIG_FILE,
     config_env: Annotated[str | None, cyclopts.Parameter(help="Environment name (default: auto-detect).")] = None,
@@ -173,7 +231,7 @@ def cmd_login_status(
     config = _load_config(config_file)
     if config is None:
         return
-    resolved_env = config_env or os.environ.get("BFABRICPY_CONFIG_ENV") or config.general.default_config
+    resolved_env = config_env or resolve_config_env(None, config_file)
     if resolved_env is None:
         print("No environment specified and no default configured.")
         return
@@ -182,7 +240,7 @@ def cmd_login_status(
         return
 
     env = config.environments[resolved_env]
-    print(f"Environment:  {resolved_env}")
+    print(f"Environment:  {resolved_env}{describe_active_reason(resolved_env, config.general.default_config)}")
     print(f"Base URL:     {env.config.base_url}")
     print(f"Auth method:  {_auth_method(env)}")
 
@@ -191,15 +249,93 @@ def cmd_login_status(
         cache_path = _oauth_cache_path(env, resolved_env)
         cached = TokenCache(cache_path).load()
         print(f"Client ID:    {client_id}")
+        print(f"Account:      {describe_identity(cached)}")
         print(f"Token cache:  {cache_path} ({describe_token_cache(cached, now=time.time())})")
-        print(f"Scope:        {describe_scope(cached.get('scope') if cached else None)}")
+        print(f"Scope:        {describe_scope(env.scope)}")
+        # Requested vs granted: the server drops scopes the client isn't registered for, and that is
+        # only visible because the two are recorded separately.
+        granted = granted_scope(cached)
+        if granted is not None and env.scope and set(granted.split()) != set(env.scope.split()):
+            print(f"Granted:      {describe_scope(granted)}  (differs from the requested scope)")
+        elif granted is not None and not env.scope:
+            print(f"Granted:      {describe_scope(granted)}")
     elif env.auth_method == "pat":
         print("Token:        stored in config file")
     elif env.auth is not None:
         print(f"Login:        {env.auth.login}")
 
 
-def cmd_login_logout(
+def _logout_environment(env: EnvironmentConfig, env_name: str, config_file: Path) -> bool:
+    """Remove *env_name*'s credentials for this machine, keeping the environment configured.
+
+    "Credentials" differ per auth method: OAuth's live in the token cache, while a PAT and a password
+    sit inline in the YAML. A cache-only implementation would report success while leaving a PAT in
+    plaintext, so both are handled here.
+    """
+    cleared_keys = clear_environment_credentials(config_file, env_name)
+    cache_cleared = False
+    if env.auth_method == "oauth":
+        cache_path = _oauth_cache_path(env, env_name)
+        cache_cleared = cache_path.is_file()
+        TokenCache(cache_path).clear()
+    if cache_cleared:
+        print(f"Cleared the cached OAuth token for '{env_name}'.")
+    if cleared_keys:
+        print(f"Removed {', '.join(cleared_keys)} from environment '{env_name}'.")
+    if not cache_cleared and not cleared_keys:
+        print(f"No stored credentials found for '{env_name}'.")
+        return False
+    return True
+
+
+def cmd_auth_logout(
+    config_env: Annotated[
+        str | None,
+        cyclopts.Parameter(help="Environment to log out of (default: the active one)."),
+    ] = None,
+    *,
+    config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = DEFAULT_CONFIG_FILE,
+    all_environments: Annotated[
+        bool, cyclopts.Parameter(name=["--all"], help="Log out of every configured environment.")
+    ] = False,
+) -> None:
+    """Remove stored credentials for this machine, keeping the environment configured.
+
+    Clears the cached OAuth token, or strips an inline PAT / password from the config file. The
+    environment itself survives, so a later ``bfabric-cli login`` can renew it with no arguments; use
+    ``auth remove`` to delete the environment entirely.
+
+    B-Fabric offers no revocation endpoint, so a token that was already issued stays valid until it
+    expires — this only removes local access.
+    """
+    if not require_mutable_config():
+        return
+    config = _require_environments(config_file)
+    if config is None:
+        return
+
+    if all_environments:
+        names = list(config.environments)
+    else:
+        # Default to the environment in effect rather than prompting: leaving a shared machine is the
+        # case this exists for, and an extra question there is an invitation to skip it.
+        resolved = config_env or resolve_config_env(None, config_file)
+        if resolved is None:
+            print("No environment specified and no default configured.")
+            return
+        if resolved not in config.environments:
+            print(f"Environment '{resolved}' not found. Available environments: {', '.join(config.environments)}")
+            return
+        names = [resolved]
+
+    # A list, not a generator: ``any`` would stop at the first environment that had credentials, so
+    # ``--all`` would silently skip the rest.
+    cleared = [_logout_environment(config.environments[name], name, config_file) for name in names]
+    if any(cleared):
+        print(_NO_REVOCATION_NOTICE)
+
+
+def cmd_auth_remove(
     config_env: Annotated[
         str | None,
         cyclopts.Parameter(help="Environment to remove (interactive picker if omitted)."),
@@ -210,11 +346,15 @@ def cmd_login_logout(
         bool, cyclopts.Parameter(help="Skip the confirmation prompt (required to remove non-interactively).")
     ] = False,
 ) -> None:
-    """Remove an environment: delete its config entry and clear any cached OAuth tokens.
+    """Delete an environment: remove its config entry and clear any cached OAuth tokens.
+
+    To keep the environment and only drop its credentials, use ``auth logout`` instead.
 
     With no *config_env*, opens an interactive picker. A non-interactive run must name the
     environment and pass ``--no-confirm`` (it cannot prompt for the destructive confirmation).
     """
+    if not require_mutable_config():
+        return
     config = _require_environments(config_file)
     if config is None:
         return
@@ -264,4 +404,4 @@ def cmd_login_logout(
 
     print(f"Removed environment '{config_env}'.")
     if leaves_no_default:
-        print("It was the default environment; set a new default with 'bfabric-cli auth default <env>'.")
+        print("It was the default environment; set a new default with 'bfabric-cli auth activate <env>'.")

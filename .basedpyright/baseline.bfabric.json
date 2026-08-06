@@ -5788,16 +5788,6 @@
                 }
             }
         ],
-        "./bfabric/src/bfabric/utils/polars_utils.py": [
-            {
-                "code": "reportUnknownMemberType",
-                "range": {
-                    "startColumn": 11,
-                    "endColumn": 20,
-                    "lineCount": 1
-                }
-            }
-        ],
         "./bfabric/src/bfabric/wrapper_creator/bfabric_submitter.py": [
             {
                 "code": "reportUnannotatedClassAttribute",

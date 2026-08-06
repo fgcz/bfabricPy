@@ -10,6 +10,7 @@ from bfabric_scripts.cli.cli_external_job import app as _app_external_job
 from bfabric_scripts.cli.cli_feeder import cmd_feeder
 from bfabric_scripts.cli.cli_auth import cmd_auth
 from bfabric_scripts.cli.cli_workunit import cmd_workunit
+from bfabric_scripts.cli.login.oauth_login import cmd_auth_login
 
 package_version = importlib.metadata.version("bfabric_scripts")
 
@@ -20,6 +21,9 @@ _ = app.command(cmd_executable, name="executable")
 _ = app.command(cmd_workunit, name="workunit")
 _ = app.command(cmd_feeder, name="feeder")
 _ = app.command(cmd_auth, name="auth")
+# Logging in is the one auth command reached often enough to earn a top-level spelling. Everything
+# else stays under `auth`, so no destructive command has two names.
+_ = app.command(cmd_auth_login, name="login")
 
 # TODO delete after transitory release
 _ = app.command(_app_external_job, name="external-job")

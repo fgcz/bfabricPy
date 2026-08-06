@@ -45,14 +45,31 @@ All commands registered under `bfabric-cli auth` via cyclopts.
 
 | Command | File | Description |
 |---------|------|-------------|
-| `auth login <base_url>` | `cli/login/oauth_login.py` | Browser-based OAuth login. Caches tokens + writes config. |
-| `auth device-code <base_url>` | `cli/login/oauth_login.py` | Headless OAuth login. |
+| `auth login [base_url]` | `cli/login/oauth_login.py` | Browser-based OAuth login. Caches tokens + writes config. Also registered top-level as `bfabric-cli login`. |
+| `auth device-code [base_url]` | `cli/login/oauth_login.py` | Headless OAuth login. |
 | `auth pat <base_url>` | `cli/login/pat.py` | Personal Access Token login. |
 | `auth register <client_name> <redirect_uri>` | `cli/login/register.py` | RFC 7591 dynamic client registration. Outputs JSON. |
-| `auth status` | `cli/login/status.py` | Show current auth status for an environment. |
-| `auth logout` | `cli/login/logout.py` | Clear cached OAuth tokens. |
+| `auth register-webapp <client_name> <redirect_uri>` | `cli/login/register_webapp.py` | Registration preset for webapps (OIDC-inclusive scope). |
+| `auth status` | `cli/login/manage.py` | Show auth status for an environment, incl. account and requested-vs-granted scope. |
+| `auth list` | `cli/login/manage.py` | List environments grouped by instance, with account / scope / expiry / why-active. |
+| `auth activate [env]` | `cli/login/manage.py` | Make an environment the config default. |
+| `auth logout [env]` | `cli/login/manage.py` | Remove stored credentials for this machine, keeping the environment. `--all` for every environment. |
+| `auth remove [env]` | `cli/login/manage.py` | Delete an environment: config entry plus cached tokens. |
 
-All auth commands use `--config-env` (consistent with API commands via `@use_client`).
+`base_url` is optional for the login commands: omitted, it is read back from the target environment,
+which is what makes a zero-argument re-login work. See
+[the CLI authentication guide](../user_guides/bfabric-cli/authentication.md) for the user-facing view.
+
+All auth commands use `--config-env` (consistent with API commands via `@use_client`) and resolve the
+environment as `--config-env` > `BFABRICPY_CONFIG_ENV` > `GENERAL.default_config`, matching
+`ConfigFile.get_selected_config_env`. Commands that write to the config refuse to run while
+`BFABRICPY_CONFIG_OVERRIDE` is set, since the file would not be the config in effect.
+
+`auth logout` removes credentials per auth method — the token cache for `oauth`, the inline `pat` or
+`login`/`password` keys for the others (via `clear_environment_credentials`). B-Fabric exposes no
+revocation or end-session endpoint, so it states in its own output that an issued token stays valid
+until it expires; there is deliberately no client-side revocation code for an endpoint that does not
+exist.
 
 ### `auth register` enhancements
 
@@ -72,7 +89,19 @@ PRODUCTION:
   base_url: "https://bfabric.example.com/bfabric"
   auth_method: "oauth"        # NEW — triggers OAuth flow in Bfabric.connect()
   client_id: "CLI"    # NEW — optional, defaults to "CLI"
+  scope: "api:write tus"      # NEW — the scope *requested* at login
 ```
+
+`scope` is what makes a login replayable from disk, and it is deliberately the **requested** value
+rather than the granted one: the server drops scopes the client isn't registered for, so replaying the
+granted scope would bake that drop in permanently. The granted scope lives in the token cache, and
+keeping the two apart is what lets `auth status` report a drift. Only the CLI reads the key — it is
+excluded from `BfabricClientConfig` and not plumbed through `ConfigData` / `export_config_data`.
+
+A re-login **merges** into an existing environment section rather than replacing it, so hand-written
+keys (`application_ids`, `engine`, `job_notification_emails`, …) survive. The auth-owned keys
+(`login`, `password`, `pat`, `auth_method`, `client_id`, `scope`) are replaced wholesale, so a stale
+`pat` cannot outlive the auth method that wrote it and be resurrected by `gather_auth`.
 
 For PAT (Personal Access Token) logins the token is stored inline under `pat` (with
 `auth_method: pat`), never as `login: __oauth__` / `password: <token>`:

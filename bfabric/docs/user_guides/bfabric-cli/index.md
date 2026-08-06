@@ -23,6 +23,7 @@ bfabric-cli organizes commands by functionality:
 
 | Command | Purpose |
 | ------------------------ | ------------------------------------------------------ |
+| `bfabric-cli auth` | Log in and manage instances / credentials |
 | `bfabric-cli api` | Generic CRUD operations on B-Fabric entities |
 | `bfabric-cli dataset` | Dataset-specific operations (read, upload, download) |
 | `bfabric-cli executable` | Executable operations (show, upload, dump) |
@@ -124,6 +125,7 @@ bfabric-cli api update workunit 12345 description "Updated description" --no-con
 
 ```{toctree}
 :maxdepth: 1
+authentication
 api_operations
 api_inspection
 datasets

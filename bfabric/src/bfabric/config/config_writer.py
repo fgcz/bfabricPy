@@ -36,17 +36,41 @@ def _write_config_file(config_path: Path, data: Mapping[str, object]) -> None:
         os.close(fd)
 
 
+# Keys an auth command owns outright. A merge replaces this set wholesale instead of unioning it,
+# so a stale secret can't outlive the auth method that wrote it — a leftover ``pat`` in an
+# environment re-logged-in via OAuth would be resurrected by ``gather_auth`` despite
+# ``auth_method: oauth``.
+_AUTH_OWNED_KEYS = frozenset({"login", "password", "pat", "auth_method", "client_id", "scope"})
+
+# Secrets stored inline in the YAML. OAuth is absent on purpose: its token lives in the file cache,
+# so clearing keys here would report success while leaving the credential in place. Ordered, because
+# :func:`clear_environment_credentials` returns the removed keys for reporting.
+_INLINE_SECRET_KEYS: tuple[str, ...] = ("login", "password", "pat")
+
+
 def _validate_round_trip(env_name: str, env_data: Mapping[str, object]) -> None:
     """Reject an environment the reader could not load back, so a write either persists a parseable
     config or fails without touching the file.
 
     Rejects the reserved names (``GENERAL`` is the general section, ``default`` is forbidden) and
-    anything that isn't a valid :class:`EnvironmentConfig`. Only this one environment is validated,
-    not the merged file, so a pre-existing legacy environment can't block writing a new valid one.
+    anything that isn't a valid :class:`EnvironmentConfig`. Only the one environment being written is
+    validated, not the whole file, so an unrelated legacy environment can't block it.
     """
     if env_name in ("GENERAL", "default"):
         raise ValueError(f"Environment name {env_name!r} is reserved and cannot be used.")
     _ = EnvironmentConfig.model_validate(dict(env_data))
+
+
+def _merge_environment(previous: object, env_data: Mapping[str, object]) -> dict[str, object]:
+    """Combine an existing environment section with the incoming *env_data*.
+
+    Keys the auth commands don't own (``application_ids``, ``engine``, hand-written extras) survive;
+    :data:`_AUTH_OWNED_KEYS` are dropped from *previous* first.
+    """
+    if not isinstance(previous, dict):
+        return dict(env_data)
+    kept = {key: value for key, value in cast("dict[str, object]", previous).items() if key not in _AUTH_OWNED_KEYS}
+    return kept | dict(env_data)
 
 
 def write_environment_to_config(
@@ -62,15 +86,15 @@ def write_environment_to_config(
 
     :param config_path: Path to the YAML config file (will be expanded).
     :param env_name: Name of the environment to create / update.
-    :param env_data: Fields for the environment.
+    :param env_data: Fields for the environment. Merged into an existing section rather than
+        replacing it, so unrelated keys (``application_ids``, ``engine``, …) survive a re-login;
+        :data:`_AUTH_OWNED_KEYS` are replaced wholesale.
     :param set_default: Whether this environment becomes the default. Required: callers must decide
         explicitly.
-    :raises pydantic.ValidationError: If *env_data* would not parse back through the reader (e.g. a
-        missing ``base_url`` or an invalid auth combination). Checked before any filesystem change,
-        so a rejected write leaves an existing config untouched.
+    :raises pydantic.ValidationError: If the merged environment would not parse back through the
+        reader (e.g. a missing ``base_url`` or an invalid auth combination). Checked before any
+        filesystem change, so a rejected write leaves an existing config untouched.
     """
-    _validate_round_trip(env_name, env_data)
-
     config_path = Path(config_path).expanduser()
     config_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -81,13 +105,18 @@ def write_environment_to_config(
     else:
         existing = {}
 
+    # Validate the *merged* environment, not just env_data: the merge is what gets persisted, and it
+    # can produce a combination neither input shows on its own.
+    merged = _merge_environment(existing.get(env_name), env_data)
+    _validate_round_trip(env_name, merged)
+
     if "GENERAL" not in existing:
         existing["GENERAL"] = {}
 
     if set_default:
         existing["GENERAL"]["default_config"] = env_name
 
-    existing[env_name] = dict(env_data)
+    existing[env_name] = merged
 
     _write_config_file(config_path, existing)
 
@@ -126,6 +155,50 @@ def set_default_config(config_path: Path, env_name: str) -> None:
     general["default_config"] = env_name
 
     _write_config_file(config_path, existing)
+
+
+def clear_environment_credentials(config_path: Path, env_name: str) -> tuple[str, ...]:
+    """Strip inline secrets (``login`` / ``password`` / ``pat``) from an environment, keeping it
+    configured.
+
+    Leaves a "configured but logged out" environment: ``base_url`` / ``client_id`` / ``scope`` stay,
+    so a later zero-argument login can replay it. OAuth environments hold no inline secret (theirs
+    lives in the token cache), so nothing is stripped and the caller reports accordingly.
+
+    :param config_path: Path to the YAML config file (will be expanded).
+    :param env_name: Name of an existing environment.
+    :returns: The keys actually removed, so the caller can report what happened rather than guess.
+    :raises FileNotFoundError: If the config file does not exist.
+    :raises ValueError: If *env_name* is not among the configured environments; the file is left
+        untouched.
+    """
+    config_path = Path(config_path).expanduser()
+    if not config_path.is_file():
+        raise FileNotFoundError(f"Config file not found: {config_path}")
+
+    loaded: object = yaml.safe_load(config_path.read_text())  # pyright: ignore[reportAny]
+    existing: dict[str, object]
+    existing = loaded if isinstance(loaded, dict) else {}  # pyright: ignore[reportUnknownVariableType]
+
+    # Enumerate through the reader so the membership check matches how the file loads back, on a deep
+    # copy because ConfigFile's "before" validators mutate their input in place — ``existing`` has to
+    # stay pristine for the write.
+    config_file_obj = ConfigFile.model_validate(copy.deepcopy(existing))
+    if env_name not in config_file_obj.environments:
+        available = ", ".join(sorted(config_file_obj.environments)) or "(none)"
+        raise ValueError(f"Environment {env_name!r} is not defined. Available environments: {available}")
+
+    env = existing.get(env_name)
+    if not isinstance(env, dict):
+        return ()
+    env_map = cast("dict[str, object]", env)
+    removed = tuple(key for key in _INLINE_SECRET_KEYS if key in env_map)
+    for key in removed:
+        _ = env_map.pop(key, None)
+
+    if removed:
+        _write_config_file(config_path, existing)
+    return removed
 
 
 def remove_environment_from_config(config_path: Path, env_name: str) -> None:

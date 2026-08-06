@@ -174,6 +174,23 @@ machine (a remote/hosted marimo, Jupyter on a server, SSH), the redirect to `127
 **On remote hosts use `connect_device_code` instead** — it needs no callback server (you get a URL +
 code and the process polls the token endpoint). On a truly local notebook, PKCE works.
 
+Both the printed-URL fallback and the timeout error now name the redirect target and point at the
+device-code flow, so a stuck remote user reads the answer where they are already looking. Neither
+message is conditional on whether a browser appeared: `webbrowser.open` returns `True` for a
+*terminal* browser (`w3m`, `lynx`, …) that renders the page into the shell, and on macOS it returns
+`True` even over SSH where nothing opened. That is also why the CLI does not try to autodetect
+browser availability and route the flow itself — the signal isn't trustworthy, and probing it means
+actually opening something.
+
+### Controlling whether a browser is opened
+`pkce_login(open_browser=False)` (and `connect_pkce(..., open_browser=False)`) prints the
+authorization URL instead of opening anything; the CLI exposes it as
+`bfabric-cli auth login --no-browser`. The loopback server still listens, so this is the right choice
+on a *local* machine with no configured browser — it does not make the flow work remotely.
+
+Setting `BROWSER=/bin/true` is the ad-hoc equivalent: stdlib `webbrowser` honours it, which is the way
+to stop a terminal browser from hijacking a login mid-prompt.
+
 ### `connect_pkce` only supports **public** clients (tentative on the 401 cause)
 `_exchange_code` sends only `client_id` + PKCE `code_verifier` at the token endpoint — **no
 `client_secret`**. So it works with *public* clients (like `bfabric-cli`) but not with a

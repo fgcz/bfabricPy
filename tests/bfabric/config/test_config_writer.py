@@ -5,10 +5,12 @@ import stat
 
 import pytest
 import yaml
+from pydantic import ValidationError
 
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.config.config_file import ConfigFile
 from bfabric.config.config_writer import (
+    clear_environment_credentials,
     remove_environment_from_config,
     set_default_config,
     write_environment_to_config,
@@ -62,12 +64,102 @@ class TestWriteEnvironmentToConfig:
         assert data["OLD"]["base_url"] == "https://old.example.com"
         assert data["NEW"]["base_url"] == "https://new.example.com"
 
-    def test_overwrites_existing_env(self, tmp_path):
+    def test_overwrites_supplied_keys_of_existing_env(self, tmp_path):
         config_path = tmp_path / "config.yml"
         write_environment_to_config(config_path, "PROD", {"base_url": "https://v1.example.com"}, set_default=True)
         write_environment_to_config(config_path, "PROD", {"base_url": "https://v2.example.com"}, set_default=True)
         data = yaml.safe_load(config_path.read_text())
         assert data["PROD"]["base_url"] == "https://v2.example.com"
+
+    def test_preserves_unrelated_keys_of_existing_env(self, tmp_path):
+        """A re-login must not wipe hand-written keys the CLI knows nothing about."""
+        config_path = tmp_path / "config.yml"
+        config_path.write_text(
+            yaml.dump(
+                {
+                    "GENERAL": {"default_config": "PROD"},
+                    "PROD": {
+                        "base_url": "https://v1.example.com",
+                        "application_ids": {"app": 123},
+                        "job_notification_emails": "me@example.com",
+                        "engine": "ZEEP",
+                    },
+                }
+            )
+        )
+        write_environment_to_config(
+            config_path,
+            "PROD",
+            {"base_url": "https://v2.example.com", "auth_method": "oauth", "client_id": "CLI"},
+            set_default=True,
+        )
+        env = yaml.safe_load(config_path.read_text())["PROD"]
+        assert env["application_ids"] == {"app": 123}
+        assert env["job_notification_emails"] == "me@example.com"
+        assert env["engine"] == "ZEEP"
+        assert env["base_url"] == "https://v2.example.com"
+
+    def test_drops_stale_pat_when_re_login_is_oauth(self, tmp_path):
+        """Auth-owned keys are replaced wholesale: a leftover ``pat`` would be resurrected by
+        ``gather_auth`` despite ``auth_method: oauth``."""
+        config_path = tmp_path / "config.yml"
+        write_environment_to_config(
+            config_path,
+            "PROD",
+            {"base_url": "https://example.com", "auth_method": "pat", "pat": "secret-pat"},
+            set_default=True,
+        )
+        write_environment_to_config(
+            config_path,
+            "PROD",
+            {"base_url": "https://example.com", "auth_method": "oauth", "client_id": "CLI", "scope": "api:read"},
+            set_default=True,
+        )
+        env = yaml.safe_load(config_path.read_text())["PROD"]
+        assert "pat" not in env
+        assert env["auth_method"] == "oauth"
+        assert env["scope"] == "api:read"
+
+    def test_drops_stale_password_when_re_login_is_oauth(self, tmp_path):
+        config_path = tmp_path / "config.yml"
+        config_path.write_text(
+            yaml.dump(
+                {
+                    "GENERAL": {},
+                    "PROD": {
+                        "base_url": "https://example.com",
+                        "login": "someone",
+                        "password": "x" * 32,
+                    },
+                }
+            )
+        )
+        write_environment_to_config(
+            config_path,
+            "PROD",
+            {"base_url": "https://example.com", "auth_method": "oauth", "client_id": "CLI"},
+            set_default=False,
+        )
+        env = yaml.safe_load(config_path.read_text())["PROD"]
+        assert "login" not in env
+        assert "password" not in env
+
+    def test_validates_the_merged_result_and_leaves_file_untouched(self, tmp_path):
+        """Validation runs on the merge, not just on *env_data*: a broken key kept by the merge is
+        caught before any write, so the config on disk survives intact."""
+        config_path = tmp_path / "config.yml"
+        config_path.write_text(
+            yaml.dump({"GENERAL": {}, "PROD": {"base_url": "https://example.com", "engine": "bogus"}})
+        )
+        before = config_path.read_text()
+        with pytest.raises(ValidationError):
+            write_environment_to_config(
+                config_path,
+                "PROD",
+                {"base_url": "https://example.com", "auth_method": "oauth", "client_id": "CLI"},
+                set_default=False,
+            )
+        assert config_path.read_text() == before
 
     def test_set_default_false(self, tmp_path):
         config_path = tmp_path / "config.yml"
@@ -255,3 +347,104 @@ class TestRemoveEnvironmentFromConfig:
         remove_environment_from_config(config_path, "TEST")
         mode = stat.S_IMODE(os.stat(config_path).st_mode)
         assert mode == 0o600
+
+
+class TestClearEnvironmentCredentials:
+    """Credential-only removal: the environment stays configured and usable for a fresh login."""
+
+    def test_strips_pat_and_keeps_the_environment(self, tmp_path):
+        config_path = tmp_path / "config.yml"
+        write_environment_to_config(
+            config_path,
+            "PROD",
+            {"base_url": "https://example.com", "auth_method": "pat", "pat": "secret-pat"},
+            set_default=True,
+        )
+        removed = clear_environment_credentials(config_path, "PROD")
+        assert removed == ("pat",)
+        data = yaml.safe_load(config_path.read_text())
+        assert "pat" not in data["PROD"]
+        assert data["PROD"]["base_url"] == "https://example.com"
+        assert data["GENERAL"]["default_config"] == "PROD"
+
+    def test_strips_login_and_password(self, tmp_path):
+        config_path = tmp_path / "config.yml"
+        write_environment_to_config(
+            config_path,
+            "PROD",
+            {"base_url": "https://example.com", "login": "someone", "password": "x" * 32},
+            set_default=True,
+        )
+        removed = clear_environment_credentials(config_path, "PROD")
+        assert set(removed) == {"login", "password"}
+        env = yaml.safe_load(config_path.read_text())["PROD"]
+        assert "login" not in env
+        assert "password" not in env
+
+    def test_keeps_the_oauth_login_recipe(self, tmp_path):
+        """OAuth secrets live in the token cache, so the env keeps everything a re-login needs."""
+        config_path = tmp_path / "config.yml"
+        write_environment_to_config(
+            config_path,
+            "PROD",
+            {
+                "base_url": "https://example.com",
+                "auth_method": "oauth",
+                "client_id": "CLI",
+                "scope": "api:write tus",
+            },
+            set_default=True,
+        )
+        assert clear_environment_credentials(config_path, "PROD") == ()
+        env = yaml.safe_load(config_path.read_text())["PROD"]
+        assert env["base_url"] == "https://example.com"
+        assert env["client_id"] == "CLI"
+        assert env["scope"] == "api:write tus"
+
+    def test_result_still_parses_back(self, tmp_path):
+        config_path = tmp_path / "config.yml"
+        write_environment_to_config(
+            config_path,
+            "PROD",
+            {"base_url": "https://example.com", "auth_method": "pat", "pat": "secret-pat"},
+            set_default=True,
+        )
+        _ = clear_environment_credentials(config_path, "PROD")
+        config_file = ConfigFile.model_validate(yaml.safe_load(config_path.read_text()))
+        assert config_file.environments["PROD"].auth is None
+
+    def test_leaves_other_environments_alone(self, tmp_path):
+        config_path = tmp_path / "config.yml"
+        write_environment_to_config(
+            config_path, "PROD", {"base_url": "https://example.com", "auth_method": "pat", "pat": "p"}, set_default=True
+        )
+        write_environment_to_config(
+            config_path,
+            "TEST",
+            {"base_url": "https://test.example.com", "auth_method": "pat", "pat": "t"},
+            set_default=False,
+        )
+        _ = clear_environment_credentials(config_path, "PROD")
+        data = yaml.safe_load(config_path.read_text())
+        assert data["TEST"]["pat"] == "t"
+
+    def test_raises_on_unknown_env_and_leaves_file_unchanged(self, tmp_path):
+        config_path = tmp_path / "config.yml"
+        write_environment_to_config(config_path, "PROD", {"base_url": "https://example.com"}, set_default=True)
+        before = config_path.read_text()
+        with pytest.raises(ValueError):
+            clear_environment_credentials(config_path, "NOPE")
+        assert config_path.read_text() == before
+
+    def test_raises_on_missing_file(self, tmp_path):
+        with pytest.raises(FileNotFoundError):
+            clear_environment_credentials(tmp_path / "nonexistent.yml", "PROD")
+
+    def test_tightens_permissions(self, tmp_path):
+        config_path = tmp_path / "config.yml"
+        write_environment_to_config(
+            config_path, "PROD", {"base_url": "https://example.com", "auth_method": "pat", "pat": "p"}, set_default=True
+        )
+        config_path.chmod(0o644)
+        _ = clear_environment_credentials(config_path, "PROD")
+        assert stat.S_IMODE(os.stat(config_path).st_mode) == 0o600

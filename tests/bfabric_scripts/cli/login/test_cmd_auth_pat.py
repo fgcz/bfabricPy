@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import yaml
 
-from bfabric_scripts.cli.login.pat import cmd_login_pat
+from bfabric_scripts.cli.login.pat import cmd_auth_pat
 
 
-class TestCmdLoginPat:
+class TestCmdAuthPat:
     def test_writes_config_with_flag(self, tmp_path, capsys):
         config_file = tmp_path / "config.yml"
-        cmd_login_pat(
+        cmd_auth_pat(
             base_url="https://example.com/bfabric",
             pat="my-pat-token",
             config_env="PROD",
@@ -30,7 +30,7 @@ class TestCmdLoginPat:
 
     def test_strips_trailing_slash(self, tmp_path):
         config_file = tmp_path / "config.yml"
-        cmd_login_pat(
+        cmd_auth_pat(
             base_url="https://example.com/bfabric/",
             pat="tok",
             config_env="PROD",
@@ -42,7 +42,7 @@ class TestCmdLoginPat:
     def test_prompts_when_pat_omitted(self, tmp_path, mocker):
         config_file = tmp_path / "config.yml"
         mocker.patch("bfabric_scripts.cli.login.pat.getpass.getpass", return_value="prompted-token")
-        cmd_login_pat(
+        cmd_auth_pat(
             base_url="https://example.com/bfabric",
             config_env="PROD",
             config_file=config_file,
@@ -56,7 +56,7 @@ class TestCmdLoginPat:
         # No --set-default given: the user reaches the confirm prompt and cancels it (Ctrl-C -> None).
         mocker.patch("bfabric_scripts.cli.login._common.is_interactive", return_value=True)
         mocker.patch("bfabric_scripts.cli.login._common.confirm", return_value=None)
-        cmd_login_pat(
+        cmd_auth_pat(
             base_url="https://example.com/bfabric",
             pat="tok",
             config_env="PROD",
@@ -69,7 +69,7 @@ class TestCmdLoginPat:
 
     def test_set_default_false_does_not_set_default(self, tmp_path):
         config_file = tmp_path / "config.yml"
-        cmd_login_pat(
+        cmd_auth_pat(
             base_url="https://example.com/bfabric",
             pat="tok",
             config_env="PROD",

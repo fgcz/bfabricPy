@@ -1,16 +1,26 @@
 from __future__ import annotations
 
+import pytest
 import yaml
 
 from bfabric_scripts.cli.login._constants import SCOPE_PRESETS_BY_NAME
-from bfabric_scripts.cli.login.oauth_login import cmd_login_device_code
+from bfabric_scripts.cli.login.oauth_login import cmd_auth_device_code
 
 
-class TestCmdLoginDeviceCode:
+@pytest.fixture(autouse=True)
+def _confirmed_discovery(mocker):
+    """Skip the network pre-flight; it is advisory and covered by its own tests."""
+    return mocker.patch(
+        "bfabric_scripts.cli.login.oauth_login.discovery.resolve_base_url",
+        side_effect=lambda base_url, **_: (base_url, True),
+    )
+
+
+class TestCmdAuthDeviceCode:
     def test_writes_config_and_caches_token(self, tmp_path, mocker, oauth_token, oauth_session):
         config_file = tmp_path / "config.yml"
         mock_dc = mocker.patch("bfabric_scripts.cli.login.oauth_login.device_code_login", return_value=oauth_token)
-        cmd_login_device_code(
+        cmd_auth_device_code(
             base_url="https://example.com/bfabric",
             scope="api:read",
             client_id="test-client",
@@ -27,7 +37,7 @@ class TestCmdLoginDeviceCode:
     def test_set_default_false_does_not_set_default(self, tmp_path, mocker, oauth_token, oauth_session):
         config_file = tmp_path / "config.yml"
         mocker.patch("bfabric_scripts.cli.login.oauth_login.device_code_login", return_value=oauth_token)
-        cmd_login_device_code(
+        cmd_auth_device_code(
             base_url="https://example.com/bfabric",
             scope="api:read",
             client_id="test-client",
@@ -46,7 +56,7 @@ class TestCmdLoginDeviceCode:
         # No --set-default given: the user reaches the confirm prompt and cancels it (Ctrl-C -> None).
         mocker.patch("bfabric_scripts.cli.login._common.is_interactive", return_value=True)
         mocker.patch("bfabric_scripts.cli.login._common.confirm", return_value=None)
-        cmd_login_device_code(
+        cmd_auth_device_code(
             base_url="https://example.com/bfabric",
             client_id="test-client",
             config_env="PROD",
@@ -61,7 +71,7 @@ class TestCmdLoginDeviceCode:
     def test_scope_preset_is_expanded(self, tmp_path, mocker, oauth_token, oauth_session):
         config_file = tmp_path / "config.yml"
         mock_dc = mocker.patch("bfabric_scripts.cli.login.oauth_login.device_code_login", return_value=oauth_token)
-        cmd_login_device_code(
+        cmd_auth_device_code(
             base_url="https://example.com/bfabric",
             client_id="test-client",
             config_env="PROD",
@@ -69,3 +79,25 @@ class TestCmdLoginDeviceCode:
             scope="upload",
         )
         assert mock_dc.call_args.kwargs["scope"] == SCOPE_PRESETS_BY_NAME["upload"].scope
+
+    def test_replays_a_recorded_environment_with_no_arguments(self, tmp_path, mocker, oauth_token, oauth_session):
+        """The device-code flow shares parameter resolution, so it is zero-argument re-loginable too."""
+        config_file = tmp_path / "config.yml"
+        config_file.write_text(
+            yaml.dump(
+                {
+                    "GENERAL": {"default_config": "PROD"},
+                    "PROD": {
+                        "base_url": "https://example.com/bfabric",
+                        "auth_method": "oauth",
+                        "client_id": "CLI",
+                        "scope": "api:write",
+                    },
+                }
+            )
+        )
+        mock_dc = mocker.patch("bfabric_scripts.cli.login.oauth_login.device_code_login", return_value=oauth_token)
+        mocker.patch("bfabric_scripts.cli.login._common.is_interactive", return_value=False)
+        cmd_auth_device_code(config_file=config_file)
+        assert mock_dc.call_args.args[0] == "https://example.com/bfabric"
+        assert mock_dc.call_args.kwargs["scope"] == "api:write"

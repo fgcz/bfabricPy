@@ -2,6 +2,7 @@
 
 from bfabric._oauth.credential_provider import OAuthCredentialProvider
 from bfabric._oauth.device_code import device_code_login
+from bfabric._oauth.discovery import fetch_discovery_document, resolve_base_url
 from bfabric._oauth.pkce import pkce_login
 from bfabric._oauth.registration import register_client, register_webapp
 from bfabric._oauth.token_exchange import exchange_token, introspect_token
@@ -14,9 +15,11 @@ __all__ = [
     "WebappClient",
     "device_code_login",
     "exchange_token",
+    "fetch_discovery_document",
     "introspect_token",
     "pkce_login",
     "register_client",
     "register_webapp",
+    "resolve_base_url",
     "verify_jwt",
 ]
