@@ -5,7 +5,8 @@
 > decisions) are folded into `bfabric/docs/design/cli_auth_ux.md`, and part 3 becomes the commits.
 
 **Scope:** one PR touching `bfabric` and `bfabric_scripts`.
-**Status:** design agreed, ready to implement.
+**Status:** design agreed, ready to implement. Review feedback on #573 folded in (§2.2 no back-compat
+scaffolding, §2.9 no server-side revocation).
 
 This document is self-contained: part 1 is the problem and the decisions with their justification,
 part 2 is the implementation, part 3 is how to verify it. All file references are relative to the
@@ -120,13 +121,22 @@ reasons it is the right one:
   otherwise lose the login recipe.
 - **Coverage.** 2 of 5 local caches carry no scope in any form.
 
-**Upgrade path** for envs written by 1.16.0: fall back to the cached granted scope (already read by
-`describe_scope`), then prompt only if neither exists.
+**Envs written by 1.16.0** have no `scope` key, so the first re-login prompts once and records the
+answer. No cached-scope fallback: it would contradict the first bullet above (replaying the granted
+scope bakes in a silent server drop), and per §2.2 a 3-day-old feature does not get an upgrade shim
+for a one-time prompt. The cached granted scope is still read — but only to *display* the drift
+(§2.8), never to seed the request.
 
 ## 2.2 `auth default` → `auth activate`
 
-"default" names config state; "activate" names the action. `default` did ship, so it stays as a
-hidden deprecated alias (~3 lines).
+"default" names config state; "activate" names the action. Straight rename, **no deprecated alias** —
+`auth` is 3 days old and marked EXPERIMENTAL, so there is no install base to carry (review, #573).
+
+This is a general rule for this PR, not a one-off: **no back-compat scaffolding for a feature this
+young.** It also removes the cached-scope upgrade path (§2.1) and, for a different reason, the
+revocation branch (§2.9). The one thing that *is* kept is tolerance for data already written to
+users' disks by 1.16.0 — envs with no `scope` key, non-JWT tokens in the cache — because that is not
+a compatibility shim, it is input that genuinely exists.
 
 ## 2.3 Top-level `login` only
 
@@ -237,14 +247,21 @@ A cache-only implementation would leave a PAT sitting in plaintext while reporti
 
 **The teeth problem.** There is **no revocation support anywhere** in the codebase today — no RFC 7009
 revoke endpoint, no `end_session`; only `authorize`, `token`, `device_authorization`, and `register`
-are built. So deleting local state is *not* revocation: the refresh token stays valid server-side
-until it expires. Therefore:
+are built. The client side is not the gap: **the B-Fabric server has no logout/revocation endpoint
+either, and none is planned** — confirmed by Caushi on #573 ("i havent implemented the logout endpoint,
+didnt seem so useful, if it is we can add it later in bfabric"). So deleting local state is *not*
+revocation: the refresh token stays valid server-side until it expires.
 
-1. Check the discovery document (§2.6) for a `revocation_endpoint`; if B-Fabric exposes one, `logout`
-   calls it — that is what makes the command mean what users assume.
-2. If it does not, say so **in the command's own output**, not just in the docs: local credentials
-   removed, the token remains valid until expiry. Silence is the failure mode, because the user has
-   done the responsible thing and reasonably believes they are covered.
+Therefore `logout` states that unconditionally **in its own output**, not just in the docs: local
+credentials removed, the token remains valid until expiry. Silence is the failure mode, because the
+user has done the responsible thing and reasonably believes they are covered.
+
+No `revoke_token` helper and no discovery lookup in `logout` — with no endpoint on either side that
+is dead code guarding a branch that cannot be taken, and it would cost a network round-trip on every
+logout to learn nothing. If B-Fabric later grows the endpoint, the change is small and local: swap the
+unconditional message for a call plus a fallback. Getting revocation server-side is worth asking for
+separately (it is the only thing that makes `logout` mean what users assume on a shared account), but
+it is not this PR's dependency.
 
 Note that the `0o600` file modes (`config_writer.py:31`, `token_cache.py`) protect against *other*
 Unix users and are no help at all when "shared machine" means a shared account — a common reading at
@@ -414,23 +431,22 @@ Read-modify-write in the style of the existing `remove_environment_from_config` 
 comment at `:115-117`: `ConfigFile`'s before-validators mutate their input, so validate on a deep copy
 and write from the pristine dict.
 
-### `_oauth/discovery.py` — new (§2.6, §2.9)
+### `_oauth/discovery.py` — new (§2.6)
 
 ```text
 DISCOVERY_PATH = ".well-known/openid-configuration"
 
 def fetch_discovery_document(base_url: str, *, timeout: float = 10.0) -> dict[str, object] | None
 def resolve_base_url(base_url: str, *, timeout: float = 10.0) -> str
-def revoke_token(base_url: str, token: str, *, client_id: str, timeout: float = 10.0) -> bool
 ```
 
 - `fetch_discovery_document` returns `None` on any transport error / non-200 / non-JSON. **Never
   raises** — a pre-flight that fails closed would make the CLI unusable behind a flaky network.
 - `resolve_base_url` tries `base_url`, retries once with `/bfabric` appended on 404, returns whichever
   worked, else raises `BfabricOAuthError` naming both attempts.
-- `revoke_token` looks up `revocation_endpoint` and POSTs RFC 7009 (`token`,
-  `token_type_hint=refresh_token`, `client_id`). Returns `False` when the server advertises no
-  revocation endpoint, so the caller can tell the truth about it.
+
+Two functions only: the module is justified by the base_url pre-flight alone, and per §2.9 there is no
+`revoke_token` to write.
 
 Export from `_oauth/__init__.py`.
 
@@ -458,7 +474,7 @@ says "keyed on `base_url` + `client_id`", but the key is `(base_url, client_id, 
   `pat` env re-logged-in as OAuth has no `pat` key left; `clear_environment_credentials` strips `pat`
   and leaves `base_url` / `client_id` / `scope`.
 - `tests/bfabric/oauth/test_discovery.py` (new) — 200; 404-then-`/bfabric`; both-404 raises; transport
-  error returns `None`; revoke with and without a `revocation_endpoint`.
+  error returns `None`.
 - `test_pkce.py` — assert both new hints, and close the weak spot at `:298`, where
   `test_open_browser_false_prints_url` never asserts `webbrowser.open` was skipped.
 
@@ -490,9 +506,9 @@ raising.
   `KNOWN_INSTANCES`.
 - **`resolve_base_url(explicit, env, ...)`** (new) — explicit > the env's recorded `base_url` >
   first-login instance picker.
-- **`resolve_scope`** — becomes the fallback chain explicit → env-recorded → cached granted →
-  prompt. Keep returning `None` non-interactively when nothing resolves; `test_login_common.py:73-76`
-  pins that there is no baked-in default, and that stays true.
+- **`resolve_scope`** — becomes the fallback chain explicit → env-recorded → prompt (§2.1: no
+  cached-granted step). Keep returning `None` non-interactively when nothing resolves;
+  `test_login_common.py:73-76` pins that there is no baked-in default, and that stays true.
 - **`require_mutable_config()`** (new) — mutating commands refuse when `BFABRICPY_CONFIG_OVERRIDE` is
   set, with a message naming the variable.
 - **`describe_active_reason(...)`** (new) — `(default)` / `(active via BFABRICPY_CONFIG_ENV)` /
@@ -513,9 +529,9 @@ raising.
 
 ### `login/manage.py` — logout/remove split, activate rename, display (§2.2, §2.5, §2.7, §2.9)
 
-- `cmd_auth_default` → `cmd_auth_activate`.
-- `auth logout` — credential removal per auth method (table in §2.9), `--all`, revocation attempt and
-  an explicit statement when the server offers none.
+- `cmd_auth_default` → `cmd_auth_activate` (rename, no alias left behind).
+- `auth logout` — credential removal per auth method (table in §2.9), `--all`, and the unconditional
+  "the token stays valid server-side until it expires" statement.
 - `auth remove` — today's destructive behaviour, renamed from `cmd_login_logout`.
 - `auth list` / `auth status` — account (`sub`), scope, expiry, why-active; `list` grouped by host.
 - Fix the hardcoded `'bfabric-cli auth default <env>'` string at `:267`.
@@ -527,31 +543,29 @@ raising.
 
 ```python
 _ = cmd_auth.command(cmd_auth_activate, name="activate")
-_ = cmd_auth.command(
-    _cmd_auth_default_deprecated, name="default", show=False
-)  # hidden alias
 _ = cmd_auth.command(cmd_auth_remove, name="remove")
 ...
 _ = app.command(cmd_auth_login, name="login")  # __main__.py — top-level alias
 ```
 
-Two things to confirm while wiring, both currently unguarded: cyclopts' `.command()` accepting
-`show=False` (the repo has no alias precedent anywhere), and the fact that **no test exercises
-`cli_auth.py`'s command wiring at all**. Add a smoke test that every registered name resolves.
+`default` is simply gone (§2.2), so nothing here needs cyclopts' `show=False` and the repo keeps having
+no hidden-alias precedent. One thing to note while wiring: **no test exercises `cli_auth.py`'s command
+wiring at all**. Add a smoke test that every registered name resolves — and that `default` no longer
+does.
 
 ### CLI tests
 
 New: `test_login_instances.py`, `test_login_identity.py` (JWT and opaque paths),
 `test_cmd_auth_logout.py`, plus the wiring smoke test.
 Renamed: `test_cmd_login_logout.py` → `test_cmd_auth_remove.py`; `test_cmd_auth_default.py` →
-`test_cmd_auth_activate.py` (add a case for the hidden `default` alias).
+`test_cmd_auth_activate.py`.
 
 Characterisation tests for the headline fix:
 
 1. Write an env with `base_url` + `scope`, delete the token cache, run `login` with no arguments —
    assert both recorded values reach `pkce_login` and nothing is prompted.
-2. Upgrade path: an env with **no** `scope` key but a cached token — assert the granted scope is
-   reused rather than prompted for.
+2. A 1.16.0-era env with **no** `scope` key — assert it prompts (and does *not* silently reuse the
+   cached granted scope), and that the answer is written to the env so run 3 is prompt-free.
 3. `logout` per auth method. The `pat` case is load-bearing: assert the `pat` key is gone from the
    YAML. A cache-only implementation would pass a naive "logout succeeded" test while leaving the
    token in plaintext. Also assert an OAuth `logout` *keeps* `base_url` / `client_id` / `scope`, so a
@@ -568,7 +582,9 @@ Docs are a real gap independent of the code: `auth` appears in **no** user guide
 and `getting_started/configuration.md` never mentions `auth_method` / `oauth` / `pat` / `client_id`.
 
 - **New** `bfabric/docs/user_guides/bfabric-cli/authentication.md` — the Mode A / Mode B lifecycles,
-  the instance list, scope presets, `logout` vs `remove` including the revocation caveat, and the
+  the instance list, scope presets, `logout` vs `remove` — stating plainly that B-Fabric has no
+  revocation endpoint, so `logout` clears local credentials only and the token stays valid until it
+  expires (the shared-account case is where this matters) — and the
   remote-host guidance (`--no-browser`, `auth device-code`, `BROWSER=/bin/true`). Register it in the
   index table and toctree.
 - `bfabric/docs/design/oauth_integration.md:42-70` — the CLI table is stale twice over: it points
@@ -586,8 +602,8 @@ and `getting_started/configuration.md` never mentions `auth_method` / `oauth` / 
 - Changelogs — both `[Unreleased]` sections are currently empty. `bfabric/docs/changelog.md`: `scope`
   config key, writer merge, `clear_environment_credentials`, discovery module, PKCE hints.
   `bfabric_scripts/docs/changelog.md`: the command-surface changes, flagging the `logout` semantic
-  change and `default` → `activate` as breaking (justified by the EXPERIMENTAL marker and the 3-day-old
-  release; no deprecation window).
+  change and `default` → `activate` as breaking — no deprecation window and no alias, justified by the
+  EXPERIMENTAL marker and the 3-day-old release (§2.2).
 
 ---
 
