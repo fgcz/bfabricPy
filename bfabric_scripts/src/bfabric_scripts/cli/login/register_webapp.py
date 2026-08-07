@@ -45,7 +45,11 @@ def cmd_login_register_webapp(
         print(f"Error: Could not connect to B-Fabric: {e}", file=sys.stderr)
         raise SystemExit(1) from None
 
-    bearer_token = client.auth.password.get_secret_value()
+    try:
+        bearer_token = client.auth.password.get_secret_value()
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        raise SystemExit(1) from None
 
     try:
         result = register_webapp(
