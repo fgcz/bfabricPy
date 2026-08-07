@@ -21,8 +21,6 @@ _ = app.command(cmd_executable, name="executable")
 _ = app.command(cmd_workunit, name="workunit")
 _ = app.command(cmd_feeder, name="feeder")
 _ = app.command(cmd_auth, name="auth")
-# Logging in is the one auth command reached often enough to earn a top-level spelling. Everything
-# else stays under `auth`, so no destructive command has two names.
 _ = app.command(cmd_auth_login, name="login")
 
 # TODO delete after transitory release
@@ -30,11 +28,9 @@ _ = app.command(_app_external_job, name="external-job")
 
 
 def main() -> None:
-    """CLI entry point: configure logging once, then dispatch.
+    """CLI entry point: set up logging, then dispatch.
 
-    Commands using ``@use_client`` set logging up themselves, but those that don't (e.g. ``auth``)
-    would otherwise run under loguru's default DEBUG handler. Setting up here covers every command;
-    the per-command call is idempotent.
+    Commands without ``@use_client`` would otherwise run at loguru's default DEBUG level.
     """
     setup_script_logging()
     app()

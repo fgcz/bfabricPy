@@ -1,8 +1,7 @@
 """Shared parameter resolution for the ``auth`` commands.
 
-Environment, base URL, scope and default-ness may each come from the command line, from the
-environment already recorded in the config, or from a prompt. Resolving all of it in one place is what
-makes a zero-argument re-login possible: the recorded environment *is* the login recipe.
+Each value comes from the command line, the recorded environment, or a prompt — which is what makes a
+zero-argument re-login possible: the recorded environment *is* the login recipe.
 """
 
 from __future__ import annotations
@@ -36,12 +35,7 @@ def load_config_file(config_file: Path) -> ConfigFile | None:
 
 
 def resolve_config_env(config_env: str | None, config_file: Path) -> str | None:
-    """Resolve the target environment name; ``None`` if cancelled.
-
-    Precedence matches ``Bfabric.connect()`` — explicit, ``BFABRICPY_CONFIG_ENV``, configured default
-    — so a login lands where a later connect reads. Prompting happens only when environments exist
-    but none is the default, since asking on every login is the prompt a re-login exists to avoid.
-    """
+    """Resolve the target environment name (``Bfabric.connect()`` precedence); ``None`` if cancelled."""
     if config_env is not None:
         return config_env
     from_env_var = os.environ.get(CONFIG_ENV_VAR)
@@ -58,20 +52,12 @@ def resolve_config_env(config_env: str | None, config_file: Path) -> str | None:
 
 
 def active_config_env(config_env: str | None, config: ConfigFile) -> str | None:
-    """The environment a non-login command should act on, without prompting; ``None`` if undetermined.
-
-    Same precedence as :func:`resolve_config_env` minus the prompt and the ``PRODUCTION`` fallback:
-    inventing a name for a command that only inspects or deletes would report a missing environment
-    where the honest answer is that no default is configured.
-    """
+    """The environment a non-login command acts on, without prompting or defaulting; ``None`` if undetermined."""
     return config_env or os.environ.get(CONFIG_ENV_VAR) or config.general.default_config
 
 
 def resolve_base_url(base_url: str | None, env: EnvironmentConfig | None) -> str | None:
-    """Resolve the instance URL: explicit, else the environment's recorded one, else a picker.
-
-    ``None`` if cancelled, or if a first login has no URL and no terminal to ask on.
-    """
+    """Resolve the instance URL: explicit, else the environment's recorded one, else a picker."""
     if base_url is not None:
         return normalize_base_url(base_url)
     if env is not None:
@@ -82,7 +68,7 @@ def resolve_base_url(base_url: str | None, env: EnvironmentConfig | None) -> str
 
 
 def select_instance() -> str | None:
-    """First-login instance picker over :data:`KNOWN_INSTANCES`, plus free-text entry for any other."""
+    """First-login picker over :data:`KNOWN_INSTANCES`, plus free-text entry."""
     labels = {name: f"{name.ljust(10)} {url}" for name, url in KNOWN_INSTANCES.items()}
     labels[_CUSTOM] = f"{'other…'.ljust(10)} (enter a URL)"
     picked = select_choice(
@@ -100,7 +86,7 @@ def select_instance() -> str | None:
 
 
 def _scope_menu_label(choice: str) -> str:
-    """Menu label for a scope preset (description + the scopes it maps to) or the Custom entry."""
+    """Menu label for a scope preset, or the Custom entry."""
     width = max(len(preset.description) for preset in SCOPE_PRESETS)
     if choice == _CUSTOM:
         return f"{'Custom…'.ljust(width)}   (enter scopes manually)"
@@ -111,8 +97,7 @@ def _scope_menu_label(choice: str) -> str:
 def resolve_scope(scope: str | None, env: EnvironmentConfig | None = None) -> str | None:
     """Resolve the OAuth scope string, expanding a preset name; ``None`` if cancelled or headless.
 
-    Falls back to the environment's *requested* scope — never the token's granted scope, which would
-    bake a server-side drop in forever. There is deliberately no default scope.
+    Falls back to the environment's *requested* scope, never the granted one (see :class:`EnvironmentConfig`).
     """
     if scope is not None:
         preset = SCOPE_PRESETS_BY_NAME.get(scope)
@@ -135,11 +120,7 @@ def resolve_scope(scope: str | None, env: EnvironmentConfig | None = None) -> st
 
 
 def resolve_set_default(set_default: bool | None, config_env: str, *, is_new_env: bool = False) -> bool | None:
-    """Resolve whether the freshly-authenticated environment becomes the config default.
-
-    A re-login into an existing environment doesn't ask, since it changes no defaults; a brand-new one
-    prompts, or becomes the default when headless. ``None`` if cancelled.
-    """
+    """Whether the environment becomes the config default — a re-login never asks; ``None`` if cancelled."""
     if set_default is not None:
         return set_default
     if not is_new_env:
@@ -150,11 +131,7 @@ def resolve_set_default(set_default: bool | None, config_env: str, *, is_new_env
 
 
 def require_mutable_config() -> bool:
-    """Whether config-changing commands may run, printing why not when they may not.
-
-    ``BFABRICPY_CONFIG_OVERRIDE`` supplies the whole configuration, so the file a mutating command
-    would write is not the config in effect; a silent write to an ignored file is worse than refusing.
-    """
+    """Whether config-changing commands may run, printing why not when they may not."""
     if os.environ.get(CONFIG_OVERRIDE_VAR):
         print(
             f"Refusing to change the config file while {CONFIG_OVERRIDE_VAR} is set: it overrides the "
@@ -165,11 +142,7 @@ def require_mutable_config() -> bool:
 
 
 def describe_active_reason(env_name: str, default_config: str | None) -> str:
-    """Why *env_name* is (or isn't) the environment in effect, as a display suffix.
-
-    Makes the "I ran ``auth activate X`` and nothing changed" case visible: ``BFABRICPY_CONFIG_ENV``
-    silently outranks the configured default, and an override outranks the file entirely.
-    """
+    """Why *env_name* is (or isn't) the environment in effect, as a display suffix."""
     if os.environ.get(CONFIG_OVERRIDE_VAR):
         return f"  (config pinned by {CONFIG_OVERRIDE_VAR})"
     from_env_var = os.environ.get(CONFIG_ENV_VAR)

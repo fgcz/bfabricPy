@@ -1,8 +1,6 @@
 """Interactive OAuth login commands: browser (PKCE) and device-code flows.
 
-Both are zero-argument re-loginable: everything a login needs is recorded in the target environment,
-so an expired token is replaced by re-running the command with no arguments. They share parameter
-resolution and token persistence; only the token-acquisition step differs.
+Both are zero-argument re-loginable: everything a login needs is recorded in the target environment.
 """
 
 from __future__ import annotations
@@ -44,7 +42,7 @@ _CLIENT_ID_HELP = "OAuth client ID. Omit to reuse the environment's recorded ID,
 
 @dataclass(frozen=True)
 class _LoginParams:
-    """Everything a login needs, resolved from the command line, the config, or a prompt."""
+    """Everything a login needs, resolved from the command line, config, or a prompt."""
 
     config_env: str
     base_url: str
@@ -54,11 +52,7 @@ class _LoginParams:
 
 
 def _confirm_repoint(config_env: str, recorded: str, requested: str) -> bool:
-    """Confirm changing an environment's instance URL, which silently repoints every later connect.
-
-    Refuses outright without a terminal: an unattended run pointing ``PRODUCTION`` at a test host is
-    exactly the accident worth being loud about.
-    """
+    """Confirm repointing an environment's instance URL — it silently redirects every later connect."""
     print(f"Environment '{config_env}' is currently set to {recorded}.", file=sys.stderr)
     if not is_interactive():
         print(
@@ -86,9 +80,7 @@ def _resolve_params(
 ) -> _LoginParams | None:
     """Resolve the environment, then everything the environment can supply; ``None`` to abort.
 
-    Order matters: the environment is what the base URL and scope are read back from, so it settles
-    first — except on a very first login, where there is nothing to read and the name is instead
-    derived from the instance that gets picked.
+    Order matters: base URL and scope are read back from the environment, so it settles first.
     """
     loaded = load_config_file(config_file)
     existing_names = list(loaded.environments) if loaded else []
@@ -100,7 +92,7 @@ def _resolve_params(
             if resolved_base_url is None:
                 _abort("No instance selected. Pass the instance URL as an argument.")
                 return None
-            # Derived, not prompted for: a first-time user has no basis for inventing a name.
+            # Derived, not prompted: a first-time user has no basis for inventing a name.
             config_env = suggest_env_name(resolved_base_url)
         else:
             config_env = resolve_config_env(config_env, config_file)
@@ -123,7 +115,7 @@ def _resolve_params(
                     _abort()
                     return None
     except ValueError as error:
-        # An unusable URL is the user's typo, not a bug: report it like any other rejected input.
+        # A typo, not a bug: report it as rejected input.
         _abort(f"Error: {error}")
         return None
 
@@ -137,8 +129,7 @@ def _resolve_params(
         _abort()
         return None
 
-    # Recorded like the base URL and scope, so a re-login of an environment registered under a
-    # non-default client keeps it instead of silently reverting to DEFAULT_CLIENT_ID.
+    # Reuse the recorded ID so a non-default client registration survives a re-login.
     resolved_client_id = client_id or (env.client_id if env is not None else None) or DEFAULT_CLIENT_ID
     return _LoginParams(config_env, resolved_base_url, resolved_client_id, resolved_scope, resolved_set_default)
 

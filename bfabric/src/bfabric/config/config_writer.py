@@ -19,12 +19,7 @@ if TYPE_CHECKING:
 
 
 def _write_config_file(config_path: Path, data: Mapping[str, object]) -> None:
-    """Serialize *data* to *config_path* as YAML, always ``0o600`` so a secret never lands in a
-    group/world-readable file.
-
-    The explicit ``fchmod`` forces the mode even on a pre-existing file, whose permissions
-    ``os.open`` would otherwise leave untouched.
-    """
+    """Serialize *data* to *config_path* as YAML, mode ``0o600`` (fchmod forces it on existing files)."""
     config_path = Path(config_path).expanduser()
     config_path.parent.mkdir(parents=True, exist_ok=True)
     serialized = yaml.dump(data, default_flow_style=False, sort_keys=False).encode()
@@ -36,26 +31,18 @@ def _write_config_file(config_path: Path, data: Mapping[str, object]) -> None:
         os.close(fd)
 
 
-# Keys an auth command owns outright. A merge replaces this set wholesale instead of unioning it,
-# so a stale secret can't outlive the auth method that wrote it — a leftover ``pat`` in an
-# environment re-logged-in via OAuth would be resurrected by ``gather_auth`` despite
-# ``auth_method: oauth``.
+# Keys an auth command owns outright; replaced wholesale on merge so a stale secret can't be
+# resurrected by ``gather_auth`` after re-login via a different method.
 _AUTH_OWNED_KEYS = frozenset({"login", "password", "pat", "auth_method", "client_id", "scope"})
 
-# Secrets stored inline in the YAML. OAuth is absent on purpose: its token lives in the file cache,
-# so clearing keys here would report success while leaving the credential in place. Ordered, because
-# :func:`clear_environment_credentials` returns the removed keys for reporting.
+# Inline secrets cleared by :func:`clear_environment_credentials`. OAuth is absent: its token lives in
+# the file cache, so clearing here would report success while leaving the credential in place.
 _INLINE_SECRET_KEYS: tuple[str, ...] = ("login", "password", "pat")
 
 
 def _validate_round_trip(env_name: str, env_data: Mapping[str, object]) -> None:
-    """Reject an environment the reader could not load back, so a write either persists a parseable
-    config or fails without touching the file.
-
-    Rejects the reserved names (``GENERAL`` is the general section, ``default`` is forbidden) and
-    anything that isn't a valid :class:`EnvironmentConfig`. Only the one environment being written is
-    validated, not the whole file, so an unrelated legacy environment can't block it.
-    """
+    """Reject an environment the reader could not load back; reserved names and invalid
+    :class:`EnvironmentConfig` values are rejected before anything touches the file."""
     if env_name in ("GENERAL", "default"):
         raise ValueError(f"Environment name {env_name!r} is reserved and cannot be used.")
     _ = EnvironmentConfig.model_validate(dict(env_data))
@@ -80,20 +67,12 @@ def write_environment_to_config(
     *,
     set_default: bool,
 ) -> None:
-    """Write (or update) an environment section in the bfabricpy YAML config, creating the file
-    (mode ``0o600``) if needed and preserving other environments. Sets ``GENERAL.default_config``
-    to *env_name* when *set_default*.
+    """Write or update the environment *env_name* in the YAML config at *config_path*, creating
+    the file (``0o600``) if needed. *env_data* merges into an existing section so unrelated keys
+    survive (auth-owned keys are replaced wholesale); *set_default* writes ``GENERAL.default_config``.
 
-    :param config_path: Path to the YAML config file (will be expanded).
-    :param env_name: Name of the environment to create / update.
-    :param env_data: Fields for the environment. Merged into an existing section rather than
-        replacing it, so unrelated keys (``application_ids``, ``engine``, …) survive a re-login;
-        :data:`_AUTH_OWNED_KEYS` are replaced wholesale.
-    :param set_default: Whether this environment becomes the default. Required: callers must decide
-        explicitly.
     :raises pydantic.ValidationError: If the merged environment would not parse back through the
-        reader (e.g. a missing ``base_url`` or an invalid auth combination). Checked before any
-        filesystem change, so a rejected write leaves an existing config untouched.
+        reader. Checked before any filesystem change.
     """
     config_path = Path(config_path).expanduser()
     config_path.parent.mkdir(parents=True, exist_ok=True)
@@ -105,8 +84,7 @@ def write_environment_to_config(
     else:
         existing = {}
 
-    # Validate the *merged* environment, not just env_data: the merge is what gets persisted, and it
-    # can produce a combination neither input shows on its own.
+    # Validate the *merged* environment, not just env_data: the merge is what gets persisted.
     merged = _merge_environment(existing.get(env_name), env_data)
     _validate_round_trip(env_name, merged)
 
@@ -124,10 +102,8 @@ def write_environment_to_config(
 def _load_for_edit(config_path: Path, env_name: str) -> tuple[Path, dict[str, object]]:
     """Raw YAML mapping for an in-place edit of *env_name*, with its expanded path.
 
-    Membership is checked through the reader — on a deep copy, since ``ConfigFile``'s "before"
-    validators mutate their input — so it matches how the file loads back while leaving the returned
-    mapping pristine for the write. Not used by :func:`write_environment_to_config`, which tolerates a
-    missing file and a not-yet-defined environment.
+    Membership is checked through the reader, on a deep copy since ``ConfigFile``'s "before"
+    validators mutate their input, so the returned mapping stays pristine for the write.
 
     :raises FileNotFoundError: If the config file does not exist.
     :raises ValueError: If *env_name* is not among the configured environments.
@@ -148,18 +124,14 @@ def _load_for_edit(config_path: Path, env_name: str) -> tuple[Path, dict[str, ob
 
 
 def set_default_config(config_path: Path, env_name: str) -> None:
-    """Set ``GENERAL.default_config`` to an already-defined environment.
+    """Set ``GENERAL.default_config`` to the existing environment *env_name* in the YAML config at
+    *config_path*; never creates or modifies an environment.
 
-    Only flips the default; never creates or modifies an environment.
-
-    :param config_path: Path to the YAML config file (will be expanded).
-    :param env_name: Name of an existing environment to mark as default.
     :raises FileNotFoundError: If the config file does not exist.
     :raises ValueError: If *env_name* is not among the configured environments; the file is left
         untouched.
     """
-    # The membership check doubles as the round-trip guard here: env_name is a known environment and
-    # the environments are untouched below, so setting the default cannot fail the reader afterwards.
+    # env_name is known and environments are untouched, so setting the default cannot fail the reader.
     config_path, existing = _load_for_edit(config_path, env_name)
 
     general = existing.setdefault("GENERAL", {})
@@ -171,16 +143,11 @@ def set_default_config(config_path: Path, env_name: str) -> None:
 
 
 def clear_environment_credentials(config_path: Path, env_name: str) -> tuple[str, ...]:
-    """Strip inline secrets (``login`` / ``password`` / ``pat``) from an environment, keeping it
-    configured.
+    """Remove inline secrets (``login`` / ``password`` / ``pat``) from the environment *env_name* in
+    the YAML config at *config_path*, keeping it configured for a later re-login. OAuth environments
+    hold no inline secret (theirs is in the token cache).
 
-    Leaves a "configured but logged out" environment: ``base_url`` / ``client_id`` / ``scope`` stay,
-    so a later zero-argument login can replay it. OAuth environments hold no inline secret (theirs
-    lives in the token cache), so nothing is stripped and the caller reports accordingly.
-
-    :param config_path: Path to the YAML config file (will be expanded).
-    :param env_name: Name of an existing environment.
-    :returns: The keys actually removed, so the caller can report what happened rather than guess.
+    :returns: The keys actually removed, so the caller can report what happened.
     :raises FileNotFoundError: If the config file does not exist.
     :raises ValueError: If *env_name* is not among the configured environments; the file is left
         untouched.
@@ -201,13 +168,9 @@ def clear_environment_credentials(config_path: Path, env_name: str) -> tuple[str
 
 
 def remove_environment_from_config(config_path: Path, env_name: str) -> None:
-    """Delete an environment section from the bfabricpy YAML config.
+    """Delete the environment *env_name* from the YAML config at *config_path* (clearing
+    ``GENERAL.default_config`` if it pointed at *env_name*).
 
-    Also clears ``GENERAL.default_config`` if it pointed at *env_name* — otherwise the reader would
-    refuse to load a file whose default names a missing environment.
-
-    :param config_path: Path to the YAML config file (will be expanded).
-    :param env_name: Name of an existing environment to remove.
     :raises FileNotFoundError: If the config file does not exist.
     :raises ValueError: If *env_name* is not among the configured environments; the file is left
         untouched.

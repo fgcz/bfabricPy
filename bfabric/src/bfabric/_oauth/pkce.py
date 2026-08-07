@@ -29,6 +29,9 @@ from loguru import logger
 from bfabric.errors import BfabricOAuthError
 
 
+_REMOTE_HOST_CAVEAT = "On a remote host, use 'bfabric-cli auth device-code' instead."
+
+
 def _generate_verifier(length: int = 128) -> str:
     """Generate a PKCE code verifier (RFC 7636 Section 4.1).
 
@@ -36,7 +39,6 @@ def _generate_verifier(length: int = 128) -> str:
     """
     if not (43 <= length <= 128):
         raise ValueError(f"PKCE verifier length must be 43..128, got {length}")
-    # token_urlsafe produces ~4/3 * nbytes chars; generate enough then truncate.
     return secrets.token_urlsafe(96)[:length]
 
 
@@ -93,12 +95,7 @@ _PAGE_TEMPLATE = """<!doctype html>
 
 
 def _render_callback_page(result: _AuthorizationResult) -> bytes:
-    """Build the HTML page shown in the browser after the OAuth redirect.
-
-    No auto-close / close button: browsers only let scripts close windows they
-    opened themselves, so ``window.close()`` is a no-op for this browser-navigated
-    tab. We just tell the user they can close it.
-    """
+    """Build the page shown after the OAuth redirect (no auto-close button)."""
     if result.error is not None or result.code is None:
         accent, icon, title = "#cf222e", "✕", "Login failed"
         detail = result.error_description or result.error or "No authorization code was received."
@@ -129,7 +126,6 @@ class _CallbackHandler(BaseHTTPRequestHandler):
         self.end_headers()
         _ = self.wfile.write(_render_callback_page(result))
 
-        # Shut down the server from a daemon thread so this handler can return.
         threading.Thread(target=self.server.shutdown, daemon=True).start()
 
     def log_message(self, format: str, *args: object) -> None:  # noqa: A002  # pyright: ignore[reportImplicitOverride]
@@ -221,7 +217,6 @@ def pkce_login(
         }
     )
 
-    # Try to open the browser; fall back to printing the URL.
     browser_opened = False
     if open_browser:
         browser_opened = webbrowser.open(authorize_url)
@@ -229,33 +224,27 @@ def pkce_login(
         print(
             f"Open this URL to log in:\n{authorize_url}\n"
             f"After logging in you are redirected to {server.redirect_uri}, which only works in a "
-            f"browser on this machine. From a remote host, use 'bfabric-cli auth device-code' instead.",
+            f"browser on this machine. {_REMOTE_HOST_CAVEAT}",
             file=sys.stderr,
         )
 
-    # Run the server in a daemon thread and wait for the callback.
     server_thread = threading.Thread(target=server.serve_forever, daemon=True)
     server_thread.start()
     server_thread.join(timeout=timeout)
 
     if server_thread.is_alive():
         server.shutdown()
-        # Repeat the remote-host caveat: this is where a stuck user looks, and it also covers the case
-        # where a browser *was* opened, so nothing gated on ``browser_opened`` would have fired.
         raise BfabricOAuthError(
             f"PKCE login timed out after {timeout} seconds. The login must be completed in a browser "
-            f"on this machine, because the redirect goes to {server.redirect_uri}. On a remote host, "
-            f"use 'bfabric-cli auth device-code' instead."
+            f"on this machine, because the redirect goes to {server.redirect_uri}. {_REMOTE_HOST_CAVEAT}"
         )
 
     result = server.result
 
-    # Validate CSRF state.
     if result.state != state:
         logger.debug("CSRF state mismatch: expected {!r}, got {!r}", state, result.state)
         raise BfabricOAuthError("CSRF state mismatch in OAuth callback")
 
-    # Check for authorization errors.
     if result.error is not None:
         msg = f"Authorization error: {result.error}"
         if result.error_description:
@@ -265,7 +254,6 @@ def pkce_login(
     if result.code is None:
         raise BfabricOAuthError("No authorization code received")
 
-    # Exchange the code for tokens.
     logger.debug("Exchanging authorization code for tokens")
     token_url = f"{base_url}/rest/oauth/token"
     return _exchange_code(

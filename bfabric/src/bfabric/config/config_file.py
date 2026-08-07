@@ -27,12 +27,7 @@ class EnvironmentConfig(BaseModel):
     auth_method: Literal["password", "oauth", "pat"] | None = None
     client_id: str | None = None
     scope: str | None = None
-    """OAuth scope *requested* at login, so a re-login can be replayed without retyping it.
-
-    Deliberately the requested rather than the granted value: the server silently drops scopes the
-    client isn't registered for, so replaying the granted scope would bake that drop in permanently.
-    ``None`` for environments written before this field existed.
-    """
+    """OAuth scope *requested* at login so a re-login can be replayed without retyping it."""
 
     @model_validator(mode="before")
     @classmethod
@@ -54,9 +49,8 @@ class EnvironmentConfig(BaseModel):
             if "login" in values:
                 values["auth"] = BfabricAuth.model_validate(values)
             elif values.get("pat"):
-                # PAT environments store the token under ``pat`` (never ``login``/``password``) so an
-                # unmodified <=1.19.0 client ignores it instead of failing the 32-char password rule
-                # and poisoning the whole file. Reconstruct the OAuth-style auth the token needs.
+                # PAT lives under ``pat`` (not ``login``/``password``) so an unmodified <=1.19.0 client
+                # ignores it; shape an OAuth-style auth for the token.
                 values["auth"] = BfabricAuth.model_validate({"login": OAUTH_LOGIN, "password": values["pat"]})
             values.pop("pat", None)
         return values
@@ -101,10 +95,9 @@ class ConfigFile(BaseModel):
         return value
 
     def get_selected_config_env(self, explicit_config_env: str | None) -> str:
-        """Returns the name of the selected configuration, by checking the hierarchy of config_env definitions.
-        1. If explicit_config_env is provided, it is used.
-        2. If not, secondly, the parser will check if the environment variable `BFABRICPY_CONFIG_ENV` is declared
-        3. If not, finally, the parser will select the default_config specified in GENERAL of the .bfabricpy.yml file
+        """Return the selected config environment name.
+
+        Priority: *explicit_config_env*, then ``BFABRICPY_CONFIG_ENV``, then ``general.default_config``.
         """
         if explicit_config_env:
             return explicit_config_env
@@ -129,21 +122,11 @@ def read_config_file(
     config_path: str | Path,
     config_env: str | None = None,
 ) -> tuple[BfabricClientConfig, BfabricAuth | None]:
-    """
-    Reads bfabricpy.yml file, parses it, extracting authentication and configuration data
-    :param config_path:   Path to the configuration file. It is assumed the file exists
-    :param config_env:    Configuration environment to use. If not given, it is deduced.
-    :return: Configuration and Authentication class instances
+    """Read and parse a bfabricPy config file, returning the selected environment's settings.
 
-    NOTE: BFabricPy expects a .bfabricpy.yml of the format, as seen in bfabricPy/tests/unit/example_config.yml
-    * The general field always has to be present
-    * There may be any number of environments, with arbitrary names. Here, they are called PRODUCTION and TEST
-    * Must specify correct login, password and base_url for each environment.
-    * application and job_notification_emails fields are optional
-    * The default environment will be selected as follows:
-        - First, parser will check if the optional argument `config_env` is provided directly to the parser function
-        - If not, secondly, the parser will check if the environment variable `BFABRICPY_CONFIG_ENV` is declared
-        - If not, finally, the parser will select the default_config specified in [GENERAL] of the .bfabricpy.yml file
+    :param config_path: Path to the config file (assumed to exist)
+    :param config_env: Configuration environment to use; deduced if not given
+    :return: The selected environment's ``(config, auth)``
     """
     logger.debug(f"Reading configuration from: {config_path} {config_env=}")
     config_file = ConfigFile.model_validate(yaml.safe_load(Path(config_path).read_text()))

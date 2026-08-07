@@ -1,9 +1,4 @@
-"""The one definition of base-URL handling for the ``auth`` commands: canonicalisation plus the
-instances the CLI knows about.
-
-The instance list is advisory, not restrictive — any base URL is still accepted. It lives here rather
-than in the core library because it is CLI policy, like :data:`DEFAULT_CLIENT_ID`.
-"""
+"""Base-URL canonicalisation, plus the instances the ``auth`` commands know about (advisory: any URL works)."""
 
 from __future__ import annotations
 
@@ -19,7 +14,7 @@ KNOWN_INSTANCES: dict[str, str] = {
 
 
 def instance_host(base_url: str) -> str:
-    """The lowercased host of *base_url*, which callers have already given a scheme."""
+    """The lowercased host of *base_url*, which must already carry a scheme."""
     return urlsplit(base_url).netloc.lower()
 
 
@@ -27,8 +22,8 @@ def normalize_base_url(raw: str) -> str:
     """Canonicalise a base URL: default the scheme to https, lowercase the host, drop a trailing
     slash, and expand a bare known host to that instance's full base URL.
 
-    :raises ValueError: If *raw* is empty or not http(s) — rejected here rather than several minutes
-        later, after the browser flow, where the only signal today is an ``httpx.InvalidURL``.
+    :raises ValueError: If *raw* is empty or not http(s) — rejected here, not minutes later inside the
+        browser flow as an opaque ``httpx.InvalidURL``.
     """
     candidate = raw.strip()
     if not candidate:
@@ -41,8 +36,7 @@ def normalize_base_url(raw: str) -> str:
     if not parts.netloc:
         raise ValueError(f"Base URL {raw!r} has no host.")
     host = parts.netloc.lower()
-    # Only expand a bare host: an explicit path is the user's, and rewriting it would turn a correct
-    # URL for an unusual deployment into a broken one.
+    # Only expand a bare host: rewriting an explicit path would break an unusual deployment.
     if not parts.path.strip("/"):
         known = next((url for url in KNOWN_INSTANCES.values() if instance_host(url) == host), None)
         if known is not None:
@@ -51,9 +45,7 @@ def normalize_base_url(raw: str) -> str:
 
 
 def suggest_env_name(base_url: str) -> str:
-    """A default environment name for a canonicalised *base_url*: the known instance's name, else its
-    host with dots replaced by dashes, since a name is also a YAML key users type on the command line.
-    """
+    """A default environment name for canonicalised *base_url*: the known instance's name, else its dashed host."""
     host = instance_host(base_url)
     for name, url in KNOWN_INSTANCES.items():
         if instance_host(url) == host:

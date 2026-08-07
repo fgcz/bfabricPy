@@ -52,8 +52,7 @@ def cmd_auth_pat(
     else:
         print("Warning: passing secrets via CLI flags is insecure (visible in ps, shell history).", file=sys.stderr)
     # Store under ``pat``, not ``login``/``password``: a PAT isn't 32 chars, so an old (<=1.19.0)
-    # client eagerly validating every environment would reject a short password and poison the
-    # shared config; old clients ignore an unknown ``pat`` key.
+    # client validating every environment would reject it and poison the shared config.
     env_data = {
         "base_url": normalize_base_url(base_url),
         "auth_method": "pat",

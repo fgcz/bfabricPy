@@ -1,6 +1,4 @@
-"""Auth commands that inspect or manage existing config environments: list, activate, status, logout,
-remove. Their shared config-load, environment picker and rendering helpers live here too.
-"""
+"""Auth commands over existing config environments — list, activate, status, logout, remove."""
 
 from __future__ import annotations
 
@@ -31,8 +29,7 @@ from bfabric_scripts.cli.login._common import (
 from bfabric_scripts.cli.login._constants import DEFAULT_CLIENT_ID, SCOPE_PRESETS
 from bfabric_scripts.cli.login._urls import instance_host
 
-# Said in the command's own output, not just the docs: someone logging out of a shared machine has
-# done the responsible thing and would otherwise reasonably believe they were covered.
+# Printed on every logout: users reasonably assume it revokes the token server-side too.
 _NO_REVOCATION_NOTICE = (
     "Note: B-Fabric has no token revocation endpoint, so any token already issued stays valid "
     "server-side until it expires. Local credentials are gone from this machine."
@@ -52,20 +49,20 @@ def _load_config(config_file: Path, *, require_environments: bool = False) -> Co
 
 
 def _auth_method(env: EnvironmentConfig) -> str:
-    """Effective auth method; falls back to ``auth``'s presence for legacy envs without ``auth_method``."""
+    """Effective auth method; legacy envs without ``auth_method`` fall back to ``auth``'s presence."""
     if env.auth_method in ("oauth", "pat"):
         return env.auth_method
     return "password" if env.auth is not None else "none"
 
 
 def _oauth_cache_path(env: EnvironmentConfig, env_name: str) -> Path:
-    """Disk path of *env_name*'s cached OAuth token (keyed by base URL + client ID + env name)."""
+    """Disk path of *env_name*'s cached OAuth token, keyed by base URL + client ID + env name."""
     client_id = env.client_id or DEFAULT_CLIENT_ID
     return compute_token_cache_path(env.config.base_url, client_id, env_name).expanduser()
 
 
 def environment_summary(env: EnvironmentConfig) -> str:
-    """A compact "host · auth-method" descriptor shown next to each environment name."""
+    """Compact "host · auth-method" descriptor shown next to an environment name."""
     return f"{instance_host(str(env.config.base_url))} · {_auth_method(env)}"
 
 
@@ -97,7 +94,7 @@ def print_environments(environments: dict[str, EnvironmentConfig], default: str 
 
 
 def _select_environment(message: str, config: ConfigFile) -> str | None:
-    """Interactive picker over the configured environments, each labelled with its host/auth summary."""
+    """Interactive picker over the configured environments."""
     names = list(config.environments)
     width = max(len(name) for name in names)
     default = config.general.default_config
@@ -122,7 +119,7 @@ def describe_scope(scope: str | None) -> str:
 
 
 def describe_token_cache(cached: dict[str, object] | None, *, now: float) -> str:
-    """Summarize a cached token's freshness: ``missing`` / ``present`` (+ expiry when ``expires_at`` is set)."""
+    """Summarize a cached token: ``missing`` / ``present`` (+ expiry when ``expires_at`` is set)."""
     if cached is None:
         return "missing"
     expires_at = cached.get("expires_at")
@@ -142,9 +139,7 @@ def cmd_auth_list(
 ) -> None:
     """List the configured environments, grouped by instance.
 
-    Each row shows the environment's scope and token expiry, and why an environment is the one
-    currently in effect — ``BFABRICPY_CONFIG_ENV`` silently outranks the configured default, which is
-    otherwise invisible.
+    Each row shows the environment's scope and token expiry, and why it is (or isn't) the one in effect.
     """
     config = _load_config(config_file, require_environments=True)
     if config is None:
@@ -175,7 +170,6 @@ def cmd_auth_activate(
     if config_env is None and is_interactive():
         config_env = _select_environment("Select the environment to activate", config)
     if config_env is None:
-        # Cancelled picker, or no TTY to prompt on.
         if is_interactive():
             print("No changes made.")
         else:
@@ -188,8 +182,6 @@ def cmd_auth_activate(
 
     set_default_config(config_file, config_env)
     print(f"Activated environment '{config_env}'.")
-    # An active BFABRICPY_CONFIG_ENV outranks what was just written — the whole "I activated it and
-    # nothing changed" confusion.
     if os.environ.get(CONFIG_ENV_VAR) not in (None, config_env):
         print(f"It is not in effect: {CONFIG_ENV_VAR} names a different environment.")
 
@@ -229,12 +221,7 @@ def cmd_auth_status(
 
 
 def _logout_environment(env: EnvironmentConfig, env_name: str, config_file: Path) -> bool:
-    """Remove *env_name*'s credentials for this machine, keeping the environment configured.
-
-    "Credentials" differ per auth method: OAuth's live in the token cache, while a PAT and a password
-    sit inline in the YAML. A cache-only implementation would report success while leaving a PAT in
-    plaintext, so both are handled here.
-    """
+    """Remove *env_name*'s credentials — token cache *and* inline YAML secrets — keeping it configured."""
     cleared_keys = clear_environment_credentials(config_file, env_name)
     cache_cleared = False
     if env.auth_method == "oauth":
@@ -265,11 +252,9 @@ def cmd_auth_logout(
     """Remove stored credentials for this machine, keeping the environment configured.
 
     Clears the cached OAuth token, or strips an inline PAT / password from the config file. The
-    environment itself survives, so a later ``bfabric-cli login`` can renew it with no arguments; use
-    ``auth remove`` to delete the environment entirely.
-
-    B-Fabric offers no revocation endpoint, so a token that was already issued stays valid until it
-    expires — this only removes local access.
+    environment survives, so a later ``bfabric-cli login`` can renew it with no arguments; use
+    ``auth remove`` to delete it entirely. B-Fabric has no revocation endpoint, so an already-issued
+    token stays valid until it expires — this only removes local access.
     """
     if not require_mutable_config():
         return
@@ -280,8 +265,7 @@ def cmd_auth_logout(
     if all_environments:
         names = list(config.environments)
     else:
-        # Default to the environment in effect rather than prompting: leaving a shared machine is the
-        # case this exists for, and an extra question there is an invitation to skip it.
+        # No picker here: an extra prompt when leaving a shared machine is an invitation to skip it.
         resolved = active_config_env(config_env, config)
         if resolved is None:
             print("No environment specified and no default configured.")
@@ -291,8 +275,7 @@ def cmd_auth_logout(
             return
         names = [resolved]
 
-    # A list, not a generator: ``any`` would stop at the first environment that had credentials, so
-    # ``--all`` would silently skip the rest.
+    # A list, not a generator: ``any`` would short-circuit and ``--all`` would skip the rest.
     cleared = [_logout_environment(config.environments[name], name, config_file) for name in names]
     if any(cleared):
         print(_NO_REVOCATION_NOTICE)
@@ -338,8 +321,8 @@ def cmd_auth_remove(
         return
 
     env = environments[config_env]
-    # Removing the current default clears it (a dangling default makes the config unloadable). Only
-    # worth flagging when other environments remain to default to.
+    # A dangling default makes the config unloadable, so removal clears it; only worth flagging when
+    # other environments remain to default to.
     leaves_no_default = config_env == config.general.default_config and len(names) > 1
 
     if not no_confirm:
@@ -359,8 +342,7 @@ def cmd_auth_remove(
             print("No changes made.")
             return
 
-    # Remove the config entry first: if that write fails, the cached token is left intact so the
-    # environment stays usable, rather than half-removed.
+    # Config entry first: if that write fails the token stays intact, rather than half-removed.
     remove_environment_from_config(config_file, config_env)
     if env.auth_method == "oauth":
         TokenCache(_oauth_cache_path(env, config_env)).clear()
