@@ -91,43 +91,38 @@ def _resolve_params(
         if config_env is None and not (loaded and loaded.environments):
             resolved_base_url = resolve_base_url(base_url, None)
             if resolved_base_url is None:
-                _abort("No instance selected. Pass the instance URL as an argument.")
-                return None
+                return _abort("No instance selected. Pass the instance URL as an argument.")
             # Derived, not prompted: a first-time user has no basis for inventing a name.
             config_env = suggest_env_name(resolved_base_url)
         else:
             config_env = resolve_config_env(config_env, config_file)
             if config_env is None:
-                _abort()
-                return None
+                return _abort()
             env = loaded.environments.get(config_env) if loaded else None
 
             resolved_base_url = resolve_base_url(base_url, env)
             if resolved_base_url is None:
-                _abort(
+                return _abort(
                     f"No base URL given and environment '{config_env}' has none recorded. "
                     f"Pass the instance URL as an argument."
                 )
-                return None
 
             if env is not None and base_url is not None:
                 recorded = normalize_base_url(str(env.config.base_url))
                 if recorded != resolved_base_url and not _confirm_repoint(config_env, recorded, resolved_base_url):
-                    _abort()
-                    return None
+                    return _abort()
     except ValueError as error:
-        _abort(f"Error: {error}")
-        return None
+        return _abort(f"Error: {error}")
 
     resolved_scope = resolve_scope(scope, env)
     if resolved_scope is None:
-        _abort("No scope given and none recorded for this environment. Pass --scope." if not is_interactive() else None)
-        return None
+        return _abort(
+            "No scope given and none recorded for this environment. Pass --scope." if not is_interactive() else None
+        )
 
     resolved_set_default = resolve_set_default(set_default, config_env, is_new_env=env is None)
     if resolved_set_default is None:
-        _abort()
-        return None
+        return _abort()
 
     # Reuse the recorded ID so a non-default client registration survives a re-login.
     resolved_client_id = client_id or (env.client_id if env is not None else None) or DEFAULT_CLIENT_ID
