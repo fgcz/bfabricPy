@@ -53,6 +53,14 @@ def active_config_env(config_env: str | None, config: ConfigFile) -> str | None:
     return config_env or os.environ.get(CONFIG_ENV_VAR) or config.general.default_config
 
 
+def _pick_or_type(message: str, labels: dict[str, str], prompt: str) -> str | None:
+    """Pick one of *labels* (first preselected), or type a value via the ``_CUSTOM`` entry; ``None`` if cancelled."""
+    picked = select_choice(message, [*labels], default=next(iter(labels)), describe=lambda choice: labels[choice])
+    if picked is None:
+        return None
+    return text_input(prompt) if picked == _CUSTOM else picked
+
+
 def resolve_base_url(base_url: str | None, env: EnvironmentConfig | None) -> str | None:
     """Resolve the instance URL: explicit, else the environment's recorded one, else a picker."""
     if base_url is not None:
@@ -64,18 +72,10 @@ def resolve_base_url(base_url: str | None, env: EnvironmentConfig | None) -> str
     # First-login picker over the known instances, plus free-text entry.
     labels = {name: f"{name.ljust(10)} {url}" for name, url in KNOWN_INSTANCES.items()}
     labels[_CUSTOM] = f"{'other…'.ljust(10)} (enter a URL)"
-    picked = select_choice(
-        "Select the B-Fabric instance",
-        [*KNOWN_INSTANCES, _CUSTOM],
-        default=next(iter(KNOWN_INSTANCES)),
-        describe=lambda choice: labels[choice],
-    )
-    if picked is None:
+    picked = _pick_or_type("Select the B-Fabric instance", labels, "B-Fabric instance URL")
+    if not picked:
         return None
-    if picked != _CUSTOM:
-        return KNOWN_INSTANCES[picked]
-    typed = text_input("B-Fabric instance URL")
-    return normalize_base_url(typed) if typed else None
+    return KNOWN_INSTANCES.get(picked) or normalize_base_url(picked)
 
 
 def resolve_scope(scope: str | None, env: EnvironmentConfig | None = None) -> str | None:
@@ -93,17 +93,11 @@ def resolve_scope(scope: str | None, env: EnvironmentConfig | None = None) -> st
     width = max(len(preset.description) for preset in SCOPE_PRESETS)
     labels = {preset.name: f"{preset.description.ljust(width)}   {preset.scope}" for preset in SCOPE_PRESETS}
     labels[_CUSTOM] = f"{'Custom…'.ljust(width)}   (enter scopes manually)"
-    picked = select_choice(
-        "Select OAuth scope set",
-        [*labels],
-        default=SCOPE_PRESETS[0].name,
-        describe=lambda choice: labels[choice],
-    )
+    picked = _pick_or_type("Select OAuth scope set", labels, "Enter OAuth scopes (space-separated)")
     if picked is None:
         return None
-    if picked == _CUSTOM:
-        return text_input("Enter OAuth scopes (space-separated)")
-    return SCOPE_PRESETS_BY_NAME[picked].scope
+    preset = SCOPE_PRESETS_BY_NAME.get(picked)
+    return preset.scope if preset is not None else picked
 
 
 def resolve_set_default(set_default: bool | None, config_env: str, *, is_new_env: bool = False) -> bool | None:
