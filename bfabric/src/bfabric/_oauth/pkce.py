@@ -1,13 +1,6 @@
 """OAuth 2.0 Authorization Code flow with PKCE for interactive CLI login.
 
-Implements the browser-based login flow:
-
-1. Start a local HTTP server to receive the authorization callback
-2. Open the authorization URL in the user's browser
-3. Exchange the authorization code for tokens via the token endpoint
-
-No extra dependencies — uses stdlib ``http.server``, ``webbrowser``,
-``secrets``, ``hashlib``; plus ``httpx`` (already a project dependency).
+The callback is received by a local HTTP server, so this only works with a browser on this machine.
 """
 
 from __future__ import annotations
@@ -33,20 +26,15 @@ _REMOTE_HOST_CAVEAT = "On a remote host, use 'bfabric-cli auth device-code' inst
 
 
 def _generate_verifier(length: int = 128) -> str:
-    """Generate a PKCE code verifier (RFC 7636 Section 4.1).
-
-    Returns a URL-safe string of the requested *length* (43..128 chars).
-    """
+    """Generate a PKCE code verifier (RFC 7636 Section 4.1)."""
     if not (43 <= length <= 128):
         raise ValueError(f"PKCE verifier length must be 43..128, got {length}")
+    # 96 bytes is ~128 urlsafe chars, i.e. enough for any allowed length; truncate to the one asked for.
     return secrets.token_urlsafe(96)[:length]
 
 
 def _generate_challenge(verifier: str) -> str:
-    """Derive the S256 code challenge from *verifier* (RFC 7636 Section 4.2).
-
-    Returns base64url(SHA-256(verifier)) without ``=`` padding.
-    """
+    """Derive the S256 code challenge from *verifier* (RFC 7636 Section 4.2)."""
     digest = hashlib.sha256(verifier.encode("ascii")).digest()
     return base64.urlsafe_b64encode(digest).rstrip(b"=").decode("ascii")
 
@@ -95,7 +83,11 @@ _PAGE_TEMPLATE = """<!doctype html>
 
 
 def _render_callback_page(result: _AuthorizationResult) -> bytes:
-    """Build the page shown after the OAuth redirect (no auto-close button)."""
+    """Build the page shown after the OAuth redirect.
+
+    No auto-close: a browser only lets a script close a window it opened itself, so ``window.close()``
+    is a no-op in this navigated-to tab.
+    """
     if result.error is not None or result.code is None:
         accent, icon, title = "#cf222e", "✕", "Login failed"
         detail = result.error_description or result.error or "No authorization code was received."
@@ -126,6 +118,7 @@ class _CallbackHandler(BaseHTTPRequestHandler):
         self.end_headers()
         _ = self.wfile.write(_render_callback_page(result))
 
+        # From another thread: shutdown() waits for the serve_forever loop, which is this handler.
         threading.Thread(target=self.server.shutdown, daemon=True).start()
 
     def log_message(self, format: str, *args: object) -> None:  # noqa: A002  # pyright: ignore[reportImplicitOverride]
@@ -183,16 +176,9 @@ def pkce_login(
 ) -> dict[str, object]:
     """Perform an OAuth 2.0 Authorization Code flow with PKCE.
 
-    Opens the user's browser to the B-Fabric authorization endpoint,
-    waits for the redirect callback on a local HTTP server, then
-    exchanges the authorization code for tokens.
-
     :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
-    :param client_id: OAuth client ID
-    :param scope: OAuth scope
     :param port: Local port for the callback server (``0`` = auto-assign)
-    :param open_browser: Whether to open the authorization URL in the browser.
-        If ``False`` (or if the browser fails to open), the URL is printed to stderr.
+    :param open_browser: If ``False``, or if the browser fails to open, the URL is printed to stderr
     :param timeout: Seconds to wait for the user to complete login
     :returns: Token dict with ``access_token``, ``refresh_token``, etc.
     :raises RuntimeError: On timeout, CSRF state mismatch, or authorization error

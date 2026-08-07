@@ -32,7 +32,6 @@ class EnvironmentConfig(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def gather_config(cls, values: dict[str, Any]) -> dict[str, Any]:
-        """Gathers all configs into the config field."""
         if not isinstance(values, dict):
             return values
         values["config"] = {
@@ -63,7 +62,6 @@ class ConfigFile(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def gather_configs(cls, values: dict[str, Any]) -> dict[str, Any]:
-        """Gathers all configs into the configs field."""
         configs = {}
         for key, value in values.items():
             if key != "GENERAL":
@@ -73,7 +71,6 @@ class ConfigFile(BaseModel):
 
     @model_validator(mode="after")
     def validate_default_config(self) -> ConfigFile:
-        """Validates that the default config is specified and is available in the configs."""
         if self.general.default_config is not None and self.general.default_config not in self.environments:
             raise PydanticCustomError(
                 "default_config_not_available",
@@ -95,10 +92,7 @@ class ConfigFile(BaseModel):
         return value
 
     def get_selected_config_env(self, explicit_config_env: str | None) -> str:
-        """Return the selected config environment name.
-
-        Priority: *explicit_config_env*, then ``BFABRICPY_CONFIG_ENV``, then ``general.default_config``.
-        """
+        """Return the config environment name: explicit, else ``BFABRICPY_CONFIG_ENV``, else the default."""
         if explicit_config_env:
             return explicit_config_env
         elif "BFABRICPY_CONFIG_ENV" in os.environ:
@@ -113,8 +107,7 @@ class ConfigFile(BaseModel):
             return env
 
     def get_selected_config(self, explicit_config_env: str | None = None) -> EnvironmentConfig:
-        """Returns the selected configuration, by checking the hierarchy of config_env definitions.
-        See selected_config_env for details."""
+        """Return the selected environment; see :meth:`get_selected_config_env`."""
         return self.environments[self.get_selected_config_env(explicit_config_env=explicit_config_env)]
 
 
@@ -122,11 +115,10 @@ def read_config_file(
     config_path: str | Path,
     config_env: str | None = None,
 ) -> tuple[BfabricClientConfig, BfabricAuth | None]:
-    """Read and parse a bfabricPy config file, returning the selected environment's settings.
+    """Read a bfabricPy config file and return the selected environment's ``(config, auth)``.
 
     :param config_path: Path to the config file (assumed to exist)
     :param config_env: Configuration environment to use; deduced if not given
-    :return: The selected environment's ``(config, auth)``
     """
     logger.debug(f"Reading configuration from: {config_path} {config_env=}")
     config_file = ConfigFile.model_validate(yaml.safe_load(Path(config_path).read_text()))

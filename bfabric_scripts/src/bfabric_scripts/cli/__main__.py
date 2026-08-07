@@ -28,10 +28,8 @@ _ = app.command(_app_external_job, name="external-job")
 
 
 def main() -> None:
-    """CLI entry point: set up logging, then dispatch.
-
-    Commands without ``@use_client`` would otherwise run at loguru's default DEBUG level.
-    """
+    """CLI entry point; sets logging up here because commands without ``@use_client`` would
+    otherwise run at loguru's default DEBUG level."""
     setup_script_logging()
     app()
 

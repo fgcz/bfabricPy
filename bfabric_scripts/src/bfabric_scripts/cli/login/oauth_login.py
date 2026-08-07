@@ -115,7 +115,6 @@ def _resolve_params(
                     _abort()
                     return None
     except ValueError as error:
-        # A typo, not a bug: report it as rejected input.
         _abort(f"Error: {error}")
         return None
 

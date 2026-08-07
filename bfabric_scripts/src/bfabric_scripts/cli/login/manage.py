@@ -94,7 +94,6 @@ def print_environments(environments: dict[str, EnvironmentConfig], default: str 
 
 
 def _select_environment(message: str, config: ConfigFile) -> str | None:
-    """Interactive picker over the configured environments."""
     names = list(config.environments)
     width = max(len(name) for name in names)
     default = config.general.default_config

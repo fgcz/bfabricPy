@@ -41,19 +41,15 @@ _INLINE_SECRET_KEYS: tuple[str, ...] = ("login", "password", "pat")
 
 
 def _validate_round_trip(env_name: str, env_data: Mapping[str, object]) -> None:
-    """Reject an environment the reader could not load back; reserved names and invalid
-    :class:`EnvironmentConfig` values are rejected before anything touches the file."""
+    """Raise unless *env_data* is a loadable :class:`EnvironmentConfig` under a non-reserved name."""
     if env_name in ("GENERAL", "default"):
         raise ValueError(f"Environment name {env_name!r} is reserved and cannot be used.")
     _ = EnvironmentConfig.model_validate(dict(env_data))
 
 
 def _merge_environment(previous: object, env_data: Mapping[str, object]) -> dict[str, object]:
-    """Combine an existing environment section with the incoming *env_data*.
-
-    Keys the auth commands don't own (``application_ids``, ``engine``, hand-written extras) survive;
-    :data:`_AUTH_OWNED_KEYS` are dropped from *previous* first.
-    """
+    """Combine an existing environment section with *env_data*, dropping :data:`_AUTH_OWNED_KEYS`
+    from *previous* first so hand-written extras survive but stale secrets don't."""
     if not isinstance(previous, dict):
         return dict(env_data)
     kept = {key: value for key, value in cast("dict[str, object]", previous).items() if key not in _AUTH_OWNED_KEYS}
@@ -67,9 +63,9 @@ def write_environment_to_config(
     *,
     set_default: bool,
 ) -> None:
-    """Write or update the environment *env_name* in the YAML config at *config_path*, creating
-    the file (``0o600``) if needed. *env_data* merges into an existing section so unrelated keys
-    survive (auth-owned keys are replaced wholesale); *set_default* writes ``GENERAL.default_config``.
+    """Write or update the environment *env_name*, creating the config file (``0o600``) if needed.
+
+    *env_data* is merged into an existing section; see :func:`_merge_environment`.
 
     :raises pydantic.ValidationError: If the merged environment would not parse back through the
         reader. Checked before any filesystem change.
@@ -124,8 +120,7 @@ def _load_for_edit(config_path: Path, env_name: str) -> tuple[Path, dict[str, ob
 
 
 def set_default_config(config_path: Path, env_name: str) -> None:
-    """Set ``GENERAL.default_config`` to the existing environment *env_name* in the YAML config at
-    *config_path*; never creates or modifies an environment.
+    """Point ``GENERAL.default_config`` at the existing environment *env_name*, changing nothing else.
 
     :raises FileNotFoundError: If the config file does not exist.
     :raises ValueError: If *env_name* is not among the configured environments; the file is left
@@ -143,9 +138,9 @@ def set_default_config(config_path: Path, env_name: str) -> None:
 
 
 def clear_environment_credentials(config_path: Path, env_name: str) -> tuple[str, ...]:
-    """Remove inline secrets (``login`` / ``password`` / ``pat``) from the environment *env_name* in
-    the YAML config at *config_path*, keeping it configured for a later re-login. OAuth environments
-    hold no inline secret (theirs is in the token cache).
+    """Strip :data:`_INLINE_SECRET_KEYS` from *env_name*, keeping it configured for a later re-login.
+
+    OAuth environments hold no inline secret — theirs is in the token cache.
 
     :returns: The keys actually removed, so the caller can report what happened.
     :raises FileNotFoundError: If the config file does not exist.
@@ -168,8 +163,7 @@ def clear_environment_credentials(config_path: Path, env_name: str) -> tuple[str
 
 
 def remove_environment_from_config(config_path: Path, env_name: str) -> None:
-    """Delete the environment *env_name* from the YAML config at *config_path* (clearing
-    ``GENERAL.default_config`` if it pointed at *env_name*).
+    """Delete the environment *env_name*, clearing ``GENERAL.default_config`` if it pointed there.
 
     :raises FileNotFoundError: If the config file does not exist.
     :raises ValueError: If *env_name* is not among the configured environments; the file is left
