@@ -17,7 +17,7 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 - Re-pointing an environment at a different instance URL now needs confirmation, and is refused non-interactively.
 - Base URLs are normalised up front: scheme defaulted, host lowercased, trailing slash dropped, bare known hosts expanded, non-http(s) rejected as input.
 - `auth login --no-browser` prints the authorization URL instead of opening a browser (local machines only — over SSH use `auth device-code`).
-- `auth logout` notes that B-Fabric has no revocation endpoint: an issued token stays valid until it expires, so only local access is removed.
+- `auth logout` notes that it does not revoke the token server-side: an issued token stays valid until it expires, so only local access is removed.
 - New user guide: [Authentication](https://fgcz.github.io/bfabricPy/user_guides/bfabric-cli/authentication.html) — command surface, scopes, logout vs remove, remote hosts.
 - `bfabric-cli auth register-webapp` — no longer crashes with a raw traceback when the OAuth session cannot be refreshed (e.g. an expired/revoked refresh token); prints a clean `Error: ...` message and exits 1.
 - Internal: login handlers normalised to `cmd_auth_*`; shared resolution in `cli/login/_common.py`, base-URL handling in a new `_urls.py`.

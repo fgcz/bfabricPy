@@ -54,12 +54,16 @@ class TestOAuthLogout:
         assert data["GENERAL"]["default_config"] == "PROD"
 
     def test_states_that_the_token_is_not_revoked(self, tmp_path, capsys, cache_path):
-        """B-Fabric has no revocation endpoint, so silence here would let the user believe otherwise."""
+        """Logout does not revoke server-side, so silence here would let the user believe otherwise.
+
+        The notice describes what the command does, not what the server supports: instances do
+        advertise a ``revocation_endpoint``, so a claim about B-Fabric's capabilities would be wrong.
+        """
         config_file = tmp_path / "config.yml"
         _write_oauth_config(config_file)
         cmd_auth_logout(config_file=config_file)
         output = capsys.readouterr().out
-        assert "no token revocation endpoint" in output
+        assert "does not revoke the token server-side" in output
         assert "until it expires" in output
 
     def test_reports_when_there_was_nothing_to_clear(self, tmp_path, capsys, mocker):
@@ -69,8 +73,8 @@ class TestOAuthLogout:
         cmd_auth_logout(config_file=config_file)
         output = capsys.readouterr().out
         assert "No stored credentials found" in output
-        # Nothing was removed, so the revocation caveat would be noise.
-        assert "revocation" not in output
+        # Nothing was removed, so the not-revoked caveat would be noise.
+        assert "does not revoke" not in output
 
 
 class TestPatLogout:

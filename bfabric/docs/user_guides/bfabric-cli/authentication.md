@@ -97,9 +97,9 @@ password in `~/.bfabricpy.yml` — and keeps the environment configured. That le
 zero-argument `bfabric-cli login` later.
 
 ```{important}
-B-Fabric has no token revocation endpoint, so `logout` removes *local* access only. A token that was
-already issued stays valid server-side until it expires. On a shared machine, treat that as the
-security boundary you actually have.
+`logout` removes *local* access only — it does not revoke the token server-side, so a token that was
+already issued stays valid until it expires. On a shared machine, treat that as the security boundary
+you actually have.
 ```
 
 `remove` deletes the environment from the config as well. Use it for housekeeping, not for logging

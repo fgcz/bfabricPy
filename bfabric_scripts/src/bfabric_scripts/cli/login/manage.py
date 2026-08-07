@@ -29,10 +29,12 @@ from bfabric_scripts.cli.login._common import (
 from bfabric_scripts.cli.login._constants import DEFAULT_CLIENT_ID, SCOPE_PRESETS
 from bfabric_scripts.cli.login._urls import instance_host
 
-# Printed on every logout: users reasonably assume it revokes the token server-side too.
+# Printed on every logout: users reasonably assume it revokes the token server-side too. Says what
+# this command does, not what the server can do — instances do advertise a revocation endpoint
+# (trace publishes one), we just don't call it.
 _NO_REVOCATION_NOTICE = (
-    "Note: B-Fabric has no token revocation endpoint, so any token already issued stays valid "
-    "server-side until it expires. Local credentials are gone from this machine."
+    "Note: this removes local credentials only — it does not revoke the token server-side, so any "
+    "token already issued stays valid until it expires."
 )
 
 _CONFIG_FILE_HELP = "Path to the config file."
@@ -245,7 +247,7 @@ def cmd_auth_logout(
 
     Clears the cached OAuth token, or strips an inline PAT / password from the config file. The
     environment survives, so a later ``bfabric-cli login`` can renew it with no arguments; use
-    ``auth remove`` to delete it entirely. B-Fabric has no revocation endpoint, so an already-issued
+    ``auth remove`` to delete it entirely. The token is not revoked server-side, so an already-issued
     token stays valid until it expires — this only removes local access.
     """
     config = _load_config(config_file, require_environments=True, mutating=True)

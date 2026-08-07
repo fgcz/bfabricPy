@@ -66,8 +66,10 @@ config refuse to run while `BFABRICPY_CONFIG_OVERRIDE` is set, since the file wo
 in effect.
 
 `auth logout` removes credentials per auth method — the token cache for `oauth`, the inline `pat` or
-`login`/`password` keys for the others (via `clear_environment_credentials`). There is deliberately no
-client-side revocation code, because B-Fabric exposes no revocation or end-session endpoint.
+`login`/`password` keys for the others (via `clear_environment_credentials`). It deliberately does not
+revoke server-side. Instances *do* advertise `revocation_endpoint` in their discovery document (trace:
+`{base_url}/rest/oauth/token` → `/rest/oauth/revoke`), but whether it is implemented is unverified, so
+logout promises only what it delivers: local credentials gone, an issued token valid until it expires.
 
 ### `auth register` enhancements
 
