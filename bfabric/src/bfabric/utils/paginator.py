@@ -13,12 +13,7 @@ T = TypeVar("T")
 
 
 def page_iter(objs: Sequence[T], page_size: int = BFABRIC_QUERY_LIMIT) -> Generator[list[T], None, None]:
-    """
-    :param objs:       A list of objects to provide to bfabric as part of a query
-    :param page_size:  Number of objects per page
-    :return:           An iterator over chunks that would be sent to bfabric, 1 chunk per query
-    """
-
+    """Yields `objs` in chunks of at most `page_size`, i.e. one chunk per B-Fabric query."""
     for i in range(0, len(objs), page_size):
         yield list(objs[i : i + page_size])
 
