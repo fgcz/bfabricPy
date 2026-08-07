@@ -19,19 +19,18 @@ from bfabric_scripts.cli.login._common import (
 )
 from bfabric_scripts.cli.login._urls import normalize_base_url
 
+_PAT_HELP = "Personal Access Token (prompted if omitted)."
+_CONFIG_ENV_HELP = "Environment name (defaults to BFABRICPY_CONFIG_ENV or the default)."
+_SET_DEFAULT_HELP = "Set this environment as the default in the config file (prompted if omitted)."
+
 
 def cmd_auth_pat(
     base_url: Annotated[str, cyclopts.Parameter(help="B-Fabric instance URL.")],
     *,
-    pat: Annotated[str | None, cyclopts.Parameter(help="Personal Access Token (prompted if omitted).")] = None,
-    config_env: Annotated[
-        str | None, cyclopts.Parameter(help="Environment name (defaults to BFABRICPY_CONFIG_ENV or the default).")
-    ] = None,
+    pat: Annotated[str | None, cyclopts.Parameter(help=_PAT_HELP)] = None,
+    config_env: Annotated[str | None, cyclopts.Parameter(help=_CONFIG_ENV_HELP)] = None,
     config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = DEFAULT_CONFIG_FILE,
-    set_default: Annotated[
-        bool | None,
-        cyclopts.Parameter(help="Set this environment as the default in the config file (prompted if omitted)."),
-    ] = None,
+    set_default: Annotated[bool | None, cyclopts.Parameter(help=_SET_DEFAULT_HELP)] = None,
 ) -> None:
     """Authenticate with a Personal Access Token (PAT)."""
     if not require_mutable_config():
@@ -53,11 +52,7 @@ def cmd_auth_pat(
         print("Warning: passing secrets via CLI flags is insecure (visible in ps, shell history).", file=sys.stderr)
     # Store under ``pat``, not ``login``/``password``: a PAT isn't 32 chars, so an old (<=1.19.0)
     # client validating every environment would reject it and poison the shared config.
-    env_data = {
-        "base_url": normalize_base_url(base_url),
-        "auth_method": "pat",
-        "pat": pat,
-    }
+    env_data = {"base_url": normalize_base_url(base_url), "auth_method": "pat", "pat": pat}
     write_environment_to_config(config_file, config_env, env_data, set_default=set_default)
     print("Authenticated successfully.")
     print(f"Config saved to environment '{config_env}' in {config_file}")

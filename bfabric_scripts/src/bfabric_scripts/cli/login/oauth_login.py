@@ -82,12 +82,13 @@ def _resolve_params(
 
     Order matters: base URL and scope are read back from the environment, so it settles first.
     """
+    if not require_mutable_config():
+        return None
     loaded = load_config_file(config_file)
-    existing_names = list(loaded.environments) if loaded else []
     env = None
 
     try:
-        if config_env is None and not existing_names:
+        if config_env is None and not (loaded and loaded.environments):
             resolved_base_url = resolve_base_url(base_url, None)
             if resolved_base_url is None:
                 _abort("No instance selected. Pass the instance URL as an argument.")
@@ -138,13 +139,8 @@ def _persist(token: dict[str, object], params: _LoginParams, config_file: Path) 
     _ = OAuthCredentialProvider.cache_login_token(
         params.base_url, client_id=params.client_id, token=token, env_name=params.config_env
     )
-    env_data = {
-        "base_url": params.base_url,
-        "auth_method": "oauth",
-        "client_id": params.client_id,
-        "scope": params.scope,
-    }
-    write_environment_to_config(config_file, params.config_env, env_data, set_default=params.set_default)
+    data = {"base_url": params.base_url, "auth_method": "oauth", "client_id": params.client_id, "scope": params.scope}
+    write_environment_to_config(config_file, params.config_env, data, set_default=params.set_default)
     print("Authenticated successfully.")
     print(f"Config saved to environment '{params.config_env}' in {config_file}")
 
@@ -167,8 +163,6 @@ def cmd_auth_login(
     the environment. The browser must be on this machine, because the login is completed through a
     redirect to a local port — over SSH, use ``auth device-code`` instead.
     """
-    if not require_mutable_config():
-        return
     params = _resolve_params(base_url, client_id, config_env, scope, set_default, config_file)
     if params is None:
         return
@@ -206,8 +200,6 @@ def cmd_auth_device_code(
     Run with no arguments to renew an expired login. Unlike the browser flow this needs no local
     port, so the code can be entered in a browser on any machine.
     """
-    if not require_mutable_config():
-        return
     params = _resolve_params(base_url, client_id, config_env, scope, set_default, config_file)
     if params is None:
         return

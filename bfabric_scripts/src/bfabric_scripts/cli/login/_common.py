@@ -36,19 +36,16 @@ def load_config_file(config_file: Path) -> ConfigFile | None:
 
 def resolve_config_env(config_env: str | None, config_file: Path) -> str | None:
     """Resolve the target environment name (``Bfabric.connect()`` precedence); ``None`` if cancelled."""
-    if config_env is not None:
-        return config_env
-    from_env_var = os.environ.get(CONFIG_ENV_VAR)
-    if from_env_var:
-        return from_env_var
+    resolved = config_env or os.environ.get(CONFIG_ENV_VAR)
+    if resolved:
+        return resolved
+    # Loaded only now: an explicit name or env var must not make a malformed config file fatal.
     loaded = load_config_file(config_file)
-    current = loaded.general.default_config if loaded else None
-    if current:
-        return current
-    names = list(loaded.environments) if loaded else []
+    if loaded and loaded.general.default_config:
+        return loaded.general.default_config
     if not is_interactive():
         return _FALLBACK_ENV
-    return select_or_input("Environment name", names, default=_FALLBACK_ENV)
+    return select_or_input("Environment name", list(loaded.environments) if loaded else [], default=_FALLBACK_ENV)
 
 
 def active_config_env(config_env: str | None, config: ConfigFile) -> str | None:
@@ -64,11 +61,7 @@ def resolve_base_url(base_url: str | None, env: EnvironmentConfig | None) -> str
         return normalize_base_url(str(env.config.base_url))
     if not is_interactive():
         return None
-    return select_instance()
-
-
-def select_instance() -> str | None:
-    """First-login picker over :data:`KNOWN_INSTANCES`, plus free-text entry."""
+    # First-login picker over the known instances, plus free-text entry.
     labels = {name: f"{name.ljust(10)} {url}" for name, url in KNOWN_INSTANCES.items()}
     labels[_CUSTOM] = f"{'other…'.ljust(10)} (enter a URL)"
     picked = select_choice(
@@ -79,19 +72,10 @@ def select_instance() -> str | None:
     )
     if picked is None:
         return None
-    if picked == _CUSTOM:
-        typed = text_input("B-Fabric instance URL")
-        return normalize_base_url(typed) if typed else None
-    return KNOWN_INSTANCES[picked]
-
-
-def _scope_menu_label(choice: str) -> str:
-    """Menu label for a scope preset, or the Custom entry."""
-    width = max(len(preset.description) for preset in SCOPE_PRESETS)
-    if choice == _CUSTOM:
-        return f"{'Custom…'.ljust(width)}   (enter scopes manually)"
-    preset = SCOPE_PRESETS_BY_NAME[choice]
-    return f"{preset.description.ljust(width)}   {preset.scope}"
+    if picked != _CUSTOM:
+        return KNOWN_INSTANCES[picked]
+    typed = text_input("B-Fabric instance URL")
+    return normalize_base_url(typed) if typed else None
 
 
 def resolve_scope(scope: str | None, env: EnvironmentConfig | None = None) -> str | None:
@@ -106,11 +90,14 @@ def resolve_scope(scope: str | None, env: EnvironmentConfig | None = None) -> st
         return env.scope
     if not is_interactive():
         return None
+    width = max(len(preset.description) for preset in SCOPE_PRESETS)
+    labels = {preset.name: f"{preset.description.ljust(width)}   {preset.scope}" for preset in SCOPE_PRESETS}
+    labels[_CUSTOM] = f"{'Custom…'.ljust(width)}   (enter scopes manually)"
     picked = select_choice(
         "Select OAuth scope set",
-        [preset.name for preset in SCOPE_PRESETS] + [_CUSTOM],
+        [*labels],
         default=SCOPE_PRESETS[0].name,
-        describe=_scope_menu_label,
+        describe=lambda choice: labels[choice],
     )
     if picked is None:
         return None

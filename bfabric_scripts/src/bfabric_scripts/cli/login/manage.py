@@ -35,9 +35,18 @@ _NO_REVOCATION_NOTICE = (
     "server-side until it expires. Local credentials are gone from this machine."
 )
 
+_CONFIG_FILE_HELP = "Path to the config file."
+_ACTIVATE_ENV_HELP = "Environment to make the default (interactive picker if omitted)."
+_LOGOUT_ENV_HELP = "Environment to log out of (default: the active one)."
+_ALL_HELP = "Log out of every configured environment."
+_REMOVE_ENV_HELP = "Environment to remove (interactive picker if omitted)."
+_NO_CONFIRM_HELP = "Skip the confirmation prompt (required to remove non-interactively)."
 
-def _load_config(config_file: Path, *, require_environments: bool = False) -> ConfigFile | None:
-    """Load the config file, or print why it is unusable and return ``None``."""
+
+def _load_config(config_file: Path, *, require_environments: bool = False, mutating: bool = False) -> ConfigFile | None:
+    """Load the config file, or print why it is unusable — or unwritable, when *mutating* — and return ``None``."""
+    if mutating and not require_mutable_config():
+        return None
     config = load_config_file(config_file)
     if config is None:
         print(f"Config file not found: {Path(config_file).expanduser()}")
@@ -75,22 +84,6 @@ def _environment_detail(env: EnvironmentConfig, env_name: str, *, now: float) ->
     if cached is None:
         return "oauth · logged out"
     return f"oauth · {env.scope or '(scope not recorded)'} · {describe_token_cache(cached, now=now)}"
-
-
-def print_environments(environments: dict[str, EnvironmentConfig], default: str | None, *, now: float) -> None:
-    """List the configured environments grouped by host, annotating which one is in effect and why."""
-    print("Configuration environments:")
-    width = max((len(name) for name in environments), default=0)
-    by_host: dict[str, list[str]] = {}
-    for name, env in environments.items():
-        by_host.setdefault(instance_host(str(env.config.base_url)), []).append(name)
-    for host, names in by_host.items():
-        print(f"\n{host}")
-        for name in names:
-            env = environments[name]
-            marker = "→" if name == default else " "
-            reason = describe_active_reason(name, default)
-            print(f"{marker} {name.ljust(width)}   {_environment_detail(env, name, now=now)}{reason}")
 
 
 def _select_environment(message: str, config: ConfigFile) -> str | None:
@@ -134,7 +127,7 @@ def describe_token_cache(cached: dict[str, object] | None, *, now: float) -> str
 
 def cmd_auth_list(
     *,
-    config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = DEFAULT_CONFIG_FILE,
+    config_file: Annotated[Path, cyclopts.Parameter(help=_CONFIG_FILE_HELP)] = DEFAULT_CONFIG_FILE,
 ) -> None:
     """List the configured environments, grouped by instance.
 
@@ -143,40 +136,45 @@ def cmd_auth_list(
     config = _load_config(config_file, require_environments=True)
     if config is None:
         return
-    print_environments(config.environments, config.general.default_config, now=time.time())
+    environments, default, now = config.environments, config.general.default_config, time.time()
+    width = max(len(name) for name in environments)
+    by_host: dict[str, list[str]] = {}
+    for name, env in environments.items():
+        by_host.setdefault(instance_host(str(env.config.base_url)), []).append(name)
+
+    print("Configuration environments:")
+    for host, names in by_host.items():
+        print(f"\n{host}")
+        for name in names:
+            marker = "→" if name == default else " "
+            detail = _environment_detail(environments[name], name, now=now)
+            print(f"{marker} {name.ljust(width)}   {detail}{describe_active_reason(name, default)}")
 
 
 def cmd_auth_activate(
-    config_env: Annotated[
-        str | None,
-        cyclopts.Parameter(help="Environment to make the default (interactive picker if omitted)."),
-    ] = None,
+    config_env: Annotated[str | None, cyclopts.Parameter(help=_ACTIVATE_ENV_HELP)] = None,
     *,
-    config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = DEFAULT_CONFIG_FILE,
+    config_file: Annotated[Path, cyclopts.Parameter(help=_CONFIG_FILE_HELP)] = DEFAULT_CONFIG_FILE,
 ) -> None:
     """Make an environment the default one.
 
     With no *config_env*, opens an interactive picker in a terminal, or lists the environments
     non-interactively.
     """
-    if not require_mutable_config():
-        return
-    config = _load_config(config_file, require_environments=True)
+    config = _load_config(config_file, require_environments=True, mutating=True)
     if config is None:
         return
-    names = list(config.environments)
-
-    if config_env is None and is_interactive():
-        config_env = _select_environment("Select the environment to activate", config)
     if config_env is None:
-        if is_interactive():
-            print("No changes made.")
-        else:
+        if not is_interactive():
             print("No environment specified. Pass an environment name or run in an interactive terminal.")
-        return
+            return
+        config_env = _select_environment("Select the environment to activate", config)
+        if config_env is None:
+            print("No changes made.")
+            return
 
     if config_env not in config.environments:
-        print(f"Environment '{config_env}' not found. Available environments: {', '.join(names)}")
+        print(f"Environment '{config_env}' not found. Available environments: {', '.join(config.environments)}")
         return
 
     set_default_config(config_file, config_env)
@@ -187,7 +185,7 @@ def cmd_auth_activate(
 
 def cmd_auth_status(
     *,
-    config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = DEFAULT_CONFIG_FILE,
+    config_file: Annotated[Path, cyclopts.Parameter(help=_CONFIG_FILE_HELP)] = DEFAULT_CONFIG_FILE,
     config_env: Annotated[str | None, cyclopts.Parameter(help="Environment name (default: auto-detect).")] = None,
 ) -> None:
     """Show current authentication status."""
@@ -203,17 +201,17 @@ def cmd_auth_status(
         return
 
     env = config.environments[resolved_env]
+    method = _auth_method(env)
     print(f"Environment:  {resolved_env}{describe_active_reason(resolved_env, config.general.default_config)}")
     print(f"Base URL:     {env.config.base_url}")
-    print(f"Auth method:  {_auth_method(env)}")
+    print(f"Auth method:  {method}")
 
-    if env.auth_method == "oauth":
+    if method == "oauth":
         cache_path = _oauth_cache_path(env, resolved_env)
-        cached = TokenCache(cache_path).load()
         print(f"Client ID:    {env.client_id or DEFAULT_CLIENT_ID}")
-        print(f"Token cache:  {cache_path} ({describe_token_cache(cached, now=time.time())})")
+        print(f"Token cache:  {cache_path} ({describe_token_cache(TokenCache(cache_path).load(), now=time.time())})")
         print(f"Scope:        {describe_scope(env.scope)}")
-    elif env.auth_method == "pat":
+    elif method == "pat":
         print("Token:        stored in config file")
     elif env.auth is not None:
         print(f"Login:        {env.auth.login}")
@@ -238,15 +236,10 @@ def _logout_environment(env: EnvironmentConfig, env_name: str, config_file: Path
 
 
 def cmd_auth_logout(
-    config_env: Annotated[
-        str | None,
-        cyclopts.Parameter(help="Environment to log out of (default: the active one)."),
-    ] = None,
+    config_env: Annotated[str | None, cyclopts.Parameter(help=_LOGOUT_ENV_HELP)] = None,
     *,
-    config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = DEFAULT_CONFIG_FILE,
-    all_environments: Annotated[
-        bool, cyclopts.Parameter(name=["--all"], help="Log out of every configured environment.")
-    ] = False,
+    config_file: Annotated[Path, cyclopts.Parameter(help=_CONFIG_FILE_HELP)] = DEFAULT_CONFIG_FILE,
+    all_environments: Annotated[bool, cyclopts.Parameter(name=["--all"], help=_ALL_HELP)] = False,
 ) -> None:
     """Remove stored credentials for this machine, keeping the environment configured.
 
@@ -255,9 +248,7 @@ def cmd_auth_logout(
     ``auth remove`` to delete it entirely. B-Fabric has no revocation endpoint, so an already-issued
     token stays valid until it expires — this only removes local access.
     """
-    if not require_mutable_config():
-        return
-    config = _load_config(config_file, require_environments=True)
+    config = _load_config(config_file, require_environments=True, mutating=True)
     if config is None:
         return
 
@@ -281,15 +272,10 @@ def cmd_auth_logout(
 
 
 def cmd_auth_remove(
-    config_env: Annotated[
-        str | None,
-        cyclopts.Parameter(help="Environment to remove (interactive picker if omitted)."),
-    ] = None,
+    config_env: Annotated[str | None, cyclopts.Parameter(help=_REMOVE_ENV_HELP)] = None,
     *,
-    config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = DEFAULT_CONFIG_FILE,
-    no_confirm: Annotated[
-        bool, cyclopts.Parameter(help="Skip the confirmation prompt (required to remove non-interactively).")
-    ] = False,
+    config_file: Annotated[Path, cyclopts.Parameter(help=_CONFIG_FILE_HELP)] = DEFAULT_CONFIG_FILE,
+    no_confirm: Annotated[bool, cyclopts.Parameter(help=_NO_CONFIRM_HELP)] = False,
 ) -> None:
     """Delete an environment: remove its config entry and clear any cached OAuth tokens.
 
@@ -298,13 +284,10 @@ def cmd_auth_remove(
     With no *config_env*, opens an interactive picker. A non-interactive run must name the
     environment and pass ``--no-confirm`` (it cannot prompt for the destructive confirmation).
     """
-    if not require_mutable_config():
-        return
-    config = _load_config(config_file, require_environments=True)
+    config = _load_config(config_file, require_environments=True, mutating=True)
     if config is None:
         return
     environments = config.environments
-    names = list(environments)
 
     if config_env is None:
         if not is_interactive():
@@ -316,13 +299,13 @@ def cmd_auth_remove(
             return
 
     if config_env not in environments:
-        print(f"Environment '{config_env}' not found. Available environments: {', '.join(names)}")
+        print(f"Environment '{config_env}' not found. Available environments: {', '.join(environments)}")
         return
 
     env = environments[config_env]
     # A dangling default makes the config unloadable, so removal clears it; only worth flagging when
     # other environments remain to default to.
-    leaves_no_default = config_env == config.general.default_config and len(names) > 1
+    leaves_no_default = config_env == config.general.default_config and len(environments) > 1
 
     if not no_confirm:
         if not is_interactive():

@@ -18,6 +18,10 @@ def instance_host(base_url: str) -> str:
     return urlsplit(base_url).netloc.lower()
 
 
+# Reverse index of KNOWN_INSTANCES: host -> (suggested name, base URL).
+_BY_HOST: dict[str, tuple[str, str]] = {instance_host(url): (name, url) for name, url in KNOWN_INSTANCES.items()}
+
+
 def normalize_base_url(raw: str) -> str:
     """Canonicalise a base URL: default the scheme to https, lowercase the host, drop a trailing
     slash, and expand a bare known host to that instance's full base URL.
@@ -37,17 +41,12 @@ def normalize_base_url(raw: str) -> str:
         raise ValueError(f"Base URL {raw!r} has no host.")
     host = parts.netloc.lower()
     # Only expand a bare host: rewriting an explicit path would break an unusual deployment.
-    if not parts.path.strip("/"):
-        known = next((url for url in KNOWN_INSTANCES.values() if instance_host(url) == host), None)
-        if known is not None:
-            return known
+    if not parts.path.strip("/") and host in _BY_HOST:
+        return _BY_HOST[host][1]
     return urlunsplit((parts.scheme, host, parts.path.rstrip("/"), "", ""))
 
 
 def suggest_env_name(base_url: str) -> str:
     """A default environment name for canonicalised *base_url*: the known instance's name, else its dashed host."""
     host = instance_host(base_url)
-    for name, url in KNOWN_INSTANCES.items():
-        if instance_host(url) == host:
-            return name
-    return host.replace(".", "-")
+    return _BY_HOST[host][0] if host in _BY_HOST else host.replace(".", "-")
