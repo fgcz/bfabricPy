@@ -9,11 +9,11 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
-- Config: new `scope` environment field recording the OAuth scope *requested* at login, so a login can be replayed from disk without retyping it. Excluded from `BfabricClientConfig` and not plumbed through `ConfigData`; deliberately the requested rather than the granted value, since the server drops scopes a client isn't registered for and replaying the granted value would bake that drop in permanently.
-- `write_environment_to_config` now **merges** into an existing environment instead of replacing it, so unrelated keys (`application_ids`, `engine`, hand-written extras) survive a re-login. Auth-owned keys (`login`, `password`, `pat`, `auth_method`, `client_id`, `scope`) are replaced wholesale, so a stale `pat` cannot outlive the auth method that wrote it. Round-trip validation now runs on the merged environment, still before any filesystem write.
+- Config: new `scope` environment field recording the scope *requested* at login (not the granted one), so a login can be replayed from disk without retyping it. CLI-only — excluded from `BfabricClientConfig` and `ConfigData`.
+- `write_environment_to_config` now **merges** into an existing environment instead of replacing it, so unrelated keys (`application_ids`, `engine`, hand-written extras) survive a re-login. Auth-owned keys (`login`, `password`, `pat`, `auth_method`, `client_id`, `scope`) are replaced wholesale, so a stale `pat` cannot outlive the auth method that wrote it.
 - New `config_writer.clear_environment_credentials` — strip inline secrets (`login` / `password` / `pat`) from an environment while keeping it configured, returning the keys removed. Backs `bfabric-cli auth logout`.
-- PKCE: the printed-URL fallback and the timeout error now name the loopback redirect target and point at the device-code flow, for the remote-host case where a browser elsewhere cannot complete the login. Unconditional on purpose — `webbrowser.open` returns `True` for a terminal browser and on macOS even over SSH, so anything gated on it would miss exactly those cases.
-- `Bfabric.connect()` now raises a clear error when an `auth_method: oauth` config has no `env_name` (reachable via `BFABRICPY_CONFIG_OVERRIDE`) instead of computing a token-cache key from the literal `"default"`, a name the config layer forbids and which therefore could never match a cached token.
+- PKCE: the printed-URL fallback and the timeout error now name the loopback redirect target and point at the device-code flow, for the remote-host case a browser elsewhere cannot complete.
+- `Bfabric.connect()` now raises a clear error when an `auth_method: oauth` config has no `env_name` (reachable via `BFABRICPY_CONFIG_OVERRIDE`), instead of deriving a token-cache key that could never match a cached token.
 
 ## \[1.20.0\] - 2026-08-03
 

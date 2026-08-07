@@ -10,16 +10,16 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 ## \[Unreleased\]
 
-- `bfabric-cli login` (and `auth login` / `auth device-code`) is now **zero-argument re-loginable**: an expired token is renewed by re-running the command with no arguments at all. The instance URL and scope are read back from the target environment, which records the requested scope from now on, and the scope being requested is printed on every login. A first login picks the instance from a list of known hosts and derives the environment name, so nothing has to be invented. `login` is also registered top-level as a shortcut for `auth login`.
-- **Breaking:** `auth default` is renamed to `auth activate` with no alias, and `auth logout` no longer deletes the environment. `logout` now removes only what is stored on this machine — the cached OAuth token, or an inline `pat` / `login`+`password` in the config (a cache-only implementation would have reported success while leaving a PAT in plaintext) — leaving a "configured but logged out" environment that a later zero-argument `login` renews. `--all` covers every environment. The old destructive behaviour is now `auth remove`. Justified without a deprecation window by the EXPERIMENTAL marker and the age of the 1.16.0 release.
-- `auth logout` states in its own output that B-Fabric has no revocation endpoint, so an already-issued token stays valid server-side until it expires and only local access is removed. Relevant on a shared machine, where `0600` file modes protect against other Unix users but not against a shared account.
-- `auth list` groups environments by instance and shows each one's scope and token expiry. Both `list` and `status` annotate *why* an environment is the active one, since `BFABRICPY_CONFIG_ENV` silently outranks the configured default.
-- Every `auth` command now resolves the environment as `--config-env` > `BFABRICPY_CONFIG_ENV` > the configured default, matching `Bfabric.connect()` — previously only `auth status` honoured the variable. Commands that write to the config refuse to run while `BFABRICPY_CONFIG_OVERRIDE` is set, rather than writing a change that has no effect.
-- Logging in with a URL that differs from the target environment's recorded one now requires confirmation, and is refused outright non-interactively. Previously a re-login silently overwrote it, so `PRODUCTION` could be repointed at a test host without being asked.
-- Base URLs are normalised offline before the browser opens: scheme defaulted, host lowercased, trailing slash dropped, bare known hosts expanded to a full base URL, non-http(s) rejected as input rather than as a traceback.
-- `auth login --no-browser` prints the authorization URL instead of opening a browser (the loopback server still listens, so this is for a local machine with no browser configured, not for a remote host — use `auth device-code` there).
-- New user guide: [Authentication](https://fgcz.github.io/bfabricPy/user_guides/bfabric-cli/authentication.html) — the `auth` command surface, scopes, logout vs remove, and the remote-host guidance. `auth` previously appeared in no user guide at all.
-- Internal: login handlers normalised to `cmd_auth_*` (was a mix of `cmd_auth_*` and `cmd_login_*`); shared resolution in `cli/login/_common.py`, with all base-URL handling in one new `_urls.py`.
+- `bfabric-cli login` renews an expired token with **no arguments**: the instance URL and scope are read back from the environment. A first login picks the instance from the known hosts and derives the environment name. `login` is also a top-level shortcut for `auth login`.
+- **Breaking:** `auth default` is now `auth activate` (no alias), and `auth logout` no longer deletes the environment — it clears only this machine's credentials (cached OAuth token, or an inline `pat` / `login`+`password`), leaving it ready for a zero-argument re-login. `--all` covers every environment; the old behaviour is `auth remove`.
+- `auth list` groups environments by instance and shows scope and token expiry; `list` and `status` mark *why* an environment is the active one.
+- Every `auth` command resolves the environment as `--config-env` > `BFABRICPY_CONFIG_ENV` > the configured default, and commands that write the config refuse to run under `BFABRICPY_CONFIG_OVERRIDE`.
+- Re-pointing an environment at a different instance URL now needs confirmation, and is refused non-interactively.
+- Base URLs are normalised up front: scheme defaulted, host lowercased, trailing slash dropped, bare known hosts expanded, non-http(s) rejected as input.
+- `auth login --no-browser` prints the authorization URL instead of opening a browser (local machines only — over SSH use `auth device-code`).
+- `auth logout` notes that B-Fabric has no revocation endpoint: an issued token stays valid until it expires, so only local access is removed.
+- New user guide: [Authentication](https://fgcz.github.io/bfabricPy/user_guides/bfabric-cli/authentication.html) — command surface, scopes, logout vs remove, remote hosts.
+- Internal: login handlers normalised to `cmd_auth_*`; shared resolution in `cli/login/_common.py`, base-URL handling in a new `_urls.py`.
 
 ## \[1.16.0\] - 2026-08-03
 
