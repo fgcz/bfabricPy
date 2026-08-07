@@ -1,16 +1,18 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeVar
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Generator, Sequence
 
 # Single page query limit for BFabric API (as of time of writing, adapt if it changes)
 BFABRIC_QUERY_LIMIT = 100
 
+T = TypeVar("T")
 
-def page_iter(objs: list, page_size: int = BFABRIC_QUERY_LIMIT) -> Generator[list, None, None]:
+
+def page_iter(objs: Sequence[T], page_size: int = BFABRIC_QUERY_LIMIT) -> Generator[list[T], None, None]:
     """
     :param objs:       A list of objects to provide to bfabric as part of a query
     :param page_size:  Number of objects per page
@@ -18,7 +20,7 @@ def page_iter(objs: list, page_size: int = BFABRIC_QUERY_LIMIT) -> Generator[lis
     """
 
     for i in range(0, len(objs), page_size):
-        yield objs[i : i + page_size]
+        yield list(objs[i : i + page_size])
 
 
 def compute_requested_pages(
