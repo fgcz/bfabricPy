@@ -21,6 +21,13 @@ class FileInfo:
     md5: str
     size: int
     path: Path
+    link_from_resource_id: int | None = None
+    """Register this file as a link to the bytes of an existing resource instead of uploading it.
+
+    Set from a ``check-duplicates`` verdict's ``existingResourceId``; the server then takes storage
+    path, size and checksum from that resource, so ``md5``/``size`` here are ignored and ``path`` is
+    never read. Only meaningful for ``create-resources``.
+    """
 
 
 def resolve_paths(paths: list[Path]) -> list[Path]:

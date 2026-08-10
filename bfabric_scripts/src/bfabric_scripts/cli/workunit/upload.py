@@ -47,6 +47,11 @@ class UploadParams(BaseModel):
     """Name for the created workunit (``None`` → "File upload"); mutually exclusive with ``--workunit-id``."""
     force: bool = False
     """Skip the duplicate check and upload every file."""
+    link_duplicates: bool = False
+    """Register a file whose content already exists in the container as a link to that existing
+    resource, instead of skipping the file. The workunit then has a resource for every file uploaded,
+    without re-transferring content B-Fabric already stores. Ignored together with ``--force``, which
+    skips the duplicate check altogether."""
     track_job: bool = False
     """Create a ``UPLOAD`` job tracking the upload; the tus server flips it to DONE/FAILED."""
     progress: bool = True
@@ -87,6 +92,7 @@ def cmd_workunit_upload(params: UploadParams, *, client: Bfabric) -> None:
                 workunit_id=params.workunit_id,
                 workunit_name=params.workunit_name,
                 force=params.force,
+                link_duplicates=params.link_duplicates,
                 track_job=params.track_job,
             ),
             on_progress=reporter.on_progress if reporter else None,
@@ -99,9 +105,11 @@ def cmd_workunit_upload(params: UploadParams, *, client: Bfabric) -> None:
         return
 
     job_note = f" (tracking job {summary.job_id})" if summary.job_id is not None else ""
+    # Only mention linking when it happened, so the usual summary line stays as it was.
+    linked_note = f"linked {summary.linked_count}, " if summary.linked_count else ""
     logger.success(
         f"Workunit {summary.workunit_id}{job_note}: uploaded {summary.uploaded} file(s), "
-        f"skipped {summary.skipped}, failed {summary.failed}."
+        f"{linked_note}skipped {summary.skipped}, failed {summary.failed}."
     )
     for failure in summary.failures:
         logger.error(f"  Failed: {failure.filename}: {failure.error}")

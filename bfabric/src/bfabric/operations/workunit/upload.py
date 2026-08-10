@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import Counter
 from collections.abc import Callable, Mapping
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING
 
 from loguru import logger
@@ -59,6 +59,13 @@ class UploadFilesParams(BaseModel):
     """Name for the created workunit (``None`` → "File upload"); mutually exclusive with ``workunit_id``."""
     force: bool = False
     """Skip the duplicate check and upload every file."""
+    link_duplicates: bool = False
+    """Register a duplicate as a link to the already-stored bytes instead of skipping it, so the
+    workunit gets a resource for every input file without re-transferring content the instance
+    already holds. Applies to any verdict naming an ``existingResourceId`` -- in practice a
+    ``skip`` on an ``exact_duplicate`` / ``renamed_duplicate``. Off by default: linking creates a
+    resource pointing at bytes this caller never uploaded, so it is an explicit opt-in. Has no effect
+    together with ``force``, which skips the duplicate check and so produces no verdicts to act on."""
     track_job: bool = False
     """Create a ``UPLOAD`` job under the workunit and attach its id to the upload, so the tus
     server's hooks flip the job to ``DONE``/``FAILED`` as the transfer progresses. Works on both the
@@ -100,12 +107,22 @@ class UploadSummary:
 
     workunit_id: int | None
     uploaded: int
+    """Files whose bytes were transferred."""
     skipped: int
+    """Duplicates the check reported as already stored; no resource was created for them."""
     failed: int
     uploads: list[FileUpload] = field(default_factory=list)
     failures: list[FileFailure] = field(default_factory=list)
+    linked: list[FileUpload] = field(default_factory=list)
+    """Files registered as links to already-stored bytes: a resource exists, but nothing was
+    transferred. Distinct from ``skipped``, where no resource was created at all."""
     job_id: int | None = None
     """The tracking job's id when ``track_job`` was set, else ``None``."""
+
+    @property
+    def linked_count(self) -> int:
+        """Number of files registered as links (the counterpart to ``uploaded`` for ``linked``)."""
+        return len(self.linked)
 
 
 def upload_files(
@@ -142,7 +159,9 @@ def upload_files(
         ``track_job`` (see :class:`UploadFilesParams`).
     :param on_progress: optional ``(filename, bytes_done, total)`` per-chunk progress callback.
     :param on_start: optional ``(total_files, total_bytes)`` callback fired once after dedup, just
-        before the first transfer (never fired when everything is skipped as a duplicate).
+        before the first transfer (never fired when everything is skipped as a duplicate). It reports
+        the post-dedup file set, which is decided before ``create-resources`` runs: should the server
+        register some of those as links, fewer files than announced are actually transferred.
     :param on_file_done: optional ``(filename, success)`` callback fired after each file's transfer,
         for successes and failures alike.
     :param audit_attributes: written verbatim as workunit custom attributes.
@@ -192,18 +211,33 @@ def upload_files(
             job_id = _create_upload_job(client, workunit_id)
         resources = rest.create_resources(workunit_id, to_upload)
         resources_by_name = _pair_resources_to_files(resources, to_upload)
-        import_resource_ids = [r.import_resource_id for r in resources if r.import_resource_id is not None]
-        token_result = rest.get_upload_token(workunit_id, [r.id for r in resources], import_resource_ids, job_id=job_id)
-        uploads, failures = _transfer_files(
-            to_upload,
-            resources_by_name,
-            token_result,
-            workunit_id=workunit_id,
-            container_id=container_id,
-            job_id=job_id,
-            on_progress=on_progress,
-            on_file_done=on_file_done,
-        )
+        # A linked resource already points at stored bytes and is created AVAILABLE, so it must be kept
+        # out of both the token request and the transfer loop; sending it would push bytes for a
+        # resource the server never expects an upload for.
+        transferable = [fi for fi in to_upload if not resources_by_name[fi.name].linked]
+        linked = [
+            _as_file_upload(fi.name, resource) for fi in to_upload if (resource := resources_by_name[fi.name]).linked
+        ]
+        if linked:
+            logger.info("{} file(s) registered as links to existing content; not transferring them.", len(linked))
+        uploads: list[FileUpload] = []
+        failures: list[FileFailure] = []
+        if transferable:
+            pending = [resources_by_name[fi.name] for fi in transferable]
+            import_resource_ids = [r.import_resource_id for r in pending if r.import_resource_id is not None]
+            token_result = rest.get_upload_token(
+                workunit_id, [r.id for r in pending], import_resource_ids, job_id=job_id
+            )
+            uploads, failures = _transfer_files(
+                transferable,
+                resources_by_name,
+                token_result,
+                workunit_id=workunit_id,
+                container_id=container_id,
+                job_id=job_id,
+                on_progress=on_progress,
+                on_file_done=on_file_done,
+            )
     except BaseException:
         # Mark the workunit failed (do NOT delete) so the partial state is diagnosable — see the
         # "Failure cleanup pattern" in operations_module.md.
@@ -211,9 +245,10 @@ def upload_files(
             mark_workunit_failed(client, workunit_id)
         raise
 
-    if not uploads:
+    if not uploads and not linked:
         # Every transfer failed: the workunit has no usable content, so flip it to failed (kept, not
-        # deleted). The per-file errors are returned for the caller to inspect.
+        # deleted). The per-file errors are returned for the caller to inspect. Linked resources are
+        # already AVAILABLE, so a run that only linked has real content despite transferring nothing.
         if created:
             mark_workunit_failed(client, workunit_id)
     elif created:
@@ -228,6 +263,7 @@ def upload_files(
         failed=len(failures),
         uploads=uploads,
         failures=failures,
+        linked=linked,
         job_id=job_id,
     )
 
@@ -270,20 +306,53 @@ def _select_files_to_upload(
             + " (name mismatch between the request and response); refusing to upload to avoid silently "
             "dropping files. Re-run with force=True to bypass the duplicate check."
         )
-    # Only "upload" (new file) and "skip" (exact duplicate already stored) are actionable here. Any
-    # other verdict -- notably "link", where the server wants a link to content-identical bytes rather
-    # than a re-upload -- is not implemented by upload_files; folding it into the skipped count would
-    # silently fail to register a file the user asked for. Fail loud instead.
-    unsupported = sorted(r.filename for r in results if r.action not in ("upload", "skip"))
+    # "upload" (new file) and "skip" (exact duplicate already stored) are always actionable; "link"
+    # (content-identical bytes already stored elsewhere) only when the caller opted in. Any other
+    # verdict is one we cannot act on, and folding it into the skipped count would silently fail to
+    # register a file the user asked for. Fail loud instead.
+    supported = ("upload", "skip", "link") if params.link_duplicates else ("upload", "skip")
+    unsupported = sorted(r.filename for r in results if r.action not in supported)
     if unsupported:
-        raise BfabricTransferError(
-            "check-duplicates requested an unsupported action (e.g. 'link') for: "
-            + ", ".join(unsupported)
-            + "; these are content-duplicates the server wants registered as links, which upload_files "
-            "does not support. Re-run with force=True to upload them as new resources."
+        # Point at link_duplicates only when 'link' is actually what we refused; any other verdict is
+        # one this client has no handling for at all, so force=True is the only way forward.
+        refused_link = any(r.action == "link" for r in results if r.filename in set(unsupported))
+        hint = (
+            "; these are content-duplicates the server wants registered as links. Re-run with "
+            "link_duplicates=True to register them as links, or force=True to upload them as new resources."
+            if refused_link
+            else "; upload_files cannot act on this verdict. Re-run with force=True to upload them as new resources."
         )
+        raise BfabricTransferError(
+            "check-duplicates requested an unsupported action for: " + ", ".join(unsupported) + hint
+        )
+
+    # Which files to link rather than transfer. A content-duplicate arrives as action "skip" with an
+    # existingResourceId (category exact_duplicate / renamed_duplicate) -- the server does not use
+    # action "link" for it -- so linking is driven by a skip verdict that names a resource to link to.
+    # An explicit "link" action is honoured too, for a server that does emit it.
+    # A skip without an existingResourceId has no link target, so it stays a plain skip.
+    link_ids: dict[str, int] = {}
+    if params.link_duplicates:
+        link_ids = {
+            r.filename: r.resource_id for r in results if r.action in ("skip", "link") and r.resource_id is not None
+        }
+
+    # An explicit "link" verdict with no id is unusable: we can neither link nor safely fall back to
+    # uploading (the server already told us not to), so fail loud rather than silently drop the file.
+    unusable = sorted(r.filename for r in results if r.action == "link" and r.resource_id is None)
+    if unusable:
+        raise BfabricTransferError(
+            "check-duplicates returned a 'link' verdict without an existingResourceId for: "
+            + ", ".join(unusable)
+            + "; cannot register a link without it. Re-run with force=True to upload them as new resources."
+        )
+
     upload_names = {r.filename for r in results if r.action == "upload"}
-    to_upload = [fi for fi in file_infos if fi.name in upload_names]
+    to_upload = [
+        replace(fi, link_from_resource_id=link_ids[fi.name]) if fi.name in link_ids else fi
+        for fi in file_infos
+        if fi.name in upload_names or fi.name in link_ids
+    ]
     return to_upload, len(file_infos) - len(to_upload)
 
 
@@ -377,17 +446,19 @@ def _transfer_files(
             if on_file_done is not None:
                 on_file_done(file_info.name, False)
             continue
-        uploads.append(
-            FileUpload(
-                filename=file_info.name,
-                resource_id=resource.id,
-                storage_path=resource.storage_path or "",
-                import_resource_id=resource.import_resource_id,
-            )
-        )
+        uploads.append(_as_file_upload(file_info.name, resource))
         if on_file_done is not None:
             on_file_done(file_info.name, True)
     return uploads, failures
+
+
+def _as_file_upload(filename: str, resource: CreatedResource) -> FileUpload:
+    return FileUpload(
+        filename=filename,
+        resource_id=resource.id,
+        storage_path=resource.storage_path or "",
+        import_resource_id=resource.import_resource_id,
+    )
 
 
 def _make_file_progress(on_progress: FileProgressCallback | None, filename: str) -> Callable[[int, int], None] | None:

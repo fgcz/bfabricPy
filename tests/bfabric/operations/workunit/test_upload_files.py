@@ -67,8 +67,8 @@ def _created(*names: str) -> list[CreatedResource]:
     ]
 
 
-def _dupes(**action_by_name: str) -> list[DuplicateResult]:
-    return [DuplicateResult(filename=name, category="new", action=action) for name, action in action_by_name.items()]
+def _dupes(*, category: str = "new", **action_by_name: str) -> list[DuplicateResult]:
+    return [DuplicateResult(filename=name, category=category, action=action) for name, action in action_by_name.items()]
 
 
 def _params(**overrides) -> UploadFilesParams:
@@ -225,6 +225,246 @@ class TestDuplicateCheck:
             upload_files(mock_client, [Path("/src/a.txt")], _params())
         assert _create_payload(mock_client) is None
         mock_send.assert_not_called()
+
+
+class TestNestedNames:
+    """Nested (sub-directory) resource names, which the server now echoes back verbatim."""
+
+    def test_uploads_nested_names_without_tripping_guards(self, mock_client, rest, mock_collect, mock_send):
+        # Previously the server normalized "sub/nested.raw" to its basename, so the verdict- and
+        # resource-pairing guards fired and the upload was refused. With names echoed verbatim, both
+        # guards see matching names and the upload proceeds.
+        names = ("sub/nested.raw", "other/nested.raw")
+        mock_collect.return_value = _file_infos(*names)
+        rest.check_duplicates.return_value = _dupes(**{n: "upload" for n in names})
+        rest.create_resources.return_value = _created(*names)
+        rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
+
+        summary = upload_files(mock_client, [Path("/src")], _params())
+
+        # Two files sharing a basename in different subdirectories stay distinct.
+        assert summary.uploaded == 2
+        assert {u.filename for u in summary.uploads} == set(names)
+        assert {u.storage_path for u in summary.uploads} == {f"/store/{n}" for n in names}
+        assert mock_send.call_count == 2
+
+    def test_renamed_duplicate_is_skipped_not_rejected(self, mock_client, rest, mock_collect, mock_send):
+        # A nested re-upload now reports category "renamed_duplicate" (name-matching misses on a
+        # subpath, so detection falls back to MD5) rather than "exact_duplicate". Both carry
+        # action "skip", and the client branches on action -> it must still count as skipped.
+        mock_collect.return_value = _file_infos("sub/nested.raw")
+        rest.check_duplicates.return_value = _dupes(category="renamed_duplicate", **{"sub/nested.raw": "skip"})
+
+        summary = upload_files(mock_client, [Path("/src")], _params())
+
+        assert summary.skipped == 1
+        assert summary.uploaded == 0
+        mock_send.assert_not_called()
+
+
+class TestLinkDuplicates:
+    """``link_duplicates=True`` links a duplicate to existing content instead of skipping/failing.
+
+    The server reports a content-duplicate as ``exact_duplicate``/``renamed_duplicate`` carrying
+    ``action: "skip"`` plus an ``existingResourceId`` -- *not* ``action: "link"``. Linking is therefore
+    driven by a skip verdict that names a resource to link to.
+    """
+
+    def test_skip_verdict_with_existing_resource_is_linked(self, mock_client, rest, mock_collect, mock_send):
+        mock_collect.return_value = _file_infos("a.txt", "b.txt")
+        rest.check_duplicates.return_value = [
+            DuplicateResult(filename="a.txt", category="new", action="upload"),
+            DuplicateResult(filename="b.txt", category="exact_duplicate", action="skip", resource_id=4711),
+        ]
+        created = _created("a.txt", "b.txt")
+        created[1].linked = True
+        rest.create_resources.return_value = created
+        rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
+
+        summary = upload_files(mock_client, [Path("/src/a.txt"), Path("/src/b.txt")], _params(link_duplicates=True))
+
+        sent = rest.create_resources.call_args.args[1]
+        assert [(fi.name, fi.link_from_resource_id) for fi in sent] == [("a.txt", None), ("b.txt", 4711)]
+        assert mock_send.call_count == 1
+        assert [u.filename for u in summary.uploads] == ["a.txt"]
+        assert [u.filename for u in summary.linked] == ["b.txt"]
+        assert (summary.uploaded, summary.linked_count, summary.skipped, summary.failed) == (1, 1, 0, 0)
+
+    def test_renamed_duplicate_is_linked(self, mock_client, rest, mock_collect, mock_send):
+        # The nested-folder case: MD5-matched under a different name, so category is renamed_duplicate.
+        mock_collect.return_value = _file_infos("sub/nested.raw")
+        rest.check_duplicates.return_value = [
+            DuplicateResult(filename="sub/nested.raw", category="renamed_duplicate", action="skip", resource_id=4711)
+        ]
+        created = _created("sub/nested.raw")
+        created[0].linked = True
+        rest.create_resources.return_value = created
+
+        summary = upload_files(mock_client, [Path("/src")], _params(link_duplicates=True))
+
+        assert [fi.link_from_resource_id for fi in rest.create_resources.call_args.args[1]] == [4711]
+        assert [u.filename for u in summary.linked] == ["sub/nested.raw"]
+        assert (summary.uploaded, summary.linked_count, summary.skipped) == (0, 1, 0)
+
+    def test_skip_without_existing_resource_is_still_skipped(self, mock_client, rest, mock_collect, mock_send):
+        # Nothing to link to -> the plain skip behaviour stands, and no resource is created.
+        mock_collect.return_value = _file_infos("a.txt")
+        rest.check_duplicates.return_value = [
+            DuplicateResult(filename="a.txt", category="exact_duplicate", action="skip", resource_id=None)
+        ]
+
+        summary = upload_files(mock_client, [Path("/src/a.txt")], _params(link_duplicates=True))
+
+        rest.create_resources.assert_not_called()
+        mock_send.assert_not_called()
+        assert (summary.uploaded, summary.linked_count, summary.skipped) == (0, 0, 1)
+
+    def test_skip_is_not_linked_when_disabled(self, mock_client, rest, mock_collect, mock_send):
+        # Opt-in: by default a duplicate is skipped outright, even when a link target is offered.
+        mock_collect.return_value = _file_infos("a.txt")
+        rest.check_duplicates.return_value = [
+            DuplicateResult(filename="a.txt", category="exact_duplicate", action="skip", resource_id=4711)
+        ]
+
+        summary = upload_files(mock_client, [Path("/src/a.txt")], _params())
+
+        rest.create_resources.assert_not_called()
+        assert (summary.uploaded, summary.linked_count, summary.skipped) == (0, 0, 1)
+
+    def test_link_verdict_registers_link_and_skips_transfer(self, mock_client, rest, mock_collect, mock_send):
+        mock_collect.return_value = _file_infos("a.txt", "b.txt")
+        rest.check_duplicates.return_value = [
+            DuplicateResult(filename="a.txt", category="new", action="upload"),
+            DuplicateResult(filename="b.txt", category="renamed_duplicate", action="link", resource_id=4711),
+        ]
+        created = _created("a.txt", "b.txt")
+        created[1].linked = True
+        rest.create_resources.return_value = created
+        rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
+
+        summary = upload_files(mock_client, [Path("/src/a.txt"), Path("/src/b.txt")], _params(link_duplicates=True))
+
+        # The link verdict's existingResourceId is passed back as linkFromResourceId.
+        sent = rest.create_resources.call_args.args[1]
+        assert [(fi.name, fi.link_from_resource_id) for fi in sent] == [("a.txt", None), ("b.txt", 4711)]
+        # Only the uploaded file's bytes move; the linked one is reported separately from uploads.
+        assert mock_send.call_count == 1
+        assert [u.filename for u in summary.uploads] == ["a.txt"]
+        assert [u.filename for u in summary.linked] == ["b.txt"]
+        assert (summary.uploaded, summary.linked_count, summary.skipped, summary.failed) == (1, 1, 0, 0)
+
+    def test_link_verdict_still_rejected_when_disabled(self, mock_client, rest, mock_collect, mock_send):
+        # Default is opt-in: without link_duplicates the old hard error stands.
+        mock_collect.return_value = _file_infos("a.txt")
+        rest.check_duplicates.return_value = _dupes(**{"a.txt": "link"})
+
+        with pytest.raises(BfabricTransferError, match="link"):
+            upload_files(mock_client, [Path("/src/a.txt")], _params())
+
+        assert _create_payload(mock_client) is None
+        mock_send.assert_not_called()
+
+    def test_all_linked_completes_workunit_without_token(self, mock_client, rest, mock_collect, mock_send):
+        mock_collect.return_value = _file_infos("a.txt")
+        rest.check_duplicates.return_value = [
+            DuplicateResult(filename="a.txt", category="exact_duplicate", action="link", resource_id=4711)
+        ]
+        created = _created("a.txt")
+        created[0].linked = True
+        rest.create_resources.return_value = created
+
+        summary = upload_files(mock_client, [Path("/src/a.txt")], _params(link_duplicates=True))
+
+        # Nothing to transfer, but the resource exists -> complete, never mark failed.
+        rest.get_upload_token.assert_not_called()
+        mock_send.assert_not_called()
+        assert _status_updates(mock_client) == ["available"]
+        assert (summary.uploaded, summary.linked_count) == (0, 1)
+        assert [u.filename for u in summary.linked] == ["a.txt"]
+
+    def test_link_without_existing_resource_id_rejected(self, mock_client, rest, mock_collect, mock_send):
+        # A "link" verdict with no existingResourceId is unusable: linking is the only handling we
+        # have for it, and we cannot link to nothing. Fail loud rather than silently drop the file.
+        mock_collect.return_value = _file_infos("a.txt")
+        rest.check_duplicates.return_value = [
+            DuplicateResult(filename="a.txt", category="renamed_duplicate", action="link", resource_id=None)
+        ]
+
+        with pytest.raises(BfabricTransferError, match="existingResourceId"):
+            upload_files(mock_client, [Path("/src/a.txt")], _params(link_duplicates=True))
+
+        assert _create_payload(mock_client) is None
+        mock_send.assert_not_called()
+
+    def test_unknown_action_still_rejected(self, mock_client, rest, mock_collect, mock_send):
+        # link_duplicates only teaches the client about "link" -- other unknown actions still fail.
+        mock_collect.return_value = _file_infos("a.txt")
+        rest.check_duplicates.return_value = _dupes(**{"a.txt": "quarantine"})
+
+        with pytest.raises(BfabricTransferError):
+            upload_files(mock_client, [Path("/src/a.txt")], _params(link_duplicates=True))
+
+    def test_unknown_action_hint_does_not_suggest_linking(self, mock_client, rest, mock_collect, mock_send):
+        # A non-link verdict must not be described as a content-duplicate: suggesting link_duplicates
+        # here would send the user down a path that cannot resolve it.
+        mock_collect.return_value = _file_infos("a.txt")
+        rest.check_duplicates.return_value = _dupes(**{"a.txt": "quarantine"})
+
+        with pytest.raises(BfabricTransferError, match="force=True") as excinfo:
+            upload_files(mock_client, [Path("/src/a.txt")], _params())
+
+        assert "link_duplicates" not in str(excinfo.value)
+
+    def test_force_bypasses_linking_entirely(self, mock_client, rest, mock_collect, mock_send):
+        # force skips the duplicate check, so there are no verdicts and nothing can be linked.
+        mock_collect.return_value = _file_infos("a.txt")
+        rest.create_resources.return_value = _created("a.txt")
+        rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
+
+        summary = upload_files(mock_client, [Path("/src/a.txt")], _params(force=True, link_duplicates=True))
+
+        rest.check_duplicates.assert_not_called()
+        assert [fi.link_from_resource_id for fi in rest.create_resources.call_args.args[1]] == [None]
+        assert (summary.uploaded, summary.linked_count) == (1, 0)
+
+
+class TestLinkedResources:
+    """``create-resources`` may return already-AVAILABLE linked resources, which carry no bytes."""
+
+    def test_linked_resource_is_not_transferred_or_initiated(self, mock_client, rest, mock_collect, mock_send):
+        mock_collect.return_value = _file_infos("a.txt", "b.txt")
+        rest.check_duplicates.return_value = _dupes(**{"a.txt": "upload", "b.txt": "upload"})
+        created = _created("a.txt", "b.txt")
+        created[1].linked = True
+        rest.create_resources.return_value = created
+        rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
+
+        summary = upload_files(mock_client, [Path("/src/a.txt"), Path("/src/b.txt")], _params())
+
+        # The linked resource has no bytes to send: excluded from initiate's ids and never transferred.
+        assert rest.get_upload_token.call_args.args[1] == [created[0].id]
+        assert rest.get_upload_token.call_args.args[2] == [created[0].import_resource_id]
+        assert mock_send.call_count == 1
+        assert [u.filename for u in summary.uploads] == ["a.txt"]
+        assert [u.filename for u in summary.linked] == ["b.txt"]
+        assert (summary.uploaded, summary.linked_count, summary.skipped, summary.failed) == (1, 1, 0, 0)
+
+    def test_all_linked_skips_transfer_entirely(self, mock_client, rest, mock_collect, mock_send):
+        # Nothing to transfer, but the resources were registered -> the workunit must still complete
+        # rather than be marked failed by the "no uploads" branch.
+        mock_collect.return_value = _file_infos("a.txt")
+        rest.check_duplicates.return_value = _dupes(**{"a.txt": "upload"})
+        created = _created("a.txt")
+        created[0].linked = True
+        rest.create_resources.return_value = created
+
+        summary = upload_files(mock_client, [Path("/src/a.txt")], _params())
+
+        mock_send.assert_not_called()
+        rest.get_upload_token.assert_not_called()
+        assert (summary.uploaded, summary.linked_count, summary.skipped) == (0, 1, 0)
+        assert [u.filename for u in summary.linked] == ["a.txt"]
+        assert _status_updates(mock_client) == ["available"]
 
 
 class TestFailureCleanup:
