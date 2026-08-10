@@ -2,6 +2,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 import tomllib
 from collections.abc import Generator
 from contextlib import contextmanager
@@ -574,3 +575,19 @@ def test_distributions(session):
         session.log("")
 
     session.log("All compatible packages tested successfully!")
+
+
+@nox.session(venv_backend="none", default=False)
+def diffstat(session):
+    """Summarize the branch's diff as added/removed/net lines, grouped by directory.
+
+    Thin wrapper around `.scripts/diffstat.py`, which needs no dependencies; every argument is
+    forwarded, so `nox -s diffstat -- --help` is the authoritative list of options.
+
+    Usage:
+        nox -s diffstat                                 # vs merge base with main, 2 levels deep
+        nox -s diffstat -- --base release --depth 1
+        nox -s diffstat -- -x tests -x '*/docs/*'       # drop paths from the table and totals
+    """
+    script = Path(__file__).parent / ".scripts" / "diffstat.py"
+    session.run(sys.executable, str(script), *session.posargs, external=True)
