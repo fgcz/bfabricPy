@@ -44,19 +44,15 @@ class CommandExec(BaseModel):
 
 
 class MountOptions(BaseModel):
-    """Bind mounts to expose inside the container.
-
-    Only the host side of a mount is resolved relative to the spec file; the container paths are
-    interpreted inside the container and are never rewritten to a host location.
-    """
+    """Bind mounts to expose inside the container."""
 
     model_config = ConfigDict(extra="forbid")
     work_dir_target: Path | None = None
     """Container path to mount the work directory at; ``None`` reuses the host work-directory path."""
     read_only: list[tuple[SpecRelativePath, Path]] = []
-    """Read-only bind mounts, each a ``(host_path, container_path)`` pair."""
+    """Read-only bind mounts, each a ``(host_path, container_path)`` pair; only the host side is spec-relative."""
     writeable: list[tuple[SpecRelativePath, Path]] = []
-    """Writeable bind mounts, each a ``(host_path, container_path)`` pair."""
+    """Writeable bind mounts, each a ``(host_path, container_path)`` pair; only the host side is spec-relative."""
     share_bfabric_config: bool = True
     """If True, mount the host's ``~/.bfabricpy.yml`` into the container (read-only)."""
 

@@ -20,8 +20,7 @@ class VariablesApp(BaseModel):
     name: str
     version: str
     dir: Path | None = None
-    """Directory of the app spec file, for paths that a spec field cannot resolve (e.g. inside a
-    command string). ``None`` outside the app spec, where there is no such file."""
+    """Directory of the app spec file (``None`` outside the app spec), for paths no spec field resolves."""
 
     @field_validator("name", mode="before")
     def validate_safe_name(cls, value: str) -> str:

@@ -7,7 +7,6 @@ import yaml
 from pydantic import BaseModel, field_validator
 
 from bfabric_app_runner.specs.app.app_version import AppVersion, AppVersionMultiTemplate
-from bfabric_app_runner.specs.common_types import spec_dir
 from bfabric_app_runner.specs.config_interpolation import VariablesApp
 
 if TYPE_CHECKING:
@@ -45,14 +44,11 @@ class AppSpecTemplate(BaseModel):
     @classmethod
     def for_yaml(cls, path: Path) -> AppSpecTemplate:
         """Parses the app spec template, resolving relative paths against the file's directory."""
-        return cls.model_validate(yaml.safe_load(path.read_text()), context={"spec_dir": spec_dir(path)})
+        return cls.model_validate(yaml.safe_load(path.read_text()), context={"spec_dir": path.resolve().parent})
 
     # TODO this should take the variables as param instead
     def evaluate(self, app_id: int, app_name: str, app_dir: Path | None) -> AppSpec:
-        """Evaluates the template to a concrete ``AppSpec`` instance.
-
-        ``app_dir`` becomes ``${app.dir}``; pass ``None`` only when the spec did not come from a file.
-        """
+        """Evaluates the template to a concrete ``AppSpec`` instance, with ``app_dir`` as ``${app.dir}``."""
         version_templates = [expanded for version in self.versions for expanded in version.expand_versions()]
         versions = []
         for version_template in version_templates:
@@ -84,7 +80,7 @@ class AppSpec(BaseModel):
     def load_yaml(cls, app_yaml: Path, app_id: int | str, app_name: str) -> AppSpec:
         """Loads the app versions from the provided YAML file and evaluates the templates."""
         app_spec_file = AppSpecTemplate.for_yaml(app_yaml)
-        return app_spec_file.evaluate(app_id=int(app_id), app_name=str(app_name), app_dir=spec_dir(app_yaml))
+        return app_spec_file.evaluate(app_id=int(app_id), app_name=str(app_name), app_dir=app_yaml.resolve().parent)
 
     @property
     def available_versions(self) -> set[str]:
