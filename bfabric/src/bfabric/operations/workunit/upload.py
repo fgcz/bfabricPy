@@ -111,18 +111,16 @@ class UploadSummary:
     skipped: int
     """Duplicates the check reported as already stored; no resource was created for them."""
     failed: int
+    linked: int = 0
+    """Files registered as links to already-stored bytes: a resource exists, but nothing was
+    transferred. Distinct from ``skipped``, where no resource was created at all. See ``links``."""
     uploads: list[FileUpload] = field(default_factory=list)
     failures: list[FileFailure] = field(default_factory=list)
-    linked: list[FileUpload] = field(default_factory=list)
-    """Files registered as links to already-stored bytes: a resource exists, but nothing was
-    transferred. Distinct from ``skipped``, where no resource was created at all."""
+    links: list[FileUpload] = field(default_factory=list)
+    """The resources created by linking (the detail behind ``linked``, as ``uploads`` is for
+    ``uploaded``); their bytes were never transferred by this run."""
     job_id: int | None = None
     """The tracking job's id when ``track_job`` was set, else ``None``."""
-
-    @property
-    def linked_count(self) -> int:
-        """Number of files registered as links (the counterpart to ``uploaded`` for ``linked``)."""
-        return len(self.linked)
 
 
 def upload_files(
@@ -215,11 +213,11 @@ def upload_files(
         # out of both the token request and the transfer loop; sending it would push bytes for a
         # resource the server never expects an upload for.
         transferable = [fi for fi in to_upload if not resources_by_name[fi.name].linked]
-        linked = [
+        links = [
             _as_file_upload(fi.name, resource) for fi in to_upload if (resource := resources_by_name[fi.name]).linked
         ]
-        if linked:
-            logger.info("{} file(s) registered as links to existing content; not transferring them.", len(linked))
+        if links:
+            logger.info("{} file(s) registered as links to existing content; not transferring them.", len(links))
         uploads: list[FileUpload] = []
         failures: list[FileFailure] = []
         if transferable:
@@ -245,7 +243,7 @@ def upload_files(
             mark_workunit_failed(client, workunit_id)
         raise
 
-    if not uploads and not linked:
+    if not uploads and not links:
         # Every transfer failed: the workunit has no usable content, so flip it to failed (kept, not
         # deleted). The per-file errors are returned for the caller to inspect. Linked resources are
         # already AVAILABLE, so a run that only linked has real content despite transferring nothing.
@@ -261,9 +259,10 @@ def upload_files(
         uploaded=len(uploads),
         skipped=skipped,
         failed=len(failures),
+        linked=len(links),
         uploads=uploads,
         failures=failures,
-        linked=linked,
+        links=links,
         job_id=job_id,
     )
 
