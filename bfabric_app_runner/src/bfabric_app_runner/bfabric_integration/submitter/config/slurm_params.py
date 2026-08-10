@@ -29,7 +29,7 @@ class SlurmParameters(BaseModel):
     submitter_params: dict[str, str | int | None]
     """Allows setting arbitrary parameters."""
     app_params: dict[str, str | int | None] = {}
-    """The app version's ``submitter_params``; see :func:`_evaluate_app_params`."""
+    """The ``submitter_params`` declared by the app version that this workunit runs."""
     job_script: Path
     """The path to store job script."""
     workunit_params: SlurmWorkunitParams

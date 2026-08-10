@@ -9,8 +9,8 @@ from bfabric_app_runner.specs.app.commands_spec import CommandsSpec
 from bfabric_app_runner.specs.config_interpolation import interpolate_config_strings, VariablesApp
 
 RESERVED_SBATCH_FLAGS = frozenset({"--chdir", "--error", "--export", "--output"})
-"""Flags the submitter owns: they carry the job's logging, working directory and environment (including the
-shims placed on ``PATH``), so an app overriding them would break the job rather than just resize it."""
+"""Flags the submitter owns: they carry the job's logging, working directory and the environment the job body
+relies on, so an app overriding one would break the job rather than just resize it."""
 
 DURATION_SBATCH_FLAGS = frozenset({"--time", "--time-min"})
 """Flags whose SLURM format collides with YAML's sexagesimal integers, so they have to be quoted."""
