@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from bfabric_app_runner.bfabric_integration.submitter.config.slurm_params import (
+    _evaluate_app_params,
     _SlurmConfigFileTemplate,
     SlurmParameters,
 )
@@ -66,6 +67,94 @@ def test_slurm_parameters_creation(mocker):
     # Verify all values are strings
     for value in sbatch_params.values():
         assert isinstance(value, str)
+
+
+class TestSbatchParamsPrecedence:
+    """The three parameter sources merge as submitter.yml < app.yml < workunit."""
+
+    @staticmethod
+    def _params(submitter_params, app_params, workunit_params) -> SlurmParameters:
+        return SlurmParameters(
+            submitter_params=submitter_params,
+            app_params=app_params,
+            job_script="/path/to/job.sh",
+            workunit_params=SlurmWorkunitParams.model_validate(workunit_params),
+            scratch_root="/scratch",
+        )
+
+    def test_app_overrides_submitter(self):
+        params = self._params({"--mem": "256G"}, {"--mem": "512G"}, {})
+        assert params.sbatch_params["--mem"] == "512G"
+
+    def test_workunit_overrides_app(self):
+        params = self._params({"--mem": "256G"}, {"--mem": "512G"}, {"--mem": "960G"})
+        assert params.sbatch_params["--mem"] == "960G"
+
+    def test_app_params_add_new_flags(self):
+        params = self._params({"--mem": "256G"}, {"--cpus-per-task": 24}, {})
+        assert params.sbatch_params == {"--mem": "256G", "--cpus-per-task": "24"}
+
+    def test_app_null_drops_submitter_default(self):
+        params = self._params({"--nodelist": "fgcz-r-024"}, {"--nodelist": None}, {})
+        assert "--nodelist" not in params.sbatch_params
+
+    def test_app_params_default_to_empty(self):
+        params = SlurmParameters(
+            submitter_params={"--mem": "256G"},
+            job_script="/path/to/job.sh",
+            workunit_params=SlurmWorkunitParams(),
+            scratch_root="/scratch",
+        )
+        assert params.sbatch_params == {"--mem": "256G"}
+
+
+class TestEvaluateAppParams:
+    """Reading ``submitter_params`` out of the app.yml must never block a submission."""
+
+    @pytest.fixture()
+    def app_yaml(self, tmp_path) -> Path:
+        path = tmp_path / "app.yml"
+        path.write_text(
+            "bfabric:\n"
+            "  app_runner: 0.7.0\n"
+            "versions:\n"
+            "  - version: '1.0.0'\n"
+            "    commands:\n"
+            "      dispatch: {type: shell, command: d}\n"
+            "      process: {type: shell, command: p}\n"
+            "    submitter_params:\n"
+            "      --cpus-per-task: 24\n"
+        )
+        return path
+
+    @pytest.fixture()
+    def workunit(self, mocker, app_yaml):
+        workunit = mocker.MagicMock(name="workunit")
+        workunit.id = 42
+        workunit.application.id = 1000
+        workunit.application.__getitem__.side_effect = {"name": "MyApp"}.__getitem__
+        workunit.application.executable.__getitem__.side_effect = {"program": str(app_yaml)}.__getitem__
+        workunit.application_parameters = {"application_version": "1.0.0"}
+        return workunit
+
+    def test_returns_params_of_resolved_version(self, workunit):
+        assert _evaluate_app_params(workunit) == {"--cpus-per-task": 24}
+
+    def test_missing_app_yaml_returns_empty(self, workunit, tmp_path):
+        workunit.application.executable.__getitem__.side_effect = {"program": str(tmp_path / "nope.yml")}.__getitem__
+        assert _evaluate_app_params(workunit) == {}
+
+    def test_unparseable_app_yaml_returns_empty(self, workunit, app_yaml):
+        app_yaml.write_text("versions: [{oops")
+        assert _evaluate_app_params(workunit) == {}
+
+    def test_unknown_version_returns_empty(self, workunit):
+        workunit.application_parameters = {"application_version": "9.9.9"}
+        assert _evaluate_app_params(workunit) == {}
+
+    def test_absent_version_parameter_returns_empty(self, workunit):
+        workunit.application_parameters = {}
+        assert _evaluate_app_params(workunit) == {}
 
 
 def test_template_with_app_variables():

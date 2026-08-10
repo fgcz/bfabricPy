@@ -1,11 +1,38 @@
 from __future__ import annotations
 
-from typing import Any
+import re
+from typing import Annotated, Any
 
-from pydantic import BaseModel, field_validator
+from pydantic import AfterValidator, BaseModel, StringConstraints, field_validator
 
 from bfabric_app_runner.specs.app.commands_spec import CommandsSpec
 from bfabric_app_runner.specs.config_interpolation import interpolate_config_strings, VariablesApp
+
+RESERVED_SBATCH_FLAGS = frozenset({"--chdir", "--error", "--export", "--output"})
+"""Flags the submitter owns: they carry the job's logging, working directory and environment (including the
+shims placed on ``PATH``), so an app overriding them would break the job rather than just resize it."""
+
+_WORKUNIT_VARIABLE = re.compile(r"\$\{\s*workunit\b")
+
+
+def _check_submitter_params(value: dict[str, str | int | None]) -> dict[str, str | int | None]:
+    """Rejects flags the app spec may not set, and variables that are not in scope when it is evaluated."""
+    for flag, flag_value in value.items():
+        if any(character in flag for character in "= \t"):
+            raise ValueError(f"Invalid sbatch flag {flag!r}: a flag must not contain '=' or whitespace")
+        if flag in RESERVED_SBATCH_FLAGS:
+            raise ValueError(f"The flag {flag!r} is reserved by the submitter and cannot be set by an app")
+        if isinstance(flag_value, str) and _WORKUNIT_VARIABLE.search(flag_value):
+            raise ValueError(
+                f"The flag {flag!r} uses ${{workunit...}}, which is not available in an app spec; use ${{app...}}"
+            )
+    return value
+
+
+SubmitterParams = Annotated[
+    dict[Annotated[str, StringConstraints(pattern=r"^--")], str | int | None],
+    AfterValidator(_check_submitter_params),
+]
 
 
 class AppVersion(BaseModel):
@@ -19,6 +46,10 @@ class AppVersion(BaseModel):
 
     commands: CommandsSpec
     """The dispatch, process, and (optional) collect commands that implement this version."""
+
+    submitter_params: SubmitterParams = {}
+    """Extra ``sbatch`` flags for this version, e.g. ``{"--cpus-per-task": 24}``. They override the submitter's
+    own defaults, and a ``null`` value removes a flag the submitter would otherwise pass."""
 
     # TODO remove when new submitter becomes available
     reuse_default_resource: bool = True
@@ -34,6 +65,10 @@ class AppVersionTemplate(BaseModel):
 
     commands: CommandsSpec
     """The dispatch, process, and (optional) collect commands that implement this version."""
+
+    submitter_params: SubmitterParams = {}
+    """Extra ``sbatch`` flags for this version, e.g. ``{"--cpus-per-task": 24}``. They override the submitter's
+    own defaults, and a ``null`` value removes a flag the submitter would otherwise pass."""
 
     # TODO remove when new submitter becomes available
     reuse_default_resource: bool = True
@@ -58,6 +93,10 @@ class AppVersionMultiTemplate(BaseModel):
 
     commands: CommandsSpec
     """The dispatch, process, and (optional) collect commands that implement these versions."""
+
+    submitter_params: SubmitterParams = {}
+    """Extra ``sbatch`` flags shared by these versions, e.g. ``{"--cpus-per-task": 24}``. They override the
+    submitter's own defaults, and a ``null`` value removes a flag the submitter would otherwise pass."""
 
     # TODO remove when new submitter becomes available
     reuse_default_resource: bool = True
