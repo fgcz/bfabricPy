@@ -4,8 +4,9 @@ import functools
 import inspect
 import os
 import sys
+import traceback
 from pathlib import Path
-from typing import TYPE_CHECKING, Annotated, TypeVar, cast
+from typing import TYPE_CHECKING, Annotated, NoReturn, TypeVar, cast
 
 from loguru import logger
 from rich.highlighter import RegexHighlighter
@@ -33,49 +34,29 @@ def use_client(fn: Callable[..., T], setup_logging: bool = True) -> Callable[...
     """
     from bfabric import Bfabric
 
-    # Get the original signature
     sig = inspect.signature(fn)
-
-    # Create new parameters without the client parameter, then append config overrides
     params = [param for name, param in sig.parameters.items() if name != "client"]
 
-    # Create a new signature without the client parameter, then append config overrides
     _config_env_help = (
         "Override the config environment (e.g. 'TEST'). "
         "Falls back to BFABRICPY_CONFIG_ENV env var or the config file default."
     )
+    _config_file_help = "Override the config file path (default: ~/.bfabricpy.yml)."
     try:
         import cyclopts  # pyright: ignore[reportMissingImports]
 
-        config_env_annotation = Annotated[
-            str | None,
-            cyclopts.Parameter(  # pyright: ignore[reportUnknownMemberType]
-                help=_config_env_help,
-            ),
-        ]
-        config_file_annotation = Annotated[
-            Path | None,
-            cyclopts.Parameter(  # pyright: ignore[reportUnknownMemberType]
-                help="Override the config file path (default: ~/.bfabricpy.yml)."
-            ),
-        ]
+        parameter = cyclopts.Parameter  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+        config_env_annotation = Annotated[str | None, parameter(help=_config_env_help)]
+        config_file_annotation = Annotated[Path | None, parameter(help=_config_file_help)]
     except ImportError:
         config_env_annotation = str | None
         config_file_annotation = Path | None
 
+    kw_only = inspect.Parameter.KEYWORD_ONLY
+    env_default = os.environ.get("BFABRICPY_CONFIG_ENV")
     params += [
-        inspect.Parameter(
-            "config_env",
-            inspect.Parameter.KEYWORD_ONLY,
-            default=os.environ.get("BFABRICPY_CONFIG_ENV"),
-            annotation=config_env_annotation,
-        ),
-        inspect.Parameter(
-            "config_file",
-            inspect.Parameter.KEYWORD_ONLY,
-            default=None,
-            annotation=config_file_annotation,
-        ),
+        inspect.Parameter("config_env", kw_only, default=env_default, annotation=config_env_annotation),
+        inspect.Parameter("config_file", kw_only, default=None, annotation=config_file_annotation),
     ]
     new_sig = sig.replace(parameters=params)
 
@@ -94,17 +75,25 @@ def use_client(fn: Callable[..., T], setup_logging: bool = True) -> Callable[...
                     config_file_env=config_env or "default",
                 )
             except (ValueError, RuntimeError) as e:
-                print(f"Error: {e}", file=sys.stderr)
-                sys.exit(1)
+                _report_and_exit(e)
         try:
             return fn(*args, client=client, **kwargs)  # type: ignore[arg-type]
         except RuntimeError as e:
-            print(f"Error: {e}", file=sys.stderr)
-            sys.exit(1)
+            _report_and_exit(e)
 
-    # Update the signature of the wrapper
     wrapper.__signature__ = new_sig  # type: ignore[reportAttributeAccessIssue]
     return wrapper
+
+
+def _report_and_exit(error: Exception) -> NoReturn:
+    """Reports ``error`` as a single stderr line and exits 1, keeping the traceback for DEBUG runs.
+
+    Not ``logger.opt(exception=...)``: the DEBUG sink runs with loguru's default ``diagnose=True``,
+    which annotates each frame with its locals — including whole environments passed to subprocesses.
+    """
+    logger.debug(f"Traceback of the error reported below:\n{traceback.format_exc()}")
+    print(f"Error: {error}", file=sys.stderr)
+    sys.exit(1)
 
 
 DEFAULT_THEME = Theme({"bfabric.hostname": "bold red"})
@@ -117,10 +106,15 @@ class HostnameHighlighter(RegexHighlighter):
     highlights = [r"https://(?P<hostname>[^.]+)"]
 
 
+_logging_configured = False
+"""Whether this process configured its sinks. Process-local rather than an env var, which children
+inherit — that made a subprocess skip setup and fall back to loguru's default DEBUG handler."""
+
+
 def setup_script_logging(debug: bool = False) -> None:
     """Sets up the logging for the command line scripts."""
-    setup_flag_key = "BFABRICPY_SCRIPT_LOGGING_SETUP"
-    if os.environ.get(setup_flag_key, "0") == "1":
+    global _logging_configured  # noqa: PLW0603 -- a one-shot guard is process-wide state by definition
+    if _logging_configured:
         return
 
     packages = ["bfabric", "bfabric_scripts", "bfabric_app_runner", "__main__"]
@@ -148,4 +142,4 @@ def setup_script_logging(debug: bool = False) -> None:
         for package in packages:
             _ = logger.add(sys.stderr, filter=package, level=level, format="{level} {message}")
 
-    os.environ[setup_flag_key] = "1"
+    _logging_configured = True

@@ -9,6 +9,8 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+- `setup_script_logging` now guards against repeated setup with a process-local flag instead of the `BFABRICPY_SCRIPT_LOGGING_SETUP` environment variable. Children inherited that variable, so any subprocess (e.g. the `bfabric-app-runner action` invoked by a prepared workunit's Makefile) skipped setup entirely and fell back to loguru's default handler — full timestamp/source format, at DEBUG level. Subprocesses now configure their own sinks and honor `BFABRICPY_LOG_LEVEL`.
+- `use_client` now logs the traceback of the error it reports at DEBUG, so `BFABRICPY_LOG_LEVEL=DEBUG` recovers it. Previously the traceback of a `RuntimeError`-derived error was discarded unconditionally. The one-line `Error: <message>` output and exit code 1 are unchanged.
 - `MultiQuery.read_multi` now reserves query elements for the other fields of `obj` when chunking, since the API counts every value in a query towards its limit of 100 elements. Previously e.g. `read_multi("importresource", {"containerid": cid}, "relativepath", paths)` failed with "Query has 101 elements and exceeds the maximum of 100 allowed elements" as soon as 100 paths were passed. A query whose other fields already use up the limit now raises `ValueError` instead of being sent.
 
 ## \[1.20.0\] - 2026-08-03

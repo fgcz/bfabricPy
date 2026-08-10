@@ -4,6 +4,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+- A failing app command now reports as a single `Error: Command failed with exit code N: <command>` line instead of stacking ~10 frames of app-runner boilerplate under the app's own error output ([#231](https://github.com/fgcz/bfabricPy/issues/231)). Commands raise the new `CommandFailedError`, which the CLI renders without a traceback; `BFABRICPY_LOG_LEVEL=DEBUG` still shows it. A genuine app-runner bug (e.g. a `TypeError`) keeps its full traceback as before.
+- `run workunit` no longer prints a second traceback when `make run-all` fails; it reports one line naming the workunit, exit code, and work directory. The workunit is still marked `failed`.
+- Captured command output (`uv venv` / `uv pip install` / `uv pip list`) is now logged one record per line, so every line carries its level prefix and stays greppable. Previously it was one multi-line record whose lines after the first were indistinguishable from raw `print` output.
+- Requires `bfabric` 1.20.1, whose logging fix is what keeps a nested app-runner (Makefile or SLURM) from falling back to loguru's verbose DEBUG format.
+
 ## \[0.7.0\] - 2026-08-03
 
 - `SaveDatasetSpec` (the `bfabric_dataset` output) gains a `format` field (`csv` default, or `parquet`), so an output dataset can be registered from Parquet; `separator` is now optional (csv-only) ([#359](https://github.com/fgcz/bfabricPy/issues/359)).
