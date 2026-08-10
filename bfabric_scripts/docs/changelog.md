@@ -20,6 +20,7 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 - `auth logout` notes that it does not revoke the token server-side: an issued token stays valid until it expires, so only local access is removed.
 - New user guide: [Authentication](https://fgcz.github.io/bfabricPy/user_guides/bfabric-cli/authentication.html) — command surface, scopes, logout vs remove, remote hosts.
 - `bfabric-cli auth register-webapp` — no longer crashes with a raw traceback when the OAuth session cannot be refreshed (e.g. an expired/revoked refresh token); prints a clean `Error: ...` message and exits 1.
+- `bfabric-cli auth register-webapp` — `--service-user` no longer silently defaults to "none"; now requires either `--service-user LOGIN` or the new `--no-service-user` flag, so omitting a service user by accident (which registers a client without the `client_credentials` grant) fails fast with an explanatory error instead of succeeding silently.
 - Internal: login handlers normalised to `cmd_auth_*`; shared resolution in `cli/login/_common.py`, base-URL handling in a new `_urls.py`.
 
 ## \[1.16.0\] - 2026-08-03

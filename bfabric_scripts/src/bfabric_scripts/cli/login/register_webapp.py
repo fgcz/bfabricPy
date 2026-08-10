@@ -22,6 +22,13 @@ def cmd_login_register_webapp(
     service_user: Annotated[
         str | None, cyclopts.Parameter(help="Service user login (enables client_credentials grant).")
     ] = None,
+    no_service_user: Annotated[
+        bool,
+        cyclopts.Parameter(
+            help="Explicitly register without a service user (no client_credentials grant).",
+            negative=(),
+        ),
+    ] = False,
     scope: Annotated[str, cyclopts.Parameter(help="OAuth scope.")] = DEFAULT_REGISTRATION_SCOPE,
     application_id: Annotated[
         int | None, cyclopts.Parameter(help="Existing application ID to update (omit to create new).")
@@ -35,6 +42,17 @@ def cmd_login_register_webapp(
     """
     from bfabric import Bfabric
     from bfabric._oauth.registration import register_webapp
+
+    if service_user is not None and no_service_user:
+        print("Error: --service-user and --no-service-user are mutually exclusive.", file=sys.stderr)
+        raise SystemExit(1)
+    if service_user is None and not no_service_user:
+        print(
+            "Error: pass --service-user LOGIN to enable the client_credentials grant, "
+            "or --no-service-user to register without one.",
+            file=sys.stderr,
+        )
+        raise SystemExit(1)
 
     try:
         client = Bfabric.connect(
