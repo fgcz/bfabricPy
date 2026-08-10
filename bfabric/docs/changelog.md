@@ -10,6 +10,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 ## \[Unreleased\]
 
 - `MultiQuery.read_multi` now reserves query elements for the other fields of `obj` when chunking, since the API counts every value in a query towards its limit of 100 elements. Previously e.g. `read_multi("importresource", {"containerid": cid}, "relativepath", paths)` failed with "Query has 101 elements and exceeds the maximum of 100 allowed elements" as soon as 100 paths were passed. A query whose other fields already use up the limit now raises `ValueError` instead of being sent.
+- `import bfabric` no longer imports `polars` eagerly (~296 ms → ~184 ms). The three modules on the import path that pulled it in at module scope — `HasMany.polars`, `Dataset.to_polars`, `MultiplexKit.ids` — now import it inside the function, as `ResultContainer.to_polars` already did. `polars` remains a hard dependency and every API is unchanged; it is simply not loaded until a `DataFrame` is actually requested.
 
 ## \[1.20.0\] - 2026-08-03
 
