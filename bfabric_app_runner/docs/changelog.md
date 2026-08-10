@@ -4,6 +4,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+- Relative paths in the app spec (`pylock`, `local_extra_deps`, `prepend_paths`, and the host side of the docker `mounts` entries) are now resolved against the directory containing the `app.yml`, and a leading `~` is expanded ([#212](https://github.com/fgcz/bfabricPy/issues/212)). Previously they were resolved against the working directory of the run (a per-workunit scratch directory), which could not be relied on. Container-side mount paths are unchanged.
+- New `${app.dir}` template variable holding the app spec's directory, for paths that no spec field can resolve, e.g. a script referenced from inside a `command` string: `command: uv run --script ${app.dir}/dispatch.py`. Together with the above, an app spec directory can be relocated or checked out elsewhere without rewriting its paths.
+
 ## \[0.7.0\] - 2026-08-03
 
 - `SaveDatasetSpec` (the `bfabric_dataset` output) gains a `format` field (`csv` default, or `parquet`), so an output dataset can be registered from Parquet; `separator` is now optional (csv-only) ([#359](https://github.com/fgcz/bfabricPy/issues/359)).

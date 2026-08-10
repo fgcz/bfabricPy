@@ -17,13 +17,20 @@ def command_full():
     return CommandExec(
         command='bash -c \'echo "hello $NAME" && echo "$PATH"\'',
         env={"NAME": "sun"},
-        prepend_paths=[Path("/usr/local/bin"), Path("~/bin")],
+        prepend_paths=[Path("/usr/local/bin"), Path("/home/user/bin")],
     )
 
 
 @pytest.fixture
 def subprocess_run(mocker):
     return mocker.patch("subprocess.run")
+
+
+@pytest.fixture
+def home_dir(mocker, tmp_path):
+    """Patches ``$HOME``; request it *before* constructing a command, since ``~`` is expanded on validation."""
+    mocker.patch.dict("os.environ", {"HOME": str(tmp_path)})
+    return tmp_path
 
 
 def test_execute_minimal(command_minimal, subprocess_run):
@@ -35,8 +42,7 @@ def test_execute_minimal(command_minimal, subprocess_run):
     )
 
 
-def test_execute_full(mocker, command_full, subprocess_run):
-    mocker.patch.dict("os.environ", {"HOME": "/home/user"})
+def test_execute_full(command_full, subprocess_run):
     execute_command_exec(command_full, "hello", "world", environ={"NAME": "testing"})
     subprocess_run.assert_called_once_with(
         [
@@ -49,6 +55,12 @@ def test_execute_full(mocker, command_full, subprocess_run):
         check=True,
         env={"NAME": "sun", "PATH": "/usr/local/bin:/home/user/bin:"},
     )
+
+
+def test_execute_expands_user_in_prepend_paths(home_dir, subprocess_run):
+    command = CommandExec(command="echo hi", prepend_paths=[Path("~/bin")])
+    execute_command_exec(command, environ={})
+    assert subprocess_run.call_args.kwargs["env"]["PATH"] == f"{home_dir}/bin:"
 
 
 def test_execute_captures_and_logs_output_at_level(command_minimal, subprocess_run, mocker):
