@@ -1,13 +1,28 @@
 from __future__ import annotations
 
-from copy import deepcopy
+from collections.abc import Mapping
 
 from bfabric.results.result_container import ResultContainer
-from bfabric.utils.paginator import page_iter
+from bfabric.utils.paginator import BFABRIC_QUERY_LIMIT, page_iter
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from bfabric.bfabric import Bfabric
+    from bfabric.typing import ApiRequestDataType, ApiRequestObjectType
+
+
+def _count_query_elements(value: ApiRequestDataType) -> int:
+    """Returns how many elements `value` contributes to the API's query limit, summing nested containers.
+
+    Over-counting only costs an extra request, whereas under-counting makes the API reject the query.
+    """
+    if isinstance(value, Mapping):
+        return sum(_count_query_elements(item) for item in value.values())
+    if isinstance(value, list | tuple):
+        return sum(_count_query_elements(item) for item in value)
+    return 1
 
 
 class MultiQuery:
@@ -24,40 +39,37 @@ class MultiQuery:
     def read_multi(
         self,
         endpoint: str,
-        obj: dict,
+        obj: ApiRequestObjectType,
         multi_query_key: str,
-        multi_query_vals: list,
+        multi_query_vals: Sequence[ApiRequestDataType],
         return_id_only: bool = False,
     ) -> ResultContainer:
-        """Performs a 1-parameter multi-query (there is 1 parameter that takes a list of values)
-        Since the API only allows BFABRIC_QUERY_LIMIT queries per page, split the list into chunks before querying
-        :param endpoint: endpoint
-        :param obj: query dictionary
-        :param multi_query_key:  key for which the multi-query is performed
-        :param multi_query_vals: list of values for which the multi-query is performed
-        :param return_id_only: whether to return only the ids of the objects
-        :return: List of responses, packaged in the results container
+        """Performs a 1-parameter multi-query, i.e. `multi_query_key` is the one `obj` field taking a list of values.
+
+        The API allows at most BFABRIC_QUERY_LIMIT elements per query and counts the values of the other `obj` fields
+        towards that limit too, so the values are split into chunks of the remaining size.
+        :raises ValueError: if the other fields of `obj` already use up the element limit
 
         NOTE: It is assumed that there is only 1 response for each value.
         """
         # TODO add `check` parameter
         response_tot = ResultContainer([], total_pages_api=0, errors=[])
-        obj_extended = deepcopy(obj)  # Make a copy of the query, not to make edits to the argument
+        # `multi_query_key` is set per chunk below, so only the other fields reserve elements.
+        base_query = {key: value for key, value in obj.items() if key != multi_query_key}
+        n_reserved = _count_query_elements(base_query)
+        page_size = BFABRIC_QUERY_LIMIT - n_reserved
+        if page_size < 1:
+            msg = (
+                f"The query fields {sorted(base_query)} already use {n_reserved} of the {BFABRIC_QUERY_LIMIT} query "
+                f"elements allowed by the API, leaving no room for {multi_query_key!r} values."
+            )
+            raise ValueError(msg)
 
-        # Iterate over request chunks that fit into a single API page
-        for page_vals in page_iter(multi_query_vals):
-            obj_extended[multi_query_key] = page_vals
-
-            # TODO: Test what happens if there are multiple responses to each of the individual queries.
-            #     * What would happen?
-            #     * What would happen if total number of responses would exceed 100 now?
-            #     * What would happen if we naively made a multi-query with more than 100 values? Would API paginate
-            #       automatically? If yes, perhaps we don't need this method at all?
-            # TODO: It is assumed that a user requesting multi_query always wants all of the pages. Can anybody think of
-            #   exceptions to this? -> yes, when not reading by id but for instance matching a pattern, one might not
-            #   be aware that they might accidentally pull the whole db, so it's better to have max_results here as well
-            #   but it is not completely trivial to implement
-            response_this = self._client.read(endpoint, obj_extended, max_results=None, return_id_only=return_id_only)
+        # TODO the case of multiple responses per value is untested, and there is no `max_results` here, so a query
+        #   matching a pattern instead of reading by id can accidentally pull the whole database
+        for page_vals in page_iter(multi_query_vals, page_size=page_size):
+            query = {**base_query, multi_query_key: page_vals}
+            response_this = self._client.read(endpoint, query, max_results=None, return_id_only=return_id_only)
             response_tot.extend(response_this, reset_total_pages_api=True)
 
         return response_tot
@@ -100,7 +112,7 @@ class MultiQuery:
         :return:          Return a single bool or a list of bools for each value
             For each value, test if a key with that value is found in the API.
         """
-        is_scalar = isinstance(value, (int, str))
+        is_scalar = isinstance(value, int | str)
         if is_scalar:
             return self._client.exists(endpoint=endpoint, key=key, value=value, check=True)
         elif not isinstance(value, list):

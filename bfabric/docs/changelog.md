@@ -9,6 +9,8 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+- `MultiQuery.read_multi` now reserves query elements for the other fields of `obj` when chunking, since the API counts every value in a query towards its limit of 100 elements. Previously e.g. `read_multi("importresource", {"containerid": cid}, "relativepath", paths)` failed with "Query has 101 elements and exceeds the maximum of 100 allowed elements" as soon as 100 paths were passed. A query whose other fields already use up the limit now raises `ValueError` instead of being sent.
+
 ## \[1.20.0\] - 2026-08-03
 
 - OAuth 2.0 authentication: `connect_oauth` (client-credentials grant, auto-refresh + optional token cache), `connect_pkce` (interactive browser login, PKCE), `connect_device_code` (headless device grant), and `connect_pat` (Personal Access Token). `connect` auto-routes to OAuth when an environment sets `auth_method: oauth`. All three OAuth entry points require an explicit `client_id` and `scope` — the core library bakes in no defaults (those are CLI policy; `bfabric-cli auth …` supplies its own), and `connect()` raises if an `auth_method: oauth` environment has no `client_id`. Token-acquisition failures (expired/revoked refresh token, unreachable token endpoint) raise `BfabricOAuthError` instead of leaking an `authlib`/`requests` traceback, and a failed PKCE login renders a distinct "Login failed" callback page showing the provider's error (e.g. a two-factor-enrollment requirement) rather than always claiming success. Adds the `authlib` / `joserfc` dependencies.
