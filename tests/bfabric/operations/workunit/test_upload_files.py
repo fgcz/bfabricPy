@@ -147,6 +147,28 @@ class TestHappyPath:
         assert upload.import_resource_id == 90
 
 
+class TestExcludeNames:
+    def test_forwarded_to_collector(self, mock_client, rest, mock_collect, mock_send):
+        mock_collect.return_value = _file_infos("a.txt")
+        rest.check_duplicates.return_value = _dupes(**{"a.txt": "upload"})
+        rest.create_resources.return_value = _created("a.txt")
+        rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
+
+        _ = upload_files(mock_client, [Path("/src")], _params(), exclude_names={".marker"})
+
+        assert mock_collect.call_args.kwargs["exclude_names"] == {".marker"}
+
+    def test_omitted_passes_none(self, mock_client, rest, mock_collect, mock_send):
+        mock_collect.return_value = _file_infos("a.txt")
+        rest.check_duplicates.return_value = _dupes(**{"a.txt": "upload"})
+        rest.create_resources.return_value = _created("a.txt")
+        rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
+
+        _ = upload_files(mock_client, [Path("/src")], _params())
+
+        assert mock_collect.call_args.kwargs["exclude_names"] is None
+
+
 class TestDuplicateCheck:
     def test_all_skipped_creates_nothing(self, mock_client, rest, mock_collect, mock_send):
         mock_collect.return_value = _file_infos("a.txt", "b.txt")

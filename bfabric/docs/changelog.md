@@ -10,6 +10,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 ## \[Unreleased\]
 
 - `MultiQuery.read_multi` now reserves query elements for the other fields of `obj` when chunking, since the API counts every value in a query towards its limit of 100 elements. Previously e.g. `read_multi("importresource", {"containerid": cid}, "relativepath", paths)` failed with "Query has 101 elements and exceeds the maximum of 100 allowed elements" as soon as 100 paths were passed. A query whose other fields already use up the limit now raises `ValueError` instead of being sent.
+- `upload_files` and `collect_file_infos` accept `exclude_names`, dropping files by basename at any depth (e.g. a caller's sentinel file, `.DS_Store`). Filtering here rather than pre-filtering the path list preserves the relative resource names of nested files.
 
 ## \[1.20.0\] - 2026-08-03
 

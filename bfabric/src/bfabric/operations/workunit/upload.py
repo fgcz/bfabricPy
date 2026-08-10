@@ -23,7 +23,7 @@ from bfabric.transfer import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Collection, Sequence
     from pathlib import Path
 
     from bfabric import Bfabric
@@ -117,6 +117,7 @@ def upload_files(
     on_start: UploadStartCallback | None = None,
     on_file_done: FileDoneCallback | None = None,
     audit_attributes: dict[str, str] | None = None,
+    exclude_names: Collection[str] | None = None,
 ) -> UploadSummary:
     """Upload files to a B-Fabric workunit over tus, end to end.
 
@@ -145,6 +146,9 @@ def upload_files(
     :param on_file_done: optional ``(filename, success)`` callback fired after each file's transfer,
         for successes and failures alike.
     :param audit_attributes: written verbatim as workunit custom attributes.
+    :param exclude_names: basenames to skip at any depth (e.g. a sentinel file the caller drops in
+        the folder, or ``.DS_Store``). Filter here rather than pre-filtering ``files`` yourself: a
+        flat file list loses the directory that gives nested files their relative resource name.
     :returns: an :class:`UploadSummary`; its ``workunit_id`` is the created or reused workunit, and is
         ``None`` only on the create path when every file was skipped as a duplicate (nothing was
         created). Setup failures raise :class:`~bfabric.transfer.BfabricTransferError`.
@@ -156,7 +160,7 @@ def upload_files(
     require_tus()
     rest = UploadRestClient(client)
     check_upload_scope(client)
-    file_infos = collect_file_infos(list(files))
+    file_infos = collect_file_infos(list(files), exclude_names=exclude_names)
 
     # Resolve the target container up front: it feeds both the duplicate check and the tus sink
     # metadata. On the reuse path it comes from the existing workunit, not from params.
