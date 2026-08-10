@@ -673,6 +673,9 @@ Historically, before 1.14.0, a different versioning scheme was used.</p>
 <p>Minor breaking changes are still possible in <code class="docutils literal notranslate"><span class="pre">1.X.Y</span></code> but we try to announce them with DeprecationWarnings in the previous <code class="docutils literal notranslate"><span class="pre">Y-1</span></code> release.</p>
 <section id="unreleased">
 <h2>[Unreleased]<a class="headerlink" href="#unreleased" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MultiQuery.read_multi</span></code> now reserves query elements for the other fields of <code class="docutils literal notranslate"><span class="pre">obj</span></code> when chunking, since the API counts every value in a query towards its limit of 100 elements. Previously e.g. <code class="docutils literal notranslate"><span class="pre">read_multi(&quot;importresource&quot;,</span> <span class="pre">{&quot;containerid&quot;:</span> <span class="pre">cid},</span> <span class="pre">&quot;relativepath&quot;,</span> <span class="pre">paths)</span></code> failed with “Query has 101 elements and exceeds the maximum of 100 allowed elements” as soon as 100 paths were passed. A query whose other fields already use up the limit now raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> instead of being sent.</p></li>
+</ul>
 </section>
 <section id="id1">
 <h2>[1.20.0] - 2026-08-03<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
