@@ -4,6 +4,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+- An app version can declare `submitter_params`, extra `sbatch` flags (e.g. `--cpus-per-task`, `--mem`) that the SLURM submitter merges between its own defaults and the parameters chosen on the workunit, so resource requests can differ per app without a submitter deployment per app. A `null` value removes a flag the submitter would otherwise pass; `--output`, `--error`, `--chdir` and `--export` are reserved by the submitter and rejected, as are `${workunit...}` variables, which are not in scope when an app spec is evaluated. Reading the app spec at submit time is fail-safe: any problem falls back to the submitter defaults with a warning rather than blocking the submission. A submitter older than this release ignores the key.
+
 ## \[0.7.0\] - 2026-08-03
 
 - `SaveDatasetSpec` (the `bfabric_dataset` output) gains a `format` field (`csv` default, or `parquet`), so an output dataset can be registered from Parquet; `separator` is now optional (csv-only) ([#359](https://github.com/fgcz/bfabricPy/issues/359)).
