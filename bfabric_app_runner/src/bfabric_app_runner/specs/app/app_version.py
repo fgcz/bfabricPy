@@ -12,20 +12,31 @@ RESERVED_SBATCH_FLAGS = frozenset({"--chdir", "--error", "--export", "--output"}
 """Flags the submitter owns: they carry the job's logging, working directory and environment (including the
 shims placed on ``PATH``), so an app overriding them would break the job rather than just resize it."""
 
+DURATION_SBATCH_FLAGS = frozenset({"--time", "--time-min"})
+"""Flags whose SLURM format collides with YAML's sexagesimal integers, so they have to be quoted."""
+
 _WORKUNIT_VARIABLE = re.compile(r"\$\{\s*workunit\b")
 
 
 def _check_submitter_params(value: dict[str, str | int | None]) -> dict[str, str | int | None]:
-    """Rejects flags the app spec may not set, and variables that are not in scope when it is evaluated."""
+    """Rejects flags the app spec may not set, and values that would be misread or would escape their line."""
     for flag, flag_value in value.items():
         if any(character in flag for character in "= \t"):
             raise ValueError(f"Invalid sbatch flag {flag!r}: a flag must not contain '=' or whitespace")
         if flag in RESERVED_SBATCH_FLAGS:
             raise ValueError(f"The flag {flag!r} is reserved by the submitter and cannot be set by an app")
+        if flag in DURATION_SBATCH_FLAGS and isinstance(flag_value, int):
+            raise ValueError(
+                f"Quote the value of {flag!r}: YAML reads an unquoted 24:00:00 as the integer 86400, which sbatch "
+                f"then reads as 86400 minutes"
+            )
         if isinstance(flag_value, str) and _WORKUNIT_VARIABLE.search(flag_value):
             raise ValueError(
                 f"The flag {flag!r} uses ${{workunit...}}, which is not available in an app spec; use ${{app...}}"
             )
+        if isinstance(flag_value, str) and ("\n" in flag_value or "\r" in flag_value):
+            # Each flag becomes one #SBATCH line, so a newline here would append lines to the generated job script.
+            raise ValueError(f"The value of {flag!r} must be a single line")
     return value
 
 

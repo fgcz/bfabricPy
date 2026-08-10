@@ -99,6 +99,17 @@ class TestSubmitterParams:
         with pytest.raises(ValidationError, match="reserved by the submitter"):
             self._app_version({"--output": "/tmp/my.log"})
 
+    def test_rejects_unquoted_duration(self):
+        with pytest.raises(ValidationError, match="Quote the value"):
+            self._app_version({"--time": yaml.safe_load("t: 24:00:00")["t"]})
+
+    def test_accepts_quoted_duration(self):
+        assert self._app_version({"--time": "24:00:00"}).submitter_params == {"--time": "24:00:00"}
+
+    def test_rejects_multiline_value(self):
+        with pytest.raises(ValidationError, match="must be a single line"):
+            self._app_version({"--comment": "ok\n#SBATCH --exclusive"})
+
     def test_rejects_workunit_variable(self):
         with pytest.raises(ValidationError, match=r"\$\{workunit"):
             self._app_version({"--comment": "wu-${workunit.id}"})

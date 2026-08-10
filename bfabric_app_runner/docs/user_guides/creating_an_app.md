@@ -114,6 +114,8 @@ Four things are worth knowing before you rely on it:
   validation time, not a silent no-op.
 - **`${workunit...}` is not available here** -- an app spec is evaluated without a workunit in scope. Only
   `${app...}` variables work. This too is rejected at validation time rather than failing later.
+- **Quote durations.** YAML reads an unquoted `24:00:00` as the integer `86400`, which `sbatch` would then take
+  to mean 86400 *minutes*. `--time` and `--time-min` therefore refuse integer values.
 
 Run `bfabric-app-runner validate app-spec app.yml` to check all of the above before deploying, and be aware
 that a submitter deployment older than these params ignores the key entirely -- if a value seems to have no
