@@ -49,6 +49,7 @@ Example ``uploader.yml``::
     machine_id: ms-042
     watch_dir: /data/instrument_out
     state_dir: /var/lib/bfabric-uploader  # folder -> workunit-id memory; MUST be outside watch_dir
+    marker_name: .bfabric_upload         # optional; the "run finished" flag operators create
     container_id: 1234
     application_id: 567
     recency_days: 7                      # optional, default 7
@@ -76,8 +77,10 @@ from pydantic import BaseModel, SecretStr, model_validator
 from bfabric import Bfabric
 from bfabric.operations.workunit import UploadFilesParams, upload_files
 
-MARKER_NAME = ".bfabric_upload"
-"""Presence = 'run finished, upload me'. Never written to; the workunit id lives in the state file."""
+DEFAULT_MARKER_NAME = ".bfabric_upload"
+"""Default marker filename; override per machine with ``marker_name`` in the config.
+
+Presence = 'run finished, upload me'. Never written to; the workunit id lives in the state file."""
 
 SECRET_ENV_VAR = "BFABRIC_UPLOADER_CLIENT_SECRET"
 """Env override for the client secret, so it need not sit in the config file on disk."""
@@ -99,6 +102,10 @@ class UploaderConfig(BaseModel):
     """This machine's id; embedded in each workunit name for humans reading B-Fabric."""
     watch_dir: Path
     """Directory whose immediate subfolders are runs."""
+    marker_name: str = DEFAULT_MARKER_NAME
+    """Filename the operator (or the acquisition software) creates inside a run folder to signal
+    "this run is finished, upload it". Its contents are irrelevant and never read -- an empty file
+    is the normal case. Override this when a site already has its own done-flag convention."""
     state_dir: Path
     """Where the folder -> workunit-id state files live. MUST be outside ``watch_dir`` (validated):
     a state file inside a run folder would be uploaded as a resource, and its content changes after
@@ -123,6 +130,12 @@ class UploaderConfig(BaseModel):
             )
         if "tus" not in self.scope.split():
             raise ValueError("scope must include 'tus' (the upload uses the tus transport).")
+        # A marker with a path separator would never be found by the per-folder existence check, so
+        # every run would be silently skipped -- fail at load instead of scanning forever finding nothing.
+        if not self.marker_name or self.marker_name.strip() != self.marker_name:
+            raise ValueError("marker_name must be a non-empty filename without leading/trailing whitespace.")
+        if "/" in self.marker_name or self.marker_name in (".", ".."):
+            raise ValueError(f"marker_name must be a plain filename, not a path: {self.marker_name!r}")
         return self
 
     @classmethod
@@ -195,13 +208,17 @@ class FolderState:
         os.replace(tmp, path)
 
 
-def newest_mtime(folder: Path) -> float:
-    """Most recent mtime of any file under ``folder`` (0.0 if it contains no files)."""
-    mtimes = [f.stat().st_mtime for f in folder.rglob("*") if f.is_file() and f.name != MARKER_NAME]
+def newest_mtime(folder: Path, *, marker_name: str) -> float:
+    """Most recent mtime of any file under ``folder`` (0.0 if it contains no files).
+
+    The marker is excluded: touching it is what *starts* the upload, so counting it would make every
+    freshly-marked folder look active regardless of when the run actually finished.
+    """
+    mtimes = [f.stat().st_mtime for f in folder.rglob("*") if f.is_file() and f.name != marker_name]
     return max(mtimes, default=0.0)
 
 
-def find_ready_folders(watch_dir: Path, *, recency_days: int) -> list[Path]:
+def find_ready_folders(watch_dir: Path, *, recency_days: int, marker_name: str) -> list[Path]:
     """Subfolders that are (a) marked done and (b) recently active.
 
     A folder without a marker is skipped: it is either mid-acquisition or the operator has not
@@ -211,9 +228,9 @@ def find_ready_folders(watch_dir: Path, *, recency_days: int) -> list[Path]:
     cutoff = time.time() - recency_days * 86400
     ready: list[Path] = []
     for folder in sorted(p for p in watch_dir.iterdir() if p.is_dir()):
-        if not (folder / MARKER_NAME).exists():
+        if not (folder / marker_name).exists():
             continue
-        if newest_mtime(folder) < cutoff:
+        if newest_mtime(folder, marker_name=marker_name) < cutoff:
             logger.debug("Skipping {} (no activity in the last {} days).", folder.name, recency_days)
             continue
         ready.append(folder)
@@ -250,7 +267,7 @@ def upload_folder(client: Bfabric, folder: Path, cfg: UploaderConfig) -> None:
             track_job=True,  # server-side DONE/FAILED visibility per upload
         ),
         # The operator's marker lives inside the run folder; it is a signal, not data.
-        exclude_names={MARKER_NAME},
+        exclude_names={cfg.marker_name},
     )
 
     if summary.workunit_id is None:
@@ -292,7 +309,7 @@ def connect(cfg: UploaderConfig) -> Bfabric:
 def run_scan(cfg: UploaderConfig) -> int:
     """One full scan. Returns the number of folders that hit an unexpected error."""
     client = connect(cfg)
-    folders = find_ready_folders(cfg.watch_dir, recency_days=cfg.recency_days)
+    folders = find_ready_folders(cfg.watch_dir, recency_days=cfg.recency_days, marker_name=cfg.marker_name)
     logger.info("Found {} folder(s) ready to upload under {}.", len(folders), cfg.watch_dir)
 
     errors = 0
@@ -308,7 +325,23 @@ def run_scan(cfg: UploaderConfig) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    # Deliberately NOT __doc__: the module docstring is design rationale for whoever reads the
+    # source, whereas --help is read by an operator who needs to know what to do. Keep it to the
+    # marker convention and the config, and name the marker file explicitly.
+    parser = argparse.ArgumentParser(
+        description=(
+            f"Upload finished instrument run folders to B-Fabric.\n\n"
+            f"Scans each immediate subfolder of the configured watch_dir and uploads the ones marked\n"
+            f"as finished. A run counts as finished once a marker file exists inside its folder:\n\n"
+            f"    <run folder>/{DEFAULT_MARKER_NAME}   (default name; set 'marker_name' to change it)\n\n"
+            f"The marker's contents are irrelevant and never read -- an empty file is the normal case:\n\n"
+            f"    touch /path/to/run_001/{DEFAULT_MARKER_NAME}\n\n"
+            f"Re-running is safe: each folder maps to one workunit (remembered in state_dir), so a\n"
+            f"second scan uploads only files that are new and transfers nothing when nothing changed.\n"
+            f"Set {SECRET_ENV_VAR} in the environment rather than storing the secret in the config."
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     _ = parser.add_argument("--config", type=Path, required=True, help="Path to the machine's uploader YAML config.")
     args = parser.parse_args(argv)
     config_path = Path(str(args.config))  # pyright: ignore[reportAny]  # argparse Namespace is untyped
