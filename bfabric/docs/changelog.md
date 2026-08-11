@@ -9,6 +9,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+- Packaging: `project.readme` now points at a package-local `README.md` instead of the repository root's. hatchling 1.32.0 rejects readme paths that resolve outside the project directory, which broke every build from source (CI and git-pinned installs); the previous setting also produced an sdist containing a `../README.md` member that tar refuses to extract. Installing the published wheels was never affected.
 - `MultiQuery.read_multi` now reserves query elements for the other fields of `obj` when chunking, since the API counts every value in a query towards its limit of 100 elements. Previously e.g. `read_multi("importresource", {"containerid": cid}, "relativepath", paths)` failed with "Query has 101 elements and exceeds the maximum of 100 allowed elements" as soon as 100 paths were passed. A query whose other fields already use up the limit now raises `ValueError` instead of being sent.
 
 ## \[1.20.0\] - 2026-08-03
