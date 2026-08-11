@@ -10,10 +10,7 @@ from bfabric_app_runner.specs.app.commands_spec import CommandExec
 
 
 def log_command_output(level: str, output: str) -> None:
-    """Emits each line of a captured command's output as its own record.
-
-    A single multi-line record prefixes only the first line, leaving the rest bare and ungreppable.
-    """
+    """Emits each line of ``output`` as its own record; one multi-line record would prefix only its first."""
     if not output.strip():
         return
     for line in output.splitlines():

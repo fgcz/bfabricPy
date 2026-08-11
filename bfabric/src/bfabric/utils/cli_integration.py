@@ -86,11 +86,9 @@ def use_client(fn: Callable[..., T], setup_logging: bool = True) -> Callable[...
 
 
 def _report_and_exit(error: Exception) -> NoReturn:
-    """Reports ``error`` as a single stderr line and exits 1, keeping the traceback for DEBUG runs.
-
-    Not ``logger.opt(exception=...)``: the DEBUG sink runs with loguru's default ``diagnose=True``,
-    which annotates each frame with its locals — including whole environments passed to subprocesses.
-    """
+    """Reports ``error`` as a single stderr line and exits 1, keeping the traceback for DEBUG runs."""
+    # Not logger.opt(exception=...): the DEBUG sink runs with loguru's default diagnose=True, which
+    # annotates each frame with its locals — including whole environments passed to subprocesses.
     logger.debug(f"Traceback of the error reported below:\n{traceback.format_exc()}")
     print(f"Error: {error}", file=sys.stderr)
     sys.exit(1)

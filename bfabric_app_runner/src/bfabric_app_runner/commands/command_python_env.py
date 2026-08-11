@@ -29,23 +29,16 @@ class PythonEnvironment:
     def provision(self) -> None:
         """Creates the virtual environment and installs the command's dependencies into it.
 
-        The ``.provisioned`` marker is touched last, so an interrupted provisioning is retried rather
-        than treated as complete.
+        The marker is touched last, so an interrupted provisioning is retried rather than treated as done.
         """
-        python = str(self.python_executable)
+        uv, python = self._uv_bin, str(self.python_executable)
         self.env_path.parent.mkdir(parents=True, exist_ok=True)
-        self._execute_shell_cmd([self._uv_bin, "venv", "-p", self.command.python_version, str(self.env_path)])
-
-        install_cmd = [self._uv_bin, "pip", "install", "-p", python, "-r", str(self.command.pylock)]
-        if self.command.refresh:
-            install_cmd.append("--reinstall")
-        self._execute_shell_cmd(install_cmd)
-
+        self._execute_shell_cmd([uv, "venv", "-p", self.command.python_version, str(self.env_path)])
+        refresh = ["--reinstall"] if self.command.refresh else []
+        self._execute_shell_cmd([uv, "pip", "install", "-p", python, "-r", str(self.command.pylock), *refresh])
         if self.command.local_extra_deps:
-            deps_cmd = [self._uv_bin, "pip", "install", "-p", python, "--no-deps"]
-            deps_cmd.extend(str(dep.absolute()) for dep in self.command.local_extra_deps)
-            self._execute_shell_cmd(deps_cmd)
-
+            deps = [str(dep.absolute()) for dep in self.command.local_extra_deps]
+            self._execute_shell_cmd([uv, "pip", "install", "-p", python, "--no-deps", *deps])
         self._provisioned_marker.touch()
 
     @property
