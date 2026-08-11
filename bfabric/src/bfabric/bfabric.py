@@ -121,7 +121,7 @@ class Bfabric:
     def _connect_oauth_from_config(cls, config_data: ConfigData) -> Bfabric:
         """Create a Bfabric instance from a config with ``auth_method: oauth``.
 
-        Loads tokens from the disk cache keyed on ``base_url`` + ``client_id``.
+        Loads tokens from the disk cache keyed on ``base_url`` + ``client_id`` + ``env_name``.
         """
         from bfabric._oauth.credential_provider import OAuthCredentialProvider
         from bfabric._oauth.token_cache import TokenCache, compute_token_cache_path
@@ -133,8 +133,15 @@ class Bfabric:
                 "(e.g. re-run 'bfabric-cli auth login' or 'bfabric-cli auth device-code')."
             )
         client_id = config_data.client_id
-        env_name = config_data.env_name or "default"
-        cache_path = compute_token_cache_path(base_url, client_id, env_name).expanduser()
+        if not config_data.env_name:
+            # The cache key includes the environment name, and "default" (the old fallback here) is a
+            # name the config layer forbids outright — so it could never match a CLI-written cache.
+            raise ValueError(
+                "OAuth config is missing 'env_name', so the token cache cannot be located. When "
+                "configuring via BFABRICPY_CONFIG_OVERRIDE, include 'env_name' naming the "
+                "environment whose cached token should be used."
+            )
+        cache_path = compute_token_cache_path(base_url, client_id, config_data.env_name).expanduser()
         if not TokenCache(cache_path).load():
             raise ValueError("No OAuth tokens found. Run 'bfabric-cli auth login' or 'bfabric-cli auth device-code'.")
         provider = OAuthCredentialProvider(

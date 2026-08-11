@@ -197,6 +197,46 @@ class TestDetermineOutputColumns:
         assert columns == ["id"]  # Should return default columns when no results available
 
 
+class TestLongValuesAreNotReflowed:
+    """Long field values must be printed verbatim, so the output stays machine-parseable.
+
+    Regression for fgcz/bfabricPy-tests#49: printing through a rich ``Console`` re-wrapped the
+    rendered text at the terminal width, so a workunit with a long description or name broke
+    ``bfabric-cli api read --format yaml | shyaml ...`` (originally fixed in #148).
+    """
+
+    @pytest.fixture
+    def long_description_results(self):
+        # A single unbroken token, far wider than any plausible terminal: neither yaml.dump nor
+        # json.dumps splits it, so any line break in the output came from the printer.
+        return [{"id": 285000, "name": "workunit", "description": "very-long-description-" * 50}]
+
+    @pytest.mark.parametrize("output_format", [OutputFormat.YAML, OutputFormat.JSON])
+    def test_stdout_parses_back_to_results(self, mock_client, mocker, capsys, long_description_results, output_format):
+        # Arrange
+        mocker.patch("bfabric_scripts.cli.api.read.perform_query", return_value=long_description_results)
+        params = Params(endpoint="workunit", format=output_format, query=[("id", "285000")])
+        parse = {OutputFormat.YAML: yaml.safe_load, OutputFormat.JSON: json.loads}[output_format]
+
+        # Act
+        cmd_api_read(params, client=mock_client)
+
+        # Assert
+        assert parse(capsys.readouterr().out) == long_description_results
+
+    def test_stdout_matches_file_output(self, mock_client, mocker, capsys, tmp_path, long_description_results):
+        # Arrange
+        mocker.patch("bfabric_scripts.cli.api.read.perform_query", return_value=long_description_results)
+        output_file = tmp_path / "output.yml"
+        params = Params(endpoint="workunit", format=OutputFormat.YAML, query=[("id", "285000")], file=output_file)
+
+        # Act
+        cmd_api_read(params, client=mock_client)
+
+        # Assert
+        assert capsys.readouterr().out == f"{output_file.read_text()}\n"
+
+
 class TestReadFunction:
     def test_read_json_output(self, mock_client, sample_results, mocker):
         # Arrange

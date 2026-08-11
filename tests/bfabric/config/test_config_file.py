@@ -256,6 +256,28 @@ class TestEnvironmentConfigOAuth:
         assert not hasattr(config.config, "auth_method")
         assert not hasattr(config.config, "client_id")
 
+    def test_scope_binds(self):
+        config = EnvironmentConfig.model_validate(
+            {
+                "base_url": "https://example.com",
+                "auth_method": "oauth",
+                "client_id": "my-app",
+                "scope": "api:write tus",
+            }
+        )
+        assert config.scope == "api:write tus"
+
+    def test_scope_not_in_client_config(self):
+        config = EnvironmentConfig.model_validate(
+            {"base_url": "https://example.com", "auth_method": "oauth", "scope": "api:read"}
+        )
+        assert not hasattr(config.config, "scope")
+
+    def test_scope_absent_defaults_to_none(self):
+        """An environment written by 1.16.0 has no ``scope`` key; it must still load."""
+        config = EnvironmentConfig.model_validate({"base_url": "https://example.com", "auth_method": "oauth"})
+        assert config.scope is None
+
     def test_backward_compat_without_oauth_fields(self):
         config = EnvironmentConfig.model_validate(
             {

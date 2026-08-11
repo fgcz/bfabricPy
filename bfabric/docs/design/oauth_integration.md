@@ -45,14 +45,31 @@ All commands registered under `bfabric-cli auth` via cyclopts.
 
 | Command | File | Description |
 |---------|------|-------------|
-| `auth login <base_url>` | `cli/login/oauth_login.py` | Browser-based OAuth login. Caches tokens + writes config. |
-| `auth device-code <base_url>` | `cli/login/oauth_login.py` | Headless OAuth login. |
+| `auth login [base_url]` | `cli/login/oauth_login.py` | Browser-based OAuth login. Caches tokens + writes config. Also registered top-level as `bfabric-cli login`. |
+| `auth device-code [base_url]` | `cli/login/oauth_login.py` | Headless OAuth login. |
 | `auth pat <base_url>` | `cli/login/pat.py` | Personal Access Token login. |
 | `auth register <client_name> <redirect_uri>` | `cli/login/register.py` | RFC 7591 dynamic client registration. Outputs JSON. |
-| `auth status` | `cli/login/status.py` | Show current auth status for an environment. |
-| `auth logout` | `cli/login/logout.py` | Clear cached OAuth tokens. |
+| `auth register-webapp <client_name> <redirect_uri>` | `cli/login/register_webapp.py` | Registration preset for webapps (OIDC-inclusive scope). |
+| `auth status` | `cli/login/manage.py` | Show auth status for an environment. |
+| `auth list` | `cli/login/manage.py` | List environments grouped by instance, with scope / expiry / why-active. |
+| `auth activate [env]` | `cli/login/manage.py` | Make an environment the config default. |
+| `auth logout [env]` | `cli/login/manage.py` | Remove stored credentials for this machine, keeping the environment. `--all` for every environment. |
+| `auth remove [env]` | `cli/login/manage.py` | Delete an environment: config entry plus cached tokens. |
 
-All auth commands use `--config-env` (consistent with API commands via `@use_client`).
+See [the CLI authentication guide](../user_guides/bfabric-cli/authentication.md) for the user-facing
+view; this section covers only what is not visible from the outside.
+
+All auth commands resolve the environment as `--config-env` > `BFABRICPY_CONFIG_ENV` >
+`GENERAL.default_config`, matching `ConfigFile.get_selected_config_env`, and `base_url` is optional
+for the login commands because it is read back from that environment. Commands that write to the
+config refuse to run while `BFABRICPY_CONFIG_OVERRIDE` is set, since the file would not be the config
+in effect.
+
+`auth logout` removes credentials per auth method — the token cache for `oauth`, the inline `pat` or
+`login`/`password` keys for the others (via `clear_environment_credentials`). It deliberately does not
+revoke server-side. Instances *do* advertise `revocation_endpoint` in their discovery document (trace:
+`{base_url}/rest/oauth/token` → `/rest/oauth/revoke`), but whether it is implemented is unverified, so
+logout promises only what it delivers: local credentials gone, an issued token valid until it expires.
 
 ### `auth register` enhancements
 
@@ -72,7 +89,18 @@ PRODUCTION:
   base_url: "https://bfabric.example.com/bfabric"
   auth_method: "oauth"        # NEW — triggers OAuth flow in Bfabric.connect()
   client_id: "CLI"    # NEW — optional, defaults to "CLI"
+  scope: "api:write tus"      # NEW — the scope *requested* at login
 ```
+
+`scope` is what makes a login replayable from disk, and it is deliberately the **requested** value
+rather than the granted one: the server drops scopes the client isn't registered for, so replaying the
+granted scope would bake that drop in permanently. Only the CLI reads the key — it is excluded from
+`BfabricClientConfig` and not plumbed through `ConfigData` / `export_config_data`.
+
+A re-login **merges** into an existing environment section rather than replacing it, so hand-written
+keys (`application_ids`, `engine`, `job_notification_emails`, …) survive. The auth-owned keys
+(`login`, `password`, `pat`, `auth_method`, `client_id`, `scope`) are replaced wholesale, so a stale
+`pat` cannot outlive the auth method that wrote it and be resurrected by `gather_auth`.
 
 For PAT (Personal Access Token) logins the token is stored inline under `pat` (with
 `auth_method: pat`), never as `login: __oauth__` / `password: <token>`:

@@ -1,15 +1,16 @@
 from __future__ import annotations
 
+import base64
 import json
 import time
 
 import yaml
 
 from bfabric_scripts.cli.login._constants import SCOPE_PRESETS_BY_NAME
-from bfabric_scripts.cli.login.manage import cmd_login_status, describe_scope, describe_token_cache
+from bfabric_scripts.cli.login.manage import cmd_auth_status, describe_scope, describe_token_cache
 
 
-class TestCmdLoginStatus:
+class TestCmdAuthStatus:
     def test_shows_password_auth(self, tmp_path, capsys):
         config_file = tmp_path / "config.yml"
         config_file.write_text(
@@ -24,7 +25,7 @@ class TestCmdLoginStatus:
                 }
             )
         )
-        cmd_login_status(config_file=config_file)
+        cmd_auth_status(config_file=config_file)
         output = capsys.readouterr().out
         assert "PROD" in output
         assert "password" in output
@@ -39,11 +40,12 @@ class TestCmdLoginStatus:
                         "base_url": "https://example.com/bfabric",
                         "auth_method": "oauth",
                         "client_id": "my-app",
+                        "scope": SCOPE_PRESETS_BY_NAME["upload"].scope,
                     },
                 }
             )
         )
-        cmd_login_status(config_file=config_file)
+        cmd_auth_status(config_file=config_file)
         output = capsys.readouterr().out
         assert "oauth" in output
         assert "my-app" in output
@@ -62,7 +64,7 @@ class TestCmdLoginStatus:
                 }
             )
         )
-        cmd_login_status(config_file=config_file)
+        cmd_auth_status(config_file=config_file)
         output = capsys.readouterr().out
         assert "pat" in output
         # The secret itself must never be printed.
@@ -84,7 +86,7 @@ class TestCmdLoginStatus:
         )
         # No cache file on disk -> missing token, no scope to report.
         mocker.patch("bfabric_scripts.cli.login.manage.compute_token_cache_path", return_value=tmp_path / "absent.json")
-        cmd_login_status(config_file=config_file)
+        cmd_auth_status(config_file=config_file)
         output = capsys.readouterr().out
         assert "missing" in output
         assert "(not recorded)" in output
@@ -99,6 +101,7 @@ class TestCmdLoginStatus:
                         "base_url": "https://example.com/bfabric",
                         "auth_method": "oauth",
                         "client_id": "my-app",
+                        "scope": SCOPE_PRESETS_BY_NAME["upload"].scope,
                     },
                 }
             )
@@ -114,15 +117,15 @@ class TestCmdLoginStatus:
             )
         )
         mocker.patch("bfabric_scripts.cli.login.manage.compute_token_cache_path", return_value=cache_path)
-        cmd_login_status(config_file=config_file)
+        cmd_auth_status(config_file=config_file)
         output = capsys.readouterr().out
-        # The granted scope matches the upload preset and the token is still valid.
+        # The recorded scope matches the upload preset and the token is still valid.
         assert "upload" in output
         assert "expires in" in output
 
     def test_missing_config_file(self, tmp_path, capsys):
         config_file = tmp_path / "nonexistent.yml"
-        cmd_login_status(config_file=config_file)
+        cmd_auth_status(config_file=config_file)
         output = capsys.readouterr().out
         assert "not found" in output
 
@@ -141,8 +144,7 @@ class TestDescribeScope:
     def test_absent_scope_is_not_recorded(self):
         assert describe_scope(None) == "(not recorded)"
         assert describe_scope("") == "(not recorded)"
-        # A non-string (unexpected cache shape) must not blow up.
-        assert describe_scope(123) == "(not recorded)"
+        assert describe_scope("   ") == "(not recorded)"
 
 
 class TestDescribeTokenCache:
@@ -160,3 +162,59 @@ class TestDescribeTokenCache:
         described = describe_token_cache({"access_token": "x", "expires_at": 1000 + 9000}, now=1000.0)
         assert "present" in described
         assert "2h" in described
+
+
+class TestStatusDisplay:
+    def _write(self, config_file, **extra):
+        config_file.write_text(
+            yaml.dump(
+                {
+                    "GENERAL": {"default_config": "PROD"},
+                    "PROD": {
+                        "base_url": "https://example.com/bfabric",
+                        "auth_method": "oauth",
+                        "client_id": "CLI",
+                        **extra,
+                    },
+                }
+            )
+        )
+
+    def _cache(self, tmp_path, mocker, claims, **extra):
+        payload = base64.urlsafe_b64encode(json.dumps(claims).encode()).decode().rstrip("=")
+        cache_path = tmp_path / "tok.json"
+        cache_path.write_text(json.dumps({"access_token": f"h.{payload}.s", **extra}))
+        mocker.patch("bfabric_scripts.cli.login.manage.compute_token_cache_path", return_value=cache_path)
+        return cache_path
+
+    def test_shows_the_requested_scope_from_the_config(self, tmp_path, capsys, mocker):
+        config_file = tmp_path / "config.yml"
+        self._write(config_file, scope="api:write tus")
+        self._cache(tmp_path, mocker, {"sub": "someone"}, scope="api:write tus")
+        cmd_auth_status(config_file=config_file)
+        output = capsys.readouterr().out
+        assert "api:write tus" in output
+        assert "upload" in output
+
+    def test_annotates_the_active_reason(self, tmp_path, capsys, mocker, monkeypatch):
+        config_file = tmp_path / "config.yml"
+        self._write(config_file, scope="api:read")
+        self._cache(tmp_path, mocker, {"sub": "someone"}, scope="api:read")
+        monkeypatch.setenv("BFABRICPY_CONFIG_ENV", "PROD")
+        cmd_auth_status(config_file=config_file)
+        assert "active via BFABRICPY_CONFIG_ENV" in capsys.readouterr().out
+
+    def test_config_env_variable_selects_the_environment(self, tmp_path, capsys, monkeypatch, mocker):
+        config_file = tmp_path / "config.yml"
+        config_file.write_text(
+            yaml.dump(
+                {
+                    "GENERAL": {"default_config": "PROD"},
+                    "PROD": {"base_url": "https://prod.example.com/bfabric", "auth_method": "pat", "pat": "p"},
+                    "TEST": {"base_url": "https://test.example.com/bfabric", "auth_method": "pat", "pat": "t"},
+                }
+            )
+        )
+        monkeypatch.setenv("BFABRICPY_CONFIG_ENV", "TEST")
+        cmd_auth_status(config_file=config_file)
+        assert "test.example.com" in capsys.readouterr().out
