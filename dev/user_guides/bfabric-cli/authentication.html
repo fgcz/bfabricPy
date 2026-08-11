@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Reading Data &#8212; bfabricPy 1.20.0 documentation</title>
+    <title>Authentication &#8212; bfabricPy 1.20.0 documentation</title>
   
   
   
@@ -44,12 +44,12 @@
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guides/reading_data/index';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guides/bfabric-cli/authentication';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="ResultContainer API" href="resultcontainer_api.html" />
-    <link rel="prev" title="Creating a Client for Server and Webapp Usage" href="../creating_a_client/server_webapp_usage.html" />
+    <link rel="next" title="API Operations" href="api_operations.html" />
+    <link rel="prev" title="bfabric-cli" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="1.20.0" />
@@ -203,22 +203,22 @@
 <li class="toctree-l3"><a class="reference internal" href="../creating_a_client/server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">Reading Data</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="resultcontainer_api.html">ResultContainer API</a></li>
-<li class="toctree-l3"><a class="reference internal" href="entity_api.html">Entity API</a></li>
-<li class="toctree-l3"><a class="reference internal" href="caching_for_performance.html">Entity Caching</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reading_data/index.html">Reading Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reading_data/resultcontainer_api.html">ResultContainer API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reading_data/entity_api.html">Entity API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reading_data/caching_for_performance.html">Entity Caching</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2"><a class="reference internal" href="../writing_data/index.html">Writing Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../working_with_entities/index.html">Entity Features</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../bfabric-cli/index.html">bfabric-cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/authentication.html">Authentication</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/api_operations.html">API Operations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/api_inspection.html">API Inspection with CLI</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/datasets.html">Datasets</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/executables.html">Executables</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/workunits.html">Workunits</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/feeder.html">Feeder</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">bfabric-cli</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Authentication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api_operations.html">API Operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api_inspection.html">API Inspection with CLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="datasets.html">Datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="executables.html">Executables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="workunits.html">Workunits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="feeder.html">Feeder</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2"><a class="reference internal" href="../error_handling.html">Error Handling</a></li>
@@ -309,7 +309,7 @@
       
       
       
-      <li><a href="../../_sources/user_guides/reading_data/index.md" target="_blank"
+      <li><a href="../../_sources/user_guides/bfabric-cli/authentication.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -392,7 +392,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Reading Data</h1>
+    <h1>Authentication</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -402,9 +402,14 @@
             </div>
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choose-your-approach">Choose Your Approach</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-comparison">Quick Comparison</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#logging-in">Logging in</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#checking-what-you-are-logged-in-as">Checking what you are logged in as</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scopes">Scopes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#several-instances-or-several-logins">Several instances or several logins</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#logging-out-vs-removing">Logging out vs removing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#remote-hosts-and-headless-machines">Remote hosts and headless machines</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#personal-access-tokens">Personal access tokens</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-variables">Environment variables</a></li>
 </ul>
             </nav>
         </div>
@@ -416,91 +421,162 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="reading-data">
-<h1>Reading Data<a class="headerlink" href="#reading-data" title="Link to this heading">#</a></h1>
-<p>Learn to query B-Fabric and retrieve data using different approaches.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="resultcontainer_api.html">ResultContainer API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="entity_api.html">Entity API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="caching_for_performance.html">Entity Caching</a></li>
-</ul>
+  <section id="authentication">
+<h1>Authentication<a class="headerlink" href="#authentication" title="Link to this heading">#</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">auth</span></code> manages how the CLI logs in to B-Fabric and which instance it talks to.</p>
+<section id="logging-in">
+<h2>Logging in<a class="headerlink" href="#logging-in" title="Link to this heading">#</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>login
+</pre></div>
 </div>
-<section id="choose-your-approach">
-<h2>Choose Your Approach<a class="headerlink" href="#choose-your-approach" title="Link to this heading">#</a></h2>
-<p>bfabricPy provides two complementary APIs for reading data:</p>
+<p>On a first run this asks which instance you want and which permissions to request, then stores the
+result. The environment name is derived from the instance, so there is nothing to invent.</p>
+<p>When the token expires, run the same command again — with no arguments:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>login
+</pre></div>
+</div>
+<p>Everything the login needs (instance URL, client ID, scope) was recorded the first time, so there is
+nothing to retype and nothing to answer. The scope being requested is printed, so a login is never
+silently different from the one before it.</p>
+<p><code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">login</span></code> is a shortcut for <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">auth</span> <span class="pre">login</span></code>; both do the same thing.</p>
+</section>
+<section id="checking-what-you-are-logged-in-as">
+<h2>Checking what you are logged in as<a class="headerlink" href="#checking-what-you-are-logged-in-as" title="Link to this heading">#</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>auth<span class="w"> </span>status<span class="w">     </span><span class="c1"># the active environment in detail</span>
+bfabric-cli<span class="w"> </span>auth<span class="w"> </span>list<span class="w">       </span><span class="c1"># every environment, grouped by instance</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">list</span></code> shows each environment’s scope and token expiry, which is what tells two logins on the
+same instance apart. Both commands also say <em>why</em> an environment is the active one, because
+<code class="docutils literal notranslate"><span class="pre">BFABRICPY_CONFIG_ENV</span></code> silently outranks the configured default:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>prod-ro   oauth · api:read · present, expires in ~7h  (default)
+prod-rw   oauth · api:write · present, expires in ~7h  (active via BFABRICPY_CONFIG_ENV)
+</pre></div>
+</div>
+</section>
+<section id="scopes">
+<h2>Scopes<a class="headerlink" href="#scopes" title="Link to this heading">#</a></h2>
+<p>A scope is the set of permissions the token carries. Pass a preset or a raw scope string:</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
-<tr class="row-odd"><th class="head"><p>Approach</p></th>
-<th class="head"><p>Primary Class</p></th>
-<th class="head"><p>Best For</p></th>
-<th class="head"><p>Documentation</p></th>
+<tr class="row-odd"><th class="head"><p>Preset</p></th>
+<th class="head"><p>Scope</p></th>
+<th class="head"><p>For</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><strong>ResultContainer API</strong></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">ResultContainer</span></code></p></td>
-<td><p>Simple queries, data analysis, DataFrame export</p></td>
-<td><p><a class="reference internal" href="resultcontainer_api.html"><span class="std std-doc">ResultContainer API</span></a></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">read-only</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">api:read</span></code></p></td>
+<td><p>reading data</p></td>
 </tr>
-<tr class="row-odd"><td><p><strong>Entity API</strong></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">Entity</span></code> / <code class="docutils literal notranslate"><span class="pre">EntityReader</span></code></p></td>
-<td><p>Typed entities, relationships, URI access</p></td>
-<td><p><a class="reference internal" href="entity_api.html"><span class="std std-doc">Entity API</span></a></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">read-write</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">api:write</span></code></p></td>
+<td><p>creating and updating (includes reading)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">upload</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">api:write</span> <span class="pre">tus</span></code></p></td>
+<td><p>uploading files (includes read and write)</p></td>
 </tr>
 </tbody>
 </table>
 </div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>auth<span class="w"> </span>login<span class="w"> </span>--scope<span class="w"> </span>upload
+bfabric-cli<span class="w"> </span>auth<span class="w"> </span>login<span class="w"> </span>--scope<span class="w"> </span><span class="s2">&quot;api:read containers&quot;</span>
+</pre></div>
+</div>
+<p>There is no default scope: a non-interactive login must pass <code class="docutils literal notranslate"><span class="pre">--scope</span></code>. The requested scope is
+recorded in the config and a later login replays it. Note that the server silently drops scopes the
+client is not registered for, so what you asked for is not necessarily what you got.</p>
 </section>
-<section id="quick-comparison">
-<h2>Quick Comparison<a class="headerlink" href="#quick-comparison" title="Link to this heading">#</a></h2>
+<section id="several-instances-or-several-logins">
+<h2>Several instances or several logins<a class="headerlink" href="#several-instances-or-several-logins" title="Link to this heading">#</a></h2>
+<p>Name environments explicitly and switch between them:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>auth<span class="w"> </span>login<span class="w"> </span>https://fgcz-bfabric-test.uzh.ch/bfabric<span class="w"> </span>--config-env<span class="w"> </span>test-rw<span class="w"> </span>--scope<span class="w"> </span>read-write
+bfabric-cli<span class="w"> </span>auth<span class="w"> </span>activate<span class="w"> </span>test-rw<span class="w">     </span><span class="c1"># make it the default</span>
+bfabric-cli<span class="w"> </span>login<span class="w"> </span>--config-env<span class="w"> </span>test-rw
+</pre></div>
+</div>
+<p>The CLI knows these instances, so a bare host expands to the full URL and the environment name is
+suggested for you:</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
-<tr class="row-odd"><th class="head"><p>Feature</p></th>
-<th class="head"><p>ResultContainer API</p></th>
-<th class="head"><p>Entity API</p></th>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>URL</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><strong>Entry Point</strong></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">client.read(endpoint,</span> <span class="pre">obj)</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">client.reader</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">fgcz-prod</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">https://fgcz-bfabric.uzh.ch/bfabric</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><strong>Return Type</strong></p></td>
-<td><p>Dictionaries (raw data)</p></td>
-<td><p>Entity objects (typed)</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">fgcz-test</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">https://fgcz-bfabric-test.uzh.ch/bfabric</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><strong>Relationships</strong></p></td>
-<td><p>Manual handling</p></td>
-<td><p>Lazy-loading via <code class="docutils literal notranslate"><span class="pre">entity.refs</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">fgcz-demo</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">https://fgcz-bfabric-demo.uzh.ch/bfabric</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><strong>Caching</strong></p></td>
-<td><p>Manual</p></td>
-<td><p>Automatic (via <code class="docutils literal notranslate"><span class="pre">cache_entities()</span></code>)</p></td>
-</tr>
-<tr class="row-even"><td><p><strong>URI Support</strong></p></td>
-<td><p>Limited</p></td>
-<td><p>Full URI-based access</p></td>
-</tr>
-<tr class="row-odd"><td><p><strong>Data Export</strong></p></td>
-<td><p>Polars DataFrames</p></td>
-<td><p>Via <code class="docutils literal notranslate"><span class="pre">data_dict</span></code></p></td>
-</tr>
-<tr class="row-even"><td><p><strong>Use Case</strong></p></td>
-<td><p>Simple queries, data analysis</p></td>
-<td><p>Working with entities, relationships</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">trace</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">https://trace.fgcz.uzh.ch/bfabric</span></code></p></td>
 </tr>
 </tbody>
 </table>
 </div>
+<p>Any other URL works too — the list is a convenience, not a restriction.</p>
+<p>Logging in with a URL that differs from the one an environment already has asks for confirmation
+first, and refuses outright without a terminal. Repointing <code class="docutils literal notranslate"><span class="pre">PRODUCTION</span></code> at a test host is not
+something to do by accident.</p>
 </section>
-<section id="see-also">
-<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
+<section id="logging-out-vs-removing">
+<h2>Logging out vs removing<a class="headerlink" href="#logging-out-vs-removing" title="Link to this heading">#</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>auth<span class="w"> </span><span class="nb">logout</span><span class="w">            </span><span class="c1"># drop credentials, keep the environment</span>
+bfabric-cli<span class="w"> </span>auth<span class="w"> </span><span class="nb">logout</span><span class="w"> </span>--all<span class="w">      </span><span class="c1"># every environment</span>
+bfabric-cli<span class="w"> </span>auth<span class="w"> </span>remove<span class="w"> </span>test-rw<span class="w">    </span><span class="c1"># delete the environment entirely</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">logout</span></code> removes what is stored on this machine — the cached OAuth token, or an inline PAT or
+password in <code class="docutils literal notranslate"><span class="pre">~/.bfabricpy.yml</span></code> — and keeps the environment configured. That leaves it ready for a
+zero-argument <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">login</span></code> later.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p><code class="docutils literal notranslate"><span class="pre">logout</span></code> removes <em>local</em> access only — it does not revoke the token server-side, so a token that was
+already issued stays valid until it expires. On a shared machine, treat that as the security boundary
+you actually have.</p>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">remove</span></code> deletes the environment from the config as well. Use it for housekeeping, not for logging
+out.</p>
+</section>
+<section id="remote-hosts-and-headless-machines">
+<h2>Remote hosts and headless machines<a class="headerlink" href="#remote-hosts-and-headless-machines" title="Link to this heading">#</a></h2>
+<p>The browser login finishes by redirecting to a local port, so the browser has to be on the <em>same
+machine</em> as the CLI. Over SSH that cannot work, no matter which browser opens the URL. Use the device
+code flow instead:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>auth<span class="w"> </span>device-code
+</pre></div>
+</div>
+<p>It prints a code to enter in a browser anywhere, so nothing needs to reach back to the host. It is
+zero-argument re-loginable in the same way as <code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">login</span></code>.</p>
+<p>Two smaller escape hatches for the browser flow:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="../working_with_entities/index.html"><span class="std std-doc">Working with Entities</span></a> - Entity type reference</p></li>
-<li><p><a class="reference internal" href="../../api_reference/entity_reader/index.html"><span class="std std-doc">API Reference: EntityReader</span></a> - Complete EntityReader documentation</p></li>
-<li><p><a class="reference internal" href="../error_handling.html"><span class="std std-doc">Error Handling</span></a> - Query error handling</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">auth</span> <span class="pre">login</span> <span class="pre">--no-browser</span></code> prints the URL instead of trying to open one. Useful locally
+when no browser is configured — the redirect still reaches the CLI.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BROWSER=/bin/true</span> <span class="pre">bfabric-cli</span> <span class="pre">auth</span> <span class="pre">login</span></code> stops a <em>terminal</em> browser (<code class="docutils literal notranslate"><span class="pre">w3m</span></code>, <code class="docutils literal notranslate"><span class="pre">lynx</span></code>, …) from
+hijacking the login and rendering the page into your shell.</p></li>
 </ul>
+</section>
+<section id="personal-access-tokens">
+<h2>Personal access tokens<a class="headerlink" href="#personal-access-tokens" title="Link to this heading">#</a></h2>
+<p>For a non-interactive login without an OAuth flow:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>auth<span class="w"> </span>pat<span class="w"> </span>https://fgcz-bfabric.uzh.ch/bfabric
+</pre></div>
+</div>
+<p>The token is prompted for and stored in <code class="docutils literal notranslate"><span class="pre">~/.bfabricpy.yml</span></code> (mode <code class="docutils literal notranslate"><span class="pre">0600</span></code>). Passing it with <code class="docutils literal notranslate"><span class="pre">--pat</span></code>
+works but is visible in <code class="docutils literal notranslate"><span class="pre">ps</span></code> and your shell history.</p>
+</section>
+<section id="environment-variables">
+<h2>Environment variables<a class="headerlink" href="#environment-variables" title="Link to this heading">#</a></h2>
+<p>Every <code class="docutils literal notranslate"><span class="pre">auth</span></code> command honours <code class="docutils literal notranslate"><span class="pre">BFABRICPY_CONFIG_ENV</span></code> and <code class="docutils literal notranslate"><span class="pre">BFABRICPY_CONFIG_OVERRIDE</span></code> (see
+<a class="reference internal" href="../../getting_started/configuration.html"><span class="std std-doc">Configuration</span></a>). Because the override replaces the config
+file entirely, commands that would write to that file refuse to run while it is set rather than
+writing a change that has no effect.</p>
 </section>
 </section>
 
@@ -516,20 +592,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../creating_a_client/server_webapp_usage.html"
+       href="index.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Creating a Client for Server and Webapp Usage</p>
+        <p class="prev-next-title">bfabric-cli</p>
       </div>
     </a>
     <a class="right-next"
-       href="resultcontainer_api.html"
+       href="api_operations.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">ResultContainer API</p>
+        <p class="prev-next-title">API Operations</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -551,9 +627,14 @@
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choose-your-approach">Choose Your Approach</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-comparison">Quick Comparison</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#logging-in">Logging in</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#checking-what-you-are-logged-in-as">Checking what you are logged in as</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scopes">Scopes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#several-instances-or-several-logins">Several instances or several logins</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#logging-out-vs-removing">Logging out vs removing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#remote-hosts-and-headless-machines">Remote hosts and headless machines</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#personal-access-tokens">Personal access tokens</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-variables">Environment variables</a></li>
 </ul>
   </nav></div>
 

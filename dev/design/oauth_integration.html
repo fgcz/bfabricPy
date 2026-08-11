@@ -212,6 +212,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../user_guides/writing_data/index.html">Writing Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guides/working_with_entities/index.html">Entity Features</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/bfabric-cli/index.html">bfabric-cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/authentication.html">Authentication</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/api_operations.html">API Operations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/api_inspection.html">API Inspection with CLI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/datasets.html">Datasets</a></li>
@@ -527,11 +528,11 @@
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">login</span> <span class="pre">&lt;base_url&gt;</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">login</span> <span class="pre">[base_url]</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">cli/login/oauth_login.py</span></code></p></td>
-<td><p>Browser-based OAuth login. Caches tokens + writes config.</p></td>
+<td><p>Browser-based OAuth login. Caches tokens + writes config. Also registered top-level as <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">login</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">device-code</span> <span class="pre">&lt;base_url&gt;</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">device-code</span> <span class="pre">[base_url]</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">cli/login/oauth_login.py</span></code></p></td>
 <td><p>Headless OAuth login.</p></td>
 </tr>
@@ -543,18 +544,45 @@
 <td><p><code class="docutils literal notranslate"><span class="pre">cli/login/register.py</span></code></p></td>
 <td><p>RFC 7591 dynamic client registration. Outputs JSON.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">status</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">cli/login/status.py</span></code></p></td>
-<td><p>Show current auth status for an environment.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">register-webapp</span> <span class="pre">&lt;client_name&gt;</span> <span class="pre">&lt;redirect_uri&gt;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cli/login/register_webapp.py</span></code></p></td>
+<td><p>Registration preset for webapps (OIDC-inclusive scope).</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">logout</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">cli/login/logout.py</span></code></p></td>
-<td><p>Clear cached OAuth tokens.</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">status</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cli/login/manage.py</span></code></p></td>
+<td><p>Show auth status for an environment.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">list</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cli/login/manage.py</span></code></p></td>
+<td><p>List environments grouped by instance, with scope / expiry / why-active.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">activate</span> <span class="pre">[env]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cli/login/manage.py</span></code></p></td>
+<td><p>Make an environment the config default.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">logout</span> <span class="pre">[env]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cli/login/manage.py</span></code></p></td>
+<td><p>Remove stored credentials for this machine, keeping the environment. <code class="docutils literal notranslate"><span class="pre">--all</span></code> for every environment.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">remove</span> <span class="pre">[env]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cli/login/manage.py</span></code></p></td>
+<td><p>Delete an environment: config entry plus cached tokens.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>All auth commands use <code class="docutils literal notranslate"><span class="pre">--config-env</span></code> (consistent with API commands via <code class="docutils literal notranslate"><span class="pre">&#64;use_client</span></code>).</p>
+<p>See <a class="reference internal" href="../user_guides/bfabric-cli/authentication.html"><span class="std std-doc">the CLI authentication guide</span></a> for the user-facing
+view; this section covers only what is not visible from the outside.</p>
+<p>All auth commands resolve the environment as <code class="docutils literal notranslate"><span class="pre">--config-env</span></code> &gt; <code class="docutils literal notranslate"><span class="pre">BFABRICPY_CONFIG_ENV</span></code> &gt;
+<code class="docutils literal notranslate"><span class="pre">GENERAL.default_config</span></code>, matching <code class="docutils literal notranslate"><span class="pre">ConfigFile.get_selected_config_env</span></code>, and <code class="docutils literal notranslate"><span class="pre">base_url</span></code> is optional
+for the login commands because it is read back from that environment. Commands that write to the
+config refuse to run while <code class="docutils literal notranslate"><span class="pre">BFABRICPY_CONFIG_OVERRIDE</span></code> is set, since the file would not be the config
+in effect.</p>
+<p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">logout</span></code> removes credentials per auth method — the token cache for <code class="docutils literal notranslate"><span class="pre">oauth</span></code>, the inline <code class="docutils literal notranslate"><span class="pre">pat</span></code> or
+<code class="docutils literal notranslate"><span class="pre">login</span></code>/<code class="docutils literal notranslate"><span class="pre">password</span></code> keys for the others (via <code class="docutils literal notranslate"><span class="pre">clear_environment_credentials</span></code>). It deliberately does not
+revoke server-side. Instances <em>do</em> advertise <code class="docutils literal notranslate"><span class="pre">revocation_endpoint</span></code> in their discovery document (trace:
+<code class="docutils literal notranslate"><span class="pre">{base_url}/rest/oauth/token</span></code> → <code class="docutils literal notranslate"><span class="pre">/rest/oauth/revoke</span></code>), but whether it is implemented is unverified, so
+logout promises only what it delivers: local credentials gone, an issued token valid until it expires.</p>
 <section id="auth-register-enhancements">
 <h3><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">register</span></code> enhancements<a class="headerlink" href="#auth-register-enhancements" title="Link to this heading">#</a></h3>
 <ul class="simple">
@@ -574,8 +602,17 @@
 <span class="w">  </span><span class="nt">base_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://bfabric.example.com/bfabric&quot;</span>
 <span class="w">  </span><span class="nt">auth_method</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;oauth&quot;</span><span class="w">        </span><span class="c1"># NEW — triggers OAuth flow in Bfabric.connect()</span>
 <span class="w">  </span><span class="nt">client_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CLI&quot;</span><span class="w">    </span><span class="c1"># NEW — optional, defaults to &quot;CLI&quot;</span>
+<span class="w">  </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;api:write</span><span class="nv"> </span><span class="s">tus&quot;</span><span class="w">      </span><span class="c1"># NEW — the scope *requested* at login</span>
 </pre></div>
 </div>
+<p><code class="docutils literal notranslate"><span class="pre">scope</span></code> is what makes a login replayable from disk, and it is deliberately the <strong>requested</strong> value
+rather than the granted one: the server drops scopes the client isn’t registered for, so replaying the
+granted scope would bake that drop in permanently. Only the CLI reads the key — it is excluded from
+<code class="docutils literal notranslate"><span class="pre">BfabricClientConfig</span></code> and not plumbed through <code class="docutils literal notranslate"><span class="pre">ConfigData</span></code> / <code class="docutils literal notranslate"><span class="pre">export_config_data</span></code>.</p>
+<p>A re-login <strong>merges</strong> into an existing environment section rather than replacing it, so hand-written
+keys (<code class="docutils literal notranslate"><span class="pre">application_ids</span></code>, <code class="docutils literal notranslate"><span class="pre">engine</span></code>, <code class="docutils literal notranslate"><span class="pre">job_notification_emails</span></code>, …) survive. The auth-owned keys
+(<code class="docutils literal notranslate"><span class="pre">login</span></code>, <code class="docutils literal notranslate"><span class="pre">password</span></code>, <code class="docutils literal notranslate"><span class="pre">pat</span></code>, <code class="docutils literal notranslate"><span class="pre">auth_method</span></code>, <code class="docutils literal notranslate"><span class="pre">client_id</span></code>, <code class="docutils literal notranslate"><span class="pre">scope</span></code>) are replaced wholesale, so a stale
+<code class="docutils literal notranslate"><span class="pre">pat</span></code> cannot outlive the auth method that wrote it and be resurrected by <code class="docutils literal notranslate"><span class="pre">gather_auth</span></code>.</p>
 <p>For PAT (Personal Access Token) logins the token is stored inline under <code class="docutils literal notranslate"><span class="pre">pat</span></code> (with
 <code class="docutils literal notranslate"><span class="pre">auth_method:</span> <span class="pre">pat</span></code>), never as <code class="docutils literal notranslate"><span class="pre">login:</span> <span class="pre">__oauth__</span></code> / <code class="docutils literal notranslate"><span class="pre">password:</span> <span class="pre">&lt;token&gt;</span></code>:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">PRODUCTION</span><span class="p">:</span>
