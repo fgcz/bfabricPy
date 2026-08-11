@@ -20,7 +20,6 @@ def log_command_output(level: str, output: str) -> None:
 def _get_shell_env(
     environ: dict[str, str] | None, config_env: dict[str, str], config_prepend_paths: list[Path]
 ) -> dict[str, str]:
-    # Copying is load-bearing: neither os.environ nor a caller-supplied dict may be mutated.
     environ = os.environ.copy() if environ is None else dict(environ)
     for path in reversed(config_prepend_paths):
         environ["PATH"] = f"{path.expanduser().absolute()}:{environ.get('PATH', '')}"
