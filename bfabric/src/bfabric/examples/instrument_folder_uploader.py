@@ -14,7 +14,7 @@ Model (see the fleet discussion):
 - Re-running is safe and cheap: on the reuse path ``upload_files`` checksums each file and skips the
   ones already stored (md5 dedup), so a folder that gained new files uploads only the new ones into
   the SAME workunit; a folder with nothing new transfers nothing.
-- A **new** run, by contrast, uploads unconditionally (``force=True``). B-Fabric's duplicate check is
+- A **new** run, by contrast, uploads unconditionally (``on_duplicate="upload"``). B-Fabric's duplicate check is
   container-wide, not per-run, so an unrelated run that happened to produce byte-identical content (a
   calibration file, a blank, an empty spectrum) would otherwise suppress this run's copy -- leaving
   the folder with no workunit of its own and, since there would then be no id to remember, stranded
@@ -75,7 +75,7 @@ from loguru import logger
 from pydantic import BaseModel, SecretStr, model_validator
 
 from bfabric import Bfabric
-from bfabric.operations.workunit import UploadFilesParams, upload_files
+from bfabric.operations.workunit import UploadFileParam, UploadFilesParams, upload_files
 
 DEFAULT_MARKER_NAME = ".bfabric_upload"
 """Default marker filename; override per machine with ``marker_name`` in the config.
@@ -250,20 +250,24 @@ def upload_folder(client: Bfabric, folder: Path, cfg: UploaderConfig) -> None:
 
     summary = upload_files(
         client=client,
-        files=[folder],
         params=UploadFilesParams(
+            files=[
+                UploadFileParam(
+                    path=folder,
+                    # A new run uploads unconditionally: B-Fabric's duplicate check is container-wide,
+                    # so an unrelated run that happened to produce identical bytes (a calibration
+                    # file, a blank) would otherwise suppress this run's copy and leave it with no
+                    # workunit at all. The operator placing the marker is the assertion that this is a
+                    # genuine new acquisition. On the reuse path dedup is exactly what we want: skip
+                    # what this scan already uploaded and send only the new files.
+                    on_duplicate="upload" if is_new_run else "skip",
+                )
+            ],
             # Create path (workunit_id is None) needs container + application; reuse path ignores them.
             container_id=cfg.container_id if is_new_run else None,
             application_id=cfg.application_id if is_new_run else None,
             workunit_id=state.workunit_id,
             workunit_name=workunit_name if is_new_run else None,
-            # A new run uploads unconditionally: B-Fabric's duplicate check is container-wide, so an
-            # unrelated run that happened to produce identical bytes (a calibration file, a blank)
-            # would otherwise suppress this run's copy and leave it with no workunit at all. The
-            # operator placing the marker is the assertion that this is a genuine new acquisition.
-            # On the reuse path dedup is exactly what we want: skip what this scan already uploaded
-            # and send only the new files.
-            force=is_new_run,
             track_job=True,  # server-side DONE/FAILED visibility per upload
         ),
         # The operator's marker lives inside the run folder; it is a signal, not data.
@@ -271,9 +275,9 @@ def upload_folder(client: Bfabric, folder: Path, cfg: UploaderConfig) -> None:
     )
 
     if summary.workunit_id is None:
-        # Unreachable in practice: force=True on the create path means nothing is ever skipped, so a
-        # workunit is always created. Guarded anyway so a future change to that flag cannot silently
-        # skip persisting the id -- which would strand the folder on the create path forever.
+        # Unreachable in practice: on_duplicate="upload" on the create path means nothing is ever
+        # skipped, so a workunit is always created. Guarded anyway so a future change to that policy
+        # cannot silently skip persisting the id -- which would strand the folder on the create path.
         logger.warning(
             "{}: no workunit was created ({} file(s) skipped); folder left unrecorded.",
             folder.name,

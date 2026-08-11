@@ -138,7 +138,8 @@ ______________________________________________________________________
 
 Upload files to a workunit over the [tus](https://tus.io/) resumable-upload protocol. This is the
 modern replacement for the base64-over-SOAP `Bfabric.upload_resource` (which is limited to small
-files): it streams in chunks, skips duplicates, and can resume an interrupted transfer.
+files): it streams in chunks, can skip or link content B-Fabric already stores, and can resume an
+interrupted transfer.
 
 ### Prerequisites
 
@@ -158,8 +159,9 @@ See [Authentication](authentication.md) for the scope presets and the rest of th
 bfabric-cli workunit upload FILE... --container-id <id> --application-id <id> [OPTIONS]
 ```
 
-The pipeline is: compute checksums → check for duplicates → create the workunit and its resource
-records → mint a short-lived tus token → transfer each file → mark the workunit `available`.
+The pipeline is: compute checksums → check for duplicates (only with `--on-duplicate skip|link`) →
+create the workunit and its resource records → mint a short-lived tus token → transfer each file →
+mark the workunit `available`.
 
 ### Parameters
 
@@ -170,7 +172,7 @@ records → mint a short-lived tus token → transfer each file → mark the wor
 | `--application-id` | \* | Application the workunit belongs to |
 | `--workunit-id` | \* | Upload into this existing workunit instead of creating one |
 | `--workunit-name` | No | Name for the created workunit (default "File upload") |
-| `--force` | No | Skip the duplicate check and upload every file |
+| `--on-duplicate` | No | `upload` (default), `skip` or `link` content already in the container |
 | `--track-job` | No | Create a `UPLOAD` job; the server flips it to DONE/FAILED |
 | `--no-progress` | No | Disable the live progress bar (auto-off when stderr is not a terminal) |
 
@@ -191,8 +193,10 @@ bfabric-cli workunit upload results.txt report.pdf --container-id 40156 --applic
 bfabric-cli workunit upload ./output_dir --container-id 40156 --application-id 447
 ```
 
-Files identical to ones already in the container are skipped by MD5. Use `--force` to upload them
-anyway.
+By default every file is uploaded, whether or not the container already holds identical content.
+`--on-duplicate skip` leaves such a file out of the workunit; `--on-duplicate link` instead gives the
+workunit a resource pointing at the stored bytes, so it has an entry for every file you named without
+re-transferring anything. Duplicates are matched by MD5, container-wide — not per workunit.
 
 **Upload into an existing workunit:**
 
@@ -242,13 +246,22 @@ you want to feed progress into your own pipeline runner:
 from pathlib import Path
 
 from bfabric import Bfabric
-from bfabric.operations.workunit import UploadFilesParams, upload_files
+from bfabric.operations.workunit import UploadFileParam, UploadFilesParams, upload_files
 
 client = Bfabric.connect()  # OAuth-backed client with the 'tus' scope
 summary = upload_files(
     client,
-    files=[Path("results.txt"), Path("output_dir")],
-    params=UploadFilesParams(container_id=40156, application_id=447, track_job=True),
+    params=UploadFilesParams(
+        files=[
+            UploadFileParam(path=Path("results.txt")),
+            # Each entry carries its own duplicate policy; a directory applies its policy to
+            # every file under it.
+            UploadFileParam(path=Path("output_dir"), on_duplicate="skip"),
+        ],
+        container_id=40156,
+        application_id=447,
+        track_job=True,
+    ),
     on_progress=lambda name, done, total: print(f"{name}: {done}/{total}"),
 )
 print(

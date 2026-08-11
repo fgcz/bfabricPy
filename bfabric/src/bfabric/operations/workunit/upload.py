@@ -3,7 +3,8 @@ from __future__ import annotations
 from collections import Counter
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field, replace
-from typing import TYPE_CHECKING
+from pathlib import Path
+from typing import TYPE_CHECKING, Literal
 
 from loguru import logger
 from pydantic import BaseModel, model_validator
@@ -23,11 +24,10 @@ from bfabric.transfer import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Collection, Sequence
-    from pathlib import Path
+    from collections.abc import Collection
 
     from bfabric import Bfabric
-    from bfabric.transfer import CreatedResource, FileInfo, UploadTokenResult
+    from bfabric.transfer import CreatedResource, DuplicateResult, FileInfo, UploadTokenResult
 
 
 # --- upload_files: the create-workunit -> dedup -> create-resources -> upload -> register workflow ---
@@ -41,14 +41,33 @@ UploadStartCallback = Callable[[int, int], None]
 FileDoneCallback = Callable[[str, bool], None]
 """Called with (filename, success) after each file's transfer finishes (success or failure)."""
 
+OnDuplicate = Literal["upload", "skip", "link"]
+"""What to do with a file whose content the target container already stores.
+
+Named after the server's own ``check-duplicates`` verdicts (``DuplicateResult.action``), so a
+caller's intent and the server's answer are the same three words.
+"""
+
+
+class UploadFileParam(BaseModel):
+    """One file or directory to upload, and what to do if B-Fabric already stores its content."""
+
+    path: Path
+    on_duplicate: OnDuplicate = "upload"
+    """``upload`` sends the file regardless (no duplicate check is made for it), ``skip`` leaves it
+    out of the workunit entirely, ``link`` registers a resource pointing at the already-stored bytes
+    without transferring any. A directory applies its policy to every file under it."""
+
 
 class UploadFilesParams(BaseModel):
-    """Inputs for :func:`upload_files` (the file list itself is the separate payload argument).
+    """Inputs for :func:`upload_files`.
 
     Either target an existing workunit (``workunit_id``) or create a new one (``container_id`` +
     ``application_id``, optional ``workunit_name``); the two modes are mutually exclusive.
     """
 
+    files: list[UploadFileParam]
+    """The files and/or directories to upload, each with its own duplicate policy."""
     container_id: int | None = None
     """Container to create the workunit in. Required unless ``workunit_id`` is given."""
     application_id: int | None = None
@@ -57,15 +76,6 @@ class UploadFilesParams(BaseModel):
     """Upload into this existing workunit instead of creating one. Mutually exclusive with ``workunit_name``."""
     workunit_name: str | None = None
     """Name for the created workunit (``None`` → "File upload"); mutually exclusive with ``workunit_id``."""
-    force: bool = False
-    """Skip the duplicate check and upload every file."""
-    link_duplicates: bool = False
-    """Register a duplicate as a link to the already-stored bytes instead of skipping it, so the
-    workunit gets a resource for every input file without re-transferring content the instance
-    already holds. Applies to any verdict naming an ``existingResourceId`` -- in practice a
-    ``skip`` on an ``exact_duplicate`` / ``renamed_duplicate``. Off by default: linking creates a
-    resource pointing at bytes this caller never uploaded, so it is an explicit opt-in. Has no effect
-    together with ``force``, which skips the duplicate check and so produces no verdicts to act on."""
     track_job: bool = False
     """Create a ``UPLOAD`` job under the workunit and attach its id to the upload, so the tus
     server's hooks flip the job to ``DONE``/``FAILED`` as the transfer progresses. Works on both the
@@ -125,7 +135,6 @@ class UploadSummary:
 
 def upload_files(
     client: Bfabric,
-    files: Sequence[Path],
     params: UploadFilesParams,
     *,
     on_progress: FileProgressCallback | None = None,
@@ -150,11 +159,10 @@ def upload_files(
 
     :param client: a connected client; for the tus transfer it must be OAuth-backed with the ``tus``
         scope (a fail-fast :class:`~bfabric.transfer.ScopeError` is raised otherwise).
-    :param files: files and/or directories to upload; directories are expanded recursively, keeping
-        their relative path as the resource name.
-    :param params: the target workunit -- either an existing ``workunit_id`` or a
-        ``container_id``/``application_id`` to create one under -- plus ``force`` /
-        ``track_job`` (see :class:`UploadFilesParams`).
+    :param params: the ``files`` to upload (each with its own ``on_duplicate`` policy; directories
+        are expanded recursively, keeping their relative path as the resource name) and the target
+        workunit -- either an existing ``workunit_id`` or a ``container_id``/``application_id`` to
+        create one under (see :class:`UploadFilesParams`).
     :param on_progress: optional ``(filename, bytes_done, total)`` per-chunk progress callback.
     :param on_start: optional ``(total_files, total_bytes)`` callback fired once after dedup, just
         before the first transfer (never fired when everything is skipped as a duplicate). It reports
@@ -177,13 +185,13 @@ def upload_files(
     require_tus()
     rest = UploadRestClient(client)
     check_upload_scope(client)
-    file_infos = collect_file_infos(list(files), exclude_names=exclude_names)
+    file_infos, policies = _collect_entries(params, exclude_names)
 
     # Resolve the target container up front: it feeds both the duplicate check and the tus sink
     # metadata. On the reuse path it comes from the existing workunit, not from params.
     container_id = _resolve_container_id(client, params)
 
-    to_upload, skipped = _select_files_to_upload(rest, file_infos, params, container_id)
+    to_upload, skipped = _select_files_to_upload(rest, file_infos, policies, container_id)
     if not to_upload:
         logger.info("Nothing to upload (all {} file(s) skipped as duplicates).", skipped)
         # workunit_id is None on the create path (nothing was created) but the reused id on the reuse
@@ -267,6 +275,40 @@ def upload_files(
     )
 
 
+def _collect_entries(
+    params: UploadFilesParams, exclude_names: Collection[str] | None
+) -> tuple[list[FileInfo], dict[str, OnDuplicate]]:
+    """Every file to consider, in input order, plus the ``on_duplicate`` of the entry each came from.
+
+    The collector is called per entry because it flattens directories, losing which entry a file came
+    from -- and that is what carries the policy.
+    """
+    file_infos: list[FileInfo] = []
+    policies: dict[str, OnDuplicate] = {}
+    for entry in params.files:
+        for file_info in collect_file_infos([entry.path], exclude_names=exclude_names):
+            file_infos.append(file_info)
+            policies[file_info.name] = entry.on_duplicate
+    _reject_duplicate_names(file_infos)
+    return file_infos, policies
+
+
+def _reject_duplicate_names(file_infos: list[FileInfo]) -> None:
+    """Refuse two files mapping to one resource name; verdicts and resources are keyed by name alone.
+
+    Runs before anything is created: nothing downstream can disambiguate them, and pairing by list
+    position instead would upload one file's bytes to another's storage path.
+    """
+    name_counts = Counter(file_info.name for file_info in file_infos)
+    duplicate_names = sorted(name for name, count in name_counts.items() if count > 1)
+    if duplicate_names:
+        raise BfabricTransferError(
+            "Cannot upload multiple files that map to the same resource name: "
+            + ", ".join(duplicate_names)
+            + " (name-based pairing cannot disambiguate them)."
+        )
+
+
 def _resolve_container_id(client: Bfabric, params: UploadFilesParams) -> int:
     """The container the upload targets: from ``params`` on the create path, else the reused workunit's."""
     if params.workunit_id is None:
@@ -288,38 +330,46 @@ def _existing_workunit_container_id(client: Bfabric, workunit_id: int) -> int:
 
 
 def _select_files_to_upload(
-    rest: UploadRestClient, file_infos: list[FileInfo], params: UploadFilesParams, container_id: int
+    rest: UploadRestClient, file_infos: list[FileInfo], policies: dict[str, OnDuplicate], container_id: int
 ) -> tuple[list[FileInfo], int]:
-    if params.force:
+    # An "upload" policy is a decision, not a question, so those files are left out of the request
+    # entirely -- and when every file carries it, no duplicate check is made at all.
+    to_check = [fi for fi in file_infos if policies[fi.name] != "upload"]
+    if not to_check:
         return file_infos, 0
-    results = rest.check_duplicates(container_id, file_infos)
-    # Guard against a name-normalization mismatch silently dropping a file: every input file must get
-    # a verdict, otherwise a file the server didn't recognise would be miscounted as skipped and never
-    # uploaded (silent data loss reported as success).
+    # Drop any verdict for a name we did not ask about: its file either has an "upload" policy (the
+    # decision is already made) or is not ours at all, and either way there is no policy to judge it
+    # against. The 'unaccounted' guard below still catches the opposite -- a checked file with no verdict.
+    checked_names = {file_info.name for file_info in to_check}
+    results = [r for r in rest.check_duplicates(container_id, to_check) if r.filename in checked_names]
+    # Guard against a name-normalization mismatch silently dropping a file: every checked file must
+    # get a verdict, otherwise a file the server didn't recognise would be miscounted as skipped and
+    # never uploaded (silent data loss reported as success).
     verdict_names = {r.filename for r in results}
-    unaccounted = sorted(fi.name for fi in file_infos if fi.name not in verdict_names)
+    unaccounted = sorted(fi.name for fi in to_check if fi.name not in verdict_names)
     if unaccounted:
         raise BfabricTransferError(
             "check-duplicates returned no verdict for: "
             + ", ".join(unaccounted)
             + " (name mismatch between the request and response); refusing to upload to avoid silently "
-            "dropping files. Re-run with force=True to bypass the duplicate check."
+            'dropping files. Re-run them with on_duplicate="upload" to bypass the duplicate check.'
         )
     # "upload" (new file) and "skip" (exact duplicate already stored) are always actionable; "link"
-    # (content-identical bytes already stored elsewhere) only when the caller opted in. Any other
-    # verdict is one we cannot act on, and folding it into the skipped count would silently fail to
-    # register a file the user asked for. Fail loud instead.
-    supported = ("upload", "skip", "link") if params.link_duplicates else ("upload", "skip")
-    unsupported = sorted(r.filename for r in results if r.action not in supported)
+    # (content-identical bytes already stored elsewhere) only for a file whose own policy asked for
+    # it. Any other verdict is one we cannot act on, and folding it into the skipped count would
+    # silently fail to register a file the user asked for. Fail loud instead.
+    unsupported = sorted(r.filename for r in results if not _is_actionable(r, policies[r.filename]))
     if unsupported:
-        # Point at link_duplicates only when 'link' is actually what we refused; any other verdict is
-        # one this client has no handling for at all, so force=True is the only way forward.
+        # Point at the link policy only when 'link' is actually what we refused; any other verdict is
+        # one this client has no handling for at all, so uploading anyway is the only way forward.
         refused_link = any(r.action == "link" for r in results if r.filename in set(unsupported))
         hint = (
-            "; these are content-duplicates the server wants registered as links. Re-run with "
-            "link_duplicates=True to register them as links, or force=True to upload them as new resources."
+            "; these are content-duplicates the server wants registered as links. Re-run them with "
+            'on_duplicate="link" to register the links, or on_duplicate="upload" to upload them as '
+            "new resources."
             if refused_link
-            else "; upload_files cannot act on this verdict. Re-run with force=True to upload them as new resources."
+            else "; upload_files cannot act on this verdict. Re-run them with "
+            'on_duplicate="upload" to upload them as new resources.'
         )
         raise BfabricTransferError(
             "check-duplicates requested an unsupported action for: " + ", ".join(unsupported) + hint
@@ -330,11 +380,11 @@ def _select_files_to_upload(
     # action "link" for it -- so linking is driven by a skip verdict that names a resource to link to.
     # An explicit "link" action is honoured too, for a server that does emit it.
     # A skip without an existingResourceId has no link target, so it stays a plain skip.
-    link_ids: dict[str, int] = {}
-    if params.link_duplicates:
-        link_ids = {
-            r.filename: r.resource_id for r in results if r.action in ("skip", "link") and r.resource_id is not None
-        }
+    link_ids = {
+        r.filename: r.resource_id
+        for r in results
+        if policies[r.filename] == "link" and r.action in ("skip", "link") and r.resource_id is not None
+    }
 
     # An explicit "link" verdict with no id is unusable: we can neither link nor safely fall back to
     # uploading (the server already told us not to), so fail loud rather than silently drop the file.
@@ -343,16 +393,24 @@ def _select_files_to_upload(
         raise BfabricTransferError(
             "check-duplicates returned a 'link' verdict without an existingResourceId for: "
             + ", ".join(unusable)
-            + "; cannot register a link without it. Re-run with force=True to upload them as new resources."
+            + '; cannot register a link without it. Re-run them with on_duplicate="upload" to upload '
+            "them as new resources."
         )
 
     upload_names = {r.filename for r in results if r.action == "upload"}
     to_upload = [
         replace(fi, link_from_resource_id=link_ids[fi.name]) if fi.name in link_ids else fi
         for fi in file_infos
-        if fi.name in upload_names or fi.name in link_ids
+        if policies[fi.name] == "upload" or fi.name in upload_names or fi.name in link_ids
     ]
     return to_upload, len(file_infos) - len(to_upload)
+
+
+def _is_actionable(result: DuplicateResult, policy: OnDuplicate) -> bool:
+    """Whether this client can act on ``result`` for a file uploaded under ``policy``."""
+    if result.action in ("upload", "skip"):
+        return True
+    return result.action == "link" and policy == "link"
 
 
 def _create_upload_workunit(client: Bfabric, params: UploadFilesParams, audit_attributes: dict[str, str]) -> int:
@@ -389,16 +447,7 @@ def _create_upload_job(client: Bfabric, workunit_id: int) -> int:
 def _pair_resources_to_files(resources: list[CreatedResource], to_upload: list[FileInfo]) -> dict[str, CreatedResource]:
     # Pair each file to its resource by NAME, not list position: create-resources is not guaranteed
     # to preserve request order, and index-pairing would upload one file's bytes to another's path.
-    # Name-pairing only works if names are unique, so reject duplicates up front — otherwise two files
-    # sharing a resource name would silently collapse into one resource (data loss).
-    name_counts = Counter(fi.name for fi in to_upload)
-    duplicate_names = sorted(name for name, count in name_counts.items() if count > 1)
-    if duplicate_names:
-        raise BfabricTransferError(
-            "Cannot upload multiple files that map to the same resource name: "
-            + ", ".join(duplicate_names)
-            + " (name-based pairing cannot disambiguate them)."
-        )
+    # Name-pairing needs unique names, which _reject_duplicate_names has already established.
     if len(resources) != len(to_upload):
         raise BfabricTransferError(
             f"create-resources returned {len(resources)} resource(s) for {len(to_upload)} file(s); "

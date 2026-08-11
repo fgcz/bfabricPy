@@ -23,7 +23,7 @@ from rich.progress import (
 )
 
 from bfabric import Bfabric
-from bfabric.operations.workunit import UploadFilesParams, upload_files
+from bfabric.operations.workunit import OnDuplicate, UploadFileParam, UploadFilesParams, upload_files
 from bfabric.utils.cli_integration import use_client
 
 if TYPE_CHECKING:
@@ -45,13 +45,10 @@ class UploadParams(BaseModel):
     """Upload into this existing workunit instead of creating a new one. Mutually exclusive with ``--workunit-name``."""
     workunit_name: Annotated[str | None, cyclopts.Parameter(name="--workunit-name")] = None
     """Name for the created workunit (``None`` → "File upload"); mutually exclusive with ``--workunit-id``."""
-    force: bool = False
-    """Skip the duplicate check and upload every file."""
-    link_duplicates: bool = False
-    """Register a file whose content already exists in the container as a link to that existing
-    resource, instead of skipping the file. The workunit then has a resource for every file uploaded,
-    without re-transferring content B-Fabric already stores. Ignored together with ``--force``, which
-    skips the duplicate check altogether."""
+    on_duplicate: Annotated[OnDuplicate, cyclopts.Parameter(name="--on-duplicate")] = "upload"
+    """What to do with a file whose content the container already stores: ``upload`` sends it anyway
+    (no duplicate check is made), ``skip`` leaves it out of the workunit, ``link`` gives the workunit
+    a resource pointing at the already-stored bytes without re-transferring them."""
     track_job: bool = False
     """Create a ``UPLOAD`` job tracking the upload; the tus server flips it to DONE/FAILED."""
     progress: bool = True
@@ -85,14 +82,12 @@ def cmd_workunit_upload(params: UploadParams, *, client: Bfabric) -> None:
     with _upload_progress(enabled=_progress_enabled(requested=params.progress)) as reporter:
         summary = upload_files(
             client=client,
-            files=params.files,
             params=UploadFilesParams(
+                files=[UploadFileParam(path=path, on_duplicate=params.on_duplicate) for path in params.files],
                 container_id=params.container_id,
                 application_id=params.application_id,
                 workunit_id=params.workunit_id,
                 workunit_name=params.workunit_name,
-                force=params.force,
-                link_duplicates=params.link_duplicates,
                 track_job=params.track_job,
             ),
             on_progress=reporter.on_progress if reporter else None,
