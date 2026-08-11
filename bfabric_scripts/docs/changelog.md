@@ -10,6 +10,7 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 ## \[Unreleased\]
 
+- Packaging: `project.readme` now points at the package's own `README.md` instead of the repository root's, for the same reason as in `bfabric` — hatchling 1.32.0 rejects readme paths outside the project directory, breaking builds from source. The package README was expanded into a proper landing page, since it is what PyPI now shows.
 - `bfabric-cli auth register-webapp` — no longer crashes with a raw traceback when the OAuth session cannot be refreshed (e.g. an expired/revoked refresh token); prints a clean `Error: ...` message and exits 1.
 
 ## \[1.16.0\] - 2026-08-03
