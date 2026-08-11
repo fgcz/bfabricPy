@@ -14,6 +14,7 @@ import cyclopts
 import pytest
 from pydantic import ValidationError
 
+from bfabric.operations.workunit import FileUpload, UploadSummary
 from bfabric_scripts.cli.workunit import upload as upload_mod
 from bfabric_scripts.cli.workunit.upload import UploadParams
 
@@ -156,8 +157,13 @@ class TestUploadParamsValidation:
 
 class TestCmdWorkunitUpload:
     @pytest.fixture
-    def summary(self, mocker):
-        return mocker.MagicMock(workunit_id=42, uploaded=1, skipped=0, failed=0, failures=[])
+    def summary(self):
+        # A real summary, not a mock: the command's log lines take len() of its outcome lists, and a
+        # MagicMock would answer 0 to every one of them without failing.
+        return UploadSummary(
+            workunit_id=42,
+            uploads=[FileUpload(filename="a.raw", resource_id=10, storage_path="/store/a.raw")],
+        )
 
     def _patch_context(self, mocker, reporter):
         context = mocker.MagicMock()

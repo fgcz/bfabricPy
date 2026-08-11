@@ -281,7 +281,7 @@ def upload_folder(client: Bfabric, folder: Path, cfg: UploaderConfig) -> None:
         logger.warning(
             "{}: no workunit was created ({} file(s) skipped); folder left unrecorded.",
             folder.name,
-            summary.skipped,
+            len(summary.skips),
         )
         return
 
@@ -291,9 +291,9 @@ def upload_folder(client: Bfabric, folder: Path, cfg: UploaderConfig) -> None:
         "{} -> workunit {}: uploaded {}, skipped {}, failed {}.",
         folder.name,
         summary.workunit_id,
-        summary.uploaded,
-        summary.skipped,
-        summary.failed,
+        len(summary.uploads),
+        len(summary.skips),
+        len(summary.failures),
     )
     for failure in summary.failures:
         logger.error("  Failed {}: {}", failure.filename, failure.error)

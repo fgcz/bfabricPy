@@ -14,6 +14,7 @@ import pytest
 from pydantic import ValidationError
 
 from bfabric.operations.workunit import (
+    FileSkip,
     UploadFileParam,
     UploadFilesParams,
     UploadSummary,
@@ -91,6 +92,11 @@ def _params(*files: str | UploadFileParam, on_duplicate: str = "upload", **overr
     return UploadFilesParams(container_id=100, application_id=5, files=entries, **overrides)
 
 
+def _counts(summary: UploadSummary) -> tuple[int, int, int, int]:
+    """(uploaded, linked, skipped, failed) as the lengths of the four outcome lists."""
+    return len(summary.uploads), len(summary.links), len(summary.skips), len(summary.failures)
+
+
 def _checked_names(rest) -> list[str]:
     """The resource names actually submitted to ``check-duplicates``."""
     return [fi.name for fi in rest.check_duplicates.call_args.args[1]]
@@ -142,14 +148,7 @@ class TestHappyPath:
 
         summary = upload_files(mock_client, _params("/src/a.txt", "/src/b.txt"))
 
-        assert summary == UploadSummary(
-            workunit_id=WORKUNIT_ID,
-            uploaded=2,
-            skipped=0,
-            failed=0,
-            uploads=summary.uploads,
-            failures=[],
-        )
+        assert summary == UploadSummary(workunit_id=WORKUNIT_ID, uploads=summary.uploads)
         assert summary.workunit_id == WORKUNIT_ID
         assert {u.filename for u in summary.uploads} == {"a.txt", "b.txt"}
         assert mock_send.call_count == 2
@@ -165,7 +164,7 @@ class TestHappyPath:
         summary = upload_files(mock_client, _params("/src/a.txt", "/src/b.txt"))
 
         rest.check_duplicates.assert_not_called()
-        assert (summary.uploaded, summary.skipped) == (2, 0)
+        assert (len(summary.uploads), len(summary.skips)) == (2, 0)
         assert mock_send.call_count == 2
 
     def test_records_resource_details(self, mock_client, rest, mock_send):
@@ -219,7 +218,7 @@ class TestPerFilePolicy:
         assert _checked_names(rest) == ["b.txt"]
         # ...and still keeps its position in the list handed to create-resources.
         assert _created_names(rest) == ["a.txt", "b.txt"]
-        assert (summary.uploaded, summary.skipped) == (2, 0)
+        assert (len(summary.uploads), len(summary.skips)) == (2, 0)
 
     def test_unchecked_entry_survives_a_duplicate_sibling(self, mock_client, rest, mock_send):
         # The "skip" entry is a duplicate and drops out; the "upload" entry is unaffected by it.
@@ -236,7 +235,7 @@ class TestPerFilePolicy:
         )
 
         assert _created_names(rest) == ["a.txt"]
-        assert (summary.uploaded, summary.skipped) == (1, 1)
+        assert (len(summary.uploads), len(summary.skips)) == (1, 1)
 
     def test_directory_entry_applies_its_policy_to_every_expanded_file(self, mock_client, rest, mock_collect):
         # One entry expanding to two files: both inherit the entry's "skip", so both are checked.
@@ -246,7 +245,7 @@ class TestPerFilePolicy:
         summary = upload_files(mock_client, _params("/src/run", on_duplicate="skip"))
 
         assert _checked_names(rest) == ["run/a.raw", "run/b.raw"]
-        assert summary.skipped == 2
+        assert len(summary.skips) == 2
 
     def test_verdict_for_an_unchecked_file_is_ignored(self, mock_client, rest, mock_send):
         # A server that volunteers a verdict for a file we never submitted (here the "upload" entry)
@@ -264,7 +263,7 @@ class TestPerFilePolicy:
         )
 
         assert _checked_names(rest) == ["b.txt"]
-        assert (summary.uploaded, summary.skipped) == (2, 0)
+        assert (len(summary.uploads), len(summary.skips)) == (2, 0)
 
     def test_duplicate_names_across_entries_rejected_before_creation(self, mock_client, rest, mock_send):
         # Two entries mapping to one resource name are ambiguous -- verdicts are keyed by name only,
@@ -284,11 +283,36 @@ class TestDuplicateCheck:
 
         summary = upload_files(mock_client, _params("/src/a.txt", "/src/b.txt", on_duplicate="skip"))
 
-        assert summary == UploadSummary(workunit_id=None, uploaded=0, skipped=2, failed=0)
+        assert summary == UploadSummary(
+            workunit_id=None,
+            skips=[FileSkip(filename="a.txt", category="new"), FileSkip(filename="b.txt", category="new")],
+        )
         # No workunit created, no resources created, no transfer attempted.
         mock_client.save.assert_not_called()
         rest.create_resources.assert_not_called()
         mock_send.assert_not_called()
+
+    def test_skip_records_the_duplicate_it_lost_out_to(self, mock_client, rest, mock_send):
+        # The count alone couldn't say which files were dropped, nor which stored bytes they matched.
+        rest.check_duplicates.return_value = [
+            DuplicateResult(filename="a.txt", category="exact_duplicate", action="skip", resource_id=4711),
+            DuplicateResult(filename="b.txt", category="new", action="upload"),
+        ]
+        rest.create_resources.return_value = _created("b.txt")
+        rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
+
+        summary = upload_files(mock_client, _params("/src/a.txt", "/src/b.txt", on_duplicate="skip"))
+
+        assert summary.skips == [FileSkip(filename="a.txt", category="exact_duplicate", existing_resource_id=4711)]
+
+    def test_skip_without_an_existing_resource_leaves_the_id_unset(self, mock_client, rest, mock_send):
+        rest.check_duplicates.return_value = [
+            DuplicateResult(filename="a.txt", category="batch_duplicate", action="skip", resource_id=None)
+        ]
+
+        summary = upload_files(mock_client, _params("/src/a.txt", on_duplicate="skip"))
+
+        assert summary.skips == [FileSkip(filename="a.txt", category="batch_duplicate", existing_resource_id=None)]
 
     def test_missing_verdict_rejected(self, mock_client, rest, mock_send):
         # The server returns a verdict only for a.txt (b.txt omitted / name-normalized away).
@@ -335,7 +359,7 @@ class TestNestedNames:
         summary = upload_files(mock_client, _params("/src", on_duplicate="skip"))
 
         # Two files sharing a basename in different subdirectories stay distinct.
-        assert summary.uploaded == 2
+        assert len(summary.uploads) == 2
         assert {u.filename for u in summary.uploads} == set(names)
         assert {u.storage_path for u in summary.uploads} == {f"/store/{n}" for n in names}
         assert mock_send.call_count == 2
@@ -349,8 +373,8 @@ class TestNestedNames:
 
         summary = upload_files(mock_client, _params("/src", on_duplicate="skip"))
 
-        assert summary.skipped == 1
-        assert summary.uploaded == 0
+        assert len(summary.skips) == 1
+        assert len(summary.uploads) == 0
         mock_send.assert_not_called()
 
 
@@ -379,28 +403,7 @@ class TestLinkPolicy:
         assert mock_send.call_count == 1
         assert [u.filename for u in summary.uploads] == ["a.txt"]
         assert [u.filename for u in summary.links] == ["b.txt"]
-        assert (summary.uploaded, summary.linked, summary.skipped, summary.failed) == (1, 1, 0, 0)
-
-    def test_counters_are_ints_and_match_their_detail_lists(self, mock_client, rest, mock_send):
-        # uploaded/skipped/failed/linked are all plain counts, with uploads/failures/links holding the
-        # detail -- so an f-string on any counter is readable and never dumps a list of objects.
-        rest.check_duplicates.return_value = [
-            DuplicateResult(filename="a.txt", category="new", action="upload"),
-            DuplicateResult(filename="b.txt", category="exact_duplicate", action="skip", resource_id=4711),
-        ]
-        created = _created("a.txt", "b.txt")
-        created[1].linked = True
-        rest.create_resources.return_value = created
-        rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
-
-        summary = upload_files(mock_client, _params("/src/a.txt", "/src/b.txt", on_duplicate="link"))
-
-        for counter in (summary.uploaded, summary.skipped, summary.failed, summary.linked):
-            assert isinstance(counter, int)
-        assert summary.linked == len(summary.links)
-        assert summary.uploaded == len(summary.uploads)
-        assert summary.failed == len(summary.failures)
-        assert f"linked {summary.linked}" == "linked 1"
+        assert _counts(summary) == (1, 1, 0, 0)
 
     def test_renamed_duplicate_is_linked(self, mock_client, rest, mock_collect, mock_send):
         # The nested-folder case: MD5-matched under a different name, so category is renamed_duplicate.
@@ -416,7 +419,7 @@ class TestLinkPolicy:
 
         assert [fi.link_from_resource_id for fi in rest.create_resources.call_args.args[1]] == [4711]
         assert [u.filename for u in summary.links] == ["sub/nested.raw"]
-        assert (summary.uploaded, summary.linked, summary.skipped) == (0, 1, 0)
+        assert _counts(summary)[:3] == (0, 1, 0)
 
     def test_skip_without_existing_resource_is_still_skipped(self, mock_client, rest, mock_send):
         # Nothing to link to -> the plain skip behaviour stands, and no resource is created.
@@ -428,7 +431,7 @@ class TestLinkPolicy:
 
         rest.create_resources.assert_not_called()
         mock_send.assert_not_called()
-        assert (summary.uploaded, summary.linked, summary.skipped) == (0, 0, 1)
+        assert _counts(summary)[:3] == (0, 0, 1)
 
     def test_skip_policy_does_not_link(self, mock_client, rest, mock_send):
         # Per-file opt-in: under "skip" a duplicate is dropped outright, even when a link target is offered.
@@ -439,7 +442,7 @@ class TestLinkPolicy:
         summary = upload_files(mock_client, _params("/src/a.txt", on_duplicate="skip"))
 
         rest.create_resources.assert_not_called()
-        assert (summary.uploaded, summary.linked, summary.skipped) == (0, 0, 1)
+        assert _counts(summary)[:3] == (0, 0, 1)
 
     def test_link_verdict_registers_link_and_skips_transfer(self, mock_client, rest, mock_send):
         rest.check_duplicates.return_value = [
@@ -460,7 +463,7 @@ class TestLinkPolicy:
         assert mock_send.call_count == 1
         assert [u.filename for u in summary.uploads] == ["a.txt"]
         assert [u.filename for u in summary.links] == ["b.txt"]
-        assert (summary.uploaded, summary.linked, summary.skipped, summary.failed) == (1, 1, 0, 0)
+        assert _counts(summary) == (1, 1, 0, 0)
 
     def test_link_verdict_rejected_under_skip_policy(self, mock_client, rest, mock_send):
         # Per-file opt-in: under "skip" the hard error stands.
@@ -486,7 +489,7 @@ class TestLinkPolicy:
         rest.get_upload_token.assert_not_called()
         mock_send.assert_not_called()
         assert _status_updates(mock_client) == ["available"]
-        assert (summary.uploaded, summary.linked) == (0, 1)
+        assert _counts(summary)[:2] == (0, 1)
         assert [u.filename for u in summary.links] == ["a.txt"]
 
     def test_link_without_existing_resource_id_rejected(self, mock_client, rest, mock_send):
@@ -528,7 +531,7 @@ class TestLinkPolicy:
 
         rest.check_duplicates.assert_not_called()
         assert [fi.link_from_resource_id for fi in rest.create_resources.call_args.args[1]] == [None]
-        assert (summary.uploaded, summary.linked) == (1, 0)
+        assert _counts(summary)[:2] == (1, 0)
 
 
 class TestLinkedResources:
@@ -548,7 +551,7 @@ class TestLinkedResources:
         assert mock_send.call_count == 1
         assert [u.filename for u in summary.uploads] == ["a.txt"]
         assert [u.filename for u in summary.links] == ["b.txt"]
-        assert (summary.uploaded, summary.linked, summary.skipped, summary.failed) == (1, 1, 0, 0)
+        assert _counts(summary) == (1, 1, 0, 0)
 
     def test_all_linked_skips_transfer_entirely(self, mock_client, rest, mock_send):
         # Nothing to transfer, but the resources were registered -> the workunit must still complete
@@ -561,7 +564,7 @@ class TestLinkedResources:
 
         mock_send.assert_not_called()
         rest.get_upload_token.assert_not_called()
-        assert (summary.uploaded, summary.linked, summary.skipped) == (0, 1, 0)
+        assert _counts(summary)[:3] == (0, 1, 0)
         assert [u.filename for u in summary.links] == ["a.txt"]
         assert _status_updates(mock_client) == ["available"]
 
@@ -575,8 +578,8 @@ class TestFailureCleanup:
 
         summary = upload_files(mock_client, _params("/src/a.txt", "/src/b.txt"))
 
-        assert summary.uploaded == 1
-        assert summary.failed == 1
+        assert len(summary.uploads) == 1
+        assert len(summary.failures) == 1
         assert summary.failures[0].filename == "b.txt"
         assert summary.uploads[0].filename == "a.txt"
         # Some file succeeded -> workunit completed 'available', never marked 'failed'.
@@ -590,8 +593,8 @@ class TestFailureCleanup:
 
         summary = upload_files(mock_client, _params("/src/a.txt", "/src/b.txt"))
 
-        assert summary.uploaded == 0
-        assert summary.failed == 2
+        assert len(summary.uploads) == 0
+        assert len(summary.failures) == 2
         assert summary.workunit_id == WORKUNIT_ID
         # No usable content -> workunit flipped to 'failed', and never deleted.
         assert _status_updates(mock_client) == ["failed"]
@@ -724,7 +727,7 @@ class TestReuseExistingWorkunit:
         summary = upload_files(mock_client, _params("/src/a.txt", on_duplicate="skip", workunit_id=999))
 
         assert summary.workunit_id == 999
-        assert summary.uploaded == 1
+        assert len(summary.uploads) == 1
         # No workunit was created and its status was never flipped — we don't own a reused workunit.
         assert _create_payload(mock_client) is None
         assert _status_updates(mock_client) == []
@@ -753,7 +756,7 @@ class TestReuseExistingWorkunit:
 
         summary = upload_files(mock_client, _params("/src/a.txt", on_duplicate="skip", workunit_id=999))
 
-        assert summary == UploadSummary(workunit_id=999, uploaded=0, skipped=1, failed=0)
+        assert summary == UploadSummary(workunit_id=999, skips=[FileSkip(filename="a.txt", category="new")])
         # Nothing created, nothing flipped, no transfer attempted.
         assert _create_payload(mock_client) is None
         assert _status_updates(mock_client) == []
@@ -767,8 +770,8 @@ class TestReuseExistingWorkunit:
 
         summary = upload_files(mock_client, _params("/src/a.txt", workunit_id=999))
 
-        assert summary.uploaded == 0
-        assert summary.failed == 1
+        assert len(summary.uploads) == 0
+        assert len(summary.failures) == 1
         # A reused workunit is never flipped to 'failed' — its lifecycle is not ours to change.
         assert _status_updates(mock_client) == []
 

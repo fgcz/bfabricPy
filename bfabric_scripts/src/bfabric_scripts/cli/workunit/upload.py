@@ -96,15 +96,15 @@ def cmd_workunit_upload(params: UploadParams, *, client: Bfabric) -> None:
         )
 
     if summary.workunit_id is None:
-        logger.info(f"Nothing to upload ({summary.skipped} file(s) skipped as duplicates).")
+        logger.info(f"Nothing to upload ({len(summary.skips)} file(s) skipped as duplicates).")
         return
 
     job_note = f" (tracking job {summary.job_id})" if summary.job_id is not None else ""
     # Only mention linking when it happened, so the usual summary line stays as it was.
-    linked_note = f"linked {summary.linked}, " if summary.linked else ""
+    linked_note = f"linked {len(summary.links)}, " if summary.links else ""
     logger.success(
-        f"Workunit {summary.workunit_id}{job_note}: uploaded {summary.uploaded} file(s), "
-        f"{linked_note}skipped {summary.skipped}, failed {summary.failed}."
+        f"Workunit {summary.workunit_id}{job_note}: uploaded {len(summary.uploads)} file(s), "
+        f"{linked_note}skipped {len(summary.skips)}, failed {len(summary.failures)}."
     )
     for failure in summary.failures:
         logger.error(f"  Failed: {failure.filename}: {failure.error}")

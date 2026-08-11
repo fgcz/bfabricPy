@@ -112,23 +112,29 @@ class FileFailure:
 
 
 @dataclass
+class FileSkip:
+    """A file left out of the workunit because the container already stores its content."""
+
+    filename: str
+    category: str
+    """The server's duplicate classification, e.g. ``exact_duplicate`` / ``renamed_duplicate``."""
+    existing_resource_id: int | None = None
+    """The resource already holding these bytes, when the verdict named one."""
+
+
+@dataclass
 class UploadSummary:
-    """Outcome of an :func:`upload_files` run."""
+    """Outcome of an :func:`upload_files` run: one list per outcome, so ``len()`` gives the counts."""
 
     workunit_id: int | None
-    uploaded: int
-    """Files whose bytes were transferred."""
-    skipped: int
-    """Duplicates the check reported as already stored; no resource was created for them."""
-    failed: int
-    linked: int = 0
-    """Files registered as links to already-stored bytes: a resource exists, but nothing was
-    transferred. Distinct from ``skipped``, where no resource was created at all. See ``links``."""
     uploads: list[FileUpload] = field(default_factory=list)
+    """Files whose bytes were transferred."""
+    skips: list[FileSkip] = field(default_factory=list)
+    """Duplicates the check reported as already stored; no resource was created for them."""
     failures: list[FileFailure] = field(default_factory=list)
     links: list[FileUpload] = field(default_factory=list)
-    """The resources created by linking (the detail behind ``linked``, as ``uploads`` is for
-    ``uploaded``); their bytes were never transferred by this run."""
+    """Files registered as links to already-stored bytes: a resource exists, but nothing was
+    transferred. Distinct from ``skips``, where no resource was created at all."""
     job_id: int | None = None
     """The tracking job's id when ``track_job`` was set, else ``None``."""
 
@@ -191,12 +197,12 @@ def upload_files(
     # metadata. On the reuse path it comes from the existing workunit, not from params.
     container_id = _resolve_container_id(client, params)
 
-    to_upload, skipped = _select_files_to_upload(rest, file_infos, policies, container_id)
+    to_upload, skips = _select_files_to_upload(rest, file_infos, policies, container_id)
     if not to_upload:
-        logger.info("Nothing to upload (all {} file(s) skipped as duplicates).", skipped)
+        logger.info("Nothing to upload (all {} file(s) skipped as duplicates).", len(skips))
         # workunit_id is None on the create path (nothing was created) but the reused id on the reuse
         # path -- the caller's files provably already live there, so don't report "no workunit".
-        return UploadSummary(workunit_id=params.workunit_id, uploaded=0, skipped=skipped, failed=0)
+        return UploadSummary(workunit_id=params.workunit_id, skips=skips)
 
     if on_start is not None:
         on_start(len(to_upload), sum(fi.size for fi in to_upload))
@@ -264,11 +270,8 @@ def upload_files(
         _ = complete_workunit(client=client, workunit_id=workunit_id)
     return UploadSummary(
         workunit_id=workunit_id,
-        uploaded=len(uploads),
-        skipped=skipped,
-        failed=len(failures),
-        linked=len(links),
         uploads=uploads,
+        skips=skips,
         failures=failures,
         links=links,
         job_id=job_id,
@@ -331,12 +334,12 @@ def _existing_workunit_container_id(client: Bfabric, workunit_id: int) -> int:
 
 def _select_files_to_upload(
     rest: UploadRestClient, file_infos: list[FileInfo], policies: dict[str, OnDuplicate], container_id: int
-) -> tuple[list[FileInfo], int]:
+) -> tuple[list[FileInfo], list[FileSkip]]:
     # An "upload" policy is a decision, not a question, so those files are left out of the request
     # entirely -- and when every file carries it, no duplicate check is made at all.
     to_check = [fi for fi in file_infos if policies[fi.name] != "upload"]
     if not to_check:
-        return file_infos, 0
+        return file_infos, []
     # Drop any verdict for a name we did not ask about: its file either has an "upload" policy (the
     # decision is already made) or is not ours at all, and either way there is no policy to judge it
     # against. The 'unaccounted' guard below still catches the opposite -- a checked file with no verdict.
@@ -403,7 +406,20 @@ def _select_files_to_upload(
         for fi in file_infos
         if policies[fi.name] == "upload" or fi.name in upload_names or fi.name in link_ids
     ]
-    return to_upload, len(file_infos) - len(to_upload)
+    # Whatever is left over was skipped. Every one of those was checked (an "upload" policy always
+    # selects), so each has a verdict to report the duplicate it lost out to.
+    selected = {file_info.name for file_info in to_upload}
+    verdicts = {r.filename: r for r in results}
+    skips = [
+        FileSkip(
+            filename=fi.name,
+            category=verdicts[fi.name].category,
+            existing_resource_id=verdicts[fi.name].resource_id,
+        )
+        for fi in file_infos
+        if fi.name not in selected
+    ]
+    return to_upload, skips
 
 
 def _is_actionable(result: DuplicateResult, policy: OnDuplicate) -> bool:

@@ -265,7 +265,7 @@ summary = upload_files(
     on_progress=lambda name, done, total: print(f"{name}: {done}/{total}"),
 )
 print(
-    f"Workunit {summary.workunit_id}: uploaded {summary.uploaded}, skipped {summary.skipped}"
+    f"Workunit {summary.workunit_id}: uploaded {len(summary.uploads)}, skipped {len(summary.skips)}"
 )
 ```
 
