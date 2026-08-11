@@ -43,7 +43,7 @@ def execute_command_exec(
     command_args = shlex.split(command.command) + list(args)
     shell_env = _get_shell_env(environ, command.env, command.prepend_paths)
     logger.info(f"Executing command: {shlex.join(command_args)}")
-    logger.debug(f"{command_args=}")  # the list repr shows how shlex.split tokenized the command string
+    logger.debug(f"{command_args=}")
     logger.trace(f"{shell_env=}")
     if log_output_level is None:
         try:
