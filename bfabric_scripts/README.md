@@ -1,13 +1,24 @@
 # bfabric-scripts
 
-Command line tools for [B-Fabric](https://fgcz-bfabric.uzh.ch/bfabric/), built on the
+Command line scripts for the [B-Fabric](https://fgcz-bfabric.uzh.ch/bfabric/) API, built on the
 [bfabric](https://pypi.org/project/bfabric/) client.
 
 ## Installation
 
+These are command line tools, so the most convenient option is to let [uv](https://docs.astral.sh/uv/) install them
+into their own isolated environment:
+
 ```bash
-pip install bfabric-scripts
+uv tool install bfabric-scripts
 ```
+
+Add the `excel` extra for the `.xlsx` support in `bfabric-cli dataset upload|download|update`:
+
+```bash
+uv tool install "bfabric-scripts[excel]"
+```
+
+To install into an environment you already have, use `pip install bfabric-scripts` instead.
 
 ## Usage
 

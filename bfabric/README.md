@@ -1,7 +1,8 @@
 # bfabric
 
-Python client for [B-Fabric](https://fgcz-bfabric.uzh.ch/bfabric/), the data management platform of the Functional
-Genomics Center Zurich (FGCZ).
+Python client for the [B-Fabric](https://fgcz-bfabric.uzh.ch/bfabric/) API — the system that runs the Functional
+Genomics Center Zurich (FGCZ), covering project and service management, data production, annotation, search and
+analysis workflows.
 
 - A general client for all B-Fabric web service operations (CRUD) and configuration management.
 - A relational API for low-boilerplate read access to B-Fabric entities.
