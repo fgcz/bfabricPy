@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import yaml
 
-from bfabric_scripts.cli.login.manage import cmd_auth_default
+from bfabric_scripts.cli.login.manage import cmd_auth_activate
 
 
 def _write_config(config_file, default="PROD"):
@@ -22,7 +22,7 @@ class TestSetNonInteractive:
     def test_positional_value_sets_default(self, tmp_path):
         config_file = tmp_path / "config.yml"
         _write_config(config_file, default="PROD")
-        cmd_auth_default("TEST", config_file=config_file)
+        cmd_auth_activate("TEST", config_file=config_file)
         data = yaml.safe_load(config_file.read_text())
         assert data["GENERAL"]["default_config"] == "TEST"
 
@@ -30,14 +30,14 @@ class TestSetNonInteractive:
         config_file = tmp_path / "config.yml"
         _write_config(config_file, default="PROD")
         before = config_file.read_text()
-        cmd_auth_default("NOPE", config_file=config_file)
+        cmd_auth_activate("NOPE", config_file=config_file)
         output = capsys.readouterr().out
         assert "NOPE" in output
         assert config_file.read_text() == before
 
     def test_missing_config_file(self, tmp_path, capsys):
         config_file = tmp_path / "nonexistent.yml"
-        cmd_auth_default("PROD", config_file=config_file)
+        cmd_auth_activate("PROD", config_file=config_file)
         assert "not found" in capsys.readouterr().out
 
 
@@ -48,7 +48,7 @@ class TestInteractivePicker:
         # The picker runs only when no value is passed; it returns the chosen environment.
         mocker.patch("bfabric_scripts.cli.login.manage.is_interactive", return_value=True)
         picker = mocker.patch("bfabric_scripts.cli.login.manage.select_choice", return_value="TEST")
-        cmd_auth_default(config_file=config_file)
+        cmd_auth_activate(config_file=config_file)
         data = yaml.safe_load(config_file.read_text())
         assert data["GENERAL"]["default_config"] == "TEST"
         # The current default is pre-selected in the picker.
@@ -60,7 +60,7 @@ class TestInteractivePicker:
         before = config_file.read_text()
         mocker.patch("bfabric_scripts.cli.login.manage.select_choice", return_value=None)
         mocker.patch("bfabric_scripts.cli.login.manage.is_interactive", return_value=True)
-        cmd_auth_default(config_file=config_file)
+        cmd_auth_activate(config_file=config_file)
         assert "No changes made" in capsys.readouterr().out
         assert config_file.read_text() == before
 
@@ -71,7 +71,7 @@ class TestNonInteractiveNoValue:
         _write_config(config_file, default="PROD")
         before = config_file.read_text()
         mocker.patch("bfabric_scripts.cli.login.manage.is_interactive", return_value=False)
-        cmd_auth_default(config_file=config_file)
+        cmd_auth_activate(config_file=config_file)
         output = capsys.readouterr().out
         # Without a TTY to prompt on, it can't pick for the user: report and change nothing.
         assert "No environment specified" in output
@@ -80,5 +80,5 @@ class TestNonInteractiveNoValue:
     def test_empty_config_reports_no_environments(self, tmp_path, capsys):
         config_file = tmp_path / "config.yml"
         config_file.write_text(yaml.dump({"GENERAL": {}}))
-        cmd_auth_default(config_file=config_file)
+        cmd_auth_activate(config_file=config_file)
         assert "No environments configured" in capsys.readouterr().out

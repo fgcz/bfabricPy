@@ -275,6 +275,31 @@ class TestPkceLogin:
         with pytest.raises(RuntimeError, match="timed out"):
             pkce_login("https://example.com/bfabric", client_id="test-cli", scope="api:read", timeout=0.1)
 
+    def test_timeout_message_names_the_remote_host_trap(self, mocker):
+        """The timeout is where a stuck remote user actually looks, and it fires even when
+        ``webbrowser.open`` claimed success (the text-browser case), so the guidance can't be gated
+        on the open result."""
+        mock_server_cls = mocker.patch("bfabric._oauth.pkce._CallbackServer")
+        mocker.patch("bfabric._oauth.pkce.webbrowser.open", return_value=True)
+        mocker.patch("bfabric._oauth.pkce.secrets.token_urlsafe", return_value="state")
+        mocker.patch("bfabric._oauth.pkce._generate_verifier", return_value="v")
+        mocker.patch("bfabric._oauth.pkce._generate_challenge", return_value="c")
+        mock_thread_cls = mocker.patch("bfabric._oauth.pkce.threading.Thread")
+
+        mock_server = mocker.MagicMock()
+        mock_server.redirect_uri = "http://127.0.0.1:9999/callback"
+        mock_server_cls.return_value = mock_server
+
+        mock_thread = mocker.MagicMock()
+        mock_thread.is_alive.return_value = True
+        mock_thread_cls.return_value = mock_thread
+
+        with pytest.raises(RuntimeError) as error:
+            pkce_login("https://example.com/bfabric", client_id="test-cli", scope="api:read", timeout=0.1)
+        message = str(error.value)
+        assert "http://127.0.0.1:9999/callback" in message
+        assert "device-code" in message
+
     def test_browser_fallback_prints_url(self, mocker, capsys):
         mock_server_cls = mocker.patch("bfabric._oauth.pkce._CallbackServer")
         mocker.patch("bfabric._oauth.pkce._exchange_code", return_value={"access_token": "t"})
@@ -295,12 +320,35 @@ class TestPkceLogin:
         assert "Open this URL to log in:" in captured.err
         assert "https://example.com/bfabric/rest/oauth/authorize" in captured.err
 
-    def test_open_browser_false_prints_url(self, mocker, capsys):
+    def test_browser_fallback_warns_the_redirect_is_host_local(self, mocker, capsys):
+        """Printing the URL is right for a local user without a browser and a trap for a remote one:
+        the redirect lands on this host's loopback, so a browser elsewhere cannot complete it."""
+        mock_server_cls = mocker.patch("bfabric._oauth.pkce._CallbackServer")
+        mocker.patch("bfabric._oauth.pkce._exchange_code", return_value={"access_token": "t"})
+        mocker.patch("bfabric._oauth.pkce.webbrowser.open", return_value=False)
+        mocker.patch("bfabric._oauth.pkce.secrets.token_urlsafe", return_value="state")
+        mocker.patch("bfabric._oauth.pkce._generate_verifier", return_value="v")
+        mocker.patch("bfabric._oauth.pkce._generate_challenge", return_value="c")
+
+        mock_server = mocker.MagicMock()
+        mock_server.redirect_uri = "http://127.0.0.1:9999/callback"
+        mock_server.result = _AuthorizationResult(code="code", state="state")
+        mock_server.serve_forever = mocker.MagicMock()
+        mock_server_cls.return_value = mock_server
+
+        pkce_login("https://example.com/bfabric", client_id="test-cli", scope="api:read")
+
+        captured = capsys.readouterr()
+        assert "http://127.0.0.1:9999/callback" in captured.err
+        assert "this machine" in captured.err
+
+    def test_open_browser_false_prints_url_without_opening_a_browser(self, mocker, capsys):
         mock_server_cls = mocker.patch("bfabric._oauth.pkce._CallbackServer")
         mocker.patch("bfabric._oauth.pkce._exchange_code", return_value={"access_token": "t"})
         mocker.patch("bfabric._oauth.pkce.secrets.token_urlsafe", return_value="state")
         mocker.patch("bfabric._oauth.pkce._generate_verifier", return_value="v")
         mocker.patch("bfabric._oauth.pkce._generate_challenge", return_value="c")
+        open_browser = mocker.patch("bfabric._oauth.pkce.webbrowser.open", return_value=True)
 
         mock_server = mocker.MagicMock()
         mock_server.redirect_uri = "http://127.0.0.1:9999/callback"
@@ -312,3 +360,4 @@ class TestPkceLogin:
 
         captured = capsys.readouterr()
         assert "Open this URL to log in:" in captured.err
+        open_browser.assert_not_called()
