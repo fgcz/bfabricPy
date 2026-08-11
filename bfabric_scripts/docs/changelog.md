@@ -21,8 +21,9 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 - New user guide: [Authentication](https://fgcz.github.io/bfabricPy/user_guides/bfabric-cli/authentication.html) — command surface, scopes, logout vs remove, remote hosts.
 - Packaging: `project.readme` now points at the package's own `README.md` instead of the repository root's, for the same reason as in `bfabric` — hatchling 1.32.0 rejects readme paths outside the project directory, breaking builds from source. The package README was expanded into a proper landing page, since it is what PyPI now shows.
 - `bfabric-cli auth register-webapp` — no longer crashes with a raw traceback when the OAuth session cannot be refreshed (e.g. an expired/revoked refresh token); prints a clean `Error: ...` message and exits 1.
-- `bfabric-cli auth register-webapp` — `--service-user` no longer silently defaults to "none"; now requires either `--service-user LOGIN` or the new `--no-service-user` flag, so omitting a service user by accident (which registers a client without the `client_credentials` grant) fails fast with an explanatory error instead of succeeding silently.
-- Internal: login handlers normalised to `cmd_auth_*`; shared resolution in `cli/login/_common.py`, base-URL handling in a new `_urls.py`.
+- `bfabric-cli auth register` — no longer prompts for an *Employee Bearer token* when a login already exists: with neither `--token` nor `--config-env` it authenticates as the environment in effect (`--config-env` > `BFABRICPY_CONFIG_ENV` > configured default), like every other `auth` command, so `auth login` followed by `auth register` just works. Pass `--token` to keep supplying one explicitly.
+- `bfabric-cli auth register` / `register-webapp` — `--service-user` no longer silently defaults to "none"; both now require either `--service-user LOGIN` or the new `--no-service-user` flag, so omitting a service user by accident (which registers a client without the `client_credentials` grant) fails fast with an explanatory error instead of succeeding silently.
+- Internal: login handlers normalised to `cmd_auth_*`; shared resolution in `cli/login/_common.py`, base-URL handling in a new `_urls.py`. `auth register` obtains its bearer token via `Bfabric.connect()` instead of rebuilding the credential-provider and token-cache lookup itself.
 
 ## \[1.16.0\] - 2026-08-03
 
