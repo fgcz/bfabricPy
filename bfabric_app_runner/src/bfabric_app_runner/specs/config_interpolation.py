@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 import secrets
+from pathlib import Path
 from typing import Any
 
 from loguru import logger
@@ -18,6 +19,8 @@ class VariablesApp(BaseModel):
     id: int
     name: str
     version: str
+    dir: Path | None = None
+    """Directory of the app spec file (``None`` outside the app spec), for paths no spec field resolves."""
 
     @field_validator("name", mode="before")
     def validate_safe_name(cls, value: str) -> str:

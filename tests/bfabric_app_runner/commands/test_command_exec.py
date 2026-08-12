@@ -18,6 +18,13 @@ def subprocess_run(mocker):
     return mocker.patch("subprocess.run")
 
 
+@pytest.fixture
+def home_dir(mocker, tmp_path):
+    """Patches ``$HOME``; request it *before* constructing a command, since ``~`` is expanded on validation."""
+    mocker.patch.dict("os.environ", {"HOME": str(tmp_path)})
+    return tmp_path
+
+
 class TestStreamedOutput:
     """The app's own commands, whose output goes straight to the parent's stdout/stderr."""
 
@@ -37,8 +44,7 @@ class TestStreamedOutput:
             check=True,
         )
 
-    def test_execute_full(self, mocker, command_full, subprocess_run):
-        mocker.patch.dict("os.environ", {"HOME": "/home/user"})
+    def test_execute_full(self, home_dir, command_full, subprocess_run):
         execute_command_exec(command_full, "hello", "world", environ={"NAME": "testing"})
         subprocess_run.assert_called_once_with(
             [
@@ -49,8 +55,13 @@ class TestStreamedOutput:
                 "world",
             ],
             check=True,
-            env={"NAME": "sun", "PATH": "/usr/local/bin:/home/user/bin:"},
+            env={"NAME": "sun", "PATH": f"/usr/local/bin:{home_dir}/bin:"},
         )
+
+    def test_execute_expands_user_in_prepend_paths(self, home_dir, subprocess_run):
+        command = CommandExec(command="echo hi", prepend_paths=[Path("~/bin")])
+        execute_command_exec(command, environ={})
+        assert subprocess_run.call_args.kwargs["env"]["PATH"] == f"{home_dir}/bin:"
 
     def test_failure_raises_command_failed_error(self, command_minimal, subprocess_run):
         subprocess_run.side_effect = subprocess.CalledProcessError(3, ["echo", "hello world"])
