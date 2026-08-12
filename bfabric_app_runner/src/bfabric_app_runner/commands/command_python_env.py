@@ -13,7 +13,7 @@ from typing import Protocol, Annotated
 import cyclopts
 from loguru import logger
 
-from bfabric_app_runner.commands.command_exec import execute_command_exec
+from bfabric_app_runner.commands.command_exec import execute_command_exec, log_command_output
 from bfabric_app_runner.specs.app.commands_spec import CommandPythonEnv, CommandExec
 
 
@@ -27,11 +27,19 @@ class PythonEnvironment:
         self.bin_path = env_path / "bin"
 
     def provision(self) -> None:
-        """Provision the Python environment."""
-        self._create_virtual_environment()
-        self._install_dependencies()
-        self._install_local_deps()
-        self._mark_provisioned()
+        """Creates the virtual environment and installs the command's dependencies into it.
+
+        The marker is touched last, so an interrupted provisioning is retried rather than treated as done.
+        """
+        uv, python = self._uv_bin, str(self.python_executable)
+        self.env_path.parent.mkdir(parents=True, exist_ok=True)
+        self._execute_shell_cmd([uv, "venv", "-p", self.command.python_version, str(self.env_path)])
+        refresh = ["--reinstall"] if self.command.refresh else []
+        self._execute_shell_cmd([uv, "pip", "install", "-p", python, "-r", str(self.command.pylock), *refresh])
+        if self.command.local_extra_deps:
+            deps = [str(dep.absolute()) for dep in self.command.local_extra_deps]
+            self._execute_shell_cmd([uv, "pip", "install", "-p", python, "--no-deps", *deps])
+        self._provisioned_marker.touch()
 
     @property
     def is_provisioned(self) -> bool:
@@ -42,53 +50,20 @@ class PythonEnvironment:
         """Log installed packages in the environment for debugging."""
         list_cmd = [self._uv_bin, "pip", "list", "-p", str(self.python_executable)]
         proc = subprocess.run(list_cmd, check=False, capture_output=True, text=True)
-        logger.log(level, f"Installed packages in {self.env_path}:\n{proc.stdout}")
+        logger.log(level, f"Installed packages in {self.env_path}:")
+        log_command_output(level, proc.stdout)
 
     @cached_property
     def _uv_bin(self) -> str:
         return shutil.which("uv")
 
-    def _create_virtual_environment(self) -> None:
-        """Create a virtual environment using uv venv."""
-        self.env_path.parent.mkdir(parents=True, exist_ok=True)
-        venv_cmd = [self._uv_bin, "venv", "-p", self.command.python_version, str(self.env_path)]
-        self._execute_shell_cmd(venv_cmd)
-
-    def _install_dependencies(self) -> None:
-        """Install dependencies from pylock file."""
-        install_cmd = [
-            self._uv_bin,
-            "pip",
-            "install",
-            "-p",
-            str(self.python_executable),
-            "-r",
-            str(self.command.pylock),
-        ]
-        if self.command.refresh:
-            install_cmd.append("--reinstall")
-        self._execute_shell_cmd(install_cmd)
-
-    def _install_local_deps(self) -> None:
-        """Install local extra dependencies with --no-deps."""
-        if not self.command.local_extra_deps:
-            return
-
-        dep_install_cmd = [self._uv_bin, "pip", "install", "-p", str(self.python_executable), "--no-deps"]
-        dep_install_cmd.extend(str(dep.absolute()) for dep in self.command.local_extra_deps)
-        self._execute_shell_cmd(dep_install_cmd)
-
-    def _execute_shell_cmd(self, dep_install_cmd: list[str]) -> None:
+    def _execute_shell_cmd(self, command_args: list[str]) -> None:
         exec_command = CommandExec(
-            command=shlex.join(dep_install_cmd), env=self.command.env, prepend_paths=self.command.prepend_paths
+            command=shlex.join(command_args), env=self.command.env, prepend_paths=self.command.prepend_paths
         )
         # Provisioning output (uv venv / pip install) is noisy diagnostic info; route it through the logger at
         # DEBUG rather than letting it print directly.
         execute_command_exec(exec_command, log_output_level="DEBUG")
-
-    def _mark_provisioned(self) -> None:
-        """Mark environment as successfully provisioned."""
-        self._provisioned_marker.touch()
 
     @property
     def _provisioned_marker(self) -> Path:

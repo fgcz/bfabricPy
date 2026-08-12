@@ -2,11 +2,10 @@ from __future__ import annotations
 
 from typing import Generic, TypeVar, TYPE_CHECKING
 
-import polars as pl
-from polars import DataFrame
-
 if TYPE_CHECKING:
     from collections.abc import Iterator
+
+    from polars import DataFrame
 
     # noinspection PyUnresolvedReferences
     from bfabric.entities.core.entity import Entity
@@ -47,6 +46,11 @@ class _HasManyProxy(Generic[E]):
 
     @property
     def polars(self) -> DataFrame:
+        # Imported here, not at module scope: HasMany is loaded by every `import bfabric`, and polars
+        # is by far the heaviest dependency (~200 MB, ~70 ms). Callers that never ask for a DataFrame
+        # should not pay for it. Same pattern as ResultContainer.to_polars.
+        import polars as pl
+
         return pl.from_dicts([x.data_dict for x in self._items])
 
     def __getitem__(self, key: int) -> E:
