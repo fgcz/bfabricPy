@@ -19,5 +19,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 
 - `POST /create/workunit/v1` request body now accepts optional `dataset` (name + base64-encoded csv/tsv/parquet, created as the workunit's output dataset) and `input_dataset_id` (existing dataset to reference as the workunit's input). Both inherited from `CreateWorkunitParams`; no proxy-side code change.
+- `POST /create/workunit/v1` request body now accepts optional `executables` (name → base64-encoded content), attached to the created workunit. Inherited from `CreateWorkunitParams`; no proxy-side code change.
 - `POST /user/is_employee` endpoint: returns `{"is_employee": bool}` for the authenticated user based on their `empdegree` field. The user record lookup is performed with the feeder credentials, since `empdegree` is typically not readable with a regular user's web-service credentials.
 - Initial implementation of bfabric_rest_proxy.

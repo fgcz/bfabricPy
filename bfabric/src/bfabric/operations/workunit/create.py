@@ -27,7 +27,7 @@ class WorkunitDataset(BaseModel):
 class CreateWorkunitParams(BaseModel):
     """Inputs for `create_workunit`.
 
-    `resources` and `dataset` carry base64-encoded content, which the caller encodes.
+    `resources`, `executables` and `dataset` carry base64-encoded content, which the caller encodes.
     `dataset` becomes the workunit's output dataset (it has at most one), whereas `input_dataset_id`
     references an already-existing dataset as its input.
     """
@@ -38,6 +38,7 @@ class CreateWorkunitParams(BaseModel):
     parameters: dict[str, str] = Field(default_factory=dict, max_length=100)
     resources: dict[str, str] = Field(default_factory=dict, max_length=100)
     links: dict[str, str] = Field(default_factory=dict, max_length=100)
+    executables: dict[str, str] = Field(default_factory=dict, max_length=100)
     dataset: WorkunitDataset | None = None
     input_resource_ids: list[int] = Field(default_factory=list, max_length=100)
     input_dataset_id: int | None = None
@@ -47,8 +48,10 @@ class CreateWorkunitParams(BaseModel):
     def _ensure_data(self) -> CreateWorkunitParams:
         # Input references (`input_resource_ids`, `input_dataset_id`) are deliberately not counted:
         # they point at existing entities rather than providing workunit content.
-        if not self.parameters and not self.resources and not self.links and not self.dataset:
-            msg = "No workunit data was provided, please specify parameters, resources, links, or a dataset"
+        if not self.parameters and not self.resources and not self.links and not self.executables and not self.dataset:
+            msg = (
+                "No workunit data was provided, please specify parameters, resources, links, executables, or a dataset"
+            )
             raise ValueError(msg)
         return self
 
@@ -58,7 +61,7 @@ def create_workunit(
     params: CreateWorkunitParams | Mapping[str, object],
     audit_attributes: dict[str, str] | None = None,
 ) -> Workunit:
-    """Create a workunit with its resources, parameters, links, and output dataset.
+    """Create a workunit with its resources, parameters, links, output dataset, and executables.
 
     `params` also accepts a plain (possibly nested) mapping; an invalid one raises
     `pydantic.ValidationError` before anything is written.
@@ -88,6 +91,8 @@ def create_workunit(
             _create_workunit_dataset(
                 client=client, workunit_id=workunit_id, container_id=params.container_id, dataset=params.dataset
             )
+        if params.executables:
+            _create_workunit_executables(client=client, workunit_id=workunit_id, executables=params.executables)
         return complete_workunit(client=client, workunit_id=workunit_id)
     except BaseException:
         # Catch BaseException (not Exception) so KeyboardInterrupt/SystemExit also trigger cleanup —
@@ -158,4 +163,16 @@ def _create_workunit_dataset(client: Bfabric, workunit_id: int, container_id: in
         client=client,
         table=table,
         params=CreateDatasetParams(name=dataset.name, container_id=container_id, workunit_id=workunit_id),
+    )
+
+
+def _create_workunit_executables(client: Bfabric, workunit_id: int, executables: dict[str, str]) -> None:
+    # Context "WORKUNIT" is uppercase here (executable endpoint), unlike the lowercase "workunit"
+    # context used for parameters.
+    _ = client.save(
+        "executable",
+        [
+            {"name": key, "context": "WORKUNIT", "workunitid": workunit_id, "base64": value}
+            for key, value in executables.items()
+        ],
     )
