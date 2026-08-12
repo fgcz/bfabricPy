@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 from pytest_mock import MockerFixture
 
+from bfabric.config.bfabric_client_config import BfabricAPIEngineType
 from bfabric_scripts.cli.api.parser import (
     FieldModel,
     ParameterModel,
@@ -239,6 +240,7 @@ class TestParseMethodSignature:
 
         # Mock client
         client_mock = mocker.MagicMock()
+        client_mock.config.engine = BfabricAPIEngineType.SUDS
         client_mock._engine._get_suds_service.return_value = service_mock
         mocker.patch.object(service_mock, "testMethod", method_mock)
         client_mock._engine._get_suds_service.return_value = mocker.MagicMock(testMethod=method_mock)
@@ -268,6 +270,7 @@ class TestParseMethodSignature:
         service_mock.testMethod = method_mock
 
         client_mock = mocker.MagicMock()
+        client_mock.config.engine = BfabricAPIEngineType.SUDS
         client_mock._engine._get_suds_service.return_value = service_mock
 
         # Call function
@@ -275,6 +278,17 @@ class TestParseMethodSignature:
 
         # Should return empty dict
         assert result == {}
+
+    def test_parse_method_signature_rejects_non_suds_engine(self, mocker: MockerFixture) -> None:
+        """Test that a non-SUDS engine raises a clear error instead of leaking an AttributeError."""
+        client_mock = mocker.MagicMock()
+        client_mock.config.engine = BfabricAPIEngineType.ZEEP
+
+        with pytest.raises(RuntimeError, match="only supported with the SUDS engine"):
+            parse_method_signature(client_mock, "test_endpoint", "testMethod")
+
+        # Guard must fire before any private engine access.
+        client_mock._engine._get_suds_service.assert_not_called()
 
 
 if __name__ == "__main__":

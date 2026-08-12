@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
+from loguru import logger
+
 from bfabric.results.result_container import ResultContainer
 from bfabric.utils.paginator import BFABRIC_QUERY_LIMIT, page_iter
 from typing import TYPE_CHECKING
@@ -94,7 +96,7 @@ class MultiQuery:
         response_tot = ResultContainer([], total_pages_api=0, errors=[])
 
         if not id_list:
-            print("Warning, empty list provided for deletion, ignoring")
+            logger.warning("empty list provided for deletion, ignoring")
             return response_tot
 
         # Iterate over request chunks that fit into a single API page

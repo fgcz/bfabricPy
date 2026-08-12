@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This file provides guidance to AI agents working with code in this repository.
+This file provides guidance to AI agents working with code in this repository. Every line of it is loaded into every session's context, so it has to earn that cost: add a rule only when an agent would otherwise get it wrong, keep it to one line, and prefer rewording an existing rule over appending a new one.
 
 ## Project Overview
 

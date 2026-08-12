@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- A `python_env` command whose `uv` binary is missing from `PATH` fails with `uv executable not found on PATH` instead of an obscure `TypeError`.
 - The demo app copier template can be instantiated again; the destination must now be given as an absolute path.
 - A failing app command reports a single `Error: Command failed with exit code N: <command>` line instead of ~10 frames of app-runner boilerplate ([#231](https://github.com/fgcz/bfabricPy/issues/231)).
 - `run workunit` no longer prints a second traceback when `make run-all` fails; it reports one line naming the workunit, exit code, and work directory.

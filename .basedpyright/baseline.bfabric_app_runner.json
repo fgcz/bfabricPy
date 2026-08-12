@@ -1142,14 +1142,6 @@
                 }
             },
             {
-                "code": "reportReturnType",
-                "range": {
-                    "startColumn": 15,
-                    "endColumn": 33,
-                    "lineCount": 1
-                }
-            },
-            {
                 "code": "reportUnusedCallResult",
                 "range": {
                     "startColumn": 0,
@@ -2790,16 +2782,6 @@
                 }
             }
         ],
-        "./bfabric_app_runner/src/bfabric_app_runner/specs/inputs/bfabric_annotation_spec.py": [
-            {
-                "code": "reportUnusedParameter",
-                "range": {
-                    "startColumn": 31,
-                    "endColumn": 37,
-                    "lineCount": 1
-                }
-            }
-        ],
         "./bfabric_app_runner/src/bfabric_app_runner/specs/inputs/bfabric_dataset_spec.py": [
             {
                 "code": "reportUnannotatedClassAttribute",
@@ -2818,14 +2800,6 @@
                     "endColumn": 16,
                     "lineCount": 1
                 }
-            },
-            {
-                "code": "reportUnusedParameter",
-                "range": {
-                    "startColumn": 31,
-                    "endColumn": 37,
-                    "lineCount": 1
-                }
             }
         ],
         "./bfabric_app_runner/src/bfabric_app_runner/specs/inputs/bfabric_resource_archive_spec.py": [
@@ -2838,7 +2812,7 @@
                 }
             }
         ],
-        "./bfabric_app_runner/src/bfabric_app_runner/specs/inputs/bfabric_resource_dataset.py": [
+        "./bfabric_app_runner/src/bfabric_app_runner/specs/inputs/bfabric_resource_dataset_spec.py": [
             {
                 "code": "reportUnannotatedClassAttribute",
                 "range": {
@@ -2854,26 +2828,6 @@
                 "range": {
                     "startColumn": 4,
                     "endColumn": 16,
-                    "lineCount": 1
-                }
-            }
-        ],
-        "./bfabric_app_runner/src/bfabric_app_runner/specs/inputs/file_spec.py": [
-            {
-                "code": "reportUnusedParameter",
-                "range": {
-                    "startColumn": 31,
-                    "endColumn": 37,
-                    "lineCount": 1
-                }
-            }
-        ],
-        "./bfabric_app_runner/src/bfabric_app_runner/specs/inputs/static_file_spec.py": [
-            {
-                "code": "reportUnusedParameter",
-                "range": {
-                    "startColumn": 31,
-                    "endColumn": 37,
                     "lineCount": 1
                 }
             }

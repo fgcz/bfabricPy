@@ -30,6 +30,8 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Fixed
 
+- `ResultContainer.assert_success` raises `BfabricRequestError` instead of a bare `RuntimeError`; it remains a `RuntimeError` subclass, so existing `except RuntimeError` handlers keep working.
+- The "could not find the config file" and "empty list provided for deletion" diagnostics go through loguru at WARNING instead of `print()`, so they honour the configured log level and sink.
 - `setup_script_logging` no longer skips setup in subprocesses, which fell back to loguru's verbose DEBUG default; its repeat guard is now process-local.
 - `write_environment_to_config` merges into an existing environment instead of replacing it, so unrelated keys survive a re-login; auth-owned keys are still replaced wholesale.
 - `MultiQuery.read_multi` reserves query elements for `obj`'s other fields when chunking, instead of overflowing the API's 100-element limit. A query that already exhausts it raises `ValueError`.
