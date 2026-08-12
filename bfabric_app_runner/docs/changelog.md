@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Relative paths in the app spec (`pylock`, `local_extra_deps`, `prepend_paths`, host side of docker `mounts`) resolve against the `app.yml` directory instead of the run's scratch directory, with a leading `~` expanded ([#212](https://github.com/fgcz/bfabricPy/issues/212)).
 - Captured command output (`uv venv` / `uv pip install`) is logged one record per line, so every line carries its level prefix.
 - Requires `bfabric` 1.20.1 for the logging fix that keeps a nested app-runner from falling back to loguru's verbose DEBUG format.
+- Internal: the input `Resolver` dispatches through a spec-class registry instead of an `issubclass` ladder, and reports a spec type with no resolver when it is constructed rather than part-way through a resolve; clears the 38 grandfathered basedpyright entries on that module.
 
 ### Fixed
 
