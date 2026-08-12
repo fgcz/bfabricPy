@@ -10,21 +10,28 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 ## \[Unreleased\]
 
-- `bfabric-cli login` renews an expired token with **no arguments**: the instance URL and scope are read back from the environment. A first login picks the instance from the known hosts and derives the environment name. `login` is also a top-level shortcut for `auth login`.
-- **Breaking:** `auth default` is now `auth activate` (no alias), and `auth logout` no longer deletes the environment — it clears only this machine's credentials (cached OAuth token, or an inline `pat` / `login`+`password`), leaving it ready for a zero-argument re-login. `--all` covers every environment; the old behaviour is `auth remove`.
+### Added
+
+- `bfabric-cli login` renews an expired token with **no arguments** — instance URL and scope are read back from the environment; a first login picks the instance from the known hosts and derives the environment name. Also a top-level shortcut for `auth login`.
+- `auth login --no-browser` prints the authorization URL instead of opening a browser (local machines only — over SSH use `auth device-code`).
+- `auth register` / `register-webapp` gain `--no-service-user`, and `--service-user` no longer silently defaults to "none": omitting it by accident (registering a client without the `client_credentials` grant) now fails fast.
+- New user guide: [Authentication](https://fgcz.github.io/bfabricPy/user_guides/bfabric-cli/authentication.html) — command surface, scopes, logout vs remove, remote hosts.
+
+### Changed
+
+- `auth default` is now `auth activate` (no alias). `auth logout` no longer deletes the environment — it clears only this machine's credentials (cached OAuth token, inline `pat` or `login`+`password`), leaving it ready for a zero-argument re-login; `--all` covers every environment, and the old behaviour is `auth remove`. It does not revoke the token server-side, which it now says.
 - `auth list` groups environments by instance and shows scope and token expiry; `list` and `status` mark *why* an environment is the active one.
 - Every `auth` command resolves the environment as `--config-env` > `BFABRICPY_CONFIG_ENV` > the configured default, and commands that write the config refuse to run under `BFABRICPY_CONFIG_OVERRIDE`.
-- Re-pointing an environment at a different instance URL now needs confirmation, and is refused non-interactively.
-- Base URLs are normalised up front: scheme defaulted, host lowercased, trailing slash dropped, bare known hosts expanded, non-http(s) rejected as input.
-- `auth login --no-browser` prints the authorization URL instead of opening a browser (local machines only — over SSH use `auth device-code`).
-- `auth logout` notes that it does not revoke the token server-side: an issued token stays valid until it expires, so only local access is removed.
-- New user guide: [Authentication](https://fgcz.github.io/bfabricPy/user_guides/bfabric-cli/authentication.html) — command surface, scopes, logout vs remove, remote hosts.
-- Packaging: `project.readme` now points at the package's own `README.md` instead of the repository root's, for the same reason as in `bfabric` — hatchling 1.32.0 rejects readme paths outside the project directory, breaking builds from source. The package README was expanded into a proper landing page, since it is what PyPI now shows.
-- `bfabric-cli auth register-webapp` — no longer crashes with a raw traceback when the OAuth session cannot be refreshed (e.g. an expired/revoked refresh token); prints a clean `Error: ...` message and exits 1.
-- `bfabric-cli auth register` — no longer prompts for an *Employee Bearer token* when a login already exists: with neither `--token` nor `--config-env` it authenticates as the environment in effect (`--config-env` > `BFABRICPY_CONFIG_ENV` > configured default), like every other `auth` command, so `auth login` followed by `auth register` just works. Pass `--token` to keep supplying one explicitly.
-- `bfabric-cli auth register` / `register-webapp` — `--service-user` no longer silently defaults to "none"; both now require either `--service-user LOGIN` or the new `--no-service-user` flag, so omitting a service user by accident (which registers a client without the `client_credentials` grant) fails fast with an explanatory error instead of succeeding silently.
-- Internal: login handlers normalised to `cmd_auth_*`; shared resolution in `cli/login/_common.py`, base-URL handling in a new `_urls.py`. `auth register` obtains its bearer token via `Bfabric.connect()` instead of rebuilding the credential-provider and token-cache lookup itself.
-- **Breaking:** `bfabric-cli workunit upload --force` is replaced by `--on-duplicate upload|skip|link`, which is also **the new default (`upload`)** — the duplicate check no longer runs unless you ask for it, so a re-upload of content the container already holds now transfers it again instead of being skipped. Pass `--on-duplicate skip` for the old default. `--on-duplicate link` gives the workunit a resource pointing at the already-stored bytes instead of omitting the file, without re-transferring content B-Fabric already stores; the final summary line reports the number linked when any were.
+- Re-pointing an environment at a different instance URL needs confirmation, and is refused non-interactively.
+- Base URLs are normalised up front: scheme defaulted, host lowercased, trailing slash dropped, bare known hosts expanded, non-http(s) rejected.
+- `workunit upload --force` is replaced by `--on-duplicate upload|skip|link`, and `upload` is the new default — the duplicate check no longer runs unless asked for, so a re-upload of content the container already holds transfers it again. Pass `skip` for the old behaviour, or `link` to give the workunit a resource pointing at the already-stored bytes instead of omitting the file.
+- Packaging: `project.readme` points at the package's own `README.md` (same hatchling 1.32.0 constraint as `bfabric`); the README was expanded into a proper landing page, since it is what PyPI shows.
+- Internal: login handlers normalised to `cmd_auth_*`; shared resolution in `cli/login/_common.py`, base-URL handling in a new `_urls.py`; `auth register` obtains its bearer token via `Bfabric.connect()` instead of rebuilding the credential-provider and token-cache lookup itself.
+
+### Fixed
+
+- `auth register-webapp` prints a clean `Error: ...` and exits 1 when the OAuth session cannot be refreshed (e.g. an expired/revoked refresh token), instead of a raw traceback.
+- `auth register` no longer prompts for an *Employee Bearer token* when a login already exists: with neither `--token` nor `--config-env` it authenticates as the environment in effect, so `auth login` followed by `auth register` just works. Pass `--token` to supply one explicitly.
 
 ## \[1.16.0\] - 2026-08-03
 
