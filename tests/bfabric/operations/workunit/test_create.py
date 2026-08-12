@@ -300,3 +300,58 @@ class TestInputDataset:
         """Like `input_resource_ids`, an input reference is not workunit content."""
         with pytest.raises(ValidationError):
             CreateWorkunitParams(container_id=1, application_id=2, workunit_name="x", input_dataset_id=1234)
+
+
+class TestParamsAsDict:
+    """`params` may be a plain dict, validated inside the operation."""
+
+    def test_dict_is_accepted(self, mock_client):
+        # only `parameters` is populated, so the step sequence is initial -> parameter -> complete
+        mock_client.save.side_effect = [_initial_response(42), [{}], _complete_response(42)]
+
+        workunit = create_workunit(
+            mock_client,
+            {
+                "container_id": 100,
+                "application_id": 5,
+                "workunit_name": "WU",
+                "parameters": {"p": "v"},
+            },
+        )
+
+        assert workunit.id == 42
+        save_calls = mock_client.save.call_args_list
+        assert [call.args[0] for call in save_calls] == ["workunit", "parameter", "workunit"]
+        assert save_calls[1].args[1] == [
+            {"key": "p", "label": "p", "value": "v", "context": "workunit", "workunitid": 42}
+        ]
+
+    def test_nested_dataset_dict_is_coerced(self, mock_client):
+        mock_client.save.side_effect = [_initial_response(42), [{}], _complete_response(42)]
+
+        create_workunit(
+            mock_client,
+            {
+                "container_id": 100,
+                "application_id": 5,
+                "workunit_name": "WU",
+                "dataset": {"name": "results", "base64": _b64(DATASET_CSV), "format": "csv"},
+            },
+        )
+
+        save_calls = mock_client.save.call_args_list
+        assert [call.args[0] for call in save_calls] == ["workunit", "dataset", "workunit"]
+        assert save_calls[1].args[1]["name"] == "results"
+        assert save_calls[1].args[1]["attribute"][1] == {"name": "Resource", "position": 2, "type": "Resource"}
+
+    def test_invalid_dict_raises_before_any_write(self, mock_client):
+        with pytest.raises(ValidationError):
+            create_workunit(mock_client, {"container_id": 100, "application_id": 5, "workunit_name": "WU"})
+
+        assert not mock_client.save.called
+
+    def test_dict_missing_required_field_raises_before_any_write(self, mock_client):
+        with pytest.raises(ValidationError):
+            create_workunit(mock_client, {"application_id": 5, "workunit_name": "WU", "parameters": {"p": "v"}})
+
+        assert not mock_client.save.called

@@ -12,6 +12,8 @@ from bfabric.operations.dataset import CreateDatasetParams, create_dataset
 from bfabric.operations.workunit._common import complete_workunit, mark_workunit_failed
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from bfabric import Bfabric
     from bfabric.typing import ApiRequestDataType
 
@@ -55,10 +57,13 @@ class CreateWorkunitParams(BaseModel):
 
 def create_workunit(
     client: Bfabric,
-    params: CreateWorkunitParams,
+    params: CreateWorkunitParams | Mapping[str, object],
     audit_attributes: dict[str, str] | None = None,
 ) -> Workunit:
     """Create a workunit with its resources, parameters, links, and output dataset.
+
+    `params` also accepts a plain (possibly nested) mapping; an invalid one raises
+    `pydantic.ValidationError` before anything is written.
 
     `audit_attributes` is written verbatim as workunit custom attributes; this
     operation has no opinion about what keys are used. On any failure after the
@@ -72,6 +77,7 @@ def create_workunit(
     it with the appropriate client, e.g.
     `client.reader.read_id("workunit", wu.id, expected_type=Workunit)`.
     """
+    params = CreateWorkunitParams.model_validate(params)
     workunit_id = _create_workunit_initial(client=client, params=params, audit_attributes=audit_attributes or {})
     try:
         if params.resources:
