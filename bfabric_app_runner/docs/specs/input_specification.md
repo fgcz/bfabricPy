@@ -148,7 +148,7 @@ Download a resource that is an archive and extract it (with include/exclude glob
 Download every resource referenced by a dataset into a folder, plus a metadata table:
 
 ```{eval-rst}
-.. autopydantic_model:: bfabric_app_runner.specs.inputs.bfabric_resource_dataset.BfabricResourceDatasetSpec
+.. autopydantic_model:: bfabric_app_runner.specs.inputs.bfabric_resource_dataset_spec.BfabricResourceDatasetSpec
 ```
 
 Write the FASTA sequence attached to an order (or a workunit's order) to a file:

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import Literal, TYPE_CHECKING, Annotated
+from typing import Literal, TYPE_CHECKING
 
 from bfabric_app_runner.specs.common_types import RelativeFilePath
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
@@ -40,4 +40,3 @@ class BfabricAnnotationResourceSampleSpec(_AnnotationSpec):
 
 
 BfabricAnnotationSpec = BfabricAnnotationResourceSampleSpec
-BfabricAnnotationSpecField = Annotated[BfabricAnnotationSpec, Field(discriminator="annotation")]

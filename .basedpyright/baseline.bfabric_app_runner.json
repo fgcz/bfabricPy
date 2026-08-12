@@ -2838,7 +2838,7 @@
                 }
             }
         ],
-        "./bfabric_app_runner/src/bfabric_app_runner/specs/inputs/bfabric_resource_dataset.py": [
+        "./bfabric_app_runner/src/bfabric_app_runner/specs/inputs/bfabric_resource_dataset_spec.py": [
             {
                 "code": "reportUnannotatedClassAttribute",
                 "range": {
