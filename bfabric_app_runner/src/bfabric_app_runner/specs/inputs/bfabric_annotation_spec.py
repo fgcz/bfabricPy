@@ -1,12 +1,9 @@
 from __future__ import annotations
 
-from typing import Literal, TYPE_CHECKING
+from typing import Literal
 
 from bfabric_app_runner.specs.common_types import RelativeFilePath
 from pydantic import BaseModel
-
-if TYPE_CHECKING:
-    from bfabric import Bfabric
 
 
 class _AnnotationSpec(BaseModel):
@@ -17,10 +14,6 @@ class _AnnotationSpec(BaseModel):
 
     filename: RelativeFilePath
     """Target filename (relative to the chunk directory) to write the annotation table to."""
-
-    def resolve_filename(self, client: Bfabric) -> str:
-        """Returns the target filename for this annotation."""
-        return self.filename
 
 
 class BfabricAnnotationResourceSampleSpec(_AnnotationSpec):
