@@ -58,11 +58,18 @@ nox -s basedpyright(bfabric_scripts)
 nox -s basedpyright(bfabric_app_runner)
 ```
 
-### Linting
+### Linting and formatting
 ```bash
-nox -s code_style                      # ruff via nox
+nox -s code_style                      # ruff lint via nox — lint only, checks no formatting
 ruff check bfabric                     # ruff directly
+pre-commit run --all-files             # the formatter gate (black, and blacken-docs for md code blocks)
 ```
+
+**black is the formatter — never run `ruff format`.** It disagrees with black on ~15 files (f-string
+quotes, `assert` message wrapping, implicit string concatenation, and the Python code blocks in
+`docs/**/*.md` that `blacken-docs` owns), so it produces a large spurious diff. Since neither
+`nox -s code_style` nor CI checks formatting, the only thing that catches a wrong formatter is the
+pre-commit hook rejecting the commit.
 
 ### Docs
 ```bash
