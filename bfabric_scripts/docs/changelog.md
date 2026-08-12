@@ -30,6 +30,7 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 ### Fixed
 
+- `api inspect` reports that it requires the SUDS engine instead of failing with an `AttributeError` when the configured engine is Zeep.
 - `auth register-webapp` prints `Error: ...` and exits 1 when the OAuth session cannot be refreshed, instead of a raw traceback.
 - `auth register` no longer prompts for an *Employee Bearer token* when a login exists; it authenticates as the environment in effect.
 
