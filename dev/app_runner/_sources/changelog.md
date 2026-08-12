@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `run workunit` no longer prints a second traceback when `make run-all` fails; it reports one line naming the workunit, exit code, and work directory. The workunit is still marked `failed`.
 - Captured command output (`uv venv` / `uv pip install` / `uv pip list`) is now logged one record per line, so every line carries its level prefix and stays greppable. Previously it was one multi-line record whose lines after the first were indistinguishable from raw `print` output.
 - Requires `bfabric` 1.20.1, whose logging fix is what keeps a nested app-runner (Makefile or SLURM) from falling back to loguru's verbose DEBUG format.
+- Internal: the demo app copier template can be instantiated again. It rendered `_copier_conf.dst_path.resolve()`, which current copier rejects because it now exposes `dst_path` as a `PurePath`. Its `app.yml` uses spec-relative paths instead of a generation-time host path, and its stale `app_runner: 0.1.2` pin is refreshed. The destination must now be given as an absolute path, for the `<program>` path in `bfabric_app.xml`.
 
 ## \[0.7.0\] - 2026-08-03
 
