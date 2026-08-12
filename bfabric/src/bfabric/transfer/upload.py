@@ -73,6 +73,12 @@ class CreatedResource(BaseModel):
     relativepath: str | None = None
     storage_path: str | None = Field(default=None, alias="storagePath")
     import_resource_id: int | None = Field(default=None, alias="importResourceId")
+    linked: bool = False
+    """Whether this resource links to already-stored bytes instead of awaiting an upload.
+
+    A linked resource is created ``AVAILABLE``, so it must be excluded from the ids passed to
+    ``initiate`` and never transferred. Defaults to ``False`` for servers that omit the field.
+    """
 
 
 class UploadTokenResult(BaseModel):
@@ -85,8 +91,19 @@ class UploadTokenResult(BaseModel):
     expires_in: int = Field(default=3600, alias="expiresIn")
 
 
-def _file_entries(files: Sequence[FileInfo]) -> list[dict[str, object]]:
-    return [{"name": fi.name, "md5": fi.md5, "size": fi.size} for fi in files]
+def _file_entries(files: Sequence[FileInfo], *, allow_link: bool = False) -> list[dict[str, object]]:
+    """The request ``files`` array; ``allow_link`` adds ``linkFromResourceId`` where one is set.
+
+    Only ``create-resources`` accepts the link field, so it is omitted entirely otherwise -- and
+    omitted rather than sent as ``null`` for a file that is a genuine upload.
+    """
+    entries: list[dict[str, object]] = []
+    for fi in files:
+        entry: dict[str, object] = {"name": fi.name, "md5": fi.md5, "size": fi.size}
+        if allow_link and fi.link_from_resource_id is not None:
+            entry["linkFromResourceId"] = fi.link_from_resource_id
+        entries.append(entry)
+    return entries
 
 
 @final
@@ -133,8 +150,13 @@ class UploadRestClient:
         return TypeAdapter(list[DuplicateResult]).validate_python(self._post("check-duplicates", payload))
 
     def create_resources(self, workunit_id: int, files: Sequence[FileInfo]) -> list[CreatedResource]:
-        """Call ``/rest/upload/create-resources`` to register resource (and import-resource) records."""
-        payload: dict[str, object] = {"workunitId": workunit_id, "files": _file_entries(files)}
+        """Call ``/rest/upload/create-resources`` to register resource (and import-resource) records.
+
+        A file carrying ``link_from_resource_id`` is registered as a link to that resource's bytes and
+        comes back ``linked``, needing no transfer. The call is all-or-nothing: one rejected file fails
+        the whole batch and registers nothing, so retrying the full batch is safe.
+        """
+        payload: dict[str, object] = {"workunitId": workunit_id, "files": _file_entries(files, allow_link=True)}
         return TypeAdapter(list[CreatedResource]).validate_python(self._post("create-resources", payload))
 
     def get_upload_token(

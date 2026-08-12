@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from collections.abc import Collection
     from pathlib import Path
 
 
@@ -20,6 +21,13 @@ class FileInfo:
     md5: str
     size: int
     path: Path
+    link_from_resource_id: int | None = None
+    """Register this file as a link to the bytes of an existing resource instead of uploading it.
+
+    Set from a ``check-duplicates`` verdict's ``existingResourceId``; the server then takes storage
+    path, size and checksum from that resource, so ``md5``/``size`` here are ignored and ``path`` is
+    never read. Only meaningful for ``create-resources``.
+    """
 
 
 def resolve_paths(paths: list[Path]) -> list[Path]:
@@ -33,22 +41,27 @@ def resolve_paths(paths: list[Path]) -> list[Path]:
     return result
 
 
-def collect_file_infos(paths: list[Path]) -> list[FileInfo]:
+def collect_file_infos(paths: list[Path], *, exclude_names: Collection[str] | None = None) -> list[FileInfo]:
     """Expand any directories and compute a FileInfo for every resulting file.
 
     Directories are expanded recursively, preserving the path relative to the
     directory as the resource name (e.g. "subdir/file.txt"). Plain files keep
     their basename. Raises ValueError if a directory contains no files.
+
+    ``exclude_names`` drops files by *basename* at any depth (e.g. a sentinel or ``.DS_Store``).
+    Excluding is done here rather than by the caller pre-filtering, because passing a flat file list
+    loses the ``base_dir`` that gives nested files their relative resource name.
     """
+    excluded = frozenset(exclude_names or ())
     infos: list[FileInfo] = []
     for p in paths:
         if p.is_dir():
-            expanded = resolve_paths([p])
+            expanded = [ep for ep in resolve_paths([p]) if ep.name not in excluded]
             if not expanded:
                 raise ValueError(f"Directory '{p}' contains no files.")
             for ep in expanded:
                 infos.append(compute_file_info(ep, base_dir=p))
-        else:
+        elif p.name not in excluded:
             infos.append(compute_file_info(p))
     return infos
 

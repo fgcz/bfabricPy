@@ -19,6 +19,36 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 - Packaging: `project.readme` now points at a package-local `README.md` instead of the repository root's. hatchling 1.32.0 rejects readme paths that resolve outside the project directory, which broke every build from source (CI and git-pinned installs); the previous setting also produced an sdist containing a `../README.md` member that tar refuses to extract. Installing the published wheels was never affected.
 - `MultiQuery.read_multi` now reserves query elements for the other fields of `obj` when chunking, since the API counts every value in a query towards its limit of 100 elements. Previously e.g. `read_multi("importresource", {"containerid": cid}, "relativepath", paths)` failed with "Query has 101 elements and exceeds the maximum of 100 allowed elements" as soon as 100 paths were passed. A query whose other fields already use up the limit now raises `ValueError` instead of being sent.
 - `import bfabric` no longer imports `polars` eagerly (~296 ms → ~184 ms). The three modules on the import path that pulled it in at module scope — `HasMany.polars`, `Dataset.to_polars`, `MultiplexKit.ids` — now import it inside the function, as `ResultContainer.to_polars` already did. `polars` remains a hard dependency and every API is unchanged; it is simply not loaded until a `DataFrame` is actually requested.
+- `upload_files` and `collect_file_infos` accept `exclude_names`, dropping files by basename at any depth (e.g. a caller's sentinel file, `.DS_Store`). Filtering here rather than pre-filtering the path list preserves the relative resource names of nested files.
+- **Breaking:** `upload_files` takes its file list inside `params` and decides duplicate handling **per file**. The signature is now `upload_files(client, params)` — the positional `files` argument is gone — and `UploadFilesParams.files` is a list of `UploadFileParam(path=..., on_duplicate=...)`. `on_duplicate` is one of `upload` / `skip` / `link` (the same three words as the server's `check-duplicates` verdict), replacing the mutually-interfering `force` and `link_duplicates` booleans, both of which are removed. **It defaults to `upload`, so the duplicate check no longer runs unless asked for**: callers that relied on duplicates being skipped must now say so. A directory applies its policy to every file under it, and a file with `on_duplicate="upload"` is left out of the `check-duplicates` request entirely.
+
+  ```python
+  # before
+  upload_files(
+      client,
+      [Path("a.raw"), Path("run/")],
+      UploadFilesParams(container_id=1, application_id=2),
+  )
+  # after — same behaviour (duplicates skipped)
+  upload_files(
+      client,
+      UploadFilesParams(
+          files=[
+              UploadFileParam(path=Path("a.raw"), on_duplicate="skip"),
+              UploadFileParam(path=Path("run/"), on_duplicate="skip"),
+          ],
+          container_id=1,
+          application_id=2,
+      ),
+  )
+  ```
+- `on_duplicate="link"` registers a content-duplicate as a link instead of skipping it. Any duplicate verdict naming an `existingResourceId` — in practice a `skip` on an `exact_duplicate` / `renamed_duplicate` — has that id passed back as `linkFromResourceId`, and the server creates an `AVAILABLE` resource pointing at the existing bytes with no transfer. The workunit then holds a resource for every input file, rather than silently omitting the duplicates. A duplicate with no `existingResourceId` stays a plain skip.
+- Two input files mapping to the same resource name are now rejected *before* the workunit is created, rather than after (verdicts and resources are keyed by name alone, so nothing downstream could disambiguate them). The error is unchanged; only its timing is, so a rejected upload no longer leaves a `failed` workunit behind.
+- **Breaking:** `UploadSummary` now holds one list per outcome and nothing else — `uploads`, `skips`, `failures`, `links` — so a count is `len(summary.uploads)`. The `uploaded`, `skipped` and `failed` counters (released in 1.20.0) are removed, along with the never-released `linked`; each was only ever the length of its list, with no consumer needing it independently, and keeping both invited the two to drift.
+- `skips` is new detail rather than a renamed counter: a skipped file now arrives as `FileSkip(filename, category, existing_resource_id)`, naming the duplicate it lost out to (`exact_duplicate` / `renamed_duplicate` / …, plus the resource already holding those bytes). Previously a skip was only a number, so which files were dropped — and what they matched — was unrecoverable.
+- `links` records files registered as links to already-stored bytes, reported separately from `uploads` and `skips`: a linked file *has* a resource but transferred no bytes, whereas a skipped one has no resource at all. A workunit whose files were all linked now completes instead of being marked failed by the "nothing uploaded" check.
+- `FileInfo` gains `link_from_resource_id`, and `CreatedResource` exposes the `linked` field from `create-resources`. Server-side linked resources are excluded from the `initiate` id lists and never transferred. Both default to `None`/`False`, so servers that omit the field behave exactly as before.
+- Uploading a folder with sub-directories now works against servers that echo the resource name verbatim. The duplicate-check and resource-pairing guards previously fired on nested names (`sub/nested.raw`) because the server replied with the basename; the fix is server-side, and no duplicate-policy workaround is needed for it. Note a nested re-upload is now reported as `renamed_duplicate` rather than `exact_duplicate` (name matching misses on a subpath, so detection falls back to MD5) — both still carry the `skip` action, so branch on `action`, not `category`.
 
 ## \[1.20.0\] - 2026-08-03
 
