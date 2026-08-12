@@ -4,11 +4,9 @@ import base64
 from io import BytesIO
 from typing import TYPE_CHECKING, Literal
 
-import polars as pl
 from pydantic import BaseModel, Field, model_validator
 
 from bfabric.entities import Workunit
-from bfabric.operations.dataset import CreateDatasetParams, create_dataset
 from bfabric.operations.workunit._common import complete_workunit, mark_workunit_failed
 
 if TYPE_CHECKING:
@@ -142,6 +140,12 @@ def _create_workunit_links(client: Bfabric, workunit_id: int, links: dict[str, s
 
 
 def _create_workunit_dataset(client: Bfabric, workunit_id: int, container_id: int, dataset: WorkunitDataset) -> None:
+    # Imported here rather than at module scope: `bfabric.operations.dataset` pulls in polars, which a
+    # caller that creates no dataset should not pay for (guarded by tests/bfabric/test_lazy_imports.py).
+    import polars as pl
+
+    from bfabric.operations.dataset import CreateDatasetParams, create_dataset
+
     raw = base64.b64decode(dataset.base64)
     if dataset.format == "parquet":
         table = pl.read_parquet(BytesIO(raw))
