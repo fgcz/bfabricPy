@@ -371,6 +371,7 @@
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#app-specification-structure">App Specification Structure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#paths">Paths</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#commands">Commands</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.commands_spec.CommandsSpec"><code class="docutils literal notranslate"><span class="pre">CommandsSpec</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.commands_spec.CommandsSpec.collect"><code class="docutils literal notranslate"><span class="pre">CommandsSpec.collect</span></code></a></li>
@@ -451,6 +452,7 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate"><code class="docutils literal notranslate"><span class="pre">AppSpecTemplate</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.bfabric"><code class="docutils literal notranslate"><span class="pre">AppSpecTemplate.bfabric</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.evaluate"><code class="docutils literal notranslate"><span class="pre">AppSpecTemplate.evaluate()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.for_yaml"><code class="docutils literal notranslate"><span class="pre">AppSpecTemplate.for_yaml()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.model_config"><code class="docutils literal notranslate"><span class="pre">AppSpecTemplate.model_config</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.versions"><code class="docutils literal notranslate"><span class="pre">AppSpecTemplate.versions</span></code></a></li>
 </ul>
@@ -513,6 +515,23 @@ by configuring the application steps in a YAML configuration files, the so-calle
 <p>The top-level <code class="docutils literal notranslate"><span class="pre">bfabric</span></code> section contains metadata relevant to B-Fabric integration (the runner
 version to use and an optional workflow template step ID). The <code class="docutils literal notranslate"><span class="pre">versions</span></code> list defines one or
 more application versions, each with its own set of commands.</p>
+</section>
+<section id="paths">
+<h2>Paths<a class="headerlink" href="#paths" title="Link to this heading">#</a></h2>
+<p>Every path field in the spec (<code class="docutils literal notranslate"><span class="pre">pylock</span></code>, <code class="docutils literal notranslate"><span class="pre">local_extra_deps</span></code>, <code class="docutils literal notranslate"><span class="pre">prepend_paths</span></code>, and the host side of
+the docker <code class="docutils literal notranslate"><span class="pre">mounts</span></code> entries) is interpreted on the machine running the app, following one rule:</p>
+<ul class="simple">
+<li><p>A relative path is resolved against the directory containing the app specification file, so a
+spec directory can be relocated or checked out elsewhere without rewriting its paths.</p></li>
+<li><p>A leading <code class="docutils literal notranslate"><span class="pre">~</span></code> is expanded to the home directory of the user running the app.</p></li>
+<li><p>An absolute path is used as given.</p></li>
+</ul>
+<p>The container side of a <code class="docutils literal notranslate"><span class="pre">mounts</span></code> entry, and <code class="docutils literal notranslate"><span class="pre">mounts.work_dir_target</span></code>, are paths <em>inside</em> the
+container and are never rewritten.</p>
+<p>Paths that appear inside a <code class="docutils literal notranslate"><span class="pre">command</span></code> string or an <code class="docutils literal notranslate"><span class="pre">env</span></code> value cannot be detected as paths, so they
+are passed through unchanged; write those relative to the spec with <code class="docutils literal notranslate"><span class="pre">${app.dir}</span></code> (see
+<a class="reference internal" href="#variables-and-templating">Variables and Templating</a>).</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">bfabric-app-runner</span> <span class="pre">validate</span> <span class="pre">app-spec</span></code> to print the effective, resolved paths.</p>
 </section>
 <section id="commands">
 <h2>Commands<a class="headerlink" href="#commands" title="Link to this heading">#</a></h2>
@@ -610,7 +629,7 @@ more application versions, each with its own set of commands.</p>
 
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.commands_spec.CommandExec.prepend_paths">
-<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">prepend_paths</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.CommandExec.prepend_paths" title="Link to this definition">#</a></dt>
+<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">prepend_paths</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">AfterValidator</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">func</span></span><span class="o"><span class="pre">=</span></span><span class="pre">_resolve_against_spec_dir</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.CommandExec.prepend_paths" title="Link to this definition">#</a></dt>
 <dd><p>A list of paths to prepend to the PATH variable before executing the command.</p>
 <p>If multiple paths are specified, the first one will be the first in PATH, etc.</p>
 </dd></dl>
@@ -738,8 +757,8 @@ more application versions, each with its own set of commands.</p>
 </dl>
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.commands_spec.MountOptions.read_only">
-<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">read_only</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.MountOptions.read_only" title="Link to this definition">#</a></dt>
-<dd><p>Read-only bind mounts, each a <code class="docutils literal notranslate"><span class="pre">(host_path,</span> <span class="pre">container_path)</span></code> pair.</p>
+<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">read_only</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">AfterValidator</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">func</span></span><span class="o"><span class="pre">=</span></span><span class="pre">_resolve_against_spec_dir</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.MountOptions.read_only" title="Link to this definition">#</a></dt>
+<dd><p>Read-only bind mounts, each a <code class="docutils literal notranslate"><span class="pre">(host_path,</span> <span class="pre">container_path)</span></code> pair; only the host side is spec-relative.</p>
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
@@ -756,8 +775,8 @@ more application versions, each with its own set of commands.</p>
 
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.commands_spec.MountOptions.writeable">
-<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">writeable</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.MountOptions.writeable" title="Link to this definition">#</a></dt>
-<dd><p>Writeable bind mounts, each a <code class="docutils literal notranslate"><span class="pre">(host_path,</span> <span class="pre">container_path)</span></code> pair.</p>
+<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">writeable</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">AfterValidator</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">func</span></span><span class="o"><span class="pre">=</span></span><span class="pre">_resolve_against_spec_dir</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.MountOptions.writeable" title="Link to this definition">#</a></dt>
+<dd><p>Writeable bind mounts, each a <code class="docutils literal notranslate"><span class="pre">(host_path,</span> <span class="pre">container_path)</span></code> pair; only the host side is spec-relative.</p>
 </dd></dl>
 
 </dd></dl>
@@ -839,7 +858,7 @@ Environments can be cached for reuse across runs.</p>
 
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.local_extra_deps">
-<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">local_extra_deps</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.local_extra_deps" title="Link to this definition">#</a></dt>
+<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">local_extra_deps</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">AfterValidator</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">func</span></span><span class="o"><span class="pre">=</span></span><span class="pre">_resolve_against_spec_dir</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.local_extra_deps" title="Link to this definition">#</a></dt>
 <dd><p>Additional dependencies to install into the environment.</p>
 <p>Each entry should be a path to a wheel, sdist, or local package directory.
 These will be installed into the environment with <cite>uv pip install –no-deps</cite> after the main requirements.
@@ -849,15 +868,22 @@ in the environment (typically specified in the pylock file).</p>
 
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.prepend_paths">
-<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">prepend_paths</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.prepend_paths" title="Link to this definition">#</a></dt>
+<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">prepend_paths</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">AfterValidator</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">func</span></span><span class="o"><span class="pre">=</span></span><span class="pre">_resolve_against_spec_dir</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.prepend_paths" title="Link to this definition">#</a></dt>
 <dd><p>A list of paths to prepend to the PATH variable before executing the command.</p>
 <p>If multiple paths are specified, the first one will be the first in PATH, etc.</p>
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.pylock">
-<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">pylock</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></span><span class="property"> <span class="pre">[Required]</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.pylock" title="Link to this definition">#</a></dt>
+<span class="property"><span class="pre">field</span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">pylock</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">AfterValidator</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">func</span></span><span class="o"><span class="pre">=</span></span><span class="pre">_resolve_against_spec_dir</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"> <span class="pre">[Required]</span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.commands_spec.CommandPythonEnv.pylock" title="Link to this definition">#</a></dt>
 <dd><p>Path to the Pylock file that specifies the environment to use.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Constraints<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> = &lt;function _resolve_against_spec_dir at 0x7fe235b1c0e0&gt;</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute pydantic_field">
@@ -899,10 +925,19 @@ and don’t leave broken environments in the cache if provisioning fails.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">${app.id}</span></code>: Application ID (integer)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">${app.name}</span></code>: Application name (alphanumeric, underscores, hyphens)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">${app.version}</span></code>: Version string</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">${app.dir}</span></code>: Directory containing the app specification file</p></li>
 </ul>
 <p>Example:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;registry.example.com/${app.name}:${app.version}&quot;</span>
 <span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/app/run.sh</span><span class="nv"> </span><span class="s">--app-id</span><span class="nv"> </span><span class="s">${app.id}&quot;</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">${app.dir}</span></code> is for paths a spec field cannot resolve for you, i.e. a script referenced from within
+a command string:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">commands</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">dispatch</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exec</span>
+<span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;uv</span><span class="nv"> </span><span class="s">run</span><span class="nv"> </span><span class="s">--script</span><span class="nv"> </span><span class="s">${app.dir}/dispatch.py&quot;</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">interpolate_config_strings</span></code> function processes all string values in the configuration after YAML loading.</p>
@@ -983,8 +1018,14 @@ The main difference is that this may contain usages of <cite>Variables</cite>. T
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.evaluate">
-<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric_app_runner.specs.app.app_spec.AppSpec" title="bfabric_app_runner.specs.app.app_spec.AppSpec"><span class="pre">AppSpec</span></a></span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.evaluate" title="Link to this definition">#</a></dt>
-<dd><p>Evaluates the template to a concrete <code class="docutils literal notranslate"><span class="pre">AppSpec</span></code> instance.</p>
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric_app_runner.specs.app.app_spec.AppSpec" title="bfabric_app_runner.specs.app.app_spec.AppSpec"><span class="pre">AppSpec</span></a></span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.evaluate" title="Link to this definition">#</a></dt>
+<dd><p>Evaluates the template to a concrete <code class="docutils literal notranslate"><span class="pre">AppSpec</span></code> instance, with <code class="docutils literal notranslate"><span class="pre">app_dir</span></code> as <code class="docutils literal notranslate"><span class="pre">${app.dir}</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.for_yaml">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">for_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate" title="bfabric_app_runner.specs.app.app_spec.AppSpecTemplate"><span class="pre">AppSpecTemplate</span></a></span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.for_yaml" title="Link to this definition">#</a></dt>
+<dd><p>Parses the app spec template, resolving relative paths against the file’s directory.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1157,6 +1198,7 @@ instead of creating a new resource entry.</p>
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#app-specification-structure">App Specification Structure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#paths">Paths</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#commands">Commands</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.commands_spec.CommandsSpec"><code class="docutils literal notranslate"><span class="pre">CommandsSpec</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.commands_spec.CommandsSpec.collect"><code class="docutils literal notranslate"><span class="pre">CommandsSpec.collect</span></code></a></li>
@@ -1237,6 +1279,7 @@ instead of creating a new resource entry.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate"><code class="docutils literal notranslate"><span class="pre">AppSpecTemplate</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.bfabric"><code class="docutils literal notranslate"><span class="pre">AppSpecTemplate.bfabric</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.evaluate"><code class="docutils literal notranslate"><span class="pre">AppSpecTemplate.evaluate()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.for_yaml"><code class="docutils literal notranslate"><span class="pre">AppSpecTemplate.for_yaml()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.model_config"><code class="docutils literal notranslate"><span class="pre">AppSpecTemplate.model_config</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpecTemplate.versions"><code class="docutils literal notranslate"><span class="pre">AppSpecTemplate.versions</span></code></a></li>
 </ul>

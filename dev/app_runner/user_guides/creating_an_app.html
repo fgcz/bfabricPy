@@ -447,18 +447,20 @@
 <span class="w">    </span><span class="nt">commands</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">dispatch</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python_env</span>
-<span class="w">        </span><span class="nt">pylock</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/path/to/dist/${app.version}/pylock.toml</span>
+<span class="w">        </span><span class="nt">pylock</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dist/${app.version}/pylock.toml</span>
 <span class="w">        </span><span class="nt">local_extra_deps</span><span class="p">:</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/path/to/dist/${app.version}/my_app-${app.version}-py3-none-any.whl</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dist/${app.version}/my_app-${app.version}-py3-none-any.whl</span>
 <span class="w">        </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-m my_app.dispatch</span>
 <span class="w">      </span><span class="nt">process</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python_env</span>
-<span class="w">        </span><span class="nt">pylock</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/path/to/dist/${app.version}/pylock.toml</span>
+<span class="w">        </span><span class="nt">pylock</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dist/${app.version}/pylock.toml</span>
 <span class="w">        </span><span class="nt">local_extra_deps</span><span class="p">:</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/path/to/dist/${app.version}/my_app-${app.version}-py3-none-any.whl</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dist/${app.version}/my_app-${app.version}-py3-none-any.whl</span>
 <span class="w">        </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-m my_app.process</span>
 </pre></div>
 </div>
+<p>Path fields are resolved relative to the directory containing the <code class="docutils literal notranslate"><span class="pre">app.yml</span></code>; see
+<a class="reference internal" href="../specs/app_specification.html#paths"><span class="std std-ref">Paths</span></a>.</p>
 <section id="template-variables">
 <h3>Template Variables<a class="headerlink" href="#template-variables" title="Link to this heading">#</a></h3>
 <p>When multiple versions share a definition, the following template variables are available for path interpolation:</p>
@@ -468,6 +470,9 @@
 <dt><code class="docutils literal notranslate"><span class="pre">${app.id}</span></code></dt><dd><p>The B-Fabric application ID (provided at resolution time).</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">${app.name}</span></code></dt><dd><p>The B-Fabric application name (provided at resolution time).</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">${app.dir}</span></code></dt><dd><p>The directory containing the <code class="docutils literal notranslate"><span class="pre">app.yml</span></code>. Use it for paths that are not path fields, i.e. inside a
+<code class="docutils literal notranslate"><span class="pre">command</span></code> string or an <code class="docutils literal notranslate"><span class="pre">env</span></code> value, where they cannot be resolved automatically.</p>
 </dd>
 </dl>
 <p>These variables use Mako template interpolation and are resolved when the app spec is loaded.</p>
@@ -493,13 +498,16 @@ features), which <code class="docutils literal notranslate"><span class="pre">ex
 <h3>exec<a class="headerlink" href="#exec" title="Link to this heading">#</a></h3>
 <p>Executes a command directly (no shell interpretation).</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exec</span>
-<span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/path/to/my_script.sh&quot;</span>
+<span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${app.dir}/my_script.sh&quot;</span>
 <span class="nt">env</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">MY_VAR</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;value&quot;</span>
 <span class="nt">prepend_paths</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/opt/tools/bin</span>
 </pre></div>
 </div>
+<p>A script that lives next to the <code class="docutils literal notranslate"><span class="pre">app.yml</span></code> is best referenced with <code class="docutils literal notranslate"><span class="pre">${app.dir}</span></code>: paths inside a
+command string are passed through as written, so a relative one would be interpreted against the
+working directory of the run, not the app.</p>
 </section>
 <section id="docker">
 <h3>docker<a class="headerlink" href="#docker" title="Link to this heading">#</a></h3>
@@ -524,10 +532,10 @@ features), which <code class="docutils literal notranslate"><span class="pre">ex
 <h3>python_env<a class="headerlink" href="#python-env" title="Link to this heading">#</a></h3>
 <p>Creates a managed Python virtual environment and runs a command in it. This is the recommended type for reproducible deployments.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python_env</span>
-<span class="nt">pylock</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/path/to/pylock.toml</span>
+<span class="nt">pylock</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dist/pylock.toml</span>
 <span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-m my_app.main</span>
 <span class="nt">local_extra_deps</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/path/to/my_app-1.0.0-py3-none-any.whl</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dist/my_app-1.0.0-py3-none-any.whl</span>
 <span class="nt">env</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">MY_SETTING</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;value&quot;</span>
 <span class="nt">prepend_paths</span><span class="p">:</span>
@@ -551,11 +559,11 @@ features), which <code class="docutils literal notranslate"><span class="pre">ex
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">commands</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">dispatch</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python_env</span>
-<span class="w">    </span><span class="nt">pylock</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/path/to/pylock.toml</span>
+<span class="w">    </span><span class="nt">pylock</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dist/pylock.toml</span>
 <span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-m my_app.dispatch</span>
 <span class="w">  </span><span class="nt">process</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python_env</span>
-<span class="w">    </span><span class="nt">pylock</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/path/to/pylock.toml</span>
+<span class="w">    </span><span class="nt">pylock</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dist/pylock.toml</span>
 <span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-m my_app.process</span>
 <span class="w">  </span><span class="nt">collect</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exec</span>
@@ -588,7 +596,9 @@ features), which <code class="docutils literal notranslate"><span class="pre">ex
 <p>Setting <code class="docutils literal notranslate"><span class="pre">refresh:</span> <span class="pre">true</span></code> creates an ephemeral environment on each run, so code changes are picked up immediately without rebuilding.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Each developer can add their own development version (e.g. <code class="docutils literal notranslate"><span class="pre">devel-alice</span></code>, <code class="docutils literal notranslate"><span class="pre">devel-bob</span></code>) to test independently.</p>
+<p>Each developer can add their own development version (e.g. <code class="docutils literal notranslate"><span class="pre">devel-alice</span></code>, <code class="docutils literal notranslate"><span class="pre">devel-bob</span></code>) to test independently.
+An app whose code lives next to the <code class="docutils literal notranslate"><span class="pre">app.yml</span></code> (scripts referenced via <code class="docutils literal notranslate"><span class="pre">${app.dir}</span></code>, or a wheel under
+<code class="docutils literal notranslate"><span class="pre">dist/</span></code>) usually needs no such entry at all: the same definition already works from every checkout.</p>
 </div>
 </section>
 <section id="validation">

@@ -431,6 +431,7 @@ rm<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;dist/
 <section id="referencing-in-app-yml">
 <h2>Referencing in app.yml<a class="headerlink" href="#referencing-in-app-yml" title="Link to this heading">#</a></h2>
 <p>Once deployed, reference the wheel and pylock files in your <code class="docutils literal notranslate"><span class="pre">app.yml</span></code> using the <code class="docutils literal notranslate"><span class="pre">${app.version}</span></code> template variable. This avoids duplicating paths across multiple version entries.</p>
+<p>Paths are resolved relative to the directory containing the <code class="docutils literal notranslate"><span class="pre">app.yml</span></code> (see <a class="reference internal" href="../specs/app_specification.html#paths"><span class="std std-ref">Paths</span></a>), so the deployment directory can be moved or checked out elsewhere without rewriting the spec.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">bfabric</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">app_runner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1.0</span>
 <span class="nt">versions</span><span class="p">:</span>
@@ -439,21 +440,21 @@ rm<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;dist/
 <span class="w">    </span><span class="nt">commands</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">dispatch</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python_env</span>
-<span class="w">        </span><span class="nt">pylock</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/home/bfabric/slurmworker/config/A375_MZMINE/dist/${app.version}/pylock.toml</span>
+<span class="w">        </span><span class="nt">pylock</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dist/${app.version}/pylock.toml</span>
 <span class="w">        </span><span class="nt">local_extra_deps</span><span class="p">:</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/home/bfabric/slurmworker/config/A375_MZMINE/dist/${app.version}/mzmine_app-${app.version}-py3-none-any.whl</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dist/${app.version}/mzmine_app-${app.version}-py3-none-any.whl</span>
 <span class="w">        </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-m mzmine_app.integrations.bfabric.dispatch</span>
 <span class="w">      </span><span class="nt">process</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python_env</span>
-<span class="w">        </span><span class="nt">pylock</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/home/bfabric/slurmworker/config/A375_MZMINE/dist/${app.version}/pylock.toml</span>
+<span class="w">        </span><span class="nt">pylock</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dist/${app.version}/pylock.toml</span>
 <span class="w">        </span><span class="nt">local_extra_deps</span><span class="p">:</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/home/bfabric/slurmworker/config/A375_MZMINE/dist/${app.version}/mzmine_app-${app.version}-py3-none-any.whl</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dist/${app.version}/mzmine_app-${app.version}-py3-none-any.whl</span>
 <span class="w">        </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-m mzmine_app.integrations.bfabric.process</span>
 <span class="w">        </span><span class="nt">env</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">MZMINE_CONTAINER_TAG</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;4.7.8.p1&quot;</span>
 <span class="w">          </span><span class="nt">MZMINE_DATA_PATH</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/home/bfabric/mzmine</span>
 <span class="w">        </span><span class="nt">prepend_paths</span><span class="p">:</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/home/bfabric/slurmworker/config/A375_MZMINE/bin</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bin</span>
 <span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/home/bfabric/slurmworker/bin</span>
 </pre></div>
 </div>
