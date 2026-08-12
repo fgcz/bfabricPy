@@ -19,7 +19,6 @@ class MockCommands(BaseModel):
 
 class MockAppVersion(BaseModel):
     commands: MockCommands = MockCommands()
-    reuse_default_resource: bool = False
 
 
 @pytest.fixture
