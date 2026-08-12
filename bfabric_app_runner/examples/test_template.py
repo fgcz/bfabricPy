@@ -32,7 +32,8 @@ def hello_app(temp_test_dir: Path) -> Path:
         "copier",
         "copy",
         str(template_path.resolve()),
-        "hello1",
+        # Absolute, as the README instructs: it ends up as the <program> path in bfabric_app.xml.
+        str(temp_test_dir / "hello1"),
         "--data",
         "project_name=hello1",
         "--data",

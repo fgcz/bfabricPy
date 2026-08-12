@@ -15,9 +15,13 @@ Copier templates for creating BFabric app runner applications with proper struct
 1. **Generate from template:**
 
     ```bash
-    uvx copier copy ~/code/bfabricPy/bfabric_app_runner/examples/template my_app
+    uvx copier copy ~/code/bfabricPy/bfabric_app_runner/examples/template $PWD/my_app
     # Enter your project name when prompted
     ```
+
+    Give the destination as an absolute path: it is written into `bfabric_app.xml` as the
+    `<program>` path that B-Fabric uses to find `app.yml`. The paths in `app.yml` itself are
+    relative to the app directory, so the app can be moved or checked out elsewhere.
 
 2. **Test in development mode:**
 
