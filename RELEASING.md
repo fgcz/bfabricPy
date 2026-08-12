@@ -1,16 +1,12 @@
 # Releasing
 
-How the five packages get to PyPI; the everyday conventions are in [AGENTS.md](AGENTS.md). The pipeline extracts the changelog section matching each tag and publishes it as the GitHub release notes.
+How the five packages get to PyPI; the everyday conventions are in [AGENTS.md](AGENTS.md). `publish_release.yml` fires on `push` to `release`, so merging is what publishes, and the pipeline extracts the changelog section matching each tag as the GitHub release notes.
 
 ## The branch loop
 
-`publish_release.yml` fires on `push` to `release`, so merging is what publishes.
-
 1. **`rel-<date>-NN` → `release`** — the PR targets `release`, never `main`. Merging it starts the publish run.
 2. **The workflow tags and publishes** on the `release` ref. Never hand-tag, and never tag on `main`.
-3. **`release` → `main`** with a plain merge commit (`gh pr merge <n> --merge`), so the exact released commit is preserved in `main`'s history.
-
-The publish jobs appear as `release-packages (<pkg>)` checks on the step-3 PR; don't merge before they are green — a failed publish is easier to redo before `main` absorbs the release commit.
+3. **`release` → `main`** with a plain merge commit (`gh pr merge <n> --merge`), preserving the released commit in `main`'s history. The publish jobs appear as `release-packages (<pkg>)` checks on this PR; don't merge before they are green — a failed publish is easier to redo before `main` absorbs the release commit.
 
 The `push` trigger takes no inputs: with no `force_packages` or `environment`, `check-package-versions` compares each version against PyPI to decide what to build, and publishes to production. `priority-order: bfabric,bfabric_scripts,bfabric_app_runner` plus `max-parallel: 1` releases sequentially, so `bfabric` lands before the packages that floor on it.
 
@@ -25,9 +21,7 @@ uv pip list --python /tmp/rel | grep -i bfabric           # check the resolved d
 /tmp/rel/bin/python -c "import bfabric"
 ```
 
-Import the real `[project.scripts]` modules (`bfabric_scripts.cli.__main__`, `bfabric_app_runner.cli.__main__`); a guessed path raises `ImportError` and reads like a broken release. Don't use `--help` — `@use_client` connects before the command body runs, so it fails for config reasons unrelated to the release.
-
-A dependent package can't be verified until the core publishes: its new floor (`bfabric>=1.20.0`) excludes the current rc under PEP 440, and the run doesn't pause between packages. Verify `bfabric` before opening the PR, the dependents right after (PyPI's index lags about a minute).
+Import the real `[project.scripts]` modules (`bfabric_scripts.cli.__main__`, `bfabric_app_runner.cli.__main__`); a guessed path raises `ImportError` and reads like a broken release. Don't use `--help` — `@use_client` connects before the command body runs, so it fails for config reasons unrelated to the release. A dependent package can't be verified until the core publishes, since its new floor (`bfabric>=1.20.0`) excludes the current rc under PEP 440 and the run doesn't pause between packages: verify `bfabric` before opening the PR, the dependents right after (PyPI's index lags about a minute).
 
 ## Out-of-band dispatch (hotfixes, re-runs)
 
@@ -50,5 +44,4 @@ A dependent package can't be verified until the core publishes: its new floor (`
 4. **Add the version bump and the `## [X.Y.Z]` section on the hotfix branch** — that is what the pipeline extracts into the tag and GitHub Release.
 5. **Publish out-of-band**: `gh workflow run publish_release.yml --ref hotfix/<pkg>-X.Y.Z -f environment=production -f force_packages=<pkg>`. Merging into `release` would mislabel a tree that is ahead on a newer line.
 6. **Forward-port under `[Unreleased]` only** — never backfill a `## [X.Y.Z]` section into `main`, which can't hold a past-line patch without breaking version or date order. A fix that can't apply to `main` leaves its changelog alone, since an `[Unreleased]` bullet would be promoted into the next release's notes.
-
-Never open a PR from the hotfix branch: its diff against `main` reads as a mass revert and CI would run the old line's whole suite. The tag and GitHub Release are the record; the only PR is the forward-port.
+7. **Never open a PR from the hotfix branch** — its diff against `main` reads as a mass revert and CI would run the old line's whole suite. The tag and GitHub Release are the record; the only PR is the forward-port.

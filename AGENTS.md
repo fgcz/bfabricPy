@@ -91,13 +91,7 @@ Handles dispatch → process → collect workflow for B-Fabric applications. Use
 
 ## Documentation
 
-Each package's docs live alongside its source. Skim the index when working in a package — it links to user guides, API reference, and changelog.
-
-- `bfabric/docs/index.md` — core client (getting started, user guides, API reference, advanced topics, design)
-- `bfabric_app_runner/docs/index.md` — app runner (getting started, user guides, API reference)
-- `bfabric_scripts/docs/changelog.md` — scripts (changelog only; no full docs site)
-- `bfabric_rest_proxy/README.md`, `bfabric_rest_proxy/docs/changelog.md` — REST proxy
-- `bfabric_asgi_auth/README.md`, `bfabric_asgi_auth/docs/changelog.md` — ASGI auth middleware
+Docs live alongside each package's source; skim the index when working in one. `bfabric/docs/index.md` and `bfabric_app_runner/docs/index.md` are full sites (getting started, user guides, API reference, design) and the only two that `nox -s docs` builds. `bfabric_scripts`, `bfabric_rest_proxy` and `bfabric_asgi_auth` have just a `docs/changelog.md`, plus a `README.md` for the latter two.
 
 ## Key Conventions
 
