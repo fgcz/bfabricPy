@@ -7,6 +7,15 @@ name = "bfabric_scripts"
 description = "Python command line scripts for the B-Fabric API"
 readme = "README.md"
 version = "1.16.0"
+authors = [
+    { name = "Christian Panse", email = "cp@fgcz.ethz.ch" },
+    { name = "Claudio Cannizzaro", email = "claudio.cannizzaro@fgcz.uzh.ch" },
+    { name = "Leonardo Schwarz", email = "leonardo.schwarz@fgcz.ethz.ch" },
+    { name = "Aleksejs Fomins" },
+    { name = "Marco Schmidt" },
+    { name = "Maria d'Errico" },
+    { name = "Witold Eryk Wolski" },
+]
 
 dependencies = [
     "bfabric[transfer]>=1.20.0,<2",
