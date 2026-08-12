@@ -46,10 +46,7 @@ pytest tests/bfabric/test_something.py # single file
 pytest tests/bfabric -k test_name      # single test
 ```
 
-Run each package's suite in a **separate** `pytest` invocation (as nox does). Passing
-multiple package trees to one invocation (e.g. `pytest tests/bfabric tests/bfabric_app_runner`)
-fails at collection with a basename clash, because tests have no `__init__.py` (see the
-convention below) so identically-named modules across trees collide.
+Run each package's suite in a **separate** `pytest` invocation, as nox does — one invocation over two package trees fails at collection because identically-named test modules collide (see the `__init__.py` convention below).
 
 ### Type Checking
 ```bash
@@ -65,11 +62,7 @@ ruff check bfabric                     # ruff directly
 pre-commit run --all-files             # the formatter gate (black, and blacken-docs for md code blocks)
 ```
 
-**black is the formatter — never run `ruff format`.** It disagrees with black on ~15 files (f-string
-quotes, `assert` message wrapping, implicit string concatenation, and the Python code blocks in
-`docs/**/*.md` that `blacken-docs` owns), so it produces a large spurious diff. Since neither
-`nox -s code_style` nor CI checks formatting, the only thing that catches a wrong formatter is the
-pre-commit hook rejecting the commit.
+**black is the formatter — never run `ruff format`.** It disagrees with black on ~15 files and produces a large spurious diff. Since neither `nox -s code_style` nor CI checks formatting, the pre-commit hook rejecting the commit is the only thing that catches a wrong formatter.
 
 ### Docs
 ```bash
@@ -108,70 +101,49 @@ Each package's docs live alongside its source. Skim the index when working in a 
 
 ## Key Conventions
 
-- Tests must NOT contain `__init__.py` files (enforced by `check_test_inits` nox session)
-- Test order is randomised via [pytest-random-order](https://github.com/pytest-dev/pytest-random-order) (`addopts = "--random-order"`), so both modules and the tests within them run in a shuffled order to surface hidden inter-test dependencies. The seed is printed in the pytest header; reproduce a specific order with `pytest --random-order-seed=<N>`. Tests must therefore be isolation-safe; quarantine a genuinely order-dependent module with `pytestmark = pytest.mark.random_order(disabled=True)` only as a last resort.
-- Test conftest sets `BFABRICPY_CONFIG_ENV=__MOCK` to avoid real credentials
-- Tests use the pytest-mock `mocker` fixture for **all** mocking — do not `import unittest.mock`.
-  Use `mocker.patch(...)`, `mocker.patch.object(...)`, `mocker.patch.dict(...)`, `mocker.MagicMock()`,
-  `mocker.Mock()`, `mocker.mock_open(...)`, etc. (`pytest-mock` is a test dependency in every package.)
-- Group related tests in a file with plain `class TestXyz:` blocks — do **not** use `# --- section ---`
-  comment banners as separators. A bare class (no base) is all pytest needs; move fixtures used by only
-  one group inside its class so their scope matches the grouping. Keep each method name specific enough to
-  read on its own (drop a prefix only when the class already conveys it).
-- Ruff linting is currently only enforced on the `bfabric` package (scripts, wrapper_creator, tests, noxfile are excluded via per-file-ignores)
-- Line length: 120 (ruff and black)
-- Docstrings use Sphinx `:param:` / `:raises:`; Google-style `Args:` / `Returns:` blocks survive in a
-  few older modules (e.g. `entities/core/uri.py`, `entities/core/entity_reader.py`) — don't add more.
-  Keep them at the lowest useful altitude: one summary line by default, plus a short paragraph only for
-  a contract the signature cannot show (why this exists beside a similar function, a gotcha, an ordering
-  constraint). Skip `Returns:` blocks that restate the return annotation and `:param:` lines that re-say
-  the name and type. Avoid `>>>` examples: no session collects doctests, so they read as tested without
-  being tested — put a short example inline in the prose instead.
-- Exception: a cyclopts command function's docstring **is** its `--help` text — the summary line becomes
-  the command description and each `:param:` line becomes that option's help (see
-  `bfabric-cli workunit not-available --help`). Those are user-facing copy: keep them complete and clear
-  rather than terse, and trim the internal helpers around them instead.
-- Do not restate a parameter's default value in its docstring when the signature already shows it (e.g. `client_id: str = DEFAULT_CLIENT_ID`). Writing `(default "CLI")` in the `:param:` line just duplicates the signature and drifts out of sync when the default changes. Keep notes that explain what a value *means* (e.g. `(``0`` = auto-assign)`), not ones that merely repeat it. This also applies to class/model docstrings that restate a field's default shown a few lines below (prefer "see `field_name`" over repeating the literal value). Note the common case where the signature default is a sentinel like `None` but the docstring explains what it resolves to at runtime (e.g. `max_results: int | None = 100` documented as `` (``None`` for all) ``, or `path: Path | None = None` documented as `` (``None`` writes to ``./output.yml``) ``) — that is the *meaning* case, not the restatement case, and should be kept; phrase it as "``None`` does/means X", not "(default: X)", so it isn't mistaken for a literal restatement.
-- basedpyright uses per-package baseline files at `.basedpyright/baseline.{package}.json` — **do not edit baseline files to silence new errors**; fix the code or add a targeted `# pyright: ignore[...]` comment on the offending line. Baselines only exist to grandfather in pre-existing errors.
-- Integration tests live in a separate repository
-- Use TDD: write a failing test first, verify it fails, then fix the code, then verify the test passes
+### Tests
+
+- Tests must NOT contain `__init__.py` files (enforced by the `check_test_inits` nox session).
+- Test order is randomised via [pytest-random-order](https://github.com/pytest-dev/pytest-random-order) (`addopts = "--random-order"`), so tests must be isolation-safe. The seed is printed in the pytest header; reproduce an order with `pytest --random-order-seed=<N>`. Quarantine a genuinely order-dependent module with `pytestmark = pytest.mark.random_order(disabled=True)` only as a last resort.
+- Test conftest sets `BFABRICPY_CONFIG_ENV=__MOCK` to avoid real credentials.
+- Use the pytest-mock `mocker` fixture for **all** mocking — do not `import unittest.mock`.
+- Group related tests with plain `class TestXyz:` blocks (no base class needed), not `# --- section ---` comment banners. Move fixtures used by only one group inside its class. Keep method names specific enough to read on their own.
+- Integration tests live in a separate repository.
+- Use TDD: write a failing test first, verify it fails, then fix the code, then verify the test passes.
+
+### Style and typing
+
+- Line length is 120 (ruff and black). Ruff lint is currently only enforced on the `bfabric` package (scripts, wrapper_creator, tests, noxfile are excluded via per-file-ignores).
+- basedpyright uses per-package baseline files at `.basedpyright/baseline.{package}.json` — **do not edit a baseline to silence a new error**; fix the code or add a targeted `# pyright: ignore[...]` on the offending line. Baselines only exist to grandfather in pre-existing errors.
+- Docstrings use Sphinx `:param:` / `:raises:`; Google-style `Args:` / `Returns:` blocks survive in a few older modules (e.g. `entities/core/uri.py`) — don't add more.
+- Keep docstrings at the lowest useful altitude: one summary line by default, plus a short paragraph only for a contract the signature cannot show (why this exists beside a similar function, a gotcha, an ordering constraint). Skip `Returns:` blocks and `:param:` lines that restate the annotation, and don't restate a default the signature already shows. Do document what a value *means* — a sentinel's runtime resolution (`` ``None`` reads all results ``, `` ``None`` writes to ``./output.yml`` ``) or a magic value (`` ``0`` = auto-assign ``) — phrased as "``None`` does X", not "(default: X)".
+- Avoid `>>>` examples: no session collects doctests, so they read as tested without being tested. Put a short example in the prose instead.
+- Exception: a cyclopts command function's docstring **is** its `--help` text — the summary line becomes the command description and each `:param:` line becomes that option's help (see `bfabric-cli workunit not-available --help`). That is user-facing copy: keep it complete and clear, and trim the internal helpers around it instead.
+
+## Changelog
+
+Each package has its own `docs/changelog.md` following [Keep a Changelog](https://keepachangelog.com/en/1.1.0/): `### Added` / `### Changed` / `### Fixed` / `### Removed` subsections under `## \[Unreleased\]`. Headings escape the brackets — `nox -s changelog` matches `## \[<version>\]` literally.
+
+- One or two lines per entry: the symbol, and the effect a user sees. No code blocks, no before/after examples, no "previously it did X because Y" — rationale belongs in the commit message.
+- Label an entry **Breaking** only when the API has real external consumers; otherwise just describe it in its new shape.
+- Collect dev-facing typing/tooling changes into a single trailing `Internal:` bullet.
+- Release-candidate entries are the one exception to the subsections (flat bullets, cumulative) — see [RELEASING.md](RELEASING.md).
+
+## Pull requests
+
+The body is a short changelog-style bullet list — one line per change a *user* would notice, phrased "Add/Change/Fix X to do Y" — and then it stops. No `##` section headings, no test plan or "Testing:" line, no background paragraph, no implementation notes. Omit internal refactors, docs, and tooling changes entirely; that detail belongs in the commit messages and the package changelog. If a caveat genuinely must be flagged, make it one more bullet, never a section.
+
+`rel-*` release PRs get an empty body (`--body ""`): the pipeline publishes the changelog section as the release notes, so a body would only be a worse copy of it.
 
 ## Releases
 
-Each package is versioned and released independently (own `pyproject.toml` version, own `docs/changelog.md`, own `<package>/<version>` git tag). Preparing a release means: bump the `version` in that package's `pyproject.toml` and promote its changelog `[Unreleased]` section to a dated version heading. The release pipeline extracts the changelog section matching the tag and publishes it as the GitHub release notes.
+Each package is versioned and released independently — own `pyproject.toml` version, own `docs/changelog.md`, own `<package>/<version>` git tag. Release preparation is **mechanics only** (version bumps, changelog graduation, dependency-pin updates) and must not introduce code changes; see the `rel-*` rule under [Branches](#branches).
 
-Dispatch mechanics of `publish_release.yml` — apply to every package:
-
-- **Never dispatch `environment: test` as a dry run.** That input switches only the PyPI URL. *Create and push tag* and *Create GitHub Release* are ungated and run **before** the publish step, so a `test` run pushes the real `<pkg>/<version>` tag and opens the draft release — and the follow-up `production` run then dies at `git tag -a` ("already exists") before anything reaches PyPI. Verify locally instead (below) and dispatch straight to `production`.
-- **Pass `force_packages` explicitly.** A non-empty value makes `check_versions.py` skip the PyPI version comparison entirely, so only the named packages build. Confirm via `Forcing release of <pkg>` in the `check-packages` log.
-- **Verify the built package offline before dispatching** — install it the way a user gets it, then import whatever the release touched:
-    ```bash
-    uv venv /tmp/rel -p 3.11
-    uv pip install --python /tmp/rel --no-sources ./<package>   # --no-sources: ignore workspace tool.uv.sources, resolve deps from PyPI
-    uv pip list --python /tmp/rel | grep -i bfabric             # check the resolved dependency floor
-    /tmp/rel/bin/python -c "import <module>"
-    ```
-    Check entry points by **module import, not `--help`**: `@use_client` calls `Bfabric.connect()` before the wrapped function runs, and the legacy argparse scripts build their parser inside the body, so `--help` reads `~/.bfabricpy.yml` first and can fail for config reasons unrelated to the release. Import is also where import-time breakage (a removed symbol, a deprecation shim) actually surfaces. After publishing, PyPI's index needs ~a minute before `uv pip install <pkg>==<new>` resolves.
-- **Leave "Set as the latest release" unchecked when publishing the draft, except for `bfabric` stable.** GitHub keeps one repo-wide "Latest release", so a stable non-core release — or a patch of an older line — would take the badge from the core library. `rcN` and `0.x` tags are auto-flagged as prereleases and never compete for it.
-
-Release-candidate (rc) convention — decided 2026-07-15:
-
-- **One cumulative pre-release entry, not a stack.** While a version is in RC, keep a *single* changelog entry for it (e.g. `## [1.20.0rc2]`) that describes the **full** changeset for the upcoming `X.Y.0`. When cutting the next RC, re-date and extend that same entry and bump the `rcN` suffix — do **not** add a separate `[…rcN]` heading below the previous one. Per-RC history is preserved by the already-published git tags and GitHub releases, so the in-repo changelog doesn't need to re-keep it.
-- **Flat, abbreviated bullets, headline-first.** RC entries merge the `Added`/`Changed`/`Fixed` subsections into one abbreviated bullet list, ordered with the user-facing headline changes first. Group dev-facing/typing/tooling changes (e.g. type-only fixes, ruff config, dead-code removal) under a trailing `Internal:` bullet so they don't crowd the main things. The detailed, structured notes live in git history and the GitHub release; the changelog entry is a quick-review summary.
-- **Graduation.** When the RC becomes final, rename the `[X.Y.0rcN]` heading to `[X.Y.0]` with the release date (no content merge needed, since it was cumulative).
-- **Cross-package dependency floors.** When a package uses a feature from an unreleased/RC `bfabric`, pin its floor to the rc (e.g. `bfabric>=1.20.0rc2,<1.21`). A plain `>=1.20.0` **excludes** `1.20.0rc2` under PEP 440, and naming a prerelease in the specifier is also what lets pip/uv resolve to it.
-
-Hotfix convention (patch release of an older line) — decided 2026-07-24:
-
-- **Branch from the version tag, not `main`/`release`.** When the newest line is unreleased or in RC, `release`/`main` have moved ahead, so a patch of the last stable (e.g. `1.19.1` while `main` is `1.20.0rc`) must be cut from that stable tag: `git checkout -b hotfix/<pkg>-X.Y.Z <pkg>/X.Y.(Z-1)`.
-- **The hotfix branch is authoritative for its release.** Bump the patch version and add the `## [X.Y.Z]` changelog section there. This is what the pipeline extracts into the `<pkg>/X.Y.Z` tag and GitHub Release — the canonical record of what shipped.
-- **Publish out-of-band, don't merge into `release`.** Merging a hotfix into `release` (ahead on a newer line) would mislabel that tree. Instead trigger the publish workflow against the hotfix ref: `gh workflow run publish_release.yml --ref hotfix/<pkg>-X.Y.Z -f environment=production -f force_packages=<pkg>`. The branch then lives on as the release record; it has no merge target.
-- **Forward-port the fix to `main` as a normal PR, `[Unreleased]` only.** Cherry-pick the fix (`git cherry-pick -x`) so `1.X.0` doesn't regress. On `main` the entry stays under `[Unreleased]` with an inline note (e.g. "(also released as the X.Y.Z hotfix)") — do **not** backfill a `## [X.Y.Z]` section into `main`. A past-line patch can't sit in `main`'s version-descending changelog without breaking either version or date order, and it would duplicate the bullet; the tag + GitHub Release are where `X.Y.Z` is recorded.
-- **A fix that can't apply to `main` leaves `main`'s changelog alone.** Some hotfixes only constrain the old line — a dependency cap, say, when `main` has already migrated past the broken API. With nothing to forward-port there is nothing to document, and an `[Unreleased]` bullet would be promoted into the next release's notes, describing a change that release doesn't contain. The tag and GitHub Release are the record; that is what they are for.
-- **No PR from the hotfix branch itself.** Its diff against `main` reads as a mass revert, and PR CI would run the old line's whole nox suite. Push the branch and let the tag and GitHub Release be the record (precedent: `hotfix/bfabric-1.19.1`, `hotfix/bfabric-scripts-1.15.1`). Open a PR only for the forward-port, if there is one.
+The full procedure — the `rel-*` → `release` → `main` branch loop, the release-candidate and hotfix conventions, and how to verify a build offline before it ships — is in [RELEASING.md](RELEASING.md). Read it before touching a release.
 
 ## Branches
 
 - `main` — active development
-- `release` — triggers PyPI publish on merge
+- `release` — pushing to it runs `publish_release.yml` and publishes to PyPI. Release-prep PRs target **this** branch, not `main`, and it is merged back into `main` afterwards.
+- `rel-<date>-NN` — release-preparation branches, cut fresh from `origin/main`, carrying **only release mechanics** so the release ships exactly what is already on `origin/main`. Never merge feature or refactor work into one — new functionality lands on `origin/main` via its own PR and is picked up by a later cut. A genuine hotfix, on the user's explicit say-so, is named `hotfix-*` / `patch-*` instead so the intent is unambiguous.
 - When pushing, give the remote branch a reasonable, descriptive name even if the local branch has an auto-generated worktree name (e.g. `worktree-quiet-gathering-mitten`) — push with an explicit remote ref: `git push -u origin HEAD:feature/short-descriptive-name`.
