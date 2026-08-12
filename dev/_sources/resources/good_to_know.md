@@ -71,6 +71,10 @@ The logging level can be controlled via the `BFABRICPY_LOG_LEVEL` environment va
 
 Invalid values fall back silently to `INFO`.
 
+CLI commands report expected errors as a single `Error: <message>` line on standard error and exit 1,
+without a traceback. Setting `BFABRICPY_LOG_LEVEL=DEBUG` additionally logs the traceback of the
+reported error, which is what you want when the one-line message is not enough to locate the cause.
+
 Examples:
 
 ```bash

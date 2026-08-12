@@ -506,6 +506,9 @@ By default, the logs go to standard error, which can be useful in some scenarios
 </table>
 </div>
 <p>Invalid values fall back silently to <code class="docutils literal notranslate"><span class="pre">INFO</span></code>.</p>
+<p>CLI commands report expected errors as a single <code class="docutils literal notranslate"><span class="pre">Error:</span> <span class="pre">&lt;message&gt;</span></code> line on standard error and exit 1,
+without a traceback. Setting <code class="docutils literal notranslate"><span class="pre">BFABRICPY_LOG_LEVEL=DEBUG</span></code> additionally logs the traceback of the
+reported error, which is what you want when the one-line message is not enough to locate the cause.</p>
 <p>Examples:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Silence all log output (useful for scripting or piping)</span>
 <span class="nv">BFABRICPY_LOG_LEVEL</span><span class="o">=</span>OFF<span class="w"> </span>bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>resource

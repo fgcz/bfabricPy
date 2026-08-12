@@ -9,6 +9,8 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+- `setup_script_logging` now guards against repeated setup with a process-local flag instead of the `BFABRICPY_SCRIPT_LOGGING_SETUP` environment variable. Children inherited that variable, so any subprocess (e.g. the `bfabric-app-runner action` invoked by a prepared workunit's Makefile) skipped setup entirely and fell back to loguru's default handler — full timestamp/source format, at DEBUG level. Subprocesses now configure their own sinks and honor `BFABRICPY_LOG_LEVEL`.
+- `use_client` now logs the traceback of the error it reports at DEBUG, so `BFABRICPY_LOG_LEVEL=DEBUG` recovers it. Previously the traceback of a `RuntimeError`-derived error was discarded unconditionally. The one-line `Error: <message>` output and exit code 1 are unchanged.
 - Config: new `scope` environment field recording the scope *requested* at login (not the granted one), so a login can be replayed from disk without retyping it. CLI-only — excluded from `BfabricClientConfig` and `ConfigData`.
 - `write_environment_to_config` now **merges** into an existing environment instead of replacing it, so unrelated keys (`application_ids`, `engine`, hand-written extras) survive a re-login. Auth-owned keys (`login`, `password`, `pat`, `auth_method`, `client_id`, `scope`) are replaced wholesale, so a stale `pat` cannot outlive the auth method that wrote it.
 - New `config_writer.clear_environment_credentials` — strip inline secrets (`login` / `password` / `pat`) from an environment while keeping it configured, returning the keys removed. Backs `bfabric-cli auth logout`.
