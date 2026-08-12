@@ -1,4 +1,4 @@
-from bfabric.operations.workunit.create import CreateWorkunitParams, create_workunit
+from bfabric.operations.workunit.create import CreateWorkunitParams, WorkunitDataset, create_workunit
 from bfabric.operations.workunit.upload import (
     FileDoneCallback,
     FileFailure,
@@ -25,6 +25,7 @@ __all__ = [
     "UploadFilesParams",
     "UploadStartCallback",
     "UploadSummary",
+    "WorkunitDataset",
     "create_workunit",
     "upload_files",
 ]
