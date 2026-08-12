@@ -11,8 +11,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Added
 
-- Config: new CLI-only `scope` field recording the scope *requested* at login, so a login can be replayed from disk.
-- `config_writer.clear_environment_credentials` strips inline `login` / `password` / `pat` secrets while keeping the environment configured. Backs `bfabric-cli auth logout`.
+- Config: new CLI-only `scope` field recording the scope *requested* at login, so a login can be replayed from disk; `config_writer.clear_environment_credentials` strips inline secrets while keeping the environment configured.
 - `upload_files` / `collect_file_infos` accept `exclude_names`, dropping files by basename at any depth (e.g. `.DS_Store`).
 - `on_duplicate="link"` registers a duplicate as a resource pointing at the existing bytes instead of omitting the file, transferring nothing. See `FileInfo.link_from_resource_id`.
 
