@@ -26,7 +26,7 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 - Base URLs are normalised up front (scheme, host case, trailing slash, known-host expansion), and re-pointing an environment at a different instance needs confirmation.
 - `workunit upload --force` is replaced by `--on-duplicate upload|skip|link`, defaulting to `upload` — the duplicate check no longer runs unless asked for. Pass `skip` for the old behaviour.
 - Packaging: `project.readme` points at the package's own `README.md`, expanded into a proper landing page since PyPI shows it.
-- Internal: login handlers normalised to `cmd_auth_*`, shared resolution in `cli/login/_common.py`, base-URL handling in `_urls.py`; `auth register` gets its bearer token via `Bfabric.connect()`.
+- Internal: the `auth` command implementations were reorganised onto shared environment- and URL-resolution helpers.
 
 ### Fixed
 

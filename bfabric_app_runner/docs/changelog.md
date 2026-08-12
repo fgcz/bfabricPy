@@ -13,10 +13,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Relative paths in the app spec (`pylock`, `local_extra_deps`, `prepend_paths`, host side of docker `mounts`) resolve against the `app.yml` directory instead of the run's scratch directory, with a leading `~` expanded ([#212](https://github.com/fgcz/bfabricPy/issues/212)).
 - Captured command output (`uv venv` / `uv pip install`) is logged one record per line, so every line carries its level prefix.
 - Requires `bfabric` 1.20.1 for the logging fix that keeps a nested app-runner from falling back to loguru's verbose DEBUG format.
-- Internal: the demo app copier template can be instantiated again; its `app.yml` uses spec-relative paths, the stale `app_runner: 0.1.2` pin is refreshed, and the destination must now be an absolute path.
 
 ### Fixed
 
+- The demo app copier template can be instantiated again; the destination must now be given as an absolute path.
 - A failing app command reports a single `Error: Command failed with exit code N: <command>` line instead of ~10 frames of app-runner boilerplate ([#231](https://github.com/fgcz/bfabricPy/issues/231)).
 - `run workunit` no longer prints a second traceback when `make run-all` fails; it reports one line naming the workunit, exit code, and work directory.
 
