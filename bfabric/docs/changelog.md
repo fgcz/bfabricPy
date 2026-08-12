@@ -11,28 +11,31 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Added
 
-- Config: new CLI-only `scope` environment field recording the scope *requested* at login, so a login can be replayed from disk.
-- `config_writer.clear_environment_credentials` strips inline secrets (`login` / `password` / `pat`) from an environment while keeping it configured. Backs `bfabric-cli auth logout`.
-- `upload_files` and `collect_file_infos` accept `exclude_names`, dropping files by basename at any depth (e.g. `.DS_Store`); nested files keep their relative resource names.
-- `on_duplicate="link"` registers a content-duplicate as an `AVAILABLE` resource pointing at the existing bytes instead of skipping the file, so the workunit holds a resource per input file with nothing transferred. A duplicate with no `existingResourceId` stays a plain skip. `FileInfo.link_from_resource_id` and `CreatedResource.linked` expose it.
+- Config: new CLI-only `scope` field recording the scope *requested* at login, so a login can be replayed from disk.
+- `config_writer.clear_environment_credentials` strips inline `login` / `password` / `pat` secrets while keeping the environment configured. Backs `bfabric-cli auth logout`.
+- `upload_files` / `collect_file_infos` accept `exclude_names`, dropping files by basename at any depth (e.g. `.DS_Store`).
+- `on_duplicate="link"` registers a duplicate as a resource pointing at the existing bytes instead of omitting the file, transferring nothing. See `FileInfo.link_from_resource_id`.
 
 ### Changed
 
-- `upload_files(client, params)` takes its file list as `UploadFilesParams.files`, a list of `UploadFileParam(path=..., on_duplicate=...)`; the positional `files` argument and the `force` / `link_duplicates` booleans are gone. `on_duplicate` is `upload` / `skip` / `link` and applies to every file under a directory. **It defaults to `upload`, so the duplicate check no longer runs unless asked for** — callers relying on duplicates being skipped must pass `skip`.
-- `UploadSummary` holds one list per outcome — `uploads`, `skips`, `failures`, `links` — replacing the 1.20.0 counters. A skip is now a `FileSkip(filename, category, existing_resource_id)` naming the duplicate it lost out to; `links` is separate from `uploads` because a linked file has a resource but transferred no bytes. A workunit whose files were all linked completes instead of failing the "nothing uploaded" check.
-- Two input files mapping to the same resource name are rejected *before* the workunit is created, so a rejected upload no longer leaves a `failed` workunit behind.
-- `import bfabric` no longer imports `polars` eagerly (~296 ms → ~184 ms); the module-scope imports in `HasMany.polars`, `Dataset.to_polars` and `MultiplexKit.ids` moved into the functions. `polars` remains a hard dependency and no API changed.
-- PKCE: the printed-URL fallback and the timeout error name the loopback redirect target and point at the device-code flow, for the remote-host case a browser elsewhere cannot complete.
-- `use_client` logs the reported error's traceback at DEBUG (`BFABRICPY_LOG_LEVEL=DEBUG` recovers it); the one-line `Error: <message>` output and exit code 1 are unchanged.
+- `upload_files(client, params)` takes its files as `UploadFilesParams.files`, a list of `UploadFileParam(path=..., on_duplicate=...)`; the `force` / `link_duplicates` booleans are gone.
+- **`on_duplicate` defaults to `upload`, so the duplicate check no longer runs unless asked for** — pass `skip` for the old behaviour.
+- `UploadSummary` holds one list per outcome — `uploads`, `skips`, `failures`, `links` — replacing the 1.20.0 counters; skips carry the duplicate they lost out to.
+- A workunit whose files were all linked now completes instead of failing the "nothing uploaded" check.
+- Two input files mapping to the same resource name are rejected before the workunit is created, not after.
+- `import bfabric` no longer imports `polars` eagerly (~296 ms → ~184 ms); it loads on first use.
+- PKCE's printed-URL fallback and timeout error now name the loopback redirect target and point at the device-code flow.
+- `use_client` logs the reported error's traceback at DEBUG; the `Error: <message>` line and exit code 1 are unchanged.
 
 ### Fixed
 
-- `setup_script_logging` guards against repeated setup with a process-local flag instead of the inherited `BFABRICPY_SCRIPT_LOGGING_SETUP` environment variable, which made any subprocess (e.g. the `bfabric-app-runner action` in a prepared workunit's Makefile) skip setup and fall back to loguru's verbose DEBUG default. Subprocesses now configure their own sinks and honor `BFABRICPY_LOG_LEVEL`.
-- `write_environment_to_config` merges into an existing environment instead of replacing it, so unrelated keys (`application_ids`, `engine`, hand-written extras) survive a re-login. Auth-owned keys (`login`, `password`, `pat`, `auth_method`, `client_id`, `scope`) are replaced wholesale, so a stale `pat` cannot outlive the auth method that wrote it.
-- `MultiQuery.read_multi` reserves query elements for the other fields of `obj` when chunking, since the API counts every value towards its 100-element limit — 100 paths plus a `containerid` previously failed with "Query has 101 elements". A query whose other fields already exhaust the limit now raises `ValueError`.
-- `Bfabric.connect()` raises a clear error when an `auth_method: oauth` config has no `env_name` (reachable via `BFABRICPY_CONFIG_OVERRIDE`), instead of deriving a token-cache key that could never match.
-- Packaging: `project.readme` points at a package-local `README.md`; hatchling 1.32.0 rejects readme paths outside the project directory, which broke every build from source. Published wheels were unaffected.
-- Uploading a folder with sub-directories works against servers that echo the resource name verbatim; the duplicate-check and resource-pairing guards previously fired on nested names. A nested re-upload now reports `renamed_duplicate` rather than `exact_duplicate` — both carry the `skip` action, so branch on `action`, not `category`.
+- `setup_script_logging` no longer skips setup in subprocesses, which fell back to loguru's verbose DEBUG default; its repeat guard is now process-local.
+- `write_environment_to_config` merges into an existing environment instead of replacing it, so unrelated keys survive a re-login; auth-owned keys are still replaced wholesale.
+- `MultiQuery.read_multi` reserves query elements for `obj`'s other fields when chunking, instead of overflowing the API's 100-element limit. A query that already exhausts it raises `ValueError`.
+- `Bfabric.connect()` errors clearly when an `auth_method: oauth` config has no `env_name`.
+- Packaging: `project.readme` points at a package-local `README.md`; hatchling 1.32.0 rejects paths outside the project directory, breaking builds from source.
+- Uploading a folder with sub-directories now works against servers that echo the resource name verbatim.
+- A nested re-upload reports `renamed_duplicate` rather than `exact_duplicate`; both carry the `skip` action, so branch on `action`, not `category`.
 
 ## \[1.20.0\] - 2026-08-03
 
