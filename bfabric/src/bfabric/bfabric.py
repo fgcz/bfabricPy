@@ -104,6 +104,9 @@ class Bfabric:
         `BFABRICPY_CONFIG_ENV` will be used, otherwise the default environment in the config file will be used.
         Otherwise, `config_file_env` specifies the name of the environment.
 
+        An environment with `auth_method: oauth` (as written by `bfabric-cli login`) authenticates with its cached
+        OAuth token, which is refreshed transparently.
+
         :param config_file_path: a non-standard configuration file to use, if config file is selected as a config source
         :param config_file_env: name of environment to use, if config file is selected as a config source.
             if `"default"` is specified, the default environment will be used.

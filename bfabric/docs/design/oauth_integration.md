@@ -38,8 +38,7 @@ The core `oauth` API requires explicit `client_id` and `scope` arguments on all 
 | `Bfabric.connect_oauth(client_id, client_secret, base_url)` | client_credentials | Service accounts / background jobs. |
 | `Bfabric.connect_pkce(base_url, client_id)` | authorization_code + PKCE | Interactive browser login (programmatic). |
 | `Bfabric.connect_device_code(base_url, client_id)` | device_code | Headless interactive login (programmatic). |
-| `Bfabric.from_url_token(base_url, jwt, refresh_token)` | URL token | Webapps launched from B-Fabric. Returns `(Bfabric, UrlTokenContext)`. |
-| `WebappClient.create(base_url, jwt, ..., client_id, client_secret)` | URL token + client_credentials | Dual-identity webapp client. |
+| `WebappClient.create(base_url, launch_token, ..., client_id, client_secret)` | URL token + client_credentials | Dual-identity webapp client for apps launched from B-Fabric. |
 
 ---
 
