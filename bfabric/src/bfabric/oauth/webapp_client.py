@@ -53,7 +53,7 @@ class WebappClient:
         """
         from bfabric.bfabric import Bfabric
         from bfabric.oauth.credential_provider import OAuthCredentialProvider
-        from bfabric.oauth.token_exchange import exchange_token
+        from bfabric.oauth._token_exchange import exchange_token
         from bfabric.oauth.url_token import UrlTokenContext, verify_jwt
         from bfabric.config import BfabricClientConfig
         from bfabric.config.config_data import ConfigData

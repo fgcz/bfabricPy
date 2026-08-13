@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from bfabric.oauth.token_exchange import exchange_token, introspect_token
+from bfabric.oauth._token_exchange import exchange_token, introspect_token
 from bfabric.oauth.url_token import UrlTokenContext
 
 BASE_URL = "https://example.com/bfabric"
@@ -10,7 +10,7 @@ BASE_URL = "https://example.com/bfabric"
 
 class TestExchangeToken:
     def test_posts_correct_payload(self, mocker):
-        mock_post = mocker.patch("bfabric.oauth.token_exchange.httpx.post")
+        mock_post = mocker.patch("bfabric.oauth._token_exchange.httpx.post")
         mock_response = mocker.MagicMock()
         mock_response.json.return_value = {
             "access_token": "new_at",
@@ -44,7 +44,7 @@ class TestExchangeToken:
         }
 
     def test_strips_trailing_slash(self, mocker):
-        mock_post = mocker.patch("bfabric.oauth.token_exchange.httpx.post")
+        mock_post = mocker.patch("bfabric.oauth._token_exchange.httpx.post")
         mock_response = mocker.MagicMock()
         mock_response.json.return_value = {"access_token": "at"}
         mock_post.return_value = mock_response
@@ -62,7 +62,7 @@ class TestExchangeToken:
     def test_raises_on_http_error(self, mocker):
         import httpx
 
-        mock_post = mocker.patch("bfabric.oauth.token_exchange.httpx.post")
+        mock_post = mocker.patch("bfabric.oauth._token_exchange.httpx.post")
         mock_response = mocker.MagicMock()
         mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
             "401", request=mocker.MagicMock(), response=mocker.MagicMock()
@@ -75,7 +75,7 @@ class TestExchangeToken:
 
 class TestIntrospectToken:
     def test_posts_and_returns_context(self, mocker):
-        mock_post = mocker.patch("bfabric.oauth.token_exchange.httpx.post")
+        mock_post = mocker.patch("bfabric.oauth._token_exchange.httpx.post")
         mock_response = mocker.MagicMock()
         mock_response.json.return_value = {
             "active": True,
@@ -111,7 +111,7 @@ class TestIntrospectToken:
         assert ctx.client_id == "app-id"
 
     def test_handles_minimal_claims(self, mocker):
-        mock_post = mocker.patch("bfabric.oauth.token_exchange.httpx.post")
+        mock_post = mocker.patch("bfabric.oauth._token_exchange.httpx.post")
         mock_response = mocker.MagicMock()
         mock_response.json.return_value = {"active": True, "sub": "user"}
         mock_post.return_value = mock_response
@@ -123,7 +123,7 @@ class TestIntrospectToken:
         assert ctx.subject == "user"
 
     def test_strips_trailing_slash(self, mocker):
-        mock_post = mocker.patch("bfabric.oauth.token_exchange.httpx.post")
+        mock_post = mocker.patch("bfabric.oauth._token_exchange.httpx.post")
         mock_response = mocker.MagicMock()
         mock_response.json.return_value = {"sub": "u"}
         mock_post.return_value = mock_response
@@ -136,7 +136,7 @@ class TestIntrospectToken:
     def test_raises_on_http_error(self, mocker):
         import httpx
 
-        mock_post = mocker.patch("bfabric.oauth.token_exchange.httpx.post")
+        mock_post = mocker.patch("bfabric.oauth._token_exchange.httpx.post")
         mock_response = mocker.MagicMock()
         mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
             "401", request=mocker.MagicMock(), response=mocker.MagicMock()

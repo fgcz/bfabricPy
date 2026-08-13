@@ -6,9 +6,12 @@ token cache the CLI reads.
 
 The login flows themselves are *not* re-exported. They are reached through the ``Bfabric.connect_*``
 factory methods (``connect_pkce``, ``connect_device_code``, ``connect_oauth``), which is the
-supported way in; their implementations stay importable from their own submodules
-(``bfabric.oauth.pkce``, ``bfabric.oauth.device_code``, ``bfabric.oauth.credential_provider``,
-``bfabric.oauth.token_exchange``, ``bfabric.oauth.url_token``) but are not part of this surface.
+supported way in; ``pkce``, ``device_code`` and ``credential_provider`` stay importable because
+``bfabric_scripts`` drives the login commands through them, not because application code should.
+
+A module here is underscore-prefixed exactly when nothing outside ``bfabric.oauth`` imports it, so
+today only ``_token_exchange``. ``url_token`` keeps its plain name for ``UrlTokenContext``; its
+``verify_jwt`` is internal despite that.
 """
 
 from bfabric.oauth.registration import register_client, register_webapp
