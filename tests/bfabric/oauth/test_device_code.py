@@ -3,7 +3,7 @@ from __future__ import annotations
 import httpx
 import pytest
 
-from bfabric._oauth.device_code import (
+from bfabric.oauth.device_code import (
     _poll_for_token,
     _request_device_code,
     device_code_login,
@@ -21,7 +21,7 @@ class TestRequestDeviceCode:
             "expires_in": 600,
         }
 
-        mock_post = mocker.patch("bfabric._oauth.device_code.httpx.post", return_value=mock_response)
+        mock_post = mocker.patch("bfabric.oauth.device_code.httpx.post", return_value=mock_response)
         result = _request_device_code(
             "https://example.com/bfabric",
             client_id="test-cli",
@@ -44,7 +44,7 @@ class TestRequestDeviceCode:
             "500", request=mocker.MagicMock(), response=mocker.MagicMock()
         )
 
-        mocker.patch("bfabric._oauth.device_code.httpx.post", return_value=mock_response)
+        mocker.patch("bfabric.oauth.device_code.httpx.post", return_value=mock_response)
         with pytest.raises(httpx.HTTPStatusError):
             _request_device_code(
                 "https://example.com/bfabric",
@@ -60,7 +60,7 @@ class TestPollForToken:
         mock_response.status_code = 200
         mock_response.json.return_value = token_dict
 
-        mock_post = mocker.patch("bfabric._oauth.device_code.httpx.post", return_value=mock_response)
+        mock_post = mocker.patch("bfabric.oauth.device_code.httpx.post", return_value=mock_response)
         result = _poll_for_token(
             "https://example.com/bfabric",
             device_code="dc_123",
@@ -89,8 +89,8 @@ class TestPollForToken:
         success_response.status_code = 200
         success_response.json.return_value = {"access_token": "at"}
 
-        mocker.patch("bfabric._oauth.device_code.httpx.post", side_effect=[pending_response, success_response])
-        mock_sleep = mocker.patch("bfabric._oauth.device_code.time.sleep")
+        mocker.patch("bfabric.oauth.device_code.httpx.post", side_effect=[pending_response, success_response])
+        mock_sleep = mocker.patch("bfabric.oauth.device_code.time.sleep")
         result = _poll_for_token(
             "https://example.com/bfabric",
             device_code="dc_123",
@@ -111,8 +111,8 @@ class TestPollForToken:
         success_response.status_code = 200
         success_response.json.return_value = {"access_token": "at"}
 
-        mocker.patch("bfabric._oauth.device_code.httpx.post", side_effect=[slow_down_response, success_response])
-        mock_sleep = mocker.patch("bfabric._oauth.device_code.time.sleep")
+        mocker.patch("bfabric.oauth.device_code.httpx.post", side_effect=[slow_down_response, success_response])
+        mock_sleep = mocker.patch("bfabric.oauth.device_code.time.sleep")
         result = _poll_for_token(
             "https://example.com/bfabric",
             device_code="dc_123",
@@ -130,7 +130,7 @@ class TestPollForToken:
         denied_response.status_code = 400
         denied_response.json.return_value = {"error": "access_denied"}
 
-        mocker.patch("bfabric._oauth.device_code.httpx.post", return_value=denied_response)
+        mocker.patch("bfabric.oauth.device_code.httpx.post", return_value=denied_response)
         with pytest.raises(RuntimeError, match="User denied the authorization request"):
             _poll_for_token(
                 "https://example.com/bfabric",
@@ -145,7 +145,7 @@ class TestPollForToken:
         expired_response.status_code = 400
         expired_response.json.return_value = {"error": "expired_token"}
 
-        mocker.patch("bfabric._oauth.device_code.httpx.post", return_value=expired_response)
+        mocker.patch("bfabric.oauth.device_code.httpx.post", return_value=expired_response)
         with pytest.raises(RuntimeError, match="Device code expired"):
             _poll_for_token(
                 "https://example.com/bfabric",
@@ -160,9 +160,9 @@ class TestPollForToken:
         pending_response.status_code = 400
         pending_response.json.return_value = {"error": "authorization_pending"}
 
-        mocker.patch("bfabric._oauth.device_code.httpx.post", return_value=pending_response)
-        mocker.patch("bfabric._oauth.device_code.time.monotonic", side_effect=[0, 100])
-        mocker.patch("bfabric._oauth.device_code.time.sleep")
+        mocker.patch("bfabric.oauth.device_code.httpx.post", return_value=pending_response)
+        mocker.patch("bfabric.oauth.device_code.time.monotonic", side_effect=[0, 100])
+        mocker.patch("bfabric.oauth.device_code.time.sleep")
         with pytest.raises(RuntimeError, match="timed out"):
             _poll_for_token(
                 "https://example.com/bfabric",
@@ -180,8 +180,8 @@ class TestPollForToken:
         success_response.status_code = 200
         success_response.json.return_value = {"access_token": "at"}
 
-        mocker.patch("bfabric._oauth.device_code.httpx.post", side_effect=[error_response, success_response])
-        mock_sleep = mocker.patch("bfabric._oauth.device_code.time.sleep")
+        mocker.patch("bfabric.oauth.device_code.httpx.post", side_effect=[error_response, success_response])
+        mock_sleep = mocker.patch("bfabric.oauth.device_code.time.sleep")
         result = _poll_for_token(
             "https://example.com/bfabric",
             device_code="dc_123",
@@ -199,10 +199,10 @@ class TestPollForToken:
         success_response.json.return_value = {"access_token": "at"}
 
         mocker.patch(
-            "bfabric._oauth.device_code.httpx.post",
+            "bfabric.oauth.device_code.httpx.post",
             side_effect=[httpx.ConnectError("connection refused"), success_response],
         )
-        mock_sleep = mocker.patch("bfabric._oauth.device_code.time.sleep")
+        mock_sleep = mocker.patch("bfabric.oauth.device_code.time.sleep")
         result = _poll_for_token(
             "https://example.com/bfabric",
             device_code="dc_123",
@@ -222,7 +222,7 @@ class TestPollForToken:
             "error_description": "Internal failure",
         }
 
-        mocker.patch("bfabric._oauth.device_code.httpx.post", return_value=error_response)
+        mocker.patch("bfabric.oauth.device_code.httpx.post", return_value=error_response)
         with pytest.raises(RuntimeError, match="Device code token error: server_error .* Internal failure"):
             _poll_for_token(
                 "https://example.com/bfabric",
@@ -245,11 +245,11 @@ class TestDeviceCodeLogin:
         token_dict = {"access_token": "jwt_here", "refresh_token": "rt_here"}
 
         mock_request = mocker.patch(
-            "bfabric._oauth.device_code._request_device_code",
+            "bfabric.oauth.device_code._request_device_code",
             return_value=device_response,
         )
         mock_poll = mocker.patch(
-            "bfabric._oauth.device_code._poll_for_token",
+            "bfabric.oauth.device_code._poll_for_token",
             return_value=token_dict,
         )
         result = device_code_login(
@@ -287,8 +287,8 @@ class TestDeviceCodeLogin:
             "expires_in": 600,
         }
 
-        mocker.patch("bfabric._oauth.device_code._request_device_code", return_value=device_response)
-        mocker.patch("bfabric._oauth.device_code._poll_for_token", return_value={"access_token": "at"})
+        mocker.patch("bfabric.oauth.device_code._request_device_code", return_value=device_response)
+        mocker.patch("bfabric.oauth.device_code._poll_for_token", return_value={"access_token": "at"})
         device_code_login("https://example.com/bfabric", client_id="test-cli", scope="api:read")
 
         captured = capsys.readouterr()
@@ -303,11 +303,11 @@ class TestDeviceCodeLogin:
         }
 
         mock_request = mocker.patch(
-            "bfabric._oauth.device_code._request_device_code",
+            "bfabric.oauth.device_code._request_device_code",
             return_value=device_response,
         )
         mock_poll = mocker.patch(
-            "bfabric._oauth.device_code._poll_for_token",
+            "bfabric.oauth.device_code._poll_for_token",
             return_value={"access_token": "at"},
         )
         device_code_login("https://example.com/bfabric///", client_id="test-cli", scope="api:read")
@@ -326,9 +326,9 @@ class TestDeviceCodeLogin:
             "verification_uri": "https://example.com/device",
         }
 
-        mocker.patch("bfabric._oauth.device_code._request_device_code", return_value=device_response)
+        mocker.patch("bfabric.oauth.device_code._request_device_code", return_value=device_response)
         mock_poll = mocker.patch(
-            "bfabric._oauth.device_code._poll_for_token",
+            "bfabric.oauth.device_code._poll_for_token",
             return_value={"access_token": "at"},
         )
         device_code_login("https://example.com/bfabric", client_id="test-cli", scope="api:read")

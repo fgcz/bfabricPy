@@ -1,6 +1,6 @@
 # OAuth Usage & Troubleshooting
 
-> **⚠️ EXPERIMENTAL / NOT OFFICIALLY SHIPPED.** The `bfabric._oauth` module and the
+> **⚠️ EXPERIMENTAL / NOT OFFICIALLY SHIPPED.** The `bfabric.oauth` module and the
 > `connect_pkce` / `connect_device_code` / `connect_oauth` factory methods are under active
 > development (the asgi-auth OAuth migration is still in flight). APIs, defaults, and server-side
 > scope enforcement may change. Do not treat this as stable public API yet.

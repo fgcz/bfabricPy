@@ -481,7 +481,7 @@ class TestConnectOAuthFromConfig:
 class TestConnectOAuth:
     def test_creates_instance_with_provider(self, mocker):
         mocker.patch.object(Bfabric, "_log_version_message")
-        mock_provider_cls = mocker.patch("bfabric._oauth.credential_provider.OAuthCredentialProvider")
+        mock_provider_cls = mocker.patch("bfabric.oauth.credential_provider.OAuthCredentialProvider")
 
         client = Bfabric.connect_oauth(
             client_id="my-id",
@@ -520,7 +520,7 @@ class TestConnectOAuth:
 
     def test_strips_trailing_slash(self, mocker):
         mocker.patch.object(Bfabric, "_log_version_message")
-        mock_provider_cls = mocker.patch("bfabric._oauth.credential_provider.OAuthCredentialProvider")
+        mock_provider_cls = mocker.patch("bfabric.oauth.credential_provider.OAuthCredentialProvider")
 
         client = Bfabric.connect_oauth(
             client_id="id",
@@ -535,7 +535,7 @@ class TestConnectOAuth:
 
     def test_custom_scope_and_cache(self, mocker):
         mocker.patch.object(Bfabric, "_log_version_message")
-        mock_provider_cls = mocker.patch("bfabric._oauth.credential_provider.OAuthCredentialProvider")
+        mock_provider_cls = mocker.patch("bfabric.oauth.credential_provider.OAuthCredentialProvider")
         cache_path = Path("/tmp/test_cache.json")
 
         Bfabric.connect_oauth(
@@ -580,13 +580,13 @@ class TestWithAuthDisablesProvider:
 class TestConnectPkce:
     def test_creates_instance_with_provider(self, mocker):
         mocker.patch.object(Bfabric, "_log_version_message")
-        mock_pkce_login = mocker.patch("bfabric._oauth.pkce.pkce_login")
+        mock_pkce_login = mocker.patch("bfabric.oauth.pkce.pkce_login")
         mock_pkce_login.return_value = {
             "access_token": "jwt_value",
             "refresh_token": "rt_value",
             "token_type": "Bearer",
         }
-        mock_provider_cls = mocker.patch("bfabric._oauth.credential_provider.OAuthCredentialProvider")
+        mock_provider_cls = mocker.patch("bfabric.oauth.credential_provider.OAuthCredentialProvider")
 
         client = Bfabric.connect_pkce(
             base_url="https://example.com/bfabric",
@@ -617,9 +617,9 @@ class TestConnectPkce:
 
     def test_parameter_forwarding(self, mocker):
         mocker.patch.object(Bfabric, "_log_version_message")
-        mock_pkce_login = mocker.patch("bfabric._oauth.pkce.pkce_login")
+        mock_pkce_login = mocker.patch("bfabric.oauth.pkce.pkce_login")
         mock_pkce_login.return_value = {"access_token": "at"}
-        mock_provider_cls = mocker.patch("bfabric._oauth.credential_provider.OAuthCredentialProvider")
+        mock_provider_cls = mocker.patch("bfabric.oauth.credential_provider.OAuthCredentialProvider")
         cache_path = Path("/tmp/test_cache.json")
 
         Bfabric.connect_pkce(
@@ -647,9 +647,9 @@ class TestConnectPkce:
 
     def test_strips_trailing_slash(self, mocker):
         mocker.patch.object(Bfabric, "_log_version_message")
-        mock_pkce_login = mocker.patch("bfabric._oauth.pkce.pkce_login")
+        mock_pkce_login = mocker.patch("bfabric.oauth.pkce.pkce_login")
         mock_pkce_login.return_value = {"access_token": "at"}
-        mock_provider_cls = mocker.patch("bfabric._oauth.credential_provider.OAuthCredentialProvider")
+        mock_provider_cls = mocker.patch("bfabric.oauth.credential_provider.OAuthCredentialProvider")
 
         client = Bfabric.connect_pkce(
             base_url="https://example.com/bfabric///",
@@ -665,13 +665,13 @@ class TestConnectPkce:
 class TestConnectDeviceCode:
     def test_creates_instance_with_provider(self, mocker):
         mocker.patch.object(Bfabric, "_log_version_message")
-        mock_device_code_login = mocker.patch("bfabric._oauth.device_code.device_code_login")
+        mock_device_code_login = mocker.patch("bfabric.oauth.device_code.device_code_login")
         mock_device_code_login.return_value = {
             "access_token": "jwt_value",
             "refresh_token": "rt_value",
             "token_type": "Bearer",
         }
-        mock_provider_cls = mocker.patch("bfabric._oauth.credential_provider.OAuthCredentialProvider")
+        mock_provider_cls = mocker.patch("bfabric.oauth.credential_provider.OAuthCredentialProvider")
 
         client = Bfabric.connect_device_code(
             base_url="https://example.com/bfabric",
@@ -700,9 +700,9 @@ class TestConnectDeviceCode:
 
     def test_parameter_forwarding(self, mocker):
         mocker.patch.object(Bfabric, "_log_version_message")
-        mock_device_code_login = mocker.patch("bfabric._oauth.device_code.device_code_login")
+        mock_device_code_login = mocker.patch("bfabric.oauth.device_code.device_code_login")
         mock_device_code_login.return_value = {"access_token": "at"}
-        mock_provider_cls = mocker.patch("bfabric._oauth.credential_provider.OAuthCredentialProvider")
+        mock_provider_cls = mocker.patch("bfabric.oauth.credential_provider.OAuthCredentialProvider")
         cache_path = Path("/tmp/test_cache.json")
 
         Bfabric.connect_device_code(
@@ -726,9 +726,9 @@ class TestConnectDeviceCode:
 
     def test_strips_trailing_slash(self, mocker):
         mocker.patch.object(Bfabric, "_log_version_message")
-        mock_device_code_login = mocker.patch("bfabric._oauth.device_code.device_code_login")
+        mock_device_code_login = mocker.patch("bfabric.oauth.device_code.device_code_login")
         mock_device_code_login.return_value = {"access_token": "at"}
-        mock_provider_cls = mocker.patch("bfabric._oauth.credential_provider.OAuthCredentialProvider")
+        mock_provider_cls = mocker.patch("bfabric.oauth.credential_provider.OAuthCredentialProvider")
 
         client = Bfabric.connect_device_code(
             base_url="https://example.com/bfabric///",
@@ -794,7 +794,7 @@ class TestPickling:
         # despite holding a threading.Lock and an OAuth2Session. Seeding a far-future
         # expires_at keeps authlib from attempting a network refresh.
         mocker.patch.object(Bfabric, "_log_version_message")
-        from bfabric._oauth.credential_provider import OAuthCredentialProvider
+        from bfabric.oauth.credential_provider import OAuthCredentialProvider
 
         provider = OAuthCredentialProvider(
             client_id="cid",

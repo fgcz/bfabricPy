@@ -41,7 +41,7 @@ def cmd_login_register_webapp(
     Uses the config environment's credentials for both the registration endpoint and the SOAP save.
     """
     from bfabric import Bfabric
-    from bfabric._oauth.registration import register_webapp
+    from bfabric.oauth.registration import register_webapp
 
     if service_user is not None and no_service_user:
         print("Error: --service-user and --no-service-user are mutually exclusive.", file=sys.stderr)

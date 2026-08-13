@@ -23,8 +23,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs, urlparse
 
 from bfabric import Bfabric
-from bfabric._oauth.registration import register_webapp
-from bfabric._oauth.webapp_client import WebappClient
+from bfabric.oauth import WebappClient, register_webapp
 from bfabric.entities.core.uri import EntityUri
 from bfabric_scripts.cli.login._constants import DEFAULT_REGISTRATION_SCOPE
 

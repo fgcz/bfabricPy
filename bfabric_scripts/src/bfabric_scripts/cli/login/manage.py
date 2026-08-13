@@ -10,7 +10,7 @@ from typing import Annotated
 
 import cyclopts
 
-from bfabric._oauth.token_cache import TokenCache, compute_token_cache_path
+from bfabric.oauth.token_cache import TokenCache, compute_token_cache_path
 from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric.config.config_file import ConfigFile, EnvironmentConfig
 from bfabric.config.config_writer import (

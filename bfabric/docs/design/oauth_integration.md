@@ -8,9 +8,11 @@ Adds OAuth 2.0 support to bfabricPy. The library can now authenticate via PKCE, 
 
 ---
 
-## New: `bfabric._oauth` module
+## New: `bfabric.oauth` module
 
-Private module under `bfabric/src/bfabric/_oauth/` implementing all OAuth primitives.
+Package under `bfabric/src/bfabric/oauth/` implementing all OAuth primitives.
+
+Its `__init__` re-exports only what application code is meant to reach for — `WebappClient`, `UrlTokenContext`, `register_client`, `register_webapp`, `TokenCache`, `compute_token_cache_path`. The login primitives below stay importable from their own submodules but are deliberately not part of that surface: the supported way in is the `Bfabric.connect_*` factory methods.
 
 | File | Purpose |
 |------|---------|
@@ -22,7 +24,7 @@ Private module under `bfabric/src/bfabric/_oauth/` implementing all OAuth primit
 | `url_token.py` | `UrlTokenContext` + `parse_url_token()` — extracts entity context (entity_id, application_id, etc.) from B-Fabric URL token JWTs. |
 | `webapp_client.py` | `WebappClient` — dual-identity client bundling a `user` (from URL token) and `service` (from client credentials) `Bfabric` instance. |
 
-The core `_oauth` API requires explicit `client_id` and `scope` arguments on all OAuth entry points. The library does not bake in a default client ID or scope. Tools like the CLI specify these values explicitly.
+The core `oauth` API requires explicit `client_id` and `scope` arguments on all OAuth entry points. The library does not bake in a default client ID or scope. Tools like the CLI specify these values explicitly.
 
 ---
 
