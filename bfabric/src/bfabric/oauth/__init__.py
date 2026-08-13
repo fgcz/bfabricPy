@@ -5,16 +5,21 @@ Most code reaches OAuth through ``Bfabric.connect()`` and the ``connect_pkce`` /
 building a client, to serve an app launched from B-Fabric (``WebappClient``), to register a client,
 or to read the token cache.
 
-Importing this module pulls ``authlib`` and ``httpx``; ``import bfabric`` alone does not.
+This module is the whole contract: the submodules behind it are private and will move. The names
+below are provisional while the asgi-auth OAuth migration is in flight and may change without a
+deprecation cycle.
+
+Importing this module pulls ``authlib``, ``joserfc`` and ``httpx``; ``import bfabric`` alone does
+not.
 """
 
-from bfabric.oauth.credential_provider import OAuthCredentialProvider
-from bfabric.oauth.device_code import device_code_login
-from bfabric.oauth.pkce import pkce_login
-from bfabric.oauth.registration import register_client, register_webapp
-from bfabric.oauth.token_cache import TokenCache, compute_token_cache_path
-from bfabric.oauth.url_token import UrlTokenContext
-from bfabric.oauth.webapp_client import WebappClient
+from bfabric.oauth._credential_provider import OAuthCredentialProvider
+from bfabric.oauth._device_code import device_code_login
+from bfabric.oauth._pkce import pkce_login
+from bfabric.oauth._registration import register_client, register_webapp
+from bfabric.oauth._token_cache import TokenCache, compute_token_cache_path
+from bfabric.oauth._url_token import UrlTokenContext
+from bfabric.oauth._webapp_client import WebappClient
 
 __all__ = [
     "OAuthCredentialProvider",

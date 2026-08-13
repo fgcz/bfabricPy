@@ -12,7 +12,7 @@ from bfabric_scripts.cli.login.register import cmd_login_register
 
 def seed_token_cache(base_url: str, env_name: str, access_token: str, *, client_id: str = "my-app") -> None:
     """Write a valid cached token where ``connect()`` looks for it (``$HOME`` is isolated per test)."""
-    from bfabric.oauth.token_cache import compute_token_cache_path
+    from bfabric.oauth import compute_token_cache_path
 
     path = compute_token_cache_path(base_url, client_id, env_name).expanduser()
     path.parent.mkdir(parents=True, exist_ok=True)

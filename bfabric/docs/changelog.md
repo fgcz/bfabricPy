@@ -18,7 +18,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Changed
 
-- The OAuth module is public as `bfabric.oauth` (was `bfabric._oauth`), exporting `WebappClient`, `UrlTokenContext`, `pkce_login`, `device_code_login`, `OAuthCredentialProvider`, `register_client`, `register_webapp`, `TokenCache` and `compute_token_cache_path`.
+- The OAuth module moved from `bfabric._oauth` to `bfabric.oauth`, which exports `WebappClient`, `UrlTokenContext`, `pkce_login`, `device_code_login`, `OAuthCredentialProvider`, `register_client`, `register_webapp`, `TokenCache` and `compute_token_cache_path`. Its submodules are private and the exports stay provisional while the OAuth work is in flight — they may change without a deprecation cycle.
 - `upload_files(client, params)` takes its files as `UploadFilesParams.files`, a list of `UploadFileParam(path=..., on_duplicate=...)`; the `force` / `link_duplicates` booleans are gone.
 - **`on_duplicate` defaults to `upload`, so the duplicate check no longer runs unless asked for** — pass `skip` for the old behaviour.
 - `UploadSummary` holds one list per outcome — `uploads`, `skips`, `failures`, `links` — replacing the 1.20.0 counters; skips carry the duplicate they lost out to.

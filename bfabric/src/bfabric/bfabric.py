@@ -43,7 +43,7 @@ if TYPE_CHECKING:
 
     from pydantic import SecretStr
 
-    from bfabric.oauth.credential_provider import OAuthCredentialProvider
+    from bfabric.oauth._credential_provider import OAuthCredentialProvider
     from bfabric.engine.engine_zeep import EngineZeep
     from bfabric.entities.core.entity_reader import EntityReader
     from bfabric.experimental.webapp_integration_settings import TokenValidationSettingsProtocol
@@ -123,8 +123,8 @@ class Bfabric:
 
         Loads tokens from the disk cache keyed on ``base_url`` + ``client_id`` + ``env_name``.
         """
-        from bfabric.oauth.credential_provider import OAuthCredentialProvider
-        from bfabric.oauth.token_cache import TokenCache, compute_token_cache_path
+        from bfabric.oauth._credential_provider import OAuthCredentialProvider
+        from bfabric.oauth._token_cache import TokenCache, compute_token_cache_path
 
         base_url = config_data.client.base_url.rstrip("/")
         if not config_data.client_id:
@@ -257,7 +257,7 @@ class Bfabric:
         :param scope: OAuth scope
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
-        from bfabric.oauth.credential_provider import OAuthCredentialProvider
+        from bfabric.oauth._credential_provider import OAuthCredentialProvider
 
         base_url = base_url.rstrip("/")
         token_url = f"{base_url}/rest/oauth/token"
@@ -299,8 +299,8 @@ class Bfabric:
         :param timeout: Seconds to wait for the user to complete login
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
-        from bfabric.oauth.credential_provider import OAuthCredentialProvider
-        from bfabric.oauth.pkce import pkce_login
+        from bfabric.oauth._credential_provider import OAuthCredentialProvider
+        from bfabric.oauth._pkce import pkce_login
 
         base_url = base_url.rstrip("/")
         token = pkce_login(
@@ -351,8 +351,8 @@ class Bfabric:
         :param timeout: Seconds to wait for the user to authorize
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
-        from bfabric.oauth.credential_provider import OAuthCredentialProvider
-        from bfabric.oauth.device_code import device_code_login
+        from bfabric.oauth._credential_provider import OAuthCredentialProvider
+        from bfabric.oauth._device_code import device_code_login
 
         base_url = base_url.rstrip("/")
         token = device_code_login(
