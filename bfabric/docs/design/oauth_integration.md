@@ -12,7 +12,9 @@ Adds OAuth 2.0 support to bfabricPy. The library can now authenticate via PKCE, 
 
 Package under `bfabric/src/bfabric/oauth/` implementing all OAuth primitives.
 
-Its `__init__` re-exports only what application code is meant to reach for — `WebappClient`, `UrlTokenContext`, `register_client`, `register_webapp`, `TokenCache`, `compute_token_cache_path`. The login primitives below stay importable from their own submodules but are deliberately not part of that surface: the supported way in is the `Bfabric.connect_*` factory methods.
+Its `__init__` exports every name that has a consumer outside the module — `OAuthCredentialProvider`, `pkce_login`, `device_code_login`, `register_client`, `register_webapp`, `TokenCache`, `compute_token_cache_path`, `UrlTokenContext`, `WebappClient` — so nothing, including `bfabric_scripts`, has to reach into a submodule to get at a supported name. A module is underscore-prefixed exactly when nothing outside the package imports it, which today means only `_token_exchange`.
+
+`bfabric.py` is the one deliberate exception: its `connect_*` methods import the submodules directly, because the package root pulls `authlib` and `joserfc` and `import bfabric` must stay free of both.
 
 | File | Purpose |
 |------|---------|

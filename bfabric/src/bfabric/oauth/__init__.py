@@ -1,29 +1,29 @@
 """OAuth 2.0 support for bfabricPy.
 
-The names re-exported here are the ones application code is expected to use: ``WebappClient`` (and
-the ``UrlTokenContext`` it carries) for apps launched from B-Fabric, client registration, and the
-token cache the CLI reads.
+Most code reaches OAuth through ``Bfabric.connect()`` and the ``connect_pkce`` /
+``connect_device_code`` / ``connect_oauth`` factories. Import from here to run a login flow without
+building a client, to serve an app launched from B-Fabric (``WebappClient``), to register a client,
+or to read the token cache.
 
-The login flows themselves are *not* re-exported. They are reached through the ``Bfabric.connect_*``
-factory methods (``connect_pkce``, ``connect_device_code``, ``connect_oauth``), which is the
-supported way in; ``pkce``, ``device_code`` and ``credential_provider`` stay importable because
-``bfabric_scripts`` drives the login commands through them, not because application code should.
-
-A module here is underscore-prefixed exactly when nothing outside ``bfabric.oauth`` imports it, so
-today only ``_token_exchange``. ``url_token`` keeps its plain name for ``UrlTokenContext``; its
-``verify_jwt`` is internal despite that.
+Importing this module pulls ``authlib`` and ``httpx``; ``import bfabric`` alone does not.
 """
 
+from bfabric.oauth.credential_provider import OAuthCredentialProvider
+from bfabric.oauth.device_code import device_code_login
+from bfabric.oauth.pkce import pkce_login
 from bfabric.oauth.registration import register_client, register_webapp
 from bfabric.oauth.token_cache import TokenCache, compute_token_cache_path
 from bfabric.oauth.url_token import UrlTokenContext
 from bfabric.oauth.webapp_client import WebappClient
 
 __all__ = [
+    "OAuthCredentialProvider",
     "TokenCache",
     "UrlTokenContext",
     "WebappClient",
     "compute_token_cache_path",
+    "device_code_login",
+    "pkce_login",
     "register_client",
     "register_webapp",
 ]
