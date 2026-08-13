@@ -4,7 +4,7 @@ import time
 
 import pytest
 
-from bfabric.oauth.url_token import _jwks_cache, verify_jwt
+from bfabric.oauth._url_token import _jwks_cache, verify_jwt
 
 
 @pytest.fixture(autouse=True)
@@ -27,7 +27,7 @@ SAMPLE_CLAIMS = {
 
 @pytest.fixture
 def mock_httpx_get(mocker):
-    mock_get = mocker.patch("bfabric.oauth.url_token.httpx.get")
+    mock_get = mocker.patch("bfabric.oauth._url_token.httpx.get")
     mock_response = mocker.MagicMock()
     mock_response.json.return_value = {"keys": [{"kty": "RSA", "kid": "1"}]}
     mock_response.raise_for_status.return_value = None
@@ -37,8 +37,8 @@ def mock_httpx_get(mocker):
 
 @pytest.fixture
 def mock_joserfc(mocker):
-    mock_key_set = mocker.patch("bfabric.oauth.url_token.KeySet")
-    mock_jwt = mocker.patch("bfabric.oauth.url_token.joserfc_jwt")
+    mock_key_set = mocker.patch("bfabric.oauth._url_token.KeySet")
+    mock_jwt = mocker.patch("bfabric.oauth._url_token.joserfc_jwt")
     mock_result = mocker.MagicMock()
     mock_result.claims = dict(SAMPLE_CLAIMS)
     mock_jwt.decode.return_value = mock_result

@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 
 from bfabric.oauth._token_exchange import exchange_token, introspect_token
-from bfabric.oauth.url_token import UrlTokenContext
+from bfabric.oauth._url_token import UrlTokenContext
 
 BASE_URL = "https://example.com/bfabric"
 

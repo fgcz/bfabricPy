@@ -10,7 +10,7 @@ from __future__ import annotations
 import httpx
 from loguru import logger
 
-from bfabric.oauth.url_token import UrlTokenContext
+from bfabric.oauth._url_token import UrlTokenContext
 
 
 def exchange_token(

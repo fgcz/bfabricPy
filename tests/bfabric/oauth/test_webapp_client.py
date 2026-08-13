@@ -4,12 +4,12 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
-from bfabric.oauth.url_token import UrlTokenContext
-from bfabric.oauth.webapp_client import WebappClient
+from bfabric.oauth._url_token import UrlTokenContext
+from bfabric.oauth._webapp_client import WebappClient
 
 _PATCH_EXCHANGE = "bfabric.oauth._token_exchange.exchange_token"
-_PATCH_VERIFY_JWT = "bfabric.oauth.url_token.verify_jwt"
-_PATCH_PROVIDER = "bfabric.oauth.credential_provider.OAuthCredentialProvider"
+_PATCH_VERIFY_JWT = "bfabric.oauth._url_token.verify_jwt"
+_PATCH_PROVIDER = "bfabric.oauth._credential_provider.OAuthCredentialProvider"
 _PATCH_CONNECT_OAUTH = "bfabric.bfabric.Bfabric.connect_oauth"
 _PATCH_LOG = "bfabric.bfabric.Bfabric._log_version_message"
 
