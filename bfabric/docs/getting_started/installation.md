@@ -147,7 +147,7 @@ ______________________________________________________________________
 
 After installing the packages:
 
-1. **Configure your credentials**: [Configuration Guide](configuration.md)
+1. **Log in**: run `bfabric-cli login`, or see the [Configuration Guide](configuration.md) for the other options
 2. **Try it out**:
    - For Python usage: [Quick Start Tutorial](quick_start)
    - For CLI usage: [bfabric-cli User Guide](../user_guides/bfabric-cli/index)
@@ -159,4 +159,4 @@ ______________________________________________________________________
 - [Configuration Guide](configuration) - Setting up config files and environment variables
 - [Quick Start Tutorial](quick_start) - Your first bfabricPy script
 - [bfabric-cli User Guide](../user_guides/bfabric-cli/index) - Command-line interface documentation
-- [Creating a Client](../user_guides/creating_a_client/index) - Using bfabric in Python code
+- [Connecting](../user_guides/connecting/index) - Using bfabric in Python code

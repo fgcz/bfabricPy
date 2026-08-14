@@ -1,10 +1,5 @@
 # OAuth Usage & Troubleshooting
 
-> **⚠️ EXPERIMENTAL / NOT OFFICIALLY SHIPPED.** The `bfabric.oauth` module and the
-> `connect_pkce` / `connect_device_code` / `connect_oauth` factory methods are under active
-> development (the asgi-auth OAuth migration is still in flight). APIs, defaults, and server-side
-> scope enforcement may change. Do not treat this as stable public API yet.
-
 A task-oriented companion to [OAuth Integration](oauth_integration.md): how to obtain a working
 token from a `Bfabric` client via OAuth, and the non-obvious failure modes observed on
 `fgcz-bfabric-demo`. For the architecture and module layout, see the integration doc.

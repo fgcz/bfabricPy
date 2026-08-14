@@ -82,4 +82,4 @@ print(f"Loaded entity: {entity}")
 
 ## See Also
 
-- [Server/Webapp Usage](../../user_guides/creating_a_client/server_webapp_usage.md) - Server authentication guide
+- [Server/Webapp Usage](../../user_guides/connecting/server_webapp_usage.md) - Server authentication guide
