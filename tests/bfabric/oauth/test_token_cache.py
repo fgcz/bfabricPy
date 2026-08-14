@@ -6,7 +6,7 @@ import stat
 
 import pytest
 
-from bfabric._oauth.token_cache import TokenCache, compute_token_cache_path
+from bfabric.oauth._token_cache import TokenCache, compute_token_cache_path
 
 
 @pytest.fixture

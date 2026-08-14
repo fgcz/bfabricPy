@@ -18,6 +18,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Changed
 
+- The OAuth module moved from `bfabric._oauth` to `bfabric.oauth`.
 - `upload_files(client, params)` takes its files as `UploadFilesParams.files`, a list of `UploadFileParam(path=..., on_duplicate=...)`; the `force` / `link_duplicates` booleans are gone.
 - **`on_duplicate` defaults to `upload`, so the duplicate check no longer runs unless asked for** — pass `skip` for the old behaviour.
 - `UploadSummary` holds one list per outcome — `uploads`, `skips`, `failures`, `links` — replacing the 1.20.0 counters; skips carry the duplicate they lost out to.
