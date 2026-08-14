@@ -40,6 +40,8 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 - Packaging: `project.readme` points at a package-local `README.md`; hatchling 1.32.0 rejects paths outside the project directory, breaking builds from source.
 - Uploading a folder with sub-directories now works against servers that echo the resource name verbatim.
 - A nested re-upload reports `renamed_duplicate` rather than `exact_duplicate`; both carry the `skip` action, so branch on `action`, not `category`.
+- `created_by` / `modified_by` raise a `ValueError` naming the login instead of returning `None`.
+- Internal: owner typing corrected across the `entities/core` descriptors and mixins; `HasMany(bfabric_field=...)` is now required and class-level access raises like `HasOne`.
 
 ## \[1.20.0\] - 2026-08-03
 
