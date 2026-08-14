@@ -1406,16 +1406,6 @@
                 }
             }
         ],
-        "./bfabric/src/bfabric/entities/core/mixins/entity_mixin_protocol.py": [
-            {
-                "code": "reportExplicitAny",
-                "range": {
-                    "startColumn": 37,
-                    "endColumn": 40,
-                    "lineCount": 1
-                }
-            }
-        ],
         "./bfabric/src/bfabric/entities/core/mixins/find_mixin.py": [
             {
                 "code": "reportReturnType",

@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 class UserCreatedMixin:
     if TYPE_CHECKING:
         # Supplied by Entity, which every host of this mixin subclasses. Declared here rather than by
-        # annotating `self`, because a `self: EntityProtocol` annotation hides the mixin's own `_users`.
+        # annotating `self` with a protocol of those members, which would hide the mixin's own `_users`.
         @property
         def data_dict(self) -> ApiResponseObjectType: ...
 
