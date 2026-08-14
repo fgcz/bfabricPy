@@ -12,6 +12,7 @@ from bfabric_app_runner.specs.inputs.bfabric_resource_archive_spec import Bfabri
 from bfabric_app_runner.specs.inputs.bfabric_resource_dataset_spec import BfabricResourceDatasetSpec
 from bfabric_app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
 from bfabric_app_runner.specs.inputs.file_spec import FileSpec
+from bfabric_app_runner.specs.inputs.legacy_wrapper_yaml_spec import LegacyWrapperYamlSpec
 from bfabric_app_runner.specs.inputs.static_file_spec import StaticFileSpec
 from bfabric_app_runner.specs.inputs.static_yaml_spec import StaticYamlSpec
 
@@ -27,7 +28,8 @@ InputSpecType = Annotated[
     | BfabricResourceArchiveSpec
     | BfabricResourceDatasetSpec
     | StaticYamlSpec
-    | StaticFileSpec,
+    | StaticFileSpec
+    | LegacyWrapperYamlSpec,
     Field(discriminator="type"),
 ]
 

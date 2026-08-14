@@ -11,6 +11,7 @@ from bfabric_app_runner.inputs.resolve._resolve_bfabric_resource_archive_specs i
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_resource_dataset_specs import ResolveBfabricResourceDatasetSpecs
 from bfabric_app_runner.inputs.resolve._resolve_bfabric_resource_specs import ResolveBfabricResourceSpecs
 from bfabric_app_runner.inputs.resolve._resolve_file_specs import ResolveFileSpecs
+from bfabric_app_runner.inputs.resolve._resolve_legacy_wrapper_yaml_specs import ResolveLegacyWrapperYamlSpecs
 from bfabric_app_runner.inputs.resolve._resolve_static_file_specs import ResolveStaticFileSpecs
 from bfabric_app_runner.inputs.resolve._resolve_static_yaml_specs import ResolveStaticYamlSpecs
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedInput, ResolvedInputs
@@ -21,6 +22,7 @@ from bfabric_app_runner.specs.inputs.bfabric_resource_archive_spec import Bfabri
 from bfabric_app_runner.specs.inputs.bfabric_resource_dataset_spec import BfabricResourceDatasetSpec
 from bfabric_app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
 from bfabric_app_runner.specs.inputs.file_spec import FileSpec
+from bfabric_app_runner.specs.inputs.legacy_wrapper_yaml_spec import LegacyWrapperYamlSpec
 from bfabric_app_runner.specs.inputs.static_file_spec import StaticFileSpec
 from bfabric_app_runner.specs.inputs.static_yaml_spec import StaticYamlSpec
 from bfabric_app_runner.specs.inputs_spec import InputSpecType
@@ -49,12 +51,13 @@ class Resolver:
             BfabricDatasetSpec: ResolveBfabricDatasetSpecs(reader=client.reader),
             BfabricOrderFastaSpec: ResolveBfabricOrderFastaSpecs(client=client),
             BfabricAnnotationSpec: ResolveBfabricAnnotationSpecs(client=client),
+            LegacyWrapperYamlSpec: ResolveLegacyWrapperYamlSpecs(client=client),
         }
         self._check_registry_exhaustive()
 
     def resolve(self, specs: list[InputSpecType]) -> ResolvedInputs:
         """Convert input specifications to resolved file specifications."""
-        with cache_entities(entities=["application", "dataset", "resource", "storage"], max_size=500):
+        with cache_entities(entities=["application", "dataset", "resource", "storage", "workunit"], max_size=500):
             files: list[ResolvedInput] = []
             for spec_type, specs_list in self._group_specs_by_type(specs=specs).items():
                 files.extend(self._registry[spec_type](specs_list))
