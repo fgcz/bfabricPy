@@ -14,14 +14,14 @@ cli_reference
 
 ## Guides Overview
 
-| Guide | Description | Skill Level |
-| --------------------------------------------------------- | ---------------------------------------------------- | ------------ |
-| [Creating an App](creating_an_app.md) | Define app specs, versions, and commands | Beginner |
-| [Deploying Apps](deploying_apps.md) | Build and deploy Python apps with uv | Intermediate |
-| [Working with Inputs](working_with_inputs.md) | Resolve and prepare input files for app execution | Intermediate |
-| [Working with Outputs](working_with_outputs.md) | Register output files and datasets in B-Fabric | Intermediate |
-| [Python Environments](python_environments.md) | Cached and ephemeral environment management | Advanced |
-| [CLI Reference](cli_reference.md) | Complete command-line reference | All Levels |
+| Guide                                           | Description                                       | Skill Level  |
+| ----------------------------------------------- | ------------------------------------------------- | ------------ |
+| [Creating an App](creating_an_app.md)           | Define app specs, versions, and commands          | Beginner     |
+| [Deploying Apps](deploying_apps.md)             | Build and deploy Python apps with uv              | Intermediate |
+| [Working with Inputs](working_with_inputs.md)   | Resolve and prepare input files for app execution | Intermediate |
+| [Working with Outputs](working_with_outputs.md) | Register output files and datasets in B-Fabric    | Intermediate |
+| [Python Environments](python_environments.md)   | Cached and ephemeral environment management       | Advanced     |
+| [CLI Reference](cli_reference.md)               | Complete command-line reference                   | All Levels   |
 
 ## Common Workflows
 

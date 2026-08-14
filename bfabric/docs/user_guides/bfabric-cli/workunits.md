@@ -10,13 +10,13 @@ bfabric-cli workunit --help
 
 Available subcommands:
 
-| Subcommand | Purpose |
+| Subcommand          | Purpose                                                                     |
 | ------------------- | --------------------------------------------------------------------------- |
-| `upload` | Upload files to a workunit over tus (resumable) |
-| `not-available` | Check for workunits with missing results (commonly failed CompMS workunits) |
-| `export-definition` | Export workunit definition to a YAML file |
+| `upload`            | Upload files to a workunit over tus (resumable)                             |
+| `not-available`     | Check for workunits with missing results (commonly failed CompMS workunits) |
+| `export-definition` | Export workunit definition to a YAML file                                   |
 
-______________________________________________________________________
+---
 
 ## Checking for Pending Workunits
 
@@ -63,7 +63,7 @@ The output lists workunits that are in a "not available" state, typically showin
 
 This command can return many results in production environments. Consider filtering or limiting the output for large deployments.
 
-______________________________________________________________________
+---
 
 ## Exporting Workunit Definitions
 
@@ -77,10 +77,10 @@ bfabric-cli workunit export-definition [WORKUNIT_ID] [OPTIONS]
 
 ### Parameters
 
-| Parameter | Required | Description |
+| Parameter     | Required | Description                                           |
 | ------------- | -------- | ----------------------------------------------------- |
-| `workunit_id` | Yes | ID of the workunit to export |
-| `--file` | No | Output file path (default: `workunit_definition.yml`) |
+| `workunit_id` | Yes      | ID of the workunit to export                          |
+| `--file`      | No       | Output file path (default: `workunit_definition.yml`) |
 
 ### Examples
 
@@ -132,7 +132,7 @@ The exported YAML file can be used to run the same analysis:
 bfabric-app-runner run workunit_definition.yml
 ```
 
-______________________________________________________________________
+---
 
 ## Uploading Files
 
@@ -165,16 +165,16 @@ mark the workunit `available`.
 
 ### Parameters
 
-| Parameter | Required | Description |
-| ---------------------- | -------- | ----------------------------------------------------------------------- |
-| `FILE...` | Yes | Files and/or directories to upload (positional; directories recurse) |
-| `--container-id` | \* | Container to create the workunit in |
-| `--application-id` | \* | Application the workunit belongs to |
-| `--workunit-id` | \* | Upload into this existing workunit instead of creating one |
-| `--workunit-name` | No | Name for the created workunit (default "File upload") |
-| `--on-duplicate` | No | `upload` (default), `skip` or `link` content already in the container |
-| `--track-job` | No | Create a `UPLOAD` job; the server flips it to DONE/FAILED |
-| `--no-progress` | No | Disable the live progress bar (auto-off when stderr is not a terminal) |
+| Parameter          | Required | Description                                                            |
+| ------------------ | -------- | ---------------------------------------------------------------------- |
+| `FILE...`          | Yes      | Files and/or directories to upload (positional; directories recurse)   |
+| `--container-id`   | \*       | Container to create the workunit in                                    |
+| `--application-id` | \*       | Application the workunit belongs to                                    |
+| `--workunit-id`    | \*       | Upload into this existing workunit instead of creating one             |
+| `--workunit-name`  | No       | Name for the created workunit (default "File upload")                  |
+| `--on-duplicate`   | No       | `upload` (default), `skip` or `link` content already in the container  |
+| `--track-job`      | No       | Create a `UPLOAD` job; the server flips it to DONE/FAILED              |
+| `--no-progress`    | No       | Disable the live progress bar (auto-off when stderr is not a terminal) |
 
 \* Provide either `--workunit-id` (existing workunit) **or** both `--container-id` and
 `--application-id` (new workunit); the two modes are mutually exclusive.
@@ -273,7 +273,7 @@ A file whose transfer fails is recorded in `summary.failures` rather than raisin
 (bad auth, missing scope, resource-creation errors) raise `BfabricTransferError`, and the workunit is
 flipped to `failed` (never deleted) so the partial state stays diagnosable.
 
-______________________________________________________________________
+---
 
 ## Finding Workunits
 
@@ -333,7 +333,7 @@ bfabric-cli api read workunit id 12345
 bfabric-cli api read workunit --limit 100 --format json --file workunits.json
 ```
 
-______________________________________________________________________
+---
 
 ## Working with Workunit Resources
 
@@ -353,7 +353,7 @@ bfabric-cli api read resource workunitid 12345
 bfabric-cli api read dataset workunitid 12345
 ```
 
-______________________________________________________________________
+---
 
 ## Workflow Examples
 
@@ -401,7 +401,7 @@ cat workunits.json | jq -r '.[].id' | while read id; do
 done
 ```
 
-______________________________________________________________________
+---
 
 ## Tips and Best Practices
 
@@ -442,7 +442,7 @@ Set up regular monitoring for failed workunits:
 BFABRICPY_CONFIG_ENV=PRODUCTION bfabric-cli workunit not-available > pending_$(date +%Y%m%d).txt
 ```
 
-______________________________________________________________________
+---
 
 ## Common Issues
 
@@ -486,7 +486,7 @@ bfabric-cli api read workunit id <workunit-id>
 3. Ensure the workunit has all required components
 4. Try exporting a different workunit to compare
 
-______________________________________________________________________
+---
 
 ## Integration with Other Tools
 
@@ -526,7 +526,7 @@ definition.description = "Modified description"
 definition.to_yaml(Path("modified_definition.yml"))
 ```
 
-______________________________________________________________________
+---
 
 ## See Also
 

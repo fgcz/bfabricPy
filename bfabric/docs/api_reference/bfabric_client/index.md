@@ -12,16 +12,16 @@ Complete API reference for the `Bfabric` client class, automatically generated f
 
 The `Bfabric` class provides methods for:
 
-| Category | Methods |
-|----------|---------|
-| Client Creation | `connect()`, `connect_oauth()`, `connect_pkce()`, `connect_device_code()`, `connect_pat()`, `connect_token()`, `from_token_data()` |
-| Read Operations | `read()`, `exists()` |
-| Write Operations | `save()`, `delete()`, `upload_resource()` |
-| Configuration | `config`, `auth`, `config_data` properties |
-| Entity Operations | `reader` property for `EntityReader` |
-| Context Management | `with_auth()` |
+| Category           | Methods                                                                                                                            |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Client Creation    | `connect()`, `connect_oauth()`, `connect_pkce()`, `connect_device_code()`, `connect_pat()`, `connect_token()`, `from_token_data()` |
+| Read Operations    | `read()`, `exists()`                                                                                                               |
+| Write Operations   | `save()`, `delete()`, `upload_resource()`                                                                                          |
+| Configuration      | `config`, `auth`, `config_data` properties                                                                                         |
+| Entity Operations  | `reader` property for `EntityReader`                                                                                               |
+| Context Management | `with_auth()`                                                                                                                      |
 
-______________________________________________________________________
+---
 
 ## Bfabric Class
 

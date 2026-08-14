@@ -13,8 +13,8 @@ oauth_usage_and_troubleshooting
 
 ## Pages
 
-| Topic | Scope |
-| --- | --- |
-| **[`bfabric.operations` Module](operations_module.md)** | Conventions and worked examples for named write capabilities (`create_workunit`, `create_dataset`, …), including the failure-cleanup pattern and the audit-vs-authorization split. |
-| **[OAuth Integration](oauth_integration.md)** | The `bfabric.oauth` module and OAuth 2.0 flows (PKCE, device code, client credentials, URL token, PAT), the `Bfabric.connect_*` factory methods, `bfabric-cli auth` commands, and the config/scope model. |
+| Topic                                                                   | Scope                                                                                                                                                                                                                      |
+| ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **[`bfabric.operations` Module](operations_module.md)**                 | Conventions and worked examples for named write capabilities (`create_workunit`, `create_dataset`, …), including the failure-cleanup pattern and the audit-vs-authorization split.                                         |
+| **[OAuth Integration](oauth_integration.md)**                           | The `bfabric.oauth` module and OAuth 2.0 flows (PKCE, device code, client credentials, URL token, PAT), the `Bfabric.connect_*` factory methods, `bfabric-cli auth` commands, and the config/scope model.                  |
 | **[OAuth Usage & Troubleshooting](oauth_usage_and_troubleshooting.md)** | Task-oriented: obtaining a working token, access_token vs id_token, the `containers` claim for file/download access, `.well-known` discovery, and PKCE gotchas (loopback redirect, public-only clients, remote notebooks). |

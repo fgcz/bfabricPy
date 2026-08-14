@@ -9,7 +9,7 @@ Before starting, make sure you have:
 1. **Installed bfabricPy**: Follow [Installation Guide](installation.md)
 2. **Logged in**: run `bfabric-cli login`, or see the [Configuration Guide](configuration.md) for the other options
 
-______________________________________________________________________
+---
 
 ## Your First Script
 
@@ -50,7 +50,7 @@ Found 5 recent workunit(s):
   - ID: 321798, Status: FINISHED
 ```
 
-______________________________________________________________________
+---
 
 ## What Just Happened?
 
@@ -83,7 +83,7 @@ Iterate over results like a list.
 
 **Note:** By default, queries raise an error automatically if they fail. See [Error Handling](../user_guides/error_handling.md) to learn about error handling options.
 
-______________________________________________________________________
+---
 
 ## Explore the API
 
@@ -97,19 +97,19 @@ bfabric-cli api inspect dataset
 
 See [API Inspection Guide](../user_guides/bfabric-cli/api_inspection) for complete documentation on using the inspect command.
 
-______________________________________________________________________
+---
 
 ## What's Next?
 
 Now that you've seen the basics, explore further:
 
-| Want to... | Read this guide |
-| ------------------------------------- | ---------------------------------------------------------------------- |
-| Understand client authentication | [Connecting](../user_guides/connecting/index.md) |
-| Query and retrieve data efficiently | [Reading Data](../user_guides/reading_data/index.md) |
-| Create, update, delete entities | [Writing Data](../user_guides/writing_data/index) |
+| Want to...                            | Read this guide                                                     |
+| ------------------------------------- | ------------------------------------------------------------------- |
+| Understand client authentication      | [Connecting](../user_guides/connecting/index.md)                    |
+| Query and retrieve data efficiently   | [Reading Data](../user_guides/reading_data/index.md)                |
+| Create, update, delete entities       | [Writing Data](../user_guides/writing_data/index)                   |
 | Use typed entities with relationships | [Working with Entities](../user_guides/working_with_entities/index) |
-| Explore API endpoints | [API Inspection Guide](../user_guides/bfabric-cli/api_inspection) |
+| Explore API endpoints                 | [API Inspection Guide](../user_guides/bfabric-cli/api_inspection)   |
 
 ## See Also
 

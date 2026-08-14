@@ -24,11 +24,11 @@ This package implements a Python interface to the [B-Fabric](https://fgcz-bfabri
 Several pieces of functionality are available:
 
 - Python API:
-    - General client for all B-Fabric web service operations (CRUD) and configuration management.
-    - A relational API for low-boilerplate read access to the B-Fabric system.
+  - General client for all B-Fabric web service operations (CRUD) and configuration management.
+  - A relational API for low-boilerplate read access to the B-Fabric system.
 - Scripts: Several scripts we use more or less frequently to interact with the system.
 - A REST API: A REST API to interact with the B-Fabric system. This allows us to interact with B-Fabric from R
-    using [bfabricShiny](https://github.com/cpanse/bfabricShiny).
+  using [bfabricShiny](https://github.com/cpanse/bfabricShiny).
 
 ## Howto cite?
 

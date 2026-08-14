@@ -10,11 +10,11 @@ bfabric-cli feeder --help
 
 Available subcommands:
 
-| Subcommand | Purpose |
+| Subcommand              | Purpose                                       |
 | ----------------------- | --------------------------------------------- |
 | `create-importresource` | Create importresources for files in a storage |
 
-______________________________________________________________________
+---
 
 ## Creating Importresources
 
@@ -28,10 +28,10 @@ bfabric-cli feeder create-importresource [STORAGE_ID] [FILES]...
 
 ### Parameters
 
-| Parameter | Required | Description |
+| Parameter    | Required | Description                                          |
 | ------------ | -------- | ---------------------------------------------------- |
-| `storage_id` | Yes | ID of the target storage |
-| `files` | Yes | One or more file paths to create importresources for |
+| `storage_id` | Yes      | ID of the target storage                             |
+| `files`      | Yes      | One or more file paths to create importresources for |
 
 ### Examples
 
@@ -92,7 +92,7 @@ The command provides feedback on:
 - **Updates**: "Importresource X updated for file /path/to/file.raw" (if an importresource already exists)
 - **Errors**: "Application Y not found in B-Fabric. Skipping file /path/to/file.raw"
 
-______________________________________________________________________
+---
 
 ## Workflow Examples
 
@@ -130,7 +130,7 @@ for storage_id in 1 2 3; do
 done
 ```
 
-______________________________________________________________________
+---
 
 ## Finding Storage Information
 
@@ -156,7 +156,7 @@ The storage information will show:
 - Base URL/path
 - Path convention type (e.g., CompMS)
 
-______________________________________________________________________
+---
 
 ## Working with Importresources
 
@@ -182,7 +182,7 @@ bfabric-cli api read importresource createdafter 2024-12-01 --limit 20
 bfabric-cli api read importresource id 12345
 ```
 
-______________________________________________________________________
+---
 
 ## Tips and Best Practices
 
@@ -232,7 +232,7 @@ bfabric-cli feeder create-importresource 1 /data/test/*.raw
 bfabric-cli feeder create-importresource 1 /data/production/*.raw
 ```
 
-______________________________________________________________________
+---
 
 ## Common Issues
 
@@ -285,7 +285,7 @@ bfabric-cli api read storage id <storage-id>
 tree /data/
 ```
 
-______________________________________________________________________
+---
 
 ## Integration with Data Ingestion Workflows
 
@@ -328,7 +328,7 @@ mv "$SOURCE_DIR"/*.raw "$PROCESSED_DIR/"
 echo "Ingestion complete!"
 ```
 
-______________________________________________________________________
+---
 
 ## See Also
 

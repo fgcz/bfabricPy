@@ -23,12 +23,12 @@ jwt = client.auth.password.get_secret_value()  # the OAuth access token, always 
 
 Both are JWTs in the OIDC token response, but they are for different audiences:
 
-| | access_token | id_token |
-|---|---|---|
-| `aud` | `bfabric-api` (the resource server) | `<client_id>`, e.g. `bfabric-cli` |
-| purpose | authorize API / resource-server calls | tell *your app* who the user is |
-| send to a resource server (API, file/download)? | **yes** | **no — it will be rejected** |
-| tell-tale claims | `scope`, `jti`, `containers` | `at_hash`, `name`, `email`, `given_name` |
+|                                                 | access_token                          | id_token                                 |
+| ----------------------------------------------- | ------------------------------------- | ---------------------------------------- |
+| `aud`                                           | `bfabric-api` (the resource server)   | `<client_id>`, e.g. `bfabric-cli`        |
+| purpose                                         | authorize API / resource-server calls | tell *your app* who the user is          |
+| send to a resource server (API, file/download)? | **yes**                               | **no — it will be rejected**             |
+| tell-tale claims                                | `scope`, `jti`, `containers`          | `at_hash`, `name`, `email`, `given_name` |
 
 **`client.auth.password` gives you the access token — that is the one to send to servers.**
 The id_token is *never* the right thing to hand to the file/download server; its `aud` is the
@@ -60,11 +60,11 @@ Use this to see which scopes an instance offers before requesting them. `token_e
 
 ## 3. Choosing a connect method
 
-| Method | Grant | Identity | When |
-|--------|-------|----------|------|
-| `Bfabric.connect_oauth(client_id, client_secret, base_url, scope=…)` | client_credentials | **service** (no user `sub`) | background jobs, servers |
-| `Bfabric.connect_pkce(base_url, client_id=…, scope=…, port=…)` | authorization_code + PKCE | **user** | interactive, local machine |
-| `Bfabric.connect_device_code(base_url, client_id=…, scope=…)` | device_code | **user** | headless / remote / notebooks |
+| Method                                                               | Grant                     | Identity                    | When                          |
+| -------------------------------------------------------------------- | ------------------------- | --------------------------- | ----------------------------- |
+| `Bfabric.connect_oauth(client_id, client_secret, base_url, scope=…)` | client_credentials        | **service** (no user `sub`) | background jobs, servers      |
+| `Bfabric.connect_pkce(base_url, client_id=…, scope=…, port=…)`       | authorization_code + PKCE | **user**                    | interactive, local machine    |
+| `Bfabric.connect_device_code(base_url, client_id=…, scope=…)`        | device_code               | **user**                    | headless / remote / notebooks |
 
 Key identity difference: **client_credentials tokens carry no user `sub` and no user-scoped claims
 like `containers`.** If a resource server authorizes by *your* container membership, a service
@@ -151,18 +151,21 @@ is the cause.
 4. Catches `?code=…` on the callback, then POSTs to the token endpoint to exchange it.
 
 ### It is blocking, but can feel instant
+
 The call blocks until the redirect arrives. If your browser already has an active B-Fabric session
 (and the client has consent skipped), `/authorize` redirects back immediately with no login/consent
 UI, so the whole thing completes in a fraction of a second and *looks* non-blocking. Logged out,
 you'd see the cell hang on the login page.
 
 ### Redirect URI must match exactly — `127.0.0.1`, not `localhost`, and the right port
+
 `pkce_login` builds its redirect as `http://127.0.0.1:{port}/callback`. If you register a fixed
 redirect URI on the OAuth client, it must be **`http://127.0.0.1:8000/callback`** (127.0.0.1, not
 `localhost`) and you must call `connect_pkce(..., port=8000)` so the port matches. With `port=0` the
 port is random and cannot match a fixed registration.
 
 ### Loopback redirect fails on remote/hosted notebooks
+
 The callback server listens on the *notebook host's* `127.0.0.1`. If the browser runs on a different
 machine (a remote/hosted marimo, Jupyter on a server, SSH), the redirect to `127.0.0.1` hits the
 *user's* machine where nothing is listening, so the code is never caught and PKCE times out.
@@ -182,6 +185,7 @@ make the flow work remotely. See the
 hatches.
 
 ### `connect_pkce` only supports **public** clients (tentative on the 401 cause)
+
 `_exchange_code` sends only `client_id` + PKCE `code_verifier` at the token endpoint — **no
 `client_secret`**. So it works with *public* clients (like `bfabric-cli`) but not with a
 **confidential** client that has a secret and requires client authentication.
@@ -195,6 +199,7 @@ hatches.
 > token-endpoint response instead of calling `raise_for_status()`.
 
 ### Reactive-notebook caveat
+
 `connect_pkce` runs the full browser round-trip on **every** call — it does not load-and-skip from a
 cache (the `token_cache_path` cache is only used for *refresh after* login). In a reactive notebook
 (marimo), re-running that cell re-triggers auth. Silent/fast when the session is warm, but it is a

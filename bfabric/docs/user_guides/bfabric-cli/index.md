@@ -21,18 +21,18 @@ bfabric-cli organizes commands by functionality:
 
 ### Core Commands
 
-| Command | Purpose |
+| Command                  | Purpose                                                |
 | ------------------------ | ------------------------------------------------------ |
-| `bfabric-cli auth` | Log in and manage instances / credentials |
-| `bfabric-cli api` | Generic CRUD operations on B-Fabric entities |
-| `bfabric-cli dataset` | Dataset-specific operations (read, upload, download) |
-| `bfabric-cli executable` | Executable operations (show, upload, dump) |
-| `bfabric-cli workunit` | Workunit operations (check status, export definitions) |
-| `bfabric-cli feeder` | Feeder operations for creating importresources |
+| `bfabric-cli auth`       | Log in and manage instances / credentials              |
+| `bfabric-cli api`        | Generic CRUD operations on B-Fabric entities           |
+| `bfabric-cli dataset`    | Dataset-specific operations (read, upload, download)   |
+| `bfabric-cli executable` | Executable operations (show, upload, dump)             |
+| `bfabric-cli workunit`   | Workunit operations (check status, export definitions) |
+| `bfabric-cli feeder`     | Feeder operations for creating importresources         |
 
 ### Legacy/Deprecated
 
-| Command | Status |
+| Command                    | Status                                         |
 | -------------------------- | ---------------------------------------------- |
 | `bfabric-cli external-job` | Transitory - will be removed in future release |
 

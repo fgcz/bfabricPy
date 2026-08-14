@@ -13,22 +13,22 @@ caching_for_performance
 
 bfabricPy provides two complementary APIs for reading data:
 
-| Approach | Primary Class | Best For | Documentation |
+| Approach                | Primary Class             | Best For                                        | Documentation                                 |
 | ----------------------- | ------------------------- | ----------------------------------------------- | --------------------------------------------- |
-| **ResultContainer API** | `ResultContainer` | Simple queries, data analysis, DataFrame export | [ResultContainer API](resultcontainer_api.md) |
-| **Entity API** | `Entity` / `EntityReader` | Typed entities, relationships, URI access | [Entity API](entity_api.md) |
+| **ResultContainer API** | `ResultContainer`         | Simple queries, data analysis, DataFrame export | [ResultContainer API](resultcontainer_api.md) |
+| **Entity API**          | `Entity` / `EntityReader` | Typed entities, relationships, URI access       | [Entity API](entity_api.md)                   |
 
 ## Quick Comparison
 
-| Feature | ResultContainer API | Entity API |
+| Feature           | ResultContainer API           | Entity API                           |
 | ----------------- | ----------------------------- | ------------------------------------ |
-| **Entry Point** | `client.read(endpoint, obj)` | `client.reader` |
-| **Return Type** | Dictionaries (raw data) | Entity objects (typed) |
-| **Relationships** | Manual handling | Lazy-loading via `entity.refs` |
-| **Caching** | Manual | Automatic (via `cache_entities()`) |
-| **URI Support** | Limited | Full URI-based access |
-| **Data Export** | Polars DataFrames | Via `data_dict` |
-| **Use Case** | Simple queries, data analysis | Working with entities, relationships |
+| **Entry Point**   | `client.read(endpoint, obj)`  | `client.reader`                      |
+| **Return Type**   | Dictionaries (raw data)       | Entity objects (typed)               |
+| **Relationships** | Manual handling               | Lazy-loading via `entity.refs`       |
+| **Caching**       | Manual                        | Automatic (via `cache_entities()`)   |
+| **URI Support**   | Limited                       | Full URI-based access                |
+| **Data Export**   | Polars DataFrames             | Via `data_dict`                      |
+| **Use Case**      | Simple queries, data analysis | Working with entities, relationships |
 
 ## See Also
 

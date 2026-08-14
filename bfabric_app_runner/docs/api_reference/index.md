@@ -19,10 +19,10 @@ runner/index
 
 ## Where to look
 
-| To… | See |
-| --- | --- |
-| Define an app's versions and commands (`app.yml`) | [App specification](../specs/app_specification.md) |
-| Declare and fetch input files (`inputs.yml`) | [Input specification](../specs/input_specification.md) |
+| To…                                               | See                                                      |
+| ------------------------------------------------- | -------------------------------------------------------- |
+| Define an app's versions and commands (`app.yml`) | [App specification](../specs/app_specification.md)       |
+| Declare and fetch input files (`inputs.yml`)      | [Input specification](../specs/input_specification.md)   |
 | Register outputs back to B-Fabric (`outputs.yml`) | [Output specification](../specs/output_specification.md) |
-| Run the lifecycle from the shell | [CLI Reference](../user_guides/cli_reference.md) |
-| Drive the lifecycle from Python | [Python runner API](runner/index.md) |
+| Run the lifecycle from the shell                  | [CLI Reference](../user_guides/cli_reference.md)         |
+| Drive the lifecycle from Python                   | [Python runner API](runner/index.md)                     |

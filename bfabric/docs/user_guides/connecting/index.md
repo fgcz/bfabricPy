@@ -10,13 +10,13 @@ server_webapp_usage
 
 ## Choose Your Approach
 
-| Use Case | Method | Documentation |
+| Use Case                                   | Method                                                     | Documentation                                               |
 | ------------------------------------------ | ---------------------------------------------------------- | ----------------------------------------------------------- |
-| Scripts, local tools, interactive sessions | `bfabric-cli login` once, then `Bfabric.connect()` | [Interactive/Scripted Usage](interactive_scripted_usage.md) |
-| Logging in from Python, without the CLI | `Bfabric.connect_pkce()` / `Bfabric.connect_device_code()` | [Interactive/Scripted Usage](interactive_scripted_usage.md) |
-| Non-interactive token | `Bfabric.connect_pat()` | [Interactive/Scripted Usage](interactive_scripted_usage.md) |
-| Background jobs, service accounts | `Bfabric.connect_oauth()` | [Server/Webapp Usage](server_webapp_usage.md) |
-| Webapps launched from B-Fabric | `Bfabric.connect_token()` / `WebappClient.create()` | [Server/Webapp Usage](server_webapp_usage.md) |
+| Scripts, local tools, interactive sessions | `bfabric-cli login` once, then `Bfabric.connect()`         | [Interactive/Scripted Usage](interactive_scripted_usage.md) |
+| Logging in from Python, without the CLI    | `Bfabric.connect_pkce()` / `Bfabric.connect_device_code()` | [Interactive/Scripted Usage](interactive_scripted_usage.md) |
+| Non-interactive token                      | `Bfabric.connect_pat()`                                    | [Interactive/Scripted Usage](interactive_scripted_usage.md) |
+| Background jobs, service accounts          | `Bfabric.connect_oauth()`                                  | [Server/Webapp Usage](server_webapp_usage.md)               |
+| Webapps launched from B-Fabric             | `Bfabric.connect_token()` / `WebappClient.create()`        | [Server/Webapp Usage](server_webapp_usage.md)               |
 
 ## Next Steps
 

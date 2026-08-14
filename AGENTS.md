@@ -10,24 +10,26 @@ bfabricPy is a Python client library for [B-Fabric](https://fgcz-bfabric.uzh.ch/
 
 This is a **uv workspace** with 5 packages:
 
-| Package | Purpose | Min Python |
-|---------|---------|------------|
-| `bfabric` | Core client library | 3.11 |
-| `bfabric_scripts` | CLI scripts and utilities | 3.11 |
-| `bfabric_app_runner` | Application runner for workflows | 3.12 |
-| `bfabric_rest_proxy` | FastAPI REST proxy | 3.12 |
-| `bfabric_asgi_auth` | ASGI auth middleware | 3.13 |
+| Package              | Purpose                          | Min Python |
+| -------------------- | -------------------------------- | ---------- |
+| `bfabric`            | Core client library              | 3.11       |
+| `bfabric_scripts`    | CLI scripts and utilities        | 3.11       |
+| `bfabric_app_runner` | Application runner for workflows | 3.12       |
+| `bfabric_rest_proxy` | FastAPI REST proxy               | 3.12       |
+| `bfabric_asgi_auth`  | ASGI auth middleware             | 3.13       |
 
 Each package has its own `pyproject.toml` under its directory. Workspace references mean changes to `bfabric` are immediately available to dependent packages.
 
 ## Common Commands
 
 ### Setup
+
 ```bash
 uv sync --all-packages --all-extras
 ```
 
 ### Testing (nox — recommended)
+
 ```bash
 nox                                    # all test sessions
 nox -s test_bfabric                    # core package only
@@ -38,6 +40,7 @@ nox -s test_bfabric-3.11(lowest-direct) # specific resolution strategy
 ```
 
 ### Testing (pytest — direct, after uv sync)
+
 ```bash
 pytest tests/bfabric                   # core package
 pytest tests/bfabric_scripts           # scripts (also tests/bfabric_cli)
@@ -49,6 +52,7 @@ pytest tests/bfabric -k test_name      # single test
 Run each package's suite in a **separate** `pytest` invocation, as nox does — one invocation over two package trees fails at collection because identically-named test modules collide (see the `__init__.py` convention below).
 
 ### Type Checking
+
 ```bash
 nox -s basedpyright(bfabric)
 nox -s basedpyright(bfabric_scripts)
@@ -56,15 +60,17 @@ nox -s basedpyright(bfabric_app_runner)
 ```
 
 ### Linting and formatting
+
 ```bash
 nox -s code_style                      # ruff lint via nox — lint only, checks no formatting
 ruff check bfabric                     # ruff directly
-pre-commit run --all-files             # the formatter gate (black, and blacken-docs for md code blocks)
+pre-commit run --all-files             # the formatter gate (black, blacken-docs for md code blocks, mdformat for md)
 ```
 
 **black is the formatter — never run `ruff format`.** It disagrees with black on ~15 files and produces a large spurious diff. Since neither `nox -s code_style` nor CI checks formatting, the pre-commit hook rejecting the commit is the only thing that catches a wrong formatter.
 
 ### Docs
+
 ```bash
 nox -s docs                            # build all docs to site/
 cd bfabric/docs && make html           # local preview
@@ -110,13 +116,13 @@ Docs live alongside each package's source; skim the index when working in one. `
 - Line length is 120 (ruff and black). Ruff lint is currently only enforced on the `bfabric` package (scripts, wrapper_creator, tests, noxfile are excluded via per-file-ignores).
 - basedpyright uses per-package baseline files at `.basedpyright/baseline.{package}.json` — **do not edit a baseline to silence a new error**; fix the code or add a targeted `# pyright: ignore[...]` on the offending line. Baselines only exist to grandfather in pre-existing errors.
 - Docstrings use Sphinx `:param:` / `:raises:`; Google-style `Args:` / `Returns:` blocks survive in a few older modules (e.g. `entities/core/uri.py`) — don't add more.
-- Keep docstrings at the lowest useful altitude: one summary line by default, plus a short paragraph only for a contract the signature cannot show (why this exists beside a similar function, a gotcha, an ordering constraint). Skip `Returns:` blocks and `:param:` lines that restate the annotation, and don't restate a default the signature already shows. Do document what a value *means* — a sentinel's runtime resolution (`` ``None`` reads all results ``, `` ``None`` writes to ``./output.yml`` ``) or a magic value (`` ``0`` = auto-assign ``) — phrased as "``None`` does X", not "(default: X)".
+- Keep docstrings at the lowest useful altitude: one summary line by default, plus a short paragraph only for a contract the signature cannot show (why this exists beside a similar function, a gotcha, an ordering constraint). Skip `Returns:` blocks and `:param:` lines that restate the annotation, and don't restate a default the signature already shows. Do document what a value *means* — a sentinel's runtime resolution (`` `None` reads all results ``, `` `None` writes to `./output.yml` ``) or a magic value (`` `0` = auto-assign ``) — phrased as "`None` does X", not "(default: X)".
 - Avoid `>>>` examples: no session collects doctests, so they read as tested without being tested. Put a short example in the prose instead.
 - Exception: a cyclopts command function's docstring **is** its `--help` text — the summary line becomes the command description and each `:param:` line becomes that option's help (see `bfabric-cli workunit not-available --help`). That is user-facing copy: keep it complete and clear, and trim the internal helpers around it instead.
 
 ## Changelog
 
-Each package has its own `docs/changelog.md` following [Keep a Changelog](https://keepachangelog.com/en/1.1.0/): `### Added` / `### Changed` / `### Fixed` / `### Removed` subsections under `## \[Unreleased\]`. Headings escape the brackets — `nox -s changelog` matches `## \[<version>\]` literally.
+Each package has its own `docs/changelog.md` following [Keep a Changelog](https://keepachangelog.com/en/1.1.0/): `### Added` / `### Changed` / `### Fixed` / `### Removed` subsections under `## [Unreleased]`.
 
 - One or two lines per entry: the symbol, and the effect a user sees. No code blocks, no before/after examples, no "previously it did X because Y" — rationale belongs in the commit message.
 - Label an entry **Breaking** only when the API has real external consumers; otherwise just describe it in its new shape.
