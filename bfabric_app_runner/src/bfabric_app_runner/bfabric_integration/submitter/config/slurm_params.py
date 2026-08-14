@@ -85,9 +85,9 @@ def _evaluate_app_params(workunit: Workunit) -> dict[str, str | int | None]:
             app_id=workunit.application.id,
             app_name=cast("str", workunit.application["name"]),
         )
-        version = workunit.application_parameters.get("application_version")
-        app_version = app_spec[version] if version is not None else None
+        app_version = app_spec.for_parameters(workunit.application_parameters)
         if app_version is None:
+            version = workunit.application_parameters.get("application_version")
             logger.warning(f"App version {version!r} is not in {app_yaml}, ignoring app-level slurm params.")
             return {}
         return dict(app_version.slurm_params)
