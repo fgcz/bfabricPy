@@ -113,12 +113,8 @@ A few things are worth knowing before you rely on it:
 
 - **A user's own choice wins, for the four flags a workunit can carry.** The order of precedence is: the
   submitter's defaults, then your `submitter_params`, then whatever the user picked on the workunit. A workunit
-  only exposes `partition`, `nodelist`, `mem` and `time`, so a workunit asking for `mem 960G` overrides the
-  `512G` above, while any other flag you set here is what the job gets.
-- **Check what your app's submitter parameters are named.** The workunit value has to arrive under a name the
-  submitter recognises -- `mem` or `--mem`, but *not* `memory`, which several older submitter definitions still
-  use and which is silently dropped. Where that is the case a user cannot raise your `--mem` at all, so treat
-  it as the job's memory rather than a default, or have the submitter definition renamed first.
+  only exposes `--partition`, `--nodelist`, `--mem` and `--time`, so a workunit asking for `--mem 960G`
+  overrides the `512G` above, while any other flag you set here is what the job gets.
 - **`null` removes a flag** the submitter would otherwise pass, e.g. `--nodelist: null` to undo a deployment
   that pins jobs to one node. There is no other way to unset one.
 - **Some flags are refused**: `--output`, `--error`, `--chdir` and `--export` belong to the submitter, which
