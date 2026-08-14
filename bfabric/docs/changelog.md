@@ -40,6 +40,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 - Packaging: `project.readme` points at a package-local `README.md`; hatchling 1.32.0 rejects paths outside the project directory, breaking builds from source.
 - Uploading a folder with sub-directories now works against servers that echo the resource name verbatim.
 - A nested re-upload reports `renamed_duplicate` rather than `exact_duplicate`; both carry the `skip` action, so branch on `action`, not `category`.
+- Internal: `HasMany.__get__` types its owner as `Entity` and guards class-level access, so it raises the same `'<field>' is only accessible on an instance` `AttributeError` as `HasOne` instead of an opaque `NoneType has no attribute 'refs'`; `HasMany(bfabric_field=...)` is now required, as it already was in practice.
 
 ## \[1.20.0\] - 2026-08-03
 
