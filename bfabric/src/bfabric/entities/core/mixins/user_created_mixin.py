@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import datetime
 from functools import cached_property
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
@@ -17,10 +17,8 @@ class UserCreatedMixin:
         # annotating `self` with a protocol of those members, which would hide the mixin's own `_users`.
         @property
         def data_dict(self) -> ApiResponseObjectType: ...
-
         @property
         def bfabric_instance(self) -> str: ...
-
         @property
         def _client(self) -> Bfabric | None: ...
 
@@ -32,17 +30,12 @@ class UserCreatedMixin:
             raise ValueError("Cannot resolve users: this entity has no client")
         return Users(entity_reader=self._client.reader)
 
-    def _str_field(self, field: str) -> str:
-        value = self.data_dict[field]
-        if not isinstance(value, str):
-            raise ValueError(f"Field {field!r} is not a string: {value!r}")
-        return value
-
     def _timestamp(self, field: str) -> datetime.datetime:
-        return datetime.datetime.fromisoformat(self._str_field(field).replace("Z", "+00:00"))
+        iso = cast("str", self.data_dict[field])
+        return datetime.datetime.fromisoformat(iso.replace("Z", "+00:00"))
 
     def _resolve_user(self, field: str) -> User:
-        login = self._str_field(field)
+        login = cast("str", self.data_dict[field])
         user = self._users.get_by_login(bfabric_instance=self.bfabric_instance, login=login)
         if user is None:
             raise ValueError(f"Field {field!r} refers to login {login!r}, which is not a known user")
