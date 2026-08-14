@@ -65,6 +65,7 @@ print(uri.components.entity_id)  # 123
 ```
 
 (normalize-a-web-url)=
+
 ### Normalize a Web URL
 
 A URL copied from the browser usually carries extra query parameters (e.g. the selected tab), which
@@ -131,11 +132,11 @@ entities = reader.read_uris(uris)
 
 ### Component Breakdown
 
-| Component | Description | Example |
-|-----------|-------------|---------|
+| Component          | Description                   | Example                                |
+| ------------------ | ----------------------------- | -------------------------------------- |
 | `bfabric_instance` | Base URL of B-Fabric instance | `https://fgcz-bfabric.uzh.ch/bfabric/` |
-| `entity_type` | Entity name (lowercase) | `sample`, `project`, `workunit` |
-| `entity_id` | Numeric entity ID | `123` |
+| `entity_type`      | Entity name (lowercase)       | `sample`, `project`, `workunit`        |
+| `entity_id`        | Numeric entity ID             | `123`                                  |
 
 ### Supported Entity Types
 

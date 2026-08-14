@@ -105,9 +105,9 @@ commands:
 
 ## When to Use Refresh Mode
 
-| Scenario | `refresh` | Rationale |
-| ----------------------------- | --------- | ----------------------------------------- |
-| Production deployment | `false` | Stable, cached environment for speed |
-| Active development | `true` | Pick up source code changes immediately |
-| Debugging dependency issues | `true` | Start fresh to isolate problems |
-| CI/CD testing | `true` | Ensure clean environment each run |
+| Scenario                    | `refresh` | Rationale                               |
+| --------------------------- | --------- | --------------------------------------- |
+| Production deployment       | `false`   | Stable, cached environment for speed    |
+| Active development          | `true`    | Pick up source code changes immediately |
+| Debugging dependency issues | `true`    | Start fresh to isolate problems         |
+| CI/CD testing               | `true`    | Ensure clean environment each run       |

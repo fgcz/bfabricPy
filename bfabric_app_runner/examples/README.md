@@ -14,39 +14,39 @@ Copier templates for creating BFabric app runner applications with proper struct
 
 1. **Generate from template:**
 
-    ```bash
-    uvx copier copy ~/code/bfabricPy/bfabric_app_runner/examples/template $PWD/my_app
-    # Enter your project name when prompted
-    ```
+   ```bash
+   uvx copier copy ~/code/bfabricPy/bfabric_app_runner/examples/template $PWD/my_app
+   # Enter your project name when prompted
+   ```
 
-    Give the destination as an absolute path: it is written into `bfabric_app.xml` as the
-    `<program>` path that B-Fabric uses to find `app.yml`. The paths in `app.yml` itself are
-    relative to the app directory, so the app can be moved or checked out elsewhere.
+   Give the destination as an absolute path: it is written into `bfabric_app.xml` as the
+   `<program>` path that B-Fabric uses to find `app.yml`. The paths in `app.yml` itself are
+   relative to the app directory, so the app can be moved or checked out elsewhere.
 
 2. **Test in development mode:**
 
-    ```bash
-    cd my_app
-    uv lock -U
-    uv export --no-emit-project --format pylock.toml > pylock.toml
+   ```bash
+   cd my_app
+   uv lock -U
+   uv export --no-emit-project --format pylock.toml > pylock.toml
 
-    # Test with workunit
-    bfabric-app-runner prepare workunit app.yml \
-      --work-dir workdir \
-      --workunit-ref <WORKUNIT_ID> \
-      --read-only \
-      --force-app-version devel
-    ```
+   # Test with workunit
+   bfabric-app-runner prepare workunit app.yml \
+     --work-dir workdir \
+     --workunit-ref <WORKUNIT_ID> \
+     --read-only \
+     --force-app-version devel
+   ```
 
 3. **Run the workflow:**
 
-    ```bash
-    cd workdir
-    make dispatch    # Initialize workflow
-    make inputs      # Prepare input data
-    make process     # Execute main processing
-    make stage       # (Optional) Stage results
-    ```
+   ```bash
+   cd workdir
+   make dispatch    # Initialize workflow
+   make inputs      # Prepare input data
+   make process     # Execute main processing
+   make stage       # (Optional) Stage results
+   ```
 
 ## Moving to Production
 
@@ -54,22 +54,22 @@ Once you've tested your application in development mode, you can build it for pr
 
 1. **Update version in pyproject.toml:**
 
-    **Important**: Always increase the version number before creating a release. Do not reuse existing versions.
+   **Important**: Always increase the version number before creating a release. Do not reuse existing versions.
 
 2. **Build the application:**
 
-    ```bash
-    bash release.bash
-    ```
+   ```bash
+   bash release.bash
+   ```
 
 3. **Test the production build:**
 
-    ```bash
-    bfabric-app-runner prepare workunit app.yml \
-      --work-dir workdir \
-      --workunit-ref <WORKUNIT_ID> \
-      --read-only
-    ```
+   ```bash
+   bfabric-app-runner prepare workunit app.yml \
+     --work-dir workdir \
+     --workunit-ref <WORKUNIT_ID> \
+     --read-only
+   ```
 
 Production mode uses packaged wheel files from `dist/` with isolated dependencies, while development mode uses source code directly.
 

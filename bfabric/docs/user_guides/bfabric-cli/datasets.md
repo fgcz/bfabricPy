@@ -10,13 +10,13 @@ bfabric-cli dataset --help
 
 Available subcommands:
 
-| Subcommand | Purpose |
+| Subcommand | Purpose               |
 | ---------- | --------------------- |
-| `show` | View dataset details |
+| `show`     | View dataset details  |
 | `download` | Download dataset data |
-| `upload` | Upload new datasets |
+| `upload`   | Upload new datasets   |
 
-______________________________________________________________________
+---
 
 ## Showing Datasets
 
@@ -30,10 +30,10 @@ bfabric-cli dataset show [DATASET_ID] [OPTIONS]
 
 ### Parameters
 
-| Parameter | Required | Description |
+| Parameter    | Required | Description                                                         |
 | ------------ | -------- | ------------------------------------------------------------------- |
-| `dataset_id` | Yes | ID of the dataset to view |
-| `--format` | No | Output format: `json`, `yaml`, `table-rich` (default: `table-rich`) |
+| `dataset_id` | Yes      | ID of the dataset to view                                           |
+| `--format`   | No       | Output format: `json`, `yaml`, `table-rich` (default: `table-rich`) |
 
 ### Examples
 
@@ -65,7 +65,7 @@ The output includes:
 - File details
 - Creation/modification timestamps
 
-______________________________________________________________________
+---
 
 ## Downloading Datasets
 
@@ -79,11 +79,11 @@ bfabric-cli dataset download [DATASET_ID] [OUTPUT_FILE] [OPTIONS]
 
 ### Parameters
 
-| Parameter | Required | Description |
-| ------------- | -------- | ----------------------------------------------- |
-| `dataset_id` | Yes | ID of the dataset to download |
-| `output_file` | Yes | Local file path for output |
-| `--format` | No | Format for output file: `auto`, `csv`, `tsv`, `parquet`, `excel` (default: `auto`) |
+| Parameter     | Required | Description                                                                        |
+| ------------- | -------- | ---------------------------------------------------------------------------------- |
+| `dataset_id`  | Yes      | ID of the dataset to download                                                      |
+| `output_file` | Yes      | Local file path for output                                                         |
+| `--format`    | No       | Format for output file: `auto`, `csv`, `tsv`, `parquet`, `excel` (default: `auto`) |
 
 ### Examples
 
@@ -174,7 +174,7 @@ print(df.head())
   ```
 - Supported extensions for auto format: `.csv`, `.tsv`, `.parquet`, `.xlsx`
 
-______________________________________________________________________
+---
 
 ## Uploading Datasets
 
@@ -190,20 +190,20 @@ bfabric-cli dataset upload [FORMAT] [INPUT_FILE] [OPTIONS]
 
 Available upload formats:
 
-| Format | Command | Description |
+| Format  | Command          | Description              |
 | ------- | ---------------- | ------------------------ |
-| CSV | `upload csv` | Upload from CSV file |
-| TSV | `upload tsv` | Upload from TSV file |
+| CSV     | `upload csv`     | Upload from CSV file     |
+| TSV     | `upload tsv`     | Upload from TSV file     |
 | Parquet | `upload parquet` | Upload from Parquet file |
 
 ### Common Parameters
 
-| Parameter | Required | Description |
+| Parameter        | Required | Description                       |
 | ---------------- | -------- | --------------------------------- |
-| `input_file` | Yes | Path to local file to upload |
-| `--container-id` | Yes | Container ID to attach dataset to |
-| `--name` | No | Dataset name (default: filename) |
-| `--description` | No | Dataset description |
+| `input_file`     | Yes      | Path to local file to upload      |
+| `--container-id` | Yes      | Container ID to attach dataset to |
+| `--name`         | No       | Dataset name (default: filename)  |
+| `--description`  | No       | Dataset description               |
 
 ### Examples
 
@@ -238,9 +238,9 @@ bfabric-cli dataset upload csv [INPUT_FILE] [OPTIONS]
 
 CSV-specific options:
 
-| Option | Description |
+| Option         | Description                                 |
 | -------------- | ------------------------------------------- |
-| `--delimiter` | Column delimiter (default: `,`) |
+| `--delimiter`  | Column delimiter (default: `,`)             |
 | `--has-header` | Whether first row is header (default: true) |
 
 #### Upload Parquet
@@ -259,7 +259,7 @@ bfabric-cli dataset upload tsv [INPUT_FILE] [OPTIONS]
 
 TSV-specific options:
 
-| Option | Description |
+| Option         | Description                                 |
 | -------------- | ------------------------------------------- |
 | `--has-header` | Whether first row is header (default: true) |
 
@@ -285,7 +285,7 @@ https://<bfabric-url>/project/show.html?id=<container-id>&tab=datasets
 - Upload progress is displayed
 - The dataset ID is returned after successful upload
 
-______________________________________________________________________
+---
 
 ## Workflow Example
 
@@ -305,7 +305,7 @@ bfabric-cli dataset upload parquet processed.parquet \
     --description "Processed version of dataset 12345"
 ```
 
-______________________________________________________________________
+---
 
 ## Tips and Best Practices
 
@@ -344,7 +344,7 @@ for dataset_id in 12345 12346 12347; do
 done
 ```
 
-______________________________________________________________________
+---
 
 ## Common Issues
 
@@ -377,7 +377,7 @@ bfabric-cli dataset show <dataset-id>
 2. Uploading during off-peak hours
 3. Contacting B-Fabric admin for size limits
 
-______________________________________________________________________
+---
 
 ## See Also
 

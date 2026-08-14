@@ -198,17 +198,17 @@ print(f"Deleted {len(result)} samples")
 
 ## Common Writable Endpoints
 
-| Endpoint | Description | Common Fields |
-| -------- | ----------- | ------------- |
-| `sample` | Biological samples | `name`, `containerid`, `type`, `description` |
-| `project` | Projects | `name`, `description` |
-| `order` | Orders | `name`, `description` |
-| `container` | Projects and orders | `name`, `description` |
-| `workunit` | Workunits | `name`, `applicationid`, `containerid`, `status` |
-| `resource` | Resources | `name`, `workunitid`, `base64` (content), `relativepath` |
-| `importresource` | Import resources | `name`, `containerid`, `relativepath`, `filechecksum`, `size` |
-| `workflow` | Workflows | `containerid`, `workflowtemplateid` |
-| `workflowstep` | Workflow steps | `workflowid`, `workflowtemplatestepid`, `workunitid` |
+| Endpoint         | Description         | Common Fields                                                 |
+| ---------------- | ------------------- | ------------------------------------------------------------- |
+| `sample`         | Biological samples  | `name`, `containerid`, `type`, `description`                  |
+| `project`        | Projects            | `name`, `description`                                         |
+| `order`          | Orders              | `name`, `description`                                         |
+| `container`      | Projects and orders | `name`, `description`                                         |
+| `workunit`       | Workunits           | `name`, `applicationid`, `containerid`, `status`              |
+| `resource`       | Resources           | `name`, `workunitid`, `base64` (content), `relativepath`      |
+| `importresource` | Import resources    | `name`, `containerid`, `relativepath`, `filechecksum`, `size` |
+| `workflow`       | Workflows           | `containerid`, `workflowtemplateid`                           |
+| `workflowstep`   | Workflow steps      | `workflowid`, `workflowtemplatestepid`, `workunitid`          |
 
 Use `bfabric-cli api inspect <endpoint>` to see complete field lists.
 

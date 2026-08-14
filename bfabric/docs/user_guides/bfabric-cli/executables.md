@@ -10,13 +10,13 @@ bfabric-cli executable --help
 
 Available subcommands:
 
-| Subcommand | Purpose |
+| Subcommand | Purpose                               |
 | ---------- | ------------------------------------- |
-| `show` | View executable details |
-| `upload` | Upload new executables (experimental) |
-| `dump` | Dump executable contents |
+| `show`     | View executable details               |
+| `upload`   | Upload new executables (experimental) |
+| `dump`     | Dump executable contents              |
 
-______________________________________________________________________
+---
 
 ## Showing Executables
 
@@ -30,9 +30,9 @@ bfabric-cli executable show [EXECUTABLE_ID]
 
 ### Parameters
 
-| Parameter | Required | Description |
+| Parameter       | Required | Description                  |
 | --------------- | -------- | ---------------------------- |
-| `executable_id` | Yes | ID of the executable to view |
+| `executable_id` | Yes      | ID of the executable to view |
 
 ### Examples
 
@@ -60,7 +60,7 @@ The output includes:
 - Parameters and configuration
 - Creation/modification information
 
-______________________________________________________________________
+---
 
 ## Uploading Executables
 
@@ -74,10 +74,10 @@ bfabric-cli executable upload [YAML_FILE] [OPTIONS]
 
 ### Parameters
 
-| Parameter | Required | Description |
+| Parameter   | Required | Description                                        |
 | ----------- | -------- | -------------------------------------------------- |
-| `yaml_file` | Yes | Path to YAML file containing executable definition |
-| `--force` | No | Force upload even if validation warnings exist |
+| `yaml_file` | Yes      | Path to YAML file containing executable definition |
+| `--force`   | No       | Force upload even if validation warnings exist     |
 
 ### Example
 
@@ -115,7 +115,7 @@ After uploading, verify the executable:
 bfabric-cli executable show <NEW_EXECUTABLE_ID>
 ```
 
-______________________________________________________________________
+---
 
 ## Dumping Executables
 
@@ -129,9 +129,9 @@ bfabric-cli executable dump [EXECUTABLE_ID]
 
 ### Parameters
 
-| Parameter | Required | Description |
+| Parameter       | Required | Description                  |
 | --------------- | -------- | ---------------------------- |
-| `executable_id` | Yes | ID of the executable to dump |
+| `executable_id` | Yes      | ID of the executable to dump |
 
 ### Example
 
@@ -154,7 +154,7 @@ The dump command is useful for:
 
 The dumped output shows the internal structure of the executable, including all configuration parameters, encoded content, and metadata.
 
-______________________________________________________________________
+---
 
 ## Workflow Example
 
@@ -177,7 +177,7 @@ bfabric-cli executable upload new_executable.yml
 bfabric-cli executable show <NEW_EXECUTABLE_ID>
 ```
 
-______________________________________________________________________
+---
 
 ## Working with Executables
 
@@ -207,7 +207,7 @@ bfabric-cli api read executable --limit 10 \
 bfabric-cli api read executable --format json --file executables.json
 ```
 
-______________________________________________________________________
+---
 
 ## Tips and Best Practices
 
@@ -256,7 +256,7 @@ name: "My Analysis Script v1.1"
 name: "My Analysis Script v2.0"
 ```
 
-______________________________________________________________________
+---
 
 ## Common Issues
 
@@ -287,13 +287,13 @@ bfabric-cli api read executable id <executable-id>
 
 **Explanation**: Executables are stored in encoded format for transport. This is expected behavior. Use `show` for a more readable representation.
 
-______________________________________________________________________
+---
 
 ## Integration with bfabric-app-runner
 
 Executables uploaded via the CLI can be used with `bfabric-app-runner`. For more information on using executables in workflows, refer to the bfabric-app-runner documentation.
 
-______________________________________________________________________
+---
 
 ## See Also
 

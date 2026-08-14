@@ -60,14 +60,14 @@ This removes time stamps and line numbers, unless `BFABRICPY_LOG_LEVEL=DEBUG` is
 
 The logging level can be controlled via the `BFABRICPY_LOG_LEVEL` environment variable:
 
-| Value | Effect |
-|-------|--------|
-| `DEBUG` | Show all log messages including debug output (with full loguru format) |
-| `INFO` | Show INFO and above (default) |
-| `WARNING` | Show WARNING and above |
-| `ERROR` | Show ERROR and above |
-| `CRITICAL` | Show CRITICAL only |
-| `OFF` or `0` | Disable all logging completely |
+| Value        | Effect                                                                 |
+| ------------ | ---------------------------------------------------------------------- |
+| `DEBUG`      | Show all log messages including debug output (with full loguru format) |
+| `INFO`       | Show INFO and above (default)                                          |
+| `WARNING`    | Show WARNING and above                                                 |
+| `ERROR`      | Show ERROR and above                                                   |
+| `CRITICAL`   | Show CRITICAL only                                                     |
+| `OFF` or `0` | Disable all logging completely                                         |
 
 Invalid values fall back silently to `INFO`.
 

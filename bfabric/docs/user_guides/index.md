@@ -14,14 +14,14 @@ error_handling
 
 ## Guides Overview
 
-| Guide | Description | Skill Level |
+| Guide                                                   | Description                                    | Skill Level  |
 | ------------------------------------------------------- | ---------------------------------------------- | ------------ |
-| [Connecting](connecting/index.md) | Set up authentication for scripts and web apps | Beginner |
-| [Reading Data](reading_data/index.md) | Query B-Fabric and retrieve data | Beginner |
-| [Writing Data](writing_data/index.md) | Create, update, and delete entities | Intermediate |
-| [Working with Entities](working_with_entities/index.md) | Use typed entities and relationships | Intermediate |
-| [bfabric-cli](bfabric-cli/index.md) | Command-line interface for bfabric-cli | All Levels |
-| [Error Handling](error_handling.md) | Error types, patterns, and handling strategies | All Levels |
+| [Connecting](connecting/index.md)                       | Set up authentication for scripts and web apps | Beginner     |
+| [Reading Data](reading_data/index.md)                   | Query B-Fabric and retrieve data               | Beginner     |
+| [Writing Data](writing_data/index.md)                   | Create, update, and delete entities            | Intermediate |
+| [Working with Entities](working_with_entities/index.md) | Use typed entities and relationships           | Intermediate |
+| [bfabric-cli](bfabric-cli/index.md)                     | Command-line interface for bfabric-cli         | All Levels   |
+| [Error Handling](error_handling.md)                     | Error types, patterns, and handling strategies | All Levels   |
 
 ## Common Workflows
 

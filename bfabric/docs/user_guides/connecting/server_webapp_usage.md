@@ -7,11 +7,11 @@ B-Fabric, where there is no config file to log in from interactively.
 
 Three situations, three methods:
 
-| Situation | Method |
-| ----------------------------------------------------------- | ------------------------------------------------- |
-| A background job or server acting as itself, with no user | [`connect_oauth()`](#service-accounts) |
-| A webapp launched from B-Fabric, acting for the current user | [`WebappClient.create()`](#apps-launched-from-b-fabric) |
-| A webapp receiving a B-Fabric webapp token | [`connect_token()`](#token-based-authentication-methods) |
+| Situation                                                    | Method                                                   |
+| ------------------------------------------------------------ | -------------------------------------------------------- |
+| A background job or server acting as itself, with no user    | [`connect_oauth()`](#service-accounts)                   |
+| A webapp launched from B-Fabric, acting for the current user | [`WebappClient.create()`](#apps-launched-from-b-fabric)  |
+| A webapp receiving a B-Fabric webapp token                   | [`connect_token()`](#token-based-authentication-methods) |
 
 ## Service Accounts
 
