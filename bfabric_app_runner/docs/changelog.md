@@ -4,14 +4,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Added
+
+- New `${app.dir}` template variable holding the app spec's directory, for paths no spec field resolves — e.g. `command: uv run --script ${app.dir}/dispatch.py`.
+
+### Changed
+
 - Output registration always creates a new resource instead of recycling the legacy wrapper creator's `pending` placeholder ([#361](https://github.com/fgcz/bfabricPy/issues/361)); the `reuse_default_resource` field and its CLI options are gone, but remain tolerated in an `app.yml`.
-- Relative paths in the app spec (`pylock`, `local_extra_deps`, `prepend_paths`, and the host side of the docker `mounts` entries) are now resolved against the directory containing the `app.yml`, and a leading `~` is expanded ([#212](https://github.com/fgcz/bfabricPy/issues/212)). Previously they were resolved against the working directory of the run (a per-workunit scratch directory), which could not be relied on. Container-side mount paths are unchanged.
-- New `${app.dir}` template variable holding the app spec's directory, for paths that no spec field can resolve, e.g. a script referenced from inside a `command` string: `command: uv run --script ${app.dir}/dispatch.py`. Together with the above, an app spec directory can be relocated or checked out elsewhere without rewriting its paths.
-- A failing app command now reports as a single `Error: Command failed with exit code N: <command>` line instead of stacking ~10 frames of app-runner boilerplate under the app's own error output ([#231](https://github.com/fgcz/bfabricPy/issues/231)). Commands raise the new `CommandFailedError`, which the CLI renders without a traceback; `BFABRICPY_LOG_LEVEL=DEBUG` still shows it. A genuine app-runner bug (e.g. a `TypeError`) keeps its full traceback as before.
-- `run workunit` no longer prints a second traceback when `make run-all` fails; it reports one line naming the workunit, exit code, and work directory. The workunit is still marked `failed`.
-- Captured command output (`uv venv` / `uv pip install` / `uv pip list`) is now logged one record per line, so every line carries its level prefix and stays greppable. Previously it was one multi-line record whose lines after the first were indistinguishable from raw `print` output.
-- Requires `bfabric` 1.20.1, whose logging fix is what keeps a nested app-runner (Makefile or SLURM) from falling back to loguru's verbose DEBUG format.
-- Internal: the demo app copier template can be instantiated again. It rendered `_copier_conf.dst_path.resolve()`, which current copier rejects because it now exposes `dst_path` as a `PurePath`. Its `app.yml` uses spec-relative paths instead of a generation-time host path, and its stale `app_runner: 0.1.2` pin is refreshed. The destination must now be given as an absolute path, for the `<program>` path in `bfabric_app.xml`.
+- Relative paths in the app spec (`pylock`, `local_extra_deps`, `prepend_paths`, host side of docker `mounts`) resolve against the `app.yml` directory instead of the run's scratch directory, with a leading `~` expanded ([#212](https://github.com/fgcz/bfabricPy/issues/212)).
+- Captured command output (`uv venv` / `uv pip install`) is logged one record per line, so every line carries its level prefix.
+- Requires `bfabric` 1.20.1 for the logging fix that keeps a nested app-runner from falling back to loguru's verbose DEBUG format.
+- Internal: the input `Resolver` dispatches through a spec-class registry instead of an `issubclass` ladder, and reports a spec type with no resolver when it is constructed rather than part-way through a resolve; clears the 38 grandfathered basedpyright entries on that module.
+
+### Fixed
+
+- A `python_env` command whose `uv` binary is missing from `PATH` fails with `uv executable not found on PATH` instead of an obscure `TypeError`.
+- The demo app copier template can be instantiated again; the destination must now be given as an absolute path.
+- A failing app command reports a single `Error: Command failed with exit code N: <command>` line instead of ~10 frames of app-runner boilerplate ([#231](https://github.com/fgcz/bfabricPy/issues/231)).
+- `run workunit` no longer prints a second traceback when `make run-all` fails; it reports one line naming the workunit, exit code, and work directory.
 
 ## \[0.7.0\] - 2026-08-03
 

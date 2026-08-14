@@ -43,7 +43,7 @@ if TYPE_CHECKING:
 
     from pydantic import SecretStr
 
-    from bfabric._oauth.credential_provider import OAuthCredentialProvider
+    from bfabric.oauth._credential_provider import OAuthCredentialProvider
     from bfabric.engine.engine_zeep import EngineZeep
     from bfabric.entities.core.entity_reader import EntityReader
     from bfabric.experimental.webapp_integration_settings import TokenValidationSettingsProtocol
@@ -104,6 +104,9 @@ class Bfabric:
         `BFABRICPY_CONFIG_ENV` will be used, otherwise the default environment in the config file will be used.
         Otherwise, `config_file_env` specifies the name of the environment.
 
+        An environment with `auth_method: oauth` (as written by `bfabric-cli login`) authenticates with its cached
+        OAuth token, which is refreshed transparently.
+
         :param config_file_path: a non-standard configuration file to use, if config file is selected as a config source
         :param config_file_env: name of environment to use, if config file is selected as a config source.
             if `"default"` is specified, the default environment will be used.
@@ -123,8 +126,8 @@ class Bfabric:
 
         Loads tokens from the disk cache keyed on ``base_url`` + ``client_id`` + ``env_name``.
         """
-        from bfabric._oauth.credential_provider import OAuthCredentialProvider
-        from bfabric._oauth.token_cache import TokenCache, compute_token_cache_path
+        from bfabric.oauth._credential_provider import OAuthCredentialProvider
+        from bfabric.oauth._token_cache import TokenCache, compute_token_cache_path
 
         base_url = config_data.client.base_url.rstrip("/")
         if not config_data.client_id:
@@ -257,7 +260,7 @@ class Bfabric:
         :param scope: OAuth scope
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
-        from bfabric._oauth.credential_provider import OAuthCredentialProvider
+        from bfabric.oauth._credential_provider import OAuthCredentialProvider
 
         base_url = base_url.rstrip("/")
         token_url = f"{base_url}/rest/oauth/token"
@@ -299,8 +302,8 @@ class Bfabric:
         :param timeout: Seconds to wait for the user to complete login
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
-        from bfabric._oauth.credential_provider import OAuthCredentialProvider
-        from bfabric._oauth.pkce import pkce_login
+        from bfabric.oauth._credential_provider import OAuthCredentialProvider
+        from bfabric.oauth._pkce import pkce_login
 
         base_url = base_url.rstrip("/")
         token = pkce_login(
@@ -351,8 +354,8 @@ class Bfabric:
         :param timeout: Seconds to wait for the user to authorize
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
-        from bfabric._oauth.credential_provider import OAuthCredentialProvider
-        from bfabric._oauth.device_code import device_code_login
+        from bfabric.oauth._credential_provider import OAuthCredentialProvider
+        from bfabric.oauth._device_code import device_code_login
 
         base_url = base_url.rstrip("/")
         token = device_code_login(
@@ -680,8 +683,7 @@ def get_system_auth(
         if config_path:
             # NOTE: If user explicitly specifies a path to a wrong config file, this has to be an exception
             raise OSError(f"Explicitly specified config file does not exist: {resolved_path}")
-        # TODO: Convert to log
-        print(f"Warning: could not find the config file in the default location: {resolved_path}")
+        logger.warning(f"could not find the config file in the default location: {resolved_path}")
         config = BfabricClientConfig(base_url=base_url)
         auth = None if login is None or password is None else BfabricAuth(login=login, password=password)
 

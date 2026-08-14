@@ -192,11 +192,9 @@ This builds documentation for `bfabric` and `bfabric_app_runner` and places the 
 
 ### Publish Documentation
 
-```bash
-nox -s publish_docs
-```
-
-This publishes the documentation to GitHub Pages by updating the `gh-pages` branch.
+Documentation is published to GitHub Pages by the `publish_docs.yml` workflow, which updates the
+`gh-pages` branch (`dev/` on a push to `main`, the site root on a release). There is nothing to run
+locally.
 
 ## Integration Tests
 
@@ -204,25 +202,12 @@ Note that integration tests have been moved to a separate repository. Please con
 
 ## Release Process
 
-To create a release:
+Each package is released independently: bump its version in `pyproject.toml`, graduate its
+`docs/changelog.md` `[Unreleased]` section, and open a PR from a `rel-<date>-NN` branch to the
+`release` branch — merging it is what publishes to PyPI.
 
-1. **Create a branch** from `main` (e.g., `deploy-yyyymmdd-01`)
-2. **Update versions** in the relevant `pyproject.toml` files
-3. **Update changelogs** with the new version number and date after the "Unreleased" section
-4. **Create a PR** from your new branch to the `release` branch
-
-Once the PR is ready:
-
-5. **Wait for validation pipeline comments**:
-   - One comment will list the package versions that will be updated
-   - Another comment will confirm all tests have passed
-6. **Merge the PR**
-
-After merging:
-
-7. **Wait for PyPI publish**: Your package will be built and sent to PyPI automatically
-8. **Backport to main**: Create a PR from `release` to `main` to include the `pyproject.toml` changes and merge it ASAP
-9. **Publish GitHub release**: If everything worked, the release should be pre-filled with the changelog notes. Create the release using the tag that was automatically created.
+The full procedure, including the release-candidate and hotfix conventions, is in
+[RELEASING.md](RELEASING.md).
 
 ## Troubleshooting
 

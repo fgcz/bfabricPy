@@ -12,9 +12,7 @@ from typing import Annotated
 
 import cyclopts
 
-from bfabric._oauth.credential_provider import OAuthCredentialProvider
-from bfabric._oauth.device_code import device_code_login
-from bfabric._oauth.pkce import pkce_login
+from bfabric.oauth import OAuthCredentialProvider, device_code_login, pkce_login
 from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric.config.config_writer import write_environment_to_config
 from bfabric_scripts.cli.interactive import confirm, is_interactive

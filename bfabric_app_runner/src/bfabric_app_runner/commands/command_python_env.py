@@ -55,7 +55,10 @@ class PythonEnvironment:
 
     @cached_property
     def _uv_bin(self) -> str:
-        return shutil.which("uv")
+        uv = shutil.which("uv")
+        if uv is None:
+            raise RuntimeError("uv executable not found on PATH")
+        return uv
 
     def _execute_shell_cmd(self, command_args: list[str]) -> None:
         exec_command = CommandExec(

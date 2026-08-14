@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import base64
+from io import BytesIO
+from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -8,33 +10,58 @@ from bfabric.entities import Workunit
 from bfabric.operations.workunit._common import complete_workunit, mark_workunit_failed
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from bfabric import Bfabric
+    from bfabric.typing import ApiRequestDataType
+
+
+class WorkunitDataset(BaseModel):
+    """A dataset to create as the workunit's output, from base64-encoded tabular file content."""
+
+    name: str
+    base64: str
+    format: Literal["csv", "tsv", "parquet"] = "csv"
 
 
 class CreateWorkunitParams(BaseModel):
+    """Inputs for `create_workunit`.
+
+    `resources` and `dataset` carry base64-encoded content, which the caller encodes.
+    `dataset` becomes the workunit's output dataset (it has at most one), whereas `input_dataset_id`
+    references an already-existing dataset as its input.
+    """
+
     container_id: int
     application_id: int
     workunit_name: str
     parameters: dict[str, str] = Field(default_factory=dict, max_length=100)
     resources: dict[str, str] = Field(default_factory=dict, max_length=100)
     links: dict[str, str] = Field(default_factory=dict, max_length=100)
+    dataset: WorkunitDataset | None = None
     input_resource_ids: list[int] = Field(default_factory=list, max_length=100)
+    input_dataset_id: int | None = None
     description: str = ""
 
     @model_validator(mode="after")
     def _ensure_data(self) -> CreateWorkunitParams:
-        if not self.parameters and not self.resources and not self.links:
-            msg = "No workunit data was provided, please specify parameters, resources, or links"
+        # Input references (`input_resource_ids`, `input_dataset_id`) are deliberately not counted:
+        # they point at existing entities rather than providing workunit content.
+        if not self.parameters and not self.resources and not self.links and not self.dataset:
+            msg = "No workunit data was provided, please specify parameters, resources, links, or a dataset"
             raise ValueError(msg)
         return self
 
 
 def create_workunit(
     client: Bfabric,
-    params: CreateWorkunitParams,
+    params: CreateWorkunitParams | Mapping[str, object],
     audit_attributes: dict[str, str] | None = None,
 ) -> Workunit:
-    """Create a workunit with its resources, parameters, and links.
+    """Create a workunit with its resources, parameters, links, and output dataset.
+
+    `params` also accepts a plain (possibly nested) mapping; an invalid one raises
+    `pydantic.ValidationError` before anything is written.
 
     `audit_attributes` is written verbatim as workunit custom attributes; this
     operation has no opinion about what keys are used. On any failure after the
@@ -48,6 +75,7 @@ def create_workunit(
     it with the appropriate client, e.g.
     `client.reader.read_id("workunit", wu.id, expected_type=Workunit)`.
     """
+    params = CreateWorkunitParams.model_validate(params)
     workunit_id = _create_workunit_initial(client=client, params=params, audit_attributes=audit_attributes or {})
     try:
         if params.resources:
@@ -56,6 +84,10 @@ def create_workunit(
             _create_workunit_parameters(client=client, workunit_id=workunit_id, parameters=params.parameters)
         if params.links:
             _create_workunit_links(client=client, workunit_id=workunit_id, links=params.links)
+        if params.dataset:
+            _create_workunit_dataset(
+                client=client, workunit_id=workunit_id, container_id=params.container_id, dataset=params.dataset
+            )
         return complete_workunit(client=client, workunit_id=workunit_id)
     except BaseException:
         # Catch BaseException (not Exception) so KeyboardInterrupt/SystemExit also trigger cleanup —
@@ -65,18 +97,18 @@ def create_workunit(
 
 
 def _create_workunit_initial(client: Bfabric, params: CreateWorkunitParams, audit_attributes: dict[str, str]) -> int:
-    result = client.save(
-        "workunit",
-        {
-            "containerid": params.container_id,
-            "applicationid": params.application_id,
-            "name": params.workunit_name,
-            "description": params.description,
-            "status": "processing",
-            "customattribute": [{"name": key, "value": value} for key, value in audit_attributes.items()],
-            "inputresourceid": params.input_resource_ids,
-        },
-    )
+    obj: dict[str, ApiRequestDataType] = {
+        "containerid": params.container_id,
+        "applicationid": params.application_id,
+        "name": params.workunit_name,
+        "description": params.description,
+        "status": "processing",
+        "customattribute": [{"name": key, "value": value} for key, value in audit_attributes.items()],
+        "inputresourceid": params.input_resource_ids,
+    }
+    if params.input_dataset_id is not None:
+        obj["inputdatasetid"] = params.input_dataset_id
+    result = client.save("workunit", obj)
     return Workunit(result[0], client=None, bfabric_instance=client.config.base_url).id
 
 
@@ -104,4 +136,26 @@ def _create_workunit_links(client: Bfabric, workunit_id: int, links: dict[str, s
             {"parentclassname": "workunit", "parentid": workunit_id, "name": link_name, "url": link_url}
             for link_name, link_url in links.items()
         ],
+    )
+
+
+def _create_workunit_dataset(client: Bfabric, workunit_id: int, container_id: int, dataset: WorkunitDataset) -> None:
+    # Imported here rather than at module scope: `bfabric.operations.dataset` pulls in polars, which a
+    # caller that creates no dataset should not pay for (guarded by tests/bfabric/test_lazy_imports.py).
+    import polars as pl
+
+    from bfabric.operations.dataset import CreateDatasetParams, create_dataset
+
+    raw = base64.b64decode(dataset.base64)
+    if dataset.format == "parquet":
+        table = pl.read_parquet(BytesIO(raw))
+    else:
+        # infer_schema_length=None scans every row: polars' default 100-row window mistypes a column
+        # whose first non-integer value appears later on.
+        separator = "\t" if dataset.format == "tsv" else ","
+        table = pl.read_csv(BytesIO(raw), separator=separator, infer_schema_length=None)
+    _ = create_dataset(
+        client=client,
+        table=table,
+        params=CreateDatasetParams(name=dataset.name, container_id=container_id, workunit_id=workunit_id),
     )

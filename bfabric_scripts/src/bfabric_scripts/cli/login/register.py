@@ -9,7 +9,7 @@ from typing import Annotated
 
 import cyclopts
 
-from bfabric._oauth.registration import register_client
+from bfabric.oauth import register_client
 from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric_scripts.cli.login._constants import DEFAULT_REGISTRATION_SCOPE
 

@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from bfabric.bfabric import Bfabric
-    from bfabric._oauth.url_token import UrlTokenContext
+    from bfabric.oauth._url_token import UrlTokenContext
 
 
 @dataclass(frozen=True)
@@ -52,9 +52,9 @@ class WebappClient:
         :param service_token_cache_path: Optional path to cache service tokens on disk
         """
         from bfabric.bfabric import Bfabric
-        from bfabric._oauth.credential_provider import OAuthCredentialProvider
-        from bfabric._oauth.token_exchange import exchange_token
-        from bfabric._oauth.url_token import UrlTokenContext, verify_jwt
+        from bfabric.oauth._credential_provider import OAuthCredentialProvider
+        from bfabric.oauth._token_exchange import exchange_token
+        from bfabric.oauth._url_token import UrlTokenContext, verify_jwt
         from bfabric.config import BfabricClientConfig
         from bfabric.config.config_data import ConfigData
 
