@@ -197,9 +197,9 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="user_guides/index.html">User Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="user_guides/creating_a_client/index.html">Creating a Client</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="user_guides/creating_a_client/interactive_scripted_usage.html">Creating a Client for Interactive and Scripted Usage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="user_guides/creating_a_client/server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="user_guides/connecting/index.html">Connecting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guides/connecting/interactive_scripted_usage.html">Interactive and Scripted Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guides/connecting/server_webapp_usage.html">Server and Webapp Usage</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="user_guides/reading_data/index.html">Reading Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -691,6 +691,7 @@ Historically, before 1.14.0, a different versioning scheme was used.</p>
 <section id="changed">
 <h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
 <ul class="simple">
+<li><p>The OAuth module moved from <code class="docutils literal notranslate"><span class="pre">bfabric._oauth</span></code> to <code class="docutils literal notranslate"><span class="pre">bfabric.oauth</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">upload_files(client,</span> <span class="pre">params)</span></code> takes its files as <code class="docutils literal notranslate"><span class="pre">UploadFilesParams.files</span></code>, a list of <code class="docutils literal notranslate"><span class="pre">UploadFileParam(path=...,</span> <span class="pre">on_duplicate=...)</span></code>; the <code class="docutils literal notranslate"><span class="pre">force</span></code> / <code class="docutils literal notranslate"><span class="pre">link_duplicates</span></code> booleans are gone.</p></li>
 <li><p><strong><code class="docutils literal notranslate"><span class="pre">on_duplicate</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">upload</span></code>, so the duplicate check no longer runs unless asked for</strong> — pass <code class="docutils literal notranslate"><span class="pre">skip</span></code> for the old behaviour.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">UploadSummary</span></code> holds one list per outcome — <code class="docutils literal notranslate"><span class="pre">uploads</span></code>, <code class="docutils literal notranslate"><span class="pre">skips</span></code>, <code class="docutils literal notranslate"><span class="pre">failures</span></code>, <code class="docutils literal notranslate"><span class="pre">links</span></code> — replacing the 1.20.0 counters; skips carry the duplicate they lost out to.</p></li>

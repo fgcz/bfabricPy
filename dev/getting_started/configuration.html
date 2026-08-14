@@ -198,9 +198,9 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../user_guides/index.html">User Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/creating_a_client/index.html">Creating a Client</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../user_guides/creating_a_client/interactive_scripted_usage.html">Creating a Client for Interactive and Scripted Usage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guides/creating_a_client/server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/connecting/index.html">Connecting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/connecting/interactive_scripted_usage.html">Interactive and Scripted Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/connecting/server_webapp_usage.html">Server and Webapp Usage</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/reading_data/index.html">Reading Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -403,7 +403,8 @@
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-file-recommended">Configuration File (Recommended)</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#web-service-password">Web Service Password</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#personal-access-tokens">Personal Access Tokens</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#web-service-password-legacy">Web Service Password (Legacy)</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#multiple-environments">Multiple Environments</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-multiple-config-files">Using Multiple Config Files</a></li>
 </ul>
@@ -434,26 +435,56 @@
 <p>bfabricPy can be configured through config files, environment variables, or code.</p>
 <section id="configuration-file-recommended">
 <h2>Configuration File (Recommended)<a class="headerlink" href="#configuration-file-recommended" title="Link to this heading">#</a></h2>
-<p>Create a YAML file at <code class="docutils literal notranslate"><span class="pre">~/.bfabricpy.yml</span></code>:</p>
+<p>The config file lives at <code class="docutils literal notranslate"><span class="pre">~/.bfabricpy.yml</span></code>. The simplest way to create it is to log in:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>login
+</pre></div>
+</div>
+<p>That writes an environment for the instance you picked:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># ~/.bfabricpy.yml</span>
 
 <span class="nt">GENERAL</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">default_config</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PRODUCTION</span><span class="w">  </span><span class="c1"># Default environment to use</span>
 
 <span class="nt">PRODUCTION</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">base_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://fgcz-bfabric.uzh.ch/bfabric/</span>
+<span class="w">  </span><span class="nt">auth_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">oauth</span>
+<span class="w">  </span><span class="nt">client_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CLI</span>
+<span class="w">  </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">api:read</span>
+
+<span class="nt">TEST</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">base_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://fgcz-bfabric-test.uzh.ch/bfabric/</span>
+<span class="w">  </span><span class="nt">auth_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">oauth</span>
+<span class="w">  </span><span class="nt">client_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CLI</span>
+<span class="w">  </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">api:write</span>
+</pre></div>
+</div>
+<p>The token itself is not stored here — it lives in a separate cache under <code class="docutils literal notranslate"><span class="pre">~/.bfabric/tokens/</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">Bfabric.connect()</span></code> refreshes it as needed. See <a class="reference internal" href="../user_guides/bfabric-cli/authentication.html"><span class="std std-doc">CLI Authentication</span></a> for
+scopes and for managing several environments.</p>
+<section id="personal-access-tokens">
+<h3>Personal Access Tokens<a class="headerlink" href="#personal-access-tokens" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">auth</span> <span class="pre">pat</span></code> stores a token inline instead, for non-interactive logins:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">PRODUCTION</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">base_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://fgcz-bfabric.uzh.ch/bfabric/</span>
+<span class="w">  </span><span class="nt">auth_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pat</span>
+<span class="w">  </span><span class="nt">pat</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yourPersonalAccessToken</span>
+</pre></div>
+</div>
+</section>
+<section id="web-service-password-legacy">
+<h3>Web Service Password (Legacy)<a class="headerlink" href="#web-service-password-legacy" title="Link to this heading">#</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Web service passwords are being phased out in favour of <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">login</span></code>. Prefer OAuth for new setups.</p>
+</div>
+<p>An environment can also hold a login and web service password directly:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">PRODUCTION</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">login</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yourBfabricLogin</span>
 <span class="w">  </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yourBfabricWebServicePassword</span><span class="w">  </span><span class="c1"># Get from B-Fabric profile</span>
 <span class="w">  </span><span class="nt">base_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://fgcz-bfabric.uzh.ch/bfabric/</span>
-
-<span class="nt">TEST</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">login</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yourBfabricLogin</span>
-<span class="w">  </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yourBfabricWebServicePassword</span>
-<span class="w">  </span><span class="nt">base_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://fgcz-bfabric-test.uzh.ch/bfabric/</span>
 </pre></div>
 </div>
-<section id="web-service-password">
-<h3>Web Service Password<a class="headerlink" href="#web-service-password" title="Link to this heading">#</a></h3>
-<p>The password in your config file is <strong>NOT</strong> your login password. Find your web service password:</p>
+<p>The password here is <strong>NOT</strong> your login password. Find your web service password:</p>
 <ol class="arabic simple">
 <li><p>Log into B-Fabric web interface</p></li>
 <li><p>Go to your profile page</p></li>
@@ -545,7 +576,7 @@ python<span class="w"> </span>script.py<span class="w">  </span><span class="c1"
 <h2>Token-Based Configuration (Web Apps)<a class="headerlink" href="#token-based-configuration-web-apps" title="Link to this heading">#</a></h2>
 <p>For web applications that receive B-Fabric tokens, see:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="../user_guides/creating_a_client/server_webapp_usage.html"><span class="std std-doc">Server/Webapp Usage</span></a></p></li>
+<li><p><a class="reference internal" href="../user_guides/connecting/server_webapp_usage.html"><span class="std std-doc">Server/Webapp Usage</span></a></p></li>
 </ul>
 </section>
 <section id="best-practices">
@@ -562,8 +593,8 @@ python<span class="w"> </span>script.py<span class="w">  </span><span class="c1"
 <h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="installation.html"><span class="std std-doc">Installation Guide</span></a> - Installation options</p></li>
-<li><p><a class="reference internal" href="../user_guides/creating_a_client/index.html"><span class="std std-doc">Creating a Client Guide</span></a> - How to use configuration</p></li>
-<li><p><a class="reference internal" href="../user_guides/creating_a_client/server_webapp_usage.html"><span class="std std-doc">Server/Webapp Configuration</span></a> - Token-based auth</p></li>
+<li><p><a class="reference internal" href="../user_guides/connecting/index.html"><span class="std std-doc">Connecting Guide</span></a> - How to use configuration</p></li>
+<li><p><a class="reference internal" href="../user_guides/connecting/server_webapp_usage.html"><span class="std std-doc">Server/Webapp Configuration</span></a> - Token-based auth</p></li>
 <li><p><a class="reference internal" href="troubleshooting.html"><span class="std std-doc">Troubleshooting</span></a> - Common issues and solutions</p></li>
 </ul>
 </section>
@@ -617,7 +648,8 @@ python<span class="w"> </span>script.py<span class="w">  </span><span class="c1"
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-file-recommended">Configuration File (Recommended)</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#web-service-password">Web Service Password</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#personal-access-tokens">Personal Access Tokens</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#web-service-password-legacy">Web Service Password (Legacy)</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#multiple-environments">Multiple Environments</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-multiple-config-files">Using Multiple Config Files</a></li>
 </ul>

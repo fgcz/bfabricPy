@@ -198,9 +198,9 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../user_guides/index.html">User Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/creating_a_client/index.html">Creating a Client</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../user_guides/creating_a_client/interactive_scripted_usage.html">Creating a Client for Interactive and Scripted Usage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guides/creating_a_client/server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/connecting/index.html">Connecting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/connecting/interactive_scripted_usage.html">Interactive and Scripted Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/connecting/server_webapp_usage.html">Server and Webapp Usage</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/reading_data/index.html">Reading Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -427,7 +427,7 @@
 <p>Before starting, make sure you have:</p>
 <ol class="arabic simple">
 <li><p><strong>Installed bfabricPy</strong>: Follow <a class="reference internal" href="installation.html"><span class="std std-doc">Installation Guide</span></a></p></li>
-<li><p><strong>Configured credentials</strong>: Follow <a class="reference internal" href="configuration.html"><span class="std std-doc">Configuration Guide</span></a></p></li>
+<li><p><strong>Logged in</strong>: run <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">login</span></code>, or see the <a class="reference internal" href="configuration.html"><span class="std std-doc">Configuration Guide</span></a> for the other options</p></li>
 </ol>
 </section>
 <hr class="docutils" />
@@ -476,7 +476,7 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Create a client using your configuration from <code class="docutils literal notranslate"><span class="pre">~/.bfabricpy.yml</span></code>.</p>
+<p>Connect using your configuration from <code class="docutils literal notranslate"><span class="pre">~/.bfabricpy.yml</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;workunit&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{},</span> <span class="n">max_results</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -511,7 +511,7 @@ bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Understand client authentication</p></td>
-<td><p><a class="reference internal" href="../user_guides/creating_a_client/index.html"><span class="std std-doc">Creating a Client</span></a></p></td>
+<td><p><a class="reference internal" href="../user_guides/connecting/index.html"><span class="std std-doc">Connecting</span></a></p></td>
 </tr>
 <tr class="row-odd"><td><p>Query and retrieve data efficiently</p></td>
 <td><p><a class="reference internal" href="../user_guides/reading_data/index.html"><span class="std std-doc">Reading Data</span></a></p></td>
@@ -535,7 +535,7 @@ bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class
 <li><p><a class="reference internal" href="installation.html"><span class="doc std std-doc">Installation Guide</span></a> - Installation options</p></li>
 <li><p><a class="reference internal" href="configuration.html"><span class="doc std std-doc">Configuration Guide</span></a> - Config file structure and options</p></li>
 <li><p><a class="reference internal" href="../user_guides/bfabric-cli/api_inspection.html"><span class="doc std std-doc">API Inspection Guide</span></a> - Discovering API endpoints and parameters</p></li>
-<li><p><a class="reference internal" href="../user_guides/creating_a_client/index.html"><span class="doc std std-doc">Creating a Client</span></a> - Authentication methods</p></li>
+<li><p><a class="reference internal" href="../user_guides/connecting/index.html"><span class="doc std std-doc">Connecting</span></a> - Authentication methods</p></li>
 <li><p><a class="reference internal" href="troubleshooting.html"><span class="doc std std-doc">Troubleshooting</span></a> - Common issues and solutions</p></li>
 </ul>
 </section>

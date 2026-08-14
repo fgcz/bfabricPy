@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Creating a Client for Interactive and Scripted Usage &#8212; bfabricPy 1.20.0 documentation</title>
+    <title>Interactive and Scripted Usage &#8212; bfabricPy 1.20.0 documentation</title>
   
   
   
@@ -44,12 +44,12 @@
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guides/creating_a_client/interactive_scripted_usage';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guides/connecting/interactive_scripted_usage';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Creating a Client for Server and Webapp Usage" href="server_webapp_usage.html" />
-    <link rel="prev" title="Creating a Client" href="index.html" />
+    <link rel="next" title="Server and Webapp Usage" href="server_webapp_usage.html" />
+    <link rel="prev" title="Connecting" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="1.20.0" />
@@ -198,9 +198,9 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">User Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Creating a Client</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3 current active"><a class="current reference internal" href="#">Creating a Client for Interactive and Scripted Usage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Connecting</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Interactive and Scripted Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="server_webapp_usage.html">Server and Webapp Usage</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../reading_data/index.html">Reading Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -309,7 +309,7 @@
       
       
       
-      <li><a href="../../_sources/user_guides/creating_a_client/interactive_scripted_usage.md" target="_blank"
+      <li><a href="../../_sources/user_guides/connecting/interactive_scripted_usage.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -392,7 +392,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Creating a Client for Interactive and Scripted Usage</h1>
+    <h1>Interactive and Scripted Usage</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -402,16 +402,13 @@
             </div>
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-a-client">Creating a Client</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic Usage</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#specifying-an-environment">Specifying an Environment</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-a-custom-config-file">Using a Custom Config File</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#temporarily-changing-authentication">Temporarily Changing Authentication</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#without-authentication">Without Authentication</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#log-in-once-connect-from-code">Log In Once, Connect From Code</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choosing-an-environment">Choosing an Environment</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#logging-in-from-python">Logging In From Python</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#personal-access-tokens">Personal Access Tokens</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#web-service-password">Web Service Password</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#temporarily-changing-authentication">Temporarily Changing Authentication</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#without-authentication">Without Authentication</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#verification">Verification</a></li>
 </ul>
             </nav>
@@ -424,45 +421,33 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="creating-a-client-for-interactive-and-scripted-usage">
-<h1>Creating a Client for Interactive and Scripted Usage<a class="headerlink" href="#creating-a-client-for-interactive-and-scripted-usage" title="Link to this heading">#</a></h1>
-<p>This guide covers how to create a <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> client for interactive sessions and scripts, where you control the
+  <section id="interactive-and-scripted-usage">
+<h1>Interactive and Scripted Usage<a class="headerlink" href="#interactive-and-scripted-usage" title="Link to this heading">#</a></h1>
+<p>This guide covers how to connect a <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> client in interactive sessions and scripts, where you control the
 configuration directly through config files or environment variables.</p>
-<section id="overview">
-<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
-<p>For interactive and scripted usage, use <code class="docutils literal notranslate"><span class="pre">Bfabric.connect()</span></code> to create a client instance. This method is designed for
-situations where:</p>
-<ul class="simple">
-<li><p>You’re running scripts locally or in controlled environments</p></li>
-<li><p>You have access to a configuration file with credentials</p></li>
-<li><p>You need simple, synchronous API access</p></li>
-<li><p>You want to quickly switch between environments (e.g., PRODUCTION vs TEST)</p></li>
-</ul>
-</section>
-<section id="prerequisites">
-<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h2>
-<p>Before creating a client, set up your configuration file. See the <a class="reference internal" href="../../getting_started/configuration.html"><span class="std std-doc">Configuration Guide</span></a> for detailed instructions on:</p>
-<ul class="simple">
-<li><p>Creating <code class="docutils literal notranslate"><span class="pre">~/.bfabricpy.yml</span></code> with your credentials</p></li>
-<li><p>Setting up multiple environments (PRODUCTION, TEST)</p></li>
-<li><p>Using environment variables</p></li>
-<li><p>Configuration priority and overrides</p></li>
-</ul>
-</section>
-<section id="creating-a-client">
-<h2>Creating a Client<a class="headerlink" href="#creating-a-client" title="Link to this heading">#</a></h2>
-<section id="basic-usage">
-<h3>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">#</a></h3>
+<section id="log-in-once-connect-from-code">
+<h2>Log In Once, Connect From Code<a class="headerlink" href="#log-in-once-connect-from-code" title="Link to this heading">#</a></h2>
+<p>Log in with the CLI:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>login
+</pre></div>
+</div>
+<p>On a first run this asks which instance you want and which permissions to request, and stores both in
+<code class="docutils literal notranslate"><span class="pre">~/.bfabricpy.yml</span></code>. Afterwards your scripts just connect:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>This uses your <code class="docutils literal notranslate"><span class="pre">~/.bfabricpy.yml</span></code> config file with the default environment. See <a class="reference internal" href="../../getting_started/configuration.html#priority-order"><span class="std std-ref">Configuration Guide</span></a> for how the environment is selected.</p>
+<p><code class="docutils literal notranslate"><span class="pre">connect()</span></code> sees <code class="docutils literal notranslate"><span class="pre">auth_method:</span> <span class="pre">oauth</span></code> in the selected environment, picks up the cached token and refreshes it when it
+nears expiry — nothing OAuth-specific appears in your code. When the login itself expires, run <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">login</span></code> again
+with no arguments; everything it needs was recorded the first time.</p>
+<p>See <a class="reference internal" href="../bfabric-cli/authentication.html"><span class="std std-doc">CLI Authentication</span></a> for scopes, working with several instances, and logging out.</p>
 </section>
-<section id="specifying-an-environment">
-<h3>Specifying an Environment<a class="headerlink" href="#specifying-an-environment" title="Link to this heading">#</a></h3>
-<p>You can explicitly specify which environment to use:</p>
+<section id="choosing-an-environment">
+<h2>Choosing an Environment<a class="headerlink" href="#choosing-an-environment" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">~/.bfabricpy.yml</span></code> can hold several environments (a production and a test instance, or two logins on the same instance
+with different permissions). By default <code class="docutils literal notranslate"><span class="pre">connect()</span></code> uses <code class="docutils literal notranslate"><span class="pre">BFABRICPY_CONFIG_ENV</span></code> if it is set, otherwise the config
+file’s default environment. You can also name one explicitly:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use the PRODUCTION environment</span>
 <span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">config_file_env</span><span class="o">=</span><span class="s2">&quot;PRODUCTION&quot;</span><span class="p">)</span>
 
@@ -470,10 +455,8 @@ situations where:</p>
 <span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">config_file_env</span><span class="o">=</span><span class="s2">&quot;TEST&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">config_file_env</span></code> parameter takes precedence over the <code class="docutils literal notranslate"><span class="pre">BFABRICPY_CONFIG_ENV</span></code> environment variable.</p>
-</section>
-<section id="using-a-custom-config-file">
-<h3>Using a Custom Config File<a class="headerlink" href="#using-a-custom-config-file" title="Link to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">config_file_env</span></code> parameter takes precedence over the <code class="docutils literal notranslate"><span class="pre">BFABRICPY_CONFIG_ENV</span></code> environment variable. See the
+<a class="reference internal" href="../../getting_started/configuration.html#priority-order"><span class="std std-ref">Configuration Guide</span></a> for the full priority order.</p>
 <p>If your config file is in a non-standard location:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
@@ -484,8 +467,63 @@ situations where:</p>
 </pre></div>
 </div>
 </section>
+<section id="logging-in-from-python">
+<h2>Logging In From Python<a class="headerlink" href="#logging-in-from-python" title="Link to this heading">#</a></h2>
+<p>If you would rather not depend on the CLI having been run, you can perform the login from Python. Both flows take an
+explicit <code class="docutils literal notranslate"><span class="pre">client_id</span></code> and <code class="docutils literal notranslate"><span class="pre">scope</span></code>, and both accept a <code class="docutils literal notranslate"><span class="pre">token_cache_path</span></code> that the resulting client refreshes against.</p>
+<p>On a local machine, <code class="docutils literal notranslate"><span class="pre">connect_pkce()</span></code> opens your browser and waits for the redirect:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect_pkce</span><span class="p">(</span>
+    <span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric&quot;</span><span class="p">,</span>
+    <span class="n">client_id</span><span class="o">=</span><span class="s2">&quot;CLI&quot;</span><span class="p">,</span>
+    <span class="n">scope</span><span class="o">=</span><span class="s2">&quot;api:read&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>On a remote host — SSH, a container, a hosted notebook — use <code class="docutils literal notranslate"><span class="pre">connect_device_code()</span></code> instead. It prints a code to enter
+in a browser anywhere and polls for the result:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect_device_code</span><span class="p">(</span>
+    <span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric&quot;</span><span class="p">,</span>
+    <span class="n">client_id</span><span class="o">=</span><span class="s2">&quot;CLI&quot;</span><span class="p">,</span>
+    <span class="n">scope</span><span class="o">=</span><span class="s2">&quot;api:read&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Each call runs the login again — neither skips it by reading the cache — so keep them out of code that reruns often.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The browser flow finishes by redirecting to a port on the machine running Python. If the browser is on a different
+machine, nothing is listening there and the login times out — which is why remote hosts need the device code flow. See
+<a class="reference internal" href="../../design/oauth_usage_and_troubleshooting.html"><span class="std std-doc">OAuth Usage &amp; Troubleshooting</span></a> for the details.</p>
+</div>
+</section>
+<section id="personal-access-tokens">
+<h2>Personal Access Tokens<a class="headerlink" href="#personal-access-tokens" title="Link to this heading">#</a></h2>
+<p>For a non-interactive login without any OAuth flow, use a Personal Access Token issued by B-Fabric:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect_pat</span><span class="p">(</span><span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric&quot;</span><span class="p">,</span> <span class="n">pat</span><span class="o">=</span><span class="s2">&quot;your_token&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>PATs are not refreshed automatically; when one expires you need a new one. <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">auth</span> <span class="pre">pat</span></code> stores a PAT in your
+config file, so <code class="docutils literal notranslate"><span class="pre">Bfabric.connect()</span></code> picks it up like any other environment.</p>
+</section>
+<section id="web-service-password">
+<h2>Web Service Password<a class="headerlink" href="#web-service-password" title="Link to this heading">#</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Web service passwords are being phased out in favour of the OAuth login above. Prefer <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">login</span></code> for new setups.</p>
+</div>
+<p>An environment can also hold a B-Fabric login and web service password directly:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">PRODUCTION</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">login</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yourBfabricLogin</span>
+<span class="w">  </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yourBfabricWebServicePassword</span>
+<span class="w">  </span><span class="nt">base_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://fgcz-bfabric.uzh.ch/bfabric/</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Bfabric.connect()</span></code> uses these the same way — the auth method is a property of the environment, not of the call.</p>
+</section>
 <section id="temporarily-changing-authentication">
-<h3>Temporarily Changing Authentication<a class="headerlink" href="#temporarily-changing-authentication" title="Link to this heading">#</a></h3>
+<h2>Temporarily Changing Authentication<a class="headerlink" href="#temporarily-changing-authentication" title="Link to this heading">#</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">with_auth()</span></code> context manager allows you to temporarily set authentication for a <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> client. This is useful when
 authenticating multiple users to avoid accidental use of the wrong credentials:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
@@ -504,10 +542,12 @@ authenticating multiple users to avoid accidental use of the wrong credentials:<
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current user: </span><span class="si">{</span><span class="n">client</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">login</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># Shows original user</span>
 </pre></div>
 </div>
+<p>On an OAuth client the automatic token refresh is suspended for the duration of the block, so the credentials you pass
+are the ones that get used.</p>
 </section>
 <section id="without-authentication">
-<h3>Without Authentication<a class="headerlink" href="#without-authentication" title="Link to this heading">#</a></h3>
-<p>For certain use cases (e.g., tests, read-only operations on public endpoints), you may want to create a client without
+<h2>Without Authentication<a class="headerlink" href="#without-authentication" title="Link to this heading">#</a></h2>
+<p>For certain use cases (e.g. tests, read-only operations on public endpoints), you may want to create a client without
 authentication:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Disable authentication - useful for tests</span>
 <span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">config_file_env</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_auth</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -519,7 +559,6 @@ authentication:</p>
 entities.</p>
 </div>
 </section>
-</section>
 <section id="verification">
 <h2>Verification<a class="headerlink" href="#verification" title="Link to this heading">#</a></h2>
 <p>Always verify you’re using the correct environment:</p>
@@ -530,6 +569,8 @@ entities.</p>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;User: </span><span class="si">{</span><span class="n">client</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">login</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>For an OAuth environment <code class="docutils literal notranslate"><span class="pre">client.auth.login</span></code> is the placeholder <code class="docutils literal notranslate"><span class="pre">__oauth__</span></code> rather than your username — use
+<code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">auth</span> <span class="pre">status</span></code> to see who you are logged in as and when the token expires.</p>
 </section>
 </section>
 
@@ -550,7 +591,7 @@ entities.</p>
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Creating a Client</p>
+        <p class="prev-next-title">Connecting</p>
       </div>
     </a>
     <a class="right-next"
@@ -558,7 +599,7 @@ entities.</p>
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Creating a Client for Server and Webapp Usage</p>
+        <p class="prev-next-title">Server and Webapp Usage</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -580,16 +621,13 @@ entities.</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-a-client">Creating a Client</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic Usage</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#specifying-an-environment">Specifying an Environment</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-a-custom-config-file">Using a Custom Config File</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#temporarily-changing-authentication">Temporarily Changing Authentication</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#without-authentication">Without Authentication</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#log-in-once-connect-from-code">Log In Once, Connect From Code</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choosing-an-environment">Choosing an Environment</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#logging-in-from-python">Logging In From Python</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#personal-access-tokens">Personal Access Tokens</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#web-service-password">Web Service Password</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#temporarily-changing-authentication">Temporarily Changing Authentication</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#without-authentication">Without Authentication</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#verification">Verification</a></li>
 </ul>
   </nav></div>

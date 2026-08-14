@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Creating a Client &#8212; bfabricPy 1.20.0 documentation</title>
+    <title>Connecting &#8212; bfabricPy 1.20.0 documentation</title>
   
   
   
@@ -44,11 +44,11 @@
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guides/creating_a_client/index';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guides/connecting/index';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Creating a Client for Interactive and Scripted Usage" href="interactive_scripted_usage.html" />
+    <link rel="next" title="Interactive and Scripted Usage" href="interactive_scripted_usage.html" />
     <link rel="prev" title="User Guides" href="../index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -198,9 +198,9 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">User Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">Creating a Client</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="interactive_scripted_usage.html">Creating a Client for Interactive and Scripted Usage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
+<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">Connecting</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="interactive_scripted_usage.html">Interactive and Scripted Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="server_webapp_usage.html">Server and Webapp Usage</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../reading_data/index.html">Reading Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -309,7 +309,7 @@
       
       
       
-      <li><a href="../../_sources/user_guides/creating_a_client/index.md" target="_blank"
+      <li><a href="../../_sources/user_guides/connecting/index.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -392,7 +392,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Creating a Client</h1>
+    <h1>Connecting</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -416,13 +416,13 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="creating-a-client">
-<h1>Creating a Client<a class="headerlink" href="#creating-a-client" title="Link to this heading">#</a></h1>
+  <section id="connecting">
+<h1>Connecting<a class="headerlink" href="#connecting" title="Link to this heading">#</a></h1>
 <p>bfabricPy supports different authentication methods depending on your use case.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="interactive_scripted_usage.html">Creating a Client for Interactive and Scripted Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interactive_scripted_usage.html">Interactive and Scripted Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server_webapp_usage.html">Server and Webapp Usage</a></li>
 </ul>
 </div>
 <section id="choose-your-approach">
@@ -436,11 +436,23 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Scripts, local tools, interactive sessions</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">Bfabric.connect()</span></code> with config file</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">login</span></code> once, then <code class="docutils literal notranslate"><span class="pre">Bfabric.connect()</span></code></p></td>
 <td><p><a class="reference internal" href="interactive_scripted_usage.html"><span class="std std-doc">Interactive/Scripted Usage</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p>Web servers, web apps, token-based auth</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_token()</span></code> with token</p></td>
+<tr class="row-odd"><td><p>Logging in from Python, without the CLI</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_pkce()</span></code> / <code class="docutils literal notranslate"><span class="pre">Bfabric.connect_device_code()</span></code></p></td>
+<td><p><a class="reference internal" href="interactive_scripted_usage.html"><span class="std std-doc">Interactive/Scripted Usage</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>Non-interactive token</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_pat()</span></code></p></td>
+<td><p><a class="reference internal" href="interactive_scripted_usage.html"><span class="std std-doc">Interactive/Scripted Usage</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Background jobs, service accounts</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_oauth()</span></code></p></td>
+<td><p><a class="reference internal" href="server_webapp_usage.html"><span class="std std-doc">Server/Webapp Usage</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>Webapps launched from B-Fabric</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_token()</span></code> / <code class="docutils literal notranslate"><span class="pre">WebappClient.create()</span></code></p></td>
 <td><p><a class="reference internal" href="server_webapp_usage.html"><span class="std std-doc">Server/Webapp Usage</span></a></p></td>
 </tr>
 </tbody>
@@ -449,7 +461,7 @@
 </section>
 <section id="next-steps">
 <h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
-<p>After creating your client, learn how to work with B-Fabric:</p>
+<p>After connecting, learn how to work with B-Fabric:</p>
 <ul class="simple">
 <li><p><strong><a class="reference internal" href="../reading_data/index.html"><span class="std std-doc">Reading Data</span></a></strong> - Query and retrieve data</p></li>
 <li><p><strong><a class="reference internal" href="../writing_data/index.html"><span class="std std-doc">Writing Data</span></a></strong> - Create, update, and delete entities</p></li>
@@ -459,6 +471,7 @@
 <section id="see-also">
 <h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p><a class="reference internal" href="../bfabric-cli/authentication.html"><span class="std std-doc">CLI Authentication</span></a> - <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">auth</span></code> commands, scopes, multiple instances</p></li>
 <li><p><a class="reference internal" href="../../getting_started/configuration.html"><span class="std std-doc">Configuration Guide</span></a> - Setting up config files</p></li>
 <li><p><a class="reference internal" href="../../api_reference/bfabric_client/index.html"><span class="std std-doc">API Reference: Bfabric Client</span></a> - Complete client documentation</p></li>
 <li><p><a class="reference internal" href="../error_handling.html"><span class="std std-doc">Error Handling</span></a> - Authentication errors</p></li>
@@ -491,7 +504,7 @@
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Creating a Client for Interactive and Scripted Usage</p>
+        <p class="prev-next-title">Interactive and Scripted Usage</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

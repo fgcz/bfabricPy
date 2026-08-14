@@ -198,9 +198,9 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../user_guides/index.html">User Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../user_guides/creating_a_client/index.html">Creating a Client</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../user_guides/creating_a_client/interactive_scripted_usage.html">Creating a Client for Interactive and Scripted Usage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../user_guides/creating_a_client/server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../user_guides/connecting/index.html">Connecting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/connecting/interactive_scripted_usage.html">Interactive and Scripted Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/connecting/server_webapp_usage.html">Server and Webapp Usage</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../user_guides/reading_data/index.html">Reading Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -476,7 +476,7 @@
 <section id="quick-links">
 <h2>Quick Links<a class="headerlink" href="#quick-links" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><strong><a class="reference internal" href="../../user_guides/creating_a_client/index.html"><span class="std std-doc">Creating a Client</span></a></strong> - Step-by-step guides for different use cases</p></li>
+<li><p><strong><a class="reference internal" href="../../user_guides/connecting/index.html"><span class="std std-doc">Connecting</span></a></strong> - Step-by-step guides for different use cases</p></li>
 <li><p><strong><a class="reference internal" href="../../getting_started/configuration.html"><span class="std std-doc">Configuration</span></a></strong> - Config file setup and options</p></li>
 <li><p><strong><a class="reference internal" href="../../getting_started/quick_start.html"><span class="std std-doc">Quick Start</span></a></strong> - 5-minute tutorial</p></li>
 </ul>
@@ -539,6 +539,8 @@ be used instead.
 If <cite>config_file_env</cite> is <cite>“default”</cite>, then if available the environment according to env variable
 <cite>BFABRICPY_CONFIG_ENV</cite> will be used, otherwise the default environment in the config file will be used.
 Otherwise, <cite>config_file_env</cite> specifies the name of the environment.</p>
+<p>An environment with <cite>auth_method: oauth</cite> (as written by <cite>bfabric-cli login</cite>) authenticates with its cached
+OAuth token, which is refreshed transparently.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
