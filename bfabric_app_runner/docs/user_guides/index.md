@@ -10,6 +10,7 @@ working_with_inputs
 working_with_outputs
 python_environments
 cli_reference
+running_legacy_apps
 ```
 
 ## Guides Overview
@@ -22,6 +23,7 @@ cli_reference
 | [Working with Outputs](working_with_outputs.md) | Register output files and datasets in B-Fabric | Intermediate |
 | [Python Environments](python_environments.md) | Cached and ephemeral environment management | Advanced |
 | [CLI Reference](cli_reference.md) | Complete command-line reference | All Levels |
+| [Running Legacy Apps](running_legacy_apps.md) | Compatibility shim for pre-app-runner apps | Advanced |
 
 ## Common Workflows
 
