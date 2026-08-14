@@ -65,6 +65,28 @@ def test_extract_changelog_entry_with_another_version(mocker):
     assert "## \\[1.1.0\\]" not in result
 
 
+def test_extract_changelog_entry_with_unescaped_brackets(mocker):
+    # mdformat leaves the brackets unescaped, so both forms have to keep working
+    changelog_content = """# Changelog
+
+## [1.1.0] - 2025-04-15
+### Added
+- New feature X
+
+## [1.0.0] - 2025-03-15
+### Added
+- Initial release
+"""
+
+    mocker.patch("os.path.isfile", return_value=True)
+    mocker.patch("builtins.open", mocker.mock_open(read_data=changelog_content))
+
+    result = extract_changelog_entry("fake_path.md", "1.1.0")
+    assert "## [1.1.0]" in result
+    assert "New feature X" in result
+    assert "## [1.0.0]" not in result
+
+
 def test_extract_changelog_entry_with_nonexistent_version(mocker):
     # Sample changelog content with escaped brackets
     changelog_content = """# Changelog

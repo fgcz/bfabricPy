@@ -424,12 +424,12 @@ def changelog(session: nox.Session, package):
     except FileNotFoundError:
         session.error(f"Changelog not found at {changelog_path}")
 
-    # Look for version header with escaped brackets
-    version_pattern = rf"## \\\[{re.escape(current_version)}\\\]"
+    # Tolerate the historical escaped form, `## \[1.2.3\]`, still present in older sections
+    version_pattern = rf"## \\?\[{re.escape(current_version)}\\?\]"
     if not re.search(version_pattern, changelog_content):
         session.error(
             f"{changelog_path} does not contain entry for version {current_version}.\n"
-            f"Expected to find a section starting with: ## \\[{current_version}\\]"
+            f"Expected to find a section starting with: ## [{current_version}]"
         )
 
     session.log(f"✓ {changelog_path} contains entry for version {current_version}")

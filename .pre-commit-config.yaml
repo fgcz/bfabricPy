@@ -41,10 +41,12 @@ repos:
     rev: "v0.15.0"
     hooks:
       - id: yamlfmt
-  #- repo: https://github.com/executablebooks/mdformat/
-  #  rev: "1.0.0"
-  #  hooks:
-  #    - id: mdformat
+  - repo: https://github.com/hukkin/mdformat
+    rev: "1.0.0"
+    hooks:
+      - id: mdformat
+        # simple-breaks keeps thematic breaks as `---` instead of a row of 70 underscores
+        additional_dependencies: ["mdformat-gfm==1.0.0", "mdformat-simple-breaks==0.1.0"]
   #- repo: https://github.com/abravalheri/validate-pyproject
   #  rev: "v0.23"
   #  hooks:
