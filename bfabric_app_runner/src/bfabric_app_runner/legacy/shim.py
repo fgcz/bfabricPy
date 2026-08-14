@@ -27,8 +27,9 @@ UPLOAD_COMMAND = "bfabric_upload_resource.py"
 """Legacy extra-resource upload, recorded for later registration rather than neutralised.
 
 The real command base64s the file over SOAP, which makes B-Fabric file it on its internal storage
-instead of the application's. Noting the path for ``legacy collect`` instead puts those resources on
-the same storage as every other app-runner output and keeps the internal repo out of the picture.
+instead of the application's. Noting the path for the ``outputs.yml`` that ``legacy run`` writes
+afterwards instead puts those resources on the same storage as every other app-runner output and
+keeps the internal repo out of the picture.
 """
 
 SHIMMED_COMMANDS = (*NOOP_COMMANDS, UPLOAD_COMMAND)

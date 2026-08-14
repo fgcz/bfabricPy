@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - New `${app.dir}` template variable holding the app spec's directory, for paths no spec field resolves — e.g. `command: uv run --script ${app.dir}/dispatch.py`.
 - New `legacy_wrapper_yaml` input type writes the legacy wrapper-creator `config.yaml` for a workunit, so pre-app-runner apps can run without the old wrapper creator ([#262](https://github.com/fgcz/bfabricPy/issues/262)). It reads only, so the YAML carries no external job and no `slurm_stdout`/`slurm_stderr` resources; see the "Running Legacy Apps" guide.
-- New `legacy dispatch`, `legacy run` and `legacy collect` commands wrap a legacy app end-to-end from an `app.yml` with no per-app Python: `run` shadows the status-writing `bfabric_*` commands it calls with no-ops, and `collect` declares its output in `outputs.yml`.
+- New `legacy dispatch` and `legacy run` commands wrap a legacy app end-to-end from an `app.yml` with no per-app Python: `run` shadows the status-writing `bfabric_*` commands it calls with no-ops, then declares its output in `outputs.yml` so no `collect` command is needed.
 - `legacy run` also redirects `bfabric_upload_resource.py` to record its file instead of uploading it, so a legacy app's extra resources are registered on the application's storage instead of being base64-uploaded to B-Fabric's internal storage.
 
 ### Changed

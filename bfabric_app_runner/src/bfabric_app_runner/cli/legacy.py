@@ -30,7 +30,7 @@ class _LegacyApplicationSection(BaseModel):
 
 
 class _LegacyConfig(BaseModel):
-    """The one part of the legacy YAML that ``collect`` needs; the rest is for the app itself."""
+    """The one part of the legacy YAML that app-runner reads back; the rest is for the app itself."""
 
     model_config: ClassVar[ConfigDict] = ConfigDict(extra="ignore")
     application: _LegacyApplicationSection
@@ -78,10 +78,15 @@ def cmd_legacy_run(executable: str, chunk_dir: Path, *, config_filename: str = D
 
     Intended as an app's ``process`` command, which appends the chunk directory. The legacy
     state-writing commands are shadowed by no-ops on ``PATH`` for the duration of the run, and
-    ``bfabric_upload_resource.py`` records its file for ``legacy collect`` instead of uploading it.
+    ``bfabric_upload_resource.py`` records its file instead of uploading it.
+
+    Once the app succeeds, writes the chunk's ``outputs.yml`` from its declared output and those
+    recorded uploads, since a legacy app deposits its files where the YAML told it to but cannot
+    declare them for registration. Doing that here rather than in a ``collect`` command keeps a
+    legacy app spec to the same two commands a modern app uses.
 
     :param executable: The legacy app, shell-split; it receives the YAML path as its last argument.
-    :param chunk_dir: The chunk directory holding the legacy YAML.
+    :param chunk_dir: The chunk directory holding the legacy YAML; ``outputs.yml`` is written here.
     :param config_filename: Name of the legacy YAML inside ``chunk_dir``.
     """
     config_path = _config_path(chunk_dir, config_filename)
@@ -92,18 +97,12 @@ def cmd_legacy_run(executable: str, chunk_dir: Path, *, config_filename: str = D
         command = [*shlex.split(executable), str(config_path)]
         logger.info("Running legacy app: {}", shlex.join(command))
         _ = subprocess.run(command, check=True, env=env)
+    _write_outputs_spec(chunk_dir, config_path)
 
 
-def cmd_legacy_collect(chunk_dir: Path, *, config_filename: str = DEFAULT_CONFIG_FILENAME) -> None:
-    """Write a chunk's ``outputs.yml`` from a legacy app's declared output and recorded uploads.
-
-    Intended as an app's ``collect`` command, since a legacy app deposits its files where the YAML
-    told it to but cannot declare them for registration.
-
-    :param chunk_dir: The chunk directory holding the legacy YAML; ``outputs.yml`` is written here.
-    :param config_filename: Name of the legacy YAML inside ``chunk_dir``.
-    """
-    config = _LegacyConfig.model_validate(yaml.safe_load(_config_path(chunk_dir, config_filename).read_text()))
+def _write_outputs_spec(chunk_dir: Path, config_path: Path) -> None:
+    """Declare a legacy app's output and recorded uploads in the chunk's ``outputs.yml``."""
+    config = _LegacyConfig.model_validate(yaml.safe_load(config_path.read_text()))
     uploaded = _uploaded_paths(chunk_dir)
     produced, missing = _partition_declared_outputs(config.application.output)
     if missing and not uploaded:

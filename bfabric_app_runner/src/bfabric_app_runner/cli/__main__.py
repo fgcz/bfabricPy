@@ -33,7 +33,7 @@ from bfabric_app_runner.cli.cmd_action import (
 from bfabric_app_runner.cli.cmd_prepare import cmd_prepare_workunit
 from bfabric_app_runner.cli.cmd_run import cmd_run_workunit
 from bfabric_app_runner.cli.inputs import cmd_inputs_check, cmd_inputs_clean, cmd_inputs_list, cmd_inputs_prepare
-from bfabric_app_runner.cli.legacy import cmd_legacy_collect, cmd_legacy_dispatch, cmd_legacy_run
+from bfabric_app_runner.cli.legacy import cmd_legacy_dispatch, cmd_legacy_run
 from bfabric_app_runner.cli.outputs import cmd_outputs_register, cmd_outputs_register_single_file
 from bfabric_app_runner.cli.validate import (
     cmd_validate_app_spec,
@@ -100,7 +100,6 @@ _ = app.command(cmd_run)
 cmd_legacy = cyclopts.App(name="legacy", help="Run applications written against the old wrapper creator.")
 _ = cmd_legacy.command(cmd_legacy_dispatch, name="dispatch")
 _ = cmd_legacy.command(cmd_legacy_run, name="run")
-_ = cmd_legacy.command(cmd_legacy_collect, name="collect")
 _ = app.command(cmd_legacy)
 
 if __name__ == "__main__":

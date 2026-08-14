@@ -4,7 +4,7 @@ import pytest
 import yaml
 from bfabric_app_runner.cli.legacy import (
     UPLOAD_MANIFEST_FILENAME,
-    cmd_legacy_collect,
+    _write_outputs_spec,
     cmd_legacy_dispatch,
     cmd_legacy_run,
 )
@@ -106,20 +106,26 @@ class TestDispatch:
             cmd_legacy_dispatch(path, work_dir, executable="/opt/legacy.bash")
 
 
-class TestCollect:
-    def test_declares_the_produced_output(self, chunk_dir):
+class TestWriteOutputsSpec:
+    """``legacy run`` writes outputs.yml itself, so a legacy app needs no collect command."""
+
+    @pytest.fixture
+    def declare(self, chunk_dir):
+        return lambda: _write_outputs_spec(chunk_dir, chunk_dir / "config.yaml")
+
+    def test_declares_the_produced_output(self, chunk_dir, declare):
         output = chunk_dir / "result.zip"
         output.write_text("payload")
         _write_config(chunk_dir, output)
 
-        cmd_legacy_collect(chunk_dir)
+        declare()
 
         specs = OutputsSpec.read_yaml(chunk_dir / "outputs.yml")
         assert len(specs) == 1
         assert specs[0].local_path == output
         assert str(specs[0].store_entry_path) == "result.zip"
 
-    def test_declares_uploads_in_place_alongside_the_output(self, chunk_dir, tmp_path):
+    def test_declares_uploads_in_place_alongside_the_output(self, chunk_dir, tmp_path, declare):
         """Recorded uploads reach the same storage as the main output, without being copied first."""
         output = chunk_dir / "result.zip"
         output.write_text("payload")
@@ -128,21 +134,21 @@ class TestCollect:
         _record_upload(chunk_dir, scratch / "proteinGroups.txt")
         _record_upload(chunk_dir, scratch / "specs.pdf")
 
-        cmd_legacy_collect(chunk_dir)
+        declare()
 
         specs = OutputsSpec.read_yaml(chunk_dir / "outputs.yml")
         assert [str(spec.store_entry_path) for spec in specs] == ["result.zip", "proteinGroups.txt", "specs.pdf"]
         # referenced where the app left them, not relocated into the chunk directory
         assert specs[1].local_path == scratch / "proteinGroups.txt"
 
-    def test_preserves_upload_order(self, chunk_dir, tmp_path):
+    def test_preserves_upload_order(self, chunk_dir, tmp_path, declare):
         output = chunk_dir / "result.zip"
         output.write_text("payload")
         _write_config(chunk_dir, output)
         for name in ["specs.pdf", "parameters.txt", "proteinGroups.txt"]:
             _record_upload(chunk_dir, tmp_path / "scratch" / name)
 
-        cmd_legacy_collect(chunk_dir)
+        declare()
 
         specs = OutputsSpec.read_yaml(chunk_dir / "outputs.yml")
         assert [str(spec.store_entry_path) for spec in specs[1:]] == [
@@ -151,7 +157,7 @@ class TestCollect:
             "proteinGroups.txt",
         ]
 
-    def test_ignores_a_repeated_upload_of_the_same_path(self, chunk_dir, tmp_path):
+    def test_ignores_a_repeated_upload_of_the_same_path(self, chunk_dir, tmp_path, declare):
         output = chunk_dir / "result.zip"
         output.write_text("payload")
         _write_config(chunk_dir, output)
@@ -159,20 +165,20 @@ class TestCollect:
         _record_upload(chunk_dir, upload)
         _record_upload(chunk_dir, upload)
 
-        cmd_legacy_collect(chunk_dir)
+        declare()
 
         assert len(OutputsSpec.read_yaml(chunk_dir / "outputs.yml")) == 2
 
-    def test_works_without_any_uploads(self, chunk_dir):
+    def test_works_without_any_uploads(self, chunk_dir, declare):
         output = chunk_dir / "result.zip"
         output.write_text("payload")
         _write_config(chunk_dir, output)
 
-        cmd_legacy_collect(chunk_dir)
+        declare()
 
         assert len(OutputsSpec.read_yaml(chunk_dir / "outputs.yml")) == 1
 
-    def test_rejects_two_uploads_sharing_a_resource_name(self, chunk_dir, tmp_path):
+    def test_rejects_two_uploads_sharing_a_resource_name(self, chunk_dir, tmp_path, declare):
         output = chunk_dir / "result.zip"
         output.write_text("payload")
         _write_config(chunk_dir, output)
@@ -180,24 +186,24 @@ class TestCollect:
         _record_upload(chunk_dir, tmp_path / "b" / "proteinGroups.txt")
 
         with pytest.raises(ValueError, match="share a resource name: proteinGroups.txt"):
-            cmd_legacy_collect(chunk_dir)
+            declare()
 
-    def test_missing_output_and_no_uploads_fails(self, chunk_dir):
+    def test_missing_output_and_no_uploads_fails(self, chunk_dir, declare):
         _write_config(chunk_dir, chunk_dir / "result.zip")
         with pytest.raises(FileNotFoundError, match="did not produce its declared output"):
-            cmd_legacy_collect(chunk_dir)
+            declare()
 
-    def test_missing_output_with_uploads_registers_the_uploads(self, chunk_dir, tmp_path):
+    def test_missing_output_with_uploads_registers_the_uploads(self, chunk_dir, tmp_path, declare):
         """A few legacy apps only ever upload extra resources and never write the declared output."""
         _write_config(chunk_dir, chunk_dir / "result.zip")
         _record_upload(chunk_dir, tmp_path / "scratch" / "fgcz_MQ_QC_report.pdf")
 
-        cmd_legacy_collect(chunk_dir)
+        declare()
 
         specs = OutputsSpec.read_yaml(chunk_dir / "outputs.yml")
         assert [str(spec.store_entry_path) for spec in specs] == ["fgcz_MQ_QC_report.pdf"]
 
-    def test_recorded_upload_that_vanished(self, chunk_dir, tmp_path):
+    def test_recorded_upload_that_vanished(self, chunk_dir, tmp_path, declare):
         output = chunk_dir / "result.zip"
         output.write_text("payload")
         _write_config(chunk_dir, output)
@@ -205,23 +211,12 @@ class TestCollect:
         upload.unlink()
 
         with pytest.raises(FileNotFoundError, match="recorded by the app is gone"):
-            cmd_legacy_collect(chunk_dir)
+            declare()
 
-    def test_remote_output_is_rejected(self, chunk_dir):
+    def test_remote_output_is_rejected(self, chunk_dir, declare):
         _write_config(chunk_dir, "bfabric@fgcz-ms.uzh.ch:/srv/www/htdocs/result.zip")
         with pytest.raises(ValueError, match="Cannot register the remote output"):
-            cmd_legacy_collect(chunk_dir)
-
-    def test_missing_config(self, chunk_dir):
-        with pytest.raises(FileNotFoundError, match="No legacy configuration at"):
-            cmd_legacy_collect(chunk_dir)
-
-    def test_custom_config_filename(self, chunk_dir):
-        output = chunk_dir / "result.zip"
-        output.write_text("payload")
-        _write_config(chunk_dir, output, filename="legacy.yml")
-        cmd_legacy_collect(chunk_dir, config_filename="legacy.yml")
-        assert (chunk_dir / "outputs.yml").is_file()
+            declare()
 
 
 class TestRun:
@@ -233,6 +228,8 @@ class TestRun:
             "#!/bin/sh\n"
             'echo "$1" > "$(dirname "$0")/received_argument"\n'
             'command -v bfabric_setWorkunitStatus_available.py > "$(dirname "$0")/resolved_command"\n'
+            # the declared output, which the config places next to the config file
+            'echo payload > "$(dirname "$1")/result.zip"\n'
             'echo extra > "$(dirname "$0")/proteinGroups.txt"\n'
             'bfabric_upload_resource.py "$(dirname "$0")/proteinGroups.txt" 349972\n'
         )
@@ -262,11 +259,28 @@ class TestRun:
         manifest = (chunk_dir / UPLOAD_MANIFEST_FILENAME).read_text().splitlines()
         assert manifest == [str(legacy_app.parent / "proteinGroups.txt")]
 
+    def test_declares_the_outputs_itself(self, chunk_dir, legacy_app):
+        """No collect command: a successful run leaves the chunk ready for output registration."""
+        _write_config(chunk_dir, chunk_dir / "result.zip")
+
+        cmd_legacy_run(str(legacy_app), chunk_dir)
+
+        specs = OutputsSpec.read_yaml(chunk_dir / "outputs.yml")
+        assert [str(spec.store_entry_path) for spec in specs] == ["result.zip", "proteinGroups.txt"]
+
+    def test_custom_config_filename(self, chunk_dir, legacy_app):
+        _write_config(chunk_dir, chunk_dir / "result.zip", filename="legacy.yml")
+
+        cmd_legacy_run(str(legacy_app), chunk_dir, config_filename="legacy.yml")
+
+        assert (legacy_app.parent / "received_argument").read_text().strip() == str(chunk_dir / "legacy.yml")
+        assert (chunk_dir / "outputs.yml").is_file()
+
     def test_missing_config(self, chunk_dir, legacy_app):
         with pytest.raises(FileNotFoundError, match="No legacy configuration at"):
             cmd_legacy_run(str(legacy_app), chunk_dir)
 
-    def test_failing_app_raises(self, chunk_dir, tmp_path):
+    def test_failing_app_raises_and_declares_nothing(self, chunk_dir, tmp_path):
         failing = tmp_path / "failing.sh"
         failing.write_text("#!/bin/sh\nexit 3\n")
         failing.chmod(failing.stat().st_mode | stat.S_IXUSR)
@@ -274,3 +288,5 @@ class TestRun:
 
         with pytest.raises(Exception, match="returned non-zero exit status 3"):
             cmd_legacy_run(str(failing), chunk_dir)
+
+        assert not (chunk_dir / "outputs.yml").exists()

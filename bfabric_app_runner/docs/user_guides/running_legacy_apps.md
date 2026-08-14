@@ -7,7 +7,7 @@ app-runner without the wrapper creator, submitter and external-job machinery
 
 ## The app spec
 
-Wrapping a legacy app needs no Python: three `legacy` commands cover the whole lifecycle, and each
+Wrapping a legacy app needs no Python: two `legacy` commands cover the whole lifecycle, and each
 receives its trailing argument from the usual calling convention.
 
 ```yaml
@@ -27,9 +27,6 @@ versions:
         command: >-
           bfabric-app-runner legacy run
           /home/bfabric/slurmworker/bin/fgcz_slurm_maxquant_linux.bash
-      collect:
-        type: exec
-        command: bfabric-app-runner legacy collect
 ```
 
 `legacy dispatch` writes a single chunk whose `inputs.yml` holds exactly one entry, the legacy YAML.
@@ -38,12 +35,13 @@ staged. The app's output is placed at `<chunk_dir>/output-WU<id>.zip`; use `--ou
 app whose output is not a zip.
 
 `legacy run` invokes the app with the YAML path as its last argument, which is the convention the
-legacy submitter used, with the shims described below on `PATH`.
+legacy submitter used, with the shims described below on `PATH`. Once the app succeeds it writes the
+chunk's `outputs.yml`, since a legacy app deposits its files where the YAML told it to but cannot
+declare them for registration. There is deliberately no `collect` command: doing this at the end of
+the process step keeps a legacy app spec to the same two commands a modern app uses, and leaves a
+hand-corrected `outputs.yml` alone when you re-run `make stage`.
 
-`legacy collect` writes the chunk's `outputs.yml`, since a legacy app deposits its files where the
-YAML told it to but cannot declare them for registration.
-
-All three take `--config-filename` if the YAML should not be called `config.yaml`.
+Both take `--config-filename` if the YAML should not be called `config.yaml`.
 
 ## The generated YAML
 
@@ -96,7 +94,7 @@ the wrong entity.
 `bfabric_upload_resource.py` is redirected rather than neutralised. The real command base64s the file
 over SOAP, which makes B-Fabric file the resource on its own internal storage instead of the
 application's. The shim instead appends the file's absolute path to `<chunk_dir>/legacy_uploads.txt`,
-and `legacy collect` declares it like any other output --- so a legacy app's extra resources land on
+which `legacy run` then declares like any other output --- so a legacy app's extra resources land on
 the same storage as its main output, and the internal repo stays out of it. The file is referenced
 where the app left it rather than copied, since no legacy app removes its scratch directory before
 exiting. A missing file is ignored rather than fatal, matching the `|| { echo failed; }` these calls
@@ -106,14 +104,14 @@ Because those uploads are now registered at the outputs step rather than mid-run
 *after* uploading extra resources no longer leaves them behind in B-Fabric. In practice those calls
 sit on the success path, after the main output has been written.
 
-## What `collect` accepts
+## What gets registered
 
 Uploads keep the order the app made them in, and the same path uploaded twice is recorded once.
 
 A few legacy apps only ever upload extra resources and never write the declared output at all. If
-the declared output is missing but uploads were recorded, `collect` warns and registers just the
+the declared output is missing but uploads were recorded, the run warns and registers just the
 uploads; if nothing at all was produced, it fails. An app that *should* have written its output fails
-its own `scp` first, which fails the process step, so `collect` never runs in that case.
+its own `scp` first, and a non-zero exit means no `outputs.yml` is written at all.
 
 It also fails if the declared output is a remote `host:path` destination app-runner cannot register
 locally, if a recorded upload has since disappeared, or if two different files would claim the same
