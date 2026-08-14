@@ -9,12 +9,12 @@ from requests.exceptions import ConnectionError as RequestsConnectionError
 
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.errors import BfabricOAuthError
-from bfabric._oauth.credential_provider import OAuthCredentialProvider
+from bfabric.oauth._credential_provider import OAuthCredentialProvider
 
 
 @pytest.fixture
 def mock_oauth2_session(mocker):
-    cls = mocker.patch("bfabric._oauth.credential_provider.OAuth2Session")
+    cls = mocker.patch("bfabric.oauth._credential_provider.OAuth2Session")
     session = mocker.MagicMock(name="session")
     session.token = None
     session.metadata = {"token_endpoint": "https://example.com/rest/oauth/token"}
@@ -209,7 +209,7 @@ class TestRefreshToken:
 
     def test_session_configured_for_refresh(self, mock_oauth2_session, mocker):
         """The OAuth2Session is constructed with the right grant_type for refresh."""
-        cls = mocker.patch("bfabric._oauth.credential_provider.OAuth2Session")
+        cls = mocker.patch("bfabric.oauth._credential_provider.OAuth2Session")
         cls.return_value = mock_oauth2_session
         OAuthCredentialProvider(
             client_id="app-id",
@@ -304,7 +304,7 @@ class TestDiskCache:
 
         cache_path = tmp_path / "token.json"
 
-        cls = mocker.patch("bfabric._oauth.credential_provider.OAuth2Session")
+        cls = mocker.patch("bfabric.oauth._credential_provider.OAuth2Session")
         cls.return_value = mock_oauth2_session
         provider = OAuthCredentialProvider(
             client_id="id",
@@ -378,7 +378,7 @@ class TestCacheLoginToken:
 
         cache_path = tmp_path / "tok.json"
         mocker.patch(
-            "bfabric._oauth.credential_provider.compute_token_cache_path",
+            "bfabric.oauth._credential_provider.compute_token_cache_path",
             return_value=cache_path,
         )
         raw = {"access_token": "a", "refresh_token": "r", "expires_in": 3600, "scope": "api:read"}

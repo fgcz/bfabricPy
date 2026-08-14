@@ -3,13 +3,14 @@ from __future__ import annotations
 import io
 from typing import TYPE_CHECKING, Annotated, Any
 
-from polars import DataFrame
 from pydantic import BaseModel, BeforeValidator
 
 from bfabric.entities.core.entity import Entity
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+    from polars import DataFrame
 
 
 class _AttributeData(BaseModel):
@@ -64,6 +65,11 @@ class Dataset(Entity):
 
     def to_polars(self) -> DataFrame:
         """Returns a Polars DataFrame representation of the dataset."""
+        # Imported here, not at module scope: Dataset is reachable from every `import bfabric`, and
+        # polars is by far the heaviest dependency (~200 MB, ~70 ms). Callers that never ask for a
+        # DataFrame should not pay for it. Same pattern as ResultContainer.to_polars.
+        from polars import DataFrame
+
         column_names = self.column_names
         data: list[dict[str, str]] = []
         for item in self._item_data:

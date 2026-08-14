@@ -10,7 +10,7 @@ from bfabric_app_runner.specs.outputs_spec import OutputsSpec
 
 def cmd_validate_app_spec_template(yaml_file: Path) -> None:
     """Validate an app spec file."""
-    app_spec_file = AppSpecTemplate.model_validate(yaml.safe_load(yaml_file.read_text()))
+    app_spec_file = AppSpecTemplate.for_yaml(yaml_file)
     pprint(app_spec_file)
 
 

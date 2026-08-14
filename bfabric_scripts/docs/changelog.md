@@ -10,7 +10,29 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 ## \[Unreleased\]
 
-- `bfabric-cli auth register-webapp` — no longer crashes with a raw traceback when the OAuth session cannot be refreshed (e.g. an expired/revoked refresh token); prints a clean `Error: ...` message and exits 1.
+### Added
+
+- `bfabric-cli login` (also a top-level shortcut for `auth login`) renews an expired token with **no arguments**; a first login picks the instance from the known hosts and derives the environment name.
+- `auth login --no-browser` prints the authorization URL instead of opening one; over SSH use `auth device-code`.
+- `auth register` / `register-webapp` require `--service-user LOGIN` or the new `--no-service-user`, instead of silently registering without the `client_credentials` grant.
+- New user guide: [Authentication](https://fgcz.github.io/bfabricPy/user_guides/bfabric-cli/authentication.html) — command surface, scopes, logout vs remove, remote hosts.
+
+### Changed
+
+- `auth default` is now `auth activate`; deleting an environment is `auth remove`.
+- `auth logout` clears only this machine's credentials, leaving the environment ready for a zero-argument re-login (`--all` covers every environment). It does not revoke the token server-side.
+- `auth list` groups environments by instance and shows scope and token expiry; `list` and `status` mark *why* an environment is active.
+- Every `auth` command resolves its environment as `--config-env` > `BFABRICPY_CONFIG_ENV` > the configured default, and refuses to write the config under `BFABRICPY_CONFIG_OVERRIDE`.
+- Base URLs are normalised up front (scheme, host case, trailing slash, known-host expansion), and re-pointing an environment at a different instance needs confirmation.
+- `workunit upload --force` is replaced by `--on-duplicate upload|skip|link`, defaulting to `upload` — the duplicate check no longer runs unless asked for. Pass `skip` for the old behaviour.
+- Packaging: `project.readme` points at the package's own `README.md`, expanded into a proper landing page since PyPI shows it.
+- Internal: the `auth` command implementations were reorganised onto shared environment- and URL-resolution helpers.
+
+### Fixed
+
+- `api inspect` reports that it requires the SUDS engine instead of failing with an `AttributeError` when the configured engine is Zeep.
+- `auth register-webapp` prints `Error: ...` and exits 1 when the OAuth session cannot be refreshed, instead of a raw traceback.
+- `auth register` no longer prompts for an *Employee Bearer token* when a login exists; it authenticates as the environment in effect.
 
 ## \[1.16.0\] - 2026-08-03
 

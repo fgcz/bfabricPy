@@ -78,8 +78,8 @@ def _decode_scopes(token: str) -> set[str]:
     """Decode the granted scopes from a JWT's ``scope`` claim, *without* signature verification.
 
     Extracts the JWS compact payload without a JWKS round-trip -- a fast, offline capability hint
-    that must never substitute for real verification (:func:`bfabric._oauth.verify_jwt`) when trust in
-    the claims matters. Sole consumer is :func:`require_scope`.
+    that must never substitute for the OAuth module's JWKS-backed verification when trust in the
+    claims matters. Sole consumer is :func:`require_scope`.
 
     :param token: The raw JWT string
     :returns: The granted scopes, or an empty set if the ``scope`` claim is absent

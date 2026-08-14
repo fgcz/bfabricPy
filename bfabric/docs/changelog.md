@@ -9,7 +9,39 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
-- `MultiQuery.read_multi` now reserves query elements for the other fields of `obj` when chunking, since the API counts every value in a query towards its limit of 100 elements. Previously e.g. `read_multi("importresource", {"containerid": cid}, "relativepath", paths)` failed with "Query has 101 elements and exceeds the maximum of 100 allowed elements" as soon as 100 paths were passed. A query whose other fields already use up the limit now raises `ValueError` instead of being sent.
+### Added
+
+- Config: new CLI-only `scope` field recording the scope *requested* at login, so a login can be replayed from disk; `config_writer.clear_environment_credentials` strips inline secrets while keeping the environment configured.
+- `upload_files` / `collect_file_infos` accept `exclude_names`, dropping files by basename at any depth (e.g. `.DS_Store`).
+- `on_duplicate="link"` registers a duplicate as a resource pointing at the existing bytes instead of omitting the file, transferring nothing. See `FileInfo.link_from_resource_id`.
+- `create_workunit` attaches a `dataset` (a `WorkunitDataset` of name + base64-encoded `csv`/`tsv`/`parquet`) as the workunit's output dataset, and references an existing one as its input via `input_dataset_id`. A dataset alone satisfies the "no workunit data was provided" check, and the new step runs inside the existing failure cleanup.
+
+### Changed
+
+- The OAuth module moved from `bfabric._oauth` to `bfabric.oauth`.
+- `upload_files(client, params)` takes its files as `UploadFilesParams.files`, a list of `UploadFileParam(path=..., on_duplicate=...)`; the `force` / `link_duplicates` booleans are gone.
+- **`on_duplicate` defaults to `upload`, so the duplicate check no longer runs unless asked for** — pass `skip` for the old behaviour.
+- `UploadSummary` holds one list per outcome — `uploads`, `skips`, `failures`, `links` — replacing the 1.20.0 counters; skips carry the duplicate they lost out to.
+- A workunit whose files were all linked now completes instead of failing the "nothing uploaded" check.
+- Two input files mapping to the same resource name are rejected before the workunit is created, not after.
+- `import bfabric` no longer imports `polars` eagerly (~296 ms → ~184 ms); it loads on first use.
+- PKCE's printed-URL fallback and timeout error now name the loopback redirect target and point at the device-code flow.
+- `use_client` logs the reported error's traceback at DEBUG; the `Error: <message>` line and exit code 1 are unchanged.
+- `create_workunit` accepts a plain mapping for `params`, validated internally so an invalid mapping raises `ValidationError` before any write.
+
+### Fixed
+
+- `ResultContainer.assert_success` raises `BfabricRequestError` instead of a bare `RuntimeError`; it remains a `RuntimeError` subclass, so existing `except RuntimeError` handlers keep working.
+- The "could not find the config file" and "empty list provided for deletion" diagnostics go through loguru at WARNING instead of `print()`, so they honour the configured log level and sink.
+- `setup_script_logging` no longer skips setup in subprocesses, which fell back to loguru's verbose DEBUG default; its repeat guard is now process-local.
+- `write_environment_to_config` merges into an existing environment instead of replacing it, so unrelated keys survive a re-login; auth-owned keys are still replaced wholesale.
+- `MultiQuery.read_multi` reserves query elements for `obj`'s other fields when chunking, instead of overflowing the API's 100-element limit. A query that already exhausts it raises `ValueError`.
+- `Bfabric.connect()` errors clearly when an `auth_method: oauth` config has no `env_name`.
+- Packaging: `project.readme` points at a package-local `README.md`; hatchling 1.32.0 rejects paths outside the project directory, breaking builds from source.
+- Uploading a folder with sub-directories now works against servers that echo the resource name verbatim.
+- A nested re-upload reports `renamed_duplicate` rather than `exact_duplicate`; both carry the `skip` action, so branch on `action`, not `category`.
+- `created_by` / `modified_by` raise a `ValueError` naming the login instead of returning `None`.
+- Internal: owner typing corrected across the `entities/core` descriptors and mixins; `HasMany(bfabric_field=...)` is now required and class-level access raises like `HasOne`.
 
 ## \[1.20.0\] - 2026-08-03
 

@@ -122,7 +122,6 @@ def execute_outputs(action: ActionOutputs, client: Bfabric) -> None:
                 client=client,
                 ssh_user=action.ssh_user,
                 force_storage=action.force_storage,
-                reuse_default_resource=True,
             )
             # Create a workflowstep template if specified
             if bfabric_app_spec.workflow_template_step_id:

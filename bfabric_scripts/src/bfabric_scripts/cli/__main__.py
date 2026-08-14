@@ -10,6 +10,7 @@ from bfabric_scripts.cli.cli_external_job import app as _app_external_job
 from bfabric_scripts.cli.cli_feeder import cmd_feeder
 from bfabric_scripts.cli.cli_auth import cmd_auth
 from bfabric_scripts.cli.cli_workunit import cmd_workunit
+from bfabric_scripts.cli.login.oauth_login import cmd_auth_login
 
 package_version = importlib.metadata.version("bfabric_scripts")
 
@@ -20,18 +21,15 @@ _ = app.command(cmd_executable, name="executable")
 _ = app.command(cmd_workunit, name="workunit")
 _ = app.command(cmd_feeder, name="feeder")
 _ = app.command(cmd_auth, name="auth")
+_ = app.command(cmd_auth_login, name="login")
 
 # TODO delete after transitory release
 _ = app.command(_app_external_job, name="external-job")
 
 
 def main() -> None:
-    """CLI entry point: configure logging once, then dispatch.
-
-    Commands using ``@use_client`` set logging up themselves, but those that don't (e.g. ``auth``)
-    would otherwise run under loguru's default DEBUG handler. Setting up here covers every command;
-    the per-command call is idempotent.
-    """
+    """CLI entry point; sets logging up here because commands without ``@use_client`` would
+    otherwise run at loguru's default DEBUG level."""
     setup_script_logging()
     app()
 

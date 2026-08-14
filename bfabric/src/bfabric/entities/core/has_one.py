@@ -18,8 +18,8 @@ class HasOne(Generic[T]):
     """
 
     def __init__(self, *, bfabric_field: str, optional: bool = False) -> None:
-        self._bfabric_field = bfabric_field
-        self._optional = optional
+        self._bfabric_field: str = bfabric_field
+        self._optional: bool = optional
 
     def __get__(self, obj: Entity | None, objtype: type | None = None) -> T:
         if obj is None:

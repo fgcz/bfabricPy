@@ -48,6 +48,8 @@ These files can be managed with git-lfs in the slurmworker configuration reposit
 
 Once deployed, reference the wheel and pylock files in your `app.yml` using the `${app.version}` template variable. This avoids duplicating paths across multiple version entries.
 
+Paths are resolved relative to the directory containing the `app.yml` (see [Paths](../specs/app_specification.md#paths)), so the deployment directory can be moved or checked out elsewhere without rewriting the spec.
+
 ```yaml
 bfabric:
   app_runner: 0.1.0
@@ -57,21 +59,21 @@ versions:
     commands:
       dispatch:
         type: python_env
-        pylock: /home/bfabric/slurmworker/config/A375_MZMINE/dist/${app.version}/pylock.toml
+        pylock: dist/${app.version}/pylock.toml
         local_extra_deps:
-          - /home/bfabric/slurmworker/config/A375_MZMINE/dist/${app.version}/mzmine_app-${app.version}-py3-none-any.whl
+          - dist/${app.version}/mzmine_app-${app.version}-py3-none-any.whl
         command: -m mzmine_app.integrations.bfabric.dispatch
       process:
         type: python_env
-        pylock: /home/bfabric/slurmworker/config/A375_MZMINE/dist/${app.version}/pylock.toml
+        pylock: dist/${app.version}/pylock.toml
         local_extra_deps:
-          - /home/bfabric/slurmworker/config/A375_MZMINE/dist/${app.version}/mzmine_app-${app.version}-py3-none-any.whl
+          - dist/${app.version}/mzmine_app-${app.version}-py3-none-any.whl
         command: -m mzmine_app.integrations.bfabric.process
         env:
           MZMINE_CONTAINER_TAG: "4.7.8.p1"
           MZMINE_DATA_PATH: /home/bfabric/mzmine
         prepend_paths:
-          - /home/bfabric/slurmworker/config/A375_MZMINE/bin
+          - bin
           - /home/bfabric/slurmworker/bin
 ```
 

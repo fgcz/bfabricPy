@@ -7,7 +7,7 @@ This 5-minute tutorial will get you started with bfabricPy by writing your first
 Before starting, make sure you have:
 
 1. **Installed bfabricPy**: Follow [Installation Guide](installation.md)
-2. **Configured credentials**: Follow [Configuration Guide](configuration.md)
+2. **Logged in**: run `bfabric-cli login`, or see the [Configuration Guide](configuration.md) for the other options
 
 ______________________________________________________________________
 
@@ -66,7 +66,7 @@ Import the main Bfabric class.
 client = Bfabric.connect()
 ```
 
-Create a client using your configuration from `~/.bfabricpy.yml`.
+Connect using your configuration from `~/.bfabricpy.yml`.
 
 ```python
 results = client.read(endpoint="workunit", obj={}, max_results=5)
@@ -105,7 +105,7 @@ Now that you've seen the basics, explore further:
 
 | Want to... | Read this guide |
 | ------------------------------------- | ---------------------------------------------------------------------- |
-| Understand client authentication | [Creating a Client](../user_guides/creating_a_client/index.md) |
+| Understand client authentication | [Connecting](../user_guides/connecting/index.md) |
 | Query and retrieve data efficiently | [Reading Data](../user_guides/reading_data/index.md) |
 | Create, update, delete entities | [Writing Data](../user_guides/writing_data/index) |
 | Use typed entities with relationships | [Working with Entities](../user_guides/working_with_entities/index) |
@@ -116,5 +116,5 @@ Now that you've seen the basics, explore further:
 - [Installation Guide](installation) - Installation options
 - [Configuration Guide](configuration) - Config file structure and options
 - [API Inspection Guide](../user_guides/bfabric-cli/api_inspection) - Discovering API endpoints and parameters
-- [Creating a Client](../user_guides/creating_a_client/index) - Authentication methods
+- [Connecting](../user_guides/connecting/index) - Authentication methods
 - [Troubleshooting](troubleshooting) - Common issues and solutions

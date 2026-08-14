@@ -1,18 +1,65 @@
-# Creating a Client for Server and Webapp Usage
+# Server and Webapp Usage
 
-This guide covers how to create a `Bfabric` client for server-side applications and webapps that integrate with B-Fabric,
-using token-based authentication.
+This guide covers how to connect a `Bfabric` client in server-side applications and webapps that integrate with
+B-Fabric, where there is no config file to log in from interactively.
 
 ## Overview
 
-For server and webapp usage, bfabricPy provides token-based authentication methods. These are designed for situations
-where:
+Three situations, three methods:
 
-- You're building a web server or application that integrates with B-Fabric
-- Users authenticate via B-Fabric webapp tokens
-- You need to validate and restrict which B-Fabric instances tokens can come from
-- You're using async web frameworks (e.g., FastAPI, asyncio)
-- You need to perform operations on behalf of users
+| Situation | Method |
+| ----------------------------------------------------------- | ------------------------------------------------- |
+| A background job or server acting as itself, with no user | [`connect_oauth()`](#service-accounts) |
+| A webapp launched from B-Fabric, acting for the current user | [`WebappClient.create()`](#apps-launched-from-b-fabric) |
+| A webapp receiving a B-Fabric webapp token | [`connect_token()`](#token-based-authentication-methods) |
+
+## Service Accounts
+
+`connect_oauth()` authenticates as a registered OAuth client rather than as a person, using the client credentials
+grant. This is what background jobs, feeders and servers should use:
+
+```python
+from bfabric import Bfabric
+
+client = Bfabric.connect_oauth(
+    client_id="my-service",
+    client_secret="...",
+    base_url="https://fgcz-bfabric.uzh.ch/bfabric",
+    scope="api:read api:write",
+)
+```
+
+Tokens are fetched and refreshed automatically. Pass `token_cache_path` to keep them across restarts.
+
+```{important}
+A client credentials token carries no user identity. Anything authorized by the *caller's* container membership — file
+downloads, for instance — needs a token from a user flow instead. See
+[OAuth Usage & Troubleshooting](../../design/oauth_usage_and_troubleshooting.md).
+```
+
+## Apps Launched From B-Fabric
+
+An app that B-Fabric opens with a `jwt` URL parameter can exchange that short-lived launch token for a client that holds
+both identities at once:
+
+```python
+from bfabric.oauth import WebappClient
+
+webapp = WebappClient.create(
+    "https://fgcz-bfabric.uzh.ch/bfabric",
+    launch_token,
+    client_id="my-webapp",
+    client_secret="...",
+    scope="api:read api:write",
+)
+
+webapp.user.read(endpoint="sample", obj={})  # as the logged-in user
+webapp.service.save(endpoint="workunit", obj={})  # as the service account
+print(webapp.context.entity_class_name, webapp.context.entity_id)  # what was clicked on
+```
+
+`webapp.context` also carries `application_id`, `job_id`, the user's `email`, `name` and `groups`, and the token's
+expiry.
 
 ## Token-Based Authentication Methods
 

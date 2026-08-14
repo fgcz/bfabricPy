@@ -97,3 +97,12 @@ class TestMissing:
         with pytest.raises(ValueError) as err:
             _ = entity.field
         assert str(err.value) == "Missing field: many"
+
+
+class TestClassAccess:
+    @staticmethod
+    def test_get_on_class_raises(entity):
+        # Accessing the descriptor on the class (obj is None) is not supported and must not read refs.
+        with pytest.raises(AttributeError) as err:
+            _ = type(entity).field
+        assert str(err.value) == "'many' is only accessible on an instance"

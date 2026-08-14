@@ -62,11 +62,6 @@ class AppVersion(BaseModel):
     """Extra ``sbatch`` flags for this version, e.g. ``{"--cpus-per-task": 24}``. They override the submitter's
     own defaults, and a ``null`` value removes a flag the submitter would otherwise pass."""
 
-    # TODO remove when new submitter becomes available
-    reuse_default_resource: bool = True
-    """Legacy flag: reuse the workunit's auto-created default resource for the first copied output
-    instead of creating a new resource entry."""
-
 
 class AppVersionTemplate(BaseModel):
     """Template for a single app version, expanded to an ``AppVersion`` after variable interpolation."""
@@ -80,11 +75,6 @@ class AppVersionTemplate(BaseModel):
     submitter_params: SubmitterParams = {}
     """Extra ``sbatch`` flags for this version, e.g. ``{"--cpus-per-task": 24}``. They override the submitter's
     own defaults, and a ``null`` value removes a flag the submitter would otherwise pass."""
-
-    # TODO remove when new submitter becomes available
-    reuse_default_resource: bool = True
-    """Legacy flag: reuse the workunit's auto-created default resource for the first copied output
-    instead of creating a new resource entry."""
 
     def evaluate(self, variables_app: VariablesApp) -> AppVersion:
         """Evaluates the template to a concrete ``AppVersion`` instance."""
@@ -108,11 +98,6 @@ class AppVersionMultiTemplate(BaseModel):
     submitter_params: SubmitterParams = {}
     """Extra ``sbatch`` flags shared by these versions, e.g. ``{"--cpus-per-task": 24}``. They override the
     submitter's own defaults, and a ``null`` value removes a flag the submitter would otherwise pass."""
-
-    # TODO remove when new submitter becomes available
-    reuse_default_resource: bool = True
-    """Legacy flag: reuse the workunit's auto-created default resource for the first copied output
-    instead of creating a new resource entry."""
 
     @field_validator("version", mode="before")
     def _version_ensure_list(cls, values: Any) -> list[str]:

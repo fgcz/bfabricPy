@@ -14,6 +14,7 @@ import cyclopts
 import pytest
 from pydantic import ValidationError
 
+from bfabric.operations.workunit import FileUpload, UploadSummary
 from bfabric_scripts.cli.workunit import upload as upload_mod
 from bfabric_scripts.cli.workunit.upload import UploadParams
 
@@ -128,6 +129,13 @@ class TestUploadParamParsing:
         assert params.workunit_id == 500
         assert params.container_id is None
 
+    def test_on_duplicate_parsed(self):
+        params = self._parse(["a.txt", "--workunit-id", "500", "--on-duplicate", "link"])
+        assert params.on_duplicate == "link"
+
+    def test_on_duplicate_defaults_to_upload(self):
+        assert self._parse(["a.txt", "--workunit-id", "500"]).on_duplicate == "upload"
+
 
 class TestUploadParamsValidation:
     def test_name_and_id_mutually_exclusive(self):
@@ -149,8 +157,13 @@ class TestUploadParamsValidation:
 
 class TestCmdWorkunitUpload:
     @pytest.fixture
-    def summary(self, mocker):
-        return mocker.MagicMock(workunit_id=42, uploaded=1, skipped=0, failed=0, failures=[])
+    def summary(self):
+        # A real summary, not a mock: the command's log lines take len() of its outcome lists, and a
+        # MagicMock would answer 0 to every one of them without failing.
+        return UploadSummary(
+            workunit_id=42,
+            uploads=[FileUpload(filename="a.raw", resource_id=10, storage_path="/store/a.raw")],
+        )
 
     def _patch_context(self, mocker, reporter):
         context = mocker.MagicMock()
@@ -184,6 +197,23 @@ class TestCmdWorkunitUpload:
 
         _, kwargs = upload_files.call_args
         assert kwargs["params"].track_job is True
+
+    def test_on_duplicate_applies_to_every_file(self, mocker, summary):
+        # The CLI flag is uniform for the invocation; per-file policies are a library-level capability.
+        upload_files = mocker.patch.object(upload_mod, "upload_files", return_value=summary)
+        self._patch_context(mocker, None)
+        mocker.patch.object(upload_mod, "_progress_enabled", return_value=False)
+
+        params = UploadParams(
+            files=[Path("a.raw"), Path("b.raw")], container_id=1, application_id=2, on_duplicate="link"
+        )
+        upload_mod.cmd_workunit_upload.__wrapped__(params, client=mocker.MagicMock())
+
+        _, kwargs = upload_files.call_args
+        assert [(e.path, e.on_duplicate) for e in kwargs["params"].files] == [
+            (Path("a.raw"), "link"),
+            (Path("b.raw"), "link"),
+        ]
 
     def test_none_callbacks_when_disabled(self, mocker, summary):
         upload_files = mocker.patch.object(upload_mod, "upload_files", return_value=summary)

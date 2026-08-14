@@ -80,3 +80,39 @@ def test_collect_file_infos_empty_dir_raises(tmp_path: Path) -> None:
 
     with pytest.raises(ValueError):
         collect_file_infos([empty])
+
+
+def test_collect_file_infos_exclude_names_drops_matches_at_any_depth(tmp_path: Path) -> None:
+    (tmp_path / "keep.txt").write_bytes(b"k")
+    (tmp_path / ".marker").write_bytes(b"")
+    nested = tmp_path / "sub"
+    nested.mkdir()
+    (nested / "keep2.txt").write_bytes(b"k2")
+    (nested / ".marker").write_bytes(b"")
+
+    infos = collect_file_infos([tmp_path], exclude_names={".marker"})
+
+    # Excluded at the root AND nested; survivors keep their relative names.
+    assert sorted(i.name for i in infos) == ["keep.txt", "sub/keep2.txt"]
+
+
+def test_collect_file_infos_exclude_names_applies_to_explicit_files(tmp_path: Path) -> None:
+    keep = tmp_path / "keep.txt"
+    keep.write_bytes(b"k")
+    marker = tmp_path / ".marker"
+    marker.write_bytes(b"")
+
+    infos = collect_file_infos([keep, marker], exclude_names={".marker"})
+
+    assert [i.name for i in infos] == ["keep.txt"]
+
+
+def test_collect_file_infos_dir_excluded_to_empty_raises(tmp_path: Path) -> None:
+    d = tmp_path / "d"
+    d.mkdir()
+    (d / ".marker").write_bytes(b"")
+
+    # A directory whose only content is excluded is empty for upload purposes; failing loud beats
+    # silently creating a workunit with no resources.
+    with pytest.raises(ValueError):
+        collect_file_infos([d], exclude_names={".marker"})

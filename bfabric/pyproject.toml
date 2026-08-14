@@ -5,11 +5,12 @@ build-backend = "hatchling.build"
 [project]
 name = "bfabric"
 description = "Python client for the B-Fabric API"
-readme = "../README.md"
+readme = "README.md"
 version = "1.20.0"
 license = { text = "GPL-3.0" }
 authors = [
     { name = "Christian Panse", email = "cp@fgcz.ethz.ch" },
+    { name = "Claudio Cannizzaro", email = "claudio.cannizzaro@fgcz.uzh.ch" },
     { name = "Leonardo Schwarz", email = "leonardo.schwarz@fgcz.ethz.ch" },
     { name = "Aleksejs Fomins" },
     { name = "Marco Schmidt" },
