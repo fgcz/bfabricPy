@@ -20,8 +20,8 @@ class HasMany(Generic[E]):
         bfabric_field: str,
         optional: bool = False,
     ) -> None:
-        self._bfabric_field = bfabric_field
-        self._optional = optional
+        self._bfabric_field: str = bfabric_field
+        self._optional: bool = optional
 
     def __get__(self, obj: Entity | None, objtype: type | None = None) -> _HasManyProxy[E]:
         if obj is None:
@@ -35,7 +35,7 @@ class HasMany(Generic[E]):
 
 class _HasManyProxy(Generic[E]):
     def __init__(self, items: list[E]) -> None:
-        self._items = items
+        self._items: list[E] = items
 
     @property
     def ids(self) -> list[int]:

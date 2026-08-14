@@ -40,7 +40,9 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 - Packaging: `project.readme` points at a package-local `README.md`; hatchling 1.32.0 rejects paths outside the project directory, breaking builds from source.
 - Uploading a folder with sub-directories now works against servers that echo the resource name verbatim.
 - A nested re-upload reports `renamed_duplicate` rather than `exact_duplicate`; both carry the `skip` action, so branch on `action`, not `category`.
-- Internal: `HasMany.__get__` types its owner as `Entity` and guards class-level access, so it raises the same `'<field>' is only accessible on an instance` `AttributeError` as `HasOne` instead of an opaque `NoneType has no attribute 'refs'`; `HasMany(bfabric_field=...)` is now required, as it already was in practice.
+- `created_by` / `modified_by` raise a `ValueError` naming the login when it cannot be resolved to a user, instead of returning `None` and failing later as an opaque `AttributeError`. The four `UserCreatedMixin` properties likewise raise if their underlying field is not a string, or if the entity has no client.
+- Class-level access to a `HasMany` descriptor (e.g. `Workunit.resources`) raises `'<field>' is only accessible on an instance`, matching `HasOne`, instead of `'NoneType' object has no attribute 'refs'`.
+- Internal: owner and `self` typing corrected across `entities/core` — `HasMany.__get__` takes `Entity`, `HasMany(bfabric_field=...)` is now required, `UserCreatedMixin` declares the members its host supplies, and `Users` annotates its cache and resolves `get_by_id` through the typed `read_id` overload. Removes 48 entries from the basedpyright baseline.
 
 ## \[1.20.0\] - 2026-08-03
 
