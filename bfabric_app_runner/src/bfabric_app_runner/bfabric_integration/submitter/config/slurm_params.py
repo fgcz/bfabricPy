@@ -79,7 +79,7 @@ def _evaluate_app_params(workunit: Workunit) -> dict[str, str | int | None]:
     submitted, because the job itself reports app spec problems with far more context than the submitter can.
     """
     try:
-        app_yaml = Path(workunit.application.executable["program"])
+        app_yaml = Path(cast("str", workunit.application.executable["program"]))
         app_spec = AppSpec.load_yaml(
             app_yaml=app_yaml,
             app_id=workunit.application.id,
