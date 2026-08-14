@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import polars as pl
 import yaml
-from bfabric.entities import Dataset, Resource, Storage, Workunit
+from bfabric.entities import Dataset, Resource, Storage
 from bfabric.operations.dataset import (
     CreateDatasetParams,
     create_dataset,
@@ -55,13 +55,9 @@ def register_file_in_workunit(
     spec: CopyResourceSpec,
     client: Bfabric,
     workunit_definition: WorkunitDefinition,
-    resource_id: int | None = None,
 ) -> None:
     """Registers a file in the workunit."""
     existing_id = _identify_existing_resource_id(client, spec, workunit_definition)
-    if resource_id is not None and existing_id is not None and resource_id != existing_id:
-        raise ValueError(f"Resource id {resource_id} does not match existing resource id {existing_id}")
-
     checksum = md5_checksum(spec.local_path)
     output_folder = _get_output_folder(spec, workunit_definition=workunit_definition)
     resource_data = {
@@ -73,8 +69,6 @@ def register_file_in_workunit(
         "status": "available",
         "size": spec.local_path.stat().st_size,
     }
-    if resource_id is not None:
-        resource_data["id"] = resource_id
     if existing_id is not None:
         resource_data["id"] = existing_id
 
@@ -228,30 +222,14 @@ def _save_link(spec: SaveLinkSpec, client: Bfabric, workunit_definition: Workuni
     logger.info(f"Link {spec.name} saved with id {res[0]['id']} for entity {entity_type} with id {entity_id}")
 
 
-def find_default_resource_id(workunit_definition: WorkunitDefinition, client: Bfabric) -> int | None:
-    """Finds the default resource's id for the workunit. Maybe in the future, this will be always `None`."""
-    workunit_id = workunit_definition.registration.workunit_id  # pyright: ignore[reportOptionalMemberAccess]
-    workunit = client.reader.read_id(Workunit, workunit_id)
-    candidate_resources = [
-        resource for resource in workunit.resources if resource["name"] not in ["slurm_stdout", "slurm_stderr"]
-    ]
-    # We also check that the resource is pending, as else we might re-use a resource that was created by the app...
-    if len(candidate_resources) == 1 and candidate_resources[0]["status"] == "pending":
-        return candidate_resources[0].id
-    return None
-
-
 def register_all(
     client: Bfabric,
     workunit_definition: WorkunitDefinition,
     specs_list: list[SpecType],
     ssh_user: str | None,
-    reuse_default_resource: bool,
     force_storage: Path | None,
 ) -> None:
     """Registers all the output specs to the workunit."""
-    default_resource_was_reused = not reuse_default_resource
-
     storage = _get_storage(client, force_storage, specs_list, workunit_definition)
     logger.info(f"Using storage: {storage}")
 
@@ -264,17 +242,7 @@ def register_all(
                 storage=storage,
                 ssh_user=ssh_user,
             )
-            if not default_resource_was_reused:
-                resource_id = find_default_resource_id(workunit_definition=workunit_definition, client=client)
-                default_resource_was_reused = True
-            else:
-                resource_id = None
-            register_file_in_workunit(
-                spec,
-                client=client,
-                workunit_definition=workunit_definition,
-                resource_id=resource_id,
-            )
+            register_file_in_workunit(spec, client=client, workunit_definition=workunit_definition)
         elif isinstance(spec, SaveDatasetSpec):
             _save_dataset(spec, client, workunit_definition=workunit_definition)
         elif isinstance(spec, SaveLinkSpec):
@@ -302,7 +270,6 @@ def register_outputs(
     workunit_definition: WorkunitDefinition,
     client: Bfabric,
     ssh_user: str | None,
-    reuse_default_resource: bool,
     force_storage: Path | None,
 ) -> None:
     """Registers outputs to the workunit."""
@@ -312,6 +279,5 @@ def register_outputs(
         workunit_definition=workunit_definition,
         specs_list=specs_list,
         ssh_user=ssh_user,
-        reuse_default_resource=reuse_default_resource,
         force_storage=force_storage,
     )
