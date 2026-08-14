@@ -25,12 +25,14 @@ def mock_user(mocker):
 class TestGetById:
     @staticmethod
     def test_not_cached(entity_reader, users, bfabric_instance, mock_user):
+        from bfabric.entities.user import User as UserEntity
+
         entity_reader.read_id.return_value = mock_user
         assert mock_user not in users._users
         user = users.get_by_id(bfabric_instance, id=100)
         assert user is mock_user
         entity_reader.read_id.assert_called_once_with(
-            entity_type="user", entity_id=100, bfabric_instance=bfabric_instance
+            entity_type=UserEntity, entity_id=100, bfabric_instance=bfabric_instance
         )
         assert mock_user in users._users
 
