@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Output registration always creates a new resource instead of recycling the legacy wrapper creator's `pending` placeholder ([#361](https://github.com/fgcz/bfabricPy/issues/361)); the `reuse_default_resource` field and its CLI options are gone, but remain tolerated in an `app.yml`.
 - Relative paths in the app spec (`pylock`, `local_extra_deps`, `prepend_paths`, host side of docker `mounts`) resolve against the `app.yml` directory instead of the run's scratch directory, with a leading `~` expanded ([#212](https://github.com/fgcz/bfabricPy/issues/212)).
 - Captured command output (`uv venv` / `uv pip install`) is logged one record per line, so every line carries its level prefix.
 - Requires `bfabric` 1.20.1 for the logging fix that keeps a nested app-runner from falling back to loguru's verbose DEBUG format.
