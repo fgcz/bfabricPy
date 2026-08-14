@@ -130,9 +130,9 @@ The `AppVersionMultiTemplate` class defines app versions in two ways:
 1. Single string: `version: "1.0.0"`
 2. List of strings: `version: ["1.0.0", "1.0.1"]`
 
-## Submitter Parameters
+## Slurm Parameters
 
-A version may declare `submitter_params`, a mapping of `sbatch` flags that the submitter merges into the job it
+A version may declare `slurm_params`, a mapping of `sbatch` flags that the submitter merges into the job it
 creates, between its own defaults and the parameters chosen on the workunit:
 
 ```yaml
@@ -141,7 +141,7 @@ versions:
     commands:
       dispatch: ...
       process: ...
-    submitter_params:
+    slurm_params:
       --cpus-per-task: 24
       --mem: 512G
 ```

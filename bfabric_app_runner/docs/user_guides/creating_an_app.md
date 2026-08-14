@@ -87,7 +87,7 @@ These variables use Mako template interpolation and are resolved when the app sp
 ## Requesting Cluster Resources
 
 By default every app gets the same resources, whatever the submitter deployment was configured with. If your
-app needs more cores, more memory or a longer time limit, add `submitter_params` to its version:
+app needs more cores, more memory or a longer time limit, add `slurm_params` to its version:
 
 ```yaml
 versions:
@@ -100,7 +100,7 @@ versions:
       process:
         type: exec
         command: echo "processing"
-    submitter_params:
+    slurm_params:
       --cpus-per-task: 24
       --mem: 512G
       --time: "24:00:00"
@@ -112,7 +112,7 @@ The keys are `sbatch` flags, passed through as-is, so anything `sbatch` accepts 
 A few things are worth knowing before you rely on it:
 
 - **A user's own choice wins, for the four flags a workunit can carry.** The order of precedence is: the
-  submitter's defaults, then your `submitter_params`, then whatever the user picked on the workunit. A workunit
+  submitter's defaults, then your `slurm_params`, then whatever the user picked on the workunit. A workunit
   only exposes `--partition`, `--nodelist`, `--mem` and `--time`, so a workunit asking for `--mem 960G`
   overrides the `512G` above, while any other flag you set here is what the job gets.
 - **`null` removes a flag** the submitter would otherwise pass, e.g. `--nodelist: null` to undo a deployment
@@ -127,7 +127,7 @@ A few things are worth knowing before you rely on it:
 
 Run `bfabric-app-runner validate app-spec app.yml` to check all of the above before deploying, and be aware
 that a submitter deployment older than these params ignores the key entirely -- if a value seems to have no
-effect, check the submitter's version first, then its log for a `Could not read app-level submitter params`
+effect, check the submitter's version first, then its log for a `Could not read app-level slurm params`
 warning.
 
 ## Command Types

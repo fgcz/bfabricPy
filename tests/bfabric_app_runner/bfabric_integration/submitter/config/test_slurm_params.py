@@ -109,7 +109,7 @@ class TestSbatchParamsPrecedence:
 
 
 class TestEvaluateAppParams:
-    """Reading ``submitter_params`` out of the app.yml must never block a submission."""
+    """Reading ``slurm_params`` out of the app.yml must never block a submission."""
 
     @pytest.fixture()
     def app_yaml(self, tmp_path) -> Path:
@@ -122,7 +122,7 @@ class TestEvaluateAppParams:
             "    commands:\n"
             "      dispatch: {type: shell, command: d}\n"
             "      process: {type: shell, command: p}\n"
-            "    submitter_params:\n"
+            "    slurm_params:\n"
             "      --cpus-per-task: 24\n"
         )
         return path

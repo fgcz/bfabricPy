@@ -29,7 +29,7 @@ class SlurmParameters(BaseModel):
     submitter_params: dict[str, str | int | None]
     """Allows setting arbitrary parameters."""
     app_params: dict[str, str | int | None] = {}
-    """The ``submitter_params`` declared by the app version that this workunit runs."""
+    """The ``slurm_params`` declared by the app version that this workunit runs."""
     job_script: Path
     """The path to store job script."""
     workunit_params: SlurmWorkunitParams
@@ -73,7 +73,7 @@ class _SlurmConfigFileTemplate(BaseModel):
 
 
 def _evaluate_app_params(workunit: Workunit) -> dict[str, str | int | None]:
-    """Returns the ``submitter_params`` of the app version this workunit will run, or ``{}`` if unavailable.
+    """Returns the ``slurm_params`` of the app version this workunit will run, or ``{}`` if unavailable.
 
     This deliberately never raises: an unreadable or outdated app spec must not stop a workunit from being
     submitted, because the job itself reports app spec problems with far more context than the submitter can.
@@ -88,11 +88,11 @@ def _evaluate_app_params(workunit: Workunit) -> dict[str, str | int | None]:
         version = workunit.application_parameters.get("application_version")
         app_version = app_spec[version] if version is not None else None
         if app_version is None:
-            logger.warning(f"App version {version!r} is not in {app_yaml}, ignoring app-level submitter params.")
+            logger.warning(f"App version {version!r} is not in {app_yaml}, ignoring app-level slurm params.")
             return {}
-        return dict(app_version.submitter_params)
+        return dict(app_version.slurm_params)
     except Exception:  # noqa: BLE001 -- intentionally broad: submitting the job matters more than these params
-        logger.opt(exception=True).warning("Could not read app-level submitter params, using submitter defaults.")
+        logger.opt(exception=True).warning("Could not read app-level slurm params, using submitter defaults.")
         return {}
 
 

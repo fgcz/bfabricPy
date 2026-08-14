@@ -18,7 +18,7 @@ DURATION_SBATCH_FLAGS = frozenset({"--time", "--time-min"})
 _WORKUNIT_VARIABLE = re.compile(r"\$\{\s*workunit\b")
 
 
-def _check_submitter_params(value: dict[str, str | int | None]) -> dict[str, str | int | None]:
+def _check_slurm_params(value: dict[str, str | int | None]) -> dict[str, str | int | None]:
     """Rejects flags the app spec may not set, and values that would be misread or would escape their line."""
     for flag, flag_value in value.items():
         if any(character in flag for character in "= \t"):
@@ -40,9 +40,9 @@ def _check_submitter_params(value: dict[str, str | int | None]) -> dict[str, str
     return value
 
 
-SubmitterParams = Annotated[
+SlurmParams = Annotated[
     dict[Annotated[str, StringConstraints(pattern=r"^--")], str | int | None],
-    AfterValidator(_check_submitter_params),
+    AfterValidator(_check_slurm_params),
 ]
 
 
@@ -58,7 +58,7 @@ class AppVersion(BaseModel):
     commands: CommandsSpec
     """The dispatch, process, and (optional) collect commands that implement this version."""
 
-    submitter_params: SubmitterParams = {}
+    slurm_params: SlurmParams = {}
     """Extra ``sbatch`` flags for this version, e.g. ``{"--cpus-per-task": 24}``. They override the submitter's
     own defaults, and a ``null`` value removes a flag the submitter would otherwise pass."""
 
@@ -72,7 +72,7 @@ class AppVersionTemplate(BaseModel):
     commands: CommandsSpec
     """The dispatch, process, and (optional) collect commands that implement this version."""
 
-    submitter_params: SubmitterParams = {}
+    slurm_params: SlurmParams = {}
     """Extra ``sbatch`` flags for this version, e.g. ``{"--cpus-per-task": 24}``. They override the submitter's
     own defaults, and a ``null`` value removes a flag the submitter would otherwise pass."""
 
@@ -95,7 +95,7 @@ class AppVersionMultiTemplate(BaseModel):
     commands: CommandsSpec
     """The dispatch, process, and (optional) collect commands that implement these versions."""
 
-    submitter_params: SubmitterParams = {}
+    slurm_params: SlurmParams = {}
     """Extra ``sbatch`` flags shared by these versions, e.g. ``{"--cpus-per-task": 24}``. They override the
     submitter's own defaults, and a ``null`` value removes a flag the submitter would otherwise pass."""
 
