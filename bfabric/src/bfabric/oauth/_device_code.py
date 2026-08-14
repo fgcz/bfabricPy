@@ -107,8 +107,13 @@ def _poll_for_token(
         try:
             error_body: dict[str, object] = response.json()  # pyright: ignore[reportAny]
         except (ValueError, KeyError):
-            _ = response.raise_for_status()
-            raise BfabricOAuthError(f"Unexpected response: {response.status_code}")  # pragma: no cover
+            # A non-JSON body means this isn't the OAuth endpoint answering — an app-server 404 page
+            # during a redeploy, say. Report it as a domain error so the CLI prints a clean message
+            # instead of letting httpx's HTTPStatusError escape as a traceback.
+            raise BfabricOAuthError(
+                f"Token endpoint returned a non-JSON {response.status_code} response at {token_url}. "
+                "The server may be unavailable — try again shortly."
+            ) from None
 
         error = str(error_body.get("error", ""))
 
