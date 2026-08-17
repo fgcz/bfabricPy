@@ -30,10 +30,11 @@ def build_legacy_wrapper_yaml(
 ) -> dict[str, object]:
     """Builds the legacy wrapper-creator YAML for a workunit, writing nothing to B-Fabric.
 
-    The result matches what ``bfabric.wrapper_creator.BfabricWrapperCreator`` produces, except that
-    ``application.output`` is whatever ``output_path`` says (app-runner registers the output itself,
-    so there is no pre-created resource to address) and every resource and external-job id is
-    :data:`SENTINEL_ID`.
+    The result matches what ``bfabric.wrapper_creator.BfabricWrapperCreator`` produces, except where
+    app-runner owns the output itself: ``application.output`` is whatever ``output_path`` says, every
+    resource and external-job id is :data:`SENTINEL_ID`, and ``job_configuration.output`` describes a
+    local file (``protocol: file``, empty ``ssh_args``) rather than the wrapper creator's scp
+    destination. ``application.protocol`` stays ``scp``, since it describes the *inputs*.
 
     :param output_path: Where the app should deposit its output; ends up in ``application.output``.
     :param executable: ``job_configuration.executable``; ``None`` reads the application's own
@@ -57,7 +58,7 @@ def build_legacy_wrapper_yaml(
             "output": [output_path],
         },
         "job_configuration": {
-            "executable": executable if executable is not None else str(workunit.application.executable["program"]),
+            "executable": executable if executable is not None else _application_program(workunit),
             "external_job_id": SENTINEL_ID,
             "fastasequence": _fasta_sequence(order),
             "input": input_references,
@@ -73,6 +74,21 @@ def build_legacy_wrapper_yaml(
             "workunit_url": str(workunit.uri),
         },
     }
+
+
+def _application_program(workunit: Workunit) -> str:
+    """The application's own ``program``, used when the spec names no executable.
+
+    An application with no executable at all already raises from ``HasOne``, which is not optional
+    here; this only covers an executable that carries no ``program``, which would be a bare KeyError.
+    """
+    executable = workunit.application.executable
+    if "program" not in executable.data_dict:
+        raise ValueError(
+            f"Executable {executable.id} of application {workunit.application.id} has no `program`, "
+            f"so the spec must set `executable`"
+        )
+    return str(executable["program"])
 
 
 def _collect_inputs(resources: list[Resource]) -> tuple[dict[str, list[str]], dict[str, list[dict[str, object]]]]:

@@ -75,11 +75,12 @@ inputs:
     executable: /home/bfabric/slurmworker/bin/fgcz_slurm_maxquant_linux.bash
 ```
 
-`output_path` is where the app should deposit its output. Pointing it inside the chunk directory
-makes the app's `scp` degrade to a local copy, so app-runner can register the file afterwards. It is
-a spec field rather than something the resolver derives, because only the dispatcher knows the chunk
-directory. `executable` overrides `job_configuration.executable`; without it the application's own
-`program` field is used, which under app-runner points at the `app.yml` rather than at the legacy app.
+`output_path` is where the app should deposit its output, and must be an absolute path inside the
+chunk directory: that makes the app's `scp` degrade to a local copy, so app-runner can register the
+file afterwards. It is a spec field rather than something the resolver derives, because only the
+dispatcher knows the chunk directory. `executable` overrides `job_configuration.executable`; without
+it the application's own `program` field is used, which under app-runner points at the `app.yml`
+rather than at the legacy app.
 
 ## The shims
 
@@ -89,7 +90,15 @@ Six are no-ops: `bfabric_setResourceStatus_available.py`,
 `bfabric_setWorkunitStatus_{processing,available,failed}.py`, `bfabric_setExternalJobStatus_done.py`
 and `bfabric_save_workflowstep.py`. All of them duplicate work app-runner already does, and the ids
 they would be handed are sentinels, so left alone they would at best be redundant and at worst mark
-the wrong entity.
+the wrong entity. Neutralising `..._failed.py` loses nothing, because app-runner derives failure from
+the process command's exit status: every app that calls it either exits non-zero straight afterwards
+or fires it from an EXIT trap. Each shim echoes what it swallowed to stderr, which app-runner logs.
+
+Write commands that take the *real* workunit id are deliberately left alone --- notably
+`bfabric_save_workunit_attribute.py` and `bfabric_save_link_to_workunit.py`, which apps use to rename
+a workunit and to attach a results link. The YAML carries the true `workunit_id`, so those calls
+still do exactly what the app intends; shimming them would silently drop a user-visible feature. It
+does mean the process step is not entirely free of B-Fabric writes.
 
 `bfabric_upload_resource.py` is redirected rather than neutralised. The real command base64s the file
 over SOAP, which makes B-Fabric file the resource on its own internal storage instead of the
@@ -106,16 +115,19 @@ sit on the success path, after the main output has been written.
 
 ## What gets registered
 
-Uploads keep the order the app made them in, and the same path uploaded twice is recorded once.
+Uploads keep the order the app made them in, and the same file is registered once however many times
+it was uploaded --- including when the app uploads its declared output as well, which is one resource
+rather than a name clash. `legacy_uploads.txt` is truncated at the start of each run, so a retry of
+the process step never inherits the previous run's uploads.
 
 A few legacy apps only ever upload extra resources and never write the declared output at all. If
 the declared output is missing but uploads were recorded, the run warns and registers just the
 uploads; if nothing at all was produced, it fails. An app that *should* have written its output fails
 its own `scp` first, and a non-zero exit means no `outputs.yml` is written at all.
 
-It also fails if the declared output is a remote `host:path` destination app-runner cannot register
-locally, if a recorded upload has since disappeared, or if two different files would claim the same
-resource name --- B-Fabric allows a resource name only once per workunit.
+It also fails if a recorded upload has since disappeared, or if two *different* files would claim the
+same resource name --- B-Fabric allows a resource name only once per workunit. A remote `host:path`
+destination is rejected before the app starts, rather than after it has run.
 
 ## Known limitation
 
@@ -123,6 +135,6 @@ Most apps read the output path via `fgcz_yaml2.bash`, which uses `shyaml get-val
 application.output.-1` and so passes a colon-free local path through unchanged. A few parse it
 themselves and assume a `host:path` shape --- `fgcz_slurm_maxquant_textfiles.bash` does
 `cut -d":" -f2`, and `fgcz_slurm_SummarizedExperiment_A315.bash` runs a `sed` expecting a
-`p<number>/` segment. Those need adapting before they can run this way; `output_path` accepts a real
-scp URL as an escape hatch, but then the app uploads to storage itself and the file is no longer
-local when app-runner would register it.
+`p<number>/` segment. Those need adapting before they can run this way --- `output_path` cannot simply
+be pointed at a real scp URL instead, since app-runner registers a local file and rejects a
+`host:path` destination up front.

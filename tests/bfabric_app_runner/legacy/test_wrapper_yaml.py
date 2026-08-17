@@ -96,6 +96,13 @@ class TestJobConfigurationSection:
         )
         assert config["job_configuration"]["executable"] == "/opt/legacy.bash"
 
+    def test_executable_without_a_program(self, mock_client, mock_workunit, mocker):
+        """Explicit, since indexing the missing key would only raise a bare KeyError."""
+        mock_workunit.application.executable = _entity(mocker, Executable, 11851, {"context": "SUBMITTER"})
+
+        with pytest.raises(ValueError, match="has no `program`"):
+            _ = build_legacy_wrapper_yaml(client=mock_client, workunit_id=181492, output_path="/out.zip")
+
     def test_input_groups_ids_and_uris_by_producing_application(self, config):
         assert config["job_configuration"]["input"] == {
             "QEXACTIVEHFX_1": [

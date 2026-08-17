@@ -28,10 +28,9 @@ class LegacyWrapperYamlSpec(BaseModel):
     output_path: str
     """Where the app should deposit its output, written to ``application.output``.
 
-    Normally an absolute path inside the chunk directory, so that the app's ``scp`` degrades to a
-    local copy and app-runner can register the file afterwards. An app that insists on a remote
-    destination can be given a ``bfabric@host:path`` URL instead, but then it has to register the
-    result itself.
+    An absolute path inside the chunk directory, so that the app's ``scp`` degrades to a local copy
+    and app-runner can register the file afterwards. A ``host:path`` destination is rejected before
+    the app runs, since app-runner registers a local file.
     """
 
     executable: str | None = None

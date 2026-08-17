@@ -1,4 +1,5 @@
 import stat
+from pathlib import Path
 
 import pytest
 import yaml
@@ -57,10 +58,11 @@ class TestDispatch:
         return work_dir
 
     def test_writes_a_single_chunk(self, work_dir):
+        """Relative to the work directory, as ChunksFile documents and infer_from_directory produces."""
         cmd_legacy_dispatch(work_dir / "workunit_definition.yml", work_dir, executable="/opt/legacy.bash")
 
         chunks = yaml.safe_load((work_dir / "chunks.yml").read_text())["chunks"]
-        assert chunks == [str(work_dir / "work")]
+        assert chunks == ["work"]
 
     def test_inputs_hold_only_the_legacy_yaml(self, work_dir):
         """The legacy app fetches its own resources from the YAML, so nothing else is staged."""
@@ -97,6 +99,16 @@ class TestDispatch:
         )
 
         assert InputsSpec.read_yaml(work_dir / "work" / "inputs.yml").inputs[0].filename == "legacy.yml"
+
+    def test_output_path_is_absolute_for_a_relative_work_dir(self, work_dir, monkeypatch):
+        """The app reads output_path after its own `cd`, so a relative path would misdirect it."""
+        monkeypatch.chdir(work_dir.parent)
+        relative = Path(work_dir.name)
+
+        cmd_legacy_dispatch(relative / "workunit_definition.yml", relative, executable="/opt/legacy.bash")
+
+        spec = InputsSpec.read_yaml(work_dir / "work" / "inputs.yml").inputs[0]
+        assert spec.output_path == str(work_dir / "work" / "output-WU349972.zip")
 
     def test_definition_without_registration(self, work_dir):
         path = work_dir / "no_registration.yml"
@@ -218,6 +230,30 @@ class TestWriteOutputsSpec:
         with pytest.raises(ValueError, match="Cannot register the remote output"):
             declare()
 
+    def test_an_uploaded_declared_output_is_one_resource(self, chunk_dir, declare):
+        """An app may scp its output and upload it too; that is not a name clash."""
+        output = chunk_dir / "result.zip"
+        output.write_text("payload")
+        _write_config(chunk_dir, output)
+        _record_upload(chunk_dir, output)
+
+        declare()
+
+        specs = OutputsSpec.read_yaml(chunk_dir / "outputs.yml")
+        assert [str(spec.store_entry_path) for spec in specs] == ["result.zip"]
+
+    def test_the_same_file_declared_and_uploaded_by_different_paths(self, chunk_dir, declare):
+        output = chunk_dir / "result.zip"
+        output.write_text("payload")
+        (chunk_dir / "sub").mkdir()
+        _write_config(chunk_dir, output)
+        # the app's own path for the same file, which only `resolve()` reveals as a duplicate
+        _record_upload(chunk_dir, chunk_dir / "sub" / ".." / "result.zip")
+
+        declare()
+
+        assert len(OutputsSpec.read_yaml(chunk_dir / "outputs.yml")) == 1
+
 
 class TestRun:
     @pytest.fixture
@@ -267,6 +303,26 @@ class TestRun:
 
         specs = OutputsSpec.read_yaml(chunk_dir / "outputs.yml")
         assert [str(spec.store_entry_path) for spec in specs] == ["result.zip", "proteinGroups.txt"]
+
+    def test_retry_does_not_inherit_the_previous_run_uploads(self, chunk_dir, legacy_app, tmp_path):
+        """A stale manifest entry would either fail the retry or register a file it never produced."""
+        _write_config(chunk_dir, chunk_dir / "result.zip")
+        stale = _record_upload(chunk_dir, tmp_path / "gone" / "from_run_one.txt")
+        stale.unlink()
+
+        cmd_legacy_run(str(legacy_app), chunk_dir)
+
+        specs = OutputsSpec.read_yaml(chunk_dir / "outputs.yml")
+        assert [str(spec.store_entry_path) for spec in specs] == ["result.zip", "proteinGroups.txt"]
+
+    def test_remote_output_is_rejected_before_the_app_runs(self, chunk_dir, legacy_app):
+        """Failing afterwards would throw away the whole run for something knowable up front."""
+        _write_config(chunk_dir, "bfabric@fgcz-ms.uzh.ch:/srv/www/htdocs/result.zip")
+
+        with pytest.raises(ValueError, match="Cannot register the remote output"):
+            cmd_legacy_run(str(legacy_app), chunk_dir)
+
+        assert not (legacy_app.parent / "received_argument").exists()
 
     def test_custom_config_filename(self, chunk_dir, legacy_app):
         _write_config(chunk_dir, chunk_dir / "result.zip", filename="legacy.yml")
