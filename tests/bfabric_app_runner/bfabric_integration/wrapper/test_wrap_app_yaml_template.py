@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 from bfabric_app_runner.bfabric_integration.wrapper.wrap_app_yaml_template import WrapAppYamlTemplate
 
 
@@ -54,3 +56,35 @@ class TestWrapAppYamlTemplate:
         for line in uv_run_lines:
             assert "-p 3.12" in line
         assert "-p 3.13" not in script
+
+    def test_app_yaml_path_stays_quoted(self):
+        """Both uses of the path must stay quoted, so a path is never word-split by the shell."""
+        script = _render()
+        assert 'get_app_runner_version "/path/to/app.yml"' in script
+        assert "--app-definition '/path/to/app.yml'" in script
+
+
+class TestExtractWorkunit:
+    @staticmethod
+    def _workunit(mocker, program: str):
+        workunit = mocker.MagicMock(name="workunit")
+        workunit.id = 42
+        workunit.application.id = 1000
+        workunit.application.executable.__getitem__.side_effect = {"program": program}.__getitem__
+        return workunit
+
+    def test_accepts_a_single_path(self, mocker):
+        workunit = self._workunit(mocker, "/home/bfabric/slurmworker/config/A375/app.yml")
+        params = WrapAppYamlTemplate.Params.extract_workunit(workunit, scratch_root=Path("/scratch"))
+        assert params.app_yaml_path == "/home/bfabric/slurmworker/config/A375/app.yml"
+
+    def test_rejects_a_compat_wrapper_program(self, mocker):
+        """A two-token program used to render a job script that died on its own first line."""
+        program = "/home/bfabric/slurmworker/bin/fgcz_slurm_app_runner_compat.bash /home/bfabric/config/app.yml"
+        workunit = self._workunit(mocker, program)
+        with pytest.raises(ValueError) as error:
+            WrapAppYamlTemplate.Params.extract_workunit(workunit, scratch_root=Path("/scratch"))
+        message = str(error.value)
+        assert program in message
+        assert "workunit 42" in message
+        assert "application 1000" in message

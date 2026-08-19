@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- The SLURM submitter refuses an application whose executable `program` is not a single path (e.g. one registered against the compat wrapper) with an explicit error naming the application, instead of generating a job script that died on its own first line.
 - A `python_env` command whose `uv` binary is missing from `PATH` fails with `uv executable not found on PATH` instead of an obscure `TypeError`.
 - The demo app copier template can be instantiated again; the destination must now be given as an absolute path.
 - A failing app command reports a single `Error: Command failed with exit code N: <command>` line instead of ~10 frames of app-runner boilerplate ([#231](https://github.com/fgcz/bfabricPy/issues/231)).
