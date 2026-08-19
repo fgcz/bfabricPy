@@ -11,26 +11,19 @@ if TYPE_CHECKING:
     from bfabric_app_runner.specs.app.app_version import AppVersion
 
 
-def _get_application_version_str(workunit_definition: WorkunitDefinition) -> str:
-    """Returns the application version string from the workunit definition."""
-    # TODO this should be more generic in the future about the key for the app version (should be handled in AppSpec)
-    # TODO logic to define "latest" version (should also be handled in AppSpec)
-    if "application_version" not in workunit_definition.execution.raw_parameters:
-        msg = "The workunit definition does not specify an application version."
-        raise ValueError(msg)
-    return workunit_definition.execution.raw_parameters["application_version"]
-
-
 def _resolve_app(versions: AppSpec, workunit_definition: WorkunitDefinition) -> AppVersion:
     """Resolves the app version to use for the provided workunit definition."""
-    version_str = _get_application_version_str(workunit_definition=workunit_definition)
-    if version_str not in versions or versions[version_str] is None:
-        msg = (
-            f"application_version '{version_str}' is not defined in the app spec,\n"
-            f" available versions: {sorted(versions.available_versions)}"
+    app_version = versions.for_parameters(workunit_definition.execution.raw_parameters)
+    if app_version is None:
+        requested = workunit_definition.execution.raw_parameters.get("application_version")
+        reason = (
+            "the workunit definition does not specify an application_version"
+            if requested is None
+            else f"application_version '{requested}' is not defined in the app spec"
         )
+        msg = f"Cannot resolve the app version: {reason},\n available versions: {sorted(versions.available_versions)}"
         raise ValueError(msg)
-    return versions[version_str]
+    return app_version
 
 
 def load_workunit_information(

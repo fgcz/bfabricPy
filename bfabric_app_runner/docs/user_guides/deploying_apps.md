@@ -93,6 +93,18 @@ bfabric-app-runner validate app-spec app.yml --app-id 123 --app-name my_app
 
 The slurmworker repository includes a noxfile that validates all app YAML files at once using `nox`.
 
+## Cluster resources and the submitter version
+
+An app version's [`slurm_params`](creating_an_app.md#requesting-cluster-resources) are read by the *submitter*,
+which is deployed and versioned separately from the app: the `bfabric.app_runner` pin in `app.yml` governs the
+job, not the submitter. A submitter older than the field ignores it, so the app silently runs on the
+deployment's default resources.
+
+If a value seems to have no effect, check the submitter deployment's version first, then its log for a
+`Could not read` or `does not exist` warning naming the app.yml. Note also that this submitter requires the
+application executable's `<program>` to be the bare path of the `app.yml`; an application registered against
+the compat wrapper is refused at submit time with an explicit error.
+
 ## Checklist
 
 1. Build the wheel and export the lock file using the snippet above.

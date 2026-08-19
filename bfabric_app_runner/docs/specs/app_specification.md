@@ -130,6 +130,30 @@ The `AppVersionMultiTemplate` class defines app versions in two ways:
 1. Single string: `version: "1.0.0"`
 2. List of strings: `version: ["1.0.0", "1.0.1"]`
 
+## Slurm Parameters
+
+A version may declare `slurm_params`, a mapping of `sbatch` flags that the submitter merges into the job it
+creates, between its own defaults and the parameters chosen on the workunit:
+
+```yaml
+versions:
+  - version: "1.0.0"
+    commands:
+      dispatch: ...
+      process: ...
+    slurm_params:
+      --cpus-per-task: 24
+      --mem: 512G
+```
+
+Keys must start with `--` and contain neither `=` nor whitespace. A `null` value removes a flag the submitter
+would otherwise pass. `--output`, `--error`, `--chdir` and `--export` are reserved by the submitter
+(`RESERVED_SBATCH_FLAGS`) and rejected, as are values referencing `${workunit...}`, which is not in scope when
+an app spec is evaluated. See [Creating an app](../user_guides/creating_an_app.md) for the practical guide.
+
+A submitter deployment older than this field ignores it, since unknown keys in an app spec are dropped rather
+than rejected.
+
 ## Variables and Templating
 
 Available variables for Mako templates:

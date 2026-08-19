@@ -84,6 +84,58 @@ When multiple versions share a definition, the following template variables are 
 
 These variables use Mako template interpolation and are resolved when the app spec is loaded.
 
+## Requesting Cluster Resources
+
+By default every app gets the same resources, whatever the submitter deployment was configured with. If your
+app needs more cores, more memory or a longer time limit, add `slurm_params` to its version:
+
+```yaml
+versions:
+  - version:
+      - "1.0.0"
+    commands:
+      dispatch:
+        type: exec
+        command: echo "dispatching"
+      process:
+        type: exec
+        command: echo "processing"
+    slurm_params:
+      --cpus-per-task: 24
+      --mem: 512G
+      --time: "24:00:00"
+      --licenses: spectronaut:1
+```
+
+The keys are `sbatch` flags, passed through as-is, so anything `sbatch` accepts works (`--gres`, `--exclude`,
+`--constraint`, ...). Values may use the same `${app...}` variables as the rest of the spec.
+
+`--licenses` is worth calling out: an app wrapping licensed software (Spectronaut, Mascot, ...) declares its
+seat here, and SLURM then queues jobs rather than letting them start and fail on an exhausted licence pool.
+Because a seat is a property of the app rather than of one submission, this is the flag most likely to be the
+reason you want this section at all.
+
+A few things are worth knowing before you rely on it:
+
+- **A user's own choice wins, for the four flags a workunit can carry.** The order of precedence is: the
+  submitter's defaults, then your `slurm_params`, then whatever the user picked on the workunit. A workunit
+  only exposes `--partition`, `--nodelist`, `--mem` and `--time`, so a workunit asking for `--mem 960G`
+  overrides the `512G` above, while any other flag you set here is what the job gets.
+- **`null` removes a flag** the submitter would otherwise pass, e.g. `--nodelist: null` to undo a deployment
+  that pins jobs to one node. There is no other way to unset one.
+- **Some flags are refused**: `--output`, `--error`, `--chdir` and `--export` belong to the submitter, which
+  uses them for the job's logging, working directory and environment. Setting one is an error at spec
+  validation time, not a silent no-op.
+- **`${workunit...}` is not available here** -- an app spec is evaluated without a workunit in scope. Only
+  `${app...}` variables work. This too is rejected at validation time rather than failing later.
+- **Quote durations.** YAML reads an unquoted `24:00:00` as the integer `86400`, which `sbatch` would then take
+  to mean 86400 *minutes*. `--time` and `--time-min` therefore refuse integer values.
+
+Run `bfabric-app-runner validate app-spec app.yml` to check all of the above before deploying, and be aware
+that a submitter deployment older than these params ignores the key entirely -- if a value seems to have no
+effect, check the submitter's version first, then its log for a `Could not read app-level slurm params`
+warning.
+
 ## Command Types
 
 Each version defines commands for different execution phases. Four command types are available; the fields

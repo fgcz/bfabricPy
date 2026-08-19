@@ -1,11 +1,49 @@
 from __future__ import annotations
 
-from typing import Any
+import re
+from typing import Annotated, Any
 
-from pydantic import BaseModel, field_validator
+from pydantic import AfterValidator, BaseModel, StringConstraints, field_validator
 
 from bfabric_app_runner.specs.app.commands_spec import CommandsSpec
 from bfabric_app_runner.specs.config_interpolation import interpolate_config_strings, VariablesApp
+
+RESERVED_SBATCH_FLAGS = frozenset({"--chdir", "--error", "--export", "--output"})
+"""Flags the submitter owns: they carry the job's logging, working directory and the environment the job body
+relies on, so an app overriding one would break the job rather than just resize it."""
+
+DURATION_SBATCH_FLAGS = frozenset({"--time", "--time-min"})
+"""Flags whose SLURM format collides with YAML's sexagesimal integers, so they have to be quoted."""
+
+_WORKUNIT_VARIABLE = re.compile(r"\$\{\s*workunit\b")
+
+
+def _check_slurm_params(value: dict[str, str | int | None]) -> dict[str, str | int | None]:
+    """Rejects flags the app spec may not set, and values that would be misread or would escape their line."""
+    for flag, flag_value in value.items():
+        if any(character in flag for character in "= \t"):
+            raise ValueError(f"Invalid sbatch flag {flag!r}: a flag must not contain '=' or whitespace")
+        if flag in RESERVED_SBATCH_FLAGS:
+            raise ValueError(f"The flag {flag!r} is reserved by the submitter and cannot be set by an app")
+        if flag in DURATION_SBATCH_FLAGS and isinstance(flag_value, int):
+            raise ValueError(
+                f"Quote the value of {flag!r}: YAML reads an unquoted 24:00:00 as the integer 86400, which sbatch "
+                f"then reads as 86400 minutes"
+            )
+        if isinstance(flag_value, str) and _WORKUNIT_VARIABLE.search(flag_value):
+            raise ValueError(
+                f"The flag {flag!r} uses ${{workunit...}}, which is not available in an app spec; use ${{app...}}"
+            )
+        if isinstance(flag_value, str) and ("\n" in flag_value or "\r" in flag_value):
+            # Each flag becomes one #SBATCH line, so a newline here would append lines to the generated job script.
+            raise ValueError(f"The value of {flag!r} must be a single line")
+    return value
+
+
+SlurmParams = Annotated[
+    dict[Annotated[str, StringConstraints(pattern=r"^--")], str | int | None],
+    AfterValidator(_check_slurm_params),
+]
 
 
 class AppVersion(BaseModel):
@@ -20,6 +58,10 @@ class AppVersion(BaseModel):
     commands: CommandsSpec
     """The dispatch, process, and (optional) collect commands that implement this version."""
 
+    slurm_params: SlurmParams = {}
+    """Extra ``sbatch`` flags for this version, e.g. ``{"--cpus-per-task": 24}``. They override the submitter's
+    own defaults, and a ``null`` value removes a flag the submitter would otherwise pass."""
+
 
 class AppVersionTemplate(BaseModel):
     """Template for a single app version, expanded to an ``AppVersion`` after variable interpolation."""
@@ -29,6 +71,10 @@ class AppVersionTemplate(BaseModel):
 
     commands: CommandsSpec
     """The dispatch, process, and (optional) collect commands that implement this version."""
+
+    slurm_params: SlurmParams = {}
+    """Extra ``sbatch`` flags for this version, e.g. ``{"--cpus-per-task": 24}``. They override the submitter's
+    own defaults, and a ``null`` value removes a flag the submitter would otherwise pass."""
 
     def evaluate(self, variables_app: VariablesApp) -> AppVersion:
         """Evaluates the template to a concrete ``AppVersion`` instance."""
@@ -48,6 +94,10 @@ class AppVersionMultiTemplate(BaseModel):
 
     commands: CommandsSpec
     """The dispatch, process, and (optional) collect commands that implement these versions."""
+
+    slurm_params: SlurmParams = {}
+    """Extra ``sbatch`` flags shared by these versions, e.g. ``{"--cpus-per-task": 24}``. They override the
+    submitter's own defaults, and a ``null`` value removes a flag the submitter would otherwise pass."""
 
     @field_validator("version", mode="before")
     def _version_ensure_list(cls, values: Any) -> list[str]:

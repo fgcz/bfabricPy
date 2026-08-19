@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- An app version can declare `slurm_params`, extra `sbatch` flags (e.g. `--cpus-per-task`, `--mem`) that the SLURM submitter merges between its own defaults and the parameters chosen on the workunit, so resource requests can differ per app without a submitter deployment per app. A `null` value removes a flag the submitter would otherwise pass; `--output`, `--error`, `--chdir` and `--export` are reserved by the submitter and rejected, as are `${workunit...}` variables, which are not in scope when an app spec is evaluated. Reading the app spec at submit time is fail-safe: any problem falls back to the submitter defaults with a warning rather than blocking the submission. A submitter older than this release ignores the key.
 - New `${app.dir}` template variable holding the app spec's directory, for paths no spec field resolves — e.g. `command: uv run --script ${app.dir}/dispatch.py`.
 
 ### Changed
@@ -18,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- The SLURM submitter refuses an application whose executable `program` is not a single path (e.g. one registered against the compat wrapper) with an explicit error naming the application, instead of generating a job script that died on its own first line.
 - A `python_env` command whose `uv` binary is missing from `PATH` fails with `uv executable not found on PATH` instead of an obscure `TypeError`.
 - The demo app copier template can be instantiated again; the destination must now be given as an absolute path.
 - A failing app command reports a single `Error: Command failed with exit code N: <command>` line instead of ~10 frames of app-runner boilerplate ([#231](https://github.com/fgcz/bfabricPy/issues/231)).

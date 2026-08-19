@@ -10,6 +10,7 @@ from bfabric_app_runner.specs.app.app_version import AppVersion, AppVersionMulti
 from bfabric_app_runner.specs.config_interpolation import VariablesApp
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
     from pathlib import Path
 
 
@@ -81,6 +82,15 @@ class AppSpec(BaseModel):
         """Loads the app versions from the provided YAML file and evaluates the templates."""
         app_spec_file = AppSpecTemplate.for_yaml(app_yaml)
         return app_spec_file.evaluate(app_id=int(app_id), app_name=str(app_name), app_dir=app_yaml.resolve().parent)
+
+    def for_parameters(self, raw_parameters: Mapping[str, str | None]) -> AppVersion | None:
+        """Returns the app version these workunit parameters select, or ``None`` if there is no such version.
+
+        ``None`` covers both an absent ``application_version`` and one naming a version the spec does not
+        define; the callers differ in how loudly they react, so neither case raises here.
+        """
+        version = raw_parameters.get("application_version")
+        return self[version] if version is not None else None
 
     @property
     def available_versions(self) -> set[str]:
