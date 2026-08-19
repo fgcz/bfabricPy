@@ -75,25 +75,29 @@ class _SlurmConfigFileTemplate(BaseModel):
 def _evaluate_app_params(workunit: Workunit) -> dict[str, str | int | None]:
     """Returns the ``slurm_params`` of the app version this workunit will run, or ``{}`` if unavailable.
 
-    This deliberately never raises: an unreadable or outdated app spec must not stop a workunit from being
-    submitted, because the job itself reports app spec problems with far more context than the submitter can.
+    An unreadable or outdated app spec must not stop a workunit from being submitted, because the job itself
+    reports app spec problems with far more context than the submitter can. Only reading the spec is tolerated
+    that way, so a defect in the submitter still surfaces instead of quietly costing the app its parameters.
     """
+    app_yaml = Path(cast("str", workunit.application.executable["program"]))
+    if not app_yaml.is_file():
+        logger.warning(f"App spec {app_yaml} does not exist, using submitter defaults for slurm params.")
+        return {}
     try:
-        app_yaml = Path(cast("str", workunit.application.executable["program"]))
         app_spec = AppSpec.load_yaml(
             app_yaml=app_yaml,
             app_id=workunit.application.id,
             app_name=cast("str", workunit.application["name"]),
         )
-        app_version = app_spec.for_parameters(workunit.application_parameters)
-        if app_version is None:
-            version = workunit.application_parameters.get("application_version")
-            logger.warning(f"App version {version!r} is not in {app_yaml}, ignoring app-level slurm params.")
-            return {}
-        return dict(app_version.slurm_params)
-    except Exception:  # noqa: BLE001 -- intentionally broad: submitting the job matters more than these params
-        logger.opt(exception=True).warning("Could not read app-level slurm params, using submitter defaults.")
+    except Exception:  # noqa: BLE001 -- any broken app spec, down to a bad Mako expression, must still submit
+        logger.opt(exception=True).error(f"Could not read {app_yaml}, using submitter defaults for slurm params.")
         return {}
+    app_version = app_spec.for_parameters(workunit.application_parameters)
+    if app_version is None:
+        version = workunit.application_parameters.get("application_version")
+        logger.warning(f"App version {version!r} is not in {app_yaml}, ignoring app-level slurm params.")
+        return {}
+    return dict(app_version.slurm_params)
 
 
 def evaluate_slurm_parameters(config_yaml_path: Path, workunit: Workunit) -> SlurmParameters:

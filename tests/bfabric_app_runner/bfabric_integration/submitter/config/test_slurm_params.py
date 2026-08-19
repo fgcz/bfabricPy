@@ -42,6 +42,23 @@ def test_slurm_config_template_evaluation(slurm_config_file_template, variables_
     assert config_file.job_script == Path("~/test/job-42").expanduser()
 
 
+def test_slurm_config_template_for_yaml(tmp_path, variables_app, variables_workunit):
+    """The documented submitter.yml shape parses off disk, including templating and a `~` path."""
+    path = tmp_path / "submitter.yml"
+    path.write_text(
+        "params:\n"
+        "  --partition: prx\n"
+        "  --mem: 256G\n"
+        "  --job-name: WU${workunit.id}\n"
+        "job_script: ~/prx/workunitid-${workunit.id}.bash\n"
+        "scratch_root: /scratch\n"
+    )
+    config_file = _SlurmConfigFileTemplate.for_yaml(path).evaluate(variables_app, variables_workunit)
+    assert config_file.params == {"--partition": "prx", "--mem": "256G", "--job-name": "WU42"}
+    assert config_file.job_script == Path("~/prx/workunitid-42.bash").expanduser()
+    assert config_file.scratch_root == Path("/scratch")
+
+
 def test_slurm_parameters_creation(mocker):
     """Test SlurmParameters creation and sbatch_params merging."""
     # Mock workunit params
@@ -156,6 +173,12 @@ class TestEvaluateAppParams:
         """An app that never had an ``application_version`` parameter still gets its params."""
         workunit.application_parameters = {}
         assert _evaluate_app_params(workunit) == {"--cpus-per-task": 24}
+
+    def test_a_submitter_defect_is_not_swallowed(self, workunit):
+        """Only reading the spec is fail-safe; a bug on our side must not cost the app its params silently."""
+        workunit.application_parameters = None
+        with pytest.raises(AttributeError):
+            _evaluate_app_params(workunit)
 
     def test_absent_version_parameter_returns_empty_when_several_versions_exist(self, workunit, app_yaml):
         app_yaml.write_text(app_yaml.read_text().replace("  - version: '1.0.0'\n", "  - version: ['1.0.0', '1.0.1']\n"))
