@@ -82,7 +82,6 @@ class TestWriteEnvironmentToConfig:
                         "base_url": "https://v1.example.com",
                         "application_ids": {"app": 123},
                         "job_notification_emails": "me@example.com",
-                        "engine": "ZEEP",
                     },
                 }
             )
@@ -96,7 +95,6 @@ class TestWriteEnvironmentToConfig:
         env = yaml.safe_load(config_path.read_text())["PROD"]
         assert env["application_ids"] == {"app": 123}
         assert env["job_notification_emails"] == "me@example.com"
-        assert env["engine"] == "ZEEP"
         assert env["base_url"] == "https://v2.example.com"
 
     def test_drops_stale_pat_when_re_login_is_oauth(self, tmp_path):

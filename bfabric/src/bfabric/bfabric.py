@@ -29,7 +29,6 @@ from loguru import logger
 from rich.console import Console
 
 from bfabric.config import DEFAULT_CONFIG_FILE, BfabricAuth, BfabricClientConfig
-from bfabric.config.bfabric_client_config import BfabricAPIEngineType
 from bfabric.config.config_data import ConfigData, load_config_data
 from bfabric.config.config_file import read_config_file
 from bfabric.engine.engine_suds import EngineSUDS
@@ -44,7 +43,6 @@ if TYPE_CHECKING:
     from pydantic import SecretStr
 
     from bfabric.oauth._credential_provider import OAuthCredentialProvider
-    from bfabric.engine.engine_zeep import EngineZeep
     from bfabric.entities.core.entity_reader import EntityReader
     from bfabric.experimental.webapp_integration_settings import TokenValidationSettingsProtocol
     from bfabric.typing import ApiRequestObjectType, ApiResponseObjectType
@@ -72,19 +70,8 @@ class Bfabric:
         self._log_version_message()
 
     @cached_property
-    def _engine(self) -> EngineSUDS | EngineZeep:
-        if self.config.engine == BfabricAPIEngineType.SUDS:
-            return EngineSUDS(base_url=self._config.base_url)
-        elif self.config.engine == BfabricAPIEngineType.ZEEP:
-            try:
-                from bfabric.engine.engine_zeep import EngineZeep
-            except ImportError as e:
-                raise ImportError(
-                    "The zeep engine requires the optional 'zeep' extra: pip install bfabric[zeep]"
-                ) from e
-            return EngineZeep(base_url=self._config.base_url)
-        else:
-            raise ValueError(f"Unexpected engine type: {self.config.engine}")
+    def _engine(self) -> EngineSUDS:
+        return EngineSUDS(base_url=self._config.base_url)
 
     @classmethod
     def connect(
@@ -163,7 +150,6 @@ class Bfabric:
         config_env: str | None = None,
         config_path: str | None = None,
         auth: BfabricAuth | Literal["config"] | None = "config",
-        engine: BfabricAPIEngineType | None = None,
     ) -> Bfabric:
         """Returns a new Bfabric instance, configured with the user configuration file.
         If the `config_env` is specified then it will be used, if it is not specified the default environment will be
@@ -175,7 +161,6 @@ class Bfabric:
         :param config_path: Path to the config file, in case it is different from default
         :param auth: Authentication to use. If "config" is given, the authentication will be read from the config file.
              If it is set to None, no authentication will be used.
-        :param engine: Engine to use for the API.
         """
         warnings.warn(
             "Bfabric.from_config() is deprecated and will be removed in a future release. "

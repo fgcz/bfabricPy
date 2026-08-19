@@ -29,6 +29,11 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 - `use_client` logs the reported error's traceback at DEBUG; the `Error: <message>` line and exit code 1 are unchanged.
 - `create_workunit` accepts a plain mapping for `params`, validated internally so an invalid mapping raises `ValidationError` before any write.
 
+### Removed
+
+- **Breaking:** the zeep engine, which had stopped working against B-Fabric. `EngineSUDS` is the only engine, `BfabricAPIEngineType.ZEEP` is gone, and so is the `bfabric[zeep]` extra. An environment setting `engine: ZEEP` no longer loads — drop the key.
+- **Breaking:** the `engine` parameter of `Bfabric.from_config` (which never applied it) and of `BfabricClientConfig.copy_with`.
+
 ### Fixed
 
 - `ResultContainer.assert_success` raises `BfabricRequestError` instead of a bare `RuntimeError`; it remains a `RuntimeError` subclass, so existing `except RuntimeError` handlers keep working.

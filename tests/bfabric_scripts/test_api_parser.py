@@ -280,9 +280,14 @@ class TestParseMethodSignature:
         assert result == {}
 
     def test_parse_method_signature_rejects_non_suds_engine(self, mocker: MockerFixture) -> None:
-        """Test that a non-SUDS engine raises a clear error instead of leaking an AttributeError."""
+        """A non-SUDS engine raises a clear error instead of leaking an AttributeError.
+
+        Suds is currently the only engine, so the value here is a stand-in rather than a real
+        alternative: the guard exists so that adding one, or passing a mock, fails loudly at the
+        WSDL introspection boundary instead of deep inside the private engine.
+        """
         client_mock = mocker.MagicMock()
-        client_mock.config.engine = BfabricAPIEngineType.ZEEP
+        client_mock.config.engine = "NOT_SUDS"
 
         with pytest.raises(RuntimeError, match="only supported with the SUDS engine"):
             parse_method_signature(client_mock, "test_endpoint", "testMethod")

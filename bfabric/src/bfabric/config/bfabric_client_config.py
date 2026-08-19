@@ -20,7 +20,6 @@ class BfabricAPIEngineType(StrEnum):
     """Choice of engine to use."""
 
     SUDS = "SUDS"
-    ZEEP = "ZEEP"
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}.{self.name}"
@@ -44,14 +43,12 @@ class BfabricClientConfig(BaseModel):
         self,
         base_url: str | None = None,
         application_ids: dict[str, int] | None = None,
-        engine: BfabricAPIEngineType | None = None,
     ) -> BfabricClientConfig:
         """Returns a copy of the configuration with new values applied, if they are not None."""
         return BfabricClientConfig(
             base_url=base_url if base_url is not None else self.base_url,
             application_ids=(application_ids if application_ids is not None else self.application_ids),
             job_notification_emails=self.job_notification_emails,
-            engine=engine if engine is not None else self.engine,
         )
 
     def __str__(self) -> str:
