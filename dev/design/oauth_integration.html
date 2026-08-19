@@ -598,10 +598,10 @@ logout promises only what it delivers: local credentials gone, an issued token v
 <section id="new-fields-in-environment-config">
 <h3>New fields in environment config<a class="headerlink" href="#new-fields-in-environment-config" title="Link to this heading">#</a></h3>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">PRODUCTION</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">base_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://bfabric.example.com/bfabric&quot;</span>
-<span class="w">  </span><span class="nt">auth_method</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;oauth&quot;</span><span class="w">        </span><span class="c1"># NEW — triggers OAuth flow in Bfabric.connect()</span>
-<span class="w">  </span><span class="nt">client_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CLI&quot;</span><span class="w">    </span><span class="c1"># NEW — optional, defaults to &quot;CLI&quot;</span>
-<span class="w">  </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;api:write</span><span class="nv"> </span><span class="s">tus&quot;</span><span class="w">      </span><span class="c1"># NEW — the scope *requested* at login</span>
+<span class="w">  </span><span class="nt">base_url</span><span class="p">:</span><span class="w"> </span><span class="s">"https://bfabric.example.com/bfabric"</span>
+<span class="w">  </span><span class="nt">auth_method</span><span class="p">:</span><span class="w"> </span><span class="s">"oauth"</span><span class="w">        </span><span class="c1"># NEW — triggers OAuth flow in Bfabric.connect()</span>
+<span class="w">  </span><span class="nt">client_id</span><span class="p">:</span><span class="w"> </span><span class="s">"CLI"</span><span class="w">    </span><span class="c1"># NEW — optional, defaults to "CLI"</span>
+<span class="w">  </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="s">"api:write</span><span class="nv"> </span><span class="s">tus"</span><span class="w">      </span><span class="c1"># NEW — the scope *requested* at login</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">scope</span></code> is what makes a login replayable from disk, and it is deliberately the <strong>requested</strong> value
@@ -615,9 +615,9 @@ keys (<code class="docutils literal notranslate"><span class="pre">application_i
 <p>For PAT (Personal Access Token) logins the token is stored inline under <code class="docutils literal notranslate"><span class="pre">pat</span></code> (with
 <code class="docutils literal notranslate"><span class="pre">auth_method:</span> <span class="pre">pat</span></code>), never as <code class="docutils literal notranslate"><span class="pre">login:</span> <span class="pre">__oauth__</span></code> / <code class="docutils literal notranslate"><span class="pre">password:</span> <span class="pre">&lt;token&gt;</span></code>:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">PRODUCTION</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">base_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://bfabric.example.com/bfabric&quot;</span>
-<span class="w">  </span><span class="nt">auth_method</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;pat&quot;</span>
-<span class="w">  </span><span class="nt">pat</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;token&gt;&quot;</span>
+<span class="w">  </span><span class="nt">base_url</span><span class="p">:</span><span class="w"> </span><span class="s">"https://bfabric.example.com/bfabric"</span>
+<span class="w">  </span><span class="nt">auth_method</span><span class="p">:</span><span class="w"> </span><span class="s">"pat"</span>
+<span class="w">  </span><span class="nt">pat</span><span class="p">:</span><span class="w"> </span><span class="s">"&lt;token&gt;"</span>
 </pre></div>
 </div>
 <p><strong>Backward-compatibility contract.</strong> A PAT is not 32 characters, and a ≤1.19.0 client
@@ -684,12 +684,12 @@ upgrade is required. The reader still accepts the legacy <code class="docutils l
 <section id="how-to-install-from-this-branch">
 <h2>How to install from this branch<a class="headerlink" href="#how-to-install-from-this-branch" title="Link to this heading">#</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># As a library dependency</span>
-pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;bfabric @ git+https://github.com/fgcz/bfabricPy.git@oauth-integration#subdirectory=bfabric&quot;</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"bfabric @ git+https://github.com/fgcz/bfabricPy.git@oauth-integration#subdirectory=bfabric"</span>
 
 <span class="c1"># As a CLI tool (both packages from branch)</span>
 uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="s2">&quot;bfabric-scripts @ git+https://github.com/fgcz/bfabricPy.git@oauth-integration#subdirectory=bfabric_scripts&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--with<span class="w"> </span><span class="s2">&quot;bfabric @ git+https://github.com/fgcz/bfabricPy.git@oauth-integration#subdirectory=bfabric&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s2">"bfabric-scripts @ git+https://github.com/fgcz/bfabricPy.git@oauth-integration#subdirectory=bfabric_scripts"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--with<span class="w"> </span><span class="s2">"bfabric @ git+https://github.com/fgcz/bfabricPy.git@oauth-integration#subdirectory=bfabric"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--reinstall
 </pre></div>
 </div>

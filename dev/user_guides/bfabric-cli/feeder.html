@@ -590,11 +590,11 @@ bfabric-cli<span class="w"> </span>feeder<span class="w"> </span>create-importre
 <span class="c1">#!/bin/bash</span>
 <span class="c1"># check_new_files.sh</span>
 <span class="nv">STORAGE_ID</span><span class="o">=</span><span class="m">1</span>
-<span class="nv">DATA_DIR</span><span class="o">=</span><span class="s2">&quot;/data/incoming&quot;</span>
+<span class="nv">DATA_DIR</span><span class="o">=</span><span class="s2">"/data/incoming"</span>
 
-find<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$DATA_DIR</span><span class="s2">&quot;</span><span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.raw&quot;</span><span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>file<span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Processing </span><span class="nv">$file</span><span class="s2">...&quot;</span>
-<span class="w">    </span>bfabric-cli<span class="w"> </span>feeder<span class="w"> </span>create-importresource<span class="w"> </span><span class="nv">$STORAGE_ID</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$file</span><span class="s2">&quot;</span>
+find<span class="w"> </span><span class="s2">"</span><span class="nv">$DATA_DIR</span><span class="s2">"</span><span class="w"> </span>-name<span class="w"> </span><span class="s2">"*.raw"</span><span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>file<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Processing </span><span class="nv">$file</span><span class="s2">..."</span>
+<span class="w">    </span>bfabric-cli<span class="w"> </span>feeder<span class="w"> </span>create-importresource<span class="w"> </span><span class="nv">$STORAGE_ID</span><span class="w"> </span><span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span>
 <span class="k">done</span>
 </pre></div>
 </div>
@@ -683,8 +683,8 @@ bfabric-cli<span class="w"> </span>feeder<span class="w"> </span>create-importre
 <section id="process-in-batches">
 <h3>Process in Batches<a class="headerlink" href="#process-in-batches" title="Link to this heading">#</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># For large numbers of files, process in batches</span>
-find<span class="w"> </span>/data/incoming<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.raw&quot;</span><span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-100<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>file<span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<span class="w">    </span>bfabric-cli<span class="w"> </span>feeder<span class="w"> </span>create-importresource<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$file</span><span class="s2">&quot;</span>
+find<span class="w"> </span>/data/incoming<span class="w"> </span>-name<span class="w"> </span><span class="s2">"*.raw"</span><span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-100<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>file<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span>bfabric-cli<span class="w"> </span>feeder<span class="w"> </span>create-importresource<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span>
 <span class="k">done</span>
 </pre></div>
 </div>
@@ -695,7 +695,7 @@ find<span class="w"> </span>/data/incoming<span class="w"> </span>-name<span cla
 bfabric-cli<span class="w"> </span>feeder<span class="w"> </span>create-importresource<span class="w"> </span><span class="m">1</span><span class="w"> </span>/data/*.raw<span class="w"> </span><span class="m">2</span>&gt;<span class="w"> </span>errors.log
 
 <span class="c1"># Review any failures</span>
-grep<span class="w"> </span><span class="s2">&quot;error\|Error\|ERROR&quot;</span><span class="w"> </span>errors.log
+grep<span class="w"> </span><span class="s2">"error\|Error\|ERROR"</span><span class="w"> </span>errors.log
 </pre></div>
 </div>
 </section>
@@ -774,27 +774,27 @@ tree<span class="w"> </span>/data/
 <span class="c1"># ingest_data.sh</span>
 
 <span class="nv">STORAGE_ID</span><span class="o">=</span><span class="m">1</span>
-<span class="nv">SOURCE_DIR</span><span class="o">=</span><span class="s2">&quot;/data/incoming&quot;</span>
-<span class="nv">PROCESSED_DIR</span><span class="o">=</span><span class="s2">&quot;/data/processed&quot;</span>
+<span class="nv">SOURCE_DIR</span><span class="o">=</span><span class="s2">"/data/incoming"</span>
+<span class="nv">PROCESSED_DIR</span><span class="o">=</span><span class="s2">"/data/processed"</span>
 
 <span class="c1"># 1. Validate files</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Validating files...&quot;</span>
-<span class="k">for</span><span class="w"> </span>file<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SOURCE_DIR</span><span class="s2">&quot;</span>/*.raw<span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$file</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
-<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Error: </span><span class="nv">$file</span><span class="s2"> does not exist&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"Validating files..."</span>
+<span class="k">for</span><span class="w"> </span>file<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s2">"</span><span class="nv">$SOURCE_DIR</span><span class="s2">"</span>/*.raw<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-f<span class="w"> </span><span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Error: </span><span class="nv">$file</span><span class="s2"> does not exist"</span>
 <span class="w">        </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
 <span class="w">    </span><span class="k">fi</span>
 <span class="k">done</span>
 
 <span class="c1"># 2. Create importresources</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Creating importresources...&quot;</span>
-bfabric-cli<span class="w"> </span>feeder<span class="w"> </span>create-importresource<span class="w"> </span><span class="nv">$STORAGE_ID</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SOURCE_DIR</span><span class="s2">&quot;</span>/*.raw
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"Creating importresources..."</span>
+bfabric-cli<span class="w"> </span>feeder<span class="w"> </span>create-importresource<span class="w"> </span><span class="nv">$STORAGE_ID</span><span class="w"> </span><span class="s2">"</span><span class="nv">$SOURCE_DIR</span><span class="s2">"</span>/*.raw
 
 <span class="c1"># 3. Move to processed directory</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Moving files to processed...&quot;</span>
-mv<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SOURCE_DIR</span><span class="s2">&quot;</span>/*.raw<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$PROCESSED_DIR</span><span class="s2">/&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"Moving files to processed..."</span>
+mv<span class="w"> </span><span class="s2">"</span><span class="nv">$SOURCE_DIR</span><span class="s2">"</span>/*.raw<span class="w"> </span><span class="s2">"</span><span class="nv">$PROCESSED_DIR</span><span class="s2">/"</span>
 
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Ingestion complete!&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"Ingestion complete!"</span>
 </pre></div>
 </div>
 </section>

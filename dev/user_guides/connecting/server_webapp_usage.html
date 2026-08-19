@@ -468,10 +468,10 @@ grant. This is what background jobs, feeders and servers should use:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect_oauth</span><span class="p">(</span>
-    <span class="n">client_id</span><span class="o">=</span><span class="s2">&quot;my-service&quot;</span><span class="p">,</span>
-    <span class="n">client_secret</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">,</span>
-    <span class="n">base_url</span><span class="o">=</span><span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric&quot;</span><span class="p">,</span>
-    <span class="n">scope</span><span class="o">=</span><span class="s2">&quot;api:read api:write&quot;</span><span class="p">,</span>
+    <span class="n">client_id</span><span class="o">=</span><span class="s2">"my-service"</span><span class="p">,</span>
+    <span class="n">client_secret</span><span class="o">=</span><span class="s2">"..."</span><span class="p">,</span>
+    <span class="n">base_url</span><span class="o">=</span><span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric"</span><span class="p">,</span>
+    <span class="n">scope</span><span class="o">=</span><span class="s2">"api:read api:write"</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -490,15 +490,15 @@ both identities at once:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric.oauth</span><span class="w"> </span><span class="kn">import</span> <span class="n">WebappClient</span>
 
 <span class="n">webapp</span> <span class="o">=</span> <span class="n">WebappClient</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-    <span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric&quot;</span><span class="p">,</span>
+    <span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric"</span><span class="p">,</span>
     <span class="n">launch_token</span><span class="p">,</span>
-    <span class="n">client_id</span><span class="o">=</span><span class="s2">&quot;my-webapp&quot;</span><span class="p">,</span>
-    <span class="n">client_secret</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">,</span>
-    <span class="n">scope</span><span class="o">=</span><span class="s2">&quot;api:read api:write&quot;</span><span class="p">,</span>
+    <span class="n">client_id</span><span class="o">=</span><span class="s2">"my-webapp"</span><span class="p">,</span>
+    <span class="n">client_secret</span><span class="o">=</span><span class="s2">"..."</span><span class="p">,</span>
+    <span class="n">scope</span><span class="o">=</span><span class="s2">"api:read api:write"</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="n">webapp</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{})</span>  <span class="c1"># as the logged-in user</span>
-<span class="n">webapp</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;workunit&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{})</span>  <span class="c1"># as the service account</span>
+<span class="n">webapp</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{})</span>  <span class="c1"># as the logged-in user</span>
+<span class="n">webapp</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">"workunit"</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{})</span>  <span class="c1"># as the service account</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">webapp</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">entity_class_name</span><span class="p">,</span> <span class="n">webapp</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">entity_id</span><span class="p">)</span>  <span class="c1"># what was clicked on</span>
 </pre></div>
 </div>
@@ -519,23 +519,23 @@ expiry.</p>
 
 <span class="c1"># Configure which B-Fabric instances are allowed</span>
 <span class="n">settings</span> <span class="o">=</span> <span class="n">TokenValidationSettings</span><span class="p">(</span>
-    <span class="n">validation_bfabric_instance</span><span class="o">=</span><span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric/&quot;</span><span class="p">,</span>
+    <span class="n">validation_bfabric_instance</span><span class="o">=</span><span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/"</span><span class="p">,</span>
     <span class="n">supported_bfabric_instances</span><span class="o">=</span><span class="p">[</span>
-        <span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric/&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;https://fgcz-bfabric-test.uzh.ch/bfabric/&quot;</span><span class="p">,</span>
+        <span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/"</span><span class="p">,</span>
+        <span class="s2">"https://fgcz-bfabric-test.uzh.ch/bfabric/"</span><span class="p">,</span>
     <span class="p">],</span>
 <span class="p">)</span>
 
 <span class="c1"># Synchronous usage</span>
-<span class="n">token</span> <span class="o">=</span> <span class="s2">&quot;your_token_here&quot;</span>
+<span class="n">token</span> <span class="o">=</span> <span class="s2">"your_token_here"</span>
 <span class="n">client</span><span class="p">,</span> <span class="n">token_data</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect_token</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">)</span>
 
 <span class="c1"># Asynchronous usage</span>
 <span class="c1"># client, token_data = await Bfabric.connect_token_async(token=token, settings=settings)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Authenticated as: </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">user</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Token expires: </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">token_expires</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Token caller: </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">caller</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Authenticated as: </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">user</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Token expires: </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">token_expires</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Token caller: </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">caller</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -550,14 +550,14 @@ expiry.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bfabric.rest.token_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_token_data</span>
 
 <span class="c1"># Validate token first</span>
-<span class="n">base_url</span> <span class="o">=</span> <span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric/&quot;</span>
-<span class="n">token</span> <span class="o">=</span> <span class="s2">&quot;your_token_here&quot;</span>
+<span class="n">base_url</span> <span class="o">=</span> <span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/"</span>
+<span class="n">token</span> <span class="o">=</span> <span class="s2">"your_token_here"</span>
 <span class="n">token_data</span> <span class="o">=</span> <span class="n">get_token_data</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="n">base_url</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">)</span>
 
 <span class="c1"># Check if the token is from an allowed instance</span>
-<span class="n">allowed_instances</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric/&quot;</span><span class="p">]</span>
+<span class="n">allowed_instances</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/"</span><span class="p">]</span>
 <span class="k">if</span> <span class="n">token_data</span><span class="o">.</span><span class="n">caller</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowed_instances</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Token from </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">caller</span><span class="si">}</span><span class="s2"> is not allowed&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Token from </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">caller</span><span class="si">}</span><span class="s2"> is not allowed"</span><span class="p">)</span>
 
 <span class="c1"># Create client</span>
 <span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">from_token_data</span><span class="p">(</span><span class="n">token_data</span><span class="p">)</span>
@@ -573,10 +573,10 @@ expiry.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric.experimental.webapp_integration_settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">TokenValidationSettings</span>
 
 <span class="n">settings</span> <span class="o">=</span> <span class="n">TokenValidationSettings</span><span class="p">(</span>
-    <span class="n">validation_bfabric_instance</span><span class="o">=</span><span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric/&quot;</span><span class="p">,</span>
+    <span class="n">validation_bfabric_instance</span><span class="o">=</span><span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/"</span><span class="p">,</span>
     <span class="n">supported_bfabric_instances</span><span class="o">=</span><span class="p">[</span>
-        <span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric/&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;https://fgcz-bfabric-test.uzh.ch/bfabric/&quot;</span><span class="p">,</span>
+        <span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/"</span><span class="p">,</span>
+        <span class="s2">"https://fgcz-bfabric-test.uzh.ch/bfabric/"</span><span class="p">,</span>
     <span class="p">],</span>
 <span class="p">)</span>
 </pre></div>
@@ -598,11 +598,11 @@ expiry.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bfabric.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">BfabricAuth</span>
 
 <span class="n">settings</span> <span class="o">=</span> <span class="n">WebappIntegrationSettings</span><span class="p">(</span>
-    <span class="n">validation_bfabric_instance</span><span class="o">=</span><span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric/&quot;</span><span class="p">,</span>
-    <span class="n">supported_bfabric_instances</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric/&quot;</span><span class="p">],</span>
+    <span class="n">validation_bfabric_instance</span><span class="o">=</span><span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/"</span><span class="p">,</span>
+    <span class="n">supported_bfabric_instances</span><span class="o">=</span><span class="p">[</span><span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/"</span><span class="p">],</span>
     <span class="n">feeder_user_credentials</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric/&quot;</span><span class="p">:</span> <span class="n">BfabricAuth</span><span class="p">(</span>
-            <span class="n">login</span><span class="o">=</span><span class="s2">&quot;feeder_user&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">&quot;feeder_user_password&quot;</span>
+        <span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/"</span><span class="p">:</span> <span class="n">BfabricAuth</span><span class="p">(</span>
+            <span class="n">login</span><span class="o">=</span><span class="s2">"feeder_user"</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">"feeder_user_password"</span>
         <span class="p">),</span>
     <span class="p">},</span>
 <span class="p">)</span>
@@ -625,10 +625,10 @@ expiry.</p>
 <h3>Restrict Token Instances<a class="headerlink" href="#restrict-token-instances" title="Link to this heading">#</a></h3>
 <p>Always restrict <code class="docutils literal notranslate"><span class="pre">supported_bfabric_instances</span></code> to only the instances you trust:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">settings</span> <span class="o">=</span> <span class="n">TokenValidationSettings</span><span class="p">(</span>
-    <span class="n">validation_bfabric_instance</span><span class="o">=</span><span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric/&quot;</span><span class="p">,</span>
+    <span class="n">validation_bfabric_instance</span><span class="o">=</span><span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/"</span><span class="p">,</span>
     <span class="n">supported_bfabric_instances</span><span class="o">=</span><span class="p">[</span>
-        <span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric/&quot;</span><span class="p">,</span>  <span class="c1"># Only allow production</span>
-        <span class="c1"># &quot;https://fgcz-bfabric-test.uzh.ch/bfabric/&quot;,  # Commented out to prevent test tokens</span>
+        <span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/"</span><span class="p">,</span>  <span class="c1"># Only allow production</span>
+        <span class="c1"># "https://fgcz-bfabric-test.uzh.ch/bfabric/",  # Commented out to prevent test tokens</span>
     <span class="p">],</span>
 <span class="p">)</span>
 </pre></div>
@@ -642,7 +642,7 @@ expiry.</p>
 <span class="n">client</span><span class="p">,</span> <span class="n">token_data</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect_token</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="n">token_data</span><span class="o">.</span><span class="n">token_expires</span> <span class="o">&lt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">):</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Token has expired&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Token has expired"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -650,7 +650,7 @@ expiry.</p>
 <h3>Verify Web Service Permissions<a class="headerlink" href="#verify-web-service-permissions" title="Link to this heading">#</a></h3>
 <p>Check if the authenticated user has web service permissions:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="ow">not</span> <span class="n">token_data</span><span class="o">.</span><span class="n">web_service_user</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">PermissionError</span><span class="p">(</span><span class="s2">&quot;User does not have web service permissions&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">PermissionError</span><span class="p">(</span><span class="s2">"User does not have web service permissions"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -671,13 +671,13 @@ expiry.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">client</span><span class="p">,</span> <span class="n">token_data</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect_token</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">)</span>
 
 <span class="c1"># Token data contains useful information</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;User: </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">user</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Application ID: </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">application_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Entity: </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">entity_class</span><span class="si">}</span><span class="s2">#</span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">entity_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Job ID: </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">job_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expires: </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">token_expires</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Web service user: </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">web_service_user</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Caller instance: </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">caller</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"User: </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">user</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Application ID: </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">application_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Entity: </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">entity_class</span><span class="si">}</span><span class="s2">#</span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">entity_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Job ID: </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">job_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Expires: </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">token_expires</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Web service user: </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">web_service_user</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Caller instance: </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">caller</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Load the entity associated with the token</span>
 <span class="n">entity</span> <span class="o">=</span> <span class="n">token_data</span><span class="o">.</span><span class="n">load_entity</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span>

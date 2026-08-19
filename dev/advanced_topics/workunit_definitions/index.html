@@ -681,18 +681,18 @@ Otherwise, the result will be cached to the provided file.
 <span class="nt">execution</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">dataset</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12345</span>
 <span class="w">  </span><span class="nt">raw_parameters</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">param1</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;value1&quot;</span>
-<span class="w">    </span><span class="nt">param2</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;value2&quot;</span>
+<span class="w">    </span><span class="nt">param1</span><span class="p">:</span><span class="w"> </span><span class="s">"value1"</span>
+<span class="w">    </span><span class="nt">param2</span><span class="p">:</span><span class="w"> </span><span class="s">"value2"</span>
 
 <span class="nt">registration</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">application_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
-<span class="w">  </span><span class="nt">application_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;MyApplication&quot;</span>
+<span class="w">  </span><span class="nt">application_name</span><span class="p">:</span><span class="w"> </span><span class="s">"MyApplication"</span>
 <span class="w">  </span><span class="nt">workunit_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">200</span>
-<span class="w">  </span><span class="nt">workunit_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ProcessingJob&quot;</span>
+<span class="w">  </span><span class="nt">workunit_name</span><span class="p">:</span><span class="w"> </span><span class="s">"ProcessingJob"</span>
 <span class="w">  </span><span class="nt">container_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span>
-<span class="w">  </span><span class="nt">container_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;project&quot;</span>
+<span class="w">  </span><span class="nt">container_type</span><span class="p">:</span><span class="w"> </span><span class="s">"project"</span>
 <span class="w">  </span><span class="nt">storage_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">400</span>
-<span class="w">  </span><span class="nt">storage_output_folder</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;output/results&quot;</span>
+<span class="w">  </span><span class="nt">storage_output_folder</span><span class="p">:</span><span class="w"> </span><span class="s">"output/results"</span>
 <span class="w">  </span><span class="nt">user_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 </pre></div>
 </div>
@@ -704,11 +704,11 @@ Otherwise, the result will be cached to the provided file.
 <span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 
 <span class="c1"># Load from YAML file</span>
-<span class="n">workunit_def</span> <span class="o">=</span> <span class="n">WorkunitDefinition</span><span class="o">.</span><span class="n">from_ref</span><span class="p">(</span><span class="n">workunit</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;workunit.yml&quot;</span><span class="p">),</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span>
+<span class="n">workunit_def</span> <span class="o">=</span> <span class="n">WorkunitDefinition</span><span class="o">.</span><span class="n">from_ref</span><span class="p">(</span><span class="n">workunit</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"workunit.yml"</span><span class="p">),</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Workunit: </span><span class="si">{</span><span class="n">workunit_def</span><span class="o">.</span><span class="n">workunit_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Application: </span><span class="si">{</span><span class="n">workunit_def</span><span class="o">.</span><span class="n">registration</span><span class="o">.</span><span class="n">application_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dataset: </span><span class="si">{</span><span class="n">workunit_def</span><span class="o">.</span><span class="n">execution</span><span class="o">.</span><span class="n">dataset</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Workunit: </span><span class="si">{</span><span class="n">workunit_def</span><span class="o">.</span><span class="n">workunit_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Application: </span><span class="si">{</span><span class="n">workunit_def</span><span class="o">.</span><span class="n">registration</span><span class="o">.</span><span class="n">application_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Dataset: </span><span class="si">{</span><span class="n">workunit_def</span><span class="o">.</span><span class="n">execution</span><span class="o">.</span><span class="n">dataset</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -722,18 +722,18 @@ Otherwise, the result will be cached to the provided file.
 
 <span class="c1"># Load from workunit ID (resolves from B-Fabric)</span>
 <span class="n">workunit_def</span> <span class="o">=</span> <span class="n">WorkunitDefinition</span><span class="o">.</span><span class="n">from_ref</span><span class="p">(</span><span class="n">workunit</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded definition for workunit #</span><span class="si">{</span><span class="n">workunit_def</span><span class="o">.</span><span class="n">registration</span><span class="o">.</span><span class="n">workunit_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Loaded definition for workunit #</span><span class="si">{</span><span class="n">workunit_def</span><span class="o">.</span><span class="n">registration</span><span class="o">.</span><span class="n">workunit_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="with-caching">
 <h3>With Caching<a class="headerlink" href="#with-caching" title="Link to this heading">#</a></h3>
 <p>Cache the loaded definition to avoid repeated queries:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cache_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;cache/workunit_def.yml&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cache_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"cache/workunit_def.yml"</span><span class="p">)</span>
 
 <span class="c1"># Loads from cache if available, otherwise queries B-Fabric</span>
 <span class="n">workunit_def</span> <span class="o">=</span> <span class="n">WorkunitDefinition</span><span class="o">.</span><span class="n">from_ref</span><span class="p">(</span>
-    <span class="n">workunit</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;workunit.yml&quot;</span><span class="p">),</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="n">cache_file</span><span class="o">=</span><span class="n">cache_file</span>
+    <span class="n">workunit</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"workunit.yml"</span><span class="p">),</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="n">cache_file</span><span class="o">=</span><span class="n">cache_file</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -751,9 +751,9 @@ Otherwise, the result will be cached to the provided file.
 <span class="n">workunit_def</span> <span class="o">=</span> <span class="n">WorkunitDefinition</span><span class="o">.</span><span class="n">from_ref</span><span class="p">(</span><span class="n">workunit</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span>
 
 <span class="c1"># Save to YAML</span>
-<span class="n">output_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;definitions/workunit_200.yml&quot;</span><span class="p">)</span>
+<span class="n">output_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"definitions/workunit_200.yml"</span><span class="p">)</span>
 <span class="n">workunit_def</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved definition to </span><span class="si">{</span><span class="n">output_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved definition to </span><span class="si">{</span><span class="n">output_file</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -766,19 +766,19 @@ Otherwise, the result will be cached to the provided file.
 <span class="nt">execution</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">dataset</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12345</span>
 <span class="w">  </span><span class="nt">raw_parameters</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">fdr_threshold</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.01&quot;</span>
-<span class="w">    </span><span class="nt">min_peptide_length</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;7&quot;</span>
-<span class="w">    </span><span class="nt">database</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;uniprot_human&quot;</span>
+<span class="w">    </span><span class="nt">fdr_threshold</span><span class="p">:</span><span class="w"> </span><span class="s">"0.01"</span>
+<span class="w">    </span><span class="nt">min_peptide_length</span><span class="p">:</span><span class="w"> </span><span class="s">"7"</span>
+<span class="w">    </span><span class="nt">database</span><span class="p">:</span><span class="w"> </span><span class="s">"uniprot_human"</span>
 
 <span class="nt">registration</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">application_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
-<span class="w">  </span><span class="nt">application_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ProteomicsProcessor&quot;</span>
+<span class="w">  </span><span class="nt">application_name</span><span class="p">:</span><span class="w"> </span><span class="s">"ProteomicsProcessor"</span>
 <span class="w">  </span><span class="nt">workunit_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">200</span>
-<span class="w">  </span><span class="nt">workunit_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ProteomicsAnalysis&quot;</span>
+<span class="w">  </span><span class="nt">workunit_name</span><span class="p">:</span><span class="w"> </span><span class="s">"ProteomicsAnalysis"</span>
 <span class="w">  </span><span class="nt">container_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span>
-<span class="w">  </span><span class="nt">container_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;project&quot;</span>
+<span class="w">  </span><span class="nt">container_type</span><span class="p">:</span><span class="w"> </span><span class="s">"project"</span>
 <span class="w">  </span><span class="nt">storage_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">400</span>
-<span class="w">  </span><span class="nt">storage_output_folder</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;proteomics/output&quot;</span>
+<span class="w">  </span><span class="nt">storage_output_folder</span><span class="p">:</span><span class="w"> </span><span class="s">"proteomics/output"</span>
 <span class="w">  </span><span class="nt">user_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 </pre></div>
 </div>
@@ -792,22 +792,22 @@ Otherwise, the result will be cached to the provided file.
 <span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 
 <span class="c1"># 1. Load definition from YAML with caching</span>
-<span class="n">yaml_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;workunits/proteomics_analysis.yml&quot;</span><span class="p">)</span>
+<span class="n">yaml_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"workunits/proteomics_analysis.yml"</span><span class="p">)</span>
 <span class="n">workunit_def</span> <span class="o">=</span> <span class="n">WorkunitDefinition</span><span class="o">.</span><span class="n">from_ref</span><span class="p">(</span>
-    <span class="n">workunit</span><span class="o">=</span><span class="n">yaml_file</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="n">cache_file</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;cache/workunit_defs.yml&quot;</span><span class="p">)</span>
+    <span class="n">workunit</span><span class="o">=</span><span class="n">yaml_file</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="n">cache_file</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"cache/workunit_defs.yml"</span><span class="p">)</span>
 <span class="p">)</span>
 
 <span class="c1"># 2. Access components</span>
 <span class="n">execution</span> <span class="o">=</span> <span class="n">workunit_def</span><span class="o">.</span><span class="n">execution</span>
 <span class="n">registration</span> <span class="o">=</span> <span class="n">workunit_def</span><span class="o">.</span><span class="n">registration</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Workunit: </span><span class="si">{</span><span class="n">registration</span><span class="o">.</span><span class="n">workunit_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Application: </span><span class="si">{</span><span class="n">registration</span><span class="o">.</span><span class="n">application_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Input Dataset: </span><span class="si">{</span><span class="n">execution</span><span class="o">.</span><span class="n">dataset</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Parameters: </span><span class="si">{</span><span class="n">execution</span><span class="o">.</span><span class="n">raw_parameters</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Workunit: </span><span class="si">{</span><span class="n">registration</span><span class="o">.</span><span class="n">workunit_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Application: </span><span class="si">{</span><span class="n">registration</span><span class="o">.</span><span class="n">application_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Input Dataset: </span><span class="si">{</span><span class="n">execution</span><span class="o">.</span><span class="n">dataset</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Parameters: </span><span class="si">{</span><span class="n">execution</span><span class="o">.</span><span class="n">raw_parameters</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># 3. Export definition (e.g., for version control)</span>
-<span class="n">output_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;definitions/proteomics_analysis_export.yml&quot;</span><span class="p">)</span>
+<span class="n">output_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"definitions/proteomics_analysis_export.yml"</span><span class="p">)</span>
 <span class="n">workunit_def</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
 </pre></div>
 </div>

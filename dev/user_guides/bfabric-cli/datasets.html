@@ -616,28 +616,28 @@
 <p><strong>Read Parquet file (Python):</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">polars</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">polars</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s2">&quot;my_data.parquet&quot;</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">polars</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s2">"my_data.parquet"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
 </pre></div>
 </div>
 <p><strong>Read CSV file:</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;my_data.csv&quot;</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">"my_data.csv"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
 </pre></div>
 </div>
 <p><strong>Read TSV file:</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;my_data.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">"my_data.tsv"</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
 </pre></div>
 </div>
 <p><strong>Read Excel file:</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="s2">&quot;my_data.xlsx&quot;</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="s2">"my_data.xlsx"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
 </pre></div>
 </div>
@@ -650,7 +650,7 @@
 <li><p>Progress is shown during download</p></li>
 <li><p>The default <code class="docutils literal notranslate"><span class="pre">auto</span></code> format automatically detects the format from the file extension</p></li>
 <li><p>Excel format (<code class="docutils literal notranslate"><span class="pre">.xlsx</span></code>) requires the optional <code class="docutils literal notranslate"><span class="pre">excel</span></code> dependency to be installed:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">&#39;bfabric_scripts[excel]&#39;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'bfabric_scripts[excel]'</span>
 </pre></div>
 </div>
 </li>
@@ -734,8 +734,8 @@
 <p><strong>Upload Parquet with metadata:</strong></p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>dataset<span class="w"> </span>upload<span class="w"> </span>parquet<span class="w"> </span>my_data.parquet<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--container-id<span class="w"> </span><span class="m">1234</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--name<span class="w"> </span><span class="s2">&quot;My Dataset&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--description<span class="w"> </span><span class="s2">&quot;Analysis results from experiment X&quot;</span>
+<span class="w">    </span>--name<span class="w"> </span><span class="s2">"My Dataset"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--description<span class="w"> </span><span class="s2">"Analysis results from experiment X"</span>
 </pre></div>
 </div>
 <p><strong>Upload TSV:</strong></p>
@@ -799,7 +799,7 @@
 <section id="verifying-upload">
 <h3>Verifying Upload<a class="headerlink" href="#verifying-upload" title="Link to this heading">#</a></h3>
 <p>After uploading, verify the dataset:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Show the new dataset (you&#39;ll need the new ID from upload output)</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Show the new dataset (you'll need the new ID from upload output)</span>
 bfabric-cli<span class="w"> </span>dataset<span class="w"> </span>show<span class="w"> </span>&lt;NEW_DATASET_ID&gt;
 </pre></div>
 </div>
@@ -831,8 +831,8 @@ bfabric-cli<span class="w"> </span>dataset<span class="w"> </span>download<span 
 <span class="c1"># 3. Upload the processed dataset</span>
 bfabric-cli<span class="w"> </span>dataset<span class="w"> </span>upload<span class="w"> </span>parquet<span class="w"> </span>processed.parquet<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--container-id<span class="w"> </span><span class="m">6789</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--name<span class="w"> </span><span class="s2">&quot;Processed Analysis&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--description<span class="w"> </span><span class="s2">&quot;Processed version of dataset 12345&quot;</span>
+<span class="w">    </span>--name<span class="w"> </span><span class="s2">"Processed Analysis"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--description<span class="w"> </span><span class="s2">"Processed version of dataset 12345"</span>
 </pre></div>
 </div>
 </section>
@@ -862,7 +862,7 @@ ls<span class="w"> </span>-lh<span class="w"> </span>large_file.parquet
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use descriptive names with dates</span>
 bfabric-cli<span class="w"> </span>dataset<span class="w"> </span>upload<span class="w"> </span>parquet<span class="w"> </span>results_2025-01-20.parquet<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--container-id<span class="w"> </span><span class="m">1234</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--name<span class="w"> </span><span class="s2">&quot;QC Results - 2025-01-20&quot;</span>
+<span class="w">    </span>--name<span class="w"> </span><span class="s2">"QC Results - 2025-01-20"</span>
 </pre></div>
 </div>
 </section>

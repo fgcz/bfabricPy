@@ -427,13 +427,13 @@ is a list of specifications:</p>
 <span class="w">    </span><span class="nt">check_checksum</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">static_file</span>
-<span class="w">    </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sample_id,condition\n1,control\n2,treated&quot;</span>
+<span class="w">    </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="s">"sample_id,condition\n1,control\n2,treated"</span>
 <span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">metadata.csv</span>
 
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_dataset</span>
 <span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6789</span>
 <span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">samples.csv</span>
-<span class="w">    </span><span class="nt">separator</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;,&quot;</span>
+<span class="w">    </span><span class="nt">separator</span><span class="p">:</span><span class="w"> </span><span class="s">","</span>
 </pre></div>
 </div>
 <p>Each entry must include a <code class="docutils literal notranslate"><span class="pre">type</span></code> field that determines which resolver handles it.</p>
@@ -460,7 +460,7 @@ its type, and default — see the <a class="reference internal" href="../specs/i
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_dataset</span>
 <span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6789</span>
 <span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">samples.csv</span>
-<span class="w">    </span><span class="nt">separator</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;,&quot;</span>
+<span class="w">    </span><span class="nt">separator</span><span class="p">:</span><span class="w"> </span><span class="s">","</span>
 <span class="w">    </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">csv</span>
 </pre></div>
 </div>
@@ -474,7 +474,7 @@ its type, and default — see the <a class="reference internal" href="../specs/i
 <span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">extracted_data</span>
 <span class="w">    </span><span class="nt">extract</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">zip</span>
 <span class="w">    </span><span class="nt">include_patterns</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;*.mzML&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"*.mzML"</span>
 <span class="w">    </span><span class="nt">strip_root</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">    </span><span class="nt">check_checksum</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </pre></div>
@@ -488,7 +488,7 @@ its type, and default — see the <a class="reference internal" href="../specs/i
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_resource_dataset</span>
 <span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
 <span class="w">    </span><span class="nt">column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Resource</span>
-<span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{name}.raw&quot;</span>
+<span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="s">"{name}.raw"</span>
 <span class="w">    </span><span class="nt">check_checksum</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">    </span><span class="nt">output_dataset_filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">manifest.parquet</span>
 <span class="w">    </span><span class="nt">output_dataset_file_column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local_path</span>
@@ -514,7 +514,7 @@ its type, and default — see the <a class="reference internal" href="../specs/i
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_annotation</span>
 <span class="w">    </span><span class="nt">annotation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">resource_sample</span>
 <span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">annotations.csv</span>
-<span class="w">    </span><span class="nt">separator</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;,&quot;</span>
+<span class="w">    </span><span class="nt">separator</span><span class="p">:</span><span class="w"> </span><span class="s">","</span>
 <span class="w">    </span><span class="nt">resource_ids</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">200</span>
@@ -549,7 +549,7 @@ its type, and default — see the <a class="reference internal" href="../specs/i
 <p>Creates a file with inline content.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">inputs</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">static_file</span>
-<span class="w">    </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;key=value\nother=setting&quot;</span>
+<span class="w">    </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="s">"key=value\nother=setting"</span>
 <span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config.ini</span>
 </pre></div>
 </div>
@@ -561,7 +561,7 @@ its type, and default — see the <a class="reference internal" href="../specs/i
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">static_yaml</span>
 <span class="w">    </span><span class="nt">data</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">param1</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
-<span class="w">      </span><span class="nt">param2</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hello&quot;</span>
+<span class="w">      </span><span class="nt">param2</span><span class="p">:</span><span class="w"> </span><span class="s">"hello"</span>
 <span class="w">      </span><span class="nt">items</span><span class="p">:</span>
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">a</span>
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">b</span>
@@ -633,10 +633,10 @@ its type, and default — see the <a class="reference internal" href="../specs/i
 <h2>Filtering<a class="headerlink" href="#filtering" title="Link to this heading">#</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">--filter</span></code> flag on <code class="docutils literal notranslate"><span class="pre">inputs</span> <span class="pre">prepare</span></code> and <code class="docutils literal notranslate"><span class="pre">inputs</span> <span class="pre">clean</span></code> accepts a filename pattern to selectively process inputs:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Only prepare a specific file</span>
-bfabric-app-runner<span class="w"> </span>inputs<span class="w"> </span>prepare<span class="w"> </span>inputs.yml<span class="w"> </span>--filter<span class="w"> </span><span class="s2">&quot;genome.fa&quot;</span>
+bfabric-app-runner<span class="w"> </span>inputs<span class="w"> </span>prepare<span class="w"> </span>inputs.yml<span class="w"> </span>--filter<span class="w"> </span><span class="s2">"genome.fa"</span>
 
 <span class="c1"># Clean specific files</span>
-bfabric-app-runner<span class="w"> </span>inputs<span class="w"> </span>clean<span class="w"> </span>inputs.yml<span class="w"> </span>--filter<span class="w"> </span><span class="s2">&quot;*.raw&quot;</span>
+bfabric-app-runner<span class="w"> </span>inputs<span class="w"> </span>clean<span class="w"> </span>inputs.yml<span class="w"> </span>--filter<span class="w"> </span><span class="s2">"*.raw"</span>
 </pre></div>
 </div>
 </section>

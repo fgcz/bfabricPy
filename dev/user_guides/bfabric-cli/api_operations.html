@@ -558,10 +558,10 @@ bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">r
 <section id="id2">
 <h3>Examples<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a resource</span>
-bfabric-cli<span class="w"> </span>api<span class="w"> </span>create<span class="w"> </span>resource<span class="w"> </span>name<span class="w"> </span><span class="s2">&quot;hello.txt&quot;</span><span class="w"> </span>workunitid<span class="w"> </span><span class="m">321802</span><span class="w"> </span>base64<span class="w"> </span><span class="nv">aGVsbG8</span><span class="o">=</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>create<span class="w"> </span>resource<span class="w"> </span>name<span class="w"> </span><span class="s2">"hello.txt"</span><span class="w"> </span>workunitid<span class="w"> </span><span class="m">321802</span><span class="w"> </span>base64<span class="w"> </span><span class="nv">aGVsbG8</span><span class="o">=</span>
 
 <span class="c1"># Create a sample</span>
-bfabric-cli<span class="w"> </span>api<span class="w"> </span>create<span class="w"> </span>sample<span class="w"> </span>name<span class="w"> </span><span class="s2">&quot;My Sample&quot;</span><span class="w"> </span>containerid<span class="w"> </span><span class="m">1234</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>create<span class="w"> </span>sample<span class="w"> </span>name<span class="w"> </span><span class="s2">"My Sample"</span><span class="w"> </span>containerid<span class="w"> </span><span class="m">1234</span>
 </pre></div>
 </div>
 </section>
@@ -577,13 +577,13 @@ bfabric-cli<span class="w"> </span>api<span class="w"> </span>create<span class=
 <section id="id4">
 <h3>Examples<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Update a workunit</span>
-bfabric-cli<span class="w"> </span>api<span class="w"> </span>update<span class="w"> </span>workunit<span class="w"> </span><span class="m">321802</span><span class="w"> </span>description<span class="w"> </span><span class="s2">&quot;Updated description&quot;</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>update<span class="w"> </span>workunit<span class="w"> </span><span class="m">321802</span><span class="w"> </span>description<span class="w"> </span><span class="s2">"Updated description"</span>
 
 <span class="c1"># Update multiple attributes</span>
-bfabric-cli<span class="w"> </span>api<span class="w"> </span>update<span class="w"> </span>sample<span class="w"> </span><span class="m">12345</span><span class="w"> </span>name<span class="w"> </span><span class="s2">&quot;New Name&quot;</span><span class="w"> </span>description<span class="w"> </span><span class="s2">&quot;Updated&quot;</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>update<span class="w"> </span>sample<span class="w"> </span><span class="m">12345</span><span class="w"> </span>name<span class="w"> </span><span class="s2">"New Name"</span><span class="w"> </span>description<span class="w"> </span><span class="s2">"Updated"</span>
 
 <span class="c1"># Skip confirmation (use with caution!)</span>
-bfabric-cli<span class="w"> </span>api<span class="w"> </span>update<span class="w"> </span>resource<span class="w"> </span><span class="m">12345</span><span class="w"> </span>name<span class="w"> </span><span class="s2">&quot;New Name&quot;</span><span class="w"> </span>--no-confirm
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>update<span class="w"> </span>resource<span class="w"> </span><span class="m">12345</span><span class="w"> </span>name<span class="w"> </span><span class="s2">"New Name"</span><span class="w"> </span>--no-confirm
 </pre></div>
 </div>
 </section>

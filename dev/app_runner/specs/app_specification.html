@@ -500,10 +500,10 @@ by configuring the application steps in a YAML configuration files, the so-calle
 <h2>App Specification Structure<a class="headerlink" href="#app-specification-structure" title="Link to this heading">#</a></h2>
 <p>The specification can be provided in a YAML file with the following structure:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">bfabric</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">app_runner</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.0.17&quot;</span><span class="w">  </span><span class="c1"># or a git reference</span>
+<span class="w">  </span><span class="nt">app_runner</span><span class="p">:</span><span class="w"> </span><span class="s">"0.0.17"</span><span class="w">  </span><span class="c1"># or a git reference</span>
 <span class="w">  </span><span class="nt">workflow_template_step_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w">  </span><span class="c1"># optional</span>
 <span class="nt">versions</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.0.0&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"1.0.0"</span>
 <span class="w">    </span><span class="nt">commands</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">dispatch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 <span class="w">      </span><span class="nt">process</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
@@ -594,8 +594,8 @@ are passed through unchanged; write those relative to the spec with <code class=
 <h3>Direct commands<a class="headerlink" href="#direct-commands" title="Link to this heading">#</a></h3>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">commands</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">dispatch</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;exec&quot;</span>
-<span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;python</span><span class="nv"> </span><span class="s">prepare_data.py&quot;</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">"exec"</span>
+<span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="s">"python</span><span class="nv"> </span><span class="s">prepare_data.py"</span>
 </pre></div>
 </div>
 <p>The command string is split by spaces using <code class="docutils literal notranslate"><span class="pre">shlex.split()</span></code>.</p>
@@ -645,16 +645,16 @@ are passed through unchanged; write those relative to the spec with <code class=
 <h3>Docker Commands<a class="headerlink" href="#docker-commands" title="Link to this heading">#</a></h3>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">commands</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">process</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;docker&quot;</span>
-<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;myapp:1.0.0&quot;</span>
-<span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/app/run.sh&quot;</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">"docker"</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="s">"myapp:1.0.0"</span>
+<span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="s">"/app/run.sh"</span>
 <span class="w">    </span><span class="nt">env</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">APP_VERSION</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${app.version}&quot;</span>
+<span class="w">      </span><span class="nt">APP_VERSION</span><span class="p">:</span><span class="w"> </span><span class="s">"${app.version}"</span>
 <span class="w">    </span><span class="nt">mounts</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">read_only</span><span class="p">:</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;/data/reference&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;/app/reference&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"/data/reference"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"/app/reference"</span><span class="p p-Indicator">]</span>
 <span class="w">      </span><span class="nt">writeable</span><span class="p">:</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;/data/results&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;/app/results&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"/data/results"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"/app/results"</span><span class="p p-Indicator">]</span>
 </pre></div>
 </div>
 <dl class="py class pydantic_model">
@@ -818,10 +818,10 @@ are passed through unchanged; write those relative to the spec with <code class=
 Environments can be cached for reuse across runs.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">commands</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">process</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;python_env&quot;</span>
-<span class="w">    </span><span class="nt">pylock</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;requirements.pylock.toml&quot;</span>
-<span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;python</span><span class="nv"> </span><span class="s">run.py&quot;</span>
-<span class="w">    </span><span class="nt">python_version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.12&quot;</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">"python_env"</span>
+<span class="w">    </span><span class="nt">pylock</span><span class="p">:</span><span class="w"> </span><span class="s">"requirements.pylock.toml"</span>
+<span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="s">"python</span><span class="nv"> </span><span class="s">run.py"</span>
+<span class="w">    </span><span class="nt">python_version</span><span class="p">:</span><span class="w"> </span><span class="s">"3.12"</span>
 </pre></div>
 </div>
 <dl class="py class pydantic_model">
@@ -878,7 +878,7 @@ in the environment (typically specified in the pylock file).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Constraints<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>func</strong> = &lt;function _resolve_against_spec_dir at 0x7f5ca7d1cae0&gt;</p></li>
+<li><p><strong>func</strong> = &lt;function _resolve_against_spec_dir at 0x7f4fb282d120&gt;</p></li>
 </ul>
 </dd>
 </dl>
@@ -926,8 +926,8 @@ and don’t leave broken environments in the cache if provisioning fails.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">${app.dir}</span></code>: Directory containing the app specification file</p></li>
 </ul>
 <p>Example:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;registry.example.com/${app.name}:${app.version}&quot;</span>
-<span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/app/run.sh</span><span class="nv"> </span><span class="s">--app-id</span><span class="nv"> </span><span class="s">${app.id}&quot;</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="s">"registry.example.com/${app.name}:${app.version}"</span>
+<span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="s">"/app/run.sh</span><span class="nv"> </span><span class="s">--app-id</span><span class="nv"> </span><span class="s">${app.id}"</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">${app.dir}</span></code> is for paths a spec field cannot resolve for you, i.e. a script referenced from within
@@ -935,7 +935,7 @@ a command string:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">commands</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">dispatch</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exec</span>
-<span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;uv</span><span class="nv"> </span><span class="s">run</span><span class="nv"> </span><span class="s">--script</span><span class="nv"> </span><span class="s">${app.dir}/dispatch.py&quot;</span>
+<span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="s">"uv</span><span class="nv"> </span><span class="s">run</span><span class="nv"> </span><span class="s">--script</span><span class="nv"> </span><span class="s">${app.dir}/dispatch.py"</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">interpolate_config_strings</span></code> function processes all string values in the configuration after YAML loading.</p>
@@ -946,11 +946,11 @@ a command string:</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bfabric_app_runner.specs.app.app_spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppSpec</span>
 
 <span class="c1"># Load from YAML</span>
-<span class="n">app_spec</span> <span class="o">=</span> <span class="n">AppSpec</span><span class="o">.</span><span class="n">load_yaml</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./app_spec.yaml&quot;</span><span class="p">),</span> <span class="n">app_id</span><span class="o">=</span><span class="s2">&quot;123&quot;</span><span class="p">,</span> <span class="n">app_name</span><span class="o">=</span><span class="s2">&quot;MyApp&quot;</span><span class="p">)</span>
+<span class="n">app_spec</span> <span class="o">=</span> <span class="n">AppSpec</span><span class="o">.</span><span class="n">load_yaml</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">"./app_spec.yaml"</span><span class="p">),</span> <span class="n">app_id</span><span class="o">=</span><span class="s2">"123"</span><span class="p">,</span> <span class="n">app_name</span><span class="o">=</span><span class="s2">"MyApp"</span><span class="p">)</span>
 
 <span class="c1"># Check version</span>
-<span class="k">if</span> <span class="s2">&quot;1.0.0&quot;</span> <span class="ow">in</span> <span class="n">app_spec</span><span class="p">:</span>
-    <span class="n">app_version</span> <span class="o">=</span> <span class="n">app_spec</span><span class="p">[</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">]</span>
+<span class="k">if</span> <span class="s2">"1.0.0"</span> <span class="ow">in</span> <span class="n">app_spec</span><span class="p">:</span>
+    <span class="n">app_version</span> <span class="o">=</span> <span class="n">app_spec</span><span class="p">[</span><span class="s2">"1.0.0"</span><span class="p">]</span>
 </pre></div>
 </div>
 </section>

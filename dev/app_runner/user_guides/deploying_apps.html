@@ -399,14 +399,14 @@
 <span class="nv">pkg_version</span><span class="o">=</span><span class="k">$(</span>uv<span class="w"> </span>version<span class="w"> </span>--short<span class="k">)</span>
 
 <span class="c1"># Build the wheel into a versioned directory</span>
-uv<span class="w"> </span>build<span class="w"> </span>-o<span class="w"> </span><span class="s2">&quot;dist/</span><span class="nv">$pkg_version</span><span class="s2">&quot;</span>
+uv<span class="w"> </span>build<span class="w"> </span>-o<span class="w"> </span><span class="s2">"dist/</span><span class="nv">$pkg_version</span><span class="s2">"</span>
 
 <span class="c1"># Lock and export dependencies</span>
 uv<span class="w"> </span>lock<span class="w"> </span>-U
-uv<span class="w"> </span><span class="nb">export</span><span class="w"> </span>--no-emit-project<span class="w"> </span>--format<span class="w"> </span>pylock.toml<span class="w"> </span>&gt;<span class="w"> </span><span class="s2">&quot;dist/</span><span class="nv">$pkg_version</span><span class="s2">/pylock.toml&quot;</span>
+uv<span class="w"> </span><span class="nb">export</span><span class="w"> </span>--no-emit-project<span class="w"> </span>--format<span class="w"> </span>pylock.toml<span class="w"> </span>&gt;<span class="w"> </span><span class="s2">"dist/</span><span class="nv">$pkg_version</span><span class="s2">/pylock.toml"</span>
 
 <span class="c1"># Clean up (uv build creates a .gitignore in the output dir)</span>
-rm<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;dist/</span><span class="nv">$pkg_version</span><span class="s2">/.gitignore&quot;</span>
+rm<span class="w"> </span>-f<span class="w"> </span><span class="s2">"dist/</span><span class="nv">$pkg_version</span><span class="s2">/.gitignore"</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -451,7 +451,7 @@ rm<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;dist/
 <span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dist/${app.version}/mzmine_app-${app.version}-py3-none-any.whl</span>
 <span class="w">        </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-m mzmine_app.integrations.bfabric.process</span>
 <span class="w">        </span><span class="nt">env</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">MZMINE_CONTAINER_TAG</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;4.7.8.p1&quot;</span>
+<span class="w">          </span><span class="nt">MZMINE_CONTAINER_TAG</span><span class="p">:</span><span class="w"> </span><span class="s">"4.7.8.p1"</span>
 <span class="w">          </span><span class="nt">MZMINE_DATA_PATH</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/home/bfabric/mzmine</span>
 <span class="w">        </span><span class="nt">prepend_paths</span><span class="p">:</span>
 <span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bin</span>

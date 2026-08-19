@@ -453,10 +453,10 @@ While it is recommended by its developers to make it opt-in, our logging is opt-
 
 <span class="c1"># Configure a logger with custom settings (requires first removing the default logger)</span>
 <span class="n">logger</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
-<span class="n">logger</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="s2">&quot;bfabric&quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;WARNING&quot;</span><span class="p">,</span> <span class="n">colorize</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="s2">"bfabric"</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">"WARNING"</span><span class="p">,</span> <span class="n">colorize</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 <span class="c1"># Alternative: completely deactivate logs for bfabricPy</span>
-<span class="n">logger</span><span class="o">.</span><span class="n">disable</span><span class="p">(</span><span class="s2">&quot;bfabric&quot;</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">disable</span><span class="p">(</span><span class="s2">"bfabric"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Check the documentation for <a class="reference external" href="https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.add">logger.add</a> for more options.

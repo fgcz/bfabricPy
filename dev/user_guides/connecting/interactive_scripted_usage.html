@@ -449,10 +449,10 @@ with no arguments; everything it needs was recorded the first time.</p>
 with different permissions). By default <code class="docutils literal notranslate"><span class="pre">connect()</span></code> uses <code class="docutils literal notranslate"><span class="pre">BFABRICPY_CONFIG_ENV</span></code> if it is set, otherwise the config
 file’s default environment. You can also name one explicitly:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use the PRODUCTION environment</span>
-<span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">config_file_env</span><span class="o">=</span><span class="s2">&quot;PRODUCTION&quot;</span><span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">config_file_env</span><span class="o">=</span><span class="s2">"PRODUCTION"</span><span class="p">)</span>
 
 <span class="c1"># Use the TEST environment</span>
-<span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">config_file_env</span><span class="o">=</span><span class="s2">&quot;TEST&quot;</span><span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">config_file_env</span><span class="o">=</span><span class="s2">"TEST"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">config_file_env</span></code> parameter takes precedence over the <code class="docutils literal notranslate"><span class="pre">BFABRICPY_CONFIG_ENV</span></code> environment variable. See the
@@ -460,9 +460,9 @@ file’s default environment. You can also name one explicitly:</p>
 <p>If your config file is in a non-standard location:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="n">custom_config_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/path/to/custom/config.yml&quot;</span><span class="p">)</span>
+<span class="n">custom_config_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"/path/to/custom/config.yml"</span><span class="p">)</span>
 <span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
-    <span class="n">config_file_path</span><span class="o">=</span><span class="n">custom_config_path</span><span class="p">,</span> <span class="n">config_file_env</span><span class="o">=</span><span class="s2">&quot;PRODUCTION&quot;</span>
+    <span class="n">config_file_path</span><span class="o">=</span><span class="n">custom_config_path</span><span class="p">,</span> <span class="n">config_file_env</span><span class="o">=</span><span class="s2">"PRODUCTION"</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -475,18 +475,18 @@ explicit <code class="docutils literal notranslate"><span class="pre">client_id<
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect_pkce</span><span class="p">(</span>
-    <span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric&quot;</span><span class="p">,</span>
-    <span class="n">client_id</span><span class="o">=</span><span class="s2">&quot;CLI&quot;</span><span class="p">,</span>
-    <span class="n">scope</span><span class="o">=</span><span class="s2">&quot;api:read&quot;</span><span class="p">,</span>
+    <span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric"</span><span class="p">,</span>
+    <span class="n">client_id</span><span class="o">=</span><span class="s2">"CLI"</span><span class="p">,</span>
+    <span class="n">scope</span><span class="o">=</span><span class="s2">"api:read"</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 <p>On a remote host — SSH, a container, a hosted notebook — use <code class="docutils literal notranslate"><span class="pre">connect_device_code()</span></code> instead. It prints a code to enter
 in a browser anywhere and polls for the result:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect_device_code</span><span class="p">(</span>
-    <span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric&quot;</span><span class="p">,</span>
-    <span class="n">client_id</span><span class="o">=</span><span class="s2">&quot;CLI&quot;</span><span class="p">,</span>
-    <span class="n">scope</span><span class="o">=</span><span class="s2">&quot;api:read&quot;</span><span class="p">,</span>
+    <span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric"</span><span class="p">,</span>
+    <span class="n">client_id</span><span class="o">=</span><span class="s2">"CLI"</span><span class="p">,</span>
+    <span class="n">scope</span><span class="o">=</span><span class="s2">"api:read"</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -501,7 +501,7 @@ machine, nothing is listening there and the login times out — which is why rem
 <section id="personal-access-tokens">
 <h2>Personal Access Tokens<a class="headerlink" href="#personal-access-tokens" title="Link to this heading">#</a></h2>
 <p>For a non-interactive login without any OAuth flow, use a Personal Access Token issued by B-Fabric:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect_pat</span><span class="p">(</span><span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric&quot;</span><span class="p">,</span> <span class="n">pat</span><span class="o">=</span><span class="s2">&quot;your_token&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect_pat</span><span class="p">(</span><span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric"</span><span class="p">,</span> <span class="n">pat</span><span class="o">=</span><span class="s2">"your_token"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>PATs are not refreshed automatically; when one expires you need a new one. <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">auth</span> <span class="pre">pat</span></code> stores a PAT in your
@@ -532,14 +532,14 @@ authenticating multiple users to avoid accidental use of the wrong credentials:<
 <span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 
 <span class="c1"># Temporarily use different credentials</span>
-<span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">with_auth</span><span class="p">(</span><span class="n">BfabricAuth</span><span class="p">(</span><span class="n">login</span><span class="o">=</span><span class="s2">&quot;other_user&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">&quot;other_pass&quot;</span><span class="p">)):</span>
+<span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">with_auth</span><span class="p">(</span><span class="n">BfabricAuth</span><span class="p">(</span><span class="n">login</span><span class="o">=</span><span class="s2">"other_user"</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">"other_pass"</span><span class="p">)):</span>
     <span class="c1"># All operations in this block use different authentication</span>
-    <span class="n">samples</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Test&quot;</span><span class="p">})</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Test"</span><span class="p">})</span>
 
 <span class="c1"># Authentication is restored after the block</span>
-<span class="n">samples</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Test&quot;</span><span class="p">})</span>
+<span class="n">samples</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Test"</span><span class="p">})</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current user: </span><span class="si">{</span><span class="n">client</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">login</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># Shows original user</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Current user: </span><span class="si">{</span><span class="n">client</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">login</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>  <span class="c1"># Shows original user</span>
 </pre></div>
 </div>
 <p>On an OAuth client the automatic token refresh is suspended for the duration of the block, so the credentials you pass
@@ -565,8 +565,8 @@ entities.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Connected to: </span><span class="si">{</span><span class="n">client</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;User: </span><span class="si">{</span><span class="n">client</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">login</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Connected to: </span><span class="si">{</span><span class="n">client</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"User: </span><span class="si">{</span><span class="n">client</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">login</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>For an OAuth environment <code class="docutils literal notranslate"><span class="pre">client.auth.login</span></code> is the placeholder <code class="docutils literal notranslate"><span class="pre">__oauth__</span></code> rather than your username — use

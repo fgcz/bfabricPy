@@ -617,7 +617,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">rich.pretty</span><span class="w"> </span><span class="kn">import</span> <span class="n">pprint</span>
 
 <span class="c1"># Load and parse the definition</span>
-<span class="n">definition</span> <span class="o">=</span> <span class="n">WorkunitDefinition</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;workunit_definition.yml&quot;</span><span class="p">))</span>
+<span class="n">definition</span> <span class="o">=</span> <span class="n">WorkunitDefinition</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">"workunit_definition.yml"</span><span class="p">))</span>
 <span class="n">pprint</span><span class="p">(</span><span class="n">definition</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -639,7 +639,7 @@ interrupted transfer.</p>
 <h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h3>
 <p>The upload path requires the <code class="docutils literal notranslate"><span class="pre">tus</span></code> optional dependency and an <strong>OAuth-backed</strong> client whose token
 carries the <code class="docutils literal notranslate"><span class="pre">tus</span></code> scope. Install the extra and authenticate once:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">&#39;bfabric[transfer]&#39;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'bfabric[transfer]'</span>
 bfabric-cli<span class="w"> </span>auth<span class="w"> </span>login<span class="w"> </span>--scope<span class="w"> </span>upload
 </pre></div>
 </div>
@@ -758,24 +758,24 @@ you want to feed progress into your own pipeline runner:</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bfabric.operations.workunit</span><span class="w"> </span><span class="kn">import</span> <span class="n">UploadFileParam</span><span class="p">,</span> <span class="n">UploadFilesParams</span><span class="p">,</span> <span class="n">upload_files</span>
 
-<span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>  <span class="c1"># OAuth-backed client with the &#39;tus&#39; scope</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>  <span class="c1"># OAuth-backed client with the 'tus' scope</span>
 <span class="n">summary</span> <span class="o">=</span> <span class="n">upload_files</span><span class="p">(</span>
     <span class="n">client</span><span class="p">,</span>
     <span class="n">params</span><span class="o">=</span><span class="n">UploadFilesParams</span><span class="p">(</span>
         <span class="n">files</span><span class="o">=</span><span class="p">[</span>
-            <span class="n">UploadFileParam</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;results.txt&quot;</span><span class="p">)),</span>
+            <span class="n">UploadFileParam</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"results.txt"</span><span class="p">)),</span>
             <span class="c1"># Each entry carries its own duplicate policy; a directory applies its policy to</span>
             <span class="c1"># every file under it.</span>
-            <span class="n">UploadFileParam</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;output_dir&quot;</span><span class="p">),</span> <span class="n">on_duplicate</span><span class="o">=</span><span class="s2">&quot;skip&quot;</span><span class="p">),</span>
+            <span class="n">UploadFileParam</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"output_dir"</span><span class="p">),</span> <span class="n">on_duplicate</span><span class="o">=</span><span class="s2">"skip"</span><span class="p">),</span>
         <span class="p">],</span>
         <span class="n">container_id</span><span class="o">=</span><span class="mi">40156</span><span class="p">,</span>
         <span class="n">application_id</span><span class="o">=</span><span class="mi">447</span><span class="p">,</span>
         <span class="n">track_job</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">),</span>
-    <span class="n">on_progress</span><span class="o">=</span><span class="k">lambda</span> <span class="n">name</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">total</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">done</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+    <span class="n">on_progress</span><span class="o">=</span><span class="k">lambda</span> <span class="n">name</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">total</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">done</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2">"</span><span class="p">),</span>
 <span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span>
-    <span class="sa">f</span><span class="s2">&quot;Workunit </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">workunit_id</span><span class="si">}</span><span class="s2">: uploaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">summary</span><span class="o">.</span><span class="n">uploads</span><span class="p">)</span><span class="si">}</span><span class="s2">, skipped </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">summary</span><span class="o">.</span><span class="n">skips</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="sa">f</span><span class="s2">"Workunit </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">workunit_id</span><span class="si">}</span><span class="s2">: uploaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">summary</span><span class="o">.</span><span class="n">uploads</span><span class="p">)</span><span class="si">}</span><span class="s2">, skipped </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">summary</span><span class="o">.</span><span class="n">skips</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -902,7 +902,7 @@ bfabric-app-runner<span class="w"> </span>run<span class="w"> </span>my_analysis
 bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>workunit<span class="w"> </span>containerid<span class="w"> </span><span class="m">1234</span><span class="w"> </span>--format<span class="w"> </span>json<span class="w"> </span>&gt;<span class="w"> </span>workunits.json
 
 <span class="c1"># 2. Process with jq or other tools</span>
-cat<span class="w"> </span>workunits.json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.[].id&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>id<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+cat<span class="w"> </span>workunits.json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">'.[].id'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>id<span class="p">;</span><span class="w"> </span><span class="k">do</span>
 <span class="w">    </span><span class="c1"># Export each definition</span>
 <span class="w">    </span>bfabric-cli<span class="w"> </span>workunit<span class="w"> </span>export-definition<span class="w"> </span><span class="nv">$id</span><span class="w"> </span>--file<span class="w"> </span>workunit_<span class="nv">$id</span>.yml
 <span class="k">done</span>
@@ -1014,7 +1014,7 @@ bfabric-app-runner<span class="w"> </span>dry-run<span class="w"> </span>analysi
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="c1"># Load definition</span>
-<span class="n">definition</span> <span class="o">=</span> <span class="n">WorkunitDefinition</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;workunit_definition.yml&quot;</span><span class="p">))</span>
+<span class="n">definition</span> <span class="o">=</span> <span class="n">WorkunitDefinition</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">"workunit_definition.yml"</span><span class="p">))</span>
 
 <span class="c1"># Access components</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">definition</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
@@ -1022,8 +1022,8 @@ bfabric-app-runner<span class="w"> </span>dry-run<span class="w"> </span>analysi
 <span class="nb">print</span><span class="p">(</span><span class="n">definition</span><span class="o">.</span><span class="n">workunit</span><span class="p">)</span>
 
 <span class="c1"># Modify and save</span>
-<span class="n">definition</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;Modified description&quot;</span>
-<span class="n">definition</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;modified_definition.yml&quot;</span><span class="p">))</span>
+<span class="n">definition</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">"Modified description"</span>
+<span class="n">definition</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">"modified_definition.yml"</span><span class="p">))</span>
 </pre></div>
 </div>
 </section>

@@ -562,9 +562,9 @@ drops it — which is exactly why requesting <code class="docutils literal notra
 the CLI’s login presets (those are minimal API scopes), so pass it explicitly to get file access
 from a normal user flow:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect_pkce</span><span class="p">(</span>
-    <span class="s2">&quot;https://fgcz-bfabric-demo.uzh.ch/bfabric&quot;</span><span class="p">,</span>
-    <span class="n">client_id</span><span class="o">=</span><span class="s2">&quot;CLI&quot;</span><span class="p">,</span>
-    <span class="n">scope</span><span class="o">=</span><span class="s2">&quot;openid profile email api:read api:write groups&quot;</span><span class="p">,</span>
+    <span class="s2">"https://fgcz-bfabric-demo.uzh.ch/bfabric"</span><span class="p">,</span>
+    <span class="n">client_id</span><span class="o">=</span><span class="s2">"CLI"</span><span class="p">,</span>
+    <span class="n">scope</span><span class="o">=</span><span class="s2">"openid profile email api:read api:write groups"</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -588,13 +588,13 @@ discriminator was container membership (<code class="docutils literal notranslat
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">claims</span><span class="p">(</span><span class="n">jwt</span><span class="p">):</span>
-    <span class="n">p</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">p</span> <span class="o">+=</span> <span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">p</span> <span class="o">+=</span> <span class="s2">"="</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64decode</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
 
 
 <span class="n">c</span> <span class="o">=</span> <span class="n">claims</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">password</span><span class="o">.</span><span class="n">get_secret_value</span><span class="p">())</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;aud&quot;</span><span class="p">),</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;scope&quot;</span><span class="p">),</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;containers&quot;</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"aud"</span><span class="p">),</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"scope"</span><span class="p">),</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"containers"</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>Compare a working token against a failing one — the differing claim (<code class="docutils literal notranslate"><span class="pre">aud</span></code>, <code class="docutils literal notranslate"><span class="pre">scope</span></code>, <code class="docutils literal notranslate"><span class="pre">containers</span></code>)
@@ -676,7 +676,7 @@ refresh grant directly:</p>
 <span class="k">with</span> <span class="n">provider</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
     <span class="n">session</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">_session</span>
     <span class="n">fresh</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">refresh_token</span><span class="p">(</span>
-        <span class="n">provider</span><span class="o">.</span><span class="n">_token_url</span><span class="p">,</span> <span class="n">refresh_token</span><span class="o">=</span><span class="n">session</span><span class="o">.</span><span class="n">token</span><span class="p">[</span><span class="s2">&quot;refresh_token&quot;</span><span class="p">]</span>
+        <span class="n">provider</span><span class="o">.</span><span class="n">_token_url</span><span class="p">,</span> <span class="n">refresh_token</span><span class="o">=</span><span class="n">session</span><span class="o">.</span><span class="n">token</span><span class="p">[</span><span class="s2">"refresh_token"</span><span class="p">]</span>
     <span class="p">)</span>
     <span class="n">provider</span><span class="o">.</span><span class="n">_persist</span><span class="p">()</span>
 </pre></div>

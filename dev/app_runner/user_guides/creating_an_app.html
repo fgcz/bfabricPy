@@ -410,14 +410,14 @@
 
 <span class="nt">versions</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">version</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;1.0.0&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"1.0.0"</span>
 <span class="w">    </span><span class="nt">commands</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">dispatch</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exec</span>
-<span class="w">        </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">echo &quot;dispatching&quot;</span>
+<span class="w">        </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">echo "dispatching"</span>
 <span class="w">      </span><span class="nt">process</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exec</span>
-<span class="w">        </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">echo &quot;processing&quot;</span>
+<span class="w">        </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">echo "processing"</span>
 </pre></div>
 </div>
 <section id="the-bfabric-section">
@@ -490,7 +490,7 @@ of each are documented in the <a class="reference internal" href="../specs/app_s
 features), which <code class="docutils literal notranslate"><span class="pre">exec</span></code> does more robustly via <code class="docutils literal notranslate"><span class="pre">shlex.split</span></code>.</p>
 </div>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shell</span>
-<span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;echo</span><span class="nv"> </span><span class="s">hello&quot;</span>
+<span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="s">"echo</span><span class="nv"> </span><span class="s">hello"</span>
 </pre></div>
 </div>
 </section>
@@ -498,9 +498,9 @@ features), which <code class="docutils literal notranslate"><span class="pre">ex
 <h3>exec<a class="headerlink" href="#exec" title="Link to this heading">#</a></h3>
 <p>Executes a command directly (no shell interpretation).</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exec</span>
-<span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${app.dir}/my_script.sh&quot;</span>
+<span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="s">"${app.dir}/my_script.sh"</span>
 <span class="nt">env</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">MY_VAR</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;value&quot;</span>
+<span class="w">  </span><span class="nt">MY_VAR</span><span class="p">:</span><span class="w"> </span><span class="s">"value"</span>
 <span class="nt">prepend_paths</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/opt/tools/bin</span>
 </pre></div>
@@ -513,8 +513,8 @@ working directory of the run, not the app.</p>
 <h3>docker<a class="headerlink" href="#docker" title="Link to this heading">#</a></h3>
 <p>Runs a command inside a Docker or Podman container.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docker</span>
-<span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;my-registry/my-app:latest&quot;</span>
-<span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;python</span><span class="nv"> </span><span class="s">-m</span><span class="nv"> </span><span class="s">my_app.run&quot;</span>
+<span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="s">"my-registry/my-app:latest"</span>
+<span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="s">"python</span><span class="nv"> </span><span class="s">-m</span><span class="nv"> </span><span class="s">my_app.run"</span>
 <span class="nt">engine</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docker</span>
 <span class="nt">env</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">DATA_PATH</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/data</span>
@@ -537,7 +537,7 @@ working directory of the run, not the app.</p>
 <span class="nt">local_extra_deps</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dist/my_app-1.0.0-py3-none-any.whl</span>
 <span class="nt">env</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">MY_SETTING</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;value&quot;</span>
+<span class="w">  </span><span class="nt">MY_SETTING</span><span class="p">:</span><span class="w"> </span><span class="s">"value"</span>
 <span class="nt">prepend_paths</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/opt/tools/bin</span>
 </pre></div>
@@ -567,7 +567,7 @@ working directory of the run, not the app.</p>
 <span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-m my_app.process</span>
 <span class="w">  </span><span class="nt">collect</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exec</span>
-<span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;echo</span><span class="nv"> </span><span class="s">&#39;collection</span><span class="nv"> </span><span class="s">complete&#39;&quot;</span>
+<span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="s">"echo</span><span class="nv"> </span><span class="s">'collection</span><span class="nv"> </span><span class="s">complete'"</span>
 </pre></div>
 </div>
 </section>

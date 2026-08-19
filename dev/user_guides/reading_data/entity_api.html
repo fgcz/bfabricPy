@@ -443,13 +443,13 @@
 <span class="n">reader</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">reader</span>
 
 <span class="c1"># Single entity</span>
-<span class="n">uri</span> <span class="o">=</span> <span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric/sample/show.html?id=123&quot;</span>
+<span class="n">uri</span> <span class="o">=</span> <span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/sample/show.html?id=123"</span>
 <span class="n">sample</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_uri</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
 
 <span class="c1"># Multiple entities (mixed types)</span>
 <span class="n">uris</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric/sample/show.html?id=123&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric/project/show.html?id=456&quot;</span><span class="p">,</span>
+    <span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/sample/show.html?id=123"</span><span class="p">,</span>
+    <span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/project/show.html?id=456"</span><span class="p">,</span>
 <span class="p">]</span>
 <span class="n">entities</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_uris</span><span class="p">(</span><span class="n">uris</span><span class="p">)</span>  <span class="c1"># Returns dict[URI, Entity]</span>
 </pre></div>
@@ -492,10 +492,10 @@ expected_type: Entity class to validate and cast all results</p>
 <h3>By ID<a class="headerlink" href="#by-id" title="Link to this heading">#</a></h3>
 <p>Read entities by type and ID:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Single entity</span>
-<span class="n">sample</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">123</span><span class="p">)</span>
+<span class="n">sample</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">123</span><span class="p">)</span>
 
 <span class="c1"># Multiple entities of the same type</span>
-<span class="n">entities</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_ids</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_ids</span><span class="o">=</span><span class="p">[</span><span class="mi">123</span><span class="p">,</span> <span class="mi">456</span><span class="p">,</span> <span class="mi">789</span><span class="p">])</span>
+<span class="n">entities</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_ids</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">entity_ids</span><span class="o">=</span><span class="p">[</span><span class="mi">123</span><span class="p">,</span> <span class="mi">456</span><span class="p">,</span> <span class="mi">789</span><span class="p">])</span>
 </pre></div>
 </div>
 <dl class="py method">
@@ -549,7 +549,7 @@ expected_type: Entity class to validate and cast all results (ignored when a cla
 <h3>By Query<a class="headerlink" href="#by-query" title="Link to this heading">#</a></h3>
 <p>Query entities with search criteria:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find samples by name</span>
-<span class="n">entities</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;MySample&quot;</span><span class="p">},</span> <span class="n">max_results</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">entities</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"MySample"</span><span class="p">},</span> <span class="n">max_results</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 </pre></div>
 </div>
 <dl class="py method">
@@ -585,12 +585,12 @@ expected_type: Entity class to validate and cast all results (ignored when a cla
 <p>When you read entities through the Entity API, you get <code class="docutils literal notranslate"><span class="pre">Entity</span></code> objects with typed properties:</p>
 <section id="basic-properties">
 <h3>Basic Properties<a class="headerlink" href="#basic-properties" title="Link to this heading">#</a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sample</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">123</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sample</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">123</span><span class="p">)</span>
 
 <span class="c1"># Entity identifier</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>  <span class="c1"># 123</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">classname</span><span class="p">)</span>  <span class="c1"># &quot;sample&quot;</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">bfabric_instance</span><span class="p">)</span>  <span class="c1"># &quot;https://fgcz-bfabric.uzh.ch/bfabric/&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">classname</span><span class="p">)</span>  <span class="c1"># "sample"</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">bfabric_instance</span><span class="p">)</span>  <span class="c1"># "https://fgcz-bfabric.uzh.ch/bfabric/"</span>
 
 <span class="c1"># Entity URI</span>
 <span class="n">uri</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">uri</span>
@@ -605,11 +605,11 @@ expected_type: Entity class to validate and cast all results (ignored when a cla
 <h3>Accessing Data<a class="headerlink" href="#accessing-data" title="Link to this heading">#</a></h3>
 <p>Entities support dictionary-like access to their data:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check if a field exists</span>
-<span class="k">if</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">:</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+<span class="k">if</span> <span class="s2">"name"</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">:</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span>
 
 <span class="c1"># Get a field with default</span>
-<span class="n">name</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">)</span>
+<span class="n">name</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">"Unknown"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -617,18 +617,18 @@ expected_type: Entity class to validate and cast all results (ignored when a cla
 <section id="relationships-and-references">
 <h2>Relationships and References<a class="headerlink" href="#relationships-and-references" title="Link to this heading">#</a></h2>
 <p>Entities can have relationships to other entities, accessed via the <code class="docutils literal notranslate"><span class="pre">refs</span></code> property. These are <strong>lazy-loaded</strong>, meaning they’re only fetched from B-Fabric when you first access them.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sample</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">123</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sample</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">123</span><span class="p">)</span>
 
 <span class="c1"># Access a related project (one-to-one)</span>
-<span class="n">project</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">refs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;container&quot;</span><span class="p">)</span>
+<span class="n">project</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">refs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"container"</span><span class="p">)</span>
 
 <span class="c1"># Access related workunits (one-to-many)</span>
-<span class="n">workunits</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">refs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;member&quot;</span><span class="p">)</span>
+<span class="n">workunits</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">refs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"member"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Check if a reference is already loaded:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">sample</span><span class="o">.</span><span class="n">refs</span><span class="o">.</span><span class="n">is_loaded</span><span class="p">(</span><span class="s2">&quot;container&quot;</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Project already loaded&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">sample</span><span class="o">.</span><span class="n">refs</span><span class="o">.</span><span class="n">is_loaded</span><span class="p">(</span><span class="s2">"container"</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Project already loaded"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -638,7 +638,7 @@ expected_type: Entity class to validate and cast all results (ignored when a cla
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Project</span>
 
 <span class="c1"># Read as specific entity type</span>
-<span class="n">project</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">123</span><span class="p">,</span> <span class="n">expected_type</span><span class="o">=</span><span class="n">Project</span><span class="p">)</span>
+<span class="n">project</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">"project"</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">123</span><span class="p">,</span> <span class="n">expected_type</span><span class="o">=</span><span class="n">Project</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>

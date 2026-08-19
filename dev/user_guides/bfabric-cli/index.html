@@ -562,7 +562,7 @@ bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">r
 <h3>Python Equivalence<a class="headerlink" href="#python-equivalence" title="Link to this heading">#</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">api</span> <span class="pre">read</span></code> command displays the equivalent Python code, making it easy to transition from CLI to Python:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>resource<span class="w"> </span>--limit<span class="w"> </span><span class="m">10</span>
-<span class="c1"># Outputs: results = client.read(endpoint=&#39;resource&#39;, obj={}, max_results=100)</span>
+<span class="c1"># Outputs: results = client.read(endpoint='resource', obj={}, max_results=100)</span>
 </pre></div>
 </div>
 </section>
@@ -570,11 +570,11 @@ bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">r
 <section id="confirmation-prompts">
 <h2>Confirmation Prompts<a class="headerlink" href="#confirmation-prompts" title="Link to this heading">#</a></h2>
 <p>Destructive operations (<code class="docutils literal notranslate"><span class="pre">update</span></code>, <code class="docutils literal notranslate"><span class="pre">delete</span></code>) require confirmation:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>api<span class="w"> </span>update<span class="w"> </span>workunit<span class="w"> </span><span class="m">12345</span><span class="w"> </span>description<span class="w"> </span><span class="s2">&quot;Updated description&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>api<span class="w"> </span>update<span class="w"> </span>workunit<span class="w"> </span><span class="m">12345</span><span class="w"> </span>description<span class="w"> </span><span class="s2">"Updated description"</span>
 <span class="c1"># Prompts: Do you want to proceed with the update? [y/N]</span>
 
 <span class="c1"># Skip confirmation (use with caution!)</span>
-bfabric-cli<span class="w"> </span>api<span class="w"> </span>update<span class="w"> </span>workunit<span class="w"> </span><span class="m">12345</span><span class="w"> </span>description<span class="w"> </span><span class="s2">&quot;Updated description&quot;</span><span class="w"> </span>--no-confirm
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>update<span class="w"> </span>workunit<span class="w"> </span><span class="m">12345</span><span class="w"> </span>description<span class="w"> </span><span class="s2">"Updated description"</span><span class="w"> </span>--no-confirm
 </pre></div>
 </div>
 </section>
