@@ -31,4 +31,7 @@ class BfabricResourceArchiveSpec(BaseModel):
     """If True, the root directory (if present) of the archive will be stripped during extraction."""
 
     check_checksum: bool = True
-    """Whether to check the checksum of the archive file, after downloading."""
+    """Whether to verify the downloaded archive against the resource checksum.
+
+    The checksum is also what lets a repeated preparation reuse an already downloaded archive, so
+    ``False`` means the archive is transferred again every time."""

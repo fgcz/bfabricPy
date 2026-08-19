@@ -1,14 +1,18 @@
+import os
 import tempfile
 import zipfile
 from pathlib import Path
 
 import pytest
+from bfabric.transfer import md5_checksum
 
 from bfabric_app_runner.inputs.prepare.prepare_context import PrepareContext
 from bfabric_app_runner.inputs.prepare.prepare_resolved_directory import (
     prepare_resolved_directory,
+    _crc32,
     _download_file,
     _get_output_file_path,
+    _is_entry_current,
     _should_strip_root_directory,
 )
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedDirectory
@@ -218,6 +222,7 @@ def test_download_file_success(mock_prepare_resolved_file, tmp_path):
         include_patterns=[],
         exclude_patterns=[],
         strip_root=False,
+        checksum="d41d8cd98f00b204e9800998ecf8427e",
     )
 
     # Should not raise an exception
@@ -230,7 +235,8 @@ def test_download_file_success(mock_prepare_resolved_file, tmp_path):
     assert resolved_file.source == directory.source
     assert resolved_file.filename == "test.zip"
     assert resolved_file.link is False
-    assert resolved_file.checksum is None
+    # The archive is verified against the resource checksum after the transfer.
+    assert resolved_file.checksum == "d41d8cd98f00b204e9800998ecf8427e"
 
 
 def test_download_file_failure(mock_prepare_resolved_file, tmp_path):
@@ -352,39 +358,161 @@ def test_prepare_resolved_directory_subdirectory_filename(temp_zip_file, tmp_pat
     assert (extracted_path / "root" / "file1.txt").exists()
 
 
-def test_caching_behavior_zip_file_reuse(temp_zip_file, tmp_path):
-    """Test that zip file is left in working directory for caching."""
-    directory = ResolvedDirectory(
-        source=FileSourceLocal(local=str(temp_zip_file)),
-        filename="cached_extract",
-        extract="zip",
-        include_patterns=[],
-        exclude_patterns=[],
-        strip_root=False,
-    )
+class TestSkipUnchangedEntries:
+    """A repeated prepare must not redo work, but must repair any extracted file that no longer matches."""
 
-    # First extraction
-    prepare_resolved_directory(directory, tmp_path, PrepareContext())
+    # An mtime far enough in the past that a re-extraction is unmistakable.
+    OLD_MTIME = 1000000000
 
-    # Verify zip file exists and extraction worked
-    zip_file_path = tmp_path / "cached_extract.zip"
-    extracted_path = tmp_path / "cached_extract"
-    assert zip_file_path.exists()
-    assert extracted_path.exists()
-    assert (extracted_path / "root" / "file1.txt").exists()
+    @pytest.fixture
+    def directory(self, temp_zip_file):
+        return ResolvedDirectory(
+            source=FileSourceLocal(local=str(temp_zip_file)),
+            filename="extracted",
+            extract="zip",
+            include_patterns=[],
+            exclude_patterns=[],
+            strip_root=False,
+        )
 
-    # Get the modification time of the zip file
-    first_mtime = zip_file_path.stat().st_mtime
+    @staticmethod
+    def _backdate(path: Path) -> None:
+        os.utime(path, (TestSkipUnchangedEntries.OLD_MTIME, TestSkipUnchangedEntries.OLD_MTIME))
 
-    # Second extraction (should reuse zip file via rsync caching)
-    # For local files, rsync would detect the file is unchanged and skip download
-    prepare_resolved_directory(directory, tmp_path, PrepareContext())
+    def _prepare_twice(self, directory, tmp_path, modify=None):
+        """Prepares, backdates every extracted file, optionally mutates the tree, then prepares again."""
+        prepare_resolved_directory(directory, tmp_path, PrepareContext())
+        extracted_path = tmp_path / "extracted"
+        for path in sorted(p for p in extracted_path.rglob("*") if p.is_file()):
+            self._backdate(path)
+        if modify is not None:
+            modify(extracted_path)
+        prepare_resolved_directory(directory, tmp_path, PrepareContext())
+        return extracted_path
 
-    # Verify zip file still exists and extraction still works
-    assert zip_file_path.exists()
-    assert extracted_path.exists()
-    assert (extracted_path / "root" / "file1.txt").exists()
+    def test_unchanged_files_are_not_re_extracted(self, directory, tmp_path):
+        extracted_path = self._prepare_twice(directory, tmp_path)
 
-    # The zip file should still be there for caching
-    # (In real usage, rsync would handle the caching optimization)
-    assert zip_file_path.stat().st_mtime >= first_mtime
+        for path in (p for p in extracted_path.rglob("*") if p.is_file()):
+            assert path.stat().st_mtime == self.OLD_MTIME, f"{path} was re-extracted"
+
+    def test_modified_file_of_same_size_is_restored(self, directory, tmp_path):
+        # Same byte count as "content1", so only the CRC32 can tell the two apart.
+        def modify(extracted_path: Path) -> None:
+            (extracted_path / "root" / "file1.txt").write_text("CONTENT1")
+
+        extracted_path = self._prepare_twice(directory, tmp_path, modify)
+
+        modified = extracted_path / "root" / "file1.txt"
+        assert modified.read_text() == "content1"
+        assert modified.stat().st_mtime != self.OLD_MTIME
+        # The untouched siblings are still left alone.
+        assert (extracted_path / "root" / "subdir" / "file2.txt").stat().st_mtime == self.OLD_MTIME
+
+    def test_truncated_file_is_restored(self, directory, tmp_path):
+        def modify(extracted_path: Path) -> None:
+            (extracted_path / "root" / "file1.txt").write_text("c")
+
+        extracted_path = self._prepare_twice(directory, tmp_path, modify)
+
+        assert (extracted_path / "root" / "file1.txt").read_text() == "content1"
+
+    def test_deleted_file_is_restored(self, directory, tmp_path):
+        def modify(extracted_path: Path) -> None:
+            (extracted_path / "root" / "file1.txt").unlink()
+
+        extracted_path = self._prepare_twice(directory, tmp_path, modify)
+
+        assert (extracted_path / "root" / "file1.txt").read_text() == "content1"
+
+
+class TestSkipDownload:
+    """The archive is re-downloaded unless the cached copy provably matches the resource checksum."""
+
+    @pytest.fixture
+    def cached_zip(self, temp_zip_file, tmp_path):
+        """Puts the archive where prepare caches it, and returns its checksum."""
+        cache_path = tmp_path / "extracted.zip"
+        _ = cache_path.write_bytes(temp_zip_file.read_bytes())
+        return md5_checksum(cache_path)
+
+    @staticmethod
+    def _directory(temp_zip_file, checksum):
+        return ResolvedDirectory(
+            source=FileSourceLocal(local=str(temp_zip_file)),
+            filename="extracted",
+            extract="zip",
+            include_patterns=[],
+            exclude_patterns=[],
+            strip_root=False,
+            checksum=checksum,
+        )
+
+    def test_skips_download_when_cached_zip_matches(
+        self, mock_prepare_resolved_file, temp_zip_file, cached_zip, tmp_path
+    ):
+        directory = self._directory(temp_zip_file, cached_zip)
+
+        prepare_resolved_directory(directory, tmp_path, PrepareContext())
+
+        mock_prepare_resolved_file.assert_not_called()
+        # The cached archive is still extracted, i.e. skipping the transfer does not skip the work.
+        assert (tmp_path / "extracted" / "root" / "file1.txt").read_text() == "content1"
+
+    def test_downloads_when_cached_zip_does_not_match(
+        self, mock_prepare_resolved_file, temp_zip_file, cached_zip, tmp_path
+    ):
+        directory = self._directory(temp_zip_file, "0" * 32)
+
+        prepare_resolved_directory(directory, tmp_path, PrepareContext())
+
+        mock_prepare_resolved_file.assert_called_once()
+
+    def test_downloads_when_no_checksum_available(
+        self, mock_prepare_resolved_file, temp_zip_file, cached_zip, tmp_path
+    ):
+        directory = self._directory(temp_zip_file, None)
+
+        prepare_resolved_directory(directory, tmp_path, PrepareContext())
+
+        mock_prepare_resolved_file.assert_called_once()
+
+
+class TestIsEntryCurrent:
+    @pytest.fixture
+    def zip_info(self, temp_zip_file):
+        with zipfile.ZipFile(temp_zip_file) as zip_ref:
+            return zip_ref.getinfo("root/file1.txt")
+
+    def test_matching_file(self, zip_info, tmp_path):
+        path = tmp_path / "file1.txt"
+        _ = path.write_text("content1")
+        assert _is_entry_current(zip_info, path) is True
+
+    def test_missing_file(self, zip_info, tmp_path):
+        assert _is_entry_current(zip_info, tmp_path / "absent.txt") is False
+
+    def test_same_size_different_content(self, zip_info, tmp_path):
+        path = tmp_path / "file1.txt"
+        _ = path.write_text("CONTENT1")
+        assert _is_entry_current(zip_info, path) is False
+
+    def test_different_size(self, zip_info, tmp_path):
+        path = tmp_path / "file1.txt"
+        _ = path.write_text("content1-and-more")
+        assert _is_entry_current(zip_info, path) is False
+
+    def test_directory_in_place_of_file(self, zip_info, tmp_path):
+        path = tmp_path / "file1.txt"
+        path.mkdir()
+        assert _is_entry_current(zip_info, path) is False
+
+    def test_crc32_matches_zip_entry_crc(self, zip_info, tmp_path):
+        path = tmp_path / "file1.txt"
+        _ = path.write_text("content1")
+        assert _crc32(path) == zip_info.CRC
+
+    def test_crc32_is_chunk_size_independent(self, tmp_path):
+        path = tmp_path / "large.bin"
+        _ = path.write_bytes(b"0123456789" * 1000)
+        assert _crc32(path, chunk_size=7) == _crc32(path)
