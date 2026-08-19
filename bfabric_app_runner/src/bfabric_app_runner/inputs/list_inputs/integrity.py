@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import zipfile
 from enum import Enum
 from typing import TYPE_CHECKING, assert_never
 
 from bfabric.transfer import md5_checksum
+from bfabric_app_runner.inputs.prepare.prepare_resolved_directory import all_entries_current, archive_cache_path
 from bfabric_app_runner.inputs.resolve.resolved_inputs import (
     ResolvedInput,
     ResolvedFile,
@@ -73,8 +75,9 @@ def check_integrity(file: ResolvedInput, local_path: Path, client: Bfabric) -> I
             return _check_directory_integrity(file, local_path)
         else:
             assert_never(file)
-    except OSError:
-        # File exists but can't be read - treat as incorrect to trigger refresh
+    except (OSError, zipfile.BadZipFile):
+        # Exists but can't be read, or the cached archive isn't a readable zip (BadZipFile is not an
+        # OSError) - treat as incorrect to trigger refresh rather than raising out of a check.
         return IntegrityState.Incorrect
 
 
@@ -99,7 +102,8 @@ def _check_directory_integrity(file: ResolvedDirectory, local_path: Path) -> Int
 
     For directories, we validate:
     1. The extracted directory exists and contains files
-    2. The cache .zip file (if it exists) has correct checksum
+    2. The cache .zip file has the correct checksum
+    3. Every entry the archive would extract is present and unmodified
 
     If no checksum is available, we do basic structural validation.
     """
@@ -114,18 +118,14 @@ def _check_directory_integrity(file: ResolvedDirectory, local_path: Path) -> Int
     except PermissionError:
         return IntegrityState.Incorrect
 
-    # Check the cache .zip file if checksum is available
-    if file.checksum is not None:
-        cache_file = local_path.parent / f"{file.filename}.zip"
-        if cache_file.exists():
-            if not cache_file.is_file():
-                return IntegrityState.Incorrect
-            # Validate cache file checksum
-            actual_checksum = md5_checksum(cache_file)
-            return IntegrityState.Correct if file.checksum == actual_checksum else IntegrityState.Incorrect
-        else:
-            # Cache file missing but we have checksum - trigger refresh
-            return IntegrityState.Incorrect
-
     # No checksum available - can only do basic validation
-    return IntegrityState.NotChecked
+    if file.checksum is None:
+        return IntegrityState.NotChecked
+
+    # Validate the cached archive (see issue #323 for the nested-filename case its path handles).
+    cache_file = archive_cache_path(local_path)
+    if not cache_file.is_file() or md5_checksum(cache_file) != file.checksum:
+        return IntegrityState.Incorrect
+
+    # The archive is the current one, so the extracted files are what remains to be verified.
+    return IntegrityState.Correct if all_entries_current(cache_file, local_path, file) else IntegrityState.Incorrect
