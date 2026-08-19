@@ -86,11 +86,15 @@ class AppSpec(BaseModel):
     def for_parameters(self, raw_parameters: Mapping[str, str | None]) -> AppVersion | None:
         """Returns the app version these workunit parameters select, or ``None`` if there is no such version.
 
-        ``None`` covers both an absent ``application_version`` and one naming a version the spec does not
-        define; the callers differ in how loudly they react, so neither case raises here.
+        A spec defining exactly one version needs no ``application_version`` parameter: a workunit without one
+        resolves to that version, so an app that never had the parameter works unchanged. A parameter that *is*
+        present is always taken literally -- naming an undefined version gives ``None`` even for a
+        single-version spec, rather than quietly running something else.
         """
         version = raw_parameters.get("application_version")
-        return self[version] if version is not None else None
+        if version is None:
+            return self.versions[0] if len(self.versions) == 1 else None
+        return self[version]
 
     @property
     def available_versions(self) -> set[str]:

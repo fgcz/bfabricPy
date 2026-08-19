@@ -169,7 +169,13 @@ class TestEvaluateAppParams:
         workunit.application_parameters = {"application_version": "9.9.9"}
         assert _evaluate_app_params(workunit) == {}
 
-    def test_absent_version_parameter_returns_empty(self, workunit):
+    def test_absent_version_parameter_uses_the_only_version(self, workunit):
+        """An app that never had an ``application_version`` parameter still gets its params."""
+        workunit.application_parameters = {}
+        assert _evaluate_app_params(workunit) == {"--cpus-per-task": 24}
+
+    def test_absent_version_parameter_returns_empty_when_several_versions_exist(self, workunit, app_yaml):
+        app_yaml.write_text(app_yaml.read_text().replace("  - version: '1.0.0'\n", "  - version: ['1.0.0', '1.0.1']\n"))
         workunit.application_parameters = {}
         assert _evaluate_app_params(workunit) == {}
 

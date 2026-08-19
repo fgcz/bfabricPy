@@ -17,7 +17,7 @@ def _resolve_app(versions: AppSpec, workunit_definition: WorkunitDefinition) -> 
     if app_version is None:
         requested = workunit_definition.execution.raw_parameters.get("application_version")
         reason = (
-            "the workunit definition does not specify an application_version"
+            "the workunit definition does not specify an application_version and the app spec defines several"
             if requested is None
             else f"application_version '{requested}' is not defined in the app spec"
         )
