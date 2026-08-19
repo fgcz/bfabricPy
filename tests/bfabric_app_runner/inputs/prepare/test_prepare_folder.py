@@ -11,7 +11,12 @@ from bfabric_app_runner.inputs.prepare.prepare_folder import (
     _needs_bearer_token,
     _resolve_token_provider,
 )
-from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedInputs, ResolvedFile, ResolvedStaticFile
+from bfabric_app_runner.inputs.resolve.resolved_inputs import (
+    ResolvedDirectory,
+    ResolvedInputs,
+    ResolvedFile,
+    ResolvedStaticFile,
+)
 from bfabric_app_runner.specs.inputs.file_spec import FileSourceHttp, FileSourceHttpValue, FileSourceLocal
 from bfabric_app_runner.specs.inputs_spec import InputsSpec
 
@@ -412,3 +417,99 @@ def test_clean_input_files(fs, mocker, mock_logger):
     assert not file1_path.exists()  # Should be removed
     assert not file2_path.exists()  # Should still not exist
     mock_logger.info.assert_called_once_with(f"Removed {file1_path}")
+
+
+class TestCleanDirectoryInputs:
+    """An archive input is an extracted directory plus the cached archive beside it; both must go."""
+
+    @staticmethod
+    def _directory(filename: str) -> ResolvedDirectory:
+        return ResolvedDirectory(
+            source=FileSourceLocal(local="/source.zip"),
+            filename=filename,
+            extract="zip",
+        )
+
+    @staticmethod
+    def _create_extracted(working_dir: Path, filename: str) -> tuple[Path, Path]:
+        """Creates an extracted directory with nested content plus its cached archive."""
+        extracted = working_dir / filename
+        (extracted / "run").mkdir(parents=True)
+        _ = (extracted / "run" / "file.txt").write_text("content")
+        cached_archive = extracted.parent / f"{extracted.name}.zip"
+        _ = cached_archive.write_bytes(b"PK\x05\x06" + bytes(18))
+        return extracted, cached_archive
+
+    def test_removes_extracted_directory_and_cached_archive(self, tmp_path):
+        directory = self._directory("extracted")
+        extracted, cached_archive = self._create_extracted(tmp_path, "extracted")
+
+        _clean_input_files(input_files=ResolvedInputs(files=[directory]), working_dir=tmp_path)
+
+        assert not extracted.exists()
+        assert not cached_archive.exists()
+
+    def test_removes_cached_archive_of_nested_filename(self, tmp_path):
+        """The archive of a nested input sits inside the subdirectory, not below it."""
+        directory = self._directory("input/extracted")
+        extracted, cached_archive = self._create_extracted(tmp_path, "input/extracted")
+        assert cached_archive == tmp_path / "input" / "extracted.zip"
+
+        _clean_input_files(input_files=ResolvedInputs(files=[directory]), working_dir=tmp_path)
+
+        assert not extracted.exists()
+        assert not cached_archive.exists()
+
+    def test_removes_directory_without_cached_archive(self, tmp_path):
+        directory = self._directory("extracted")
+        extracted, cached_archive = self._create_extracted(tmp_path, "extracted")
+        cached_archive.unlink()
+
+        _clean_input_files(input_files=ResolvedInputs(files=[directory]), working_dir=tmp_path)
+
+        assert not extracted.exists()
+
+    def test_tolerates_nothing_to_remove(self, tmp_path, mock_logger):
+        directory = self._directory("extracted")
+
+        _clean_input_files(input_files=ResolvedInputs(files=[directory]), working_dir=tmp_path)
+
+        mock_logger.info.assert_not_called()
+
+    def test_refuses_to_remove_the_working_directory_itself(self, tmp_path, mock_logger):
+        """A "." filename resolves to the working directory, which holds inputs.yml and any outputs."""
+        directory = self._directory(".")
+        bystander = tmp_path / "inputs.yml"
+        _ = bystander.write_text("inputs: []")
+
+        _clean_input_files(input_files=ResolvedInputs(files=[directory]), working_dir=tmp_path)
+
+        assert tmp_path.is_dir()
+        assert bystander.exists()
+        mock_logger.warning.assert_called_once()
+
+    def test_refuses_to_remove_a_path_outside_the_working_directory(self, tmp_path, mock_logger):
+        working_dir = tmp_path / "chunk"
+        working_dir.mkdir()
+        sibling = tmp_path / "sibling"
+        sibling.mkdir()
+        _ = (sibling / "keep.txt").write_text("keep me")
+        directory = self._directory("../sibling")
+
+        _clean_input_files(input_files=ResolvedInputs(files=[directory]), working_dir=working_dir)
+
+        assert (sibling / "keep.txt").exists()
+        mock_logger.warning.assert_called_once()
+
+    def test_removes_only_the_matching_inputs(self, tmp_path):
+        """A sibling file that is not part of this spec is left alone."""
+        directory = self._directory("extracted")
+        extracted, cached_archive = self._create_extracted(tmp_path, "extracted")
+        bystander = tmp_path / "other.txt"
+        _ = bystander.write_text("keep me")
+
+        _clean_input_files(input_files=ResolvedInputs(files=[directory]), working_dir=tmp_path)
+
+        assert not extracted.exists()
+        assert not cached_archive.exists()
+        assert bystander.exists()

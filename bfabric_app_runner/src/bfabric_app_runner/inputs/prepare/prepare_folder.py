@@ -1,12 +1,17 @@
 from __future__ import annotations
 
+import os
+import shutil
 from typing import TYPE_CHECKING, Literal, assert_never
 
 from bfabric.transfer import ScopeError, check_download_scope, token_provider
 from loguru import logger
 
 from bfabric_app_runner.inputs.prepare.prepare_context import PrepareContext
-from bfabric_app_runner.inputs.prepare.prepare_resolved_directory import prepare_resolved_directory
+from bfabric_app_runner.inputs.prepare.prepare_resolved_directory import (
+    archive_cache_path,
+    prepare_resolved_directory,
+)
 from bfabric_app_runner.inputs.prepare.prepare_resolved_file import prepare_resolved_file
 from bfabric_app_runner.inputs.prepare.prepare_resolved_static_file import prepare_resolved_static_file
 from bfabric_app_runner.inputs.resolve.resolved_inputs import (
@@ -124,6 +129,38 @@ def _clean_input_files(input_files: ResolvedInputs, working_dir: Path) -> None:
     """Removes the specified files from working_dir, if they exist."""
     for input_file in input_files.files:
         path = working_dir / input_file.filename
-        if path.exists():
-            path.unlink()
-            logger.info(f"Removed {path}")
+        if not _is_inside(path, working_dir):
+            # A filename of "." resolves to working_dir itself, and one containing ".." can point
+            # outside it; removing a directory input there would take the whole chunk folder (or a
+            # sibling) with it.
+            logger.warning(f"Refusing to remove {path}, which is not inside {working_dir}")
+            continue
+        _remove_input_path(path)
+        if isinstance(input_file, ResolvedDirectory):
+            # The cached archive sits beside the extracted directory and the next prepare would reuse
+            # it, so leaving it behind would not be a clean.
+            _remove_input_path(archive_cache_path(path))
+
+
+def _is_inside(path: Path, working_dir: Path) -> bool:
+    """Whether ``path`` is strictly inside ``working_dir``, collapsing ``.`` and ``..`` lexically.
+
+    Lexically rather than via ``resolve()``, so a symlinked input (``link: true``, whose target lives
+    outside the working directory) still counts as inside and gets cleaned.
+    """
+    normalized = os.path.normpath(path)
+    base = os.path.normpath(working_dir)
+    # normpath strips any trailing separator, so appending one makes this a true path-component prefix
+    # check: "/work/sub" is inside "/work", "/workspace" is not.
+    return normalized.startswith(f"{base}{os.sep}")
+
+
+def _remove_input_path(path: Path) -> None:
+    """Removes a file, symlink or directory tree, logging only what was actually there."""
+    if path.is_dir() and not path.is_symlink():
+        shutil.rmtree(path)
+    elif path.exists() or path.is_symlink():
+        path.unlink()
+    else:
+        return
+    logger.info(f"Removed {path}")

@@ -26,6 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `run workunit` no longer prints a second traceback when `make run-all` fails; it reports one line naming the workunit, exit code, and work directory.
 - `BfabricResourceArchiveSpec.check_checksum` now takes effect: the downloaded archive is verified against the resource checksum instead of being accepted unchecked.
 - `inputs check` locates an archive input's cached archive correctly when the input filename contains a subdirectory (it looked for `input/input/name.zip`).
+- `inputs clean` removes an archive input's extracted directory and its cached archive, instead of aborting on the directory and removing nothing.
 
 ## \[0.7.0\] - 2026-08-03
 
