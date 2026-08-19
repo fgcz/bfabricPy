@@ -10,6 +10,12 @@ Complete reference for all B-Fabric entity types.
 ```
 
 ```{eval-rst}
+.. autoclass:: bfabric.entities.core.serialization.EntityDump
+    :members:
+    :show-inheritance:
+```
+
+```{eval-rst}
 .. automodule:: bfabric.entities
     :members:
     :undoc-members:

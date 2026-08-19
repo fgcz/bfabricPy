@@ -9,6 +9,14 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+### Added
+
+- `Entity.dump_yaml` records the entity's URI, the dump time and the bfabricPy version alongside the data, so `Entity.load_yaml` restores a working `uri` and `refs` without being told the B-Fabric instance. See `bfabric.entities.core.serialization.EntityDump` for the file layout.
+
+### Changed
+
+- `Entity.load_yaml` returns the most specific entity class for the dumped type, and raises `TypeError` when called on a subclass that does not match. Files written by earlier versions still load, with a `DeprecationWarning`, and `dump_yaml` now requires the entity to have a `bfabric_instance`.
+
 ## \[1.21.0\] - 2026-08-20
 
 ### Added

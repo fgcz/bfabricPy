@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import warnings
 from functools import cached_property
-from typing import TYPE_CHECKING, Self, TypeGuard
+from typing import TYPE_CHECKING, Self, TypeGuard, cast
 
 from bfabric.entities.core.mixins.find_mixin import FindMixin
 from bfabric.entities.core.uri import EntityUri
@@ -140,22 +140,45 @@ class Entity(FindMixin):
     __str__ = __repr__
 
     def dump_yaml(self, path: Path) -> None:
-        """Writes the entity's data dictionary to a YAML file."""
-        # TODO (#351): to be extended
+        """Writes the entity's data dictionary, and the provenance needed to reload it, to a YAML file.
+
+        :raises ValueError: if the entity has no ``bfabric_instance``, since the dump could not be reloaded
+        """
         import yaml
 
-        with path.open("w") as file:
-            yaml.safe_dump(self.__data_dict, file)
+        from bfabric.entities.core.serialization import EntityDump
+
+        if self.__bfabric_instance is None:
+            msg = "Cannot dump an entity that has no bfabric_instance, as the file could not be reloaded."
+            raise ValueError(msg)
+        dump = EntityDump.create(uri=self.uri, data=self.__data_dict)
+        _ = path.write_text(yaml.safe_dump(dump.model_dump(mode="json"), sort_keys=False))
 
     @classmethod
     def load_yaml(cls, path: Path, client: Bfabric | None = None, bfabric_instance: str | None = None) -> Self:
-        """Loads an entity from a YAML file."""
-        # TODO (#351): to be extended
+        """Loads an entity from a YAML file written by :meth:`dump_yaml`.
+
+        Called on ``Entity`` this returns the most specific class for the dumped entity type, whereas calling it on a
+        subclass rejects a file holding a different entity type. ``bfabric_instance`` is only needed for files
+        written before the provenance metadata existed, and otherwise has to agree with the file.
+
+        :raises TypeError: if the file holds an entity type other than ``cls``
+        """
         import yaml
 
-        with path.open("r") as file:
-            data = yaml.safe_load(file)
-        return cls(data, client=client, bfabric_instance=bfabric_instance)
+        from bfabric.entities.core.import_entity import entity_type_of, import_entity
+        from bfabric.entities.core.serialization import parse_document
+
+        data, bfabric_instance = parse_document(yaml.safe_load(path.read_text()), bfabric_instance)
+        classname = data.get("classname")
+        if cls is Entity:
+            entity_class = import_entity(classname) if isinstance(classname, str) else Entity
+        elif classname != entity_type_of(cls):
+            msg = f"{path} holds a {classname!r} entity, which cannot be loaded as {cls.__name__}"
+            raise TypeError(msg)
+        else:
+            entity_class = cls
+        return cast("Self", entity_class(data, client=client, bfabric_instance=bfabric_instance))
 
 
 def _is_custom_attributes_list(custom_attributes: ApiResponseDataType) -> TypeGuard[list[dict[str, str]]]:
