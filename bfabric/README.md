@@ -13,7 +13,7 @@ analysis workflows.
 pip install bfabric
 ```
 
-Two extras are available: `bfabric[zeep]` swaps the default suds SOAP engine for zeep, and `bfabric[transfer]` adds
+One extra is available: `bfabric[transfer]` adds
 resource download and upload.
 
 ## Usage

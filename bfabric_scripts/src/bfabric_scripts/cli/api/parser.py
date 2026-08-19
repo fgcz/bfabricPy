@@ -65,8 +65,8 @@ def parse_method_signature(
         RuntimeError: If the client is not configured to use the SUDS engine.
         AttributeError: If endpoint or method doesn't exist
     """
-    # The WSDL introspection below is written against SUDS internals and has no Zeep equivalent, so
-    # reject other engines up front instead of leaking an AttributeError from the private engine.
+    # The WSDL introspection below is written against SUDS internals, so reject any other engine up
+    # front instead of leaking an AttributeError from the private engine.
     if client.config.engine != BfabricAPIEngineType.SUDS:
         raise RuntimeError(
             f"'api inspect' is only supported with the SUDS engine (got: {client.config.engine}). "

@@ -36,7 +36,6 @@ dependencies = [
 
 [project.optional-dependencies]
 transfer = ["tuspy>=1.0,<2"]
-zeep = ["zeep>=4.3.2,<5.0"]
 dev = [
     "bfabric[doc,test]",
     "black",

@@ -242,13 +242,15 @@ class TestZeroArgumentReLogin:
 
     def test_preserves_unrelated_environment_keys(self, tmp_path, mocker, oauth_token, oauth_session):
         config_file = tmp_path / "config.yml"
-        self._write_env(config_file, scope="api:read", application_ids={"app": 7}, engine="ZEEP")
+        self._write_env(
+            config_file, scope="api:read", application_ids={"app": 7}, job_notification_emails="me@example.com"
+        )
         mocker.patch("bfabric_scripts.cli.login.oauth_login.pkce_login", return_value=oauth_token)
         mocker.patch("bfabric_scripts.cli.login._common.is_interactive", return_value=False)
         cmd_auth_login(config_file=config_file)
         env = yaml.safe_load(config_file.read_text())["PROD"]
         assert env["application_ids"] == {"app": 7}
-        assert env["engine"] == "ZEEP"
+        assert env["job_notification_emails"] == "me@example.com"
 
 
 class TestRepointGuard:

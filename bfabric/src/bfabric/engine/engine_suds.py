@@ -115,7 +115,6 @@ class EngineSUDS:
         errors = get_response_errors(response, endpoint=endpoint)  # pyright: ignore[reportAny]
         if not hasattr(response, endpoint):
             return ResultContainer([], total_pages_api=0, errors=errors)
-        # TODO up until here it's duplicated with engine_zeep
         results = []
         for result in response[endpoint]:
             result_parsed = suds_asdict_recursive(result, convert_types=True)

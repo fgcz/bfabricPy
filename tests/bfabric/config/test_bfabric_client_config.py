@@ -7,6 +7,7 @@ from pydantic import ValidationError
 from pytest_mock import MockerFixture
 
 from bfabric.config import BfabricClientConfig
+from bfabric.config.bfabric_client_config import BfabricAPIEngineType
 from bfabric.config.config_file import read_config_file
 
 
@@ -21,6 +22,15 @@ def mock_config() -> BfabricClientConfig:
 @pytest.fixture
 def example_config_path() -> Path:
     return Path(__file__).parent / "example_config.yml"
+
+
+class TestEngine:
+    def test_suds_is_the_only_engine(self):
+        assert list(BfabricAPIEngineType) == [BfabricAPIEngineType.SUDS]
+
+    def test_unknown_engine_is_rejected(self):
+        with pytest.raises(ValidationError):
+            BfabricClientConfig(base_url="https://example.com", engine="ZEEP")
 
 
 class TestDefaultParams:
