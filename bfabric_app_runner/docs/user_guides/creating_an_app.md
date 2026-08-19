@@ -104,10 +104,16 @@ versions:
       --cpus-per-task: 24
       --mem: 512G
       --time: "24:00:00"
+      --licenses: spectronaut:1
 ```
 
 The keys are `sbatch` flags, passed through as-is, so anything `sbatch` accepts works (`--gres`, `--exclude`,
 `--constraint`, ...). Values may use the same `${app...}` variables as the rest of the spec.
+
+`--licenses` is worth calling out: an app wrapping licensed software (Spectronaut, Mascot, ...) declares its
+seat here, and SLURM then queues jobs rather than letting them start and fail on an exhausted licence pool.
+Because a seat is a property of the app rather than of one submission, this is the flag most likely to be the
+reason you want this section at all.
 
 A few things are worth knowing before you rely on it:
 
