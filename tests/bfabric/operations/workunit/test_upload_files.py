@@ -679,6 +679,49 @@ class TestProgressCallbacks:
         assert on_file_done.call_args_list == [mocker.call("a.txt", True), mocker.call("b.txt", False)]
 
 
+class TestUrlCallback:
+    def test_on_url_receives_filename_and_url_per_file(self, mocker, mock_client, rest, mock_send):
+        rest.create_resources.return_value = _created("a.txt", "b.txt")
+        rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
+        # send_to_sink fires its own on_url as soon as the server URL exists; fake that by invoking
+        # the callback the mover was handed, with a per-file URL.
+        mock_send.side_effect = lambda sink, path, creds, **kw: kw["on_url"](f"https://tus/{path.name}")
+        on_url = mocker.Mock()
+
+        upload_files(mock_client, _params("/src/a.txt", "/src/b.txt"), on_url=on_url)
+
+        assert on_url.call_args_list == [
+            mocker.call("a.txt", "https://tus/a.txt"),
+            mocker.call("b.txt", "https://tus/b.txt"),
+        ]
+
+    def test_on_url_fires_for_a_file_whose_transfer_then_fails(self, mocker, mock_client, rest, mock_send):
+        """The URL is what makes a failed transfer resumable, so it must survive the failure."""
+        rest.create_resources.return_value = _created("a.txt")
+        rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
+
+        def _url_then_fail(sink, path, creds, **kw):
+            kw["on_url"]("https://tus/a.txt")
+            raise TransferError("died mid-chunk")
+
+        mock_send.side_effect = _url_then_fail
+        on_url = mocker.Mock()
+
+        summary = upload_files(mock_client, _params("/src/a.txt"), on_url=on_url)
+
+        on_url.assert_called_once_with("a.txt", "https://tus/a.txt")
+        assert _counts(summary) == (0, 0, 0, 1)
+
+    def test_no_on_url_passes_none_to_the_mover(self, mock_client, rest, mock_send):
+        """Omitting the callback must not hand the mover a do-nothing wrapper to call per file."""
+        rest.create_resources.return_value = _created("a.txt")
+        rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
+
+        upload_files(mock_client, _params("/src/a.txt"))
+
+        assert mock_send.call_args.kwargs["on_url"] is None
+
+
 class TestPreflight:
     """Fail-fast checks that run before any workunit is created."""
 
