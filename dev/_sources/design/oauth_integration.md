@@ -25,7 +25,7 @@ Separately, those `connect_*` imports are *function-local*: the OAuth code pulls
 | `_device_code.py` | `device_code_login()` — RFC 8628 device authorization flow for headless environments. |
 | `_registration.py` | `register_client()` — RFC 7591 dynamic client registration via HTTP POST. |
 | `_token_cache.py` | `TokenCache` — JSON file cache at `~/.bfabric/tokens/{hash}.json` with 0o600 permissions. `compute_token_cache_path()` derives a unique path from `(base_url, client_id, env_name)`. |
-| `_url_token.py` | `UrlTokenContext` + `parse_url_token()` — extracts entity context (entity_id, application_id, etc.) from B-Fabric URL token JWTs. |
+| `_url_token.py` | `UrlTokenContext` + `verify_jwt()` — verifies a B-Fabric URL token JWT against the instance JWKS (cached 1 h) and returns its claims. |
 | `_webapp_client.py` | `WebappClient` — dual-identity client bundling a `user` (from URL token) and `service` (from client credentials) `Bfabric` instance. |
 
 The core `oauth` API requires explicit `client_id` and `scope` arguments on all OAuth entry points. The library does not bake in a default client ID or scope. Tools like the CLI specify these values explicitly.
@@ -40,6 +40,8 @@ The core `oauth` API requires explicit `client_id` and `scope` arguments on all 
 | `Bfabric.connect_oauth(client_id, client_secret, base_url)` | client_credentials | Service accounts / background jobs. |
 | `Bfabric.connect_pkce(base_url, client_id)` | authorization_code + PKCE | Interactive browser login (programmatic). |
 | `Bfabric.connect_device_code(base_url, client_id)` | device_code | Headless interactive login (programmatic). |
+| `Bfabric.connect_pat(base_url, pat)` | personal access token | Opaque bearer token, no browser and no automatic refresh. |
+| `Bfabric.connect_token(token, settings)` | URL token | Webapps launched from B-Fabric. Returns `(Bfabric, TokenData)`; `connect_token_async` for coroutines. |
 | `WebappClient.create(base_url, launch_token, ..., client_id, client_secret)` | URL token + client_credentials | Dual-identity webapp client for apps launched from B-Fabric. |
 
 ---

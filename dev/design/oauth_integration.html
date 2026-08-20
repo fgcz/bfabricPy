@@ -470,7 +470,7 @@
 <td><p><code class="docutils literal notranslate"><span class="pre">TokenCache</span></code> — JSON file cache at <code class="docutils literal notranslate"><span class="pre">~/.bfabric/tokens/{hash}.json</span></code> with 0o600 permissions. <code class="docutils literal notranslate"><span class="pre">compute_token_cache_path()</span></code> derives a unique path from <code class="docutils literal notranslate"><span class="pre">(base_url,</span> <span class="pre">client_id,</span> <span class="pre">env_name)</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">_url_token.py</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">UrlTokenContext</span></code> + <code class="docutils literal notranslate"><span class="pre">parse_url_token()</span></code> — extracts entity context (entity_id, application_id, etc.) from B-Fabric URL token JWTs.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">UrlTokenContext</span></code> + <code class="docutils literal notranslate"><span class="pre">verify_jwt()</span></code> — verifies a B-Fabric URL token JWT against the instance JWKS (cached 1 h) and returns its claims.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_webapp_client.py</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">WebappClient</span></code> — dual-identity client bundling a <code class="docutils literal notranslate"><span class="pre">user</span></code> (from URL token) and <code class="docutils literal notranslate"><span class="pre">service</span></code> (from client credentials) <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> instance.</p></td>
@@ -506,6 +506,14 @@
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_device_code(base_url,</span> <span class="pre">client_id)</span></code></p></td>
 <td><p>device_code</p></td>
 <td><p>Headless interactive login (programmatic).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_pat(base_url,</span> <span class="pre">pat)</span></code></p></td>
+<td><p>personal access token</p></td>
+<td><p>Opaque bearer token, no browser and no automatic refresh.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_token(token,</span> <span class="pre">settings)</span></code></p></td>
+<td><p>URL token</p></td>
+<td><p>Webapps launched from B-Fabric. Returns <code class="docutils literal notranslate"><span class="pre">(Bfabric,</span> <span class="pre">TokenData)</span></code>; <code class="docutils literal notranslate"><span class="pre">connect_token_async</span></code> for coroutines.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">WebappClient.create(base_url,</span> <span class="pre">launch_token,</span> <span class="pre">...,</span> <span class="pre">client_id,</span> <span class="pre">client_secret)</span></code></p></td>
 <td><p>URL token + client_credentials</p></td>
