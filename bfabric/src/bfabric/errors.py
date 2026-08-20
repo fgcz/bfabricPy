@@ -1,6 +1,12 @@
 from __future__ import annotations
 
-from typing import Any, cast
+from contextlib import contextmanager
+from typing import TYPE_CHECKING, Any, cast
+
+import httpx
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 
 class BfabricRequestError(RuntimeError):
@@ -111,6 +117,23 @@ class BfabricUnavailableError(BfabricRequestError):
         """
         super().__init__(f"Could not reach the B-Fabric instance at {base_url}: {cause}")
         self.base_url = base_url
+
+
+@contextmanager
+def raise_if_unavailable(base_url: str) -> Iterator[None]:
+    """Translate an httpx transport failure into :class:`BfabricUnavailableError`.
+
+    Wraps the request, not the response handling: ``httpx.TransportError`` is the base class for
+    every failure that never got a reply -- connect, read, write and timeout -- while an HTTP status
+    means the instance answered and is left to the caller, which knows how to read that response.
+
+    ``httpx.TransportError`` is not a ``RuntimeError``, so without this an unreachable instance
+    escapes the CLI's error handling and any caller catching :class:`BfabricRequestError`.
+    """
+    try:
+        yield
+    except httpx.TransportError as error:
+        raise BfabricUnavailableError(base_url, error) from error
 
 
 def get_response_errors(response: object, endpoint: str) -> list[BfabricRequestError]:

@@ -10,6 +10,8 @@ import httpx
 from joserfc import jwt as joserfc_jwt
 from joserfc.jwk import KeySet
 from loguru import logger
+
+from bfabric.errors import raise_if_unavailable
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -67,7 +69,8 @@ def _fetch_jwks(base_url: str) -> dict[str, object]:
 
     logger.debug("Fetching JWKS from {}", base_url)
     url = f"{base_url.rstrip('/')}/rest/oauth/jwks"
-    response = httpx.get(url, timeout=30)
+    with raise_if_unavailable(base_url):
+        response = httpx.get(url, timeout=30)
     _ = response.raise_for_status()
     jwks: dict[str, object] = response.json()  # pyright: ignore[reportAny]
     with _jwks_lock:

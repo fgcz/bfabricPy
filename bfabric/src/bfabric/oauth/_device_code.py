@@ -18,7 +18,7 @@ import time
 import httpx
 from loguru import logger
 
-from bfabric.errors import BfabricOAuthError
+from bfabric.errors import BfabricOAuthError, raise_if_unavailable
 
 
 def _request_device_code(
@@ -37,14 +37,15 @@ def _request_device_code(
     :raises httpx.HTTPStatusError: On non-2xx responses
     """
     logger.debug("Requesting device code from {}", base_url)
-    response = httpx.post(
-        f"{base_url}/rest/oauth/device_authorization",
-        data={
-            "client_id": client_id,
-            "scope": scope,
-        },
-        timeout=30,
-    )
+    with raise_if_unavailable(base_url):
+        response = httpx.post(
+            f"{base_url}/rest/oauth/device_authorization",
+            data={
+                "client_id": client_id,
+                "scope": scope,
+            },
+            timeout=30,
+        )
     _ = response.raise_for_status()
     result: dict[str, object] = response.json()  # pyright: ignore[reportAny]
     return result
