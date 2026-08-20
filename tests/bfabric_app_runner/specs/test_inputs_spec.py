@@ -5,6 +5,7 @@ import pytest
 import yaml
 from bfabric_app_runner.specs.inputs.bfabric_dataset_spec import BfabricDatasetSpec
 from bfabric_app_runner.specs.inputs.bfabric_resource_spec import BfabricResourceSpec
+from bfabric_app_runner.specs.inputs.legacy_wrapper_yaml_spec import LegacyWrapperYamlSpec
 from bfabric_app_runner.specs.inputs_spec import InputsSpec
 
 
@@ -22,6 +23,11 @@ def parsed() -> InputsSpec:
                 filename="filename",
                 separator=",",
             ),
+            LegacyWrapperYamlSpec(
+                filename="config.yaml",
+                workunit_id=3,
+                output_path="/work/chunk/result.zip",
+            ),
         ]
     )
 
@@ -36,7 +42,12 @@ def serialized() -> str:
 - filename: filename
   id: 2
   separator: ','
-  type: bfabric_dataset"""
+  type: bfabric_dataset
+- executable: null
+  filename: config.yaml
+  output_path: /work/chunk/result.zip
+  type: legacy_wrapper_yaml
+  workunit_id: 3"""
 
 
 def test_write_yaml(parsed):
