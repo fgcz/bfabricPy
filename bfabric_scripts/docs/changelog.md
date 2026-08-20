@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 ## \[Unreleased\]
 
+## \[1.17.0\] - 2026-08-20
+
 ### Added
 
 - `bfabric-cli login` (also a top-level shortcut for `auth login`) renews an expired token with **no arguments**; a first login picks the instance from the known hosts and derives the environment name.
@@ -25,12 +27,12 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 - Every `auth` command resolves its environment as `--config-env` > `BFABRICPY_CONFIG_ENV` > the configured default, and refuses to write the config under `BFABRICPY_CONFIG_OVERRIDE`.
 - Base URLs are normalised up front (scheme, host case, trailing slash, known-host expansion), and re-pointing an environment at a different instance needs confirmation.
 - `workunit upload --force` is replaced by `--on-duplicate upload|skip|link`, defaulting to `upload` — the duplicate check no longer runs unless asked for. Pass `skip` for the old behaviour.
+- Requires `bfabric` 1.21.0.
 - Packaging: `project.readme` points at the package's own `README.md`, expanded into a proper landing page since PyPI shows it.
 - Internal: the `auth` command implementations were reorganised onto shared environment- and URL-resolution helpers.
 
 ### Fixed
 
-- `api inspect` reports that it requires the SUDS engine instead of failing with an `AttributeError` when the configured engine is Zeep.
 - `auth register-webapp` prints `Error: ...` and exits 1 when the OAuth session cannot be refreshed, instead of a raw traceback.
 - `auth register` no longer prompts for an *Employee Bearer token* when a login exists; it authenticates as the environment in effect.
 
